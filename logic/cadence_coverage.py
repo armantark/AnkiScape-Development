@@ -170,6 +170,64 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "enchanted_key":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "enchanted_key",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review walks out to the chosen treasure site, feels "
+                        "the key, and digs when it steams."
+                    ),
+                    "includes": (
+                        "one journey and one temperature reading",
+                        "one atomic treasure grant",
+                        "the key's melt boundary on the eleventh find",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one search"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same treasure-search activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
+        elif str(action_id) == "tears_of_guthix":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "tears_of_guthix",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances one automatic collection beat of "
+                        "the Quest-Point-bought cavern timer."
+                    ),
+                    "includes": (
+                        "one six-tick slice of the cavern timer",
+                        "one blue/green tear-count transaction",
+                        "one atomic payout and weekly-visit boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Repeats complete collection beats; leaving preserves "
+                        "the exact remaining beat count"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same collection-beat activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "skeletal_horror":
             rows.append(
                 {

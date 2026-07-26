@@ -526,6 +526,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "barrows",
                 "phoenix_lair",
                 "skeletal_horror",
+                "tears_of_guthix",
+                "enchanted_key",
             },
         )
 

@@ -335,6 +335,10 @@ from ..logic.phoenix_lair_logic import (
 )
 from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
 from ..logic.skeletal_horror_logic import apply_skeletal_horror_review_pure
+from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+from ..logic.tears_of_guthix_logic import apply_tears_of_guthix_review_pure
+from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
+from ..logic.enchanted_key_logic import apply_enchanted_key_review_pure
 from ..data.barrows_data import BARROWS_ACTIVITY_ID
 from ..logic.barrows_logic import apply_barrows_review_pure, barrows_view_pure
 from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
@@ -1053,6 +1057,89 @@ def _handle_skeletal_horror_answer(ctx: RuntimeActionContext) -> bool:
     ctx.show_activity_gain(
         str(result.get("status", "Skeletal Horror review complete"))
     )
+    return True
+
+
+def _handle_tears_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
+    """One answered card is one collection beat; the multiplier repeats beats."""
+    updated, ok, result = apply_tears_of_guthix_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Tears of Guthix unavailable",
+            str(result.get("reason", "Enter Juna's cavern before collecting.")),
+        )
+        return False
+    for _ in range(max(1, int(ctx.review_action_multiplier or 1)) - 1):
+        if result.get("completed"):
+            break
+        updated, repeated_ok, repeated = apply_tears_of_guthix_review_pure(
+            updated,
+            ctx.random_random,
+        )
+        if not repeated_ok:
+            break
+        result = repeated
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards", {}) or {})
+    total_xp = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    _record_action(
+        ctx,
+        "utility",
+        TEARS_OF_GUTHIX_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=total_xp,
+    )
+    if result.get("reward_skill_name"):
+        ctx.level_up_check(str(result["reward_skill_name"]), ctx.player_data)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_xp > 0:
+        ctx.show_exp(total_xp)
+    if result.get("outcome"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(str(result.get("status", "Tears collected")))
+    return True
+
+
+def _handle_enchanted_key_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_enchanted_key_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Enchanted key unavailable",
+            str(result.get("reason", "Choose a treasure site to search first.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        str(result.get("site_id", ENCHANTED_KEY_ACTIVITY_ID)),
+        True,
+        expected_success_chance=1.0,
+        output_items=(
+            {name: int(quantity) for name, quantity in result.get("rewards", ())}
+            if result.get("dug")
+            else None
+        ),
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if result.get("outcome"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(str(result.get("status", "You feel the key.")))
     return True
 
 

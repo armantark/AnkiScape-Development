@@ -30,6 +30,15 @@ from ..logic.phoenix_lair_logic import (
     default_phoenix_lair_state_pure,
     sanitize_phoenix_lair_state_pure,
 )
+from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+from ..logic.enchanted_key_logic import (
+    default_enchanted_key_state_pure,
+    sanitize_enchanted_key_state_pure,
+)
+from ..logic.tears_of_guthix_logic import (
+    default_tears_of_guthix_state_pure,
+    sanitize_tears_of_guthix_state_pure,
+)
 from ..logic.skeletal_horror_logic import (
     default_skeletal_horror_state_pure,
     sanitize_skeletal_horror_state_pure,
@@ -465,6 +474,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["fight_caves"] = default_fight_caves_state_pure()
     data["phoenix_lair"] = default_phoenix_lair_state_pure()
     data["skeletal_horror"] = default_skeletal_horror_state_pure()
+    data["tears_of_guthix"] = default_tears_of_guthix_state_pure()
+    data["enchanted_key"] = default_enchanted_key_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
     data["barrows"] = default_barrows_state_pure()
     data.update(default_pyramid_plunder_state_pure())
@@ -1106,6 +1117,12 @@ def migrate_loaded_data(
     data["skeletal_horror"] = sanitize_skeletal_horror_state_pure(
         data.get("skeletal_horror")
     )
+    data["tears_of_guthix"] = sanitize_tears_of_guthix_state_pure(
+        data.get("tears_of_guthix")
+    )
+    data["enchanted_key"] = sanitize_enchanted_key_state_pure(
+        data.get("enchanted_key")
+    )
     data["stealing_creation"] = sanitize_stealing_creation_state_pure(
         data.get("stealing_creation")
     )
@@ -1279,6 +1296,15 @@ def migrate_loaded_data(
             active_session_id = ""
     elif clan_wars_session:
         active_session_id = CLAN_WARS_ACTIVITY_ID
+    # Tears of Guthix is deliberately outside the exclusive ladder above. Its
+    # cavern session survives leaving with its remaining beats intact, so
+    # another activity holding the session must not clear it, and a suspended
+    # session must not silently re-claim the session on load either.
+    if (
+        active_session_id == TEARS_OF_GUTHIX_ACTIVITY_ID
+        and not data["tears_of_guthix"]["active"]
+    ):
+        active_session_id = ""
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")

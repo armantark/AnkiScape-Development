@@ -589,6 +589,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._fight_caves_calls: list = []
         self._phoenix_lair_calls: list = []
         self._skeletal_horror_calls: list = []
+        self._tears_of_guthix_calls: list = []
+        self._enchanted_key_calls: list = []
         self._barrows_calls: list = []
         self._stealing_creation_calls: list = []
         self._fish_flingers_calls: list = []
@@ -956,6 +958,34 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _enchanted_key_command(action_id, payload):
+            from ankiscape.logic.enchanted_key_logic import (
+                apply_enchanted_key_command_pure,
+            )
+
+            self._enchanted_key_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_enchanted_key_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        def _tears_of_guthix_command(action_id, payload):
+            from ankiscape.logic.tears_of_guthix_logic import (
+                apply_tears_of_guthix_command_pure,
+            )
+
+            self._tears_of_guthix_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_tears_of_guthix_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _barrows_command(action_id, payload):
             from ankiscape.logic.barrows_logic import apply_barrows_command_pure
 
@@ -1096,6 +1126,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_fight_caves_command=_fight_caves_command,
             on_phoenix_lair_command=_phoenix_lair_command,
             on_skeletal_horror_command=_skeletal_horror_command,
+            on_tears_of_guthix_command=_tears_of_guthix_command,
+            on_enchanted_key_command=_enchanted_key_command,
             on_barrows_command=_barrows_command,
             on_stealing_creation_command=_stealing_creation_command,
             on_fish_flingers_command=_fish_flingers_command,
@@ -8475,6 +8507,8 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "fish_flingers",
                 "phoenix_lair",
                 "skeletal_horror",
+                "tears_of_guthix",
+                "enchanted_key",
             },
         )
         self.assertTrue(
@@ -9931,6 +9965,154 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertEqual(fur_wish.isEnabled(), view["fur_wish_list_ready"])
             self.assertTrue(rag_wish.isEnabled())
             self.assertFalse(fur_wish.isEnabled())
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+
+    def test_tears_of_guthix_card_renders_the_view_flags_and_enters(self) -> None:
+        """The panel must render the gates the view owns, never re-derive them."""
+        from ankiscape.data.tears_of_guthix_data import (
+            ORNATE_BOWL_CRAFTING_LEVEL,
+            ORNATE_BOWL_MINING_LEVEL,
+            ORNATE_BOWL_TOOL,
+        )
+        from ankiscape.logic.tears_of_guthix_logic import (
+            default_tears_of_guthix_state_pure,
+            tears_of_guthix_view_pure,
+        )
+
+        dialog = None
+        try:
+            pd = _make_player_data()
+            pd["tears_of_guthix"] = default_tears_of_guthix_state_pure()
+            pd["activity_session"] = {"active_id": ""}
+            pd["quest_points"] = 44
+            dialog = self._open(pd)
+            activity_tree = self._open_activities(dialog)
+            row = _utility_row(activity_tree, "tears_of_guthix")
+            self.assertFalse(row.icon(0).isNull())
+            activity_tree.setCurrentItem(row)
+            activity_tree.itemActivated.emit(row, 0)
+            QApplication.processEvents()
+
+            panel = _find_named_widget(dialog, "tearsOfGuthixPanel")
+            icon = panel.findChild(QLabel, "tearsOfGuthixIcon")
+            status = _find_named_label(dialog, "tearsOfGuthixStatusChip")
+            summary = _find_named_label(dialog, "tearsOfGuthixSummary")
+            ornate = _find_named_button(dialog, "tearsOfGuthixOrnateButton")
+            primary = _find_named_button(dialog, "tearsOfGuthixPrimaryButton")
+            leave = _find_named_button(dialog, "tearsOfGuthixLeaveButton")
+            progress = panel.findChild(QProgressBar, "tearsOfGuthixProgress")
+
+            self.assertIsNotNone(icon.pixmap())
+            self.assertFalse(icon.pixmap().isNull())
+            self.assertEqual(status.text(), "LOCKED")
+            self.assertIn("Tears of Guthix quest", summary.text())
+            view = tears_of_guthix_view_pure(pd)
+            self.assertEqual(primary.isEnabled(), view["enter_enabled"])
+            self.assertEqual(ornate.isEnabled(), view["craft_ornate_enabled"])
+            self.assertFalse(primary.isEnabled())
+            self.assertTrue(leave.isHidden())
+            self.assertTrue(progress.isHidden())
+
+            pd["quests"]["tears_of_guthix"] = {
+                "started": True,
+                "progress": 3,
+                "completed": True,
+            }
+            pd["mining_level"] = ORNATE_BOWL_MINING_LEVEL
+            pd["crafting_level"] = ORNATE_BOWL_CRAFTING_LEVEL
+            pd["inventory"][ORNATE_BOWL_TOOL] = 1
+            activity_tree.itemActivated.emit(row, 0)
+            QApplication.processEvents()
+            self.assertEqual(status.text(), "FIRST VISIT READY")
+            self.assertTrue(primary.isEnabled())
+            self.assertTrue(ornate.isEnabled())
+
+            ornate.click()
+            QApplication.processEvents()
+            self.assertEqual(
+                self._tears_of_guthix_calls[-1], ("craft_ornate_bowl", {})
+            )
+            self.assertTrue(pd["tears_of_guthix"]["ornate_bowl"])
+            self.assertTrue(ornate.isHidden())
+
+            primary.click()
+            QApplication.processEvents()
+            self.assertEqual(self._tears_of_guthix_calls[-1], ("enter", {}))
+            self.assertTrue(pd["tears_of_guthix"]["active"])
+            self.assertEqual(pd["current_utility"], "tears_of_guthix")
+            self.assertEqual(status.text(), "0 TEARS")
+            self.assertFalse(progress.isHidden())
+            self.assertFalse(leave.isHidden())
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+
+    def test_enchanted_key_card_renders_the_view_flags_and_selects_a_site(self) -> None:
+        """The panel must render the gates the view owns, never re-derive them."""
+        from ankiscape.data.enchanted_key_data import (
+            ENCHANTED_KEY_ITEM,
+            ENCHANTED_KEY_SITE_IDS,
+            ENCHANTED_KEY_SPADE,
+        )
+        from ankiscape.logic.enchanted_key_logic import (
+            default_enchanted_key_state_pure,
+            enchanted_key_view_pure,
+        )
+
+        dialog = None
+        try:
+            pd = _make_player_data()
+            pd["enchanted_key"] = default_enchanted_key_state_pure()
+            pd["activity_session"] = {"active_id": ""}
+            dialog = self._open(pd)
+            activity_tree = self._open_activities(dialog)
+            row = _utility_row(activity_tree, "enchanted_key")
+            self.assertFalse(row.icon(0).isNull())
+            activity_tree.setCurrentItem(row)
+            activity_tree.itemActivated.emit(row, 0)
+            QApplication.processEvents()
+
+            panel = _find_named_widget(dialog, "enchantedKeyPanel")
+            icon = panel.findChild(QLabel, "enchantedKeyIcon")
+            status = _find_named_label(dialog, "enchantedKeyStatusChip")
+            summary = _find_named_label(dialog, "enchantedKeySummary")
+            roster = panel.findChild(QComboBox, "enchantedKeyRoster")
+            primary = _find_named_button(dialog, "enchantedKeyPrimaryButton")
+            replace = _find_named_button(dialog, "enchantedKeyReplaceButton")
+
+            self.assertIsNotNone(icon.pixmap())
+            self.assertFalse(icon.pixmap().isNull())
+            self.assertEqual(status.text(), "LOCKED")
+            self.assertIn("Making History", summary.text())
+            self.assertEqual(roster.count(), len(ENCHANTED_KEY_SITE_IDS))
+            self.assertFalse(primary.isEnabled())
+            self.assertTrue(replace.isHidden())
+
+            pd["quests"]["making_history"] = {
+                "started": True,
+                "progress": 4,
+                "completed": True,
+            }
+            pd["inventory"][ENCHANTED_KEY_ITEM] = 1
+            pd["inventory"][ENCHANTED_KEY_SPADE] = 1
+            activity_tree.itemActivated.emit(row, 0)
+            QApplication.processEvents()
+            view = enchanted_key_view_pure(pd)
+            self.assertEqual(status.text(), f"{len(ENCHANTED_KEY_SITE_IDS)} LEFT")
+            self.assertIn(str(roster.currentData()), view["selectable_site_ids"])
+            self.assertTrue(primary.isEnabled())
+
+            chosen = str(roster.currentData())
+            primary.click()
+            QApplication.processEvents()
+            self.assertEqual(
+                self._enchanted_key_calls[-1],
+                ("select_site", {"site_id": chosen}),
+            )
+            self.assertEqual(pd["enchanted_key"]["selected_site_id"], chosen)
+            self.assertTrue(enchanted_key_view_pure(pd)["can_review"])
         finally:
             if dialog is not None:
                 dialog.deleteLater()

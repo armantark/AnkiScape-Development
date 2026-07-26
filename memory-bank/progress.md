@@ -4,6 +4,38 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Tears of Guthix and Enchanted Key — 2026-07-26
+
+Both reached breadth level one in the `families/batch-c` worktree.
+
+**Tears of Guthix.** The July audit called the exact values source-blocked, but
+almost all of them were in the revision it had already pinned. Shipped exactly as
+stated: the "100,000 experience or one quest point since you last participated"
+gate, the tick-per-Quest-Point cavern timer capped at three minutes, `level * 6`
+capped at 180 with the stone bowl and 300 with the ornate one, the least-
+*experience* reward rule, and the ornate bowl's two level-80 requirements. Where
+the ornate bowl article contradicts the D&D article about "five times", the audit
+records the conflict and the code ships the explicit caps. The per-tick
+collection rate and the green-tear chance stayed unrecoverable and are registered
+placeholders. Two things are AnkiScape abstractions and are labelled as such
+everywhere: one review is six game ticks (design-thread queue 3.2), and up to two
+weekly visits bank under Decision 2.
+
+**Enchanted Key.** Darkan already implements the hunt, so the pass was
+corroboration: all eleven loot rows, the Chebyshev metric, the eight temperature
+bands, the melt and Erin's 500-coin replacement all agree with the pinned
+Enchanted key revision. Nothing needed a placeholder. The one abstraction is the
+walking, and it has a consequence the audit names rather than hides — three of
+the eight temperature bands cannot fire once the search is flattened to
+site-to-site, and a test pins which bands are live. The three god mjolnirs join
+through a family-owned item seam.
+
+Both families follow the Skeletal Horror shape: a pure data module, a pure logic
+module owning every enable and visibility flag, a panel that only renders those
+flags, runtime and storage wiring, undo through `commit_direct_action`, period
+art with pinned provenance, and four layers of tests that reach every reward by
+constructing the state a player would actually be in.
+
 ## TzHaar Fight Pit horizontal mechanic closure — 2026-07-22
 
 - Added a persistent safe match against three bounded player-relative rivals,

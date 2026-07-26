@@ -217,6 +217,20 @@ from ..data.skeletal_horror_data import (
 )
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 
+from ..data.tears_of_guthix_data import (
+    ORNATE_BOWL_CRAFTING_LEVEL,
+    ORNATE_BOWL_MINING_LEVEL,
+    TEARS_OF_GUTHIX_ACTIVITY_ID,
+    TEARS_OF_GUTHIX_ENTRY_CAP,
+    TEARS_OF_GUTHIX_ORNATE_BOWL_XP_CAP,
+    TEARS_OF_GUTHIX_PROGRESS_EXP,
+    TEARS_OF_GUTHIX_STONE_BOWL_XP_CAP,
+)
+from ..logic.tears_of_guthix_logic import tears_of_guthix_view_pure
+
+from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
+from ..logic.enchanted_key_logic import enchanted_key_view_pure
+
 from ..data.barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
 from ..logic.barrows_logic import barrows_view_pure
 
@@ -3586,6 +3600,8 @@ def show_main_menu(
     on_fight_caves_command=None,
     on_phoenix_lair_command=None,
     on_skeletal_horror_command=None,
+    on_tears_of_guthix_command=None,
+    on_enchanted_key_command=None,
     on_barrows_command=None,
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
@@ -10203,6 +10219,430 @@ def show_main_menu(
         skeletal_leave.clicked.connect(_confirm_skeletal_horror_leave)
         _refresh_skeletal_horror_panel()
         cards_stack.addWidget(skeletal_box)
+
+        tears_box = QtFrame()
+        tears_box.setObjectName("tearsOfGuthixPanel")
+        tears_box.setStyleSheet(
+            "QFrame#tearsOfGuthixPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        tears_layout = QVBoxLayout(tears_box)
+        tears_layout.setContentsMargins(10, 8, 10, 8)
+        tears_layout.setSpacing(6)
+
+        tears_header = QWidget()
+        tears_header_layout = QHBoxLayout(tears_header)
+        tears_header_layout.setContentsMargins(0, 0, 0, 0)
+        tears_header_layout.setSpacing(8)
+        tears_icon = QLabel()
+        tears_icon.setObjectName("tearsOfGuthixIcon")
+        tears_icon.setFixedSize(28, 28)
+        _tears_bowl_icons = {
+            bowl: os.path.join(current_dir, "activityitems", f"{bowl}_bowl.png")
+            for bowl in ("stone", "ornate")
+        }
+        tears_title = QLabel("Tears of Guthix")
+        tears_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        tears_status = QLabel()
+        tears_status.setObjectName("tearsOfGuthixStatusChip")
+        tears_status.setStyleSheet(
+            f"color: {dim_text_css(tears_status)}; font-size: 11px; font-weight: 700;"
+        )
+        tears_header_layout.addWidget(tears_icon)
+        tears_header_layout.addWidget(tears_title)
+        tears_header_layout.addStretch(1)
+        tears_header_layout.addWidget(tears_status)
+        tears_layout.addWidget(tears_header)
+
+        tears_summary = QLabel()
+        tears_summary.setObjectName("tearsOfGuthixSummary")
+        tears_summary.setWordWrap(True)
+        tears_summary.setStyleSheet("color: palette(text);")
+        tears_layout.addWidget(tears_summary)
+
+        tears_progress = QProgressBar()
+        tears_progress.setObjectName("tearsOfGuthixProgress")
+        tears_progress.setTextVisible(True)
+        tears_progress.setFormat("%v / %m collection beats")
+        tears_progress.setFixedHeight(17)
+        tears_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #2E86C1; }"
+        )
+        tears_layout.addWidget(tears_progress)
+
+        tears_mechanics = QLabel(
+            "Blue tears add to the count and green tears subtract. Quest Points "
+            "buy the cavern timer, and Juna's tears pay the skill with the least "
+            "experience."
+        )
+        tears_mechanics.setObjectName("tearsOfGuthixMechanics")
+        tears_mechanics.setWordWrap(True)
+        tears_mechanics.setStyleSheet(f"color: {dim_text_css(tears_mechanics)};")
+        tears_layout.addWidget(tears_mechanics)
+
+        tears_rewards = QLabel()
+        tears_rewards.setObjectName("tearsOfGuthixRewards")
+        tears_rewards.setWordWrap(True)
+        tears_rewards.setStyleSheet(f"color: {dim_text_css(tears_rewards)};")
+        tears_layout.addWidget(tears_rewards)
+
+        tears_ornate = QPushButton(
+            f"Craft the ornate bowl ({ORNATE_BOWL_MINING_LEVEL} Mining, "
+            f"{ORNATE_BOWL_CRAFTING_LEVEL} Crafting)"
+        )
+        tears_ornate.setObjectName("tearsOfGuthixOrnateButton")
+        tears_layout.addWidget(tears_ornate)
+
+        tears_actions = QWidget()
+        tears_actions_layout = QHBoxLayout(tears_actions)
+        tears_actions_layout.setContentsMargins(0, 0, 0, 0)
+        tears_actions_layout.setSpacing(6)
+        tears_primary = QPushButton()
+        tears_primary.setObjectName("tearsOfGuthixPrimaryButton")
+        tears_leave = QPushButton("Leave the cavern")
+        tears_leave.setObjectName("tearsOfGuthixLeaveButton")
+        tears_actions_layout.addWidget(tears_primary, 1)
+        tears_actions_layout.addWidget(tears_leave, 1)
+        tears_layout.addWidget(tears_actions)
+
+        def _refresh_tears_of_guthix_panel() -> None:
+            view = tears_of_guthix_view_pure(player_data)
+            active = bool(view["active"])
+            selected = (
+                active
+                and str(player_data.get("current_utility", ""))
+                == TEARS_OF_GUTHIX_ACTIVITY_ID
+            )
+            icon_path = _tears_bowl_icons[
+                "ornate" if view["ornate_bowl"] else "stone"
+            ]
+            if os.path.exists(icon_path):
+                tears_icon.setPixmap(
+                    QPixmap(icon_path).scaled(
+                        28,
+                        28,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.FastTransformation,
+                    )
+                )
+            reward_skill = view["reward_skill"]
+            if active:
+                tears_status.setText(f"{int(view['tears'])} TEARS")
+                tears_summary.setText(
+                    f"{int(view['remaining_beats'])} of "
+                    f"{int(view['session_beats'])} collection beats remain · "
+                    f"{int(view['xp_per_tear'])} XP per tear into "
+                    f"{reward_skill['display_name']}"
+                )
+                tears_progress.setRange(0, max(1, int(view["session_beats"])))
+                tears_progress.setValue(
+                    int(view["session_beats"]) - int(view["remaining_beats"])
+                )
+                tears_progress.setVisible(True)
+            else:
+                tears_progress.setVisible(False)
+                if not view["requirements_met"]:
+                    tears_status.setText("LOCKED")
+                    tears_summary.setText(
+                        "Requires: " + " · ".join(view["missing_requirements"])
+                    )
+                elif not view["progress_met"]:
+                    tears_status.setText("NO NEW STORY")
+                    tears_summary.setText(
+                        f"{int(view['exp_since_visit']):,} of "
+                        f"{int(TEARS_OF_GUTHIX_PROGRESS_EXP):,} experience, or one "
+                        "Quest Point, since your last visit."
+                    )
+                elif not view["week_ready"]:
+                    tears_status.setText("VISITED THIS WEEK")
+                    tears_summary.setText(
+                        f"Next visit in {int(view['reviews_to_entry']):,} "
+                        "answered reviews."
+                    )
+                else:
+                    tears_status.setText(
+                        "FIRST VISIT READY"
+                        if view["first_visit"]
+                        else f"{int(view['available_entries'])} "
+                        + (
+                            "VISIT"
+                            if int(view["available_entries"]) == 1
+                            else "VISITS"
+                        )
+                    )
+                    tears_summary.setText(
+                        f"{int(view['collection_ticks'])} ticks of tears · "
+                        f"{int(view['entry_beats'])} collection beats · "
+                        f"{int(view['xp_per_tear'])} XP per tear into "
+                        f"{reward_skill['display_name']}"
+                    )
+            tears_summary.setToolTip(str(view["last_result"]))
+            tears_rewards.setText(
+                f"Up to {TEARS_OF_GUTHIX_STONE_BOWL_XP_CAP} XP per tear with the "
+                f"stone bowl, {TEARS_OF_GUTHIX_ORNATE_BOWL_XP_CAP} with the "
+                "ornate bowl. AnkiScape banks up to "
+                f"{TEARS_OF_GUTHIX_ENTRY_CAP} weekly visits."
+            )
+            tears_ornate.setVisible(bool(view["craft_ornate_visible"]))
+            tears_ornate.setEnabled(
+                on_tears_of_guthix_command is not None
+                and bool(view["craft_ornate_enabled"])
+            )
+            tears_ornate.setToolTip(
+                "Requires: " + " · ".join(view["ornate_bowl_missing"])
+                if view["ornate_bowl_missing"]
+                else ""
+            )
+            tears_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Juna's cavern"
+            )
+            tears_primary.setEnabled(
+                on_tears_of_guthix_command is not None
+                and not selected
+                and bool(view["enter_enabled"])
+            )
+            tears_leave.setVisible(bool(view["leave_enabled"]))
+            tears_leave.setEnabled(on_tears_of_guthix_command is not None)
+            _fit_current_activity_detail()
+
+        def _run_tears_of_guthix_command(action_id: str) -> dict[str, Any]:
+            if on_tears_of_guthix_command is None:
+                return {"ok": False}
+            result = on_tears_of_guthix_command(action_id, {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Tears of Guthix",
+                    str(
+                        result.get(
+                            "message", "That Tears of Guthix action is unavailable."
+                        )
+                    ),
+                )
+            _refresh_tears_of_guthix_panel()
+            return result
+
+        def _select_or_enter_tears_of_guthix(_checked=False) -> None:
+            if not tears_of_guthix_view_pure(player_data)["active"]:
+                if not _run_tears_of_guthix_command("enter").get("ok", False):
+                    return
+            _set_utility_selection(TEARS_OF_GUTHIX_ACTIVITY_ID)
+            _refresh_tears_of_guthix_panel()
+
+        tears_ornate.clicked.connect(
+            lambda _checked=False: _run_tears_of_guthix_command("craft_ornate_bowl")
+        )
+        tears_primary.clicked.connect(_select_or_enter_tears_of_guthix)
+        tears_leave.clicked.connect(
+            lambda _checked=False: _run_tears_of_guthix_command("leave")
+        )
+        _refresh_tears_of_guthix_panel()
+        cards_stack.addWidget(tears_box)
+
+        key_box = QtFrame()
+        key_box.setObjectName("enchantedKeyPanel")
+        key_box.setStyleSheet(
+            "QFrame#enchantedKeyPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        key_layout = QVBoxLayout(key_box)
+        key_layout.setContentsMargins(10, 8, 10, 8)
+        key_layout.setSpacing(6)
+        syncing_key = {"active": False}
+
+        key_header = QWidget()
+        key_header_layout = QHBoxLayout(key_header)
+        key_header_layout.setContentsMargins(0, 0, 0, 0)
+        key_header_layout.setSpacing(8)
+        key_icon = QLabel()
+        key_icon.setObjectName("enchantedKeyIcon")
+        key_icon.setFixedSize(28, 28)
+        key_icon_path = os.path.join(
+            current_dir, "activityicons", "enchanted_key.png"
+        )
+        if os.path.exists(key_icon_path):
+            key_icon.setPixmap(
+                QPixmap(key_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        key_title = QLabel("Enchanted Key")
+        key_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        key_status = QLabel()
+        key_status.setObjectName("enchantedKeyStatusChip")
+        key_status.setStyleSheet(
+            f"color: {dim_text_css(key_status)}; font-size: 11px; font-weight: 700;"
+        )
+        key_header_layout.addWidget(key_icon)
+        key_header_layout.addWidget(key_title)
+        key_header_layout.addStretch(1)
+        key_header_layout.addWidget(key_status)
+        key_layout.addWidget(key_header)
+
+        key_summary = QLabel()
+        key_summary.setObjectName("enchantedKeySummary")
+        key_summary.setWordWrap(True)
+        key_summary.setStyleSheet("color: palette(text);")
+        key_layout.addWidget(key_summary)
+
+        key_roster = QComboBox()
+        key_roster.setObjectName("enchantedKeyRoster")
+        key_roster.setAccessibleName("Enchanted key treasure sites")
+        key_roster.setToolTip(
+            "Each row is one of the eleven buried treasures. Choose somewhere to "
+            "search; the next successful Activity review walks there and feels "
+            "the key."
+        )
+        key_layout.addWidget(key_roster)
+
+        key_primary = QPushButton()
+        key_primary.setObjectName("enchantedKeyPrimaryButton")
+        key_layout.addWidget(key_primary)
+
+        key_detail = QLabel()
+        key_detail.setObjectName("enchantedKeyDetail")
+        key_detail.setWordWrap(True)
+        key_detail.setStyleSheet(
+            f"color: {dim_text_css(key_detail)}; font-size: 11px;"
+        )
+        key_layout.addWidget(key_detail)
+
+        key_replace = QPushButton()
+        key_replace.setObjectName("enchantedKeyReplaceButton")
+        key_layout.addWidget(key_replace)
+
+        def _refresh_enchanted_key_panel() -> None:
+            syncing_key["active"] = True
+            view = enchanted_key_view_pure(player_data)
+            previous_row = key_roster.currentData()
+            key_roster.clear()
+            for row in view["roster"]:
+                marker = "✓" if row["found"] else "•"
+                key_roster.addItem(
+                    f"{marker} {row['display_name']}", row["id"]
+                )
+                index = key_roster.count() - 1
+                key_roster.setItemData(
+                    index,
+                    str(row["detail"]),
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                if row["found"]:
+                    key_roster.setItemData(
+                        index,
+                        dim_text_color(key_roster),
+                        Qt.ItemDataRole.ForegroundRole,
+                    )
+            preferred_id = (
+                str(previous_row or "")
+                or str(view["selected_site_id"])
+                or next(
+                    (row["id"] for row in view["roster"] if not row["found"]),
+                    "",
+                )
+            )
+            key_roster.setCurrentIndex(max(0, key_roster.findData(preferred_id)))
+            selected_id = str(key_roster.currentData() or "")
+            selected_row = next(
+                (row for row in view["roster"] if row["id"] == selected_id),
+                None,
+            )
+            selected_for_review = bool(
+                view["selected"]
+                and selected_id == str(view["selected_site_id"])
+                and player_data.get("current_utility") == ENCHANTED_KEY_ACTIVITY_ID
+            )
+
+            if view["complete"]:
+                key_status.setText("KEY MELTED")
+            elif not view["requirements_met"]:
+                key_status.setText("LOCKED")
+            else:
+                key_status.setText(f"{int(view['remaining'])} LEFT")
+            summary = (
+                f"{int(view['found'])}/{int(view['total_sites'])} treasures dug up"
+            )
+            if not view["requirements_met"]:
+                summary += " · Requires: " + " · ".join(view["missing_requirements"])
+            if view["last_result"]:
+                summary += "\n" + str(view["last_result"])
+            key_summary.setText(summary)
+            key_detail.setText(
+                "The key runs hotter the closer the search gets. It melts once "
+                f"the {int(view['total_sites'])}th treasure is out of the ground."
+            )
+            key_primary.setText(
+                "Selected for next review"
+                if selected_for_review
+                else "Already dug up"
+                if selected_row and selected_row["found"]
+                else "Search here on the next review"
+            )
+            key_primary.setEnabled(
+                on_enchanted_key_command is not None
+                and on_set_utility is not None
+                and not selected_for_review
+                and selected_id in view["selectable_site_ids"]
+            )
+            key_replace.setText(
+                f"Buy a replacement key from Erin ({int(view['replacement_cost']):,} coins)"
+            )
+            key_replace.setVisible(bool(view["replacement_visible"]))
+            key_replace.setEnabled(
+                on_enchanted_key_command is not None
+                and bool(view["replacement_enabled"])
+            )
+            syncing_key["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_enchanted_key_command(action_id: str, payload=None) -> bool:
+            if on_enchanted_key_command is None:
+                return False
+            result = on_enchanted_key_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Enchanted key",
+                    str(
+                        result.get(
+                            "message", "That Enchanted key action is unavailable."
+                        )
+                    ),
+                )
+                return False
+            _refresh_enchanted_key_panel()
+            return True
+
+        def _select_enchanted_key_site(_checked=False) -> None:
+            site_id = str(key_roster.currentData() or "")
+            if not site_id:
+                return
+            if on_set_utility is not None:
+                if not _request_utility_selection(ENCHANTED_KEY_ACTIVITY_ID):
+                    return
+                tree.clearSelection()
+            if not _run_enchanted_key_command("select_site", {"site_id": site_id}):
+                return
+            _refresh_enchanted_key_panel()
+
+        key_roster.currentIndexChanged.connect(
+            lambda _index: _refresh_enchanted_key_panel()
+            if not syncing_key["active"]
+            else None
+        )
+        key_primary.clicked.connect(_select_enchanted_key_site)
+        key_replace.clicked.connect(
+            lambda _checked=False: _run_enchanted_key_command("replace_key")
+        )
+        _refresh_enchanted_key_panel()
+        cards_stack.addWidget(key_box)
 
         barrows_box = QtFrame()
         barrows_box.setObjectName("barrowsPanel")
@@ -18114,6 +18554,8 @@ def show_main_menu(
             _refresh_fight_caves_panel()
             _refresh_phoenix_lair_panel()
             _refresh_skeletal_horror_panel()
+            _refresh_tears_of_guthix_panel()
+            _refresh_enchanted_key_panel()
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
@@ -18286,6 +18728,8 @@ def show_main_menu(
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
             PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
             SKELETAL_HORROR_ACTIVITY_ID: ("Skeletal Horror", skeletal_box),
+            TEARS_OF_GUTHIX_ACTIVITY_ID: ("Tears of Guthix", tears_box),
+            ENCHANTED_KEY_ACTIVITY_ID: ("Enchanted Key", key_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
             FLASH_POWDER_FACTORY_ACTIVITY_ID: (
                 "Flash Powder Factory",
