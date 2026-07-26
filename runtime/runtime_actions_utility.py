@@ -332,6 +332,7 @@ from ..logic.phoenix_lair_logic import (
 from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
 from ..data.barrows_data import BARROWS_ACTIVITY_ID
 from ..logic.barrows_logic import apply_barrows_review_pure, barrows_view_pure
 from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
@@ -415,6 +416,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     _handle_phoenix_lair_answer,
     _handle_skeletal_horror_answer,
     _handle_tears_of_guthix_answer,
+    _handle_enchanted_key_answer,
     _handle_pyramid_plunder_answer,
     _handle_shooting_star_answer,
     _handle_sorceress_garden_answer,
@@ -536,6 +538,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_skeletal_horror_answer(ctx)
     if activity_key == TEARS_OF_GUTHIX_ACTIVITY_ID:
         return _handle_tears_of_guthix_answer(ctx)
+    if activity_key == ENCHANTED_KEY_ACTIVITY_ID:
+        return _handle_enchanted_key_answer(ctx)
     if activity_key == BARROWS_ACTIVITY_ID:
         return _handle_barrows_answer(ctx)
     if activity_key == STEALING_CREATION_ACTIVITY_ID:

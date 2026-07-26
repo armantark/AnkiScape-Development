@@ -220,6 +220,39 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data["tears_of_guthix"], before)
         self.assertFalse(addon.player_data["tears_of_guthix"]["active"])
 
+    def test_enchanted_key_site_choice_restores_through_the_seam(self):
+        from ankiscape.data.enchanted_key_data import ENCHANTED_KEY_SITE_IDS
+        from ankiscape.logic.enchanted_key_logic import (
+            apply_enchanted_key_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["quests"]["making_history"] = {
+            "started": True,
+            "progress": 4,
+            "completed": True,
+        }
+        before = copy.deepcopy(addon.player_data["enchanted_key"])
+
+        committed = self.commit(
+            lambda current: (
+                apply_enchanted_key_command_pure(
+                    current,
+                    "select_site",
+                    {"site_id": ENCHANTED_KEY_SITE_IDS[0]},
+                )[0],
+                True,
+            )
+        )
+
+        self.assertTrue(committed)
+        self.assertEqual(
+            addon.player_data["enchanted_key"]["selected_site_id"],
+            ENCHANTED_KEY_SITE_IDS[0],
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["enchanted_key"], before)
+
 
 if __name__ == "__main__":
     unittest.main()

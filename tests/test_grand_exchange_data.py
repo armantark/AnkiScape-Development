@@ -172,6 +172,12 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Flowers",
                 "Fremennik cloak",
                 "Fremennik shirt",
+                # The period Enchanted key article says the god mjolnirs can be
+                # bought on the Grand Exchange, so they are tradeable, but the
+                # pinned buy-limit table (oldid 6457777) has no row for them.
+                # They sell like every other unresolved identity and stay
+                # unbuyable until one turns up.
+                "Guthix mjolnir",
                 "Loar remains",
                 "Magic pyre logs",
                 "Mahogany pyre logs",
@@ -190,6 +196,7 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Sacred oil (2)",
                 "Sacred oil (3)",
                 "Sacred oil (4)",
+                "Saradomin mjolnir",
                 "Snowy knight",
                 "Stripy pirate shirt",
                 "Teak pyre logs",
@@ -201,6 +208,7 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Willow pyre logs",
                 "Woven top",
                 "Yew pyre logs",
+                "Zamorak mjolnir",
             },
         )
 

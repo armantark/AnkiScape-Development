@@ -19,7 +19,6 @@ from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
-    OSRS_WIKI,
     RS3_WIKI,
     fetch_asset,
 )
@@ -30,8 +29,11 @@ PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 def asset_manifest() -> tuple[tuple[AssetRequest, int | None], ...]:
     provenance = ROOT / "assets_provenance.json"
     rows = (
-        ("Enchanted key", "Enchanted key.png", ROOT / "questitems" / "enchanted_key.png", None),
-        ("Enchanted Key", "Enchanted key.png", ROOT / "activityicons" / "enchanted_key.png", 64),
+        # The RS3 file is disambiguated by quest, and only it carries a
+        # pre-cutoff revision; the OSRS "Enchanted key.png" was re-uploaded in
+        # 2021.
+        ("Enchanted key", "Enchanted key (Making History).png", ROOT / "questitems" / "enchanted_key.png", None),
+        ("Enchanted Key", "Enchanted key (Making History).png", ROOT / "activityicons" / "enchanted_key.png", 64),
         ("Guthix mjolnir", "Guthix mjolnir.png", ROOT / "activityitems" / "guthix_mjolnir.png", None),
         ("Saradomin mjolnir", "Saradomin mjolnir.png", ROOT / "activityitems" / "saradomin_mjolnir.png", None),
         ("Zamorak mjolnir", "Zamorak mjolnir.png", ROOT / "activityitems" / "zamorak_mjolnir.png", None),
@@ -68,7 +70,7 @@ def main() -> int:
                 size=size,
                 force=args.force,
                 dry_run=args.dry_run,
-                sources=(OSRS_WIKI, RS3_WIKI),
+                sources=(RS3_WIKI,),
             )
         except AssetFetchError:
             outcome = fetch_asset(
@@ -77,7 +79,7 @@ def main() -> int:
                 size=size,
                 force=args.force,
                 dry_run=args.dry_run,
-                sources=(OSRS_WIKI, RS3_WIKI),
+                sources=(RS3_WIKI,),
             )
         print(f"{outcome.item_name}: {outcome.output_path}")
     return 0

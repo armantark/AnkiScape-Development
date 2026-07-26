@@ -31,6 +31,10 @@ from ..logic.phoenix_lair_logic import (
     sanitize_phoenix_lair_state_pure,
 )
 from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+from ..logic.enchanted_key_logic import (
+    default_enchanted_key_state_pure,
+    sanitize_enchanted_key_state_pure,
+)
 from ..logic.tears_of_guthix_logic import (
     default_tears_of_guthix_state_pure,
     sanitize_tears_of_guthix_state_pure,
@@ -461,6 +465,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["phoenix_lair"] = default_phoenix_lair_state_pure()
     data["skeletal_horror"] = default_skeletal_horror_state_pure()
     data["tears_of_guthix"] = default_tears_of_guthix_state_pure()
+    data["enchanted_key"] = default_enchanted_key_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
     data["barrows"] = default_barrows_state_pure()
     data.update(default_pyramid_plunder_state_pure())
@@ -1102,6 +1107,9 @@ def migrate_loaded_data(
     )
     data["tears_of_guthix"] = sanitize_tears_of_guthix_state_pure(
         data.get("tears_of_guthix")
+    )
+    data["enchanted_key"] = sanitize_enchanted_key_state_pure(
+        data.get("enchanted_key")
     )
     data["stealing_creation"] = sanitize_stealing_creation_state_pure(
         data.get("stealing_creation")

@@ -228,6 +228,9 @@ from ..data.tears_of_guthix_data import (
 )
 from ..logic.tears_of_guthix_logic import tears_of_guthix_view_pure
 
+from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
+from ..logic.enchanted_key_logic import enchanted_key_view_pure
+
 from ..data.barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
 from ..logic.barrows_logic import barrows_view_pure
 
@@ -3589,6 +3592,7 @@ def show_main_menu(
     on_phoenix_lair_command=None,
     on_skeletal_horror_command=None,
     on_tears_of_guthix_command=None,
+    on_enchanted_key_command=None,
     on_barrows_command=None,
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
@@ -10428,6 +10432,206 @@ def show_main_menu(
         )
         _refresh_tears_of_guthix_panel()
         cards_stack.addWidget(tears_box)
+
+        key_box = QtFrame()
+        key_box.setObjectName("enchantedKeyPanel")
+        key_box.setStyleSheet(
+            "QFrame#enchantedKeyPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        key_layout = QVBoxLayout(key_box)
+        key_layout.setContentsMargins(10, 8, 10, 8)
+        key_layout.setSpacing(6)
+        syncing_key = {"active": False}
+
+        key_header = QWidget()
+        key_header_layout = QHBoxLayout(key_header)
+        key_header_layout.setContentsMargins(0, 0, 0, 0)
+        key_header_layout.setSpacing(8)
+        key_icon = QLabel()
+        key_icon.setObjectName("enchantedKeyIcon")
+        key_icon.setFixedSize(28, 28)
+        key_icon_path = os.path.join(
+            current_dir, "activityicons", "enchanted_key.png"
+        )
+        if os.path.exists(key_icon_path):
+            key_icon.setPixmap(
+                QPixmap(key_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        key_title = QLabel("Enchanted Key")
+        key_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        key_status = QLabel()
+        key_status.setObjectName("enchantedKeyStatusChip")
+        key_status.setStyleSheet(
+            f"color: {dim_text_css(key_status)}; font-size: 11px; font-weight: 700;"
+        )
+        key_header_layout.addWidget(key_icon)
+        key_header_layout.addWidget(key_title)
+        key_header_layout.addStretch(1)
+        key_header_layout.addWidget(key_status)
+        key_layout.addWidget(key_header)
+
+        key_summary = QLabel()
+        key_summary.setObjectName("enchantedKeySummary")
+        key_summary.setWordWrap(True)
+        key_summary.setStyleSheet("color: palette(text);")
+        key_layout.addWidget(key_summary)
+
+        key_roster = QComboBox()
+        key_roster.setObjectName("enchantedKeyRoster")
+        key_roster.setAccessibleName("Enchanted key treasure sites")
+        key_roster.setToolTip(
+            "Each row is one of the eleven buried treasures. Choose somewhere to "
+            "search; the next successful Activity review walks there and feels "
+            "the key."
+        )
+        key_layout.addWidget(key_roster)
+
+        key_primary = QPushButton()
+        key_primary.setObjectName("enchantedKeyPrimaryButton")
+        key_layout.addWidget(key_primary)
+
+        key_detail = QLabel()
+        key_detail.setObjectName("enchantedKeyDetail")
+        key_detail.setWordWrap(True)
+        key_detail.setStyleSheet(
+            f"color: {dim_text_css(key_detail)}; font-size: 11px;"
+        )
+        key_layout.addWidget(key_detail)
+
+        key_replace = QPushButton()
+        key_replace.setObjectName("enchantedKeyReplaceButton")
+        key_layout.addWidget(key_replace)
+
+        def _refresh_enchanted_key_panel() -> None:
+            syncing_key["active"] = True
+            view = enchanted_key_view_pure(player_data)
+            previous_row = key_roster.currentData()
+            key_roster.clear()
+            for row in view["roster"]:
+                marker = "✓" if row["found"] else "•"
+                key_roster.addItem(
+                    f"{marker} {row['display_name']}", row["id"]
+                )
+                index = key_roster.count() - 1
+                key_roster.setItemData(
+                    index,
+                    str(row["detail"]),
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                if row["found"]:
+                    key_roster.setItemData(
+                        index,
+                        dim_text_color(key_roster),
+                        Qt.ItemDataRole.ForegroundRole,
+                    )
+            preferred_id = (
+                str(previous_row or "")
+                or str(view["selected_site_id"])
+                or next(
+                    (row["id"] for row in view["roster"] if not row["found"]),
+                    "",
+                )
+            )
+            key_roster.setCurrentIndex(max(0, key_roster.findData(preferred_id)))
+            selected_id = str(key_roster.currentData() or "")
+            selected_row = next(
+                (row for row in view["roster"] if row["id"] == selected_id),
+                None,
+            )
+            selected_for_review = bool(
+                view["selected"]
+                and selected_id == str(view["selected_site_id"])
+                and player_data.get("current_utility") == ENCHANTED_KEY_ACTIVITY_ID
+            )
+
+            if view["complete"]:
+                key_status.setText("KEY MELTED")
+            elif not view["requirements_met"]:
+                key_status.setText("LOCKED")
+            else:
+                key_status.setText(f"{int(view['remaining'])} LEFT")
+            summary = (
+                f"{int(view['found'])}/{int(view['total_sites'])} treasures dug up"
+            )
+            if not view["requirements_met"]:
+                summary += " · Requires: " + " · ".join(view["missing_requirements"])
+            if view["last_result"]:
+                summary += "\n" + str(view["last_result"])
+            key_summary.setText(summary)
+            key_detail.setText(
+                "The key runs hotter the closer the search gets. It melts once "
+                f"the {int(view['total_sites'])}th treasure is out of the ground."
+            )
+            key_primary.setText(
+                "Selected for next review"
+                if selected_for_review
+                else "Already dug up"
+                if selected_row and selected_row["found"]
+                else "Search here on the next review"
+            )
+            key_primary.setEnabled(
+                on_enchanted_key_command is not None
+                and on_set_utility is not None
+                and not selected_for_review
+                and selected_id in view["selectable_site_ids"]
+            )
+            key_replace.setText(
+                f"Buy a replacement key from Erin ({int(view['replacement_cost']):,} coins)"
+            )
+            key_replace.setVisible(bool(view["replacement_visible"]))
+            key_replace.setEnabled(
+                on_enchanted_key_command is not None
+                and bool(view["replacement_enabled"])
+            )
+            syncing_key["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_enchanted_key_command(action_id: str, payload=None) -> bool:
+            if on_enchanted_key_command is None:
+                return False
+            result = on_enchanted_key_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Enchanted key",
+                    str(
+                        result.get(
+                            "message", "That Enchanted key action is unavailable."
+                        )
+                    ),
+                )
+                return False
+            _refresh_enchanted_key_panel()
+            return True
+
+        def _select_enchanted_key_site(_checked=False) -> None:
+            site_id = str(key_roster.currentData() or "")
+            if not site_id:
+                return
+            if on_set_utility is not None:
+                if not _request_utility_selection(ENCHANTED_KEY_ACTIVITY_ID):
+                    return
+                tree.clearSelection()
+            if not _run_enchanted_key_command("select_site", {"site_id": site_id}):
+                return
+            _refresh_enchanted_key_panel()
+
+        key_roster.currentIndexChanged.connect(
+            lambda _index: _refresh_enchanted_key_panel()
+            if not syncing_key["active"]
+            else None
+        )
+        key_primary.clicked.connect(_select_enchanted_key_site)
+        key_replace.clicked.connect(
+            lambda _checked=False: _run_enchanted_key_command("replace_key")
+        )
+        _refresh_enchanted_key_panel()
+        cards_stack.addWidget(key_box)
 
         barrows_box = QtFrame()
         barrows_box.setObjectName("barrowsPanel")
@@ -18009,6 +18213,7 @@ def show_main_menu(
             _refresh_phoenix_lair_panel()
             _refresh_skeletal_horror_panel()
             _refresh_tears_of_guthix_panel()
+            _refresh_enchanted_key_panel()
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
@@ -18170,6 +18375,7 @@ def show_main_menu(
             PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
             SKELETAL_HORROR_ACTIVITY_ID: ("Skeletal Horror", skeletal_box),
             TEARS_OF_GUTHIX_ACTIVITY_ID: ("Tears of Guthix", tears_box),
+            ENCHANTED_KEY_ACTIVITY_ID: ("Enchanted Key", key_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
             FLASH_POWDER_FACTORY_ACTIVITY_ID: (
                 "Flash Powder Factory",

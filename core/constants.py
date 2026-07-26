@@ -97,6 +97,12 @@ from ..data.phoenix_lair_data import (
     phoenix_lair_activity_as_dict,
     phoenix_lair_extra_items_as_dict,
 )
+from ..data.enchanted_key_data import (
+    ENCHANTED_KEY_ACTIVITY_ID,
+    ENCHANTED_KEY_MJOLNIRS,
+    enchanted_key_activity_as_dict,
+    enchanted_key_extra_items_as_dict,
+)
 from ..data.tears_of_guthix_data import (
     TEARS_OF_GUTHIX_ACTIVITY_ID,
     tears_of_guthix_activity_as_dict,
@@ -588,6 +594,7 @@ UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(skeletal_horror_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tears_of_guthix_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(enchanted_key_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
@@ -738,6 +745,14 @@ _skeletal_horror_icon = os.path.join(
 if os.path.exists(_skeletal_horror_icon):
     UTILITY_ACTIVITY_DATA[SKELETAL_HORROR_ACTIVITY_ID]["icon_path"] = (
         _skeletal_horror_icon
+    )
+_enchanted_key_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "enchanted_key.png",
+)
+if os.path.exists(_enchanted_key_icon):
+    UTILITY_ACTIVITY_DATA[ENCHANTED_KEY_ACTIVITY_ID]["icon_path"] = (
+        _enchanted_key_icon
     )
 _tears_of_guthix_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1503,6 +1518,20 @@ VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
 PHOENIX_LAIR_EXTRA_ITEM_DATA = phoenix_lair_extra_items_as_dict()
 SKELETAL_HORROR_EXTRA_ITEM_DATA = skeletal_horror_extra_items_as_dict()
+ENCHANTED_KEY_EXTRA_ITEM_DATA = enchanted_key_extra_items_as_dict()
+ENCHANTED_KEY_ITEM_IMAGES = {
+    _item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        _item_name.lower().replace(" ", "_") + ".png",
+    )
+    for _item_name in ENCHANTED_KEY_MJOLNIRS
+}
+ENCHANTED_KEY_ITEM_IMAGES = {
+    _item_name: _path
+    for _item_name, _path in ENCHANTED_KEY_ITEM_IMAGES.items()
+    if os.path.exists(_path)
+}
 STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
 BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
 FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict()
@@ -2056,6 +2085,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
     **PHOENIX_LAIR_EXTRA_ITEM_DATA,
     **SKELETAL_HORROR_EXTRA_ITEM_DATA,
+    **ENCHANTED_KEY_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
     **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,
@@ -2101,6 +2131,7 @@ EXTRA_ITEM_IMAGES = {
     **FIGHT_CAVES_ITEM_IMAGES,
     **PHOENIX_LAIR_ITEM_IMAGES,
     **SKELETAL_HORROR_ITEM_IMAGES,
+    **ENCHANTED_KEY_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,
     **PYRAMID_PLUNDER_ITEM_IMAGES,
