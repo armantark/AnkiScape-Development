@@ -1,0 +1,248 @@
+<title>AnkiScape breadth day two — six families, four decisions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%94%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 2.5rem 1.5rem 4rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Outfit", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    line-height: 1.55;
+    font-size: 15px;
+}
+.wrap { max-width: 980px; margin: 0 auto; }
+.badge {
+    display: inline-block;
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(79, 140, 255, 0.35);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+}
+h1 { font-size: 2rem; font-weight: 700; margin: 0.9rem 0 0.4rem; letter-spacing: -0.02em; }
+.sub { color: var(--text-dim); font-size: 0.95rem; margin: 0 0 2.2rem; max-width: 62ch; }
+h2 {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-dim); margin: 2.6rem 0 1rem;
+    border-top: 1px solid var(--border); padding-top: 1.1rem;
+}
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+.metric .n { font-size: 1.7rem; font-weight: 700; font-family: "JetBrains Mono", ui-monospace, monospace; }
+.metric .l { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.delta { color: var(--green); font-size: 0.8rem; font-weight: 600; }
+
+.scroller { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
+th, td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--surface-2); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
+tr:last-child td { border-bottom: none; }
+td.fam { font-weight: 600; white-space: nowrap; }
+.tag {
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.66rem;
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 0.12rem 0.42rem; border-radius: 5px; color: var(--text-dim); white-space: nowrap;
+}
+.sev { font-weight: 700; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.sev.red { color: var(--red); } .sev.amber { color: var(--amber); } .sev.green { color: var(--green); }
+
+.decision { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem; margin-bottom: 1.1rem; }
+.decision h3 { margin: 0 0 0.2rem; font-size: 1.05rem; }
+.decision .ctx { color: var(--text-dim); font-size: 0.88rem; margin: 0 0 1rem; }
+.opts { display: grid; gap: 0.6rem; }
+.opt {
+    display: block; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 0.8rem 0.95rem; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.opt:hover { border-color: rgba(79,140,255,.5); }
+.opt input { margin-right: 0.55rem; accent-color: var(--accent); }
+.opt.sel { border-color: var(--accent); background: var(--accent-glow); }
+.opt .name { font-weight: 600; font-size: 0.9rem; }
+.opt .why { color: var(--text-dim); font-size: 0.83rem; margin-top: 0.25rem; padding-left: 1.35rem; }
+.rec { color: var(--green); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-left: 0.4rem; }
+
+.actions { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 1.4rem; }
+button {
+    font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text);
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.6rem 1.1rem; cursor: pointer;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #06111f; }
+button:hover { border-color: var(--accent); }
+#copied { color: var(--green); font-size: 0.83rem; }
+pre {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem; overflow-x: auto; font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.78rem; color: var(--text-dim); white-space: pre-wrap; margin-top: 1rem;
+}
+.note { background: var(--surface); border-left: 3px solid var(--amber); border-radius: 0 9px 9px 0; padding: 0.9rem 1.1rem; margin-top: 1rem; font-size: 0.88rem; }
+.note b { color: var(--amber); }
+@media (max-width: 760px) { .metrics { grid-template-columns: repeat(2, 1fr); } h1 { font-size: 1.5rem; } }
+@media (prefers-color-scheme: light) {
+    :root { --bg:#f6f7fa; --surface:#fff; --surface-2:#eef1f6; --border:#d6dce7; --text:#141922; --text-dim:#5b657a; }
+}
+:root[data-theme="light"] { --bg:#f6f7fa; --surface:#fff; --surface-2:#eef1f6; --border:#d6dce7; --text:#141922; --text-dim:#5b657a; }
+:root[data-theme="dark"] { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; }
+</style>
+
+<div class="wrap">
+<span class="badge">Results · 26 July 2026</span>
+<h1>Six families reached breadth one</h1>
+<p class="sub">All six are merged into <span class="tag">main</span> and green on both test lanes. Four decisions now wait for you. None of them blocks work, and each ships today on a recommendation you can overturn with a small edit.</p>
+
+<div class="metrics">
+    <div class="metric"><div class="n">2935</div><div class="l">tests on main</div><div class="delta">+186 today</div></div>
+    <div class="metric"><div class="n">6</div><div class="l">families merged</div><div class="delta">2 rescued</div></div>
+    <div class="metric"><div class="n">3</div><div class="l">inventions removed</div><div class="delta">none shipped</div></div>
+    <div class="metric"><div class="n">4</div><div class="l">decisions waiting</div><div class="delta">none blocking</div></div>
+</div>
+
+<h2>What shipped, and what was wrong with it</h2>
+<div class="scroller">
+<table>
+<tr><th>Family</th><th>Severity</th><th>What the verification found</th></tr>
+<tr>
+  <td class="fam">Clan Wars</td><td class="sev red">Unplayable</td>
+  <td>Every match ended nil-nil from combat level 10 to 99. Wins, losses, kills, deaths and the whole red-portal consequence were unreachable. A crossfire model fixes it. Your damage floors at one lifepoint, so the combat burst stays the only way to die.</td>
+</tr>
+<tr>
+  <td class="fam">Skeletal Horror</td><td class="sev red">Proved nothing</td>
+  <td>Every mechanics test mocked the combat call, so a green suite was compatible with a boss nobody could fight. It also banked two weekly entries — a rule the period never had — written into the UI, the memory bank and a test name as though sourced.</td>
+</tr>
+<tr>
+  <td class="fam">Duel Arena</td><td class="sev amber">Wrong boundary</td>
+  <td>The panel computed the No Forfeit rule itself instead of reading the view. Both sides agreed, so no test could notice. It was worth fixing because four other families were copying this file.</td>
+</tr>
+<tr>
+  <td class="fam">Daily Challenges</td><td class="sev green">Built clean</td>
+  <td>Five slots, one arrival per 240-card day, oldest displaced. No skip and no reroll: that action appears in no source and we invented it. A UI test caught a refresh loop that recursed until the stack gave out.</td>
+</tr>
+<tr>
+  <td class="fam">Treasure Trails</td><td class="sev green">Built clean</td>
+  <td>One clue across every tier, not one per tier. The per-tier rule was a 2015 mechanic that reached our contract by anachronism.</td>
+</tr>
+<tr>
+  <td class="fam">Tears of Guthix<br>Enchanted Key</td><td class="sev green">Built clean</td>
+  <td>Two Tears values are registered placeholders instead of guesses. Enchanted Key flattens the period walk, which makes three of the eight temperature bands unreachable. The full table still ships and a test pins which bands are live.</td>
+</tr>
+</table>
+</div>
+
+<div class="note"><b>One pattern, three times.</b> Each family passed its own suite while broken, because the author wrote the code and the tests in one pass. The tests then encode the author's belief, not the source. Reading the code only re-confirms that belief. Driving the real kernel from a fresh save is the thing that breaks the loop, and it is now required in every verification brief.</div>
+
+<h2>Four decisions</h2>
+
+<div class="decision" data-key="Skeletal Horror wish lists">
+  <h3>1 · Skeletal Horror wish lists cost one button press</h3>
+  <p class="ctx">The real gate is the Rag and Bone Man and Fur 'n Seek post-quest wish lists. In the period each one is a long bone-collection errand. AnkiScape has no wish-list state, because the quest-parity thread owns it.</p>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="d1" value="Keep the stand-in button" checked><span class="name">Keep the stand-in button<span class="rec">Recommended · shipped</span></span><div class="why">The gate keeps its authentic prerequisites, and the boss is reachable now. The button is a placeholder for state the quest program will own.</div></label>
+    <label class="opt"><input type="radio" name="d1" value="Block the family until quests persist wish lists"><span class="name">Block until quests persist wish lists</span><div class="why">Faithful, but it parks a finished boss on another thread's schedule.</div></label>
+    <label class="opt"><input type="radio" name="d1" value="Build a bone errand inside this family"><span class="name">Build a bone errand here</span><div class="why">Duplicates the quest program and invents content whose period shape we never harvested.</div></label>
+  </div>
+</div>
+
+<div class="decision" data-key="Clan Wars purple portal credit">
+  <h3>2 · Who is credited for a purple-portal crossfire kill?</h3>
+  <p class="ctx">Matches resolve by crossfire: the rest of the arena wears your rival down and someone lands the last blow. In the two free-for-all portals that someone is a stranger, so it scores against you. In a clan battle the fighters around you are clan mates.</p>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="d2" value="Crossfire kills score for your clan" checked><span class="name">It scores for your clan<span class="rec">Recommended · shipped</span></span><div class="why">The only reading where a purple win is reachable at all. It gives the team battle a mechanic the free-for-all lacks.</div></label>
+    <label class="opt"><input type="radio" name="d2" value="Purple behaves like white; team identity is cosmetic"><span class="name">Purple behaves like white</span><div class="why">You become the only source of your clan's score. No purple win appeared in 400 simulated matches at any level, which makes that outcome an inert row.</div></label>
+  </div>
+  <div class="note"><b>Also worth knowing.</b> A purple win was not observed at combat level 10 across 400 matches, and becomes reachable near level 30. You play from level 1, so you will meet that stretch before you meet the win.</div>
+</div>
+
+<div class="decision" data-key="Tears of Guthix beat length">
+  <h3>3 · How many reviews is one cavern visit worth?</h3>
+  <p class="ctx">The period timer is exact: your visit lasts your Quest Points in ticks, capped at three minutes. No source says how many answered cards that is, because the period game had no such unit.</p>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="d3" value="One review is six game ticks" checked><span class="name">One review is six game ticks<span class="rec">Recommended · shipped</span></span><div class="why">Reuses the cadence the Combat activities already run at, so nothing new is invented. 44 quest points gives 8 beats; a capped 300 gives 50. Visit length scales with quest progress, exactly as the period timer does.</div></label>
+    <label class="opt"><input type="radio" name="d3" value="A fixed beat count for every visit"><span class="name">A fixed beat count per visit</span><div class="why">Simpler to read, but it discards the one part the source states precisely — that Quest Points buy cavern time.</div></label>
+    <label class="opt"><input type="radio" name="d3" value="One review is one tick"><span class="name">One review is one tick</span><div class="why">Faithful to the unit. A capped visit then costs 300 answered cards, a fifth of a simulated week for one activity.</div></label>
+  </div>
+</div>
+
+<div class="decision" data-key="Quest clue scrolls and the one-clue rule">
+  <h3>4 · Quest-awarded clues bypass the one-clue rule</h3>
+  <p class="ctx">The drop paths now enforce one clue in total. One quest in the catalog awards an elite clue as an item reward, and quest rewards skip the ownership filter, so a player can end that quest holding two.</p>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="d4" value="Route quest rewards through the ownership filter" checked><span class="name">Route quest rewards through the filter<span class="rec">Recommended</span></span><div class="why">Consistent with every other grant path. Not done yet because it touches the quest reward pipeline, one level outside Treasure Trails.</div></label>
+    <label class="opt"><input type="radio" name="d4" value="Let quest rewards through as a period exception"><span class="name">Treat it as a period exception</span><div class="why">Lets the clue through. Worth answering before the medium, hard and elite trails ship.</div></label>
+  </div>
+</div>
+
+<div class="actions">
+    <button class="primary" id="copy">Copy my answers as a prompt</button>
+    <button id="reset">Reset to recommended</button>
+    <span id="copied"></span>
+</div>
+<pre id="preview"></pre>
+
+<h2>What happens next</h2>
+<p class="sub" style="margin-bottom:0.8rem">The Crucible and Goblin Raids are building now. Roughly nineteen families remain below breadth one. Bork stays blocked on the Hunt for Surok miniquest and the Achievement Diary substrate, neither of which exists yet, so it is not scheduled as an ordinary family.</p>
+<p class="sub">Work that belongs to Codex is queued rather than reassigned, because its subscription is past its daily share. That queue holds an independent verification pass, the exhaustive drop-table harvest, the art provenance sweep, and placeholder retirement. None of it blocks a family.</p>
+
+</div>
+
+<script>
+(function () {
+    var decisions = Array.prototype.slice.call(document.querySelectorAll('.decision'));
+
+    function render() {
+        var lines = ['Decisions on the four open AnkiScape design forks:', ''];
+        decisions.forEach(function (d, i) {
+            var picked = d.querySelector('input:checked');
+            d.querySelectorAll('.opt').forEach(function (o) {
+                o.classList.toggle('sel', o.contains(picked));
+            });
+            lines.push((i + 1) + '. ' + d.getAttribute('data-key') + ' — ' + (picked ? picked.value : 'no answer'));
+        });
+        lines.push('', 'Apply these, then carry on with the breadth programme.');
+        document.getElementById('preview').textContent = lines.join('\n');
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.type === 'radio') { render(); }
+    });
+
+    document.getElementById('copy').addEventListener('click', function () {
+        var text = document.getElementById('preview').textContent;
+        var done = function () {
+            var el = document.getElementById('copied');
+            el.textContent = 'Copied.';
+            setTimeout(function () { el.textContent = ''; }, 2200);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, done);
+        } else { done(); }
+    });
+
+    document.getElementById('reset').addEventListener('click', function () {
+        decisions.forEach(function (d) { d.querySelector('input').checked = true; });
+        render();
+    });
+
+    render();
+}());
+</script>
