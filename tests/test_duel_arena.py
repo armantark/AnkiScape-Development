@@ -377,6 +377,55 @@ class DuelArenaPureTest(unittest.TestCase):
         self.assertNotIn("duel_arena_cap_tier", migrated)
         self.assertEqual(migrated["unrelated_future_key"], {"keep": True})
 
+    def test_an_interrupted_duel_survives_a_real_save_and_load(self):
+        """The contract a player hits when Anki closes mid-duel.
+
+        Sanitising an empty or hand-written state proves normalisation, not
+        survival. Only a real round trip shows that the fields identifying
+        *which* duel is in progress come back intact, so a future migration
+        cannot quietly drop the duel number or the opponent and leave the
+        player mid-fight against nobody.
+        """
+        player, ok, _ = enter_duel_arena_pure(_player(), ())
+        self.assertTrue(ok)
+        player, _, _ = apply_duel_arena_review_pure(player, lambda: 0.0)
+        session = player["duel_arena"]
+        self.assertTrue(session, "the duel must still be running to be resumed")
+
+        restored = migrate_loaded_data(
+            json.loads(json.dumps(player)), ORE_DATA, ITEM_DEFINITIONS
+        )
+
+        self.assertEqual(restored["duel_arena"], session)
+        for key in ("duel_number", "review", "rule_ids", "previous_combat_target"):
+            self.assertEqual(restored["duel_arena"][key], session[key], key)
+        self.assertEqual(
+            restored["duel_arena"]["opponent"]["opponent_id"],
+            session["opponent"]["opponent_id"],
+        )
+
+        # The resumed duel must still be finishable, not merely present.
+        while restored["duel_arena"]:
+            restored, _, _ = apply_duel_arena_review_pure(restored, lambda: 0.0)
+        self.assertEqual(restored["duel_arena_wins"], 1)
+
+    def test_the_view_owns_the_forfeit_rule_the_panel_renders(self):
+        """The panel must read this flag, never re-derive the No Forfeit rule."""
+        idle = _player()
+        self.assertFalse(duel_arena_view_pure(idle)["can_forfeit"])
+
+        open_duel, ok, _ = enter_duel_arena_pure(idle, ())
+        self.assertTrue(ok)
+        self.assertTrue(duel_arena_view_pure(open_duel)["can_forfeit"])
+
+        locked, ok, _ = enter_duel_arena_pure(_player(), ("no_forfeit",))
+        self.assertTrue(ok)
+        self.assertFalse(duel_arena_view_pure(locked)["can_forfeit"])
+        _, refused, _ = abandon_duel_arena_pure(locked)
+        self.assertFalse(
+            refused, "the view must agree with the function that owns the rule"
+        )
+
 
 class DuelArenaRuntimeIntegrationTest(unittest.TestCase):
     def test_selected_duel_dispatches_reviews_and_saves_terminal_result(self):

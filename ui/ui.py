@@ -14907,7 +14907,7 @@ def show_main_menu(
                     f"{opponent['display_name']} · score {player_points}-"
                     f"{opponent_points} · review {int(session['review'])}/"
                     f"{int(view['maximum_reviews'])}\n"
-                    f"{len(selected)} of 11 rules enabled"
+                    f"{len(selected)} of {len(DUEL_ARENA_RULE_PRESETS)} rules enabled"
                 )
                 duel_arena_progress.setValue(player_points)
                 duel_arena_progress.setFormat(
@@ -14970,7 +14970,7 @@ def show_main_menu(
             duel_arena_save_rules.setEnabled(
                 not active and on_duel_arena_command is not None
             )
-            can_forfeit = active and "no_forfeit" not in selected
+            can_forfeit = bool(view["can_forfeit"])
             duel_arena_abandon.setVisible(can_forfeit)
             duel_arena_abandon.setEnabled(
                 can_forfeit and on_duel_arena_command is not None

@@ -547,6 +547,7 @@ def duel_arena_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     return {
         **state,
         "active": bool(session),
+        "can_forfeit": bool(session) and "no_forfeit" not in selected,
         "can_enter": not reasons and not session,
         "entry_reasons": tuple(reasons),
         "selected_rule_ids": selected,
