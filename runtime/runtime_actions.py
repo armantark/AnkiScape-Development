@@ -280,6 +280,8 @@ from ..logic.shades_of_mortton_logic import (
     shades_of_mortton_view_pure,
 )
 from ..data.tzhaar_fight_pit_data import TZHAAR_FIGHT_PIT_ACTIVITY_ID
+from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
+from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
     tzhaar_fight_pit_view_pure,
@@ -529,6 +531,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_soul_wars_answer,
     handle_stronghold_player_safety_answer,
     handle_trouble_brewing_answer,
+    handle_treasure_trail_answer,
     handle_tzhaar_fight_pit_answer,
     handle_varrock_museum_answer,
 )

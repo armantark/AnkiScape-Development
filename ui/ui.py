@@ -366,6 +366,8 @@ from ..logic_pure.logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_cr
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
+from ..logic.treasure_trails_logic import treasure_trails_view_pure
+from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..logic_pure.logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 
 from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
@@ -3583,6 +3585,7 @@ def show_main_menu(
     on_shades_of_mortton_command=None,
     on_tzhaar_fight_pit_command=None,
     on_daily_challenges_command=None,
+    on_treasure_trails_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -7284,6 +7287,9 @@ def show_main_menu(
         star_panel_refresher = {"call": lambda: None}
         fog_panel_refresher = {"call": lambda: None}
         world_events_refresher = {"call": lambda: None}
+        # Activity cards whose state changes while they are off screen register
+        # a refresher here, and _show_activity_detail calls it on display.
+        detail_card_refreshers: dict = {}
         # Tracked explicitly rather than read off cards_stack.isVisible(): under
         # offscreen Qt a never-shown dialog reports False right after
         # setVisible(True), which would silently break duplicate suppression.
@@ -14499,6 +14505,106 @@ def show_main_menu(
         )
         _refresh_fight_pit_panel()
 
+        # Treasure Trails. Ownership, tier support and step blocking are all
+        # decided in treasure_trails_logic; this card renders its flags.
+        trail_box = QtFrame()
+        trail_box.setObjectName("treasureTrailsPanel")
+        trail_box.setStyleSheet(
+            "QFrame#treasureTrailsPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        trail_layout = QVBoxLayout(trail_box)
+        trail_layout.setContentsMargins(10, 8, 10, 8)
+        trail_layout.setSpacing(7)
+
+        trail_title = QLabel("Treasure Trails")
+        trail_title.setObjectName("treasureTrailsTitle")
+        trail_title.setStyleSheet("font-weight: 600;")
+        trail_layout.addWidget(trail_title)
+
+        trail_summary = QLabel("")
+        trail_summary.setObjectName("treasureTrailsSummary")
+        trail_summary.setWordWrap(True)
+        trail_layout.addWidget(trail_summary)
+
+        trail_step = QLabel("")
+        trail_step.setObjectName("treasureTrailsStep")
+        trail_step.setWordWrap(True)
+        trail_layout.addWidget(trail_step)
+
+        trail_buttons = QHBoxLayout()
+        trail_primary = QPushButton("Read the clue scroll")
+        trail_primary.setObjectName("treasureTrailsPrimary")
+        trail_abandon = QPushButton("Put the clue away")
+        trail_abandon.setObjectName("treasureTrailsAbandon")
+        trail_casket = QPushButton("Open the casket")
+        trail_casket.setObjectName("treasureTrailsCasket")
+        trail_buttons.addWidget(trail_primary)
+        trail_buttons.addWidget(trail_abandon)
+        trail_buttons.addWidget(trail_casket)
+        trail_buttons.addStretch(1)
+        trail_layout.addLayout(trail_buttons)
+
+        trail_feedback = QLabel("")
+        trail_feedback.setObjectName("treasureTrailsFeedback")
+        trail_feedback.setWordWrap(True)
+        trail_layout.addWidget(trail_feedback)
+        cards_stack.addWidget(trail_box)
+
+        def _refresh_trail_panel() -> None:
+            view = treasure_trails_view_pure(player_data)
+            wired = on_treasure_trails_command is not None
+            easy_rows = [row for row in view["clue_rows"] if row["can_read"]]
+            locked_rows = [row for row in view["clue_rows"] if not row["implemented"]]
+            if view["active"]:
+                step = view["step"]
+                trail_summary.setText(
+                    f"Following an easy trail · clue {int(step['number'])}"
+                    f" of {int(step['total'])}"
+                )
+                trail_step.setText(
+                    str(step["text"])
+                    + (f"\n{step['blocked_reason']}" if step["blocked_reason"] else "")
+                )
+            else:
+                trail_summary.setText(
+                    str(view["clue_blocked_reason"])
+                    or "No clue scroll held. Monsters and H.A.M. pickpockets drop them."
+                )
+                trail_step.setText(
+                    "\n".join(str(row["locked_reason"]) for row in locked_rows)
+                )
+            trail_step.setVisible(bool(trail_step.text()))
+            trail_primary.setEnabled(wired and bool(easy_rows) and not view["active"])
+            trail_abandon.setEnabled(wired and bool(view["active"]))
+            caskets = [row for row in view["caskets"] if row["implemented"]]
+            held = sum(int(row["held"]) for row in caskets)
+            trail_casket.setText(f"Open the casket ({held})")
+            trail_casket.setEnabled(wired and held > 0)
+
+        def _run_trail_command(action_id: str, payload=None) -> dict:
+            if on_treasure_trails_command is None:
+                return {"ok": False}
+            result = on_treasure_trails_command(action_id, payload or {}) or {}
+            trail_feedback.setText(str(result.get("message", "") or ""))
+            trail_feedback.setVisible(bool(trail_feedback.text()))
+            _refresh_trail_panel()
+            return result
+
+        def _read_trail_clue() -> None:
+            if _run_trail_command("read", {"tier": "easy"}).get("ok"):
+                _request_utility_selection(TREASURE_TRAILS_ACTIVITY_ID)
+                _refresh_trail_panel()
+
+        # Ordinary reviews resolve steps while this card is off screen.
+        detail_card_refreshers[TREASURE_TRAILS_ACTIVITY_ID] = _refresh_trail_panel
+        trail_primary.clicked.connect(lambda _checked=False: _read_trail_clue())
+        trail_abandon.clicked.connect(lambda _checked=False: _run_trail_command("abandon"))
+        trail_casket.clicked.connect(
+            lambda _checked=False: _run_trail_command("open_casket", {"tier": "easy"})
+        )
+        _refresh_trail_panel()
+
         barbarian_box = QtFrame()
         barbarian_box.setObjectName("barbarianAssaultPanel")
         barbarian_box.setStyleSheet(
@@ -17678,6 +17784,7 @@ def show_main_menu(
                 mortton_box,
             ),
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
+            TREASURE_TRAILS_ACTIVITY_ID: ("Treasure Trails", trail_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
                 "Stronghold of Player Safety",
@@ -17720,6 +17827,9 @@ def show_main_menu(
                     QAbstractItemView.ScrollHint.PositionAtCenter,
                 )
             if selected is not None:
+                refresher = detail_card_refreshers.get(str(activity_id or ""))
+                if refresher is not None:
+                    refresher()
                 cards_stack.setCurrentWidget(selected_widget)
                 _fit_current_activity_detail()
             visible_detail_id["id"] = (

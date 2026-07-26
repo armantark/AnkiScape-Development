@@ -62,6 +62,7 @@ from ankiscape.logic import sorceress_garden_logic
 from ankiscape.logic import soul_wars_logic
 from ankiscape.logic import stealing_creation_logic
 from ankiscape.logic import stronghold_player_safety_logic
+from ankiscape.logic import treasure_trails_logic
 from ankiscape.logic import trouble_brewing_logic
 from ankiscape.logic import tzhaar_fight_pit_logic
 from ankiscape.logic import varrock_museum_logic
@@ -296,6 +297,16 @@ _MODULE_GATES = (
             "rub_challenge_xp_lamp_pure",
         ),
         ("tests.test_daily_challenges",),
+    ),
+    (
+        treasure_trails_logic,
+        (
+            "read_clue_scroll_pure",
+            "apply_treasure_trail_review_pure",
+            "abandon_treasure_trail_pure",
+            "open_casket_pure",
+        ),
+        ("tests.test_treasure_trails",),
     ),
     (
         tzhaar_fight_pit_logic,

@@ -35,6 +35,28 @@ from ankiscape.core.constants import (
 
 
 class TestStoragePure(unittest.TestCase):
+    def test_v83_migrates_and_repairs_treasure_trail_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 82,
+                "inventory": {"Clue scroll (easy)": 1},
+                "activity_session": {"active_id": "treasure_trail"},
+                "treasure_trail": {
+                    "tier": "easy",
+                    "steps": ["simple_port_sarim_sailor", "not_a_real_step"],
+                    "index": 40,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["treasure_trail"]["steps"], ["simple_port_sarim_sailor"]
+        )
+        self.assertEqual(migrated["treasure_trail"]["index"], 0)
+        self.assertEqual(migrated["treasure_trails_completed"], 0)
+
     def test_v82_migrates_and_repairs_daily_challenge_state(self):
         migrated = migrate_loaded_data(
             {
@@ -64,8 +86,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["daily_challenge_pinned"], "")
         self.assertEqual(migrated["daily_challenge_bag_values"], [40])
 
-    def test_a_new_save_starts_with_an_empty_noticeboard(self):
+    def test_a_new_save_starts_with_an_empty_noticeboard_and_no_trail(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(data["treasure_trail"], {})
         self.assertEqual(data["daily_challenges"], [])
         self.assertEqual(data["daily_challenge_day"], 0)
         self.assertEqual(data["daily_challenge_blocked_skills"], [])

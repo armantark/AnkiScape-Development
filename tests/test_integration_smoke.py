@@ -6256,6 +6256,46 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_treasure_trail_read_and_casket_are_direct_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_treasure_trails_e2e")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Casket (easy)": 1},
+            "equipment": {},
+            "combat_encounter": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "current_combat_target": "chicken",
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "treasure_trail": {},
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_treasure_trails_command"](
+            "open_casket", {"tier": "easy"}
+        )
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(result["rewards"])
+        self.assertNotIn("Casket (easy)", addon.player_data["inventory"])
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_daily_challenge_hand_in_is_direct_and_undoable(self):
         """The whole chain: a loaded add-on, a real hand-in, and one undo."""
         addon = _load_addon_as_package("ankiscape_daily_challenges_e2e")

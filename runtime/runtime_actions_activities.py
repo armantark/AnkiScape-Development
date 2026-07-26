@@ -253,6 +253,8 @@ from ..logic.shades_of_mortton_logic import (
     apply_shades_of_mortton_review_pure,
     shades_of_mortton_view_pure,
 )
+from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
+from ..logic.treasure_trails_logic import apply_treasure_trail_review_pure
 from ..data.tzhaar_fight_pit_data import TZHAAR_FIGHT_PIT_ACTIVITY_ID
 from ..logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
@@ -2005,6 +2007,38 @@ def handle_tzhaar_fight_pit_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Fight Pit beat resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_treasure_trail_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_treasure_trail_review_pure(
+        ctx.player_data, ctx.random_random
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Treasure Trails unavailable",
+            str(result.get("reason", "Read a clue scroll before following a trail.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    # A blocked emote step is a real period stall, not a completed beat, so it
+    # is recorded as a failure rather than silently counted as progress.
+    _record_action(
+        ctx,
+        "utility",
+        TREASURE_TRAILS_ACTIVITY_ID,
+        not result.get("blocked"),
+        expected_success_chance=1.0,
+        failure_kind="emote_gear_missing" if result.get("blocked") else None,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Treasure Trail step resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

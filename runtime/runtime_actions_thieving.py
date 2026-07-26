@@ -218,6 +218,9 @@ from ..logic.court_cases_logic import (
     court_cases_view_pure,
     filter_court_summons_outputs_pure,
 )
+from ..logic.treasure_trails_logic import (
+    filter_clue_scroll_outputs_pure,
+)
 from ..data.circus_data import CIRCUS_ACTIVITY_ID
 from ..logic.circus_logic import apply_circus_review_pure, circus_view_pure
 from ..data.trouble_brewing_data import TROUBLE_BREWING_ACTIVITY_ID
@@ -413,6 +416,7 @@ def _thieving_rng_index(ctx: RuntimeActionContext, size: int) -> int:
 
 def _thieving_grant_outputs(player_data: dict[str, Any], outputs: dict[str, int]) -> None:
     outputs = filter_court_summons_outputs_pure(player_data, outputs)
+    outputs = filter_clue_scroll_outputs_pure(player_data, outputs)
     inventory = dict(player_data.get("inventory", {}) or {})
     for item_name, amount in outputs.items():
         inventory[item_name] = int(inventory.get(item_name, 0) or 0) + max(int(amount), 0)

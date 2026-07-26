@@ -587,6 +587,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-09-18T04:51:10Z"
   },
+  "activityicons/treasure_trail.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mg_treasuretrails.jpg",
+    "file_title": "Mg treasuretrails.jpg",
+    "image_url": "https://runescape.wiki/images/Mg_treasuretrails.jpg?de6ba",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/jpeg",
+    "sha1": "8ff0d3877e1cba096b981d16a92f826b99164fbb",
+    "size": 2678,
+    "source_wiki": "rs3",
+    "timestamp": "2008-07-28T14:53:49Z"
+  },
   "activityicons/trouble_brewing.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pieces_of_eight_3.png",
     "file_title": "Pieces of eight 3.png",
@@ -719,6 +731,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T04:06:27Z"
   },
+  "activityitems/amulet_of_magic_t.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Amulet_of_magic_%28t%29.png",
+    "file_title": "Amulet of magic (t).png",
+    "image_url": "https://runescape.wiki/images/archive/20131122234322%21Amulet_of_magic_%28t%29.png?42d8d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "98ffacc4a7c818e549cd2114b2ed1c89b8e552af",
+    "size": 552,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-05T02:08:58Z"
+  },
   "activityitems/autumn_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Autumn_sq%27irk.png",
     "file_title": "Autumn sq'irk.png",
@@ -779,6 +803,30 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-27T14:33:42Z"
   },
+  "activityitems/black_cane.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_cane.png",
+    "file_title": "Black cane.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072718%21Black_cane.png?94400",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c05da265502428eeabdbd8c61ce383dbcc910c91",
+    "size": 224,
+    "source_wiki": "rs3",
+    "timestamp": "2010-03-14T08:26:53Z"
+  },
+  "activityitems/black_full_helm_t.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_full_helm_%28t%29.png",
+    "file_title": "Black full helm (t).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013400%21Black_full_helm_%28t%29.png?7a442",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b803912d1517ae31142267156b774a1af223b1ed",
+    "size": 1659,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-07T22:51:30Z"
+  },
   "activityitems/black_ibis_body.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_ibis_body.png",
     "file_title": "Black ibis body.png",
@@ -827,6 +875,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-08-23T14:56:42Z"
   },
+  "activityitems/black_platebody_t.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_platebody_%28t%29.png",
+    "file_title": "Black platebody (t).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013624%21Black_platebody_%28t%29.png?0a24b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2517457265e72efd2c5bfe09c94a8ea6a563ac2c",
+    "size": 2099,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-07T22:53:28Z"
+  },
   "activityitems/blue_tricorn_hat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_tricorn_hat.png",
     "file_title": "Blue tricorn hat.png",
@@ -838,6 +898,18 @@
     "size": 504,
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T05:33:06Z"
+  },
+  "activityitems/casket_easy.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Casket.png",
+    "file_title": "Casket.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081506%21Casket.png?fc642",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2a6827c6747909115aea6ca8479cbc68b43e8b00",
+    "size": 627,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-04T04:04:13Z"
   },
   "activityitems/castle_wars_ballista_ammo.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ballista_ammo.png",
@@ -1031,6 +1103,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T08:13:19Z"
   },
+  "activityitems/clue_scroll_hard.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Clue_scroll_%28hard%29.png",
+    "file_title": "Clue scroll (hard).png",
+    "image_url": "https://runescape.wiki/images/archive/20180113013430%21Clue_scroll_%28hard%29.png?ddf49",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "40f13daf86f8dc2d6223293ccd2ee827746615d4",
+    "size": 533,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-02T03:01:58Z"
+  },
   "activityitems/compost_potion_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%281%29.png",
     "file_title": "Compost potion (1).png",
@@ -1198,6 +1282,18 @@
     "size": 792,
     "source_wiki": "rs3",
     "timestamp": "2011-11-22T04:33:42Z"
+  },
+  "activityitems/highwayman_mask.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Highwayman_mask.png",
+    "file_title": "Highwayman mask.png",
+    "image_url": "https://runescape.wiki/images/archive/20130718211138%21Highwayman_mask.png?a0c1f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1118e887e5f95ab3817e53cc8b5567e16ce67459",
+    "size": 295,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T18:58:04Z"
   },
   "activityitems/ivory_comb.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ivory_comb.png",
@@ -1462,6 +1558,18 @@
     "size": 175,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T04:44:35Z"
+  },
+  "activityitems/purple_sweets.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Purple_sweets.png",
+    "file_title": "Purple sweets.png",
+    "image_url": "https://runescape.wiki/images/Purple_sweets.png?7a9a7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f45e7e76e916960d10556b082f2ce2c4dcf4fd17",
+    "size": 353,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T10:33:08Z"
   },
   "activityitems/rainbow_afro.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rainbow_afro.png",
@@ -1918,6 +2026,18 @@
     "size": 1325,
     "source_wiki": "rs3",
     "timestamp": "2009-02-11T06:45:43Z"
+  },
+  "activityitems/spiked_helmet.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spiked_helmet.png",
+    "file_title": "Spiked helmet.png",
+    "image_url": "https://runescape.wiki/images/archive/20131123011048%21Spiked_helmet.png?00161",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ac212af78cf7c89e29b999642bc943c94342f69b",
+    "size": 1431,
+    "source_wiki": "rs3",
+    "timestamp": "2009-12-28T13:01:23Z"
   },
   "activityitems/spring_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irk.png",

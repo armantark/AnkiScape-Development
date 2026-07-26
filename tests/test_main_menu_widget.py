@@ -8465,6 +8465,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "big_top_bonanza",
                 "fish_flingers",
                 "phoenix_lair",
+                "treasure_trail",
             },
         )
         self.assertTrue(
@@ -13172,6 +13173,127 @@ class MainMenuWidgetTest(unittest.TestCase):
         light.click()
         QApplication.processEvents()
         self.assertTrue(pd["shades_of_mortton"]["altar_lit"])
+        dialog.close()
+
+    def test_treasure_trails_card_reads_a_clue_and_opens_the_casket(self) -> None:
+        from ankiscape.logic.treasure_trails_logic import (
+            apply_treasure_trails_command_pure,
+            default_treasure_trails_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(default_treasure_trails_state_pure())
+        pd["inventory"] = {"Clue scroll (easy)": 1}
+        pd["equipment"] = {}
+        pd["activity_session"] = {"active_id": ""}
+        command_calls = []
+
+        def trails_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_treasure_trails_command_pure(
+                pd, action_id, payload, lambda: 0.0
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_treasure_trails_command=trails_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "treasure_trail"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "treasureTrailsPanel")
+            if widget.isVisible()
+        )
+        read_button = panel.findChild(QPushButton, "treasureTrailsPrimary")
+        self.assertTrue(read_button.isEnabled())
+        read_button.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1], ("read", {"tier": "easy"}))
+        self.assertIn(
+            "Following an easy trail",
+            panel.findChild(QLabel, "treasureTrailsSummary").text(),
+        )
+        self.assertFalse(read_button.isEnabled())
+
+        # Finish the trail outside the panel, the way ordinary reviews would.
+        from ankiscape.logic.treasure_trails_logic import (
+            apply_treasure_trail_review_pure,
+        )
+
+        while pd["treasure_trail"]:
+            updated, ok, _result = apply_treasure_trail_review_pure(pd)
+            self.assertTrue(ok)
+            pd.clear()
+            pd.update(updated)
+        # Leave the card and come back, the way a player does after reviewing.
+        casket = panel.findChild(QPushButton, "treasureTrailsCasket")
+        dialog.findChild(QPushButton, "activityChooseAnotherButton").click()
+        QApplication.processEvents()
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        self.assertTrue(casket.isEnabled())
+        casket.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "open_casket")
+        self.assertNotIn("Casket (easy)", pd["inventory"])
+        self.assertFalse(casket.isEnabled())
+        dialog.close()
+
+    def test_a_higher_tier_clue_shows_a_reason_instead_of_doing_nothing(self) -> None:
+        from ankiscape.logic.treasure_trails_logic import (
+            default_treasure_trails_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(default_treasure_trails_state_pure())
+        pd["inventory"] = {"Clue scroll (hard)": 1}
+        pd["equipment"] = {}
+        pd["activity_session"] = {"active_id": ""}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_treasure_trails_command=lambda *_args: {"ok": True},
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "treasure_trail"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "treasureTrailsPanel")
+            if widget.isVisible()
+        )
+        self.assertFalse(
+            panel.findChild(QPushButton, "treasureTrailsPrimary").isEnabled()
+        )
+        self.assertIn(
+            "not built yet", panel.findChild(QLabel, "treasureTrailsStep").text()
+        )
+        self.assertIn(
+            "already have a clue scroll",
+            panel.findChild(QLabel, "treasureTrailsSummary").text(),
+        )
         dialog.close()
 
     def test_challenges_tab_renders_the_queue_and_routes_every_command(self) -> None:

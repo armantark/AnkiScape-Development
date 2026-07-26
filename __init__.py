@@ -136,6 +136,10 @@ from .logic.stronghold_player_safety_logic import (
 from .logic.soul_wars_logic import apply_soul_wars_command_pure
 from .logic.shades_of_mortton_logic import apply_shades_of_mortton_command_pure
 from .logic.tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
+from .logic.treasure_trails_logic import (
+    apply_treasure_trails_command_pure,
+    treasure_trails_view_pure,
+)
 from .logic.daily_challenges_logic import (
     advance_daily_challenges_day_pure,
     apply_daily_challenges_command_pure,
@@ -2709,6 +2713,21 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_treasure_trails_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        updated, ok, info = apply_treasure_trails_command_pure(
+            player_data, str(action_id), payload, random.random
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That Treasure Trails action is unavailable.")),
+            }
+        if not commit_direct_action(lambda _current: (updated, True)):
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        return {"ok": True, **info}
+
     def _apply_daily_challenges_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         view = daily_challenges_view_pure(player_data)
@@ -3093,6 +3112,7 @@ def _on_main_menu(
         on_shades_of_mortton_command=_apply_shades_of_mortton_command,
         on_tzhaar_fight_pit_command=_apply_tzhaar_fight_pit_command,
         on_daily_challenges_command=_apply_daily_challenges_command,
+        on_treasure_trails_command=_apply_treasure_trails_command,
         on_varrock_museum_command=_apply_varrock_museum_command,
         on_managing_miscellania_command=_apply_managing_miscellania_command,
         on_livid_farm_command=_apply_livid_farm_command,
