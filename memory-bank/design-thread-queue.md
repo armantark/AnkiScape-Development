@@ -27,8 +27,60 @@ with one path.
 
 ## 3. Open decisions
 
-None. The four decisions that blocked implementation were answered on
-2026-07-25. See section 4.
+### 3.1 Fish Flingers: two sourced mechanics have no reachable home
+
+Found 2026-07-25 while verifying the Fish Flingers breadth-one slice. Both come
+from the same cause — the settled six-review compression and the hidden period
+distributions leave two sourced rewards with nothing to attach to. Neither was
+invented around, so the family ships with them recorded instead.
+
+**a. The Master Angler medal can never be earned.**
+The source names four medals: Junior Angler at three perfect tackles, Master
+Angler at six, Whopper at three big fish, Team Player at six assists. But
+`logic/fish_flingers_logic.py:315` derives `perfect_tackles` as
+`max(0, next_review - 2)` and the event ends at `next_review == 6`, so every
+completed event yields exactly four. Master Angler's `>= 6` branch is therefore
+dead code, Junior Angler is granted unconditionally, and the token term
+`min(3, perfect_tackles // 2)` is a hard-coded 2 with no variance.
+
+The audit at `source-audits/fish-flingers-loop-2026-07-17.md:80-84` already
+predicted this and accepted it, saying the compression "does not fabricate a
+six-perfect Master Angler medal". What it did not do is record that one of four
+sourced medals becomes permanently unearnable, which is a real divergence.
+
+- Option A, accept and document: leave three medals earnable, mark Master Angler
+  as unreachable-by-compression in the audit, and delete the dead branch so the
+  code stops implying otherwise.
+- Option B, make perfect tackles cumulative across events rather than per-event,
+  so six is reachable over two events. Cheap, but the source reads as a
+  per-event award and this would be our invention.
+- Option C, lengthen the event past six reviews so six perfect tackles fit.
+  Faithful to the medal table and unfaithful to the settled compression, which
+  every other part of this family is built on.
+- **Recommendation: A.** The compression is settled and load-bearing; one medal
+  is a smaller loss than reopening the event length, and B invents a rule.
+
+**b. Weight is computed and read by nothing.**
+This round added a `weight_modifier` to each of six species and four locations.
+They flow into `weight_each`, then `weight`, then `total_weight`, which is
+persisted, clamped and printed into one Qt label at `ui/ui.py:11356`. No gate,
+reward, medal, XP formula or rotation reads it. It is the same defect as the
+inert `location_index` this round set out to fix.
+
+The natural consumer is the Whopper medal: a "big fish" ought to be a heavy one.
+But `logic/fish_flingers_logic.py:302` decides big fish with a flat
+`_roll(...) < 0.25` that ignores weight entirely, and the audit marks the real
+catch and weight distributions as remaining data-depth work.
+
+- Option A, make the big-fish chance rise with the catch's weight, replacing one
+  unsourced abstraction with another that at least uses the weight the source
+  says exists. Must be labelled an abstraction, not parity.
+- Option B, leave the flat roll and drop the weight modifiers entirely, so
+  nothing is computed that nobody reads.
+- Option C, leave both as they are and accept weight as flavour text.
+- **Recommendation: A.** Both the flat roll and any weight coupling are
+  inventions, so neither is more faithful; A is the one that stops the family
+  carrying state it never consumes. But it is a balance choice, so it is yours.
 
 ## 4. Answered decisions
 
