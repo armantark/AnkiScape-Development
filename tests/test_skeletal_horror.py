@@ -216,7 +216,7 @@ class SkeletalHorrorMechanicsTests(unittest.TestCase):
         self.assertTrue(updated["skeletal_horror"]["active"])
         self.assertEqual(reducer.call_args.kwargs["ticks"], 6)
         self.assertTrue(reducer.call_args.kwargs["live_cadence"])
-        self.assertTrue(reducer.call_args.kwargs["safe_death"])
+        self.assertFalse(reducer.call_args.kwargs["safe_death"])
         self.assertFalse(reducer.call_args.kwargs["allow_bank_run"])
 
     def test_thresholds_remove_bury_and_switch_styles_in_one_review(self):
@@ -299,10 +299,11 @@ class SkeletalHorrorMechanicsTests(unittest.TestCase):
         self.assertFalse(can_enter)
         self.assertIn("No weekly Skeletal Horror entry", info["reason"])
 
-    def test_safe_death_clears_instance_without_items_or_weekly_charge(self):
+    def test_death_clears_the_instance_without_spending_the_weekly_entry(self):
+        # The combat reducer is stubbed here, so this covers only the family's
+        # own bookkeeping. Item loss and the grave belong to the real death path
+        # and are asserted in the unstubbed test further down.
         data = _entered()
-        data["inventory"]["Shark"] = 3
-        data["equipment"]["weapon"] = "Bronze sword"
         with patch(
             "ankiscape.logic.skeletal_horror_logic.apply_combat_burst_pure",
             side_effect=_combat_result(died=True),
@@ -313,11 +314,10 @@ class SkeletalHorrorMechanicsTests(unittest.TestCase):
         self.assertTrue(ok, result)
         self.assertTrue(result["died"])
         self.assertFalse(defeated["skeletal_horror"]["active"])
-        self.assertEqual(defeated["inventory"]["Shark"], 3)
-        self.assertEqual(defeated["equipment"]["weapon"], "Bronze sword")
+        self.assertEqual(defeated["skeletal_horror"]["encounter"], {})
+        self.assertEqual(defeated["combat_encounter"], {})
         self.assertEqual(defeated["skeletal_horror"]["kills"], 0)
         self.assertEqual(defeated["skeletal_horror"]["available_entries"], 0)
-        self.assertEqual(defeated["combat_grave"], {})
 
 
 class SkeletalHorrorPersistenceRuntimeAndAssetTests(unittest.TestCase):
@@ -517,11 +517,10 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
         self.assertEqual(data["prayer_exp"], 7_000.0 + 1_000.0)
         self.assertEqual(data["skeletal_horror"]["available_entries"], 0)
 
-    def test_a_real_death_ends_the_instance_keeping_items_and_the_entry(self):
+    def test_a_real_death_drops_a_grave_outside_the_lair_and_keeps_the_entry(self):
         data = _unlocked(combat_auto_flee=False)
         data["combat_lifepoints"] = 100
-        before_inventory = dict(data["inventory"])
-        before_equipment = dict(data["equipment"])
+        data["equipment"]["weapon"] = "Bronze sword"
         data, ok, info = apply_skeletal_horror_command_pure(
             data, "enter", equipment_data=EQUIPMENT_DATA
         )
@@ -537,9 +536,10 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
             self.fail("an unarmed player never died")
 
         self.assertTrue(result["died"])
-        self.assertEqual(dict(data["inventory"]), before_inventory)
-        self.assertEqual(dict(data["equipment"]), before_equipment)
-        self.assertEqual(data["combat_grave"], {})
+        # The audits require ordinary death consequences: the lair is dangerous,
+        # so the gear is stripped into a grave standing outside the encounter.
+        self.assertEqual(data["equipment"], {})
+        self.assertIn("Bronze sword", data["combat_grave"]["items"])
         self.assertEqual(data["skeletal_horror"]["kills"], 0)
         self.assertEqual(data["combat_encounter"], {})
         self.assertEqual(data["activity_session"], {"active_id": ""})
