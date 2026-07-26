@@ -1,4 +1,8 @@
-"""Dedicated Clan Wars activity panel with a Qt-free import fallback."""
+"""Dedicated Clan Wars activity panel with a Qt-free import fallback.
+
+The panel renders flags. Every enable, visibility and warning decision is
+owned by ``clan_wars_view_pure``; nothing here re-derives a portal rule.
+"""
 
 from __future__ import annotations
 
@@ -6,20 +10,13 @@ import os
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from ..data.clan_wars_data import (
-    CLAN_WARS_ACTIVITY_ID,
-    CLAN_WARS_MAX_REVIEWS,
-    CLAN_WARS_MODES,
-    CLAN_WARS_POLICIES,
-    CLAN_WARS_RED_MODE,
-)
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 
 try:
     from aqt.qt import (  # type: ignore
         QComboBox,
         QFrame,
-        QGridLayout,
         QHBoxLayout,
         QLabel,
         QMessageBox,
@@ -106,32 +103,28 @@ if HAS_QT:
             self.summary.setStyleSheet("color: palette(text);")
             layout.addWidget(self.summary)
 
+            self.warning = QLabel(self)
+            self.warning.setObjectName("clanWarsWarning")
+            self.warning.setWordWrap(True)
+            self.warning.setStyleSheet("color: #ef5350; font-size: 11px;")
+            layout.addWidget(self.warning)
+
             self.progress = QProgressBar(self)
             self.progress.setObjectName("clanWarsProgress")
-            self.progress.setRange(0, CLAN_WARS_MAX_REVIEWS)
             self.progress.setTextVisible(True)
             layout.addWidget(self.progress)
 
             plan = QWidget(self)
-            plan_layout = QGridLayout(plan)
+            plan_layout = QHBoxLayout(plan)
             plan_layout.setContentsMargins(0, 0, 0, 0)
-            plan_layout.setHorizontalSpacing(6)
-            plan_layout.setVerticalSpacing(5)
+            plan_layout.setSpacing(6)
             self.mode_combo = QComboBox(plan)
             self.mode_combo.setObjectName("clanWarsModeCombo")
             self.mode_combo.setAccessibleName("Clan Wars portal mode")
-            for mode in CLAN_WARS_MODES:
-                self.mode_combo.addItem(mode.display_name, mode.id)
-            self.policy_combo = QComboBox(plan)
-            self.policy_combo.setObjectName("clanWarsPolicyCombo")
-            self.policy_combo.setAccessibleName("Clan Wars combat policy")
-            for policy in CLAN_WARS_POLICIES:
-                self.policy_combo.addItem(policy.display_name, policy.id)
             self.save_button = QPushButton("Save plan", plan)
             self.save_button.setObjectName("clanWarsSavePlanButton")
-            plan_layout.addWidget(self.mode_combo, 0, 0)
-            plan_layout.addWidget(self.policy_combo, 0, 1)
-            plan_layout.addWidget(self.save_button, 0, 2)
+            plan_layout.addWidget(self.mode_combo, 1)
+            plan_layout.addWidget(self.save_button)
             layout.addWidget(plan)
 
             actions = QWidget(self)
@@ -151,7 +144,7 @@ if HAS_QT:
             layout.addWidget(actions)
 
             self.mode_combo.currentIndexChanged.connect(
-                lambda _index: self._render_selection()
+                lambda _index: self._render_pending_selection()
             )
             self.save_button.clicked.connect(
                 lambda _checked=False: self._save_plan()
@@ -174,16 +167,11 @@ if HAS_QT:
         def selected_mode(self) -> str:
             return str(self.mode_combo.currentData() or "")
 
-        def selected_policy(self) -> str:
-            return str(self.policy_combo.currentData() or "")
-
-        def _set_combo_value(self, combo: QComboBox, value: str) -> None:
-            index = combo.findData(value)
-            if index < 0:
-                return
-            blocked = combo.blockSignals(True)
-            combo.setCurrentIndex(index)
-            combo.blockSignals(blocked)
+        def _mode_option(self, mode_id: str) -> Mapping[str, Any]:
+            view = clan_wars_view_pure(self._player_data)
+            return next(
+                row for row in view["mode_options"] if row["id"] == mode_id
+            )
 
         def _run_command(
             self,
@@ -212,39 +200,27 @@ if HAS_QT:
             return result
 
         def _save_plan(self) -> None:
-            self._run_command(
-                "set_policy",
-                {
-                    "mode": self.selected_mode(),
-                    "strategy": self.selected_policy(),
-                },
-            )
+            self._run_command("set_policy", {"mode": self.selected_mode()})
 
         def _enter_or_select(self) -> None:
-            view = clan_wars_view_pure(self._player_data)
-            if not view["active"]:
-                if self.selected_mode() == CLAN_WARS_RED_MODE:
+            if not clan_wars_view_pure(self._player_data)["active"]:
+                option = self._mode_option(self.selected_mode())
+                warning = str(option["entry_warning"])
+                if warning:
                     answer = QMessageBox.question(
                         self,
-                        "Enter the dangerous red portal?",
-                        "On death, all carried and worn items are destroyed "
-                        "except one highest-value slot when Protect Item applies. "
-                        "There is no gravestone or Death's Office recovery, and "
-                        "teleport escape is forbidden.",
+                        f"Enter the {option['display_name']}?",
+                        warning,
                         QMessageBox.StandardButton.Yes
                         | QMessageBox.StandardButton.No,
                         QMessageBox.StandardButton.No,
                     )
                     if answer != QMessageBox.StandardButton.Yes:
                         return
-                result = self._run_command(
+                if not self._run_command(
                     "enter",
-                    {
-                        "mode": self.selected_mode(),
-                        "strategy": self.selected_policy(),
-                    },
-                )
-                if not result.get("ok", False):
+                    {"mode": self.selected_mode()},
+                ).get("ok", False):
                     return
             if self._on_select is not None:
                 self._on_select(CLAN_WARS_ACTIVITY_ID)
@@ -262,94 +238,63 @@ if HAS_QT:
             if answer == QMessageBox.StandardButton.Yes:
                 self._run_command("leave")
 
-        def _render_selection(self) -> None:
-            if clan_wars_view_pure(self._player_data)["active"]:
+        def _render_pending_selection(self) -> None:
+            """Preview the portal the player is about to save or enter."""
+            view = clan_wars_view_pure(self._player_data)
+            if view["active"]:
                 return
-            mode_id = self.selected_mode()
-            mode = next(row for row in CLAN_WARS_MODES if row.id == mode_id)
-            self.status.setText("DANGEROUS" if mode.dangerous else "SAFE")
-            self.summary.setText(mode.description)
+            option = self._mode_option(self.selected_mode())
+            self.status.setText(
+                "DANGEROUS" if option["dangerous"] else "SAFE"
+            )
+            self.summary.setText(str(option["description"]))
+            self.warning.setText(str(option["entry_warning"]))
+            self.warning.setVisible(bool(option["entry_warning"]))
 
         def refresh(self) -> None:
             view = clan_wars_view_pure(self._player_data)
-            session = view["clan_wars"]
-            active = bool(session)
-            if active:
-                mode_id = str(session["mode"])
-                policy_id = str(session["strategy"])
-            else:
-                mode_id = str(view["selected_mode"])
-                policy_id = str(view["selected_strategy"])
-            self._set_combo_value(self.mode_combo, mode_id)
-            self._set_combo_value(self.policy_combo, policy_id)
-            dangerous = mode_id == CLAN_WARS_RED_MODE
-            self.status.setText(
-                "ACTIVE · DANGEROUS"
-                if active and dangerous
-                else "ACTIVE · SAFE"
-                if active
-                else "DANGEROUS"
-                if dangerous
-                else "SAFE"
-            )
-            if active:
-                review = int(session["review"])
-                self.summary.setText(
-                    f"{view['mode_display_name']} · "
-                    f"{int(session['player_score'])}-"
-                    f"{int(session['opponent_score'])} · "
-                    f"{session['opponent']['display_name']}"
-                )
-                self.progress.setValue(review)
-                self.progress.setFormat(
-                    f"{review}/{CLAN_WARS_MAX_REVIEWS} successful reviews"
-                )
-            else:
-                history = str(view["clan_wars_last_result"])
-                record = (
-                    f"{int(view['clan_wars_wins'])}W/"
-                    f"{int(view['clan_wars_draws'])}D/"
-                    f"{int(view['clan_wars_losses'])}L · "
-                    f"{int(view['clan_wars_kills'])} kills"
-                )
-                self.summary.setText(
-                    history or f"{view['mode_description']} {record}"
-                )
-                self.progress.setValue(0)
-                self.progress.setFormat(
-                    f"Bounded at {CLAN_WARS_MAX_REVIEWS} successful reviews"
-                )
+            blocked = self.mode_combo.blockSignals(True)
+            self.mode_combo.clear()
+            for option in view["mode_options"]:
+                if option["selectable"]:
+                    self.mode_combo.addItem(
+                        str(option["display_name"]), option["id"]
+                    )
+            index = self.mode_combo.findData(view["selected_mode"])
+            if index >= 0:
+                self.mode_combo.setCurrentIndex(index)
+            self.mode_combo.blockSignals(blocked)
+
+            self.status.setText(str(view["status_label"]))
+            self.summary.setText(str(view["summary_text"]))
+            self.warning.setText(str(view["entry_warning"]))
+            self.warning.setVisible(bool(view["entry_warning"]))
+            self.progress.setRange(0, int(view["progress_maximum"]))
+            self.progress.setValue(int(view["progress_value"]))
+            self.progress.setFormat(str(view["progress_format"]))
+
             enabled = self._on_command is not None
-            self.mode_combo.setEnabled(not active and enabled)
-            self.policy_combo.setEnabled(not active and enabled)
-            self.save_button.setEnabled(not active and enabled)
-            is_selected = (
-                str(self._player_data.get("current_utility", ""))
-                == CLAN_WARS_ACTIVITY_ID
+            self.mode_combo.setEnabled(
+                enabled and bool(view["mode_controls_enabled"])
             )
-            self.primary_button.setText(
-                "Selected for reviews"
-                if active and is_selected
-                else "Select for reviews"
-                if active
-                else "Enter portal"
+            self.save_button.setEnabled(
+                enabled and bool(view["mode_controls_enabled"])
             )
+            self.primary_button.setText(str(view["primary_label"]))
             self.primary_button.setEnabled(
-                enabled
-                and not is_selected
-                and (active or bool(view["can_enter"]))
+                enabled and bool(view["primary_enabled"])
             )
-            self.teleport_button.setVisible(active)
+            self.teleport_button.setVisible(
+                bool(view["teleport_escape_visible"])
+            )
             self.teleport_button.setEnabled(
-                active and bool(view["teleport_escape_allowed"]) and enabled
+                enabled and bool(view["teleport_escape_allowed"])
             )
             self.teleport_button.setToolTip(
-                "Teleport escape is forbidden in the dangerous red portal."
-                if active and dangerous
-                else ""
+                str(view["teleport_escape_reason"])
             )
-            self.leave_button.setVisible(active)
-            self.leave_button.setEnabled(active and enabled)
+            self.leave_button.setVisible(bool(view["leave_visible"]))
+            self.leave_button.setEnabled(enabled and bool(view["leave_visible"]))
 
 else:
 
@@ -376,11 +321,6 @@ else:
 
         def selected_mode(self) -> str:
             return str(clan_wars_view_pure(self._player_data)["selected_mode"])
-
-        def selected_policy(self) -> str:
-            return str(
-                clan_wars_view_pure(self._player_data)["selected_strategy"]
-            )
 
         def refresh(self) -> None:
             return None

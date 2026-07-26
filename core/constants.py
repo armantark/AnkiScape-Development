@@ -89,7 +89,6 @@ from ..data.duel_arena_data import (
 from ..data.clan_wars_data import (
     CLAN_WARS_ACTIVITY_ID,
     clan_wars_activity_as_dict,
-    clan_wars_enemy_as_dict,
 )
 
 from ..data.varrock_museum_data import (
@@ -1453,7 +1452,6 @@ _fungicide_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide.png")
 if os.path.exists(_fungicide_path):
     COMBAT_ITEM_IMAGES["Fungicide"] = _fungicide_path
 COMBAT_ENEMY_IMAGES = {}
-COMBAT_ENEMY_DATA.update(clan_wars_enemy_as_dict())
 for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
     if os.path.exists(_path):

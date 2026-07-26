@@ -3766,6 +3766,7 @@ def on_good_answer(before_state=None):
                             runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
                             runtime_actions.WEREWOLF_SKULLBALL_ACTIVITY_ID,
                             DUEL_ARENA_ACTIVITY_ID,
+                            CLAN_WARS_ACTIVITY_ID,
                         }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())

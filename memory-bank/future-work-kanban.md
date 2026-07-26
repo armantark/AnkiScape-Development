@@ -184,6 +184,27 @@ catalog depth.
 - Durable audit:
   `memory-bank/source-audits/duel-arena-horizontal-implementation-2026-07-25.md`.
 
+### Clan Wars — horizontal mechanics shipped 2026-07-26
+
+Labels: `SOURCE AUDIT` for the team-battle scoring model and crowd rates;
+`DESIGN` for the one open fork.
+
+- Both free-for-all portals and the purple team race ship as explicit modes
+  over a shared eight-review bounded match.
+- The red portal destroys carried and worn items with no gravestone and no
+  Death's Office recovery, saving only what Protect Item covers. Its boost
+  clamp is exact from Darkan `checkPVPPotionBoosts`.
+- A disclosed crossfire model stands in for the rest of the arena. Without it
+  every match ended `0-0` and the red portal's consequence was dead code.
+- Deferred data depth: real crowd size and kill rates, any period scoring or
+  reward for the team battle (Darkan has no clan-versus-clan controller), and
+  rival loadouts beyond a level-scaled melee rival. Rival kills drop nothing,
+  because simulated rivals carry nothing and a drop table would be invented.
+- Open fork: `memory-bank/design-thread-queue.md` section 3.1, who is credited
+  for a crossfire kill in the purple portal.
+- Durable audit:
+  `memory-bank/source-audits/clan-wars-horizontal-implementation-2026-07-26.md`.
+
 ### Owner-approved post-closure amendments
 
 Labels: none. All approved amendments and their two follow-up design questions

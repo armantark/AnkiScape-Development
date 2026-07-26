@@ -27,7 +27,35 @@ with one path.
 
 ## 3. Open decisions
 
-None. All decisions raised so far are answered; see section 4.
+### 3.1 Clan Wars purple portal — who gets a crossfire kill?
+
+Answering 4.3 settled both free-for-all portals but left the purple team battle
+as "the settled bounded team-score race", and Darkan has no clan-versus-clan
+controller to read (only `FFAController.java`), so nothing settles this.
+
+Clan Wars matches are decided by a crossfire model: the rival the player is
+fighting is also being worn down by the rest of the arena, and someone
+eventually lands its killing blow. In the two free-for-all portals that someone
+is a stranger, so the kill scores against the player. The purple portal is the
+question: in a clan-versus-clan battle, the combatants around the player are
+clan mates.
+
+- **Option A (implemented).** A crossfire kill in the purple portal scores for
+  the player's clan, and the opposing clan scores once every three reviews.
+  This gives the team battle a mechanic the free-for-all does not have, and it
+  is the only reading under which a purple win is reachable at all.
+- **Option B.** Purple behaves exactly like the white portal, and its team
+  identity is cosmetic. Under this reading the player is the only source of
+  their clan's score, and a purple win was never observed in 400 simulated
+  matches at any combat level.
+
+Recommendation and current behaviour: **Option A**. Option B makes the purple
+portal's win outcome an inert row, which is the specific defect this loop is
+meant to prevent.
+
+- Blocks: nothing. Clan Wars ships on Option A; switching to B is a small edit
+  in `logic/clan_wars_logic.py`.
+- Evidence: `memory-bank/source-audits/clan-wars-horizontal-implementation-2026-07-26.md`
 
 ## 4. Answered decisions
 

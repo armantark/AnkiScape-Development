@@ -15,10 +15,9 @@ CLAN_WARS_MAX_REVIEWS = 8
 CLAN_WARS_COMBAT_TICKS = 6
 
 CLAN_WARS_SOURCE = (
-    "RuneScape Wiki Clan Wars oldid=6288405 "
-    "(2012-09-24T05:10:06Z); Darkan FFAController.java and Potions.kt at "
-    "22c1460e52f8eac453e925586429c8c9ee22c652; OpenRS2 cache revisions "
-    "727 and 742 object definitions 38698, 38699, 38700, 49255, and 49256"
+    "RuneScape Wiki Clan Wars oldid=6288405 (2012-09-24T05:10:06Z); Darkan "
+    "clanwars/FFAController.java, Potions.kt checkPVPPotionBoosts and "
+    "Player.sendPVPItemsOnDeath at d14face35aa5c851b7d3c48df79f619ef399a366"
 )
 
 
@@ -28,73 +27,62 @@ class ClanWarsMode:
     display_name: str
     description: str
     dangerous: bool
-    team_race: bool
+    entry_warning: str
 
 
 CLAN_WARS_MODES = (
     ClanWarsMode(
         CLAN_WARS_WHITE_MODE,
         "White portal · safe free-for-all",
-        "Fight simulated opponents without losing items on death.",
+        "Fight the surrounding free-for-all without losing items on death.",
         False,
-        False,
+        "",
     ),
     ClanWarsMode(
         CLAN_WARS_RED_MODE,
         "Red portal · dangerous free-for-all",
-        "Death destroys carried and worn items; Protect Item saves one slot.",
+        "Death destroys carried and worn items; Protect Item saves one.",
         True,
-        False,
+        "On death, every carried and worn item is destroyed except the one "
+        "that Protect Item saves. There is no gravestone and no Death's "
+        "Office recovery, teleport escape is forbidden, and extreme or "
+        "Overload boosts are clamped on entry.",
     ),
     ClanWarsMode(
         CLAN_WARS_PURPLE_MODE,
         "Purple portal · team score race",
-        "A bounded AnkiScape team-score race against simulated opponents.",
+        "A bounded team-score race; the opposing clan also scores elsewhere.",
         False,
-        True,
+        "",
     ),
 )
 CLAN_WARS_MODES_BY_ID = {mode.id: mode for mode in CLAN_WARS_MODES}
 CLAN_WARS_MODE_IDS = tuple(mode.id for mode in CLAN_WARS_MODES)
 
-
-@dataclass(frozen=True)
-class ClanWarsPolicy:
-    id: str
-    display_name: str
-    description: str
-
-
-CLAN_WARS_POLICIES = (
-    ClanWarsPolicy(
-        "balanced",
-        "Balanced",
-        "Use the current Combat loadout without an extra damage modifier.",
-    ),
-    ClanWarsPolicy(
-        "pressure",
-        "Pressure",
-        "Trade defence for a small damage increase during this simulation.",
-    ),
-    ClanWarsPolicy(
-        "survival",
-        "Survival",
-        "Trade damage for a more conservative simulation.",
-    ),
-)
-CLAN_WARS_POLICIES_BY_ID = {
-    policy.id: policy for policy in CLAN_WARS_POLICIES
-}
-CLAN_WARS_POLICY_IDS = tuple(policy.id for policy in CLAN_WARS_POLICIES)
-
-# Opponent rotation, review cap, and policy modifiers are bounded AnkiScape
-# abstractions. They do not claim to reproduce a period Clan Wars match format.
+# Match shape. A period free-for-all is a crowd, not a duel: rivals are worn
+# down by combatants other than the player, and the player is worn down by
+# combatants other than the engaged rival. These divisors are the same kind of
+# disclosed review-scale abstraction that TzHaar Fight Pit ships for its
+# roster attrition and late-round pressure, and they carry no claim about a
+# period rate. They exist so that a kill, a death, a win, a loss and a draw are
+# all reachable inside the bounded match instead of only a 0-0 draw.
 CLAN_WARS_OPPONENT_OFFSETS = (-6, 2, 8)
-CLAN_WARS_POLICY_DAMAGE_MULTIPLIERS = {
-    "balanced": 1.0,
-    "pressure": 1.12,
-    "survival": 0.88,
-}
+CLAN_WARS_RIVAL_CROSSFIRE_DIVISOR = 3
+CLAN_WARS_PLAYER_CROSSFIRE_DIVISOR = 6
+CLAN_WARS_CROSSFIRE_START_REVIEW = 3
+CLAN_WARS_TEAM_SCORE_INTERVAL = 3
+
+# Exact, from Darkan `Potions.kt` `checkPVPPotionBoosts`, which the dangerous
+# free-for-all controller calls on entry: each combat skill is lowered to
+# `base + flat + base * multiplier` whenever a boost has carried it higher.
+CLAN_WARS_RED_BOOST_CAPS = (
+    ("attack", 5, 0.15),
+    ("strength", 5, 0.15),
+    ("defense", 5, 0.15),
+    ("ranged", 5, 0.10),
+    ("magic", 5, 0.0),
+)
+
 
 CLAN_WARS_ASSET_MANIFEST = (
     {
@@ -120,26 +108,24 @@ def clan_wars_activity_as_dict() -> dict[str, dict[str, Any]]:
     }
 
 
-def clan_wars_enemy_as_dict() -> dict[str, dict[str, Any]]:
+def clan_wars_enemy_pure() -> dict[str, Any]:
+    """Hidden registry row; live rival stats are persisted per match."""
     return {
-        CLAN_WARS_COMBAT_TARGET_ID: {
-            "name": "Simulated Clan Wars opponent",
-            "lifepoints": 100,
-            "attack_level": 10,
-            "strength_level": 10,
-            "defense_level": 10,
-            "ranged_level": 10,
-            "magic_level": 10,
-            "attack_bonus": 0,
-            "strength_bonus": 0,
-            "defense_bonus": 0,
-            "attack_speed": 4,
-            "attack_style": "melee",
-            "attack_xp": 0,
-            "strength_xp": 0,
-            "defense_xp": 0,
-            "hitpoints_xp": 0,
-            "drops": (),
-            "source": CLAN_WARS_SOURCE,
-        }
+        "display_name": "Clan Wars rival",
+        "level": 3,
+        "group": "Clan Wars",
+        "stats": {
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "hitpoints": 100,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {},
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "drops": {"guaranteed": (), "tables": ()},
+        "xp_multiplier": 1.0,
+        "source": CLAN_WARS_SOURCE + "; hidden dynamic-opponent registry row",
     }

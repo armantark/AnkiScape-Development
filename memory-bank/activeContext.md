@@ -3558,3 +3558,39 @@ The visual closure report is
   checks also pass.
 - Durable evidence:
   `source-audits/duel-arena-horizontal-implementation-2026-07-25.md`.
+
+## Clan Wars horizontal closure — 2026-07-26
+
+- Finished the interrupted `711a87c8` build. Both free-for-all portals and the
+  purple team race ship as explicit modes with a single bounded eight-review
+  match shape.
+- The red portal is genuinely dangerous. `_combat_apply_pvm_death` gained a
+  `no_grave` mode, so a red death destroys carried and worn items, writes no
+  gravestone and no Death's Office entry, and lets Protect Item save exactly
+  one item. Three tests fail if that safety net is ever restored, including one
+  covering the grave-stacking branch where it would most plausibly return.
+- The interrupted build could not actually be played. Measured across combat
+  levels 10 to 99, a match could only ever end `0-0`: the player could not kill
+  a rival inside the review bound and could not be killed by one, so `win`,
+  `loss`, `kill`, `death` and the whole red-portal consequence were unreachable.
+  A disclosed crossfire model (the rest of the arena wearing down both the rival
+  and the player) makes every outcome reachable through real play; the tests pin
+  each one to a recorded seed.
+- Two inventions from the interrupted build were removed rather than documented:
+  a `balanced`/`pressure`/`survival` damage dial that no source supports and
+  whose descriptions promised an unimplemented defence trade, and three OpenRS2
+  object IDs in `CLAN_WARS_SOURCE` that appear nowhere in the Darkan tree.
+- The red portal's boost caps were nearly registered as a placeholder, then
+  found exactly in Darkan `Potions.kt` `checkPVPPotionBoosts`. They ship as an
+  exact sourced value with a literal-pinning test. No placeholder was added.
+- Adjacent defects fixed: the enemy registry row had a hallucinated schema with
+  no `stats`, and Clan Wars was missing from the once-per-review multiplier
+  exclusion list, so one answer at multiplier 10 consumed a whole match.
+- The panel now renders flags only; `clan_wars_view_pure` owns every enable,
+  visibility and warning decision including portal selectability and the
+  red-portal danger warning.
+- Verification passes both full lanes at 2,780 tests: non-Qt with 334 expected
+  skips and real offscreen Qt with one intentional skip.
+- Durable evidence:
+  `source-audits/clan-wars-horizontal-implementation-2026-07-26.md`. One design
+  fork is open in `design-thread-queue.md` section 3.1.

@@ -2067,18 +2067,20 @@ def handle_clan_wars_answer(
     ctx.player_data.update(updated)
     combat = dict(result.get("combat") or {})
     xp_rewards = dict(combat.get("xp_rewards") or {})
+    # A death is this activity's failure mode, so it must be recorded as one.
+    # Telemetry only keeps a failure kind on an unsuccessful action.
+    died = bool(combat.get("died"))
     _record_action(
         ctx,
         "utility",
         CLAN_WARS_ACTIVITY_ID,
-        productive,
+        productive and not died,
         expected_success_chance=1.0,
         failure_kind=(
             "dangerous_death"
-            if combat.get("died")
-            and not combat.get("safe_death")
+            if died and not combat.get("safe_death")
             else "safe_death"
-            if combat.get("died")
+            if died
             else None
         ),
         primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),

@@ -1,4 +1,4 @@
-"""Pure Clan Wars portal policies and bounded review combat."""
+"""Pure Clan Wars portal policy and bounded free-for-all review combat."""
 
 from __future__ import annotations
 
@@ -10,16 +10,19 @@ from ..data.clan_wars_data import (
     CLAN_WARS_ACTIVITY_ID,
     CLAN_WARS_COMBAT_TARGET_ID,
     CLAN_WARS_COMBAT_TICKS,
+    CLAN_WARS_CROSSFIRE_START_REVIEW,
     CLAN_WARS_MAX_REVIEWS,
     CLAN_WARS_MODE_IDS,
+    CLAN_WARS_MODES,
     CLAN_WARS_MODES_BY_ID,
     CLAN_WARS_OPPONENT_OFFSETS,
-    CLAN_WARS_POLICIES_BY_ID,
-    CLAN_WARS_POLICY_DAMAGE_MULTIPLIERS,
-    CLAN_WARS_POLICY_IDS,
+    CLAN_WARS_PLAYER_CROSSFIRE_DIVISOR,
     CLAN_WARS_PURPLE_MODE,
+    CLAN_WARS_RED_BOOST_CAPS,
     CLAN_WARS_RED_MODE,
+    CLAN_WARS_RIVAL_CROSSFIRE_DIVISOR,
     CLAN_WARS_SOURCE,
+    CLAN_WARS_TEAM_SCORE_INTERVAL,
     CLAN_WARS_WHITE_MODE,
 )
 from ..logic_pure.logic_pure import (
@@ -31,7 +34,6 @@ from ..logic_pure.logic_pure import (
 
 CLAN_WARS_STATE_VERSION = 1
 _VALID_MODES = frozenset(CLAN_WARS_MODE_IDS)
-_VALID_POLICIES = frozenset(CLAN_WARS_POLICY_IDS)
 
 
 def _int(
@@ -57,10 +59,7 @@ def _empty_activity_session() -> dict[str, str]:
 def default_clan_wars_state_pure() -> dict[str, Any]:
     return {
         "clan_wars": {},
-        "clan_wars_policy": {
-            "mode": CLAN_WARS_WHITE_MODE,
-            "strategy": "balanced",
-        },
+        "clan_wars_policy": {"mode": CLAN_WARS_WHITE_MODE},
         "clan_wars_matches": 0,
         "clan_wars_wins": 0,
         "clan_wars_losses": 0,
@@ -68,6 +67,7 @@ def default_clan_wars_state_pure() -> dict[str, Any]:
         "clan_wars_deaths": 0,
         "clan_wars_kills": 0,
         "clan_wars_exits": 0,
+        "clan_wars_items_destroyed": 0,
         "clan_wars_last_result": "",
     }
 
@@ -75,11 +75,7 @@ def default_clan_wars_state_pure() -> dict[str, Any]:
 def _sanitize_policy(raw: Any) -> dict[str, str]:
     source = raw if isinstance(raw, Mapping) else {}
     mode = str(source.get("mode", CLAN_WARS_WHITE_MODE))
-    strategy = str(source.get("strategy", "balanced"))
-    return {
-        "mode": mode if mode in _VALID_MODES else CLAN_WARS_WHITE_MODE,
-        "strategy": strategy if strategy in _VALID_POLICIES else "balanced",
-    }
+    return {"mode": mode if mode in _VALID_MODES else CLAN_WARS_WHITE_MODE}
 
 
 def _opponent_stats(combat_level: int) -> dict[str, int]:
@@ -154,7 +150,6 @@ def _sanitize_session(raw: Any) -> dict[str, Any]:
         "match_number": _int(raw.get("match_number"), 1, minimum=1),
         "review": _int(raw.get("review"), maximum=CLAN_WARS_MAX_REVIEWS),
         "mode": policy["mode"],
-        "strategy": policy["strategy"],
         "opponent_number": _int(
             raw.get("opponent_number"), 1, minimum=1, maximum=1_000_000
         ),
@@ -183,9 +178,7 @@ def sanitize_clan_wars_state_pure(
     return {
         **defaults,
         "clan_wars": session,
-        "clan_wars_policy": _sanitize_policy(
-            source.get("clan_wars_policy")
-        ),
+        "clan_wars_policy": _sanitize_policy(source.get("clan_wars_policy")),
         "clan_wars_matches": _int(source.get("clan_wars_matches")),
         "clan_wars_wins": _int(source.get("clan_wars_wins")),
         "clan_wars_losses": _int(source.get("clan_wars_losses")),
@@ -193,6 +186,9 @@ def sanitize_clan_wars_state_pure(
         "clan_wars_deaths": _int(source.get("clan_wars_deaths")),
         "clan_wars_kills": _int(source.get("clan_wars_kills")),
         "clan_wars_exits": _int(source.get("clan_wars_exits")),
+        "clan_wars_items_destroyed": _int(
+            source.get("clan_wars_items_destroyed")
+        ),
         "clan_wars_last_result": str(
             source.get("clan_wars_last_result", "")
         )[:500],
@@ -205,16 +201,12 @@ def _clamp_red_portal_boosts(data: dict[str, Any]) -> bool:
         return False
     clamped = copy.deepcopy(dict(current))
     changed = False
-    for skill_id, multiplier in (
-        ("attack", 0.15),
-        ("strength", 0.15),
-        ("defense", 0.15),
-        ("ranged", 0.10),
-        ("magic", 0.0),
-    ):
-        base_key = "defense_level" if skill_id == "defense" else f"{skill_id}_level"
+    for skill_id, flat, multiplier in CLAN_WARS_RED_BOOST_CAPS:
+        base_key = (
+            "defense_level" if skill_id == "defense" else f"{skill_id}_level"
+        )
         base = max(1, _int(data.get(base_key), 1, minimum=1, maximum=99))
-        maximum = base + 5 + int(base * multiplier)
+        maximum = base + flat + int(base * multiplier)
         value = _int(clamped.get(skill_id), base, minimum=1)
         if value > maximum:
             clamped[skill_id] = maximum
@@ -257,6 +249,7 @@ def _enemy_for(opponent: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
             "group": "Clan Wars",
             "stats": _opponent_stats(level),
             "bonuses": {},
+            "attack_style": "melee",
             "attack_speed": 4,
             "drops": {"guaranteed": (), "tables": ()},
             "xp_multiplier": 1.0,
@@ -272,6 +265,33 @@ def _restore_safe_resources(data: dict[str, Any]) -> None:
         1, _int(data.get("prayer_level"), 1, minimum=1)
     ) * 10
     data["combat_status_effects"] = {}
+
+
+def _apply_player_crossfire(data: dict[str, Any], review: int) -> int:
+    """Chip the player for the combatants who are not the engaged rival.
+
+    Floored at one lifepoint on purpose. The red portal must have exactly one
+    death path — the combat burst, which destroys items — so the surrounding
+    free-for-all may bring the player to the brink but never lands the killing
+    blow itself.
+    """
+    if review < CLAN_WARS_CROSSFIRE_START_REVIEW:
+        return 0
+    maximum = combat_max_lifepoints_pure(data)
+    current = _int(data.get("combat_lifepoints"), maximum, maximum=maximum)
+    damage = max(1, maximum // CLAN_WARS_PLAYER_CROSSFIRE_DIVISOR)
+    data["combat_lifepoints"] = max(1, current - damage)
+    return current - int(data["combat_lifepoints"])
+
+
+def _apply_rival_crossfire(opponent: dict[str, Any]) -> int:
+    damage = max(
+        1,
+        int(opponent["maximum_lifepoints"]) // CLAN_WARS_RIVAL_CROSSFIRE_DIVISOR,
+    )
+    before = int(opponent["lifepoints"])
+    opponent["lifepoints"] = max(0, before - damage)
+    return before - int(opponent["lifepoints"])
 
 
 def _finish(
@@ -292,7 +312,6 @@ def _finish(
 def set_clan_wars_policy_pure(
     player_data: Mapping[str, Any],
     mode: str,
-    strategy: str,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
     state = sanitize_clan_wars_state_pure(data)
@@ -302,21 +321,17 @@ def set_clan_wars_policy_pure(
         }
     if mode not in _VALID_MODES:
         return data, False, {"reason": "Unknown Clan Wars portal mode."}
-    if strategy not in _VALID_POLICIES:
-        return data, False, {"reason": "Unknown Clan Wars combat policy."}
-    policy = {"mode": mode, "strategy": strategy}
     data.update(state)
-    data["clan_wars_policy"] = policy
+    data["clan_wars_policy"] = {"mode": mode}
     return data, True, {
-        "message": "Clan Wars portal plan saved.",
-        "policy": dict(policy),
+        "message": f"Clan Wars portal set to {CLAN_WARS_MODES_BY_ID[mode].display_name}.",
+        "mode": mode,
     }
 
 
 def enter_clan_wars_pure(
     player_data: Mapping[str, Any],
     mode: str | None = None,
-    strategy: str | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
     state = sanitize_clan_wars_state_pure(data)
@@ -336,13 +351,8 @@ def enter_clan_wars_pure(
             "reason": "Finish or leave the current Combat encounter first."
         }
     selected_mode = str(mode or state["clan_wars_policy"]["mode"])
-    selected_strategy = str(
-        strategy or state["clan_wars_policy"]["strategy"]
-    )
     if selected_mode not in _VALID_MODES:
         return data, False, {"reason": "Unknown Clan Wars portal mode."}
-    if selected_strategy not in _VALID_POLICIES:
-        return data, False, {"reason": "Unknown Clan Wars combat policy."}
 
     match_number = state["clan_wars_matches"] + 1
     previous_target = str(data.get("current_combat_target", ""))[:120]
@@ -357,7 +367,6 @@ def enter_clan_wars_pure(
         "match_number": match_number,
         "review": 0,
         "mode": selected_mode,
-        "strategy": selected_strategy,
         "opponent_number": 1,
         "opponent": opponent,
         "player_score": 0,
@@ -366,10 +375,7 @@ def enter_clan_wars_pure(
         "boosts_clamped": boosts_clamped,
     }
     data.update(state)
-    data["clan_wars_policy"] = {
-        "mode": selected_mode,
-        "strategy": selected_strategy,
-    }
+    data["clan_wars_policy"] = {"mode": selected_mode}
     data["clan_wars_matches"] = match_number
     data["clan_wars"] = session
     data["activity_session"] = {"active_id": CLAN_WARS_ACTIVITY_ID}
@@ -385,7 +391,6 @@ def enter_clan_wars_pure(
     return data, True, {
         "message": message,
         "mode": selected_mode,
-        "strategy": selected_strategy,
         "boosts_clamped": boosts_clamped,
     }
 
@@ -394,11 +399,11 @@ def _settle_match(
     data: dict[str, Any],
     session: Mapping[str, Any],
     *,
-    forced_loss: bool = False,
+    destroyed_items: int | None = None,
 ) -> dict[str, Any]:
     player_score = int(session["player_score"])
     opponent_score = int(session["opponent_score"])
-    if forced_loss or player_score < opponent_score:
+    if destroyed_items is not None or player_score < opponent_score:
         outcome = "loss"
         data["clan_wars_losses"] = _int(data.get("clan_wars_losses")) + 1
     elif player_score > opponent_score:
@@ -407,8 +412,17 @@ def _settle_match(
     else:
         outcome = "draw"
         data["clan_wars_draws"] = _int(data.get("clan_wars_draws")) + 1
-    label = "Team race" if session["mode"] == CLAN_WARS_PURPLE_MODE else "Free-for-all"
-    suffix = " Items lost in the red portal were destroyed." if forced_loss else ""
+    label = (
+        "Team race"
+        if session["mode"] == CLAN_WARS_PURPLE_MODE
+        else "Free-for-all"
+    )
+    suffix = ""
+    if destroyed_items is not None:
+        suffix = (
+            f" The red portal destroyed {destroyed_items} item"
+            f"{'' if destroyed_items == 1 else 's'}; nothing was recoverable."
+        )
     message = (
         f"{label} {outcome} · {player_score}-{opponent_score} "
         f"after {int(session['review'])} reviews.{suffix}"
@@ -421,6 +435,51 @@ def _settle_match(
         "opponent_score": opponent_score,
         "message": message,
     }
+
+
+def _carried_pack(data: Mapping[str, Any]) -> dict[str, int]:
+    carried = data.get("carried_inventory")
+    pack = (
+        carried.get(CLAN_WARS_COMBAT_TARGET_ID)
+        if isinstance(carried, Mapping)
+        else None
+    )
+    if not isinstance(pack, Mapping):
+        return {}
+    return {str(item): _int(count) for item, count in pack.items()}
+
+
+def _held_item_count(data: Mapping[str, Any], pack_items: Mapping[str, int]) -> int:
+    """Count worn slots plus bank units of the items the pack put at risk.
+
+    Measured the same way before and after the death so the difference is the
+    exact loss: an item that Protect Item saved is still worn or still banked,
+    so it is counted on both sides and never reported as destroyed.
+    """
+    equipment = data.get("equipment")
+    worn = (
+        sum(1 for item in equipment.values() if isinstance(item, str))
+        if isinstance(equipment, Mapping)
+        else 0
+    )
+    inventory = data.get("inventory")
+    banked = (
+        sum(
+            _int(inventory.get(item))
+            for item in pack_items
+        )
+        if isinstance(inventory, Mapping)
+        else 0
+    )
+    return worn + banked
+
+
+def _replace_opponent(data: dict[str, Any], session: dict[str, Any]) -> None:
+    session["opponent_number"] += 1
+    session["opponent"] = _new_opponent(
+        data, session["match_number"], session["opponent_number"]
+    )
+    data["combat_encounter"] = {}
 
 
 def apply_clan_wars_review_pure(
@@ -450,6 +509,11 @@ def apply_clan_wars_review_pure(
 
     data.update(state)
     opponent = session["opponent"]
+    dangerous = session["mode"] == CLAN_WARS_RED_MODE
+    crossfire_damage = _apply_player_crossfire(data, int(session["review"]))
+    risked_pack = _carried_pack(data) if dangerous else {}
+    held_before = _held_item_count(data, risked_pack) if dangerous else 0
+
     data["current_combat_target"] = CLAN_WARS_COMBAT_TARGET_ID
     encounter = copy.deepcopy(opponent["encounter"])
     encounter["target_id"] = CLAN_WARS_COMBAT_TARGET_ID
@@ -457,7 +521,6 @@ def apply_clan_wars_review_pure(
     data["combat_encounter"] = encounter
     original_auto_flee = bool(data.get("combat_auto_flee", True))
     data["combat_auto_flee"] = False
-    dangerous = session["mode"] == CLAN_WARS_RED_MODE
     data, ok, combat = apply_combat_burst_pure(
         data,
         _enemy_for(opponent),
@@ -469,9 +532,6 @@ def apply_clan_wars_review_pure(
         safe_death=not dangerous,
         no_grave=dangerous,
         allow_bank_run=False,
-        player_damage_multiplier=CLAN_WARS_POLICY_DAMAGE_MULTIPLIERS[
-            session["strategy"]
-        ],
     )
     data["combat_auto_flee"] = original_auto_flee
     if not ok:
@@ -485,26 +545,26 @@ def apply_clan_wars_review_pure(
         data["clan_wars_deaths"] = state["clan_wars_deaths"] + 1
         session["opponent_score"] += 1
         if dangerous:
+            destroyed = max(
+                0, held_before - _held_item_count(data, risked_pack)
+            )
+            data["clan_wars_items_destroyed"] = (
+                state["clan_wars_items_destroyed"] + destroyed
+            )
             data["clan_wars"] = session
             return data, True, {
                 "advanced": True,
                 "combat": combat,
-                **_settle_match(data, session, forced_loss=True),
+                "crossfire_damage": crossfire_damage,
+                "destroyed_items": destroyed,
+                **_settle_match(data, session, destroyed_items=destroyed),
             }
         _restore_safe_resources(data)
-        session["opponent_number"] += 1
-        session["opponent"] = _new_opponent(
-            data, session["match_number"], session["opponent_number"]
-        )
-        data["combat_encounter"] = {}
+        _replace_opponent(data, session)
     elif combat.get("killed"):
         data["clan_wars_kills"] = state["clan_wars_kills"] + 1
         session["player_score"] += 1
-        session["opponent_number"] += 1
-        session["opponent"] = _new_opponent(
-            data, session["match_number"], session["opponent_number"]
-        )
-        data["combat_encounter"] = {}
+        _replace_opponent(data, session)
     else:
         encounter_after = data.get("combat_encounter")
         if isinstance(encounter_after, Mapping):
@@ -514,13 +574,23 @@ def apply_clan_wars_review_pure(
                 maximum=int(opponent["maximum_lifepoints"]),
             )
             opponent["encounter"] = copy.deepcopy(dict(encounter_after))
+        # The rival the player is engaging is also being worn down by the
+        # combatants around it. In a free-for-all whoever lands that killing
+        # blow is a stranger and scores against the player; in the purple
+        # team battle the combatants around the player are clan mates, so the
+        # same kill scores for the player's side.
+        _apply_rival_crossfire(opponent)
+        if int(opponent["lifepoints"]) <= 0:
+            if session["mode"] == CLAN_WARS_PURPLE_MODE:
+                session["player_score"] += 1
+            else:
+                session["opponent_score"] += 1
+            _replace_opponent(data, session)
 
-    # The opposing-team cadence is an explicit review-scale abstraction. It
-    # makes the purple portal a bounded score race without inventing a period
-    # reward or claiming that RuneScape used review-count scoring.
+    # The opposing clan is fighting the rest of the arena at the same time.
     if (
         session["mode"] == CLAN_WARS_PURPLE_MODE
-        and session["review"] % 2 == 0
+        and session["review"] % CLAN_WARS_TEAM_SCORE_INTERVAL == 0
     ):
         session["opponent_score"] += 1
 
@@ -529,6 +599,7 @@ def apply_clan_wars_review_pure(
         return data, True, {
             "advanced": True,
             "combat": combat,
+            "crossfire_damage": crossfire_damage,
             **_settle_match(data, session),
         }
 
@@ -541,6 +612,7 @@ def apply_clan_wars_review_pure(
         "advanced": True,
         "terminal": False,
         "combat": combat,
+        "crossfire_damage": crossfire_damage,
         "player_score": session["player_score"],
         "opponent_score": session["opponent_score"],
         "message": data["clan_wars_last_result"],
@@ -588,16 +660,11 @@ def apply_clan_wars_command_pure(
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     body = payload if isinstance(payload, Mapping) else {}
     if action_id == "set_policy":
-        return set_clan_wars_policy_pure(
-            player_data,
-            str(body.get("mode", "")),
-            str(body.get("strategy", "")),
-        )
+        return set_clan_wars_policy_pure(player_data, str(body.get("mode", "")))
     if action_id == "enter":
         return enter_clan_wars_pure(
             player_data,
             str(body.get("mode", "")) or None,
-            str(body.get("strategy", "")) or None,
         )
     if action_id == "leave":
         return leave_clan_wars_pure(player_data)
@@ -609,6 +676,12 @@ def apply_clan_wars_command_pure(
 
 
 def clan_wars_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    """Own every enable, visibility and warning decision the panel renders.
+
+    The panel is a renderer: it reads these flags and never re-derives a rule.
+    A UI-side copy of the red-portal rule could disagree with this module and
+    either offer an entry the logic refuses or hide a danger that is real.
+    """
     state = sanitize_clan_wars_state_pure(player_data)
     session = state["clan_wars"]
     active = player_data.get("activity_session")
@@ -621,28 +694,91 @@ def clan_wars_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         reasons.append("Finish the active persistent activity.")
     if not session and isinstance(encounter, Mapping) and encounter:
         reasons.append("Finish or leave the current Combat encounter.")
-    policy = (
-        {"mode": session["mode"], "strategy": session["strategy"]}
-        if session
-        else state["clan_wars_policy"]
+    selected_mode_id = (
+        str(session["mode"]) if session else state["clan_wars_policy"]["mode"]
     )
-    mode = CLAN_WARS_MODES_BY_ID[policy["mode"]]
+    mode = CLAN_WARS_MODES_BY_ID[selected_mode_id]
+    can_enter = not reasons and not session
+    dangerous = mode.dangerous
+    selected_for_reviews = (
+        str(player_data.get("current_utility", "")) == CLAN_WARS_ACTIVITY_ID
+    )
+    review = int(session["review"]) if session else 0
+    if session:
+        summary = (
+            f"{mode.display_name} · "
+            f"{int(session['player_score'])}-{int(session['opponent_score'])} · "
+            f"{session['opponent']['display_name']}"
+        )
+        progress_format = (
+            f"{review}/{CLAN_WARS_MAX_REVIEWS} successful reviews"
+        )
+    else:
+        summary = state["clan_wars_last_result"] or (
+            f"{mode.description} "
+            f"{state['clan_wars_wins']}W/{state['clan_wars_draws']}D/"
+            f"{state['clan_wars_losses']}L · {state['clan_wars_kills']} kills"
+        )
+        progress_format = (
+            f"Bounded at {CLAN_WARS_MAX_REVIEWS} successful reviews"
+        )
     return {
         **state,
         "active": bool(session),
-        "can_enter": not reasons and not session,
+        "can_enter": can_enter,
         "entry_reasons": tuple(reasons),
-        "selected_mode": policy["mode"],
-        "selected_strategy": policy["strategy"],
+        "mode_options": tuple(
+            {
+                "id": row.id,
+                "display_name": row.display_name,
+                "description": row.description,
+                "dangerous": row.dangerous,
+                "entry_warning": row.entry_warning,
+                # Portal choice is locked for the duration of a match, so the
+                # only selectable portal mid-match is the one being fought.
+                "selectable": can_enter or row.id == selected_mode_id,
+            }
+            for row in CLAN_WARS_MODES
+        ),
+        "selected_mode": selected_mode_id,
         "mode_display_name": mode.display_name,
         "mode_description": mode.description,
-        "dangerous": mode.dangerous,
-        "safe_death": not mode.dangerous,
-        "teleport_escape_allowed": bool(session)
-        and session["mode"] != CLAN_WARS_RED_MODE,
-        "extreme_potions_allowed": not (
-            bool(session) and session["mode"] == CLAN_WARS_RED_MODE
+        "dangerous": dangerous,
+        "safe_death": not dangerous,
+        "entry_warning": mode.entry_warning if can_enter else "",
+        "status_label": (
+            "ACTIVE · DANGEROUS"
+            if session and dangerous
+            else "ACTIVE · SAFE"
+            if session
+            else "DANGEROUS"
+            if dangerous
+            else "SAFE"
         ),
+        "summary_text": summary,
+        "progress_value": review,
+        "progress_maximum": CLAN_WARS_MAX_REVIEWS,
+        "progress_format": progress_format,
+        "mode_controls_enabled": can_enter,
+        "primary_label": (
+            "Selected for reviews"
+            if session and selected_for_reviews
+            else "Select for reviews"
+            if session
+            else "Enter portal"
+        ),
+        "primary_enabled": (
+            bool(session) and not selected_for_reviews
+        ) or can_enter,
+        "leave_visible": bool(session),
+        "teleport_escape_visible": bool(session),
+        "teleport_escape_allowed": bool(session) and not dangerous,
+        "teleport_escape_reason": (
+            "Teleport escape is forbidden in the dangerous red portal."
+            if session and dangerous
+            else ""
+        ),
+        "extreme_potions_allowed": not (bool(session) and dangerous),
         "maximum_reviews": CLAN_WARS_MAX_REVIEWS,
         "source": CLAN_WARS_SOURCE,
     }
