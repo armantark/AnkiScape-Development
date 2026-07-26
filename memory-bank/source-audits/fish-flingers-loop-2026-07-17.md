@@ -157,3 +157,21 @@ as the sourced tackle weight.
 The description was also added to this audit in the same change that added the
 code, so it documented an invention rather than settling a design. When an
 implementation and its audit are written together, the audit stops being evidence.
+
+### Event length raised to eight reviews (`2026-07-25`)
+
+The six-review length made the sourced medal table unreachable. Perfect tackles
+are the reviews after the discovery ramp, so a six-review event yielded exactly
+four of them every time: Junior Angler fired unconditionally, Master Angler's
+six-tackle threshold never fired at all, and Team Player's six assists were
+nearly unreachable.
+
+The medal thresholds come from oldid `6529096`. The event length does not — this
+audit already recorded it as "an AnkiScape pacing abstraction". The abstraction
+therefore moved to fit the source rather than the other way round. At eight
+reviews a flawless event produces exactly six perfect tackles, so every sourced
+medal is reachable and no sourced value changed.
+
+The discovery ramp is untouched: bait, hook and weight still land on the first
+three reviews, and the two extra reviews run at full efficiency. Rewards scale
+with fish caught, so the longer event pays proportionally more.

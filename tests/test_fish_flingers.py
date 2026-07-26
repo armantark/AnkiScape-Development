@@ -14,6 +14,8 @@ from ankiscape.logic import cadence_coverage
 from ankiscape.logic import fish_flingers_logic
 from ankiscape.core import constants
 from ankiscape.data.fish_flingers_data import (
+    FISH_FLINGERS_EFFICIENCY,
+    FISH_FLINGERS_EVENT_REVIEWS,
     FISH_FLINGERS_ACTIVITY_ID,
     FISH_FLINGERS_COMMUNAL_DEPLETION,
     FISH_FLINGERS_LOCATIONS,
@@ -170,22 +172,27 @@ class FishFlingersLogicTests(unittest.TestCase):
         _same, second_ok, _second_info = enter_fish_flingers_pure(entered)
         self.assertFalse(second_ok)
 
-    def test_six_reviews_complete_event_and_award_source_shaped_currencies(self):
+    def test_a_full_event_completes_and_awards_source_shaped_currencies(self):
         player, ok, info = enter_fish_flingers_pure(_player())
         self.assertTrue(ok, info)
         result = {}
         efficiencies = []
-        for _ in range(6):
+        for _ in range(FISH_FLINGERS_EVENT_REVIEWS):
             player, result = apply_fish_flingers_review_pure(
                 player, 0.999, 0.0, 0.0
             )
             efficiencies.append(result["efficiency"])
-        self.assertEqual(efficiencies, [0.5, 0.75, 1.0, 1.0, 1.0, 1.0])
+        self.assertEqual(efficiencies, list(FISH_FLINGERS_EFFICIENCY))
         self.assertTrue(result["terminal"])
         self.assertEqual(player["fish_flingers"], {})
         self.assertEqual(player["activity_session"]["active_id"], "")
         self.assertEqual(player["fish_flingers_events_completed"], 1)
-        self.assertEqual(result["perfect_tackles"], 4)
+        # A flawless event yields exactly the sourced Master Angler threshold:
+        # the ramp finishes on review three, so perfect tackles equal the event
+        # length minus two.
+        self.assertEqual(
+            result["perfect_tackles"], FISH_FLINGERS_EVENT_REVIEWS - 2
+        )
         self.assertEqual(
             result["tokens"],
             result["fish_total"] // 4
@@ -193,8 +200,12 @@ class FishFlingersLogicTests(unittest.TestCase):
             + min(3, result["assists"] // 2)
             + min(3, result["perfect_tackles"] // 2),
         )
-        self.assertEqual(result["medals"], 3)
-        self.assertNotIn("Master Angler", result["medal_labels"])
+        # Master Angler is the point of the eight-review length: at six reviews
+        # perfect tackles were fixed at four forever, so the sourced six-tackle
+        # medal could never be earned and this test asserted its absence.
+        self.assertIn("Master Angler", result["medal_labels"])
+        self.assertIn("Junior Angler", result["medal_labels"])
+        self.assertEqual(result["medals"], len(result["medal_labels"]))
         self.assertGreater(result["xp"], 0)
 
     def test_species_location_stock_and_communal_pressure_change_outcomes(self):
@@ -279,16 +290,20 @@ class FishFlingersLogicTests(unittest.TestCase):
         route_seen = set()
         rotations = 0
         terminal_exhaustions = 0
-        for event_index in range(3):
+        # Six events at a low catch roll: the terminal-exhaustion branch only
+        # occurs when the last review happens to empty the stock, which is a
+        # coincidence of roll and length rather than something a fixed short run
+        # guarantees. The earlier version depended on that coincidence.
+        for event_index in range(6):
             player["shop_market_clock"] = {
                 "answered_cards": event_index * 240,
                 "market_tick": 0,
             }
             player, ok, info = enter_fish_flingers_pure(player)
             self.assertTrue(ok, info)
-            for review_index in range(6):
+            for review_index in range(FISH_FLINGERS_EVENT_REVIEWS):
                 player, result = apply_fish_flingers_review_pure(
-                    player, 0.999, 0.999, 0.999
+                    player, 0.01, 0.999, 0.999
                 )
                 route_seen.add((result["species"], result["location"]))
                 rotations += int(result["rotated"])
@@ -347,7 +362,7 @@ class FishFlingersLogicTests(unittest.TestCase):
             }
             player, entered, info = enter_fish_flingers_pure(player)
             self.assertTrue(entered, info)
-            for _ in range(6):
+            for _ in range(FISH_FLINGERS_EVENT_REVIEWS):
                 player, _result = apply_fish_flingers_review_pure(
                     player, 0.999, 0.999, 0.999
                 )
@@ -430,7 +445,10 @@ class FishFlingersStorageTests(unittest.TestCase):
             constants.ITEM_DEFINITIONS,
         )
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
-        self.assertEqual(migrated["fish_flingers"]["review"], 5)
+        # The sanitizer clamps to the last review index of an event.
+        self.assertEqual(
+            migrated["fish_flingers"]["review"], FISH_FLINGERS_EVENT_REVIEWS - 1
+        )
         self.assertEqual(migrated["fish_flingers"]["fish_caught"], 0)
         self.assertEqual(
             migrated["fish_flingers"]["version"], FISH_FLINGERS_STATE_VERSION
@@ -463,7 +481,7 @@ class FishFlingersHookTests(unittest.TestCase):
         sys.modules.clear()
         sys.modules.update(self._orig_modules)
 
-    def test_multiplier_finishes_one_event_in_six_reviews_and_undo_restores_it(self):
+    def test_multiplier_finishes_one_event_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_fish_flingers_hook")
         logic = sys.modules[f"{addon.__name__}.logic.fish_flingers_logic"]
         storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
@@ -490,7 +508,8 @@ class FishFlingersHookTests(unittest.TestCase):
         before_xp = float(before["fishing_exp"])
         with patch.object(addon.random, "random", return_value=0.999) as rng:
             addon.on_good_answer(before)
-        self.assertEqual(rng.call_count, 18)
+        # Three rolls per review: catch, big fish, assist.
+        self.assertEqual(rng.call_count, FISH_FLINGERS_EVENT_REVIEWS * 3)
         self.assertEqual(addon.player_data["fish_flingers_events_completed"], 1)
         self.assertEqual(addon.player_data["fish_flingers"], {})
         self.assertGreater(addon.player_data["fishing_exp"], before_xp)

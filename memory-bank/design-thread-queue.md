@@ -27,57 +27,7 @@ with one path.
 
 ## 3. Open decisions
 
-### 3.1 Fish Flingers: two sourced mechanics have no reachable home
-
-Found 2026-07-25 while verifying the Fish Flingers breadth-one slice. Both come
-from the same cause — the settled six-review compression and the hidden period
-distributions leave two sourced rewards with nothing to attach to. Neither was
-invented around, so the family ships with them recorded instead.
-
-**a. The Master Angler medal can never be earned.**
-The source names four medals: Junior Angler at three perfect tackles, Master
-Angler at six, Whopper at three big fish, Team Player at six assists. But
-`logic/fish_flingers_logic.py:315` derives `perfect_tackles` as
-`max(0, next_review - 2)` and the event ends at `next_review == 6`, so every
-completed event yields exactly four. Master Angler's `>= 6` branch is therefore
-dead code, Junior Angler is granted unconditionally, and the token term
-`min(3, perfect_tackles // 2)` is a hard-coded 2 with no variance.
-
-The audit at `source-audits/fish-flingers-loop-2026-07-17.md:80-84` already
-predicted this and accepted it, saying the compression "does not fabricate a
-six-perfect Master Angler medal". What it did not do is record that one of four
-sourced medals becomes permanently unearnable, which is a real divergence.
-
-- Option A, accept and document: leave three medals earnable, mark Master Angler
-  as unreachable-by-compression in the audit, and delete the dead branch so the
-  code stops implying otherwise.
-- Option B, make perfect tackles cumulative across events rather than per-event,
-  so six is reachable over two events. Cheap, but the source reads as a
-  per-event award and this would be our invention.
-- Option C, lengthen the event past six reviews so six perfect tackles fit.
-  Faithful to the medal table and unfaithful to the settled compression, which
-  every other part of this family is built on.
-- **Recommendation: A.** The compression is settled and load-bearing; one medal
-  is a smaller loss than reopening the event length, and B invents a rule.
-
-**b. Weight — RESOLVED 2026-07-25, no decision needed.**
-Removed rather than referred to you, because it was an invention rather than a
-choice between two defensible readings.
-
-The round added a `weight_modifier` to each species and location, accumulated a
-`total_weight` across a session, persisted and clamped it, and printed it on the
-card. Nothing else read it. That is the same inert-state defect the round existed
-to fix.
-
-Two things settled it. The name collided with a sourced term meaning something
-else: "weight" in this family's audit is one of the three tackle controls — bait,
-hook and weight — that the six-review ramp already discovers, so a future reader
-would have taken the invented fish weight for the sourced tackle weight. And the
-sentence describing it was added to the audit by the same change that added the
-code, so the audit documented an invention instead of settling a design.
-
-Both are gone, along with the assertions that pinned them. Removing an invention
-is not a design decision, so this needed nothing from you.
+None. All decisions raised so far are answered; see section 4.
 
 ## 4. Answered decisions
 
@@ -173,6 +123,25 @@ updates on 1 February 2011, the tournaments were removed from the game."
   invented coin faucet. The owner declined to reopen it.
 - Source: RuneScape Wiki `Duel Arena`, oldid `6398696`, 2012-10-14.
 - Unblocks: the Duel Arena family.
+
+### 4.7 Fish Flingers Master Angler — answered 2026-07-25
+
+Our six-review event length fixed perfect tackles at exactly four forever, so the
+sourced Master Angler medal (six perfect tackles) could never be earned and Team
+Player (six assists) was nearly unreachable. Measured effect: exactly 1.00 medals
+per event, putting the 500-medal tackle box 3,000 reviews away.
+
+- Owner: "whatever is most faithful feeling".
+- Answer: **lengthen the event to eight reviews.** The medal thresholds are
+  sourced (oldid 6529096); the event length is our own pacing abstraction, which
+  this family's audit states outright. So the abstraction bends and the source
+  does not.
+- At eight reviews a flawless event yields exactly six perfect tackles, so all
+  four sourced medals are reachable and no sourced number moved. The discovery
+  ramp is unchanged — bait, hook and weight still land on the first three
+  reviews — the event simply runs two more at full efficiency.
+- Rewards scale with fish caught, so the longer event earns proportionally more
+  rather than diluting the pace.
 
 ## 5. Cross-cutting defects found on 2026-07-25
 

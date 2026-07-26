@@ -13,7 +13,16 @@ FISH_FLINGERS_SOURCE = (
     "(2012-11-03T19:53:36Z)"
 )
 
-FISH_FLINGERS_EVENT_REVIEWS = 6
+# Eight, not six. The medal table is sourced (three perfect tackles for Junior
+# Angler, six for Master Angler, oldid 6529096); the event length is our own
+# pacing abstraction, as this family's audit says outright. A six-review event
+# fixes perfect tackles at exactly four forever, which made Master Angler
+# permanently unearnable and Team Player nearly so. Bending our abstraction to
+# fit the source is the right way round: at eight reviews a flawless event yields
+# exactly six perfect tackles, so all four sourced medals are reachable and no
+# sourced number moved. Rewards scale with fish caught, so the longer event earns
+# proportionally more rather than diluting the pace.
+FISH_FLINGERS_EVENT_REVIEWS = 8
 FISH_FLINGERS_TICKETS_PER_DAY = 2
 FISH_FLINGERS_TICKET_CAP = 10
 FISH_FLINGERS_TOKEN_CAP = 2000
@@ -52,11 +61,16 @@ FISH_FLINGERS_COMMUNAL_DEPLETION = 3
 # These are disclosed AnkiScape pacing values. The source proves that each
 # correct tackle component contributes one third of the rating, while the
 # owner-settled contract compresses automatic discovery into three reviews.
-FISH_FLINGERS_EFFICIENCY = (0.50, 0.75, 1.00, 1.00, 1.00, 1.00)
+# One entry per review. The ramp itself is unchanged — bait, hook and weight are
+# still discovered on the first three reviews — the event simply runs two more
+# reviews at full efficiency so six perfect tackles fit.
+FISH_FLINGERS_EFFICIENCY = (0.50, 0.75, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00)
 FISH_FLINGERS_DISCOVERY_LABELS = (
     "Best bait discovered",
     "Best hook discovered",
     "Best weight discovered",
+    "Perfect tackle retained",
+    "Perfect tackle retained",
     "Perfect tackle retained",
     "Perfect tackle retained",
     "Perfect tackle retained",
