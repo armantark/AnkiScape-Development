@@ -258,6 +258,8 @@ from ..logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
     tzhaar_fight_pit_view_pure,
 )
+from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
+from ..logic.duel_arena_logic import apply_duel_arena_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -2005,6 +2007,37 @@ def handle_tzhaar_fight_pit_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Fight Pit beat resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_duel_arena_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_duel_arena_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Duel Arena unavailable",
+            str(result.get("reason", "Enter a free challenge duel before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        DUEL_ARENA_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        failure_kind="safe_death" if result.get("outcome") == "loss" else None,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Duel exchange resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

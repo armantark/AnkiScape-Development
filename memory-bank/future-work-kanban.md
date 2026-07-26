@@ -164,6 +164,26 @@ source/contract conflicts.
 - Durable audit:
   `memory-bank/source-audits/castle-wars-horizontal-readiness-2026-07-21.md`.
 
+### Duel Arena — horizontal mechanics shipped 2026-07-25
+
+Labels: `SOURCE AUDIT` only for deeper opponent presentation and item-emote
+catalog depth.
+
+- Free challenge duels now run against deterministic bounded simulated
+  opponents with exactly eleven configurable period rule presets.
+- Win, safe loss, and allowed forfeit all restore combat stats and run energy.
+  `No Forfeit` blocks that action; the activity never reads, debits, or awards
+  Coins.
+- Wins persist through the six Duellist's cap tiers. Schema 82, activity
+  arbitration, one-exchange-per-review dispatch, central direct-action undo,
+  claim/change-look ownership, automatic cap upgrades, the Activities
+  configuration/progress/result card, and provenance-tracked cap art are live.
+- Duel Tournaments and staking remain excluded under the settled 2026-07-25
+  decision. `duel_arena_cap_thresholds` tracks the near-cutoff fallback values
+  until a pre-cutoff source states all six thresholds.
+- Durable audit:
+  `memory-bank/source-audits/duel-arena-horizontal-implementation-2026-07-25.md`.
+
 ### Owner-approved post-closure amendments
 
 Labels: none. All approved amendments and their two follow-up design questions

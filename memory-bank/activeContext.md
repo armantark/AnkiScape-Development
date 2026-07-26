@@ -3535,3 +3535,26 @@ The visual closure report is
   `source-audits/court-cases-horizontal-implementation-2026-07-21.md`.
 - Results: `status-updates/court-cases-horizontal-results-2026-07-21.html`;
   mobile copy: `https://nvblmw2z0ddz.postplan.dev`.
+
+## Duel Arena horizontal closure — 2026-07-25
+
+- Shipped free, safe review-driven challenge duels against bounded simulated
+  opponents with exactly eleven configurable period rule presets. `No Forfeit`
+  blocks abandonment; the five-review bound guarantees the duel still finishes.
+- Wins, losses, and allowed forfeits restore lifepoints, Prayer, current combat
+  levels, special attack energy, status effects, run energy, and the previous
+  combat target. No Duel Arena path mutates Coins.
+- Added the six Duellist's cap item tiers, claim/change-look ownership, automatic
+  upgrades of an owned cap, flat schema-82 persistence, shared activity
+  arbitration, one-exchange-per-review runtime dispatch, central direct-action
+  undo, an Activities configuration/progress/result surface, and seven
+  provenance-tracked assets.
+- Duel Tournaments and staking remain excluded under the settled cutoff
+  decision. `duel_arena_cap_thresholds` registers the near-cutoff fallback win
+  thresholds until a pre-cutoff source states all six values.
+- Verification passes both full lanes at 2,749 tests: non-Qt with 333 expected
+  dependency/Qt skips and real offscreen Qt with one intentional skip. The
+  placeholder register and focused Duel Arena backend, UI, undo, and multiplier
+  checks also pass.
+- Durable evidence:
+  `source-audits/duel-arena-horizontal-implementation-2026-07-25.md`.

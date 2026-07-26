@@ -20,5 +20,4 @@ Placeholders".
 
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
-
-_No placeholders yet._
+| `duel_arena_cap_thresholds` | Duellist's cap tiers unlock at 0, 10, 100, 500, 2,000, and 5,000 wins | Duel Arena | A pre-`2012-11-20T00:00:00Z` server/config source or dated page that states all six thresholds. The current fallback is the six near-cutoff wiki tier revisions created about five hours after the cutoff; rev-742 and both emulator lineages prove the six item tiers but not the win counts. |

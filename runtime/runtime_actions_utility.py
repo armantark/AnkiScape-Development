@@ -258,6 +258,7 @@ from ..logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
     tzhaar_fight_pit_view_pure,
 )
+from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -427,6 +428,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_stronghold_player_safety_answer,
     handle_trouble_brewing_answer,
     handle_tzhaar_fight_pit_answer,
+    handle_duel_arena_answer,
     handle_varrock_museum_answer,
 )
 
@@ -497,6 +499,7 @@ from .runtime_actions_activities import (
     handle_stronghold_player_safety_answer,
     handle_trouble_brewing_answer,
     handle_tzhaar_fight_pit_answer,
+    handle_duel_arena_answer,
     handle_varrock_museum_answer,
 )
 
@@ -571,6 +574,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_shades_of_mortton_answer(ctx)
     if activity_key == TZHAAR_FIGHT_PIT_ACTIVITY_ID:
         return handle_tzhaar_fight_pit_answer(ctx)
+    if activity_key == DUEL_ARENA_ACTIVITY_ID:
+        return handle_duel_arena_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
