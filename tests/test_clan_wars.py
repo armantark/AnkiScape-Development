@@ -470,36 +470,53 @@ class ClanWarsPureTest(unittest.TestCase):
 class ClanWarsRedPortalItemLossTest(unittest.TestCase):
     """The red portal is the owner's one non-negotiable Clan Wars decision.
 
-    A red-portal death destroys the items outright. `_combat_apply_pvm_death`
+    Whatever a red-portal death does not keep is gone: `_combat_apply_pvm_death`
     otherwise always writes a gravestone and pushes an older grave into Death's
     Office, which would hand every item back and silently reverse the decision.
-    These assertions fail if that safety net is restored.
+    The grave and Death's Office assertions here fail if that safety net is
+    restored. What the death *keeps* is a separate, sourced question:
+    `sendPVPItemsOnDeath` keeps three items unskulled, four with Protect Item.
     """
 
-    def test_a_red_portal_death_leaves_no_grave_and_no_death_office(self):
+    def test_a_red_portal_death_keeps_three_and_leaves_no_grave_or_death_office(self):
         result, played = _play_match(
             _armoured_player(), CLAN_WARS_RED_MODE, RED_DEATH_SEED
         )
         self.assertEqual(played["clan_wars_deaths"], 1)
         self.assertEqual(played["combat_grave"], {})
         self.assertEqual(played["death_office"], {})
-        # The items are gone, not merely unrecoverable.
-        self.assertEqual(played["equipment"], {})
+        # Three kept, and the rest are gone rather than merely unrecoverable.
+        self.assertEqual(
+            played["equipment"],
+            {
+                "weapon": "Mithril scimitar",
+                "body": "Mithril platebody",
+                "legs": "Mithril platelegs",
+            },
+        )
         self.assertEqual(played["inventory"].get("Lobster", 0), 0)
-        self.assertEqual(result["destroyed_items"], 7)
-        self.assertEqual(played["clan_wars_items_destroyed"], 7)
+        self.assertEqual(result["destroyed_items"], 4)
+        self.assertEqual(played["clan_wars_items_destroyed"], 4)
         self.assertEqual(result["outcome"], "loss")
         self.assertIn("nothing was recoverable", result["message"])
 
-    def test_protect_item_saves_exactly_one_and_still_leaves_no_grave(self):
+    def test_protect_item_keeps_a_fourth_item_and_still_leaves_no_grave(self):
         result, played = _play_match(
             _armoured_player(protect_item=True),
             CLAN_WARS_RED_MODE,
             RED_DEATH_SEED,
         )
         self.assertEqual(played["clan_wars_deaths"], 1)
-        self.assertEqual(played["equipment"], {"body": "Mithril platebody"})
-        self.assertEqual(result["destroyed_items"], 6)
+        self.assertEqual(
+            played["equipment"],
+            {
+                "weapon": "Mithril scimitar",
+                "body": "Mithril platebody",
+                "legs": "Mithril platelegs",
+            },
+        )
+        self.assertEqual(played["inventory"].get("Lobster", 0), 1)
+        self.assertEqual(result["destroyed_items"], 3)
         self.assertEqual(played["combat_grave"], {})
         self.assertEqual(played["death_office"], {})
 
@@ -520,10 +537,9 @@ class ClanWarsRedPortalItemLossTest(unittest.TestCase):
         played["combat_lifepoints"] = combat_max_lifepoints_pure(played)
         _result, twice = _play_match(played, CLAN_WARS_RED_MODE, RED_DEATH_SEED)
         self.assertEqual(twice["clan_wars_deaths"], 2)
-        self.assertEqual(twice["clan_wars_items_destroyed"], 14)
+        self.assertEqual(twice["clan_wars_items_destroyed"], 8)
         self.assertEqual(twice["combat_grave"], {})
         self.assertEqual(twice["death_office"], {})
-        self.assertEqual(twice["equipment"], {})
 
 
 class ClanWarsViewTest(unittest.TestCase):
@@ -732,7 +748,7 @@ class ClanWarsRuntimeIntegrationTest(unittest.TestCase):
         self.assertEqual(player["clan_wars_deaths"], 1)
         self.assertEqual(player["combat_grave"], {})
         self.assertEqual(player["death_office"], {})
-        self.assertEqual(player["equipment"], {})
+        self.assertEqual(player["inventory"].get("Lobster", 0), 0)
         self.assertTrue(calls["deactivated"])
         telemetry = player["action_telemetry"]["actions"][
             f"utility:{CLAN_WARS_ACTIVITY_ID}"
