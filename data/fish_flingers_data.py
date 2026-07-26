@@ -25,18 +25,18 @@ FISH_FLINGERS_WORLD_DAY_REVIEWS = 240
 # balance values because the period source does not preserve exact catch rates,
 # individual weight ranges, or a quantified multiplayer pressure multiplier.
 FISH_FLINGERS_SPECIES = (
-    {"name": "Bass", "catch_modifier": 0, "weight_modifier": 0},
-    {"name": "Cod", "catch_modifier": 1, "weight_modifier": -4},
-    {"name": "Herring", "catch_modifier": -1, "weight_modifier": -8},
-    {"name": "Pike", "catch_modifier": 2, "weight_modifier": 8},
-    {"name": "Salmon", "catch_modifier": 1, "weight_modifier": 4},
-    {"name": "Trout", "catch_modifier": -1, "weight_modifier": -2},
+    {"name": "Bass", "catch_modifier": 0},
+    {"name": "Cod", "catch_modifier": 1},
+    {"name": "Herring", "catch_modifier": -1},
+    {"name": "Pike", "catch_modifier": 2},
+    {"name": "Salmon", "catch_modifier": 1},
+    {"name": "Trout", "catch_modifier": -1},
 )
 FISH_FLINGERS_LOCATIONS = (
-    {"name": "Lake", "catch_modifier": 0, "weight_modifier": 0},
-    {"name": "River", "catch_modifier": -1, "weight_modifier": 4},
-    {"name": "Beach", "catch_modifier": 0, "weight_modifier": -4},
-    {"name": "Docks", "catch_modifier": 1, "weight_modifier": 6},
+    {"name": "Lake", "catch_modifier": 0},
+    {"name": "River", "catch_modifier": -1},
+    {"name": "Beach", "catch_modifier": 0},
+    {"name": "Docks", "catch_modifier": 1},
 )
 FISH_FLINGERS_ROTATION_ROUTE = (
     (0, 0),  # Bass at Lake

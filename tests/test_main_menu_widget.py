@@ -10473,7 +10473,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("ACTIVE", currency.text())
         self.assertIn("Bass at Lake", summary.text())
         self.assertIn("stock 24/24 (100%, Rich)", summary.text())
-        self.assertIn("0 total weight", summary.text())
         self.assertIn("rotation 1/6", summary.text())
         self.assertIn("communal pressure 3 stock per review", summary.text())
         self.assertIn("palette(text)", summary.styleSheet())

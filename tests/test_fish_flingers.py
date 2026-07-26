@@ -227,16 +227,6 @@ class FishFlingersLogicTests(unittest.TestCase):
             )
         self.assertNotEqual(species_catch["fish_caught"], baseline["fish_caught"])
 
-        with patch.object(
-            fish_flingers_logic,
-            "FISH_FLINGERS_SPECIES",
-            changed_rows(FISH_FLINGERS_SPECIES, 1, weight_modifier=8),
-        ):
-            _changed_player, species_weight = apply_fish_flingers_review_pure(
-                active, 0.999, 0.999, 0.999
-            )
-        self.assertEqual(species_weight["fish_caught"], baseline["fish_caught"])
-        self.assertNotEqual(species_weight["catch_weight"], baseline["catch_weight"])
 
         with patch.object(
             fish_flingers_logic,
@@ -248,16 +238,6 @@ class FishFlingersLogicTests(unittest.TestCase):
             )
         self.assertNotEqual(location_catch["fish_caught"], baseline["fish_caught"])
 
-        with patch.object(
-            fish_flingers_logic,
-            "FISH_FLINGERS_LOCATIONS",
-            changed_rows(FISH_FLINGERS_LOCATIONS, 1, weight_modifier=10),
-        ):
-            _changed_player, location_weight = apply_fish_flingers_review_pure(
-                active, 0.999, 0.999, 0.999
-            )
-        self.assertEqual(location_weight["fish_caught"], baseline["fish_caught"])
-        self.assertNotEqual(location_weight["catch_weight"], baseline["catch_weight"])
 
         fading_player, rich_catch = apply_fish_flingers_review_pure(
             active, 0.999, 0.999, 0.999
@@ -423,7 +403,6 @@ class FishFlingersLogicTests(unittest.TestCase):
         view = fish_flingers_view_pure(player)
         self.assertEqual(view["species"], "Bass")
         self.assertEqual(view["location"], "Lake")
-        self.assertEqual(view["total_weight"], 0)
         self.assertEqual(view["stock"], FISH_FLINGERS_STOCK_MAX)
         self.assertEqual(view["stock_percent"], 100)
         self.assertEqual(view["stock_label"], "Rich")
@@ -435,9 +414,6 @@ class FishFlingersLogicTests(unittest.TestCase):
             player, 0.5, 0.999, 0.999
         )
         weighted_view = fish_flingers_view_pure(player)
-        self.assertEqual(weighted_view["total_weight"], result["total_weight"])
-        self.assertGreater(weighted_view["total_weight"], 0)
-        self.assertIn("total weight", result["status"])
 
 
 class FishFlingersStorageTests(unittest.TestCase):

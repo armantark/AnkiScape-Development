@@ -128,13 +128,32 @@ state version 2 persists only bounded current route, species, location, stock,
 and existing score/reward inputs. Old and malformed sessions repair into that
 shape.
 
-The stock maximum, species/location catch and weight modifiers, stock bands,
-rotation order, and fixed three-stock communal depletion are explicitly
-AnkiScape balance values, not historical rate claims. Every review uses the
-current species, location, and stock in its catch or weight result, then removes
-both the player catch and fixed communal pressure from stock so that pressure
-changes later stock-band catches. Exhaustion rotates immediately without a
-worker. The pure view and dark-mode-safe Qt card show species, location, total
-weight, stock amount/percent/label, route index, and communal pressure. The
+The stock maximum, species/location catch modifiers, stock bands, rotation
+order, and fixed three-stock communal depletion are explicitly AnkiScape balance
+values, not historical rate claims. Every review uses the current species,
+location, and stock in its catch result, then removes both the player catch and
+fixed communal pressure from stock so that pressure changes later stock-band
+catches. Exhaustion rotates immediately without a worker. The pure view and
+dark-mode-safe Qt card show species, location, stock amount/percent/label, route
+index, and communal pressure. The
 six-review tackle ramp, entry/leave behavior, terminal formulas,
 shop, XP, runtime dispatch, and undo seam remain unchanged.
+
+### Correction (`2026-07-25`)
+
+An earlier version of the section above also described per-species and
+per-location **weight modifiers**, a `total_weight` accumulated across a session,
+and a total shown on the card. Those were removed the same day, and the
+description with them.
+
+Two reasons. Nothing read the value: it was computed, persisted, clamped and
+printed, and no gate, reward, medal, XP formula or rotation consumed it, which is
+the same inert-state defect the stock-rotation work existed to fix. And the name
+collided with a sourced term meaning something else — "weight" in this audit is
+one of the three tackle controls, bait, hook and weight, which the six-review
+ramp already discovers. A future reader would have read the invented fish weight
+as the sourced tackle weight.
+
+The description was also added to this audit in the same change that added the
+code, so it documented an invention rather than settling a design. When an
+implementation and its audit are written together, the audit stops being evidence.

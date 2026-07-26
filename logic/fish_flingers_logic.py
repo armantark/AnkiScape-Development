@@ -97,7 +97,6 @@ def sanitize_fish_flingers_session_pure(raw: Any) -> dict[str, Any]:
         "version": FISH_FLINGERS_STATE_VERSION,
         "review": review,
         "fish_caught": _int(raw.get("fish_caught"), maximum=999),
-        "total_weight": _int(raw.get("total_weight"), maximum=99_999),
         "big_fish": _int(raw.get("big_fish"), maximum=3),
         "assists": _int(raw.get("assists"), maximum=6),
         "perfect_tackles": max(0, review - 2),
@@ -223,7 +222,6 @@ def enter_fish_flingers_pure(
         "version": FISH_FLINGERS_STATE_VERSION,
         "review": 0,
         "fish_caught": 0,
-        "total_weight": 0,
         "big_fish": 0,
         "assists": 0,
         "perfect_tackles": 0,
@@ -290,14 +288,6 @@ def apply_fish_flingers_review_pure(
         - stock_penalty
     )
     caught = max(1, min(stock_before, round(adjusted_catch * efficiency)))
-    weight_each = max(
-        1,
-        70
-        + int(_roll(catch_roll) * 61)
-        + int(species["weight_modifier"])
-        + int(location["weight_modifier"]),
-    )
-    weight = caught * weight_each
     big_fish = int(session["big_fish"])
     caught_big = big_fish < 3 and _roll(big_fish_roll) < 0.25
     if caught_big:
@@ -309,7 +299,6 @@ def apply_fish_flingers_review_pure(
 
     next_review = review + 1
     fish_total = int(session["fish_caught"]) + caught
-    weight_total = int(session["total_weight"]) + weight
     # The third catch completes the automatic discovery ramp, so only that
     # catch and the three that follow count as source-shaped perfect tackles.
     perfect_tackles = max(0, next_review - 2)
@@ -360,7 +349,6 @@ def apply_fish_flingers_review_pure(
             "version": FISH_FLINGERS_STATE_VERSION,
             "review": next_review,
             "fish_caught": fish_total,
-            "total_weight": weight_total,
             "big_fish": big_fish,
             "assists": assists,
             "perfect_tackles": perfect_tackles,
@@ -386,7 +374,6 @@ def apply_fish_flingers_review_pure(
         f"Fish Flingers · {species['name']} at {location['name']} · "
         f"{FISH_FLINGERS_DISCOVERY_LABELS[review]} · "
         f"{caught} fish at {efficiency * 100:g}% efficiency · "
-        f"{weight_total} total weight · "
         f"stock {remaining_stock}/{FISH_FLINGERS_STOCK_MAX} · "
         f"{next_review}/6 catches{suffix}"
     )
@@ -397,8 +384,6 @@ def apply_fish_flingers_review_pure(
         "expected_success_chance": 1.0,
         "fish_caught": caught,
         "fish_total": fish_total,
-        "catch_weight": weight,
-        "total_weight": weight_total,
         "species": str(species["name"]),
         "location": str(location["name"]),
         "stock_before": stock_before,
@@ -524,7 +509,6 @@ def fish_flingers_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "review": review,
         "review_number": review + 1 if session else 0,
         "fish_caught": int(session.get("fish_caught", 0)),
-        "total_weight": int(session.get("total_weight", 0)),
         "big_fish": int(session.get("big_fish", 0)),
         "assists": int(session.get("assists", 0)),
         "perfect_tackles": int(session.get("perfect_tackles", 0)),

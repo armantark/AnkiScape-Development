@@ -60,27 +60,24 @@ sourced medals becomes permanently unearnable, which is a real divergence.
 - **Recommendation: A.** The compression is settled and load-bearing; one medal
   is a smaller loss than reopening the event length, and B invents a rule.
 
-**b. Weight is computed and read by nothing.**
-This round added a `weight_modifier` to each of six species and four locations.
-They flow into `weight_each`, then `weight`, then `total_weight`, which is
-persisted, clamped and printed into one Qt label at `ui/ui.py:11356`. No gate,
-reward, medal, XP formula or rotation reads it. It is the same defect as the
-inert `location_index` this round set out to fix.
+**b. Weight — RESOLVED 2026-07-25, no decision needed.**
+Removed rather than referred to you, because it was an invention rather than a
+choice between two defensible readings.
 
-The natural consumer is the Whopper medal: a "big fish" ought to be a heavy one.
-But `logic/fish_flingers_logic.py:302` decides big fish with a flat
-`_roll(...) < 0.25` that ignores weight entirely, and the audit marks the real
-catch and weight distributions as remaining data-depth work.
+The round added a `weight_modifier` to each species and location, accumulated a
+`total_weight` across a session, persisted and clamped it, and printed it on the
+card. Nothing else read it. That is the same inert-state defect the round existed
+to fix.
 
-- Option A, make the big-fish chance rise with the catch's weight, replacing one
-  unsourced abstraction with another that at least uses the weight the source
-  says exists. Must be labelled an abstraction, not parity.
-- Option B, leave the flat roll and drop the weight modifiers entirely, so
-  nothing is computed that nobody reads.
-- Option C, leave both as they are and accept weight as flavour text.
-- **Recommendation: A.** Both the flat roll and any weight coupling are
-  inventions, so neither is more faithful; A is the one that stops the family
-  carrying state it never consumes. But it is a balance choice, so it is yours.
+Two things settled it. The name collided with a sourced term meaning something
+else: "weight" in this family's audit is one of the three tackle controls — bait,
+hook and weight — that the six-review ramp already discovers, so a future reader
+would have taken the invented fish weight for the sourced tackle weight. And the
+sentence describing it was added to the audit by the same change that added the
+code, so the audit documented an invention instead of settling a design.
+
+Both are gone, along with the assertions that pinned them. Removing an invention
+is not a design decision, so this needed nothing from you.
 
 ## 4. Answered decisions
 

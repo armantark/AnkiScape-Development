@@ -11353,7 +11353,6 @@ def show_main_menu(
                     f"rotation {view['rotation']}\n"
                     f"{float(view['efficiency']) * 100:g}% efficiency · "
                     f"{int(view['fish_caught'])} fish · "
-                    f"{int(view['total_weight'])} total weight · "
                     f"{int(view['big_fish'])} big · {int(view['assists'])} assists · "
                     f"communal pressure {view['communal_pressure_label']} · "
                     f"next: {view['next_discovery']}"
