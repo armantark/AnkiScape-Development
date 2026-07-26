@@ -20,6 +20,30 @@ drives it and the budget that bounds it.
 > until every family is mechanically complete. Record genuine design conflicts or
 > blockers clearly for the design thread.
 
+## Amendment, 2026-07-25: harvest enough to finish
+
+The goal as first issued deferred difficult source reconciliation, which parked
+twenty-three families that each need some harvest before any mechanic can ship.
+The owner amended it:
+
+> include enough source harvesting to get mechanical completion, with placeholder
+> values for stuff that you need an intense dig for.
+
+So harvest is now in scope up to the point of mechanical completion, and no
+further. A value that would need an intense dig becomes a **placeholder** rather
+than a blocker, governed by
+`pre-eoc-source-verification-standard.md`, "Breadth-Phase Placeholders":
+marked in code as `PLACEHOLDER(<id>)`, listed in
+`memory-bank/placeholder-values.md`, and kept honest by
+`tests/test_placeholder_register.py`, which fails if the code and the register
+disagree in either direction.
+
+What has not changed: a placeholder stands in for a value the period game had and
+we could not recover. It never licenses inventing *content* the period did not
+have — a target, item, reward or gate. Those still wait. The failures this rule
+exists to prevent are the Daily Challenges reroll and the Fish Flingers weight,
+both of which were inventions written up as though settled.
+
 ## Budget
 
 **90%/7 per day, per subscription.** GPT (Codex), Claude, and Kimi each carry

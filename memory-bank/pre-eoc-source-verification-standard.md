@@ -220,3 +220,38 @@ Every implemented parity family should leave a durable source audit containing:
   values left source-blocked;
 - conflicts and their resolution; and
 - tests mapping the implemented contract to the evidence.
+
+## Breadth-Phase Placeholders
+
+Amended `2026-07-25` by owner decision. This relaxes the rule above for one
+purpose and one phase, and it expires when the breadth phase does.
+
+The owner's goal is that every settled family reaches mechanical completion. The
+rule above blocks that: content that needs an intense dig stays `source_blocked`
+and waits, so a family with one unrecoverable number cannot ship at all, and
+twenty-three families were parked behind exactly that.
+
+A **placeholder** may now stand in for a value that would need an intense dig,
+so the mechanic around it can ship complete. Four conditions hold, and the first
+two are what stop a placeholder from quietly becoming canon:
+
+1. **It is marked at the value.** The code carries
+   `# PLACEHOLDER(<id>): <what would settle it>` on or above the line. The id is
+   unique and stable.
+2. **It is listed in `memory-bank/placeholder-values.md`**, with what the value
+   is, what it blocks, and the specific evidence that would replace it.
+   `tests/test_placeholder_register.py` fails if a marker is missing from the
+   register or a register row names a marker that no longer exists, so the two
+   cannot drift apart and a placeholder cannot hide.
+3. **Everything around it still ships exactly as attested.** A placeholder never
+   licenses a second one nearby, and never licenses inventing *content* — a
+   target, item, reward or gate the period record does not attest. Those still
+   wait.
+4. **Nothing describes it as period-accurate**, in code, comments, docs or UI.
+
+The distinction that matters, learned twice on the day this was written: a
+placeholder is a value the period had and we could not recover. An invention is a
+value the period did not have. The Daily Challenges reroll and the Fish Flingers
+weight were inventions, and both survived review because they were written up as
+though settled. A placeholder is honest about being temporary. An invention
+pretends to be finished.
