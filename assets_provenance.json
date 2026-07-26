@@ -983,6 +983,30 @@
     "source_wiki": "rs3",
     "timestamp": "2012-09-17T17:18:57Z"
   },
+  "activityitems/challenge_mystery_bag.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Challenge_Mystery_Bag.png",
+    "file_title": "Challenge Mystery Bag.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502021402%21Challenge_Mystery_Bag.png?d2997",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de87f92f0485189470160c8acb04298c6d72f3c6",
+    "size": 1395,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-19T18:29:10Z"
+  },
+  "activityitems/challenge_xp_lamp.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Challenge_XP_Lamp.png",
+    "file_title": "Challenge XP Lamp.png",
+    "image_url": "https://runescape.wiki/images/archive/20191217194440%21Challenge_XP_Lamp.png?7bb12",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2b98c0f9b745c8e5ca2c341346eca20877f37d5d",
+    "size": 478,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-29T19:30:13Z"
+  },
   "activityitems/champion_s_tackle_box.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Champion%27s_tackle_box.png",
     "file_title": "Champion's tackle box.png",
@@ -24680,6 +24704,18 @@
     "size": 194,
     "source_wiki": "osrs",
     "timestamp": "2018-08-06T13:43:12Z"
+  },
+  "icon/challenges_icon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Active_task.png",
+    "file_title": "Active task.png",
+    "image_url": "https://runescape.wiki/images/archive/20130722185605%21Active_task.png?698d2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "24ea9cfe65da239b670ae984719d2fdb360dd669",
+    "size": 21528,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T02:27:45Z"
   },
   "icon/combat_icon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Combat_icon.png",

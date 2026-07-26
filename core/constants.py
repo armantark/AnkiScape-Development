@@ -80,6 +80,10 @@ from ..data.tzhaar_fight_pit_data import (
     tzhaar_fight_pit_activity_as_dict,
 )
 
+from ..data.daily_challenges_data import (
+    daily_challenge_extra_items_as_dict,
+)
+
 from ..data.varrock_museum_data import (
     VARROCK_MUSEUM_ACTIVITY_ID,
     varrock_museum_activity_as_dict,
@@ -1483,6 +1487,7 @@ PYRAMID_PLUNDER_EXTRA_ITEM_DATA = pyramid_plunder_extra_items_as_dict()
 WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
 FISH_FLINGERS_EXTRA_ITEM_DATA = fish_flingers_extra_items_as_dict()
+DAILY_CHALLENGE_EXTRA_ITEM_DATA = daily_challenge_extra_items_as_dict()
 COURT_CASES_ITEM_IMAGES = {
     "Court summons": os.path.join(
         UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1612,6 +1617,15 @@ for _item_name in FISH_FLINGERS_EXTRA_ITEM_DATA:
     )
     if os.path.exists(_path):
         FISH_FLINGERS_ITEM_IMAGES[_item_name] = _path
+DAILY_CHALLENGE_ITEM_IMAGES = {}
+for _item_name in DAILY_CHALLENGE_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        DAILY_CHALLENGE_ITEM_IMAGES[_item_name] = _path
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -2025,6 +2039,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA,
     **GNOME_BALL_EXTRA_ITEM_DATA,
     **FISH_FLINGERS_EXTRA_ITEM_DATA,
+    **DAILY_CHALLENGE_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -2067,6 +2082,7 @@ EXTRA_ITEM_IMAGES = {
     **PYRAMID_PLUNDER_ITEM_IMAGES,
     **WEREWOLF_SKULLBALL_ITEM_IMAGES,
     **FISH_FLINGERS_ITEM_IMAGES,
+    **DAILY_CHALLENGE_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

@@ -156,6 +156,7 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_TOTAL_STEPS,
 )
 from ..core.skill_registry import get_skill
+from ..logic.daily_challenges_logic import credit_daily_challenge_progress_pure
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
     apply_farming_review_with_queue_pure,
@@ -463,6 +464,8 @@ def _record_action(
     failure_kind: Optional[str] = None,
     primary_xp: Any = 0,
     proposed_outcome_success: Any = None,
+    kills: int = 0,
+    enemy_combat_level: int = 0,
 ) -> None:
     record_action_telemetry_pure(
         ctx.player_data,
@@ -487,6 +490,24 @@ def _record_action(
         output_qty=output_qty,
         output_items=progress_outputs,
     )
+    if success:
+        # Daily Challenges accrue from ordinary gameplay rather than from their
+        # own action rows, so this shared post-outcome seam is where the
+        # noticeboard watches the work happen.
+        credited, _events = credit_daily_challenge_progress_pure(
+            ctx.player_data,
+            skill_id,
+            action_id,
+            output_items=(
+                output_items
+                if output_items is not None
+                else ({output_item: output_qty} if output_item else {})
+            ),
+            kills=kills,
+            enemy_combat_level=enemy_combat_level,
+        )
+        ctx.player_data.clear()
+        ctx.player_data.update(credited)
     if ctx.cadence_shadow_enabled:
         try:
             from ..logic.cadence_shadow import record_cadence_shadow_pure

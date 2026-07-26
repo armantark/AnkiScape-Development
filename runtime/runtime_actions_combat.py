@@ -619,6 +619,11 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=1.0,
         output_items={str(item): int(amount) for item, amount in drops.items() if isinstance(item, str)},
+        kills=int(result.get("kills", 0) or 0),
+        enemy_combat_level=int(
+            (COMBAT_ENEMY_DATA.get(str(result.get("target_id", target_id))) or {}).get("level", 0)
+            or 0
+        ),
     )
     _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
     ctx.check_achievements(player_data)

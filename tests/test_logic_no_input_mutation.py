@@ -41,6 +41,7 @@ from ankiscape.logic import barrows_logic
 from ankiscape.logic import castle_wars_logic
 from ankiscape.logic import circus_logic
 from ankiscape.logic import court_cases_logic
+from ankiscape.logic import daily_challenges_logic
 from ankiscape.logic import equipment_instance_logic
 from ankiscape.logic import fight_caves_logic
 from ankiscape.logic import fish_flingers_logic
@@ -282,6 +283,19 @@ _MODULE_GATES = (
             "buy_trouble_brewing_reward_pure",
         ),
         ("tests.test_trouble_brewing", "tests.test_runtime_actions"),
+    ),
+    (
+        daily_challenges_logic,
+        (
+            "advance_daily_challenges_day_pure",
+            "credit_daily_challenge_progress_pure",
+            "pin_daily_challenge_pure",
+            "set_daily_challenge_skill_block_pure",
+            "claim_daily_challenge_pure",
+            "open_challenge_mystery_bag_pure",
+            "rub_challenge_xp_lamp_pure",
+        ),
+        ("tests.test_daily_challenges",),
     ),
     (
         tzhaar_fight_pit_logic,

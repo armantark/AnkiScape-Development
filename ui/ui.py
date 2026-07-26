@@ -365,6 +365,7 @@ from ..logic.slayer_logic import (
 from ..logic_pure.logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
+from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic_pure.logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 
 from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
@@ -3581,6 +3582,7 @@ def show_main_menu(
     on_soul_wars_command=None,
     on_shades_of_mortton_command=None,
     on_tzhaar_fight_pit_command=None,
+    on_daily_challenges_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -21268,6 +21270,174 @@ def show_main_menu(
     tabs.addTab(stats_tab, "Stats")
     _set_global_tab_icon(stats_tab, "stats_icon.png")
     tabs.setTabToolTip(tabs.indexOf(stats_tab), "View your skill stats")
+
+    # ---- Challenges tab (the period Noticeboard) --------------------------
+    # Every queue rule — whether a new challenge can arrive, which slot it
+    # displaces, whether a hand-in is possible, which skills may be blocked —
+    # is decided in daily_challenges_logic and read off the view here. This
+    # panel evaluates none of it.
+    def build_challenges_tab(_ctx) -> QWidget:
+        page = QWidget()
+        page.setObjectName("challengesTab")
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
+
+        feedback = QLabel("")
+        feedback.setObjectName("challengeFeedbackLabel")
+        feedback.setWordWrap(True)
+
+        summary = QLabel("")
+        summary.setObjectName("challengeSummaryLabel")
+        summary.setWordWrap(True)
+        layout.addWidget(summary)
+
+        tree = QTreeWidget()
+        tree.setObjectName("challengeTree")
+        tree.setHeaderLabels(["Challenge", "Task", "Progress", "Reward"])
+        tree.setRootIsDecorated(False)
+        layout.addWidget(tree, 1)
+
+        buttons = QHBoxLayout()
+        pin_button = QPushButton("Pin task")
+        pin_button.setObjectName("challengePinButton")
+        claim_button = QPushButton("Hand in to the Quartermaster")
+        claim_button.setObjectName("challengeClaimButton")
+        buttons.addWidget(pin_button)
+        buttons.addWidget(claim_button)
+        buttons.addStretch(1)
+        layout.addLayout(buttons)
+
+        rewards = QHBoxLayout()
+        bag_button = QPushButton("Open Challenge Mystery Bag")
+        bag_button.setObjectName("challengeBagButton")
+        lamp_choice = QComboBox()
+        lamp_choice.setObjectName("challengeLampCombo")
+        lamp_button = QPushButton("Rub Challenge XP Lamp")
+        lamp_button.setObjectName("challengeLampButton")
+        rewards.addWidget(bag_button)
+        rewards.addWidget(lamp_choice)
+        rewards.addWidget(lamp_button)
+        rewards.addStretch(1)
+        layout.addLayout(rewards)
+
+        blocks_label = QLabel("Skills the Quartermaster may stop setting (maxed skills only)")
+        blocks_label.setObjectName("challengeBlocksLabel")
+        layout.addWidget(blocks_label)
+        blocks_row = QHBoxLayout()
+        block_boxes = {}
+        for entry in daily_challenges_view_pure(player_data)["skill_blocks"]:
+            box = QCheckBox(str(entry["label"]))
+            box.setObjectName(f"challengeBlock_{entry['skill_id']}")
+            blocks_row.addWidget(box)
+            block_boxes[str(entry["skill_id"])] = box
+        blocks_row.addStretch(1)
+        layout.addLayout(blocks_row)
+        layout.addWidget(feedback)
+
+        def _selected_instance_id() -> str:
+            item = tree.currentItem()
+            return str(item.data(0, Qt.ItemDataRole.UserRole) or "") if item else ""
+
+        def _render() -> None:
+            view = daily_challenges_view_pure(player_data)
+            waiting = int(view["reviews_until_next_challenge"])
+            headline = (
+                f"Noticeboard · {int(view['slots_used'])}/{int(view['slot_limit'])} slots · "
+                f"next challenge in {max(0, waiting)} reviews"
+            )
+            if view["next_assignment_displaces_name"]:
+                headline += f" · it will displace {view['next_assignment_displaces_name']}"
+            summary.setText(headline)
+
+            selected = _selected_instance_id()
+            # Repopulating moves the current item, and that signal re-enters
+            # this function; block it while the rows are rebuilt.
+            tree.blockSignals(True)
+            tree.clear()
+            for row in view["rows"]:
+                item = QTreeWidgetItem(
+                    [
+                        f"{row['name']}{' (pinned)' if row['pinned'] else ''}",
+                        str(row["task"]),
+                        f"{int(row['progress'])}/{int(row['required'])}",
+                        f"{int(row['reward_xp']):,} {row['skill_label']} XP"
+                        if str(row["skill"]) != "combat"
+                        else f"{int(row['reward_xp']):,} XP lamp",
+                    ]
+                )
+                item.setData(0, Qt.ItemDataRole.UserRole, row["instance_id"])
+                tree.addTopLevelItem(item)
+                if row["instance_id"] == selected:
+                    tree.setCurrentItem(item)
+            if tree.currentItem() is None and tree.topLevelItemCount():
+                tree.setCurrentItem(tree.topLevelItem(0))
+            tree.blockSignals(False)
+
+            current = _selected_instance_id()
+            row = next((r for r in view["rows"] if r["instance_id"] == current), None)
+            wired = on_daily_challenges_command is not None
+            pin_button.setEnabled(wired and row is not None)
+            claim_button.setEnabled(wired and bool(row and row["can_claim"]))
+            if row is not None and row["claim_blocked_reason"]:
+                claim_button.setToolTip(str(row["claim_blocked_reason"]))
+            else:
+                claim_button.setToolTip("")
+
+            bags = int(view["mystery_bags"])
+            lamps = int(view["xp_lamps"])
+            bag_button.setText(f"Open Challenge Mystery Bag ({bags})")
+            bag_button.setEnabled(wired and bags > 0)
+            lamp_button.setText(f"Rub Challenge XP Lamp ({lamps})")
+            lamp_button.setEnabled(wired and lamps > 0)
+            if lamp_choice.count() == 0:
+                for skill_id, label in view["lamp_skills"]:
+                    lamp_choice.addItem(str(label), str(skill_id))
+            lamp_choice.setEnabled(wired and lamps > 0)
+
+            for entry in view["skill_blocks"]:
+                box = block_boxes[str(entry["skill_id"])]
+                box.blockSignals(True)
+                box.setChecked(bool(entry["blocked"]))
+                box.setEnabled(wired and (bool(entry["can_block"]) or bool(entry["blocked"])))
+                box.blockSignals(False)
+            feedback.setVisible(bool(feedback.text()))
+
+        def _run(action_id: str, payload=None) -> None:
+            if on_daily_challenges_command is None:
+                return
+            result = on_daily_challenges_command(action_id, payload or {}) or {}
+            feedback.setText(str(result.get("message", "") or ""))
+            _render()
+
+        tree.currentItemChanged.connect(lambda *_args: _render())
+        pin_button.clicked.connect(
+            lambda _checked=False: _run("pin", {"instance_id": _selected_instance_id()})
+        )
+        claim_button.clicked.connect(
+            lambda _checked=False: _run("claim", {"instance_id": _selected_instance_id()})
+        )
+        bag_button.clicked.connect(lambda _checked=False: _run("open_bag"))
+        lamp_button.clicked.connect(
+            lambda _checked=False: _run(
+                "rub_lamp", {"skill_id": str(lamp_choice.currentData() or "")}
+            )
+        )
+        for skill_id, box in block_boxes.items():
+            box.toggled.connect(
+                lambda checked, sid=skill_id: _run(
+                    "set_skill_block", {"skill_id": sid, "blocked": bool(checked)}
+                )
+            )
+        _render()
+        return page
+
+    _add_deferred_tab(
+        "Challenges",
+        "challenges_icon.png",
+        "Read the Noticeboard and hand finished Daily Challenges to the Quartermaster",
+        build_challenges_tab,
+    )
 
     _add_deferred_tab(
         "Achievements",

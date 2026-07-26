@@ -727,6 +727,81 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["successes"], 1)
         self.assertEqual(telemetry["outputs"]["Stardust"], 1)
 
+    def test_mining_a_real_ore_advances_the_matching_daily_challenge(self):
+        """Daily Challenges accrue from ordinary gameplay, not their own rows."""
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_ore": "copper",
+            "inventory": {},
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "mining_level": 99,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+            "daily_challenges": [
+                {
+                    "instance_id": "mining_copper_ore-1",
+                    "challenge_id": "mining_copper_ore",
+                    "day": 1,
+                    "progress": 0,
+                    "credited": {},
+                }
+            ],
+        }
+
+        self.assertTrue(
+            handle_mining_answer(_context(player_data, calls, random_values=(0.0,) * 5))
+        )
+
+        instance = player_data["daily_challenges"][0]
+        mined = player_data["inventory"]["Copper ore"]
+        self.assertGreaterEqual(mined, 1, "the review must actually have mined something")
+        self.assertEqual(instance["progress"], mined)
+        self.assertEqual(instance["credited"], {"Copper ore": mined})
+
+    def test_a_combat_kill_advances_a_rampage_challenge_at_the_named_level(self):
+        from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "cow",
+            "combat_lifepoints": 990,
+            "constitution_level": 99,
+            "completed_achievements": [],
+            "daily_challenges": [
+                {
+                    "instance_id": "rampage_mk_i-1",
+                    "challenge_id": "rampage_mk_i",
+                    "day": 1,
+                    "progress": 0,
+                    "credited": {},
+                }
+            ],
+        }
+        result = {
+            "target_id": "cow",
+            "display_name": "Cow",
+            "kills": 2,
+            "died": False,
+            "fled": False,
+            "player_damage": 200,
+            "enemy_lifepoints": 0,
+            "drops": {},
+            "xp_rewards": {},
+        }
+
+        with patch.object(
+            runtime_actions_combat,
+            "apply_combat_burst_pure",
+            return_value=(dict(player_data), True, result),
+        ):
+            self.assertTrue(handle_combat_answer(_context(player_data, calls)))
+
+        self.assertGreaterEqual(COMBAT_ENEMY_DATA["cow"]["level"], 2)
+        self.assertEqual(player_data["daily_challenges"][0]["progress"], 2)
+
     def test_star_sprite_bonus_adds_one_ore_and_stacks_with_mining(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

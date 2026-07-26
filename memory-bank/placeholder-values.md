@@ -20,5 +20,5 @@ Placeholders".
 
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
-
-_No placeholders yet._
+| `daily_challenges.reward_xp` | 100 XP per level of the challenge's level requirement | Daily Challenges | The cutoff page says a completed challenge grants "extra experience" but states no amount, and no recovered Darkan or cache table holds the per-challenge reward. A Darkan challenge-reward table or the cache's challenge config would replace it. |
+| `daily_challenges.assignment_weights` | uniform draw over the eligible pool | Daily Challenges | The period picks the new challenge from the pool the player qualifies for; the relative weights inside that pool are server behaviour no recovered source states. Darkan's challenge assignment code would replace it. |

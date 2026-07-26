@@ -136,6 +136,11 @@ from .logic.stronghold_player_safety_logic import (
 from .logic.soul_wars_logic import apply_soul_wars_command_pure
 from .logic.shades_of_mortton_logic import apply_shades_of_mortton_command_pure
 from .logic.tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
+from .logic.daily_challenges_logic import (
+    advance_daily_challenges_day_pure,
+    apply_daily_challenges_command_pure,
+    daily_challenges_view_pure,
+)
 from .logic.varrock_museum_logic import apply_varrock_museum_command_pure
 from .logic.managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
@@ -166,6 +171,7 @@ from .logic.wicked_hood_logic import (
 )
 from .data.grand_exchange_data import GE_ITEM_CATALOG
 from .logic.grand_exchange_logic import (
+    ge_guide_prices_pure,
     advance_ge_market_tick_pure,
     apply_ge_frontend_action_pure,
     ge_frontend_projection_pure,
@@ -2703,6 +2709,39 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_daily_challenges_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        view = daily_challenges_view_pure(player_data)
+        # The Quartermaster values a hand-in at the exchange's live guide price,
+        # so the coins in the bag track the market rather than a fixed table.
+        credited_items = {
+            item_name
+            for row in view["rows"]
+            for item_name in _daily_challenge_credited_items(row["instance_id"])
+        }
+        updated, ok, info = apply_daily_challenges_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+            ge_guide_prices_pure(player_data, credited_items, GE_ITEM_CATALOG),
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That Daily Challenge action is unavailable.")),
+            }
+        if not commit_direct_action(lambda _current: (updated, True)):
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        return {"ok": True, **info}
+
+    def _daily_challenge_credited_items(instance_id):
+        for row in player_data.get("daily_challenges", ()) or ():
+            if isinstance(row, dict) and str(row.get("instance_id")) == str(instance_id):
+                credited = row.get("credited")
+                return tuple(credited) if isinstance(credited, dict) else ()
+        return ()
+
     def _apply_tzhaar_fight_pit_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_tzhaar_fight_pit_command_pure(
@@ -3053,6 +3092,7 @@ def _on_main_menu(
         on_soul_wars_command=_apply_soul_wars_command,
         on_shades_of_mortton_command=_apply_shades_of_mortton_command,
         on_tzhaar_fight_pit_command=_apply_tzhaar_fight_pit_command,
+        on_daily_challenges_command=_apply_daily_challenges_command,
         on_varrock_museum_command=_apply_varrock_museum_command,
         on_managing_miscellania_command=_apply_managing_miscellania_command,
         on_livid_farm_command=_apply_livid_farm_command,
@@ -3765,6 +3805,13 @@ def on_answer_card(self, ease, _old):
         try:
             player_data.update(advance_shop_market_clock_pure(player_data))
             player_data.update(advance_wicked_hood_review_day_pure(player_data))
+        except Exception:
+            pass
+        try:
+            challenge_updated, _challenge_events = (
+                advance_daily_challenges_day_pure(player_data, random.random)
+            )
+            player_data.update(challenge_updated)
         except Exception:
             pass
         try:
