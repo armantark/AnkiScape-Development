@@ -103,9 +103,13 @@ CRUCIBLE_POINTS_PER_CHAMPION_HIT = 1
 #
 # Half an hour maps onto the house review clock the same way every other world
 # event does: `shop_market_clock.answered_cards` runs 240 cards to the game day,
-# so a half-hourly event is one every five answered cards. The invulnerable
-# share is 2 of the 2.5 minutes, so the last fifth of the window is when the
-# champion can be attacked.
+# so a half-hourly event is one every five answered cards.
+#
+# The invulnerable share is 2 of the 2.5 minutes. At one review per event there is
+# no fifth of a window to be vulnerable in, so THE INVULNERABLE PHASE IS NOT
+# MODELLED: the champion is attackable for the whole event. Recorded as design
+# fork 3.6 rather than left to be read out of these two constants, because
+# lengthening the event is a design call and not a source question.
 CRUCIBLE_EVENT_INTERVAL_REVIEWS = 5
 CRUCIBLE_EVENT_REVIEWS = 1
 
@@ -119,7 +123,19 @@ CRUCIBLE_EVENT_REVIEWS = 1
 # level formula the player uses rather than a fixed fraction of the level. A
 # fixed fraction cannot lose to the player at any level, which is exactly how an
 # earlier family shipped a match no one could win or lose.
+#
+# PLACEHOLDER(crucible.target_level_offsets): the actual spread the period matcher
+# used. The article says "equivalent or similar combat skill" and its criticism
+# section says the matching could pair a low-combat player against a maxed one,
+# but no revision states the range, and the rev-727 interfaces hold no matching
+# table. These four offsets reproduce the described shape and nothing more.
 CRUCIBLE_TARGET_LEVEL_OFFSETS = (-8, 0, 8, 20)
+
+# An AnkiScape abstraction, not a period value: the period game had no answered
+# card, so nothing can state how much combat one review is worth. Six ticks is the
+# cadence the live Combat activities already run at, which is why it is reused
+# here rather than chosen. Tears of Guthix makes the same conversion and it is
+# queued as design fork 3.3; changing that answer should change this constant too.
 CRUCIBLE_COMBAT_TICKS = 6
 
 # Exact, from Darkan `Potions.kt` `checkPVPPotionBoosts`, which

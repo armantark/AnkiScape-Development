@@ -191,3 +191,35 @@ Nothing under test is mocked. `_play` drives the real
 player would — until it has genuinely been named Supreme Champion and holds
 enough Trophy bones to buy the most expensive row plus the helm. Only then does
 it assert that any of them can be bought.
+
+## What this family does NOT model
+
+Added 2026-07-26 after an independent audit of the merged family. Recorded here
+because a gap that is only absent from the code reads, later, as a gap nobody
+noticed.
+
+- **The Supreme Champion's invulnerable phase.** The event is one review long, so
+  the sourced two-of-two-and-a-half-minutes invulnerable share has no window to
+  occupy and the champion is attackable throughout. Design fork 3.6.
+- **The ordinary target during an event.** A player with a live bounty keeps it
+  while the champion event runs, and there is no separate champion opponent; the
+  event pays rank points on hits against the target already assigned.
+- **The membership requirement.** The Crucible was members-only content. AnkiScape
+  has no membership concept, so the gate is combat level and the entry fee alone.
+- **The waiting room.** It exists as text on the panel, not as a state with its own
+  transitions.
+- **Looting a defeated rival's actual items.** A dangerous death destroys the
+  loser's carried items and pays the fee's risk component to the victor in coins.
+  The period let the victor take the items themselves. Modelling that needs a rival
+  inventory, which nothing in the family has.
+- **Three champion weapons, the fissure energy boosts and the Rogue glove repair.**
+  Deferred depth; the shop rows are covered by design fork 3.5.
+
+Two verification figures worth keeping, from a real-kernel probe across 1,543
+reviews at seed 7: 48 entries produced 48 kills and 47 dangerous deaths, and the
+first championship arrived at review 149. Isolated single visits at combat levels
+60 and 99 across seeds 0 to 99 all ended in a dangerous death within 500 reviews
+and none reached champion. The championship is therefore reachable only by
+re-entering after death, which is how a player plays but is worth stating, and the
+death rate is close to total. Whether that is faithful punishment for dangerous
+content or a broken risk model is being checked independently.

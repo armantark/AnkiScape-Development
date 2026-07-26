@@ -159,6 +159,38 @@ nothing.
 Blocks: nothing. Worth answering if the Rogue gloves are ever wanted in their own
 right, since they are period equipment rather than only a shop row.
 
+### 3.6 The Supreme Champion's invulnerable phase is not modelled
+
+Raised 2026-07-26 by an independent audit of the shipped Crucible family, and
+confirmed against the code.
+
+The launch update is exact: the event runs two and a half minutes, the champion is
+invulnerable for the first two of them, and the arena is safe throughout. Our
+event is one review long, so there is no fifth of a window for the vulnerable
+phase to occupy, and the champion is attackable for the whole event. The data
+module's own comment described the phase split that its constants make impossible,
+which is how this reached a merged family.
+
+Options:
+
+- **A. Say plainly that the phase is not modelled** (implemented). The event stays
+  one review, the champion is attackable throughout, and the code says so instead
+  of implying otherwise. Cheapest, and honest.
+- **B. Lengthen the event to five reviews**, with the first four invulnerable. It
+  reproduces the 80/20 split exactly and gives the phase a reason to exist. It also
+  makes the event occupy every review between its own arrivals, since the interval
+  is five reviews, so the arena would effectively always be in an event.
+- **C. Lengthen the interval as well**, so a five-review event fits inside a longer
+  gap. Faithful to the shape, but it abandons the half-hourly cadence that the
+  240-card day clock derives exactly, and that cadence is sourced while the event
+  length is not.
+
+Recommendation: **A** until the event's own pacing matters to play. B and C both
+trade a sourced cadence for an unsourced one.
+
+Blocks: nothing. Related: fork 3.3 sets the reviews-to-ticks conversion that
+`CRUCIBLE_COMBAT_TICKS` reuses; answering that one should change this constant too.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
