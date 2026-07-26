@@ -79,6 +79,14 @@ def _sanitize_policy(raw: Any) -> dict[str, str]:
 
 
 def _opponent_stats(combat_level: int) -> dict[str, int]:
+    # AnkiScape abstraction, the same kind the opponent offsets already disclose:
+    # a period free-for-all rival was another player, so no period stat block
+    # exists to recover. This converts the rival's drawn combat level into the
+    # flat stat block the combat engine needs. Three quarters of the level sits
+    # below the roughly 0.87 that inverting the period combat-level formula for an
+    # even melee build would give, and the eight added to Constitution buys the
+    # lifepoints to survive more than one exchange; together they exist so a kill,
+    # a death, a win and a loss are all reachable inside a bounded match.
     core = max(1, min(99, round(combat_level * 0.75)))
     constitution = max(10, min(99, round(combat_level * 0.75 + 8)))
     return {
