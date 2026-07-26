@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import math
-from typing import Any, Callable, Dict, Mapping, Optional
+from typing import Any, Callable, Dict, Iterable, Mapping, Optional
 
 
 GE_STATE_VERSION = 1
@@ -381,6 +381,29 @@ def _current_guide_price_pure(
         0,
     )
     return stored if stored > 0 else _clean_int(item_spec.get("guide_price"), 0)
+
+
+def ge_guide_prices_pure(
+    player_data: Mapping[str, Any],
+    item_names: Iterable[str],
+    item_catalog: Mapping[str, Mapping[str, Any]],
+) -> Dict[str, int]:
+    """The live guide price of each named item, for callers that pay in coins.
+
+    Anything the exchange does not list falls back to nothing rather than to a
+    catalog price, so a caller can tell an unpriced item from a free one.
+    """
+    prices: Dict[str, int] = {}
+    for item_name in item_names:
+        item_spec = item_catalog.get(str(item_name))
+        if not isinstance(item_spec, Mapping):
+            continue
+        price = _current_guide_price_pure(
+            player_data, item_name=str(item_name), item_spec=item_spec
+        )
+        if price > 0:
+            prices[str(item_name)] = price
+    return prices
 
 
 def preview_ge_offer_pure(

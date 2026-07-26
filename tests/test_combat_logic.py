@@ -2981,6 +2981,10 @@ class CombatLogicTest(unittest.TestCase):
             empty_ordinary,
             {"Dragon bones": 1, "Black dragonhide": 1},
         )
+        # Both tertiary clue rolls hit here, but the period lets a player hold
+        # one clue scroll across every tier (design-thread-queue.md 4.5), so the
+        # drop filter keeps the higher tier and drops the other. This assertion
+        # changed when that rule landed; before it, the payload carried both.
         self.assertEqual(
             rares,
             {
@@ -2990,9 +2994,20 @@ class CombatLogicTest(unittest.TestCase):
                 "Gold charm": 3,
                 "Black dragon egg": 1,
                 "Draconic visage": 1,
-                "Clue scroll (hard)": 1,
                 "Clue scroll (elite)": 1,
             },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                dragon,
+                _rng([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+                player_data={
+                    "summoning_level": 99,
+                    "inventory": {"Clue scroll (easy)": 1},
+                },
+            ).get("Clue scroll (elite)"),
+            None,
+            "a player already holding a clue receives no second one",
         )
         self.assertEqual(
             below_egg_level,
@@ -3002,7 +3017,6 @@ class CombatLogicTest(unittest.TestCase):
                 "Mithril 2h sword": 1,
                 "Gold charm": 3,
                 "Draconic visage": 1,
-                "Clue scroll (hard)": 1,
                 "Clue scroll (elite)": 1,
             },
         )

@@ -498,6 +498,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "shooting_stars",
                 "fist_of_guthix",
                 "court_cases",
+                "treasure_trail",
                 "big_top_bonanza",
                 "trouble_brewing",
                 "castle_wars",

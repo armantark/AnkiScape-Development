@@ -197,6 +197,14 @@ from ..logic.clan_wars_logic import (
     default_clan_wars_state_pure,
     sanitize_clan_wars_state_pure,
 )
+from ..logic.daily_challenges_logic import (
+    default_daily_challenges_state_pure,
+    sanitize_daily_challenges_state_pure,
+)
+from ..logic.treasure_trails_logic import (
+    default_treasure_trails_state_pure,
+    sanitize_treasure_trails_state_pure,
+)
 from ..logic.varrock_museum_logic import (
     default_varrock_museum_state_pure,
     sanitize_varrock_museum_state_pure,
@@ -242,7 +250,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 83
+CURRENT_CONFIG_VERSION = 85
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -498,6 +506,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_tzhaar_fight_pit_state_pure())
     data.update(default_duel_arena_state_pure())
     data.update(default_clan_wars_state_pure())
+    data.update(default_daily_challenges_state_pure())
+    data.update(default_treasure_trails_state_pure())
     data["varrock_museum"] = default_varrock_museum_state_pure()
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
@@ -1147,6 +1157,8 @@ def migrate_loaded_data(
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
+    data.update(sanitize_daily_challenges_state_pure(data))
+    data.update(sanitize_treasure_trails_state_pure(data))
     data["varrock_museum"] = sanitize_varrock_museum_state_pure(
         data.get("varrock_museum")
     )
@@ -1615,6 +1627,19 @@ def migrate_loaded_data(
     if loaded_config_version < 83:
         for key, value in default_clan_wars_state_pure().items():
             data.setdefault(key, value)
+    # v84: Daily Challenges adds the five-slot noticeboard queue, the assignment
+    # day, the pinned task, per-skill blocks, and the reward ledgers that keep
+    # Challenge Mystery Bag and Challenge XP Lamp values beside their items.
+    # Built against 82, renumbered on merge: Duel Arena and Clan Wars had already
+    # taken 82 and 83 on another branch.
+    if loaded_config_version < 84:
+        for key, value in default_daily_challenges_state_pure().items():
+            data.setdefault(key, value)
+    # v85: Treasure Trails adds the single active easy trail, its step cursor,
+    # and the started/completed/casket ledgers.
+    if loaded_config_version < 85:
+        for key, value in default_treasure_trails_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1670,6 +1695,8 @@ def migrate_loaded_data(
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
+    data.update(sanitize_daily_challenges_state_pure(data))
+    data.update(sanitize_treasure_trails_state_pure(data))
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):

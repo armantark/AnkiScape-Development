@@ -91,6 +91,17 @@ from ..data.clan_wars_data import (
     clan_wars_activity_as_dict,
 )
 
+from ..data.daily_challenges_data import (
+    daily_challenge_extra_items_as_dict,
+)
+
+from ..data.treasure_trails_data import (
+    TREASURE_TRAILS_ACTIVITY_ID,
+    TREASURE_TRAILS_ART_ITEMS,
+    treasure_trails_activity_as_dict,
+    treasure_trails_extra_items_as_dict,
+)
+
 from ..data.varrock_museum_data import (
     VARROCK_MUSEUM_ACTIVITY_ID,
     varrock_museum_activity_as_dict,
@@ -602,6 +613,7 @@ UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(duel_arena_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(treasure_trails_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -730,6 +742,15 @@ if os.path.exists(_shades_of_mortton_icon):
     UTILITY_ACTIVITY_DATA[SHADES_OF_MORTTON_ACTIVITY_ID]["icon_path"] = (
         _shades_of_mortton_icon
     )
+_treasure_trails_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "treasure_trail.png",
+)
+if os.path.exists(_treasure_trails_icon):
+    UTILITY_ACTIVITY_DATA[TREASURE_TRAILS_ACTIVITY_ID]["icon_path"] = (
+        _treasure_trails_icon
+    )
+
 _tzhaar_fight_pit_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "tzhaar_fight_pit.png",
@@ -1566,6 +1587,8 @@ WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
 FISH_FLINGERS_EXTRA_ITEM_DATA = fish_flingers_extra_items_as_dict()
 DUEL_ARENA_EXTRA_ITEM_DATA = duel_arena_extra_items_as_dict()
+DAILY_CHALLENGE_EXTRA_ITEM_DATA = daily_challenge_extra_items_as_dict()
+TREASURE_TRAILS_EXTRA_ITEM_DATA = treasure_trails_extra_items_as_dict()
 COURT_CASES_ITEM_IMAGES = {
     "Court summons": os.path.join(
         UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1705,6 +1728,24 @@ DUEL_ARENA_ITEM_IMAGES = {
     if os.path.exists(path)
 }
 UTILITY_ITEM_IMAGES.update(DUEL_ARENA_ITEM_IMAGES)
+TREASURE_TRAILS_ITEM_IMAGES = {}
+for _item_name in TREASURE_TRAILS_ART_ITEMS:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        TREASURE_TRAILS_ITEM_IMAGES[_item_name] = _path
+DAILY_CHALLENGE_ITEM_IMAGES = {}
+for _item_name in DAILY_CHALLENGE_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        DAILY_CHALLENGE_ITEM_IMAGES[_item_name] = _path
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -2132,6 +2173,8 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **GNOME_BALL_EXTRA_ITEM_DATA,
     **FISH_FLINGERS_EXTRA_ITEM_DATA,
     **DUEL_ARENA_EXTRA_ITEM_DATA,
+    **DAILY_CHALLENGE_EXTRA_ITEM_DATA,
+    **TREASURE_TRAILS_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -2176,6 +2219,8 @@ EXTRA_ITEM_IMAGES = {
     **PYRAMID_PLUNDER_ITEM_IMAGES,
     **WEREWOLF_SKULLBALL_ITEM_IMAGES,
     **FISH_FLINGERS_ITEM_IMAGES,
+    **DAILY_CHALLENGE_ITEM_IMAGES,
+    **TREASURE_TRAILS_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

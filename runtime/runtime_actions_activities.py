@@ -261,6 +261,8 @@ from ..logic.tzhaar_fight_pit_logic import (
 from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..logic.duel_arena_logic import apply_duel_arena_review_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
+from ..logic.treasure_trails_logic import apply_treasure_trail_review_pure
 from ..logic.clan_wars_logic import apply_clan_wars_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
@@ -2418,4 +2420,35 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     elif damage_result.get("food_used"):
         food = damage_result["food_used"]
         ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")
+    return True
+
+def handle_treasure_trail_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_treasure_trail_review_pure(
+        ctx.player_data, ctx.random_random
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Treasure Trails unavailable",
+            str(result.get("reason", "Read a clue scroll before following a trail.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    # A blocked emote step is a real period stall, not a completed beat, so it
+    # is recorded as a failure rather than silently counted as progress.
+    _record_action(
+        ctx,
+        "utility",
+        TREASURE_TRAILS_ACTIVITY_ID,
+        not result.get("blocked"),
+        expected_success_chance=1.0,
+        failure_kind="emote_gear_missing" if result.get("blocked") else None,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Treasure Trail step resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
     return True

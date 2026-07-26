@@ -41,6 +41,7 @@ from ankiscape.logic import barrows_logic
 from ankiscape.logic import castle_wars_logic
 from ankiscape.logic import circus_logic
 from ankiscape.logic import court_cases_logic
+from ankiscape.logic import daily_challenges_logic
 from ankiscape.logic import equipment_instance_logic
 from ankiscape.logic import fight_caves_logic
 from ankiscape.logic import fish_flingers_logic
@@ -61,6 +62,7 @@ from ankiscape.logic import sorceress_garden_logic
 from ankiscape.logic import soul_wars_logic
 from ankiscape.logic import stealing_creation_logic
 from ankiscape.logic import stronghold_player_safety_logic
+from ankiscape.logic import treasure_trails_logic
 from ankiscape.logic import trouble_brewing_logic
 from ankiscape.logic import tzhaar_fight_pit_logic
 from ankiscape.logic import varrock_museum_logic
@@ -282,6 +284,29 @@ _MODULE_GATES = (
             "buy_trouble_brewing_reward_pure",
         ),
         ("tests.test_trouble_brewing", "tests.test_runtime_actions"),
+    ),
+    (
+        daily_challenges_logic,
+        (
+            "advance_daily_challenges_day_pure",
+            "credit_daily_challenge_progress_pure",
+            "pin_daily_challenge_pure",
+            "set_daily_challenge_skill_block_pure",
+            "claim_daily_challenge_pure",
+            "open_challenge_mystery_bag_pure",
+            "rub_challenge_xp_lamp_pure",
+        ),
+        ("tests.test_daily_challenges",),
+    ),
+    (
+        treasure_trails_logic,
+        (
+            "read_clue_scroll_pure",
+            "apply_treasure_trail_review_pure",
+            "abandon_treasure_trail_pure",
+            "open_casket_pure",
+        ),
+        ("tests.test_treasure_trails",),
     ),
     (
         tzhaar_fight_pit_logic,

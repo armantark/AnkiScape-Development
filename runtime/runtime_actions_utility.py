@@ -254,6 +254,7 @@ from ..logic.shades_of_mortton_logic import (
     shades_of_mortton_view_pure,
 )
 from ..data.tzhaar_fight_pit_data import TZHAAR_FIGHT_PIT_ACTIVITY_ID
+from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
     tzhaar_fight_pit_view_pure,
@@ -435,6 +436,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_soul_wars_answer,
     handle_stronghold_player_safety_answer,
     handle_trouble_brewing_answer,
+    handle_treasure_trail_answer,
     handle_tzhaar_fight_pit_answer,
     handle_duel_arena_answer,
     handle_clan_wars_answer,
@@ -507,6 +509,7 @@ from .runtime_actions_activities import (
     handle_soul_wars_answer,
     handle_stronghold_player_safety_answer,
     handle_trouble_brewing_answer,
+    handle_treasure_trail_answer,
     handle_tzhaar_fight_pit_answer,
     handle_duel_arena_answer,
     handle_clan_wars_answer,
@@ -594,6 +597,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_duel_arena_answer(ctx)
     if activity_key == CLAN_WARS_ACTIVITY_ID:
         return handle_clan_wars_answer(ctx)
+    if activity_key == TREASURE_TRAILS_ACTIVITY_ID:
+        return handle_treasure_trail_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

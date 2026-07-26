@@ -8,6 +8,7 @@ from ankiscape.core.storage_pure import (
 )
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
+from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
 from ankiscape.core.constants import (
     BAR_DATA,
     CRAFTING_DATA,
@@ -34,6 +35,64 @@ from ankiscape.core.constants import (
 
 
 class TestStoragePure(unittest.TestCase):
+    def test_v85_migrates_and_repairs_treasure_trail_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 82,
+                "inventory": {"Clue scroll (easy)": 1},
+                "activity_session": {"active_id": "treasure_trail"},
+                "treasure_trail": {
+                    "tier": "easy",
+                    "steps": ["simple_port_sarim_sailor", "not_a_real_step"],
+                    "index": 40,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["treasure_trail"]["steps"], ["simple_port_sarim_sailor"]
+        )
+        self.assertEqual(migrated["treasure_trail"]["index"], 0)
+        self.assertEqual(migrated["treasure_trails_completed"], 0)
+
+    def test_v84_migrates_and_repairs_daily_challenge_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 81,
+                "inventory": {"Challenge Mystery Bag": 1},
+                "daily_challenges": [
+                    {"challenge_id": "gone_from_the_catalog", "progress": 3},
+                    {
+                        "instance_id": "mining_clay-2",
+                        "challenge_id": "mining_clay",
+                        "day": 2,
+                        "progress": 500,
+                    },
+                ],
+                "daily_challenge_pinned": "gone_from_the_catalog-1",
+                "daily_challenge_bag_values": [40, 50, 60],
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(len(migrated["daily_challenges"]), 1)
+        self.assertEqual(
+            migrated["daily_challenges"][0]["progress"],
+            DAILY_CHALLENGE_DATA["mining_clay"]["required"],
+        )
+        self.assertEqual(migrated["daily_challenge_pinned"], "")
+        self.assertEqual(migrated["daily_challenge_bag_values"], [40])
+
+    def test_a_new_save_starts_with_an_empty_noticeboard_and_no_trail(self):
+        data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(data["treasure_trail"], {})
+        self.assertEqual(data["daily_challenges"], [])
+        self.assertEqual(data["daily_challenge_day"], 0)
+        self.assertEqual(data["daily_challenge_blocked_skills"], [])
+
     def test_v81_migrates_and_repairs_tzhaar_fight_pit_state(self):
         migrated = migrate_loaded_data(
             {

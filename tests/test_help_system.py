@@ -8,6 +8,7 @@ from ankiscape.core.help_system import (
     KNOWN_REGISTRY_BLOCK_IDS,
     PRIMARY_HELP_TOPIC_BY_TAB_LABEL,
     HelpRegistryTable,
+    HELP_TOPICS_DIR,
     load_help_topics,
     parse_help_topic_text,
     render_help_topic_html,
@@ -49,7 +50,11 @@ class HelpCorpusTests(unittest.TestCase):
         topics = load_help_topics()
         by_id = topics_by_id(topics)
 
-        self.assertEqual(len(topics), 18)
+        # Derived, not hardcoded: a new topic file must be loaded, and a
+        # loader that silently drops one must fail here.
+        self.assertEqual(
+            len(topics), len(list(HELP_TOPICS_DIR.glob("*.md")))
+        )
         self.assertEqual(
             set(PRIMARY_HELP_TOPIC_BY_TAB_LABEL.values()),
             {

@@ -113,6 +113,24 @@ Options:
 Blocks: nothing. Changing the answer later is a one-constant edit to
 `TEARS_OF_GUTHIX_TICKS_PER_REVIEW`, and the tests read the constant rather than
 restating the beat counts.
+### 3.4 Quest-awarded clue scrolls bypass the one-clue rule
+
+Raised 2026-07-26 while building Easy Treasure Trails. Not a blocker: the Easy
+family shipped without it.
+
+The period allows one clue scroll in total (4.5), and the drop paths now enforce
+it. One quest in the generated catalog awards a `Clue scroll (elite)` as an item
+reward, and quest rewards do not pass through the ownership filter. A player can
+therefore end a quest holding two clues.
+
+- Option A: route quest item rewards through the same filter, so the clue is
+  withheld while another is held.
+- Option B: treat a quest reward as a period exception and let it through.
+- Recommendation: **A**, for consistency with every other grant path. It was not
+  implemented here because it is one level outside the Treasure Trails change and
+  touches the quest reward pipeline that this family does not own.
+
+Blocks: nothing. Worth answering before medium, hard or elite trails ship.
 
 ## 4. Answered decisions
 
