@@ -232,6 +232,24 @@ class TrailProgressTest(unittest.TestCase):
         _again, ok, _info = read_clue_scroll_pure(after, "easy", lambda: 0.0)
         self.assertTrue(ok)
 
+    def test_abandoning_and_rereading_resumes_the_same_generated_trail(self):
+        started, ok, _info = read_clue_scroll_pure(
+            player(inventory={"Clue scroll (easy)": 1}), "easy", lambda: 0.99
+        )
+        self.assertTrue(ok)
+        progressed, ok, result = apply_treasure_trail_review_pure(started)
+        self.assertTrue(ok)
+        self.assertFalse(result["terminal"])
+        expected = dict(progressed["treasure_trail"])
+
+        abandoned, ok, _info = abandon_treasure_trail_pure(progressed)
+        self.assertTrue(ok)
+        resumed, ok, _info = read_clue_scroll_pure(
+            abandoned, "easy", lambda: 0.0
+        )
+        self.assertTrue(ok)
+        self.assertEqual(resumed["treasure_trail"], expected)
+
 
 class CasketRewardTest(unittest.TestCase):
     def test_opening_a_casket_the_player_does_not_have_is_refused(self):

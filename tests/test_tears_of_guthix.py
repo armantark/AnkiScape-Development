@@ -508,6 +508,26 @@ class TearsOfGuthixRealRewardPathTests(unittest.TestCase):
         self.assertTrue(ok, info)
         self.assertTrue(opened["tears_of_guthix"]["active"])
 
+    def test_the_previous_visit_payout_does_not_count_toward_new_progress(self):
+        data = _player()
+        data, ok, info = apply_tears_of_guthix_command_pure(data, "enter")
+        self.assertTrue(ok, info)
+        for data, result in _drain(data, lambda: 1.0):
+            pass
+        self.assertGreater(sum(result["xp_rewards"].values()), 0)
+        data = _advance_a_week(data)
+
+        data["woodcutting_exp"] = (
+            float(data.get("woodcutting_exp", 0.0))
+            + TEARS_OF_GUTHIX_PROGRESS_EXP
+            - 1
+        )
+        view = tears_of_guthix_view_pure(data)
+        self.assertFalse(view["progress_met"])
+        self.assertEqual(
+            view["experience_since_visit"], TEARS_OF_GUTHIX_PROGRESS_EXP - 1
+        )
+
     def test_banked_visits_stop_at_the_carryover_cap(self):
         data = _player()
         data, ok, info = apply_tears_of_guthix_command_pure(data, "enter")
