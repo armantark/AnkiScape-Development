@@ -392,8 +392,12 @@ class CrucibleArenaTest(unittest.TestCase):
         for row in missed:
             self.assertEqual(row["points_gained"], 0)
 
-    def test_a_dangerous_death_destroys_everything_and_pays_the_victor(self):
-        """No gravestone, no Death's Office, and the risk fee is gone."""
+    def test_a_dangerous_death_keeps_three_items_and_pays_the_victor(self):
+        """No gravestone, no Death's Office, and the risk fee is gone.
+
+        `sendPVPItemsOnDeath` keeps three items on an unskulled death, so what is
+        destroyed is everything past those three.
+        """
         entered, ok, _ = enter_crucible_pure(_armoured_player(), GE_ITEM_CATALOG)
         self.assertTrue(ok)
         escrow = entered["crucible"]["risk_escrow"]
@@ -409,7 +413,14 @@ class CrucibleArenaTest(unittest.TestCase):
         self.assertEqual(played["crucible_deaths"], 1)
         self.assertEqual(played["combat_grave"], {})
         self.assertEqual(played["death_office"], {})
-        self.assertEqual(played["equipment"], {})
+        self.assertEqual(
+            played["equipment"],
+            {
+                "weapon": "Mithril scimitar",
+                "body": "Mithril platebody",
+                "legs": "Mithril platelegs",
+            },
+        )
         self.assertEqual(played["inventory"].get("Lobster", 0), 0)
         self.assertEqual(died["fee_forfeited"], escrow)
         self.assertEqual(died["fee_refunded"], abandon)
@@ -422,8 +433,12 @@ class CrucibleArenaTest(unittest.TestCase):
         self.assertEqual(played["crucible"], {})
         self.assertEqual(played["activity_session"]["active_id"], "")
 
-    def test_protect_item_saves_nothing_here_unlike_every_other_dangerous_area(self):
-        """Both pinned revisions say Protect Item is disabled inside the Crucible."""
+    def test_protect_item_saves_nothing_extra_unlike_every_other_dangerous_area(self):
+        """Both pinned revisions say Protect Item is disabled inside the Crucible.
+
+        Elsewhere the prayer raises the kept count from three to four; here the
+        arena must ignore it, so the death still keeps only the sourced three.
+        """
         entered, ok, _ = enter_crucible_pure(
             _armoured_player(protect_item=True), GE_ITEM_CATALOG
         )
@@ -434,7 +449,8 @@ class CrucibleArenaTest(unittest.TestCase):
             limit=200,
             until=lambda _p, r: r.get("outcome") == "death",
         )
-        self.assertEqual(played["equipment"], {})
+        self.assertEqual(len(played["equipment"]), 3)
+        self.assertEqual(played["inventory"].get("Lobster", 0), 0)
         # The player's own prayer selection is left exactly as they set it.
         self.assertIn("protect_item", played["combat_selected_prayers"])
 

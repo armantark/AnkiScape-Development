@@ -171,6 +171,7 @@ from .logic_pure_landmarks import (  # noqa: F401  (re-export)
 from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
+    COMBAT_PVP_DEATH_KEPT_ITEMS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
     _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
     _COMBAT_STAT_POTION_BY_DOSE,
@@ -740,10 +741,16 @@ def _combat_apply_pvm_death(
     _combat_apply_follower_death(data)
     original_equipment = dict(data.get("equipment", {}) or {})
     carried_counts = _carried_inventory_grave_counts(data, carried_target_id)
-    protected_slot = None
-    protected_carried_item = None
+    protected_slots: set[str] = set()
+    protected_carried: dict[str, int] = {}
     protect_item = prayer_effect_state_pure(data).get("protect_item")
-    if protect_item and no_grave:
+    if no_grave:
+        # The gravestone-free death is the player-versus-player one, where
+        # `sendPVPItemsOnDeath` hands the rest to the killer. It keeps three
+        # items unskulled, and one more while Protect Item is active. Which three
+        # is the player's choice in the period; AnkiScape has no inventory
+        # arrangement to express it, so it keeps the most valuable ones.
+        keep = COMBAT_PVP_DEATH_KEPT_ITEMS + (1 if protect_item else 0)
         candidates = [
             (
                 _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),
@@ -754,6 +761,8 @@ def _combat_apply_pvm_death(
             for slot, item_name in original_equipment.items()
             if isinstance(item_name, str)
         ]
+        # Carried units are counted one at a time so the kept total is a count of
+        # items rather than of stacks.
         candidates.extend(
             (
                 _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),
@@ -762,34 +771,35 @@ def _combat_apply_pvm_death(
                 str(item_name),
             )
             for item_name, count in carried_counts.items()
-            if count > 0
+            for _unit in range(max(0, count))
         )
-        if candidates:
-            _value, _item_name, location, key = max(candidates)
+        for _value, _item_name, location, key in sorted(candidates, reverse=True)[:keep]:
             if location == "equipment":
-                protected_slot = key
+                protected_slots.add(key)
             else:
-                protected_carried_item = key
+                protected_carried[key] = protected_carried.get(key, 0) + 1
     elif protect_item and original_equipment:
-        protected_slot = max(
-            original_equipment,
-            key=lambda slot: (_non_negative_int(ITEM_VALUES.get(original_equipment[slot], 0), 0), str(original_equipment[slot]), str(slot)),
-        )
+        protected_slots = {
+            max(
+                original_equipment,
+                key=lambda slot: (_non_negative_int(ITEM_VALUES.get(original_equipment[slot], 0), 0), str(original_equipment[slot]), str(slot)),
+            )
+        }
     discharged, _condition_events = discharge_equipped_on_unsafe_death_pure(
         data, EQUIPMENT_CONDITION_DATA
     )
     data.clear()
     data.update(discharged)
     discharged_equipment = dict(data.get("equipment", {}) or {})
-    protected_equipment = (
-        {protected_slot: discharged_equipment[protected_slot]}
-        if protected_slot in discharged_equipment
-        else {}
-    )
+    protected_equipment = {
+        slot: item_name
+        for slot, item_name in discharged_equipment.items()
+        if slot in protected_slots
+    }
     equipment = {
         slot: item_name
         for slot, item_name in discharged_equipment.items()
-        if slot != protected_slot
+        if slot not in protected_slots
     }
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     # Carried items are a view over the flat store: remove them from the bank and
@@ -799,11 +809,12 @@ def _combat_apply_pvm_death(
     if carried_counts:
         inventory = dict(data.get("inventory", {}) or {})
         for item_name, count in carried_counts.items():
-            if item_name == protected_carried_item:
+            lost = count - protected_carried.get(item_name, 0)
+            if lost <= 0:
                 continue
-            inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - count)
+            inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - lost)
             if not no_grave:
-                grave_items.extend([item_name] * count)
+                grave_items.extend([item_name] * lost)
         data["inventory"] = inventory
     active_target = (
         carried_target_id

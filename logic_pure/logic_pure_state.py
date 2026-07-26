@@ -71,6 +71,11 @@ COMBAT_BANK_RUN_REVIEWS = 2
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
 
 
+# `sendPVPItemsOnDeath` keeps three items on an unskulled death. AnkiScape has no
+# skull timer, so every player-versus-player death it models is unskulled.
+COMBAT_PVP_DEATH_KEPT_ITEMS = 3
+
+
 def default_combat_supply_loadout_pure():
     return {
         "food": {},

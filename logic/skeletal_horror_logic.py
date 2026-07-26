@@ -388,7 +388,9 @@ def apply_skeletal_horror_review_pure(
         rng=rng,
         live_cadence=True,
         stop_after_first_kill=True,
-        safe_death=True,
+        # "Death places the player's grave outside the encounter" — the lair is
+        # dangerous, so the ordinary live-Combat death path runs.
+        safe_death=False,
         allow_bank_run=False,
     )
     if not ok:

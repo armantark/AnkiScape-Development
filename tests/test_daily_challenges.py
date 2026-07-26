@@ -5,8 +5,13 @@ gave the Challenge System a skip/reroll action that the cutoff revision never
 mentions. So the queue tests here assert what the revision says — five slots,
 one new challenge per day, oldest-first displacement, one pinned task, per-skill
 blocks only for maxed skills — rather than what any single code path happens to
-do, and the reward tests reach each reward through the ordinary gameplay route a
-player would use.
+do.
+
+Most reward tests start from `_finished`, which writes the finished state
+directly. That is deliberate — it isolates one reward rule per test — but it
+proves nothing about reachability, so `RewardsThroughRealGameplayTest` drives the
+mystery bag and the lamp from a real assignment through real credit to the claim
+and the reward's own use.
 """
 
 import unittest
@@ -267,6 +272,12 @@ class CreditTest(unittest.TestCase):
 
 
 def _finished(challenge_id, inventory=None, **changes):
+    """A synthetic finished challenge, for isolating one reward rule at a time.
+
+    This writes maximum progress, credited items and inventory straight into the
+    save. It says nothing about whether real gameplay can reach that state;
+    `RewardsThroughRealGameplayTest` is what covers that.
+    """
     data = player(**changes)
     spec = DAILY_CHALLENGE_DATA[challenge_id]
     credited = {}
@@ -376,6 +387,85 @@ class HandInAndRewardTest(unittest.TestCase):
         _updated, ok, info = rub_challenge_xp_lamp_pure(player(), "strength")
         self.assertFalse(ok)
         self.assertIn("no Challenge XP Lamp", info["reason"])
+
+
+class RewardsThroughRealGameplayTest(unittest.TestCase):
+    """Both rewards, reached only through assignment, credit and hand-in.
+
+    Nothing here writes progress, credited items or a reward ledger directly. The
+    one thing these tests do choose is which challenge the day's uniform draw
+    lands on, because a player cannot pick either.
+    """
+
+    def _assign(self, data, challenge_id, day=1):
+        data = dict(data)
+        data["shop_market_clock"] = {
+            "version": 1,
+            "answered_cards": day * DAILY_CHALLENGE_REVIEW_DAY,
+            "market_tick": 0,
+        }
+        pool = eligible_daily_challenge_ids_pure(data)
+        self.assertIn(challenge_id, pool)
+        index = pool.index(challenge_id)
+        data, events = advance_daily_challenges_day_pure(
+            data, lambda: (index + 0.5) / len(pool)
+        )
+        self.assertEqual(
+            [row["challenge_id"] for row in events["assigned"]], [challenge_id]
+        )
+        return data, events["assigned"][0]["instance_id"]
+
+    def test_a_cooking_challenge_reaches_its_mystery_bag_and_opens_it(self):
+        data, instance_id = self._assign(player(), "cooking_chicken")
+        required = int(DAILY_CHALLENGE_DATA["cooking_chicken"]["required"])
+        for _cooked in range(required):
+            # Each real cook credits the challenge and leaves the food behind;
+            # the inventory gain belongs to the Cooking family, not to this one.
+            data, events = credit_daily_challenge_progress_pure(
+                data, "cooking", "cook_chicken", output_items={"Cooked chicken": 1}
+            )
+            self.assertEqual(len(events["credited"]), 1)
+            inventory = dict(data["inventory"])
+            inventory["Cooked chicken"] = inventory.get("Cooked chicken", 0) + 1
+            data["inventory"] = inventory
+        self.assertEqual(data["daily_challenges"][0]["progress"], required)
+
+        claimed, ok, info = claim_daily_challenge_pure(
+            data, instance_id, {"Cooked chicken": 50}
+        )
+        self.assertTrue(ok, info)
+        self.assertNotIn("Cooked chicken", claimed["inventory"])
+        self.assertEqual(claimed["inventory"][DAILY_CHALLENGE_MYSTERY_BAG_ITEM], 1)
+        self.assertEqual(claimed["daily_challenges"], [])
+
+        opened, ok, info = open_challenge_mystery_bag_pure(claimed)
+        self.assertTrue(ok, info)
+        self.assertEqual(info["coins"], 50 * required)
+        self.assertEqual(opened["inventory"]["Coins"], 50 * required)
+        self.assertNotIn(DAILY_CHALLENGE_MYSTERY_BAG_ITEM, opened["inventory"])
+
+    def test_a_combat_challenge_reaches_its_xp_lamp_and_rubs_it(self):
+        data, instance_id = self._assign(player(), "rampage_mk_i")
+        required = int(DAILY_CHALLENGE_DATA["rampage_mk_i"]["required"])
+        for _kill in range(required):
+            data, events = credit_daily_challenge_progress_pure(
+                data, "combat", "attack", kills=1, enemy_combat_level=2
+            )
+            self.assertEqual(len(events["credited"]), 1)
+        self.assertEqual(data["daily_challenges"][0]["progress"], required)
+
+        claimed, ok, info = claim_daily_challenge_pure(data, instance_id)
+        self.assertTrue(ok, info)
+        self.assertEqual(claimed["inventory"][DAILY_CHALLENGE_XP_LAMP_ITEM], 1)
+        self.assertEqual(claimed["daily_challenges"], [])
+
+        rubbed, ok, info = rub_challenge_xp_lamp_pure(claimed, "strength")
+        self.assertTrue(ok, info)
+        self.assertEqual(
+            rubbed["strength_exp"],
+            float(DAILY_CHALLENGE_DATA["rampage_mk_i"]["reward_xp"]),
+        )
+        self.assertNotIn(DAILY_CHALLENGE_XP_LAMP_ITEM, rubbed["inventory"])
 
 
 class PersistenceTest(unittest.TestCase):

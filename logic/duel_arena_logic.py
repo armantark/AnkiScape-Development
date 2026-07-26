@@ -266,6 +266,12 @@ def sanitize_duel_arena_state_pure(
 
 
 def _restore_stats(data: dict[str, Any]) -> None:
+    # "The ending restores stats, health, run energy, poison, and other stat
+    # effects", so every bar goes back to its own engine maximum rather than to a
+    # figure of this family's own: Prayer points are `prayer_level * 10` as
+    # everywhere else in the engine, and 100 is both
+    # `COMBAT_SPECIAL_ATTACK_MAX_ENERGY` and the ceiling the Agility run-energy
+    # credit is clamped to.
     data["combat_lifepoints"] = combat_max_lifepoints_pure(data)
     data["combat_prayer_points"] = max(
         1, _int(data.get("prayer_level"), 1, minimum=1)
@@ -384,6 +390,12 @@ def _player_exchange_chance(
     player_data: Mapping[str, Any],
     opponent_level: int,
 ) -> float:
+    # AnkiScape abstraction, declared in the family's audit: a period duel was
+    # two real players fighting, so nothing here converts a recovered value. This
+    # turns the combat-level gap into one review's chance of taking an exchange.
+    # The divisor sets how fast the gap tells: 0.25 / (1 / 270) is a gap of about
+    # 67 combat levels, roughly half the level range, so only a badly mismatched
+    # pairing reaches the bound and duels between nearby levels stay near even.
     player_level = player_combat_level_pure(player_data)
     return max(0.25, min(0.75, 0.5 + (player_level - opponent_level) / 270.0))
 
