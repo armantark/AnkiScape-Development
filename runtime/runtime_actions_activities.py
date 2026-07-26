@@ -262,10 +262,12 @@ from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..logic.duel_arena_logic import apply_duel_arena_review_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
+from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
 from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..logic.treasure_trails_logic import apply_treasure_trail_review_pure
 from ..logic.clan_wars_logic import apply_clan_wars_review_pure
 from ..logic.crucible_logic import apply_crucible_review_pure
+from ..logic.goblin_raids_logic import apply_goblin_raids_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -2235,6 +2237,51 @@ def handle_clan_wars_answer(
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(
         str(result.get("message") or "Clan Wars combat beat resolved")
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_goblin_raids_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_goblin_raids_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        enemy_data=COMBAT_ENEMY_DATA,
+        equipment_data=EQUIPMENT_DATA,
+        productive=productive,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Goblin Raids unavailable",
+            str(result.get("reason", "Join a goblin raid before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    combat = dict(result.get("combat") or {})
+    xp_rewards = dict(combat.get("xp_rewards") or {})
+    died = bool(combat.get("died"))
+    _record_action(
+        ctx,
+        "utility",
+        GOBLIN_RAIDS_ACTIVITY_ID,
+        bool(result.get("advanced")) and not died,
+        expected_success_chance=1.0,
+        failure_kind="death" if died else None,
+        primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("message") or "Goblin Raids beat resolved")
     )
     if result.get("terminal"):
         ctx.deactivate_current_skill()

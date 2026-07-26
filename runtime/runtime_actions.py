@@ -258,6 +258,8 @@ from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
+from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
+from ..logic.goblin_raids_logic import goblin_raids_view_pure
 from ..data.pest_control_data import PEST_CONTROL_ACTIVITY_ID
 from ..logic.pest_control_logic import (
     apply_pest_control_review_pure,
@@ -531,6 +533,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_castle_wars_answer,
     handle_clan_wars_answer,
     handle_crucible_answer,
+    handle_goblin_raids_answer,
     handle_flash_powder_factory_answer,
     handle_pest_control_answer,
     handle_shades_of_mortton_answer,

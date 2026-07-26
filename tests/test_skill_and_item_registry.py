@@ -530,6 +530,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "skeletal_horror",
                 "tears_of_guthix",
                 "enchanted_key",
+                "goblin_raids",
             },
         )
 

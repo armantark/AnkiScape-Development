@@ -261,6 +261,56 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"], before)
         self.assertEqual(addon.player_data["crucible_lessons_taken"], ())
 
+    def test_goblin_raids_intimidation_restores_through_the_seam(self):
+        """Intimidating Hollowtoof grants three items, so it must be undoable."""
+        from ankiscape.data.goblin_raids_data import (
+            GOBLIN_RAIDS_RAID_MODE,
+            RAIDER_SET_ITEM_NAMES,
+        )
+        from ankiscape.logic.goblin_raids_logic import (
+            advance_goblin_raids_world_clock_pure,
+            apply_goblin_raids_command_pure,
+        )
+
+        addon = self.addon
+        for key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+        ):
+            addon.player_data[key] = 90
+        addon.player_data["inventory"] = {}
+        addon.player_data["shop_market_clock"] = {"answered_cards": 5}
+        updated, _events = advance_goblin_raids_world_clock_pure(
+            addon.player_data
+        )
+        addon.player_data.update(updated)
+        self.assertTrue(addon.player_data["goblin_raids"]["active_raid"])
+
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_goblin_raids_command_pure(
+                    current, "join", {"mode": GOBLIN_RAIDS_RAID_MODE}
+                )[:2]
+            )
+        )
+        before = copy.deepcopy(addon.player_data["inventory"])
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_goblin_raids_command_pure(
+                    current, "intimidate", {}
+                )[:2]
+            )
+        )
+        for item_name in RAIDER_SET_ITEM_NAMES:
+            self.assertEqual(addon.player_data["inventory"][item_name], 1)
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["inventory"], before)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["goblin_raids"]["session"], {})
+
     def test_enchanted_key_site_choice_restores_through_the_seam(self):
         from ankiscape.data.enchanted_key_data import ENCHANTED_KEY_SITE_IDS
         from ankiscape.logic.enchanted_key_logic import (

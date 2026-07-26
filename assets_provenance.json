@@ -479,6 +479,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:14:02Z"
   },
+  "activityicons/goblin_raids.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Goblin_raid.png",
+    "file_title": "Goblin raid.png",
+    "image_url": "https://runescape.wiki/images/archive/20251204062043%21Goblin_raid.png?e2f26",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "99fad1ffd49f87a36f07b349c30d4733b3ac5c1c",
+    "size": 588472,
+    "source_wiki": "rs3",
+    "timestamp": "2012-11-14T05:37:21Z"
+  },
   "activityicons/great_orb_project.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:The_Great_Orb_Project.png",
     "file_title": "The Great Orb Project.png",
@@ -3766,6 +3778,66 @@
     "size": 197768,
     "source_wiki": "osrs",
     "timestamp": "2025-07-27T10:25:15Z"
+  },
+  "combatenemies/goblin_raids_brokeface.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brokeface.png",
+    "file_title": "Brokeface.png",
+    "image_url": "https://runescape.wiki/images/Brokeface.png?7a4fa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0321ea52c93e1c8660385db1c61e8b063e327988",
+    "size": 237323,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-17T16:24:34Z"
+  },
+  "combatenemies/goblin_raids_hollowtoof.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Hollowtoof.png",
+    "file_title": "Hollowtoof.png",
+    "image_url": "https://runescape.wiki/images/archive/20240306031227%21Hollowtoof.png?c7bcb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ca7368a256348eb720150efd01764cfd36dafa9b",
+    "size": 272173,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-17T17:27:45Z"
+  },
+  "combatenemies/goblin_raids_lumpnose.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lumpnose.png",
+    "file_title": "Lumpnose.png",
+    "image_url": "https://runescape.wiki/images/Lumpnose.png?440cc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "81c0896f90197cbeef40e20094c0ea09ec940bbf",
+    "size": 212720,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-17T16:25:05Z"
+  },
+  "combatenemies/goblin_raids_raider.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Goblin_Raider.png",
+    "file_title": "Goblin Raider.png",
+    "image_url": "https://runescape.wiki/images/Goblin_Raider.png?e089f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9907ee4db20e75c0bcd3c1a7f8146c397542a37b",
+    "size": 263946,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-17T18:33:52Z"
+  },
+  "combatenemies/goblin_raids_stinkears.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stinkears.png",
+    "file_title": "Stinkears.png",
+    "image_url": "https://runescape.wiki/images/archive/20130420183641%21Stinkears.png?a2b94",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4bcf61e94ad7b56deb5fbbfcfba54cebf699ae83",
+    "size": 218989,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-17T16:25:31Z"
   },
   "combatenemies/green_dragon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Green_dragon.png",
