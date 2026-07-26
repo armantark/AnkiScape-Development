@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import random
 import unittest
 from unittest.mock import patch
 
@@ -23,11 +24,14 @@ from ankiscape.core.storage_pure import (
 from ankiscape.data.skeletal_horror_data import (
     SKELETAL_HORROR_ACTIVITY_ID,
     SKELETAL_HORROR_ELITE_CLUE_ITEM,
+    SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL,
     SKELETAL_HORROR_PHASES,
     SKELETAL_HORROR_TARGET_ID,
     skeletal_horror_enemy_pure,
 )
+from ankiscape.logic.shop_logic import advance_shop_market_clock_pure
 from ankiscape.logic.skeletal_horror_logic import (
+    _phase_index_for_lifepoints,
     apply_skeletal_horror_command_pure,
     apply_skeletal_horror_review_pure,
     default_skeletal_horror_state_pure,
@@ -264,21 +268,23 @@ class SkeletalHorrorMechanicsTests(unittest.TestCase):
             repeated["inventory"][SKELETAL_HORROR_ELITE_CLUE_ITEM], 1
         )
 
-    def test_weekly_carryover_banks_two_and_consumes_only_on_repeat_victory(self):
+    def test_weekly_allowance_resets_and_consumes_only_on_repeat_victory(self):
+        # The source says repeat availability *resets* each simulated week, so
+        # three idle weeks still leave exactly one entry -- they do not bank.
         won, ok, result = _win(_entered())
         self.assertTrue(ok, result)
         won["shop_market_clock"]["answered_cards"] = 1680 * 3
         view = skeletal_horror_view_pure(won)
-        self.assertEqual(view["available_entries"], 2)
+        self.assertEqual(view["available_entries"], 1)
 
         entered, ok, info = apply_skeletal_horror_command_pure(
             won, "enter", equipment_data=EQUIPMENT_DATA
         )
         self.assertTrue(ok, info)
-        self.assertEqual(entered["skeletal_horror"]["available_entries"], 2)
+        self.assertEqual(entered["skeletal_horror"]["available_entries"], 1)
         left, ok, info = apply_skeletal_horror_command_pure(entered, "leave")
         self.assertTrue(ok, info)
-        self.assertEqual(left["skeletal_horror"]["available_entries"], 2)
+        self.assertEqual(left["skeletal_horror"]["available_entries"], 1)
 
         entered, ok, info = apply_skeletal_horror_command_pure(
             left, "enter", equipment_data=EQUIPMENT_DATA
@@ -286,7 +292,12 @@ class SkeletalHorrorMechanicsTests(unittest.TestCase):
         self.assertTrue(ok, info)
         repeated, ok, result = _win(entered)
         self.assertTrue(ok, result)
-        self.assertEqual(repeated["skeletal_horror"]["available_entries"], 1)
+        self.assertEqual(repeated["skeletal_horror"]["available_entries"], 0)
+        blocked, can_enter, info = apply_skeletal_horror_command_pure(
+            repeated, "enter", equipment_data=EQUIPMENT_DATA
+        )
+        self.assertFalse(can_enter)
+        self.assertIn("No weekly Skeletal Horror entry", info["reason"])
 
     def test_safe_death_clears_instance_without_items_or_weekly_charge(self):
         data = _entered()
@@ -323,7 +334,7 @@ class SkeletalHorrorPersistenceRuntimeAndAssetTests(unittest.TestCase):
         }
         clean = sanitize_skeletal_horror_state_pure(raw)
         self.assertEqual(clean["phase_index"], 2)
-        self.assertEqual(clean["available_entries"], 2)
+        self.assertEqual(clean["available_entries"], 1)
         self.assertNotIn("timer", clean)
         migrated = migrate_loaded_data(
             {"skeletal_horror": raw},
@@ -411,6 +422,160 @@ class SkeletalHorrorPersistenceRuntimeAndAssetTests(unittest.TestCase):
             },
         )
         self.assertNotIn("timestamp", skeletal_horror_view_pure(_player()))
+
+
+class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
+    """Every reward reached through the real Combat kernel, no mocked burst.
+
+    The mocked tests above pin the wiring; these pin that a player can actually
+    get there. Recovery happens only between weekly fights, never mid-fight.
+    """
+
+    def _geared(self):
+        data = _unlocked()
+        data["equipment"] = {
+            **(data.get("equipment") or {}),
+            "weapon": "Abyssal whip",
+            "body": "Rune platebody",
+            "legs": "Rune platelegs",
+            "head": "Rune full helm",
+            "shield": "Dragon defender",
+            "cape": "Fire cape",
+        }
+        data["combat_supply_loadout"] = {
+            **(data.get("combat_supply_loadout") or {}),
+            "food": {"Shark": 26},
+        }
+        return data
+
+    def _fight_one(self, data, rng):
+        """Rest and restock, enter, then review until the instance resolves."""
+        data["combat_lifepoints"] = 990
+        data["inventory"] = {**data["inventory"], "Shark": 100_000}
+        data, ok, info = apply_skeletal_horror_command_pure(
+            data, "enter", equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, info)
+        for _ in range(500):
+            # The style is rolled against the phase as it stands entering the
+            # review; result["phase_index"] is the phase it leaves in.
+            phase_before = skeletal_horror_view_pure(data)["phase_index"]
+            data, ok, result = apply_skeletal_horror_review_pure(
+                data, rng, equipment_data=EQUIPMENT_DATA
+            )
+            self.assertTrue(ok, result)
+            yield data, result, phase_before
+            if not skeletal_horror_view_pure(data)["active"]:
+                return
+        self.fail("the encounter never resolved in 500 reviews")
+
+    def test_a_real_fight_walks_every_phase_and_pays_the_first_victory(self):
+        data = self._geared()
+        rng = random.Random(20121120).random
+        buried, phases_seen, styles_by_phase, final = [], set(), {}, None
+        for data, result, phase_before in self._fight_one(data, rng):
+            style = result.get("attack_style")
+            if style is not None:
+                styles_by_phase.setdefault(phase_before, set()).add(style)
+            buried.extend(result.get("removed_limbs", ()))
+            phases_seen.add(skeletal_horror_view_pure(data)["phase_index"])
+            final = result
+
+        self.assertEqual(buried, ["right arm", "left arm", "tail"])
+        self.assertEqual(phases_seen, {0, 1, 2, 3})
+        self.assertTrue(final["killed"])
+        self.assertTrue(final["first_completion"])
+        self.assertEqual(data["slayer_exp"], 10_000.0)
+        self.assertEqual(data["prayer_exp"], 7_000.0)
+        self.assertEqual(data["skeletal_horror"]["kills"], 1)
+        # Magic is lost once both arms are off, so the armless phases must never
+        # have rolled it.
+        for phase_index, styles in styles_by_phase.items():
+            if phase_index >= 2:
+                self.assertEqual(styles, {"melee"}, phase_index)
+
+    def test_a_real_repeat_victory_earns_repeat_xp_and_the_elite_clue(self):
+        data = self._geared()
+        rng = random.Random(34).random
+        for data, result, _phase in self._fight_one(data, rng):
+            pass
+        self.assertTrue(result["first_completion"])
+        self.assertEqual(data["inventory"][SKELETAL_HORROR_ELITE_CLUE_ITEM], 0)
+
+        # A real simulated week of answered cards is what re-opens the lair.
+        for _ in range(skeletal_horror_view_pure(data)["reviews_to_entry"]):
+            data.update(advance_shop_market_clock_pure(data))
+        self.assertTrue(skeletal_horror_view_pure(data)["entry_ready"])
+
+        for data, result, _phase in self._fight_one(data, rng):
+            pass
+        self.assertTrue(result["killed"])
+        self.assertFalse(result["first_completion"])
+        self.assertTrue(result["clue_dropped"])
+        self.assertEqual(data["inventory"][SKELETAL_HORROR_ELITE_CLUE_ITEM], 1)
+        self.assertEqual(data["slayer_exp"], 10_000.0 + 1_250.0)
+        self.assertEqual(data["prayer_exp"], 7_000.0 + 1_000.0)
+        self.assertEqual(data["skeletal_horror"]["available_entries"], 0)
+
+    def test_a_real_death_ends_the_instance_keeping_items_and_the_entry(self):
+        data = _unlocked(combat_auto_flee=False)
+        data["combat_lifepoints"] = 100
+        before_inventory = dict(data["inventory"])
+        before_equipment = dict(data["equipment"])
+        data, ok, info = apply_skeletal_horror_command_pure(
+            data, "enter", equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, info)
+        for _ in range(500):
+            data, ok, result = apply_skeletal_horror_review_pure(
+                data, random.Random(7).random, equipment_data=EQUIPMENT_DATA
+            )
+            self.assertTrue(ok, result)
+            if not skeletal_horror_view_pure(data)["active"]:
+                break
+        else:
+            self.fail("an unarmed player never died")
+
+        self.assertTrue(result["died"])
+        self.assertEqual(dict(data["inventory"]), before_inventory)
+        self.assertEqual(dict(data["equipment"]), before_equipment)
+        self.assertEqual(data["combat_grave"], {})
+        self.assertEqual(data["skeletal_horror"]["kills"], 0)
+        self.assertEqual(data["combat_encounter"], {})
+        self.assertEqual(data["activity_session"], {"active_id": ""})
+        # The weekly entry survives a death, so the first fight is still ready.
+        self.assertTrue(skeletal_horror_view_pure(data)["entry_ready"])
+
+    def test_phase_thresholds_come_from_the_table_not_a_restated_copy(self):
+        # Guards the one rule both the data table and the logic layer could
+        # state independently and silently disagree about.
+        for index, phase in enumerate(SKELETAL_HORROR_PHASES):
+            self.assertEqual(
+                _phase_index_for_lifepoints(int(phase["remaining_lifepoints"])),
+                index,
+            )
+            self.assertEqual(
+                _phase_index_for_lifepoints(
+                    int(phase["remaining_lifepoints"]) + 1
+                ),
+                max(0, index - 1),
+            )
+
+    def test_the_view_owns_the_wish_list_gates_the_panel_renders(self):
+        below = skeletal_horror_view_pure(
+            _player(slayer_level=SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL - 1)
+        )
+        self.assertTrue(below["rag_wish_list_ready"])
+        self.assertFalse(below["fur_wish_list_ready"])
+        at = skeletal_horror_view_pure(
+            _player(slayer_level=SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL)
+        )
+        self.assertTrue(at["fur_wish_list_ready"])
+        unquested = _player()
+        unquested["quests"]["rag_and_bone_man"] = {"completed": False}
+        self.assertFalse(
+            skeletal_horror_view_pure(unquested)["rag_wish_list_ready"]
+        )
 
 
 if __name__ == "__main__":

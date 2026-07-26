@@ -12,6 +12,7 @@ from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_ELITE_CLUE_ITEM,
     SKELETAL_HORROR_ENTRY_CAP,
     SKELETAL_HORROR_FIRST_REWARDS,
+    SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL,
     SKELETAL_HORROR_LIMBS,
     SKELETAL_HORROR_MAX_LIFEPOINTS,
     SKELETAL_HORROR_PHASES,
@@ -61,13 +62,12 @@ def _quest_complete(player_data: Mapping[str, Any], quest_id: str) -> bool:
 
 
 def _phase_index_for_lifepoints(lifepoints: int) -> int:
-    if lifepoints > 2750:
-        return 0
-    if lifepoints > 2000:
-        return 1
-    if lifepoints > 1250:
-        return 2
-    return 3
+    """The phase table owns the thresholds; never restate them here."""
+    index = 0
+    for candidate, phase in enumerate(SKELETAL_HORROR_PHASES):
+        if lifepoints <= phase["remaining_lifepoints"]:
+            index = candidate
+    return index
 
 
 def default_skeletal_horror_state_pure() -> dict[str, Any]:
@@ -165,15 +165,25 @@ def skeletal_horror_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         sanitize_skeletal_horror_state_pure(player_data.get("skeletal_horror")),
         player_data,
     )
+    rag_ready = _quest_complete(player_data, "rag_and_bone_man")
+    fur_ready = _quest_complete(player_data, "fur_n_seek") and (
+        _int(player_data.get("slayer_level"), 1, minimum=1)
+        >= SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL
+    )
     missing = []
-    if not _quest_complete(player_data, "rag_and_bone_man"):
+    if not rag_ready:
         missing.append("Complete Rag and Bone Man")
     elif not state["rag_wish_list_complete"]:
         missing.append("Complete Rag and Bone Man's wish list")
     if not _quest_complete(player_data, "fur_n_seek"):
         missing.append("Complete Fur 'n Seek")
-    if _int(player_data.get("slayer_level"), 1, minimum=1) < 78:
-        missing.append("Slayer level 78")
+    if (
+        _int(player_data.get("slayer_level"), 1, minimum=1)
+        < SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL
+    ):
+        missing.append(
+            f"Slayer level {SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL}"
+        )
     elif not state["fur_wish_list_complete"]:
         missing.append("Complete Fur 'n Seek's wish list")
     first_ready = state["kills"] == 0
@@ -187,6 +197,8 @@ def skeletal_horror_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         **state,
         "requirements_met": not missing,
         "missing_requirements": tuple(missing),
+        "rag_wish_list_ready": rag_ready,
+        "fur_wish_list_ready": fur_ready,
         "first_ready": first_ready,
         "entry_ready": entry_ready,
         "reviews_to_entry": reviews_to_entry,
@@ -240,8 +252,16 @@ def apply_skeletal_horror_command_pure(
             return data, False, {"reason": "Fur 'n Seek's wish list is already complete."}
         if not _quest_complete(data, "fur_n_seek"):
             return data, False, {"reason": "Complete Fur 'n Seek first."}
-        if _int(data.get("slayer_level"), 1, minimum=1) < 78:
-            return data, False, {"reason": "Fur 'n Seek's wish list requires Slayer level 78."}
+        if (
+            _int(data.get("slayer_level"), 1, minimum=1)
+            < SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL
+        ):
+            return data, False, {
+                "reason": (
+                    "Fur 'n Seek's wish list requires Slayer level "
+                    f"{SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL}."
+                )
+            }
         state["fur_wish_list_complete"] = True
         state["last_result"] = "Completed Fur 'n Seek's post-quest wish list."
         return data, True, {"message": state["last_result"]}
@@ -276,7 +296,10 @@ def apply_skeletal_horror_command_pure(
                 "phase_index": 0,
                 "encounter": encounter,
                 "previous_combat_target": previous_target,
-                "last_result": "Entered the Skeletal Horror lair at 3,500 LP.",
+                "last_result": (
+                    "Entered the Skeletal Horror lair at "
+                    f"{SKELETAL_HORROR_MAX_LIFEPOINTS:,} LP."
+                ),
             }
         )
         data["current_combat_target"] = SKELETAL_HORROR_TARGET_ID

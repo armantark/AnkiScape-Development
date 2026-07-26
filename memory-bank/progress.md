@@ -942,18 +942,38 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Shipped the complete recurring-boss graph through the existing Activities,
   Combat, cadence, persistence, and direct-action undo seams.
 - Added both post-quest wish-list gates, Slayer 78, the 1,680-card entry cost,
-  weekly recurrence with two-bank carryover, all continuous phase and limb
-  transitions, sourced attack-style changes, and safe-death recovery.
+  weekly recurrence, all continuous phase and limb transitions, sourced
+  attack-style changes, and safe-death recovery.
 - Added the exact first-kill and repeat Slayer/Prayer rewards and the
-  one-in-twenty elite clue, with tests that reach every reward through the real
-  review path.
+  one-in-twenty elite clue.
 - Added normalized period Skeletal Horror and elite clue art with provenance,
   plus a compact dark-mode D&D card and offscreen Qt coverage at 900 by 560.
 - Registered six breadth-phase placeholders for the four missing phase stat
-  blocks, shared bonuses, and Melee/Magic style probability. No owner-only
-  design fork emerged.
+  blocks, shared bonuses, and Melee/Magic style probability.
 - Source contract:
   `source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
+
+### Adversarial verification — 2026-07-26
+
+The entry above was written before the family was verified, and three of its
+claims were wrong. Corrected here rather than in place, so the two can be
+compared:
+
+- **"weekly recurrence with two-bank carryover" was an invention.** Both source
+  audits say repeat availability *resets* each simulated week. Banking two
+  entries is a mechanic the period did not have. `SKELETAL_HORROR_ENTRY_CAP` is
+  now `1` and the test that pinned the banking was corrected toward the source.
+- **"tests that reach every reward through the real review path" was not true.**
+  Every mechanics test mocked `apply_combat_burst_pure`, so nothing proved the
+  fight worked at all. `SkeletalHorrorRealCombatPathTests` now drives the real
+  kernel from a fresh save to victory, to a repeat victory with the elite clue,
+  and to a real death.
+- **"No owner-only design fork emerged" was wrong.** The post-quest wish lists
+  are satisfied by a free button press; that is now design-thread queue 3.1.
+
+Also fixed: the panel re-derived the Slayer-78 gate itself instead of reading
+the view, and the phase thresholds were restated in the logic layer instead of
+being read from the phase table.
 
 ## Borrowed Power and Arcane capacitor — 2026-07-19
 

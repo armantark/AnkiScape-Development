@@ -209,7 +209,11 @@ from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
 
 from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_ACTIVITY_ID,
+    SKELETAL_HORROR_ELITE_CLUE_CHANCE,
+    SKELETAL_HORROR_FIRST_REWARDS,
     SKELETAL_HORROR_MAX_LIFEPOINTS,
+    SKELETAL_HORROR_PHASES,
+    SKELETAL_HORROR_REPEAT_REWARDS,
 )
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 
@@ -10006,9 +10010,13 @@ def show_main_menu(
         skeletal_layout.addWidget(skeletal_progress)
 
         skeletal_mechanics = QLabel(
-            "Four continuous phases at 2,750, 2,000, and 1,250 LP. "
-            "Removed limbs are picked up and buried in the same review transaction; "
-            "Magic ends after both arms."
+            f"{len(SKELETAL_HORROR_PHASES)} continuous phases at "
+            + ", ".join(
+                f"{int(row['remaining_lifepoints']):,}"
+                for row in SKELETAL_HORROR_PHASES[1:]
+            )
+            + " LP. Removed limbs are picked up and buried in the same review "
+            "transaction; Magic ends after both arms."
         )
         skeletal_mechanics.setObjectName("skeletalHorrorMechanics")
         skeletal_mechanics.setWordWrap(True)
@@ -10018,9 +10026,14 @@ def show_main_menu(
         skeletal_layout.addWidget(skeletal_mechanics)
 
         skeletal_rewards = QLabel(
-            "First: 10,000 Slayer + 7,000 Prayer XP. "
-            "Repeats: 1,250 Slayer + 1,000 Prayer XP and a 1/20 elite clue; "
-            "weekly entries bank to 2."
+            "First: "
+            f"{int(SKELETAL_HORROR_FIRST_REWARDS['slayer_exp']):,} Slayer + "
+            f"{int(SKELETAL_HORROR_FIRST_REWARDS['prayer_exp']):,} Prayer XP. "
+            "Repeats: "
+            f"{int(SKELETAL_HORROR_REPEAT_REWARDS['slayer_exp']):,} Slayer + "
+            f"{int(SKELETAL_HORROR_REPEAT_REWARDS['prayer_exp']):,} Prayer XP and a "
+            f"1/{int(round(1 / SKELETAL_HORROR_ELITE_CLUE_CHANCE))} elite clue, "
+            "once per simulated week."
         )
         skeletal_rewards.setObjectName("skeletalHorrorRewards")
         skeletal_rewards.setWordWrap(True)
@@ -10064,7 +10077,7 @@ def show_main_menu(
             if active:
                 skeletal_status.setText(f"LEVEL {int(view['combat_level'])}")
                 skeletal_summary.setText(
-                    f"{int(view['lifepoints']):,}/3,500 LP · "
+                    f"{int(view['lifepoints']):,}/{SKELETAL_HORROR_MAX_LIFEPOINTS:,} LP · "
                     f"{'/'.join(view['attack_styles'])} · "
                     + (
                         "no limbs removed"
@@ -10093,7 +10106,7 @@ def show_main_menu(
                     + ("ENTRY" if int(view["available_entries"]) == 1 else "ENTRIES")
                 )
                 skeletal_summary.setText(
-                    f"{int(view['kills'])} victories · weekly entries bank to 2"
+                    f"{int(view['kills'])} victories · one entry per simulated week"
                 )
                 skeletal_progress.setVisible(False)
             else:
@@ -10107,21 +10120,11 @@ def show_main_menu(
             skeletal_fur_wish.setVisible(not view["fur_wish_list_complete"])
             skeletal_rag_wish.setEnabled(
                 on_skeletal_horror_command is not None
-                and bool(
-                    (
-                        (player_data.get("quests") or {}).get("rag_and_bone_man")
-                        or {}
-                    ).get("completed")
-                )
+                and bool(view["rag_wish_list_ready"])
             )
             skeletal_fur_wish.setEnabled(
                 on_skeletal_horror_command is not None
-                and bool(
-                    ((player_data.get("quests") or {}).get("fur_n_seek") or {}).get(
-                        "completed"
-                    )
-                )
-                and int(player_data.get("slayer_level", 1) or 1) >= 78
+                and bool(view["fur_wish_list_ready"])
             )
             skeletal_primary.setText(
                 "Selected for reviews"

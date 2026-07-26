@@ -10,10 +10,13 @@ SKELETAL_HORROR_ACTIVITY_ID = "skeletal_horror"
 SKELETAL_HORROR_TARGET_ID = "skeletal_horror"
 SKELETAL_HORROR_ELITE_CLUE_ITEM = "Clue scroll (elite)"
 SKELETAL_HORROR_WEEK_REVIEWS = 1680
-SKELETAL_HORROR_ENTRY_CAP = 2
+# The source says repeat availability *resets* each simulated week, so a missed
+# week is forfeited rather than banked; one entry is the whole allowance.
+SKELETAL_HORROR_ENTRY_CAP = 1
 SKELETAL_HORROR_ELITE_CLUE_CHANCE = 1.0 / 20.0
 SKELETAL_HORROR_MAX_LIFEPOINTS = 3500
 SKELETAL_HORROR_LIMBS = ("right arm", "left arm", "tail")
+SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL = 78
 
 SKELETAL_HORROR_SOURCE = (
     "memory-bank/source-audits/skeletal-horror-implementation-harvest-2026-07-19.md; "
@@ -95,7 +98,9 @@ def skeletal_horror_enemy_pure(
     phase_index: int,
     attack_style: str,
 ) -> dict[str, Any]:
-    phase = SKELETAL_HORROR_PHASES[max(0, min(3, int(phase_index)))]
+    phase = SKELETAL_HORROR_PHASES[
+        max(0, min(len(SKELETAL_HORROR_PHASES) - 1, int(phase_index)))
+    ]
     return {
         "display_name": "Skeletal Horror",
         "npc_id": phase["npc_id"],

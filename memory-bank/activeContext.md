@@ -982,7 +982,7 @@ boss uses the real Combat reducer across all four sourced phase thresholds,
 removes and buries each limb, switches from Melee/Magic to Melee-only attacks,
 and grants the exact first-kill and repeat Slayer/Prayer rewards plus the
 one-in-twenty elite clue. Both post-quest wish lists, Slayer 78, answered-card
-entry payment, weekly recurrence with two-bank carryover, safe death,
+entry payment, weekly recurrence that resets rather than banks, safe death,
 persistence, activity arbitration, direct-action undo, period art, and the
 compact D&D card are wired end to end. Six narrow combat-kernel inputs remain
 registered breadth-phase placeholders: four phase stat blocks, shared bonuses,

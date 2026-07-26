@@ -9889,6 +9889,50 @@ class MainMenuWidgetTest(unittest.TestCase):
             QApplication.setPalette(original_palette)
             QApplication.setStyle(original_style)
 
+    def test_skeletal_horror_wish_list_buttons_follow_the_view_not_a_panel_rule(
+        self,
+    ) -> None:
+        """The panel must render the gate the logic layer owns, never re-derive
+        it; a panel-side copy of the Slayer wall drifts without any test
+        noticing."""
+        from ankiscape.data.skeletal_horror_data import (
+            SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL,
+        )
+        from ankiscape.logic.skeletal_horror_logic import (
+            default_skeletal_horror_state_pure,
+            skeletal_horror_view_pure,
+        )
+
+        dialog = None
+        try:
+            pd = _make_player_data()
+            pd["skeletal_horror"] = default_skeletal_horror_state_pure()
+            pd["activity_session"] = {"active_id": ""}
+            for quest_id in ("rag_and_bone_man", "fur_n_seek"):
+                pd["quests"][quest_id] = {
+                    "started": True,
+                    "progress": 1,
+                    "completed": True,
+                }
+            pd["slayer_level"] = SKELETAL_HORROR_FUR_WISH_LIST_SLAYER_LEVEL - 1
+            dialog = self._open(pd)
+            activity_tree = self._open_activities(dialog)
+            row = _utility_row(activity_tree, "skeletal_horror")
+            activity_tree.setCurrentItem(row)
+            activity_tree.itemActivated.emit(row, 0)
+            QApplication.processEvents()
+
+            rag_wish = _find_named_button(dialog, "skeletalHorrorRagWishButton")
+            fur_wish = _find_named_button(dialog, "skeletalHorrorFurWishButton")
+            view = skeletal_horror_view_pure(pd)
+            self.assertEqual(rag_wish.isEnabled(), view["rag_wish_list_ready"])
+            self.assertEqual(fur_wish.isEnabled(), view["fur_wish_list_ready"])
+            self.assertTrue(rag_wish.isEnabled())
+            self.assertFalse(fur_wish.isEnabled())
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+
     def test_phoenix_lair_advanced_mode_names_the_carried_pack_gate(self) -> None:
         from ankiscape.logic.phoenix_lair_logic import default_phoenix_lair_state_pure
 

@@ -27,7 +27,35 @@ with one path.
 
 ## 3. Open decisions
 
-None. All decisions raised so far are answered; see section 4.
+### 3.1 Skeletal Horror wish lists are satisfied by a free button click
+
+Raised 2026-07-26 during adversarial verification of the Skeletal Horror family.
+
+The period gate is the Rag and Bone Man and Fur 'n Seek **post-quest wish
+lists**, not the quests themselves. In the period game each wish list is a long
+bone-collection errand. AnkiScape has no wish-list state, because
+`memory-bank/source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`
+assigns that restoration to the Darkan quest-parity thread.
+
+The shipped family stands in two commands, `complete_rag_wish_list` and
+`complete_fur_wish_list`, stored on the Skeletal Horror state. They correctly
+require the parent quest and Slayer 78, so the gate's *shape* is faithful, but
+the wish lists themselves cost the player nothing beyond one button press.
+
+Options:
+
+- **A. Keep the stand-in** (recommended, and what is implemented). The gate
+  keeps its authentic prerequisites and the boss is reachable now. The button is
+  a placeholder for state the quest program will own.
+- **B. Block the family** until the quest program persists real wish-list
+  completion. Faithful, but parks a mechanically complete boss indefinitely on
+  another thread's schedule.
+- **C. Invent a bone-collection errand inside this family.** Rejected: it would
+  duplicate the quest program and invent content whose period shape we have not
+  harvested.
+
+Records that disagree: the harvest audit calls this dependency-blocked; the
+shipped code treats it as satisfiable. Blocks: nothing today under option A.
 
 ## 4. Answered decisions
 
