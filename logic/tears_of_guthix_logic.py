@@ -420,12 +420,13 @@ def apply_tears_of_guthix_review_pure(
     reward_skill = reward_skill_pure(data)
     per_tear = xp_per_tear_pure(reward_skill["level"], state["ornate_bowl"])
     awarded = float(tears * per_tear)
-    # The threshold is experience earned *since* the visit, so the visit's own
-    # payout is the baseline rather than progress towards the next one.
-    state["last_visit_exp"] = total_experience_pure(data)
     data[reward_skill["exp_key"]] = (
         _float(data.get(reward_skill["exp_key"])) + awarded
     )
+    # The threshold is experience earned *since* the visit, so the baseline is
+    # taken after the payout lands — otherwise the reward itself would count
+    # towards the next visit's requirement.
+    state["last_visit_exp"] = total_experience_pure(data)
     state["visits"] += 1
     state["allowance_week_index"] = _world_week(data)
     state["last_visit_quest_points"] = _int(data.get("quest_points"))

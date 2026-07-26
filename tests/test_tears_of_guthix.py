@@ -525,7 +525,7 @@ class TearsOfGuthixRealRewardPathTests(unittest.TestCase):
         view = tears_of_guthix_view_pure(data)
         self.assertFalse(view["progress_met"])
         self.assertEqual(
-            view["experience_since_visit"], TEARS_OF_GUTHIX_PROGRESS_EXP - 1
+            view["exp_since_visit"], TEARS_OF_GUTHIX_PROGRESS_EXP - 1
         )
 
     def test_banked_visits_stop_at_the_carryover_cap(self):
