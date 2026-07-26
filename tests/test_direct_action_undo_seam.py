@@ -163,6 +163,36 @@ class DirectActionUndoSeamTest(unittest.TestCase):
 
         self.assertLessEqual(len(addon._DIRECT_ACTION_UNDO_STACK), cap)
 
+    def test_skeletal_horror_wish_list_command_restores_through_the_seam(self):
+        from ankiscape.logic.skeletal_horror_logic import (
+            apply_skeletal_horror_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["quests"]["rag_and_bone_man"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
+        before = copy.deepcopy(addon.player_data["skeletal_horror"])
+
+        committed = self.commit(
+            lambda current: (
+                apply_skeletal_horror_command_pure(
+                    current,
+                    "complete_rag_wish_list",
+                )[0],
+                True,
+            )
+        )
+
+        self.assertTrue(committed)
+        self.assertTrue(
+            addon.player_data["skeletal_horror"]["rag_wish_list_complete"]
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["skeletal_horror"], before)
+
 
 if __name__ == "__main__":
     unittest.main()

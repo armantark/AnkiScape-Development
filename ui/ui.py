@@ -207,6 +207,12 @@ from ..logic.fight_caves_logic import fight_caves_view_pure
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
 
+from ..data.skeletal_horror_data import (
+    SKELETAL_HORROR_ACTIVITY_ID,
+    SKELETAL_HORROR_MAX_LIFEPOINTS,
+)
+from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
+
 from ..data.barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
 from ..logic.barrows_logic import barrows_view_pure
 
@@ -3566,6 +3572,7 @@ def show_main_menu(
     on_vinesweeper_command=None,
     on_fight_caves_command=None,
     on_phoenix_lair_command=None,
+    on_skeletal_horror_command=None,
     on_barrows_command=None,
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
@@ -9936,6 +9943,252 @@ def show_main_menu(
         phoenix_leave.clicked.connect(_confirm_phoenix_lair_leave)
         _refresh_phoenix_lair_panel()
         cards_stack.addWidget(phoenix_box)
+
+        skeletal_box = QtFrame()
+        skeletal_box.setObjectName("skeletalHorrorPanel")
+        skeletal_box.setStyleSheet(
+            "QFrame#skeletalHorrorPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        skeletal_layout = QVBoxLayout(skeletal_box)
+        skeletal_layout.setContentsMargins(10, 8, 10, 8)
+        skeletal_layout.setSpacing(6)
+
+        skeletal_header = QWidget()
+        skeletal_header_layout = QHBoxLayout(skeletal_header)
+        skeletal_header_layout.setContentsMargins(0, 0, 0, 0)
+        skeletal_header_layout.setSpacing(8)
+        skeletal_icon = QLabel()
+        skeletal_icon.setObjectName("skeletalHorrorIcon")
+        skeletal_icon.setFixedSize(28, 28)
+        skeletal_icon_path = os.path.join(
+            current_dir, "combatenemies", "skeletal_horror.png"
+        )
+        if os.path.exists(skeletal_icon_path):
+            skeletal_icon.setPixmap(
+                QPixmap(skeletal_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        skeletal_title = QLabel("Skeletal Horror")
+        skeletal_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        skeletal_status = QLabel()
+        skeletal_status.setObjectName("skeletalHorrorStatusChip")
+        skeletal_status.setStyleSheet(
+            f"color: {dim_text_css(skeletal_status)}; font-size: 11px; font-weight: 700;"
+        )
+        skeletal_header_layout.addWidget(skeletal_icon)
+        skeletal_header_layout.addWidget(skeletal_title)
+        skeletal_header_layout.addStretch(1)
+        skeletal_header_layout.addWidget(skeletal_status)
+        skeletal_layout.addWidget(skeletal_header)
+
+        skeletal_summary = QLabel()
+        skeletal_summary.setObjectName("skeletalHorrorSummary")
+        skeletal_summary.setWordWrap(True)
+        skeletal_summary.setStyleSheet("color: palette(text);")
+        skeletal_layout.addWidget(skeletal_summary)
+
+        skeletal_progress = QProgressBar()
+        skeletal_progress.setObjectName("skeletalHorrorProgress")
+        skeletal_progress.setRange(0, SKELETAL_HORROR_MAX_LIFEPOINTS)
+        skeletal_progress.setTextVisible(True)
+        skeletal_progress.setFormat("%v / %m LP")
+        skeletal_progress.setFixedHeight(17)
+        skeletal_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #8D6E63; }"
+        )
+        skeletal_layout.addWidget(skeletal_progress)
+
+        skeletal_mechanics = QLabel(
+            "Four continuous phases at 2,750, 2,000, and 1,250 LP. "
+            "Removed limbs are picked up and buried in the same review transaction; "
+            "Magic ends after both arms."
+        )
+        skeletal_mechanics.setObjectName("skeletalHorrorMechanics")
+        skeletal_mechanics.setWordWrap(True)
+        skeletal_mechanics.setStyleSheet(
+            f"color: {dim_text_css(skeletal_mechanics)};"
+        )
+        skeletal_layout.addWidget(skeletal_mechanics)
+
+        skeletal_rewards = QLabel(
+            "First: 10,000 Slayer + 7,000 Prayer XP. "
+            "Repeats: 1,250 Slayer + 1,000 Prayer XP and a 1/20 elite clue; "
+            "weekly entries bank to 2."
+        )
+        skeletal_rewards.setObjectName("skeletalHorrorRewards")
+        skeletal_rewards.setWordWrap(True)
+        skeletal_rewards.setStyleSheet(
+            f"color: {dim_text_css(skeletal_rewards)};"
+        )
+        skeletal_layout.addWidget(skeletal_rewards)
+
+        skeletal_wishes = QWidget()
+        skeletal_wishes_layout = QHBoxLayout(skeletal_wishes)
+        skeletal_wishes_layout.setContentsMargins(0, 0, 0, 0)
+        skeletal_wishes_layout.setSpacing(6)
+        skeletal_rag_wish = QPushButton("Finish Rag and Bone Man wish list")
+        skeletal_rag_wish.setObjectName("skeletalHorrorRagWishButton")
+        skeletal_fur_wish = QPushButton("Finish Fur 'n Seek wish list")
+        skeletal_fur_wish.setObjectName("skeletalHorrorFurWishButton")
+        skeletal_wishes_layout.addWidget(skeletal_rag_wish, 1)
+        skeletal_wishes_layout.addWidget(skeletal_fur_wish, 1)
+        skeletal_layout.addWidget(skeletal_wishes)
+
+        skeletal_actions = QWidget()
+        skeletal_actions_layout = QHBoxLayout(skeletal_actions)
+        skeletal_actions_layout.setContentsMargins(0, 0, 0, 0)
+        skeletal_actions_layout.setSpacing(6)
+        skeletal_primary = QPushButton()
+        skeletal_primary.setObjectName("skeletalHorrorPrimaryButton")
+        skeletal_leave = QPushButton("Leave safely…")
+        skeletal_leave.setObjectName("skeletalHorrorLeaveButton")
+        skeletal_actions_layout.addWidget(skeletal_primary, 1)
+        skeletal_actions_layout.addWidget(skeletal_leave, 1)
+        skeletal_layout.addWidget(skeletal_actions)
+
+        def _refresh_skeletal_horror_panel() -> None:
+            view = skeletal_horror_view_pure(player_data)
+            active = bool(view["active"])
+            selected = (
+                active
+                and str(player_data.get("current_utility", ""))
+                == SKELETAL_HORROR_ACTIVITY_ID
+            )
+            if active:
+                skeletal_status.setText(f"LEVEL {int(view['combat_level'])}")
+                skeletal_summary.setText(
+                    f"{int(view['lifepoints']):,}/3,500 LP · "
+                    f"{'/'.join(view['attack_styles'])} · "
+                    + (
+                        "no limbs removed"
+                        if not view["limbs_removed"]
+                        else "buried " + ", ".join(view["limbs_removed"])
+                    )
+                )
+                skeletal_progress.setValue(int(view["lifepoints"]))
+                skeletal_progress.setVisible(True)
+            elif not view["requirements_met"]:
+                skeletal_status.setText("LOCKED")
+                skeletal_summary.setText(
+                    "Requires: " + " · ".join(view["missing_requirements"])
+                )
+                skeletal_progress.setVisible(False)
+            elif view["first_ready"]:
+                skeletal_status.setText("FIRST FIGHT READY")
+                skeletal_summary.setText(
+                    "The Odd Old Man's post-quest wish lists are complete. "
+                    "The first victory rebuilds the recurring encounter."
+                )
+                skeletal_progress.setVisible(False)
+            elif view["entry_ready"]:
+                skeletal_status.setText(
+                    f"{int(view['available_entries'])} "
+                    + ("ENTRY" if int(view["available_entries"]) == 1 else "ENTRIES")
+                )
+                skeletal_summary.setText(
+                    f"{int(view['kills'])} victories · weekly entries bank to 2"
+                )
+                skeletal_progress.setVisible(False)
+            else:
+                skeletal_status.setText("WEEKLY COMPLETE")
+                skeletal_summary.setText(
+                    f"Next entry in {int(view['reviews_to_entry']):,} answered reviews."
+                )
+                skeletal_progress.setVisible(False)
+            skeletal_summary.setToolTip(str(view["last_result"]))
+            skeletal_rag_wish.setVisible(not view["rag_wish_list_complete"])
+            skeletal_fur_wish.setVisible(not view["fur_wish_list_complete"])
+            skeletal_rag_wish.setEnabled(
+                on_skeletal_horror_command is not None
+                and bool(
+                    (
+                        (player_data.get("quests") or {}).get("rag_and_bone_man")
+                        or {}
+                    ).get("completed")
+                )
+            )
+            skeletal_fur_wish.setEnabled(
+                on_skeletal_horror_command is not None
+                and bool(
+                    ((player_data.get("quests") or {}).get("fur_n_seek") or {}).get(
+                        "completed"
+                    )
+                )
+                and int(player_data.get("slayer_level", 1) or 1) >= 78
+            )
+            skeletal_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Skeletal Horror lair"
+            )
+            skeletal_primary.setEnabled(
+                on_skeletal_horror_command is not None
+                and not selected
+                and (
+                    active
+                    or (view["requirements_met"] and view["entry_ready"])
+                )
+            )
+            skeletal_leave.setVisible(active)
+            skeletal_leave.setEnabled(on_skeletal_horror_command is not None)
+            _fit_current_activity_detail()
+
+        def _run_skeletal_horror_command(action_id: str) -> dict[str, Any]:
+            if on_skeletal_horror_command is None:
+                return {"ok": False}
+            result = on_skeletal_horror_command(action_id, {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Skeletal Horror",
+                    str(result.get("message", "That Skeletal Horror action is unavailable.")),
+                )
+            _refresh_skeletal_horror_panel()
+            return result
+
+        def _select_or_enter_skeletal_horror(_checked=False) -> None:
+            if not skeletal_horror_view_pure(player_data)["active"]:
+                if not _run_skeletal_horror_command("enter").get("ok", False):
+                    return
+            _set_utility_selection(SKELETAL_HORROR_ACTIVITY_ID)
+            _refresh_skeletal_horror_panel()
+
+        def _confirm_skeletal_horror_leave(_checked=False) -> None:
+            if not skeletal_horror_view_pure(player_data)["active"]:
+                return
+            answer = QMessageBox.question(
+                skeletal_box,
+                "Leave the Skeletal Horror lair?",
+                "Leave safely? Current phase progress is lost, but the weekly entry "
+                "is not consumed.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_skeletal_horror_command("leave")
+
+        skeletal_rag_wish.clicked.connect(
+            lambda _checked=False: _run_skeletal_horror_command(
+                "complete_rag_wish_list"
+            )
+        )
+        skeletal_fur_wish.clicked.connect(
+            lambda _checked=False: _run_skeletal_horror_command(
+                "complete_fur_wish_list"
+            )
+        )
+        skeletal_primary.clicked.connect(_select_or_enter_skeletal_horror)
+        skeletal_leave.clicked.connect(_confirm_skeletal_horror_leave)
+        _refresh_skeletal_horror_panel()
+        cards_stack.addWidget(skeletal_box)
 
         barrows_box = QtFrame()
         barrows_box.setObjectName("barrowsPanel")
@@ -17468,6 +17721,38 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not abandon the run.")),
                     )
                     return False
+            if (
+                activity_id != SKELETAL_HORROR_ACTIVITY_ID
+                and skeletal_horror_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave the Skeletal Horror lair?",
+                    "Switch activities? Current phase progress is lost, but the "
+                    "weekly entry is not consumed.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_skeletal_horror_command("leave", {})
+                    if on_skeletal_horror_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Skeletal Horror actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Skeletal Horror",
+                        str(
+                            (result or {}).get(
+                                "message", "Could not leave the lair."
+                            )
+                        ),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -17483,6 +17768,7 @@ def show_main_menu(
             _refresh_vinesweeper_panel()
             _refresh_fight_caves_panel()
             _refresh_phoenix_lair_panel()
+            _refresh_skeletal_horror_panel()
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
@@ -17554,6 +17840,9 @@ def show_main_menu(
                 _show_activity_detail(activity_id)
                 return
             if activity_id == PHOENIX_LAIR_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == SKELETAL_HORROR_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
             if activity_id == BARROWS_ACTIVITY_ID:
@@ -17639,6 +17928,7 @@ def show_main_menu(
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
             PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
+            SKELETAL_HORROR_ACTIVITY_ID: ("Skeletal Horror", skeletal_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
             FLASH_POWDER_FACTORY_ACTIVITY_ID: (
                 "Flash Powder Factory",

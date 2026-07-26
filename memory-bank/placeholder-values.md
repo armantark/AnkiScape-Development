@@ -20,5 +20,9 @@ Placeholders".
 
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
-
-_No placeholders yet._
+| `skeletal_horror.shared_bonuses` | Empty bonus map | Skeletal Horror | Exact values from the revision-727 `developer-information/npcListBonuses.txt` row, corroborated by a symbolic cache/server definition |
+| `skeletal_horror.phase_320_stats` | Attack 320, Strength 320, Defence 320, Magic 320 | Skeletal Horror | An authentic combat definition or period server script for NPC 9176 |
+| `skeletal_horror.phase_260_stats` | Attack 260, Strength 260, Defence 260, Magic 260 | Skeletal Horror | An authentic combat definition or period server script for NPC 9177 |
+| `skeletal_horror.phase_180_stats` | Attack 180, Strength 180, Defence 180, Magic 180 | Skeletal Horror | An authentic combat definition or period server script for NPC 9178 |
+| `skeletal_horror.phase_100_stats` | Attack 100, Strength 100, Defence 100, Magic 100 | Skeletal Horror | An authentic combat definition or period server script for NPC 9179 |
+| `skeletal_horror.magic_style_chance` | 0.5 | Skeletal Horror | The authentic Skeletal Horror combat script or selector weights for Melee versus Magic |

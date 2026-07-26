@@ -329,6 +329,8 @@ from ..logic.phoenix_lair_logic import (
     apply_phoenix_lair_review_pure,
     phoenix_lair_view_pure,
 )
+from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
+from ..logic.skeletal_horror_logic import apply_skeletal_horror_review_pure
 from ..data.barrows_data import BARROWS_ACTIVITY_ID
 from ..logic.barrows_logic import apply_barrows_review_pure, barrows_view_pure
 from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
@@ -996,6 +998,57 @@ def _handle_phoenix_lair_answer(ctx: RuntimeActionContext) -> bool:
     if result.get("outcome"):
         ctx.deactivate_current_skill()
     ctx.show_activity_gain(str(result.get("status", "Phoenix Lair review complete")))
+    return True
+
+
+def _handle_skeletal_horror_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_skeletal_horror_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Skeletal Horror unavailable",
+            str(result.get("reason", "Enter the lair before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards", {}) or {})
+    total_xp = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    _record_action(
+        ctx,
+        "utility",
+        SKELETAL_HORROR_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        failure_kind="safe_death" if result.get("died") else None,
+        primary_xp=total_xp,
+        output_items=(
+            {"Clue scroll (elite)": 1}
+            if result.get("clue_dropped")
+            else None
+        ),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    for exp_key, skill_name in {
+        "slayer_exp": "Slayer",
+        "prayer_exp": "Prayer",
+    }.items():
+        if float(xp_rewards.get(exp_key, 0.0) or 0.0) > 0:
+            ctx.level_up_check(skill_name, ctx.player_data)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_xp > 0:
+        ctx.show_exp(total_xp)
+    if result.get("outcome"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(
+        str(result.get("status", "Skeletal Horror review complete"))
+    )
     return True
 
 

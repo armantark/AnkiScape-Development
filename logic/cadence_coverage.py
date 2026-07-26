@@ -170,6 +170,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "skeletal_horror":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "skeletal_horror",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances six live Combat ticks against one "
+                        "continuous four-phase boss instance."
+                    ),
+                    "includes": (
+                        "one six-tick Combat slice",
+                        "one atomic limb transition and burial boundary",
+                        "one safe failure or weekly completion transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one six-tick Skeletal Horror interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "shooting_stars":
             rows.append(
                 {

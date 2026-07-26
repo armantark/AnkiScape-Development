@@ -977,18 +977,18 @@ Complete evidence is recorded in
 `source-audits/evil-tree-implementation-harvest-2026-07-19.md`. No owner design
 gap emerged.
 
-The Skeletal Horror implementation harvest closed the previously missing
-continuous LP thresholds at `2,750`, `2,000`, and `1,250` from period Wiki,
-talk-history, dated Tip.It, and rev-727/rev-742 cache evidence. Phase levels,
-maximum hits, styles, limb identities/options, rewards, clue chance, and
-weekly cadence are also pinned. The boss is not admitted yet: Darkan's four
-combat rows are explicitly `nostats` and incorrectly copy the initial LP,
-maximum hit, and Melee style across every form, while no source supplies the
-Attack/Magic and Defence levels the live accuracy kernel requires. The current
-quest catalog also tracks quest completion but not the two post-quest wish
-lists that actually gate the boss. Those are source and Darkan quest-program
-dependencies, not owner design gaps. See
-`source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
+Skeletal Horror is now mechanic-complete at breadth level one. The recurring
+boss uses the real Combat reducer across all four sourced phase thresholds,
+removes and buries each limb, switches from Melee/Magic to Melee-only attacks,
+and grants the exact first-kill and repeat Slayer/Prayer rewards plus the
+one-in-twenty elite clue. Both post-quest wish lists, Slayer 78, answered-card
+entry payment, weekly recurrence with two-bank carryover, safe death,
+persistence, activity arbitration, direct-action undo, period art, and the
+compact D&D card are wired end to end. Six narrow combat-kernel inputs remain
+registered breadth-phase placeholders: four phase stat blocks, shared bonuses,
+and the Melee/Magic style probability. See
+`source-audits/skeletal-horror-implementation-harvest-2026-07-19.md` and
+`placeholder-values.md`.
 
 The isolated Long kebbit reward chain is live. Fletching 42 consumes one Long
 kebbit spike, preserves a carried Chisel, produces six Long kebbit bolts, and

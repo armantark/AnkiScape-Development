@@ -937,21 +937,22 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   or changing the save.
 - No owner-facing design gap emerged.
 
-## Skeletal Horror implementation harvest — 2026-07-19
+## Skeletal Horror breadth-one implementation — 2026-07-25
 
-- Recovered the exact continuous phase thresholds: `2,750`, `2,000`, and
-  `1,250` LP remaining before the right arm, left arm, and tail transitions.
-- Cross-checked all five boss NPCs, three ground limbs, and three buryable limb
-  items in both rev 727 and rev 742.
-- Confirmed that period evidence closes total LP, phase levels, maximum hits,
-  attack speed/styles, rewards, clue chance, and weekly cadence.
-- Did not ship guessed Combat rows. Darkan's files are explicitly `nostats`,
-  contradict the phase maximum hits/styles, and do not supply the
-  Attack/Magic or Defence levels required by live Combat accuracy.
-- Recorded the second dependency: the generated quest catalog has ordinary
-  quest completion but no authentic post-quest wish-list state. That remains
-  with the Darkan quest-parity program and is not an owner design fork.
-- Durable record:
+- Shipped the complete recurring-boss graph through the existing Activities,
+  Combat, cadence, persistence, and direct-action undo seams.
+- Added both post-quest wish-list gates, Slayer 78, the 1,680-card entry cost,
+  weekly recurrence with two-bank carryover, all continuous phase and limb
+  transitions, sourced attack-style changes, and safe-death recovery.
+- Added the exact first-kill and repeat Slayer/Prayer rewards and the
+  one-in-twenty elite clue, with tests that reach every reward through the real
+  review path.
+- Added normalized period Skeletal Horror and elite clue art with provenance,
+  plus a compact dark-mode D&D card and offscreen Qt coverage at 900 by 560.
+- Registered six breadth-phase placeholders for the four missing phase stat
+  blocks, shared bonuses, and Melee/Magic style probability. No owner-only
+  design fork emerged.
+- Source contract:
   `source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
 
 ## Borrowed Power and Arcane capacitor — 2026-07-19

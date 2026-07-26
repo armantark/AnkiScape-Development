@@ -257,14 +257,14 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   corroboration. See
   `memory-bank/source-audits/treasure-trails-easy-source-boundary-2026-07-19.md`
   and `memory-bank/design-gaps-implementation-2026-07-19.md`.
-- Skeletal Horror's continuous phase thresholds are now pinned at `2,750`,
-  `2,000`, and `1,250` LP, alongside its phase levels, maximum hits, styles,
-  limb identities, rewards, clue chance, and weekly cadence. Implementation
-  remains `SOURCE AUDIT` / `WAIT: DARKAN`: the available combat rows are
-  explicitly `nostats` and contradict the sourced phase damage/styles, while
-  the quest catalog does not yet represent the two required post-quest wish
-  lists. See
-  `memory-bank/source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
+- Skeletal Horror is mechanic-complete at breadth level one. It ships both
+  post-quest wish-list gates, exact cadence and entry payment, continuous phase
+  and limb transitions through the real Combat reducer, safe death, exact
+  first/repeat rewards, elite clues, persistence, undo, period art, and a
+  compact D&D card. The four phase stat blocks, shared bonuses, and
+  Melee/Magic style probability remain registered data-depth placeholders. See
+  `memory-bank/source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`
+  and `memory-bank/placeholder-values.md`.
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
 - Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.
@@ -1287,6 +1287,15 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   complete guardian stats/drop weights, Lesser-warrior max hit, and dust timing
   remain data-depth source gaps. See
   `memory-bank/source-audits/phoenix-lair-implementation-data-2026-07-21.md`.
+- Skeletal Horror is mechanic-complete as a safe, recurring Activities-only
+  boss. It ships both post-quest wish-list gates, Slayer 78, the exact
+  answered-card payment and weekly two-bank cadence, four persistent Combat
+  phases with continuous limb transitions and attack-style changes, buryable
+  limbs, exact first/repeat rewards, elite clues, persistence, arbitration,
+  direct-action undo, normalized period art, and a compact D&D card. The four
+  phase stat blocks, shared bonuses, and Melee/Magic style probability remain
+  data-depth placeholders. See
+  `memory-bank/source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
