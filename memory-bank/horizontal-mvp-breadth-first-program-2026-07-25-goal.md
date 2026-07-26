@@ -6,7 +6,7 @@ Status: **owner-issued standing goal.** This does not change the program in
 `horizontal-mvp-breadth-first-program-2026-07-20.md`; it is the instruction that
 drives it and the budget that bounds it.
 
-## The goal, as issued
+## The goal, as issued (superseded 2026-07-25 by the text below)
 
 > Finish implementing everything that doesn't require my design input. If you
 > come across any design gaps, record them clearly so I can pick it up easily in
@@ -20,7 +20,34 @@ drives it and the budget that bounds it.
 > until every family is mechanically complete. Record genuine design conflicts or
 > blockers clearly for the design thread.
 
-## Amendment, 2026-07-25: harvest enough to finish
+## The goal as it now stands
+
+Re-issued by the owner on 2026-07-25 with the harvest clause folded in. This is
+the live wording, and it is what the session stop hook enforces:
+
+> Finish implementing everything that doesn't require my design input. If you come
+> across any design gaps, record them clearly so I can pick it up easily in the
+> design thread. Work breadth-first across AnkiScape. Prioritize making every
+> settled skill and feature family mechanic-complete using the smallest readily
+> available, period-appropriate data set needed to exercise all of its mechanics
+> end to end. Do not confuse horizontal MVP with a partial demo: entry gates,
+> gameplay states, policies, failure modes, rewards, persistence, undo, UI,
+> assets, and tests must all work. Do enough source harvesting to reach
+> mechanical completion: where a value would need an intense dig, use a
+> registered placeholder rather than blocking the family, marked at the value and
+> listed in memory-bank/placeholder-values.md. Defer exhaustive catalogs,
+> rare-roll precision, and other slow data harvesting beyond what mechanical
+> completion needs. A placeholder stands in for a value the period game had and
+> we could not recover; it is never permission to invent content the period did
+> not have. Record genuine design conflicts or blockers clearly for the design
+> thread.
+
+One clause changed rather than being appended. The first issue said to defer
+"difficult source reconciliation", which is exactly what the remaining families
+need, so it had parked twenty-three of them. That phrase is now scoped to
+harvesting *beyond* mechanical completion.
+
+## How the amendment came about
 
 The goal as first issued deferred difficult source reconciliation, which parked
 twenty-three families that each need some harvest before any mechanic can ship.
