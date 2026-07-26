@@ -337,6 +337,15 @@ from ..data.tzhaar_fight_pit_data import (
 )
 from ..logic.tzhaar_fight_pit_logic import tzhaar_fight_pit_view_pure
 
+from ..data.duel_arena_data import (
+    DUEL_ARENA_ACTIVITY_ID,
+    DUEL_ARENA_RULE_PRESETS,
+)
+from ..logic.duel_arena_logic import duel_arena_view_pure
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..logic.clan_wars_logic import clan_wars_view_pure
+from .clan_wars_panel import ClanWarsPanel
+
 from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
 from ..logic.managing_miscellania_logic import managing_miscellania_view_pure
 
@@ -3592,6 +3601,8 @@ def show_main_menu(
     on_soul_wars_command=None,
     on_shades_of_mortton_command=None,
     on_tzhaar_fight_pit_command=None,
+    on_duel_arena_command=None,
+    on_clan_wars_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -14753,6 +14764,269 @@ def show_main_menu(
         )
         _refresh_fight_pit_panel()
 
+        duel_arena_box = QtFrame()
+        duel_arena_box.setObjectName("duelArenaPanel")
+        duel_arena_box.setStyleSheet(
+            "QFrame#duelArenaPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        duel_arena_layout = QVBoxLayout(duel_arena_box)
+        duel_arena_layout.setContentsMargins(10, 8, 10, 8)
+        duel_arena_layout.setSpacing(8)
+
+        duel_arena_header = QWidget()
+        duel_arena_header_layout = QHBoxLayout(duel_arena_header)
+        duel_arena_header_layout.setContentsMargins(0, 0, 0, 0)
+        duel_arena_icon = QLabel()
+        duel_arena_icon.setObjectName("duelArenaIcon")
+        duel_arena_icon.setFixedSize(32, 32)
+        duel_arena_icon_path = os.path.join(
+            current_dir, "activityicons", "duel_arena.png"
+        )
+        if os.path.exists(duel_arena_icon_path):
+            duel_arena_icon.setPixmap(
+                QPixmap(duel_arena_icon_path).scaled(
+                    32,
+                    32,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        duel_arena_title = QLabel("Duel Arena")
+        duel_arena_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        duel_arena_status = QLabel()
+        duel_arena_status.setObjectName("duelArenaStatusChip")
+        duel_arena_status.setStyleSheet(
+            f"color: {dim_text_css(duel_arena_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        duel_arena_header_layout.addWidget(duel_arena_icon)
+        duel_arena_header_layout.addWidget(duel_arena_title)
+        duel_arena_header_layout.addStretch(1)
+        duel_arena_header_layout.addWidget(duel_arena_status)
+        duel_arena_layout.addWidget(duel_arena_header)
+
+        duel_arena_summary = QLabel()
+        duel_arena_summary.setObjectName("duelArenaSummary")
+        duel_arena_summary.setWordWrap(True)
+        duel_arena_summary.setStyleSheet("color: palette(text);")
+        duel_arena_layout.addWidget(duel_arena_summary)
+
+        duel_arena_cap_row = QWidget()
+        duel_arena_cap_row_layout = QHBoxLayout(duel_arena_cap_row)
+        duel_arena_cap_row_layout.setContentsMargins(0, 0, 0, 0)
+        duel_arena_cap_row_layout.setSpacing(6)
+        duel_arena_cap = QLabel()
+        duel_arena_cap.setObjectName("duelArenaCapProgress")
+        duel_arena_cap.setWordWrap(True)
+        duel_arena_cap.setStyleSheet(
+            f"color: {dim_text_css(duel_arena_cap)}; font-size: 11px;"
+        )
+        duel_arena_cap_claim = QPushButton("Claim cap")
+        duel_arena_cap_claim.setObjectName("duelArenaClaimCap")
+        duel_arena_cap_claim.setAccessibleName("Claim current Duellist's cap")
+        duel_arena_cap_row_layout.addWidget(duel_arena_cap, 1)
+        duel_arena_cap_row_layout.addWidget(duel_arena_cap_claim)
+        duel_arena_layout.addWidget(duel_arena_cap_row)
+
+        duel_arena_progress = QProgressBar()
+        duel_arena_progress.setObjectName("duelArenaProgress")
+        duel_arena_progress.setRange(0, 3)
+        duel_arena_progress.setTextVisible(True)
+        duel_arena_layout.addWidget(duel_arena_progress)
+
+        duel_arena_rules_label = QLabel("Challenge rules")
+        duel_arena_rules_label.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        duel_arena_layout.addWidget(duel_arena_rules_label)
+        duel_arena_rules_grid = QGridLayout()
+        duel_arena_rules_grid.setContentsMargins(0, 0, 0, 0)
+        duel_arena_rule_checks = {}
+        for index, preset in enumerate(DUEL_ARENA_RULE_PRESETS):
+            check = QCheckBox(preset.display_name)
+            check.setObjectName(f"duelArenaRule_{preset.id}")
+            check.setToolTip(preset.description)
+            duel_arena_rule_checks[preset.id] = check
+            duel_arena_rules_grid.addWidget(check, index // 2, index % 2)
+        duel_arena_layout.addLayout(duel_arena_rules_grid)
+
+        duel_arena_save_rules = QPushButton("Save rules")
+        duel_arena_save_rules.setObjectName("duelArenaSaveRules")
+        duel_arena_primary = QPushButton("Enter free challenge")
+        duel_arena_primary.setObjectName("duelArenaPrimary")
+        duel_arena_abandon = QPushButton("Forfeit safely")
+        duel_arena_abandon.setObjectName("duelArenaAbandon")
+        duel_arena_abandon.setStyleSheet("color: #ef5350;")
+        duel_arena_actions = QHBoxLayout()
+        duel_arena_actions.addWidget(duel_arena_save_rules)
+        duel_arena_actions.addWidget(duel_arena_primary, 1)
+        duel_arena_actions.addWidget(duel_arena_abandon)
+        duel_arena_layout.addLayout(duel_arena_actions)
+        cards_stack.addWidget(duel_arena_box)
+
+        def _selected_duel_arena_rules() -> list[str]:
+            return [
+                preset.id
+                for preset in DUEL_ARENA_RULE_PRESETS
+                if duel_arena_rule_checks[preset.id].isChecked()
+            ]
+
+        def _run_duel_arena_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_duel_arena_command is None:
+                return {
+                    "ok": False,
+                    "message": "Duel Arena actions are unavailable.",
+                }
+            result = on_duel_arena_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Duel Arena",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_duel_arena_panel()
+            return result
+
+        def _refresh_duel_arena_panel() -> None:
+            view = duel_arena_view_pure(player_data)
+            active = bool(view["active"])
+            session = view["duel_arena"]
+            selected = set(view["selected_rule_ids"])
+            for rule_id, check in duel_arena_rule_checks.items():
+                check.setChecked(rule_id in selected)
+                check.setEnabled(
+                    not active and on_duel_arena_command is not None
+                )
+            cap = view["cap"]
+            duel_arena_status.setText("DUEL ACTIVE" if active else "SAFE · FREE")
+            if active:
+                opponent = session["opponent"]
+                player_points = int(session["player_points"])
+                opponent_points = int(session["opponent_points"])
+                duel_arena_summary.setText(
+                    f"{opponent['display_name']} · score {player_points}-"
+                    f"{opponent_points} · review {int(session['review'])}/"
+                    f"{int(view['maximum_reviews'])}\n"
+                    f"{len(selected)} of 11 rules enabled"
+                )
+                duel_arena_progress.setValue(player_points)
+                duel_arena_progress.setFormat(
+                    f"You {player_points} · {opponent_points} opponent"
+                )
+            else:
+                last_result = str(view["duel_arena_last_result"])
+                record = (
+                    f"{int(view['duel_arena_wins'])} wins · "
+                    f"{int(view['duel_arena_losses'])} safe defeats · "
+                    f"{int(view['duel_arena_abandons'])} forfeits"
+                )
+                duel_arena_summary.setText(last_result or record)
+                duel_arena_progress.setValue(0)
+                duel_arena_progress.setFormat("First to 3 · at most 5 reviews")
+            if cap["next_tier"] is None:
+                cap_progress = "maximum tier reached"
+            else:
+                cap_progress = (
+                    f"{int(cap['wins_remaining'])} wins to tier "
+                    f"{int(cap['next_tier'])}"
+                )
+            owned_cap_item = str(view["owned_cap_item"])
+            ownership = (
+                f"owned as {owned_cap_item}"
+                if owned_cap_item
+                else "not yet claimed"
+            )
+            duel_arena_cap.setText(
+                f"{cap['item_name']} · {int(view['duel_arena_wins'])} wins · "
+                f"{cap_progress} · {ownership}"
+            )
+            duel_arena_cap_claim.setText(
+                "Change cap"
+                if owned_cap_item
+                else "Claim cap"
+            )
+            duel_arena_cap_claim.setVisible(bool(view["can_claim_cap"]))
+            duel_arena_cap_claim.setEnabled(
+                bool(view["can_claim_cap"])
+                and on_duel_arena_command is not None
+            )
+            is_selected = (
+                active
+                and player_data.get("current_utility")
+                == DUEL_ARENA_ACTIVITY_ID
+            )
+            duel_arena_primary.setText(
+                "Selected for reviews"
+                if is_selected
+                else "Select for reviews"
+                if active
+                else "Enter free challenge"
+            )
+            duel_arena_primary.setEnabled(
+                on_duel_arena_command is not None
+                and not is_selected
+                and (active or bool(view["can_enter"]))
+            )
+            duel_arena_save_rules.setEnabled(
+                not active and on_duel_arena_command is not None
+            )
+            can_forfeit = active and "no_forfeit" not in selected
+            duel_arena_abandon.setVisible(can_forfeit)
+            duel_arena_abandon.setEnabled(
+                can_forfeit and on_duel_arena_command is not None
+            )
+            _fit_current_activity_detail()
+
+        def _select_or_enter_duel_arena() -> None:
+            view = duel_arena_view_pure(player_data)
+            if not view["active"]:
+                result = _run_duel_arena_command(
+                    "enter",
+                    {"rule_ids": _selected_duel_arena_rules()},
+                )
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(DUEL_ARENA_ACTIVITY_ID):
+                return
+            _refresh_duel_arena_panel()
+
+        def _confirm_duel_arena_abandon() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Forfeit this duel?",
+                "Forfeiting ends the duel safely and restores all combat stats.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_duel_arena_command("abandon")
+
+        duel_arena_save_rules.clicked.connect(
+            lambda _checked=False: _run_duel_arena_command(
+                "set_rules",
+                {"rule_ids": _selected_duel_arena_rules()},
+            )
+        )
+        duel_arena_cap_claim.clicked.connect(
+            lambda _checked=False: _run_duel_arena_command("claim_cap")
+        )
+        duel_arena_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_duel_arena()
+        )
+        duel_arena_abandon.clicked.connect(
+            lambda _checked=False: _confirm_duel_arena_abandon()
+        )
+        _refresh_duel_arena_panel()
+
+        clan_wars_box = ClanWarsPanel(
+            player_data,
+            on_command=on_clan_wars_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(clan_wars_box)
+
         barbarian_box = QtFrame()
         barbarian_box.setObjectName("barbarianAssaultPanel")
         barbarian_box.setStyleSheet(
@@ -17620,6 +17894,74 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the match.")),
                     )
                     return False
+            duel_view = duel_arena_view_pure(player_data)
+            if activity_id != DUEL_ARENA_ACTIVITY_ID and duel_view["active"]:
+                if "no_forfeit" in duel_view["selected_rule_ids"]:
+                    show_error_message(
+                        "Duel Arena",
+                        "No Forfeit is enabled; finish the bounded duel through reviews.",
+                    )
+                    return False
+                answer = QMessageBox.question(
+                    dialog,
+                    "Forfeit the Duel Arena challenge?",
+                    "Switch activities? The challenge ends safely and all combat stats are restored.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_duel_arena_command("abandon", {})
+                    if on_duel_arena_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Duel Arena actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Duel Arena",
+                        str(
+                            (result or {}).get(
+                                "message",
+                                "Could not forfeit the challenge.",
+                            )
+                        ),
+                    )
+                    return False
+            clan_view = clan_wars_view_pure(player_data)
+            if activity_id != CLAN_WARS_ACTIVITY_ID and clan_view["active"]:
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Clan Wars?",
+                    "Switch activities? You will leave through the portal and "
+                    "end the bounded match.",
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_clan_wars_command("leave", {})
+                    if on_clan_wars_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Clan Wars actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Clan Wars",
+                        str(
+                            (result or {}).get(
+                                "message",
+                                "Could not leave the match.",
+                            )
+                        ),
+                    )
+                    return False
             if (
                 activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
                 and barbarian_assault_view_pure(player_data)["active"]
@@ -17895,6 +18237,18 @@ def show_main_menu(
                 _refresh_mortton_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == TZHAAR_FIGHT_PIT_ACTIVITY_ID:
+                _refresh_fight_pit_panel()
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == DUEL_ARENA_ACTIVITY_ID:
+                _refresh_duel_arena_panel()
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == CLAN_WARS_ACTIVITY_ID:
+                clan_wars_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
                 _refresh_barbarian_panel()
                 _show_activity_detail(activity_id)
@@ -17969,6 +18323,8 @@ def show_main_menu(
                 mortton_box,
             ),
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
+            DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
+            CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
                 "Stronghold of Player Safety",

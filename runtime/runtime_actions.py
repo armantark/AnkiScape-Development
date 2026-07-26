@@ -254,6 +254,8 @@ from ..logic.castle_wars_logic import (
     apply_castle_wars_review_pure,
     castle_wars_view_pure,
 )
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..logic.clan_wars_logic import clan_wars_view_pure
 from ..data.pest_control_data import PEST_CONTROL_ACTIVITY_ID
 from ..logic.pest_control_logic import (
     apply_pest_control_review_pure,
@@ -523,6 +525,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_agility_answer,
     handle_barbarian_assault_answer,
     handle_castle_wars_answer,
+    handle_clan_wars_answer,
     handle_flash_powder_factory_answer,
     handle_pest_control_answer,
     handle_shades_of_mortton_answer,

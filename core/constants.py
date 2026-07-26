@@ -79,6 +79,17 @@ from ..data.tzhaar_fight_pit_data import (
     TZHAAR_FIGHT_PIT_ACTIVITY_ID,
     tzhaar_fight_pit_activity_as_dict,
 )
+from ..data.duel_arena_data import (
+    DUEL_ARENA_ACTIVITY_ID,
+    DUELLISTS_CAP_TIERS,
+    duel_arena_activity_as_dict,
+    duel_arena_equipment_data_as_dict,
+    duel_arena_extra_items_as_dict,
+)
+from ..data.clan_wars_data import (
+    CLAN_WARS_ACTIVITY_ID,
+    clan_wars_activity_as_dict,
+)
 
 from ..data.varrock_museum_data import (
     VARROCK_MUSEUM_ACTIVITY_ID,
@@ -579,6 +590,8 @@ UTILITY_ACTIVITY_DATA.update(stronghold_player_safety_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(soul_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(duel_arena_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -713,6 +726,18 @@ if os.path.exists(_tzhaar_fight_pit_icon):
     UTILITY_ACTIVITY_DATA[TZHAAR_FIGHT_PIT_ACTIVITY_ID]["icon_path"] = (
         _tzhaar_fight_pit_icon
     )
+_duel_arena_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "duel_arena.png",
+)
+if os.path.exists(_duel_arena_icon):
+    UTILITY_ACTIVITY_DATA[DUEL_ARENA_ACTIVITY_ID]["icon_path"] = _duel_arena_icon
+_clan_wars_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "clan_wars.png",
+)
+if os.path.exists(_clan_wars_icon):
+    UTILITY_ACTIVITY_DATA[CLAN_WARS_ACTIVITY_ID]["icon_path"] = _clan_wars_icon
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "varrock_museum.png",
@@ -1453,6 +1478,7 @@ EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
 EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
 EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
 EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
+EQUIPMENT_DATA.update(duel_arena_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
@@ -1497,6 +1523,7 @@ PYRAMID_PLUNDER_EXTRA_ITEM_DATA = pyramid_plunder_extra_items_as_dict()
 WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
 FISH_FLINGERS_EXTRA_ITEM_DATA = fish_flingers_extra_items_as_dict()
+DUEL_ARENA_EXTRA_ITEM_DATA = duel_arena_extra_items_as_dict()
 COURT_CASES_ITEM_IMAGES = {
     "Court summons": os.path.join(
         UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1626,6 +1653,16 @@ for _item_name in FISH_FLINGERS_EXTRA_ITEM_DATA:
     )
     if os.path.exists(_path):
         FISH_FLINGERS_ITEM_IMAGES[_item_name] = _path
+DUEL_ARENA_ITEM_IMAGES = {
+    tier.item_name: os.path.join(current_dir, "activityitems", tier.asset_filename)
+    for tier in DUELLISTS_CAP_TIERS
+}
+DUEL_ARENA_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in DUEL_ARENA_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+UTILITY_ITEM_IMAGES.update(DUEL_ARENA_ITEM_IMAGES)
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1888,6 +1925,7 @@ def _known_non_shop_item_names():
         FARMING_ITEM_DATA,
         THIEVING_EXTRA_ITEM_DATA,
         FISH_FLINGERS_EXTRA_ITEM_DATA,
+        DUEL_ARENA_EXTRA_ITEM_DATA,
         SHADES_OF_MORTTON_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
@@ -2050,6 +2088,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA,
     **GNOME_BALL_EXTRA_ITEM_DATA,
     **FISH_FLINGERS_EXTRA_ITEM_DATA,
+    **DUEL_ARENA_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })

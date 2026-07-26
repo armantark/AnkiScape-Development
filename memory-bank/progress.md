@@ -4258,3 +4258,48 @@ Test counts are snapshots; current runs outrank this note.
   surfaced. Shades of Mort'ton is next.
 - Results: `status-updates/soul-wars-horizontal-results-2026-07-22.html`;
   mobile copy: `https://7xdhzerm80g9.postplan.dev`.
+
+## Duel Arena breadth-one closure — 2026-07-25
+
+- Implemented the complete free challenge lifecycle: eleven configurable
+  rules, deterministic bounded opponents, first-to-three review exchanges,
+  safe win/loss/allowed-forfeit settlement, full stat restoration, and no coin
+  path. `No Forfeit` blocks that action while the five-review bound guarantees
+  completion.
+- Added persisted win/result ledgers and all six Duellist's cap tiers, plus
+  schema-82 migration/repair and shared persistent-activity arbitration. The
+  win-threshold vector is registered as `duel_arena_cap_thresholds` because the
+  readily available tier pages miss the strict cutoff by about five hours.
+- Added one-exchange-per-review dispatch, central direct-action undo, an
+  Activities configuration/active/result card, claim/change-look ownership and
+  automatic cap upgrades, six cap item/equipment definitions, a visible
+  activity icon, six cap sprites, and exact asset provenance.
+- The source audit separates period facts from the opponent/scoring
+  abstraction. Duel Tournaments and staking are excluded; the one registered
+  placeholder is the near-cutoff cap-threshold vector.
+- Final verification passes both full lanes at 2,749 tests: non-Qt with 333
+  expected skips and real offscreen Qt with one intentional skip.
+- Durable audit:
+  `source-audits/duel-arena-horizontal-implementation-2026-07-25.md`.
+
+## Clan Wars breadth-one closure — 2026-07-26
+
+- Completed the interrupted Clan Wars build: three portal modes, an eight-review
+  bounded match, entry gates against other persistent activities and open combat
+  encounters, safe and dangerous death, teleport-escape refusal inside the red
+  portal, sourced boost clamping on dangerous entry, leave/forfeit, schema-83
+  persistence and migration, central direct-action undo, once-per-review
+  dispatch, and an Activities card with honest locks.
+- The red portal's item loss is real: no gravestone, no Death's Office, Protect
+  Item saves one item. Three tests fail if the shared grave-writing path is
+  restored.
+- Rebalanced the match so no outcome is inert. The interrupted build could only
+  ever draw `0-0`; a disclosed crossfire model makes kill, death, win, loss and
+  draw all reachable through real play, each pinned to a recorded seed.
+- Removed an unsourced combat-policy damage dial and three fabricated object-ID
+  citations. Recovered the red-portal boost caps exactly from Darkan rather than
+  registering them as a placeholder, so this family adds no placeholder.
+- Final verification passes both full lanes at 2,780 tests: non-Qt with 334
+  expected skips and real offscreen Qt with one intentional skip.
+- Durable audit:
+  `memory-bank/source-audits/clan-wars-horizontal-implementation-2026-07-26.md`.

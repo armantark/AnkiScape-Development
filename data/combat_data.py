@@ -22,6 +22,10 @@ from .tzhaar_fight_pit_data import (
     TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
     tzhaar_fight_pit_enemy_pure,
 )
+from .clan_wars_data import (
+    CLAN_WARS_COMBAT_TARGET_ID,
+    clan_wars_enemy_pure,
+)
 from .stronghold_player_safety_data import (
     COCKROACH_SOLDIER_TARGET_ID,
     cockroach_soldier_enemy_as_dict,
@@ -13395,6 +13399,7 @@ COMBAT_ENEMY_DATA[SHADES_OF_MORTTON_COMBAT_TARGET_ID] = (
 COMBAT_ENEMY_DATA[TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID] = (
     tzhaar_fight_pit_enemy_pure()
 )
+COMBAT_ENEMY_DATA[CLAN_WARS_COMBAT_TARGET_ID] = clan_wars_enemy_pure()
 
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {

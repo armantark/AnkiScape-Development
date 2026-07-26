@@ -734,11 +734,42 @@ def _combat_apply_pvm_death(
     max_player_lifepoints,
     grave_source="combat_death",
     carried_target_id=None,
+    no_grave=False,
 ):
     _combat_apply_follower_death(data)
     original_equipment = dict(data.get("equipment", {}) or {})
+    carried_counts = _carried_inventory_grave_counts(data, carried_target_id)
     protected_slot = None
-    if prayer_effect_state_pure(data).get("protect_item") and original_equipment:
+    protected_carried_item = None
+    protect_item = prayer_effect_state_pure(data).get("protect_item")
+    if protect_item and no_grave:
+        candidates = [
+            (
+                _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),
+                str(item_name),
+                "equipment",
+                str(slot),
+            )
+            for slot, item_name in original_equipment.items()
+            if isinstance(item_name, str)
+        ]
+        candidates.extend(
+            (
+                _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),
+                str(item_name),
+                "carried",
+                str(item_name),
+            )
+            for item_name, count in carried_counts.items()
+            if count > 0
+        )
+        if candidates:
+            _value, _item_name, location, key = max(candidates)
+            if location == "equipment":
+                protected_slot = key
+            else:
+                protected_carried_item = key
+    elif protect_item and original_equipment:
         protected_slot = max(
             original_equipment,
             key=lambda slot: (_non_negative_int(ITEM_VALUES.get(original_equipment[slot], 0), 0), str(original_equipment[slot]), str(slot)),
@@ -764,12 +795,14 @@ def _combat_apply_pvm_death(
     # drop them into the grave, expanded one grave entry per unit. Only the view of
     # the target being fought is at risk — other targets' saved packs are loadouts
     # resting in the bank, not carried, so they must survive the death.
-    carried_counts = _carried_inventory_grave_counts(data, carried_target_id)
     if carried_counts:
         inventory = dict(data.get("inventory", {}) or {})
         for item_name, count in carried_counts.items():
+            if item_name == protected_carried_item:
+                continue
             inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - count)
-            grave_items.extend([item_name] * count)
+            if not no_grave:
+                grave_items.extend([item_name] * count)
         data["inventory"] = inventory
     active_target = (
         carried_target_id
@@ -783,30 +816,32 @@ def _combat_apply_pvm_death(
                 container = dict(container)
                 container.pop(active_target, None)
                 data[map_key] = container
-    existing_grave = data.get("combat_grave", {}) or {}
-    existing_grave_items = _combat_grave_items(existing_grave)
-    if existing_grave_items:
-        existing_office = data.get("death_office", {}) or {}
-        existing_office_items = _combat_death_office_items(existing_office)
-        # A second death before the first grave is reclaimed pushes the old grave
-        # to Death's Office; carry both loadouts so either set still re-equips.
-        stacked_loadout = {
-            **_combat_stored_loadout(existing_grave),
-            **_combat_stored_loadout(existing_office),
-        }
-        _set_combat_death_office_items(
-            data,
-            existing_office_items + existing_grave_items,
-            "combat_stacked_grave",
-            stacked_loadout,
-        )
+    if not no_grave:
+        existing_grave = data.get("combat_grave", {}) or {}
+        existing_grave_items = _combat_grave_items(existing_grave)
+        if existing_grave_items:
+            existing_office = data.get("death_office", {}) or {}
+            existing_office_items = _combat_death_office_items(existing_office)
+            # A second death before the first grave is reclaimed pushes the old grave
+            # to Death's Office; carry both loadouts so either set still re-equips.
+            stacked_loadout = {
+                **_combat_stored_loadout(existing_grave),
+                **_combat_stored_loadout(existing_office),
+            }
+            _set_combat_death_office_items(
+                data,
+                existing_office_items + existing_grave_items,
+                "combat_stacked_grave",
+                stacked_loadout,
+            )
     data["equipment"] = protected_equipment
-    data["combat_grave"] = {
-        "items": grave_items,
-        "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
-        "source": grave_source,
-        "loadout": equipment,
-    } if grave_items else {}
+    if not no_grave:
+        data["combat_grave"] = {
+            "items": grave_items,
+            "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
+            "source": grave_source,
+            "loadout": equipment,
+        } if grave_items else {}
     data["combat_encounter"] = {}
     data["combat_status_effects"] = {}
     data["combat_lifepoints"] = max_player_lifepoints

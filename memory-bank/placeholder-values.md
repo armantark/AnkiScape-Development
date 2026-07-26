@@ -26,3 +26,4 @@ Placeholders".
 | `skeletal_horror.phase_180_stats` | Attack 180, Strength 180, Defence 180, Magic 180 | Skeletal Horror | An authentic combat definition or period server script for NPC 9178 |
 | `skeletal_horror.phase_100_stats` | Attack 100, Strength 100, Defence 100, Magic 100 | Skeletal Horror | An authentic combat definition or period server script for NPC 9179 |
 | `skeletal_horror.magic_style_chance` | 0.5 | Skeletal Horror | The authentic Skeletal Horror combat script or selector weights for Melee versus Magic |
+| `duel_arena_cap_thresholds` | Duellist's cap tiers unlock at 0, 10, 100, 500, 2,000, and 5,000 wins | Duel Arena | A pre-`2012-11-20T00:00:00Z` server/config source or dated page that states all six thresholds. The current fallback is the six near-cutoff wiki tier revisions created about five hours after the cutoff; rev-742 and both emulator lineages prove the six item tiers but not the win counts. |

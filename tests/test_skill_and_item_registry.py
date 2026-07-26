@@ -506,6 +506,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "soul_wars",
                 "shades_of_mortton",
                 "tzhaar_fight_pit",
+                "duel_arena",
+                "clan_wars",
                 "stronghold_player_safety",
                 "varrock_museum",
                 "sorceress_garden",

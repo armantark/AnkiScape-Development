@@ -6304,6 +6304,214 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_duel_arena_entry_is_reachable_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_duel_arena_integration")
+        logic = sys.modules[f"{addon.__name__}.logic.duel_arena_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Coins": 999},
+            "equipment": {},
+            "combat_encounter": {},
+            "current_combat_target": "chicken",
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "attack_level": 60,
+            "strength_level": 60,
+            "defense_level": 60,
+            "constitution_level": 60,
+            "ranged_level": 40,
+            "magic_level": 40,
+            "prayer_level": 43,
+            "summoning_level": 1,
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_duel_arena_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_duel_arena_command"]("claim_cap", {})
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["inventory"]["Duellist's cap (tier 1)"],
+            1,
+        )
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        result = captured["on_duel_arena_command"](
+            "enter",
+            {"rule_ids": ["no_food", "no_prayer"]},
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["current_utility"], "duel_arena")
+        self.assertEqual(
+            addon.player_data["duel_arena"]["rule_ids"],
+            ("no_food", "no_prayer"),
+        )
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 999)
+        self.assertEqual(
+            col.custom_undo_entries,
+            ["AnkiScape direct action", "AnkiScape direct action"],
+        )
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_duel_arena_uses_one_exchange_per_review_at_high_multiplier(self):
+        addon = _load_addon_as_package("ankiscape_duel_arena_multiplier")
+        logic = sys.modules[f"{addon.__name__}.logic.duel_arena_logic"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
+        player = storage.default_player_data(
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        player, ok, _info = logic.enter_duel_arena_pure(player, ())
+        self.assertTrue(ok)
+        addon.player_data = player
+        addon.current_skill = "Utility / Activities"
+        addon.exp_awarded = False
+        addon._review_action_multiplier = lambda: 10
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        self.addCleanup(setattr, addon.random, "random", original_random)
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+        addon._advance_world_events_after_review = lambda: None
+        addon._save_player_data_if_anki_ready = lambda: None
+        before = copy.deepcopy(addon.player_data)
+
+        addon.on_good_answer(before)
+
+        self.assertEqual(addon.player_data["duel_arena"]["review"], 1)
+        self.assertEqual(addon.player_data["duel_arena"]["player_points"], 1)
+        self.assertEqual(addon.player_data["duel_arena_wins"], 0)
+
+    def test_clan_wars_red_portal_entry_is_reachable_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_clan_wars_integration")
+        logic = sys.modules[f"{addon.__name__}.logic.clan_wars_logic"]
+        data = sys.modules[f"{addon.__name__}.data.clan_wars_data"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Lobster": 4},
+            "equipment": {"weapon": "Mithril scimitar"},
+            "carried_inventory": {"chicken": {"Lobster": 4}},
+            "combat_encounter": {},
+            "current_combat_target": "chicken",
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "attack_level": 60,
+            "strength_level": 60,
+            "defense_level": 60,
+            "constitution_level": 60,
+            "ranged_level": 40,
+            "magic_level": 40,
+            "prayer_level": 43,
+            "summoning_level": 1,
+            "smithing_level": 1,
+            "combat_current_levels": {"attack": 99, "strength": 99},
+        }
+        initial.update(logic.default_clan_wars_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_clan_wars_command"](
+            "set_policy",
+            {"mode": data.CLAN_WARS_RED_MODE},
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["clan_wars_policy"]["mode"],
+            data.CLAN_WARS_RED_MODE,
+        )
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        result = captured["on_clan_wars_command"](
+            "enter",
+            {"mode": data.CLAN_WARS_RED_MODE},
+        )
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["boosts_clamped"])
+        self.assertEqual(addon.player_data["current_utility"], "clan_wars")
+        self.assertEqual(
+            addon.player_data["clan_wars"]["mode"],
+            data.CLAN_WARS_RED_MODE,
+        )
+        # The carried pack follows the player into the portal, which is what
+        # the red portal then puts at risk.
+        self.assertEqual(
+            addon.player_data["carried_inventory"][
+                data.CLAN_WARS_COMBAT_TARGET_ID
+            ],
+            {"Lobster": 4},
+        )
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_clan_wars_review_advances_once_per_answer_at_high_multiplier(self):
+        addon = _load_addon_as_package("ankiscape_clan_wars_multiplier")
+        logic = sys.modules[f"{addon.__name__}.logic.clan_wars_logic"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
+        player = storage.default_player_data(
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        player, ok, _info = logic.enter_clan_wars_pure(player, "white_ffa")
+        self.assertTrue(ok)
+        addon.player_data = player
+        addon.current_skill = "Utility / Activities"
+        addon.exp_awarded = False
+        addon._review_action_multiplier = lambda: 10
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        self.addCleanup(setattr, addon.random, "random", original_random)
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+        addon._advance_world_events_after_review = lambda: None
+        addon._save_player_data_if_anki_ready = lambda: None
+        before = copy.deepcopy(addon.player_data)
+
+        addon.on_good_answer(before)
+
+        self.assertEqual(addon.player_data["clan_wars"]["review"], 1)
+
     def test_phoenix_lair_loaded_addon_chain_rewards_daily_charge_and_review_undo(self):
         addon = _load_addon_as_package("ankiscape_phoenix_lair_e2e")
         logic = sys.modules[f"{addon.__name__}.logic.phoenix_lair_logic"]

@@ -335,6 +335,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-05-28T07:05:30Z"
   },
+  "activityicons/clan_wars.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Clan_wars_portal.png",
+    "file_title": "Clan wars portal.png",
+    "image_url": "https://runescape.wiki/images/archive/20131207160127%21Clan_wars_portal.png?3a56c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1abb8c18f804149c4014fb9b484f9829b06bc223",
+    "size": 540024,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T06:16:44Z"
+  },
   "activityicons/court_cases.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Court_summons.png",
     "file_title": "Court summons.png",
@@ -358,6 +370,18 @@
     "size": 852139,
     "source_wiki": "rs3",
     "timestamp": "2024-03-14T12:48:08Z"
+  },
+  "activityicons/duel_arena.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_1%29.png",
+    "file_title": "Duellist's cap (tier 1).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_1%29.png?b6bd0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7ddb80eaa6630adb19b825751932da47dbdbb6fc",
+    "size": 719,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T02:13:51Z"
   },
   "activityicons/fish_flingers.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fishing_hat.png",
@@ -1066,6 +1090,78 @@
     "size": 1558,
     "source_wiki": "rs3",
     "timestamp": "2011-04-23T18:03:53Z"
+  },
+  "activityitems/duellists_cap_tier_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_1%29.png",
+    "file_title": "Duellist's cap (tier 1).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_1%29.png?b6bd0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7ddb80eaa6630adb19b825751932da47dbdbb6fc",
+    "size": 719,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T02:13:51Z"
+  },
+  "activityitems/duellists_cap_tier_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_2%29.png",
+    "file_title": "Duellist's cap (tier 2).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_2%29.png?24697",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "45fa641030e071b4a3c8d96d98c94454d05ce597",
+    "size": 1070,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T02:27:32Z"
+  },
+  "activityitems/duellists_cap_tier_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_3%29.png",
+    "file_title": "Duellist's cap (tier 3).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_3%29.png?a967d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9e9758341a0f0a59039854bdb5813ba6a3f45580",
+    "size": 1070,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T03:25:30Z"
+  },
+  "activityitems/duellists_cap_tier_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_4%29.png",
+    "file_title": "Duellist's cap (tier 4).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_4%29.png?5346b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1b096bc81f6845ed9a4a3f2c8c80f25805b3d755",
+    "size": 1005,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T06:17:23Z"
+  },
+  "activityitems/duellists_cap_tier_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_5%29.png",
+    "file_title": "Duellist's cap (tier 5).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_5%29.png?9d73a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1ffd4a962a147b2b319d35cda3c74062ab472581",
+    "size": 1127,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T07:58:26Z"
+  },
+  "activityitems/duellists_cap_tier_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duellist%27s_cap_%28tier_6%29.png",
+    "file_title": "Duellist's cap (tier 6).png",
+    "image_url": "https://runescape.wiki/images/Duellist%27s_cap_%28tier_6%29.png?12ba3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2d2b021da224f3762b1eae86bd1872155e2ff7e",
+    "size": 927,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-05T08:06:00Z"
   },
   "activityitems/firemakers_tabard.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Firemaker%27s_tabard.png",

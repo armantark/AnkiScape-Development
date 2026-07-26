@@ -965,6 +965,7 @@ def apply_combat_burst_pure(
     live_cadence=False,
     stop_after_first_kill=False,
     safe_death=False,
+    no_grave=False,
     allow_bank_run=True,
     player_damage_multiplier=1.0,
 ):
@@ -2186,7 +2187,11 @@ def apply_combat_burst_pure(
             data["combat_status_effects"] = {}
             player_lp = max_player_lp
         else:
-            player_lp = _combat_apply_pvm_death(data, max_player_lp)
+            player_lp = _combat_apply_pvm_death(
+                data,
+                max_player_lp,
+                no_grave=no_grave,
+            )
     elif fled or enemy_lp <= 0 or (enemy_lp >= enemy_max_lp and not live_cadence):
         # No partial progress to carry: the player fled, nothing was fought, or the
         # burst ended right after a kill respawned a fresh full-LP enemy.
