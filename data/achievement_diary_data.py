@@ -10,10 +10,10 @@ render a requirement line and a progress figure from the same object the engine
 evaluates, and so a task cannot quietly acquire a rule the logic layer does not
 own.
 
-Breadth-phase scope: the tier roster here is a real, pinned subset of the period
-task list, not the exhaustive 384-task catalog. The design contract's twelve
-tasks per tier is a data-depth item deferred by the breadth program; every
-mechanic in the family is exercised by the tasks that are here.
+The generated catalog takes its task identity and membership from Darkan's
+period achievement system. Regional tiers keep up to twelve source-order tasks
+with evaluable requirements; Burthorpe/Taverley and Miscellaneous keep every
+source task for which AnkiScape has an honest durable predicate.
 """
 
 from __future__ import annotations
@@ -66,6 +66,7 @@ class DiaryTask:
     description: str
     conditions: Tuple[DiaryCondition, ...]
     source: str
+    source_id: int
     coin_reward: int = 0
 
 
@@ -101,11 +102,11 @@ class DiaryFamily:
 # joined to the pinned pre-cutoff wiki requirement columns; see
 # ``tools/generate_achievement_diary_data.py``.
 from .achievement_diary_catalog import (  # noqa: E402  (avoids a cycle at import)
-    REGIONAL_DIARY_FAMILIES,
+    DIARY_FAMILIES,
     diary_equipment_data_as_dict,
 )
 
-ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = REGIONAL_DIARY_FAMILIES
+ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = DIARY_FAMILIES
 
 __all__ = [
     "ACHIEVEMENT_DIARY_CATALOG",

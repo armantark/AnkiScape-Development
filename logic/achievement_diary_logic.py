@@ -185,30 +185,35 @@ def task_progress_pure(
 # ---------------------------------------------------------------------------
 
 
+_CATALOG_TIERS = tuple(
+    (family, tier)
+    for family in ACHIEVEMENT_DIARY_CATALOG
+    for tier in family.tiers
+)
+_CATALOG_TASKS = tuple(
+    (family, tier, task)
+    for family, tier in _CATALOG_TIERS
+    for task in tier.tasks
+)
+_TASKS_BY_ID = {task.id: (family, tier, task) for family, tier, task in _CATALOG_TASKS}
+_TIERS_BY_ID = {tier.id: (family, tier) for family, tier in _CATALOG_TIERS}
+_TASK_IDS = frozenset(_TASKS_BY_ID)
+
+
 def _tiers():
-    for family in ACHIEVEMENT_DIARY_CATALOG:
-        for tier in family.tiers:
-            yield family, tier
+    yield from _CATALOG_TIERS
 
 
 def _tasks():
-    for family, tier in _tiers():
-        for task in tier.tasks:
-            yield family, tier, task
+    yield from _CATALOG_TASKS
 
 
 def diary_task_by_id_pure(task_id: str) -> "tuple[DiaryFamily, DiaryTier, DiaryTask] | None":
-    for family, tier, task in _tasks():
-        if task.id == task_id:
-            return family, tier, task
-    return None
+    return _TASKS_BY_ID.get(task_id)
 
 
 def diary_tier_by_id_pure(tier_id: str) -> "tuple[DiaryFamily, DiaryTier] | None":
-    for family, tier in _tiers():
-        if tier.id == tier_id:
-            return family, tier
-    return None
+    return _TIERS_BY_ID.get(tier_id)
 
 
 # ---------------------------------------------------------------------------
@@ -240,9 +245,7 @@ def refresh_achievement_diaries_pure(
             known.add(task.id)
             newly.append(task.id)
     state["completed_tasks"] = completed
-    state["taskmaster"] = bool(ACHIEVEMENT_DIARY_CATALOG) and all(
-        task.id in known for _family, _tier, task in _tasks()
-    )
+    state["taskmaster"] = bool(_TASK_IDS) and _TASK_IDS.issubset(known)
     data["achievement_diaries"] = state
     if newly:
         data = _award_task_coins(data, newly)
@@ -291,9 +294,8 @@ def tier_claim_state_pure(
         else ""
     )
     if not total:
-        # Three families' pinned task tables did not yield a machine-readable
-        # roster, so their tiers ship real but empty. An empty tier is not a
-        # finished one: it must never fall through to "Ready to Claim".
+        # Defensive migration guard: an empty tier is never a finished one and
+        # must not fall through to "Ready to Claim".
         status = "Roster pending harvest"
     elif tier.id in claimed:
         status = "Claimed"
@@ -404,6 +406,8 @@ def _grant_tier_item(
 ) -> dict[str, Any]:
     """Grant the tier item, replacing its predecessor wherever that one sits."""
 
+    if not tier.reward_item:
+        return data
     inventory = dict(_mapping(data.get("inventory")))
     equipment = dict(_mapping(data.get("equipment")))
     predecessor = ""
@@ -472,10 +476,9 @@ def diary_totals_pure(
 ) -> dict[str, int]:
     state = _state(player_data)
     completed = set(state["completed_tasks"])
-    all_ids = [task.id for _family, _tier, task in _tasks()]
     return {
-        "completed": sum(1 for task_id in all_ids if task_id in completed),
-        "total": len(all_ids),
+        "completed": len(_TASK_IDS.intersection(completed)),
+        "total": len(_TASK_IDS),
     }
 
 

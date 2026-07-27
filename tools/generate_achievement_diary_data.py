@@ -6,17 +6,12 @@ document into the checked-in catalog.
 
 Translation rule, applied uniformly and deliberately:
 
-A period task is kept only when its pinned wiki row states at least one
-requirement — a quest, or a skill level. Its AnkiScape condition set is exactly
-those stated requirements and nothing else. Rows stating no requirement are
-dropped, because once the design contract's curation rule removes geography,
-emotes and inventory choreography, nothing measurable is left of them.
-
-The period name and description are preserved verbatim so the feat survives as
-identity and narrative even where the predicate is the requirement the period
-itself published. That flattening is an AnkiScape abstraction, not a recovered
-value, so it is documented here and at the catalog rather than registered as a
-placeholder.
+Darkan's rev-727 cache owns the task name, description, and encoded ordinary
+skill/quest requirements. Regional tiers retain the first twelve source-order
+tasks that have an evaluable predicate. Burthorpe/Taverley and Miscellaneous
+retain every source task with either an encoded requirement or an audited exact
+mapping to an existing durable gameplay counter. Tasks with no honest predicate
+are omitted and reported rather than emitted as inert rows.
 """
 
 from __future__ import annotations
@@ -32,8 +27,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import pkg_alias  # noqa: F401,E402  (installs the ankiscape package alias)
-from ankiscape.core.constants import QUEST_DATA  # noqa: E402
-from ankiscape.core.skill_registry import ALL_SKILLS  # noqa: E402
+from ankiscape.data.quest_data import quests_as_dict  # noqa: E402
+
+QUEST_DATA = quests_as_dict()
 
 
 ITEMS_YML = Path(
@@ -143,6 +139,23 @@ FAMILIES = {
     },
 }
 
+SPECIAL_FAMILIES = {
+    "burthorpe": {
+        "name": "Burthorpe and Taverley",
+        "kind": "onboarding",
+        "tier": "period",
+        "tier_name": "Beginner",
+        "reward_summary": "The source-shaped starter-equipment reward remains a separate reward-system item.",
+    },
+    "miscellaneous": {
+        "name": "Miscellaneous",
+        "kind": "miscellaneous",
+        "tier": "miscellaneous",
+        "tier_name": "Miscellaneous",
+        "reward_summary": "Each completed task pays its task-system coin reward.",
+    },
+}
+
 # Each tier's own sourced reward line, from the Darkan reward helpers and the
 # pinned wiki reward sections. These are the "repeatable services, daily
 # allowances and item effects" the design contract puts in the tier package.
@@ -169,36 +182,134 @@ TIER_REWARDS = {
     ("falador", "elite"): "Every Falador service runs at its best rate.",
 }
 
-_SKILL_IDS = {skill.display_name.lower(): skill.id for skill in ALL_SKILLS}
-_SKILL_IDS.update({skill.id: skill.id for skill in ALL_SKILLS})
-_SKILL_IDS["defence"] = "defense"
-_SKILL_IDS["defense"] = "defense"
-_SKILL_IDS["constitution"] = "constitution"
-_SKILL_IDS["hitpoints"] = "constitution"
-
-_QUEST_IDS = {
-    str(record.get("display_name", "")).lower(): quest_id
-    for quest_id, record in QUEST_DATA.items()
-    if isinstance(record, dict)
+# AchievementDef.toRealSkillId(), translated to AnkiScape skill ids.
+_SKILL_TYPE_IDS = {
+    1: "attack",
+    2: "strength",
+    3: "ranged",
+    4: "magic",
+    5: "defense",
+    6: "constitution",
+    7: "prayer",
+    8: "agility",
+    9: "herblore",
+    10: "thieving",
+    11: "crafting",
+    12: "runecrafting",
+    13: "mining",
+    14: "smithing",
+    15: "fishing",
+    16: "cooking",
+    17: "woodcutting",
+    18: "fletching",
+    19: "firemaking",
+    20: "slayer",
+    21: "farming",
+    22: "construction",
+    23: "hunter",
+    24: "summoning",
+    25: "dungeoneering",
 }
+
+
+def _normalise_name(text: str) -> str:
+    return "".join(re.findall(r"[a-z0-9]+", text.lower()))
+
+
+_QUEST_IDS = {}
+for _quest_id, _record in QUEST_DATA.items():
+    if not isinstance(_record, dict):
+        continue
+    for _name in (_quest_id, str(_record.get("display_name", ""))):
+        _normalised = _normalise_name(_name)
+        _QUEST_IDS[_normalised] = _quest_id
+        for _prefix in ("the", "a"):
+            if _normalised.startswith(_prefix):
+                _QUEST_IDS[_normalised[len(_prefix) :]] = _quest_id
+
+# Exact action/counter translations for source tasks whose cache struct carries
+# no ordinary skill or quest requirement. Every entry names a durable state seam
+# already produced by the live engine; absent entries are deliberately omitted.
+CONDITION_OVERRIDES = {
+    538: (("hold_item", "Bronze pickaxe", 1, "Own a bronze pickaxe"),),
+    546: (("ledger_action", "hunter:catch_crimson_swift", 1, "Catch a crimson swift"),),
+    555: (("counter", "slayer_tasks_completed", 1, "Complete a Slayer assignment"),),
+    562: (("ledger_action", "fletching:bronze_arrows", 1, "Fletch bronze arrows"),),
+    564: (("ledger_action", "fletching:string_shortbow", 1, "Fletch a shortbow"),),
+    566: (("ledger_action", "herblore:clean_guam", 1, "Clean guam"),),
+    567: (("ledger_action", "herblore:finished_attack_potion", 1, "Brew an attack potion"),),
+    574: (("ledger_action", "agility:burthorpe_course", 1, "Complete the Burthorpe Agility Course"),),
+    580: (("counter", "house_owned", 1, "Own a player house"),),
+    582: (("ledger_action", "construction:crude_wooden_chair", 1, "Build a crude wooden chair"),),
+    570: (("ledger_action", "runecrafting:craft_mind_runes", 1, "Craft mind runes"),),
+    451: (("quest", "let_them_eat_pie", 1, "Complete Let Them Eat Pie"),),
+    440: (("quest", "druidic_ritual", 1, "Complete Druidic Ritual"),),
+    441: (("quest", "death_plateau", 1, "Complete Death Plateau"),),
+}
+
+# Exact terminal counters in the implemented activity families. Activities with
+# no durable gameplay proof are omitted unless enum 3483 supplies an ordinary
+# evaluable prerequisite of its own.
+CONDITION_OVERRIDES.update({
+    3000: (("counter", "tears_of_guthix.visits", 1, "Complete a Tears of Guthix visit"),),
+    3002: (("counter", "penguin_hide_and_seek.lifetime_spotted", 1, "Spy a penguin"),),
+    3003: (("counter", "achievement_progress.skills.woodcutting.actions.evil_tree_fell", 1, "Fell an evil tree"),),
+    3004: (("counter", "achievement_progress.skills.mining.actions.shooting_stars", 1, "Mine a shooting star"),),
+    3005: (("counter", "achievement_progress.skills.hunter.actions.catch_baby_impling_puro_puro", 1, "Catch an impling in Puro-Puro"),),
+    3006: (("counter", "vinesweeper.operations", 1, "Complete a Vinesweeper operation"),),
+    3007: (("counter", "circus.lifetime_performances", 1, "Complete a circus performance"),),
+    3009: (("quest", "all_fired_up", 1, "Complete All Fired Up"),),
+    3010: (("counter", "skeletal_horror.kills", 1, "Defeat the Skeletal Horror"),),
+    3012: (("counter", "great_orb_project.games_completed", 1, "Complete a Great Orb Project game"),),
+    3013: (("counter", "pest_control_games_won", 1, "Win a Pest Control game"),),
+    3014: (("counter", "castle_wars_games_played", 1, "Complete a Castle Wars game"),),
+    3015: (("counter", "court_cases_attempts", 1, "Argue a court case"),),
+    3017: (("counter", "fight_caves.clears", 1, "Clear the Fight Caves"),),
+    3018: (("counter", "tzhaar_fight_pit_matches", 1, "Enter a Fight Pit match"),),
+    3019: (("counter", "achievement_progress.skills.agility.outputs.Agility arena ticket", 1, "Earn an Agility arena ticket"),),
+    3020: (("counter", "barbarian_assault_runs_completed", 1, "Complete a Barbarian Assault run"),),
+    3022: (("counter", "shades_of_mortton_chests_opened", 1, "Open a Shades of Mort'ton chest"),),
+    3023: (("counter", "barrows.chests_opened", 1, "Open a Barrows chest"),),
+    3024: (("counter", "pyramid_plunder_runs_completed", 1, "Complete a Pyramid Plunder run"),),
+    3025: (("counter", "sorceress_garden.successful_trips", 1, "Complete a Sorceress's Garden trip"),),
+    3027: (("counter", "duel_arena_matches", 1, "Enter a Duel Arena match"),),
+    3028: (("counter", "fist_of_guthix.matches_started", 1, "Enter a Fist of Guthix match"),),
+    3029: (("counter", "stealing_creation.games", 1, "Enter a Stealing Creation game"),),
+    3030: (("counter", "soul_wars_games_played", 1, "Complete a Soul Wars game"),),
+    3031: (("counter", "clan_wars_matches", 1, "Enter a Clan Wars match"),),
+    3034: (("counter", "warriors_guild.activity_reviews.warriors_guild_attack_dummy", 1, "Train in the Warriors' Guild"),),
+})
 
 
 def _slug(text: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", text.lower()))[:60]
 
 
-def _conditions(row: dict) -> list[tuple]:
+def _quest_id(source_name: str) -> str:
+    return _QUEST_IDS.get(_normalise_name(source_name.replace("_", " ")), "")
+
+
+def _conditions(task: dict) -> list[tuple]:
+    task_id = int(task["id"])
+    override = CONDITION_OVERRIDES.get(task_id)
+    if override is not None:
+        return list(override)
+
     conditions: list[tuple] = []
-    for skill_name, level in row.get("skills", ()):
-        skill_id = _SKILL_IDS.get(str(skill_name).strip().lower())
-        if skill_id and int(level) > 1:
-            conditions.append(
-                ("skill_level", skill_id, int(level), f"Level {int(level)} {skill_name.strip()}")
-            )
-    for quest_name in row.get("quests", ()):
-        quest_id = _QUEST_IDS.get(str(quest_name).strip().lower())
-        if quest_id:
-            conditions.append(("quest", quest_id, 1, f"Complete {quest_name.strip()}"))
+    for requirement in task.get("requirements", ()):
+        kind = requirement.get("kind")
+        if kind == "skill":
+            skill_id = _SKILL_TYPE_IDS.get(int(requirement.get("skill_type", 0)))
+            level = int(requirement.get("level", 0))
+            if skill_id and level > 1:
+                display = skill_id.replace("_", " ").title()
+                conditions.append(("skill_level", skill_id, level, f"Level {level} {display}"))
+        elif kind == "quest":
+            source_name = str(requirement.get("quest", ""))
+            quest_id = _quest_id(source_name)
+            if quest_id:
+                display = str(QUEST_DATA[quest_id].get("display_name", quest_id.replace("_", " ").title()))
+                conditions.append(("quest", quest_id, 1, f"Complete {display}"))
     return conditions
 
 
@@ -256,38 +367,68 @@ def _equipment_rows() -> str:
     return "\n".join(rows)
 
 
+def _task_block(
+    family_id: str,
+    tier_name: str,
+    task: dict,
+    source: str,
+    *,
+    coin_reward: int = 0,
+) -> str:
+    conditions = _conditions(task)
+    if not conditions:
+        return ""
+    task_id = f"{family_id}_{tier_name}_{_slug(task['name'])}"
+    condition_src = ", ".join(
+        f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
+        for kind, key, amount, label in conditions
+    )
+    return (
+        "            DiaryTask(\n"
+        f"                {task_id!r},\n"
+        f"                {task['name']!r},\n"
+        f"                {task['description']!r},\n"
+        f"                ({condition_src},),\n"
+        f"                {source!r},\n"
+        f"                {int(task['id'])},\n"
+        f"                {coin_reward},\n"
+        "            ),"
+    )
+
+
+def _source(record: dict, family_id: str) -> str:
+    wiki = record.get("wiki") or {}
+    corroboration = ""
+    if wiki.get("oldid"):
+        corroboration = (
+            f"; corroborated by {wiki.get('title', family_id)} oldid={wiki['oldid']} "
+            f"({wiki.get('timestamp', 'n/a')})"
+        )
+    return (
+        f"Darkan {record.get('darkan_class', family_id)}; rev-727 cache enum 3483"
+        f"{corroboration}"
+    )
+
+
 def build(document: dict) -> str:
     lines: list[str] = []
     families = document["families"]
+    definitions = document["task_definitions"]
     kept_total = 0
+
     for family_id, meta in FAMILIES.items():
-        record = families.get(family_id, {})
-        wiki = record.get("wiki", {})
-        permalink = wiki.get("permalink", "")
-        source = f"{wiki.get('title', family_id)} oldid={wiki.get('oldid', 'n/a')} ({wiki.get('timestamp', 'n/a')}); Darkan {record.get('darkan_class', '')}"
+        record = families[family_id]
+        source = _source(record, family_id)
         tier_blocks: list[str] = []
         for index, tier_name in enumerate(meta["tiers"]):
-            rows = (wiki.get("tiers") or {}).get(tier_name, [])
-            darkan_ids = record.get("tiers", {}).get(tier_name, [])
+            darkan_ids = record["tiers"][tier_name]
             task_blocks: list[str] = []
-            for row in rows:
-                conditions = _conditions(row)
-                if not conditions:
+            for source_id in darkan_ids:
+                task = definitions[str(source_id)]
+                block = _task_block(family_id, tier_name, task, source)
+                if not block:
                     continue
-                task_id = f"{family_id}_{tier_name}_{_slug(row['name'])}"
-                condition_src = ", ".join(
-                    f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
-                    for kind, key, amount, label in conditions
-                )
-                task_blocks.append(
-                    "            DiaryTask(\n"
-                    f"                {task_id!r},\n"
-                    f"                {row['name']!r},\n"
-                    f"                {row['description'][:220]!r},\n"
-                    f"                ({condition_src},),\n"
-                    f"                {permalink!r},\n"
-                    "            ),"
-                )
+                task_blocks.append(block)
                 if len(task_blocks) >= TASKS_PER_TIER:
                     break
             kept_total += len(task_blocks)
@@ -296,7 +437,6 @@ def build(document: dict) -> str:
             reward = TIER_REWARDS.get(
                 (family_id, tier_name), f"{label} {meta['name']} task rewards."
             )
-            lamp = meta["lamp"][index]
             tier_blocks.append(
                 "        DiaryTier(\n"
                 f"            {family_id + '_' + tier_name!r},\n"
@@ -305,7 +445,7 @@ def build(document: dict) -> str:
                 f"            {reward_item!r},\n"
                 f"            {reward!r},\n"
                 "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
-                f"            DiaryLamp({lamp}, 1),\n"
+                f"            DiaryLamp({meta['lamp'][index]}, 1),\n"
                 f"            {'period tier: ' + str(len(darkan_ids)) + ' tasks; ' + source!r},\n"
                 "        ),"
             )
@@ -319,15 +459,46 @@ def build(document: dict) -> str:
             f"        {source!r},\n"
             "    ),"
         )
+
+    for family_id, meta in SPECIAL_FAMILIES.items():
+        record = families[family_id]
+        source = _source(record, family_id)
+        tier_name = meta["tier"]
+        task_blocks = []
+        for source_id in record["tiers"][tier_name]:
+            task = definitions[str(source_id)]
+            block = _task_block(family_id, tier_name, task, source)
+            if block:
+                task_blocks.append(block)
+        kept_total += len(task_blocks)
+        lines.append(
+            "    DiaryFamily(\n"
+            f"        {family_id!r},\n"
+            f"        {meta['name']!r},\n"
+            f"        {meta['kind']!r},\n"
+            "        (\n"
+            "        DiaryTier(\n"
+            f"            {family_id + '_' + tier_name!r},\n"
+            f"            {meta['tier_name']!r},\n"
+            "            1,\n"
+            "            '',\n"
+            f"            {meta['reward_summary']!r},\n"
+            "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
+            "            None,\n"
+            f"            {'period pool: ' + str(len(record['tiers'][tier_name])) + ' tasks; ' + source!r},\n"
+            "        ),\n"
+            "        ),\n"
+            "        '',\n"
+            f"        {source!r},\n"
+            "    ),"
+        )
     header = (
         '"""Generated by ``tools/generate_achievement_diary_data.py``. Do not hand-edit.\n\n'
-        "Sources, in the project's evidence order: Darkan's\n"
-        "``com/rs/game/content/achievements`` package owns each family's tier\n"
-        "membership, reward items and taskmasters; the pinned pre-cutoff wiki\n"
-        "revision cited on every tier owns the per-task requirement text.\n\n"
-        f"Tasks kept: {kept_total}. A period task is present only when its pinned row\n"
-        "states a requirement; see the generator's module docstring for the rule and\n"
-        'for the abstraction it makes explicit."""\n\n'
+        "Darkan's achievement classes and rev-727 cache enum 3483 own task identity,\n"
+        "tier membership, names, descriptions and ordinary requirements. Pinned\n"
+        "pre-cutoff wiki revisions are corroboration only. Tasks without an honest\n"
+        "AnkiScape predicate are omitted rather than emitted as inert rows.\n\n"
+        f"Tasks kept: {kept_total}.\"\"\"\n\n"
         "from __future__ import annotations\n\n"
         "from .achievement_diary_data import (\n"
         "    DiaryCondition,\n"
@@ -340,11 +511,15 @@ def build(document: dict) -> str:
         "# with no minimum-level restriction. The pinned task-set infoboxes state each\n"
         "# tier's lamp experience exactly but never the skill-level floor the period\n"
         "# lamp imposed. A period lamp dialogue or a cache interface script would\n"
-        "# settle it.\n\n\n"
-        "REGIONAL_DIARY_FAMILIES = (\n"
+        "# settle it.\n\n"
+        "# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous task rows\n"
+        "# carry zero coins until the period completion-count payout formula is recovered.\n"
+        "# Darkan completes the tasks but exposes no coin arithmetic; a rev-727 server\n"
+        "# routine or client script that computes the money-pouch award would settle it.\n\n\n"
+        "DIARY_FAMILIES = (\n"
     )
     equipment = (
-        "\n\n\ndef diary_equipment_data_as_dict() -> dict:\n"
+        "\n\ndef diary_equipment_data_as_dict() -> dict:\n"
         '    """Register the 32 tier reward items as real wearable equipment.\n\n'
         "    Without this the whole family would be inert: every tier hands over an\n"
         "    item that the equipment table has never heard of. The generated table is\n"
