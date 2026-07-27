@@ -291,6 +291,7 @@ from ..logic.cadence_live import (
     resolve_live_cadence_route_pure,
 )
 from ..data.summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
+from ..logic.cape_logic import effective_roll_level_pure
 from ..logic.summoning_logic import (
     apply_summoning_training_action_pure,
     familiar_effective_roll_level_pure,
@@ -590,7 +591,9 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
         ctx.save_player_data()
         return False
 
-    level = player_data.get("thieving_level", 1)
+    level = effective_roll_level_pure(
+        player_data, "thieving", player_data.get("thieving_level", 1)
+    )
     if kind in {"pickpocket", "wall_safe"}:
         chance = thieving_success_probability_pure(level, spec)
         roll = _thieving_rng_index(ctx, 255)

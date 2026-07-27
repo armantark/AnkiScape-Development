@@ -42,6 +42,8 @@ from ..logic.achievement_diary_logic import (
     diary_task_by_id_pure,
     refresh_achievement_diaries_pure,
 )
+from ..logic.cape_logic import refresh_capes_pure
+from ..logic.music_log_logic import refresh_music_log_pure
 
 
 def _popups_enabled():
@@ -79,9 +81,23 @@ def check_achievements(player_data):
         player_data.setdefault("completed_achievements", []).extend(newly_completed)
 
     updated, newly_tasks = refresh_achievement_diaries_pure(player_data)
+    # The keepsake, the automatic trim and the Music Log all read state this
+    # review may have just changed, so they refresh in the same pass.
+    updated = refresh_capes_pure(updated)
+    updated, newly_tracks = refresh_music_log_pure(updated)
     player_data.clear()
     player_data.update(updated)
-    if not newly_tasks or not _popups_enabled():
+    if not _popups_enabled():
+        return
+    for track_name in newly_tracks:
+        show_achievement_dialog(
+            track_name,
+            {
+                "description": "Added to the Music Log.",
+                "difficulty": "Music",
+            },
+        )
+    if not newly_tasks:
         return
     for task_id in newly_tasks:
         found = diary_task_by_id_pure(task_id)

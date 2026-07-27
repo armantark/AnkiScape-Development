@@ -185,6 +185,16 @@ from ..logic.achievement_diary_logic import (
     refresh_achievement_diaries_pure,
     sanitize_achievement_diary_state_pure,
 )
+from ..logic.cape_logic import (
+    default_cape_state_pure,
+    refresh_capes_pure,
+    sanitize_cape_state_pure,
+)
+from ..logic.music_log_logic import (
+    default_music_log_state_pure,
+    refresh_music_log_pure,
+    sanitize_music_log_state_pure,
+)
 from ..logic.tzhaar_fight_pit_logic import (
     default_tzhaar_fight_pit_state_pure,
     sanitize_tzhaar_fight_pit_state_pure,
@@ -262,7 +272,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 88
+CURRENT_CONFIG_VERSION = 89
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -515,6 +525,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_soul_wars_state_pure())
     data.update(default_shades_of_mortton_state_pure())
     data.update(default_achievement_diary_state_pure())
+    data.update(default_cape_state_pure())
+    data.update(default_music_log_state_pure())
     data.update(default_tzhaar_fight_pit_state_pure())
     data.update(default_duel_arena_state_pure())
     data.update(default_clan_wars_state_pure())
@@ -1162,6 +1174,8 @@ def migrate_loaded_data(
     data.update(sanitize_soul_wars_state_pure(data))
     data.update(sanitize_shades_of_mortton_state_pure(data))
     data.update(sanitize_achievement_diary_state_pure(data))
+    data.update(sanitize_cape_state_pure(data))
+    data.update(sanitize_music_log_state_pure(data))
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
@@ -1688,6 +1702,18 @@ def migrate_loaded_data(
         for key, value in default_achievement_diary_state_pure().items():
             data.setdefault(key, value)
         data.update(refresh_achievement_diaries_pure(data)[0])
+    # v89: Capes of Accomplishment and Distinction, and the Music Log. Both are
+    # derived from state the save already has — levels, quests and the diary
+    # ledger — so the migration seeds them by running their own refresh rather
+    # than by inventing a starting point. A player who was already 99 in two
+    # skills keeps the first-99 keepsake the moment they load.
+    if loaded_config_version < 89:
+        for key, value in default_cape_state_pure().items():
+            data.setdefault(key, value)
+        for key, value in default_music_log_state_pure().items():
+            data.setdefault(key, value)
+        data.update(refresh_capes_pure(data))
+        data.update(refresh_music_log_pure(data)[0])
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1741,6 +1767,8 @@ def migrate_loaded_data(
     data.update(sanitize_soul_wars_state_pure(data))
     data.update(sanitize_shades_of_mortton_state_pure(data))
     data.update(sanitize_achievement_diary_state_pure(data))
+    data.update(sanitize_cape_state_pure(data))
+    data.update(sanitize_music_log_state_pure(data))
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
