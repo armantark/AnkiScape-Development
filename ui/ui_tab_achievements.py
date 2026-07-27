@@ -36,6 +36,11 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
 from ..logic.achievement_diary_logic import achievement_cabinet_view_pure
 from .ui import CatalogFilterBar, _clear_layout, dim_text_css
 
+# The log holds 191 tracks. The Cabinet card is a summary, not the whole log:
+# the dialog is about 560 logical points tall and the families below it must
+# stay reachable without scrolling past a wall of music.
+MUSIC_ROWS_SHOWN = 12
+
 
 def build_achievements_tab(ctx) -> "QWidget":
     """Return the Achievement Cabinet page."""
@@ -202,6 +207,122 @@ def build_achievements_tab(ctx) -> "QWidget":
             block_layout.addWidget(_task_row(task))
         return block
 
+    def _card(title: str) -> "tuple[QWidget, QVBoxLayout]":
+        card = QWidget()
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(10, 8, 10, 8)
+        card_layout.setSpacing(6)
+        heading_label = QLabel(title)
+        heading_label.setStyleSheet("font-weight: 700; color: palette(text);")
+        card_layout.addWidget(heading_label)
+        card.setStyleSheet(
+            "border: 1px solid palette(mid); border-radius: 8px;"
+            " background-color: palette(alternate-base);"
+        )
+        return card, card_layout
+
+    def _taskmaster_card(presentation: dict) -> "QWidget":
+        """The one-time presentation. It grants nothing; it says the thing."""
+
+        card, card_layout = _card(presentation["title"])
+        body_label = QLabel(presentation["body"])
+        body_label.setWordWrap(True)
+        body_label.setStyleSheet("color: palette(text);")
+        card_layout.addWidget(body_label)
+        acknowledge = QPushButton("Accept the seal")
+        acknowledge.setObjectName("cabinetTaskmasterAcknowledge")
+        acknowledge.setEnabled(on_command is not None)
+        acknowledge.clicked.connect(lambda _=False: _run("acknowledge_taskmaster", {}))
+        card_layout.addWidget(acknowledge)
+        card.setStyleSheet(
+            "border: 2px solid #C9A227; border-radius: 8px;"
+            " background-color: palette(alternate-base);"
+        )
+        return card
+
+    def _cape_row(row: dict) -> "QWidget":
+        line = QWidget()
+        line_layout = QHBoxLayout(line)
+        line_layout.setContentsMargins(0, 0, 0, 0)
+        line_layout.setSpacing(8)
+
+        # A vertical text block rather than one long line: the Completionist
+        # row's reason is its whole outstanding requirement list, which pushes
+        # the page into a sideways scroll at the real dialog width if it has to
+        # share a line with the name, the master and the price.
+        text = QWidget()
+        text_layout = QVBoxLayout(text)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(1)
+        name = QLabel(row["name"] + (" ★" if row.get("keepsake") else ""))
+        name.setStyleSheet("color: palette(text);")
+        text_layout.addWidget(name)
+        detail = QLabel(f"{row['master']} · {row['price']:,} coins")
+        detail.setWordWrap(True)
+        detail.setStyleSheet(f"color: {dim_text_css(detail)};")
+        text_layout.addWidget(detail)
+        if row["reason"]:
+            status = QLabel(row["reason"])
+            status.setWordWrap(True)
+            status.setStyleSheet(f"color: {dim_text_css(status)};")
+            text_layout.addWidget(status)
+        line_layout.addWidget(text, 1)
+
+        buy = QPushButton("Buy")
+        buy.setObjectName(f"cabinetCapeBuy_{row['cape_id']}")
+        buy.setEnabled(bool(row["can_buy"]) and on_command is not None)
+        buy.clicked.connect(
+            lambda _=False, cape_id=row["cape_id"]: _run("purchase_cape", {"cape_id": cape_id})
+        )
+        line_layout.addWidget(buy)
+        return line
+
+    def _capes_card(capes: dict) -> "QWidget":
+        card, card_layout = _card("Capes and Distinctions")
+        if capes["keepsake_cape"]:
+            keepsake = QLabel(
+                f"First 99: {capes['keepsake_cape']} — the Cabinet keeps its untrimmed artwork."
+            )
+            keepsake.setObjectName("cabinetKeepsake")
+            keepsake.setWordWrap(True)
+            keepsake.setStyleSheet(f"color: {dim_text_css(keepsake)};")
+            card_layout.addWidget(keepsake)
+        for row in capes["skillcapes"]:
+            card_layout.addWidget(_cape_row(row))
+        for row in capes["distinctions"]:
+            card_layout.addWidget(_cape_row(row))
+        outstanding = QLabel(
+            " · ".join(
+                f"{item['label']}{' (latent)' if item['latent'] else ''}"
+                for item in capes["completionist"]
+                if not item["met"]
+            )
+            or "Every Completionist requirement is met."
+        )
+        outstanding.setObjectName("cabinetCompletionistRequirements")
+        outstanding.setWordWrap(True)
+        outstanding.setStyleSheet(f"color: {dim_text_css(outstanding)};")
+        card_layout.addWidget(outstanding)
+        return card
+
+    def _music_card(music: dict) -> "QWidget":
+        card, card_layout = _card(f"Music Log · {music['unlocked']}/{music['total']} tracks")
+        for track in music["tracks"][:MUSIC_ROWS_SHOWN]:
+            line = QLabel(
+                f"{'♪' if track['unlocked'] else '·'} {track['name']} — {track['hint']}"
+            )
+            line.setObjectName(f"cabinetTrack_{track['track_id']}")
+            line.setWordWrap(True)
+            line.setStyleSheet(
+                "color: palette(text);" if track["unlocked"] else f"color: {dim_text_css(line)};"
+            )
+            card_layout.addWidget(line)
+        if len(music["tracks"]) > MUSIC_ROWS_SHOWN:
+            more = QLabel(f"…and {len(music['tracks']) - MUSIC_ROWS_SHOWN} more.")
+            more.setStyleSheet(f"color: {dim_text_css(more)};")
+            card_layout.addWidget(more)
+        return card
+
     def _render() -> None:
         _clear_layout(body_layout)
         view = achievement_cabinet_view_pure(
@@ -227,6 +348,11 @@ def build_achievements_tab(ctx) -> "QWidget":
         seal.setToolTip(
             "Every regional task complete" if view["taskmaster"] else ""
         )
+
+        if view["taskmaster_presentation"]["show"]:
+            body_layout.addWidget(_taskmaster_card(view["taskmaster_presentation"]))
+        body_layout.addWidget(_capes_card(view["capes"]))
+        body_layout.addWidget(_music_card(view["music"]))
 
         shown = 0
         for family in view["families"]:

@@ -42,6 +42,7 @@ from ..logic.shop_logic import (
     shop_view_model_pure,
     shop_view_models_pure,
 )
+from ..logic.cape_logic import cape_view_pure
 from .ui import (
     CatalogFilterBar,
     _clear_layout,
@@ -327,7 +328,7 @@ def build_shop_tab(ctx) -> "QWidget":
         "shopAgileSectionLabel",
     )
     cape_grid = _agility_section(
-        "Skillcapes · the Agility master",
+        "Capes of Accomplishment and Distinction · the skill masters",
         "shopAgilityCapeSectionLabel",
     )
     buyers_grid = _agility_section(
@@ -1053,6 +1054,34 @@ def build_shop_tab(ctx) -> "QWidget":
         )
         grid.addWidget(button, index // 3, index % 3)
 
+    on_diary_command = getattr(ctx, "on_achievement_diary_command", None)
+
+    def _add_cape_button(grid: "QGridLayout", index: int, row: dict) -> None:
+        button = QPushButton(f"{row['name']} · {row['price']:,} coins")
+        button.setObjectName(f"shopCapeButton_{row['cape_id']}")
+        button.setEnabled(bool(row["can_buy"]) and on_diary_command is not None)
+        button.setToolTip(row["reason"] or f"Buy from {row['master']}")
+        icon = _pixel_item_icon(row["name"], 20)
+        if icon is not None:
+            button.setIcon(icon)
+        button.clicked.connect(
+            lambda _=False, cape_id=row["cape_id"]: _run_cape_purchase(cape_id)
+        )
+        grid.addWidget(button, index // 3, index % 3)
+
+    def _run_cape_purchase(cape_id: str) -> None:
+        if on_diary_command is None:
+            return
+        result = on_diary_command("purchase_cape", {"cape_id": cape_id}) or {}
+        message = str(result.get("message", ""))
+        agility_feedback_label.setText(message)
+        agility_feedback_label.setVisible(bool(message))
+        _refresh_shop_views()
+        try:
+            ctx.refresh("gear")
+        except Exception:
+            pass
+
     def _populate_agility_reward_shops() -> None:
         for grid in (brimhaven_grid, agile_grid, cape_grid, buyers_grid):
             _clear_layout(grid)
@@ -1095,6 +1124,11 @@ def build_shop_tab(ctx) -> "QWidget":
                 "shopAgileClaimButton",
                 piece,
             )
+        # Every row, price, label and enable comes from `cape_view_pure`; the
+        # panel decides nothing about who may buy what. Agility keeps the relay
+        # button it has always had — `purchase_agility_cape` is an alias that
+        # now delegates to the same shared purchase, so this is one rule with
+        # two entry points rather than two rules.
         _add_relay_button(
             cape_grid,
             0,
@@ -1104,6 +1138,15 @@ def build_shop_tab(ctx) -> "QWidget":
             "shopAgilityCapeButton",
             "Agility cape",
         )
+        capes = cape_view_pure(player_data)
+        rows = [
+            row
+            for row in capes["skillcapes"]
+            if row["show_in_shop"] and row["cape_id"] != "agility"
+        ]
+        rows.extend(capes["distinctions"])
+        for index, row in enumerate(rows, start=1):
+            _add_cape_button(cape_grid, index, row)
         _add_relay_button(
             buyers_grid,
             0,
