@@ -36,14 +36,27 @@ from ankiscape.logic.achievement_diary_logic import (
     task_progress_pure,
 )
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
+from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
 
 
 def _fresh():
     return default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 
 
+def _set_counter(player, path, amount):
+    node = player
+    parts = path.split(".")
+    for part in parts[:-1]:
+        child = node.get(part)
+        if not isinstance(child, dict):
+            child = {}
+            node[part] = child
+        node = child
+    node[parts[-1]] = amount
+
+
 def _satisfy(player, task):
-    """Put the save into the exact state the task's own conditions demand."""
+    """Put a real save into the exact durable state each condition reads."""
     for condition in task.conditions:
         if condition.kind == "skill_level":
             player[f"{condition.key}_level"] = max(
@@ -53,7 +66,18 @@ def _satisfy(player, task):
             player.setdefault("quests", {})[condition.key] = {"completed": True}
         elif condition.kind == "hold_item":
             player["inventory"][condition.key] = condition.amount
-        else:  # pragma: no cover - the shipped catalog uses only the three above
+        elif condition.kind in {"ledger_output", "ledger_action"}:
+            skill_id, _, key = condition.key.partition(":")
+            kwargs = (
+                {"output_item": key, "output_qty": condition.amount}
+                if condition.kind == "ledger_output"
+                else {}
+            )
+            for _ in range(condition.amount if condition.kind == "ledger_action" else 1):
+                record_achievement_progress_pure(player, skill_id, key, True, **kwargs)
+        elif condition.kind == "counter":
+            _set_counter(player, condition.key, condition.amount)
+        else:  # pragma: no cover - catalog integrity rejects unknown kinds
             raise AssertionError(f"unhandled condition kind {condition.kind}")
     return player
 
@@ -95,20 +119,29 @@ def _complete_tier(player, tier):
 
 class CatalogIntegrityTest(unittest.TestCase):
     def test_every_family_carries_its_period_tiers(self):
-        self.assertEqual(len(ACHIEVEMENT_DIARY_CATALOG), 8)
+        self.assertEqual(
+            [family.id for family in ACHIEVEMENT_DIARY_CATALOG],
+            [
+                "ardougne",
+                "falador",
+                "fremennik",
+                "karamja",
+                "lumbridge",
+                "morytania",
+                "seers",
+                "varrock",
+                "burthorpe",
+                "miscellaneous",
+            ],
+        )
         for family in ACHIEVEMENT_DIARY_CATALOG:
-            self.assertEqual(len(family.tiers), 4, family.id)
-            self.assertEqual(
-                [tier.index for tier in family.tiers],
-                [1, 2, 3, 4],
-                family.id,
-            )
+            expected = [1, 2, 3, 4] if family.kind == "regional" else [1]
+            self.assertEqual([tier.index for tier in family.tiers], expected, family.id)
 
     def test_tier_effort_budget_follows_the_design_contract(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
-            self.assertEqual(
-                [tier.effort_multiplier for tier in family.tiers], [1, 2, 3, 4]
-            )
+            expected = [1, 2, 3, 4] if family.kind == "regional" else [1]
+            self.assertEqual([tier.effort_multiplier for tier in family.tiers], expected)
 
     def test_ids_are_unique_and_no_condition_is_shared_between_families(self):
         task_ids = [
@@ -118,6 +151,13 @@ class CatalogIntegrityTest(unittest.TestCase):
             for task in tier.tasks
         ]
         self.assertEqual(len(task_ids), len(set(task_ids)))
+        source_ids = [
+            task.source_id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        ]
+        self.assertEqual(len(source_ids), len(set(source_ids)))
         tier_ids = [
             tier.id for family in ACHIEVEMENT_DIARY_CATALOG for tier in family.tiers
         ]
@@ -129,23 +169,75 @@ class CatalogIntegrityTest(unittest.TestCase):
                 for task in tier.tasks:
                     self.assertTrue(task.conditions, task.id)
                     self.assertTrue(task.name.strip(), task.id)
-                    self.assertIn("runescape.wiki", task.source, task.id)
+                    self.assertIn("Darkan", task.source, task.id)
+                    self.assertGreaterEqual(task.source_id, 0, task.id)
 
-    def test_no_tier_exceeds_the_twelve_task_curation_budget(self):
+    def test_every_tier_has_a_roster(self):
+        empty = [
+            tier.id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            if not tier.tasks
+        ]
+        self.assertEqual(empty, [])
+
+    def test_cache_absence_does_not_drop_existing_pinned_requirement_rows(self):
+        restored_source_ids = {
+            0,
+            97,
+            107,
+            125,
+            188,
+            192,
+            209,
+            257,
+            267,
+            268,
+            291,
+            952,
+            963,
+            964,
+            971,
+            983,
+            985,
+            993,
+        }
+        shipped = {
+            task.source_id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        }
+        self.assertTrue(restored_source_ids.issubset(shipped))
+
+    def test_every_miscellaneous_task_has_a_live_coin_reward(self):
+        family = next(
+            family
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            if family.id == "miscellaneous"
+        )
+        self.assertTrue(family.tiers[0].tasks)
+        self.assertTrue(all(task.coin_reward == 100 for task in family.tiers[0].tasks))
+
+    def test_regional_tiers_respect_the_twelve_task_curation_budget(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
+            if family.kind != "regional":
+                continue
             for tier in family.tiers:
                 self.assertLessEqual(len(tier.tasks), 12, tier.id)
 
-    def test_every_tier_reward_item_is_real_wearable_equipment(self):
+    def test_every_regional_tier_reward_item_is_real_wearable_equipment(self):
         """Guard against the inert-row failure: a reward nobody can ever wear."""
         for family in ACHIEVEMENT_DIARY_CATALOG:
+            if family.kind != "regional":
+                continue
             for tier in family.tiers:
                 self.assertIn(tier.reward_item, EQUIPMENT_DATA, tier.id)
                 self.assertTrue(EQUIPMENT_DATA[tier.reward_item].slot)
 
     def test_tier_reward_items_are_distinct_within_a_family(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
-            items = [tier.reward_item for tier in family.tiers]
+            items = [tier.reward_item for tier in family.tiers if tier.reward_item]
             self.assertEqual(len(items), len(set(items)), family.id)
 
 
@@ -205,6 +297,93 @@ class TaskProgressTest(unittest.TestCase):
         self.assertFalse(satisfied)
         self.assertEqual(need, len(task.conditions))
         self.assertLess(have, need)
+
+    def test_every_shipped_task_can_flip_complete_in_real_save_state(self):
+        tasks = [
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        ]
+        player = _fresh()
+        for task in tasks:
+            _satisfy(player, task)
+            self.assertTrue(task_progress_pure(player, task)[0], task.id)
+        player, newly = refresh_achievement_diaries_pure(player)
+        expected = {task.id for task in tasks}
+        self.assertEqual(set(newly), expected)
+        self.assertEqual(
+            set(player["achievement_diaries"]["completed_tasks"]), expected
+        )
+
+    def test_fight_pit_gameplay_pays_the_miscellaneous_task_reward(self):
+        from ankiscape.logic.tzhaar_fight_pit_logic import enter_tzhaar_fight_pit_pure
+
+        task = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.source_id == 3018
+        )
+        player = _fresh()
+        before = int(player["inventory"].get("Coins", 0))
+        player, ok, info = enter_tzhaar_fight_pit_pure(player)
+        self.assertTrue(ok, info)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertIn(task.id, newly)
+        self.assertEqual(player["inventory"]["Coins"] - before, 100)
+
+    def test_miscellaneous_reward_grows_with_completion_ordinal(self):
+        from ankiscape.logic.tzhaar_fight_pit_logic import enter_tzhaar_fight_pit_pure
+
+        prior = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.source_id == 538
+        )
+        player = _satisfy(_fresh(), prior)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertEqual(newly, (prior.id,))
+        before = int(player["inventory"].get("Coins", 0))
+        player, ok, info = enter_tzhaar_fight_pit_pure(player)
+        self.assertTrue(ok, info)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertTrue(any(task_id.startswith("miscellaneous_") for task_id in newly))
+        self.assertEqual(player["inventory"]["Coins"] - before, 200)
+
+    def test_burthorpe_course_gameplay_completes_lapping_it_up(self):
+        from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
+        from ankiscape.logic.agility_logic import apply_agility_review_pure
+
+        task = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.source_id == 574
+        )
+        player = _fresh()
+        player["current_agility"] = "burthorpe_course"
+        player["agility_course_state"] = {
+            "target": "burthorpe_course",
+            "stage": 0,
+            "checkpoint": "start",
+            "flawless": True,
+            "lap_xp_valid": True,
+            "requested_item_valid": True,
+            "status": "Ready to start",
+        }
+        self.assertFalse(task_progress_pure(player, task)[0])
+        for _stage in AGILITY_TARGETS_BY_ID["burthorpe_course"].stages:
+            player, result = apply_agility_review_pure(
+                player, (0.99, 0.99, 0.99, 0.99)
+            )
+        self.assertTrue(result["completed_lap"])
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertIn(task.id, newly)
 
 
 class ClaimTest(unittest.TestCase):
@@ -280,22 +459,14 @@ class ClaimTest(unittest.TestCase):
         self.assertEqual(player["equipment"].get("body"), "Varrock armour 2")
         self.assertFalse(player["inventory"].get("Varrock armour 1"))
 
-    def test_a_tier_with_no_harvested_roster_is_never_ready(self):
-        """An empty tier must not read as a finished one."""
-        player = _fresh()
-        for family in ACHIEVEMENT_DIARY_CATALOG:
-            for tier in family.tiers:
-                if tier.tasks:
-                    continue
-                state = achievement_cabinet_view_pure(player, family_filter=family.id)
-                row = next(
-                    entry
-                    for entry in state["families"][0]["tiers"]
-                    if entry["tier_id"] == tier.id
-                )
-                self.assertFalse(row["ready"])
-                self.assertEqual(row["status"], "Roster pending harvest")
-                self.assertFalse(claim_diary_tier_pure(player, tier.id)[1])
+    def test_no_tier_falls_through_the_empty_roster_claim_path(self):
+        view = achievement_cabinet_view_pure(_fresh())
+        rows = [tier for family in view["families"] for tier in family["tiers"]]
+        for row in rows:
+            self.assertGreater(row["total"], 0, row["tier_id"])
+            self.assertNotEqual(
+                row["status"], "Roster pending harvest", row["tier_id"]
+            )
 
     def test_the_granted_item_can_actually_be_worn(self):
         family = self._varrock()
@@ -434,7 +605,8 @@ class CabinetViewTest(unittest.TestCase):
         view = achievement_cabinet_view_pure(_fresh())
         self.assertEqual(len(view["families"]), len(ACHIEVEMENT_DIARY_CATALOG))
         for family in view["families"]:
-            self.assertEqual(len(family["tiers"]), 4)
+            expected = 4 if family["kind"] == "regional" else 1
+            self.assertEqual(len(family["tiers"]), expected)
 
     def test_the_view_never_reports_a_moving_denominator_percentage(self):
         view = achievement_cabinet_view_pure(_fresh())
@@ -585,6 +757,7 @@ class AssetCoverageTest(unittest.TestCase):
             tier.reward_item
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
+            if tier.reward_item
         }
         self.assertEqual(wanted, set(DIARY_REWARD_ITEMS))
 

@@ -93,3 +93,23 @@ percentage. Nothing in the family reads one, and the two surfaces that displayed
 one are gone. The 168-row catalog stays live as the non-displayed history
 substrate the contract defines, so all 21 of its clauses still hold and no save
 loses its recorded past.
+
+## Roster depth follow-up — 2026-07-27
+
+The earlier source model was incomplete: Darkan's rev-727 `enums.txt` dump embeds
+enum 3483, including every task's display name, description, difficulty and
+ordinary skill/quest requirement pairs. The generator now joins that cache data
+to the exact membership arrays in the nine `*Tasks.java` classes; the wiki is
+corroboration rather than the requirement authority.
+
+The shipped catalog now carries 304 evaluable tasks across ten families. All 34
+shipped tiers/pools are non-empty: 260 regional tasks, 14 Burthorpe/Taverley
+tasks with exact existing predicates, and 30 Miscellaneous tasks backed by
+implemented activity counters or encoded requirements. Tasks without an honest
+predicate remain omitted rather than becoming inert rows. Previously shipped
+wiki-backed requirement rows remain when Darkan confirms their membership; cache
+absence alone is not treated as evidence against them. The exact period
+Miscellaneous coin curve remains placeholder-registered as
+`achievement_diaries.misc_coin_reward`: the cache-proven 100-coin floor is
+multiplied by the task's completion ordinal until the exact payout script is
+recovered.

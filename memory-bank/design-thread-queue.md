@@ -240,7 +240,12 @@ curation pass with the owner, on top of A rather than instead of it — the
 catalog is generated, so a hand-curated override table can replace any row
 without disturbing the rest.
 
-### 3.9 Three families' task tables did not parse, and their tiers ship empty
+### 3.9 Three families' task tables did not parse, and their tiers ship empty — resolved 2026-07-27
+
+Resolution: the generator no longer depends on those wiki table layouts. Darkan's
+rev-727 enum 3483 supplies the names, descriptions and encoded requirements, and
+the per-family Java classes supply tier membership. Falador, Fremennik and Seers'
+Village now all carry non-empty rosters.
 
 Raised 2026-07-26. Darkan gives every one of the eight families its exact tier
 membership, so Falador, Fremennik and Seers' Village ship with real tiers, real

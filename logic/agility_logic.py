@@ -41,6 +41,7 @@ from .cape_logic import effective_roll_level_pure, purchase_cape_pure
 from .inventory_pure import clamp_carried_view_to_bank
 
 from ..data.flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
+from ..logic_pure.logic_pure_telemetry import record_achievement_progress_pure
 from .flash_powder_factory_logic import (
     apply_flash_powder_factory_review_pure,
     enter_flash_powder_factory_pure,
@@ -186,7 +187,6 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
         "agile_legs_unlocked": bool(raw_counts.get("agile_legs_unlocked", False)),
         "agile_top_unlocked": bool(raw_counts.get("agile_top_unlocked", False)),
     }
-
     raw_activity = source.get("agility_activity_state")
     activities = copy.deepcopy(raw_activity) if isinstance(raw_activity, Mapping) else {}
     raw_pit = activities.get("pit")
@@ -437,6 +437,7 @@ def _finish_lap(data: dict[str, Any], target: AgilityTarget, state: dict[str, An
     if counts["barbarian_advanced_flawless"] >= 250:
         counts["agile_top_unlocked"] = True
     data["agility_lap_counts"] = counts
+    record_achievement_progress_pure(data, "agility", target.id, True)
     if target.id in PIT_INVITATION_COURSE_IDS and reward_roll < .125:
         data["agility_pit_offer"] = True
         data["agility_pit_origin_course"] = target.id

@@ -157,24 +157,16 @@ class AchievementCabinetUITest(unittest.TestCase):
             "Claim Easy first",
         )
 
-    def test_an_empty_tier_reads_as_pending_rather_than_ready(self):
+    def test_no_tier_renders_the_pending_harvest_status(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         page, _ctx = self._build(player)
-        empty = [
-            tier
-            for family in ACHIEVEMENT_DIARY_CATALOG
-            for tier in family.tiers
-            if not tier.tasks
-        ]
-        self.assertTrue(empty, "expected at least one un-harvested tier")
-        for tier in empty:
-            self.assertEqual(
-                self._named(page, f"cabinetStatus_{tier.id}", QLabel).text(),
-                "Roster pending harvest",
-            )
-            self.assertFalse(
-                self._named(page, f"cabinetClaim_{tier.id}", QPushButton).isEnabled()
-            )
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            for tier in family.tiers:
+                self.assertTrue(tier.tasks, tier.id)
+                self.assertNotEqual(
+                    self._named(page, f"cabinetStatus_{tier.id}", QLabel).text(),
+                    "Roster pending harvest",
+                )
 
     def test_pressing_claim_runs_the_command_and_re_renders(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

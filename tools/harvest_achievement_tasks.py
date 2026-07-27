@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 """Harvest the period achievement-task roster from Darkan and the wiki.
 
-Two sources, in the project's evidence order:
+Darkan owns task identity, tier membership, names, descriptions, and encoded
+skill/quest requirements. Pinned pre-cutoff wiki revisions are retained only as
+corroboration for tier rewards and requirement wording.
 
-1. **Darkan** owns the structure. ``com/rs/game/content/achievements`` carries
-   the ``Achievement`` id/name enum, one ``<Region>Tasks`` class per family with
-   the exact per-tier task-id lists, the taskmaster NPC for each tier, the
-   reward item ids, and several sourced tier reward effects. This is the
-   authority for *which* tasks belong to *which* tier.
-2. **The wiki**, pinned before the EOC cutoff, owns the per-task requirement
-   text: the description, the quests needed and the skill levels needed. Darkan
-   reads those from the cache at runtime, so they are not in its source.
-
-Output is a JSON document on stdout. ``--markdown`` writes the source-audit
-companion instead. Nothing here writes into the add-on.
+Output is a JSON document on stdout. Nothing here writes into the source tree.
 """
 
 from __future__ import annotations
@@ -21,17 +13,18 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
 
 
-DARKAN_ACHIEVEMENTS = Path(
+DARKAN_ROOT = Path(
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server"
-    "/src/main/java/com/rs/game/content/achievements"
 )
+DARKAN_ACHIEVEMENTS = DARKAN_ROOT / "src/main/java/com/rs/game/content/achievements"
+DARKAN_ENUMS = DARKAN_ROOT / "developer-information/enums.txt"
+DARKAN_QUESTS = DARKAN_ROOT / "src/main/java/com/rs/engine/quest/Quest.java"
 CUTOFF = "2012-11-20T00:00:00Z"
 USER_AGENT = "AnkiScape-source-audit/1.0 (pre-EOC parity harvest)"
 
@@ -47,6 +40,7 @@ FAMILIES = (
     ("VarrockTasks", "varrock", "Varrock Tasks"),
     ("BurthorpeTaverleyTasks", "burthorpe", "Burthorpe and Taverley Tasks"),
 )
+MISCELLANEOUS_TASK_IDS = tuple(range(3000, 3035))
 
 
 def _api(params: dict) -> dict:
@@ -85,22 +79,7 @@ def pinned_revision(title: str) -> "tuple[int, str, str] | None":
     return revisions[0]["revid"], revisions[0]["timestamp"], page["title"]
 
 
-def wikitext(oldid: int) -> str:
-    payload = _api(
-        {
-            "action": "parse",
-            "oldid": oldid,
-            "prop": "wikitext",
-            "format": "json",
-            "formatversion": 2,
-        }
-    )
-    return payload["parse"]["wikitext"]
-
-
 def darkan_task_names() -> dict[int, str]:
-    """Map task id to the period task name Darkan's enum preserves."""
-
     source = (DARKAN_ACHIEVEMENTS / "Achievement.java").read_text(encoding="utf-8")
     names: dict[int, str] = {}
     for constant, raw_id in re.findall(r"^\t([A-Z0-9_]+)\((\d+)\),?$", source, re.M):
@@ -134,129 +113,117 @@ def darkan_family(class_name: str) -> dict:
     }
 
 
-_TIER_HEADING = re.compile(
-    r"^==\s*(Beginner|Easy|Medium|Hard|Elite)\s+tasks?\s*==", re.M | re.I
-)
-_SKILL_REQ = re.compile(r"\{\{Skillreq\|([A-Za-z ]+)\|(\d+)")
-# The other house style writes the level first and the skill as a click-pic.
-_SKILL_PIC = re.compile(r"(\d+)\s*\{\{Skill ?clickpic\|([A-Za-z ]+)")
+def _quest_slots() -> dict[int, str]:
+    source = DARKAN_QUESTS.read_text(encoding="utf-8")
+    return {
+        int(slot): constant
+        for constant, _quest_id, slot in re.findall(
+            r"^\s*([A-Z0-9_]+)\((\d+), (\d+)\),?$", source, re.M
+        )
+    }
 
 
-def wiki_tier_tasks(text: str) -> dict[str, list[dict]]:
-    """Pull each tier's guide table into rows of name/description/quests/skills.
+def _cache_params(body: str) -> dict[int, str]:
+    return {
+        int(param): value.strip()
+        for param, value in re.findall(
+            r"(\d+) \([^)]+\) = (.*?)(?=, \d+ \([^)]+\) =|, $)", body
+        )
+    }
 
-    The nine pages use two different table shapes and two different ways of
-    writing a skill requirement, so the parser accepts both rather than
-    silently returning an empty tier for six of the families.
-    """
 
-    sections: dict[str, str] = {}
-    matches = list(_TIER_HEADING.finditer(text))
-    for index, match in enumerate(matches):
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        sections[match.group(1).lower()] = text[match.start() : end]
+def darkan_task_definitions(task_ids: set[int]) -> dict[str, dict]:
+    """Decode the referenced achievement structs from rev-727 enum 3483."""
 
-    tiers: dict[str, list[dict]] = {}
-    for tier, body in sections.items():
-        rows: list[dict] = []
-        for table in re.findall(
-            r"\{\|\s*class=\"wikitable[^\n]*\n(.*?)\n\|\}", body, re.S
-        ):
-            header, _, rest = table.partition("\n|-")
-            if "!Task" not in header.replace(" ", ""):
+    source = DARKAN_ENUMS.read_text(encoding="utf-8", errors="ignore")
+    section = source.split("3483: <int, Struct>", 1)[1].split("\n} ", 1)[0]
+    quest_slots = _quest_slots()
+    tasks: dict[str, dict] = {}
+    for line in section.splitlines()[1:]:
+        match = re.match(r"(\d+) = \d+: \{(.*)\}$", line)
+        if not match:
+            continue
+        task_id = int(match.group(1))
+        if task_id not in task_ids:
+            continue
+        params = _cache_params(match.group(2))
+        requirements = []
+        for key in range(1294, 1313, 2):
+            if key not in params or key + 1 not in params:
                 continue
-            for block in re.split(r"\n\|-[^\n]*\n", rest):
-                cells = _cells(block)
-                # Karamja numbers its tasks in a column of their own, which
-                # shifts every later column by one.
-                if cells and re.fullmatch(r"\d+[.)]?", _plain(cells[0])):
-                    cells = cells[1:]
-                if len(cells) < 3:
-                    continue
-                name = _plain(cells[0])
-                if not name or name.lower() in {"task", "notes"}:
-                    continue
-                rows.append(
+            requirement_type = int(params[key])
+            value = int(params[key + 1])
+            if 1 <= requirement_type <= 25:
+                requirements.append(
+                    {"kind": "skill", "skill_type": requirement_type, "level": value}
+                )
+            elif requirement_type == 61:
+                requirements.append(
                     {
-                        "name": re.sub(r"^\d+[.)]\s*", "", name),
-                        "description": re.sub(r"^\d+\s*-\s*", "", _plain(cells[1])),
-                        "quests": _links(cells[2]),
-                        "skills": _skill_reqs(cells[3]) if len(cells) > 3 else [],
+                        "kind": "quest",
+                        "quest_slot": value,
+                        "quest": quest_slots.get(value, ""),
                     }
                 )
-        if rows:
-            tiers[tier] = rows
-    return tiers
+            elif requirement_type == 62:
+                requirements.append({"kind": "miscellaneous"})
+        tasks[str(task_id)] = {
+            "id": task_id,
+            "name": params.get(1266, ""),
+            "description": params.get(1273, ""),
+            "difficulty": int(params.get(1272, "0")),
+            "area": int(params.get(1267, "63")),
+            "task_set": int(params.get(1293, params.get(1267, "63"))),
+            "requirements": requirements,
+            "source": "Darkan rev-727 cache enum 3483",
+        }
+    return tasks
 
 
-def _cells(block: str) -> list[str]:
-    parts: list[str] = []
-    for line in ("\n" + block).split("\n|"):
-        if not line:
-            continue
-        for cell in line.split("||"):
-            parts.append(re.sub(r'^\s*style="[^"]*"\s*\|', "", cell).strip())
-    return [cell for cell in parts if cell != ""]
-
-
-def _plain(cell: str) -> str:
-    cell = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", cell)
-    cell = re.sub(r"\{\{[^}]*\}\}", " ", cell)
-    cell = re.sub(r"''+", "", cell)
-    cell = re.sub(r"<[^>]+>", " ", cell)
-    return re.sub(r"\s+", " ", cell).strip()
-
-
-def _links(cell: str) -> list[str]:
-    if re.search(r"^\s*(''None''|None)\s*$", cell.strip(), re.I):
-        return []
-    return [name.strip() for name in re.findall(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", cell)]
-
-
-def _skill_reqs(cell: str) -> list[list]:
-    found = [(skill, level) for skill, level in _SKILL_REQ.findall(cell)]
-    found += [(skill, level) for level, skill in _SKILL_PIC.findall(cell)]
-    seen: dict[str, int] = {}
-    for skill, level in found:
-        key = skill.strip()
-        seen[key] = max(seen.get(key, 0), int(level))
-    return [[skill, level] for skill, level in seen.items()]
-
-
-def lamp_experience(text: str) -> list[str]:
-    match = re.search(r"\|lamp\s*=\s*([^\n|]*)", text)
-    if not match:
-        return []
-    return [part.strip() for part in re.split(r"<br\s*/?>", match.group(1)) if part.strip()]
+def _wiki_record(title: str) -> dict:
+    pinned = pinned_revision(title)
+    if pinned is None:
+        return {"title": title, "error": "no pre-cutoff revision"}
+    oldid, timestamp, resolved = pinned
+    return {
+        "title": resolved,
+        "oldid": oldid,
+        "timestamp": timestamp,
+        "permalink": f"https://runescape.wiki/w/Special:PermanentLink/{oldid}",
+    }
 
 
 def harvest() -> dict:
     names = darkan_task_names()
-    out = {"cutoff": CUTOFF, "families": {}}
+    out = {
+        "cutoff": CUTOFF,
+        "darkan_cache": "revision 727 enum 3483",
+        "families": {},
+    }
+    referenced_ids: set[int] = set()
     for class_name, family_id, wiki_title in FAMILIES:
         record = darkan_family(class_name)
         record["darkan_class"] = class_name
+        family_ids = {task_id for ids in record["tiers"].values() for task_id in ids}
+        referenced_ids.update(family_ids)
         record["task_names"] = {
-            str(task_id): names.get(task_id, "")
-            for ids in record["tiers"].values()
-            for task_id in ids
+            str(task_id): names.get(task_id, "") for task_id in family_ids
         }
-        pinned = pinned_revision(wiki_title)
-        if pinned is None:
-            record["wiki"] = {"title": wiki_title, "error": "no pre-cutoff revision"}
-        else:
-            oldid, timestamp, resolved = pinned
-            text = wikitext(oldid)
-            record["wiki"] = {
-                "title": resolved,
-                "oldid": oldid,
-                "timestamp": timestamp,
-                "permalink": f"https://runescape.wiki/w/Special:PermanentLink/{oldid}",
-                "lamp_experience": lamp_experience(text),
-                "tiers": wiki_tier_tasks(text),
-            }
-            time.sleep(1.1)
+        record["wiki"] = _wiki_record(wiki_title)
         out["families"][family_id] = record
+
+    referenced_ids.update(MISCELLANEOUS_TASK_IDS)
+    out["families"]["miscellaneous"] = {
+        "darkan_class": "Achievement.java IDs 3000-3034",
+        "tiers": {"miscellaneous": list(MISCELLANEOUS_TASK_IDS)},
+        "task_names": {
+            str(task_id): names.get(task_id, "") for task_id in MISCELLANEOUS_TASK_IDS
+        },
+        "reward_items": {},
+        "reward_effects": [],
+        "wiki": {},
+    }
+    out["task_definitions"] = darkan_task_definitions(referenced_ids)
     return out
 
 
@@ -268,7 +235,7 @@ def main() -> int:
     text = json.dumps(data, indent=1, sort_keys=True)
     if args.out:
         args.out.write_text(text, encoding="utf-8")
-        print(f"wrote {args.out}", file=sys.stderr)
+        print(f"wrote {args.out}")
     else:
         print(text)
     return 0
