@@ -100,6 +100,7 @@ class DiaryFamily:
     kind: str  # "regional" | "onboarding" | "miscellaneous"
     tiers: Tuple[DiaryTier, ...]
     taskmaster: str = ""
+    taskmaster_chathead_asset_path: str = ""
     source: str = ACHIEVEMENTS_SOURCE
 
 

@@ -113,3 +113,20 @@ Miscellaneous coin curve remains placeholder-registered as
 `achievement_diaries.misc_coin_reward`: the cache-proven 100-coin floor is
 multiplied by the task's completion ordinal until the exact payout script is
 recovered.
+
+## Taskmaster portraits — 2026-07-27
+
+The claim cards now keep each family taskmaster's name and chathead path together
+in `DiaryFamily`, pass the paired persona through the pure Cabinet view, and render
+the portrait without changing the one-click claim command. Burthorpe/Taverley now
+names Major Nigel Corothers, who hands over its sourced starter kit;
+Miscellaneous deliberately has no taskmaster and no portrait.
+
+All nine portraits were fetched through `tools/fetch_assets.py --before` from the
+latest upload at or before `2012-11-20T23:59:59Z`. The full MediaWiki image
+history mattered: eight current file revisions are post-cutoff, but each has an
+older period upload. The asset manifest and provenance tests pin every path, and
+`test_every_ready_claim_taskmaster_portrait_matches_its_family` compares each
+rendered Qt pixmap with that family's own registered source image. The paired
+no-art test proves a named taskmaster with an empty path stays faceless instead
+of inheriting another character's portrait.

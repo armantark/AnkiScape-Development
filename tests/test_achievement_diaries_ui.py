@@ -16,6 +16,8 @@ from __future__ import annotations
 import os
 import sys
 import unittest
+from dataclasses import replace
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 
@@ -24,7 +26,14 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 try:
-    from aqt.qt import QApplication, QComboBox, QLabel, QPushButton, QWidget  # type: ignore
+    from aqt.qt import (  # type: ignore
+        QApplication,
+        QComboBox,
+        QLabel,
+        QPushButton,
+        QSize,
+        QWidget,
+    )
 
     _QT = True
 except Exception:  # pragma: no cover - the non-Qt lane skips this module
@@ -156,6 +165,80 @@ class AchievementCabinetUITest(unittest.TestCase):
             self._named(page, f"cabinetStatus_{family.tiers[1].id}", QLabel).text(),
             "Claim Easy first",
         )
+
+    def test_every_ready_claim_taskmaster_portrait_matches_its_family(self):
+        from ankiscape.core.constants import current_dir
+        from ankiscape.ui.ui import _pixel_path_icon
+
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["achievement_diaries"]["completed_tasks"] = [
+            task.id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for task in family.tiers[0].tasks
+        ]
+        page, _ctx = self._build(player, lambda *_a: {"ok": True})
+
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            with self.subTest(family=family.id):
+                tier = family.tiers[0]
+                self.assertEqual(
+                    self._named(page, f"cabinetStatus_{tier.id}", QLabel).text(),
+                    "Ready to Claim",
+                )
+                self.assertTrue(
+                    self._named(page, f"cabinetClaim_{tier.id}", QPushButton).isEnabled()
+                )
+                if not family.taskmaster:
+                    self.assertIsNone(
+                        page.findChild(QLabel, f"cabinetTaskmasterPortrait_{family.id}")
+                    )
+                    continue
+
+                self.assertEqual(
+                    self._named(
+                        page, f"cabinetTaskmasterName_{family.id}", QLabel
+                    ).text(),
+                    f"Reward handed over by {family.taskmaster}",
+                )
+                portrait = self._named(
+                    page, f"cabinetTaskmasterPortrait_{family.id}", QLabel
+                )
+                self.assertIsNotNone(portrait.pixmap())
+                self.assertFalse(portrait.pixmap().isNull())
+                expected = _pixel_path_icon(
+                    os.path.join(current_dir, family.taskmaster_chathead_asset_path), 48
+                )
+                self.assertIsNotNone(expected)
+                self.assertEqual(
+                    portrait.pixmap().toImage(),
+                    expected.pixmap(QSize(48, 48)).toImage(),
+                )
+
+    def test_taskmaster_without_period_art_has_no_fallback_face(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        family = _varrock()
+        player["achievement_diaries"]["completed_tasks"] = [
+            task.id for task in family.tiers[0].tasks
+        ]
+        without_art = replace(family, taskmaster_chathead_asset_path="")
+        catalog = tuple(
+            without_art if candidate.id == family.id else candidate
+            for candidate in ACHIEVEMENT_DIARY_CATALOG
+        )
+        with patch(
+            "ankiscape.logic.achievement_diary_logic.ACHIEVEMENT_DIARY_CATALOG",
+            catalog,
+        ):
+            page, _ctx = self._build(player, lambda *_a: {"ok": True})
+
+        portrait = self._named(
+            page, f"cabinetTaskmasterPortrait_{family.id}", QLabel
+        )
+        self.assertEqual(
+            self._named(page, f"cabinetTaskmasterName_{family.id}", QLabel).text(),
+            f"Reward handed over by {family.taskmaster}",
+        )
+        self.assertTrue(portrait.pixmap() is None or portrait.pixmap().isNull())
 
     def test_no_tier_renders_the_pending_harvest_status(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

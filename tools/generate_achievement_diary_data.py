@@ -91,6 +91,7 @@ FAMILIES = {
         "item": "Ardougne cloak",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Doctor Orbon", "Town Crier", "Aleck", "Aleck"),
+        "taskmaster_chathead": "activityicons/diary_doctor_orbon_chathead.png",
         "lamp": (1000, 7500, 28000, 50000),
     },
     "falador": {
@@ -98,6 +99,7 @@ FAMILIES = {
         "item": "Falador shield",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Redbeard Frank", "Chemist", "Squire", "Squire"),
+        "taskmaster_chathead": "activityicons/diary_redbeard_frank_chathead.png",
         "lamp": (1000, 5000, 10000, 50000),
     },
     "fremennik": {
@@ -105,6 +107,7 @@ FAMILIES = {
         "item": "Fremennik sea boots",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Council workman", "Yrsa", "Advisor Ghrim", "Advisor Ghrim"),
+        "taskmaster_chathead": "activityicons/diary_council_workman_chathead.png",
         "lamp": (5000, 10000, 15000, 40000),
     },
     "karamja": {
@@ -112,6 +115,7 @@ FAMILIES = {
         "item": "Karamja gloves",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Jackie the fruit trader", "Kaleb Paramaya", "Pirate Jackie the Fruit", "Pirate Jackie the Fruit"),
+        "taskmaster_chathead": "activityicons/diary_jackie_the_fruit_trader_chathead.png",
         "lamp": (1000, 5000, 10000, 30000),
     },
     "lumbridge": {
@@ -119,6 +123,7 @@ FAMILIES = {
         "item": "Explorer's ring",
         "tiers": ("beginner", "easy", "medium", "hard"),
         "taskmasters": ("Explorer Jack", "Bob", "Ned", "Ned"),
+        "taskmaster_chathead": "activityicons/diary_explorer_jack_chathead.png",
         "lamp": (500, 1000, 1500, 9000),
     },
     "morytania": {
@@ -126,6 +131,7 @@ FAMILIES = {
         "item": "Morytania legs",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Hiylik Myna", "Robin", "Strange Old Man", "Old Man Ral"),
+        "taskmaster_chathead": "activityicons/diary_hiylik_myna_chathead.png",
         "lamp": (4000, 10000, 20000, 40000),
     },
     "seers": {
@@ -133,6 +139,7 @@ FAMILIES = {
         "item": "Seer's headband",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Seer", "Stankers", "Sir Kay", "Sir Kay"),
+        "taskmaster_chathead": "activityicons/diary_seer_chathead.png",
         "lamp": (1000, 5000, 10000, 25000),
     },
     "varrock": {
@@ -140,6 +147,7 @@ FAMILIES = {
         "item": "Varrock armour",
         "tiers": ("easy", "medium", "hard", "elite"),
         "taskmasters": ("Rat Burgiss", "Reldo", "Vannaka", "Vannaka"),
+        "taskmaster_chathead": "activityicons/diary_rat_burgiss_chathead.png",
         "lamp": (1000, 5000, 10000, 30000),
     },
 }
@@ -178,6 +186,8 @@ SPECIAL_FAMILIES = {
             " combat potions and a steel full helm."
         ),
         "reward_bundle": BURTHORPE_SET_REWARD,
+        "taskmaster": "Major Nigel Corothers",
+        "taskmaster_chathead": "activityicons/diary_major_nigel_corothers_chathead.png",
     },
     "miscellaneous": {
         "name": "Miscellaneous",
@@ -186,6 +196,8 @@ SPECIAL_FAMILIES = {
         "tier_name": "Miscellaneous",
         "reward_summary": "Each completed task pays its task-system coin reward.",
         "reward_bundle": (),
+        "taskmaster": "",
+        "taskmaster_chathead": "",
     },
 }
 
@@ -521,6 +533,7 @@ def build(document: dict) -> str:
             "        'regional',\n"
             "        (\n" + "\n".join(tier_blocks) + "\n        ),\n"
             f"        {meta['taskmasters'][0]!r},\n"
+            f"        {meta['taskmaster_chathead']!r},\n"
             f"        {source!r},\n"
             "    ),"
         )
@@ -560,7 +573,8 @@ def build(document: dict) -> str:
             f"            {meta['reward_bundle']!r},\n"
             "        ),\n"
             "        ),\n"
-            "        '',\n"
+            f"        {meta['taskmaster']!r},\n"
+            f"        {meta['taskmaster_chathead']!r},\n"
             f"        {source!r},\n"
             "    ),"
         )
