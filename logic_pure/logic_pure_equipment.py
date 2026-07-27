@@ -237,6 +237,11 @@ def can_equip_item_pure(
         current_level = _positive_int(player_data.get(level_key, 1), 1)
         if current_level < required_level:
             return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    from ..logic.cape_logic import prestige_cape_wear_block_pure
+
+    blocked = prestige_cape_wear_block_pure(player_data, item_name)
+    if blocked:
+        return False, blocked
     equipment = player_data.get("equipment", {}) or {}
     item_god = _mage_arena_god_for_item(item_name)
     if item_name in MAGE_ARENA_GOD_STAVES:

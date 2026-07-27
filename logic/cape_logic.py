@@ -116,7 +116,7 @@ def _owned_names(player_data: Mapping[str, Any]) -> set[str]:
 
 
 def refresh_capes_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
-    """Record the first-99 keepsake and trim every owned cape once a second lands.
+    """Record the first-99 keepsake, trim owned capes, and unequip lost prestige capes.
 
     Darkan trims on the 99 level-up itself, walking equipment, inventory and
     every bank tab. AnkiScape has one Bank, so the same sweep is inventory plus
@@ -129,6 +129,7 @@ def refresh_capes_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     if reached and not state["keepsake_skill"]:
         state["keepsake_skill"] = reached[0]
     data["capes"] = state
+    data = _unequip_ineligible_prestige_capes(data)
     if len(reached) <= 1:
         return data
 
@@ -301,6 +302,48 @@ def prestige_cape_eligible_pure(
         ]
         return (True, "") if not outstanding else (False, "; ".join(outstanding))
     return False, "Unknown cape requirement."
+
+
+PRESTIGE_CAPES_BY_ITEM: dict[str, str] = {cape.cape: cape.id for cape in PRESTIGE_CAPES}
+
+
+def prestige_cape_wear_block_pure(
+    player_data: Mapping[str, Any], item_name: str
+) -> str:
+    """Why a Cape of Distinction cannot be worn right now, or ``""`` if it can.
+
+    The design contract: "Losing eligibility leaves the owned cape in Bank but
+    makes it unusable". The gate is the same durable predicate the purchase
+    checked — the pinned Quest Cape revision has the cape lose its wear
+    eligibility the moment the quest maximum rises — so it cannot be a
+    ``skill_requirements`` row, and ``can_equip_item_pure`` asks here instead.
+    """
+
+    cape_id = PRESTIGE_CAPES_BY_ITEM.get(item_name)
+    if cape_id is None:
+        return ""
+    eligible, reason = prestige_cape_eligible_pure(player_data, cape_id)
+    return "" if eligible else reason
+
+
+def _unequip_ineligible_prestige_capes(data: dict[str, Any]) -> dict[str, Any]:
+    """Move a no-longer-earned prestige cape off the body and back into the Bank."""
+
+    equipment = dict(_mapping(data.get("equipment")))
+    returned = [
+        (slot, worn)
+        for slot, worn in equipment.items()
+        if prestige_cape_wear_block_pure(data, str(worn))
+    ]
+    if not returned:
+        return data
+    inventory = dict(_mapping(data.get("inventory")))
+    for slot, worn in returned:
+        del equipment[slot]
+        inventory[str(worn)] = _int(inventory.get(worn)) + 1
+    data["equipment"] = equipment
+    data["inventory"] = inventory
+    return data
 
 
 # ---------------------------------------------------------------------------
