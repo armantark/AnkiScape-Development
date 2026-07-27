@@ -1,0 +1,4122 @@
+{
+ "cutoff": "2012-11-20T00:00:00Z",
+ "families": {
+  "ardougne": {
+   "darkan_class": "ArdougneTasks",
+   "reward_effects": [
+    "canRetargetWatchtowerTeleport",
+    "bertSandAmount"
+   ],
+   "reward_items": {
+    "ALECK": [
+     15349,
+     19748
+    ],
+    "DOCTOR_ORBON": [
+     15345
+    ],
+    "TOWN_CRIER": [
+     15347
+    ]
+   },
+   "task_names": {
+    "0": "THE_ESSENCE_OF_MAGIC",
+    "1": "YOINK",
+    "10": "GOING_ON_A_SUMMER_HOLIDAY",
+    "11": "BREAKING_AND_ENTERING",
+    "12": "PPPPICK_UP_SOME_PRIZES",
+    "13": "A_GIFT_FROM_KHAZARD",
+    "14": "PARTY_POOPER",
+    "15": "VIAL_DEEDS",
+    "16": "STAR_SEEKER",
+    "17": "DUKES_OF_KHAZARD",
+    "18": "DONT_EAT_THE_POINTY_BIT",
+    "19": "BARGAIN_HUNTER",
+    "2": "SILKY_SMOOTH",
+    "20": "ARE_YOU_BEING_SERVED",
+    "21": "NO_TIME_TO_LOSE",
+    "22": "THEYRE_LONG_AND_POINTY",
+    "23": "A_VISIT_TO_CHARLIE",
+    "24": "I_WONDER_WHAT_THIS_DOES",
+    "25": "SANDYS_SECRET_GETAWAY",
+    "26": "I_KNOW_A_SHORTCUT",
+    "27": "VOLATILE_VALUABLES",
+    "28": "WHAT_A_MELON",
+    "29": "WHO_WANTS_TO_WATCH_THE_WATCHTOWER",
+    "3": "PREACHING_TO_THE_INFECTED",
+    "30": "ARRIVING_IN_STYLE",
+    "31": "BY_THE_BUCKETLOAD",
+    "32": "MEETING_HISTORY_AGAIN",
+    "33": "FEARLESS_FISHING",
+    "34": "WATER_LOGGED",
+    "35": "GREEN_FINGERS",
+    "36": "A_NATURAL_THIEF",
+    "37": "THE_COAL_TRAIN",
+    "38": "ARE_YOU_CHICKEN",
+    "39": "BRACE_YOURSELF",
+    "4": "PLAYING_THE_WAITING_GAME",
+    "40": "SHADOW_BOXING",
+    "41": "JUST_LIKE_THAT",
+    "42": "NICE_VIEW",
+    "43": "YOURE_THE_DIRTY_RASCAL",
+    "44": "OURANIA_MANIA",
+    "45": "NOT_ON_MY_WATCH",
+    "46": "IT_JUST_CROAKED",
+    "47": "GET_YOUR_STINKING_HANDS_OFF_ME",
+    "48": "VINEDETTA",
+    "49": "LIVING_ON_A_PRAYER",
+    "5": "GONE_FISHING",
+    "50": "ARDOUGNE_EXPRESS",
+    "51": "MONKEY_BUSINESS",
+    "52": "ITS_MY_NEWT",
+    "53": "A_TASTE_OF_THE_EXOTIC",
+    "54": "BLOOD_BANK_WITHDRAWAL",
+    "55": "ARTILLERY_STRIKE",
+    "56": "CATCHING_SOME_RAYS",
+    "57": "ABYSSAL_VALET",
+    "58": "YOU_COULD_JUST_KNOCK",
+    "59": "HONESTLY_ITS_NOT_A_PURSE",
+    "6": "BOOT_CAMP",
+    "60": "ALMOST_MADE_IN_ARDOUGNE",
+    "7": "A_CAT_IS_FOR_LIFE",
+    "8": "CREATOR_AND_DESTROYER",
+    "9": "RED_REVOLUTION"
+   },
+   "tiers": {
+    "easy": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22
+    ],
+    "elite": [
+     56,
+     57,
+     58,
+     59,
+     60
+    ],
+    "hard": [
+     29,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     51,
+     52,
+     53,
+     54,
+     55
+    ],
+    "medium": [
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     50
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "1,000",
+     "7,500",
+     "28,000",
+     "50,000"
+    ],
+    "oldid": 6579397,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6579397",
+    "tiers": {
+     "easy": [
+      {
+       "description": "Have Wizard Cromperty teleport you to the Essence Mine.",
+       "name": "The Essence of Magic",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Attempt to steal from any stall in Ardougne Market, or from any guard.",
+       "name": "Yoink!",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         5
+        ]
+       ]
+      },
+      {
+       "description": "Sell Silk to the Silk Trader in Ardougne for 60 coins each.",
+       "name": "Silky Smooth",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the altar in West Ardougne's church.",
+       "name": "Preaching to the Infected",
+       "quests": [
+        "Plague City"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Enter the Castle Wars waiting room.",
+       "name": "Playing the Waiting Game",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Go out fishing on the Fishing Trawler.",
+       "name": "Gone Fishing",
+       "quests": [],
+       "skills": [
+        [
+         "Fishing",
+         15
+        ]
+       ]
+      },
+      {
+       "description": "Enter the Combat Training Camp north of West Ardougne.",
+       "name": "Boot Camp",
+       "quests": [
+        "Biohazard"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Talk to a civilian in West Ardougne about selling a cat.",
+       "name": "A Cat is For Life...",
+       "quests": [
+        "Plague City",
+        "Gertrude's Cat"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Kill a Unicow in the Tower of Life.",
+       "name": "Creator and Destroyer",
+       "quests": [
+        "Tower of Life"
+       ],
+       "skills": [
+        [
+         "Construction",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Get a civilian to throw a tomato at the army Recruiter in West Ardougne.",
+       "name": "Red Revolution",
+       "quests": [
+        "Plague City"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Sail from East Ardougne to Brimhaven.",
+       "name": "Going on a Summer Holiday",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Attempt to pick-lock a certain door east of the gem stall in Ardougne's marketplace.",
+       "name": "Breaking and Entering",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         16
+        ]
+       ]
+      },
+      {
+       "description": "Spend some Penguin points with Larry (or Chuck) at Ardougne Zoo.",
+       "name": "P-P-P-Pick Up Some Prizes",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the Summoning obelisk to the east of the Fight Arena.",
+       "name": "A Gift From Khazard",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Pop a balloon in the Monastery south of Ardougne.",
+       "name": "Party Pooper",
+       "quests": [
+        "Monk's Friend"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Buy a Vial of water from the General Store run by Aemad and Kortan.",
+       "name": "Vial Deeds",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the noticeboard near the Observatory to gather information about shooting stars.",
+       "name": "Star Seeker",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill something on the Khazard Battlefield.",
+       "name": "Dukes of Khazard",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Buy a Skewered Kebab from the Poison Arrow pub.",
+       "name": "Don't Eat the Pointy Bit",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "View the Hunter equipment in Aleck's shop.",
+       "name": "Bargain Hunter",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Talk to the Chief Servant at the servants' guild to find out about servants for your house.",
+       "name": "Are You Being Served?",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use a Ring of Duelling to teleport to Castle Wars.",
+       "name": "No Time to Lose",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Talk to Tindel Marchant about identifying swords.",
+       "name": "They're Long and Pointy",
+       "quests": [],
+       "skills": []
+      }
+     ],
+     "elite": [
+      {
+       "description": "Catch a manta ray in the Fishing Trawler activity.",
+       "name": "Catching Some Rays",
+       "quests": [],
+       "skills": [
+        [
+         "Fishing",
+         81
+        ]
+       ]
+      },
+      {
+       "description": "Have an abyssal titan familiar hold essence for you, while runecrafting at Ourania Altar.",
+       "name": "Abyssal Valet",
+       "quests": [],
+       "skills": [
+        [
+         "Summoning",
+         93
+        ]
+       ]
+      },
+      {
+       "description": "Attempt to picklock the door to the basement in Yanille Agility Dungeon.",
+       "name": "You Could Just Knock",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         82
+        ]
+       ]
+      },
+      {
+       "description": "Remove pure essence from a giant pouch at Ourania Altar.",
+       "name": "Honestly, It's Not a Purse",
+       "quests": [
+        "Rune Mysteries",
+        "Abyss Miniquest"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         75
+        ]
+       ]
+      },
+      {
+       "description": "Make a rune crossbow yourself, from scratch, performing each step within either Witchaven or Yanille (not Ardougne or elsewhere. The anvil in West Ardougne does not qualify).",
+       "name": "Almost Made in Ardougne",
+       "quests": [],
+       "skills": [
+        [
+         "Crafting",
+         10
+        ],
+        [
+         "Smithing",
+         91
+        ],
+        [
+         "Fletching",
+         69
+        ]
+       ]
+      }
+     ],
+     "hard": [
+      {
+       "description": "|1 - Recharge a bracelet of combat or a necklace of skills at the Legends' Guild",
+       "name": "|Brace Yourself",
+       "quests": [
+        "Legends' Quest"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Kill a shadow warrior in the Legends' Guild basement",
+       "name": "Shadow Boxing",
+       "quests": [
+        "Legends' Quest"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Enter the Magic Guild in Yanille",
+       "name": "Just Like That",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         66
+        ]
+       ]
+      },
+      {
+       "description": "Use the portal in the Magic Guild to teleport to Thormac's tower (west portal)",
+       "name": "Nice View",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         66
+        ]
+       ]
+      },
+      {
+       "description": "Be on the winning side in a game of Castle Wars",
+       "name": "You're the Dirty Rascal",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Cast the Ourania Teleport spell",
+       "name": "Ourania Mania",
+       "quests": [
+        "Lunar Diplomacy"
+       ],
+       "skills": [
+        [
+         "Magic",
+         71
+        ]
+       ]
+      },
+      {
+       "description": "Pickpocket a watchman in Yanille while wearing gloves of silence",
+       "name": "Not on My Watch",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         65
+        ],
+        [
+         "Hunter",
+         54
+        ]
+       ]
+      },
+      {
+       "description": "Kill a frogeel in the Tower of Life",
+       "name": "It Just Croaked",
+       "quests": [
+        "Tower of Life"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Have a zookeeper put you in Ardougne Zoo's monkey cage",
+       "name": "Get Your Stinking Hands Off Me",
+       "quests": [
+        "Monkey Madness"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Kill your own Wild jade vine after the Back to my Roots quest",
+       "name": "Vine-Detta",
+       "quests": [
+        "Back to my Roots"
+       ],
+       "skills": [
+        [
+         "Slayer",
+         59
+        ],
+        [
+         "Woodcutting",
+         72
+        ],
+        [
+         "Farming",
+         53
+        ]
+       ]
+      },
+      {
+       "description": "Use the Air Guitar emote near the musician southeast of the monastery south of Ardougne",
+       "name": "Living on a Prayer",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Cast the Watchtower Teleport spell",
+       "name": "Who Wants to Watch the Watchtower?",
+       "quests": [
+        "Watchtower"
+       ],
+       "skills": [
+        [
+         "Magic",
+         58
+        ]
+       ]
+      },
+      {
+       "description": "Cross the monkey bars in the Yanille Agility Dungeon",
+       "name": "Monkey Business",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         57
+        ]
+       ]
+      },
+      {
+       "description": "Catch a red salamander from the Hunter area outside of Ourania Altar",
+       "name": "It's My Newt",
+       "quests": [],
+       "skills": [
+        [
+         "Hunter",
+         59
+        ]
+       ]
+      },
+      {
+       "description": "Pick a papaya or coconut from the fruit tree patch near Tree Gnome Village",
+       "name": "A Taste of the Exotic",
+       "quests": [],
+       "skills": [
+        [
+         "Farming",
+         57
+        ]
+       ]
+      },
+      {
+       "description": "Attempt to steal blood runes from the chest in the Chaos Druid Tower's dungeon",
+       "name": "Blood Bank Withdrawal",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         59
+        ]
+       ]
+      },
+      {
+       "description": "Use a catapult in Castle Wars after gaining the knowledge from the Catapult Construction quest",
+       "name": "Artillery Strike",
+       "quests": [
+        "Catapult Construction"
+       ],
+       "skills": []
+      }
+     ],
+     "medium": [
+      {
+       "description": "Enter the Unicorn pen in Ardougne Zoo using the Fairy Rings.",
+       "name": "A Visit to Charlie",
+       "quests": [
+        "Fairy Tale Part II - Cure a Queen"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Teleport to the Wilderness using the lever in Ardougne.",
+       "name": "I Wonder What This Does",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Grapple over Yanille's southern wall.",
+       "name": "Sandy's Secret Getaway",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         39
+        ],
+        [
+         "Ranged",
+         21
+        ],
+        [
+         "Strength",
+         38
+        ]
+       ]
+      },
+      {
+       "description": "Craft some runes (any kind) at Ourania Altar.",
+       "name": "I Know a Shortcut",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Sell some rubium to Ezekial Lovecraft in the town of Witchaven.",
+       "name": "Volatile Valuables",
+       "quests": [
+        "Kennith's Concerns"
+       ],
+       "skills": [
+        [
+         "Mining",
+         46
+        ]
+       ]
+      },
+      {
+       "description": "Pick Watermelons from the Farming patch north of Ardougne.",
+       "name": "What, a Melon?",
+       "quests": [],
+       "skills": [
+        [
+         "Farming",
+         47
+        ]
+       ]
+      },
+      {
+       "description": "Cast the Ardougne Teleport spell.",
+       "name": "Ardougne Express",
+       "quests": [
+        "Plague City"
+       ],
+       "skills": [
+        [
+         "Magic",
+         51
+        ]
+       ]
+      },
+      {
+       "description": "Travel to Castle Wars by hot-air balloon.",
+       "name": "Arriving in Style",
+       "quests": [
+        "Enlightened Journey"
+       ],
+       "skills": [
+        [
+         "Firemaking",
+         50
+        ]
+       ]
+      },
+      {
+       "description": "Claim buckets of sand from Bert in Yanille.",
+       "name": "By the Bucketload",
+       "quests": [
+        "Hand in the Sand"
+       ],
+       "skills": []
+      },
+      {
+       "description": "After Meeting History, return to the past and talk to Sarah about Herblore",
+       "name": "Meeting History, Again",
+       "quests": [
+        "Meeting History"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Catch a fish at the Fishing Platform using either a net or rod",
+       "name": "Fearless Fishing",
+       "quests": [
+        "Sea Slug"
+       ],
+       "skills": [
+        [
+         "Fishing",
+         3
+        ]
+       ]
+      },
+      {
+       "description": "Cross the River Dougne using the log balance",
+       "name": "Water Logged",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         33
+        ]
+       ]
+      },
+      {
+       "description": "Pickpocket the master farmer north of Ardougne",
+       "name": "Green Fingers",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         38
+        ]
+       ]
+      },
+      {
+       "description": "Attempt to steal a nature rune from a chest in Ardougne",
+       "name": "A Natural Thief",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         28
+        ]
+       ]
+      },
+      {
+       "description": "Mine some coal from the rocks east of Ardougne",
+       "name": "The Coal Train",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         30
+        ]
+       ]
+      },
+      {
+       "description": "Kill a swordchick in the Tower of Life",
+       "name": "Are You Chicken?",
+       "quests": [
+        "Tower of Life"
+       ],
+       "skills": []
+      }
+     ]
+    },
+    "timestamp": "2012-11-18T22:07:06Z",
+    "title": "Ardougne achievements"
+   }
+  },
+  "burthorpe": {
+   "darkan_class": "BurthorpeTaverleyTasks",
+   "reward_effects": [
+    "hasCompletedAll"
+   ],
+   "reward_items": {},
+   "task_names": {
+    "1010": "RAISING_THE_STOKES",
+    "440": "DRUIDIC_RITUAL",
+    "441": "DEATH_PLATEAU",
+    "451": "LET_THEM_EAT_PIE",
+    "531": "RENDEZVOUS",
+    "532": "BRING_HIM_DOWN",
+    "533": "WERE_DONE_HERE",
+    "535": "FIRE_IN_THE_TROLL",
+    "537": "PROBLEM_OFFICER",
+    "538": "TAKE_YOUR_PICK",
+    "539": "FINE_FINE_AXE",
+    "540": "ARE_YOU_IN_RUBBLE",
+    "541": "JACK_OF_SOME_TRADES",
+    "542": "ARM_THE_MILITIA",
+    "543": "A_FARMER_IN_THE_MAKING",
+    "544": "DIBS_ON_THE_FIRST_BATCH",
+    "545": "THE_CIRCLE_OF_LIFE",
+    "546": "TWO_IN_THE_BUSH",
+    "547": "FISHERMANS_FRIENDS",
+    "548": "FEED_THE_REFUGEES",
+    "549": "A_POCKET_OR_TWO",
+    "550": "THE_RED_MIST_DESCENDS",
+    "551": "THESE_ARENT_OVEN_GLOVES",
+    "552": "A_NEW_THREAT",
+    "553": "NO_STONE_UNTURNED",
+    "554": "MISSION_COMPLETE",
+    "555": "ALL_FELL_DOWN",
+    "556": "POCKET_WOLF",
+    "557": "HEEL_BOY",
+    "559": "LIKE_A_HOUSE_ON_FIRE",
+    "560": "ONE_THING_AFTER_ANOTHER",
+    "561": "MY_AXE_IS_MY_BUDDY",
+    "562": "ON_THE_STRAIGHT_AND_ARROW",
+    "563": "SUPER_TUBER",
+    "564": "BOWS_ARE_FOR_VIOLENCE",
+    "565": "OUT_OF_WATER",
+    "566": "GUAM_FLY_WITH_ME",
+    "567": "A_FRESH_BATCH",
+    "568": "BOTTOMS_UP",
+    "569": "HAMMER_THE_ANVIL",
+    "570": "MIND_OUT_OF_MATTER",
+    "571": "WICKED",
+    "572": "WALKING_IN_THE_AIR_ALTAR",
+    "573": "THERES_NO_PLACE_LIKE_BURTHORPE",
+    "574": "LAPPING_IT_UP",
+    "575": "ARISE_HERO",
+    "576": "MAKE_THEM_FEEL_SPECIAL",
+    "577": "HEIMWARD_BOUND",
+    "578": "PARTY_ON_DUDES",
+    "579": "RAIDERS_OF_THE_FROST_DARK",
+    "580": "UNREAL_ESTATE_MAN",
+    "581": "ROOM_TO_MANOEUVRE",
+    "582": "ABOUT_TO_DROP_THE_HAMMER",
+    "583": "BANK_ON_IT",
+    "940": "SPIRITUAL_HEALING"
+   },
+   "tiers": {
+    "period": [
+     531,
+     532,
+     533,
+     535,
+     538,
+     539,
+     540,
+     541,
+     542,
+     543,
+     544,
+     545,
+     546,
+     547,
+     548,
+     549,
+     583,
+     550,
+     551,
+     552,
+     553,
+     554,
+     555,
+     556,
+     557,
+     940,
+     559,
+     560,
+     561,
+     562,
+     563,
+     537,
+     1010,
+     564,
+     565,
+     566,
+     567,
+     568,
+     569,
+     571,
+     574,
+     576,
+     575,
+     577,
+     578,
+     579,
+     580,
+     581,
+     582,
+     570,
+     572,
+     573,
+     451,
+     440,
+     441
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [],
+    "oldid": 6285467,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6285467",
+    "tiers": {},
+    "timestamp": "2012-09-23T22:23:44Z",
+    "title": "Burthorpe and Taverley Tasks"
+   }
+  },
+  "falador": {
+   "darkan_class": "FaladorTasks",
+   "reward_effects": [
+    "canEnterCraftingGuildWithoutApron"
+   ],
+   "reward_items": {
+    "CHEMIST": [
+     14578
+    ],
+    "REDBEARD_FRANK": [
+     14577
+    ],
+    "SQUIRE": [
+     14579,
+     19749
+    ]
+   },
+   "task_names": {
+    "115": "AMULET_OF_WEEDSPEAK",
+    "116": "THE_GOOD_STUFF",
+    "117": "SIR_MITT",
+    "118": "FAMILY_VALUES",
+    "119": "SNIFFING_OUT_THE_MOLE",
+    "120": "CHINCHOMPA_POWERED",
+    "121": "FILL_YER_BUCKET",
+    "122": "ELEMENTARY_MEDICINE",
+    "123": "ITS_NOT_WABBIT_SEASON",
+    "124": "STAND_AND_DELIVER",
+    "125": "MAKING_MY_MIND_UP",
+    "126": "GOING_ALONG_WITH_THE_FRO",
+    "127": "MUDSKIP_THE_LIGHT_FANTASTIC",
+    "128": "DISARM_AND_EMBARK",
+    "129": "CHAIN_STORE",
+    "130": "FRUIT_OF_THE_LOOM",
+    "131": "IS_IT_SO_HARD_TO_WALK_ROUND",
+    "132": "THESE_ARENT_THE_COINS_YOURE_LOOKING_FOR",
+    "133": "CLIMBING_THE_WALLS",
+    "134": "ITS_NOTHING_PERSONAL",
+    "135": "ICE_THE_ICY",
+    "136": "BLINDED_WITH_SCIENCE",
+    "137": "THEY_HAVE_FAMILIES_TO_FEED",
+    "138": "STOIC_SWEETCORN_GUARDIAN",
+    "139": "DO_THEY_COME_IN_OTHER_COLOURS",
+    "140": "FUN_FOR_THE_WHOLE_FAMILY",
+    "141": "LOOK_SPIFFY_FOR_TIFFY",
+    "142": "IT_MATCHES_MY_EYES",
+    "143": "CHILD_OF_SARADOMIN",
+    "144": "MASS_PRODUCTION",
+    "145": "IT_SPOILED_MY_VIEW",
+    "146": "THE_STONEMASONS",
+    "147": "I_HEARD_YOU_LIKE_MUDSKIPS",
+    "148": "THE_MOGRE_MASH",
+    "149": "WHY_OH_WYVERN",
+    "150": "BANNED_FOR_LIFE",
+    "151": "A_KNIGHT_IN_THE_DARKNESS",
+    "309": "WHEN_THIS_CAVERNS_ROCKIN",
+    "310": "YOUD_BEST_COME_ACOOKIN",
+    "311": "CONCENTRATION_IS_KEY",
+    "312": "I_SWEAR_I_HEARD_IT_SCREAM",
+    "313": "IVE_CHANGED_MY_MIND",
+    "314": "A_STRING_AND_A_FLARE",
+    "315": "ALTARED_STATE"
+   },
+   "tiers": {
+    "easy": [
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127,
+     128,
+     129
+    ],
+    "elite": [
+     309,
+     310,
+     311,
+     312,
+     313,
+     314,
+     315
+    ],
+    "hard": [
+     142,
+     143,
+     144,
+     145,
+     146,
+     147,
+     148,
+     149,
+     150,
+     151
+    ],
+    "medium": [
+     130,
+     131,
+     132,
+     133,
+     134,
+     135,
+     136,
+     137,
+     138,
+     139,
+     140,
+     141
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "1,000",
+     "5,000",
+     "10,000",
+     "50,000"
+    ],
+    "oldid": 6571459,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6571459",
+    "tiers": {
+     "easy": [
+      {
+       "description": "Buy a Farming amulet from Sarah on the farm north of Port Sarim.",
+       "name": "Amulet of Weedspeak",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Buy a stat-boosting beer from a waitress in the Rising Sun tavern.",
+       "name": "The Good Stuff",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Buy a black chainbody from Wayne's Chains, and try it on in the shop.",
+       "name": "Chain Store",
+       "quests": [],
+       "skills": [
+        [
+         "Defence",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Climb to the top of the White Knights' Castle.",
+       "name": "Sir Mitt",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Discover your family crest from Sir Renitee.",
+       "name": "Family Values",
+       "quests": [],
+       "skills": [
+        [
+         "Construction",
+         16
+        ]
+       ]
+      },
+      {
+       "description": "Enter the mole\u2019s lair under Falador Park.",
+       "name": "Sniffing Out the Mole",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Feed Ridgeley, the hairdresser\u2019s pet.",
+       "name": "Chinchompa Powered!",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Fill a bucket from the pump north of the west Falador bank",
+       "name": "Fill Yer Bucket",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Heal an elemental wizard by casting an appropriate elemental spell on him (Air, Water, Earth, Fire).",
+       "name": "Elementary Medicine",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill a duck in Falador Park.",
+       "name": "It's Not Wabbit Season",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill a highwayman on the road west of Falador, next to the shortcut in the south wall.",
+       "name": "Stand and Deliver",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Make a mind tiara.",
+       "name": "Making My Mind Up",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Talk to Party Pete.",
+       "name": "Going Along With the 'Fro",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Recharge your Prayer points at the altar south-west of Port Sarim.",
+       "name": "Mudskip the Light Fantastic",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Take the boat to Entrana.",
+       "name": "Disarm and Embark",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Visit your or another clan's citadel",
+       "name": "Castles In The Sky",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Talk to wizard Avalani within a clan citadel",
+       "name": "A Wizard Did It",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Talk to the battlemaster of a clan citadel.",
+       "name": "Faceless And Ready",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "View the main interface within a clan citadel.",
+       "name": "Citadelementary",
+       "quests": [],
+       "skills": []
+      }
+     ]
+    },
+    "timestamp": "2012-11-18T05:31:03Z",
+    "title": "Falador achievements"
+   }
+  },
+  "fremennik": {
+   "darkan_class": "FremennikTasks",
+   "reward_effects": [
+    "canUsePeerDeposit",
+    "canUseWaterbirthLyreDestination",
+    "canUseIslesLyreDestinations"
+   ],
+   "reward_items": {
+    "ADVISOR_GHRIM": [
+     14573,
+     19766
+    ],
+    "COUNCIL_WORKMAN": [
+     14571
+    ],
+    "YRSA": [
+     14572
+    ]
+   },
+   "task_names": {
+    "152": "BRING_THE_ANTIPOISONS",
+    "153": "WHY_WONT_YOU_DIE",
+    "154": "KING_CONIFER",
+    "155": "ASSAULTED_GOODIES",
+    "156": "OXYMORON_INCARNATE",
+    "157": "WHY_DID_THE_LOBSTER_BLUSH",
+    "158": "HUNTING_THE_HUNTER",
+    "159": "PEER_OFF_THE_PIER",
+    "160": "A_FAMILIAR_FEELING",
+    "161": "ENDANGERED_SPECIES",
+    "162": "FREMENNIK_HISTORY_101",
+    "163": "COOL_STORY_BRO",
+    "164": "WHOS_A_GOOD_BOY",
+    "165": "ONLY_TAKES_A_LITTLE_VIAL",
+    "166": "YOU_KNOW_YOU_WANT_IT",
+    "167": "FAIRY_MOUNTAINEERING",
+    "168": "YOU_REALLY_DONT_NEED_ANY_MORE_SHOES",
+    "169": "BIG_GAME_HUNTER",
+    "170": "YAK_ATTACK",
+    "171": "FREMMENTAL",
+    "172": "GRAND_THEFT_FISH",
+    "173": "DEFEATING_DEADLY_DAGANNOTHS",
+    "174": "DRESS_TO_IMPRESS",
+    "175": "THE_GRACEFUL_BARBARIAN",
+    "176": "RUNES_ON_THE_MOON",
+    "177": "PYRE_AT_WILL",
+    "178": "FISH_FINGERS",
+    "179": "EASY_AS_PIE",
+    "180": "HOW_TO_MAIM_YOUR_DRAGON",
+    "181": "A_PERIODIC_TABLE",
+    "316": "JAWS_BREAKER",
+    "317": "LIMBER_LUMBER_JUMPER",
+    "318": "ASTRONOMICAL",
+    "319": "FIRST_STRYKE",
+    "320": "LEAP_OF_FAITH",
+    "321": "NO_SMOKE_WITHOUT_PYRE",
+    "322": "THIS_HASTA_WORK",
+    "323": "POTTING_WITH_OTTO",
+    "417": "AXELL_GREASE"
+   },
+   "tiers": {
+    "easy": [
+     152,
+     153,
+     154,
+     155,
+     156,
+     157,
+     158,
+     159,
+     160,
+     161
+    ],
+    "elite": [
+     316,
+     317,
+     318,
+     319,
+     320,
+     321,
+     322,
+     323,
+     417
+    ],
+    "hard": [
+     173,
+     174,
+     175,
+     176,
+     177,
+     178,
+     179,
+     180,
+     181
+    ],
+    "medium": [
+     162,
+     163,
+     164,
+     165,
+     166,
+     167,
+     168,
+     169,
+     170,
+     171,
+     172
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "5,000<br \\>10,000<br \\>15,000<br \\>40,000 + 3x 30,000"
+    ],
+    "oldid": 6555812,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6555812",
+    "tiers": {},
+    "timestamp": "2012-11-14T23:17:11Z",
+    "title": "Fremennik achievements"
+   }
+  },
+  "karamja": {
+   "darkan_class": "KaramjaTasks",
+   "reward_effects": [],
+   "reward_items": {
+    "FORESTER": [
+     11140,
+     19754
+    ],
+    "JACKIE": [
+     11136
+    ],
+    "KALEB": [
+     11138
+    ]
+   },
+   "task_names": {
+    "182": "FIVE_A_DAY",
+    "183": "IM_LICHEN_THIS",
+    "184": "GOLDEN_SHORES",
+    "185": "PUT_TO_PORT_IN_PORT_SARIM",
+    "186": "AVAST_ARDOUGNE",
+    "187": "SHOW_THAT_YOU_CAIRN",
+    "188": "FRUITY_CATCH",
+    "189": "BEACHCOMBER",
+    "190": "TZHAAR_WARS",
+    "191": "ITS_A_JUNGLE_OGRE",
+    "192": "JUST_THE_TICKET",
+    "193": "BACK_CRANDOOR",
+    "194": "DUNGEONS_AND_DRAGONS",
+    "195": "HORSELESS_CARRIAGE",
+    "196": "THEY_LIKE_ME_THEY_REALLY_LIKE_ME",
+    "197": "ARACHNOPHAGIA",
+    "198": "ROMANCING_THE_STONE",
+    "199": "IM_A_LUMBERJACK_AND_IM_OKAY",
+    "200": "I_SLEEP_ALL_NIGHT_AND_I_WORK_ALL_DAY",
+    "201": "TO_CATCH_A_KARAMBWAN",
+    "202": "THATS_NOT_A_KNIFE",
+    "203": "FALLING_WITH_STYLE",
+    "204": "SCOURGE_OF_SCURVY",
+    "205": "HUNTERS_OF_THE_HORNED_GRAAHK",
+    "206": "THE_ROOTS_OF_ALL_EVIL",
+    "207": "HOTFOOTING_IT",
+    "208": "STAIRWAY_TO_HAVEN",
+    "209": "THANK_YOU_MADAM",
+    "210": "SHIPPING_OUT_FROM_THE_SHIPYARD",
+    "211": "FLAWLESS_VICTORY",
+    "212": "PLAY_DEAD_DOGGY",
+    "213": "ID_BE_KHARAZI_TO_EAT_THIS",
+    "214": "AT_ONE_WITH_NATURE",
+    "215": "DROP_IT_LIKE_ITS_HOT",
+    "216": "DEADWING",
+    "217": "QUICK_AS_A_SHOT",
+    "218": "A_PALM_FOR_EACH_FINGER",
+    "219": "YES_MY_MASTER",
+    "220": "CAN_OPENER",
+    "324": "AT_ONE_PLUS_FIFTYFIVE_WITH_NATURE",
+    "325": "THE_POWER_OF_LAVA",
+    "326": "BOXING_CLEVER",
+    "327": "ITS_A_SNAP",
+    "328": "CRUNCHY_COATING",
+    "329": "WALKIES",
+    "330": "TREAD_CAREFULLY",
+    "331": "TEN_IN_A_ROW"
+   },
+   "tiers": {
+    "easy": [
+     182,
+     183,
+     184,
+     185,
+     186,
+     187,
+     188,
+     189,
+     190,
+     191
+    ],
+    "elite": [
+     324,
+     325,
+     326,
+     327,
+     328,
+     329,
+     330,
+     331
+    ],
+    "hard": [
+     211,
+     212,
+     213,
+     214,
+     215,
+     216,
+     217,
+     218,
+     219,
+     220
+    ],
+    "medium": [
+     192,
+     193,
+     194,
+     195,
+     196,
+     197,
+     198,
+     199,
+     200,
+     201,
+     202,
+     203,
+     204,
+     205,
+     206,
+     207,
+     208,
+     209,
+     210
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "1,000",
+     "5,000",
+     "10,000",
+     "30,000"
+    ],
+    "oldid": 6372400,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6372400",
+    "tiers": {
+     "easy": [
+      {
+       "description": "Pick 5 Bananas from the plantation located east of the volcano.",
+       "name": "Five a Day",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the rope swing to travel to the Moss Giant Island north-west of Karamja.",
+       "name": "I'm Lichen This!",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Mine some gold from the rocks on the north-west peninsula of Karamja.",
+       "name": "Golden Shores",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Travel to Port Sarim via the dock, east of Musa Point.",
+       "name": "Put to Port in Port Sarim",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Travel to Ardougne via the port near Brimhaven.",
+       "name": "Avast Ardougne!",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Explore Cairn Island to the west of Karamja.",
+       "name": "Show That You Cairn",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the Fishing spots north of the banana plantation.",
+       "name": "Fruity Catch",
+       "quests": [],
+       "skills": [
+        [
+         "Fishing",
+         5
+        ]
+       ]
+      },
+      {
+       "description": "Collect 5 Seaweed from anywhere on Karamja. (You can drop and pick up the same piece of seaweed 5 times)",
+       "name": "Beachcomber",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Attempt the TzHaar Fight Pits or Fight Cave.",
+       "name": "TzHaar Wars",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill a Jogre in the Pothole Dungeon.",
+       "name": "It's a Jungle Ogre",
+       "quests": [],
+       "skills": []
+      }
+     ],
+     "elite": [
+      {
+       "description": "Craft 56 or more nature runes simultaneously",
+       "name": "At One Plus Fifty-Five With Nature",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         91
+        ]
+       ]
+      },
+      {
+       "description": "Equip a TzHaar fire cape while standing within TzHaar City",
+       "name": "The Power of Lava",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Box trap a monkey on Karamja",
+       "name": "Boxing Clever",
+       "quests": [
+        "Wolf Whistle"
+       ],
+       "skills": [
+        [
+         "Summoning",
+         95
+        ],
+        [
+         "Hunter",
+         27
+        ]
+       ]
+      },
+      {
+       "description": "Create a super restore potion from scratch while in Brimhaven - Earn at least 10 Agility arena tickets and purchase a snapdragon from Pirate Jackie the Fruit - Collect some red spiders' eggs from the Karamja volcano - Mix the potion while inside Brimhaven.",
+       "name": "It's a Snap",
+       "quests": [],
+       "skills": [
+        [
+         "Herblore",
+         63
+        ]
+       ]
+      },
+      {
+       "description": "Cook a shark on a sulphur vent (sulphur vents are found in TzHaar City).",
+       "name": "Crunchy Coating",
+       "quests": [],
+       "skills": [
+        [
+         "Cooking",
+         80
+        ]
+       ]
+      },
+      {
+       "description": "Take your chameleon for a walk around Cairn Isle to see its egg-home",
+       "name": "Walkies!",
+       "quests": [
+        "Wolf Whistle"
+       ],
+       "skills": [
+        [
+         "Summoning",
+         90
+        ],
+        [
+         "Agility",
+         15
+        ]
+       ]
+      },
+      {
+       "description": "Use the stepping stone shortcut across the river in Shilo Village",
+       "name": "Tread Carefully",
+       "quests": [
+        "Shilo Village"
+       ],
+       "skills": [
+        [
+         "Agility",
+         74
+        ]
+       ]
+      },
+      {
+       "description": "Earn 75+ Slayer points from a single slayer task assigned by Lapalok",
+       "name": "Ten In a Row",
+       "quests": [
+        "While Guthix Sleeps"
+       ],
+       "skills": [
+        [
+         "combat",
+         100
+        ],
+        [
+         "Slayer",
+         50
+        ]
+       ]
+      }
+     ],
+     "hard": [
+      {
+       "description": "Become the champion of the Fight Pits.",
+       "name": "Flawless Victory",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill a Ket-Zek in the Fight Caves.",
+       "name": "Play Dead, Doggy",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Eat an Oomlie wrap.",
+       "name": "I'd Be Kharazi to Eat This",
+       "quests": [
+        "Legends Quest"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Craft some Nature runes.",
+       "name": "At One With Nature",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         44
+        ]
+       ]
+      },
+      {
+       "description": "Cook a Karambwan thoroughly.",
+       "name": "Drop It Like It's Hot",
+       "quests": [
+        "Tai Bwo Wannai Trio"
+       ],
+       "skills": [
+        [
+         "Cooking",
+         30
+        ]
+       ]
+      },
+      {
+       "description": "Kill a Deathwing in the dungeon under the Kharazi Jungle.",
+       "name": "Deadwing",
+       "quests": [
+        "Legends Quest"
+       ],
+       "skills": [
+        [
+         "Woodcutting",
+         15
+        ],
+        [
+         "Strength",
+         50
+        ],
+        [
+         "Agility",
+         50
+        ],
+        [
+         "Thieving",
+         50
+        ],
+        [
+         "Mining",
+         52
+        ]
+       ]
+      },
+      {
+       "description": "Use the Crossbow shortcut south of the volcano.",
+       "name": "Quick As a Shot",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         53
+        ],
+        [
+         "Ranged",
+         42
+        ],
+        [
+         "Strength",
+         21
+        ]
+       ]
+      },
+      {
+       "description": "Collect 5 Palm leaf.",
+       "name": "A Palm For Each Finger",
+       "quests": [
+        "Legends Quest"
+       ],
+       "skills": [
+        [
+         "Woodcutting",
+         15
+        ]
+       ]
+      },
+      {
+       "description": "Be assigned a Slayer task by Duradel in Shilo Village.",
+       "name": "Yes, My Master",
+       "quests": [
+        "Shilo Village"
+       ],
+       "skills": [
+        [
+         "Combat",
+         100
+        ],
+        [
+         "Slayer",
+         50
+        ]
+       ]
+      },
+      {
+       "description": "Kill a Metal dragon in Brimhaven Dungeon.",
+       "name": "Can Opener",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         12
+        ],
+        [
+         "Woodcutting",
+         34
+        ]
+       ]
+      }
+     ],
+     "medium": [
+      {
+       "description": "Claim a ticket from the Agility arena in Brimhaven.",
+       "name": "Just the Ticket",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Discover hidden wall in the dungeon below the volcano.",
+       "name": "Back Cran-door",
+       "quests": [
+        "Dragon Slayer"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Visit the Isle of Crandor via the dungeon below the volcano.",
+       "name": "Dungeons and Dragons",
+       "quests": [
+        "Dragon Slayer"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use Vigroy and Hajedy's cart service.",
+       "name": "Horseless Carriage",
+       "quests": [
+        "Shilo Village"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Earn 100% favour in the village of Tai Bwo Wannai Cleanup.",
+       "name": "They like Me! They Really Like Me!",
+       "quests": [
+        "Jungle Potion"
+       ],
+       "skills": [
+        [
+         "Woodcutting",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Cook a Spider on stick.",
+       "name": "Arachnophagia",
+       "quests": [],
+       "skills": [
+        [
+         "Cooking",
+         16
+        ]
+       ]
+      },
+      {
+       "description": "Charter the Lady of the Waves from Cairn Isle to Port Khazard.",
+       "name": "Thank You, Madam",
+       "quests": [
+        "Shilo Village"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Cut a log from a teak tree.",
+       "name": "I'm a Lumberjack and I'm Okay",
+       "quests": [
+        "Tai Bwo Wannai Trio",
+        "Legend's Quest"
+       ],
+       "skills": [
+        [
+         "Woodcutting",
+         35
+        ]
+       ]
+      },
+      {
+       "description": "Cut a log from a mahogany tree.",
+       "name": "I Sleep All Night and I Work All Day",
+       "quests": [
+        "Tai Bwo Wannai Trio",
+        "Legend's Quest"
+       ],
+       "skills": [
+        [
+         "Woodcutting",
+         50
+        ]
+       ]
+      },
+      {
+       "description": "Catch a karambwan.",
+       "name": "To Catch a Karambwan",
+       "quests": [
+        "Tai Bwo Wannai Trio"
+       ],
+       "skills": [
+        [
+         "Fishing",
+         65
+        ]
+       ]
+      },
+      {
+       "description": "Exchange gems with Safta Doc in the house with an anvil in the northern part of Tai Bwo Wannai (must be in cleanup mode) for a machete.",
+       "name": "That's Not a Knife...",
+       "quests": [
+        "Jungle Potion"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use the Gnome glider to travel to Karamja.",
+       "name": "Falling With Style",
+       "quests": [
+        "The Grand Tree"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Grow a healthy Fruit tree in the patch near Brimhaven.",
+       "name": "Scourge of Scurvy",
+       "quests": [],
+       "skills": [
+        [
+         "Farming",
+         27
+        ]
+       ]
+      },
+      {
+       "description": "Trap a Horned graahk.",
+       "name": "Hunters of the Horned Graahk",
+       "quests": [],
+       "skills": [
+        [
+         "Hunter",
+         41
+        ]
+       ]
+      },
+      {
+       "description": "Chop the vines to gain deeper access to Brimhaven Dungeon.",
+       "name": "The Roots of All Evil",
+       "quests": [],
+       "skills": [
+        [
+         "Woodcutting",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Cross the lava using the stepping stones within Brimhaven Dungeon.",
+       "name": "Hotfooting It",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         12
+        ]
+       ]
+      },
+      {
+       "description": "Climb the stairs within Brimhaven Dungeon.",
+       "name": "Stairway to Haven",
+       "quests": [],
+       "skills": [
+        [
+         "Woodcutting",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Charter a ship from the shipyard in the far east of Karamja.",
+       "name": "Shipping Out From the Shipyard",
+       "quests": [
+        "The Grand Tree&nbsp;",
+        "Monkey Madness"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Mine a Red topaz from a Gem rock.",
+       "name": "Romancing the Stone",
+       "quests": [
+        "Shilo Village (quest)",
+        "Tai Bwo Wannai Cleanup"
+       ],
+       "skills": [
+        [
+         "Mining",
+         40
+        ]
+       ]
+      }
+     ]
+    },
+    "timestamp": "2012-10-09T03:25:58Z",
+    "title": "Karamja achievements"
+   }
+  },
+  "lumbridge": {
+   "darkan_class": "LumbridgeDraynorTasks",
+   "reward_effects": [],
+   "reward_items": {
+    "BOB": [
+     13561
+    ],
+    "EXPLORER_JACK": [
+     13560
+    ],
+    "NED": [
+     13562,
+     19760
+    ]
+   },
+   "task_names": {
+    "100": "BLESS_IS_MORE",
+    "101": "MORGAN_THE_MERRIER",
+    "102": "IRON_ON",
+    "103": "EVERYBODY_LOVES_COAL",
+    "104": "A_MEAL_FIT_FOR_A_DUKE",
+    "105": "LOVELY_WITH_A_SQUEEZE_OF_LEMON",
+    "106": "WEEPING_WILLOW",
+    "107": "ALWAYS_BE_PREPARED",
+    "108": "STEEL_JUSTICE",
+    "109": "EASE_OF_ACCESS",
+    "110": "WILLOW_THE_WISP_OF_SMOKE",
+    "111": "WHERES_THE_BEEF",
+    "112": "HI_HO_SILVER",
+    "113": "ONE_DAY_YOU_SHALL_BE_A_FORK",
+    "114": "MADE_TO_ORDER",
+    "351": "A_BODY_IN_THE_SEWERS",
+    "352": "BUILDING_UP_STRENGTH",
+    "353": "HAVE_YOUR_CAKE_AND_EAT_IT",
+    "354": "BLAST_AND_HELLFIRE",
+    "355": "GODS_GIVE_ME_STRENGTH",
+    "356": "NOT_WAVING_BUT_DROWNING",
+    "357": "ARE_YEW_AS_FIRED_UP_AS_I_AM",
+    "61": "A_GRAVE_CONSIDERATION",
+    "62": "DOOM",
+    "63": "SHRIMPIN_AINT_EASY",
+    "64": "MASTER_OF_ALL_I_SURVEY",
+    "65": "RAISE_THE_ROOF",
+    "66": "HAIL_TO_THE_DUKE_BABY",
+    "67": "WINDOW_SHOPPING",
+    "68": "GRINDING_MY_GEARS",
+    "69": "SAGE_ADVICE",
+    "70": "TINKLE_THE_IVORIES",
+    "71": "PASSING_OUT",
+    "72": "THE_RULES_OF_ENGAGEMENT",
+    "73": "TAKE_YOUR_PICK",
+    "74": "RING_MY_BELL",
+    "75": "IN_THE_COUNTYARD",
+    "76": "TOWER_POWER",
+    "77": "BEWARE_OF_PIGZILLA",
+    "78": "WAIT_THATS_NOT_A_SHEEP",
+    "79": "THE_FRUIT_OF_THE_SEA",
+    "80": "CLAY_MORE",
+    "81": "JUST_ADD_WATER",
+    "82": "VERY_POTTER",
+    "83": "HOTPOT",
+    "84": "AND_IT_WAS_THIS_BIG",
+    "85": "DRAAAAAIIIIIINS",
+    "86": "BELTER_OF_A_SMELTER",
+    "87": "COME_IN_HERE_AND_SAY_THAT",
+    "88": "SLIPPERY_WHEN_WET",
+    "89": "KLEPTOLDMANIA",
+    "90": "EYE_ON_THE_PRIZE",
+    "91": "I_CANT_HEAR_DEAD_PEOPLE",
+    "92": "NOWT_TOOL_LOOK_AT",
+    "93": "YOU_DOITY_RAT",
+    "94": "IT_WAS_DEAD_ALREADY",
+    "95": "CAMPING_TRIP",
+    "96": "RATATOUILLE",
+    "97": "WHAT_IS_THIS_PLACE",
+    "98": "MONEY_DOWN_THE_DRAYN",
+    "99": "ARTISAN_CRAFTING"
+   },
+   "tiers": {
+    "beginner": [
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83
+    ],
+    "easy": [
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102
+    ],
+    "hard": [
+     351,
+     352,
+     353,
+     354,
+     355,
+     356,
+     357
+    ],
+    "medium": [
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "500",
+     "1,000",
+     "1,500",
+     "9,000"
+    ],
+    "oldid": 6549949,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6549949",
+    "tiers": {
+     "beginner": [
+      {
+       "description": "Climb to the highest point in Lumbridge. (Climb the ladder on the side of the bank)",
+       "name": "Master of All I Survey",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Raise the flag on the roof of the Lumbridge Bank.",
+       "name": "Raise the Roof",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Speak to the Duke of Lumbridge.",
+       "name": "Hail to the Duke, Baby",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Speak to the Lumbridge Sage, east of Lumbridge Castle.",
+       "name": "Sage Advice",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Speak with the Doomsayer about the Warning System.",
+       "name": "Doom!",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Enter Al Kharid via its west gate.",
+       "name": "Docking Out",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Mine some clay in the mine north of the Champions' Guild (The mine is in south-west Varrock).",
+       "name": "Clay More",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Make some soft clay in the Draynor Village potter's house. Use a container filled with water (such as a bucket) on the clay. You must do this inside of the potter's house. A vial of water will not work.",
+       "name": "Just Add Water",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Make a pot on the potter's wheel in the Draynor Village potter's house. It is located in the northern part of the village.",
+       "name": "Very Potter",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Bake the pot in the kiln in the Draynor Village potter's house. It is located across the room from the potter's wheel.",
+       "name": "Hotpot",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Enter the courtyard of the spooky mansion in Draynor Village. The courtyard is near Veronica.",
+       "name": "In the Courtyard",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Visit the Draynor Village market. Browse the items sold near the pig pen.",
+       "name": "Beware of Pigzilla",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Find out about the Rules of Conduct from the Draynor Town Crier.",
+       "name": "The Rules of Engagement",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Climb to the top of the Wizards' Tower. This is the level where the Lesser Demon is caged.",
+       "name": "Tower of Power",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Mine some copper in the Mining spot to the south-east of Lumbridge Swamp.",
+       "name": "Take Your Pick",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Catch some shrimp in the Fishing spot to the east of Lumbridge Swamp.",
+       "name": "Shrimpin' Ain't Easy",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Look through Father Aereck's selection of gravestones. Players need to talk to him, located in Lumbridge Church.",
+       "name": "A Grave Consideration",
+       "quests": [
+        "The Restless Ghost"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Sell a raw shrimp to the Fishing shop. The fishing shop is located north-west of Lumbridge Castle.",
+       "name": "The Fruit of the Sea",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Play the organ in the Lumbridge Church.",
+       "name": "Tinkle the Ivories",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Ring the bell in the Lumbridge Church. The bell is located at the topmost floor of the church.",
+       "name": "Ring My Bell",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Browse the Lumbridge General Store.",
+       "name": "Window Shopping",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Visit Fred the Farmer's chicken and sheep farm.",
+       "name": "Wait, That's Not a Sheep",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Grind some flour in the windmill north of Lumbridge.",
+       "name": "Grinding My Gears",
+       "quests": [],
+       "skills": []
+      }
+     ],
+     "easy": [
+      {
+       "description": "Mine some iron ore from the Al Kharid Mining spot.",
+       "name": "Iron On",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         15
+        ]
+       ]
+      },
+      {
+       "description": "Catch a raw pike in the river to the east of Lumbridge Castle. Pike is caught by bait fishing.",
+       "name": "And It Was THIS Big!",
+       "quests": [],
+       "skills": [
+        [
+         "Fishing",
+         25
+        ]
+       ]
+      },
+      {
+       "description": "Smelt a steel bar in the Lumbridge furnace",
+       "name": "Belter of a Smelter",
+       "quests": [],
+       "skills": [
+        [
+         "Smithing",
+         30
+        ]
+       ]
+      },
+      {
+       "description": "Search the shed in Lumbridge Swamp. You will receive this task even if you DO go to Zanaris",
+       "name": "Nowt Tool Look At",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill a giant rat in Lumbridge Swamp.",
+       "name": "You Doity Rat",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Cut down a dead tree in Lumbridge Swamp.",
+       "name": "It Was Dead Already!",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Light a campfire from normal logs in Lumbridge Swamp.",
+       "name": "Camping Trip",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Cook some rat meat on a campfire in Lumbridge Swamp. Make a fire within the boundaries of the swamp and use the meat on the fire; the task is completed even if the meat is burnt.",
+       "name": "Ratatouille",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Craft a water rune at the Water Altar.",
+       "name": "Slippery When Wet",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         5
+        ]
+       ]
+      },
+      {
+       "description": "Get a replacement Ghostspeak Amulet from Father Urhney If players have an amulet, they are required to drop them before talking to Urhney(additionally if you have completed 'Do No Evil' quest and have the cramulet you will be required to drop that too as Urhney will know the Ghostspeak is \"tangled\" up in it).",
+       "name": "I Can't Hear Dead People",
+       "quests": [
+        "The Restless Ghost"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Taunt the demon at the top of the Wizards' Tower. By choosing the option from the cage.",
+       "name": "Come In Here and Say That",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Have Sedridor teleport you to the Rune Essence Mine.",
+       "name": "What Is This Place?",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Access the bank in Draynor Village.",
+       "name": "Money Down the Drayn",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Have the Wise Old Man check your bank for unnecessary quest-related items. Empty your bank from any quest items you want to keep.",
+       "name": "Klept-Old-Man-ia",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Discover what the Wise Old Man was looking through his telescope. The telescope is on the upper floor of his house.",
+       "name": "Eye on the Prize",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Kill a zombie in the sewers under the jail.",
+       "name": "Draaaaaiiiiiins...",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Craft a clay ring. You must fire an unfired clay ring with the pottery oven in Draynor Village.",
+       "name": "Artisan Crafting",
+       "quests": [],
+       "skills": [
+        [
+         "Crafting",
+         4
+        ]
+       ]
+      },
+      {
+       "description": "Sell a plain clay ring to Morgan in Draynor Village (he will not accept the clay ring which has been blessed).",
+       "name": "Morgan the Merrier",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Have a clay ring blessed (take it to Father Aereck in Lumbridge Church).",
+       "name": "Bless is More",
+       "quests": [],
+       "skills": []
+      }
+     ],
+     "hard": [
+      {
+       "description": "Smith a mithril platebody on the anvil in the Draynor Sewers",
+       "name": "A Body in the Sewers",
+       "quests": [],
+       "skills": [
+        [
+         "Smithing",
+         68
+        ]
+       ]
+      },
+      {
+       "description": "Create an Amulet of Strength from scratch, all within Lumbridge (don't go below ground level). *Smelt a gold ore into a gold bar. *Cut a ruby *Craft the gold bar and ruby into a ruby amulet with an amulet mould. *Shear a sheep. *Spin the wool on the first floor of Lumbridge Castle. *String the ruby amulet. *Enchant the amulet (using an enchant ruby tablet will not work. Casting the spell from the Lunar spell book via the spellbook swap spell will work) Note: When performing this task, be sure to enchant the amulet only after completing the steps above, otherwise it will not count the enchantment as a task.",
+       "name": "Building Up Strength",
+       "quests": [],
+       "skills": [
+        [
+         "Smithing",
+         40
+        ],
+        [
+         "Crafting",
+         50
+        ],
+        [
+         "Magic",
+         49
+        ]
+       ]
+      },
+      {
+       "description": "To make a chocolate cake from scratch in Lumbridge Castle's kitchen: Mix an uncooked cake. Bake the cake. Add chocolate to the cake (make sure to right-click the chocolate bar as left click will make you eat it). You can purchase all the ingredients from the Culinaromancer's Chest but you must make the cake itself in the Lumbridge Castle kitchen (where the cook is) including making the uncooked cake.",
+       "name": "Have your Cake and Eat It",
+       "quests": [
+        "Cook's Assistant"
+       ],
+       "skills": [
+        [
+         "Cooking",
+         50
+        ]
+       ]
+      },
+      {
+       "description": "Use Fire Blast on any goblin or spider in Lumbridge.",
+       "name": "Blast and Hellfire",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         59
+        ]
+       ]
+      },
+      {
+       "description": "Pray at Lumbridge Church altar with Mystic Might enabled.",
+       "name": "Gods, Give Me Strength",
+       "quests": [],
+       "skills": [
+        [
+         "Prayer",
+         45
+        ]
+       ]
+      },
+      {
+       "description": "Craft 100 or more water runes simultaneously",
+       "name": "Not Waving, But Drowning",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         57
+        ]
+       ]
+      },
+      {
+       "description": "Burn some yew logs on top of the East Gatehouse of Lumbridge Castle. It is located just beside the Lumbridge wall gates; use either entrance. You must climb to the very top (where the two pickaxe spawns are).",
+       "name": "Are Yew As Fired Up As I Am?",
+       "quests": [],
+       "skills": [
+        [
+         "Firemaking",
+         60
+        ]
+       ]
+      }
+     ],
+     "medium": [
+      {
+       "description": "Smith a steel longsword on the anvil in the jailhouse sewers",
+       "name": "Steel Justice",
+       "quests": [],
+       "skills": [
+        [
+         "Smithing",
+         36
+        ]
+       ]
+      },
+      {
+       "description": "Get Beefy Bill to bank flour, cowhide, or beef for you.You must have two of the item because he requires one for himself in order to bank yours.",
+       "name": "Where's the Beef?",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the teleport Lumbridge spell (Not the Home Teleport spell)",
+       "name": "Ease of Access",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         31
+        ]
+       ]
+      },
+      {
+       "description": "Light a willow log fire on top of the Lumbridge Castle gatehouse. Second floor of the gatehouse at the (east side) front of the castle, not behind the castle.",
+       "name": "Willow the Wisp of Smoke",
+       "quests": [],
+       "skills": [
+        [
+         "Firemaking",
+         30
+        ]
+       ]
+      },
+      {
+       "description": "Cook a lobster on the range in Lumbridge Castle kitchen",
+       "name": "A Meal Fit For a Duke",
+       "quests": [
+        "Cook's Assistant"
+       ],
+       "skills": [
+        [
+         "Cooking",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Try to obtain an Anti-dragonbreath shield from Duke Horacio There is no need to drop the shield if you already have one.",
+       "name": "Always Be Prepared",
+       "quests": [
+        "Dragon slayer"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Cut a willow tree, east of Lumbridge Castle, near the Doomsayer",
+       "name": "Weeping Willow",
+       "quests": [],
+       "skills": [
+        [
+         "Woodcutting",
+         30
+        ]
+       ]
+      },
+      {
+       "description": "Smelt a silver bar in the Lumbridge furnace",
+       "name": "One Day, You Shall Be a Fork",
+       "quests": [],
+       "skills": [
+        [
+         "Smithing",
+         20
+        ]
+       ]
+      },
+      {
+       "description": "Craft a holy symbol in the Lumbridge furnace",
+       "name": "Made to Order",
+       "quests": [],
+       "skills": [
+        [
+         "Crafting",
+         16
+        ]
+       ]
+      },
+      {
+       "description": "Catch a salmon in the river to the east of Lumbridge castle",
+       "name": "Lovely With a Squeeze of Lemon",
+       "quests": [],
+       "skills": [
+        [
+         "Fishing",
+         30
+        ]
+       ]
+      },
+      {
+       "description": "Mine some silver from the mining spot north of Al Kharid",
+       "name": "Hi Ho, Silver",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         20
+        ]
+       ]
+      },
+      {
+       "description": "Mine some coal in the mining spot south-west of Lumbridge Swamp",
+       "name": "Everybody Loves Coal!",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         30
+        ]
+       ]
+      }
+     ]
+    },
+    "timestamp": "2012-11-12T17:54:35Z",
+    "title": "Lumbridge achievements"
+   }
+  },
+  "morytania": {
+   "darkan_class": "MorytaniaTasks",
+   "reward_effects": [],
+   "reward_items": {
+    "HIYLIK_MYNA": [
+     24134
+    ],
+    "OLD_MAN_RAL": [
+     24137
+    ],
+    "ROBIN": [
+     24135
+    ],
+    "STRANGE_OLD_MAN": [
+     24136
+    ]
+   },
+   "task_names": {
+    "944": "CHISELLIN_CONCHIOLIN",
+    "945": "ITS_ONLY_WAFER_THIN",
+    "946": "DISLIKEANTHROPE",
+    "947": "CRANIUS_LUPUS",
+    "948": "LAB_CLEANUP_ASSISTANT",
+    "949": "FORTIFIED_SPIRIT",
+    "950": "STRUCK_AGHAST",
+    "951": "BLOOMING_MARVELLOUS",
+    "952": "ONLY_GOING_FORWARD_WE_CANT_FIND_REVERSE",
+    "953": "IF_IT_BLEEDS",
+    "954": "WURT_A_BUNDLE",
+    "955": "ADMYRE_THE_GOODS",
+    "956": "CHARTER_A_COURSE",
+    "957": "TRAVELLING_ON_THE_SLIME_TRAIL",
+    "958": "THE_YEAST_THEY_CAN_DO",
+    "959": "POLTERHEIST",
+    "960": "FLAMTAER_WILL_GET_YOU_EVERYWHERE",
+    "961": "WHO_YOU_GONNA_RING",
+    "962": "BARKING_UP_THE_WRONG_TREE",
+    "963": "GATE_SPECTREATIONS",
+    "964": "READY_TREK",
+    "965": "DONT_STOP_ME_IF_I_START_TO_RAMBLE",
+    "966": "PLENTY_MORT_WHERE_THAT_CAME_FROM",
+    "967": "IZZY_WIZZY_LETS_GET_LIZZY",
+    "968": "FINDING_YOUR_BALANCE",
+    "969": "THE_BEER_INNSPECTRE",
+    "970": "BRAIN_BENDING",
+    "971": "I_WONDER_HOW_FAR_IT_GHOST",
+    "972": "OBVIOUS_FORGERY",
+    "973": "THE_HIGHER_THE_BADDER",
+    "974": "FUN_GUY_BUT_BITTER",
+    "975": "DETARNATION",
+    "976": "SHADESHATTERING_KABLOOM",
+    "977": "THEYLL_JUST_THROW_IT_AWAY_AGAIN",
+    "978": "TIME_SALVER",
+    "979": "HUGE_SUCCESS",
+    "980": "I_BROUGHT_YOUR_STUFF_BACK",
+    "981": "JUST_ONE_MORE_KEY",
+    "982": "RAISING_THE_STAKES",
+    "983": "TREKKIN_AINT_EASY",
+    "984": "BETTER_THAN_CURSING_THE_DARKNESS",
+    "985": "RUNECRAFT_CARRIER",
+    "986": "WHIP_IT_GOOD",
+    "987": "AS_YOU_MIGHT_EXPECT",
+    "988": "THOROUGHLY_AGHAST",
+    "989": "AS_GOOD_AS_RENEW",
+    "990": "FREMENNIK_EXPORT",
+    "991": "NOT_SUCH_A_ROTTEN_IDEA",
+    "992": "SET_IT_ON_FIYR",
+    "993": "BROS_BEFORE_BARROWS",
+    "994": "ON_WINGS_OF_BLING"
+   },
+   "tiers": {
+    "easy": [
+     944,
+     945,
+     946,
+     947,
+     948,
+     949,
+     950,
+     951,
+     952,
+     953,
+     954
+    ],
+    "elite": [
+     986,
+     987,
+     988,
+     989,
+     990,
+     991,
+     992,
+     993,
+     994
+    ],
+    "hard": [
+     975,
+     985,
+     976,
+     977,
+     978,
+     979,
+     980,
+     981,
+     982,
+     983,
+     984
+    ],
+    "medium": [
+     956,
+     957,
+     958,
+     960,
+     961,
+     962,
+     963,
+     964,
+     965,
+     966,
+     967,
+     968,
+     969,
+     970,
+     971,
+     972,
+     973,
+     974,
+     959,
+     955
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "4,000",
+     "10,000",
+     "20,000",
+     "40,000",
+     "50,000"
+    ],
+    "oldid": 6530421,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6530421",
+    "tiers": {
+     "easy": [
+      {
+       "description": "Craft your own Snelm in Morytania",
+       "name": "Chisellin' Conchiolin",
+       "quests": [],
+       "skills": [
+        [
+         "Crafting",
+         15
+        ]
+       ]
+      },
+      {
+       "description": "Cook a Thin snail in Morytania",
+       "name": "It's Only Wafer Thin",
+       "quests": [],
+       "skills": [
+        [
+         "Cooking",
+         12
+        ]
+       ]
+      },
+      {
+       "description": "Kill a Werewolf in its human form using the Wolfbane dagger whilst in Canifis",
+       "name": "Dislike-Anthrope",
+       "quests": [
+        "Priest in Peril"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Finish a game of Werewolf Skullball",
+       "name": "Cranius Lupus",
+       "quests": [
+        "Creature of Fenkenstrain"
+       ],
+       "skills": [
+        [
+         "Agility",
+         25
+        ]
+       ]
+      },
+      {
+       "description": "Kill an experiment under Castle Fenkenstrain",
+       "name": "Lab Clean-Up Assistant",
+       "quests": [
+        "Creature of Fenkenstrain"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Restore and boost your prayer points at the altar in the Nature Grotto",
+       "name": "Fortified Spirit",
+       "quests": [
+        "Nature Spirit"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Kill a Ghast in Morytania",
+       "name": "Struck A-Ghast",
+       "quests": [
+        "Nature Spirit"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Grow some fungus in the swamp using Bloom",
+       "name": "Blooming Marvellous",
+       "quests": [
+        "Nature Spirit"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Take an easy companion through an easy route of Temple Trekking",
+       "name": "Only Going Forward, We Can't Find Reverse",
+       "quests": [
+        "In Aid of the Myreque"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Kill anything on the ground floor of the Slayer Tower",
+       "name": "If It Bleeds...",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Harvest limpwurt in the farming patch near Port Phasmatys",
+       "name": "Wurt A Bundle",
+       "quests": [],
+       "skills": [
+        [
+         "Farming",
+         26
+        ]
+       ]
+      }
+     ],
+     "elite": [
+      {
+       "description": "Use Drakan's medallion to teleport to Darkmeyer.",
+       "name": "On Wings Of Bling",
+       "quests": [
+        "The Branches of Darkmeyer"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Kill an abyssal demon in the Slayer Tower",
+       "name": "Whip: It Good",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Craft blood runes at the Blood altar",
+       "name": "As You Might Expect",
+       "quests": [
+        "Legacy of Seergaze"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         77
+        ]
+       ]
+      },
+      {
+       "description": "Summon a ghast familiar in Morytania.",
+       "name": "Thoroughly A-Ghast",
+       "quests": [
+        "In Aid of the Myreque"
+       ],
+       "skills": [
+        [
+         "Summoning",
+         87
+        ]
+       ]
+      },
+      {
+       "description": "Farm and mix the ingredients for a prayer renewal potion entirely in Morytania.",
+       "name": "As Good As Renew",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Fish shark barehanded off the Burgh de Rott dock.",
+       "name": "Fremennik Export",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Teleport to Burgh de Rott using a Games necklace.",
+       "name": "Not Such a Rotten Idea",
+       "quests": [
+        "Temple Trekking"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Burn one set of Fiyr remains with pyre wood.",
+       "name": "Set It On Fiyr",
+       "quests": [
+        "Shades of Mort'ton",
+        "Shades of Mort'ton (minigame)"
+       ],
+       "skills": [
+        [
+         "Firemaking",
+         80
+        ]
+       ]
+      },
+      {
+       "description": "Defeat all seven Barrows Brothers.",
+       "name": "Bros Before Barrows",
+       "quests": [
+        "Ritual of the Mahjarrat"
+       ],
+       "skills": []
+      }
+     ],
+     "hard": [
+      {
+       "description": "Kill Tarn Razorlor (or visit his lair if he's already dead).",
+       "name": "Detarnation",
+       "quests": [
+        "Haunted Mine"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Break a Blood Altar teletablet.",
+       "name": "Runecraft Carrier",
+       "quests": [
+        "Legacy of Seergaze"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         50
+        ]
+       ]
+      },
+      {
+       "description": "Cast Bloom using a Flail of Ivandis upgraded with at least 200 burnt vyre corpses.",
+       "name": "Shade-Shattering Ka-Bloom",
+       "quests": [
+        "Legacy of Seergaze"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Hand in your stick at the end of the Werewolf Agility Course.",
+       "name": "They'll Just Throw It Away Again",
+       "quests": [
+        "Creature of Fenkenstrain"
+       ],
+       "skills": [
+        [
+         "Agility",
+         60
+        ]
+       ]
+      },
+      {
+       "description": "Use the shortcut to get to the bridge over the Salve without going through the temple.",
+       "name": "Time Salver",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Attune your house portal to Kharyrll, or use yours if it has already been attuned.",
+       "name": "Huge Success",
+       "quests": [
+        "Desert Treasure"
+       ],
+       "skills": [
+        [
+         "Construction",
+         50
+        ],
+        [
+         "Magic",
+         66
+        ]
+       ]
+      },
+      {
+       "description": "Equip a full set of Barrows gear in the Barrows.",
+       "name": "I Brought Your Stuff Back",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use a Columbarium key to unlock an alcove.",
+       "name": "Just One More Key...",
+       "quests": [
+        "Legacy of Seergaze"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Fletch a blisterwood polearm in Morytania.",
+       "name": "Raising The Stakes",
+       "quests": [
+        "The Branches of Darkmeyer"
+       ],
+       "skills": [
+        [
+         "Fletching",
+         70
+        ],
+        [
+         "Woodcutting",
+         76
+        ]
+       ]
+      },
+      {
+       "description": "Take a hard companion through a hard route of Temple Trekking.",
+       "name": "Trekkin' Ain't Easy",
+       "quests": [
+        "In Aid of the Myreque"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Burn a Haunted Woods Torch while wearing the fire ring.",
+       "name": "Better Than Cursing The Darkness",
+       "quests": [
+        "All Fired Up"
+       ],
+       "skills": [
+        [
+         "Firemaking",
+         62
+        ]
+       ]
+      }
+     ],
+     "medium": [
+      {
+       "description": "Take a trip on a charter ship to the Port Phasmatys dock.",
+       "name": "Charter A Course",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use an ectophial to return to Port Phasmatys.",
+       "name": "Travelling On The Slime Trail",
+       "quests": [
+        "Ghosts Ahoy"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Exchange ecto-tokens for brewing yeast with Metarialus in The Green Ghost inn's cellar.",
+       "name": "The Yeast They Can Do",
+       "quests": [
+        "Ghosts Ahoy"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use a Flamtaer hammer to help fix the Shades of Mort'ton temple.",
+       "name": "Flamtaer Will Get You Everywhere",
+       "quests": [
+        "Shades of Mort'ton"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use the fairy rings to travel to the Haunted Woods.",
+       "name": "Who You Gonna Ring?",
+       "quests": [
+        "Fairy Tale II - Cure a Queen"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Obtain some bark from hollow trees.",
+       "name": "Barking Up the Wrong Tree",
+       "quests": [],
+       "skills": [
+        [
+         "Woodcutting",
+         45
+        ]
+       ]
+      },
+      {
+       "description": "Use the western gate of Port Phasmatys.",
+       "name": "Gate Spectre-ations",
+       "quests": [
+        "Ghosts Ahoy"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Take a medium companion through a medium route of Temple Trekking.",
+       "name": "Ready? Trek!",
+       "quests": [
+        "In Aid of the Myreque"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Complete a Burgh de Rott Ramble.",
+       "name": "Don't Stop Me If I Start To Ramble",
+       "quests": [
+        "Darkness of Hallowvale"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Unlock a chest in the Shade Catacombs.",
+       "name": "Plenty Mort Where That Came From",
+       "quests": [
+        "Shades of Mort'ton"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Trap a swamp lizard in the Haunted Woods.",
+       "name": "Izzy Wizzy Let's Get Lizzy",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Mix a Guthix Balance potion while in Morytania.",
+       "name": "Finding Your Balance",
+       "quests": [
+        "In Aid of the Myreque"
+       ],
+       "skills": [
+        [
+         "Herblore",
+         22
+        ]
+       ]
+      },
+      {
+       "description": "Start any ale brewing below The Green Ghost Inn",
+       "name": "The Beer Inn-spectre",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Telegrab the pickled brain on a table in the Hair of the Dog.",
+       "name": "Brain Bending",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         33
+        ]
+       ]
+      },
+      {
+       "description": "Explore the tunnel from the cellar under the Hair of the Dog.",
+       "name": "I Wonder How Far It Ghost?",
+       "quests": [
+        "In Search of the Myreque"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Make a batch of cannonballs in Port Phasmatys.",
+       "name": "Obvious Forgery",
+       "quests": [
+        "Ghosts Ahoy",
+        "Dwarf Cannon"
+       ],
+       "skills": [
+        [
+         "Smithing",
+         35
+        ]
+       ]
+      },
+      {
+       "description": "Kill anything on the floor (upstairs) of the Slayer Tower.",
+       "name": "The Higher, The Badder",
+       "quests": [],
+       "skills": [
+        [
+         "Slayer",
+         45
+        ]
+       ]
+      },
+      {
+       "description": "Harvest bittercap mushrooms in the farming patch near Canifis.",
+       "name": "Fun Guy But Bitter",
+       "quests": [],
+       "skills": [
+        [
+         "Farming",
+         53
+        ]
+       ]
+      },
+      {
+       "description": "Mine some mithril ore in the Abandoned Mine.",
+       "name": "Polterheist",
+       "quests": [
+        "Haunted Mine"
+       ],
+       "skills": [
+        [
+         "Mining",
+         55
+        ]
+       ]
+      },
+      {
+       "description": "View the stock in Razmire Builders' Merchants shop.",
+       "name": "Ad-Myre The Goods",
+       "quests": [
+        "Shades of Mort'ton"
+       ],
+       "skills": []
+      }
+     ]
+    },
+    "timestamp": "2012-11-04T03:16:45Z",
+    "title": "Morytania achievements"
+   }
+  },
+  "seers": {
+   "darkan_class": "SeersVillageTasks",
+   "reward_effects": [
+    "coalTruckCapacity",
+    "mysticStaffEnchantCost",
+    "enhancedExcaliburDuration"
+   ],
+   "reward_items": {
+    "SEER": [
+     14631
+    ],
+    "SIR_KAY": [
+     14663,
+     19763
+    ],
+    "STANKERS": [
+     14662
+    ]
+   },
+   "task_names": {
+    "221": "REFLAX_ACTIONS",
+    "222": "WHY",
+    "223": "JUTE_ALORS",
+    "224": "STIR_GALAHAD",
+    "225": "LA_MORTE_DARTHUR",
+    "226": "ANOTHER_STRING_TO_YOUR_BOW",
+    "227": "BUNCH_OF_FLOURS",
+    "228": "HAPPY_HOUR",
+    "229": "SINCLAIR_SWIRLING",
+    "230": "GRAND_CANDLE",
+    "231": "A_SEERING_LIGHT",
+    "232": "MACK_ROLLED",
+    "233": "FLEEING_THE_SCENE",
+    "234": "ITS_A_SLIGHTLY_MAGICAL_STICK",
+    "235": "KING_COAL",
+    "236": "MASTERING_THE_ELEMENTS",
+    "237": "ITS_ONLY_A_MODEL",
+    "238": "ARCH_ARCHER",
+    "239": "WHAT_NO_CUDDLY_TOY",
+    "240": "I_CAN_SEER_MY_HOUSE_FROM_HERE",
+    "241": "FAMILIAR_FIRE_FAMILIARITY",
+    "242": "AT_LEAST_IT_DOESNT_NEED_WALKING",
+    "243": "ALL_YOUR_BASS",
+    "244": "SNIPER_TRAINING",
+    "245": "AT_HOME_ON_THE_RANGE",
+    "246": "SEE_YEW_AT_FIVE",
+    "247": "THE_SHORT_OF_IT",
+    "248": "PRAYER_OF_ATTORNEY",
+    "249": "BEWARE_OF_THE_DOG",
+    "250": "TWISTED_FIRE_STARTER",
+    "251": "ALCHAHOLIC",
+    "252": "ISLAND_HOPPER",
+    "253": "GONNA_NEED_A_BIGGER_BOAT",
+    "254": "GONNA_NEED_A_BIGGER_RANGE",
+    "255": "WATER_PALAVER",
+    "332": "ITS_A_TRAP_NO_WAIT_ITS_A_PIE",
+    "333": "MAKE_A_BOLT_FOR_IT",
+    "334": "THE_LONG_OF_IT",
+    "335": "PLENTYPOTIONENTIARY",
+    "336": "MOON_RAKER"
+   },
+   "tiers": {
+    "easy": [
+     221,
+     222,
+     223,
+     224,
+     225,
+     226,
+     227,
+     228,
+     229,
+     230,
+     231,
+     232
+    ],
+    "elite": [
+     332,
+     333,
+     334,
+     335,
+     336
+    ],
+    "hard": [
+     245,
+     246,
+     247,
+     248,
+     249,
+     250,
+     251,
+     252,
+     253,
+     254,
+     255
+    ],
+    "medium": [
+     233,
+     234,
+     235,
+     236,
+     237,
+     238,
+     239,
+     240,
+     241,
+     242,
+     243,
+     244
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "1,000",
+     "5,000",
+     "10,000",
+     "25,000"
+    ],
+    "oldid": 6504286,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6504286",
+    "tiers": {},
+    "timestamp": "2012-10-30T17:38:08Z",
+    "title": "Seers' Village achievements"
+   }
+  },
+  "varrock": {
+   "darkan_class": "VarrockTasks",
+   "reward_effects": [
+    "dailyBattlestaffLimit"
+   ],
+   "reward_items": {
+    "RAT_BURGISS": [
+     11756
+    ],
+    "RELDO": [
+     11757
+    ],
+    "VANNAKA": [
+     11758,
+     19757
+    ]
+   },
+   "task_names": {
+    "256": "STRIKE_A_POSE",
+    "257": "ESSENTIAL_FACILITATOR",
+    "258": "DOING_THE_IRONING",
+    "259": "PLANK_YOU_VERY_MUCH",
+    "260": "MAKING_LEARNING_FUN",
+    "261": "JUMPINGOFF_POINT",
+    "262": "LUMBERING_AROUND",
+    "263": "READ_ALL_ABOUT_IT",
+    "264": "DOG_AND_BONE",
+    "265": "POT_STOP",
+    "266": "ON_THE_RAGGED_EDGE",
+    "267": "RELOCATION_RELOCATION_RELOCATION",
+    "268": "IT_BELONGS_IN_A_MUSEUM",
+    "269": "JOURNEY_TO_THE_CENTRE_OF_THE_EARTH_ALTAR",
+    "270": "JACKANORY",
+    "271": "LIMEY",
+    "272": "SHERPAS_DELIGHT",
+    "273": "KING_OF_THE_CASTLE",
+    "274": "STICK_THE_KNIFE_IN",
+    "275": "DOUBLESTRENGTH_WEAKSAUCE",
+    "276": "CHAMPION",
+    "277": "WHAT_LIES_BELOW",
+    "278": "WITH_A_TENFOOT_POLE",
+    "279": "CANT_MAKE_AN_OMELETTE",
+    "280": "POINT_OF_ENTREE",
+    "281": "UNLOCKING_YOUR_EMOTIONS",
+    "282": "A_LICK_OF_PAINT",
+    "283": "FOR_FAST_TRANSACTIONS",
+    "284": "YOU_WOULDNT_LIKE_ME_WHEN_IM_ANGRY",
+    "285": "RETURN_TO_SENNTISTEN",
+    "286": "PROMISED_THE_EARTH",
+    "287": "ROYALE_WITH_THIEVE",
+    "288": "LIKE_A_VARROCKET",
+    "289": "CHALLENGE_VANNAKA",
+    "290": "FLATPACK_BACKPACK",
+    "291": "MASTER_SCRUMPER",
+    "292": "ENGAGE",
+    "293": "FASTER_PUSSYCAT_KILL_KILL",
+    "294": "DIAL_V_FOR_VARROCK",
+    "295": "THE_BODY_SHOP",
+    "296": "BURNING_BUSH",
+    "297": "BUT_IT_WONT_WARP_YOU_ANYWHERE",
+    "298": "LIGHTEN_UP",
+    "299": "PUT_YOUR_SMITHING_HAT_ON",
+    "300": "KUDOS_ON_THE_KUDOS",
+    "301": "WHO_ATE_ALL_THE_PIE",
+    "302": "BATTLE_OF_THE_ELEMENTS",
+    "303": "INTERSCEPTRE",
+    "304": "CHANGING_ROOMS",
+    "305": "KEEPING_TABS_ON_VARROCK",
+    "306": "HANDMEDOWNS",
+    "307": "WAKAWAKAWAKA",
+    "308": "LIVING_ON_THE_EDGE",
+    "337": "STICK_A_BORK_IN_HIM_HES_DONE",
+    "338": "NOMADNESS",
+    "339": "DOUBLE_JOINTED",
+    "340": "IT_ALL_ADZE_UP",
+    "341": "MIND_YOUR_BACK",
+    "342": "RED_RED_PIES_OF_SUMMER",
+    "343": "SPLITTING_HEADACHE",
+    "344": "A_BOLT_FROM_THE_BLUE",
+    "345": "A_TON_OF_EARTH"
+   },
+   "tiers": {
+    "easy": [
+     256,
+     257,
+     258,
+     259,
+     260,
+     261,
+     262,
+     263,
+     264,
+     265,
+     266,
+     267,
+     268,
+     269,
+     270,
+     271,
+     272,
+     273,
+     274
+    ],
+    "elite": [
+     337,
+     338,
+     339,
+     340,
+     341,
+     342,
+     343,
+     344,
+     345
+    ],
+    "hard": [
+     296,
+     297,
+     298,
+     299,
+     300,
+     301,
+     302,
+     303,
+     304,
+     305,
+     306,
+     307,
+     308
+    ],
+    "medium": [
+     275,
+     276,
+     277,
+     278,
+     279,
+     280,
+     281,
+     282,
+     283,
+     284,
+     285,
+     286,
+     287,
+     288,
+     289,
+     290,
+     291,
+     292,
+     293,
+     294,
+     295
+    ]
+   },
+   "wiki": {
+    "lamp_experience": [
+     "1,000",
+     "5,000",
+     "10,000",
+     "30,000"
+    ],
+    "oldid": 6476032,
+    "permalink": "https://runescape.wiki/w/Special:PermanentLink/6476032",
+    "tiers": {
+     "easy": [
+      {
+       "description": "Have Thessalia show you what outfits you can wear",
+       "name": "Strike a Pose",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Have Aubury teleport you to the essence mine",
+       "name": "Essential Facilitator",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Mine some iron ore in the Mining spot, south-east of Varrock",
+       "name": "Doing the Ironing",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         15
+        ]
+       ]
+      },
+      {
+       "description": "Get a plank made at the sawmill",
+       "name": "Plank You Very Much",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Enter the second level of the Stronghold of Security",
+       "name": "Making Learning Fun!",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Jump over the fence, south of Varrock",
+       "name": "Jumping-off Point",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         13
+        ]
+       ]
+      },
+      {
+       "description": "Chop down a dying tree in the Lumber Yard",
+       "name": "Lumbering Around",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Buy a copy of the Varrock Herald",
+       "name": "Read All About It",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Give a stray dog a bone",
+       "name": "Dog and Bone",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Make a bowl on the pottery wheel then fire it in the pottery oven, all in Gunnarsgrunn",
+       "name": "Pot Stop",
+       "quests": [],
+       "skills": [
+        [
+         "Crafting",
+         8
+        ]
+       ]
+      },
+      {
+       "description": "Enter Edgeville Dungeon using the entrance to the south of Edgeville",
+       "name": "On the Ragged Edge",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Move your player-owned house portal to a different location using the Varrock estate agent",
+       "name": "Relocation, Relocation, Relocation",
+       "quests": [],
+       "skills": [
+        [
+         "Construction",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Speak to Haig Halen after obtaining at least 50 Kudos",
+       "name": "It Belongs in a Museum",
+       "quests": [
+        "The Dig Site"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Enter the Earth Altar using an earth tiara or talisman",
+       "name": "Journey to the Centre of the Earth Altar",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Have Elsie tell you a story",
+       "name": "Jackanory",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Mine some limestone near Paterdomus, the temple to the east of Varrock",
+       "name": "Limey",
+       "quests": [],
+       "skills": [
+        [
+         "Mining",
+         10
+        ]
+       ]
+      },
+      {
+       "description": "Catch a trout in the river to the east of Barbarian Village",
+       "name": "Sherpa's Delight",
+       "quests": [],
+       "skills": [
+        [
+         "Fishing",
+         20
+        ]
+       ]
+      },
+      {
+       "description": "Venture through the cobwebbed corridor in Varrock Sewers",
+       "name": "Stick the Knife In",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Find the highest point in Varrock",
+       "name": "King of the Castle",
+       "quests": [],
+       "skills": []
+      }
+     ],
+     "elite": [
+      {
+       "description": "Defeat Bork",
+       "name": "Stick a Bork In Him, He's Done",
+       "quests": [
+        "What Lies Below"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Speak to Zimberfizz about swapping your Soul Wars cape for one of a different colour",
+       "name": "Nomadness",
+       "quests": [
+        "Nomad's Requiem"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Complete a large job at the sawmill",
+       "name": "Double Jointed",
+       "quests": [],
+       "skills": [
+        [
+         "Woodcutting",
+         80
+        ]
+       ]
+      },
+      {
+       "description": "Using an inferno adze, incinerate a log cut from a tree you've grown in Varrock Palace's garden",
+       "name": "It All Adze Up",
+       "quests": [
+        "All Fired Up"
+       ],
+       "skills": [
+        [
+         "Firemaking",
+         92
+        ],
+        [
+         "Farming",
+         15
+        ],
+        [
+         "Woodcutting",
+         61
+        ]
+       ]
+      },
+      {
+       "description": "Get a member of the Dagon'hai's mind control spells to backfire on him",
+       "name": "Mind Your Back",
+       "quests": [
+        "What Lies Below"
+       ],
+       "skills": [
+        [
+         "Magic",
+         80
+        ]
+       ]
+      },
+      {
+       "description": "Bake a summer pie in the Cooking Guild: *Make pastry dough *Make pie shell *Add strawberry, watermelon, and cooking apple, in that order *Bake pie",
+       "name": "Red, Red Pies of Summer",
+       "quests": [],
+       "skills": [
+        [
+         "Cooking",
+         95
+        ]
+       ]
+      },
+      {
+       "description": "Defeat a skeleton at (or pray at) Senntisten Altar with Soul Split enabled",
+       "name": "Splitting Headache",
+       "quests": [
+        "Temple at Senntisten"
+       ],
+       "skills": [
+        [
+         "Prayer",
+         92
+        ]
+       ]
+      },
+      {
+       "description": "Smith and fletch ten rune bolts within Varrock: *Smith ten rune bolts *Fletch ten rune bolts",
+       "name": "A Bolt From the Blue",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Craft 100 or more earth runes simultaneously",
+       "name": "A Ton of Earth",
+       "quests": [],
+       "skills": [
+        [
+         "Runecrafting",
+         78
+        ]
+       ]
+      }
+     ],
+     "hard": [
+      {
+       "description": "Pick poison ivy from your bush Farming patch in Varrock near Champions guild.",
+       "name": "Burning Bush",
+       "quests": [],
+       "skills": [
+        [
+         "Farming",
+         70
+        ]
+       ]
+      },
+      {
+       "description": "Use the pipe shortcut in Varrock Sewers, near the moss giants",
+       "name": "But It Won't Warp You Anywhere",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         51
+        ]
+       ]
+      },
+      {
+       "description": "Trade furs with the Fancy Dress Seller for a Spottier Cape.",
+       "name": "Lighten Up",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Smith an adamantite medium helm in the house next to Aubury's Rune Shop.",
+       "name": "Put Your Smithing Hat On",
+       "quests": [],
+       "skills": [
+        [
+         "Smithing",
+         73
+        ]
+       ]
+      },
+      {
+       "description": "Speak to Orlando Smith when you have achieved 153 kudos.",
+       "name": "Kudos on the Kudos!",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Talk to Romily Weaklax and give him a wild pie.",
+       "name": "Who Ate All the Pie?",
+       "quests": [],
+       "skills": [
+        [
+         "Cooking",
+         32
+        ]
+       ]
+      },
+      {
+       "description": "Craft an air battlestaff",
+       "name": "Battle of the Elements",
+       "quests": [],
+       "skills": [
+        [
+         "Crafting",
+         66
+        ],
+        [
+         "Magic",
+         66
+        ]
+       ]
+      },
+      {
+       "description": "Give your player-owned house a fancy stone or tropical wood finish at the Varrock estate agent's",
+       "name": "Changing Rooms",
+       "quests": [],
+       "skills": [
+        [
+         "Construction",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Make a Varrock teleport tablet on a mahogany lectern (This can be done at another player's POH.)",
+       "name": "Keeping Tabs on Varrock",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         25
+        ],
+        [
+         "Construction",
+         67
+        ]
+       ]
+      },
+      {
+       "description": "Obtain a new set of Family Crest gauntlets from Dimintheis",
+       "name": "Hand-Me-Downs",
+       "quests": [
+        "Family Crest"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Make a waka canoe near Edgeville",
+       "name": "Waka-Waka-Waka",
+       "quests": [],
+       "skills": [
+        [
+         "Woodcutting",
+         57
+        ]
+       ]
+      },
+      {
+       "description": "Use the Home Teleport spell in the Ancient Magicks spellbook to teleport to Edgeville",
+       "name": "Living on the Edge",
+       "quests": [
+        "Desert Treasure"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use the skull sceptre to teleport to Barbarian Village",
+       "name": "Intersceptre",
+       "quests": [],
+       "skills": []
+      }
+     ],
+     "medium": [
+      {
+       "description": "Have the Apothecary in Varrock make you a Strength potion.",
+       "name": "Double-strength Weaksauce",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Enter the Champions' Guild",
+       "name": "Champion!",
+       "quests": [
+        "Quest Points"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Take the Dagon'Hai shortcut to the Chaos altar",
+       "name": "What Lies Below?",
+       "quests": [
+        "What Lies Below"
+       ],
+       "skills": [
+        [
+         "Mining",
+         42
+        ]
+       ]
+      },
+      {
+       "description": "Get a full complement of Rats on your Rat pole",
+       "name": "With a Ten-foot Pole",
+       "quests": [
+        "Rat Catchers"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Escape from the spider lair in Varrock Sewers with some Red spiders' eggs",
+       "name": "Can't Make an Omelette",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Use the Spirit tree northeast of the Grand Exchange",
+       "name": "Point of En-tree",
+       "quests": [
+        "Tree Gnome Village"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Perform the four Emotes from the Stronghold of Security",
+       "name": "Unlocking Your Emotions",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Select a colour for a new Kitten",
+       "name": "A Lick of Paint",
+       "quests": [
+        "Gertrude's Cat",
+        "Garden of Tranquility"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use the shortcut in the northwest corner of the Grand Exchange, near Edgeville.",
+       "name": "For Fast Transactions",
+       "quests": [],
+       "skills": [
+        [
+         "Agility",
+         21
+        ]
+       ]
+      },
+      {
+       "description": "Enter the A Soul's Bane rift",
+       "name": "You Wouldn't Like Me When I'm Angry",
+       "quests": [
+        "A Soul's Bane"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Teleport to the Digsite using a Digsite pendant",
+       "name": "Return to Senntisten",
+       "quests": [
+        "The Dig Site"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Craft an Earth tiara on the Earth altar.",
+       "name": "Promised the Earth",
+       "quests": [
+        "Rune Mysteries"
+       ],
+       "skills": [
+        [
+         "Runecrafting",
+         9
+        ]
+       ]
+      },
+      {
+       "description": "Pickpocket a Guard in the Varrock Palace courtyard",
+       "name": "Royale With Thieve",
+       "quests": [],
+       "skills": [
+        [
+         "Thieving",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Use the Teleport to Varrock spell",
+       "name": "Like a Varrocket",
+       "quests": [],
+       "skills": [
+        [
+         "Magic",
+         25
+        ]
+       ]
+      },
+      {
+       "description": "Get a Slayer task from Vannaka in the Edgeville Dungeon",
+       "name": "Challenge Vannaka",
+       "quests": [],
+       "skills": [
+        [
+         "Combat",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Buy twenty Mahogany planks from the Sawmill operator in one transaction",
+       "name": "Flatpack Backpack",
+       "quests": [],
+       "skills": []
+      },
+      {
+       "description": "Pick a White tree fruit from the White tree",
+       "name": "Master Scrumper",
+       "quests": [
+        "Garden of Tranquillity"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Use the hot air balloon to travel from Varrock to somewhere else.",
+       "name": "Engage",
+       "quests": [
+        "Enlightened Journey"
+       ],
+       "skills": [
+        [
+         "Firemaking",
+         40
+        ]
+       ]
+      },
+      {
+       "description": "Get a Cat training medal from Gertrude",
+       "name": "Faster, Pussycat! Kill! Kill!",
+       "quests": [
+        "Gertrude's Cat"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Dial to the Fairy ring west of Varrock (code DKR)",
+       "name": "Dial V For Varrock",
+       "quests": [
+        "Fairytale II - Cure a Queen"
+       ],
+       "skills": []
+      },
+      {
+       "description": "Browse through Oziach's Armour Shop in Edgeville.",
+       "name": "The Body Shop",
+       "quests": [
+        "Dragon Slayer"
+       ],
+       "skills": []
+      }
+     ]
+    },
+    "timestamp": "2012-10-26T14:55:51Z",
+    "title": "Varrock achievements"
+   }
+  }
+ }
+}

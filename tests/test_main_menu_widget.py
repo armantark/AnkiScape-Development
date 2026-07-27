@@ -4078,20 +4078,43 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(all("Free" in text for text in search_rows))
         self.assertTrue(all("0 Coins" not in text for text in search_rows))
 
-    def test_achievement_tab_renders_metadata_counts_and_completed_rows(self) -> None:
+    def test_achievement_tab_renders_the_cabinet_not_the_fabricated_list(self) -> None:
+        """The tab is the Achievement Cabinet now.
+
+        It used to render 168 fabricated skill-progression rows in four invented
+        difficulty buckets, under a completion percentage whose denominator moved
+        whenever an achievement was added — the figure the semantics contract
+        forbids diary gear from consuming. This asserts the replacement: real
+        regional families, real tier rewards, and no percentage anywhere.
+        """
         pd = _make_player_data()
         pd["completed_achievements"] = ["First Steps", "Rune Mysteries"]
         dialog = self._open(pd)
         _open_achievements_tab(dialog)
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
+        self.assertIn("Achievement Cabinet", labels)
         self.assertTrue(
-            any(text.startswith("Easy") and "2/58 completed" in text for text in labels),
-            "Easy achievement count did not use metadata grouping",
+            any(text.startswith("Varrock") for text in labels),
+            "the Cabinet did not render its regional families",
         )
-        self.assertIn("First Steps", labels)
-        self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/168 (1.2%)", labels)
+        self.assertTrue(
+            any("Varrock armour 1" in text for text in labels),
+            "the Easy Varrock tier did not name the item it hands over",
+        )
+        self.assertTrue(
+            any(re.fullmatch(r"\d+/\d+ tasks", text) for text in labels),
+            "the Cabinet did not show its fixed-denominator task total",
+        )
+        self.assertFalse(
+            [text for text in labels if "%" in text and "Completed:" in text],
+            "a moving-denominator completion percentage is back on the tab",
+        )
+        self.assertNotIn(
+            "First Steps",
+            labels,
+            "a fabricated achievement row is still rendered",
+        )
 
     def test_expensive_tabs_are_unbuilt_until_shown(self) -> None:
         """Regression guard for the deferred build: opening the menu must not

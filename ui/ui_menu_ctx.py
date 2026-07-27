@@ -37,6 +37,9 @@ class MainMenuCtx:
     # Agility cape). The tab forwards payloads unchanged; all rules live in
     # the owning skill's logic.
     on_agility_command: Optional[Callable[[str, dict], Any]] = None
+    # Achievement Cabinet claims and task pins. Both mutate the save, so they
+    # route through `commit_direct_action` like every other policy command.
+    on_achievement_diary_command: Optional[Callable[[str, dict], Any]] = None
     refreshers: dict = field(default_factory=dict)
 
     def refresh(self, key: str) -> None:
