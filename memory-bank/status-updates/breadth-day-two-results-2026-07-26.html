@@ -1,0 +1,152 @@
+<title>AnkiScape — nine families, four caught bugs, one playtest pass</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%A1%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+    --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+    --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+    --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+:root[data-theme="light"]{--bg:#f6f7fa;--surface:#fff;--surface-2:#eef1f6;--border:#d6dce7;--text:#141922;--text-dim:#5b657a;--accent-glow:rgba(79,140,255,.1)}
+:root[data-theme="dark"]{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8}
+@media (prefers-color-scheme: light){:root{--bg:#f6f7fa;--surface:#fff;--surface-2:#eef1f6;--border:#d6dce7;--text:#141922;--text-dim:#5b657a;--accent-glow:rgba(79,140,255,.1)}}
+*{box-sizing:border-box}
+body{margin:0;padding:2.5rem 1.5rem 4rem;background:var(--bg);color:var(--text);
+  font-family:"Outfit","Avenir Next","Segoe UI",system-ui,sans-serif;line-height:1.55;font-size:15px}
+.wrap{max-width:1000px;margin:0 auto}
+.badge{display:inline-block;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:.68rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);
+  border:1px solid rgba(79,140,255,.35);padding:.3rem .7rem;border-radius:999px}
+h1{font-size:2rem;font-weight:700;margin:.9rem 0 .4rem;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.95rem;margin:0 0 2.2rem;max-width:64ch}
+h2{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);
+  margin:2.6rem 0 1rem;border-top:1px solid var(--border);padding-top:1.1rem}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.metric .n{font-size:1.7rem;font-weight:700;font-family:"JetBrains Mono",ui-monospace,monospace}
+.metric .l{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em}
+.metric .d{font-size:.78rem;font-weight:600;color:var(--green)}
+.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:.6rem}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--green))}
+.scroller{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;min-width:660px;font-size:.87rem}
+th,td{text-align:left;padding:.68rem .9rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)}
+tr:last-child td{border-bottom:none}
+td.f{font-weight:600;white-space:nowrap}
+.sev{font-weight:700;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.red{color:var(--red)}.amber{color:var(--amber)}.green{color:var(--green)}.purple{color:var(--purple)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem}
+.card h3{margin:0 0 .5rem;font-size:.98rem}
+.card p{margin:0 0 .5rem;font-size:.87rem;color:var(--text-dim)}
+.card p:last-child{margin-bottom:0}
+.tag{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.66rem;background:var(--surface-2);
+  border:1px solid var(--border);padding:.1rem .4rem;border-radius:5px;color:var(--text-dim)}
+.note{background:var(--surface);border-left:3px solid var(--amber);border-radius:0 9px 9px 0;
+  padding:.9rem 1.1rem;margin-top:1rem;font-size:.88rem}
+.note b{color:var(--amber)}
+.note.blue{border-left-color:var(--accent)} .note.blue b{color:var(--accent)}
+ol{padding-left:1.2rem} li{margin-bottom:.5rem;font-size:.88rem}
+.live{display:inline-block;width:7px;height:7px;border-radius:99px;background:var(--amber);margin-right:.45rem}
+@media(max-width:780px){.metrics{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}h1{font-size:1.5rem}}
+</style>
+
+<div class="wrap">
+<span class="badge">Results · 26 July 2026</span>
+<h1>Nine families, and the four bugs that nearly shipped with them</h1>
+<p class="sub">Everything below is merged into <span class="tag">main</span> and green on both test lanes. The headline is not the nine families — it is that three verification passes cleared them and a fourth, run by a different model lineage, found four real bugs anyway.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="n">3020</div><div class="l">tests on main</div><div class="d">+271 today</div>
+    <div class="bar"><i style="width:100%"></i></div></div>
+  <div class="metric"><div class="n">9</div><div class="l">families merged</div><div class="d">2 rescued from WIP</div></div>
+  <div class="metric"><div class="n">7</div><div class="l">inventions removed</div><div class="d">none reached you</div></div>
+  <div class="metric"><div class="n">27</div><div class="l">registered placeholders</div><div class="d">0 unlabelled</div></div>
+</div>
+
+<h2>The families</h2>
+<div class="scroller">
+<table>
+<tr><th>Family</th><th>State on arrival</th><th>What had to be fixed</th></tr>
+<tr><td class="f">Clan Wars</td><td class="sev red">unplayable</td>
+  <td>Every match ended nil-nil from combat level 10 to 99, so wins, losses, kills, deaths and the whole red-portal consequence were unreachable while its tests passed. A crossfire model fixed it; your damage floors at one lifepoint so the combat burst stays the only way to die.</td></tr>
+<tr><td class="f">Skeletal Horror</td><td class="sev red">proved nothing</td>
+  <td>Every mechanics test mocked the combat kernel, so a green suite was compatible with a boss nobody could fight. It also banked two weekly entries — a rule the period never had — written into the UI, the memory bank and a test name as though sourced.</td></tr>
+<tr><td class="f">The Crucible</td><td class="sev red">inert reward</td>
+  <td>Rank points were read as per-visit, making Supreme Champion unreachable across 400 reviews and shipping its helm as a row no player could buy. Three unlabelled reconstructions were found later by a peer audit and are now registered or disclosed.</td></tr>
+<tr><td class="f">Duel Arena</td><td class="sev amber">wrong boundary</td>
+  <td>The panel evaluated the No&nbsp;Forfeit rule itself instead of reading the view. Both sides agreed, so no test could notice — worth fixing because four other families were copying this file as the house pattern.</td></tr>
+<tr><td class="f">Tears of Guthix</td><td class="sev amber">progress bug</td>
+  <td>A visit's own payout counted toward the next visit's 100,000-experience requirement, so collecting tears let you re-enter a week later having earned nothing in between.</td></tr>
+<tr><td class="f">Treasure Trails</td><td class="sev amber">reroll bug</td>
+  <td>Abandoning a clue rerolled the trail. A five-step trail put away at step two came back as a fresh one-step trail.</td></tr>
+<tr><td class="f">Daily Challenges</td><td class="sev green">built clean</td>
+  <td>Five slots, one arrival per 240-card day, oldest displaced, and no reroll — that action appears in no source and we had invented it. A UI test caught a refresh loop that recursed until the stack gave out.</td></tr>
+<tr><td class="f">Enchanted Key</td><td class="sev green">built clean</td>
+  <td>The full eleven-dig hunt. Flattening the walk makes three of eight temperature bands unreachable; the whole table still ships and a test pins which bands are live.</td></tr>
+<tr><td class="f">Goblin Raids</td><td class="sev green">built clean</td>
+  <td>Needed no stat placeholders — the period Raider is a level-2 goblin with 50 lifepoints and our existing row already was exactly that.</td></tr>
+</table>
+</div>
+
+<h2>Why a fourth verification pass was worth running</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Three passes found nothing</h3>
+    <p>Each family reported all nine breadth criteria passing. Three separate verification passes — all Claude models — cleared them.</p>
+    <p>They read the code and re-confirmed the author's reasoning. That is the failure: the author writes the code and its tests in one pass, so the tests encode the author's belief rather than the source.</p>
+  </div>
+  <div class="card">
+    <h3>One pass found four bugs</h3>
+    <p>A single Sol pass drove the real logic from fresh saves and found four shipped defects, every one in a family already reported complete.</p>
+    <p>The difference was lineage, not effort. On Claude-authored work here, the Anthropic review seat is now voided by default.</p>
+  </div>
+</div>
+
+<div class="note"><b>The pattern worth remembering.</b> Two of the four bugs were pinned in place by tests that could never have observed the behaviour they asserted, because they stubbed the code under test. A test that cannot see what it claims to check is worse than no test — it converts a green run into evidence of the wrong thing.</div>
+
+<h2>Your playtest, pass 3</h2>
+<div class="scroller">
+<table>
+<tr><th>You said</th><th>Outcome</th></tr>
+<tr><td>The red rectangle is way too cluttered</td><td><span class="sev green">done</span> — 17 buttons to 0 while a course is selected, 2 while an activity runs. Redemptions and the cape moved to the Shop tab under their period sellers.</td></tr>
+<tr><td>Why can I choose a shooting star's population?</td><td><span class="sev green">done</span> — the dial is gone. Population is per-activity and never user-facing. A test proves the fuzziness survived its removal.</td></tr>
+<tr><td>I don't understand what advanced mode means</td><td><span class="sev green">done</span> — removed. Choosing which star sizes spawn is a capability no player had.</td></tr>
+<tr><td>Does a star really give that much XP?</td><td><span class="sev purple">correct as-is</span> — the first-finder bonus is 75 × your Mining level. 75 × 39 = 2,925 in the one review that tags it. Nothing else in the family pays over 210.</td></tr>
+<tr><td>Is the Slayer shop really behind Smoking Kills?</td><td><span class="sev purple">correct as-is</span> — the period gated the entire point economy. Our gate is narrower than the period's, not wider.</td></tr>
+<tr><td>Why aren't the achievements up to my spec?</td><td><span class="sev amber">not lost</span> — your semantics contract is fully implemented, all 21 clauses. The diary design says of itself it is a queue, not an implementation claim. It was never scheduled. It is building now.</td></tr>
+<tr><td>Skill target no longer highlighted</td><td><span class="sev green">done</span> — flat lists relied on Qt's selection rectangle, which the stylesheet washes out. They now use the same green brush the grouped trees got on 20 July.</td></tr>
+<tr><td>Slayer master needs a chathead</td><td><span class="live"></span>in flight — Turael landed from a 2012-01-31 revision; every other master is being done now.</td></tr>
+<tr><td>Get rid of the Ayn Rand picture</td><td><span class="sev green">done</span> — it was the only file in that theme's congrats folder, so the end-of-deck screen now shows no image at all.</td></tr>
+<tr><td>Where's the GE status log?</td><td><span class="sev green">decided</span> — it exists as a drawer but sits in the GE tab. It moves under the XP bar box with the strip work.</td></tr>
+</table>
+</div>
+
+<div class="note blue"><b>Two of your answers overturned your own earlier decisions.</b> The 2026-07-10 record granted advanced mode both preferred star sizes and a quiet/normal/busy population, and the simulation budget contract varies its seeded ceiling <em>around that selected profile</em>. Removing the dial meant amending that contract too, not just the panel. Both are recorded as supersessions rather than quiet edits.</div>
+
+<h2>What is running right now</h2>
+<div class="grid2">
+  <div class="card">
+    <h3><span class="live"></span>Achievement Diaries</h3>
+    <p>Building your diary spec — all 16 clauses, plus the nine Milestone capes that are craftable today but absent from the equipment table, and so unwearable.</p>
+    <p>It also replaces the <b>168 fabricated achievement rows</b> currently on that tab. Those are invented rather than sourced, which is the one place in the codebase still holding content at that standard.</p>
+  </div>
+  <div class="card">
+    <h3><span class="live"></span>Slayer chatheads</h3>
+    <p>Every master, not just Turael. Strict pre-cutoff art only.</p>
+    <p>Expect gaps: Spria has no pre-cutoff chathead revision anywhere, so that card ships with no face rather than borrowing Turael's. A wrong face is worse than none.</p>
+  </div>
+</div>
+
+<h2>Waiting on you</h2>
+<ol>
+  <li><b>Skeletal Horror wish lists</b> cost one button press, because real wish-list state belongs to the quest thread. Ships on the stand-in.</li>
+  <li><b>Clan Wars purple portal</b> — who is credited for a crossfire kill. Ships crediting your clan, since the alternative makes a purple win unreachable.</li>
+  <li><b>Tears of Guthix</b> — one review is six game ticks, so quest points still buy cavern time.</li>
+  <li><b>Quest-awarded clues</b> bypass the one-clue rule. Worth answering before medium and hard trails ship.</li>
+  <li><b>Three more</b> — two Crucible shop rows with nothing to act on, the champion's unmodelled invulnerable phase, and the per-activity population ceilings that nothing sources.</li>
+</ol>
+<p class="sub" style="margin-top:1rem">None of the seven blocks further work. Each ships today on a recommendation a small edit can overturn.</p>
+
+</div>
