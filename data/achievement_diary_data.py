@@ -38,6 +38,14 @@ CONDITION_KINDS: Tuple[str, ...] = (
     "ledger_action",    # key: "<skill id>:<action id>", amount: successes
     "counter",          # key: dotted player_data path, amount: threshold
     "hold_item",        # key: item name, amount: quantity held or worn
+    "any_of",           # key: "", amount: 1, meaning lives in `alternatives`
+)
+
+# The kinds an ``any_of`` alternative may take. ``any_of`` is deliberately not
+# among them: a disjunction of disjunctions has no source behind it, and the
+# flat form is what the panel can render.
+BASE_CONDITION_KINDS: Tuple[str, ...] = tuple(
+    kind for kind in CONDITION_KINDS if kind != "any_of"
 )
 
 
@@ -47,6 +55,9 @@ class DiaryCondition:
     key: str
     amount: int = 1
     label: str = ""
+    # Only ``any_of`` populates this. The task is satisfied when any single
+    # alternative is satisfied; an empty tuple is unsatisfiable, never free.
+    alternatives: Tuple["DiaryCondition", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -116,6 +127,7 @@ ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = DIARY_FAMILIES
 __all__ = [
     "ACHIEVEMENT_DIARY_CATALOG",
     "ACHIEVEMENTS_SOURCE",
+    "BASE_CONDITION_KINDS",
     "CONDITION_KINDS",
     "DiaryCondition",
     "DiaryFamily",

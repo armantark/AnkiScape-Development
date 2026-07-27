@@ -22,6 +22,7 @@ from typing import Any
 from ..core.skill_registry import trainable_skill_definitions
 from ..data.achievement_diary_data import (
     ACHIEVEMENT_DIARY_CATALOG,
+    BASE_CONDITION_KINDS,
     DiaryCondition,
     DiaryFamily,
     DiaryTask,
@@ -157,6 +158,21 @@ def condition_progress_pure(
         return _counter_at(player_data, condition.key), need
     if kind == "hold_item":
         return _held_quantity(player_data, condition.key), need
+    if kind == "any_of":
+        # The period wrote several tasks as "kill a giant rat" where AnkiScape
+        # stores one counter per level variant. The task is done when any single
+        # alternative is done, and the panel shows the closest alternative
+        # rather than a sum of unlike units. An empty or unrecognised set of
+        # alternatives is unsatisfiable, never satisfied by a vacuous any().
+        pairs = [
+            condition_progress_pure(player_data, alternative)
+            for alternative in condition.alternatives
+            if alternative.kind in BASE_CONDITION_KINDS
+        ]
+        if not pairs:
+            return 0, 1
+        best = max(pairs, key=lambda pair: (min(pair[0], pair[1]) / pair[1], pair[0]))
+        return min(best[0], best[1]), best[1]
     return 0, need
 
 
