@@ -342,6 +342,31 @@ class PrestigeCapeTest(unittest.TestCase):
         player = _wear(player, "Completionist cape")
         self.assertEqual(player["equipment"]["cape"], "Completionist cape")
 
+    def test_lost_quest_cape_eligibility_unequips_the_owned_cape(self):
+        player = _all_quests_done(_player())
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
+        player, ok, info = _buy(player, "quest_point")
+        self.assertTrue(ok, info)
+        player = _wear(player, "Quest point cape")
+
+        player["quests"][QUESTS[0].id]["completed"] = False
+        player = refresh_capes_pure(player)
+
+        self.assertNotEqual(player["equipment"].get("cape"), "Quest point cape")
+        self.assertEqual(player["inventory"].get("Quest point cape"), 1)
+
+    def test_lost_quest_cape_eligibility_prevents_re_equipping(self):
+        player = _all_quests_done(_player())
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
+        player, ok, info = _buy(player, "quest_point")
+        self.assertTrue(ok, info)
+
+        player["quests"][QUESTS[0].id]["completed"] = False
+        allowed, reason = can_equip_item_pure("Quest point cape", EQUIPMENT_DATA, player)
+
+        self.assertFalse(allowed)
+        self.assertIn("quest", reason.lower())
+
     def test_completionist_names_what_is_still_outstanding(self):
         _same, ok, info = _buy(_player(), "completionist")
         self.assertFalse(ok)
