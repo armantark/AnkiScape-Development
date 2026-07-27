@@ -75,11 +75,16 @@ class DiaryTier:
     id: str
     name: str
     index: int
+    # The single upgradeable equipment item, for the eight families that have
+    # one. Burthorpe/Taverley has none — its period reward is the bundle below.
     reward_item: str
     reward_summary: str
     tasks: Tuple[DiaryTask, ...]
     lamp: "DiaryLamp | None" = None
     source: str = ""
+    # (item name, quantity) pairs handed over whole on claim, for a tier whose
+    # period reward is a set of starter equipment rather than one worn item.
+    reward_bundle: Tuple[Tuple[str, int], ...] = ()
 
     @property
     def effort_multiplier(self) -> int:

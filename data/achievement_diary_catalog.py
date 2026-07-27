@@ -2803,7 +2803,7 @@ DIARY_FAMILIES = (
             'Beginner',
             1,
             '',
-            'The source-shaped starter-equipment reward remains a separate reward-system item.',
+            "The Order of the Talon's starter kit: teleport tablets, a set of combat potions and a steel full helm.",
             (
             DiaryTask(
                 'burthorpe_period_take_your_pick',
@@ -2934,6 +2934,7 @@ DIARY_FAMILIES = (
             ),
             None,
             'period pool: 55 tasks; Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+            (('Varrock teleport tablet', 5), ('Falador teleport tablet', 5), ('Attack potion (4)', 5), ('Strength potion (4)', 5), ('Defence potion (4)', 5), ('Prayer potion (4)', 5), ('Steel full helm', 1)),
         ),
         ),
         '',
@@ -3224,6 +3225,7 @@ DIARY_FAMILIES = (
             ),
             None,
             'period pool: 35 tasks; Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
+            (),
         ),
         ),
         '',

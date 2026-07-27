@@ -396,16 +396,34 @@ def claim_diary_tier_pure(
     state = _state(data)
     state["claimed_tiers"] = list(state["claimed_tiers"]) + [tier.id]
     data["achievement_diaries"] = state
+    granted = tier_reward_names_pure(tier)
     return (
         data,
         True,
         {
-            "message": f"{family.name}: {tier.name} claimed. {tier.reward_item} is yours.",
+            "message": (
+                f"{family.name}: {tier.name} claimed. {_join(granted)} is yours."
+                if granted
+                else f"{family.name}: {tier.name} claimed."
+            ),
             "item": tier.reward_item,
+            "items": granted,
             "lamp_skill": chosen,
             "lamp_experience": tier.lamp.experience if tier.lamp else 0,
         },
     )
+
+
+def tier_reward_names_pure(tier: DiaryTier) -> tuple[str, ...]:
+    """Every item this tier's claim hands over, in the order it is presented."""
+
+    if tier.reward_item:
+        return (tier.reward_item,)
+    return tuple(f"{count}x {name}" if count > 1 else name for name, count in tier.reward_bundle)
+
+
+def _join(names: Sequence[str]) -> str:
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + f" and {names[-1]}"
 
 
 def _grant_tier_item(
@@ -414,6 +432,13 @@ def _grant_tier_item(
     """Grant the tier item, replacing its predecessor wherever that one sits."""
 
     if not tier.reward_item:
+        # A tier with no upgradeable worn item pays its set bundle whole. The
+        # bundle never replaces anything, so it skips the upgrade sweep below.
+        if tier.reward_bundle:
+            inventory = dict(_mapping(data.get("inventory")))
+            for name, count in tier.reward_bundle:
+                inventory[name] = _int(inventory.get(name)) + count
+            data["inventory"] = inventory
         return data
     inventory = dict(_mapping(data.get("inventory")))
     equipment = dict(_mapping(data.get("equipment")))
@@ -597,6 +622,7 @@ def achievement_cabinet_view_pure(
                     "index": tier.index,
                     "effort_multiplier": tier.effort_multiplier,
                     "reward_item": tier.reward_item,
+                    "reward_items": tier_reward_names_pure(tier),
                     "reward_summary": tier.reward_summary,
                     "lamp": (
                         {

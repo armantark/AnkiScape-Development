@@ -191,7 +191,10 @@ def build_achievements_tab(ctx) -> "QWidget":
         header.addWidget(claim)
         block_layout.addLayout(header)
 
-        reward = QLabel(f"{tier['reward_item']} — {tier['reward_summary']}")
+        items = ", ".join(tier["reward_items"])
+        reward = QLabel(
+            f"{items} — {tier['reward_summary']}" if items else tier["reward_summary"]
+        )
         reward.setWordWrap(True)
         reward.setStyleSheet(f"color: {dim_text_css(reward)};")
         block_layout.addWidget(reward)
