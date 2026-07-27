@@ -517,13 +517,19 @@ THIEVING_NPC_IMAGES = getattr(_thieving_data, "THIEVING_NPC_IMAGES", {})
 from ..data.agility_data import (
     AGILITY_GROUP_LABELS,
     AGILITY_GROUP_ORDER,
+    AGILITY_ITEM_IMAGES,
     AGILITY_TARGET_IMAGES,
     AGILITY_TARGETS,
     AGILITY_TARGETS_BY_ID,
     ALL_AGILITY_SHORTCUTS,
     DEFAULT_AGILITY_TARGET,
 )
-from ..logic.agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
+from ..logic.agility_logic import (
+    agility_aura_rows_pure,
+    agility_panel_activity_view_pure,
+    agility_status_line_pure,
+    agility_target_locked_reasons_pure,
+)
 from ..core.review_context import review_context_projection_pure
 
 from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -3855,6 +3861,7 @@ def show_main_menu(
         on_save_player_data=on_save_player_data,
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
+        on_agility_command=on_agility_command,
     )
     # Test seam: lets offscreen tests fire a cross-tab refresh at a tab that has
     # not been built yet. Harmless in production.
@@ -6203,11 +6210,9 @@ def show_main_menu(
 
         rewards = QWidget()
         rewards.setObjectName("agilityRewardControls")
-        reward_layout = QGridLayout(rewards)
+        reward_layout = QHBoxLayout(rewards)
         reward_layout.setContentsMargins(0, 0, 0, 0)
         reward_layout.setSpacing(6)
-
-        command_index = 0
 
         command_status = QLabel(agility_feedback["message"])
         command_status.setObjectName("agilityCommandStatus")
@@ -6221,38 +6226,24 @@ def show_main_menu(
             agility_feedback["message"] = str(result.get("message", ""))
             _render_panel()
 
-        def _command_button(label: str, action_id: str, payload=None) -> None:
-            nonlocal command_index
-            button = QPushButton(label)
-            button.setObjectName("agilityCommand::" + action_id)
-            button.setEnabled(on_agility_command is not None)
-            button.clicked.connect(
-                lambda _=False, aid=action_id, body=dict(payload or {}): _run_agility_command(aid, body)
-            )
-            reward_layout.addWidget(button, command_index // 5, command_index % 5)
-            command_index += 1
-
-        _command_button("Sell Pyramid top", "sell_pyramid_top", {"count": 1})
-        _command_button("Claim Agile top", "claim_agile_piece", {"piece": "Agile top"})
-        _command_button("Claim Agile legs", "claim_agile_piece", {"piece": "Agile legs"})
-        for tickets in (1, 10, 25, 100, 1000):
-            suffix = "ticket" if tickets == 1 else "tickets"
-            _command_button(
-                f"Redeem {tickets} {suffix}",
-                "redeem_brimhaven_xp",
-                {"tickets": tickets},
-            )
-        _command_button("Toadflax (3 tickets)", "redeem_brimhaven_item", {"tickets": 3})
-        _command_button("Wergali (5 tickets)", "redeem_brimhaven_item", {"tickets": 5})
-        _command_button("Snapdragon (10)", "redeem_brimhaven_item", {"tickets": 10})
-        _command_button("Pirate's hook (800)", "redeem_brimhaven_item", {"tickets": 800})
-        _command_button("Activate Surefooted", "activate_surefooted", {})
-        _command_button("Wind Toy mouse", "wind_toy_mouse", {})
-        _command_button("Buy Agility cape", "purchase_agility_cape", {})
-        _command_button("Activate cape", "activate_agility_cape", {})
-        _command_button("Leave activity", "leave_activity", {})
-        reward_layout.setColumnStretch(4, 1)
-        layout.addWidget(rewards)
+        # One control row, present only while the selected target is an
+        # activity, holding that activity's verbs. Shops and redemptions live
+        # in the Shop tab, auras in the Equipment tab; every flag comes from
+        # the view, never computed here.
+        activity_view = agility_panel_activity_view_pure(player_data)
+        if activity_view["active"]:
+            for button_view in activity_view["buttons"]:
+                button = QPushButton(button_view["label"])
+                button.setObjectName("agilityCommand::" + button_view["action_id"])
+                button.setEnabled(
+                    on_agility_command is not None and button_view["enabled"]
+                )
+                button.clicked.connect(
+                    lambda _=False, aid=button_view["action_id"]: _run_agility_command(aid, {})
+                )
+                reward_layout.addWidget(button)
+            reward_layout.addStretch(1)
+            layout.addWidget(rewards)
         return panel
 
     def _combat_mode_text() -> str:
@@ -22456,6 +22447,69 @@ def show_main_menu(
     totals_label.setWordWrap(True)
     totals_label.setStyleSheet("font-family: monospace; color: palette(text);")
     eq_left_layout.addWidget(totals_label)
+
+    # Auras are the activated cousins of passive skillcapes (the cooldown is
+    # the dividing line), so they get their own inventory here rather than a
+    # worn slot, each with its Activate control. Row flags come from
+    # agility_aura_rows_pure; the panel only renders them.
+    aura_group = QWidget()
+    aura_group.setObjectName("equipmentAuraPanel")
+    aura_group_layout = QVBoxLayout(aura_group)
+    aura_group_layout.setContentsMargins(0, 0, 0, 0)
+    aura_group_layout.setSpacing(4)
+    aura_header = QLabel("Auras")
+    aura_header.setStyleSheet("color: palette(text); font-weight: 600;")
+    aura_group_layout.addWidget(aura_header)
+    aura_rows_widget = QWidget()
+    aura_rows_layout = QVBoxLayout(aura_rows_widget)
+    aura_rows_layout.setContentsMargins(0, 0, 0, 0)
+    aura_rows_layout.setSpacing(4)
+    aura_group_layout.addWidget(aura_rows_widget)
+    eq_left_layout.addWidget(aura_group)
+
+    def _populate_aura_inventory() -> None:
+        _clear_layout(aura_rows_layout)
+        rows = agility_aura_rows_pure(player_data)
+        aura_group.setVisible(bool(rows))
+        for row in rows:
+            row_widget = QWidget()
+            row_layout = QHBoxLayout(row_widget)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setSpacing(6)
+            icon_label = QLabel()
+            icon_path = _bank_icon_path(row["item_name"], None)
+            if icon_path is None:
+                icon_path = AGILITY_ITEM_IMAGES.get(row["item_name"])
+            if icon_path and os.path.exists(icon_path):
+                icon_label.setPixmap(QIcon(icon_path).pixmap(QSize(24, 24)))
+            row_layout.addWidget(icon_label)
+            name_label = QLabel(f"{row['item_name']} · {row['state']}")
+            name_label.setStyleSheet("color: palette(text);")
+            row_layout.addWidget(name_label, 1)
+            activate_button = QPushButton("Activate")
+            activate_button.setObjectName("equipmentAuraActivateButton")
+            activate_button.setEnabled(
+                on_agility_command is not None and row["can_activate"]
+            )
+
+            def _activate_aura(_checked=False) -> None:
+                if on_agility_command is None:
+                    return
+                result = on_agility_command("activate_surefooted", {}) or {}
+                if not result.get("ok", result.get("allowed", False)):
+                    QMessageBox.information(
+                        dialog,
+                        "Aura unavailable",
+                        str(result.get("message", "That aura cannot be activated.")),
+                    )
+                _refresh_equipment_views()
+
+            activate_button.clicked.connect(_activate_aura)
+            row_layout.addWidget(activate_button)
+            aura_rows_layout.addWidget(row_widget)
+
+    _equipment_refreshers.append(_populate_aura_inventory)
+    _populate_aura_inventory()
 
     # Carried pack — worn and carried gear belong together, so the primary
     # carried-pack section (Auto|Custom switch + both views) lives here beside
