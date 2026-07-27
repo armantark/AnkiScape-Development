@@ -92,10 +92,7 @@ from ..logic_pure.logic_pure import (
 )
 from ..logic.shop_logic import default_shop_state_pure, sanitize_shop_state_pure
 from ..logic.grand_exchange_logic import default_ge_state_pure, sanitize_ge_state_pure
-from ..data.big_chinchompa_data import (
-    BIG_CHINCHOMPA_TICKET_BY_TARGET,
-    WORLD_POPULATION_PROFILES,
-)
+from ..data.big_chinchompa_data import BIG_CHINCHOMPA_TICKET_BY_TARGET
 from ..logic.big_chinchompa_logic import (
     default_big_chinchompa_state_pure,
     sanitize_big_chinchompa_state_pure,
@@ -483,7 +480,6 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_shop_state_pure())
     data["red_sandstone_daily"] = default_red_sandstone_daily_state_pure()
     data.update(default_ge_state_pure())
-    data["world_population_profile"] = "normal"
     data["hunter_private_ground_targets"] = []
     data["big_chinchompa"] = default_big_chinchompa_state_pure()
     data["evil_tree"] = default_evil_tree_state_pure()
@@ -1100,14 +1096,7 @@ def migrate_loaded_data(
     # established 240-answer world day; no wall-clock value is persisted.
     data["red_sandstone_daily"] = red_sandstone_daily_state_pure(data)
     data.update(sanitize_ge_state_pure(data))
-    population_profile = str(
-        data.get("world_population_profile", "normal")
-    ).lower()
-    data["world_population_profile"] = (
-        population_profile
-        if population_profile in WORLD_POPULATION_PROFILES
-        else "normal"
-    )
+    data.pop("world_population_profile", None)
     private_targets = data.get("hunter_private_ground_targets")
     data["hunter_private_ground_targets"] = (
         [

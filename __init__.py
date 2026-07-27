@@ -223,7 +223,6 @@ from .logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     apply_big_chinchompa_reward_purchase_pure,
     set_hunter_private_ground_pure,
-    set_world_population_profile_pure,
 )
 from .data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from .logic.evil_tree_logic import (
@@ -1756,19 +1755,6 @@ def _on_main_menu(
 
     def _apply_big_chinchompa_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        if action_id == "set_population_profile":
-            updated, ok, info = set_world_population_profile_pure(
-                player_data,
-                str(payload.get("profile", "normal")),
-            )
-            if not ok:
-                return {
-                    "ok": False,
-                    "message": str(info.get("reason", "Unknown profile.")),
-                }
-            if not commit_direct_action(lambda _current: (updated, True)):
-                return {"ok": False, "message": "Could not save the profile."}
-            return {"ok": True, **info}
         if action_id == "set_private_ground":
             updated, ok, info = set_hunter_private_ground_pure(
                 player_data,
@@ -1843,9 +1829,6 @@ def _on_main_menu(
                 ),
                 preferred_sizes=tuple(
                     payload.get("preferred_sizes", tuple(range(1, 10)))
-                ),
-                population_profile=str(
-                    payload.get("population_profile", "normal")
                 ),
             )
             if not ok:

@@ -27,7 +27,6 @@ def _player(*, answered=20, mining_level=99):
         "mining_level": mining_level,
         "mining_exp": 0.0,
         "inventory": {},
-        "world_population_profile": "normal",
         "shooting_star": default_shooting_star_state_pure(),
     }
 
@@ -52,13 +51,38 @@ class TestShootingStarLogic(unittest.TestCase):
             _player(answered=20),
             automation_mode="advanced",
             preferred_sizes=(2, 4),
-            population_profile="quiet",
         )
         self.assertTrue(ok)
         player, _ = advance_shooting_star_world_clock_pure(player)
         view = shooting_star_view_pure(player)
         self.assertIn(view["starting_size"], {2, 4})
-        self.assertEqual(view["population_profile"], "quiet")
+
+    def test_otherwise_identical_events_keep_seeded_population_fuzziness(self):
+        base, _ = advance_shooting_star_world_clock_pure(_player(answered=20))
+        removed = []
+        for seed in (123, 456):
+            player = {
+                **base,
+                "shop_market_clock": {
+                    "answered_cards": 21,
+                    "market_tick": 21,
+                },
+                "shooting_star": {
+                    **base["shooting_star"],
+                    "active_event": {
+                        **base["shooting_star"]["active_event"],
+                        "seed": seed,
+                        "crowd_dust_removed": 0,
+                    },
+                },
+            }
+            advanced, _ = advance_shooting_star_world_clock_pure(player)
+            removed.append(
+                advanced["shooting_star"]["active_event"][
+                    "crowd_dust_removed"
+                ]
+            )
+        self.assertNotEqual(removed[0], removed[1])
 
     def test_tag_requires_no_pickaxe_but_only_the_first_attempt(self):
         player, _ = advance_shooting_star_world_clock_pure(_player())

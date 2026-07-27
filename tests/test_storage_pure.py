@@ -283,7 +283,6 @@ class TestStoragePure(unittest.TestCase):
             "ge_buy_limit_usage",
             "ge_trade_history",
             "ge_fill_log",
-            "world_population_profile",
             "hunter_private_ground_targets",
             "big_chinchompa",
             "shooting_star",
@@ -309,7 +308,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["current_runecrafting"], "craft_air_runes")
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
         self.assertEqual(data["hunter_success_count"], 0)
-        self.assertEqual(data["world_population_profile"], "normal")
+        self.assertNotIn("world_population_profile", data)
         self.assertEqual(data["hunter_private_ground_targets"], [])
         self.assertEqual(data["big_chinchompa"]["competence_points"], 0)
         self.assertEqual(data["shooting_star"]["active_event"], {})
@@ -366,7 +365,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
         self.assertEqual(data["review_context_preferences"], {})
 
-    def test_migration_sanitizes_big_chinchompa_preferences_and_wallet(self):
+    def test_migration_removes_population_dial_and_sanitizes_big_chinchompa(self):
         migrated = migrate_loaded_data(
             {
                 "config_version": 49,
@@ -384,7 +383,7 @@ class TestStoragePure(unittest.TestCase):
             ORE_DATA,
         )
 
-        self.assertEqual(migrated["world_population_profile"], "normal")
+        self.assertNotIn("world_population_profile", migrated)
         self.assertEqual(
             migrated["hunter_private_ground_targets"],
             ["catch_swamp_lizard"],

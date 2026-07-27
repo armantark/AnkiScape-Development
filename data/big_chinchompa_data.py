@@ -34,19 +34,10 @@ BIG_CHINCHOMPA_LOCATIONS: Tuple[str, ...] = (
     "Rellekka Hunter area",
 )
 
-WORLD_POPULATION_PROFILES = ("quiet", "normal", "busy")
-WORLD_POPULATION_PROFILE_LABELS = {
-    "quiet": "Quiet",
-    "normal": "Normal",
-    "busy": "Busy",
-}
-# Disclosed naturalism abstraction. Seeded ±20% variation and the 0.75–1.25
-# review-day envelope are applied separately in the pure reducer.
-WORLD_POPULATION_BASE_CEILINGS = {
-    "quiet": 0.72,
-    "normal": 0.92,
-    "busy": 1.12,
-}
+# Disclosed naturalism abstraction. This preserves the former Normal profile's
+# observed baseline while seeded ±20% variation and the 0.75–1.25 review-day
+# envelope continue to make otherwise-equal events differ.
+BIG_CHINCHOMPA_POPULATION_BASE_CEILING = 0.92
 
 
 @dataclass(frozen=True)

@@ -169,7 +169,6 @@ from ..data.big_chinchompa_data import (
     BIG_CHINCHOMPA_REWARDS,
     BIG_CHINCHOMPA_TICKET_BY_TARGET,
     BIG_CHINCHOMPA_UTILITY_ID,
-    WORLD_POPULATION_PROFILE_LABELS,
 )
 from ..logic.big_chinchompa_logic import (
     big_chinchompa_view_pure,
@@ -7839,17 +7838,7 @@ def show_main_menu(
             f" QPushButton:disabled {{ color: {dim_text_css(big_action)};"
             " border-color: palette(mid); }"
         )
-        population_combo = QComboBox()
-        population_combo.setObjectName("bigChinchompaPopulationProfile")
-        population_combo.setToolTip(
-            "Sets how busy the simulated world feels. A busy world can fill "
-            "the Plutonial Chinchompa sooner; progress still comes only from "
-            "answered reviews."
-        )
-        for profile, label in WORLD_POPULATION_PROFILE_LABELS.items():
-            population_combo.addItem(f"{label} world", profile)
-        big_controls_layout.addWidget(big_action, 2)
-        big_controls_layout.addWidget(population_combo, 1)
+        big_controls_layout.addWidget(big_action, 1)
         big_layout.addWidget(big_controls)
 
         reward_row = QWidget()
@@ -7901,13 +7890,6 @@ def show_main_menu(
                 player_data.get("current_utility")
                 == BIG_CHINCHOMPA_UTILITY_ID
             )
-            profile_index = population_combo.findData(
-                view["population_profile"]
-            )
-            population_combo.blockSignals(True)
-            if profile_index >= 0:
-                population_combo.setCurrentIndex(profile_index)
-            population_combo.blockSignals(False)
             big_fullness.setVisible(active)
             big_fullness.setValue(int(round(view["fullness_percent"])))
             if active:
@@ -7997,20 +7979,6 @@ def show_main_menu(
             _refresh_big_chinchompa_panel()
             star_panel_refresher["call"]()
 
-        def _set_population_profile(profile: str) -> None:
-            if on_big_chinchompa_command is None:
-                return
-            result = on_big_chinchompa_command(
-                "set_population_profile", {"profile": profile}
-            )
-            if not result.get("ok", False):
-                show_error_message(
-                    "World population",
-                    str(result.get("message", "Could not update the profile.")),
-                )
-            _refresh_big_chinchompa_panel()
-            star_panel_refresher["call"]()
-
         def _buy_big_chinchompa_reward() -> None:
             if on_big_chinchompa_command is None:
                 return
@@ -8026,11 +7994,6 @@ def show_main_menu(
 
         big_action.clicked.connect(
             lambda _checked=False: _select_big_chinchompa()
-        )
-        population_combo.currentIndexChanged.connect(
-            lambda _index: _set_population_profile(
-                str(population_combo.currentData() or "normal")
-            )
         )
         reward_combo.currentIndexChanged.connect(
             lambda _index: _refresh_big_chinchompa_panel()
@@ -8111,13 +8074,6 @@ def show_main_menu(
         star_mode.setToolTip(
             "Casual accepts natural stars; Advanced prefers a saved size range."
         )
-        star_population = QComboBox()
-        star_population.setObjectName("shootingStarPopulationProfile")
-        for profile, label in WORLD_POPULATION_PROFILE_LABELS.items():
-            star_population.addItem(f"Population · {label}", profile)
-        star_population.setToolTip(
-            "World population changes how quickly public miners clear layers."
-        )
         star_min_size = QComboBox()
         star_min_size.setObjectName("shootingStarMinimumSize")
         star_min_size.setToolTip("Smallest star size preferred in Advanced mode.")
@@ -8128,7 +8084,6 @@ def show_main_menu(
             star_min_size.addItem(f"Min {size}", size)
             star_max_size.addItem(f"Max {size}", size)
         star_policy_layout.addWidget(star_mode, 2)
-        star_policy_layout.addWidget(star_population, 1)
         star_policy_layout.addWidget(star_min_size, 1)
         star_policy_layout.addWidget(star_max_size, 1)
         star_layout.addWidget(star_policy)
@@ -8173,12 +8128,6 @@ def show_main_menu(
             star_mode.setCurrentIndex(
                 max(0, star_mode.findData(view["automation_mode"]))
             )
-            star_population.setCurrentIndex(
-                max(
-                    0,
-                    star_population.findData(view["population_profile"]),
-                )
-            )
             star_min_size.setCurrentIndex(
                 max(0, star_min_size.findData(min(preferred)))
             )
@@ -8189,9 +8138,6 @@ def show_main_menu(
             star_min_size.setEnabled(advanced)
             star_max_size.setEnabled(advanced)
             star_mode.setEnabled(on_shooting_star_command is not None)
-            star_population.setEnabled(
-                on_shooting_star_command is not None
-            )
 
             if view["active"]:
                 star_status.setText(f"Size {int(view['current_size'])}")
@@ -8297,9 +8243,6 @@ def show_main_menu(
                     "automation_mode": str(
                         star_mode.currentData() or "casual"
                     ),
-                    "population_profile": str(
-                        star_population.currentData() or "normal"
-                    ),
                     "preferred_sizes": list(
                         range(minimum, maximum + 1)
                     ),
@@ -8341,9 +8284,6 @@ def show_main_menu(
             lambda _checked=False: _exchange_shooting_star_dust()
         )
         star_mode.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
-        )
-        star_population.currentIndexChanged.connect(
             lambda _index: _set_shooting_star_preferences()
         )
         star_min_size.currentIndexChanged.connect(

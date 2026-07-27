@@ -15,7 +15,6 @@ from ankiscape.logic.big_chinchompa_logic import (
     default_big_chinchompa_state_pure,
     hunter_private_ground_status_pure,
     set_hunter_private_ground_pure,
-    set_world_population_profile_pure,
 )
 from ankiscape.core.constants import EXP_TABLE
 
@@ -27,7 +26,6 @@ def _player(answered_cards=0, hunter_level=1):
         "hunter_exp": 0.0,
         "inventory": {},
         "big_chinchompa": default_big_chinchompa_state_pure(),
-        "world_population_profile": "normal",
         "hunter_private_ground_targets": [],
     }
 
@@ -35,7 +33,6 @@ def _player(answered_cards=0, hunter_level=1):
 class BigChinchompaLogicTests(unittest.TestCase):
     def test_two_review_day_slots_and_rational_twenty_minute_window(self):
         player = _player(59)
-        player["world_population_profile"] = "quiet"
         player, events = advance_big_chinchompa_world_clock_pure(player)
         self.assertEqual(events, ())
         self.assertEqual(big_chinchompa_view_pure(player)["next_reviews"], 1)
@@ -83,7 +80,6 @@ class BigChinchompaLogicTests(unittest.TestCase):
                 slot_card=60,
                 answered_cards=card,
                 seed=12345,
-                profile="normal",
             )
             for card in (60, 61, 62, 63, 64)
         ]
@@ -95,8 +91,7 @@ class BigChinchompaLogicTests(unittest.TestCase):
                     slot_card=60,
                     answered_cards=card,
                     seed=12345,
-                    profile="normal",
-                )
+                    )
                 for card in (60, 61, 62, 63, 64)
             ],
         )
@@ -224,15 +219,6 @@ class BigChinchompaLogicTests(unittest.TestCase):
                 player, "catch_grenwall"
             )["configured"]
         )
-
-    def test_population_profile_is_shared_saved_state(self):
-        player, ok, result = set_world_population_profile_pure(
-            _player(),
-            "busy",
-        )
-        self.assertTrue(ok)
-        self.assertEqual(result["profile"], "busy")
-        self.assertEqual(player["world_population_profile"], "busy")
 
 
 if __name__ == "__main__":

@@ -14,11 +14,10 @@ from ..data.big_chinchompa_data import (
     BIG_CHINCHOMPA_MOTH_TIERS,
     BIG_CHINCHOMPA_PERSONAL_POINT_CAP,
     BIG_CHINCHOMPA_PLAYER_FULLNESS_BPS_PER_CIRCUIT,
+    BIG_CHINCHOMPA_POPULATION_BASE_CEILING,
     BIG_CHINCHOMPA_REWARDS_BY_ID,
     BIG_CHINCHOMPA_TICKET_BY_TARGET,
     BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
-    WORLD_POPULATION_BASE_CEILINGS,
-    WORLD_POPULATION_PROFILES,
 )
 from .world_population_logic import (
     naturalized_population_target_bps_pure,
@@ -27,7 +26,6 @@ from .world_population_logic import (
 
 
 BIG_CHINCHOMPA_STATE_VERSION = 1
-DEFAULT_WORLD_POPULATION_PROFILE = "normal"
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
@@ -81,16 +79,6 @@ def _has_future_review_window(answered_cards: int, end_world_minute: int) -> boo
 
 def _event_seed(slot_card: int) -> int:
     return (slot_card * 1_103_515_245 + 12_345) & 0x7FFFFFFF
-
-
-def _profile(player_data: Mapping[str, Any]) -> str:
-    value = str(
-        player_data.get(
-            "world_population_profile",
-            DEFAULT_WORLD_POPULATION_PROFILE,
-        )
-    ).lower()
-    return value if value in WORLD_POPULATION_PROFILES else DEFAULT_WORLD_POPULATION_PROFILE
 
 
 def default_big_chinchompa_state_pure() -> dict[str, Any]:
@@ -164,7 +152,6 @@ def ensure_big_chinchompa_state_pure(
     # Shallow on purpose: every key written below is rebuilt from scratch, and a
     # whole-save deep copy here cost 2.07 ms on every review.
     data = dict(player_data)
-    data["world_population_profile"] = _profile(data)
     data["big_chinchompa"] = sanitize_big_chinchompa_state_pure(
         data.get("big_chinchompa")
     )
@@ -194,7 +181,6 @@ def big_chinchompa_crowd_target_bps_pure(
     slot_card: int,
     answered_cards: int,
     seed: int,
-    profile: str,
 ) -> int:
     """Return one deterministic, monotonic aggregate crowd-pressure target."""
 
@@ -206,9 +192,7 @@ def big_chinchompa_crowd_target_bps_pure(
         phase=phase,
         day_phase=(slot_card % 240) / 240.0,
         seed=seed,
-        profile=profile,
-        base_ceilings=WORLD_POPULATION_BASE_CEILINGS,
-        default_profile=DEFAULT_WORLD_POPULATION_PROFILE,
+        base_ceiling=BIG_CHINCHOMPA_POPULATION_BASE_CEILING,
     )
 
 
@@ -298,7 +282,6 @@ def advance_big_chinchompa_world_clock_pure(
                 slot_card=_int(event.get("slot_card")),
                 answered_cards=answered,
                 seed=_int(event.get("seed")),
-                profile=_profile(data),
             )
             event["crowd_fullness_bps"] = max(
                 _int(event.get("crowd_fullness_bps")),
@@ -425,22 +408,6 @@ def apply_big_chinchompa_review_pure(
         >= BIG_CHINCHOMPA_PERSONAL_POINT_CAP,
         "fullness_percent": _event_total_fullness_bps(event) / 100.0,
     }
-
-
-def set_world_population_profile_pure(
-    player_data: Mapping[str, Any],
-    profile: str,
-) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    value = str(profile).lower()
-    if value not in WORLD_POPULATION_PROFILES:
-        # Shallow on the refusal path: nothing was written, and the Big
-        # Chinchompa command handler discards the returned save when not ok.
-        return dict(player_data), False, {
-            "reason": "Unknown world-population profile."
-        }
-    data = ensure_big_chinchompa_state_pure(player_data)
-    data["world_population_profile"] = value
-    return data, True, {"profile": value}
 
 
 def apply_big_chinchompa_reward_purchase_pure(
@@ -651,7 +618,6 @@ def big_chinchompa_view_pure(
         "tier_level": tier.hunter_level,
         "tier_xp_per_jar": tier.xp * BIG_CHINCHOMPA_JAR_CAPACITY,
         "tier_points_per_jar": tier.points * BIG_CHINCHOMPA_JAR_CAPACITY,
-        "population_profile": _profile(data),
         "last_result": str(state.get("last_result", "")),
         # Reviews since the event resolved, so the Activities strip can hold the
         # outcome briefly instead of the award landing silently. -1 when nothing

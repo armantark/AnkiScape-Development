@@ -32,7 +32,6 @@ from ankiscape.logic.big_chinchompa_logic import (
     ensure_big_chinchompa_state_pure,
     hunter_private_ground_status_pure,
     set_hunter_private_ground_pure,
-    set_world_population_profile_pure,
 )
 from ankiscape.core.constants import EXP_TABLE
 
@@ -173,7 +172,6 @@ def _player(answered_cards: int = 0, hunter_level: int = 1, **overrides) -> dict
         "inventory": {},
         "carried_inventory": {},
         "big_chinchompa": default_big_chinchompa_state_pure(),
-        "world_population_profile": "normal",
         "hunter_private_ground_targets": [],
     }
     save.update(overrides)
@@ -252,21 +250,6 @@ class BigChinchompaWriteThroughTest(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(frozen, idle)
         self.assertIn("No Big Chinchompa event", info["reason"])
-
-    def test_population_profile_never_writes_through(self):
-        original = _player()
-        frozen = _frozen(original)
-        data, ok, info = set_world_population_profile_pure(frozen, "quiet")
-        self.assertTrue(ok)
-        self.assertEqual(frozen, original)
-        self.assertEqual(data["world_population_profile"], "quiet")
-        self.assertEqual(info["profile"], "quiet")
-
-        frozen = _frozen(original)
-        _, ok, info = set_world_population_profile_pure(frozen, "nonsense")
-        self.assertFalse(ok)
-        self.assertEqual(frozen, original)
-        self.assertIn("Unknown world-population profile", info["reason"])
 
     def test_reward_purchase_never_writes_through(self):
         """The item branch rebuilds the inventory the shallow copy still shares."""

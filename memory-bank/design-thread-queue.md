@@ -191,6 +191,26 @@ trade a sourced cadence for an unsourced one.
 Blocks: nothing. Related: fork 3.3 sets the reviews-to-ticks conversion that
 `CRUCIBLE_COMBAT_TICKS` reuses; answering that one should change this constant too.
 
+### 3.7 Activity-owned population base ceilings
+
+Raised 2026-07-26 while removing the superseded Quiet / Normal / Busy player dial.
+The owner settled that each public activity grows its own population with the
+existing fuzzy curve, but did not set the activity-owned base ceilings that
+replace the selected profile.
+
+- **Option A (implemented).** Give Shooting Stars and Big Chinchompa independent
+  constants both set to `0.92`, preserving the former Normal profile's observed
+  behaviour while removing every player control. They can diverge later without
+  restoring shared save state.
+- **Option B.** Recover or choose different activity-specific ceilings now. No
+  period population statistics have been recovered, so any different values
+  would be invented rather than sourced.
+
+Recommendation: **A** until playtesting or a source-backed range justifies a
+specific divergence. The event-seeded `±20%` ceiling shift, world-day envelope,
+S-curve shifts, and phase noise remain active, so this does not make events
+deterministic. Blocks: nothing.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
