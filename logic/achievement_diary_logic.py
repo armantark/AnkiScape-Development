@@ -1,0 +1,580 @@
+"""Pure achievement-diary progress, claiming, Taskmaster and cabinet view.
+
+The rules live here. ``achievement_cabinet_view_pure`` is the single place that
+decides what the Cabinet shows and what it lets the player press, so the panel
+renders a view and never re-derives a gate.
+
+Two contracts govern this module:
+
+- ``memory-bank/achievement-diary-item-grants-design.md`` (the diary design).
+- ``memory-bank/achievement-semantics-contract-2026-07-16.md``, whose Foundation
+  section forbids diary gear from consuming a moving-denominator completion
+  percentage. Nothing here reads one: every gate is a task predicate over
+  durable state, and the only ratios computed are per-tier ``done/total`` counts
+  whose denominator is the tier's own fixed task list.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
+from typing import Any
+
+from ..data.achievement_diary_data import (
+    DiaryCondition,
+    DiaryFamily,
+    DiaryTask,
+    DiaryTier,
+)
+
+
+ACHIEVEMENT_DIARY_STATE_VERSION = 1
+
+# The period achievement system unlocked "The Task at Hand" at 350 completed
+# tasks; the design contract carries that figure into the Music Log.
+MUSIC_UNLOCK_TASK_COUNT = 350
+
+
+def _int(value: Any, default: int = 0, *, maximum: int = 2_147_483_647) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError, OverflowError):
+        parsed = default
+    return max(0, min(parsed, maximum))
+
+
+def _mapping(value: Any) -> Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}
+
+
+def _str_list(value: Any, *, limit: int = 4000) -> list[str]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        return []
+    seen: dict[str, None] = {}
+    for entry in value:
+        if isinstance(entry, str) and entry:
+            seen.setdefault(entry[:120], None)
+        if len(seen) >= limit:
+            break
+    return list(seen)
+
+
+# ---------------------------------------------------------------------------
+# Persistent state
+# ---------------------------------------------------------------------------
+
+
+def default_achievement_diary_state_pure() -> dict[str, Any]:
+    return {
+        "achievement_diaries": {
+            "version": ACHIEVEMENT_DIARY_STATE_VERSION,
+            "completed_tasks": [],
+            "claimed_tiers": [],
+            "pinned_task": "",
+            "taskmaster": False,
+        }
+    }
+
+
+def sanitize_achievement_diary_state_pure(
+    player_data: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    source = _mapping(_mapping(player_data).get("achievement_diaries"))
+    return {
+        "achievement_diaries": {
+            "version": ACHIEVEMENT_DIARY_STATE_VERSION,
+            "completed_tasks": _str_list(source.get("completed_tasks")),
+            "claimed_tiers": _str_list(source.get("claimed_tiers")),
+            "pinned_task": str(source.get("pinned_task", "") or "")[:120],
+            "taskmaster": bool(source.get("taskmaster", False)),
+        }
+    }
+
+
+def _state(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    return sanitize_achievement_diary_state_pure(player_data)["achievement_diaries"]
+
+
+# ---------------------------------------------------------------------------
+# Condition evaluation
+# ---------------------------------------------------------------------------
+
+
+def _ledger_bucket(
+    player_data: Mapping[str, Any], skill_id: str, bucket: str
+) -> Mapping[str, Any]:
+    progress = _mapping(player_data.get("achievement_progress"))
+    skills = _mapping(progress.get("skills"))
+    return _mapping(_mapping(skills.get(skill_id)).get(bucket))
+
+
+def _counter_at(player_data: Mapping[str, Any], path: str) -> int:
+    node: Any = player_data
+    for part in path.split("."):
+        if not isinstance(node, Mapping):
+            return 0
+        node = node.get(part)
+    return _int(node)
+
+
+def _held_quantity(player_data: Mapping[str, Any], item_name: str) -> int:
+    """Live Bank quantity plus anything of that name currently worn.
+
+    Semantics contract: Hold/Own wording reads live state. Worn counts because
+    equipping does not stop the player from owning the item.
+    """
+
+    held = _int(_mapping(player_data.get("inventory")).get(item_name))
+    equipment = _mapping(player_data.get("equipment"))
+    held += sum(1 for worn in equipment.values() if worn == item_name)
+    return held
+
+
+def condition_progress_pure(
+    player_data: Mapping[str, Any], condition: DiaryCondition
+) -> tuple[int, int]:
+    """Return ``(have, need)`` for one condition."""
+
+    need = max(1, _int(condition.amount, 1))
+    kind = condition.kind
+    if kind == "skill_level":
+        return _int(player_data.get(f"{condition.key}_level", 1), 1), need
+    if kind == "quest":
+        state = _mapping(_mapping(player_data.get("quests")).get(condition.key))
+        return (1 if state.get("completed") else 0), 1
+    if kind in {"ledger_output", "ledger_action"}:
+        skill_id, _, key = condition.key.partition(":")
+        bucket = "outputs" if kind == "ledger_output" else "actions"
+        return _int(_ledger_bucket(player_data, skill_id, bucket).get(key)), need
+    if kind == "counter":
+        return _counter_at(player_data, condition.key), need
+    if kind == "hold_item":
+        return _held_quantity(player_data, condition.key), need
+    return 0, need
+
+
+def task_progress_pure(
+    player_data: Mapping[str, Any], task: DiaryTask
+) -> tuple[bool, int, int]:
+    """Return ``(satisfied_now, have, need)`` for a whole task.
+
+    A multi-condition task reports its progress as the number of conditions met,
+    because summing unrelated units would be meaningless. A single-condition
+    task reports that condition's real figures, which is where staged progress
+    is worth showing. Binary feats stay binary.
+    """
+
+    if len(task.conditions) == 1:
+        have, need = condition_progress_pure(player_data, task.conditions[0])
+        return have >= need, min(have, need), need
+    met = sum(
+        1
+        for condition in task.conditions
+        if (lambda pair: pair[0] >= pair[1])(
+            condition_progress_pure(player_data, condition)
+        )
+    )
+    total = len(task.conditions)
+    return met >= total, met, total
+
+
+# ---------------------------------------------------------------------------
+# Catalog helpers
+# ---------------------------------------------------------------------------
+
+
+def _tiers(catalog: Sequence[DiaryFamily]):
+    for family in catalog:
+        for tier in family.tiers:
+            yield family, tier
+
+
+def _tasks(catalog: Sequence[DiaryFamily]):
+    for family, tier in _tiers(catalog):
+        for task in tier.tasks:
+            yield family, tier, task
+
+
+def diary_task_by_id_pure(
+    catalog: Sequence[DiaryFamily], task_id: str
+) -> "tuple[DiaryFamily, DiaryTier, DiaryTask] | None":
+    for family, tier, task in _tasks(catalog):
+        if task.id == task_id:
+            return family, tier, task
+    return None
+
+
+def diary_tier_by_id_pure(
+    catalog: Sequence[DiaryFamily], tier_id: str
+) -> "tuple[DiaryFamily, DiaryTier] | None":
+    for family, tier in _tiers(catalog):
+        if tier.id == tier_id:
+            return family, tier
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Progress refresh
+# ---------------------------------------------------------------------------
+
+
+def refresh_achievement_diaries_pure(
+    player_data: Mapping[str, Any], catalog: Sequence[DiaryFamily]
+) -> tuple[dict[str, Any], tuple[str, ...]]:
+    """Credit every newly satisfied task and return the names that just landed.
+
+    Completion is sticky, exactly as the semantics contract requires of
+    completed achievement names: a task that was satisfied once stays satisfied
+    after the proving item is spent.
+    """
+
+    data = dict(player_data)
+    state = _state(data)
+    completed = list(state["completed_tasks"])
+    known = set(completed)
+    newly: list[str] = []
+    for _family, _tier, task in _tasks(catalog):
+        if task.id in known:
+            continue
+        satisfied, _have, _need = task_progress_pure(data, task)
+        if satisfied:
+            completed.append(task.id)
+            known.add(task.id)
+            newly.append(task.id)
+    state["completed_tasks"] = completed
+    state["taskmaster"] = bool(catalog) and all(
+        task.id in known for _family, _tier, task in _tasks(catalog)
+    )
+    data["achievement_diaries"] = state
+    if newly:
+        data = _award_task_coins(data, catalog, newly)
+    return data, tuple(newly)
+
+
+def _award_task_coins(
+    data: dict[str, Any], catalog: Sequence[DiaryFamily], task_ids: Sequence[str]
+) -> dict[str, Any]:
+    """Miscellaneous tasks are the one per-task reward the design allows."""
+
+    payout = 0
+    for task_id in task_ids:
+        found = diary_task_by_id_pure(catalog, task_id)
+        if found is not None and found[2].coin_reward:
+            payout += int(found[2].coin_reward)
+    if not payout:
+        return data
+    inventory = dict(_mapping(data.get("inventory")))
+    inventory["Coins"] = _int(inventory.get("Coins")) + payout
+    data["inventory"] = inventory
+    return data
+
+
+# ---------------------------------------------------------------------------
+# Claiming
+# ---------------------------------------------------------------------------
+
+
+def tier_claim_state_pure(
+    player_data: Mapping[str, Any],
+    catalog: Sequence[DiaryFamily],
+    family: DiaryFamily,
+    tier: DiaryTier,
+) -> dict[str, Any]:
+    state = _state(player_data)
+    completed = set(state["completed_tasks"])
+    claimed = set(state["claimed_tiers"])
+    done = sum(1 for task in tier.tasks if task.id in completed)
+    total = len(tier.tasks)
+    predecessor = None
+    for index, candidate in enumerate(family.tiers):
+        if candidate.id == tier.id and index:
+            predecessor = family.tiers[index - 1]
+            break
+    blocked_by = (
+        predecessor.name
+        if predecessor is not None and predecessor.id not in claimed
+        else ""
+    )
+    if tier.id in claimed:
+        status = "Claimed"
+    elif done < total:
+        status = "In progress"
+    elif blocked_by:
+        status = f"Claim {blocked_by} first"
+    else:
+        status = "Ready to Claim"
+    return {
+        "tier_id": tier.id,
+        "done": done,
+        "total": total,
+        "claimed": tier.id in claimed,
+        "ready": done >= total and not blocked_by and tier.id not in claimed,
+        "blocked_by": blocked_by,
+        "status": status,
+    }
+
+
+def _lamp_choice_required(tier: DiaryTier) -> bool:
+    return tier.lamp is not None and len(tier.lamp.skills) != 1
+
+
+def lamp_skill_options_pure(
+    player_data: Mapping[str, Any], tier: DiaryTier, trainable_skill_ids: Sequence[str]
+) -> tuple[str, ...]:
+    """Skills the tier's lamp may legally be pointed at, minimum level enforced."""
+
+    lamp = tier.lamp
+    if lamp is None:
+        return ()
+    candidates = lamp.skills or tuple(trainable_skill_ids)
+    return tuple(
+        skill_id
+        for skill_id in candidates
+        if _int(player_data.get(f"{skill_id}_level", 1), 1) >= max(1, lamp.minimum_level)
+    )
+
+
+def claim_diary_tier_pure(
+    player_data: Mapping[str, Any],
+    catalog: Sequence[DiaryFamily],
+    tier_id: str,
+    *,
+    lamp_skill: str = "",
+    trainable_skill_ids: Sequence[str] = (),
+    apply_lamp=None,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    """One atomic claim: equipment grant or upgrade, then the sourced lamp."""
+
+    found = diary_tier_by_id_pure(catalog, tier_id)
+    if found is None:
+        return dict(player_data), False, {"reason": "Unknown diary tier."}
+    family, tier = found
+    data = dict(player_data)
+    claim_state = tier_claim_state_pure(data, catalog, family, tier)
+    if claim_state["claimed"]:
+        return data, False, {"reason": f"{tier.name} is already claimed."}
+    if claim_state["done"] < claim_state["total"]:
+        return data, False, {"reason": f"{tier.name} still has tasks outstanding."}
+    if claim_state["blocked_by"]:
+        return (
+            data,
+            False,
+            {"reason": f"Claim {claim_state['blocked_by']} before {tier.name}."},
+        )
+
+    options = lamp_skill_options_pure(data, tier, trainable_skill_ids)
+    chosen = ""
+    if tier.lamp is not None:
+        if not options:
+            return (
+                data,
+                False,
+                {"reason": f"No skill meets the lamp's level {tier.lamp.minimum_level} minimum."},
+            )
+        chosen = lamp_skill if lamp_skill in options else (options[0] if len(options) == 1 else "")
+        if not chosen:
+            return (
+                data,
+                False,
+                {"reason": "Choose the skill for this tier's lamp.", "lamp_options": options},
+            )
+
+    data = _grant_tier_item(data, family, tier)
+    if tier.lamp is not None and apply_lamp is not None:
+        apply_lamp(data, chosen, float(tier.lamp.experience))
+
+    state = _state(data)
+    state["claimed_tiers"] = list(state["claimed_tiers"]) + [tier.id]
+    data["achievement_diaries"] = state
+    return (
+        data,
+        True,
+        {
+            "message": f"{family.name}: {tier.name} claimed. {tier.reward_item} is yours.",
+            "item": tier.reward_item,
+            "lamp_skill": chosen,
+            "lamp_experience": tier.lamp.experience if tier.lamp else 0,
+        },
+    )
+
+
+def _grant_tier_item(
+    data: dict[str, Any], family: DiaryFamily, tier: DiaryTier
+) -> dict[str, Any]:
+    """Grant the tier item, replacing its predecessor wherever that one sits."""
+
+    inventory = dict(_mapping(data.get("inventory")))
+    equipment = dict(_mapping(data.get("equipment")))
+    predecessor = ""
+    for index, candidate in enumerate(family.tiers):
+        if candidate.id == tier.id and index:
+            predecessor = family.tiers[index - 1].reward_item
+            break
+
+    worn_slot = ""
+    if predecessor:
+        for slot, worn in list(equipment.items()):
+            if worn == predecessor:
+                worn_slot = str(slot)
+                del equipment[slot]
+                break
+        if not worn_slot and _int(inventory.get(predecessor)):
+            remaining = _int(inventory.get(predecessor)) - 1
+            if remaining > 0:
+                inventory[predecessor] = remaining
+            else:
+                inventory.pop(predecessor, None)
+
+    if worn_slot:
+        equipment[worn_slot] = tier.reward_item
+    else:
+        inventory[tier.reward_item] = _int(inventory.get(tier.reward_item)) + 1
+    data["inventory"] = inventory
+    data["equipment"] = equipment
+    return data
+
+
+# ---------------------------------------------------------------------------
+# Pinning
+# ---------------------------------------------------------------------------
+
+
+def pin_diary_task_pure(
+    player_data: Mapping[str, Any], catalog: Sequence[DiaryFamily], task_id: str
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    """The 2012 interface's one-task pin, surviving only inside the Cabinet."""
+
+    data = dict(player_data)
+    state = _state(data)
+    if not task_id:
+        state["pinned_task"] = ""
+        data["achievement_diaries"] = state
+        return data, True, {"message": "Pin cleared."}
+    if diary_task_by_id_pure(catalog, task_id) is None:
+        return data, False, {"reason": "Unknown task."}
+    state["pinned_task"] = "" if state["pinned_task"] == task_id else task_id
+    data["achievement_diaries"] = state
+    return (
+        data,
+        True,
+        {"message": "Task pinned." if state["pinned_task"] else "Pin cleared."},
+    )
+
+
+# ---------------------------------------------------------------------------
+# View
+# ---------------------------------------------------------------------------
+
+
+def diary_totals_pure(
+    player_data: Mapping[str, Any], catalog: Sequence[DiaryFamily]
+) -> dict[str, int]:
+    state = _state(player_data)
+    completed = set(state["completed_tasks"])
+    all_ids = [task.id for _family, _tier, task in _tasks(catalog)]
+    return {
+        "completed": sum(1 for task_id in all_ids if task_id in completed),
+        "total": len(all_ids),
+    }
+
+
+def achievement_cabinet_view_pure(
+    player_data: Mapping[str, Any],
+    catalog: Sequence[DiaryFamily],
+    *,
+    trainable_skill_ids: Sequence[str] = (),
+    family_filter: str = "",
+    tier_filter: str = "",
+    completion_filter: str = "",
+    search: str = "",
+) -> dict[str, Any]:
+    """Everything the Cabinet renders, including every enable decision."""
+
+    state = _state(player_data)
+    completed = set(state["completed_tasks"])
+    pinned = state["pinned_task"]
+    needle = search.strip().lower()
+    families: list[dict[str, Any]] = []
+    for family in catalog:
+        if family_filter and family.id != family_filter:
+            continue
+        tiers: list[dict[str, Any]] = []
+        for tier in family.tiers:
+            if tier_filter and tier.name != tier_filter:
+                continue
+            rows: list[dict[str, Any]] = []
+            for task in tier.tasks:
+                done = task.id in completed
+                if completion_filter == "complete" and not done:
+                    continue
+                if completion_filter == "incomplete" and done:
+                    continue
+                _satisfied, have, need = task_progress_pure(player_data, task)
+                if needle and needle not in f"{task.name} {task.description}".lower():
+                    continue
+                rows.append(
+                    {
+                        "task_id": task.id,
+                        "name": task.name,
+                        "description": task.description,
+                        "requirements": tuple(
+                            condition.label or condition.key for condition in task.conditions
+                        ),
+                        "completed": done,
+                        "have": need if done else have,
+                        "need": need,
+                        "staged": need > 1,
+                        "pinned": task.id == pinned,
+                        "coin_reward": task.coin_reward,
+                        "source": task.source,
+                    }
+                )
+            rows.sort(key=lambda row: (not row["pinned"],))
+            claim = tier_claim_state_pure(player_data, catalog, family, tier)
+            tiers.append(
+                {
+                    **claim,
+                    "name": tier.name,
+                    "index": tier.index,
+                    "effort_multiplier": tier.effort_multiplier,
+                    "reward_item": tier.reward_item,
+                    "reward_summary": tier.reward_summary,
+                    "lamp": (
+                        {
+                            "experience": tier.lamp.experience,
+                            "minimum_level": tier.lamp.minimum_level,
+                            "choice_required": _lamp_choice_required(tier),
+                            "options": lamp_skill_options_pure(
+                                player_data, tier, trainable_skill_ids
+                            ),
+                        }
+                        if tier.lamp is not None
+                        else None
+                    ),
+                    "tasks": tuple(rows),
+                    "source": tier.source,
+                }
+            )
+        families.append(
+            {
+                "family_id": family.id,
+                "name": family.name,
+                "kind": family.kind,
+                "taskmaster": family.taskmaster,
+                "tiers": tuple(tiers),
+            }
+        )
+
+    totals = diary_totals_pure(player_data, catalog)
+    return {
+        "families": tuple(families),
+        "completed": totals["completed"],
+        "total": totals["total"],
+        "taskmaster": bool(state["taskmaster"]),
+        "pinned_task": pinned,
+        "filters": {
+            "families": tuple((family.id, family.name) for family in catalog),
+            "tiers": tuple(
+                dict.fromkeys(tier.name for _family, tier in _tiers(catalog))
+            ),
+        },
+    }

@@ -180,6 +180,12 @@ from ..logic.shades_of_mortton_logic import (
     default_shades_of_mortton_state_pure,
     sanitize_shades_of_mortton_state_pure,
 )
+from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+from ..logic.achievement_diary_logic import (
+    default_achievement_diary_state_pure,
+    refresh_achievement_diaries_pure,
+    sanitize_achievement_diary_state_pure,
+)
 from ..logic.tzhaar_fight_pit_logic import (
     default_tzhaar_fight_pit_state_pure,
     sanitize_tzhaar_fight_pit_state_pure,
@@ -257,7 +263,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 87
+CURRENT_CONFIG_VERSION = 88
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -509,6 +515,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     )
     data.update(default_soul_wars_state_pure())
     data.update(default_shades_of_mortton_state_pure())
+    data.update(default_achievement_diary_state_pure())
     data.update(default_tzhaar_fight_pit_state_pure())
     data.update(default_duel_arena_state_pure())
     data.update(default_clan_wars_state_pure())
@@ -1155,6 +1162,7 @@ def migrate_loaded_data(
     )
     data.update(sanitize_soul_wars_state_pure(data))
     data.update(sanitize_shades_of_mortton_state_pure(data))
+    data.update(sanitize_achievement_diary_state_pure(data))
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
@@ -1670,6 +1678,19 @@ def migrate_loaded_data(
     # raid, the raid and village sessions, and the cower shield's bonus budget.
     if loaded_config_version < 87:
         data.setdefault("goblin_raids", default_goblin_raids_state_pure())
+    # v88: Achievement Diaries replaces the fabricated achievement list. The old
+    # 168 rows are not translated one-for-one, because almost none of them named
+    # a period task; instead the diary ledger is seeded by re-deriving every task
+    # from the durable counters the old rows read, which credits exactly the
+    # feats the save can prove. `completed_achievements` is preserved verbatim —
+    # the semantics contract keeps those names sticky and they remain the
+    # history substrate; they simply stop being a player-facing list.
+    if loaded_config_version < 88:
+        for key, value in default_achievement_diary_state_pure().items():
+            data.setdefault(key, value)
+        data.update(
+            refresh_achievement_diaries_pure(data, ACHIEVEMENT_DIARY_CATALOG)[0]
+        )
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1722,6 +1743,7 @@ def migrate_loaded_data(
     )
     data.update(sanitize_soul_wars_state_pure(data))
     data.update(sanitize_shades_of_mortton_state_pure(data))
+    data.update(sanitize_achievement_diary_state_pure(data))
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
