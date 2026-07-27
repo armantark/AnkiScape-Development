@@ -2565,6 +2565,35 @@ class TestRuntimeActions(unittest.TestCase):
         hunter_data["inventory"] = {}
         self.assertFalse(can_start_action(_context(hunter_data), "hunter"))
 
+    def test_what_lies_below_completion_grants_dagonhai_history(self):
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
+        from ankiscape.core.storage_pure import default_player_data
+
+        quest_id = "what_lies_below"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["current_quest"] = quest_id
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        final_stage = int(quest["stages"]) - 1
+        player_data["quests"][quest_id] = {
+            "started": True,
+            "progress": final_stage,
+            "completed": False,
+        }
+        final_requirement = next(
+            row for row in quest["stage_requirements"] if row["stage"] == final_stage
+        )
+        player_data["quest_stage_actions"][quest_id] = list(
+            final_requirement["required_actions"]
+        )
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+
+        self.assertTrue(player_data["quests"]["what_lies_below"]["completed"])
+        self.assertEqual(player_data["inventory"]["Dagon'hai history"], 1)
+
     def test_quest_completion_warns_and_switches_off(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

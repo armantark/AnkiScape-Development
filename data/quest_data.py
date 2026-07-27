@@ -11,6 +11,7 @@ from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from .varrock_museum_data import varrock_museum_quest_reward_additions_as_dict
 
 
 RUNE_MYSTERIES_ID = "rune_mysteries"
@@ -3993,6 +3994,9 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
     BIOHAZARD_ID: "You will need to defeat a level 13 mourner.",
     WATERFALL_QUEST_ID: "None required, but the Waterfall Dungeon contains aggressive skeletons and spiders.",
 }
+
+
+QUEST_ITEM_REWARD_ADDITIONS_BY_ID = varrock_museum_quest_reward_additions_as_dict()
 
 
 QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
@@ -8590,6 +8594,13 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
             for reward in row.get("item_rewards", ()) or ()
             if isinstance(reward, dict) and reward.get("item_name")
         )
+    item_reward_additions = QUEST_ITEM_REWARD_ADDITIONS_BY_ID.get(quest_id, ())
+    if item_reward_additions:
+        item_rewards += tuple(
+            (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
+            for reward in item_reward_additions
+            if isinstance(reward, dict) and reward.get("item_name")
+        )
     lamp_rewards = tuple(
         QuestLampReward(
             str(reward.get("display_name", "XP lamp")),
@@ -9229,6 +9240,15 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             generated_items[item_name] = {
                 "category": str(reward.get("category", "material")),
                 "source": str(reward.get("source", row.get("reward_source", row.get("source", "")))),
+            }
+    for rewards in QUEST_ITEM_REWARD_ADDITIONS_BY_ID.values():
+        for reward in rewards:
+            item_name = _quest_reward_item_name(reward.get("item_name"))
+            if not isinstance(item_name, str) or not item_name:
+                continue
+            generated_items[item_name] = {
+                "category": str(reward.get("category", "material")),
+                "source": str(reward.get("source", "")),
             }
     generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},

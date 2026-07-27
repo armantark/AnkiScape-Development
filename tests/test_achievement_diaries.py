@@ -69,6 +69,60 @@ def _set_counter(player, path, amount):
     node[parts[-1]] = amount
 
 
+def _complete_quest_for_reward(player, quest_id):
+    from ankiscape.core.constants import QUEST_DATA
+    from ankiscape.logic_pure.logic_pure_quest import apply_quest_progress_pure
+
+    quest = QUEST_DATA[quest_id]
+    prior_quests = {
+        requirement["quest_id"]: copy.deepcopy(
+            player["quests"].get(requirement["quest_id"])
+        )
+        for requirement in quest.get("required_quests", ())
+    }
+    prior_levels = {
+        f"{requirement['skill_id']}_level": player.get(
+            f"{requirement['skill_id']}_level"
+        )
+        for requirement in quest.get("required_skills", ())
+    }
+    for requirement in quest.get("required_quests", ()):
+        player["quests"][requirement["quest_id"]] = {"completed": True}
+    for requirement in quest.get("required_skills", ()):
+        player[f"{requirement['skill_id']}_level"] = requirement["level"]
+
+    final_stage = int(quest["stages"]) - 1
+    player["quests"][quest_id] = {
+        "started": True,
+        "progress": final_stage,
+        "completed": False,
+    }
+    final_requirement = next(
+        (
+            requirement
+            for requirement in quest.get("stage_requirements", ())
+            if int(requirement.get("stage", 0)) == final_stage
+        ),
+        {},
+    )
+    player["quest_stage_actions"][quest_id] = list(
+        final_requirement.get("required_actions", ())
+    )
+    player, ok, completed = apply_quest_progress_pure(player, quest_id, QUEST_DATA)
+    assert ok and completed, quest_id
+    for prerequisite_id, prior_state in prior_quests.items():
+        if prior_state is None:
+            player["quests"].pop(prerequisite_id, None)
+        else:
+            player["quests"][prerequisite_id] = prior_state
+    for level_key, prior_level in prior_levels.items():
+        if prior_level is None:
+            player.pop(level_key, None)
+        else:
+            player[level_key] = prior_level
+    return player
+
+
 def _max_out_varrock_museum(player):
     """Drive the real museum to every Kudos point AnkiScape implements.
 
@@ -91,18 +145,27 @@ def _max_out_varrock_museum(player):
         player, ok, info = apply_varrock_museum_review_pure(player)
         assert ok, info
 
-    quests = player.setdefault("quests", {})
-    quests["the_dig_site"] = {"completed": True}
+    earned_items = {}
+    for row in QUEST_KUDOS:
+        quest_id = str(row["id"])
+        required_item = row.get("required_item")
+        if required_item:
+            player = _complete_quest_for_reward(player, quest_id)
+            item_name = str(required_item)
+            quantity = int(player["inventory"].pop(item_name, 0))
+            assert quantity > 0, item_name
+            earned_items[item_name] = quantity
+        else:
+            player["quests"][quest_id] = {"completed": True}
+
+    player["quests"]["the_dig_site"] = {"completed": True}
     player["equipment"] = dict(player.get("equipment") or {})
     player["equipment"]["hands"] = "Leather gloves"
     player["equipment"]["feet"] = "Leather boots"
     carried = dict(player.get("carried_inventory") or {})
     pack = dict(carried.get("varrock_museum") or {})
     pack.update({"Trowel": 1, "Rock pick": 1, "Specimen brush": 1})
-    for row in QUEST_KUDOS:
-        quests[str(row["id"])] = {"completed": True}
-        if row.get("required_item"):
-            pack[str(row["required_item"])] = 1
+    pack.update(earned_items)
     carried["varrock_museum"] = pack
     player["carried_inventory"] = carried
 
@@ -197,6 +260,18 @@ def _complete_tier(player, tier):
 
 
 class CatalogIntegrityTest(unittest.TestCase):
+    def test_every_kudos_required_item_has_a_reachable_grant_path(self):
+        from ankiscape.data.varrock_museum_data import QUEST_KUDOS
+        from tools.audit_item_reachability import build_reachability_report
+
+        routes = build_reachability_report()["routes"]
+        required_items = {
+            str(row["required_item"])
+            for row in QUEST_KUDOS
+            if row.get("required_item")
+        }
+        self.assertEqual(required_items - routes.keys(), set())
+
     def test_every_family_carries_its_period_tiers(self):
         self.assertEqual(
             [family.id for family in ACHIEVEMENT_DIARY_CATALOG],
@@ -472,14 +547,13 @@ class DerivedValueConditionTest(unittest.TestCase):
     def test_the_catalog_ships_derived_value_tasks(self):
         self.assertTrue(self._thresholds())
 
-    def test_every_threshold_is_reachable_and_the_ceiling_has_not_drifted(self):
-        """The Kudos threshold sits ten points under the implemented ceiling.
+    def test_museum_reaches_its_true_kudos_ceiling_through_real_handlers(self):
+        """Earn the implemented ceiling without manufacturing gated items.
 
-        One dropped specimen case costs ten, which would make the task
-        permanently impossible while the predicate still looked right. So this
-        does not compare constants: it plays the museum to exhaustion through
-        its real entry points and asserts the figure that comes out clears
-        every shipped threshold and still equals the pinned ceiling.
+        One dropped specimen case costs ten, while an unreachable quest item
+        silently costs its row's Kudos. This plays the museum to exhaustion
+        through its real entry points and obtains every gated item from a live
+        quest reward before asserting the ceiling.
         """
         player = _max_out_varrock_museum(_fresh())
         for name, ceiling in DIARY_DERIVED_VALUE_CEILINGS.items():

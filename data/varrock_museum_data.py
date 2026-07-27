@@ -14,6 +14,7 @@ VARROCK_MUSEUM_SOURCE = (
     "(2012-11-01T00:26:08Z); Natural history quiz oldid=6459188 "
     "(2012-10-23T14:10:49Z); OpenRS2 rev-742 item definitions"
 )
+WHAT_LIES_BELOW_SOURCE = "https://runescape.wiki/w/What_Lies_Below?oldid=6326255"
 
 
 QUIZ_DISPLAYS = (
@@ -126,6 +127,19 @@ def varrock_museum_activity_as_dict() -> dict[str, dict[str, Any]]:
             "group": "landmarks",
             "source": VARROCK_MUSEUM_SOURCE,
         }
+    }
+
+
+def varrock_museum_quest_reward_additions_as_dict() -> dict[str, tuple[dict[str, Any], ...]]:
+    return {
+        "what_lies_below": (
+            {
+                "item_name": "Dagon'hai history",
+                "quantity": 1,
+                "category": "material",
+                "source": WHAT_LIES_BELOW_SOURCE,
+            },
+        ),
     }
 
 
