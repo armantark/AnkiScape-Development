@@ -813,15 +813,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             from ankiscape.logic.big_chinchompa_logic import (
                 apply_big_chinchompa_reward_purchase_pure,
                 set_hunter_private_ground_pure,
-                set_world_population_profile_pure,
             )
 
             self._big_chinchompa_calls.append((action_id, dict(payload)))
-            if action_id == "set_population_profile":
-                updated, ok, info = set_world_population_profile_pure(
-                    player_data, payload.get("profile", "normal")
-                )
-            elif action_id == "set_private_ground":
+            if action_id == "set_private_ground":
                 updated, ok, info = set_hunter_private_ground_pure(
                     player_data,
                     payload.get("target_id", ""),
@@ -847,24 +842,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         def _shooting_star_command(action_id, payload):
             from ankiscape.logic.shooting_star_logic import (
                 apply_shooting_star_exchange_pure,
-                set_shooting_star_preferences_pure,
             )
 
             self._shooting_star_calls.append((action_id, dict(payload)))
-            if action_id == "set_preferences":
-                updated, ok, info = set_shooting_star_preferences_pure(
-                    player_data,
-                    automation_mode=payload.get(
-                        "automation_mode", "casual"
-                    ),
-                    preferred_sizes=payload.get(
-                        "preferred_sizes", tuple(range(1, 10))
-                    ),
-                    population_profile=payload.get(
-                        "population_profile", "normal"
-                    ),
-                )
-            elif action_id == "exchange":
+            if action_id == "exchange":
                 updated, ok, info = apply_shooting_star_exchange_pure(
                     player_data
                 )
@@ -8949,7 +8930,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             {
                 "hunter_level": 99,
                 "shop_market_clock": {"answered_cards": 60},
-                "world_population_profile": "quiet",
                 "big_chinchompa": default_big_chinchompa_state_pure(),
                 "evil_tree": default_evil_tree_state_pure(),
             }
@@ -8987,15 +8967,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "big_chinchompa")
 
-        population = dialog.findChild(
-            QComboBox, "bigChinchompaPopulationProfile"
-        )
-        population.setCurrentIndex(population.findData("busy"))
-        QApplication.processEvents()
-        self.assertEqual(pd["world_population_profile"], "busy")
-        self.assertEqual(
-            self._big_chinchompa_calls[-1],
-            ("set_population_profile", {"profile": "busy"}),
+        self.assertIsNone(
+            dialog.findChild(QComboBox, "bigChinchompaPopulationProfile")
         )
 
         buy = _find_named_button(dialog, "bigChinchompaRewardBuyButton")
@@ -9073,10 +9046,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         original_height = details_stack.height()
         big_detail = _find_named_label(dialog, "bigChinchompaDetail")
         big_detail.setMinimumHeight(big_detail.sizeHint().height() + 40)
-        population = dialog.findChild(
-            QComboBox, "bigChinchompaPopulationProfile"
+        reward_combo = dialog.findChild(
+            QComboBox, "bigChinchompaRewardCombo"
         )
-        population.setCurrentIndex(population.findData("busy"))
+        reward_combo.setCurrentIndex(1)
         QApplication.processEvents()
         self.assertGreater(details_stack.height(), original_height)
 
@@ -9192,7 +9165,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             ui.mw = orig_mw
 
-    def test_shooting_star_panel_selects_configures_and_exchanges(self) -> None:
+    def test_shooting_star_panel_selects_and_exchanges_without_spawn_controls(self) -> None:
         from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
@@ -9224,31 +9197,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._utility_calls[-1], "shooting_stars")
         self.assertEqual(select.text(), "Selected for reviews")
 
-        mode = dialog.findChild(
-            QComboBox, "shootingStarAutomationMode"
-        )
-        minimum = dialog.findChild(
-            QComboBox, "shootingStarMinimumSize"
-        )
-        maximum = dialog.findChild(
-            QComboBox, "shootingStarMaximumSize"
-        )
-        population = dialog.findChild(
-            QComboBox, "shootingStarPopulationProfile"
-        )
-        mode.setCurrentIndex(mode.findData("advanced"))
-        minimum.setCurrentIndex(minimum.findData(3))
-        maximum.setCurrentIndex(maximum.findData(5))
-        population.setCurrentIndex(population.findData("busy"))
-        QApplication.processEvents()
-        self.assertEqual(
-            pd["shooting_star"]["preferred_sizes"], [3, 4, 5]
-        )
-        self.assertEqual(pd["world_population_profile"], "busy")
-        self.assertEqual(
-            self._shooting_star_calls[-1][0],
-            "set_preferences",
-        )
+        for object_name in (
+            "shootingStarAutomationMode",
+            "shootingStarMinimumSize",
+            "shootingStarMaximumSize",
+            "shootingStarPopulationProfile",
+        ):
+            self.assertIsNone(dialog.findChild(QComboBox, object_name))
 
         event = pd["shooting_star"]["active_event"]
         event.update(

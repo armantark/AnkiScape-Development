@@ -12,7 +12,6 @@ from ankiscape.logic.shooting_star_logic import (
     apply_shooting_star_review_pure,
     default_shooting_star_state_pure,
     ensure_shooting_star_state_pure,
-    set_shooting_star_preferences_pure,
     shooting_star_view_pure,
 )
 
@@ -46,16 +45,19 @@ class TestShootingStarLogic(unittest.TestCase):
         self.assertIn(view["current_size"], range(1, 10))
         self.assertEqual(view["required_level"], view["current_size"] * 10)
 
-    def test_advanced_preferences_constrain_the_next_starting_size(self):
-        player, ok, _ = set_shooting_star_preferences_pure(
-            _player(answered=20),
-            automation_mode="advanced",
-            preferred_sizes=(2, 4),
+    def test_legacy_preferences_do_not_control_the_next_star(self):
+        player = _player(answered=20)
+        player["shooting_star"].update(
+            {"automation_mode": "advanced", "preferred_sizes": [2, 4]}
         )
-        self.assertTrue(ok)
         player, _ = advance_shooting_star_world_clock_pure(player)
-        view = shooting_star_view_pure(player)
-        self.assertIn(view["starting_size"], {2, 4})
+        state = player["shooting_star"]
+        self.assertNotIn("automation_mode", state)
+        self.assertNotIn("preferred_sizes", state)
+        self.assertNotIn(
+            shooting_star_view_pure(player)["starting_size"],
+            {2, 4},
+        )
 
     def test_otherwise_identical_events_keep_seeded_population_fuzziness(self):
         base, _ = advance_shooting_star_world_clock_pure(_player(answered=20))

@@ -233,7 +233,6 @@ from .data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from .logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     apply_shooting_star_exchange_pure,
-    set_shooting_star_preferences_pure,
 )
 from .logic.warriors_guild_logic import (
     enter_warriors_guild_cyclops_room_pure,
@@ -1821,29 +1820,6 @@ def _on_main_menu(
 
     def _apply_shooting_star_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        if action_id == "set_preferences":
-            updated, ok, info = set_shooting_star_preferences_pure(
-                player_data,
-                automation_mode=str(
-                    payload.get("automation_mode", "casual")
-                ),
-                preferred_sizes=tuple(
-                    payload.get("preferred_sizes", tuple(range(1, 10)))
-                ),
-            )
-            if not ok:
-                return {
-                    "ok": False,
-                    "message": str(
-                        info.get("reason", "Could not save star preferences.")
-                    ),
-                }
-            if not commit_direct_action(lambda _current: (updated, True)):
-                return {
-                    "ok": False,
-                    "message": "Could not save star preferences.",
-                }
-            return {"ok": True, **info}
         if action_id != "exchange":
             return {
                 "ok": False,

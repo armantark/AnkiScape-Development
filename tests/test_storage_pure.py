@@ -394,7 +394,7 @@ class TestStoragePure(unittest.TestCase):
         )
         self.assertEqual(migrated["big_chinchompa"]["active_event"], {})
 
-    def test_migration_sanitizes_shooting_star_preferences_and_bonus(self):
+    def test_migration_removes_shooting_star_preferences_and_sanitizes_bonus(self):
         migrated = migrate_loaded_data(
             {
                 "config_version": 51,
@@ -410,9 +410,8 @@ class TestStoragePure(unittest.TestCase):
         )
 
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
-        self.assertEqual(
-            migrated["shooting_star"]["preferred_sizes"], [1, 3, 9]
-        )
+        self.assertNotIn("automation_mode", migrated["shooting_star"])
+        self.assertNotIn("preferred_sizes", migrated["shooting_star"])
         self.assertEqual(
             migrated["shooting_star"]["ore_bonus_ticks_remaining"], 0
         )

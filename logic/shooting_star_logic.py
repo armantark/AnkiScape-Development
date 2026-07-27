@@ -80,8 +80,6 @@ def default_shooting_star_state_pure() -> dict[str, Any]:
         "last_resolved_slot_card": 0,
         "last_exchange_day": -1,
         "ore_bonus_ticks_remaining": 0,
-        "automation_mode": "casual",
-        "preferred_sizes": list(range(1, 10)),
         "last_result": "",
         "event_log": [],
     }
@@ -151,19 +149,6 @@ def _sanitize_event(raw: Any) -> dict[str, Any]:
 def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
     defaults = default_shooting_star_state_pure()
     source = raw if isinstance(raw, Mapping) else {}
-    preferred = source.get("preferred_sizes")
-    preferred_sizes = (
-        sorted(
-            {
-                min(9, _int(value, 1, minimum=1))
-                for value in preferred
-            }
-        )
-        if isinstance(preferred, (list, tuple, set))
-        else list(range(1, 10))
-    )
-    if not preferred_sizes:
-        preferred_sizes = list(range(1, 10))
     event_log = source.get("event_log")
     return {
         **defaults,
@@ -178,13 +163,6 @@ def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
         "ore_bonus_ticks_remaining": _int(
             source.get("ore_bonus_ticks_remaining")
         ),
-        "automation_mode": (
-            "advanced"
-            if str(source.get("automation_mode", "casual")).lower()
-            == "advanced"
-            else "casual"
-        ),
-        "preferred_sizes": preferred_sizes,
         "last_result": str(source.get("last_result", ""))[:240],
         "event_log": (
             [dict(row) for row in event_log if isinstance(row, Mapping)][-20:]
@@ -206,24 +184,13 @@ def ensure_shooting_star_state_pure(
     return data
 
 
-def _spawn_event(
-    state: Mapping[str, Any],
-    *,
-    slot_card: int,
-) -> dict[str, Any]:
+def _spawn_event(*, slot_card: int) -> dict[str, Any]:
     seed = _event_seed(slot_card)
-    preferred = (
-        tuple(state.get("preferred_sizes") or ())
-        if state.get("automation_mode") == "advanced"
-        else tuple(range(1, 10))
-    )
-    candidates = tuple(
-        size for size in preferred if size in SHOOTING_STAR_LAYERS_BY_SIZE
-    ) or tuple(range(1, 10))
-    starting_size = candidates[
+    sizes = tuple(range(1, 10))
+    starting_size = sizes[
         min(
-            len(candidates) - 1,
-            int(seeded_unit_pure(seed, 6) * len(candidates)),
+            len(sizes) - 1,
+            int(seeded_unit_pure(seed, 6) * len(sizes)),
         )
     ]
     location = SHOOTING_STAR_LOCATIONS[
@@ -399,10 +366,7 @@ def advance_shooting_star_world_clock_pure(
         and current_slot >= SHOOTING_STAR_INTERVAL_REVIEWS
         and current_slot > _int(state.get("last_resolved_slot_card"))
     ):
-        event = _spawn_event(
-            state,
-            slot_card=current_slot,
-        )
+        event = _spawn_event(slot_card=current_slot)
         _apply_crowd_target(
             event,
             answered_cards=answered,
@@ -424,34 +388,6 @@ def shooting_star_event_mineable_pure(
     data = ensure_shooting_star_state_pure(player_data)
     event = data["shooting_star"]["active_event"]
     return bool(event and not event.get("sprite_released"))
-
-
-def set_shooting_star_preferences_pure(
-    player_data: Mapping[str, Any],
-    *,
-    automation_mode: str,
-    preferred_sizes: Sequence[int],
-) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = ensure_shooting_star_state_pure(player_data)
-    mode = str(automation_mode).lower()
-    sizes = sorted(
-        {
-            min(9, _int(value, 1, minimum=1))
-            for value in preferred_sizes
-        }
-    )
-    if mode not in {"casual", "advanced"}:
-        return data, False, {"reason": "Unknown automation mode."}
-    if not sizes:
-        return data, False, {"reason": "Select at least one preferred size."}
-    state = dict(data["shooting_star"])
-    state["automation_mode"] = mode
-    state["preferred_sizes"] = sizes
-    data["shooting_star"] = sanitize_shooting_star_state_pure(state)
-    return data, True, {
-        "automation_mode": mode,
-        "preferred_sizes": sizes,
-    }
 
 
 def _pick_gem(
@@ -695,7 +631,5 @@ def shooting_star_view_pure(
         "ore_bonus_ticks_remaining": _int(
             state.get("ore_bonus_ticks_remaining")
         ),
-        "automation_mode": str(state.get("automation_mode", "casual")),
-        "preferred_sizes": tuple(state.get("preferred_sizes") or ()),
         "last_result": str(state.get("last_result", "")),
     }

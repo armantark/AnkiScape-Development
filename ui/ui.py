@@ -8063,31 +8063,6 @@ def show_main_menu(
         )
         star_layout.addWidget(star_detail)
 
-        star_policy = QWidget()
-        star_policy_layout = QHBoxLayout(star_policy)
-        star_policy_layout.setContentsMargins(0, 0, 0, 0)
-        star_policy_layout.setSpacing(6)
-        star_mode = QComboBox()
-        star_mode.setObjectName("shootingStarAutomationMode")
-        star_mode.addItem("Casual · natural stars", "casual")
-        star_mode.addItem("Advanced · preferred sizes", "advanced")
-        star_mode.setToolTip(
-            "Casual accepts natural stars; Advanced prefers a saved size range."
-        )
-        star_min_size = QComboBox()
-        star_min_size.setObjectName("shootingStarMinimumSize")
-        star_min_size.setToolTip("Smallest star size preferred in Advanced mode.")
-        star_max_size = QComboBox()
-        star_max_size.setObjectName("shootingStarMaximumSize")
-        star_max_size.setToolTip("Largest star size preferred in Advanced mode.")
-        for size in range(1, 10):
-            star_min_size.addItem(f"Min {size}", size)
-            star_max_size.addItem(f"Max {size}", size)
-        star_policy_layout.addWidget(star_mode, 2)
-        star_policy_layout.addWidget(star_min_size, 1)
-        star_policy_layout.addWidget(star_max_size, 1)
-        star_layout.addWidget(star_policy)
-
         star_actions = QWidget()
         star_actions_layout = QHBoxLayout(star_actions)
         star_actions_layout.setContentsMargins(0, 0, 0, 0)
@@ -8101,8 +8076,6 @@ def show_main_menu(
         star_layout.addWidget(star_actions)
         cards_stack.addWidget(star_box)
 
-        syncing_star = {"active": False}
-
         def _shooting_star_has_pickaxe() -> bool:
             return (
                 best_mining_pickaxe_pure(
@@ -8115,7 +8088,6 @@ def show_main_menu(
             )
 
         def _refresh_shooting_star_panel() -> None:
-            syncing_star["active"] = True
             view = shooting_star_view_pure(
                 player_data,
                 has_usable_pickaxe=_shooting_star_has_pickaxe(),
@@ -8124,21 +8096,6 @@ def show_main_menu(
                 player_data.get("current_utility")
                 == SHOOTING_STAR_ACTIVITY_ID
             )
-            preferred = tuple(view["preferred_sizes"]) or tuple(range(1, 10))
-            star_mode.setCurrentIndex(
-                max(0, star_mode.findData(view["automation_mode"]))
-            )
-            star_min_size.setCurrentIndex(
-                max(0, star_min_size.findData(min(preferred)))
-            )
-            star_max_size.setCurrentIndex(
-                max(0, star_max_size.findData(max(preferred)))
-            )
-            advanced = view["automation_mode"] == "advanced"
-            star_min_size.setEnabled(advanced)
-            star_max_size.setEnabled(advanced)
-            star_mode.setEnabled(on_shooting_star_command is not None)
-
             if view["active"]:
                 star_status.setText(f"Size {int(view['current_size'])}")
                 star_summary.setText(
@@ -8214,7 +8171,6 @@ def show_main_menu(
                 if view["can_exchange"]
                 else "A released sprite, stardust, and an unused review-day reward are required."
             )
-            syncing_star["active"] = False
             _fit_current_activity_detail()
             world_events_refresher["call"]()
 
@@ -8229,37 +8185,6 @@ def show_main_menu(
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
             _refresh_shooting_star_panel()
-
-        def _set_shooting_star_preferences() -> None:
-            if syncing_star["active"] or on_shooting_star_command is None:
-                return
-            minimum = int(star_min_size.currentData() or 1)
-            maximum = int(star_max_size.currentData() or 9)
-            if minimum > maximum:
-                maximum = minimum
-            result = on_shooting_star_command(
-                "set_preferences",
-                {
-                    "automation_mode": str(
-                        star_mode.currentData() or "casual"
-                    ),
-                    "preferred_sizes": list(
-                        range(minimum, maximum + 1)
-                    ),
-                },
-            ) or {}
-            if not result.get("ok", False):
-                show_error_message(
-                    "Shooting Star preferences",
-                    str(
-                        result.get(
-                            "message",
-                            "Could not save Shooting Star preferences.",
-                        )
-                    ),
-                )
-            _refresh_shooting_star_panel()
-            _refresh_big_chinchompa_panel()
 
         def _exchange_shooting_star_dust() -> None:
             if on_shooting_star_command is None:
@@ -8282,15 +8207,6 @@ def show_main_menu(
         )
         star_exchange.clicked.connect(
             lambda _checked=False: _exchange_shooting_star_dust()
-        )
-        star_mode.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
-        )
-        star_min_size.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
-        )
-        star_max_size.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
         )
         _refresh_shooting_star_panel()
 
