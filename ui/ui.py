@@ -4103,6 +4103,14 @@ def show_main_menu(
             item.setToolTip(row.tooltip)
             target_list.addItem(item)
             if row.current:
+                # setCurrentItem alone is not a visible highlight here: the
+                # legacy QStyle selection rect under alternatingRowColors +
+                # stylesheet border-radius renders as a near-white wash. Mark
+                # the row the same way the grouped tree does.
+                current_font = item.font()
+                current_font.setBold(True)
+                item.setFont(current_font)
+                item.setBackground(QBrush(QColor(76, 175, 80, 76)))
                 target_list.setCurrentItem(item)
 
         rows_by_target = {row.target_id: row for row in rows}
