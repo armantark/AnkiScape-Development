@@ -103,3 +103,36 @@ its item definitions from the cache, so only the prayer bonus is recovered.
 running their own refresh rather than by inventing a starting point, so a player
 who was already 99 in two skills keeps the correct first-99 keepsake and a
 player who finished a quest years ago already owns its tracks.
+
+## Verification pass, 2026-07-27 (branch `diary/fixes`)
+
+An independent verification drove the family through its real logic and found
+six defects. Five are fixed; one cannot be fixed honestly yet.
+
+- **Burthorpe/Taverley claim was inert.** The period reward is a set bundle, not
+  a per-task grant and not an upgradeable worn item — the pinned revision has no
+  reward column and hands the whole kit over at once. `DiaryTier` gained
+  `reward_bundle`, and the claim pays it. That is also why Darkan's `SetReward`
+  excludes Burthorpe.
+- **Losing Quest point cape eligibility did nothing.** Every Cape of Distinction
+  now re-checks its own durable gate in `can_equip_item_pure`, and
+  `refresh_capes_pure` returns a lapsed cape to the Bank.
+- **The latent music track was invisible.** Every track now has a row; the ones
+  past the first twelve are hidden behind a toggle rather than dropped.
+- **The Max gate counts 24 skills, not the period's 25.** Kept registry-derived,
+  because enforcing 25 makes Max, Completionist and all nine milestone capes
+  permanently unobtainable — but the shortfall is now named out loud through
+  `latent_cutoff_skills_pure()`. Design fork 3.11.
+- **The Dungeoneering skillcape is NOT fixed.** Nothing writes
+  `dungeoneering_exp`, so no save can reach 99 and there is no honest purchase
+  path. The period row stays complete in `SKILLCAPES`, and the test that pins
+  its absence is now the record of the gap.
+- **Fork 3.10 said the skillcape boost changes exactly one roll.** Measured, it
+  changes 39: 33 Hunter, 3 Firemaking, 2 Thieving yield, 1 Cooking. Hunter's
+  formula interpolates on `level / 99.0` without clamping, which the original
+  reasoning missed. The figure is pinned by a test.
+
+The 149 unmarked thresholds in `core/achievement_metadata.py` are classified in
+full at the value: none is period content, so none warrants a placeholder. 16
+are the sourced level cap of 99; the other 140 are an AnkiScape round-number
+ladder. A new `ThresholdProvenanceTest` fails on any off-ladder addition.
