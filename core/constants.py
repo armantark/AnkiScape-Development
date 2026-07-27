@@ -160,6 +160,11 @@ from ..data.sorceress_garden_data import (
     sorceress_garden_extra_items_as_dict,
 )
 
+from ..data.achievement_diary_data import (
+    ACHIEVEMENT_DIARY_CATALOG,
+    diary_equipment_data_as_dict,
+)
+from ..data.achievement_cape_data import milestone_cape_equipment_data_as_dict
 from ..data.penguin_hide_and_seek_data import (
     PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
     penguin_hide_and_seek_activity_as_dict,
@@ -1564,6 +1569,8 @@ EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
 EQUIPMENT_DATA.update(duel_arena_equipment_data_as_dict())
 EQUIPMENT_DATA.update(crucible_equipment_data_as_dict())
 EQUIPMENT_DATA.update(goblin_raids_equipment_data_as_dict())
+EQUIPMENT_DATA.update(diary_equipment_data_as_dict())
+EQUIPMENT_DATA.update(milestone_cape_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()

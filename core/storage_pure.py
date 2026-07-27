@@ -180,7 +180,6 @@ from ..logic.shades_of_mortton_logic import (
     default_shades_of_mortton_state_pure,
     sanitize_shades_of_mortton_state_pure,
 )
-from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 from ..logic.achievement_diary_logic import (
     default_achievement_diary_state_pure,
     refresh_achievement_diaries_pure,
@@ -1688,9 +1687,7 @@ def migrate_loaded_data(
     if loaded_config_version < 88:
         for key, value in default_achievement_diary_state_pure().items():
             data.setdefault(key, value)
-        data.update(
-            refresh_achievement_diaries_pure(data, ACHIEVEMENT_DIARY_CATALOG)[0]
-        )
+        data.update(refresh_achievement_diaries_pure(data)[0])
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

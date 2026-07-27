@@ -95,3 +95,26 @@ class DiaryFamily:
     tiers: Tuple[DiaryTier, ...]
     taskmaster: str = ""
     source: str = ACHIEVEMENTS_SOURCE
+
+
+# The live catalog. Regional families are generated from Darkan's tier tables
+# joined to the pinned pre-cutoff wiki requirement columns; see
+# ``tools/generate_achievement_diary_data.py``.
+from .achievement_diary_catalog import (  # noqa: E402  (avoids a cycle at import)
+    REGIONAL_DIARY_FAMILIES,
+    diary_equipment_data_as_dict,
+)
+
+ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = REGIONAL_DIARY_FAMILIES
+
+__all__ = [
+    "ACHIEVEMENT_DIARY_CATALOG",
+    "ACHIEVEMENTS_SOURCE",
+    "CONDITION_KINDS",
+    "DiaryCondition",
+    "DiaryFamily",
+    "DiaryLamp",
+    "DiaryTask",
+    "DiaryTier",
+    "diary_equipment_data_as_dict",
+]

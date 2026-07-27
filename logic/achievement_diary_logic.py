@@ -19,12 +19,15 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from ..core.skill_registry import trainable_skill_definitions
 from ..data.achievement_diary_data import (
+    ACHIEVEMENT_DIARY_CATALOG,
     DiaryCondition,
     DiaryFamily,
     DiaryTask,
     DiaryTier,
 )
+from ..logic_pure.logic_pure_quest import _apply_skill_xp_reward
 
 
 ACHIEVEMENT_DIARY_STATE_VERSION = 1
@@ -182,31 +185,27 @@ def task_progress_pure(
 # ---------------------------------------------------------------------------
 
 
-def _tiers(catalog: Sequence[DiaryFamily]):
-    for family in catalog:
+def _tiers():
+    for family in ACHIEVEMENT_DIARY_CATALOG:
         for tier in family.tiers:
             yield family, tier
 
 
-def _tasks(catalog: Sequence[DiaryFamily]):
-    for family, tier in _tiers(catalog):
+def _tasks():
+    for family, tier in _tiers():
         for task in tier.tasks:
             yield family, tier, task
 
 
-def diary_task_by_id_pure(
-    catalog: Sequence[DiaryFamily], task_id: str
-) -> "tuple[DiaryFamily, DiaryTier, DiaryTask] | None":
-    for family, tier, task in _tasks(catalog):
+def diary_task_by_id_pure(task_id: str) -> "tuple[DiaryFamily, DiaryTier, DiaryTask] | None":
+    for family, tier, task in _tasks():
         if task.id == task_id:
             return family, tier, task
     return None
 
 
-def diary_tier_by_id_pure(
-    catalog: Sequence[DiaryFamily], tier_id: str
-) -> "tuple[DiaryFamily, DiaryTier] | None":
-    for family, tier in _tiers(catalog):
+def diary_tier_by_id_pure(tier_id: str) -> "tuple[DiaryFamily, DiaryTier] | None":
+    for family, tier in _tiers():
         if tier.id == tier_id:
             return family, tier
     return None
@@ -218,7 +217,7 @@ def diary_tier_by_id_pure(
 
 
 def refresh_achievement_diaries_pure(
-    player_data: Mapping[str, Any], catalog: Sequence[DiaryFamily]
+    player_data: Mapping[str, Any]
 ) -> tuple[dict[str, Any], tuple[str, ...]]:
     """Credit every newly satisfied task and return the names that just landed.
 
@@ -232,7 +231,7 @@ def refresh_achievement_diaries_pure(
     completed = list(state["completed_tasks"])
     known = set(completed)
     newly: list[str] = []
-    for _family, _tier, task in _tasks(catalog):
+    for _family, _tier, task in _tasks():
         if task.id in known:
             continue
         satisfied, _have, _need = task_progress_pure(data, task)
@@ -241,23 +240,21 @@ def refresh_achievement_diaries_pure(
             known.add(task.id)
             newly.append(task.id)
     state["completed_tasks"] = completed
-    state["taskmaster"] = bool(catalog) and all(
-        task.id in known for _family, _tier, task in _tasks(catalog)
+    state["taskmaster"] = bool(ACHIEVEMENT_DIARY_CATALOG) and all(
+        task.id in known for _family, _tier, task in _tasks()
     )
     data["achievement_diaries"] = state
     if newly:
-        data = _award_task_coins(data, catalog, newly)
+        data = _award_task_coins(data, newly)
     return data, tuple(newly)
 
 
-def _award_task_coins(
-    data: dict[str, Any], catalog: Sequence[DiaryFamily], task_ids: Sequence[str]
-) -> dict[str, Any]:
+def _award_task_coins(data: dict[str, Any], task_ids: Sequence[str]) -> dict[str, Any]:
     """Miscellaneous tasks are the one per-task reward the design allows."""
 
     payout = 0
     for task_id in task_ids:
-        found = diary_task_by_id_pure(catalog, task_id)
+        found = diary_task_by_id_pure(task_id)
         if found is not None and found[2].coin_reward:
             payout += int(found[2].coin_reward)
     if not payout:
@@ -275,7 +272,6 @@ def _award_task_coins(
 
 def tier_claim_state_pure(
     player_data: Mapping[str, Any],
-    catalog: Sequence[DiaryFamily],
     family: DiaryFamily,
     tier: DiaryTier,
 ) -> dict[str, Any]:
@@ -294,7 +290,12 @@ def tier_claim_state_pure(
         if predecessor is not None and predecessor.id not in claimed
         else ""
     )
-    if tier.id in claimed:
+    if not total:
+        # Three families' pinned task tables did not yield a machine-readable
+        # roster, so their tiers ship real but empty. An empty tier is not a
+        # finished one: it must never fall through to "Ready to Claim".
+        status = "Roster pending harvest"
+    elif tier.id in claimed:
         status = "Claimed"
     elif done < total:
         status = "In progress"
@@ -307,7 +308,7 @@ def tier_claim_state_pure(
         "done": done,
         "total": total,
         "claimed": tier.id in claimed,
-        "ready": done >= total and not blocked_by and tier.id not in claimed,
+        "ready": bool(total) and done >= total and not blocked_by and tier.id not in claimed,
         "blocked_by": blocked_by,
         "status": status,
     }
@@ -317,15 +318,19 @@ def _lamp_choice_required(tier: DiaryTier) -> bool:
     return tier.lamp is not None and len(tier.lamp.skills) != 1
 
 
+def _trainable_skill_ids() -> tuple[str, ...]:
+    return tuple(skill.id for skill in trainable_skill_definitions())
+
+
 def lamp_skill_options_pure(
-    player_data: Mapping[str, Any], tier: DiaryTier, trainable_skill_ids: Sequence[str]
+    player_data: Mapping[str, Any], tier: DiaryTier
 ) -> tuple[str, ...]:
     """Skills the tier's lamp may legally be pointed at, minimum level enforced."""
 
     lamp = tier.lamp
     if lamp is None:
         return ()
-    candidates = lamp.skills or tuple(trainable_skill_ids)
+    candidates = lamp.skills or _trainable_skill_ids()
     return tuple(
         skill_id
         for skill_id in candidates
@@ -335,24 +340,21 @@ def lamp_skill_options_pure(
 
 def claim_diary_tier_pure(
     player_data: Mapping[str, Any],
-    catalog: Sequence[DiaryFamily],
     tier_id: str,
     *,
     lamp_skill: str = "",
-    trainable_skill_ids: Sequence[str] = (),
-    apply_lamp=None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """One atomic claim: equipment grant or upgrade, then the sourced lamp."""
 
-    found = diary_tier_by_id_pure(catalog, tier_id)
+    found = diary_tier_by_id_pure(tier_id)
     if found is None:
         return dict(player_data), False, {"reason": "Unknown diary tier."}
     family, tier = found
     data = dict(player_data)
-    claim_state = tier_claim_state_pure(data, catalog, family, tier)
+    claim_state = tier_claim_state_pure(data, family, tier)
     if claim_state["claimed"]:
         return data, False, {"reason": f"{tier.name} is already claimed."}
-    if claim_state["done"] < claim_state["total"]:
+    if not claim_state["ready"] and not claim_state["blocked_by"]:
         return data, False, {"reason": f"{tier.name} still has tasks outstanding."}
     if claim_state["blocked_by"]:
         return (
@@ -361,7 +363,7 @@ def claim_diary_tier_pure(
             {"reason": f"Claim {claim_state['blocked_by']} before {tier.name}."},
         )
 
-    options = lamp_skill_options_pure(data, tier, trainable_skill_ids)
+    options = lamp_skill_options_pure(data, tier)
     chosen = ""
     if tier.lamp is not None:
         if not options:
@@ -379,8 +381,8 @@ def claim_diary_tier_pure(
             )
 
     data = _grant_tier_item(data, family, tier)
-    if tier.lamp is not None and apply_lamp is not None:
-        apply_lamp(data, chosen, float(tier.lamp.experience))
+    if tier.lamp is not None:
+        _apply_skill_xp_reward(data, chosen, float(tier.lamp.experience))
 
     state = _state(data)
     state["claimed_tiers"] = list(state["claimed_tiers"]) + [tier.id]
@@ -439,7 +441,7 @@ def _grant_tier_item(
 
 
 def pin_diary_task_pure(
-    player_data: Mapping[str, Any], catalog: Sequence[DiaryFamily], task_id: str
+    player_data: Mapping[str, Any], task_id: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """The 2012 interface's one-task pin, surviving only inside the Cabinet."""
 
@@ -449,7 +451,7 @@ def pin_diary_task_pure(
         state["pinned_task"] = ""
         data["achievement_diaries"] = state
         return data, True, {"message": "Pin cleared."}
-    if diary_task_by_id_pure(catalog, task_id) is None:
+    if diary_task_by_id_pure(task_id) is None:
         return data, False, {"reason": "Unknown task."}
     state["pinned_task"] = "" if state["pinned_task"] == task_id else task_id
     data["achievement_diaries"] = state
@@ -466,11 +468,11 @@ def pin_diary_task_pure(
 
 
 def diary_totals_pure(
-    player_data: Mapping[str, Any], catalog: Sequence[DiaryFamily]
+    player_data: Mapping[str, Any]
 ) -> dict[str, int]:
     state = _state(player_data)
     completed = set(state["completed_tasks"])
-    all_ids = [task.id for _family, _tier, task in _tasks(catalog)]
+    all_ids = [task.id for _family, _tier, task in _tasks()]
     return {
         "completed": sum(1 for task_id in all_ids if task_id in completed),
         "total": len(all_ids),
@@ -479,9 +481,7 @@ def diary_totals_pure(
 
 def achievement_cabinet_view_pure(
     player_data: Mapping[str, Any],
-    catalog: Sequence[DiaryFamily],
     *,
-    trainable_skill_ids: Sequence[str] = (),
     family_filter: str = "",
     tier_filter: str = "",
     completion_filter: str = "",
@@ -494,7 +494,7 @@ def achievement_cabinet_view_pure(
     pinned = state["pinned_task"]
     needle = search.strip().lower()
     families: list[dict[str, Any]] = []
-    for family in catalog:
+    for family in ACHIEVEMENT_DIARY_CATALOG:
         if family_filter and family.id != family_filter:
             continue
         tiers: list[dict[str, Any]] = []
@@ -529,7 +529,7 @@ def achievement_cabinet_view_pure(
                     }
                 )
             rows.sort(key=lambda row: (not row["pinned"],))
-            claim = tier_claim_state_pure(player_data, catalog, family, tier)
+            claim = tier_claim_state_pure(player_data, family, tier)
             tiers.append(
                 {
                     **claim,
@@ -543,9 +543,7 @@ def achievement_cabinet_view_pure(
                             "experience": tier.lamp.experience,
                             "minimum_level": tier.lamp.minimum_level,
                             "choice_required": _lamp_choice_required(tier),
-                            "options": lamp_skill_options_pure(
-                                player_data, tier, trainable_skill_ids
-                            ),
+                            "options": lamp_skill_options_pure(player_data, tier),
                         }
                         if tier.lamp is not None
                         else None
@@ -564,7 +562,7 @@ def achievement_cabinet_view_pure(
             }
         )
 
-    totals = diary_totals_pure(player_data, catalog)
+    totals = diary_totals_pure(player_data)
     return {
         "families": tuple(families),
         "completed": totals["completed"],
@@ -572,9 +570,33 @@ def achievement_cabinet_view_pure(
         "taskmaster": bool(state["taskmaster"]),
         "pinned_task": pinned,
         "filters": {
-            "families": tuple((family.id, family.name) for family in catalog),
+            "families": tuple((family.id, family.name) for family in ACHIEVEMENT_DIARY_CATALOG),
             "tiers": tuple(
-                dict.fromkeys(tier.name for _family, tier in _tiers(catalog))
+                dict.fromkeys(tier.name for _family, tier in _tiers())
             ),
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Command dispatch
+# ---------------------------------------------------------------------------
+
+
+def apply_achievement_diary_command_pure(
+    player_data: Mapping[str, Any],
+    action_id: str,
+    payload: Mapping[str, Any] | None = None,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    """Every Cabinet mutation, routed through one undoable seam in __init__."""
+
+    body = _mapping(payload)
+    if action_id == "claim_tier":
+        return claim_diary_tier_pure(
+            player_data,
+            str(body.get("tier_id", "")),
+            lamp_skill=str(body.get("lamp_skill", "")),
+        )
+    if action_id == "pin_task":
+        return pin_diary_task_pure(player_data, str(body.get("task_id", "")))
+    return dict(player_data), False, {"reason": "Unknown Cabinet command."}

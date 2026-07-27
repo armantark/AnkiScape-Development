@@ -38,7 +38,6 @@ def level_up_check(skill, player_data):
                     show_level_up_dialog(skill)
 
 from ..logic_pure.logic_pure import get_newly_completed_achievements
-from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 from ..logic.achievement_diary_logic import (
     diary_task_by_id_pure,
     refresh_achievement_diaries_pure,
@@ -46,6 +45,17 @@ from ..logic.achievement_diary_logic import (
 
 
 def _popups_enabled():
+    """Whether a completion popup can and should be shown.
+
+    Diary tasks receive retroactive credit, so a single review can complete
+    several at once in an environment that has no Qt at all — a headless test,
+    or an Anki build whose Qt import failed. `ui.ui` degrades to no-ops in that
+    case, so ask it for the dialog's own symbol before promising a dialog.
+    """
+    from ..ui import ui as ui_module
+
+    if getattr(ui_module, "QDialog", None) is None:
+        return False
     try:
         from aqt import mw  # type: ignore
         return bool(mw.col.get_config("ankiscape_popups_enabled", True)) if getattr(mw, 'col', None) else True
@@ -63,17 +73,16 @@ def check_achievements(player_data):
     diary task that actually names a period feat.
     """
     newly_completed = get_newly_completed_achievements(player_data, ACHIEVEMENTS)
-    player_data["completed_achievements"].extend(newly_completed)
+    if newly_completed:
+        player_data.setdefault("completed_achievements", []).extend(newly_completed)
 
-    updated, newly_tasks = refresh_achievement_diaries_pure(
-        player_data, ACHIEVEMENT_DIARY_CATALOG
-    )
+    updated, newly_tasks = refresh_achievement_diaries_pure(player_data)
     player_data.clear()
     player_data.update(updated)
     if not newly_tasks or not _popups_enabled():
         return
     for task_id in newly_tasks:
-        found = diary_task_by_id_pure(ACHIEVEMENT_DIARY_CATALOG, task_id)
+        found = diary_task_by_id_pure(task_id)
         if found is None:
             continue
         family, tier, task = found
