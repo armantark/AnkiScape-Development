@@ -977,7 +977,7 @@ def apply_agility_command_pure(
         data["agility_pit_origin_course"] = ""
         data["agility_status"] = "The Pit · Talent Scout invitation declined"
         return data, {"allowed": True, "message": data["agility_status"]}
-    if action_id == "leave_activity":
+    if action_id == "abandon":
         data = sanitize_agility_state_pure(copy.deepcopy(player_data))
         target = AGILITY_TARGETS_BY_ID[data["current_agility"]]
         if not target.activity_kind:

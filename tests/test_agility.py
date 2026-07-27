@@ -418,7 +418,7 @@ class TestAgilityPureEngine(unittest.TestCase):
             **player,
             "agility_pit_successes": 0,
         }
-        left, result = apply_agility_command_pure(active, "leave_activity")
+        left, result = apply_agility_command_pure(active, "abandon")
         self.assertTrue(result["allowed"])
         self.assertEqual(left["current_agility"], "gnome_normal")
         self.assertNotIn("pit", left["agility_activity_state"])

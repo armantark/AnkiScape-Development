@@ -4070,7 +4070,7 @@ def show_main_menu(
             and (player_data.get("agility_activity_state") or {}).get("brimhaven")
             and on_agility_command is not None
         ):
-            result = on_agility_command("leave_activity", {}) or {}
+            result = on_agility_command("abandon", {}) or {}
             if not result.get("ok", result.get("allowed", False)):
                 warn.setText(str(result.get("message", "Could not end the Brimhaven stint")))
                 return
@@ -6172,7 +6172,7 @@ def show_main_menu(
         def _select_agility_target(target_id: str) -> None:
             current = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
             if current == "brimhaven_arena" and target_id != current and on_agility_command is not None:
-                result = on_agility_command("leave_activity", {}) or {}
+                result = on_agility_command("abandon", {}) or {}
                 if not result.get("ok", result.get("allowed", False)):
                     agility_feedback["message"] = str(
                         result.get("message", "Could not end the Brimhaven stint")
@@ -6252,7 +6252,7 @@ def show_main_menu(
         _command_button("Activate Surefooted", "activate_surefooted", {})
         _command_button("Wind Toy mouse", "wind_toy_mouse", {})
         _command_button("Buy Agility cape", "purchase_agility_cape", {})
-        _command_button("Leave activity", "leave_activity", {})
+        _command_button("Leave activity", "abandon", {})
         reward_layout.setColumnStretch(4, 1)
         layout.addWidget(rewards)
         return panel

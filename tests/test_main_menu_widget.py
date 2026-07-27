@@ -12719,7 +12719,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(pd["current_agility"], "burthorpe_course")
         self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
-        self.assertEqual(self._agility_command_calls[-1][0], "leave_activity")
+        self.assertEqual(self._agility_command_calls[-1][0], "abandon")
 
     def test_stopping_agility_ends_the_brimhaven_stint(self) -> None:
         pd = _make_player_data()
@@ -12736,7 +12736,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
 
         self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
-        self.assertEqual(self._agility_command_calls[-1][0], "leave_activity")
+        self.assertEqual(self._agility_command_calls[-1][0], "abandon")
 
     def test_thieving_target_change_refreshes_train_readiness(self) -> None:
         pd = _make_player_data()
