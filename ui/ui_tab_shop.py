@@ -288,6 +288,61 @@ def build_shop_tab(ctx) -> "QWidget":
     services_panel_layout.addWidget(service_preview)
     shop_shell_layout.addWidget(services_panel)
 
+    # Reward shops: the named exchanges that used to sit as loose buttons on
+    # skill panels. Each relay row forwards its payload to the owning skill's
+    # command unchanged; the tab renders what the skill's rules allow and
+    # reports the skill's message. Named buyers (Simon Templeton) are their own
+    # subsection so a sale names who is buying.
+    agility_rewards_panel = QWidget()
+    agility_rewards_panel.setObjectName("shopAgilityRewardsPanel")
+    agility_rewards_panel.setStyleSheet(
+        "QWidget#shopAgilityRewardsPanel { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: rgba(255,255,255,0.03); }"
+    )
+    agility_rewards_layout = QVBoxLayout(agility_rewards_panel)
+    agility_rewards_layout.setContentsMargins(8, 6, 8, 8)
+    agility_rewards_layout.setSpacing(5)
+    agility_rewards_header = QLabel("Agility reward shops")
+    agility_rewards_header.setStyleSheet("font-weight: 600; color: palette(text);")
+    agility_rewards_layout.addWidget(agility_rewards_header)
+
+    def _agility_section(title: str, object_name: str) -> QGridLayout:
+        label = QLabel(title)
+        label.setObjectName(object_name)
+        label.setStyleSheet(f"color: {dim_text_css(label)};")
+        agility_rewards_layout.addWidget(label)
+        grid_widget = QWidget()
+        grid = QGridLayout(grid_widget)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setSpacing(5)
+        agility_rewards_layout.addWidget(grid_widget)
+        return grid
+
+    brimhaven_grid = _agility_section(
+        "Brimhaven Agility Arena · Pirate Jackie the Fruit",
+        "shopBrimhavenSectionLabel",
+    )
+    agile_grid = _agility_section(
+        "Advanced courses · the Agile worker",
+        "shopAgileSectionLabel",
+    )
+    cape_grid = _agility_section(
+        "Skillcapes · the Agility master",
+        "shopAgilityCapeSectionLabel",
+    )
+    buyers_grid = _agility_section(
+        "Named buyers · Simon Templeton",
+        "shopNamedBuyersSectionLabel",
+    )
+    agility_feedback_label = QLabel("")
+    agility_feedback_label.setObjectName("shopAgilityRewardStatus")
+    agility_feedback_label.setWordWrap(True)
+    agility_feedback_label.setStyleSheet(
+        f"color: {dim_text_css(agility_feedback_label)};"
+    )
+    agility_feedback_label.setVisible(False)
+    agility_rewards_layout.addWidget(agility_feedback_label)
+
     history_header = QWidget()
     history_header_layout = QHBoxLayout(history_header)
     history_header_layout.setContentsMargins(0, 0, 0, 0)
@@ -322,10 +377,33 @@ def build_shop_tab(ctx) -> "QWidget":
     shop_toast.setWordWrap(True)
     shop_toast.setStyleSheet("color: #4CAF50; font-weight: 600;")
     shop_toast.setVisible(False)
-    shop_shell_layout.addWidget(shop_toast)
-    # Absorbs leftover height so sections stay top-aligned (dominant in
-    # provider mode, where every stretchy section is hidden).
-    shop_shell_layout.addStretch(1)
+
+    # Below the fixed-height stock/services area, the shell's remaining
+    # sections (transaction, reward shops, history) must survive a ~560pt
+    # dialog: they scroll as one body instead of compressing to zero. The
+    # stretch inside the scroll body keeps them top-aligned (dominant in
+    # provider mode, where the stretchy sections are hidden).
+    shop_lower_scroll = QScrollArea()
+    shop_lower_scroll.setObjectName("shopLowerScroll")
+    shop_lower_scroll.setWidgetResizable(True)
+    shop_lower_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    shop_lower_body = QWidget()
+    shop_lower_layout = QVBoxLayout(shop_lower_body)
+    shop_lower_layout.setContentsMargins(0, 0, 0, 0)
+    shop_lower_layout.setSpacing(8)
+    for widget in (
+        transaction_panel,
+        agility_rewards_panel,
+        history_header,
+        local_history,
+        global_history,
+        shop_toast,
+    ):
+        shop_shell_layout.removeWidget(widget)
+        shop_lower_layout.addWidget(widget)
+    shop_lower_layout.addStretch(1)
+    shop_lower_scroll.setWidget(shop_lower_body)
+    shop_shell_layout.addWidget(shop_lower_scroll, 2)
     shop_layout.addWidget(shop_shell, 3)
 
     shop_state = {
@@ -483,6 +561,7 @@ def build_shop_tab(ctx) -> "QWidget":
         _render_shop_detail()
         _populate_sell_inventory()
         _populate_shop_history()
+        _populate_agility_reward_shops()
 
     def _refresh_after_shop_mutation(message: str) -> None:
         shop_toast.setText(message)
@@ -939,6 +1018,102 @@ def build_shop_tab(ctx) -> "QWidget":
         _refresh_after_shop_mutation(f"Used {display_name}{suffix}")
         _refresh_service_preview()
 
+    def _run_agility_reward_command(action_id: str, payload: dict) -> None:
+        on_agility_command = getattr(ctx, "on_agility_command", None)
+        if on_agility_command is None:
+            return
+        result = on_agility_command(action_id, payload) or {}
+        message = str(result.get("message", ""))
+        agility_feedback_label.setText(message)
+        agility_feedback_label.setVisible(bool(message))
+        _refresh_shop_views()
+        try:
+            ctx.refresh("gear")
+        except Exception:
+            pass
+
+    def _add_relay_button(
+        grid: "QGridLayout",
+        index: int,
+        label: str,
+        action_id: str,
+        payload: dict,
+        object_name: str,
+        icon_item: str = "",
+    ) -> None:
+        button = QPushButton(label)
+        button.setObjectName(object_name)
+        button.setEnabled(getattr(ctx, "on_agility_command", None) is not None)
+        if icon_item:
+            icon = _pixel_item_icon(icon_item, 24)
+            if icon is not None:
+                button.setIcon(icon)
+        button.clicked.connect(
+            lambda _=False, aid=action_id, body=dict(payload): _run_agility_reward_command(aid, body)
+        )
+        grid.addWidget(button, index // 3, index % 3)
+
+    def _populate_agility_reward_shops() -> None:
+        for grid in (brimhaven_grid, agile_grid, cape_grid, buyers_grid):
+            _clear_layout(grid)
+        index = 0
+        for tickets in (1, 10, 25, 100, 1000):
+            suffix = "ticket" if tickets == 1 else "tickets"
+            _add_relay_button(
+                brimhaven_grid,
+                index,
+                f"Redeem {tickets} {suffix} for XP",
+                "redeem_brimhaven_xp",
+                {"tickets": tickets},
+                "shopBrimhavenRedeemXpButton",
+                "Agility arena ticket",
+            )
+            index += 1
+        for tickets, item_name in (
+            (3, "Toadflax"),
+            (5, "Wergali"),
+            (10, "Snapdragon"),
+            (800, "Pirate's hook"),
+        ):
+            _add_relay_button(
+                brimhaven_grid,
+                index,
+                f"{item_name} ({tickets} tickets)",
+                "redeem_brimhaven_item",
+                {"tickets": tickets},
+                "shopBrimhavenRedeemItemButton",
+                "Agility arena ticket",
+            )
+            index += 1
+        for index, piece in enumerate(("Agile top", "Agile legs")):
+            _add_relay_button(
+                agile_grid,
+                index,
+                f"Claim {piece}",
+                "claim_agile_piece",
+                {"piece": piece},
+                "shopAgileClaimButton",
+                piece,
+            )
+        _add_relay_button(
+            cape_grid,
+            0,
+            "Agility cape · 99,000 coins",
+            "purchase_agility_cape",
+            {},
+            "shopAgilityCapeButton",
+            "Agility cape",
+        )
+        _add_relay_button(
+            buyers_grid,
+            0,
+            "Pyramid top · 1,000 coins",
+            "sell_pyramid_top",
+            {"count": 1},
+            "shopSimonTempletonSellButton",
+            "Pyramid top",
+        )
+
     def _populate_shop_history() -> None:
         local_history.clear()
         global_history.clear()
@@ -970,6 +1145,7 @@ def build_shop_tab(ctx) -> "QWidget":
         transaction_panel.setVisible(is_shop)
         history_header.setVisible(is_shop)
         local_history.setVisible(is_shop)
+        agility_rewards_panel.setVisible(is_shop)
         if not is_shop:
             global_history.setVisible(False)
             global_history_btn.setChecked(False)
@@ -1220,6 +1396,7 @@ def build_shop_tab(ctx) -> "QWidget":
 
     _populate_shop_selector()
     _populate_services()
+    _populate_agility_reward_shops()
     _render_shop_detail()
 
     ctx.refreshers["shop"] = _refresh_shop_views

@@ -1055,3 +1055,76 @@ def apply_agility_command_pure(
 def agility_status_line_pure(player_data: Mapping[str, Any]) -> str:
     data = sanitize_agility_state_pure(player_data)
     return data["agility_status"]
+
+
+def agility_panel_activity_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    """Own the Agility panel's control-row flags.
+
+    The skill panel renders this verbatim: it does not compute activity state,
+    item ownership, or cooldowns itself. The control row appears only while the
+    selected target is an activity; its buttons are that activity's verbs.
+    """
+
+    data = sanitize_agility_state_pure(player_data)
+    target = AGILITY_TARGETS_BY_ID.get(
+        str(data.get("current_agility", DEFAULT_AGILITY_TARGET))
+    )
+    activity_kind = str(getattr(target, "activity_kind", "") or "")
+    if target is None or not activity_kind:
+        return {"active": False, "buttons": ()}
+    buttons: list[dict[str, Any]] = [
+        {
+            "action_id": "abandon",
+            "label": f"Leave {target.display_name}",
+            "enabled": True,
+        }
+    ]
+    if activity_kind == "pit":
+        buttons.insert(
+            0,
+            {
+                "action_id": "wind_toy_mouse",
+                "label": "Wind Toy mouse",
+                "enabled": _owns_item(data, "Toy mouse")
+                and not bool(data.get("agility_toy_mouse_pending")),
+            },
+        )
+    return {"active": True, "buttons": tuple(buttons)}
+
+
+def agility_aura_rows_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+    """Own the aura inventory rows for the Equipment tab.
+
+    Auras are the activated cousins of passive skillcapes (the cooldown is the
+    dividing line), so they live outside the worn-slot grid with their own
+    Activate control. Row flags are computed here, not in the panel.
+    """
+
+    data = sanitize_agility_state_pure(player_data)
+    charges = data.get("agility_effect_charges") or {}
+    cooldown = _int(charges.get("surefooted_cooldown_reviews"))
+    active_reviews = _int(charges.get("surefooted_reviews"))
+    owned = set((data.get("equipment") or {}).values())
+    inventory = data.get("inventory") or {}
+    if isinstance(inventory, Mapping):
+        owned.update(
+            str(item) for item, amount in inventory.items() if _int(amount) > 0
+        )
+    rows = []
+    for aura_name in ("Surefooted aura", "Greater surefooted aura"):
+        if aura_name not in owned:
+            continue
+        if cooldown > 0:
+            state_text = f"Recharging · {cooldown:,} reviews"
+        elif active_reviews > 0:
+            state_text = f"Active · {active_reviews:,} reviews left"
+        else:
+            state_text = "Ready"
+        rows.append(
+            {
+                "item_name": aura_name,
+                "state": state_text,
+                "can_activate": cooldown <= 0 and active_reviews <= 0,
+            }
+        )
+    return tuple(rows)

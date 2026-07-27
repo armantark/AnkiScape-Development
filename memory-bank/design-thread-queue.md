@@ -444,3 +444,22 @@ simulation produces is the star you mine.
 **Leave activity behaves like every other activity.** Agility alone uses a generic
 `leave_activity` command while every other family uses its own `abandon`. This is
 a behaviour inconsistency, not only a visual one.
+
+### Open decisions queued by the pass-3 shop-UI work — 2026-07-26
+
+1. **Where do the other skillcapes come from?** The pass-3 record moves every
+   skillcape into the shop interface, but Agility's is the only cape purchase
+   that exists (`purchase_agility_cape`); no other cape is obtainable today.
+   Recommendation: as each cape becomes obtainable, give it a sourced master
+   seller in the Shop tab's Skillcapes subsection (period: the skill's master,
+   99,000 coins, cape and hood), and keep the Agility row as the template.
+   The section is built and labelled; only Agility has a row.
+
+2. **The Spria chathead.** The Slayer card speaks as Turael, whose chathead
+   (2012-01-31 revision, pre-cutoff) now renders. After While Guthix Sleeps
+   the same card reads Spria, but no pre-cutoff Spria chathead revision was
+   found at fetch time, so the Turael face stays. Recommendation: if a
+   pre-2012-11-20 Spria chathead revision exists, register it the same way
+   and swap the face when `slayer_master_display_name_pure` returns Spria;
+   otherwise leave the Turael chathead — a stale face is better than
+   post-cutoff art.

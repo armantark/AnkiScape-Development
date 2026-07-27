@@ -32,6 +32,11 @@ class MainMenuCtx:
     on_save_player_data: Optional[Callable[[], Any]] = None
     on_set_quest: Optional[Callable[[str], Any]] = None
     on_set_quest_route_choice: Optional[Callable[[str, str], Any]] = None
+    # Skill activity commands the Shop tab's reward-shop surfaces relay
+    # (Brimhaven ticket redemptions, Agile claims, Pyramid top sales, the
+    # Agility cape). The tab forwards payloads unchanged; all rules live in
+    # the owning skill's logic.
+    on_agility_command: Optional[Callable[[str, dict], Any]] = None
     refreshers: dict = field(default_factory=dict)
 
     def refresh(self, key: str) -> None:
