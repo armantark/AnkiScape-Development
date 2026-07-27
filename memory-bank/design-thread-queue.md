@@ -256,6 +256,40 @@ hand-entering the rows. The counts are already known from Darkan, so a correct
 parse is self-checking — it either matches Darkan's per-tier count exactly, as
 it does for the other five families, or it is wrong.
 
+### 3.10 The skillcape's effective level 100 is almost always a silent number
+
+Raised 2026-07-27. The design contract says an equipped skillcape puts its skill
+at effective level 100 for success-rate and yield formulas. That is now
+implemented behind a single seam, `effective_roll_level_pure`, which every
+roll-bearing runtime handler calls.
+
+Two things about it are worth a decision.
+
+First, the rule is an AnkiScape invention rather than a period mechanic. Darkan
+at `c95aca4` has no skillcape operate handler, no equip handler and no stat
+boost of any kind; the capes drive only an emote. Nothing in the recovered
+record gives a worn skillcape a numeric effect.
+
+Second, and more practically, the number is silent almost everywhere. Every
+period success table AnkiScape reproduces interpolates between a minimum and a
+maximum chance and reaches its maximum at level 99, so raising the roll level to
+100 changes nothing. Across Mining, Fishing, Woodcutting, Thieving and Agility
+the outcome at 100 is identical to the outcome at 99 for every shipped target.
+Exactly one shipped roll is still level-sensitive above 99 — gutting a Leaping
+trout, whose Cooking formula is a linear source formula rather than the capped
+interpolation — and it moves from 0.4400 to 0.4444.
+
+So the mechanic is real, single and wired, and it currently matters for one
+action. The alternatives are to raise the period caps so the boost bites, which
+means inventing numbers the period does not have, or to drop the rule, which
+means overriding the owner's own contract.
+
+Recommendation, and what is implemented: keep the rule exactly as the contract
+states it and let the period tables saturate. The boost becomes visible on its
+own wherever a formula that does not cap at 99 ships — the same latent-activation
+pattern the contract already uses for Completionist requirements and Music Log
+tracks — and no period number is invented to manufacture an effect today.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

@@ -286,6 +286,7 @@ from ..logic.cadence_live import (
     resolve_live_cadence_route_pure,
 )
 from ..data.summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
+from ..logic.cape_logic import effective_roll_level_pure
 from ..logic.summoning_logic import (
     apply_summoning_training_action_pure,
     familiar_effective_roll_level_pure,
@@ -439,7 +440,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
     spec = FISHING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("fishing_level", 1)
-    success_level = familiar_effective_roll_level_pure(
+    success_level = effective_roll_level_pure(
         player_data, "fishing", player_level
     )
     strength_level = player_data.get("strength_level", 1)
@@ -559,7 +560,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     spec = HUNTER_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("hunter_level", 1)
-    success_level = familiar_effective_roll_level_pure(
+    success_level = effective_roll_level_pure(
         player_data, "hunter", player_level
     )
     inventory = player_data.get("inventory", {})
@@ -672,7 +673,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_tree"] = tree
     spec = TREE_DATA[tree]
     player_level = player_data.get("woodcutting_level", 1)
-    success_level = familiar_effective_roll_level_pure(
+    success_level = effective_roll_level_pure(
         player_data, "woodcutting", player_level
     )
 
@@ -890,7 +891,7 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_ore"] = ore
     ore_spec = ORE_DATA[ore]
     player_level = player_data["mining_level"]
-    success_level = familiar_effective_roll_level_pure(
+    success_level = effective_roll_level_pure(
         player_data, "mining", player_level
     )
 

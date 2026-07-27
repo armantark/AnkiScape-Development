@@ -288,6 +288,7 @@ from ..logic.cadence_live import (
     resolve_live_cadence_route_pure,
 )
 from ..data.summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
+from ..logic.cape_logic import effective_roll_level_pure
 from ..logic.summoning_logic import (
     apply_summoning_training_action_pure,
     familiar_effective_roll_level_pure,
@@ -860,7 +861,7 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
     spec = FIREMAKING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("firemaking_level", 1)
-    success_level = familiar_effective_roll_level_pure(
+    success_level = effective_roll_level_pure(
         player_data, "firemaking", player_level
     )
     quest_locked = tuple(
@@ -987,13 +988,14 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         and resolve_live_cadence_route_pure("cooking", target, player_data).mode
         == EMBEDDED_PROBABILITY
     )
+    success_level = effective_roll_level_pure(player_data, "cooking", player_level)
     expected_success = (
-        cooking_source_roll_chance_pure(player_level, spec)
+        cooking_source_roll_chance_pure(success_level, spec)
         if embedded_probability
-        else calculate_cooking_success_probability_pure(player_level, spec)
+        else calculate_cooking_success_probability_pure(success_level, spec)
     )
     roll = ctx.random_random()
-    source_success = cooking_source_roll_chance_pure(player_level, spec)
+    source_success = cooking_source_roll_chance_pure(success_level, spec)
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
     proposed_outcome_success = roll <= source_success if source_runtime_action else roll < source_success
     byproduct_roll = ctx.random_random() if spec.get("byproduct_item") and roll <= expected_success else None
@@ -1002,7 +1004,9 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         target,
         inventory_before,
         COOKING_DATA,
-        player_level,
+        # The roll level, not the raw one: the reported chance above and the
+        # outcome here must be the same number.
+        success_level,
         roll,
         byproduct_roll,
         use_source_probability=embedded_probability,
@@ -1290,10 +1294,11 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     has_forging_ring = has_ring_of_forging_pure(player_data)
+    success_level = effective_roll_level_pure(player_data, "smithing", player_level)
     expected_success_chance = smithing_success_probability_pure(
         target,
         spec,
-        player_level,
+        success_level,
         has_ring_of_forging=has_forging_ring,
     )
     roll = ctx.random_random() if expected_success_chance < 1.0 else 0.0
@@ -1301,7 +1306,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         target,
         player_data["inventory"],
         SMITHING_DATA,
-        player_level,
+        success_level,
         roll,
         has_ring_of_forging=has_forging_ring,
     )

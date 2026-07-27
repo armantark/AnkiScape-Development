@@ -36,6 +36,7 @@ from .werewolf_skullball_logic import (
 )
 
 from .agility_travel import agility_carried_weight_pure
+from .cape_logic import effective_roll_level_pure, purchase_cape_pure
 
 from .inventory_pure import clamp_carried_view_to_bank
 
@@ -299,12 +300,10 @@ def agility_effective_level_pure(player_data: Mapping[str, Any]) -> int:
         if _int(player_data.get("agility_boost_actions_remaining")) > 0
         else 0
     )
-    equipment = player_data.get("equipment")
-    cape_boost = int(
-        isinstance(equipment, Mapping)
-        and any(str(item).casefold() == "agility cape" for item in equipment.values())
-    )
-    return level + temporary_boost + cape_boost
+    # The skillcape's passive boost is not Agility's own: it comes from the
+    # project's single effective-level seam, which composes the familiar boost
+    # and the worn cape so no skill grows a private second mechanism.
+    return effective_roll_level_pure(player_data, "agility", level) + temporary_boost
 
 
 def _answered_card_week(player_data: Mapping[str, Any]) -> int:
@@ -1008,19 +1007,15 @@ def apply_agility_command_pure(
         data["agility_status"] = f"Left {target.display_name}{message_suffix}"
         return data, {"allowed": True, "message": data["agility_status"]}
     if action_id == "purchase_agility_cape":
-        data = sanitize_agility_state_pure(copy.deepcopy(player_data))
-        if _int(data.get("agility_level"), 1, minimum=1, maximum=120) < 99:
-            return data, {"allowed": False, "message": "Requires level 99 Agility"}
-        inventory = dict(data.get("inventory") or {})
-        if _int(inventory.get("Agility cape")) > 0 or _owns_item(data, "Agility cape"):
-            return data, {"allowed": False, "message": "You already own the Agility cape"}
-        if _int(inventory.get("Coins")) < 99_000:
-            return data, {"allowed": False, "message": "Requires 99,000 coins"}
-        inventory["Coins"] -= 99_000
-        inventory["Agility cape"] = _int(inventory.get("Agility cape")) + 1
-        inventory["Agility hood"] = _int(inventory.get("Agility hood")) + 1
-        data["inventory"] = inventory
-        return data, {"allowed": True, "message": "Bought the Agility cape and hood"}
+        # Kept as an alias so the Agility reward shop's existing button keeps
+        # working; the rule now lives with every other skillcape.
+        data, allowed, info = purchase_cape_pure(
+            sanitize_agility_state_pure(copy.deepcopy(player_data)), "agility"
+        )
+        return data, {
+            "allowed": allowed,
+            "message": str(info.get("message") or info.get("reason") or ""),
+        }
     if action_id == "activate_surefooted":
         data = sanitize_agility_state_pure(copy.deepcopy(player_data))
         charges = dict(data.get("agility_effect_charges") or {})

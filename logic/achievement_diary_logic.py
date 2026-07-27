@@ -74,6 +74,10 @@ def default_achievement_diary_state_pure() -> dict[str, Any]:
             "claimed_tiers": [],
             "pinned_task": "",
             "taskmaster": False,
+            # The period reward for all 534 tasks was an emote, which AnkiScape
+            # has no system for. The design contract translates it into a
+            # one-time presentation; this flag is what makes it one-time.
+            "taskmaster_presented": False,
         }
     }
 
@@ -89,6 +93,7 @@ def sanitize_achievement_diary_state_pure(
             "claimed_tiers": _str_list(source.get("claimed_tiers")),
             "pinned_task": str(source.get("pinned_task", "") or "")[:120],
             "taskmaster": bool(source.get("taskmaster", False)),
+            "taskmaster_presented": bool(source.get("taskmaster_presented", False)),
         }
     }
 
@@ -436,6 +441,51 @@ def _grant_tier_item(
 
 
 # ---------------------------------------------------------------------------
+# Taskmaster
+# ---------------------------------------------------------------------------
+
+
+TASKMASTER_TITLE = "Taskmaster"
+TASKMASTER_BODY = (
+    "Every regional, Burthorpe/Taverley and Miscellaneous task is complete."
+    " The gold Taskmaster seal is yours, and the Completionist cape's"
+    " Taskmaster requirement is satisfied."
+)
+
+
+def taskmaster_presentation_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    """The one-time completion presentation, and whether it is still owed.
+
+    It grants nothing: the design contract is explicit that Taskmaster adds no
+    cape, no stat and no mechanical perk. The seal and the Completionist
+    requirement are already carried by the durable ``taskmaster`` flag; this is
+    the moment the player is told.
+    """
+
+    state = _state(player_data)
+    return {
+        "earned": bool(state["taskmaster"]),
+        "show": bool(state["taskmaster"]) and not state["taskmaster_presented"],
+        "title": TASKMASTER_TITLE,
+        "body": TASKMASTER_BODY,
+    }
+
+
+def acknowledge_taskmaster_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    data = dict(player_data)
+    state = _state(data)
+    if not state["taskmaster"]:
+        return data, False, {"reason": "Taskmaster is not complete."}
+    if state["taskmaster_presented"]:
+        return data, False, {"reason": "Taskmaster has already been presented."}
+    state["taskmaster_presented"] = True
+    data["achievement_diaries"] = state
+    return data, True, {"message": f"{TASKMASTER_TITLE}. {TASKMASTER_BODY}"}
+
+
+# ---------------------------------------------------------------------------
 # Pinning
 # ---------------------------------------------------------------------------
 
@@ -488,6 +538,11 @@ def achievement_cabinet_view_pure(
     search: str = "",
 ) -> dict[str, Any]:
     """Everything the Cabinet renders, including every enable decision."""
+
+    # Late imports: both modules read the diary ledger, so binding them at
+    # module scope would close a cycle.
+    from .cape_logic import cape_view_pure
+    from .music_log_logic import music_log_view_pure
 
     state = _state(player_data)
     completed = set(state["completed_tasks"])
@@ -568,6 +623,9 @@ def achievement_cabinet_view_pure(
         "completed": totals["completed"],
         "total": totals["total"],
         "taskmaster": bool(state["taskmaster"]),
+        "taskmaster_presentation": taskmaster_presentation_pure(player_data),
+        "capes": cape_view_pure(player_data),
+        "music": music_log_view_pure(player_data),
         "pinned_task": pinned,
         "filters": {
             "families": tuple((family.id, family.name) for family in ACHIEVEMENT_DIARY_CATALOG),
@@ -599,4 +657,10 @@ def apply_achievement_diary_command_pure(
         )
     if action_id == "pin_task":
         return pin_diary_task_pure(player_data, str(body.get("task_id", "")))
+    if action_id == "purchase_cape":
+        from .cape_logic import purchase_cape_pure
+
+        return purchase_cape_pure(player_data, str(body.get("cape_id", "")))
+    if action_id == "acknowledge_taskmaster":
+        return acknowledge_taskmaster_pure(player_data)
     return dict(player_data), False, {"reason": "Unknown Cabinet command."}

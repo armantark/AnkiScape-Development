@@ -1,0 +1,208 @@
+"""The Music Log: catalog integrity, automatic unlocks, and the 350-task track.
+
+Design contract clause D16 of
+``memory-bank/achievement-diary-item-grants-design.md``.
+
+The load-bearing test here is ``test_every_live_track_can_actually_be_unlocked``:
+it builds the state each track names and asserts the track arrives. A track
+whose trigger no feature can satisfy is an inert row, which is the exact defect
+the log exists to avoid — and the one track that is not yet reachable is
+labelled latent and kept out of the log's denominator instead of pretending.
+"""
+
+from __future__ import annotations
+
+import unittest
+
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ORE_DATA
+from ankiscape.core.storage_pure import (
+    CURRENT_CONFIG_VERSION,
+    default_player_data,
+    migrate_loaded_data,
+)
+from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+from ankiscape.data.music_log_data import MUSIC_TRACKS, TRIGGER_KINDS
+from ankiscape.data.quest_data import QUESTS_BY_ID
+from ankiscape.logic.achievement_diary_logic import MUSIC_UNLOCK_TASK_COUNT
+from ankiscape.logic.music_log_logic import (
+    music_log_totals_pure,
+    music_log_view_pure,
+    refresh_music_log_pure,
+    track_is_latent_pure,
+)
+
+
+def _player(**overrides) -> dict:
+    player = default_player_data(ORE_DATA)
+    player.update(overrides)
+    return player
+
+
+def _complete_quest(player: dict, quest_id: str) -> dict:
+    quests = dict(player.get("quests") or {})
+    state = dict(quests.get(quest_id) or {})
+    state["completed"] = True
+    quests[quest_id] = state
+    player["quests"] = quests
+    return player
+
+
+def _all_task_ids() -> list[str]:
+    return [
+        task.id
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+    ]
+
+
+class MusicCatalogTest(unittest.TestCase):
+    def test_the_catalog_is_populated_and_every_row_is_well_formed(self):
+        self.assertGreater(len(MUSIC_TRACKS), 100)
+        seen: set[int] = set()
+        for track in MUSIC_TRACKS:
+            self.assertNotIn(track.id, seen, track.name)
+            seen.add(track.id)
+            self.assertTrue(track.name)
+            self.assertTrue(track.hint)
+            self.assertIn(track.trigger_kind, TRIGGER_KINDS, track.name)
+
+    def test_every_quest_trigger_names_a_quest_that_actually_ships(self):
+        for track in MUSIC_TRACKS:
+            if track.trigger_kind == "quest":
+                self.assertIn(track.trigger_key, QUESTS_BY_ID, track.name)
+
+    def test_every_live_track_can_actually_be_unlocked(self):
+        """No inert rows: build the state each track names, and watch it land."""
+
+        for track in MUSIC_TRACKS:
+            if track_is_latent_pure(track):
+                continue
+            player = _player()
+            if track.trigger_kind == "quest":
+                player = _complete_quest(player, track.trigger_key)
+            else:
+                diaries = dict(player["achievement_diaries"])
+                diaries["completed_tasks"] = _all_task_ids()
+                player["achievement_diaries"] = diaries
+            player, newly = refresh_music_log_pure(player)
+            self.assertIn(track.name, newly, track.name)
+            self.assertIn(track.id, player["music_log"]["unlocked_tracks"], track.name)
+
+    def test_the_only_latent_track_is_the_one_the_roster_cannot_reach(self):
+        """A latent row is labelled, and it never inflates the denominator."""
+
+        latent = [track for track in MUSIC_TRACKS if track_is_latent_pure(track)]
+        shipped_tasks = len(_all_task_ids())
+        if shipped_tasks >= MUSIC_UNLOCK_TASK_COUNT:
+            self.assertEqual(latent, [])
+            return
+        self.assertEqual([track.name for track in latent], ["The Task at Hand"])
+        totals = music_log_totals_pure(_player())
+        self.assertEqual(totals["latent"], 1)
+        self.assertEqual(totals["total"], len(MUSIC_TRACKS) - 1)
+
+
+class MusicUnlockTest(unittest.TestCase):
+    def test_a_new_player_has_an_empty_log(self):
+        totals = music_log_totals_pure(_player())
+        self.assertEqual(totals["unlocked"], 0)
+        self.assertEqual(totals["total"] + totals["latent"], len(MUSIC_TRACKS))
+
+    def test_finishing_a_quest_unlocks_only_that_quest_s_tracks(self):
+        quest_track = next(
+            track for track in MUSIC_TRACKS if track.trigger_kind == "quest"
+        )
+        player = _complete_quest(_player(), quest_track.trigger_key)
+        player, newly = refresh_music_log_pure(player)
+        self.assertIn(quest_track.name, newly)
+        expected = {
+            track.name
+            for track in MUSIC_TRACKS
+            if track.trigger_kind == "quest" and track.trigger_key == quest_track.trigger_key
+        }
+        self.assertEqual(set(newly), expected)
+
+    def test_the_task_at_hand_unlocks_at_the_period_task_count(self):
+        """The one consumer of ``MUSIC_UNLOCK_TASK_COUNT``."""
+
+        self.assertEqual(MUSIC_UNLOCK_TASK_COUNT, 350)
+        track = next(track for track in MUSIC_TRACKS if track.trigger_kind == "task_count")
+        self.assertEqual(track.name, "The Task at Hand")
+        self.assertIn("350", track.hint)
+
+        # The trigger reads the diary ledger, so drive it from the ledger. Every
+        # completed id below the threshold leaves the track locked; reaching the
+        # threshold unlocks it. When the roster is shorter than 350 the second
+        # half is unreachable and the track is latent, which the sibling test
+        # asserts rather than skipping over.
+        tasks = _all_task_ids()
+        player = _player()
+        diaries = dict(player["achievement_diaries"])
+        diaries["completed_tasks"] = tasks[: MUSIC_UNLOCK_TASK_COUNT - 1]
+        player["achievement_diaries"] = diaries
+        player, newly = refresh_music_log_pure(player)
+        self.assertNotIn(track.name, newly)
+
+        if len(tasks) >= MUSIC_UNLOCK_TASK_COUNT:
+            diaries = dict(player["achievement_diaries"])
+            diaries["completed_tasks"] = tasks[:MUSIC_UNLOCK_TASK_COUNT]
+            player["achievement_diaries"] = diaries
+            player, newly = refresh_music_log_pure(player)
+            self.assertIn(track.name, newly)
+        else:
+            self.assertTrue(track_is_latent_pure(track))
+
+    def test_an_unlocked_track_is_sticky(self):
+        quest_track = next(track for track in MUSIC_TRACKS if track.trigger_kind == "quest")
+        player = _complete_quest(_player(), quest_track.trigger_key)
+        player, _newly = refresh_music_log_pure(player)
+        player["quests"] = {}
+        player, newly = refresh_music_log_pure(player)
+        self.assertEqual(newly, ())
+        self.assertIn(quest_track.id, player["music_log"]["unlocked_tracks"])
+
+    def test_an_unknown_track_id_is_sanitized_out_of_the_log(self):
+        player = _player()
+        player["music_log"] = {"version": 1, "unlocked_tracks": [999_999, "nonsense"]}
+        player, _newly = refresh_music_log_pure(player)
+        self.assertEqual(player["music_log"]["unlocked_tracks"], [])
+
+
+class MusicViewTest(unittest.TestCase):
+    def test_the_view_owns_its_own_search_and_completion_filters(self):
+        quest_track = next(track for track in MUSIC_TRACKS if track.trigger_kind == "quest")
+        player = _complete_quest(_player(), quest_track.trigger_key)
+        player, _newly = refresh_music_log_pure(player)
+
+        view = music_log_view_pure(player)
+        self.assertEqual(view["total"], music_log_totals_pure(player)["total"])
+        self.assertGreater(view["unlocked"], 0)
+
+        unlocked = music_log_view_pure(player, completion_filter="unlocked")
+        self.assertTrue(all(row["unlocked"] for row in unlocked["tracks"]))
+        locked = music_log_view_pure(player, completion_filter="locked")
+        self.assertFalse(any(row["unlocked"] for row in locked["tracks"]))
+        self.assertEqual(
+            len(unlocked["tracks"]) + len(locked["tracks"]), len(MUSIC_TRACKS)
+        )
+
+        searched = music_log_view_pure(player, search=quest_track.name)
+        self.assertIn(quest_track.name, {row["name"] for row in searched["tracks"]})
+
+
+class MusicMigrationTest(unittest.TestCase):
+    def test_an_old_save_gains_the_log_and_its_earned_tracks_on_load(self):
+        quest_track = next(track for track in MUSIC_TRACKS if track.trigger_kind == "quest")
+        player = _complete_quest(_player(), quest_track.trigger_key)
+        player.pop("music_log", None)
+        player["config_version"] = 88
+
+        migrated = migrate_loaded_data(player, ORE_DATA)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertIn(quest_track.id, migrated["music_log"]["unlocked_tracks"])
+
+
+if __name__ == "__main__":
+    unittest.main()
