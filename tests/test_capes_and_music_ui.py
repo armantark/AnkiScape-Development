@@ -159,6 +159,17 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
         if row is not None:
             self.assertIn("♪", row.text())
 
+    def test_the_unreachable_task_track_is_visible_and_labelled_latent(self):
+        from ankiscape.data.music_log_data import MUSIC_TRACKS
+
+        track = next(row for row in MUSIC_TRACKS if row.name == "The Task at Hand")
+        player = default_player_data(ORE_DATA)
+        page, _ctx = self._build(player, _command(player))
+
+        row = self._named(page, f"cabinetTrack_{track.id}", QLabel)
+        self.assertIsNotNone(row)
+        self.assertIn("latent", row.text().lower())
+
     def test_the_taskmaster_presentation_appears_once_and_the_button_clears_it(self):
         player = default_player_data(ORE_DATA)
         diaries = dict(player["achievement_diaries"])
