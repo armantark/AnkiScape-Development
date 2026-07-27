@@ -390,6 +390,18 @@ class ClaimTest(unittest.TestCase):
     def _varrock(self):
         return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
 
+    def test_burthorpe_claim_grants_its_starter_equipment_reward(self):
+        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "burthorpe")
+        tier = family.tiers[0]
+        player = _complete_tier(_fresh(), tier)
+        before = copy.deepcopy(player["inventory"])
+
+        player, ok, info = claim_diary_tier_pure(player, tier.id)
+
+        self.assertTrue(ok, info)
+        self.assertTrue(tier.reward_item)
+        self.assertNotEqual(player["inventory"], before)
+
     def test_a_tier_is_not_claimable_until_every_task_is_done(self):
         player = _fresh()
         tier = self._varrock().tiers[0]
