@@ -455,11 +455,9 @@ a behaviour inconsistency, not only a visual one.
    99,000 coins, cape and hood), and keep the Agility row as the template.
    The section is built and labelled; only Agility has a row.
 
-2. **The Spria chathead.** The Slayer card speaks as Turael, whose chathead
-   (2012-01-31 revision, pre-cutoff) now renders. After While Guthix Sleeps
-   the same card reads Spria, but no pre-cutoff Spria chathead revision was
-   found at fetch time, so the Turael face stays. Recommendation: if a
-   pre-2012-11-20 Spria chathead revision exists, register it the same way
-   and swap the face when `slayer_master_display_name_pure` returns Spria;
-   otherwise leave the Turael chathead — a stale face is better than
-   post-cutoff art.
+2. **Resolved — the Spria chathead exists before the cutoff.** The complete
+   MediaWiki upload history for canonical `File:Spria chathead.png` includes
+   revision `2012-01-29T12:46:43Z` with SHA-1
+   `ee75d74b7f4d6f979914593b2c4c015ec0d301ee`. The card now swaps to Spria's
+   own registered face after While Guthix Sleeps; it never retains Turael's
+   face while naming Spria.

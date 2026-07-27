@@ -127,8 +127,10 @@ class SlayerMaster:
     required_combat_level: int = 1
     required_quest_id: str = ""
     runtime_enabled: bool = False
+    chathead_asset_path: str = ""
     alternate_display_name: str = ""
     alternate_display_condition: str = ""
+    alternate_chathead_asset_path: str = ""
     expected_weight_total: int = 0
     source: str = TURAEL_AUDIT_SOURCE
 
@@ -1093,6 +1095,10 @@ TURAEL_MASTER = SlayerMaster(
     display_name="Turael",
     assignments=TURAEL_FAMILIES,
     runtime_enabled=True,
+    chathead_asset_path="activityicons/turael_chathead.png",
+    alternate_display_name="Spria",
+    alternate_display_condition="while_guthix_sleeps_completed",
+    alternate_chathead_asset_path="activityicons/spria_chathead.png",
     expected_weight_total=355,
 )
 
@@ -1102,8 +1108,10 @@ MAZCHNA_MASTER = SlayerMaster(
     assignments=MAZCHNA_FAMILIES,
     required_combat_level=20,
     required_quest_id="priest_in_peril",
+    chathead_asset_path="activityicons/mazchna_chathead.png",
     alternate_display_name="Achtryn",
     alternate_display_condition="while_guthix_sleeps_in_progress",
+    alternate_chathead_asset_path="activityicons/achtryn_chathead.png",
     expected_weight_total=325,
     source=MAZCHNA_AUDIT_SOURCE,
 )
@@ -1113,6 +1121,7 @@ VANNAKA_MASTER = SlayerMaster(
     display_name="Vannaka",
     assignments=VANNAKA_FAMILIES,
     required_combat_level=40,
+    chathead_asset_path="activityicons/vannaka_chathead.png",
     expected_weight_total=460,
     source=VANNAKA_AUDIT_SOURCE,
 )
@@ -1123,6 +1132,7 @@ CHAELDAR_MASTER = SlayerMaster(
     assignments=CHAELDAR_FAMILIES,
     required_combat_level=70,
     required_quest_id="lost_city",
+    chathead_asset_path="activityicons/chaeldar_chathead.png",
     expected_weight_total=388,
     source=CHAELDAR_AUDIT_SOURCE,
 )
@@ -1134,6 +1144,7 @@ SUMONA_MASTER = SlayerMaster(
     required_slayer_level=35,
     required_combat_level=85,
     required_quest_id="smoking_kills",
+    chathead_asset_path="activityicons/sumona_chathead.png",
     expected_weight_total=407,
     source=SUMONA_AUDIT_SOURCE,
 )
@@ -1145,8 +1156,10 @@ DURADEL_MASTER = SlayerMaster(
     required_slayer_level=50,
     required_combat_level=100,
     required_quest_id="shilo_village",
+    chathead_asset_path="activityicons/duradel_chathead.png",
     alternate_display_name="Lapalok",
     alternate_display_condition="while_guthix_sleeps_completed",
+    alternate_chathead_asset_path="activityicons/lapalok_chathead.png",
     expected_weight_total=334,
     source=DURADEL_AUDIT_SOURCE,
 )

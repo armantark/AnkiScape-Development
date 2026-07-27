@@ -17,6 +17,7 @@ from ankiscape.data.slayer_data import (
     SUMONA_MASTER,
     TURAEL_FAMILIES,
     TURAEL_FAMILIES_BY_ID,
+    TURAEL_MASTER,
     VANNAKA_FAMILIES,
     VANNAKA_FAMILIES_BY_ID,
     VANNAKA_MASTER,
@@ -27,6 +28,7 @@ from ankiscape.logic.slayer_logic import (
     get_slayer_assignment_pure,
     sanitize_slayer_state_pure,
     slayer_master_display_name_pure,
+    slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
 from ankiscape.logic.slayer_readiness import (
@@ -53,6 +55,14 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             ),
             (15, 30),
         )
+        self.assertEqual(TURAEL_MASTER.alternate_display_name, "Spria")
+        self.assertEqual(
+            slayer_master_persona_pure(
+                {"quests": {"while_guthix_sleeps": {"completed": True}}},
+                TURAEL_MASTER.id,
+            ),
+            ("Spria", "activityicons/spria_chathead.png"),
+        )
 
     def test_hidden_mazchna_pool_preserves_complete_master_specific_rows(self):
         self.assertEqual(len(MAZCHNA_FAMILIES), 27)
@@ -74,6 +84,20 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertEqual(MAZCHNA_MASTER.required_combat_level, 20)
         self.assertEqual(MAZCHNA_MASTER.required_quest_id, "priest_in_peril")
         self.assertEqual(MAZCHNA_MASTER.alternate_display_name, "Achtryn")
+        self.assertEqual(
+            slayer_master_display_name_pure(
+                {
+                    "quests": {
+                        "while_guthix_sleeps": {
+                            "started": True,
+                            "completed": False,
+                        }
+                    }
+                },
+                MAZCHNA_MASTER.id,
+            ),
+            "Achtryn",
+        )
         self.assertFalse(MAZCHNA_MASTER.runtime_enabled)
 
     def test_mazchna_readiness_is_derived_and_keeps_partial_pool_hidden(self):

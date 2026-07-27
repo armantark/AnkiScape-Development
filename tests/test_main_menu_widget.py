@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import unittest
+from dataclasses import replace
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -132,8 +133,8 @@ def _find_stats_button(dialog: "QDialog", skill_id: str) -> "QToolButton":
     return button
 
 
-def _icon_pixels(icon: "QIcon") -> bytes:
-    image = icon.pixmap(28, 28).toImage().convertToFormat(QImage.Format.Format_ARGB32)
+def _icon_pixels(icon: "QIcon", size: int = 28) -> bytes:
+    image = icon.pixmap(size, size).toImage().convertToFormat(QImage.Format.Format_ARGB32)
     bits = image.bits()
     bits.setsize(image.sizeInBytes())
     return bytes(bits)
@@ -1160,7 +1161,11 @@ class MainMenuWidgetTest(unittest.TestCase):
     def tearDown(self) -> None:
         QDialog.exec = self._orig_exec  # type: ignore[assignment,method-assign]
         self._ui.get_config_bool = self._orig_cfg
-        self.dialog.deleteLater()
+        for dialog in self._captured:
+            try:
+                dialog.deleteLater()
+            except RuntimeError:
+                pass
         QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
@@ -1441,15 +1446,125 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(chathead.pixmap())
         self.assertFalse(chathead.pixmap().isNull())
 
-    def test_slayer_assignment_card_shows_the_speaking_master_chathead(self) -> None:
-        dialog = self._open(_make_player_data())
-        self._goto_slayer(dialog)
-        dialog.findChild(QPushButton, "slayerGetAssignmentButton").click()
-        QApplication.processEvents()
+    def test_slayer_master_card_matches_turael_or_spria(self) -> None:
+        for completed, display_name, filename in (
+            (False, "Turael", "turael_chathead.png"),
+            (True, "Spria", "spria_chathead.png"),
+        ):
+            with self.subTest(display_name=display_name):
+                data = _make_player_data()
+                data["quests"]["while_guthix_sleeps"] = {
+                    "started": completed,
+                    "progress": 1 if completed else 0,
+                    "completed": completed,
+                }
+                dialog = self._open(data)
+                self._goto_slayer(dialog)
+                tabs = dialog.findChild(QTabWidget, "slayerManagementTabs")
+                tabs.setCurrentIndex(1)
+                QApplication.processEvents()
+
+                chathead = dialog.findChild(QLabel, "slayerMasterChathead")
+                self.assertTrue(
+                    any(label.text() == display_name for label in dialog.findChildren(QLabel))
+                )
+                self.assertIsNotNone(chathead.pixmap())
+                expected = self._ui._pixel_path_icon(
+                    os.path.join(self._ui.current_dir, "activityicons", filename), 48
+                )
+                self.assertIsNotNone(expected)
+                self.assertEqual(
+                    _icon_pixels(QIcon(chathead.pixmap()), 48),
+                    _icon_pixels(expected, 48),
+                )
+
+    def test_slayer_assignment_chathead_matches_every_displayable_master(self) -> None:
+        from ankiscape.data.slayer_data import (
+            CHAELDAR_MASTER,
+            DURADEL_MASTER,
+            MAZCHNA_MASTER,
+            SLAYER_MASTERS_BY_ID,
+            SUMONA_MASTER,
+            TURAEL_MASTER,
+            VANNAKA_MASTER,
+        )
+
+        cases = (
+            (TURAEL_MASTER, {}, "Turael", "turael_chathead.png"),
+            (
+                TURAEL_MASTER,
+                {"started": True, "progress": 1, "completed": True},
+                "Spria",
+                "spria_chathead.png",
+            ),
+            (MAZCHNA_MASTER, {}, "Mazchna", "mazchna_chathead.png"),
+            (
+                MAZCHNA_MASTER,
+                {"started": True, "progress": 1, "completed": False},
+                "Achtryn",
+                "achtryn_chathead.png",
+            ),
+            (VANNAKA_MASTER, {}, "Vannaka", "vannaka_chathead.png"),
+            (CHAELDAR_MASTER, {}, "Chaeldar", "chaeldar_chathead.png"),
+            (SUMONA_MASTER, {}, "Sumona", "sumona_chathead.png"),
+            (DURADEL_MASTER, {}, "Duradel", "duradel_chathead.png"),
+            (
+                DURADEL_MASTER,
+                {"started": True, "progress": 1, "completed": True},
+                "Lapalok",
+                "lapalok_chathead.png",
+            ),
+        )
+        for master, wgs_state, display_name, filename in cases:
+            with self.subTest(display_name=display_name):
+                data = _make_player_data()
+                if wgs_state:
+                    data["quests"]["while_guthix_sleeps"] = wgs_state
+                data["slayer_assignment"] = {
+                    "master_id": master.id,
+                    "family_id": master.assignments[0].id,
+                    "initial_count": 1,
+                    "remaining": 1,
+                }
+                live_master = replace(master, runtime_enabled=True)
+                with patch.dict(
+                    SLAYER_MASTERS_BY_ID, {master.id: live_master}
+                ):
+                    dialog = self._open(data)
+                    self._goto_slayer(dialog)
+
+                chathead = dialog.findChild(QLabel, "slayerAssignmentChathead")
+                progress = dialog.findChild(QLabel, "slayerAssignmentProgress")
+                self.assertIn(f"assigned by {display_name}", progress.text())
+                self.assertIsNotNone(chathead.pixmap())
+                expected = self._ui._pixel_path_icon(
+                    os.path.join(self._ui.current_dir, "activityicons", filename), 48
+                )
+                self.assertIsNotNone(expected)
+                self.assertEqual(
+                    _icon_pixels(QIcon(chathead.pixmap()), 48),
+                    _icon_pixels(expected, 48),
+                )
+
+    def test_slayer_assignment_without_period_art_has_no_fallback_face(self) -> None:
+        from ankiscape.data.slayer_data import SLAYER_MASTERS_BY_ID, TURAEL_MASTER
+
+        data = _make_player_data()
+        data["slayer_assignment"] = {
+            "master_id": "turael_spria",
+            "family_id": "bats",
+            "initial_count": 1,
+            "remaining": 1,
+        }
+        without_art = replace(TURAEL_MASTER, chathead_asset_path="")
+        with patch.dict(SLAYER_MASTERS_BY_ID, {TURAEL_MASTER.id: without_art}):
+            dialog = self._open(data)
+            self._goto_slayer(dialog)
+
         chathead = dialog.findChild(QLabel, "slayerAssignmentChathead")
-        self.assertIsNotNone(chathead)
-        self.assertIsNotNone(chathead.pixmap())
-        self.assertFalse(chathead.pixmap().isNull())
+        progress = dialog.findChild(QLabel, "slayerAssignmentProgress")
+        self.assertIn("assigned by Turael", progress.text())
+        self.assertTrue(chathead.pixmap() is None or chathead.pixmap().isNull())
 
     def test_slayer_assignment_action_rerenders_as_active_task(self) -> None:
         dialog = self._open(_make_player_data())
