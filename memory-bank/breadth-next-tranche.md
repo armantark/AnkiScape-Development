@@ -30,7 +30,13 @@ cleared. Those are fixed and merged.
 | Dungeoneering | 40-64 h | plus source research; its data module parks the Skills surface |
 | Conquest | 20-30 h | sequenced after Dungeoneering by the programme |
 
-Estimates predate the placeholder rule, so treat them as ceilings.
+**Do not plan from these estimates.** They come from a frontier audit that
+predates both the placeholder rule and the parallel-agent workflow, and they are
+solo human-hours. Measured against how families actually land now, they are off by
+roughly an order of magnitude: nine families reached breadth one on 2026-07-26 in
+a single day, several of them carrying estimates of 14-20 hours each. The owner's
+own read is that Achievement Diaries is "at most an overnight run, maybe 2-4
+hours". Treat the column as a rough ordering of relative size and nothing more.
 
 **Bork is dependency-blocked, not source-blocked.** It needs the `Hunt for Surok`
 miniquest and the regional Achievement Diary substrate, and neither exists. Do not
