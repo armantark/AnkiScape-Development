@@ -275,6 +275,18 @@
     "source_wiki": "osrs",
     "timestamp": "2022-01-19T13:54:36Z"
   },
+  "activityicons/achtryn_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Achtryn_chathead.png",
+    "file_title": "Achtryn chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20190621205348%21Achtryn_chathead.png?d6a09",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "aefabf1a82315059da44e984867150b049a28ff5",
+    "size": 15301,
+    "source_wiki": "rs3",
+    "timestamp": "2011-06-03T18:33:44Z"
+  },
   "activityicons/barbarian_assault.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Omega_egg.png",
     "file_title": "Omega egg.png",
@@ -335,6 +347,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-05-28T07:05:30Z"
   },
+  "activityicons/chaeldar_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chaeldar_chathead.png",
+    "file_title": "Chaeldar chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20240125004936%21Chaeldar_chathead.png?05f70",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "08fa209aa3dd049ffe48bd77f7f449ea3f6d382a",
+    "size": 13491,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T00:17:30Z"
+  },
   "activityicons/clan_wars.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Clan_wars_portal.png",
     "file_title": "Clan wars portal.png",
@@ -394,6 +418,18 @@
     "size": 719,
     "source_wiki": "rs3",
     "timestamp": "2022-01-05T02:13:51Z"
+  },
+  "activityicons/duradel_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Duradel_chathead.png",
+    "file_title": "Duradel chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20240725124551%21Duradel_chathead.png?67b9b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "91d3911cc89cc0785ee18bac05aff8d0081c8d72",
+    "size": 9726,
+    "source_wiki": "rs3",
+    "timestamp": "2011-06-04T07:26:27Z"
   },
   "activityicons/enchanted_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Enchanted_key_%28Making_History%29.png",
@@ -503,6 +539,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T16:30:12Z"
   },
+  "activityicons/lapalok_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lapalok_chathead.png",
+    "file_title": "Lapalok chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20231102132304%21Lapalok_chathead.png?21931",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9b0d964baa039df5b1f367b4ff5f74ac1c9f5e2e",
+    "size": 7367,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-25T06:03:16Z"
+  },
   "activityicons/make_soft_clay.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Soft_clay.png",
     "file_title": "Soft clay.png",
@@ -526,6 +574,18 @@
     "size": 100758,
     "source_wiki": "rs3",
     "timestamp": "2011-11-25T18:47:00Z"
+  },
+  "activityicons/mazchna_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mazchna_chathead.png",
+    "file_title": "Mazchna chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20161031205441%21Mazchna_chathead.png?ec850",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "743af31846b5c4e0103fac655a20f0e2c2c2c122",
+    "size": 12541,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-02T15:13:56Z"
   },
   "activityicons/open_bird_nest.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bird%27s_nest_%28seeds%29.png",
@@ -623,6 +683,18 @@
     "source_wiki": "rs3",
     "timestamp": "2009-02-11T06:45:43Z"
   },
+  "activityicons/spria_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spria_chathead.png",
+    "file_title": "Spria chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20220806154131%21Spria_chathead.png?d2a35",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ee75d74b7f4d6f979914593b2c4c015ec0d301ee",
+    "size": 11034,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-29T12:46:43Z"
+  },
   "activityicons/stealing_creation.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sacred_clay_%28class_5%29.png",
     "file_title": "Sacred clay (class 5).png",
@@ -646,6 +718,18 @@
     "size": 497,
     "source_wiki": "rs3",
     "timestamp": "2010-09-18T04:51:10Z"
+  },
+  "activityicons/sumona_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sumona_chathead.png",
+    "file_title": "Sumona chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20220701004535%21Sumona_chathead.png?ade4f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "45be5a5f23f8607c1ca0fdd5b9124a18b43c1110",
+    "size": 9984,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T09:12:59Z"
   },
   "activityicons/tears_of_guthix.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Stone_bowl.png",
@@ -706,6 +790,18 @@
     "size": 318,
     "source_wiki": "rs3",
     "timestamp": "2012-04-14T02:06:32Z"
+  },
+  "activityicons/vannaka_chathead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Vannaka_chathead.png",
+    "file_title": "Vannaka chathead.png",
+    "image_url": "https://runescape.wiki/images/archive/20240122114947%21Vannaka_chathead.png?d5d5a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6972ebde72990c264374c969128cbc3d9ea122dc",
+    "size": 11351,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-30T07:49:52Z"
   },
   "activityicons/varrock_museum.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Specimen_brush.png",

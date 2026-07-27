@@ -4335,3 +4335,18 @@ Test counts are snapshots; current runs outrank this note.
   expected skips and real offscreen Qt with one intentional skip.
 - Durable audit:
   `memory-bank/source-audits/clan-wars-horizontal-implementation-2026-07-26.md`.
+
+
+## Slayer master chathead completion — 2026-07-26
+
+- Added period-authentic registered chatheads for Spria, Mazchna, Achtryn,
+  Vannaka, Chaeldar, Sumona, Duradel and Lapalok; Turael already had one.
+- The MediaWiki upload history corrected the stale Spria assumption: canonical
+  `File:Spria chathead.png` has a 2012-01-29 pre-cutoff revision, so every one
+  of the nine displayable master identities has period art.
+- Slayer cards now resolve the face from the exact displayed master name. The
+  no-art path deliberately leaves the label without a pixmap instead of using
+  another master as a fallback. Achtryn now becomes displayable when While
+  Guthix Sleeps has started, matching its existing alternate-display metadata.
+- Verification: `python3 run_tests.py` passed 3,022 tests with 348 skips; the
+  full offscreen Qt lane passed the same 3,022 tests with one skip.

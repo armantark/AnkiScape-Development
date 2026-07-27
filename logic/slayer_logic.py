@@ -10,6 +10,7 @@ from ..data.slayer_data import (
     SLAYER_MASTERS_BY_ID,
     SlayerAssignmentFamily,
 )
+from ..logic_pure.logic_pure_state import quest_completed_pure, quest_state_pure
 
 
 def _non_negative_int(value: Any, default: int = 0) -> int:
@@ -30,11 +31,9 @@ def _roll_unit(rng: Callable[[], float]) -> float:
         return 0.0
 
 
-def _quest_completed(player_data: Mapping[str, Any], quest_id: str) -> bool:
-    if not quest_id:
-        return True
-    quests = player_data.get("quests", {}) or {}
-    return bool((quests.get(quest_id, {}) or {}).get("completed"))
+def _quest_started(player_data: Mapping[str, Any], quest_id: str) -> bool:
+    state = quest_state_pure(player_data, quest_id)
+    return bool(state["started"] or state["completed"])
 
 
 _QUEST_DISPLAY_NAMES = {
@@ -42,24 +41,31 @@ _QUEST_DISPLAY_NAMES = {
 }
 
 
+def slayer_master_persona_pure(
+    player_data: Mapping[str, Any],
+    master_id: str = DEFAULT_SLAYER_MASTER_ID,
+) -> Tuple[str, str]:
+    master = SLAYER_MASTERS_BY_ID.get(master_id)
+    if master is None:
+        return str(master_id), ""
+    if master.alternate_display_name:
+        condition = master.alternate_display_condition
+        if condition == "while_guthix_sleeps_completed" and quest_completed_pure(
+            player_data, "while_guthix_sleeps"
+        ):
+            return master.alternate_display_name, master.alternate_chathead_asset_path
+        if condition == "while_guthix_sleeps_in_progress" and _quest_started(
+            player_data, "while_guthix_sleeps"
+        ):
+            return master.alternate_display_name, master.alternate_chathead_asset_path
+    return master.display_name, master.chathead_asset_path
+
+
 def slayer_master_display_name_pure(
     player_data: Mapping[str, Any],
     master_id: str = DEFAULT_SLAYER_MASTER_ID,
 ) -> str:
-    if master_id == DEFAULT_SLAYER_MASTER_ID and _quest_completed(
-        player_data, "while_guthix_sleeps"
-    ):
-        return "Spria"
-    master = SLAYER_MASTERS_BY_ID.get(master_id)
-    if master is None:
-        return str(master_id)
-    if (
-        master.alternate_display_name
-        and master.alternate_display_condition == "while_guthix_sleeps_completed"
-        and _quest_completed(player_data, "while_guthix_sleeps")
-    ):
-        return master.alternate_display_name
-    return master.display_name
+    return slayer_master_persona_pure(player_data, master_id)[0]
 
 
 def slayer_family_locked_reasons_pure(
@@ -70,7 +76,7 @@ def slayer_family_locked_reasons_pure(
     slayer_level = _positive_int(player_data.get("slayer_level", 1), 1)
     if slayer_level < family.required_slayer_level:
         reasons.append(f"Slayer level {family.required_slayer_level}")
-    if family.required_quest_id and not _quest_completed(
+    if family.required_quest_id and not quest_completed_pure(
         player_data, family.required_quest_id
     ):
         reasons.append(

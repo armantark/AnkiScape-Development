@@ -398,6 +398,7 @@ from ..data.slayer_data import (
 from ..logic.slayer_logic import (
     sanitize_slayer_state_pure,
     slayer_master_display_name_pure,
+    slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
 from ..logic_pure.logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
@@ -655,6 +656,12 @@ _ACTIVITY_GROUP_ICONS = {
         current_dir, "icon", "dnd_icon.png"
     ),
 }
+def _set_slayer_master_chathead(label: "QLabel", asset_path: str) -> None:
+    if not asset_path:
+        return
+    icon = _pixel_path_icon(os.path.join(current_dir, asset_path), 48)
+    if icon is not None:
+        label.setPixmap(icon.pixmap(QSize(48, 48)))
 
 
 def skill_icon_path_for(display_name: str) -> Optional[str]:
@@ -7018,19 +7025,17 @@ def show_main_menu(
             speaker_row = QHBoxLayout()
             speaker_row.setContentsMargins(0, 0, 0, 0)
             speaker_row.setSpacing(10)
+            master_name, chathead_asset_path = slayer_master_persona_pure(
+                data, str(assignment.get("master_id", DEFAULT_SLAYER_MASTER_ID))
+            )
             assignment_chathead = QLabel()
             assignment_chathead.setObjectName("slayerAssignmentChathead")
-            chathead_path = os.path.join(current_dir, "activityicons", "turael_chathead.png")
-            if os.path.exists(chathead_path):
-                assignment_chathead.setPixmap(QIcon(chathead_path).pixmap(QSize(48, 48)))
+            _set_slayer_master_chathead(assignment_chathead, chathead_asset_path)
             speaker_row.addWidget(assignment_chathead, 0, Qt.AlignmentFlag.AlignTop)
             title = QLabel(family.display_name)
             title.setStyleSheet("color: palette(text); font-size: 14px; font-weight: 700;")
             speaker_row.addWidget(title, 1, Qt.AlignmentFlag.AlignVCenter)
             card_layout.addLayout(speaker_row)
-            master_name = slayer_master_display_name_pure(
-                data, str(assignment.get("master_id", DEFAULT_SLAYER_MASTER_ID))
-            )
             progress = QLabel(
                 f"{remaining} of {int(assignment.get('initial_count', remaining) or remaining)} remaining"
                 f" · assigned by {master_name}"
@@ -7102,14 +7107,14 @@ def show_main_menu(
         )
         master_layout = QHBoxLayout(master_card)
         master_layout.setContentsMargins(12, 10, 12, 10)
+        master_name, chathead_asset_path = slayer_master_persona_pure(
+            data, TURAEL_MASTER.id
+        )
         master_chathead = QLabel()
         master_chathead.setObjectName("slayerMasterChathead")
-        chathead_path = os.path.join(current_dir, "activityicons", "turael_chathead.png")
-        if os.path.exists(chathead_path):
-            master_chathead.setPixmap(QIcon(chathead_path).pixmap(QSize(48, 48)))
+        _set_slayer_master_chathead(master_chathead, chathead_asset_path)
         master_layout.addWidget(master_chathead, 0, Qt.AlignmentFlag.AlignTop)
         master_copy = QVBoxLayout()
-        master_name = slayer_master_display_name_pure(data, TURAEL_MASTER.id)
         master_title = QLabel(master_name)
         master_title.setStyleSheet("color: palette(text); font-weight: 700;")
         master_copy.addWidget(master_title)
