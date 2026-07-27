@@ -52,16 +52,10 @@ def _varrock():
     return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
 
 
-def _satisfy(player, task):
-    for condition in task.conditions:
-        if condition.kind == "skill_level":
-            player[f"{condition.key}_level"] = max(
-                condition.amount, int(player.get(f"{condition.key}_level", 1))
-            )
-        elif condition.kind == "quest":
-            player.setdefault("quests", {})[condition.key] = {"completed": True}
-        elif condition.kind == "hold_item":
-            player["inventory"][condition.key] = condition.amount
+# Shared with the pure diary tests rather than reimplemented here, because a
+# local copy that silently skipped the kinds it had never heard of is what made
+# a whole tier quietly unfinishable when a new kind arrived.
+from tests.test_achievement_diaries import _satisfy  # noqa: E402
 
 
 class _Ctx:

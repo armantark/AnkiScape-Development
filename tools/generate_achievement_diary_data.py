@@ -17,6 +17,8 @@ are omitted and reported rather than emitted as inert rows.
 from __future__ import annotations
 
 import argparse
+import ast
+import functools
 import json
 import re
 import sys
@@ -30,6 +32,203 @@ import pkg_alias  # noqa: F401,E402  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import quests_as_dict  # noqa: E402
 
 QUEST_DATA = quests_as_dict()
+
+
+# ---------------------------------------------------------------------------
+# Condition key resolution
+# ---------------------------------------------------------------------------
+#
+# A condition whose key names nothing the runtime writes reads zero forever, so
+# the row can never complete. That failure is silent: the panel renders an
+# honest-looking 0/1. ``resolve_condition_key`` is the check that turns it into
+# a generation failure, and ``tests/test_achievement_diaries.py`` runs the same
+# check over the shipped catalog so a hand-edit cannot slip past it either.
+
+# Where each skill's action ids come from. A skill absent here is refused rather
+# than waved through, because "no registry" must never read as "anything goes".
+_SKILL_ACTION_REGISTRIES = {
+    "agility": ("ankiscape.core.constants", "AGILITY_TARGETS_BY_ID"),
+    "construction": ("ankiscape.core.constants", "CONSTRUCTION_DATA"),
+    "cooking": ("ankiscape.core.constants", "COOKING_DATA"),
+    "crafting": ("ankiscape.core.constants", "CRAFTING_DATA"),
+    "firemaking": ("ankiscape.core.constants", "FIREMAKING_DATA"),
+    "fishing": ("ankiscape.core.constants", "FISHING_DATA"),
+    "fletching": ("ankiscape.core.constants", "FLETCHING_DATA"),
+    "herblore": ("ankiscape.core.constants", "HERBLORE_DATA"),
+    "hunter": ("ankiscape.core.constants", "HUNTER_DATA"),
+    "magic": ("ankiscape.core.constants", "MAGIC_DATA"),
+    "mining": ("ankiscape.core.constants", "ORE_DATA"),
+    "prayer": ("ankiscape.core.constants", "PRAYER_DATA"),
+    "runecrafting": ("ankiscape.core.constants", "RUNECRAFTING_DATA"),
+    "smithing": ("ankiscape.core.constants", "SMITHING_DATA"),
+    "utility": ("ankiscape.core.constants", "UTILITY_ACTIVITY_DATA"),
+    "woodcutting": ("ankiscape.core.constants", "TREE_DATA"),
+}
+
+# Where the ledger is written from. Activity runtimes record actions whose ids
+# are literals rather than rows of a skill's target table, so the registries
+# above are unioned with every literal pair these files actually emit.
+_LEDGER_WRITE_SITES = ("runtime", "logic")
+_LEDGER_WRITE_CALLS = ("_record_action", "record_achievement_progress_pure")
+
+
+def _import_attr(module_name: str, attribute: str):
+    import importlib
+
+    return getattr(importlib.import_module(module_name), attribute)
+
+
+@functools.lru_cache(maxsize=1)
+def _module_level_strings() -> dict:
+    """Every ``NAME = "literal"`` in the add-on, for resolving action-id names.
+
+    Activity runtimes pass constants such as ``SHOOTING_STAR_ACTIVITY_ID``
+    rather than a bare string, and those constants are the action id.
+    """
+
+    found: dict[str, set] = {}
+    for path in ROOT.rglob("*.py"):
+        if any(part in {".git", "__pycache__", "tests"} for part in path.parts):
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8", errors="ignore"))
+        except SyntaxError:
+            continue
+        for node in tree.body:
+            if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Constant):
+                continue
+            if not isinstance(node.value.value, str):
+                continue
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    found.setdefault(target.id, set()).add(node.value.value)
+    return found
+
+
+def _literal_strings(node: ast.AST) -> set:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return {node.value}
+    if isinstance(node, ast.Name):
+        return set(_module_level_strings().get(node.id, ()))
+    return set()
+
+
+@functools.lru_cache(maxsize=1)
+def _emitted_ledger_actions() -> dict:
+    """``skill id -> action ids`` the runtime can actually record."""
+
+    emitted: dict[str, set] = {}
+    for skill_id, (module_name, attribute) in _SKILL_ACTION_REGISTRIES.items():
+        emitted[skill_id] = set(_import_attr(module_name, attribute))
+    for directory in _LEDGER_WRITE_SITES:
+        for path in (ROOT / directory).rglob("*.py"):
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8", errors="ignore"))
+            except SyntaxError:
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call) or len(node.args) < 3:
+                    continue
+                function = node.func
+                name = getattr(function, "id", None) or getattr(function, "attr", None)
+                if name not in _LEDGER_WRITE_CALLS:
+                    continue
+                for skill_id in _literal_strings(node.args[1]):
+                    emitted.setdefault(skill_id, set()).update(
+                        _literal_strings(node.args[2])
+                    )
+    return emitted
+
+
+@functools.lru_cache(maxsize=1)
+def _emitted_ledger_outputs() -> dict:
+    """``skill id -> output item names`` the ledger can hold under that skill."""
+
+    from ankiscape.core.storage_pure import _achievement_seed_items
+
+    emitted = {
+        skill_id: set(items) for skill_id, items in _achievement_seed_items().items()
+    }
+    for skill_id, (module_name, attribute) in _SKILL_ACTION_REGISTRIES.items():
+        bucket = emitted.setdefault(skill_id, set())
+        for spec in _import_attr(module_name, attribute).values():
+            if not isinstance(spec, dict):
+                continue
+            if spec.get("output_item"):
+                bucket.add(str(spec["output_item"]))
+            bucket.update(str(name) for name in (spec.get("outputs") or {}))
+    return emitted
+
+
+@functools.lru_cache(maxsize=1)
+def _default_save() -> dict:
+    from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+    from ankiscape.core.storage_pure import default_player_data
+
+    return default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+
+def _resolve_ledger_key(kind: str, key: str) -> str:
+    skill_id, separator, action_id = key.partition(":")
+    if not separator or not skill_id or not action_id:
+        return f"{kind} key {key!r} is not '<skill id>:<id>'"
+    registry = (
+        _emitted_ledger_outputs() if kind == "ledger_output" else _emitted_ledger_actions()
+    )
+    if skill_id not in registry:
+        return (
+            f"{kind} key {key!r} names skill {skill_id!r}, which has no registry;"
+            " add it to _SKILL_ACTION_REGISTRIES before shipping a row under it"
+        )
+    if action_id not in registry[skill_id]:
+        return f"{kind} key {key!r} is never recorded under skill {skill_id!r}"
+    return ""
+
+
+def resolve_condition_key(kind: str, key: str) -> str:
+    """Return an error describing why ``key`` reads nothing, or ``""``."""
+
+    if kind in {"ledger_action", "ledger_output"}:
+        return _resolve_ledger_key(kind, key)
+    if kind == "derived_value":
+        registry = _import_attr(
+            "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUES"
+        )
+        ceilings = _import_attr(
+            "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUE_CEILINGS"
+        )
+        if key not in registry:
+            return f"derived_value {key!r} is not in DIARY_DERIVED_VALUES"
+        if key not in ceilings:
+            return f"derived_value {key!r} has no DIARY_DERIVED_VALUE_CEILINGS entry"
+        return ""
+    if kind != "counter":
+        return ""
+    parts = key.split(".")
+    if parts[0] == "combat_kill_counts":
+        from ankiscape.core.constants import COMBAT_ENEMY_DATA
+
+        if len(parts) != 2 or parts[1] not in COMBAT_ENEMY_DATA:
+            return f"counter key {key!r} names no enemy in COMBAT_ENEMY_DATA"
+        return ""
+    # The ledger is reachable as a dotted path too, and a fresh save carries no
+    # per-skill record, so route those through the ledger registries instead of
+    # the save walk below.
+    if parts[:2] == ["achievement_progress", "skills"] and len(parts) == 5:
+        bucket = {"actions": "ledger_action", "outputs": "ledger_output"}.get(parts[3])
+        if bucket is None:
+            return f"counter key {key!r} names no ledger bucket"
+        return _resolve_ledger_key(bucket, f"{parts[2]}:{parts[4]}")
+    node = _default_save()
+    for index, part in enumerate(parts):
+        if not isinstance(node, dict):
+            return f"counter key {key!r} walks through a non-mapping at {part!r}"
+        if part not in node:
+            if index == len(parts) - 1:
+                return ""  # an absent per-key leaf is the zero case, not a typo
+            return f"counter key {key!r} has no {part!r} in a default save"
+        node = node[part]
+    return ""
 
 
 ITEMS_YML = Path(
@@ -354,6 +553,87 @@ CONDITION_OVERRIDES.update({
 })
 
 
+def _kill_any_of(label: str, verb: str, enemy_ids: tuple) -> tuple:
+    """An ``any_of`` over the kill counters of one species' level variants.
+
+    The period wrote several tasks as "kill a giant rat"; AnkiScape stores one
+    counter per level variant, so the honest predicate is the disjunction over
+    every variant of that species rather than an arbitrary pick of one.
+    """
+
+    from ankiscape.core.constants import COMBAT_ENEMY_DATA
+
+    alternatives = []
+    for enemy_id in enemy_ids:
+        display = str(COMBAT_ENEMY_DATA[enemy_id]["display_name"]).lower()
+        level = re.search(r"_level_(\d+)$", enemy_id)
+        if level:
+            display = f"{display} (level {level.group(1)})"
+        article = "an" if display[0] in "aeiou" else "a"
+        alternatives.append(
+            (
+                "counter",
+                f"combat_kill_counts.{enemy_id}",
+                1,
+                f"{verb} {article} {display}",
+            )
+        )
+    return ("any_of", "", 1, label, tuple(alternatives))
+
+
+# Source tasks the cache states as a disjunction, or that name one period NPC
+# AnkiScape stores as several level variants. Each was previously omitted for
+# want of a predicate that could express "any of these".
+CONDITION_OVERRIDES.update({
+    190: (
+        (
+            "any_of", "", 1, "Attempt a TzHaar Fight Pit match or the Fight Caves",
+            (
+                ("counter", "tzhaar_fight_pit_matches", 1, "Enter a Fight Pit match"),
+                ("counter", "fight_caves.total_kills", 1, "Land a Fight Caves kill"),
+            ),
+        ),
+    ),
+    953: (
+        _kill_any_of(
+            "Kill a Slayer Tower ground-floor monster",
+            "Kill",
+            ("crawling_hand", "banshee", "infernal_mage"),
+        ),
+    ),
+    85: (
+        _kill_any_of(
+            "Defeat a zombie",
+            "Defeat",
+            tuple(f"zombie_level_{level}" for level in (13, 18, 24, 25, 30, 44, 53)),
+        ),
+    ),
+    93: (
+        _kill_any_of(
+            "Kill a giant rat",
+            "Kill",
+            ("giant_rat", "giant_rat_level_6", "giant_rat_level_26"),
+        ),
+    ),
+    123: (
+        _kill_any_of("Kill a duck", "Kill", ("duck_land", "duck_water")),
+    ),
+})
+
+# Kudos is a weighted sum over three append-only museum records, so no leaf
+# holds it and a counter would read zero forever. Task 268 was already shipped
+# on its quest half alone; the Kudos half it always stated is now evaluated too.
+CONDITION_OVERRIDES.update({
+    300: (
+        ("derived_value", "varrock_museum_kudos", 153, "Earn 153 Kudos"),
+    ),
+    268: (
+        ("quest", "the_dig_site", 1, "Complete The Dig Site"),
+        ("derived_value", "varrock_museum_kudos", 50, "Earn 50 Kudos"),
+    ),
+})
+
+
 def _slug(text: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", text.lower()))[:60]
 
@@ -384,6 +664,34 @@ def _conditions(task: dict) -> list[tuple]:
                 display = str(QUEST_DATA[quest_id].get("display_name", quest_id.replace("_", " ").title()))
                 conditions.append(("quest", quest_id, 1, f"Complete {display}"))
     return conditions
+
+
+def _condition_src(condition: tuple) -> str:
+    """Serialise one condition, refusing any key the runtime never writes."""
+
+    kind, key, amount, label = condition[:4]
+    alternatives = condition[4] if len(condition) > 4 else ()
+    error = resolve_condition_key(kind, key)
+    if error:
+        raise SystemExit(f"unresolvable diary condition ({label}): {error}")
+    if kind == "derived_value":
+        ceiling = _import_attr(
+            "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUE_CEILINGS"
+        )[key]
+        if amount > ceiling:
+            raise SystemExit(
+                f"derived_value {key!r} threshold {amount} is above the implemented"
+                f" ceiling {ceiling}, so the row could never complete"
+            )
+    if kind != "any_of":
+        return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
+    if not alternatives:
+        raise SystemExit(f"any_of condition {label!r} carries no alternatives")
+    for alternative in alternatives:
+        if alternative[0] == "any_of":
+            raise SystemExit(f"any_of condition {label!r} nests another any_of")
+    inner = ", ".join(_condition_src(alternative) for alternative in alternatives)
+    return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r}, ({inner},))"
 
 
 def _items_yml_blocks() -> dict:
@@ -452,10 +760,7 @@ def _task_block(
     if not conditions:
         return ""
     task_id = f"{family_id}_{tier_name}_{_slug(task['name'])}"
-    condition_src = ", ".join(
-        f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
-        for kind, key, amount, label in conditions
-    )
+    condition_src = ", ".join(_condition_src(condition) for condition in conditions)
     return (
         "            DiaryTask(\n"
         f"                {task_id!r},\n"

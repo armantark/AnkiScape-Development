@@ -22,12 +22,17 @@ from typing import Any
 from ..core.skill_registry import trainable_skill_definitions
 from ..data.achievement_diary_data import (
     ACHIEVEMENT_DIARY_CATALOG,
+    BASE_CONDITION_KINDS,
     DiaryCondition,
     DiaryFamily,
     DiaryTask,
     DiaryTier,
 )
 from ..logic_pure.logic_pure_quest import _apply_skill_xp_reward
+from .achievement_diary_derived import (  # noqa: F401  (re-export)
+    DIARY_DERIVED_VALUE_CEILINGS,
+    DIARY_DERIVED_VALUES,
+)
 
 
 ACHIEVEMENT_DIARY_STATE_VERSION = 1
@@ -157,6 +162,28 @@ def condition_progress_pure(
         return _counter_at(player_data, condition.key), need
     if kind == "hold_item":
         return _held_quantity(player_data, condition.key), need
+    if kind == "derived_value":
+        # An unregistered name reads zero, never `need`: the import-time
+        # assertion in the data module is what stands between a typo and an
+        # impossible row, and this fallback must not hand out a free completion
+        # if that assertion is ever removed.
+        derivation = DIARY_DERIVED_VALUES.get(condition.key)
+        return (0, need) if derivation is None else (_int(derivation(player_data)), need)
+    if kind == "any_of":
+        # The period wrote several tasks as "kill a giant rat" where AnkiScape
+        # stores one counter per level variant. The task is done when any single
+        # alternative is done, and the panel shows the closest alternative
+        # rather than a sum of unlike units. An empty or unrecognised set of
+        # alternatives is unsatisfiable, never satisfied by a vacuous any().
+        pairs = [
+            condition_progress_pure(player_data, alternative)
+            for alternative in condition.alternatives
+            if alternative.kind in BASE_CONDITION_KINDS
+        ]
+        if not pairs:
+            return 0, 1
+        best = max(pairs, key=lambda pair: (min(pair[0], pair[1]) / pair[1], pair[0]))
+        return min(best[0], best[1]), best[1]
     return 0, need
 
 

@@ -5,7 +5,7 @@ tier membership, names, descriptions and ordinary requirements. Pinned
 pre-cutoff wiki revisions are corroboration only. Tasks without an honest
 AnkiScape predicate are omitted rather than emitted as inert rows.
 
-Tasks kept: 304."""
+Tasks kept: 310."""
 
 from __future__ import annotations
 
@@ -453,6 +453,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'construction', 16, 'Level 16 Construction'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 118,
+                0,
+            ),
+            DiaryTask(
+                'falador_easy_it_s_not_wabbit_season',
+                "It's Not Wabbit Season",
+                'Kill a duck in Falador Park.',
+                (DiaryCondition('any_of', '', 1, 'Kill a duck', (DiaryCondition('counter', 'combat_kill_counts.duck_land', 1, 'Kill a duck (land)'), DiaryCondition('counter', 'combat_kill_counts.duck_water', 1, 'Kill a duck (water)'),)),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                123,
                 0,
             ),
             DiaryTask(
@@ -1094,6 +1103,15 @@ DIARY_FAMILIES = (
                 188,
                 0,
             ),
+            DiaryTask(
+                'karamja_easy_tzhaar_wars',
+                'TzHaar Wars',
+                'Attempt the TzHaar Fight Pits or Fight Cave.',
+                (DiaryCondition('any_of', '', 1, 'Attempt a TzHaar Fight Pit match or the Fight Caves', (DiaryCondition('counter', 'tzhaar_fight_pit_matches', 1, 'Enter a Fight Pit match'), DiaryCondition('counter', 'fight_caves.total_kills', 1, 'Land a Fight Caves kill'),)),),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                190,
+                0,
+            ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 10 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
@@ -1412,6 +1430,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'lumbridge_easy_draaaaaiiiiiins',
+                'Draaaaaiiiiiins...',
+                'Defeat a zombie in the sewers under the jailhouse.',
+                (DiaryCondition('any_of', '', 1, 'Defeat a zombie', (DiaryCondition('counter', 'combat_kill_counts.zombie_level_13', 1, 'Defeat a zombie (level 13)'), DiaryCondition('counter', 'combat_kill_counts.zombie_level_18', 1, 'Defeat a zombie (level 18)'), DiaryCondition('counter', 'combat_kill_counts.zombie_level_24', 1, 'Defeat a zombie (level 24)'), DiaryCondition('counter', 'combat_kill_counts.zombie_level_25', 1, 'Defeat a zombie (level 25)'), DiaryCondition('counter', 'combat_kill_counts.zombie_level_30', 1, 'Defeat a zombie (level 30)'), DiaryCondition('counter', 'combat_kill_counts.zombie_level_44', 1, 'Defeat a zombie (level 44)'), DiaryCondition('counter', 'combat_kill_counts.zombie_level_53', 1, 'Defeat a zombie (level 53)'),)),),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                85,
+                0,
+            ),
+            DiaryTask(
                 'lumbridge_easy_belter_of_a_smelter',
                 'Belter of a Smelter',
                 'Smelt a steel bar in the furnace in Lumbridge.',
@@ -1436,6 +1463,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'the_restless_ghost', 1, 'Complete The Restless Ghost'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 91,
+                0,
+            ),
+            DiaryTask(
+                'lumbridge_easy_you_doity_rat',
+                'You Doity Rat',
+                'Kill a giant rat in Lumbridge Swamp.',
+                (DiaryCondition('any_of', '', 1, 'Kill a giant rat', (DiaryCondition('counter', 'combat_kill_counts.giant_rat', 1, 'Kill a giant rat'), DiaryCondition('counter', 'combat_kill_counts.giant_rat_level_6', 1, 'Kill a giant rat (level 6)'), DiaryCondition('counter', 'combat_kill_counts.giant_rat_level_26', 1, 'Kill a giant rat (level 26)'),)),),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                93,
                 0,
             ),
             DiaryTask(
@@ -1749,6 +1785,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'in_aid_of_the_myreque', 1, 'Complete In Aid of the Myreque'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 952,
+                0,
+            ),
+            DiaryTask(
+                'morytania_easy_if_it_bleeds',
+                'If It Bleeds...',
+                'Kill anything on the ground floor of the Slayer Tower.',
+                (DiaryCondition('any_of', '', 1, 'Kill a Slayer Tower ground-floor monster', (DiaryCondition('counter', 'combat_kill_counts.crawling_hand', 1, 'Kill a crawling hand'), DiaryCondition('counter', 'combat_kill_counts.banshee', 1, 'Kill a banshee'), DiaryCondition('counter', 'combat_kill_counts.infernal_mage', 1, 'Kill an infernal mage'),)),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                953,
                 0,
             ),
             DiaryTask(
@@ -2457,7 +2502,7 @@ DIARY_FAMILIES = (
                 'varrock_easy_it_belongs_in_a_museum',
                 'It Belongs in a Museum',
                 'Speak to Haig Halen after obtaining at least 50 Kudos.',
-                (DiaryCondition('quest', 'the_dig_site', 1, 'Complete The Dig Site'),),
+                (DiaryCondition('quest', 'the_dig_site', 1, 'Complete The Dig Site'), DiaryCondition('derived_value', 'varrock_museum_kudos', 50, 'Earn 50 Kudos'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 268,
                 0,
@@ -2635,6 +2680,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 299,
+                0,
+            ),
+            DiaryTask(
+                'varrock_hard_kudos_on_the_kudos',
+                'Kudos on the Kudos!',
+                'Speak to Orlando Smith when you have achieved 153 Kudos.',
+                (DiaryCondition('derived_value', 'varrock_museum_kudos', 153, 'Earn 153 Kudos'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                300,
                 0,
             ),
             DiaryTask(

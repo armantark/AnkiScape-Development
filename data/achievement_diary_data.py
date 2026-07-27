@@ -38,6 +38,20 @@ CONDITION_KINDS: Tuple[str, ...] = (
     "ledger_action",    # key: "<skill id>:<action id>", amount: successes
     "counter",          # key: dotted player_data path, amount: threshold
     "hold_item",        # key: item name, amount: quantity held or worn
+    "any_of",           # key: "", amount: 1, meaning lives in `alternatives`
+    "derived_value",    # key: DIARY_DERIVED_VALUES name, amount: threshold
+)
+
+# The kinds an ``any_of`` alternative may take: the plain state reads only. A
+# disjunction of disjunctions has no source behind it, and the flat form is what
+# the panel can render.
+BASE_CONDITION_KINDS: Tuple[str, ...] = (
+    "skill_level",
+    "quest",
+    "ledger_output",
+    "ledger_action",
+    "counter",
+    "hold_item",
 )
 
 
@@ -47,6 +61,9 @@ class DiaryCondition:
     key: str
     amount: int = 1
     label: str = ""
+    # Only ``any_of`` populates this. The task is satisfied when any single
+    # alternative is satisfied; an empty tuple is unsatisfiable, never free.
+    alternatives: Tuple["DiaryCondition", ...] = ()
 
 
 @dataclass(frozen=True)
@@ -114,9 +131,44 @@ from .achievement_diary_catalog import (  # noqa: E402  (avoids a cycle at impor
 
 ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = DIARY_FAMILIES
 
+
+def _assert_derived_values_are_registered() -> None:
+    """A ``derived_value`` typo must be an ImportError, never a silent row.
+
+    The evaluator falls back to zero for an unknown name, so nothing else would
+    ever say the row is impossible: the panel would render an honest-looking
+    0/153 forever.
+    """
+
+    from ..logic.achievement_diary_derived import (  # noqa: E402  (avoids a cycle)
+        DIARY_DERIVED_VALUE_CEILINGS,
+        DIARY_DERIVED_VALUES,
+    )
+
+    for family in ACHIEVEMENT_DIARY_CATALOG:
+        for tier in family.tiers:
+            for task in tier.tasks:
+                for condition in task.conditions:
+                    if condition.kind != "derived_value":
+                        continue
+                    if condition.key not in DIARY_DERIVED_VALUES:
+                        raise ImportError(
+                            f"{task.id}: derived_value {condition.key!r} is not in"
+                            " DIARY_DERIVED_VALUES"
+                        )
+                    if condition.key not in DIARY_DERIVED_VALUE_CEILINGS:
+                        raise ImportError(
+                            f"{task.id}: derived_value {condition.key!r} has no"
+                            " entry in DIARY_DERIVED_VALUE_CEILINGS"
+                        )
+
+
+_assert_derived_values_are_registered()
+
 __all__ = [
     "ACHIEVEMENT_DIARY_CATALOG",
     "ACHIEVEMENTS_SOURCE",
+    "BASE_CONDITION_KINDS",
     "CONDITION_KINDS",
     "DiaryCondition",
     "DiaryFamily",

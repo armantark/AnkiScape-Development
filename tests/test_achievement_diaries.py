@@ -24,11 +24,23 @@ from ankiscape.core.storage_pure import (
     default_player_data,
     migrate_loaded_data,
 )
-from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+from ankiscape.data.achievement_diary_data import (
+    ACHIEVEMENT_DIARY_CATALOG,
+    BASE_CONDITION_KINDS,
+    DiaryCondition,
+    DiaryFamily,
+    DiaryTask,
+    DiaryTier,
+)
+from ankiscape.logic.achievement_diary_derived import (
+    DIARY_DERIVED_VALUE_CEILINGS,
+    DIARY_DERIVED_VALUES,
+)
 from ankiscape.logic.achievement_diary_logic import (
     achievement_cabinet_view_pure,
     apply_achievement_diary_command_pure,
     claim_diary_tier_pure,
+    condition_progress_pure,
     diary_tier_by_id_pure,
     diary_totals_pure,
     pin_diary_task_pure,
@@ -38,6 +50,7 @@ from ankiscape.logic.achievement_diary_logic import (
 )
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
+from tools.generate_achievement_diary_data import resolve_condition_key
 
 
 def _fresh():
@@ -56,30 +69,95 @@ def _set_counter(player, path, amount):
     node[parts[-1]] = amount
 
 
+def _max_out_varrock_museum(player):
+    """Drive the real museum to every Kudos point AnkiScape implements.
+
+    Nothing here writes ``varrock_museum`` directly: the quiz and the specimen
+    cases advance one review at a time through the live review entry point, and
+    the quest stories go through Historian Minas' own command, so the figure the
+    diary reads is one real play could actually produce.
+    """
+    from ankiscape.data.varrock_museum_data import (
+        QUEST_KUDOS,
+        QUIZ_DISPLAYS,
+        SPECIMEN_DISPLAYS,
+    )
+    from ankiscape.logic.varrock_museum_logic import (
+        apply_varrock_museum_command_pure,
+        apply_varrock_museum_review_pure,
+    )
+
+    for _display in QUIZ_DISPLAYS:
+        player, ok, info = apply_varrock_museum_review_pure(player)
+        assert ok, info
+
+    quests = player.setdefault("quests", {})
+    quests["the_dig_site"] = {"completed": True}
+    player["equipment"] = dict(player.get("equipment") or {})
+    player["equipment"]["hands"] = "Leather gloves"
+    player["equipment"]["feet"] = "Leather boots"
+    carried = dict(player.get("carried_inventory") or {})
+    pack = dict(carried.get("varrock_museum") or {})
+    pack.update({"Trowel": 1, "Rock pick": 1, "Specimen brush": 1})
+    for row in QUEST_KUDOS:
+        quests[str(row["id"])] = {"completed": True}
+        if row.get("required_item"):
+            pack[str(row["required_item"])] = 1
+    carried["varrock_museum"] = pack
+    player["carried_inventory"] = carried
+
+    player, ok, info = apply_varrock_museum_command_pure(
+        player, "set_route", {"route": "cleaning"}
+    )
+    assert ok, info
+    for _specimen in SPECIMEN_DISPLAYS:
+        player, ok, info = apply_varrock_museum_review_pure(player)
+        assert ok, info
+
+    player, ok, info = apply_varrock_museum_command_pure(player, "claim_quest_stories")
+    assert ok, info
+    return player
+
+
+def _satisfy_condition(player, condition):
+    """Put a real save into the exact durable state one condition reads."""
+    if condition.kind == "skill_level":
+        player[f"{condition.key}_level"] = max(
+            condition.amount, int(player.get(f"{condition.key}_level", 1))
+        )
+    elif condition.kind == "quest":
+        player.setdefault("quests", {})[condition.key] = {"completed": True}
+    elif condition.kind == "hold_item":
+        player["inventory"][condition.key] = condition.amount
+    elif condition.kind in {"ledger_output", "ledger_action"}:
+        skill_id, _, key = condition.key.partition(":")
+        kwargs = (
+            {"output_item": key, "output_qty": condition.amount}
+            if condition.kind == "ledger_output"
+            else {}
+        )
+        for _ in range(condition.amount if condition.kind == "ledger_action" else 1):
+            record_achievement_progress_pure(player, skill_id, key, True, **kwargs)
+    elif condition.kind == "counter":
+        _set_counter(player, condition.key, condition.amount)
+    elif condition.kind == "any_of":
+        _satisfy_condition(player, condition.alternatives[0])
+    elif condition.kind == "derived_value":
+        from ankiscape.logic.varrock_museum_logic import varrock_museum_kudos_pure
+
+        assert condition.key == "varrock_museum_kudos", condition.key
+        if varrock_museum_kudos_pure(player) < condition.amount:
+            updated = _max_out_varrock_museum(dict(player))
+            player.clear()
+            player.update(updated)
+    else:  # pragma: no cover - catalog integrity rejects unknown kinds
+        raise AssertionError(f"unhandled condition kind {condition.kind}")
+    return player
+
+
 def _satisfy(player, task):
-    """Put a real save into the exact durable state each condition reads."""
     for condition in task.conditions:
-        if condition.kind == "skill_level":
-            player[f"{condition.key}_level"] = max(
-                condition.amount, int(player.get(f"{condition.key}_level", 1))
-            )
-        elif condition.kind == "quest":
-            player.setdefault("quests", {})[condition.key] = {"completed": True}
-        elif condition.kind == "hold_item":
-            player["inventory"][condition.key] = condition.amount
-        elif condition.kind in {"ledger_output", "ledger_action"}:
-            skill_id, _, key = condition.key.partition(":")
-            kwargs = (
-                {"output_item": key, "output_qty": condition.amount}
-                if condition.kind == "ledger_output"
-                else {}
-            )
-            for _ in range(condition.amount if condition.kind == "ledger_action" else 1):
-                record_achievement_progress_pure(player, skill_id, key, True, **kwargs)
-        elif condition.kind == "counter":
-            _set_counter(player, condition.key, condition.amount)
-        else:  # pragma: no cover - catalog integrity rejects unknown kinds
-            raise AssertionError(f"unhandled condition kind {condition.kind}")
+        _satisfy_condition(player, condition)
     return player
 
 
@@ -265,6 +343,207 @@ class CatalogIntegrityTest(unittest.TestCase):
             self.assertEqual(len(items), len(set(items)), family.id)
 
 
+def _every_condition():
+    """Every shipped condition, alternatives included, with its task id."""
+    for family in ACHIEVEMENT_DIARY_CATALOG:
+        for tier in family.tiers:
+            for task in tier.tasks:
+                for condition in task.conditions:
+                    yield task, condition
+                    for alternative in condition.alternatives:
+                        yield task, alternative
+
+
+def _any_of_tasks():
+    return [
+        (task, condition)
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+        for condition in task.conditions
+        if condition.kind == "any_of"
+    ]
+
+
+class ConditionKeyResolutionTest(unittest.TestCase):
+    """A key nothing writes reads zero forever, and the panel never says so.
+
+    That is the exact shape of the two defects this family shipped and then
+    fixed: a ledger key filed under the wrong owning skill, and a counter path
+    that resolved against nothing. Both rendered an honest-looking 0/1 while
+    being impossible. This runs the generator's own resolution check over the
+    shipped catalog, so a hand-edit cannot reintroduce either.
+    """
+
+    def test_every_condition_key_names_state_the_runtime_writes(self):
+        failures = [
+            f"{task.id}: {error}"
+            for task, condition in _every_condition()
+            if (error := resolve_condition_key(condition.kind, condition.key))
+        ]
+        self.assertEqual(failures, [])
+
+    def test_the_resolver_rejects_the_shapes_it_exists_to_catch(self):
+        """Guard the guard: a check that passes everything catches nothing."""
+        self.assertTrue(resolve_condition_key("counter", "combat_kill_counts.no_such"))
+        self.assertTrue(resolve_condition_key("counter", "no_such_activity.runs"))
+        self.assertTrue(
+            resolve_condition_key("ledger_action", "cooking:draw_bucket_of_water")
+        )
+        self.assertTrue(resolve_condition_key("ledger_action", "no_such_skill:thing"))
+        self.assertEqual(
+            resolve_condition_key("ledger_action", "utility:draw_bucket_of_water"), ""
+        )
+
+
+class AnyOfConditionTest(unittest.TestCase):
+    def test_the_catalog_ships_any_of_tasks(self):
+        self.assertTrue(_any_of_tasks())
+
+    def test_no_alternative_nests_another_disjunction(self):
+        for _task, condition in _any_of_tasks():
+            self.assertTrue(condition.alternatives)
+            for alternative in condition.alternatives:
+                self.assertIn(alternative.kind, BASE_CONDITION_KINDS)
+                self.assertEqual(alternative.alternatives, ())
+
+    def test_each_alternative_alone_credits_its_task(self):
+        """One dead disjunct is invisible unless every one is driven alone.
+
+        The surviving alternatives keep the panel showing honest progress, so a
+        variant id that no longer exists would never surface in play.
+        """
+        for task, condition in _any_of_tasks():
+            for index, alternative in enumerate(condition.alternatives):
+                player = _fresh()
+                for other in task.conditions:
+                    if other is not condition:
+                        _satisfy_condition(player, other)
+                _satisfy_condition(player, alternative)
+                self.assertTrue(
+                    task_progress_pure(player, task)[0],
+                    f"{task.id} alternative {index} ({alternative.key})",
+                )
+                _player, newly = refresh_achievement_diaries_pure(player)
+                self.assertIn(task.id, newly, f"{task.id} alternative {index}")
+
+    def test_no_any_of_task_is_free_on_a_default_save(self):
+        player = _fresh()
+        for task, _condition in _any_of_tasks():
+            self.assertFalse(task_progress_pure(player, task)[0], task.id)
+
+    def test_an_empty_or_unknown_disjunction_is_unsatisfiable(self):
+        player = _fresh()
+        empty = DiaryCondition("any_of", "", 1, "Nothing at all")
+        self.assertEqual(condition_progress_pure(player, empty), (0, 1))
+        unknown = DiaryCondition(
+            "any_of",
+            "",
+            1,
+            "Only unknown kinds",
+            (DiaryCondition("no_such_kind", "whatever", 1, ""),),
+        )
+        self.assertEqual(condition_progress_pure(player, unknown), (0, 1))
+
+    def test_progress_reports_the_closest_alternative(self):
+        player = _fresh()
+        player["attack_level"] = 40
+        condition = DiaryCondition(
+            "any_of",
+            "",
+            1,
+            "Either ladder",
+            (
+                DiaryCondition("skill_level", "attack", 50, "Level 50 Attack"),
+                DiaryCondition("skill_level", "strength", 99, "Level 99 Strength"),
+            ),
+        )
+        self.assertEqual(condition_progress_pure(player, condition), (40, 50))
+
+
+class DerivedValueConditionTest(unittest.TestCase):
+    def _thresholds(self):
+        return [
+            (task, condition)
+            for task, condition in _every_condition()
+            if condition.kind == "derived_value"
+        ]
+
+    def test_the_catalog_ships_derived_value_tasks(self):
+        self.assertTrue(self._thresholds())
+
+    def test_every_threshold_is_reachable_and_the_ceiling_has_not_drifted(self):
+        """The Kudos threshold sits ten points under the implemented ceiling.
+
+        One dropped specimen case costs ten, which would make the task
+        permanently impossible while the predicate still looked right. So this
+        does not compare constants: it plays the museum to exhaustion through
+        its real entry points and asserts the figure that comes out clears
+        every shipped threshold and still equals the pinned ceiling.
+        """
+        player = _max_out_varrock_museum(_fresh())
+        for name, ceiling in DIARY_DERIVED_VALUE_CEILINGS.items():
+            reached = DIARY_DERIVED_VALUES[name](player)
+            self.assertEqual(reached, ceiling, name)
+            for task, condition in self._thresholds():
+                if condition.key == name:
+                    self.assertGreaterEqual(reached, condition.amount, task.id)
+
+    def test_playing_the_museum_credits_the_kudos_tasks(self):
+        tasks = [task for task, _condition in self._thresholds()]
+        player = _fresh()
+        for task in tasks:
+            self.assertFalse(task_progress_pure(player, task)[0], task.id)
+        player = _max_out_varrock_museum(player)
+        player, newly = refresh_achievement_diaries_pure(player)
+        for task in tasks:
+            self.assertIn(task.id, newly, task.id)
+
+    def test_an_unregistered_name_is_refused_at_import_time(self):
+        from ankiscape.data import achievement_diary_data as module
+
+        family = ACHIEVEMENT_DIARY_CATALOG[0]
+        tier = family.tiers[0]
+        broken = DiaryTask(
+            "typo_task",
+            "Typo",
+            "Names a derivation nobody registered.",
+            (DiaryCondition("derived_value", "varock_museum_kudos", 50, "Kudos"),),
+            "test",
+            -1,
+        )
+        original = module.ACHIEVEMENT_DIARY_CATALOG
+        module.ACHIEVEMENT_DIARY_CATALOG = (
+            DiaryFamily(
+                family.id,
+                family.name,
+                family.kind,
+                (
+                    DiaryTier(
+                        tier.id, tier.name, tier.index, tier.reward_item,
+                        tier.reward_summary, (broken,),
+                    ),
+                ),
+            ),
+        )
+        try:
+            with self.assertRaises(ImportError):
+                module._assert_derived_values_are_registered()
+        finally:
+            module.ACHIEVEMENT_DIARY_CATALOG = original
+
+    def test_an_unregistered_name_never_reads_as_satisfied(self):
+        """The runtime fallback is zero, so a typo can never pay out."""
+        player = _max_out_varrock_museum(_fresh())
+        unknown = DiaryCondition("derived_value", "varock_museum_kudos", 50, "Kudos")
+        self.assertEqual(condition_progress_pure(player, unknown), (0, 50))
+        known = DiaryCondition("derived_value", "varrock_museum_kudos", 50, "Kudos")
+        self.assertEqual(
+            condition_progress_pure(player, known)[0],
+            DIARY_DERIVED_VALUE_CEILINGS["varrock_museum_kudos"],
+        )
+
+
 class TaskProgressTest(unittest.TestCase):
     def test_a_fresh_save_has_credited_nothing_it_cannot_prove(self):
         player = _fresh()
@@ -356,7 +635,13 @@ class TaskProgressTest(unittest.TestCase):
         self.assertTrue(ok, info)
         player, newly = refresh_achievement_diaries_pure(player)
         self.assertIn(task.id, newly)
-        self.assertEqual(player["inventory"]["Coins"] - before, 100)
+        # One Fight Pit entry proves the Miscellaneous task and the Karamja
+        # "TzHaar Wars" disjunction at once, so the payout is the coin curve
+        # read at this task's own completion ordinal rather than a flat 100.
+        self.assertEqual(
+            player["inventory"]["Coins"] - before,
+            100 * (newly.index(task.id) + 1),
+        )
 
     def test_miscellaneous_reward_grows_with_completion_ordinal(self):
         from ankiscape.logic.tzhaar_fight_pit_logic import enter_tzhaar_fight_pit_pure
@@ -372,11 +657,16 @@ class TaskProgressTest(unittest.TestCase):
         player, newly = refresh_achievement_diaries_pure(player)
         self.assertEqual(newly, (prior.id,))
         before = int(player["inventory"].get("Coins", 0))
+        completed_before = len(player["achievement_diaries"]["completed_tasks"])
         player, ok, info = enter_tzhaar_fight_pit_pure(player)
         self.assertTrue(ok, info)
         player, newly = refresh_achievement_diaries_pure(player)
-        self.assertTrue(any(task_id.startswith("miscellaneous_") for task_id in newly))
-        self.assertEqual(player["inventory"]["Coins"] - before, 200)
+        paid = next(
+            task_id for task_id in newly if task_id.startswith("miscellaneous_")
+        )
+        ordinal = completed_before + newly.index(paid) + 1
+        self.assertGreater(ordinal, 1)
+        self.assertEqual(player["inventory"]["Coins"] - before, 100 * ordinal)
 
     def test_burthorpe_course_gameplay_completes_lapping_it_up(self):
         from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
