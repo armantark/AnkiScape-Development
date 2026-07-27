@@ -375,3 +375,52 @@ A third, Treasure Trails, carried a 2015 mechanic into a 2012 product.
 Three of four conflicts were our error, not a source ambiguity. When a settled
 record and a pinned revision disagree, re-read the revision before assuming the
 record won an argument.
+
+### 4.8 Pass 3 of the playtest notes — answered 2026-07-26
+
+The owner reviewed a running build and answered five forks. Two of them overturn
+his own earlier records, which is noted at each.
+
+**The always-visible strip shows only what is live.** Skill experience bars appear
+for the running activity, the Grand Exchange fills drawer appears while an offer
+is open, and nothing holds a permanent seat — except a compact badge on the left
+for Distractions and Diversions and for Farming, which persists and opens a small
+status popover. Clicking a line in that popover goes to the activity. This is what
+stops the strip from becoming a second cluttered rectangle.
+
+**The Agility panel's seventeen buttons split four ways.** Ticket redemptions,
+claims and herb purchases move to the reward-shops area of the shop interface.
+The Agility cape moves there too, with every other skillcape. Named buyers get
+their own section in the shop interface, so selling a Pyramid top happens at
+Simon Templeton for the sourced 1,000 coins instead of at an unlabelled button.
+What remains on the panel is one control row, present only while an activity runs.
+
+**Skillcapes are passive, auras are activated.** The rule is the cooldown: a
+skillcape has none, so its boost simply holds while the cape is worn, and the
+"Activate cape" button does not exist. An aura has one, so it needs a real
+control. Auras get their own inventory inside the equipment tab with an activate
+button, which is where Surefooted belongs — it is already an aura and already has
+`surefooted_cooldown_reviews`.
+
+The shipped cape behaviour was invented: it granted a +1 Agility boost for exactly
+ten actions. The period skillcape boost is passive while worn and cannot be used
+from the inventory at all.
+
+**Population is never user-facing, and grows per activity.** SUPERSEDES the
+2026-07-10 record, which granted advanced mode "preferred starting sizes and a
+quiet/normal/busy population", and amends
+`simulation-computation-budget-contract-2026-07-17.md`, whose event-seeded ceiling
+varies "±20% around the selected Quiet / Normal / Busy profile". There is no
+selected profile any more. Each activity grows its own population with the
+contract's existing fuzziness — the time-of-day envelope, the seeded ceiling,
+midpoint and steepness shifts, and phase noise — and the shared
+`world_population_profile` stops being a player dial.
+
+**Advanced mode leaves the shooting star.** SUPERSEDES the same 2026-07-10 record.
+Choosing which star sizes spawn is a capability no player ever had, and there is
+no case where a player would decline the star in front of them. The star the
+simulation produces is the star you mine.
+
+**Leave activity behaves like every other activity.** Agility alone uses a generic
+`leave_activity` command while every other family uses its own `abandon`. This is
+a behaviour inconsistency, not only a visual one.
