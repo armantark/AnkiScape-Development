@@ -50,7 +50,9 @@ shared model has four constant-work inputs:
 - a smooth answered-card time-of-day envelope over the 240-card world day,
   initially ranging from `0.75×` at the quiet trough to `1.25×` at the peak;
 - one event-seeded population ceiling, initially varying by at most `±20%`
-  around the selected Quiet / Normal / Busy profile after the day envelope;
+  around the owning activity's fixed base ceiling after the day envelope.
+  **Amended 2026-07-26:** this replaces the former selected Quiet / Normal / Busy
+  profile; population is never a player-facing dial;
 - event-seeded S-curve midpoint and steepness shifts, initially bounded to
   `±10%` of the event window and `±15%` of base steepness respectively; and
 - deterministic smooth phase noise modifying current pressure by at most
@@ -61,8 +63,8 @@ base. These inputs alter its aggregate shape, not its computational model:
 
 - cumulative arrivals and depletion remain monotonic, so jitter can slow or
   accelerate growth but never make participants or consumed resources reappear;
-- the event seed, world-day phase, population profile, and current visible
-  resource/fullness state are sufficient for save/load and undo; no agent list
+- the event seed, world-day phase, activity-owned base ceiling, and current
+  visible resource/fullness state are sufficient for save/load and undo; no agent list
   or replay trace is stored; and
 - skipped intervals evaluate the keyed phase function directly rather than
   replaying every missed step.

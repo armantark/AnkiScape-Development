@@ -30,12 +30,10 @@ SHOOTING_STAR_ORE_BONUS_CHANCE = 0.25
 SHOOTING_STAR_STARDUST_CAP = 200
 
 # Hidden initial-size and first-finder distributions are source-blocked. These
-# bounded values drive the disclosed naturalized-population abstraction.
-SHOOTING_STAR_FIRST_FINDER_CHANCE = {
-    "quiet": 0.30,
-    "normal": 0.16,
-    "busy": 0.08,
-}
+# values preserve the former Normal profile's observed baseline while the shared
+# event-seeded fuzziness remains active.
+SHOOTING_STAR_POPULATION_BASE_CEILING = 0.92
+SHOOTING_STAR_FIRST_FINDER_CHANCE = 0.16
 
 
 @dataclass(frozen=True)

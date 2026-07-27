@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import math
-from typing import Mapping
 
 
 def seeded_unit_pure(seed: int, stream: int) -> float:
@@ -31,9 +30,7 @@ def naturalized_population_target_bps_pure(
     phase: float,
     day_phase: float,
     seed: int,
-    profile: str,
-    base_ceilings: Mapping[str, float],
-    default_profile: str = "normal",
+    base_ceiling: float,
 ) -> int:
     """Return a monotonic aggregate public-population pressure target."""
 
@@ -50,10 +47,8 @@ def naturalized_population_target_bps_pure(
     day_envelope = 1.0 + 0.25 * math.sin(
         2.0 * math.pi * (float(day_phase) % 1.0)
     )
-    base_ceiling = base_ceilings.get(
-        str(profile),
-        base_ceilings[default_profile],
+    seeded_ceiling = float(base_ceiling) * (
+        0.8 + seeded_unit_pure(seed, 1) * 0.4
     )
-    seeded_ceiling = base_ceiling * (0.8 + seeded_unit_pure(seed, 1) * 0.4)
     ceiling = seeded_ceiling * day_envelope
     return min(10_000, max(0, int(round(curve * ceiling * 10_000))))

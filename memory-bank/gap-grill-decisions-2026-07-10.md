@@ -851,12 +851,13 @@ Living-mineral yield and exact star/server rolls.
   `±10%` pressure jitter. Otherwise equal events therefore feel different
   without creating players, reversing cumulative arrivals, or adding work
   proportional to crowd size.
-- Casual mode joins a sensibly populated star and automatically waits through
-  inaccessible upper layers while showing the current layer/action. Advanced
-  mode may save preferred starting sizes and a quiet/normal/busy population,
-  trading personal dust opportunity against faster access to lower layers.
-  Those population choices select the S-curve's ceiling and arrival pressure,
-  not a flat depletion multiplier.
+- **SUPERSEDED 2026-07-26 by `design-thread-queue.md` 4.8.** This record
+  previously granted Advanced mode "preferred starting sizes and a
+  quiet/normal/busy population." Neither choice remains player-facing: the star
+  produced by the simulation is the star the player mines, and Shooting Stars
+  grow their own hidden population from an activity-owned base ceiling. The
+  existing event-seeded ceiling, midpoint, steepness, time-of-day envelope, and
+  phase noise still vary communal depletion between otherwise-equal events.
 - Exchanging stardust with the released sprite is manual. Completing a star
   exposes the sprite, rewards scale to carried dust up to 200, and the exchange
   allowance resets every 240 answered cards. This preserves one reward per

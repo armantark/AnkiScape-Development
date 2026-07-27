@@ -12,6 +12,7 @@ from ankiscape.data.agility_data import (
 )
 from ankiscape.logic.agility_logic import (
     PIT_INVITATION_COURSE_IDS,
+    agility_effective_level_pure,
     agility_failure_probability_pure,
     agility_target_locked_reasons_pure,
     apply_agility_command_pure,
@@ -417,7 +418,7 @@ class TestAgilityPureEngine(unittest.TestCase):
             **player,
             "agility_pit_successes": 0,
         }
-        left, result = apply_agility_command_pure(active, "leave_activity")
+        left, result = apply_agility_command_pure(active, "abandon")
         self.assertTrue(result["allowed"])
         self.assertEqual(left["current_agility"], "gnome_normal")
         self.assertNotIn("pit", left["agility_activity_state"])
@@ -653,21 +654,28 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertEqual(player["agility_effect_charges"]["surefooted_reviews"], 332)
         self.assertEqual(player["agility_effect_charges"]["surefooted_cooldown_reviews"], 1999)
 
-    def test_skillcape_purchase_and_action_boost_are_explicit_commands(self):
+    def test_skillcape_boost_is_passive_only_while_equipped(self):
         player = {
             **default_agility_state_pure(),
             "agility_level": 99,
             "inventory": {"Coins": 99_000},
+            "equipment": {},
         }
         player, result = apply_agility_command_pure(player, "purchase_agility_cape")
         self.assertTrue(result["allowed"])
         self.assertEqual(player["inventory"]["Coins"], 0)
         self.assertEqual(player["inventory"]["Agility cape"], 1)
         self.assertEqual(player["inventory"]["Agility hood"], 1)
-        player, result = apply_agility_command_pure(player, "activate_agility_cape")
-        self.assertTrue(result["allowed"])
-        self.assertEqual(player["agility_effective_boost"], 1)
-        self.assertEqual(player["agility_boost_actions_remaining"], 10)
+        self.assertEqual(agility_effective_level_pure(player), 99)
+
+        equipped = {**player, "equipment": {"cape": "Agility cape"}}
+        self.assertEqual(agility_effective_level_pure(equipped), 100)
+        _same, result = apply_agility_command_pure(
+            equipped,
+            "activate_agility_cape",
+        )
+        self.assertFalse(result["allowed"])
+        self.assertEqual(result["message"], "Unknown Agility command")
 
 
 if __name__ == "__main__":

@@ -41,7 +41,9 @@ per-value evidence in the earlier Agility source audits.
   reviews as the proportional representation of its period two-minute benefit;
   the other outfit effects apply to failure, catalyst, rubble, and score/reward
   behavior.
-- Agility cape's temporary +1 boost lasts ten Agility actions.
+- **Superseded 2026-07-26 by `design-thread-queue.md` 4.8:** the former
+  ten-action activation was invented. The period +1 boost now holds passively
+  while the Agility cape is equipped and does not apply from inventory.
 - Source-blocked standard failures use the contract's global 20% entry curve,
   decaying to the sourced mastery point or 5% at level 99. Sourced obstacle
   consequences always override it.

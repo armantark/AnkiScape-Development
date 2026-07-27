@@ -169,7 +169,6 @@ from ..data.big_chinchompa_data import (
     BIG_CHINCHOMPA_REWARDS,
     BIG_CHINCHOMPA_TICKET_BY_TARGET,
     BIG_CHINCHOMPA_UTILITY_ID,
-    WORLD_POPULATION_PROFILE_LABELS,
 )
 from ..logic.big_chinchompa_logic import (
     big_chinchompa_view_pure,
@@ -523,7 +522,11 @@ from ..data.agility_data import (
     ALL_AGILITY_SHORTCUTS,
     DEFAULT_AGILITY_TARGET,
 )
-from ..logic.agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
+from ..logic.agility_logic import (
+    agility_effective_level_pure,
+    agility_status_line_pure,
+    agility_target_locked_reasons_pure,
+)
 from ..core.review_context import review_context_projection_pure
 
 from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -4067,7 +4070,7 @@ def show_main_menu(
             and (player_data.get("agility_activity_state") or {}).get("brimhaven")
             and on_agility_command is not None
         ):
-            result = on_agility_command("leave_activity", {}) or {}
+            result = on_agility_command("abandon", {}) or {}
             if not result.get("ok", result.get("allowed", False)):
                 warn.setText(str(result.get("message", "Could not end the Brimhaven stint")))
                 return
@@ -6169,7 +6172,7 @@ def show_main_menu(
         def _select_agility_target(target_id: str) -> None:
             current = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
             if current == "brimhaven_arena" and target_id != current and on_agility_command is not None:
-                result = on_agility_command("leave_activity", {}) or {}
+                result = on_agility_command("abandon", {}) or {}
                 if not result.get("ok", result.get("allowed", False)):
                     agility_feedback["message"] = str(
                         result.get("message", "Could not end the Brimhaven stint")
@@ -6249,8 +6252,7 @@ def show_main_menu(
         _command_button("Activate Surefooted", "activate_surefooted", {})
         _command_button("Wind Toy mouse", "wind_toy_mouse", {})
         _command_button("Buy Agility cape", "purchase_agility_cape", {})
-        _command_button("Activate cape", "activate_agility_cape", {})
-        _command_button("Leave activity", "leave_activity", {})
+        _command_button("Leave activity", "abandon", {})
         reward_layout.setColumnStretch(4, 1)
         layout.addWidget(rewards)
         return panel
@@ -7839,17 +7841,7 @@ def show_main_menu(
             f" QPushButton:disabled {{ color: {dim_text_css(big_action)};"
             " border-color: palette(mid); }"
         )
-        population_combo = QComboBox()
-        population_combo.setObjectName("bigChinchompaPopulationProfile")
-        population_combo.setToolTip(
-            "Sets how busy the simulated world feels. A busy world can fill "
-            "the Plutonial Chinchompa sooner; progress still comes only from "
-            "answered reviews."
-        )
-        for profile, label in WORLD_POPULATION_PROFILE_LABELS.items():
-            population_combo.addItem(f"{label} world", profile)
-        big_controls_layout.addWidget(big_action, 2)
-        big_controls_layout.addWidget(population_combo, 1)
+        big_controls_layout.addWidget(big_action, 1)
         big_layout.addWidget(big_controls)
 
         reward_row = QWidget()
@@ -7901,13 +7893,6 @@ def show_main_menu(
                 player_data.get("current_utility")
                 == BIG_CHINCHOMPA_UTILITY_ID
             )
-            profile_index = population_combo.findData(
-                view["population_profile"]
-            )
-            population_combo.blockSignals(True)
-            if profile_index >= 0:
-                population_combo.setCurrentIndex(profile_index)
-            population_combo.blockSignals(False)
             big_fullness.setVisible(active)
             big_fullness.setValue(int(round(view["fullness_percent"])))
             if active:
@@ -7997,20 +7982,6 @@ def show_main_menu(
             _refresh_big_chinchompa_panel()
             star_panel_refresher["call"]()
 
-        def _set_population_profile(profile: str) -> None:
-            if on_big_chinchompa_command is None:
-                return
-            result = on_big_chinchompa_command(
-                "set_population_profile", {"profile": profile}
-            )
-            if not result.get("ok", False):
-                show_error_message(
-                    "World population",
-                    str(result.get("message", "Could not update the profile.")),
-                )
-            _refresh_big_chinchompa_panel()
-            star_panel_refresher["call"]()
-
         def _buy_big_chinchompa_reward() -> None:
             if on_big_chinchompa_command is None:
                 return
@@ -8026,11 +7997,6 @@ def show_main_menu(
 
         big_action.clicked.connect(
             lambda _checked=False: _select_big_chinchompa()
-        )
-        population_combo.currentIndexChanged.connect(
-            lambda _index: _set_population_profile(
-                str(population_combo.currentData() or "normal")
-            )
         )
         reward_combo.currentIndexChanged.connect(
             lambda _index: _refresh_big_chinchompa_panel()
@@ -8100,39 +8066,6 @@ def show_main_menu(
         )
         star_layout.addWidget(star_detail)
 
-        star_policy = QWidget()
-        star_policy_layout = QHBoxLayout(star_policy)
-        star_policy_layout.setContentsMargins(0, 0, 0, 0)
-        star_policy_layout.setSpacing(6)
-        star_mode = QComboBox()
-        star_mode.setObjectName("shootingStarAutomationMode")
-        star_mode.addItem("Casual · natural stars", "casual")
-        star_mode.addItem("Advanced · preferred sizes", "advanced")
-        star_mode.setToolTip(
-            "Casual accepts natural stars; Advanced prefers a saved size range."
-        )
-        star_population = QComboBox()
-        star_population.setObjectName("shootingStarPopulationProfile")
-        for profile, label in WORLD_POPULATION_PROFILE_LABELS.items():
-            star_population.addItem(f"Population · {label}", profile)
-        star_population.setToolTip(
-            "World population changes how quickly public miners clear layers."
-        )
-        star_min_size = QComboBox()
-        star_min_size.setObjectName("shootingStarMinimumSize")
-        star_min_size.setToolTip("Smallest star size preferred in Advanced mode.")
-        star_max_size = QComboBox()
-        star_max_size.setObjectName("shootingStarMaximumSize")
-        star_max_size.setToolTip("Largest star size preferred in Advanced mode.")
-        for size in range(1, 10):
-            star_min_size.addItem(f"Min {size}", size)
-            star_max_size.addItem(f"Max {size}", size)
-        star_policy_layout.addWidget(star_mode, 2)
-        star_policy_layout.addWidget(star_population, 1)
-        star_policy_layout.addWidget(star_min_size, 1)
-        star_policy_layout.addWidget(star_max_size, 1)
-        star_layout.addWidget(star_policy)
-
         star_actions = QWidget()
         star_actions_layout = QHBoxLayout(star_actions)
         star_actions_layout.setContentsMargins(0, 0, 0, 0)
@@ -8146,8 +8079,6 @@ def show_main_menu(
         star_layout.addWidget(star_actions)
         cards_stack.addWidget(star_box)
 
-        syncing_star = {"active": False}
-
         def _shooting_star_has_pickaxe() -> bool:
             return (
                 best_mining_pickaxe_pure(
@@ -8160,7 +8091,6 @@ def show_main_menu(
             )
 
         def _refresh_shooting_star_panel() -> None:
-            syncing_star["active"] = True
             view = shooting_star_view_pure(
                 player_data,
                 has_usable_pickaxe=_shooting_star_has_pickaxe(),
@@ -8169,30 +8099,6 @@ def show_main_menu(
                 player_data.get("current_utility")
                 == SHOOTING_STAR_ACTIVITY_ID
             )
-            preferred = tuple(view["preferred_sizes"]) or tuple(range(1, 10))
-            star_mode.setCurrentIndex(
-                max(0, star_mode.findData(view["automation_mode"]))
-            )
-            star_population.setCurrentIndex(
-                max(
-                    0,
-                    star_population.findData(view["population_profile"]),
-                )
-            )
-            star_min_size.setCurrentIndex(
-                max(0, star_min_size.findData(min(preferred)))
-            )
-            star_max_size.setCurrentIndex(
-                max(0, star_max_size.findData(max(preferred)))
-            )
-            advanced = view["automation_mode"] == "advanced"
-            star_min_size.setEnabled(advanced)
-            star_max_size.setEnabled(advanced)
-            star_mode.setEnabled(on_shooting_star_command is not None)
-            star_population.setEnabled(
-                on_shooting_star_command is not None
-            )
-
             if view["active"]:
                 star_status.setText(f"Size {int(view['current_size'])}")
                 star_summary.setText(
@@ -8268,7 +8174,6 @@ def show_main_menu(
                 if view["can_exchange"]
                 else "A released sprite, stardust, and an unused review-day reward are required."
             )
-            syncing_star["active"] = False
             _fit_current_activity_detail()
             world_events_refresher["call"]()
 
@@ -8283,40 +8188,6 @@ def show_main_menu(
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
             _refresh_shooting_star_panel()
-
-        def _set_shooting_star_preferences() -> None:
-            if syncing_star["active"] or on_shooting_star_command is None:
-                return
-            minimum = int(star_min_size.currentData() or 1)
-            maximum = int(star_max_size.currentData() or 9)
-            if minimum > maximum:
-                maximum = minimum
-            result = on_shooting_star_command(
-                "set_preferences",
-                {
-                    "automation_mode": str(
-                        star_mode.currentData() or "casual"
-                    ),
-                    "population_profile": str(
-                        star_population.currentData() or "normal"
-                    ),
-                    "preferred_sizes": list(
-                        range(minimum, maximum + 1)
-                    ),
-                },
-            ) or {}
-            if not result.get("ok", False):
-                show_error_message(
-                    "Shooting Star preferences",
-                    str(
-                        result.get(
-                            "message",
-                            "Could not save Shooting Star preferences.",
-                        )
-                    ),
-                )
-            _refresh_shooting_star_panel()
-            _refresh_big_chinchompa_panel()
 
         def _exchange_shooting_star_dust() -> None:
             if on_shooting_star_command is None:
@@ -8339,18 +8210,6 @@ def show_main_menu(
         )
         star_exchange.clicked.connect(
             lambda _checked=False: _exchange_shooting_star_dust()
-        )
-        star_mode.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
-        )
-        star_population.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
-        )
-        star_min_size.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
-        )
-        star_max_size.currentIndexChanged.connect(
-            lambda _index: _set_shooting_star_preferences()
         )
         _refresh_shooting_star_panel()
 
@@ -20594,26 +20453,10 @@ def show_main_menu(
                 )
             except (TypeError, ValueError):
                 current_level = base_level
-        if (
-            skill_id == "agility"
-            and int(
-                player_data.get("agility_boost_actions_remaining", 0) or 0
-            )
-            > 0
-        ):
+        if skill_id == "agility":
             current_level = max(
                 current_level,
-                base_level
-                + max(
-                    0,
-                    int(
-                        player_data.get(
-                            "agility_effective_boost",
-                            0,
-                        )
-                        or 0
-                    ),
-                ),
+                agility_effective_level_pure(player_data),
             )
         return current_level
 

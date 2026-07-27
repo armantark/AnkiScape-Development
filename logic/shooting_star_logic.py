@@ -5,12 +5,9 @@ from __future__ import annotations
 import copy
 from typing import Any, Mapping, Sequence
 
-from ..data.big_chinchompa_data import (
-    WORLD_POPULATION_BASE_CEILINGS,
-    WORLD_POPULATION_PROFILES,
-)
 from ..data.shooting_star_data import (
     SHOOTING_STAR_FIRST_FINDER_CHANCE,
+    SHOOTING_STAR_POPULATION_BASE_CEILING,
     SHOOTING_STAR_INTERVAL_REVIEWS,
     SHOOTING_STAR_LAYERS_BY_SIZE,
     SHOOTING_STAR_LOCATIONS,
@@ -28,7 +25,6 @@ from .world_population_logic import (
 
 
 SHOOTING_STAR_STATE_VERSION = 1
-DEFAULT_WORLD_POPULATION_PROFILE = "normal"
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
@@ -51,20 +47,6 @@ def _answered_cards(player_data: Mapping[str, Any]) -> int:
     if not isinstance(clock, Mapping):
         return 0
     return _int(clock.get("answered_cards"))
-
-
-def _profile(player_data: Mapping[str, Any]) -> str:
-    profile = str(
-        player_data.get(
-            "world_population_profile",
-            DEFAULT_WORLD_POPULATION_PROFILE,
-        )
-    ).lower()
-    return (
-        profile
-        if profile in WORLD_POPULATION_PROFILES
-        else DEFAULT_WORLD_POPULATION_PROFILE
-    )
 
 
 def _current_slot_card(answered_cards: int) -> int:
@@ -98,8 +80,6 @@ def default_shooting_star_state_pure() -> dict[str, Any]:
         "last_resolved_slot_card": 0,
         "last_exchange_day": -1,
         "ore_bonus_ticks_remaining": 0,
-        "automation_mode": "casual",
-        "preferred_sizes": list(range(1, 10)),
         "last_result": "",
         "event_log": [],
     }
@@ -169,19 +149,6 @@ def _sanitize_event(raw: Any) -> dict[str, Any]:
 def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
     defaults = default_shooting_star_state_pure()
     source = raw if isinstance(raw, Mapping) else {}
-    preferred = source.get("preferred_sizes")
-    preferred_sizes = (
-        sorted(
-            {
-                min(9, _int(value, 1, minimum=1))
-                for value in preferred
-            }
-        )
-        if isinstance(preferred, (list, tuple, set))
-        else list(range(1, 10))
-    )
-    if not preferred_sizes:
-        preferred_sizes = list(range(1, 10))
     event_log = source.get("event_log")
     return {
         **defaults,
@@ -196,13 +163,6 @@ def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
         "ore_bonus_ticks_remaining": _int(
             source.get("ore_bonus_ticks_remaining")
         ),
-        "automation_mode": (
-            "advanced"
-            if str(source.get("automation_mode", "casual")).lower()
-            == "advanced"
-            else "casual"
-        ),
-        "preferred_sizes": preferred_sizes,
         "last_result": str(source.get("last_result", ""))[:240],
         "event_log": (
             [dict(row) for row in event_log if isinstance(row, Mapping)][-20:]
@@ -218,32 +178,19 @@ def ensure_shooting_star_state_pure(
     # Shallow on purpose: every key written below is rebuilt from scratch, and a
     # whole-save deep copy here cost 2.07 ms on every review.
     data = dict(player_data)
-    data["world_population_profile"] = _profile(data)
     data["shooting_star"] = sanitize_shooting_star_state_pure(
         data.get("shooting_star")
     )
     return data
 
 
-def _spawn_event(
-    state: Mapping[str, Any],
-    *,
-    slot_card: int,
-    profile: str,
-) -> dict[str, Any]:
+def _spawn_event(*, slot_card: int) -> dict[str, Any]:
     seed = _event_seed(slot_card)
-    preferred = (
-        tuple(state.get("preferred_sizes") or ())
-        if state.get("automation_mode") == "advanced"
-        else tuple(range(1, 10))
-    )
-    candidates = tuple(
-        size for size in preferred if size in SHOOTING_STAR_LAYERS_BY_SIZE
-    ) or tuple(range(1, 10))
-    starting_size = candidates[
+    sizes = tuple(range(1, 10))
+    starting_size = sizes[
         min(
-            len(candidates) - 1,
-            int(seeded_unit_pure(seed, 6) * len(candidates)),
+            len(sizes) - 1,
+            int(seeded_unit_pure(seed, 6) * len(sizes)),
         )
     ]
     location = SHOOTING_STAR_LOCATIONS[
@@ -270,8 +217,7 @@ def _spawn_event(
         "player_dust_mined": 0,
         "player_attempted": False,
         "tag_candidate": (
-            seeded_unit_pure(seed, 7)
-            < SHOOTING_STAR_FIRST_FINDER_CHANCE[profile]
+            seeded_unit_pure(seed, 7) < SHOOTING_STAR_FIRST_FINDER_CHANCE
         ),
         "tag_awarded": False,
         "sprite_released": False,
@@ -320,7 +266,6 @@ def _apply_crowd_target(
     event: dict[str, Any],
     *,
     answered_cards: int,
-    profile: str,
 ) -> None:
     if event.get("sprite_released"):
         return
@@ -335,9 +280,7 @@ def _apply_crowd_target(
         )
         / SHOOTING_STAR_REWARD_DAY_REVIEWS,
         seed=_int(event.get("seed")),
-        profile=profile,
-        base_ceilings=WORLD_POPULATION_BASE_CEILINGS,
-        default_profile=DEFAULT_WORLD_POPULATION_PROFILE,
+        base_ceiling=SHOOTING_STAR_POPULATION_BASE_CEILING,
     )
     total_mass = _int(event.get("total_mass"))
     target_removed = (total_mass * target_bps) // 10_000
@@ -408,7 +351,6 @@ def advance_shooting_star_world_clock_pure(
             _apply_crowd_target(
                 event,
                 answered_cards=answered,
-                profile=_profile(data),
             )
             state["active_event"] = event
             if not was_sprite_released and event.get("sprite_released"):
@@ -424,15 +366,10 @@ def advance_shooting_star_world_clock_pure(
         and current_slot >= SHOOTING_STAR_INTERVAL_REVIEWS
         and current_slot > _int(state.get("last_resolved_slot_card"))
     ):
-        event = _spawn_event(
-            state,
-            slot_card=current_slot,
-            profile=_profile(data),
-        )
+        event = _spawn_event(slot_card=current_slot)
         _apply_crowd_target(
             event,
             answered_cards=answered,
-            profile=_profile(data),
         )
         state["active_event"] = event
         state["event_log"] = (
@@ -451,40 +388,6 @@ def shooting_star_event_mineable_pure(
     data = ensure_shooting_star_state_pure(player_data)
     event = data["shooting_star"]["active_event"]
     return bool(event and not event.get("sprite_released"))
-
-
-def set_shooting_star_preferences_pure(
-    player_data: Mapping[str, Any],
-    *,
-    automation_mode: str,
-    preferred_sizes: Sequence[int],
-    population_profile: str,
-) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = ensure_shooting_star_state_pure(player_data)
-    mode = str(automation_mode).lower()
-    profile = str(population_profile).lower()
-    sizes = sorted(
-        {
-            min(9, _int(value, 1, minimum=1))
-            for value in preferred_sizes
-        }
-    )
-    if mode not in {"casual", "advanced"}:
-        return data, False, {"reason": "Unknown automation mode."}
-    if profile not in WORLD_POPULATION_PROFILES:
-        return data, False, {"reason": "Unknown world-population profile."}
-    if not sizes:
-        return data, False, {"reason": "Select at least one preferred size."}
-    state = dict(data["shooting_star"])
-    state["automation_mode"] = mode
-    state["preferred_sizes"] = sizes
-    data["world_population_profile"] = profile
-    data["shooting_star"] = sanitize_shooting_star_state_pure(state)
-    return data, True, {
-        "automation_mode": mode,
-        "preferred_sizes": sizes,
-        "population_profile": profile,
-    }
 
 
 def _pick_gem(
@@ -728,8 +631,5 @@ def shooting_star_view_pure(
         "ore_bonus_ticks_remaining": _int(
             state.get("ore_bonus_ticks_remaining")
         ),
-        "automation_mode": str(state.get("automation_mode", "casual")),
-        "preferred_sizes": tuple(state.get("preferred_sizes") or ()),
-        "population_profile": _profile(data),
         "last_result": str(state.get("last_result", "")),
     }
