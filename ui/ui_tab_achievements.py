@@ -36,9 +36,10 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
 from ..logic.achievement_diary_logic import achievement_cabinet_view_pure
 from .ui import CatalogFilterBar, _clear_layout, dim_text_css
 
-# The log holds 191 tracks. The Cabinet card is a summary, not the whole log:
-# the dialog is about 560 logical points tall and the families below it must
-# stay reachable without scrolling past a wall of music.
+# How many track rows the Music Log card leaves on screen when collapsed. The
+# dialog is about 560 logical points tall, so the families below the card must
+# stay reachable without scrolling past a wall of music. The remaining rows are
+# built and hidden rather than dropped, so every track has a route.
 MUSIC_ROWS_SHOWN = 12
 
 
@@ -309,10 +310,25 @@ def build_achievements_tab(ctx) -> "QWidget":
         return card
 
     def _music_card(music: dict) -> "QWidget":
-        card, card_layout = _card(f"Music Log · {music['unlocked']}/{music['total']} tracks")
-        for track in music["tracks"][:MUSIC_ROWS_SHOWN]:
+        """The whole log, with only its first rows on screen until asked.
+
+        Every track is built, so no track can be permanently invisible; the rows
+        past the first ``MUSIC_ROWS_SHOWN`` are simply hidden until the toggle
+        is pressed, which keeps the card short enough that the diary families
+        below it stay reachable in a 560-point dialog.
+        """
+
+        heading = f"Music Log · {music['unlocked']}/{music['total']} tracks"
+        if music["latent"]:
+            heading += f" · {music['latent']} latent"
+        card, card_layout = _card(heading)
+
+        overflow: list = []
+        for index, track in enumerate(music["tracks"]):
+            latent = " (latent — its feature has not shipped)" if track["latent"] else ""
             line = QLabel(
-                f"{'♪' if track['unlocked'] else '·'} {track['name']} — {track['hint']}"
+                f"{'♪' if track['unlocked'] else '·'} {track['name']}"
+                f" — {track['hint']}{latent}"
             )
             line.setObjectName(f"cabinetTrack_{track['track_id']}")
             line.setWordWrap(True)
@@ -320,10 +336,26 @@ def build_achievements_tab(ctx) -> "QWidget":
                 "color: palette(text);" if track["unlocked"] else f"color: {dim_text_css(line)};"
             )
             card_layout.addWidget(line)
-        if len(music["tracks"]) > MUSIC_ROWS_SHOWN:
-            more = QLabel(f"…and {len(music['tracks']) - MUSIC_ROWS_SHOWN} more.")
-            more.setStyleSheet(f"color: {dim_text_css(more)};")
-            card_layout.addWidget(more)
+            if index >= MUSIC_ROWS_SHOWN:
+                line.setVisible(False)
+                overflow.append(line)
+
+        if overflow:
+            toggle = QToolButton()
+            toggle.setObjectName("cabinetMusicShowAll")
+            toggle.setCheckable(True)
+            toggle.setText(f"Show all {len(music['tracks'])} tracks")
+            toggle.setStyleSheet(f"border: none; color: {dim_text_css(toggle)};")
+
+            def _toggle(checked: bool, rows=overflow, button=toggle) -> None:
+                for row in rows:
+                    row.setVisible(checked)
+                button.setText(
+                    "Show fewer tracks" if checked else f"Show all {len(rows) + MUSIC_ROWS_SHOWN} tracks"
+                )
+
+            toggle.toggled.connect(_toggle)
+            card_layout.addWidget(toggle)
         return card
 
     def _render() -> None:
