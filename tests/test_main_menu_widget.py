@@ -1452,6 +1452,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(lock)
         self.assertIn("Complete Smoking Kills", lock.text())
 
+        # The master gets a chathead so the player can tell who is speaking.
+        tabs.setCurrentIndex(1)
+        QApplication.processEvents()
+        chathead = dialog.findChild(QLabel, "slayerMasterChathead")
+        self.assertIsNotNone(chathead)
+        self.assertIsNotNone(chathead.pixmap())
+        self.assertFalse(chathead.pixmap().isNull())
+
+    def test_slayer_assignment_card_shows_the_speaking_master_chathead(self) -> None:
+        dialog = self._open(_make_player_data())
+        self._goto_slayer(dialog)
+        dialog.findChild(QPushButton, "slayerGetAssignmentButton").click()
+        QApplication.processEvents()
+        chathead = dialog.findChild(QLabel, "slayerAssignmentChathead")
+        self.assertIsNotNone(chathead)
+        self.assertIsNotNone(chathead.pixmap())
+        self.assertFalse(chathead.pixmap().isNull())
+
     def test_slayer_assignment_action_rerenders_as_active_task(self) -> None:
         dialog = self._open(_make_player_data())
         self._goto_slayer(dialog)
@@ -1760,7 +1778,20 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertFalse(agility_item.icon().isNull())
             self.assertIsNotNone(dialog.findChild(QLabel, "agilityStatusLine"))
             self.assertIsNotNone(dialog.findChild(QLabel, "agilityBenefitsLine"))
-            self.assertIsNotNone(dialog.findChild(QWidget, "agilityRewardControls"))
+            # The control row is an activity-only surface: on a course the
+            # panel has no command buttons at all. Shop purchases, ticket
+            # redemptions and aura activation live in the Shop and Equipment
+            # tabs now.
+            controls = dialog.findChild(QWidget, "agilityRewardControls")
+            self.assertTrue(controls is None or not controls.isVisibleTo(dialog))
+            self.assertEqual(
+                [
+                    button.objectName()
+                    for button in dialog.findChildren(QPushButton)
+                    if button.objectName().startswith("agilityCommand::")
+                ],
+                [],
+            )
             auto_accept = dialog.findChild(
                 QCheckBox, "agilityPitAutoAcceptCheckBox"
             )
@@ -1780,11 +1811,35 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
             )
 
-            toy_button = dialog.findChild(QPushButton, "agilityCommand::wind_toy_mouse")
-            self.assertIsNotNone(toy_button)
-            toy_button.click()
-            QApplication.processEvents()
-            self.assertEqual(self._agility_command_calls[-1], ("wind_toy_mouse", {}))
+            # While the selected target is an activity, the row appears with
+            # that activity's verbs. The Pit is invitation-gated, so drive it
+            # through the pending-offer flow rather than forcing state.
+            player_data["agility_level"] = 99
+            player_data["agility_pit_offer"] = True
+            player_data["agility_pit_origin_course"] = "burthorpe_course"
+            player_data["inventory"] = {"Toy mouse": 1}
+            player_data["equipment"] = {}
+            accept_dialog = self._open(player_data, current_skill="Agility")
+            try:
+                accept = accept_dialog.findChild(QPushButton, "agilityPitAcceptButton")
+                self.assertIsNotNone(accept)
+                accept.click()
+                QApplication.processEvents()
+                self.assertEqual(player_data["current_agility"], "the_pit")
+
+                controls = accept_dialog.findChild(QWidget, "agilityRewardControls")
+                self.assertIsNotNone(controls)
+                self.assertTrue(controls.isVisibleTo(accept_dialog))
+                toy_button = accept_dialog.findChild(QPushButton, "agilityCommand::wind_toy_mouse")
+                self.assertIsNotNone(toy_button)
+                toy_button.click()
+                QApplication.processEvents()
+                self.assertEqual(self._agility_command_calls[-1], ("wind_toy_mouse", {}))
+                leave_button = accept_dialog.findChild(QPushButton, "agilityCommand::leave_activity")
+                self.assertIsNotNone(leave_button)
+                self.assertEqual(leave_button.text(), "Leave The Pit")
+            finally:
+                accept_dialog.deleteLater()
             for label in (
                 dialog.findChild(QLabel, "agilityStatusLine"),
                 dialog.findChild(QLabel, "agilityBenefitsLine"),
@@ -6245,6 +6300,38 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(_smith_tier_node(tree, "Rune"), 0)
         QApplication.processEvents()
         self.assertEqual(self._smith_calls, before, "tier headers must not set a target")
+
+    def test_flat_target_lists_mark_the_current_target(self) -> None:
+        # The flat lists (Mining/Woodcutting/Firemaking/Fishing) lost their
+        # visible current-target mark: QStyle's legacy selection rect renders
+        # as a near-white wash under alternatingRowColors, so the row is
+        # marked with the grouped tree's green brush instead.
+        for skill, key, target in (
+            ("Mining", "current_ore", "rune_essence"),
+            ("Woodcutting", "current_tree", "tree"),
+        ):
+            pd = _make_player_data()
+            pd[key] = target
+            dialog = self._open(pd, current_skill=skill)
+            try:
+                dialog.show()
+                QApplication.processEvents()
+                target_list = next(
+                    widget
+                    for widget in dialog.findChildren(QListWidget)
+                    if any("(Lvl" in widget.item(i).text() for i in range(widget.count()))
+                )
+                current = target_list.currentItem()
+                self.assertIsNotNone(current, skill)
+                self.assertEqual(
+                    current.data(Qt.ItemDataRole.UserRole), target, skill
+                )
+                self.assertEqual(
+                    current.background().color().getRgb()[:3], (76, 175, 80), skill
+                )
+                self.assertTrue(current.font().bold(), skill)
+            finally:
+                dialog.deleteLater()
 
     def test_smithing_highlights_current_target_on_open(self) -> None:
         pd = _make_player_data()
@@ -12728,19 +12815,126 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNone(dialog.findChild(QPushButton, "constructionPurchaseHouseButton"))
         self.assertIn("House · 2 rooms", dialog.findChild(QLabel, "constructionHouseSummary").text())
 
-    def test_agility_commands_report_failures_and_expose_every_ticket_bundle(self) -> None:
+    def test_agility_reward_shops_report_failures_and_expose_every_ticket_bundle(self) -> None:
+        # The ticket redemptions and the skillcape purchase moved from the
+        # Agility panel's button grid to the Shop tab's reward-shops area; the
+        # same commands run, now with a labelled home.
         pd = _make_player_data()
         pd["agility_level"] = 1
         dialog = self._open(pd, current_skill="Agility")
-        labels = {button.text() for button in dialog.findChildren(QPushButton)}
-        for tickets in (1, 10, 25, 100, 1000):
-            self.assertIn(f"Redeem {tickets} ticket{'s' if tickets != 1 else ''}", labels)
-
-        dialog.findChild(QPushButton, "agilityCommand::purchase_agility_cape").click()
+        dialog.show()
         QApplication.processEvents()
-        status = dialog.findChild(QLabel, "agilityCommandStatus")
+        _open_shop_tab(dialog)
+        QApplication.processEvents()
+
+        panel = dialog.findChild(QWidget, "shopAgilityRewardsPanel")
+        self.assertIsNotNone(panel)
+        labels = {button.text() for button in panel.findChildren(QPushButton)}
+        for tickets in (1, 10, 25, 100, 1000):
+            self.assertIn(f"Redeem {tickets} ticket{'s' if tickets != 1 else ''} for XP", labels)
+
+        dialog.findChild(QPushButton, "shopAgilityCapeButton").click()
+        QApplication.processEvents()
+        status = dialog.findChild(QLabel, "shopAgilityRewardStatus")
         self.assertIsNotNone(status)
         self.assertEqual(status.text(), "Requires level 99 Agility")
+
+    def test_agility_reward_shops_drive_every_relocated_row(self) -> None:
+        # Each row that left the Agility panel is reachable from its new home
+        # and forwards its exact command payload.
+        pd = _make_player_data()
+        pd.update(
+            {
+                "agility_level": 99,
+                "inventory": {
+                    "Coins": 200_000,
+                    "Agility arena ticket": 1_000,
+                    "Pyramid top": 1,
+                },
+                "agility_lap_counts": {
+                    "agile_top_unlocked": True,
+                    "agile_legs_unlocked": True,
+                },
+            }
+        )
+        dialog = self._open(pd, current_skill="Agility")
+        dialog.show()
+        QApplication.processEvents()
+        _open_shop_tab(dialog)
+        QApplication.processEvents()
+
+        panel = dialog.findChild(QWidget, "shopAgilityRewardsPanel")
+        by_text = {
+            button.text(): button for button in panel.findChildren(QPushButton)
+        }
+
+        cases = [
+            ("Redeem 10 tickets for XP", ("redeem_brimhaven_xp", {"tickets": 10})),
+            ("Toadflax (3 tickets)", ("redeem_brimhaven_item", {"tickets": 3})),
+            ("Wergali (5 tickets)", ("redeem_brimhaven_item", {"tickets": 5})),
+            ("Snapdragon (10 tickets)", ("redeem_brimhaven_item", {"tickets": 10})),
+            ("Pirate's hook (800 tickets)", ("redeem_brimhaven_item", {"tickets": 800})),
+            ("Claim Agile top", ("claim_agile_piece", {"piece": "Agile top"})),
+            ("Claim Agile legs", ("claim_agile_piece", {"piece": "Agile legs"})),
+            ("Agility cape · 99,000 coins", ("purchase_agility_cape", {})),
+            ("Pyramid top · 1,000 coins", ("sell_pyramid_top", {"count": 1})),
+        ]
+        for label, expected_call in cases:
+            button = by_text.get(label)
+            self.assertIsNotNone(button, f"missing shop row: {label}")
+            button.click()
+            QApplication.processEvents()
+            self.assertEqual(self._agility_command_calls[-1], expected_call, label)
+
+        self.assertIn("Agile top", pd["inventory"])
+        self.assertIn("Agility cape", pd["inventory"])
+        self.assertEqual(pd["inventory"].get("Pyramid top", 0), 0)
+
+    def test_surefooted_aura_activates_from_the_equipment_tab(self) -> None:
+        # Auras have a cooldown, so they keep a control — in their own
+        # inventory inside the Equipment tab, not on the skill panel.
+        pd = _make_player_data()
+        pd["inventory"] = {"Surefooted aura": 1}
+        dialog = self._open(pd, current_skill="Agility")
+        dialog.show()
+        QApplication.processEvents()
+        tabs = _find_main_tabs(dialog)
+        index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Equipment")
+        tabs.setCurrentIndex(index)
+        QApplication.processEvents()
+
+        panel = dialog.findChild(QWidget, "equipmentAuraPanel")
+        self.assertIsNotNone(panel)
+        self.assertTrue(panel.isVisibleTo(dialog))
+        activate = dialog.findChild(QPushButton, "equipmentAuraActivateButton")
+        self.assertIsNotNone(activate)
+        self.assertTrue(activate.isEnabled())
+        activate.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._agility_command_calls[-1], ("activate_surefooted", {})
+        )
+        charges = pd.get("agility_effect_charges", {})
+        self.assertEqual(charges.get("surefooted_reviews"), 333)
+        # The row rebuilds from the view: cooling down, so no second activation.
+        activate = dialog.findChild(QPushButton, "equipmentAuraActivateButton")
+        self.assertFalse(activate.isEnabled())
+
+        # Without an aura the inventory stays out of the way entirely.
+        pd2 = _make_player_data()
+        dialog2 = self._open(pd2, current_skill="Agility")
+        dialog2.show()
+        QApplication.processEvents()
+        tabs2 = _find_main_tabs(dialog2)
+        tabs2.setCurrentIndex(
+            next(i for i in range(tabs2.count()) if tabs2.tabText(i) == "Equipment")
+        )
+        QApplication.processEvents()
+        panel2 = dialog2.findChild(QWidget, "equipmentAuraPanel")
+        self.assertIsNotNone(panel2)
+        self.assertFalse(panel2.isVisibleTo(dialog2))
+        dialog2.deleteLater()
 
     def test_switching_from_brimhaven_ends_the_paid_stint(self) -> None:
         pd = _make_player_data()
