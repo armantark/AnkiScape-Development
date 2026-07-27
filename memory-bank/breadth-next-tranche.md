@@ -1,72 +1,69 @@
 # Breadth-first: the next tranche
 
-Status: **prepared 2026-07-25, not started.** Written while four families build in
-the worktree, so the run after that one starts precise instead of re-deriving.
+Status: **rewritten 2026-07-26, after nine families landed.** The previous version
+of this file planned batches A, B and C. Batch A is finished, batch B is two
+families in, so the ordering below is what actually remains.
 
-## Why this ordering
+## Where the programme stands
 
-The programme picks the next slice by source and design readiness first, then by
-how many unrepresented families it unlocks, then reward reachability, then the
-smallest data set that still exercises the whole mechanic graph. Under the
-2026-07-25 placeholder amendment, a missing value no longer blocks a family, so
-"source readiness" now means *how much harvest stands between here and a complete
-mechanic*, not *whether every number is recoverable*.
+`main` is clean at 3,017 tests and green in both lanes. No worktree is open and
+nothing is interrupted.
 
-Estimates are the frontier audit's, and they predate the placeholder rule, so
-treat them as ceilings rather than forecasts.
+Nine families reached breadth one on 2026-07-26: Skeletal Horror, Duel Arena,
+Clan Wars, Daily Challenges, Treasure Trails (Easy), Tears of Guthix, Enchanted
+Key, The Crucible, and Goblin Raids. All nine survived an independent Sol
+verification, which found four real bugs that three earlier Claude passes had
+cleared. Those are fixed and merged.
 
-## Batch A — smallest, and two already have audits
+## What remains
 
 | family | estimate | source state |
 | --- | --- | --- |
-| Enchanted Key | 6-9 h | no audit yet; disposition settled as a one-time cache with Penguin-style flattening |
-| Skeletal Horror | 8-11 h | `source-audits/skeletal-horror-implementation-harvest-2026-07-19.md` — phases, LP thresholds, attack-style changes, rewards and cadence already harvested |
-| Tears of Guthix | 8-12 h | `source-audits/tears-of-guthix-cutoff-reconciliation-2026-07-17.md` — identity and eligibility safe, exact values still open |
+| Shattered Heart | 14-20 h | no audit |
+| Troll Invasion | 14-20 h | no audit |
+| Mage Training Arena | 14-20 h | no audit |
+| Temple Trekking | 14-20 h | no audit |
+| Dominion Tower | 14-20 h | no audit |
+| Gnome Restaurant | 12-18 h | no audit, and it carries design fork 3.7 territory |
+| Mobilising Armies | 18-26 h | no audit |
+| Achievement Diaries | 30-45 h | large; other families reference its substrate |
+| Dungeoneering | 40-64 h | plus source research; its data module parks the Skills surface |
+| Conquest | 20-30 h | sequenced after Dungeoneering by the programme |
 
-Skeletal Horror is the strongest candidate to lead: its harvest is largely done,
-so it tests the placeholder rule on a family that needs it least, which is the
-right order for a new policy.
+Estimates predate the placeholder rule, so treat them as ceilings.
 
-## Batch B — mid-sized
-
-The Crucible (10-14 h, no audit), Goblin Raids (10-15 h, no audit), Gnome
-Restaurant (12-18 h, **carries an open presentation fork** — see below), Shattered
-Heart, Troll Invasion, Mage Training Arena, Temple Trekking, Dominion Tower
-(14-20 h each), Mobilising Armies (18-26 h).
-
-## Batch C — large, and one is gated
-
-Achievement Diaries (30-45 h). Dungeoneering (40-64 h plus source research; its
-data module explicitly parks the Skills surface). Conquest (20-30 h) is sequenced
-**after** Dungeoneering by the programme.
-
-## Two families that are not merely unstarted
-
-**Bork** is dependency-blocked, not source-blocked. It needs the `Hunt for Surok`
+**Bork is dependency-blocked, not source-blocked.** It needs the `Hunt for Surok`
 miniquest and the regional Achievement Diary substrate, and neither exists. Do not
-schedule it as an ordinary family; it waits for those, or it ships an always-open
-row that fakes its own gate. See `source-audits/bork-loop-2026-07-18.md`.
+schedule it as an ordinary family. See `source-audits/bork-loop-2026-07-18.md`.
 
-**Gnome Restaurant** carries a real fork: the compact order and reward
-presentation was deliberately deferred "after the data surface is known"
-(`source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`). The placeholder
-rule now lets that surface be approximated, so the fork becomes answerable — but
-it is still the owner's, and it should reach the design queue as a concrete choice
-once the data shape exists, not as an abstract question now.
+**Gnome Restaurant** still carries the presentation fork deferred in
+`source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`. The placeholder rule
+makes its data surface approximable, so the fork is now answerable — but it is the
+owner's, and it belongs in the design queue as a concrete choice once the data
+shape exists.
 
-## What to carry into the next brief
+## What every brief must carry
 
-Everything in the run-3 brief still applies, plus the three failures this session
-produced, because each one shipped and survived review:
+The failure modes below are not hypothetical. Each one shipped this week, and the
+last four were caught only by execution after three review passes had cleared them.
 
-1. An **inert row** — a reward gated on a state no player could reach, in a
-   family reported complete.
-2. An **invention presented as settled** — a Fish Flingers weight that nothing
-   read, under a name that already meant something else in that family's own
-   audit, documented into the audit by the same change that added the code.
-3. A **test that pinned the defect** — asserting a sourced medal was *absent*,
-   which is how the medal stayed unearnable through a full verification pass.
+1. **An invented mechanic advertised as settled.** Skeletal Horror banked two
+   weekly entries, written into the UI, the memory bank and a test name.
+2. **Tests that prove nothing.** Stubbing the system under test makes a green
+   suite compatible with a feature that cannot work at all. One Skeletal Horror
+   test asserted item and grave behaviour it could never observe, because it
+   stubbed the reducer that produces both.
+3. **An inert row.** A reward gated on a state no player reaches. The Crucible's
+   Supreme helm was one until rank-point persistence was corrected.
+4. **The panel re-deriving a rule the logic layer owns.** Found in Duel Arena and
+   then in Skeletal Horror. The `*_view_pure` owns every enable and visibility
+   decision.
+5. **An unlabelled reconstruction.** The placeholder register test can only see
+   values that carry a `PLACEHOLDER(...)` marker, so an invented value with no
+   marker is invisible to it. Three reached a merged family this way.
 
-The placeholder register exists to stop the second of those recurring. The first
-and third need the verifier to keep constructing player state through real paths
-rather than reading reports.
+## Model routing for the next run
+
+Verify Claude-authored families with Sol, not with another Claude model. One Sol
+pass found four shipped defects that three Claude passes had missed, and the
+difference was lineage rather than effort.
