@@ -1,0 +1,161 @@
+<title>Playtest pass 3 — what changed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A7%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;
+ --text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;
+ --green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+:root[data-theme="light"]{--bg:#f6f7fa;--surface:#fff;--surface-2:#eef1f6;--border:#d6dce7;--text:#141922;--text-dim:#5b657a}
+:root[data-theme="dark"]{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8}
+@media(prefers-color-scheme:light){:root{--bg:#f6f7fa;--surface:#fff;--surface-2:#eef1f6;--border:#d6dce7;--text:#141922;--text-dim:#5b657a}}
+*{box-sizing:border-box}
+body{margin:0;padding:2.4rem 1.5rem 4rem;background:var(--bg);color:var(--text);
+ font-family:"Outfit","Avenir Next","Segoe UI",system-ui,sans-serif;line-height:1.55;font-size:15px}
+.wrap{max-width:940px;margin:0 auto}
+.badge{display:inline-block;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:.68rem;
+ letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);
+ border:1px solid rgba(79,140,255,.35);padding:.3rem .7rem;border-radius:999px}
+h1{font-size:1.9rem;font-weight:700;margin:.9rem 0 .4rem;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.94rem;margin:0 0 2rem;max-width:64ch}
+h2{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);
+ margin:2.4rem 0 1rem;border-top:1px solid var(--border);padding-top:1rem}
+.tally{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem}
+.pill{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:.35rem .85rem;font-size:.8rem}
+.pill b{font-family:"JetBrains Mono",ui-monospace,monospace}
+.item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+ padding:1.05rem 1.15rem;margin-bottom:.8rem}
+.item h3{margin:0 0 .15rem;font-size:.98rem;display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.said{color:var(--text-dim);font-size:.86rem;font-style:italic;margin:0 0 .55rem}
+.item p{margin:0;font-size:.88rem}
+.st{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.62rem;letter-spacing:.08em;
+ text-transform:uppercase;padding:.15rem .5rem;border-radius:5px;border:1px solid;white-space:nowrap}
+.fixed{color:var(--green);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1)}
+.asis{color:var(--purple);border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.1)}
+.live{color:var(--amber);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1)}
+.later{color:var(--text-dim);border-color:var(--border);background:var(--surface-2)}
+.mock{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.8rem}
+.pane{background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:.7rem}
+.pane .lab{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.6rem;letter-spacing:.1em;
+ text-transform:uppercase;color:var(--text-dim);margin-bottom:.55rem}
+.btns{display:flex;flex-wrap:wrap;gap:3px}
+.b{background:#3a4150;border-radius:3px;height:15px;flex:1 1 44px;min-width:44px}
+.b.wide{flex:1 1 96px}
+.empty{color:var(--text-dim);font-size:.78rem;padding:.5rem 0 .1rem}
+.arrow{color:var(--text-dim);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.78rem;margin:.5rem 0 0}
+.note{background:var(--surface);border-left:3px solid var(--amber);border-radius:0 9px 9px 0;
+ padding:.85rem 1.05rem;margin-top:1rem;font-size:.87rem}
+.note b{color:var(--amber)}
+.note.blue{border-left-color:var(--accent)}.note.blue b{color:var(--accent)}
+.tag{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.65rem;background:var(--surface-2);
+ border:1px solid var(--border);padding:.1rem .4rem;border-radius:5px;color:var(--text-dim)}
+@media(max-width:700px){.mock{grid-template-columns:1fr}h1{font-size:1.45rem}}
+</style>
+
+<div class="wrap">
+<span class="badge">Playtest pass 3 · 26 July 2026</span>
+<h1>Your twelve notes, and what happened to each</h1>
+<p class="sub">Ten are done and merged. Two turned out to be correct already. Two more are still building. Everything merged is green on both test lanes at <span class="tag">3020 tests</span>.</p>
+
+<div class="tally">
+  <span class="pill"><b>8</b> fixed</span>
+  <span class="pill"><b>2</b> correct as-is</span>
+  <span class="pill"><b>2</b> in flight</span>
+  <span class="pill"><b>2</b> of your own past decisions superseded</span>
+</div>
+
+<h2>The red rectangle</h2>
+<div class="item">
+  <h3>Seventeen buttons of equal weight <span class="st fixed">fixed</span></h3>
+  <p class="said">"Red rectangle area is way too cluttered. A lot of these things need to just be in the shop interface under the rewards shops area… And skillcapes are also meant to be in the shop UI."</p>
+  <p>Four unrelated kinds of thing shared one grid: shop purchases, ticket redemptions, an item sale, and activity verbs. They now live in four places. What stays on the panel is one control row that appears only while an activity runs.</p>
+  <div class="mock">
+    <div class="pane"><div class="lab">before · Agility panel</div>
+      <div class="btns">
+        <span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span>
+        <span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span>
+        <span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b wide"></span>
+        <span class="b"></span><span class="b"></span>
+      </div>
+      <p class="arrow">17 buttons, always visible</p>
+    </div>
+    <div class="pane"><div class="lab">after · course selected</div>
+      <div class="empty">course tree owns the panel</div>
+      <p class="arrow">0 buttons · 2 while an activity runs</p>
+    </div>
+  </div>
+  <p style="margin-top:.7rem;font-size:.86rem;color:var(--text-dim)">Redemptions and herb purchases → Shop tab, under Pirate Jackie the Fruit. Agile top and legs → the Agile worker. Agility cape → Skillcapes. Pyramid top → a new Named buyers section, sold to Simon Templeton for the sourced 1,000 coins instead of into the void. Surefooted → a new aura inventory in the Equipment tab.</p>
+</div>
+
+<h2>The shooting star</h2>
+<div class="item">
+  <h3>Choosing the population <span class="st fixed">fixed</span></h3>
+  <p class="said">"Why would I be able to choose the population of a shooting star? That's supposed to be abstracted into an S-curve over time."</p>
+  <p>It was a world-wide simulation setting shared with Big Chinchompa, surfaced on one activity's panel — which is most of why it read wrong. It is gone as a player dial. Each activity now grows its own population.</p>
+</div>
+<div class="item">
+  <h3>Advanced mode <span class="st fixed">fixed</span></h3>
+  <p class="said">"I also don't understand what advanced mode is supposed to mean. Why would you not just mine the most highly available one for you always?"</p>
+  <p>It let you choose which star sizes spawn, which no player could ever do. Removed. Saved preferences from old saves are discarded rather than honoured, so a legacy setting cannot quietly keep constraining the simulation.</p>
+</div>
+<div class="item">
+  <h3>Nearly 3,000 XP in a burst <span class="st asis">correct as-is</span></h3>
+  <p class="said">"Does the shooting star really give you that much XP? It seems crazy."</p>
+  <p>It is the period first-finder bonus: <b>75 × your Mining level</b>, paid in the single review that tags the star. At Mining 39 that is 2,925. Confirmed in the pinned 2012-11-15 revision and independently in Darkan's <span class="tag">levelForXp * 75</span>. Nothing else in the family pays more than 210, which is exactly why it looked like a bug.</p>
+</div>
+
+<div class="note blue"><b>Both star answers overturned your own earlier decisions.</b> The 2026-07-10 record explicitly granted advanced mode "preferred starting sizes and a quiet/normal/busy population", and the simulation budget contract varies its seeded ceiling <em>around that selected profile</em>. Removing the dial meant amending that contract too. Both are recorded as supersessions rather than quiet edits — and a test now proves two otherwise-identical star events still differ, because deleting the lever without keeping its fuzziness would have made the simulation deterministic.</div>
+
+<h2>Skillcapes, auras and verbs</h2>
+<div class="item">
+  <h3>Activate cape <span class="st fixed">fixed</span></h3>
+  <p class="said">"Does not belong there… if there is no cooldown it may as well be active as long as the cape is equipped. Can you activate it from the inventory in the real game?"</p>
+  <p>No, you cannot — and the button was inventing a mechanic outright. It granted +1 Agility for exactly ten actions. The period skillcape boost is passive while the cape is worn, has no cooldown, and does nothing from the inventory. The boost is now passive and the button is gone.</p>
+</div>
+<div class="item">
+  <h3>Auras need their own inventory <span class="st fixed">fixed</span></h3>
+  <p class="said">"Auras need their own inventory in the equipment tab which you click to activate with a button."</p>
+  <p>Surefooted was already an aura — art on disk, a real cooldown field — which is why the verb felt wrong sitting beside the cape. Your cooldown rule separates them cleanly: <b>no cooldown means passive, a cooldown means a control.</b> Both Surefooted and Greater surefooted now live in an aura inventory that hides entirely when you own none.</p>
+</div>
+<div class="item">
+  <h3>Sell Pyramid top <span class="st fixed">fixed</span></h3>
+  <p class="said">"I don't know why sell pyramid top is an action or to whom you're selling and for what reward."</p>
+  <p>1,000 coins, to Simon Templeton at the Agility Pyramid — the price was right, the buyer was simply never named. It is now a row under Named buyers with his name on it.</p>
+</div>
+<div class="item">
+  <h3>Leave activity <span class="st fixed">fixed</span></h3>
+  <p class="said">"Leave activity needs to operate the same as all other activities that are meant to be left."</p>
+  <p>A real inconsistency, not a cosmetic one: Agility was the only family using a generic <span class="tag">leave_activity</span> command while every other used its own <span class="tag">abandon</span>. Now consistent.</p>
+</div>
+
+<h2>The rest</h2>
+<div class="item">
+  <h3>Skill target no longer highlighted <span class="st fixed">fixed</span></h3>
+  <p>Flat target lists (Mining, Woodcutting, Firemaking, Fishing) marked the current row with Qt's selection rectangle, which the stylesheet's rounded items and alternating row colours wash out to near-white. The grouped trees got an explicit green brush on 20 July and kept working; the flat lists now match.</p>
+</div>
+<div class="item">
+  <h3>The Ayn Rand picture <span class="st fixed">fixed</span></h3>
+  <p>It was <span class="tag">Clipboard-1.png</span> in the upstream "Yes No" theme's congrats folder — and the only file in it. The end-of-deck screen now shows no image at all, which is safe rather than broken: the picker returns null for an empty folder and the script already bails on null.</p>
+</div>
+<div class="item">
+  <h3>Slayer reward shop behind Smoking Kills <span class="st asis">correct as-is</span></h3>
+  <p class="said">"If that's period accurate, sure…"</p>
+  <p>It is. The period gated the whole point economy behind the quest — accrual, streaks, milestones, all three reward interfaces, skips and blocks. It did <em>not</em> gate the coin-based equipment shop, and neither do we. Our gate is in fact narrower than the period's.</p>
+</div>
+<div class="item">
+  <h3>Achievements not up to spec <span class="st live"></span> <span class="st live">building</span></h3>
+  <p class="said">"I was pretty clear about that. I don't need to describe it, it's already all recorded, find it."</p>
+  <p>Found, and nothing was lost. Your <b>semantics contract is fully implemented</b> — all 21 clauses hold, verified by driving real skill handlers. The diary, cape and Taskmaster design says of <em>itself</em> that it is "a design contract and source-audit queue, not an implementation claim", and all 16 of its clauses are unbuilt. It was written, queued, and never scheduled. It is being built now.</p>
+</div>
+<div class="item">
+  <h3>Slayer master chathead <span class="st live">building</span></h3>
+  <p>Turael landed from a 2012-01-31 revision. Every other master is being done now. Expect gaps rather than substitutions — Spria has no pre-cutoff chathead anywhere, so that card ships faceless. A wrong face is worse than none.</p>
+</div>
+<div class="item">
+  <h3>The GE status log <span class="st later">decided, not yet moved</span></h3>
+  <p class="said">"Where's the GE status log? I wanted it to be under the xp bar box. It should be a drawer."</p>
+  <p>It exists and is already a drawer — it is just sitting inside the GE tab. It moves under the XP bar box with the strip work, which is held back deliberately because it touches the same file as the panel restructure, and two agents in one file is how a ten-conflict merge happened earlier today.</p>
+</div>
+
+<div class="note"><b>Three defects found while fixing these.</b> The nine Milestone capes are craftable but absent from the equipment table, so none can be worn. The achievements tab renders a moving-denominator completion percentage that your own semantics contract forbids diary gear from consuming. And the 168 achievement rows currently shipping are fabricated rather than sourced — the one place in the codebase still holding invented content.</div>
+
+</div>
