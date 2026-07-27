@@ -26,7 +26,7 @@ cleared. Those are fixed and merged.
 | Dominion Tower | 14-20 h | no audit |
 | Gnome Restaurant | 12-18 h | no audit, and it carries design fork 3.7 territory |
 | Mobilising Armies | 18-26 h | no audit |
-| Achievement Diaries | 30-45 h | large; other families reference its substrate |
+| ~~Achievement Diaries~~ | done 2026-07-26 | breadth one; see `source-audits/achievement-diary-harvest-2026-07-26.json` and design forks 3.8/3.9 |
 | Dungeoneering | 40-64 h | plus source research; its data module parks the Skills surface |
 | Conquest | 20-30 h | sequenced after Dungeoneering by the programme |
 
@@ -38,9 +38,11 @@ a single day, several of them carrying estimates of 14-20 hours each. The owner'
 own read is that Achievement Diaries is "at most an overnight run, maybe 2-4
 hours". Treat the column as a rough ordering of relative size and nothing more.
 
-**Bork is dependency-blocked, not source-blocked.** It needs the `Hunt for Surok`
-miniquest and the regional Achievement Diary substrate, and neither exists. Do not
-schedule it as an ordinary family. See `source-audits/bork-loop-2026-07-18.md`.
+**Bork is half-unblocked.** It needed the `Hunt for Surok` miniquest and the
+regional Achievement Diary substrate. The diary substrate now exists — eight
+families, real tiers, real reward equipment, a claim flow and a durable ledger in
+`player_data["achievement_diaries"]` — so only the miniquest still blocks it. See
+`source-audits/bork-loop-2026-07-18.md`.
 
 **Gnome Restaurant** still carries the presentation fork deferred in
 `source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`. The placeholder rule

@@ -437,13 +437,6 @@ from ..core.help_system import (
     topics_by_id,
 )
 
-from ..core.achievement_metadata import (
-    ACHIEVEMENT_DIFFICULTIES,
-    achievement_difficulty_progress,
-    achievement_progress,
-    achievement_rows_for_difficulty,
-)
-
 from ..core.target_metadata import (
     TargetRowMetadata,
     target_details_from_row_pure,
@@ -3631,6 +3624,7 @@ def show_main_menu(
     on_stronghold_player_safety_command=None,
     on_soul_wars_command=None,
     on_shades_of_mortton_command=None,
+    on_achievement_diary_command=None,
     on_tzhaar_fight_pit_command=None,
     on_duel_arena_command=None,
     on_clan_wars_command=None,
@@ -3862,6 +3856,7 @@ def show_main_menu(
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_agility_command=on_agility_command,
+        on_achievement_diary_command=on_achievement_diary_command,
     )
     # Test seam: lets offscreen tests fire a cross-tab refresh at a tab that has
     # not been built yet. Harmless in production.
@@ -23596,150 +23591,3 @@ def show_stats(player_data: dict, current_skill: str):
         print(f"Error in show_stats: {str(e)}")
         import traceback
         traceback.print_exc()
-
-
-def show_achievements(player_data: dict):
-    """Render the Achievements dialog based on provided player_data."""
-    dialog = QDialog(mw)
-    dialog.setWindowTitle("Achievements")
-    dialog.setMinimumWidth(700)
-    dialog.setMinimumHeight(500)
-
-    dialog.setStyleSheet(
-        """
-        QDialog {
-            background-color: #f5f5f5;
-        }
-        """
-    )
-
-    layout = QVBoxLayout()
-
-    title_label = QLabel("Achievements")
-    title_label.setStyleSheet(
-        """
-        font-size: 28px;
-        font-weight: bold;
-        color: #333333;
-        margin-bottom: 20px;
-        """
-    )
-    layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    tabs = QTabWidget()
-    tabs.setStyleSheet(
-        """
-        QTabWidget::pane {
-            border: none;
-            background-color: white;
-        }
-        QTabBar::tab {
-            background-color: #e0e0e0;
-            color: #333333;
-            padding: 8px 16px;
-            margin-right: 2px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-        }
-        QTabBar::tab:selected {
-            background-color: white;
-            border-bottom: 2px solid #4CAF50;
-        }
-        QTabBar::tab:hover {
-            background-color: #d0d0d0;
-        }
-        """
-    )
-
-    for difficulty in ACHIEVEMENT_DIFFICULTIES:
-        tab = QWidget()
-        tab_layout = QVBoxLayout()
-        scroll_area = QScrollArea()
-        scroll_widget = QWidget()
-        scroll_layout = QVBoxLayout()
-
-        for row in achievement_rows_for_difficulty(ACHIEVEMENTS, player_data, difficulty):
-            achievement_widget = QWidget()
-            achievement_layout = QHBoxLayout()
-
-            icon_label = QLabel()
-            icon_path = os.path.join(current_dir, "icon", f"{row.name.lower().replace(' ', '_')}.png")
-            if os.path.exists(icon_path):
-                pixmap = QPixmap(icon_path)
-            else:
-                pixmap = QPixmap(os.path.join(current_dir, "icon", "achievement_icon.png"))
-            icon_label.setPixmap(pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio))
-            achievement_layout.addWidget(icon_label)
-
-            info_widget = QWidget()
-            info_layout = QVBoxLayout()
-            name_label = QLabel(row.name)
-            name_label.setStyleSheet("font-weight: bold; color: #333333; font-size: 16px;")
-            desc_label = QLabel(row.description)
-            desc_label.setWordWrap(True)
-            desc_label.setStyleSheet("color: #666666; font-size: 14px;")
-            info_layout.addWidget(name_label)
-            info_layout.addWidget(desc_label)
-            info_widget.setLayout(info_layout)
-            achievement_layout.addWidget(info_widget, stretch=1)
-
-            status_label = QLabel("✓" if row.completed else "")
-            status_label.setStyleSheet("color: #4CAF50; font-size: 24px; font-weight: bold;")
-            achievement_layout.addWidget(status_label)
-
-            achievement_widget.setLayout(achievement_layout)
-            achievement_widget.setStyleSheet(
-                f"""
-                background-color: {'#e8f5e9' if row.completed else 'white'};
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 12px;
-                margin-bottom: 8px;
-                """
-            )
-
-            scroll_layout.addWidget(achievement_widget)
-
-        scroll_widget.setLayout(scroll_layout)
-        scroll_area.setWidget(scroll_widget)
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setStyleSheet("border: none;")
-
-        tab_layout.addWidget(scroll_area)
-        tab.setLayout(tab_layout)
-        tabs.addTab(tab, difficulty)
-
-    layout.addWidget(tabs)
-
-    completed_count, total_count, progress_percentage = achievement_progress(ACHIEVEMENTS, player_data)
-    progress_label = QLabel(f"Completed: {completed_count}/{total_count} ({progress_percentage:.1f}%)")
-    progress_label.setStyleSheet(
-        """
-        font-size: 18px;
-        margin-top: 20px;
-        color: #333333;
-        """
-    )
-    layout.addWidget(progress_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    progress_bar = QProgressBar()
-    progress_bar.setValue(int(progress_percentage))
-    progress_bar.setTextVisible(False)
-    progress_bar.setStyleSheet(
-        """
-        QProgressBar {
-            border: none;
-            background-color: #e0e0e0;
-            border-radius: 4px;
-            height: 8px;
-        }
-        QProgressBar::chunk {
-            background-color: #4CAF50;
-            border-radius: 4px;
-        }
-        """
-    )
-    layout.addWidget(progress_bar)
-
-    dialog.setLayout(layout)
-    dialog.exec()

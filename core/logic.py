@@ -54,7 +54,9 @@ def _popups_enabled():
     """
     from ..ui import ui as ui_module
 
-    if getattr(ui_module, "QDialog", None) is None:
+    dialog_class = getattr(ui_module, "QDialog", None)
+    application = getattr(ui_module, "QApplication", None)
+    if dialog_class is None or application is None or application.instance() is None:
         return False
     try:
         from aqt import mw  # type: ignore

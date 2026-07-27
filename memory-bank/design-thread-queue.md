@@ -211,6 +211,51 @@ specific divergence. The event-seeded `±20%` ceiling shift, world-day envelope,
 S-curve shifts, and phase noise remain active, so this does not make events
 deterministic. Blocks: nothing.
 
+### 3.8 How a geography-bound period task becomes a predicate
+
+Raised 2026-07-26 while building the Achievement Diaries family. The design
+contract's curation rules say to preserve the distinctive feat and to remove
+geography, emotes and inventory choreography. For many period tasks, removing
+the choreography removes the whole task: "Have Thessalia show you what outfits
+you can wear" is a place and a conversation, and nothing else.
+
+Two honest readings, and they produce different rosters:
+
+- **A. Requirement-as-predicate (implemented).** Keep a period task only when
+  its pinned row states a requirement, and make its predicate exactly that
+  stated requirement. The name and description are preserved verbatim, so the
+  feat survives as identity and narrative while the measurable part is the
+  period's own published gate. 171 of the roughly 500 harvested rows survive.
+  Nothing is invented, but a task reads as "be able to do this" rather than
+  "do this".
+- **B. Hand-translated feats.** Map each task onto an AnkiScape action counter
+  by hand — "Mine some iron" becomes an iron-ore ledger threshold. Truer to the
+  design's intent, and much better play. It is also roughly 380 individual
+  judgement calls, each of which invents a quantity the period never stated,
+  which is exactly the failure mode the placeholder rule exists to prevent.
+
+Recommendation, and what shipped: **A**, because it is the only one of the two
+that cannot fabricate. B is worth doing later per family, as an explicit
+curation pass with the owner, on top of A rather than instead of it — the
+catalog is generated, so a hand-curated override table can replace any row
+without disturbing the rest.
+
+### 3.9 Three families' task tables did not parse, and their tiers ship empty
+
+Raised 2026-07-26. Darkan gives every one of the eight families its exact tier
+membership, so Falador, Fremennik and Seers' Village ship with real tiers, real
+reward items and real taskmasters. Their pinned wiki task tables use a third
+layout the harvester does not read, so those twelve tiers carry no tasks.
+
+An empty tier must not read as a finished one, so the engine gives it the status
+"Roster pending harvest" and never lets it become claimable. That is a real
+mechanical state rather than an invented one, but it is visible to the player.
+
+Recommendation: finish the harvester for the three layouts rather than
+hand-entering the rows. The counts are already known from Darkan, so a correct
+parse is self-checking — it either matches Darkan's per-tier count exactly, as
+it does for the other five families, or it is wrong.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

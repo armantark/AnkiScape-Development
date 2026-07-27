@@ -39,21 +39,18 @@ DIARY_REWARD_ITEMS = (
     *(f"Fremennik sea boots {tier}" for tier in range(1, 5)),
     *(f"Karamja gloves {tier}" for tier in range(1, 5)),
     *(f"Morytania legs {tier}" for tier in range(1, 5)),
-    *(f"Seers' headband {tier}" for tier in range(1, 5)),
+    *(f"Seer's headband {tier}" for tier in range(1, 5)),
     *(f"Varrock armour {tier}" for tier in range(1, 5)),
     *(f"Explorer's ring {tier}" for tier in range(1, 5)),
 )
 
-MILESTONE_CAPES = tuple(f"Milestone cape ({level})" for level in range(10, 100, 10))
+# The nine Milestone capes are deliberately absent. Their art already ships with
+# the Crafting recipes, and the wiki's only uploads of those files are from 2023,
+# so re-fetching would swap period art for a post-cutoff render.
 
-DISTINCTION_CAPES = (
-    "Max cape",
-    "Completionist cape",
-    "Quest point cape",
-    "Veteran cape (5 year)",
-    "Veteran cape (10 year)",
-)
-
+# Max, Completionist, Quest point and the Veteran capes belong to the Capes and
+# Distinctions surface, which this family does not yet ship. Their art is fetched
+# when that surface lands, so the manifest stays exactly as wide as the code.
 
 def _slug(item_name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", item_name.lower()))
@@ -61,17 +58,9 @@ def _slug(item_name: str) -> str:
 
 def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
     provenance = ROOT / "assets_provenance.json"
-    requests: list[tuple[AssetRequest, int]] = [
-        (
-            AssetRequest(
-                item_name="Achievement Cabinet",
-                wiki_title="Achievement.png",
-                output_path=ROOT / "activityicons" / "achievement_diaries.png",
-                provenance_path=provenance,
-            ),
-            64,
-        ),
-    ]
+    # The Cabinet reuses the add-on's existing achievement icon for its tab; the
+    # wiki's interface icon has no pre-cutoff upload to pin.
+    requests: list[tuple[AssetRequest, int]] = []
     requests.extend(
         (
             AssetRequest(
@@ -83,30 +72,6 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
             48,
         )
         for item_name in DIARY_REWARD_ITEMS
-    )
-    requests.extend(
-        (
-            AssetRequest(
-                item_name=item_name,
-                wiki_title=f"{item_name}.png",
-                output_path=ROOT / "crafteditems" / f"{_slug(item_name)}.png",
-                provenance_path=provenance,
-            ),
-            48,
-        )
-        for item_name in MILESTONE_CAPES
-    )
-    requests.extend(
-        (
-            AssetRequest(
-                item_name=item_name,
-                wiki_title=f"{item_name}.png",
-                output_path=ROOT / "activityitems" / f"cape_{_slug(item_name)}.png",
-                provenance_path=provenance,
-            ),
-            48,
-        )
-        for item_name in DISTINCTION_CAPES
     )
     return tuple(requests)
 

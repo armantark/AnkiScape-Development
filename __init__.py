@@ -138,6 +138,7 @@ from .logic.stronghold_player_safety_logic import (
 )
 from .logic.soul_wars_logic import apply_soul_wars_command_pure
 from .logic.shades_of_mortton_logic import apply_shades_of_mortton_command_pure
+from .logic.achievement_diary_logic import apply_achievement_diary_command_pure
 from .logic.tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
 from .data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from .logic.duel_arena_logic import apply_duel_arena_command_pure
@@ -2863,6 +2864,34 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_achievement_diary_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_achievement_diary_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_duel_arena_command(action_id, payload):
         info = {}
 
@@ -3286,6 +3315,7 @@ def _on_main_menu(
         on_wicked_hood_command=_apply_wicked_hood_command,
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
+        on_achievement_diary_command=_apply_achievement_diary_command,
         on_warriors_guild_command=_apply_warriors_guild_command,
         on_big_chinchompa_command=_apply_big_chinchompa_command,
         on_shooting_star_command=_apply_shooting_star_command,
