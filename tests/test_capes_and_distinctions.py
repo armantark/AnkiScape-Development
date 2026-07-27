@@ -21,7 +21,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import EQUIPMENT_DATA, ORE_DATA
+from ankiscape.core.constants import EQUIPMENT_DATA, HUNTER_DATA, ORE_DATA
 from ankiscape.core.skill_registry import trainable_skill_definitions
 from ankiscape.core.storage_pure import (
     CURRENT_CONFIG_VERSION,
@@ -44,6 +44,7 @@ from ankiscape.logic.achievement_diary_logic import (
 )
 from ankiscape.logic.agility_logic import agility_effective_level_pure
 from ankiscape.logic.cape_logic import (
+    SKILLCAPE_EFFECTIVE_LEVEL,
     cape_view_pure,
     effective_roll_level_pure,
     latent_cutoff_skills_pure,
@@ -52,6 +53,9 @@ from ankiscape.logic.cape_logic import (
     skillcapes_are_trimmed_pure,
 )
 from ankiscape.logic.music_log_logic import refresh_music_log_pure
+from ankiscape.logic_pure.logic_pure_gathering import (
+    calculate_hunter_success_probability_pure,
+)
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.runtime.runtime_actions import handle_cooking_answer
 
@@ -246,11 +250,10 @@ class EffectiveLevelTest(unittest.TestCase):
     def test_a_real_review_changes_its_outcome_because_the_cape_is_worn(self):
         """The seam reaches a shipped handler, not just a helper.
 
-        Gutting a Leaping trout is the one shipped roll whose formula is still
-        level-sensitive above 99 — every other period table saturates at 99, so
-        the boost is real but numerically silent there. Same target, same roll,
-        same level: the cape is the only difference, and it is the difference
-        between nothing and a Roe.
+        Same target, same roll, same level: the cape is the only difference, and
+        it is the difference between nothing and a Roe. This is the Cooking
+        member of the 39 roll paths the boost actually moves; the count itself
+        is pinned by the test below.
         """
 
         def gut(equipment: dict) -> tuple:
@@ -270,6 +273,27 @@ class EffectiveLevelTest(unittest.TestCase):
 
         self.assertEqual(gut({}), (0, 0))
         self.assertEqual(gut({"cape": "Cooking cape"}), (1, 10.0))
+
+    def test_the_boost_moves_thirty_nine_roll_paths_not_one(self):
+        """Design fork 3.10 said "exactly one". Measured, it is 39.
+
+        The claim mattered: an owner told the rule is nearly a no-op may decide
+        differently knowing it changes 33 Hunter catches, 3 Firemaking burns, 2
+        Thieving yields and 1 Cooking gut. Hunter is measured here because it is
+        by far the largest share and its formula is the reason — Darkan's
+        `Utils.skillSuccess` interpolates on `level / 99.0` without clamping the
+        input, so any level above 99 keeps moving, while the period tables that
+        do saturate at 99 stay silent.
+        """
+
+        changed = [
+            name
+            for name, spec in HUNTER_DATA.items()
+            if calculate_hunter_success_probability_pure(99, spec)
+            != calculate_hunter_success_probability_pure(SKILLCAPE_EFFECTIVE_LEVEL, spec)
+        ]
+        self.assertEqual(len(changed), 33)
+        self.assertIn("catch_crimson_swift", changed)
 
     def test_the_boost_is_passive_and_needs_no_activation(self):
         """The shipped Agility cape used to need a ten-action activation."""
