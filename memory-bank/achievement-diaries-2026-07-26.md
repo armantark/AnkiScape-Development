@@ -102,10 +102,14 @@ ordinary skill/quest requirement pairs. The generator now joins that cache data
 to the exact membership arrays in the nine `*Tasks.java` classes; the wiki is
 corroboration rather than the requirement authority.
 
-The shipped catalog now carries 292 evaluable tasks across ten families. All 34
-shipped tiers/pools are non-empty: 248 regional tasks, 14 Burthorpe/Taverley
+The shipped catalog now carries 304 evaluable tasks across ten families. All 34
+shipped tiers/pools are non-empty: 260 regional tasks, 14 Burthorpe/Taverley
 tasks with exact existing predicates, and 30 Miscellaneous tasks backed by
 implemented activity counters or encoded requirements. Tasks without an honest
-predicate remain omitted rather than becoming inert rows. The exact period
-Miscellaneous coin formula remains placeholder-registered as
-`achievement_diaries.misc_coin_reward`.
+predicate remain omitted rather than becoming inert rows. Previously shipped
+wiki-backed requirement rows remain when Darkan confirms their membership; cache
+absence alone is not treated as evidence against them. The exact period
+Miscellaneous coin curve remains placeholder-registered as
+`achievement_diaries.misc_coin_reward`: the cache-proven 100-coin floor is
+multiplied by the task's completion ordinal until the exact payout script is
+recovered.

@@ -76,6 +76,11 @@ MORYTANIA_LEG_BONUSES = {
 
 
 TASKS_PER_TIER = 12  # design contract: twelve curated tasks in every tier
+# PLACEHOLDER(achievement_diaries.misc_coin_reward): the cache proves a minimum
+# 100-coin reward and monotonic growth by completed-task count, but not the exact
+# curve. The least-assumptive recoverable shape is 100 coins per completion
+# ordinal; the server-side payout routine or decoded completion script settles it.
+MISC_COIN_BASE = 100
 
 TIER_ORDER = ("beginner", "easy", "medium", "hard", "elite")
 
@@ -137,6 +142,13 @@ FAMILIES = {
         "taskmasters": ("Rat Burgiss", "Reldo", "Vannaka", "Vannaka"),
         "lamp": (1000, 5000, 10000, 30000),
     },
+}
+
+# Preserve source-backed rows that were already shipped when more than twelve
+# evaluable tasks compete for a regional tier. Remaining slots keep Darkan order.
+PREFERRED_SOURCE_IDS = {
+    ("karamja", "medium"): (192, 193, 194, 195, 196, 197, 209, 199, 200, 201, 202, 203),
+    ("morytania", "medium"): (957, 958, 960, 962, 963, 964, 966, 968, 970, 971, 972, 973),
 }
 
 SPECIAL_FAMILIES = {
@@ -246,6 +258,34 @@ CONDITION_OVERRIDES = {
     440: (("quest", "druidic_ritual", 1, "Complete Druidic Ritual"),),
     441: (("quest", "death_plateau", 1, "Complete Death Plateau"),),
 }
+
+# Darkan confirms these tasks' exact tier membership. Their ordinary requirement
+# pairs are absent from enum 3483 but present in the already-pinned pre-cutoff
+# family tables, so retaining the earlier requirement predicates loses no source
+# fidelity and avoids treating cache absence as evidence that a task was invalid.
+CONDITION_OVERRIDES.update({
+    0: (("quest", "rune_mysteries", 1, "Complete Rune Mysteries"),),
+    125: (("quest", "rune_mysteries", 1, "Complete Rune Mysteries"),),
+    188: (("skill_level", "fishing", 5, "Level 5 Fishing"),),
+    192: (("skill_level", "agility", 40, "Level 40 Agility"),),
+    209: (("quest", "shilo_village", 1, "Complete Shilo Village"),),
+    97: (("quest", "rune_mysteries", 1, "Complete Rune Mysteries"),),
+    107: (("quest", "dragon_slayer", 1, "Complete Dragon Slayer"),),
+    952: (("quest", "in_aid_of_the_myreque", 1, "Complete In Aid of the Myreque"),),
+    993: (("quest", "ritual_of_the_mahjarrat", 1, "Complete Ritual of the Mahjarrat"),),
+    985: (
+        ("skill_level", "runecrafting", 50, "Level 50 Runecrafting"),
+        ("quest", "legacy_of_seergaze", 1, "Complete Legacy of Seergaze"),
+    ),
+    983: (("quest", "in_aid_of_the_myreque", 1, "Complete In Aid of the Myreque"),),
+    963: (("quest", "ghosts_ahoy", 1, "Complete Ghosts Ahoy"),),
+    971: (("quest", "in_search_of_the_myreque", 1, "Complete In Search of the Myreque"),),
+    964: (("quest", "in_aid_of_the_myreque", 1, "Complete In Aid of the Myreque"),),
+    257: (("quest", "rune_mysteries", 1, "Complete Rune Mysteries"),),
+    268: (("quest", "the_dig_site", 1, "Complete The Dig Site"),),
+    267: (("skill_level", "construction", 10, "Level 10 Construction"),),
+    291: (("quest", "garden_of_tranquillity", 1, "Complete Garden of Tranquillity"),),
+})
 
 # Exact terminal counters in the implemented activity families. Activities with
 # no durable gameplay proof are omitted unless enum 3483 supplies an ordinary
@@ -422,8 +462,12 @@ def build(document: dict) -> str:
         tier_blocks: list[str] = []
         for index, tier_name in enumerate(meta["tiers"]):
             darkan_ids = record["tiers"][tier_name]
+            preferred = PREFERRED_SOURCE_IDS.get((family_id, tier_name), ())
+            ordered_ids = preferred + tuple(
+                source_id for source_id in darkan_ids if source_id not in preferred
+            )
             task_blocks: list[str] = []
-            for source_id in darkan_ids:
+            for source_id in ordered_ids:
                 task = definitions[str(source_id)]
                 block = _task_block(family_id, tier_name, task, source)
                 if not block:
@@ -467,7 +511,13 @@ def build(document: dict) -> str:
         task_blocks = []
         for source_id in record["tiers"][tier_name]:
             task = definitions[str(source_id)]
-            block = _task_block(family_id, tier_name, task, source)
+            block = _task_block(
+                family_id,
+                tier_name,
+                task,
+                source,
+                coin_reward=MISC_COIN_BASE if family_id == "miscellaneous" else 0,
+            )
             if block:
                 task_blocks.append(block)
         kept_total += len(task_blocks)
@@ -512,10 +562,9 @@ def build(document: dict) -> str:
         "# tier's lamp experience exactly but never the skill-level floor the period\n"
         "# lamp imposed. A period lamp dialogue or a cache interface script would\n"
         "# settle it.\n\n"
-        "# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous task rows\n"
-        "# carry zero coins until the period completion-count payout formula is recovered.\n"
-        "# Darkan completes the tasks but exposes no coin arithmetic; a rev-727 server\n"
-        "# routine or client script that computes the money-pouch award would settle it.\n\n\n"
+        "# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous rewards use\n"
+        "# the cache-proven 100-coin floor multiplied by completion ordinal. The exact\n"
+        "# period curve needs the server payout routine or decoded completion script.\n\n\n"
         "DIARY_FAMILIES = (\n"
     )
     equipment = (

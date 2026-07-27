@@ -253,13 +253,15 @@ def refresh_achievement_diaries_pure(
 
 
 def _award_task_coins(data: dict[str, Any], task_ids: Sequence[str]) -> dict[str, Any]:
-    """Miscellaneous tasks are the one per-task reward the design allows."""
+    """Pay Miscellaneous rewards on the cache-proven completion-count curve."""
 
     payout = 0
-    for task_id in task_ids:
+    completed_total = len(_state(data)["completed_tasks"])
+    starting_ordinal = max(0, completed_total - len(task_ids))
+    for offset, task_id in enumerate(task_ids, start=1):
         found = diary_task_by_id_pure(task_id)
         if found is not None and found[2].coin_reward:
-            payout += int(found[2].coin_reward)
+            payout += int(found[2].coin_reward) * (starting_ordinal + offset)
     if not payout:
         return data
     inventory = dict(_mapping(data.get("inventory")))

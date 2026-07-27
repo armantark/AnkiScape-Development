@@ -5,7 +5,7 @@ tier membership, names, descriptions and ordinary requirements. Pinned
 pre-cutoff wiki revisions are corroboration only. Tasks without an honest
 AnkiScape predicate are omitted rather than emitted as inert rows.
 
-Tasks kept: 292."""
+Tasks kept: 304."""
 
 from __future__ import annotations
 
@@ -23,10 +23,9 @@ from .achievement_diary_data import (
 # lamp imposed. A period lamp dialogue or a cache interface script would
 # settle it.
 
-# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous task rows
-# carry zero coins until the period completion-count payout formula is recovered.
-# Darkan completes the tasks but exposes no coin arithmetic; a rev-727 server
-# routine or client script that computes the money-pouch award would settle it.
+# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous rewards use
+# the cache-proven 100-coin floor multiplied by completion ordinal. The exact
+# period curve needs the server payout routine or decoded completion script.
 
 
 DIARY_FAMILIES = (
@@ -42,6 +41,15 @@ DIARY_FAMILIES = (
             'Ardougne cloak 1',
             "Doctor Orbon's blessing; Bert delivers sand each day.",
             (
+            DiaryTask(
+                'ardougne_easy_the_essence_of_magic',
+                'The Essence of Magic',
+                'Have Wizard Cromperty teleport you to the essence mine.',
+                (DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
+                'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+                0,
+                0,
+            ),
             DiaryTask(
                 'ardougne_easy_yoink',
                 'Yoink!',
@@ -444,6 +452,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'construction', 16, 'Level 16 Construction'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 118,
+                0,
+            ),
+            DiaryTask(
+                'falador_easy_making_my_mind_up',
+                'Making My Mind Up',
+                'Make a mind tiara.',
+                (DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                125,
                 0,
             ),
             DiaryTask(
@@ -1065,6 +1082,15 @@ DIARY_FAMILIES = (
                 187,
                 0,
             ),
+            DiaryTask(
+                'karamja_easy_fruity_catch',
+                'Fruity Catch',
+                'Use the fishing spots north of the banana plantation.',
+                (DiaryCondition('skill_level', 'fishing', 5, 'Level 5 Fishing'),),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                188,
+                0,
+            ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 10 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
@@ -1076,6 +1102,15 @@ DIARY_FAMILIES = (
             'Karamja gloves 2',
             'Medium Karamja task rewards.',
             (
+            DiaryTask(
+                'karamja_medium_just_the_ticket',
+                'Just the Ticket',
+                'Claim a ticket from Brimhaven Agility Arena.',
+                (DiaryCondition('skill_level', 'agility', 40, 'Level 40 Agility'),),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                192,
+                0,
+            ),
             DiaryTask(
                 'karamja_medium_back_cran_door',
                 'Back Cran-door',
@@ -1122,12 +1157,12 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
-                'karamja_medium_romancing_the_stone',
-                'Romancing the Stone',
-                'Mine a red topaz from a gem rock.',
-                (DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'), DiaryCondition('skill_level', 'mining', 40, 'Level 40 Mining'),),
+                'karamja_medium_thank_you_madam',
+                'Thank You, Madam',
+                'Charter the Lady of the Waves from Cairn Isle to Port Khazard.',
+                (DiaryCondition('quest', 'shilo_village', 1, 'Complete Shilo Village'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
-                198,
+                209,
                 0,
             ),
             DiaryTask(
@@ -1173,15 +1208,6 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'the_grand_tree', 1, 'Complete The Grand Tree'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 203,
-                0,
-            ),
-            DiaryTask(
-                'karamja_medium_scourge_of_scurvy',
-                'Scourge of Scurvy',
-                'Grow a healthy fruit tree in the patch near Brimhaven.',
-                (DiaryCondition('skill_level', 'farming', 27, 'Level 27 Farming'),),
-                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
-                204,
                 0,
             ),
             ),
@@ -1409,6 +1435,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'lumbridge_easy_what_is_this_place',
+                'What Is This Place?',
+                'Have Sedridor teleport you to the Rune Essence Mine.',
+                (DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                97,
+                0,
+            ),
+            DiaryTask(
                 'lumbridge_easy_artisan_crafting',
                 'Artisan Crafting',
                 'Create a clay ring.',
@@ -1471,6 +1506,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'fletching', 30, 'Level 30 Fletching'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 106,
+                0,
+            ),
+            DiaryTask(
+                'lumbridge_medium_always_be_prepared',
+                'Always Be Prepared',
+                'Try to obtain an anti-dragonbreath shield from Duke Horacio.',
+                (DiaryCondition('quest', 'dragon_slayer', 1, 'Complete Dragon Slayer'),),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                107,
                 0,
             ),
             DiaryTask(
@@ -1694,6 +1738,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'morytania_easy_only_going_forward_we_can_t_find_reverse',
+                "Only Going Forward. We Can't Find Reverse",
+                'Take an easy companion through an easy route of Temple Trekking.',
+                (DiaryCondition('quest', 'in_aid_of_the_myreque', 1, 'Complete In Aid of the Myreque'),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                952,
+                0,
+            ),
+            DiaryTask(
                 'morytania_easy_wurt_a_bundle',
                 'Wurt A Bundle',
                 'Harvest limpwurt in the farming patch near Port Phasmatys.',
@@ -1750,12 +1803,21 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
-                'morytania_medium_don_t_stop_me_if_i_start_to_ramble',
-                "Don't Stop Me If I Start To Ramble",
-                'Complete a Burgh de Rott Ramble.',
-                (DiaryCondition('quest', 'the_darkness_of_hallowvale', 1, 'Complete The Darkness of Hallowvale'),),
+                'morytania_medium_gate_spectre_ations',
+                'Gate Spectre-ations',
+                'Use the western gate of Port Phasmatys.',
+                (DiaryCondition('quest', 'ghosts_ahoy', 1, 'Complete Ghosts Ahoy'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
-                965,
+                963,
+                0,
+            ),
+            DiaryTask(
+                'morytania_medium_ready_trek',
+                'Ready? Trek!',
+                'Take a medium companion through a medium route of Temple Trekking.',
+                (DiaryCondition('quest', 'in_aid_of_the_myreque', 1, 'Complete In Aid of the Myreque'),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                964,
                 0,
             ),
             DiaryTask(
@@ -1765,15 +1827,6 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'shades_of_mortton', 1, "Complete Shades of Mort'ton"),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 966,
-                0,
-            ),
-            DiaryTask(
-                'morytania_medium_izzy_wizzy_let_s_get_lizzy',
-                "Izzy Wizzy Let's Get Lizzy",
-                'Trap a swamp lizard in the Haunted Woods.',
-                (DiaryCondition('skill_level', 'hunter', 29, 'Level 29 Hunter'),),
-                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
-                967,
                 0,
             ),
             DiaryTask(
@@ -1795,6 +1848,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'morytania_medium_i_wonder_how_far_it_ghost',
+                'I Wonder How Far It Ghost?',
+                'Explore the tunnel from the cellar under the Hair of the Dog.',
+                (DiaryCondition('quest', 'in_search_of_the_myreque', 1, 'Complete In Search of the Myreque'),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                971,
+                0,
+            ),
+            DiaryTask(
                 'morytania_medium_obvious_forgery',
                 'Obvious Forgery',
                 'Make a batch of cannonballs in Port Phasmatys.',
@@ -1810,15 +1872,6 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'slayer', 45, 'Level 45 Slayer'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 973,
-                0,
-            ),
-            DiaryTask(
-                'morytania_medium_fun_guy_but_bitter',
-                'Fun Guy But Bitter',
-                'Harvest bittercap mushrooms in the farming patch near Canifis.',
-                (DiaryCondition('skill_level', 'farming', 53, 'Level 53 Farming'),),
-                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
-                974,
                 0,
             ),
             ),
@@ -1839,6 +1892,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'slayer', 40, 'Level 40 Slayer'), DiaryCondition('quest', 'haunted_mine', 1, 'Complete Haunted Mine'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 975,
+                0,
+            ),
+            DiaryTask(
+                'morytania_hard_runecraft_carrier',
+                'Runecraft Carrier',
+                'Break a Blood Altar teletablet.',
+                (DiaryCondition('skill_level', 'runecrafting', 50, 'Level 50 Runecrafting'), DiaryCondition('quest', 'legacy_of_seergaze', 1, 'Complete Legacy of Seergaze'),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                985,
                 0,
             ),
             DiaryTask(
@@ -1893,6 +1955,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'fletching', 76, 'Level 76 Fletching'), DiaryCondition('skill_level', 'firemaking', 70, 'Level 70 Firemaking'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 982,
+                0,
+            ),
+            DiaryTask(
+                'morytania_hard_trekkin_ain_t_easy',
+                "Trekkin' Ain't Easy",
+                'Take a hard companion through a hard route of Temple Trekking.',
+                (DiaryCondition('quest', 'in_aid_of_the_myreque', 1, 'Complete In Aid of the Myreque'),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                983,
                 0,
             ),
             DiaryTask(
@@ -1967,6 +2038,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'woodcutting', 80, 'Level 80 Woodcutting'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 992,
+                0,
+            ),
+            DiaryTask(
+                'morytania_elite_bros_before_barrows',
+                'Bros Before Barrows',
+                'Defeat all seven Barrows Brothers.',
+                (DiaryCondition('quest', 'ritual_of_the_mahjarrat', 1, 'Complete Ritual of the Mahjarrat'),),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                993,
                 0,
             ),
             DiaryTask(
@@ -2322,6 +2402,15 @@ DIARY_FAMILIES = (
             'Rat Burgiss buys 16 battlestaves a day from Zaff.',
             (
             DiaryTask(
+                'varrock_easy_essential_facilitator',
+                'Essential Facilitator',
+                'Have Aubury teleport you to the Rune Essence mine.',
+                (DiaryCondition('quest', 'rune_mysteries', 1, 'Complete Rune Mysteries'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                257,
+                0,
+            ),
+            DiaryTask(
                 'varrock_easy_doing_the_ironing',
                 'Doing the Ironing',
                 'Mine some iron ore in the mining spot south-east of Varrock.',
@@ -2346,6 +2435,24 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'crafting', 8, 'Level 8 Crafting'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 265,
+                0,
+            ),
+            DiaryTask(
+                'varrock_easy_relocation_relocation_relocation',
+                'Relocation, Relocation, Relocation',
+                'Move your player-owned house portal by talking to the Varrock estate agent.',
+                (DiaryCondition('skill_level', 'construction', 10, 'Level 10 Construction'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                267,
+                0,
+            ),
+            DiaryTask(
+                'varrock_easy_it_belongs_in_a_museum',
+                'It Belongs in a Museum',
+                'Speak to Haig Halen after obtaining at least 50 Kudos.',
+                (DiaryCondition('quest', 'the_dig_site', 1, 'Complete The Dig Site'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                268,
                 0,
             ),
             DiaryTask(
@@ -2468,21 +2575,21 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'varrock_medium_master_scrumper',
+                'Master Scrumper',
+                'Pick a fruit from the White Tree.',
+                (DiaryCondition('quest', 'garden_of_tranquillity', 1, 'Complete Garden of Tranquillity'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                291,
+                0,
+            ),
+            DiaryTask(
                 'varrock_medium_engage',
                 'Engage',
                 'Use the hot-air balloon to travel from Varrock to somewhere else.',
                 (DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'woodcutting', 40, 'Level 40 Woodcutting'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 292,
-                0,
-            ),
-            DiaryTask(
-                'varrock_medium_faster_pussycat_kill_kill',
-                'Faster, Pussycat! Kill! Kill!',
-                'Get a cat training medal from Gertrude.',
-                (DiaryCondition('quest', 'gertrudes_cat', 1, "Complete Gertrude's Cat"),),
-                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
-                293,
                 0,
             ),
             ),
@@ -2851,7 +2958,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'tears_of_guthix.visits', 1, 'Complete a Tears of Guthix visit'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3000,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_penguin_hunting',
@@ -2860,7 +2967,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'penguin_hide_and_seek.lifetime_spotted', 1, 'Spy a penguin'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3002,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_evil_tree',
@@ -2869,7 +2976,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'achievement_progress.skills.woodcutting.actions.evil_tree_fell', 1, 'Fell an evil tree'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3003,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_shooting_star',
@@ -2878,7 +2985,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'achievement_progress.skills.mining.actions.shooting_stars', 1, 'Mine a shooting star'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3004,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_impetuous_impulses',
@@ -2887,7 +2994,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'achievement_progress.skills.hunter.actions.catch_baby_impling_puro_puro', 1, 'Catch an impling in Puro-Puro'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3005,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_vinesweeper',
@@ -2896,7 +3003,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'vinesweeper.operations', 1, 'Complete a Vinesweeper operation'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3006,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_balthazar_s_big_top_bonanza',
@@ -2905,7 +3012,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'circus.lifetime_performances', 1, 'Complete a circus performance'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3007,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_defeat_bork',
@@ -2914,7 +3021,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'what_lies_below', 1, 'Complete What Lies Below'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3008,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_all_fired_up',
@@ -2923,7 +3030,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3009,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_skeletal_horror',
@@ -2932,7 +3039,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'skeletal_horror.kills', 1, 'Defeat the Skeletal Horror'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3010,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_great_orb_project',
@@ -2941,7 +3048,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'great_orb_project.games_completed', 1, 'Complete a Great Orb Project game'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3012,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_pest_control',
@@ -2950,7 +3057,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'pest_control_games_won', 1, 'Win a Pest Control game'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3013,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_castle_wars',
@@ -2959,7 +3066,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'castle_wars_games_played', 1, 'Complete a Castle Wars game'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3014,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_court_cases',
@@ -2968,7 +3075,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'court_cases_attempts', 1, 'Argue a court case'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3015,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_tai_bwo_wannai_cleanup',
@@ -2977,7 +3084,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'fletching', 10, 'Level 10 Fletching'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3016,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fight_caves',
@@ -2986,7 +3093,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'fight_caves.clears', 1, 'Clear the Fight Caves'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3017,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fight_pits',
@@ -2995,7 +3102,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'tzhaar_fight_pit_matches', 1, 'Enter a Fight Pit match'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3018,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_brimhaven_agility_arena',
@@ -3004,7 +3111,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'achievement_progress.skills.agility.outputs.Agility arena ticket', 1, 'Earn an Agility arena ticket'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3019,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_barbarian_assault',
@@ -3013,7 +3120,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'barbarian_assault_runs_completed', 1, 'Complete a Barbarian Assault run'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3020,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_shades_of_mort_ton',
@@ -3022,7 +3129,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'shades_of_mortton_chests_opened', 1, "Open a Shades of Mort'ton chest"),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3022,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_barrows',
@@ -3031,7 +3138,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'barrows.chests_opened', 1, 'Open a Barrows chest'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3023,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_pyramid_plunder',
@@ -3040,7 +3147,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'pyramid_plunder_runs_completed', 1, 'Complete a Pyramid Plunder run'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3024,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_sorceress_garden',
@@ -3049,7 +3156,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'sorceress_garden.successful_trips', 1, "Complete a Sorceress's Garden trip"),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3025,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_mage_training_arena',
@@ -3058,7 +3165,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'magic', 7, 'Level 7 Magic'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3026,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_duel_arena',
@@ -3067,7 +3174,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'duel_arena_matches', 1, 'Enter a Duel Arena match'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3027,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fist_of_guthix',
@@ -3076,7 +3183,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'fist_of_guthix.matches_started', 1, 'Enter a Fist of Guthix match'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3028,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_stealing_creation',
@@ -3085,7 +3192,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'stealing_creation.games', 1, 'Enter a Stealing Creation game'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3029,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_soul_wars',
@@ -3094,7 +3201,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'soul_wars_games_played', 1, 'Complete a Soul Wars game'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3030,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_clan_wars',
@@ -3103,7 +3210,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'clan_wars_matches', 1, 'Enter a Clan Wars match'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3031,
-                0,
+                100,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_warriors_guild',
@@ -3112,7 +3219,7 @@ DIARY_FAMILIES = (
                 (DiaryCondition('counter', 'warriors_guild.activity_reviews.warriors_guild_attack_dummy', 1, "Train in the Warriors' Guild"),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3034,
-                0,
+                100,
             ),
             ),
             None,

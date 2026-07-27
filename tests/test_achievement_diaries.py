@@ -181,6 +181,44 @@ class CatalogIntegrityTest(unittest.TestCase):
         ]
         self.assertEqual(empty, [])
 
+    def test_cache_absence_does_not_drop_existing_pinned_requirement_rows(self):
+        restored_source_ids = {
+            0,
+            97,
+            107,
+            125,
+            188,
+            192,
+            209,
+            257,
+            267,
+            268,
+            291,
+            952,
+            963,
+            964,
+            971,
+            983,
+            985,
+            993,
+        }
+        shipped = {
+            task.source_id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        }
+        self.assertTrue(restored_source_ids.issubset(shipped))
+
+    def test_every_miscellaneous_task_has_a_live_coin_reward(self):
+        family = next(
+            family
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            if family.id == "miscellaneous"
+        )
+        self.assertTrue(family.tiers[0].tasks)
+        self.assertTrue(all(task.coin_reward == 100 for task in family.tiers[0].tasks))
+
     def test_regional_tiers_respect_the_twelve_task_curation_budget(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
             if family.kind != "regional":
@@ -277,6 +315,44 @@ class TaskProgressTest(unittest.TestCase):
         self.assertEqual(
             set(player["achievement_diaries"]["completed_tasks"]), expected
         )
+
+    def test_fight_pit_gameplay_pays_the_miscellaneous_task_reward(self):
+        from ankiscape.logic.tzhaar_fight_pit_logic import enter_tzhaar_fight_pit_pure
+
+        task = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.source_id == 3018
+        )
+        player = _fresh()
+        before = int(player["inventory"].get("Coins", 0))
+        player, ok, info = enter_tzhaar_fight_pit_pure(player)
+        self.assertTrue(ok, info)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertIn(task.id, newly)
+        self.assertEqual(player["inventory"]["Coins"] - before, 100)
+
+    def test_miscellaneous_reward_grows_with_completion_ordinal(self):
+        from ankiscape.logic.tzhaar_fight_pit_logic import enter_tzhaar_fight_pit_pure
+
+        prior = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.source_id == 538
+        )
+        player = _satisfy(_fresh(), prior)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertEqual(newly, (prior.id,))
+        before = int(player["inventory"].get("Coins", 0))
+        player, ok, info = enter_tzhaar_fight_pit_pure(player)
+        self.assertTrue(ok, info)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertTrue(any(task_id.startswith("miscellaneous_") for task_id in newly))
+        self.assertEqual(player["inventory"]["Coins"] - before, 200)
 
     def test_burthorpe_course_gameplay_completes_lapping_it_up(self):
         from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
