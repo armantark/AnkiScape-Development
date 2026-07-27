@@ -813,6 +813,33 @@ class AssetCoverageTest(unittest.TestCase):
         }
         self.assertEqual(wanted, set(DIARY_REWARD_ITEMS))
 
+    def test_every_named_taskmaster_keeps_its_registered_portrait(self):
+        import os
+
+        from tools.fetch_achievement_diary_assets import asset_manifest
+
+        wanted = {
+            family.taskmaster: family.taskmaster_chathead_asset_path
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            if family.taskmaster
+        }
+        manifest = {
+            request.item_name: os.path.relpath(request.output_path, self._root())
+            for request, _size in asset_manifest()
+            if "chathead" in request.output_path.name
+        }
+        self.assertEqual(wanted, manifest)
+        self.assertEqual(
+            [
+                family.id
+                for family in ACHIEVEMENT_DIARY_CATALOG
+                if not family.taskmaster and family.taskmaster_chathead_asset_path
+            ],
+            [],
+        )
+        for path in wanted.values():
+            self.assertTrue(os.path.exists(os.path.join(self._root(), path)), path)
+
 
 class TierLookupTest(unittest.TestCase):
     def test_every_tier_id_resolves_back_to_its_family(self):

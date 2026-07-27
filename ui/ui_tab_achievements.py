@@ -34,7 +34,7 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
     pass
 
 from ..logic.achievement_diary_logic import achievement_cabinet_view_pure
-from .ui import CatalogFilterBar, _clear_layout, dim_text_css
+from .ui import CatalogFilterBar, _clear_layout, _set_slayer_master_chathead, dim_text_css
 
 # How many track rows the Music Log card leaves on screen when collapsed. The
 # dialog is about 560 logical points tall, so the families below the card must
@@ -407,9 +407,35 @@ def build_achievements_tab(ctx) -> "QWidget":
             card_layout = QVBoxLayout(card)
             card_layout.setContentsMargins(10, 8, 10, 8)
             card_layout.setSpacing(8)
+            family_header = QHBoxLayout()
+            family_header.setSpacing(8)
+            taskmaster = family["taskmaster"]
+            if taskmaster["show"]:
+                portrait = QLabel()
+                portrait.setObjectName(
+                    f"cabinetTaskmasterPortrait_{family['family_id']}"
+                )
+                portrait.setFixedSize(48, 48)
+                _set_slayer_master_chathead(
+                    portrait, taskmaster["chathead_asset_path"]
+                )
+                family_header.addWidget(portrait)
+
+            identity = QVBoxLayout()
+            identity.setContentsMargins(0, 0, 0, 0)
+            identity.setSpacing(1)
             name = QLabel(family["name"])
             name.setStyleSheet("font-weight: 700; color: palette(text);")
-            card_layout.addWidget(name)
+            identity.addWidget(name)
+            if taskmaster["show"]:
+                rewarder = QLabel(f"Reward handed over by {taskmaster['name']}")
+                rewarder.setObjectName(
+                    f"cabinetTaskmasterName_{family['family_id']}"
+                )
+                rewarder.setStyleSheet(f"color: {dim_text_css(rewarder)};")
+                identity.addWidget(rewarder)
+            family_header.addLayout(identity, 1)
+            card_layout.addLayout(family_header)
             for tier in family["tiers"]:
                 shown += len(tier["tasks"])
                 card_layout.addWidget(_tier_block(tier))

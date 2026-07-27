@@ -643,7 +643,11 @@ def achievement_cabinet_view_pure(
                 "family_id": family.id,
                 "name": family.name,
                 "kind": family.kind,
-                "taskmaster": family.taskmaster,
+                "taskmaster": {
+                    "show": bool(family.taskmaster),
+                    "name": family.taskmaster,
+                    "chathead_asset_path": family.taskmaster_chathead_asset_path,
+                },
                 "tiers": tuple(tiers),
             }
         )

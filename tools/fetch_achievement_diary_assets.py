@@ -44,6 +44,18 @@ DIARY_REWARD_ITEMS = (
     *(f"Explorer's ring {tier}" for tier in range(1, 5)),
 )
 
+DIARY_TASKMASTER_CHATHEADS = (
+    ("Doctor Orbon", "Doctor Orbon chathead.png"),
+    ("Redbeard Frank", "Redbeard Frank chathead.png"),
+    ("Council workman", "Council workman chathead.png"),
+    ("Jackie the fruit trader", "Pirate Jackie the Fruit chathead.png"),
+    ("Explorer Jack", "Explorer Jack chathead.png"),
+    ("Hiylik Myna", "Hiylik Myna chathead.png"),
+    ("Seer", "Seer chathead.png"),
+    ("Rat Burgiss", "Rat Burgiss chathead.png"),
+    ("Major Nigel Corothers", "Major Nigel Corothers chathead.png"),
+)
+
 # The nine Milestone capes are deliberately absent. Their art already ships with
 # the Crafting recipes, and the wiki's only uploads of those files are from 2023,
 # so re-fetching would swap period art for a post-cutoff render.
@@ -72,6 +84,20 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
             48,
         )
         for item_name in DIARY_REWARD_ITEMS
+    )
+    requests.extend(
+        (
+            AssetRequest(
+                item_name=taskmaster,
+                wiki_title=wiki_title,
+                output_path=(
+                    ROOT / "activityicons" / f"diary_{_slug(taskmaster)}_chathead.png"
+                ),
+                provenance_path=provenance,
+            ),
+            64,
+        )
+        for taskmaster, wiki_title in DIARY_TASKMASTER_CHATHEADS
     )
     return tuple(requests)
 

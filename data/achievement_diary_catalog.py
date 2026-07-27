@@ -431,6 +431,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Doctor Orbon',
+        'activityicons/diary_doctor_orbon_chathead.png',
         'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
     ),
     DiaryFamily(
@@ -736,6 +737,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Redbeard Frank',
+        'activityicons/diary_redbeard_frank_chathead.png',
         'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
     ),
     DiaryFamily(
@@ -1041,6 +1043,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Council workman',
+        'activityicons/diary_council_workman_chathead.png',
         'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
     ),
     DiaryFamily(
@@ -1364,6 +1367,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Jackie the fruit trader',
+        'activityicons/diary_jackie_the_fruit_trader_chathead.png',
         'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
     ),
     DiaryFamily(
@@ -1651,6 +1655,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Explorer Jack',
+        'activityicons/diary_explorer_jack_chathead.png',
         'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
     ),
     DiaryFamily(
@@ -2064,6 +2069,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Hiylik Myna',
+        'activityicons/diary_hiylik_myna_chathead.png',
         'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
     ),
     DiaryFamily(
@@ -2387,6 +2393,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Seer',
+        'activityicons/diary_seer_chathead.png',
         "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
     ),
     DiaryFamily(
@@ -2791,6 +2798,7 @@ DIARY_FAMILIES = (
         ),
         ),
         'Rat Burgiss',
+        'activityicons/diary_rat_burgiss_chathead.png',
         'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
     ),
     DiaryFamily(
@@ -2937,7 +2945,8 @@ DIARY_FAMILIES = (
             (('Varrock teleport tablet', 5), ('Falador teleport tablet', 5), ('Attack potion (4)', 5), ('Strength potion (4)', 5), ('Defence potion (4)', 5), ('Prayer potion (4)', 5), ('Steel full helm', 1)),
         ),
         ),
-        '',
+        'Major Nigel Corothers',
+        'activityicons/diary_major_nigel_corothers_chathead.png',
         'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
     ),
     DiaryFamily(
@@ -3228,6 +3237,7 @@ DIARY_FAMILIES = (
             (),
         ),
         ),
+        '',
         '',
         'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
     ),
