@@ -1761,6 +1761,12 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
             )
 
+            self.assertIsNone(
+                dialog.findChild(
+                    QPushButton,
+                    "agilityCommand::activate_agility_cape",
+                )
+            )
             toy_button = dialog.findChild(QPushButton, "agilityCommand::wind_toy_mouse")
             self.assertIsNotNone(toy_button)
             toy_button.click()

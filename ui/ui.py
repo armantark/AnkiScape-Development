@@ -522,7 +522,11 @@ from ..data.agility_data import (
     ALL_AGILITY_SHORTCUTS,
     DEFAULT_AGILITY_TARGET,
 )
-from ..logic.agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
+from ..logic.agility_logic import (
+    agility_effective_level_pure,
+    agility_status_line_pure,
+    agility_target_locked_reasons_pure,
+)
 from ..core.review_context import review_context_projection_pure
 
 from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -6248,7 +6252,6 @@ def show_main_menu(
         _command_button("Activate Surefooted", "activate_surefooted", {})
         _command_button("Wind Toy mouse", "wind_toy_mouse", {})
         _command_button("Buy Agility cape", "purchase_agility_cape", {})
-        _command_button("Activate cape", "activate_agility_cape", {})
         _command_button("Leave activity", "leave_activity", {})
         reward_layout.setColumnStretch(4, 1)
         layout.addWidget(rewards)
@@ -20450,26 +20453,10 @@ def show_main_menu(
                 )
             except (TypeError, ValueError):
                 current_level = base_level
-        if (
-            skill_id == "agility"
-            and int(
-                player_data.get("agility_boost_actions_remaining", 0) or 0
-            )
-            > 0
-        ):
+        if skill_id == "agility":
             current_level = max(
                 current_level,
-                base_level
-                + max(
-                    0,
-                    int(
-                        player_data.get(
-                            "agility_effective_boost",
-                            0,
-                        )
-                        or 0
-                    ),
-                ),
+                agility_effective_level_pure(player_data),
             )
         return current_level
 

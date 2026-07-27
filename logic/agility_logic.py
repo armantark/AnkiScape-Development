@@ -292,6 +292,21 @@ def _owns_item(player_data: Mapping[str, Any], item_name: str) -> bool:
     return False
 
 
+def agility_effective_level_pure(player_data: Mapping[str, Any]) -> int:
+    level = _int(player_data.get("agility_level"), 1, minimum=1, maximum=120)
+    temporary_boost = (
+        _int(player_data.get("agility_effective_boost"), maximum=20)
+        if _int(player_data.get("agility_boost_actions_remaining")) > 0
+        else 0
+    )
+    equipment = player_data.get("equipment")
+    cape_boost = int(
+        isinstance(equipment, Mapping)
+        and any(str(item).casefold() == "agility cape" for item in equipment.values())
+    )
+    return level + temporary_boost + cape_boost
+
+
 def _answered_card_week(player_data: Mapping[str, Any]) -> int:
     clock = player_data.get("shop_market_clock")
     answered = _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
@@ -444,8 +459,7 @@ def _standard_course_review(
         state = {"target": target.id, "stage": 0, "checkpoint": "start", "flawless": True, "lap_xp_valid": True, "requested_item_valid": True, "status": "Ready to start"}
     stage_index = _int(state.get("stage"), maximum=max(0, len(target.stages) - 1))
     stage = target.stages[stage_index]
-    level = _int(data.get("agility_level"), 1, minimum=1, maximum=120)
-    effective = level + _int(data.get("agility_effective_boost"), maximum=20)
+    effective = agility_effective_level_pure(data)
     probability = agility_failure_probability_pure(
         stage,
         target,
@@ -1007,15 +1021,6 @@ def apply_agility_command_pure(
         inventory["Agility hood"] = _int(inventory.get("Agility hood")) + 1
         data["inventory"] = inventory
         return data, {"allowed": True, "message": "Bought the Agility cape and hood"}
-    if action_id == "activate_agility_cape":
-        data = sanitize_agility_state_pure(copy.deepcopy(player_data))
-        if not _owns_item(data, "Agility cape"):
-            return data, {"allowed": False, "message": "You do not own the Agility cape"}
-        if _int(data.get("agility_effective_boost")) > 1:
-            return data, {"allowed": False, "message": "A stronger Agility boost is already active"}
-        data["agility_effective_boost"] = 1
-        data["agility_boost_actions_remaining"] = 10
-        return data, {"allowed": True, "message": "Agility cape boost active for 10 Agility actions"}
     if action_id == "activate_surefooted":
         data = sanitize_agility_state_pure(copy.deepcopy(player_data))
         charges = dict(data.get("agility_effect_charges") or {})
