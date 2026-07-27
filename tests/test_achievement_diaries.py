@@ -34,6 +34,7 @@ from ankiscape.logic.achievement_diary_logic import (
     pin_diary_task_pure,
     refresh_achievement_diaries_pure,
     task_progress_pure,
+    tier_reward_names_pure,
 )
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
@@ -171,6 +172,29 @@ class CatalogIntegrityTest(unittest.TestCase):
                     self.assertTrue(task.name.strip(), task.id)
                     self.assertIn("Darkan", task.source, task.id)
                     self.assertGreaterEqual(task.source_id, 0, task.id)
+
+    def test_every_tier_advertises_only_rewards_it_can_actually_hand_over(self):
+        """A tier must never name a reward slot it cannot fill.
+
+        Burthorpe/Taverley shipped with an empty ``reward_item`` and no bundle,
+        so claiming it granted nothing and printed a sentence with a hole where
+        the item name belonged.
+        """
+
+        known = {row.storage_key for row in ITEM_DEFINITIONS}
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            for tier in family.tiers:
+                items = tier_reward_names_pure(tier)
+                if family.kind == "miscellaneous":
+                    # Miscellaneous pays per task, so it owns no tier reward.
+                    self.assertEqual(items, (), tier.id)
+                    continue
+                self.assertTrue(items, tier.id)
+                if tier.reward_item:
+                    self.assertIn(tier.reward_item, EQUIPMENT_DATA, tier.id)
+                for name, count in tier.reward_bundle:
+                    self.assertIn(name, known, name)
+                    self.assertGreater(count, 0, name)
 
     def test_every_tier_has_a_roster(self):
         empty = [
@@ -389,6 +413,34 @@ class TaskProgressTest(unittest.TestCase):
 class ClaimTest(unittest.TestCase):
     def _varrock(self):
         return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
+
+    def test_burthorpe_claim_grants_its_starter_equipment_reward(self):
+        """The period reward is one set bundle, not an upgradeable worn item.
+
+        The pinned revision's Rewards section has Major Nigel Corothers hand the
+        whole kit over at once, and Darkan's ``SetReward`` enum covers eight
+        areas and excludes Burthorpe for that reason. So the tier legitimately
+        has no ``reward_item``; what it must not do is advertise a reward slot
+        it cannot fill.
+        """
+
+        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "burthorpe")
+        tier = family.tiers[0]
+        player = _complete_tier(_fresh(), tier)
+        before = copy.deepcopy(player["inventory"])
+
+        player, ok, info = claim_diary_tier_pure(player, tier.id)
+
+        self.assertTrue(ok, info)
+        self.assertFalse(tier.reward_item)
+        self.assertTrue(tier.reward_bundle)
+        for name, count in tier.reward_bundle:
+            self.assertEqual(
+                player["inventory"].get(name, 0) - before.get(name, 0), count, name
+            )
+        # No hole where an item name belongs.
+        self.assertNotIn("  ", info["message"])
+        self.assertIn("Steel full helm", info["message"])
 
     def test_a_tier_is_not_claimable_until_every_task_is_done(self):
         player = _fresh()

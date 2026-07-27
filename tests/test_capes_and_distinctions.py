@@ -21,7 +21,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import EQUIPMENT_DATA, ORE_DATA
+from ankiscape.core.constants import EQUIPMENT_DATA, HUNTER_DATA, ORE_DATA
 from ankiscape.core.skill_registry import trainable_skill_definitions
 from ankiscape.core.storage_pure import (
     CURRENT_CONFIG_VERSION,
@@ -33,6 +33,7 @@ from ankiscape.data.achievement_cape_data import (
     PRESTIGE_CAPES_BY_ID,
     SKILLCAPE_LEVEL,
     SKILLCAPE_PRICE,
+    SKILLCAPES,
     skillcape_definitions,
 )
 from ankiscape.data.quest_data import QUESTS
@@ -43,12 +44,18 @@ from ankiscape.logic.achievement_diary_logic import (
 )
 from ankiscape.logic.agility_logic import agility_effective_level_pure
 from ankiscape.logic.cape_logic import (
+    SKILLCAPE_EFFECTIVE_LEVEL,
     cape_view_pure,
     effective_roll_level_pure,
+    latent_cutoff_skills_pure,
+    prestige_cape_eligible_pure,
     refresh_capes_pure,
     skillcapes_are_trimmed_pure,
 )
 from ankiscape.logic.music_log_logic import refresh_music_log_pure
+from ankiscape.logic_pure.logic_pure_gathering import (
+    calculate_hunter_success_probability_pure,
+)
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.runtime.runtime_actions import handle_cooking_answer
 
@@ -92,13 +99,52 @@ class SkillcapeTest(unittest.TestCase):
                 self.assertTrue(row.source, name)
             self.assertTrue(cape.master, cape.skill_id)
 
-    def test_dungeoneering_ships_no_cape_while_the_skill_cannot_be_trained(self):
+    def test_dungeoneering_keeps_its_period_cape_row_but_cannot_ship_it_yet(self):
+        """The contract wants the cape; nothing in the save can earn it.
+
+        The contract asks for both Dungeoneering capes, and the period data is
+        here: `SKILLCAPES` carries the row with its item ids and its master. But
+        no shipped code writes `dungeoneering_exp`, so no save can ever reach
+        level 99 in it, and a cape nobody can buy is an inert reward. It joins
+        `skillcape_definitions()` on its own the day the skill becomes
+        trainable, which is why the list is derived from the registry rather
+        than written out. Deleting this test would hide that gap; it is here to
+        fail loudly once Dungeoneering ships and the cape is still missing.
+        """
+
         trainable = {skill.id for skill in trainable_skill_definitions()}
         self.assertNotIn("dungeoneering", trainable)
+        # The period row exists and is complete, so nothing has to be harvested
+        # again later.
+        row = next(cape for cape in SKILLCAPES if cape.skill_id == "dungeoneering")
+        self.assertEqual(row.master, "Thok, Master of Dungeoneering")
+        self.assertGreater(row.cape_item_id, 0)
+        # But it is not shipped, and the Cabinet says why rather than hiding it.
         self.assertNotIn(
             "dungeoneering", {cape.skill_id for cape in skillcape_definitions()}
         )
         self.assertNotIn("Dungeoneering cape", EQUIPMENT_DATA)
+        self.assertEqual(latent_cutoff_skills_pure(), ("dungeoneering",))
+
+    def test_the_all_skills_gate_counts_every_skill_a_save_can_actually_train(self):
+        """Max's gate is 24 today and 25 the day Dungeoneering ships.
+
+        The pinned Max revision requires all 25 cutoff skills. Enforcing 25 now
+        would make Max, Completionist and all nine milestone capes permanently
+        unobtainable, so the gate is derived from the skill registry — and the
+        shortfall is named out loud, never silently dropped. Design fork 3.11.
+        """
+
+        player = _maxed(_player())
+        ok, reason = prestige_cape_eligible_pure(player, "max")
+        self.assertTrue(ok, reason)
+
+        row = next(
+            item for item in cape_view_pure(player)["completionist"] if item["id"] == "max"
+        )
+        self.assertEqual(row["need"], len(trainable_skill_definitions()))
+        self.assertIn("Dungeoneering", row["label"])
+        self.assertIn("latent", row["label"])
 
     def test_a_cape_is_earned_bought_from_its_master_and_worn(self):
         player = _player(mining_level=SKILLCAPE_LEVEL)
@@ -204,11 +250,10 @@ class EffectiveLevelTest(unittest.TestCase):
     def test_a_real_review_changes_its_outcome_because_the_cape_is_worn(self):
         """The seam reaches a shipped handler, not just a helper.
 
-        Gutting a Leaping trout is the one shipped roll whose formula is still
-        level-sensitive above 99 — every other period table saturates at 99, so
-        the boost is real but numerically silent there. Same target, same roll,
-        same level: the cape is the only difference, and it is the difference
-        between nothing and a Roe.
+        Same target, same roll, same level: the cape is the only difference, and
+        it is the difference between nothing and a Roe. This is the Cooking
+        member of the 39 roll paths the boost actually moves; the count itself
+        is pinned by the test below.
         """
 
         def gut(equipment: dict) -> tuple:
@@ -228,6 +273,27 @@ class EffectiveLevelTest(unittest.TestCase):
 
         self.assertEqual(gut({}), (0, 0))
         self.assertEqual(gut({"cape": "Cooking cape"}), (1, 10.0))
+
+    def test_the_boost_moves_thirty_nine_roll_paths_not_one(self):
+        """Design fork 3.10 said "exactly one". Measured, it is 39.
+
+        The claim mattered: an owner told the rule is nearly a no-op may decide
+        differently knowing it changes 33 Hunter catches, 3 Firemaking burns, 2
+        Thieving yields and 1 Cooking gut. Hunter is measured here because it is
+        by far the largest share and its formula is the reason — Darkan's
+        `Utils.skillSuccess` interpolates on `level / 99.0` without clamping the
+        input, so any level above 99 keeps moving, while the period tables that
+        do saturate at 99 stay silent.
+        """
+
+        changed = [
+            name
+            for name, spec in HUNTER_DATA.items()
+            if calculate_hunter_success_probability_pure(99, spec)
+            != calculate_hunter_success_probability_pure(SKILLCAPE_EFFECTIVE_LEVEL, spec)
+        ]
+        self.assertEqual(len(changed), 33)
+        self.assertIn("catch_crimson_swift", changed)
 
     def test_the_boost_is_passive_and_needs_no_activation(self):
         """The shipped Agility cape used to need a ten-action activation."""
@@ -341,6 +407,31 @@ class PrestigeCapeTest(unittest.TestCase):
         self.assertIn("Museum guard", info["message"])
         player = _wear(player, "Completionist cape")
         self.assertEqual(player["equipment"]["cape"], "Completionist cape")
+
+    def test_lost_quest_cape_eligibility_unequips_the_owned_cape(self):
+        player = _all_quests_done(_player())
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
+        player, ok, info = _buy(player, "quest_point")
+        self.assertTrue(ok, info)
+        player = _wear(player, "Quest point cape")
+
+        player["quests"][QUESTS[0].id]["completed"] = False
+        player = refresh_capes_pure(player)
+
+        self.assertNotEqual(player["equipment"].get("cape"), "Quest point cape")
+        self.assertEqual(player["inventory"].get("Quest point cape"), 1)
+
+    def test_lost_quest_cape_eligibility_prevents_re_equipping(self):
+        player = _all_quests_done(_player())
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
+        player, ok, info = _buy(player, "quest_point")
+        self.assertTrue(ok, info)
+
+        player["quests"][QUESTS[0].id]["completed"] = False
+        allowed, reason = can_equip_item_pure("Quest point cape", EQUIPMENT_DATA, player)
+
+        self.assertFalse(allowed)
+        self.assertIn("quest", reason.lower())
 
     def test_completionist_names_what_is_still_outstanding(self):
         _same, ok, info = _buy(_player(), "completionist")

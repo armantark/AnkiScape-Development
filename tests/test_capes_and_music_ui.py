@@ -159,6 +159,41 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
         if row is not None:
             self.assertIn("♪", row.text())
 
+    def test_the_unreachable_task_track_is_visible_and_labelled_latent(self):
+        from ankiscape.data.music_log_data import MUSIC_TRACKS
+
+        track = next(row for row in MUSIC_TRACKS if row.name == "The Task at Hand")
+        player = default_player_data(ORE_DATA)
+        page, _ctx = self._build(player, _command(player))
+
+        row = self._named(page, f"cabinetTrack_{track.id}", QLabel)
+        self.assertIsNotNone(row)
+        self.assertIn("latent", row.text().lower())
+
+    def test_the_show_all_toggle_is_a_real_route_to_the_hidden_tracks(self):
+        """A hidden row is only honest if something on the page reveals it."""
+
+        from aqt.qt import QToolButton  # type: ignore
+
+        from ankiscape.data.music_log_data import MUSIC_TRACKS
+
+        player = default_player_data(ORE_DATA)
+        page, _ctx = self._build(player, _command(player))
+
+        toggle = self._named(page, "cabinetMusicShowAll", QToolButton)
+        self.assertIsNotNone(toggle)
+        rows = [
+            self._named(page, f"cabinetTrack_{track.id}", QLabel) for track in MUSIC_TRACKS
+        ]
+        self.assertNotIn(None, rows, "every track needs a row of its own")
+        self.assertTrue(any(not row.isVisible() for row in rows))
+
+        toggle.click()
+        for _ in range(3):
+            QApplication.instance().processEvents()
+
+        self.assertTrue(all(row.isVisible() for row in rows))
+
     def test_the_taskmaster_presentation_appears_once_and_the_button_clears_it(self):
         player = default_player_data(ORE_DATA)
         diaries = dict(player["achievement_diaries"])

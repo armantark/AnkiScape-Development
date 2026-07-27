@@ -1,6 +1,9 @@
+import inspect
+import re
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core import achievement_metadata
 from ankiscape.core.achievement_metadata import (
     ACHIEVEMENT_DIFFICULTIES,
     achievement_difficulty_progress,
@@ -9,6 +12,57 @@ from ankiscape.core.achievement_metadata import (
 )
 from ankiscape.core.constants import ACHIEVEMENTS, ACHIEVEMENT_DEFINITIONS
 from ankiscape.logic_pure.logic_pure import get_newly_completed_achievements, record_achievement_progress_pure
+
+
+class ThresholdProvenanceTest(unittest.TestCase):
+    """No numeric threshold may enter this substrate unclassified.
+
+    These rows are an AnkiScape-native ladder, not period content, so the
+    placeholder register cannot see them: there is no period value being stood
+    in for. What can still go wrong is a new off-ladder number arriving with no
+    decision behind it, which is how three reconstructions shipped unmarked.
+    Pinning the ladder makes that arrival fail here instead.
+    """
+
+    # The period skill cap, encoded by EXP_TABLE.
+    SOURCED = {99}
+    # AnkiScape's own round-number ladder. Chosen, not recovered.
+    ABSTRACTION = {
+        0, 1, 10, 30, 50, 60, 80, 100, 250, 400, 500,
+        1_000, 2_500, 4_000, 5_000, 10_000, 100_000, 1_000_000,
+    }
+
+    def _thresholds(self):
+        source = inspect.getsource(achievement_metadata)
+        body = source.split("FARMING_LEVEL_ACHIEVEMENTS", 1)[1]
+        found = set()
+        for line in body.splitlines():
+            if line.lstrip().startswith("#"):
+                continue
+            for raw in re.findall(r"(?:>=|>)\s*([\d_]+)", line):
+                found.add(int(raw.replace("_", "")))
+            row = re.match(r'\s*\("[^"]+",\s*([\d_]+),', line)
+            if row:
+                found.add(int(row.group(1).replace("_", "")))
+        return found
+
+    def test_every_threshold_is_on_the_classified_ladder(self):
+        unclassified = sorted(self._thresholds() - self.SOURCED - self.ABSTRACTION)
+        self.assertEqual(
+            unclassified,
+            [],
+            "these thresholds are neither the sourced level cap nor on the "
+            "declared AnkiScape ladder, so nothing records why they were "
+            "chosen; classify them in the provenance block in "
+            "core/achievement_metadata.py: " + ", ".join(map(str, unclassified)),
+        )
+
+    def test_the_scanner_actually_sees_the_numbers_it_claims_to(self):
+        """Guard the guard: a scanner that finds nothing would pass silently."""
+
+        self.assertIn(1_000_000, self._thresholds())
+        self.assertIn(99, self._thresholds())
+        self.assertGreater(len(self._thresholds()), 10)
 
 
 class AchievementMetadataTest(unittest.TestCase):

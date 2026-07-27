@@ -3,6 +3,10 @@
 The persisted achievement contract is the display name stored in
 ``player_data["completed_achievements"]``. Keep those strings stable; this
 module only moves the definitions out of the mixed constants/UI layer.
+
+None of these rows is period content — the period's achievement system is the
+Achievement Diary catalog, which ships separately. See the threshold-provenance
+block above ``FARMING_LEVEL_ACHIEVEMENTS`` before changing any number here.
 """
 from __future__ import annotations
 
@@ -144,6 +148,43 @@ def _claim_completed(player: PlayerData, claim_id: str) -> bool:
     claim = claims.get(claim_id, {}) or {}
     return isinstance(claim, Mapping) and bool(claim.get("claimed", False))
 
+
+# ---------------------------------------------------------------------------
+# Threshold provenance for everything below this line
+# ---------------------------------------------------------------------------
+#
+# Classified 2026-07-27, in full, because these rows carried no provenance of any
+# kind and the register test cannot see an unmarked number.
+#
+# None of these achievements is period content, and none of them claims to be.
+# The pre-EOC game's achievement system is the Achievement Diary — 534 curated
+# area and miscellaneous tasks — and that system ships separately and completely
+# in `data/achievement_diary_catalog.py`. It never had a "Mine 250 Copper ore"
+# row, so there is no period number here that we are failing to recover and no
+# PLACEHOLDER is warranted: a placeholder stands in for a value the period had,
+# not for one it never had.
+#
+# What this list is instead: an AnkiScape-native history substrate. The
+# 2026-07-16 semantics contract keeps it live so a save's `completed_achievements`
+# names keep their sticky meaning and no player loses recorded past progress.
+# `core/logic.py::check_achievements` is its only caller, and it is no longer
+# player-facing — the Cabinet replaced the list it used to render.
+#
+# The 156 numeric thresholds below therefore fall into exactly two buckets:
+#
+# - SOURCED (16 rows): the threshold is 99, the period skill cap, which the
+#   shipped `EXP_TABLE` in `core/constants.py` encodes directly. These are the
+#   "Master <skill>" and "Reach <skill> level 99" rows plus "Master Farmer".
+#
+# - ANKISCAPE ABSTRACTION (140 rows): every other threshold — 1, 10, 30, 50, 60,
+#   80, 100, 250, 400, 500, 1,000, 2,500, 4,000, 5,000, 10,000, 100,000 and
+#   1,000,000. These are AnkiScape's own round-number ladder over AnkiScape's own
+#   telemetry counters. They are chosen, not recovered, and they are deliberately
+#   round for exactly that reason. Changing one changes nothing about period
+#   fidelity; it changes only when this add-on's private ledger ticks over.
+#
+# There is no third bucket. Nothing here is a reconstruction of a period value,
+# so nothing here can quietly become canon by being mistaken for one.
 
 FARMING_LEVEL_ACHIEVEMENTS = (
     ("Novice Farmer", 10, "Easy"),

@@ -24,7 +24,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from ..core.skill_registry import trainable_skill_definitions
+from ..core.skill_registry import ALL_SKILLS, trainable_skill_definitions
 from ..data.achievement_cape_data import (
     PRESTIGE_CAPES,
     PRESTIGE_CAPES_BY_ID,
@@ -116,7 +116,7 @@ def _owned_names(player_data: Mapping[str, Any]) -> set[str]:
 
 
 def refresh_capes_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
-    """Record the first-99 keepsake and trim every owned cape once a second lands.
+    """Record the first-99 keepsake, trim owned capes, and unequip lost prestige capes.
 
     Darkan trims on the 99 level-up itself, walking equipment, inventory and
     every bank tab. AnkiScape has one Bank, so the same sweep is inventory plus
@@ -129,6 +129,7 @@ def refresh_capes_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     if reached and not state["keepsake_skill"]:
         state["keepsake_skill"] = reached[0]
     data["capes"] = state
+    data = _unequip_ineligible_prestige_capes(data)
     if len(reached) <= 1:
         return data
 
@@ -196,6 +197,31 @@ def _all_quests_complete(player_data: Mapping[str, Any]) -> bool:
     )
 
 
+def latent_cutoff_skills_pure() -> tuple[str, ...]:
+    """Cutoff skills the all-skills capes cannot ask for yet, in registry order.
+
+    The pinned Max revision (oldid 6549092) requires 99 in all 25 cutoff skills.
+    AnkiScape ships 24 of them: Dungeoneering has no training loop, so no save
+    can ever raise ``dungeoneering_level``. Gating Max on 25 today would make it
+    — and Completionist above it, and all nine milestone capes — permanently
+    unobtainable, which is the inert-reward failure the contract's own
+    latent-requirement pattern exists to avoid. So the gate is derived from the
+    skill registry and this list names the shortfall out loud instead of letting
+    a 24-skill max read as the period's 25. See design fork 3.11.
+    """
+
+    trainable = {skill.id for skill in trainable_skill_definitions()}
+    return tuple(skill.id for skill in ALL_SKILLS if skill.id not in trainable)
+
+
+def _latent_skill_note() -> str:
+    latent = latent_cutoff_skills_pure()
+    if not latent:
+        return ""
+    names = ", ".join(skill_id.replace("_", " ").title() for skill_id in latent)
+    return f" ({names} latent until the skill ships)"
+
+
 def _all_skills_99(player_data: Mapping[str, Any]) -> bool:
     return len(skills_at_99_pure(player_data)) == len(trainable_skill_definitions())
 
@@ -225,7 +251,9 @@ def completionist_requirements_pure(
     return (
         {
             "id": "max",
-            "label": "Level 99 in every skill",
+            # The period figure is 25. Naming the shortfall in the label is what
+            # keeps a 24-skill max from silently reading as the period's max.
+            "label": "Level 99 in every skill" + _latent_skill_note(),
             "met": _all_skills_99(player_data),
             "latent": False,
             "have": len(skills_at_99_pure(player_data)),
@@ -285,7 +313,9 @@ def prestige_cape_eligible_pure(
         )
     if cape.requirement == "all_skills_99":
         missing = len(trainable_skill_definitions()) - len(skills_at_99_pure(player_data))
-        return (True, "") if not missing else (False, f"{missing} skills short of 99.")
+        if missing:
+            return False, f"{missing} skills short of 99.{_latent_skill_note()}"
+        return True, ""
     if cape.requirement == "answered_cards":
         have = _answered_cards(player_data)
         return (
@@ -301,6 +331,48 @@ def prestige_cape_eligible_pure(
         ]
         return (True, "") if not outstanding else (False, "; ".join(outstanding))
     return False, "Unknown cape requirement."
+
+
+PRESTIGE_CAPES_BY_ITEM: dict[str, str] = {cape.cape: cape.id for cape in PRESTIGE_CAPES}
+
+
+def prestige_cape_wear_block_pure(
+    player_data: Mapping[str, Any], item_name: str
+) -> str:
+    """Why a Cape of Distinction cannot be worn right now, or ``""`` if it can.
+
+    The design contract: "Losing eligibility leaves the owned cape in Bank but
+    makes it unusable". The gate is the same durable predicate the purchase
+    checked — the pinned Quest Cape revision has the cape lose its wear
+    eligibility the moment the quest maximum rises — so it cannot be a
+    ``skill_requirements`` row, and ``can_equip_item_pure`` asks here instead.
+    """
+
+    cape_id = PRESTIGE_CAPES_BY_ITEM.get(item_name)
+    if cape_id is None:
+        return ""
+    eligible, reason = prestige_cape_eligible_pure(player_data, cape_id)
+    return "" if eligible else reason
+
+
+def _unequip_ineligible_prestige_capes(data: dict[str, Any]) -> dict[str, Any]:
+    """Move a no-longer-earned prestige cape off the body and back into the Bank."""
+
+    equipment = dict(_mapping(data.get("equipment")))
+    returned = [
+        (slot, worn)
+        for slot, worn in equipment.items()
+        if prestige_cape_wear_block_pure(data, str(worn))
+    ]
+    if not returned:
+        return data
+    inventory = dict(_mapping(data.get("inventory")))
+    for slot, worn in returned:
+        del equipment[slot]
+        inventory[str(worn)] = _int(inventory.get(worn)) + 1
+    data["equipment"] = equipment
+    data["inventory"] = inventory
+    return data
 
 
 # ---------------------------------------------------------------------------
@@ -450,4 +522,7 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             "",
         ),
         "completionist": completionist_requirements_pure(player_data),
+        # Cutoff skills with no cape and no place in the all-skills gate, because
+        # they have no training loop. Empty the day the last one ships.
+        "latent_skills": latent_cutoff_skills_pure(),
     }

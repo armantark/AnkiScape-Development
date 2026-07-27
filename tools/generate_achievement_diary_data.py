@@ -151,13 +151,33 @@ PREFERRED_SOURCE_IDS = {
     ("morytania", "medium"): (957, 958, 960, 962, 963, 964, 966, 968, 970, 971, 972, 973),
 }
 
+# Burthorpe/Taverley pays one starter-equipment bundle for the whole set, not a
+# per-task reward and not an upgradeable worn item. Darkan's `SetReward` enum
+# covers eight areas and deliberately excludes Burthorpe for exactly that
+# reason. The bundle is transcribed verbatim from the Rewards section of the
+# pinned pre-cutoff revision, which lists it as what Major Nigel Corothers hands
+# over during the Arise, Hero cutscene.
+BURTHORPE_SET_REWARD = (
+    ("Varrock teleport tablet", 5),
+    ("Falador teleport tablet", 5),
+    ("Attack potion (4)", 5),
+    ("Strength potion (4)", 5),
+    ("Defence potion (4)", 5),
+    ("Prayer potion (4)", 5),
+    ("Steel full helm", 1),
+)
+
 SPECIAL_FAMILIES = {
     "burthorpe": {
         "name": "Burthorpe and Taverley",
         "kind": "onboarding",
         "tier": "period",
         "tier_name": "Beginner",
-        "reward_summary": "The source-shaped starter-equipment reward remains a separate reward-system item.",
+        "reward_summary": (
+            "The Order of the Talon's starter kit: teleport tablets, a set of"
+            " combat potions and a steel full helm."
+        ),
+        "reward_bundle": BURTHORPE_SET_REWARD,
     },
     "miscellaneous": {
         "name": "Miscellaneous",
@@ -165,6 +185,7 @@ SPECIAL_FAMILIES = {
         "tier": "miscellaneous",
         "tier_name": "Miscellaneous",
         "reward_summary": "Each completed task pays its task-system coin reward.",
+        "reward_bundle": (),
     },
 }
 
@@ -536,6 +557,7 @@ def build(document: dict) -> str:
             "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
             "            None,\n"
             f"            {'period pool: ' + str(len(record['tiers'][tier_name])) + ' tasks; ' + source!r},\n"
+            f"            {meta['reward_bundle']!r},\n"
             "        ),\n"
             "        ),\n"
             "        '',\n"
