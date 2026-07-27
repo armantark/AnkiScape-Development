@@ -307,6 +307,18 @@ def build_achievements_tab(ctx) -> "QWidget":
         outstanding.setWordWrap(True)
         outstanding.setStyleSheet(f"color: {dim_text_css(outstanding)};")
         card_layout.addWidget(outstanding)
+        if capes["latent_skills"]:
+            names = ", ".join(
+                skill_id.replace("_", " ").title() for skill_id in capes["latent_skills"]
+            )
+            latent = QLabel(
+                f"{names} sold a cape before the cutoff but has no training loop"
+                " yet, so it has no cape row and no place in the all-skills gate."
+            )
+            latent.setObjectName("cabinetLatentSkills")
+            latent.setWordWrap(True)
+            latent.setStyleSheet(f"color: {dim_text_css(latent)};")
+            card_layout.addWidget(latent)
         return card
 
     def _music_card(music: dict) -> "QWidget":

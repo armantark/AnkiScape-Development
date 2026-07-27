@@ -24,7 +24,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from ..core.skill_registry import trainable_skill_definitions
+from ..core.skill_registry import ALL_SKILLS, trainable_skill_definitions
 from ..data.achievement_cape_data import (
     PRESTIGE_CAPES,
     PRESTIGE_CAPES_BY_ID,
@@ -197,6 +197,31 @@ def _all_quests_complete(player_data: Mapping[str, Any]) -> bool:
     )
 
 
+def latent_cutoff_skills_pure() -> tuple[str, ...]:
+    """Cutoff skills the all-skills capes cannot ask for yet, in registry order.
+
+    The pinned Max revision (oldid 6549092) requires 99 in all 25 cutoff skills.
+    AnkiScape ships 24 of them: Dungeoneering has no training loop, so no save
+    can ever raise ``dungeoneering_level``. Gating Max on 25 today would make it
+    — and Completionist above it, and all nine milestone capes — permanently
+    unobtainable, which is the inert-reward failure the contract's own
+    latent-requirement pattern exists to avoid. So the gate is derived from the
+    skill registry and this list names the shortfall out loud instead of letting
+    a 24-skill max read as the period's 25. See design fork 3.11.
+    """
+
+    trainable = {skill.id for skill in trainable_skill_definitions()}
+    return tuple(skill.id for skill in ALL_SKILLS if skill.id not in trainable)
+
+
+def _latent_skill_note() -> str:
+    latent = latent_cutoff_skills_pure()
+    if not latent:
+        return ""
+    names = ", ".join(skill_id.replace("_", " ").title() for skill_id in latent)
+    return f" ({names} latent until the skill ships)"
+
+
 def _all_skills_99(player_data: Mapping[str, Any]) -> bool:
     return len(skills_at_99_pure(player_data)) == len(trainable_skill_definitions())
 
@@ -226,7 +251,9 @@ def completionist_requirements_pure(
     return (
         {
             "id": "max",
-            "label": "Level 99 in every skill",
+            # The period figure is 25. Naming the shortfall in the label is what
+            # keeps a 24-skill max from silently reading as the period's max.
+            "label": "Level 99 in every skill" + _latent_skill_note(),
             "met": _all_skills_99(player_data),
             "latent": False,
             "have": len(skills_at_99_pure(player_data)),
@@ -286,7 +313,9 @@ def prestige_cape_eligible_pure(
         )
     if cape.requirement == "all_skills_99":
         missing = len(trainable_skill_definitions()) - len(skills_at_99_pure(player_data))
-        return (True, "") if not missing else (False, f"{missing} skills short of 99.")
+        if missing:
+            return False, f"{missing} skills short of 99.{_latent_skill_note()}"
+        return True, ""
     if cape.requirement == "answered_cards":
         have = _answered_cards(player_data)
         return (
@@ -493,4 +522,7 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             "",
         ),
         "completionist": completionist_requirements_pure(player_data),
+        # Cutoff skills with no cape and no place in the all-skills gate, because
+        # they have no training loop. Empty the day the last one ships.
+        "latent_skills": latent_cutoff_skills_pure(),
     }

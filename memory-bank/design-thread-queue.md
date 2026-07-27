@@ -295,6 +295,39 @@ own wherever a formula that does not cap at 99 ships — the same latent-activat
 pattern the contract already uses for Completionist requirements and Music Log
 tracks — and no period number is invented to manufacture an effect today.
 
+### 3.11 The all-skills capes have 24 skills to ask for, and the period has 25
+
+Raised 2026-07-27. The pinned Max revision (oldid `6549092`) requires level 99
+in all 25 cutoff skills. AnkiScape has 24 of them. Dungeoneering is in the skill
+registry with `surface_state="planned"`, and no shipped code writes
+`dungeoneering_exp`, so no save can raise `dungeoneering_level` above 1.
+
+That leaves two ways to read the contract, and they lead to opposite failures.
+
+Enforcing the period's 25 makes Max unobtainable forever, and with it the
+Completionist cape above it and all nine milestone capes, whose wear gate is
+"level N in every skill". That is the inert-reward failure the milestone-cape
+repair already removed once, for the same reason and in the same place.
+
+Deriving the gate from the skill registry keeps all three reachable, but a
+player who reaches 24 is told they are maxed when the period figure is 25.
+
+Recommendation, and what is implemented: derive the gate from the skill
+registry, and name the shortfall out loud rather than dropping it silently. The
+Max requirement row reads "Level 99 in every skill (Dungeoneering latent until
+the skill ships)", the Cabinet's cape card says the same thing once, and
+`latent_cutoff_skills_pure()` is the single list every surface reads. The gate
+becomes 25 by itself on the day Dungeoneering becomes trainable, which is the
+latent-activation pattern the contract already uses for Completionist
+requirement families and for Music Log tracks.
+
+The Dungeoneering skillcape follows the same rule and is deliberately not
+shipped. `SKILLCAPES` carries its complete period row — item ids 18508-18510
+and Thok, Master of Dungeoneering — and `skillcape_definitions()` filters it out
+because a cape that no save can reach level 99 to buy is an inert reward. It
+joins the shipped list on its own when the skill does. The level-120 master cape
+the contract also asks for is blocked behind the same gap.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
