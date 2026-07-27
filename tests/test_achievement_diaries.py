@@ -28,6 +28,13 @@ from ankiscape.data.achievement_diary_data import (
     ACHIEVEMENT_DIARY_CATALOG,
     BASE_CONDITION_KINDS,
     DiaryCondition,
+    DiaryFamily,
+    DiaryTask,
+    DiaryTier,
+)
+from ankiscape.logic.achievement_diary_derived import (
+    DIARY_DERIVED_VALUE_CEILINGS,
+    DIARY_DERIVED_VALUES,
 )
 from ankiscape.logic.achievement_diary_logic import (
     achievement_cabinet_view_pure,
@@ -62,6 +69,56 @@ def _set_counter(player, path, amount):
     node[parts[-1]] = amount
 
 
+def _max_out_varrock_museum(player):
+    """Drive the real museum to every Kudos point AnkiScape implements.
+
+    Nothing here writes ``varrock_museum`` directly: the quiz and the specimen
+    cases advance one review at a time through the live review entry point, and
+    the quest stories go through Historian Minas' own command, so the figure the
+    diary reads is one real play could actually produce.
+    """
+    from ankiscape.data.varrock_museum_data import (
+        QUEST_KUDOS,
+        QUIZ_DISPLAYS,
+        SPECIMEN_DISPLAYS,
+    )
+    from ankiscape.logic.varrock_museum_logic import (
+        apply_varrock_museum_command_pure,
+        apply_varrock_museum_review_pure,
+    )
+
+    for _display in QUIZ_DISPLAYS:
+        player, ok, info = apply_varrock_museum_review_pure(player)
+        assert ok, info
+
+    quests = player.setdefault("quests", {})
+    quests["the_dig_site"] = {"completed": True}
+    player["equipment"] = dict(player.get("equipment") or {})
+    player["equipment"]["hands"] = "Leather gloves"
+    player["equipment"]["feet"] = "Leather boots"
+    carried = dict(player.get("carried_inventory") or {})
+    pack = dict(carried.get("varrock_museum") or {})
+    pack.update({"Trowel": 1, "Rock pick": 1, "Specimen brush": 1})
+    for row in QUEST_KUDOS:
+        quests[str(row["id"])] = {"completed": True}
+        if row.get("required_item"):
+            pack[str(row["required_item"])] = 1
+    carried["varrock_museum"] = pack
+    player["carried_inventory"] = carried
+
+    player, ok, info = apply_varrock_museum_command_pure(
+        player, "set_route", {"route": "cleaning"}
+    )
+    assert ok, info
+    for _specimen in SPECIMEN_DISPLAYS:
+        player, ok, info = apply_varrock_museum_review_pure(player)
+        assert ok, info
+
+    player, ok, info = apply_varrock_museum_command_pure(player, "claim_quest_stories")
+    assert ok, info
+    return player
+
+
 def _satisfy_condition(player, condition):
     """Put a real save into the exact durable state one condition reads."""
     if condition.kind == "skill_level":
@@ -85,6 +142,14 @@ def _satisfy_condition(player, condition):
         _set_counter(player, condition.key, condition.amount)
     elif condition.kind == "any_of":
         _satisfy_condition(player, condition.alternatives[0])
+    elif condition.kind == "derived_value":
+        from ankiscape.logic.varrock_museum_logic import varrock_museum_kudos_pure
+
+        assert condition.key == "varrock_museum_kudos", condition.key
+        if varrock_museum_kudos_pure(player) < condition.amount:
+            updated = _max_out_varrock_museum(dict(player))
+            player.clear()
+            player.update(updated)
     else:  # pragma: no cover - catalog integrity rejects unknown kinds
         raise AssertionError(f"unhandled condition kind {condition.kind}")
     return player
@@ -394,6 +459,89 @@ class AnyOfConditionTest(unittest.TestCase):
             ),
         )
         self.assertEqual(condition_progress_pure(player, condition), (40, 50))
+
+
+class DerivedValueConditionTest(unittest.TestCase):
+    def _thresholds(self):
+        return [
+            (task, condition)
+            for task, condition in _every_condition()
+            if condition.kind == "derived_value"
+        ]
+
+    def test_the_catalog_ships_derived_value_tasks(self):
+        self.assertTrue(self._thresholds())
+
+    def test_every_threshold_is_reachable_and_the_ceiling_has_not_drifted(self):
+        """The Kudos threshold sits ten points under the implemented ceiling.
+
+        One dropped specimen case costs ten, which would make the task
+        permanently impossible while the predicate still looked right. So this
+        does not compare constants: it plays the museum to exhaustion through
+        its real entry points and asserts the figure that comes out clears
+        every shipped threshold and still equals the pinned ceiling.
+        """
+        player = _max_out_varrock_museum(_fresh())
+        for name, ceiling in DIARY_DERIVED_VALUE_CEILINGS.items():
+            reached = DIARY_DERIVED_VALUES[name](player)
+            self.assertEqual(reached, ceiling, name)
+            for task, condition in self._thresholds():
+                if condition.key == name:
+                    self.assertGreaterEqual(reached, condition.amount, task.id)
+
+    def test_playing_the_museum_credits_the_kudos_tasks(self):
+        tasks = [task for task, _condition in self._thresholds()]
+        player = _fresh()
+        for task in tasks:
+            self.assertFalse(task_progress_pure(player, task)[0], task.id)
+        player = _max_out_varrock_museum(player)
+        player, newly = refresh_achievement_diaries_pure(player)
+        for task in tasks:
+            self.assertIn(task.id, newly, task.id)
+
+    def test_an_unregistered_name_is_refused_at_import_time(self):
+        from ankiscape.data import achievement_diary_data as module
+
+        family = ACHIEVEMENT_DIARY_CATALOG[0]
+        tier = family.tiers[0]
+        broken = DiaryTask(
+            "typo_task",
+            "Typo",
+            "Names a derivation nobody registered.",
+            (DiaryCondition("derived_value", "varock_museum_kudos", 50, "Kudos"),),
+            "test",
+            -1,
+        )
+        original = module.ACHIEVEMENT_DIARY_CATALOG
+        module.ACHIEVEMENT_DIARY_CATALOG = (
+            DiaryFamily(
+                family.id,
+                family.name,
+                family.kind,
+                (
+                    DiaryTier(
+                        tier.id, tier.name, tier.index, tier.reward_item,
+                        tier.reward_summary, (broken,),
+                    ),
+                ),
+            ),
+        )
+        try:
+            with self.assertRaises(ImportError):
+                module._assert_derived_values_are_registered()
+        finally:
+            module.ACHIEVEMENT_DIARY_CATALOG = original
+
+    def test_an_unregistered_name_never_reads_as_satisfied(self):
+        """The runtime fallback is zero, so a typo can never pay out."""
+        player = _max_out_varrock_museum(_fresh())
+        unknown = DiaryCondition("derived_value", "varock_museum_kudos", 50, "Kudos")
+        self.assertEqual(condition_progress_pure(player, unknown), (0, 50))
+        known = DiaryCondition("derived_value", "varrock_museum_kudos", 50, "Kudos")
+        self.assertEqual(
+            condition_progress_pure(player, known)[0],
+            DIARY_DERIVED_VALUE_CEILINGS["varrock_museum_kudos"],
+        )
 
 
 class TaskProgressTest(unittest.TestCase):

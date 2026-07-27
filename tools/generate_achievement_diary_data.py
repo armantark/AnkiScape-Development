@@ -190,6 +190,18 @@ def resolve_condition_key(kind: str, key: str) -> str:
 
     if kind in {"ledger_action", "ledger_output"}:
         return _resolve_ledger_key(kind, key)
+    if kind == "derived_value":
+        registry = _import_attr(
+            "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUES"
+        )
+        ceilings = _import_attr(
+            "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUE_CEILINGS"
+        )
+        if key not in registry:
+            return f"derived_value {key!r} is not in DIARY_DERIVED_VALUES"
+        if key not in ceilings:
+            return f"derived_value {key!r} has no DIARY_DERIVED_VALUE_CEILINGS entry"
+        return ""
     if kind != "counter":
         return ""
     parts = key.split(".")
@@ -596,6 +608,19 @@ CONDITION_OVERRIDES.update({
     ),
 })
 
+# Kudos is a weighted sum over three append-only museum records, so no leaf
+# holds it and a counter would read zero forever. Task 268 was already shipped
+# on its quest half alone; the Kudos half it always stated is now evaluated too.
+CONDITION_OVERRIDES.update({
+    300: (
+        ("derived_value", "varrock_museum_kudos", 153, "Earn 153 Kudos"),
+    ),
+    268: (
+        ("quest", "the_dig_site", 1, "Complete The Dig Site"),
+        ("derived_value", "varrock_museum_kudos", 50, "Earn 50 Kudos"),
+    ),
+})
+
 
 def _slug(text: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", text.lower()))[:60]
@@ -637,6 +662,15 @@ def _condition_src(condition: tuple) -> str:
     error = resolve_condition_key(kind, key)
     if error:
         raise SystemExit(f"unresolvable diary condition ({label}): {error}")
+    if kind == "derived_value":
+        ceiling = _import_attr(
+            "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUE_CEILINGS"
+        )[key]
+        if amount > ceiling:
+            raise SystemExit(
+                f"derived_value {key!r} threshold {amount} is above the implemented"
+                f" ceiling {ceiling}, so the row could never complete"
+            )
     if kind != "any_of":
         return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
     if not alternatives:

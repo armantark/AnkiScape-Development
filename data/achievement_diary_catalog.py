@@ -5,7 +5,7 @@ tier membership, names, descriptions and ordinary requirements. Pinned
 pre-cutoff wiki revisions are corroboration only. Tasks without an honest
 AnkiScape predicate are omitted rather than emitted as inert rows.
 
-Tasks kept: 309."""
+Tasks kept: 310."""
 
 from __future__ import annotations
 
@@ -2495,7 +2495,7 @@ DIARY_FAMILIES = (
                 'varrock_easy_it_belongs_in_a_museum',
                 'It Belongs in a Museum',
                 'Speak to Haig Halen after obtaining at least 50 Kudos.',
-                (DiaryCondition('quest', 'the_dig_site', 1, 'Complete The Dig Site'),),
+                (DiaryCondition('quest', 'the_dig_site', 1, 'Complete The Dig Site'), DiaryCondition('derived_value', 'varrock_museum_kudos', 50, 'Earn 50 Kudos'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 268,
                 0,
@@ -2673,6 +2673,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 299,
+                0,
+            ),
+            DiaryTask(
+                'varrock_hard_kudos_on_the_kudos',
+                'Kudos on the Kudos!',
+                'Speak to Orlando Smith when you have achieved 153 Kudos.',
+                (DiaryCondition('derived_value', 'varrock_museum_kudos', 153, 'Earn 153 Kudos'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                300,
                 0,
             ),
             DiaryTask(
