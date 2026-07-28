@@ -634,3 +634,9 @@ semantics clauses and the v88 migration read, not player-visible content.
   Cooking. The blast radius stands, but it now flows through boost semantics.
 - Authority:
   `memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md`.
+
+### 4.12 Gravestone expiry consequence — implemented recommendation, owner review pending
+
+- **Fork:** At the 2012-11-20 cutoff, an unretrieved gravestone ultimately exposed/dropped its contents and then deleted them; the paid Death's Office item-reclaim system is a later mechanic and is not the period expiry consequence.
+- **Recommendation implemented:** Expired AnkiScape gravestones permanently lose their held items. Keep the existing Death's Office bridge isolated to its pre-existing stacked-grave behavior until that subsystem receives its own source-parity replacement.
+- **Evidence:** Darkan `GraveStone` expiry adjusts remaining public/delete time and finishes the grave rather than transferring items to paid reclaim; `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` records that 2011Scape has no full gravestone plugin and that the current Death's Office fee is explicitly an AnkiScape bridge. The rev-727/game-main local evidence supplies no paid expiry reclaim path.

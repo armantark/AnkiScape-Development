@@ -364,6 +364,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
+    start_combat_grave_walk_pure,
     unload_combat_supply_loadout_pure,
 )
 

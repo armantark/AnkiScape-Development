@@ -1298,7 +1298,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
         self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
 
-    def test_brimhaven_death_walks_back_on_five_noncombat_reviews_and_restores_loadout(self):
+    def test_brimhaven_death_click_walks_back_on_travel_clock_and_restores_loadout(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data.update({
@@ -1335,10 +1335,15 @@ class TestRuntimeActions(unittest.TestCase):
             ["Bronze sword", "Wooden shield", "Shark"],
         )
 
-        for _ in range(5):
-            runtime_actions.advance_shared_review_state_for_review(
-                _context(player_data, calls, random_values=(0.5,))
-            )
+        from ankiscape.logic_pure.logic_pure import start_combat_grave_walk_pure
+
+        started, ok = start_combat_grave_walk_pure(player_data)
+        self.assertTrue(ok)
+        player_data.clear()
+        player_data.update(started)
+        runtime_actions.advance_shared_review_state_for_review(
+            _context(player_data, calls, random_values=(0.5,))
+        )
 
         self.assertEqual(player_data["combat_grave"], {})
         self.assertEqual(

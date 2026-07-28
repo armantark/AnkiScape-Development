@@ -2525,6 +2525,23 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
                 player_data.clear()
                 player_data.update(accepted)
         if damage_result.get("died"):
+            grave = dict(player_data.get("combat_grave", {}) or {})
+            travel_profile = agility_travel_profile_pure(
+                "agility",
+                target_id,
+                int(player_data.get("agility_level", 1) or 1),
+                inventory_before,
+                equipment_before,
+            )
+            travel_reviews = max(
+                1, scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
+            )
+            grave.update({
+                "target_id": target_id,
+                "travel_reviews": travel_reviews,
+                "reviews_remaining": travel_reviews + 1,
+            })
+            player_data["combat_grave"] = grave
             ctx.deactivate_current_skill()
             if wilderness_ambush and result.get("completed_lap"):
                 player_data["agility_lap_counts"] = lap_counts_before

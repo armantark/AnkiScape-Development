@@ -3686,6 +3686,7 @@ def show_main_menu(
     on_refill_combat_loadout=None,
     on_unload_combat_loadout=None,
     on_reclaim_death_office=None,
+    on_start_grave_walk=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -23144,9 +23145,12 @@ def show_main_menu(
     _update_help_button_tooltip()
 
     grave_banner_view = combat_grave_banner_view_pure(player_data)
-    grave_banner = QLabel(str(grave_banner_view["text"]))
+    grave_banner = QPushButton(str(grave_banner_view["text"]))
     grave_banner.setObjectName("graveRecoveryBanner")
     grave_banner.setVisible(bool(grave_banner_view["visible"]))
+    grave_banner.setEnabled(on_start_grave_walk is not None)
+    if on_start_grave_walk is not None:
+        grave_banner.clicked.connect(on_start_grave_walk)
     grave_banner.setStyleSheet(
         "color: palette(text); background: rgba(255, 193, 7, 0.14); "
         "border: 1px solid palette(mid); border-radius: 6px; padding: 4px 8px;"

@@ -60,6 +60,7 @@ from .logic_pure.logic_pure import (
     refill_combat_supply_loadout_pure,
     unload_combat_supply_loadout_pure,
     reclaim_death_office_items_pure,
+    start_combat_grave_walk_pure,
     firemaking_target_locked_reasons_pure,
     apply_utility_activity_pure,
     grant_stronghold_reward_pure,
@@ -3410,6 +3411,9 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _start_grave_walk():
+        return commit_direct_action(start_combat_grave_walk_pure)
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -3519,6 +3523,7 @@ def _on_main_menu(
         on_refill_combat_loadout=on_refill_combat_loadout,
         on_unload_combat_loadout=on_unload_combat_loadout,
         on_reclaim_death_office=on_reclaim_death_office,
+        on_start_grave_walk=_start_grave_walk,
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
