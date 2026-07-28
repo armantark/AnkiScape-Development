@@ -412,7 +412,7 @@ from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
-from ..logic_pure.logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
+from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 
 from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
 
@@ -526,6 +526,7 @@ from ..logic.agility_logic import (
     agility_effective_level_pure,
     agility_aura_rows_pure,
     agility_panel_activity_view_pure,
+    agility_safety_option_view_pure,
     agility_status_line_pure,
     agility_target_locked_reasons_pure,
 )
@@ -3685,6 +3686,7 @@ def show_main_menu(
     on_refill_combat_loadout=None,
     on_unload_combat_loadout=None,
     on_reclaim_death_office=None,
+    on_start_grave_walk=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -6034,6 +6036,31 @@ def show_main_menu(
         status.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(status)
 
+        def _bind_boolean_command(checkbox: QCheckBox, action_id: str) -> None:
+            def _apply(enabled: bool) -> None:
+                if on_agility_command is None:
+                    return
+                result = on_agility_command(
+                    action_id, {"enabled": bool(enabled)}
+                ) or {}
+                if result.get("ok", result.get("allowed", False)):
+                    return
+                checkbox.blockSignals(True)
+                checkbox.setChecked(not enabled)
+                checkbox.blockSignals(False)
+
+            checkbox.toggled.connect(_apply)
+
+        safety_view = agility_safety_option_view_pure(player_data)
+        danger_auto_stop = QCheckBox(str(safety_view["label"]))
+        danger_auto_stop.setObjectName("activityDangerAutoStopCheckBox")
+        danger_auto_stop.setChecked(bool(safety_view["checked"]))
+        danger_auto_stop.setToolTip(str(safety_view["tooltip"]))
+        danger_auto_stop.setVisible(bool(safety_view["visible"]))
+
+        _bind_boolean_command(danger_auto_stop, "set_activity_auto_stop")
+        layout.addWidget(danger_auto_stop)
+
         pit_auto_accept = QCheckBox(
             "Automatically accept Talent Scout invitations"
         )
@@ -6046,19 +6073,7 @@ def show_main_menu(
             "An active familiar still requires confirmation."
         )
 
-        def _set_pit_auto_accept(enabled: bool) -> None:
-            if on_agility_command is None:
-                return
-            result = on_agility_command(
-                "set_pit_auto_accept",
-                {"enabled": bool(enabled)},
-            ) or {}
-            if not result.get("ok", result.get("allowed", False)):
-                pit_auto_accept.blockSignals(True)
-                pit_auto_accept.setChecked(not enabled)
-                pit_auto_accept.blockSignals(False)
-
-        pit_auto_accept.toggled.connect(_set_pit_auto_accept)
+        _bind_boolean_command(pit_auto_accept, "set_pit_auto_accept")
         layout.addWidget(pit_auto_accept)
 
         level = max(1, min(99, int(player_data.get("agility_level", 1) or 1)))
@@ -23128,6 +23143,19 @@ def show_main_menu(
     help_button.clicked.connect(_open_contextual_help)
     tabs.currentChanged.connect(_update_help_button_tooltip)
     _update_help_button_tooltip()
+
+    grave_banner_view = combat_grave_banner_view_pure(player_data)
+    grave_banner = QPushButton(str(grave_banner_view["text"]))
+    grave_banner.setObjectName("graveRecoveryBanner")
+    grave_banner.setVisible(bool(grave_banner_view["visible"]))
+    grave_banner.setEnabled(on_start_grave_walk is not None)
+    if on_start_grave_walk is not None:
+        grave_banner.clicked.connect(on_start_grave_walk)
+    grave_banner.setStyleSheet(
+        "color: palette(text); background: rgba(255, 193, 7, 0.14); "
+        "border: 1px solid palette(mid); border-radius: 6px; padding: 4px 8px;"
+    )
+    layout.addWidget(grave_banner)
 
     content = QWidget()
     content.setObjectName("mainMenuContent")

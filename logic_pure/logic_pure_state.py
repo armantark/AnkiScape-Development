@@ -200,6 +200,15 @@ def _sanitize_combat_grave_state(raw_grave):
         "reviews_remaining": min(reviews_remaining, COMBAT_GRAVE_RECOVERY_REVIEWS),
         "source": source if isinstance(source, str) and source else "combat_death",
     }
+    travel_reviews = _positive_int(raw_grave.get("travel_reviews", 0), 0)
+    walk_reviews = _positive_int(raw_grave.get("walk_reviews_remaining", 0), 0)
+    if travel_reviews:
+        state["travel_reviews"] = travel_reviews
+    if walk_reviews:
+        state["walk_reviews_remaining"] = walk_reviews
+    target_id = raw_grave.get("target_id")
+    if isinstance(target_id, str) and target_id:
+        state["target_id"] = target_id
     loadout = _combat_stored_loadout(raw_grave)
     if loadout:
         state["loadout"] = loadout

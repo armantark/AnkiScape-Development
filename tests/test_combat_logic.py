@@ -59,6 +59,7 @@ from ankiscape.logic_pure.logic_pure import (
     _combat_enemy_bonuses,
     _combat_enemy_max_hit_old_hp,
     _combat_enemy_protection_class,
+    advance_combat_grave_review_pure,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
     apply_combat_poison_effect_pure,
@@ -80,6 +81,7 @@ from ankiscape.logic_pure.logic_pure import (
     reclaim_death_office_items_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
+    start_combat_grave_walk_pure,
     unload_combat_supply_loadout_pure,
 )
 from ankiscape.core.storage_pure import migrate_loaded_data
@@ -4994,9 +4996,9 @@ class CombatLogicTest(unittest.TestCase):
             player["equipment_instances"]["equipment-1"]["location"], "grave"
         )
         self.assertEqual(player["equipment_instances"]["equipment-1"]["condition"], 0)
-        recovered = player
-        for _ in range(5):
-            recovered = apply_safe_combat_recovery_pure(recovered)
+        recovered, ok = start_combat_grave_walk_pure(player)
+        self.assertTrue(ok)
+        recovered = advance_combat_grave_review_pure(recovered)
         self.assertEqual(recovered["equipment"], {"hands": "Worn-out bronze gauntlets"})
         self.assertEqual(
             recovered["equipment_instances"]["equipment-1"]["location"],
@@ -5178,11 +5180,11 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(died["combat_grave"]["loadout"], {"weapon": "Iron sword"})
         self.assertEqual(died["equipment"], {})
 
-        # Grave auto-reclaims after COMBAT_GRAVE_RECOVERY_REVIEWS safe reviews, and
-        # the worn loadout re-equips into the (now empty) slot instead of the bank.
-        recovered = died
-        for _ in range(5):
-            recovered = apply_safe_combat_recovery_pure(recovered)
+        # Grave auto-reclaims after COMBAT_GRAVE_RECOVERY_REVIEWS answered cards,
+        # and the worn loadout re-equips into the empty slot instead of the bank.
+        recovered, ok = start_combat_grave_walk_pure(died)
+        self.assertTrue(ok)
+        recovered = advance_combat_grave_review_pure(recovered)
 
         self.assertEqual(recovered["combat_grave"], {})
         self.assertEqual(recovered["equipment"], {"weapon": "Iron sword"})

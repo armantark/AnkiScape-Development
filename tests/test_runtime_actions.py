@@ -3,6 +3,8 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
@@ -1295,6 +1297,127 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
         self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
         self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+
+    def test_brimhaven_death_click_walks_back_on_travel_clock_and_restores_loadout(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update({
+            "current_agility": "brimhaven_arena",
+            "agility_level": 99,
+            "combat_lifepoints": 20,
+            "inventory": {"Shark": 1},
+            "equipment": {"weapon": "Bronze sword", "shield": "Wooden shield"},
+            "carried_inventory": {"brimhaven_arena": {"Shark": 1}},
+            "agility_activity_state": {
+                "brimhaven": {
+                    "stint_active": True,
+                    "activated": True,
+                    "needs_chase": False,
+                    "crossings_remaining": 1,
+                    "attempts_remaining": 8,
+                    "obstacle_id": "low_wall",
+                    "obstacle_label": "Low wall",
+                    "obstacle_xp": 8.0,
+                    "obstacle_fail": 1.0,
+                    "temporary_drain": 0,
+                }
+            },
+        })
+
+        self.assertTrue(
+            handle_agility_answer(
+                _context(player_data, calls, random_values=(0.0, 0.0, 0.0, 0.0))
+            )
+        )
+        self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+        self.assertTrue(any("Training stopped" in text and "Gravestone banner" in text for text in calls["activity"]))
+        self.assertCountEqual(
+            player_data["combat_grave"]["items"],
+            ["Bronze sword", "Wooden shield", "Shark"],
+        )
+
+        from ankiscape.logic_pure.logic_pure import (
+            combat_grave_banner_view_pure,
+            start_combat_grave_walk_pure,
+        )
+
+        player_data["combat_encounter"] = {
+            "target_id": "giant_rat",
+            "enemy_lifepoints": 50,
+        }
+        before_expiry = player_data["combat_grave"]["reviews_remaining"]
+        runtime_actions.advance_shared_review_state_for_review(
+            _context(player_data, calls, random_values=(0.5,))
+        )
+        self.assertEqual(
+            player_data["combat_grave"]["reviews_remaining"],
+            before_expiry - 1,
+        )
+        self.assertIn("expires after 1 more reviews", combat_grave_banner_view_pure(player_data)["text"])
+
+        started, ok = start_combat_grave_walk_pure(player_data)
+        self.assertTrue(ok)
+        player_data.clear()
+        player_data.update(started)
+        runtime_actions.advance_shared_review_state_for_review(
+            _context(player_data, calls, random_values=(0.5,))
+        )
+
+        self.assertEqual(player_data["combat_grave"], {})
+        self.assertEqual(
+            player_data["equipment"],
+            {"weapon": "Bronze sword", "shield": "Wooden shield"},
+        )
+        self.assertEqual(player_data["inventory"]["Shark"], 1)
+
+    def test_agility_danger_auto_stop_uses_target_maximum_and_toggle_disables_it(self):
+        def brimhaven_player(enabled):
+            player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+            player.update({
+                "current_agility": "brimhaven_arena",
+                "agility_level": 99,
+                "combat_lifepoints": 70,
+                "inventory": {},
+                "equipment": {},
+                "activity_auto_stop_on_danger": enabled,
+                "agility_activity_state": {
+                    "brimhaven": {
+                        "stint_active": True,
+                        "activated": True,
+                        "needs_chase": False,
+                        "crossings_remaining": 1,
+                        "attempts_remaining": 8,
+                        "obstacle_id": "low_wall",
+                        "obstacle_label": "Low wall",
+                        "obstacle_xp": 8.0,
+                        "obstacle_fail": 1.0,
+                        "temporary_drain": 0,
+                    }
+                },
+            })
+            return player
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        protected = brimhaven_player(True)
+        self.assertTrue(
+            handle_agility_answer(
+                _context(protected, calls, random_values=(0.0, 0.0, 0.0, 0.0))
+            )
+        )
+        self.assertEqual(protected["combat_lifepoints"], 50)
+        self.assertTrue(calls["deactivated"])
+        self.assertTrue(any("Safety stop" in text and "60 LP" in text for text in calls["activity"]))
+
+        disabled_calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        unprotected = brimhaven_player(False)
+        self.assertTrue(
+            handle_agility_answer(
+                _context(unprotected, disabled_calls, random_values=(0.0, 0.0, 0.0, 0.0))
+            )
+        )
+        self.assertEqual(unprotected["combat_lifepoints"], 50)
+        self.assertNotIn("deactivated", disabled_calls)
+        self.assertFalse(any("Safety stop" in text for text in disabled_calls["activity"]))
 
     def test_agility_auto_pack_carries_food_and_auto_eats_from_that_pack(self):
         calls = {"xp": [], "saves": 0, "errors": []}

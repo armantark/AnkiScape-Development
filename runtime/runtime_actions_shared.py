@@ -54,7 +54,7 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
 )
 from ..logic_pure.logic_pure import (
-    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    advance_combat_grave_review_pure,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
     apply_cooking_action_pure,
@@ -651,6 +651,16 @@ def _charge_urn_for_action(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     return info
+
+
+def advance_shared_review_state_for_review(ctx: RuntimeActionContext) -> None:
+    """Advance state that progresses on every answered review card."""
+    grave = ctx.player_data.get("combat_grave", {}) or {}
+    if not isinstance(grave, dict) or not grave.get("items"):
+        return
+    updated = advance_combat_grave_review_pure(ctx.player_data)
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
 
 
 def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any]:

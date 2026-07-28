@@ -877,33 +877,73 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     if bank_run_result is not None:
         data["combat_last_result"] = bank_run_result
         return data
-    grave = data.get("combat_grave", {}) or {}
-    if isinstance(grave, Mapping) and grave.get("items"):
-        grave = dict(grave)
-        remaining = max(
-            0,
-            _positive_int(
-                grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
-                COMBAT_GRAVE_RECOVERY_REVIEWS,
-            )
-            - 1,
-        )
-        grave["reviews_remaining"] = remaining
-        if remaining <= 0:
-            _combat_reclaim_items_to_player(
-                data,
-                grave.get("items", ()) or (),
-                _combat_stored_loadout(grave),
-            )
-            data["combat_grave"] = {}
-        else:
-            data["combat_grave"] = grave
     data.update(
         sanitize_equipment_instance_state_pure(
             data, EQUIPMENT_CONDITION_DATA
         )
     )
     return data
+
+
+def start_combat_grave_walk_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    grave = dict(data.get("combat_grave", {}) or {})
+    if not grave.get("items") or grave.get("walk_reviews_remaining"):
+        return data, False
+    grave["walk_reviews_remaining"] = max(
+        1, _positive_int(grave.get("travel_reviews", 1), 1)
+    )
+    data["combat_grave"] = grave
+    return data, True
+
+
+def advance_combat_grave_review_pure(player_data):
+    """Advance a chosen walk-back and the universal gravestone expiry clock."""
+    data = _copy_player_data_with_nested(player_data)
+    grave = data.get("combat_grave", {}) or {}
+    if not isinstance(grave, Mapping) or not grave.get("items"):
+        return data
+    grave = dict(grave)
+    walking = _non_negative_int(grave.get("walk_reviews_remaining", 0), 0)
+    if walking > 0:
+        walking -= 1
+        if walking <= 0:
+            _combat_reclaim_items_to_player(
+                data, grave.get("items", ()) or (), _combat_stored_loadout(grave)
+            )
+            data["combat_grave"] = {}
+            data.update(sanitize_equipment_instance_state_pure(data, EQUIPMENT_CONDITION_DATA))
+            return data
+        grave["walk_reviews_remaining"] = walking
+    remaining = max(0, _positive_int(grave.get("reviews_remaining", 1), 1) - 1)
+    grave["reviews_remaining"] = remaining
+    data["combat_grave"] = grave if remaining > 0 else {}
+    return data
+
+
+def combat_grave_banner_view_pure(player_data):
+    """Return the compact always-visible recovery banner projection."""
+    grave = player_data.get("combat_grave", {}) or {}
+    grave_items = _combat_grave_items(grave)
+    office = combat_death_office_summary_pure(player_data)
+    parts = []
+    if grave_items:
+        remaining = _positive_int(
+            grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
+            COMBAT_GRAVE_RECOVERY_REVIEWS,
+        )
+        walking = _non_negative_int(grave.get("walk_reviews_remaining", 0), 0)
+        suffix = (
+            f"walking back — {walking} reviews remaining"
+            if walking
+            else f"expires after {remaining} more reviews — click to walk back"
+        )
+        parts.append(f"⚰ Gravestone: {len(grave_items)} items — {suffix}")
+    if office["item_count"]:
+        parts.append(
+            f"☠ Death's Office: {office['item_count']} items — reclaim for {office['reclaim_cost']:,} coins"
+        )
+    return {"visible": bool(parts), "text": "   •   ".join(parts)}
 
 
 def combat_death_office_items_pure(player_data):

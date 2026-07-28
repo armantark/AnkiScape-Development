@@ -343,12 +343,14 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     _COMBAT_EXP_KEY_DISPLAY,
     _COMBAT_STYLE_XP_KEYS,
     _combat_roll_damage_lifepoints,
+    advance_combat_grave_review_pure,
     apply_combat_burst_pure,
     apply_safe_combat_recovery_pure,
     bank_gear_rows_pure,
     combat_attack_style_trained_skills_pure,
     combat_death_office_items_pure,
     combat_death_office_reclaim_cost_pure,
+    combat_grave_banner_view_pure,
     combat_death_office_summary_pure,
     combat_enemy_pressure_attack_pure,
     combat_has_active_encounter_pure,
@@ -362,6 +364,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
+    start_combat_grave_walk_pure,
     unload_combat_supply_loadout_pure,
 )
 
