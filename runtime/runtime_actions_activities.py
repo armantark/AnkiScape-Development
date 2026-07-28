@@ -2632,7 +2632,10 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     damage_result = result.get("damage_result") or {}
     if damage_result.get("died"):
         cause = "Wilderness PKer ambush" if (result.get("wilderness_ambush") or {}).get("triggered") else "Agility failure"
-        ctx.show_activity_gain(f"☠ YOU DIED — {cause}; carried pack and gear moved to grave")
+        ctx.show_activity_gain(
+            f"☠ YOU DIED — {cause}; carried pack and gear moved to grave. "
+            "Training stopped — click the Gravestone banner to walk back."
+        )
     elif damage_result.get("food_used"):
         food = damage_result["food_used"]
         ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")

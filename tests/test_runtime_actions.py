@@ -1330,12 +1330,30 @@ class TestRuntimeActions(unittest.TestCase):
             )
         )
         self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+        self.assertTrue(any("Training stopped" in text and "Gravestone banner" in text for text in calls["activity"]))
         self.assertCountEqual(
             player_data["combat_grave"]["items"],
             ["Bronze sword", "Wooden shield", "Shark"],
         )
 
-        from ankiscape.logic_pure.logic_pure import start_combat_grave_walk_pure
+        from ankiscape.logic_pure.logic_pure import (
+            combat_grave_banner_view_pure,
+            start_combat_grave_walk_pure,
+        )
+
+        player_data["combat_encounter"] = {
+            "target_id": "giant_rat",
+            "enemy_lifepoints": 50,
+        }
+        before_expiry = player_data["combat_grave"]["reviews_remaining"]
+        runtime_actions.advance_shared_review_state_for_review(
+            _context(player_data, calls, random_values=(0.5,))
+        )
+        self.assertEqual(
+            player_data["combat_grave"]["reviews_remaining"],
+            before_expiry - 1,
+        )
+        self.assertIn("expires after 1 more reviews", combat_grave_banner_view_pure(player_data)["text"])
 
         started, ok = start_combat_grave_walk_pure(player_data)
         self.assertTrue(ok)

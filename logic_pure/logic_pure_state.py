@@ -197,7 +197,7 @@ def _sanitize_combat_grave_state(raw_grave):
     source = raw_grave.get("source", "combat_death")
     state = {
         "items": items,
-        "reviews_remaining": reviews_remaining,
+        "reviews_remaining": min(reviews_remaining, COMBAT_GRAVE_RECOVERY_REVIEWS),
         "source": source if isinstance(source, str) and source else "combat_death",
     }
     travel_reviews = _positive_int(raw_grave.get("travel_reviews", 0), 0)
