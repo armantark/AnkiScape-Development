@@ -39,3 +39,19 @@ Compiled into the morning results artifact; delete after.
 - Four stacked defects produced his equipment scare: silent death, invisible
   grave, auto-deactivated skill, frozen countdown. All four now dead.
 - Kimi crossed its daily line again overnight-adjacent; nothing routed to it.
+
+## Update — all five tracked landings closed
+- MTA + Temple Trekking re-landed (3,300 both lanes), then the selection
+  highlight (3,301), then the HUD strip (3,333 both lanes). Clicked targets are
+  now unmistakably blue in both themes, distinct from the green current marker.
+- The strip: live XP bars, merged D&D+Farming badge with navigating popover,
+  favourites star on the shared control row (schema 95, undoable), GE drawer
+  under the XP box with the pass-2 colour rules. Its offscreen probe caught a
+  real drawer-position bug the tests missed.
+- Proxy v7.2.103 swapped and serving; old binary backed up.
+- Strip gap recorded honestly: the XP-bar table covers 12 verified families;
+  exhaustiveness sweep died on a provider error and is queued.
+- Schema map now: 95 strip (merged), 96 mobilising, 97 gnome-rest, 98 dominion
+  (renumbered from 95 by steer).
+- Still building: Dominion Tower, Mobilising Armies, Gnome Restaurant (+ its
+  concrete presentation fork for the owner).
