@@ -28,6 +28,7 @@ from ankiscape.data.mage_training_arena_data import (
     MAGE_TRAINING_ARENA_REWARDS,
     MAGE_TRAINING_ARENA_ROOM_IDS,
 )
+from ankiscape.logic.achievement_diary_logic import refresh_achievement_diaries_pure
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.logic.mage_training_arena_logic import (
     apply_mage_training_arena_command_pure,
@@ -39,6 +40,7 @@ from ankiscape.logic.mage_training_arena_logic import (
     sanitize_mage_training_arena_state_pure,
     set_mage_training_arena_policy_pure,
 )
+from ankiscape.logic_pure.logic_pure import equip_item_pure
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
 
 
@@ -96,9 +98,71 @@ def _checkpoints(data, count: int, rng=lambda: 0.5):
     raise AssertionError(f"only reached {len(results)} of {count} checkpoints")
 
 
+def _earn_costs_through_play(data, costs):
+    review_counts = {}
+    for room_id, target in costs.items():
+        if target <= data["mage_training_arena"]["wallets"][room_id]:
+            continue
+        data, ok, info = set_mage_training_arena_policy_pure(
+            data,
+            {
+                "room_policy": room_id,
+                "approach": "fast_rewards",
+                "reward_goal": "master_wand",
+            },
+        )
+        if not ok:
+            raise AssertionError(info)
+        data, ok, info = enter_mage_training_arena_pure(data)
+        if not ok:
+            raise AssertionError(info)
+        reviews = 0
+        while data["mage_training_arena"]["wallets"][room_id] < target:
+            data, ok, result = apply_mage_training_arena_review_pure(
+                data, lambda: 0.99
+            )
+            if not ok:
+                raise AssertionError(result)
+            reviews += 1
+            if reviews > 50_000:
+                raise AssertionError(f"{room_id} did not fund {target} points")
+        review_counts[room_id] = review_counts.get(room_id, 0) + reviews
+        data, ok, info = apply_mage_training_arena_command_pure(data, "leave")
+        if not ok:
+            raise AssertionError(info)
+    return data, review_counts
+
+
+def _buy_reward_through_play(data, reward_id, observed_reviews):
+    reward = next(row for row in MAGE_TRAINING_ARENA_REWARDS if row.id == reward_id)
+    if reward.required_item and data["inventory"].get(reward.required_item, 0) <= 0:
+        prerequisite = next(
+            row for row in MAGE_TRAINING_ARENA_REWARDS
+            if row.output_item == reward.required_item
+        )
+        data = _buy_reward_through_play(data, prerequisite.id, observed_reviews)
+    data, reviews = _earn_costs_through_play(data, reward.cost_map())
+    for room_id, count in reviews.items():
+        observed_reviews[room_id] = observed_reviews.get(room_id, 0) + count
+    before_wallets = dict(data["mage_training_arena"]["wallets"])
+    before_output = (
+        data["inventory"].get(reward.output_item, 0) if reward.output_item else 0
+    )
+    data, ok, info = purchase_mage_training_arena_reward_pure(data, reward.id)
+    if not ok:
+        raise AssertionError(info)
+    if reward.output_item:
+        if data["inventory"][reward.output_item] != before_output + reward.output_count:
+            raise AssertionError(f"{reward.id} output did not arrive")
+    for room_id, cost in reward.cost_map().items():
+        if data["mage_training_arena"]["wallets"][room_id] != before_wallets[room_id] - cost:
+            raise AssertionError(f"{reward.id} did not spend its {room_id} price")
+    return data
+
+
 class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
     def test_activity_items_asset_and_point_caps_are_registered(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 92)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 93)
         self.assertIn(MAGE_TRAINING_ARENA_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
         activity = UTILITY_ACTIVITY_DATA[MAGE_TRAINING_ARENA_ACTIVITY_ID]
         self.assertEqual(activity["skill_requirements"], {"magic": 7})
@@ -185,6 +249,9 @@ class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
         )
         self.assertEqual(task.conditions[0].kind, "counter")
         self.assertEqual(task.conditions[0].key, "mage_training_arena.entries")
+        refreshed, newly = refresh_achievement_diaries_pure(entered)
+        self.assertIn(task.id, newly)
+        self.assertIn(task.id, refreshed["achievement_diaries"]["completed_tasks"])
 
     def test_entry_refuses_another_persistent_activity(self):
         data = _player()
@@ -290,28 +357,37 @@ class MageTrainingArenaRoomMechanicsTests(unittest.TestCase):
 
 
 class MageTrainingArenaRewardAndPolicyTests(unittest.TestCase):
-    def test_every_breadth_reward_row_arrives_and_spends_its_exact_price(self):
+    def test_every_breadth_reward_is_earned_through_play_and_wearables_equip(self):
         observed = {}
+        observed_reviews = {}
         for reward in MAGE_TRAINING_ARENA_REWARDS:
             with self.subTest(reward=reward.id):
                 data = _player()
-                state = default_mage_training_arena_state_pure()
-                state["wallets"] = reward.cost_map()
-                data["mage_training_arena"] = state
-                if reward.required_item:
-                    data["inventory"][reward.required_item] = 1
-                before_output = data["inventory"].get(reward.output_item, 0) if reward.output_item else 0
-                bought, ok, info = purchase_mage_training_arena_reward_pure(data, reward.id)
-                self.assertTrue(ok, info)
-                self.assertEqual(bought["mage_training_arena"]["wallets"], {room: 0 for room in MAGE_TRAINING_ARENA_ROOM_IDS})
-                if reward.output_item:
-                    self.assertEqual(bought["inventory"][reward.output_item], before_output + reward.output_count)
-                if reward.required_item:
-                    self.assertEqual(bought["inventory"][reward.required_item], 0)
+                bought = _buy_reward_through_play(data, reward.id, observed_reviews)
                 if reward.unlock:
                     self.assertTrue(bought["mage_training_arena"]["completed"])
-                observed[reward.id] = bought["mage_training_arena"]["purchases"][reward.id]
+                if reward.output_item in EQUIPMENT_DATA:
+                    inventory, equipment, equipped = equip_item_pure(
+                        reward.output_item,
+                        bought["inventory"],
+                        bought["equipment"],
+                        EQUIPMENT_DATA,
+                    )
+                    self.assertTrue(equipped)
+                    self.assertEqual(
+                        equipment[EQUIPMENT_DATA[reward.output_item].slot],
+                        reward.output_item,
+                    )
+                    self.assertEqual(
+                        inventory[reward.output_item],
+                        bought["inventory"][reward.output_item] - 1,
+                    )
+                observed[reward.id] = bought["mage_training_arena"]["purchases"][
+                    reward.id
+                ]
         self.assertEqual(observed, {reward.id: 1 for reward in MAGE_TRAINING_ARENA_REWARDS})
+        self.assertEqual(set(observed_reviews), set(MAGE_TRAINING_ARENA_ROOM_IDS))
+        self.assertTrue(all(count > 0 for count in observed_reviews.values()))
 
     def test_wand_upgrade_cannot_skip_its_predecessor(self):
         reward = next(row for row in MAGE_TRAINING_ARENA_REWARDS if row.id == "master_wand")
@@ -375,7 +451,7 @@ class MageTrainingArenaRewardAndPolicyTests(unittest.TestCase):
 
 
 class MageTrainingArenaPersistenceRuntimeAndUiTests(unittest.TestCase):
-    def test_legacy_unlock_and_interrupted_room_migrate_into_schema_92(self):
+    def test_legacy_unlock_and_interrupted_room_migrate_into_schema_93(self):
         old = _player()
         old["config_version"] = 89
         old["mage_training_arena"] = {
@@ -387,7 +463,7 @@ class MageTrainingArenaPersistenceRuntimeAndUiTests(unittest.TestCase):
         }
         old["activity_session"] = {"active_id": MAGE_TRAINING_ARENA_ACTIVITY_ID}
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(migrated["config_version"], 92)
+        self.assertEqual(migrated["config_version"], 93)
         state = migrated["mage_training_arena"]
         self.assertTrue(state["completed"])
         self.assertTrue(state["active"])
