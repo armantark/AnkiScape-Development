@@ -8,15 +8,15 @@ Four rules of it live here:
   arrives with its hood;
 - a second level 99 irreversibly trims every skillcape the player owns, while
   the Cabinet keeps the untrimmed keepsake of the first 99;
-- an equipped skillcape puts that skill at effective level 100 for success and
-  yield rolls, and never unlocks a level-gated action; and
+- an equipped skillcape keeps its worn ``Boost`` option's visible +1 active for
+  success and yield rolls, and never unlocks a level-gated action; and
 - the quest point, Max, Completionist and Veteran capes are bought once each
   against a durable predicate.
 
 ``effective_roll_level_pure`` is the project's single effective-level function.
-It composes the two invisible boosts AnkiScape has — a live familiar's, and a
-worn skillcape's — so no caller has to know there is more than one, and so a
-third can never be added behind a second mechanism.
+It composes a worn skillcape's visible boost with a live familiar's invisible
+boost, so no caller has to know there is more than one and no third mechanism
+can grow beside them.
 """
 
 from __future__ import annotations
@@ -38,8 +38,9 @@ from .summoning_logic import familiar_effective_roll_level_pure
 
 CAPE_STATE_VERSION = 1
 
-# The period boost is passive: while the cape is worn the skill rolls at 100,
-# with no activation, no cooldown and no charge budget.
+# The worn `Boost` option is a visible +1 with a ceiling of 100. AnkiScape has
+# no real-time decay clock, so the verified operate-and-decay mechanic is ported
+# at full uptime while worn. See skillcape-mechanics-verification-2026-07-27.md.
 SKILLCAPE_EFFECTIVE_LEVEL = 100
 
 
@@ -177,10 +178,13 @@ def effective_roll_level_pure(
     allowed, and passes this value only to the roll.
     """
 
-    level = familiar_effective_roll_level_pure(player_data, skill_id, base_level)
-    if worn_skillcape_skill_pure(player_data, skill_id):
-        return max(level, SKILLCAPE_EFFECTIVE_LEVEL)
-    return level
+    visible_level = max(1, _int(base_level, 1))
+    if (
+        worn_skillcape_skill_pure(player_data, skill_id)
+        and visible_level < SKILLCAPE_EFFECTIVE_LEVEL
+    ):
+        visible_level += 1
+    return familiar_effective_roll_level_pure(player_data, skill_id, visible_level)
 
 
 # ---------------------------------------------------------------------------
