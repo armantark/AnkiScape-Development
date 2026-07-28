@@ -261,6 +261,8 @@ from ..logic.tzhaar_fight_pit_logic import (
 )
 from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
+from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -442,6 +444,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_tzhaar_fight_pit_answer,
     handle_duel_arena_answer,
     handle_clan_wars_answer,
+    handle_mage_training_arena_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_varrock_museum_answer,
@@ -517,6 +520,7 @@ from .runtime_actions_activities import (
     handle_tzhaar_fight_pit_answer,
     handle_duel_arena_answer,
     handle_clan_wars_answer,
+    handle_mage_training_arena_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_varrock_museum_answer,
@@ -603,6 +607,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_duel_arena_answer(ctx)
     if activity_key == CLAN_WARS_ACTIVITY_ID:
         return handle_clan_wars_answer(ctx)
+    if activity_key == MAGE_TRAINING_ARENA_ACTIVITY_ID:
+        return handle_mage_training_arena_answer(ctx)
     if activity_key == CRUCIBLE_ACTIVITY_ID:
         return handle_crucible_answer(ctx)
     if activity_key == GOBLIN_RAIDS_ACTIVITY_ID:

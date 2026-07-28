@@ -258,6 +258,8 @@ from ..logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
     tzhaar_fight_pit_view_pure,
 )
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
+from ..logic.mage_training_arena_logic import mage_training_arena_can_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -663,6 +665,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(shades_of_mortton_view_pure(ctx.player_data).get("active", False))
     if activity_key == TZHAAR_FIGHT_PIT_ACTIVITY_ID:
         return bool(tzhaar_fight_pit_view_pure(ctx.player_data).get("active", False))
+    if activity_key == MAGE_TRAINING_ARENA_ACTIVITY_ID:
+        return mage_training_arena_can_review_pure(ctx.player_data)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

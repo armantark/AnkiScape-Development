@@ -349,6 +349,29 @@ because a cape that no save can reach level 99 to buy is an inert reward. It
 joins the shipped list on its own when the skill does. The level-120 master cape
 the contract also asks for is blocked behind the same gap.
 
+### 3.12 Mage Training Arena ordinary dragonstone spawns in breadth one
+
+Raised 2026-07-27. The period Enchanting Chamber spawned six dragonstones every
+five minutes, each worth twice the enchantment level. The settled Arena contract
+excluded world-hopping the spawn, but did not say whether the ordinary timed
+spawn belongs in the breadth-one room loop. At Enchant Level 6 the ordinary
+spawn can contribute up to 864 points per hour, so silently mixing it into the
+placeholder shape throughput or silently omitting it from a claim of exhaustive
+room fidelity would both be misleading.
+
+Recommendation, and what is implemented: breadth one models the chamber's core
+bonus-shape loop, tenth-shape bonus, twentieth-orb rune reward, and exact spell
+XP, while leaving the separate timed dragonstone opportunity for the later
+catalog/depth pass. The UI and source strings make no claim that the room's
+maximum period throughput is closed. This keeps the requested smallest
+mechanically complete room loop without inventing a conversion between the
+five-minute world spawn and answered reviews.
+
+The replacement seam is explicit: add a separately persisted dragonstone spawn
+clock and route it through the same Enchantment wallet. Do not fold it into
+`mage_training_arena.enchantment_shapes_per_hour`, because the two opportunities
+had different counters and rewards in the period game.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

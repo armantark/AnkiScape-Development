@@ -358,6 +358,9 @@ from ..logic.duel_arena_logic import duel_arena_view_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 from .clan_wars_panel import ClanWarsPanel
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
+from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
+from .mage_training_arena_panel import MageTrainingArenaPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -3635,6 +3638,7 @@ def show_main_menu(
     on_tzhaar_fight_pit_command=None,
     on_duel_arena_command=None,
     on_clan_wars_command=None,
+    on_mage_training_arena_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15355,6 +15359,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(clan_wars_box)
 
+        mage_training_arena_box = MageTrainingArenaPanel(
+            player_data,
+            on_command=on_mage_training_arena_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(mage_training_arena_box)
+
         crucible_box = CruciblePanel(
             player_data,
             on_command=on_crucible_command,
@@ -18407,6 +18420,31 @@ def show_main_menu(
                         ),
                     )
                     return False
+            mage_training_view = mage_training_arena_view_pure(player_data)
+            if (
+                activity_id != MAGE_TRAINING_ARENA_ACTIVITY_ID
+                and mage_training_view["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave the Mage Training Arena?",
+                    "Switch activities and return to the Arena lobby?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_mage_training_arena_command("leave", {})
+                    if on_mage_training_arena_command is not None
+                    else {"ok": False, "message": "Mage Training Arena actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Mage Training Arena",
+                        str((result or {}).get("message", "Could not leave the Arena.")),
+                    )
+                    return False
             goblin_view = goblin_raids_view_pure(player_data)
             if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
                 question = "Switch activities and walk away from the goblins?"
@@ -18763,6 +18801,10 @@ def show_main_menu(
                 clan_wars_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == MAGE_TRAINING_ARENA_ACTIVITY_ID:
+                mage_training_arena_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == CRUCIBLE_ACTIVITY_ID:
                 crucible_box.refresh()
                 _show_activity_detail(activity_id)
@@ -18849,6 +18891,10 @@ def show_main_menu(
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
             DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
             CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
+            MAGE_TRAINING_ARENA_ACTIVITY_ID: (
+                "Mage Training Arena",
+                mage_training_arena_box,
+            ),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),
             TREASURE_TRAILS_ACTIVITY_ID: ("Treasure Trails", trail_box),

@@ -922,6 +922,40 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        if str(action_id) == "mage_training_arena":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "mage_training_arena",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_fallbacks",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "The four rooms own separate persisted rate-limit residuals: "
+                        "Telekinetic 250/9 mazes/hour, Alchemist 120 deposits/hour, "
+                        "Enchantment 600 shapes/hour (registered placeholder), and "
+                        "Graveyard 300 deposits/hour."
+                    ),
+                    "includes": (
+                        "mage_training_arena:telekinetic",
+                        "mage_training_arena:alchemist",
+                        "mage_training_arena:enchantment",
+                        "mage_training_arena:graveyard",
+                    ),
+                    "multiplier_behavior": (
+                        "Each successful review advances only the selected room's "
+                        "persisted residual."
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": (
+                        "The Arena retains its activity-owned room residuals."
+                    ),
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "livid_farm":
             rows.append(
                 {

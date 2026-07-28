@@ -10,6 +10,15 @@ ranges are pinned; the horizontal implementation remains `source_blocked` on
 Enchantment throughput and related server cadence. No owner-design question is
 open.**
 
+Implementation update `2026-07-27`: the later breadth-phase placeholder
+amendment supersedes that parking decision. Breadth one now ships the four core
+room loops and representative shop rows, with Enchantment throughput, the
+falling-bone roll, the two reward-rune selectors, the maze-length distribution,
+and the Alchemist casts/free-cast averages registered in
+`memory-bank/placeholder-values.md`. Ordinary timed dragonstone spawns remain the
+explicit design-thread fork `3.12`; exhaustive reward rows remain the requested
+later catalog pass.
+
 ## Authority and scope
 
 The owner-settled behavior remains

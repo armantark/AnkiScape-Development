@@ -8711,6 +8711,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "tzhaar_fight_pit",
                 "duel_arena",
                 "clan_wars",
+                "mage_training_arena",
                 "crucible",
             },
         )
@@ -14350,6 +14351,66 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(progress.value(), 0)
         self.assertIn("successful reviews", progress.format())
         active_dialog.close()
+
+    def test_mage_training_arena_detail_fits_and_purchases_the_saved_goal(self) -> None:
+        from ankiscape.logic.mage_training_arena_logic import (
+            apply_mage_training_arena_command_pure,
+            default_mage_training_arena_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd["magic_level"] = 99
+        pd["mage_training_arena"] = default_mage_training_arena_state_pure()
+        pd["mage_training_arena"]["reward_goal"] = "cosmic_rune"
+        pd["mage_training_arena"]["wallets"]["enchantment"] = 5
+        command_calls = []
+
+        def arena_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_mage_training_arena_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_mage_training_arena_command=arena_command,
+        )
+        dialog.show()
+        dialog.resize(dialog.width(), 560)
+        for _ in range(4):
+            QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "mage_training_arena"
+        )
+        tree.itemClicked.emit(item, 0)
+        for _ in range(4):
+            QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "mageTrainingArenaPanel")
+            if widget.isVisible()
+        )
+        visible = panel.visibleRegion().boundingRect()
+        self.assertEqual(visible.width(), panel.width())
+        self.assertEqual(visible.height(), panel.height())
+        self.assertEqual(panel.width(), panel.parentWidget().width())
+        purchase = panel.findChild(QPushButton, "mageTrainingArenaPurchaseButton")
+
+        goal = panel.findChild(QComboBox, "mageTrainingArenaGoalCombo")
+        goal.setCurrentIndex(goal.findData("bones_to_peaches"))
+        purchase.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1], ("purchase", {"reward_id": "cosmic_rune"}))
+        self.assertEqual(pd["inventory"]["Cosmic rune"], 1)
+        dialog.close()
 
     def test_barbarian_assault_tutorial_shop_plan_and_active_state_are_live(self) -> None:
         from ankiscape.logic.barbarian_assault_logic import apply_barbarian_assault_command_pure
