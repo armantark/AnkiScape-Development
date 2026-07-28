@@ -31,6 +31,18 @@ SEAWEED_COOKING_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/objs/cookingrange/seawead_cooking.plugin.kts"
 )
+GNOME_COOKING_SOURCE = (
+    "RuneScape Wiki Gnome cooking oldid=6438943 (2012-10-18T22:02:41Z) ingredient "
+    "tables; Cooking oldid=6548144 (2012-11-11T16:17:12Z) level/XP table; "
+    "memory-bank/source-audits/gnome-restaurant-harvest-2026-07-28.md"
+)
+# The period built each dish over several clicks, adding the first ingredients to
+# the tin, tray or mould and the rest to the part-baked dish. One AnkiScape action
+# consumes both stages and awards the sourced grand-total XP; the intermediate
+# `Half made`/`Unfinished` items are deferred depth. The container comes back out
+# of a finished dish, exactly as `Tangled toads' legs` oldid 5850397 states for the
+# gnomebowl mould; a burnt dish loses it, which follows from the shared burn model
+# rather than from any source.
 CHEESE_WHEEL_WIKI_SOURCE = "https://runescape.wiki/w/Cheese_wheel?oldid=6288901"
 CHEESE_WHEEL_TALK_SOURCE = "https://runescape.wiki/w/Talk:Cheese_wheel?oldid=5942573"
 DAIRY_CHURN_WIKI_SOURCE = "https://runescape.wiki/w/Dairy_churn?oldid=6474695"
@@ -93,6 +105,9 @@ class CookingTarget:
     output_quantity_model: str = ""
     xp_per_output: float = 0.0
     failure_kind: str = "burn"
+    # Gnome cooking assembles one dish from several ingredients in one action, the
+    # way the pie and pizza prep bridges assemble theirs.
+    extra_requirements: Mapping[str, int] = ()
 
 
 @dataclass(frozen=True)
@@ -107,6 +122,16 @@ class CookingPrepActivity:
     batch_size: int = 28
     source: str = COOKING_PREP_BRIDGE_SOURCE
 
+
+# No recovered source gives a burn rate for any gnome dish, and both emulator
+# lineages omit gnome cooking entirely. Each family borrows the 2011Scape burn
+# endpoints of the ordinary Cooking row nearest its lowest level requirement:
+# Redberry pie at 10 for crunchies, Uncooked stew at 25 for battas, Uncooked apple
+# pie at 30 for gnomebowls.
+# PLACEHOLDER(gnome_restaurant.gnome_food_burn_endpoints): authentic gnome-dish burn endpoints
+_GNOME_CRUNCHY_BURN = (98, 452)
+_GNOME_BATTA_BURN = (68, 392)
+_GNOME_BOWL_BURN = (58, 372)
 
 COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_shrimps', 'SHRIMPS', 'Cook raw shrimps', 'fish', 'RAW_SHRIMPS', 317, 'Raw shrimps', 'SHRIMPS', 315, 'Shrimps', 'BURNT_SHRIMP', 7954, 'Burnt shrimp', 1, 30.0, 128, 512, output_variant='primary'),
@@ -171,6 +196,30 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('churn_milk_cheese_wheel', 'CHEESE_WHEEL', 'Churn milk into a cheese wheel', 'dairy', 'BUCKET_OF_MILK', 1927, 'Bucket of milk', 'CHEESE_WHEEL', 18789, 'Cheese wheel', '', 0, '', 48, 40.5, 0, 0, source=CHEESE_WHEEL_WIKI_SOURCE, runtime_source=DAIRY_CHURN_WIKI_SOURCE, source_always_succeeds=True, byproducts={'Bucket': 1}, failure_kind='churn'),
     CookingTarget('churn_butter_cheese_wheel', 'CHEESE_WHEEL', 'Churn butter into a cheese wheel', 'dairy', 'PAT_OF_BUTTER', 6697, 'Pat of butter', 'CHEESE_WHEEL', 18789, 'Cheese wheel', '', 0, '', 48, 40.5, 0, 0, source=CHEESE_WHEEL_WIKI_SOURCE, runtime_source=DAIRY_CHURN_WIKI_SOURCE, source_always_succeeds=True, failure_kind='churn'),
     CookingTarget('slice_cheese_wheel', 'CHEESE_WHEEL_SLICED', 'Slice-all cheese wheel', 'dairy', 'CHEESE_WHEEL', 18789, 'Cheese wheel', 'CHEESE', 1985, 'Cheese', '', 0, '', 48, 0.0, 0, 0, source=CHEESE_WHEEL_WIKI_SOURCE, runtime_source=CHEESE_WHEEL_TALK_SOURCE, source_always_succeeds=True, output_quantity_model='cheese_wheel_slices', xp_per_output=4.0, failure_kind='slice'),
+    # Gnome cooking. Levels, XP and ingredient lists are exact; the burn endpoints
+    # are the registered placeholder _GNOME_BURN_* below.
+    CookingTarget('bake_toad_crunchies', 'TOAD_CRUNCHIES', 'Bake toad crunchies', 'gnome_crunchies', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'TOAD_CRUNCHIES', 2217, 'Toad crunchies', 'BURNT_CRUNCHIES', 2199, 'Burnt crunchies', 10, 100.0, *_GNOME_CRUNCHY_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Crunchy tray': 1, "Toad's legs": 2, 'Gnome spice': 1, 'Equa leaves': 1}, byproducts={'Crunchy tray': 1}),
+    CookingTarget('bake_spicy_crunchies', 'SPICY_CRUNCHIES', 'Bake spicy crunchies', 'gnome_crunchies', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'SPICY_CRUNCHIES', 2213, 'Spicy crunchies', 'BURNT_CRUNCHIES', 2199, 'Burnt crunchies', 12, 100.0, *_GNOME_CRUNCHY_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Crunchy tray': 1, 'Equa leaves': 2, 'Gnome spice': 2}, byproducts={'Crunchy tray': 1}),
+    CookingTarget('bake_worm_crunchies', 'WORM_CRUNCHIES', 'Bake worm crunchies', 'gnome_crunchies', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'WORM_CRUNCHIES', 2205, 'Worm crunchies', 'BURNT_CRUNCHIES', 2199, 'Burnt crunchies', 14, 100.0, *_GNOME_CRUNCHY_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Crunchy tray': 1, 'King worm': 2, 'Gnome spice': 2, 'Equa leaves': 1}, byproducts={'Crunchy tray': 1}),
+    CookingTarget('bake_chocchip_crunchies', 'CHOCCHIP_CRUNCHIES', 'Bake chocchip crunchies', 'gnome_crunchies', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'CHOCCHIP_CRUNCHIES', 2209, 'Chocchip crunchies', 'BURNT_CRUNCHIES', 2199, 'Burnt crunchies', 16, 100.0, *_GNOME_CRUNCHY_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Crunchy tray': 1, 'Chocolate bar': 2, 'Gnome spice': 1, 'Chocolate dust': 1}, byproducts={'Crunchy tray': 1}),
+    CookingTarget('bake_fruit_batta', 'FRUIT_BATTA', 'Bake a fruit batta', 'gnome_battas', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'FRUIT_BATTA', 2277, 'Fruit batta', 'BURNT_BATTA', 2247, 'Burnt batta', 25, 150.0, *_GNOME_BATTA_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Batta tin': 1, 'Equa leaves': 4, 'Lime chunks': 1, 'Orange chunks': 1, 'Pineapple chunks': 1, 'Gnome spice': 1}, byproducts={'Batta tin': 1}),
+    CookingTarget('bake_toad_batta', 'TOAD_BATTA', 'Bake a toad batta', 'gnome_battas', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'TOAD_BATTA', 2255, 'Toad batta', 'BURNT_BATTA', 2247, 'Burnt batta', 26, 152.0, *_GNOME_BATTA_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Batta tin': 1, 'Equa leaves': 1, 'Gnome spice': 1, 'Cheese': 1, "Toad's legs": 1}, byproducts={'Batta tin': 1}),
+    CookingTarget('bake_worm_batta', 'WORM_BATTA', 'Bake a worm batta', 'gnome_battas', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'WORM_BATTA', 2253, 'Worm batta', 'BURNT_BATTA', 2247, 'Burnt batta', 27, 154.0, *_GNOME_BATTA_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Batta tin': 1, 'King worm': 1, 'Cheese': 1, 'Gnome spice': 1, 'Equa leaves': 1}, byproducts={'Batta tin': 1}),
+    CookingTarget('bake_vegetable_batta', 'VEGETABLE_BATTA', 'Bake a vegetable batta', 'gnome_battas', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'VEGETABLE_BATTA', 2281, 'Vegetable batta', 'BURNT_BATTA', 2247, 'Burnt batta', 28, 156.0, *_GNOME_BATTA_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Batta tin': 1, 'Tomato': 2, 'Dwellberries': 1, 'Onion': 1, 'Cheese': 1, 'Cabbage': 1, 'Equa leaves': 1}, byproducts={'Batta tin': 1}),
+    CookingTarget('bake_cheese_tomato_batta', 'CHEESETOM_BATTA', 'Bake a cheese and tomato batta', 'gnome_battas', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'CHEESETOM_BATTA', 2259, 'Cheese+tom batta', 'BURNT_BATTA', 2247, 'Burnt batta', 29, 158.0, *_GNOME_BATTA_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Batta tin': 1, 'Tomato': 1, 'Cheese': 1, 'Equa leaves': 1}, byproducts={'Batta tin': 1}),
+    CookingTarget('bake_worm_hole', 'WORM_HOLE', 'Bake a worm hole', 'gnome_bowls', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'WORM_HOLE', 2191, 'Worm hole', 'BURNT_GNOMEBOWL', 2175, 'Burnt gnomebowl', 30, 170.0, *_GNOME_BOWL_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Gnomebowl mould': 1, 'King worm': 4, 'Onion': 2, 'Gnome spice': 1, 'Equa leaves': 1}, byproducts={'Gnomebowl mould': 1}),
+    CookingTarget('bake_veg_ball', 'VEG_BALL', 'Bake a veg ball', 'gnome_bowls', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'VEG_BALL', 2195, 'Veg ball', 'BURNT_GNOMEBOWL', 2175, 'Burnt gnomebowl', 35, 175.0, *_GNOME_BOWL_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Gnomebowl mould': 1, 'Onion': 2, 'Potato': 2, 'Gnome spice': 1, 'Equa leaves': 1}, byproducts={'Gnomebowl mould': 1}),
+    CookingTarget('bake_tangled_toads_legs', 'TANGLED_TOADS_LEGS', "Bake tangled toads' legs", 'gnome_bowls', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'TANGLED_TOADS_LEGS', 2187, "Tangled toads' legs", 'BURNT_GNOMEBOWL', 2175, 'Burnt gnomebowl', 40, 185.0, *_GNOME_BOWL_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Gnomebowl mould': 1, "Toad's legs": 4, 'Gnome spice': 1, 'Cheese': 2, 'Dwellberries': 1, 'Equa leaves': 2}, byproducts={'Gnomebowl mould': 1}),
+    CookingTarget('bake_chocolate_bomb', 'CHOCOLATE_BOMB', 'Bake a chocolate bomb', 'gnome_bowls', 'GIANNE_DOUGH', 2171, 'Gianne dough', 'CHOCOLATE_BOMB', 2185, 'Chocolate bomb', 'BURNT_GNOMEBOWL', 2175, 'Burnt gnomebowl', 42, 190.0, *_GNOME_BOWL_BURN, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, extra_requirements={'Gnomebowl mould': 1, 'Chocolate bar': 4, 'Equa leaves': 1, 'Chocolate dust': 1, 'Pot of cream': 2}, byproducts={'Gnomebowl mould': 1}),
+    # No burnt or spoiled cocktail exists anywhere in the period item set, so the
+    # pour always succeeds. The shaker comes back; the glass becomes the drink.
+    CookingTarget('mix_fruit_blast', 'FRUIT_BLAST', 'Mix a fruit blast', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'FRUIT_BLAST', 2084, 'Fruit blast', '', 0, '', 6, 50.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Pineapple': 1, 'Lemon': 1, 'Orange': 1, 'Lemon slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('mix_pineapple_punch', 'PINEAPPLE_PUNCH', 'Mix a pineapple punch', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'PINEAPPLE_PUNCH', 2048, 'Pineapple punch', '', 0, '', 8, 70.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Pineapple': 2, 'Lemon': 1, 'Orange': 1, 'Lime chunks': 1, 'Pineapple chunks': 1, 'Orange slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('mix_wizard_blizzard', 'WIZARD_BLIZZARD', 'Mix a wizard blizzard', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'WIZARD_BLIZZARD', 2054, 'Wizard blizzard', '', 0, '', 18, 110.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 2, 'Gin': 1, 'Lime': 1, 'Lemon': 1, 'Orange': 1, 'Pineapple chunks': 1, 'Lime slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('mix_short_green_guy', 'SHORT_GREEN_GUY', 'Mix a short green guy', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'SHORT_GREEN_GUY', 2080, 'Short green guy', '', 0, '', 20, 120.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Lime': 3, 'Lime slices': 1, 'Equa leaves': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('mix_drunk_dragon', 'DRUNK_DRAGON', 'Mix a drunk dragon', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'DRUNK_DRAGON', 2092, 'Drunk dragon', '', 0, '', 32, 160.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Gin': 1, 'Dwellberries': 1, 'Pineapple chunks': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('mix_choc_saturday', 'CHOC_SATURDAY', 'Mix a choc saturday', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'CHOC_SATURDAY', 2074, 'Choc saturday', '', 0, '', 33, 170.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Whisky': 1, 'Chocolate bar': 1, 'Equa leaves': 1, 'Bucket of milk': 1, 'Chocolate dust': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1, 'Bucket': 1}, failure_kind='pour'),
+    CookingTarget('mix_blurberry_special', 'BLURBERRY_SPECIAL', 'Mix a blurberry special', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'BLURBERRY_SPECIAL', 2064, 'Blurberry special', '', 0, '', 37, 180.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Brandy': 1, 'Gin': 1, 'Lemon': 2, 'Orange': 1, 'Lemon chunks': 1, 'Orange chunks': 1, 'Equa leaves': 1, 'Lime slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
 )
 
 COOKING_TARGETS_BY_ID: Dict[str, CookingTarget] = {target.id: target for target in COOKING_TARGETS}
@@ -246,6 +295,16 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
     CookingPrepActivity("scavenge_raw_ugthanki_meat", "Scavenge raw ugthanki meat", {}, "Raw ugthanki meat", group="gathering"),
     CookingPrepActivity("gather_lean_snails", "Gather lean snails", {}, "Lean snail", group="gathering"),
     CookingPrepActivity("gather_fat_snails", "Gather fat snails", {}, "Fat snail", group="gathering"),
+    # Gnome cocktails and the fruit batta need fruit sliced or diced with a knife.
+    # Source: Gnome cooking oldid 6438943, which lists the knife as gnome cooking
+    # equipment and says the fruit is "used either sliced or diced".
+    CookingPrepActivity("slice_lemon", "Slice a lemon", {"Lemon": 1}, "Lemon slices", source=GNOME_COOKING_SOURCE),
+    CookingPrepActivity("dice_lemon", "Dice a lemon", {"Lemon": 1}, "Lemon chunks", source=GNOME_COOKING_SOURCE),
+    CookingPrepActivity("slice_lime", "Slice a lime", {"Lime": 1}, "Lime slices", source=GNOME_COOKING_SOURCE),
+    CookingPrepActivity("dice_lime", "Dice a lime", {"Lime": 1}, "Lime chunks", source=GNOME_COOKING_SOURCE),
+    CookingPrepActivity("slice_orange", "Slice an orange", {"Orange": 1}, "Orange slices", source=GNOME_COOKING_SOURCE),
+    CookingPrepActivity("dice_orange", "Dice an orange", {"Orange": 1}, "Orange chunks", source=GNOME_COOKING_SOURCE),
+    CookingPrepActivity("dice_pineapple", "Dice a pineapple", {"Pineapple": 1}, "Pineapple chunks", source=GNOME_COOKING_SOURCE),
 )
 
 
@@ -301,6 +360,39 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Burnt crayfish": (13437, False),
     "Raw lava eel": (2148, False),
     "Lava eel": (2149, False),
+    # Gnome cooking inputs. Every id is from 2011Scape items.yml; every one is live
+    # NPC shop stock (Grand Tree Groceries, Funch's Fine Groceries, Blurberry Bar)
+    # except King worm and Toad's legs, which come from pickpocketing gnomes and
+    # from the Herblore toad-leg bridge.
+    "Gianne dough": (2171, True),
+    "Gnome spice": (2169, True),
+    "Equa leaves": (2128, True),
+    "Batta tin": (2164, True),
+    "Crunchy tray": (2165, True),
+    "Gnomebowl mould": (2166, True),
+    "King worm": (2162, True),
+    "Toad's legs": (2152, True),
+    "Dwellberries": (2126, True),
+    "Pot of cream": (2130, True),
+    "Chocolate bar": (1973, True),
+    "Chocolate dust": (1975, True),
+    "Cocktail shaker": (2025, True),
+    "Cocktail glass": (2026, True),
+    "Vodka": (2015, True),
+    "Gin": (2019, True),
+    "Whisky": (2017, True),
+    "Brandy": (2021, True),
+    "Lemon": (2102, True),
+    "Lemon chunks": (2104, True),
+    "Lemon slices": (2106, True),
+    "Lime": (2120, True),
+    "Lime chunks": (2122, True),
+    "Lime slices": (2124, True),
+    "Orange": (2108, True),
+    "Orange chunks": (2110, True),
+    "Orange slices": (2112, True),
+    "Pineapple": (2114, True),
+    "Pineapple chunks": (2116, True),
 }
 
 for _target in COOKING_TARGETS:
@@ -313,6 +405,11 @@ for _target in COOKING_TARGETS:
 
 
 _MATERIAL_CATEGORIES = {
+    "Batta tin": "crafted",
+    "Crunchy tray": "crafted",
+    "Gnomebowl mould": "crafted",
+    "Cocktail shaker": "crafted",
+    "Cocktail glass": "crafted",
     "Bucket": "crafted",
     "Bucket of water": "material",
     "Bowl of water": "material",
@@ -330,7 +427,7 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "family": target.family,
             "level": target.level,
             "exp": target.base_exp,
-            "requirements": {target.raw_item: 1},
+            "requirements": {target.raw_item: 1, **dict(target.extra_requirements)},
             "raw_item": target.raw_item,
             "raw_item_id": target.raw_item_id,
             "cooked_item": target.cooked_item,

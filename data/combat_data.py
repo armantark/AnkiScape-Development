@@ -4527,6 +4527,64 @@ COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Shark": {"heal_lifepoints": 200, "source": FOOD_SOURCE_PATH},
 }
 
+# Gnome dishes. Heals come from 2011Scape Food.kt, which lists the live 21xx/22xx
+# ids, and each one agrees with its dedicated cutoff item page. The seven cocktails
+# are deliberately absent: five of them move Strength and Attack, so they belong in
+# CONSUMABLE_DATA under the 2026-07-07 rule that keeps stat-affecting edibles out of
+# combat auto-eat.
+GNOME_FOOD_SOURCE = (
+    f"{FOOD_SOURCE_PATH}: gnome food block; "
+    "memory-bank/source-audits/gnome-restaurant-harvest-2026-07-28.md"
+)
+COMBAT_FOOD_DATA.update({
+    item_name: {"heal_lifepoints": heal, "source": GNOME_FOOD_SOURCE}
+    for item_name, heal in (
+        ("Toad crunchies", 120),
+        ("Spicy crunchies", 70),
+        ("Worm crunchies", 80),
+        ("Chocchip crunchies", 70),
+        ("Fruit batta", 110),
+        ("Toad batta", 110),
+        ("Worm batta", 110),
+        ("Vegetable batta", 110),
+        ("Cheese+tom batta", 110),
+        ("Worm hole", 120),
+        ("Veg ball", 120),
+        ("Tangled toads' legs", 150),
+        ("Chocolate bomb", 150),
+    )
+})
+
+# Gnome cocktails. Every value is from the drink's own cutoff item page; the two
+# non-alcoholic mixes carry no stat effect. Blurberry special's healing comes from
+# the Cooking table because its item page only says "a few life points".
+_GNOME_COCKTAILS = (
+    ("Fruit blast", 80, {}, {}, "Fruit blast oldid 6309046 (2012-09-28T01:45:11Z)"),
+    ("Pineapple punch", 90, {}, {}, "Pineapple punch oldid 6071249 (2012-08-10T09:35:30Z)"),
+    ("Wizard blizzard", 50, {"strength": 6}, {"attack": 4}, "Wizard blizzard oldid 6071262 (2012-08-10T09:36:55Z)"),
+    ("Short green guy", 50, {"strength": 4}, {"attack": 3}, "Short green guy oldid 6248716 (2012-09-16T00:45:18Z)"),
+    ("Drunk dragon", 50, {"strength": 7}, {"attack": 4}, "Drunk dragon oldid 6071325 (2012-08-10T09:44:02Z)"),
+    ("Choc saturday", 50, {"strength": 7}, {"attack": 4}, "Choc saturday oldid 6071447 (2012-08-10T09:56:50Z)"),
+    ("Blurberry special", 70, {"strength": 7}, {"attack": 5}, "Blurberry special oldid 6357080 (2012-10-06T16:18:29Z); healing from Cooking oldid 6548144"),
+)
+for _name, _heal, _boosts, _drains, _source in _GNOME_COCKTAILS:
+    _effect = (
+        f" It restores {_heal} LP"
+        + (f", raises Strength by {_boosts['strength']}" if _boosts else "")
+        + (f" and lowers Attack by {_drains['attack']}" if _drains else "")
+        + "."
+    )
+    CONSUMABLE_DATA[_name] = {
+        "kind": "gnome_cocktail",
+        "verb": "Drink",
+        "heal": _heal,
+        "boost_levels": _boosts,
+        "drain_levels": _drains,
+        "leaves": "Cocktail glass",
+        "message": f"You drink the {_name.lower()}.{_effect}",
+        "source": _source,
+    }
+
 
 COMBAT_ANTIPOISON_POTION_DATA: Dict[str, dict] = {
     "Antipoison (4)": {
