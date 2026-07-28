@@ -383,6 +383,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-25T06:03:16Z"
   },
+  "activityicons/mage_training_arena.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_hat.png",
+    "file_title": "Infinity hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044642%21Infinity_hat.png?8be83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3945e963de05b129d378e1777e8aef37c05fbb3b",
+    "size": 1567,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-25T01:12:22Z"
+  },
   "activityicons/make_soft_clay.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Soft_clay.png",
     "file_title": "Soft clay.png",
@@ -586,6 +598,18 @@
     "size": 460,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T06:10:19Z"
+  },
+  "activityicons/temple_trekking.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28red%29.png",
+    "file_title": "Reward token (red).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625045844%21Reward_token_%28red%29.png?6e9fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce76de7c0ed0b57309d0294fc990248ff31c8ea9",
+    "size": 597,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-01T01:56:40Z"
   },
   "activityicons/treasure_trail.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Mg_treasuretrails.jpg",
@@ -1834,6 +1858,54 @@
     "size": 658,
     "source_wiki": "rs3",
     "timestamp": "2011-03-15T20:00:25Z"
+  },
+  "activityitems/mage_training_arena_apprentice_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Apprentice_wand.png",
+    "file_title": "Apprentice wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502005347%21Apprentice_wand.png?0daea",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "270b705e75be712dea115fd6b0e3593705653a4f",
+    "size": 467,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T22:56:42Z"
+  },
+  "activityitems/mage_training_arena_beginner_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Beginner_wand.png",
+    "file_title": "Beginner wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502012930%21Beginner_wand.png?9b4bf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a54909c4a93a7647c9df4ff64565071b2adeabf6",
+    "size": 315,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T22:53:40Z"
+  },
+  "activityitems/mage_training_arena_master_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Master_wand.png",
+    "file_title": "Master wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160501222700%21Master_wand.png?18683",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5f058ad0750893f267581ec4e15d84f16271252e",
+    "size": 378,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T23:03:48Z"
+  },
+  "activityitems/mage_training_arena_teacher_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Teacher_wand.png",
+    "file_title": "Teacher wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502083246%21Teacher_wand.png?0318d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2ed8349d163207f0a885f84a1eb92512470e4203",
+    "size": 466,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T23:00:44Z"
   },
   "activityitems/ornate_bowl.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ornate_bowl.png",
@@ -3095,6 +3167,54 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:39Z"
   },
+  "activityitems/temple_trekking_druid_pouch.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Druid_pouch.png",
+    "file_title": "Druid pouch.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073204%21Druid_pouch.png?37fe6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "61d568d269ea32ebd518559066e68076077cbfc5",
+    "size": 1435,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-03T15:07:24Z"
+  },
+  "activityitems/temple_trekking_token_blue.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28blue%29.png",
+    "file_title": "Reward token (blue).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625045034%21Reward_token_%28blue%29.png?b758e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "83ba6672484ba107378a38dc1b6cd96cf6b7b729",
+    "size": 621,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-01T01:54:27Z"
+  },
+  "activityitems/temple_trekking_token_red.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28red%29.png",
+    "file_title": "Reward token (red).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625045844%21Reward_token_%28red%29.png?6e9fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce76de7c0ed0b57309d0294fc990248ff31c8ea9",
+    "size": 597,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-01T01:56:40Z"
+  },
+  "activityitems/temple_trekking_token_yellow.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28yellow%29.png",
+    "file_title": "Reward token (yellow).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625034402%21Reward_token_%28yellow%29.png?97496",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dc525655a897bcee88793fbfa27e1561c2c55210",
+    "size": 600,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-05T09:36:53Z"
+  },
   "activityitems/troll_invasion_reward_book.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Reward_book.png",
     "file_title": "Reward book.png",
@@ -3709,7 +3829,7 @@
   },
   "agilityitems/skoll_boots.png": {
     "file_page_url": "https://runescape.wiki/w/File:Sk%C3%B6ll_boots.png",
-    "file_title": "Sk\u00f6ll boots.png",
+    "file_title": "Sköll boots.png",
     "image_url": "https://runescape.wiki/images/archive/20160502074538%21Sk%C3%B6ll_boots.png?853c8",
     "license_string": "unknown",
     "mediatype": "BITMAP",

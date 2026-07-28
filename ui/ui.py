@@ -363,6 +363,12 @@ from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from .troll_invasion_panel import TrollInvasionPanel
 from ..data.shattered_heart_data import SHATTERED_HEART_ACTIVITY_ID
 from .shattered_heart_panel import ShatteredHeartPanel
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
+from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
+from .mage_training_arena_panel import MageTrainingArenaPanel
+from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
+from ..logic.temple_trekking_logic import temple_trekking_view_pure
+from .temple_trekking_panel import TempleTrekkingPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -3642,6 +3648,8 @@ def show_main_menu(
     on_clan_wars_command=None,
     on_troll_invasion_command=None,
     on_shattered_heart_command=None,
+    on_mage_training_arena_command=None,
+    on_temple_trekking_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15371,6 +15379,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(troll_invasion_box)
 
+        mage_training_arena_box = MageTrainingArenaPanel(
+            player_data,
+            on_command=on_mage_training_arena_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(troll_invasion_box)
+
         shattered_heart_box = ShatteredHeartPanel(
             player_data,
             on_command=on_shattered_heart_command,
@@ -15378,6 +15395,16 @@ def show_main_menu(
             parent=cards_stack,
         )
         cards_stack.addWidget(shattered_heart_box)
+        cards_stack.addWidget(mage_training_arena_box)
+
+        temple_trekking_box = TempleTrekkingPanel(
+            player_data,
+            on_command=on_temple_trekking_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(temple_trekking_box)
 
         crucible_box = CruciblePanel(
             player_data,
@@ -18453,6 +18480,54 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the invasion.")),
                     )
                     return False
+            mage_training_view = mage_training_arena_view_pure(player_data)
+            if (
+                activity_id != MAGE_TRAINING_ARENA_ACTIVITY_ID
+                and mage_training_view["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave the Mage Training Arena?",
+                    "Switch activities and return to the Arena lobby?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_mage_training_arena_command("leave", {})
+                    if on_mage_training_arena_command is not None
+                    else {"ok": False, "message": "Mage Training Arena actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Mage Training Arena",
+                        str((result or {}).get("message", "Could not leave the Arena.")),
+                    )
+                    return False
+            if activity_id != TEMPLE_TREKKING_ACTIVITY_ID:
+                temple_view = temple_trekking_view_pure(player_data)
+                if temple_view["active"]:
+                    answer = QMessageBox.question(
+                        dialog,
+                        "Abandon Temple Trekking?",
+                        "Switch activities and abandon the active trek without a token?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return False
+                    result = (
+                        on_temple_trekking_command("abandon", {})
+                        if on_temple_trekking_command is not None
+                        else {"ok": False, "message": "Temple Trekking actions are unavailable."}
+                    )
+                    if not (result or {}).get("ok", False):
+                        show_error_message(
+                            "Temple Trekking",
+                            str((result or {}).get("message", "Could not abandon the trek.")),
+                        )
+                        return False
             goblin_view = goblin_raids_view_pure(player_data)
             if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
                 question = "Switch activities and walk away from the goblins?"
@@ -18815,6 +18890,12 @@ def show_main_menu(
                 return
             if activity_id == SHATTERED_HEART_ACTIVITY_ID:
                 shattered_heart_box.refresh()
+            if activity_id == MAGE_TRAINING_ARENA_ACTIVITY_ID:
+                mage_training_arena_box.refresh()
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == TEMPLE_TREKKING_ACTIVITY_ID:
+                temple_trekking_box.refresh()
                 _show_activity_detail(activity_id)
                 return
             if activity_id == CRUCIBLE_ACTIVITY_ID:
@@ -18905,6 +18986,14 @@ def show_main_menu(
             CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
             TROLL_INVASION_ACTIVITY_ID: ("Troll Invasion", troll_invasion_box),
             SHATTERED_HEART_ACTIVITY_ID: ("Shattered Heart", shattered_heart_box),
+            MAGE_TRAINING_ARENA_ACTIVITY_ID: (
+                "Mage Training Arena",
+                mage_training_arena_box,
+            ),
+            TEMPLE_TREKKING_ACTIVITY_ID: (
+                "Temple Trekking",
+                temple_trekking_box,
+            ),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),
             TREASURE_TRAILS_ACTIVITY_ID: ("Treasure Trails", trail_box),
