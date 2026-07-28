@@ -117,18 +117,25 @@ SKILLCAPE_TRIM_SOURCE = (
 SKILLCAPE_PRICE = 99_000
 SKILLCAPE_LEVEL = 99
 
-# Every skillcape's period defensive block is identical: the 2011Scape item
-# config gives all 25 of them defence 9 in each style and prayer 4, untrimmed
-# and trimmed alike. Hoods carry no bonuses at all.
+# Every skillcape's period defensive block is identical. Prayer differs by trim:
+# cache item param 11 is 0 untrimmed and 4 trimmed in every period cache.
 SKILLCAPE_BONUSES: dict[str, int] = {
     "defence_stab": 9,
     "defence_slash": 9,
     "defence_crush": 9,
     "defence_magic": 9,
     "defence_ranged": 9,
-    "prayer": 4,
+    "prayer": 0,  # Period cache item param 11.
 }
-SKILLCAPE_BONUS_SOURCE = "data/cfg/items.yml; skillcape equipment block"
+TRIMMED_SKILLCAPE_BONUSES: dict[str, int] = {
+    **SKILLCAPE_BONUSES,
+    "prayer": 4,  # Period cache item param 11.
+}
+SKILLCAPE_BONUS_SOURCE = (
+    "data/cfg/items.yml defensive skillcape block; period cache item param 11"
+    " (0 untrimmed, 4 trimmed), verified in"
+    " memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md"
+)
 
 
 @dataclass(frozen=True)
@@ -359,17 +366,17 @@ def cape_equipment_data_as_dict() -> "dict[str, Any]":
     for cape in skillcape_definitions():
         gate = ((cape.skill_id, SKILLCAPE_LEVEL),)
         source = f"{SKILLCAPE_SOURCE}; bonuses from {SKILLCAPE_BONUS_SOURCE}"
-        for name, item_id in (
-            (cape.cape, cape.cape_item_id),
-            (cape.trimmed_cape, cape.trimmed_item_id),
+        for name, item_id, bonuses in (
+            (cape.cape, cape.cape_item_id, SKILLCAPE_BONUSES),
+            (cape.trimmed_cape, cape.trimmed_item_id, TRIMMED_SKILLCAPE_BONUSES),
         ):
             rows[name] = _cape(
                 name,
                 item_id,
                 gate,
-                EquipmentBonuses(**SKILLCAPE_BONUSES),
+                EquipmentBonuses(**bonuses),
                 source,
-                "items.yml equipment block",
+                "items.yml defensive block; cache prayer param 11",
             )
         rows[cape.hood] = _cape(
             cape.hood,
@@ -383,7 +390,7 @@ def cape_equipment_data_as_dict() -> "dict[str, Any]":
 
     for prestige in PRESTIGE_CAPES:
         bonuses = (
-            EquipmentBonuses(**SKILLCAPE_BONUSES)
+            EquipmentBonuses(**TRIMMED_SKILLCAPE_BONUSES)
             if prestige.id == "quest_point"
             else EquipmentBonuses(prayer=prestige.prayer_bonus)
         )

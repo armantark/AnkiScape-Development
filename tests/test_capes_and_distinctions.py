@@ -97,6 +97,9 @@ class SkillcapeTest(unittest.TestCase):
                 self.assertEqual(row.skill_requirements, ((cape.skill_id, SKILLCAPE_LEVEL),))
                 self.assertGreater(row.source_item_id, 0, name)
                 self.assertTrue(row.source, name)
+            self.assertEqual(EQUIPMENT_DATA[cape.cape].bonuses.prayer, 0)
+            self.assertEqual(EQUIPMENT_DATA[cape.trimmed_cape].bonuses.prayer, 4)
+            self.assertEqual(EQUIPMENT_DATA[cape.hood].bonuses.prayer, 0)
             self.assertTrue(cape.master, cape.skill_id)
 
     def test_dungeoneering_keeps_its_period_cape_row_but_cannot_ship_it_yet(self):
