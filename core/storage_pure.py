@@ -1723,7 +1723,8 @@ def migrate_loaded_data(
     # the canonical sanitizers install empty Fight Caves and Dungeoneering ledgers.
     if loaded_config_version < 90:
         data.update(migrate_shop_diary_transaction_counts_pure(data))
-        data.update(refresh_achievement_diaries_pure(data)[0])
+        if data["shop_transaction_counts"]:
+            data.update(refresh_achievement_diaries_pure(data)[0])
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
