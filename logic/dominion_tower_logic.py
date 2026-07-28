@@ -250,6 +250,7 @@ def default_dominion_tower_state_pure() -> dict[str, Any]:
         "help_horn_charges": 0,
         "claimed": [],
         "marker_stage": 0,
+        "xp_book_factor": 0,
         "previous_combat_target": "",
         "last_result": "",
     }
@@ -414,6 +415,7 @@ def sanitize_dominion_tower_state_pure(raw: Any) -> dict[str, Any]:
         ),
         "claimed": _str_list(source.get("claimed")),
         "marker_stage": min(4, _int(source.get("marker_stage"))),
+        "xp_book_factor": _int(source.get("xp_book_factor")),
         "previous_combat_target": str(source.get("previous_combat_target", ""))[:120],
         "last_result": str(source.get("last_result", ""))[:500],
     }
@@ -809,6 +811,9 @@ def _entry_reasons(
 
 def dominion_tower_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_dominion_tower_state_pure(player_data.get("dominion_tower"))
+    # The credit ledger is derived, so the view shows the same figure the next
+    # command will act on rather than a stale one.
+    _accrue_reward_credits(state)
     active = bool(state["mode"] and state["roster"])
     floor = _int(state["progress"]) + 1
     available = dominion_tower_available_encounters_pure(player_data, floor)
@@ -976,19 +981,26 @@ def dominion_tower_xp_book_amount_pure(factor: int, skill_id: str) -> float:
 
 
 def _accrue_reward_credits(state: dict[str, Any]) -> int:
-    """One credit per five boss kills, once any credit reward is unlocked."""
+    """The unlock itself grants one credit; another arrives every five kills.
+
+    "Kill 500 bosses ... this is the total number of dreadnips and gloves
+    available to claim", then "an extra will become available every 5 boss
+    kills". So the first credit lands with the unlock and the counter starts
+    from the kill total the unlock was reached on.
+    """
     unlocked = _unlocked_rewards(state)
     if not unlocked & {"dreadnip", "goliath_gloves", "spellcaster_gloves", "swift_gloves"}:
         return 0
     kills = _int(state.get("boss_kills"))
+    before = _int(state.get("reward_credits"))
     marker = _int(state.get("credit_kill_marker"))
     if marker <= 0:
-        marker = kills
+        state["credit_kill_marker"] = kills
+        state["reward_credits"] = min(DOMINION_TOWER_REWARD_CREDIT_CAP, max(before, 1))
+        return state["reward_credits"] - before
     earned = max(0, (kills - marker) // DOMINION_TOWER_REWARD_CREDIT_KILLS)
     if earned <= 0:
-        state["credit_kill_marker"] = marker
         return 0
-    before = _int(state.get("reward_credits"))
     state["reward_credits"] = min(
         DOMINION_TOWER_REWARD_CREDIT_CAP, before + earned
     )
@@ -1080,6 +1092,9 @@ def apply_dominion_tower_command_pure(
     payload = payload if isinstance(payload, Mapping) else {}
     rng = rng or (lambda: 0.0)
     state = sanitize_dominion_tower_state_pure(data.get("dominion_tower"))
+    # Spectating and a glove set's last boss can both unlock a credit reward
+    # outside a win, so the ledger is refreshed before any command reads it.
+    _accrue_reward_credits(state)
     data["dominion_tower"] = state
     action_id = str(action_id)
 
@@ -1568,8 +1583,11 @@ def _record_win(
         state["max_floor_endurance"] = max(
             _int(state["max_floor_endurance"]), state["progress"]
         )
-    # "a special fight only counts as 1 boss killed"
-    state["boss_kills"] = _int(state["boss_kills"]) + 1
+    # Every glove unlock counts "a total of 500 bosses in either Climber or
+    # Endurance matches", and a special fight "only counts as 1 boss killed".
+    # Freestyle, which the article says carries no rewards, counts nothing.
+    if row["rewards"]:
+        state["boss_kills"] = _int(state["boss_kills"]) + 1
     if state["special_id"]:
         if state["special_id"] not in state["specials_done"]:
             state["specials_done"] = [*state["specials_done"], state["special_id"]]

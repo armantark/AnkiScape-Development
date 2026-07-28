@@ -3638,3 +3638,17 @@ The visual closure report is
 - Durable evidence:
   `source-audits/clan-wars-horizontal-implementation-2026-07-26.md`. One design
   fork is open in `design-thread-queue.md` section 3.1.
+
+## Dominion Tower landed — 2026-07-28
+
+Branch `families/dominion-tower`, schema 98 (the HUD strip merged as 95 and two
+sibling worktrees hold 96 and 97). 3,368 tests pass in both lanes, up from
+3,301. One finding worth carrying: copying an NPC's combat level into all four
+combat stats is wrong for high-level bosses, because a RuneScape combat level is
+a composite — it gave Nomad a defence of 699. Temple Trekking's 72% core-stat
+ratio is the house answer and the tower now uses it too.
+
+Adjacent bug found and not fixed (it belongs to Fight Caves): `fight_caves_logic`
+zeroes `combat_auto_flee_percent` around its burst to stop the auto-flee, but the
+engine reads the boolean `combat_auto_flee`. The Fight Cave therefore still
+flees silently when the player runs out of food.

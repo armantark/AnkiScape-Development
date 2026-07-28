@@ -444,6 +444,15 @@ def _bonuses(
     }
 
 
+# The share of a combat level that stands in for one core combat stat, taken
+# from the Temple Trekking family's own reconstruction of the same problem.
+DOMINION_TOWER_CORE_STAT_RATIO = 0.72
+
+
+def _core_stat(level: int) -> int:
+    return max(1, min(99, round(int(level) * DOMINION_TOWER_CORE_STAT_RATIO)))
+
+
 def _npc(
     display_name: str,
     npc_id: int,
@@ -473,18 +482,20 @@ def _npc(
         "heals_boss": heals_boss,
         "bonuses": bonuses if bonuses is not None else _bonuses(),
         # Where Darkan carries a combat-definition stat block it is used
-        # verbatim; where it carries only zeros or no row at all the NPC's own
-        # combat level stands in for all four stats.
+        # verbatim. Where it carries only zeros or no row at all, the NPC's
+        # combat level is converted with the same core-stat ratio Temple
+        # Trekking already uses, because a RuneScape combat level is a composite
+        # and copying it into all four stats makes a level-699 boss unhittable.
         # PLACEHOLDER(dominion_tower.unsourced_boss_stat_blocks): authentic
         # per-NPC Attack/Strength/Defence/Magic combat definitions for the tower
         # bosses Darkan left at zero or never defined.
         "stats": stats
         if stats is not None
         else {
-            "attack": level,
-            "strength": level,
-            "defence": level,
-            "magic": level,
+            "attack": _core_stat(level),
+            "strength": _core_stat(level),
+            "defence": _core_stat(level),
+            "magic": _core_stat(level),
             "hitpoints": lifepoints,
         },
         "source": source,
