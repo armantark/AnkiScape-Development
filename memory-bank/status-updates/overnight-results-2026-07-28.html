@@ -1,0 +1,110 @@
+<title>Overnight — every pass-3 fix landed, four new families</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%99%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;
+ --text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;
+ --green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+:root[data-theme="light"]{--bg:#f6f7fa;--surface:#fff;--surface-2:#eef1f6;--border:#d6dce7;--text:#141922;--text-dim:#5b657a}
+:root[data-theme="dark"]{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8}
+@media(prefers-color-scheme:light){:root{--bg:#f6f7fa;--surface:#fff;--surface-2:#eef1f6;--border:#d6dce7;--text:#141922;--text-dim:#5b657a}}
+*{box-sizing:border-box}
+body{margin:0;padding:2.4rem 1.5rem 4rem;background:var(--bg);color:var(--text);
+ font-family:"Outfit","Avenir Next","Segoe UI",system-ui,sans-serif;line-height:1.55;font-size:15px}
+.wrap{max-width:960px;margin:0 auto}
+.badge{display:inline-block;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:.68rem;
+ letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);
+ border:1px solid rgba(79,140,255,.35);padding:.3rem .7rem;border-radius:999px}
+h1{font-size:1.9rem;font-weight:700;margin:.9rem 0 .4rem;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.94rem;margin:0 0 2rem;max-width:64ch}
+h2{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);
+ margin:2.4rem 0 1rem;border-top:1px solid var(--border);padding-top:1rem}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.metric .n{font-size:1.6rem;font-weight:700;font-family:"JetBrains Mono",ui-monospace,monospace}
+.metric .l{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em}
+.metric .d{font-size:.76rem;font-weight:600;color:var(--green)}
+.scroller{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.87rem}
+th,td{text-align:left;padding:.65rem .9rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)}
+tr:last-child td{border-bottom:none}
+td.f{font-weight:600;white-space:nowrap}
+.tag{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.66rem;background:var(--surface-2);
+ border:1px solid var(--border);padding:.1rem .4rem;border-radius:5px;color:var(--text-dim)}
+.sev{font-weight:700;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.green{color:var(--green)}.amber{color:var(--amber)}.purple{color:var(--purple)}.red{color:var(--red)}
+.note{background:var(--surface);border-left:3px solid var(--amber);border-radius:0 9px 9px 0;
+ padding:.85rem 1.05rem;margin-top:1rem;font-size:.88rem}
+.note b{color:var(--amber)}
+.note.blue{border-left-color:var(--accent)}.note.blue b{color:var(--accent)}
+ol{padding-left:1.2rem}li{margin-bottom:.45rem;font-size:.88rem}
+@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}h1{font-size:1.45rem}}
+</style>
+
+<div class="wrap">
+<span class="badge">Overnight results · 28 July 2026</span>
+<h1>Everything you complained about is fixed, and four more families landed</h1>
+<p class="sub">47 commits while you slept. Main is green on both lanes at <span class="tag">3,481 tests</span> (from 3,251 at bedtime), schema v98. Your Anki picks all of it up on next restart.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="n">3,481</div><div class="l">tests on main</div><div class="d">both lanes green</div></div>
+  <div class="metric"><div class="n">4</div><div class="l">new families</div><div class="d">all execution-verified</div></div>
+  <div class="metric"><div class="n">5/5</div><div class="l">pass-3 fixes</div><div class="d">all landed</div></div>
+  <div class="metric"><div class="n">6</div><div class="l">latent bugs killed</div><div class="d">incl. your death trap</div></div>
+</div>
+
+<h2>Your death, fully closed</h2>
+<div class="scroller">
+<table>
+<tr><th>Defect that ate your gear</th><th>Now</th></tr>
+<tr><td>Death was silent</td><td class="green">Every dangerous death names where your items went and that training stopped</td></tr>
+<tr><td>Gravestone invisible</td><td class="green">Clickable banner with item count and countdown; clicking = walking back on the travel clock</td></tr>
+<tr><td>Skill silently deactivated</td><td class="green">The death message says so; the banner is the recovery path</td></tr>
+<tr><td>Countdown frozen by open encounters</td><td class="green">The timer ticks on every answered card, any handler, encounter or not</td></tr>
+<tr><td>No auto-stop safety</td><td class="green">Default-on: Agility stops when the next max failure hit could kill; bound comes from the target's own damage table; undoable toggle</td></tr>
+<tr><td>(bonus) Fight Caves flee suppression was a no-op key</td><td class="green">Fixed there and in Phoenix Lair; the pinning test fails on the old code</td></tr>
+</table>
+</div>
+<div class="note"><b>Period ruling on expiry:</b> at the cutoff, an expired gravestone meant the items were gone — no paid reclaim. Expiry now destroys, and the Death's Office subsystem (a 2015 anachronism) stays quarantined to its old stacked-grave bridge, with the removal fork queued for you.</div>
+
+<h2>Pass-3 scoreboard</h2>
+<div class="scroller">
+<table>
+<tr><th>You said</th><th>Landed</th></tr>
+<tr><td>"No proper highlight when I'm clicking a target"</td><td class="green">Clicked rows are unmistakably blue in both themes, distinct from the green current-target marker. The lists had no :selected styling at all.</td></tr>
+<tr><td>"GE drawer under the XP bar box"</td><td class="green">Moved. Appears only while an offer is open, collapsed by default, newest first, yellow partial / green complete.</td></tr>
+<tr><td>"D&amp;D notification popover + favorites"</td><td class="green">One left-side badge (D&amp;D + Farming merged); popover lists live events, favourites and crops; lines navigate; the missing ★ affordance exists on every Distraction's control row, undoable, schema 95.</td></tr>
+<tr><td>"XP bars visible during stars / evil trees"</td><td class="green">The strip shows the running activity's real bars. Honest gap: verified for 12 families; exhaustiveness sweep still queued.</td></tr>
+<tr><td>"READ AYN RAND xDDD"</td><td class="green">Second deletion — the deployed user_files copy this time. Zero copies remain anywhere.</td></tr>
+</table>
+</div>
+
+<h2>Four families overnight</h2>
+<div class="scroller">
+<table>
+<tr><th>Family</th><th>Schema</th><th>The story</th></tr>
+<tr><td class="f">Mage Training Arena + Temple Trekking</td><td>93–94</td><td>Re-landed after the botched merge that broke your Anki: rebased branch-side, zero-conflict trial merge proven first. All four rooms and every trek route execution-verified.</td></tr>
+<tr><td class="f">Mobilising Armies</td><td>96</td><td>The investment wallet needs no price table: the article's low-alch formula composed with our alchemy derivation reproduces all seven published figures exactly. Adjacent kill: its Teleport was gated on a quest that doesn't exist and could never be cast.</td></tr>
+<tr><td class="f">Gnome Restaurant</td><td>97</td><td>Twenty period dishes as real Cooking; delivery loop per your 2026-07-17 ruling. <b>The deferred presentation fork is finally concrete: queue 3.21, two mockups with real data, ticket vs board.</b></td></tr>
+<tr><td class="f">Dominion Tower</td><td>98</td><td>48 bosses, the 22-handicap wheel, full reward ladder claimed after 500 real kills. Execution caught Nomad with defence 699 (combat level copied into stats) — unbeatable until fixed.</td></tr>
+</table>
+</div>
+
+<h2>Waiting on you — six new forks</h2>
+<ol>
+  <li><b>3.21 Gnome Restaurant presentation</b> — delivery ticket (implemented) vs order board; mockups in the queue, one panel file to swap.</li>
+  <li><b>3.19/3.20 Mobilising Armies</b> — the hourly rank cap's clock translation; objective-vs-ten-orders calibration.</li>
+  <li><b>3.22–3.24 Dominion Tower</b> — thin tower-only rewards, Tarn's miniquest gate, defeat's factor cost.</li>
+  <li><b>MA Teleport rune cost</b> — ships 1 Air rune (wiki) but its own cited Darkan line says 3; needs a source ruling.</li>
+  <li><b>Death's Office</b> — period says expired items are simply lost; the subsystem is a 2015 anachronism, removal fork queued.</li>
+  <li><b>4.12/</b>fork numbering hygiene: two agents filed grave/expiry forks under 4.x; renumber sweep queued with the next queue edit.</li>
+</ol>
+
+<div class="note blue"><b>Infrastructure:</b> CLIProxyAPI upgraded to v7.2.103 (the stale-chain bug that killed two Sol agents is fixed upstream; old binary backed up). The session hit its 200-subagent cap near the end — the last fix was done by hand. Quota stayed inside your bound: Claude ended at ~44/52 of the day line; Codex and Kimi got no new overnight work.</div>
+
+<h2>The board</h2>
+<p class="sub" style="margin-bottom:.4rem">Remaining below breadth one: Dungeoneering (design-gated, its own program) and Conquest (sequenced after it). Bork waits on Hunt for Surok. Everything else in the pre-EOC catalog now has a working horizontal slice.</p>
+<p class="sub">Queued next: art-provenance tranche 2 (~2,350 assets) plus the ~200 endpoint-failure re-checks, the XP-bar exhaustiveness sweep, and the cross-lineage verification pass over the four newest families.</p>
+
+</div>
