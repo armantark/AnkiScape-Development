@@ -1423,6 +1423,8 @@ def _handle_pyramid_plunder_answer(ctx: RuntimeActionContext) -> bool:
     if gained > 0:
         ctx.show_exp(gained)
     ctx.show_activity_gain(str(result.get("status", "Pyramid Plunder room resolved")))
+    if result.get("died"):
+        ctx.show_activity_gain("☠ YOU DIED — Pyramid Plunder hazard; carried pack and gear moved to grave")
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
@@ -1502,6 +1504,8 @@ def _handle_gnome_ball_answer(ctx: RuntimeActionContext) -> bool:
     if gained > 0:
         ctx.show_exp(gained)
     ctx.show_activity_gain(str(result.get("status", "Gnome Ball beat resolved")))
+    if result.get("died"):
+        ctx.show_activity_gain("☠ YOU DIED — Gnome Ball tackle; carried pack and gear moved to grave")
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

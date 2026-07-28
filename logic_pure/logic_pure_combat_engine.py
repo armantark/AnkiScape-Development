@@ -918,6 +918,27 @@ def advance_combat_grave_review_pure(player_data):
     return data, False
 
 
+def combat_grave_banner_view_pure(player_data):
+    """Return the compact always-visible recovery banner projection."""
+    grave = player_data.get("combat_grave", {}) or {}
+    grave_items = _combat_grave_items(grave)
+    office = combat_death_office_summary_pure(player_data)
+    parts = []
+    if grave_items:
+        remaining = _positive_int(
+            grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
+            COMBAT_GRAVE_RECOVERY_REVIEWS,
+        )
+        parts.append(
+            f"⚰ Gravestone: {len(grave_items)} items — recovered after {remaining} more reviews"
+        )
+    if office["item_count"]:
+        parts.append(
+            f"☠ Death's Office: {office['item_count']} items — reclaim for {office['reclaim_cost']:,} coins"
+        )
+    return {"visible": bool(parts), "text": "   •   ".join(parts)}
+
+
 def combat_death_office_items_pure(player_data):
     return tuple(_combat_death_office_items(player_data.get("death_office", {}) or {}))
 

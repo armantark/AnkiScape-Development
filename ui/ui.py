@@ -412,7 +412,7 @@ from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
-from ..logic_pure.logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
+from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 
 from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
 
@@ -23128,6 +23128,16 @@ def show_main_menu(
     help_button.clicked.connect(_open_contextual_help)
     tabs.currentChanged.connect(_update_help_button_tooltip)
     _update_help_button_tooltip()
+
+    grave_banner_view = combat_grave_banner_view_pure(player_data)
+    grave_banner = QLabel(str(grave_banner_view["text"]))
+    grave_banner.setObjectName("graveRecoveryBanner")
+    grave_banner.setVisible(bool(grave_banner_view["visible"]))
+    grave_banner.setStyleSheet(
+        "color: palette(text); background: rgba(255, 193, 7, 0.14); "
+        "border: 1px solid palette(mid); border-radius: 6px; padding: 4px 8px;"
+    )
+    layout.addWidget(grave_banner)
 
     content = QWidget()
     content.setObjectName("mainMenuContent")

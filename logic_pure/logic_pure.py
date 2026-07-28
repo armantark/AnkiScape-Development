@@ -350,6 +350,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     combat_attack_style_trained_skills_pure,
     combat_death_office_items_pure,
     combat_death_office_reclaim_cost_pure,
+    combat_grave_banner_view_pure,
     combat_death_office_summary_pure,
     combat_enemy_pressure_attack_pure,
     combat_has_active_encounter_pure,

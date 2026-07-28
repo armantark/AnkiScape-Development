@@ -1829,6 +1829,53 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             dialog.deleteLater()
 
+    def test_grave_banner_renders_live_recovery_state_and_disappears_after_reclaim(self) -> None:
+        from ankiscape.logic_pure.logic_pure import advance_combat_grave_review_pure
+
+        player_data = _make_player_data()
+        player_data.update({
+            "combat_grave": {
+                "items": ["Bronze sword", "Shark"],
+                "reviews_remaining": 5,
+                "source": "agility_failure",
+                "loadout": {"weapon": "Bronze sword"},
+            },
+            "death_office": {
+                "items": ["Wooden shield"],
+                "source": "combat_stacked_grave",
+            },
+        })
+        dialog = self._open(player_data, current_skill="Agility")
+        try:
+            dialog.show()
+            QApplication.processEvents()
+            banner = dialog.findChild(QLabel, "graveRecoveryBanner")
+            self.assertIsNotNone(banner)
+            self.assertTrue(banner.isVisibleTo(dialog))
+            self.assertIn("Gravestone: 2 items", banner.text())
+            self.assertIn("recovered after 5 more reviews", banner.text())
+            self.assertIn("Death's Office: 1 items", banner.text())
+            self.assertIn("reclaim for 100 coins", banner.text())
+            self.assertIn("palette(text)", banner.styleSheet())
+            self.assertNotIn("color: palette(mid)", banner.styleSheet().lower())
+        finally:
+            dialog.deleteLater()
+
+        player_data["death_office"] = {}
+        for _ in range(5):
+            updated, _reclaimed = advance_combat_grave_review_pure(player_data)
+            player_data.clear()
+            player_data.update(updated)
+        reclaimed_dialog = self._open(player_data, current_skill="Agility")
+        try:
+            reclaimed_dialog.show()
+            QApplication.processEvents()
+            banner = reclaimed_dialog.findChild(QLabel, "graveRecoveryBanner")
+            self.assertIsNotNone(banner)
+            self.assertFalse(banner.isVisibleTo(reclaimed_dialog))
+        finally:
+            reclaimed_dialog.deleteLater()
+
     def test_agility_panel_renders_grouped_targets_locks_icon_and_commands(self) -> None:
         player_data = _make_player_data()
         player_data["agility_level"] = 1

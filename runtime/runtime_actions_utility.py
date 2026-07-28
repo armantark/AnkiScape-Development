@@ -689,7 +689,7 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         if damage_result.get("died"):
             ctx.deactivate_current_skill()
             ctx.show_activity_gain(
-                f"☠ YOU DIED — {result['display_name']} failure"
+                f"☠ YOU DIED — {result['display_name']} failure; gear moved to grave"
             )
             return True
         if result.get("success"):
