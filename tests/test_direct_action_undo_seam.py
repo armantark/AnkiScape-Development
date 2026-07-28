@@ -311,6 +311,141 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data["goblin_raids"]["session"], {})
 
+    def test_troll_invasion_entry_and_reward_policy_restore_through_the_seam(self):
+        from ankiscape.data.troll_invasion_data import TROLL_INVASION_REPAIR_MODE
+        from ankiscape.logic.troll_invasion_logic import apply_troll_invasion_command_pure
+
+        addon = self.addon
+        before = copy.deepcopy(addon.player_data)
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current,
+                    "set_policy",
+                    {
+                        "mode": TROLL_INVASION_REPAIR_MODE,
+                        "difficulty": "standard",
+                        "reward_skill": "mining",
+                    },
+                )[:2]
+            )
+        )
+        self.assertEqual(
+            addon.player_data["troll_invasion_policy"]["mode"],
+            TROLL_INVASION_REPAIR_MODE,
+        )
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current, "enter", {}
+                )[:2]
+            )
+        )
+        self.assertTrue(addon.player_data["troll_invasion"])
+        active = copy.deepcopy(addon.player_data["troll_invasion"])
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current, "leave", {}
+                )[:2]
+            )
+        )
+        self.assertEqual(addon.player_data["troll_invasion"], {})
+        self.assertEqual(addon.player_data["troll_invasion_exits"], 1)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["troll_invasion"], active)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["troll_invasion"], {})
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_troll_invasion_reward_book_uses_the_award_seam_and_restores_on_undo(self):
+        from ankiscape.data.goblin_raids_data import (
+            GOBLIN_COWER_SHIELD,
+            GOBLIN_COWER_SHIELD_BONUS_BUDGET,
+        )
+        from ankiscape.data.troll_invasion_data import TROLL_INVASION_REWARD_BOOK
+        from ankiscape.logic.goblin_raids_logic import default_goblin_raids_state_pure
+        from ankiscape.logic.troll_invasion_logic import apply_troll_invasion_command_pure
+
+        addon = self.addon
+        addon.player_data["inventory"][TROLL_INVASION_REWARD_BOOK] = 1
+        addon.player_data["inventory"][GOBLIN_COWER_SHIELD] = 1
+        addon.player_data["equipment"]["shield"] = GOBLIN_COWER_SHIELD
+        addon.player_data["goblin_raids"] = default_goblin_raids_state_pure()
+        addon.player_data["goblin_raids"]["cower_shield_bonus_remaining"] = (
+            GOBLIN_COWER_SHIELD_BONUS_BUDGET
+        )
+        addon.player_data["troll_invasion_reward_fractions"] = [1.0]
+        before = copy.deepcopy(addon.player_data)
+        info = {}
+        gained = 0.0
+        level_checks = []
+        addon.level_up_check = lambda skill, _data: level_checks.append(skill)
+
+        def change(current):
+            nonlocal info
+            updated, ok, info = apply_troll_invasion_command_pure(
+                current, "redeem_book", {"skill_id": "attack"}
+            )
+            return updated, ok
+
+        def award():
+            nonlocal gained
+            base = float(info["xp_rewards"]["attack_exp"])
+            gained = addon._award_skill_exp(
+                "attack_exp", base, action_skill_id="attack"
+            )
+            addon.level_up_check("Attack", addon.player_data)
+
+        self.assertTrue(self.commit(change, after_apply=award))
+        base = float(info["xp_rewards"]["attack_exp"])
+        self.assertEqual(gained, base * 1.25)
+        self.assertEqual(addon.player_data["attack_exp"] - before["attack_exp"], gained)
+        self.assertEqual(level_checks, ["Attack"])
+        self.assertEqual(addon.player_data["inventory"].get(TROLL_INVASION_REWARD_BOOK, 0), 0)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_shattered_heart_pair_turn_in_and_xp_restore_through_the_seam(self):
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import apply_shattered_heart_command_pure
+
+        addon = self.addon
+        for item_name in SHATTERED_HEART_SKILLS_BY_ID["agility"].rock_items:
+            addon.player_data["inventory"][item_name] = 1
+        before = copy.deepcopy(addon.player_data)
+        info = {}
+        awarded = 0.0
+        level_checks = []
+        addon.level_up_check = lambda skill, _data: level_checks.append(skill)
+
+        def change(current):
+            nonlocal info
+            updated, ok, info = apply_shattered_heart_command_pure(
+                current, "add_completed_pairs", {}
+            )
+            return updated, ok
+
+        def award():
+            nonlocal awarded
+            amount = float(info["skill_xp"]["agility"])
+            awarded = addon._award_skill_exp(
+                "agility_exp", amount, action_skill_id="agility"
+            )
+            addon.level_up_check("Agility", addon.player_data)
+
+        self.assertTrue(self.commit(change, after_apply=award))
+        self.assertEqual(
+            addon.player_data["shattered_heart"]["placed_pairs"], ["agility"]
+        )
+        self.assertEqual(
+            addon.player_data["agility_exp"] - before["agility_exp"], awarded
+        )
+        self.assertEqual(level_checks, ["Agility"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_enchanted_key_site_choice_restores_through_the_seam(self):
         from ankiscape.data.enchanted_key_data import ENCHANTED_KEY_SITE_IDS
         from ankiscape.logic.enchanted_key_logic import (

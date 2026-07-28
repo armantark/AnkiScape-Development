@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from ..data.shattered_heart_data import SHATTERED_HEART_KUDOS_REWARD
 from ..data.varrock_museum_data import (
     KUDOS_THRESHOLD_REWARDS,
     MUSEUM_TOOL_RACK_ITEMS,
@@ -15,6 +16,7 @@ from ..data.varrock_museum_data import (
     VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS,
     VARROCK_MUSEUM_SOURCE_MAX_KUDOS,
 )
+from .shattered_heart_logic import sanitize_shattered_heart_state_pure
 
 
 VARROCK_MUSEUM_STATE_VERSION = 1
@@ -105,10 +107,19 @@ def _equipped_items(player_data: Mapping[str, Any]) -> set[str]:
 def varrock_museum_kudos_pure(player_data: Mapping[str, Any]) -> int:
     state = sanitize_varrock_museum_state_pure(player_data.get("varrock_museum"))
     quest_by_id = {str(row["id"]): int(row["kudos"]) for row in QUEST_KUDOS}
+    shattered_heart = sanitize_shattered_heart_state_pure(
+        player_data.get("shattered_heart")
+    )
+    shattered_heart_kudos = (
+        SHATTERED_HEART_KUDOS_REWARD
+        if shattered_heart["statues_completed"] > 0
+        else 0
+    )
     return (
         len(state["quiz_completed"]) * 2
         + len(state["specimens_displayed"]) * 10
         + sum(quest_by_id[quest_id] for quest_id in state["quest_stories_claimed"])
+        + shattered_heart_kudos
     )
 
 

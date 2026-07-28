@@ -307,6 +307,46 @@ use the two remaining places for A Gift from Khazard and Vial Deeds. Do not
 replace existing tasks and do not raise the twelve-task budget. Silky Smooth
 and Don't Eat the Pointy Bit stay omitted because the live game does not have
 the exact silk-trader haggling or Poison Arrow skewered-kebab route.
+### 3.13 Shattered Heart has no recovered strange-rock rate table
+
+Raised while building Shattered Heart to breadth one. The cutoff articles prove
+that successful training actions can award strange rocks, that different actions
+felt different in practice, and that the second rock in one skill has half the
+ordinary chance until another skill produces a rock. Darkan and game-main contain
+only item identities, and no recovered cache or server routine states the base
+probability or a per-skill table.
+
+- **Option A (implemented and recommended).** Use one registered placeholder
+  probability for every eligible skill action, then apply the sourced one-half
+  second-rock modifier. This is the verification standard's explicit estimation
+  floor: one global constant instead of a fabricated per-skill table.
+- **Option B.** Invent separate rates for fifteen skills or individual actions.
+  This may feel closer to player reports, but every difference would be invented.
+- **Option C.** Disable rock acquisition until a rate table is recovered. This is
+  rejected by the breadth-phase rule because the placeholder would disable the
+  family's central mechanic instead of completing it.
+
+Blocks: nothing under option A. Evidence:
+`memory-bank/source-audits/shattered-heart-loop-2026-07-17.md` and placeholder
+`shattered_heart.rock_chance`.
+
+### 3.14 Shattered Heart conflicts on reacquiring a placed skill pair
+
+The pinned `Shattered Heart` article says repeatedly that the second rock's chance
+is merely halved until another skill yields a rock, and that rocks for later
+statues can be collected without waiting for the next weekly completion. One
+stale detailed-information bullet instead says a completed skill pair blocks all
+more rocks from that skill until every other non-combat skill is complete.
+
+- **Option A (implemented and recommended).** Follow the repeated lead rule. Once
+  a pair is placed, that skill can build a two-rock buffer for the next statue;
+  the buffered pair cannot be placed until the current statue explodes.
+- **Option B.** Follow the lone stale bullet and block the skill after its current
+  pair is placed. This removes the stated early-collection behavior.
+
+Blocks: nothing under option A. Evidence: RuneScape Wiki `Shattered Heart`
+oldid `6514590` and `Strange rock` oldid `6564676`, reconciled in
+`memory-bank/source-audits/shattered-heart-loop-2026-07-17.md`.
 
 ## 4. Answered decisions
 

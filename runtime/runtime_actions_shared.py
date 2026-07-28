@@ -157,6 +157,8 @@ from ..logic_pure.logic_pure import (
 )
 from ..core.skill_registry import get_skill
 from ..logic.daily_challenges_logic import credit_daily_challenge_progress_pure
+from ..data.shattered_heart_data import SHATTERED_HEART_ELIGIBLE_SKILLS
+from ..logic.shattered_heart_logic import apply_shattered_heart_skilling_hook_pure
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
     apply_farming_review_with_queue_pure,
@@ -466,28 +468,101 @@ def _record_action(
     proposed_outcome_success: Any = None,
     kills: int = 0,
     enemy_combat_level: int = 0,
+    shattered_heart_skill_id: Optional[str] = None,
+    shattered_heart_output_items: Optional[dict[str, int]] = None,
 ) -> None:
+    effective_output_item = output_item
+    effective_output_qty = output_qty
+    effective_output_items = output_items
+    effective_achievement_items = achievement_output_items
+    rock_skill_id = str(shattered_heart_skill_id or skill_id)
+    if (
+        success
+        and "shattered_heart" in ctx.player_data
+        and rock_skill_id in SHATTERED_HEART_ELIGIBLE_SKILLS
+    ):
+        rock_outputs = (
+            shattered_heart_output_items
+            if shattered_heart_output_items is not None
+            else output_items
+        )
+        produced_outputs = (
+            dict(rock_outputs)
+            if rock_outputs is not None
+            else ({output_item: output_qty} if output_item else {})
+        )
+        rocked, _rock_found, rock_info = apply_shattered_heart_skilling_hook_pure(
+            ctx.player_data,
+            rock_skill_id,
+            ctx.random_random,
+            output_items=produced_outputs,
+        )
+        ctx.player_data.clear()
+        ctx.player_data.update(rocked)
+        replacements = rock_info.get("replaced_outputs") or {}
+        if replacements:
+            effective_output_items = (
+                dict(output_items) if output_items is not None else None
+            )
+            effective_achievement_items = (
+                dict(achievement_output_items)
+                if achievement_output_items is not None
+                else None
+            )
+            for item_name, replaced in replacements.items():
+                if effective_output_items is not None:
+                    effective_output_items[item_name] = max(
+                        0,
+                        int(effective_output_items.get(item_name, 0)) - int(replaced),
+                    )
+                elif item_name == output_item:
+                    effective_output_qty = max(
+                        0, int(effective_output_qty) - int(replaced)
+                    )
+                if effective_achievement_items is not None:
+                    effective_achievement_items[item_name] = max(
+                        0,
+                        int(effective_achievement_items.get(item_name, 0))
+                        - int(replaced),
+                    )
+            if effective_output_items is not None:
+                effective_output_items = {
+                    item_name: int(amount)
+                    for item_name, amount in effective_output_items.items()
+                    if int(amount) > 0
+                }
+            if effective_achievement_items is not None:
+                effective_achievement_items = {
+                    item_name: int(amount)
+                    for item_name, amount in effective_achievement_items.items()
+                    if int(amount) > 0
+                }
+            if effective_output_qty <= 0:
+                effective_output_item = None
+        if rock_info.get("message"):
+            ctx.show_activity_gain(str(rock_info["message"]))
+
     record_action_telemetry_pure(
         ctx.player_data,
         skill_id,
         action_id,
         success,
         expected_success_chance=expected_success_chance,
-        output_item=output_item,
-        output_qty=output_qty,
-        output_items=output_items,
+        output_item=effective_output_item,
+        output_qty=effective_output_qty,
+        output_items=effective_output_items,
         failure_kind=failure_kind,
     )
-    progress_outputs = achievement_output_items
+    progress_outputs = effective_achievement_items
     if progress_outputs is None:
-        progress_outputs = output_items
+        progress_outputs = effective_output_items
     record_achievement_progress_pure(
         ctx.player_data,
         skill_id,
         action_id,
         success,
-        output_item=output_item if progress_outputs is None else None,
-        output_qty=output_qty,
+        output_item=effective_output_item if progress_outputs is None else None,
+        output_qty=effective_output_qty,
         output_items=progress_outputs,
     )
     if success:
@@ -499,9 +574,13 @@ def _record_action(
             skill_id,
             action_id,
             output_items=(
-                output_items
-                if output_items is not None
-                else ({output_item: output_qty} if output_item else {})
+                effective_output_items
+                if effective_output_items is not None
+                else (
+                    {effective_output_item: effective_output_qty}
+                    if effective_output_item and effective_output_qty > 0
+                    else {}
+                )
             ),
             kills=kills,
             enemy_combat_level=enemy_combat_level,
@@ -595,6 +674,25 @@ def _apply_farming_queue_result(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     if info.get("status") in {"executed", "continuing"}:
+        rock_skill_id = next(
+            (
+                skill_id
+                for skill_id in ("farming", "woodcutting", "agility")
+                if float(info.get(f"{skill_id}_xp", 0.0) or 0.0) > 0
+            ),
+            "",
+        )
+        if rock_skill_id and "shattered_heart" in ctx.player_data:
+            rocked, _rock_found, rock_info = apply_shattered_heart_skilling_hook_pure(
+                ctx.player_data,
+                rock_skill_id,
+                ctx.random_random,
+                output_items=info.get("outputs", {}),
+            )
+            ctx.player_data.clear()
+            ctx.player_data.update(rocked)
+            if rock_info.get("message"):
+                ctx.show_activity_gain(str(rock_info["message"]))
         for skill, xp_key in (
             ("Farming", "farming_xp"),
             ("Woodcutting", "woodcutting_xp"),

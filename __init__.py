@@ -144,6 +144,9 @@ from .data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from .logic.duel_arena_logic import apply_duel_arena_command_pure
 from .data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from .logic.clan_wars_logic import apply_clan_wars_command_pure
+from .data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
+from .logic.troll_invasion_logic import apply_troll_invasion_command_pure
+from .logic.shattered_heart_logic import apply_shattered_heart_command_pure
 from .data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from .logic.crucible_logic import apply_crucible_command_pure
 from .data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -564,8 +567,13 @@ def _cadence_kernel_enabled() -> bool:
     return True
 
 
-def _award_skill_exp(exp_key: str, base_exp: float) -> float:
-    action_skill_id = str(current_skill).lower()
+def _award_skill_exp(
+    exp_key: str,
+    base_exp: float,
+    *,
+    action_skill_id: str | None = None,
+) -> float:
+    action_skill_id = str(action_skill_id or current_skill).lower()
     # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
     # experience out of a 1,000-experience budget, then turns cosmetic. It rides
     # the same seam the Stealing Creation tools use rather than a second one.
@@ -607,12 +615,13 @@ def _update_review_context_surface() -> None:
         pass
 
 
-def commit_direct_action(apply_change):
+def commit_direct_action(apply_change, *, after_apply=None):
     """Run one mutating menu action as a single undoable Anki operation.
 
     `apply_change` receives the live save and returns `(updated, ok)`. Returning
     `ok=False` refuses the action: nothing is written and the random state is put
-    back, so a refusal the player never saw cannot advance the sequence.
+    back, so a refusal the player never saw cannot advance the sequence. Optional
+    `after_apply` work runs after the undo entry exists but before the save commit.
 
     This is the seam. Before it existed the snapshot, custom-undo-entry, bounded
     stack and commit lived inline in `resolve_review_context_action`, which meant
@@ -643,6 +652,8 @@ def commit_direct_action(apply_change):
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
+    if after_apply is not None:
+        after_apply()
     save_player_data()
     try:
         mw.update_undo_actions()
@@ -3025,6 +3036,97 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_troll_invasion_command(action_id, payload):
+        info = {}
+        awarded_xp = 0.0
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_troll_invasion_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        def _after_apply():
+            nonlocal awarded_xp
+            skill = get_skill(str(info.get("skill_id", "")))
+            rewards = dict(info.get("xp_rewards") or {})
+            if skill is None or float(rewards.get(skill.exp_key, 0.0) or 0.0) <= 0:
+                return
+            awarded_xp = _award_skill_exp(
+                skill.exp_key,
+                float(rewards[skill.exp_key]),
+                action_skill_id=skill.id,
+            )
+            level_up_check(skill.display_name, player_data)
+            info["awarded_xp"] = awarded_xp
+            info["message"] = (
+                f"Read the Troll Invasion reward book · +{awarded_xp:,.0f} "
+                f"{skill.display_name} XP at "
+                f"{float(info.get('completion_fraction', 0.0)):.1%} completion."
+            )
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        if awarded_xp > 0:
+            _show_exp(awarded_xp)
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
+    def _apply_shattered_heart_command(action_id, payload):
+        info = {}
+        awarded_xp = 0.0
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_shattered_heart_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        def _after_apply():
+            nonlocal awarded_xp
+            for skill_id, amount in dict(info.get("skill_xp") or {}).items():
+                skill = get_skill(str(skill_id))
+                if skill is None or float(amount or 0.0) <= 0:
+                    continue
+                awarded_xp += _award_skill_exp(
+                    skill.exp_key,
+                    float(amount),
+                    action_skill_id=skill.id,
+                )
+                level_up_check(skill.display_name, player_data)
+            if awarded_xp > 0:
+                info["awarded_xp"] = awarded_xp
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        if awarded_xp > 0:
+            _show_exp(awarded_xp)
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -3347,6 +3449,8 @@ def _on_main_menu(
         on_tzhaar_fight_pit_command=_apply_tzhaar_fight_pit_command,
         on_duel_arena_command=_apply_duel_arena_command,
         on_clan_wars_command=_apply_clan_wars_command,
+        on_troll_invasion_command=_apply_troll_invasion_command,
+        on_shattered_heart_command=_apply_shattered_heart_command,
         on_crucible_command=_apply_crucible_command,
         on_goblin_raids_command=_apply_goblin_raids_command,
         on_daily_challenges_command=_apply_daily_challenges_command,
@@ -4002,6 +4106,7 @@ def on_good_answer(before_state=None):
                             runtime_actions.WEREWOLF_SKULLBALL_ACTIVITY_ID,
                             DUEL_ARENA_ACTIVITY_ID,
                             CLAN_WARS_ACTIVITY_ID,
+                            TROLL_INVASION_ACTIVITY_ID,
                         }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())
@@ -4234,6 +4339,16 @@ def on_answer_card(self, ease, _old):
             and runtime_actions.clan_wars_view_pure(player_data).get("active")
         ):
             runtime_actions.handle_clan_wars_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.TROLL_INVASION_ACTIVITY_ID
+            and bool(player_data.get("troll_invasion"))
+        ):
+            runtime_actions.handle_troll_invasion_answer(
                 _runtime_action_context(),
                 productive=False,
             )

@@ -844,7 +844,15 @@ def handle_construction_answer(ctx: RuntimeActionContext) -> bool:
     skill = "magic" if target.startswith("tablet_") else "construction"
     exp_gained = ctx.award_skill_exp(f"{skill}_exp", float(rewards.get(skill, 0.0) or 0.0))
     ctx.level_up_check("Magic" if skill == "magic" else "Construction", player_data)
-    _record_action(ctx, "construction", target, True, expected_success_chance=1.0, output_items=rewards.get("outputs", {}))
+    _record_action(
+        ctx,
+        "construction",
+        target,
+        True,
+        expected_success_chance=1.0,
+        output_items=rewards.get("outputs", {}),
+        shattered_heart_skill_id=skill,
+    )
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()

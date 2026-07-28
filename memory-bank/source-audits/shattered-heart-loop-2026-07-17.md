@@ -70,15 +70,71 @@ This setting is the compact player-facing equivalent of the source
 archaeologist's stop-receiving option. Re-enabling collection affects only
 future qualifying actions and never grants missed rocks retroactively.
 
-## Still open for source harvest
+## Implementation-time evidence resolution
 
-- Enumerate and corroborate every qualifying and non-qualifying cutoff action
-  for all fifteen skills.
-- Resolve each rock probability and the second-rock reduction through the
-  project evidence hierarchy; otherwise mark the hidden roll `source_blocked`
-  and follow the provisional-calibration standard.
-- Corroborate the XP formula, weekly final-pair boundary, replica progression,
-  bag identity, weight, and destruction semantics against independent
-  period-lineage evidence.
-- Map statue and replica pieces to the existing Construction/POH contracts
-  without inventing a separate location system.
+Darkan has no Shattered Heart server implementation. Its readable dumps contain
+only item, object, interface and enum identities. The rev-742 cache independently
+matches those identities, and game-main contains only the thirty strange-rock
+item constants. The executable behavior therefore uses the pinned cutoff wiki
+revisions for rules and the two independent identity layers for ids and options.
+
+Exact evidence implemented:
+
+- fifteen non-combat skills in cache enum order: Agility, Herblore, Thieving,
+  Crafting, Runecrafting, Mining, Smithing, Fishing, Cooking, Firemaking,
+  Woodcutting, Fletching, Farming, Construction and Hunter;
+- two rocks per skill, ids `15522` through `15551`, with the same-skill second
+  rock at one-half the ordinary chance until another skill yields a rock; both
+  rocks can arrive from one training action, as the pinned Strange rock revision
+  states explicitly;
+- museum pairs accepted in any order and paying `level² - 2 × level + 100` XP
+  in their own skill at the base level when placed;
+- only the fifteenth pair is gated, at seven world days from the previous
+  explosion; earlier pairs and later-statue rock collection remain available;
+- first completion awards 10 Kudos and item `15521` Statue plinth; building the
+  plinth in a Study pays the sourced 1 Construction XP; every completion awards
+  the next replica piece, ids `15552` through `15581`, until all thirty are
+  earned; later completions continue to pay pair XP;
+- the optional collection bag is item `19704`, catches rocks while carried, and
+  destroys its contents when destroyed; and
+- golden rocks are excluded. Their first wiki revision and release are in 2014,
+  and no cutoff cache or emulator identity exists.
+
+Labeled AnkiScape abstractions:
+
+- one simulated day is the established 240-card world clock. The final-pair gate
+  uses `completion_day + 7`, not a global week boundary, because the source gate
+  is anchored to the day of the previous explosion;
+- breadth one treats every successful action classified to an eligible awarded
+  skill as qualifying. The hook follows the awarded skill rather than the
+  telemetry owner, so Magic-only lectern tablets do not yield Construction rocks
+  while Hunter XP from Big Chinchompa and Farming queue work remains eligible.
+  Exact per-action inclusions and exclusions remain a later catalog-depth harvest;
+- the flat skilling inventory has no ordinary 28-slot carried layout. When a
+  loose rock and an ordinary output arrive together, the hook removes one unit
+  of that action's output to preserve the sourced replacement consequence. A
+  carried collection bag suppresses that replacement. The hook runs before
+  telemetry, achievement and Daily Challenge credit, so a replaced output is
+  not later counted as though the player kept it; and
+- the existing POH contract supplies the location layer: building the replica
+  plinth requires an owned Study and consumes the sourced plinth item. No second
+  house or geography system is introduced.
+
+Source-blocked value:
+
+- `shattered_heart.rock_chance` is one global registered placeholder. No
+  recovered server routine states a base chance or per-skill rate. A global
+  value is the verification standard's estimation floor and the exact one-half
+  modifier remains separate, source-backed behavior. Fork 3.13 records the
+  alternatives.
+
+Deferred data depth:
+
+- exact qualifying and excluded action ids within each of the fifteen skills;
+- any authentic per-action or per-skill rock-rate table; and
+- cosmetic museum examine text for the late partial-statue stages.
+
+The article's lone stale bullet that blocks a completed skill until all other
+skills are complete conflicts with its lead and the dedicated Strange rock page.
+Breadth one follows the repeated halving/reacquisition rule and buffers a placed
+skill's next pair for the following statue. Fork 3.14 records that reconciliation.
