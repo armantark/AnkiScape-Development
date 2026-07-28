@@ -1863,7 +1863,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         player_data["death_office"] = {}
         for _ in range(5):
-            updated, _reclaimed = advance_combat_grave_review_pure(player_data)
+            updated = advance_combat_grave_review_pure(player_data)
             player_data.clear()
             player_data.update(updated)
         reclaimed_dialog = self._open(player_data, current_skill="Agility")

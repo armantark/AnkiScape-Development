@@ -62,6 +62,7 @@ from ..core.review_context import (
 
 WILDERNESS_PKER_AMBUSH_CHANCE = 0.01
 WILDERNESS_PKER_MAX_HIT_LP = 250
+BRIMHAVEN_MAX_FAILURE_DAMAGE_LP = 60
 PIT_INVITATION_COURSE_IDS = frozenset(
     {
         "gnome_normal",
@@ -404,15 +405,16 @@ def agility_maximum_failure_damage_pure(
     target_id: str | None = None,
 ) -> int:
     """Return the selected target's largest possible next obstacle hit."""
-    data = sanitize_agility_state_pure(player_data)
-    selected = str(target_id or data["current_agility"])
+    selected = str(
+        target_id or player_data.get("current_agility", DEFAULT_AGILITY_TARGET)
+    )
     if selected == "brimhaven_arena":
-        return 60
+        return BRIMHAVEN_MAX_FAILURE_DAMAGE_LP
     target = AGILITY_TARGETS_BY_ID.get(selected)
     if target is None:
         return 0
     current_lp = _int(
-        data.get("combat_lifepoints"), 1000, minimum=1, maximum=10000
+        player_data.get("combat_lifepoints"), 1000, minimum=1, maximum=10000
     )
     return max(
         (
@@ -718,7 +720,13 @@ def _brimhaven_review(data: dict[str, Any], rolls: tuple[float, ...]) -> dict[st
         session["crossings_remaining"] = _int(session.get("crossings_remaining"), 1, minimum=1, maximum=8) - 1
     else:
         current_lp = _int(data.get("combat_lifepoints"), 1000, minimum=1, maximum=10000)
-        damage = int(_clamp(math.floor(current_lp / 10), 20, 60))
+        damage = int(
+            _clamp(
+                math.floor(current_lp / 10),
+                20,
+                BRIMHAVEN_MAX_FAILURE_DAMAGE_LP,
+            )
+        )
         if session.get("obstacle_id") == "darts":
             session["temporary_drain"] = _int(session.get("temporary_drain"), maximum=20) + 2
     session["attempts_remaining"] = _int(session.get("attempts_remaining"), 8, minimum=1, maximum=8) - 1

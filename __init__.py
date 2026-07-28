@@ -4190,6 +4190,9 @@ def on_answer_card(self, ease, _old):
     had_farm_step = bool(player_data.get("farm_queue"))
     farm_preempted = False
     if review_answered:
+        runtime_actions.advance_shared_review_state_for_review(
+            _runtime_action_context()
+        )
         player_data.update(
             advance_livid_farm_wish_effects_pure(
                 player_data,

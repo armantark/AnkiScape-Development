@@ -1336,7 +1336,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
         for _ in range(5):
-            runtime_actions.advance_farming_clock_for_review(
+            runtime_actions.advance_shared_review_state_for_review(
                 _context(player_data, calls, random_values=(0.5,))
             )
 

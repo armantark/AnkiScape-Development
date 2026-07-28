@@ -890,7 +890,7 @@ def advance_combat_grave_review_pure(player_data):
     data = _copy_player_data_with_nested(player_data)
     grave = data.get("combat_grave", {}) or {}
     if not isinstance(grave, Mapping) or not grave.get("items"):
-        return data, False
+        return data
     grave = dict(grave)
     remaining = max(
         0,
@@ -913,9 +913,9 @@ def advance_combat_grave_review_pure(player_data):
                 data, EQUIPMENT_CONDITION_DATA
             )
         )
-        return data, True
+        return data
     data["combat_grave"] = grave
-    return data, False
+    return data
 
 
 def combat_grave_banner_view_pure(player_data):

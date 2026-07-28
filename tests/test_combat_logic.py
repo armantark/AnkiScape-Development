@@ -4997,7 +4997,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(player["equipment_instances"]["equipment-1"]["condition"], 0)
         recovered = player
         for _ in range(5):
-            recovered, _reclaimed = advance_combat_grave_review_pure(recovered)
+            recovered = advance_combat_grave_review_pure(recovered)
         self.assertEqual(recovered["equipment"], {"hands": "Worn-out bronze gauntlets"})
         self.assertEqual(
             recovered["equipment_instances"]["equipment-1"]["location"],
@@ -5183,7 +5183,7 @@ class CombatLogicTest(unittest.TestCase):
         # and the worn loadout re-equips into the empty slot instead of the bank.
         recovered = died
         for _ in range(5):
-            recovered, _reclaimed = advance_combat_grave_review_pure(recovered)
+            recovered = advance_combat_grave_review_pure(recovered)
 
         self.assertEqual(recovered["combat_grave"], {})
         self.assertEqual(recovered["equipment"], {"weapon": "Iron sword"})

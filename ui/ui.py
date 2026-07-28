@@ -6035,6 +6035,21 @@ def show_main_menu(
         status.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(status)
 
+        def _bind_boolean_command(checkbox: QCheckBox, action_id: str) -> None:
+            def _apply(enabled: bool) -> None:
+                if on_agility_command is None:
+                    return
+                result = on_agility_command(
+                    action_id, {"enabled": bool(enabled)}
+                ) or {}
+                if result.get("ok", result.get("allowed", False)):
+                    return
+                checkbox.blockSignals(True)
+                checkbox.setChecked(not enabled)
+                checkbox.blockSignals(False)
+
+            checkbox.toggled.connect(_apply)
+
         safety_view = agility_safety_option_view_pure(player_data)
         danger_auto_stop = QCheckBox(str(safety_view["label"]))
         danger_auto_stop.setObjectName("activityDangerAutoStopCheckBox")
@@ -6042,19 +6057,7 @@ def show_main_menu(
         danger_auto_stop.setToolTip(str(safety_view["tooltip"]))
         danger_auto_stop.setVisible(bool(safety_view["visible"]))
 
-        def _set_danger_auto_stop(enabled: bool) -> None:
-            if on_agility_command is None:
-                return
-            result = on_agility_command(
-                "set_activity_auto_stop",
-                {"enabled": bool(enabled)},
-            ) or {}
-            if not result.get("ok", result.get("allowed", False)):
-                danger_auto_stop.blockSignals(True)
-                danger_auto_stop.setChecked(not enabled)
-                danger_auto_stop.blockSignals(False)
-
-        danger_auto_stop.toggled.connect(_set_danger_auto_stop)
+        _bind_boolean_command(danger_auto_stop, "set_activity_auto_stop")
         layout.addWidget(danger_auto_stop)
 
         pit_auto_accept = QCheckBox(
@@ -6069,19 +6072,7 @@ def show_main_menu(
             "An active familiar still requires confirmation."
         )
 
-        def _set_pit_auto_accept(enabled: bool) -> None:
-            if on_agility_command is None:
-                return
-            result = on_agility_command(
-                "set_pit_auto_accept",
-                {"enabled": bool(enabled)},
-            ) or {}
-            if not result.get("ok", result.get("allowed", False)):
-                pit_auto_accept.blockSignals(True)
-                pit_auto_accept.setChecked(not enabled)
-                pit_auto_accept.blockSignals(False)
-
-        pit_auto_accept.toggled.connect(_set_pit_auto_accept)
+        _bind_boolean_command(pit_auto_accept, "set_pit_auto_accept")
         layout.addWidget(pit_auto_accept)
 
         level = max(1, min(99, int(player_data.get("agility_level", 1) or 1)))
