@@ -104,6 +104,19 @@ from ..data.shattered_heart_data import (
     shattered_heart_activity_as_dict,
     shattered_heart_extra_items_as_dict,
 )
+from ..data.mage_training_arena_data import (
+    MAGE_TRAINING_ARENA_ACTIVITY_ID,
+    MAGE_TRAINING_ARENA_ASSET_MANIFEST,
+    mage_training_arena_activity_as_dict,
+    mage_training_arena_equipment_data_as_dict,
+    mage_training_arena_extra_items_as_dict,
+)
+from ..data.temple_trekking_data import (
+    TEMPLE_TREKKING_ACTIVITY_ID,
+    TEMPLE_TREKKING_ASSET_MANIFEST,
+    temple_trekking_activity_as_dict,
+    temple_trekking_extra_items_as_dict,
+)
 from ..data.goblin_raids_data import (
     GOBLIN_RAID_ENEMIES,
     GOBLIN_RAIDS_ACTIVITY_ID,
@@ -650,6 +663,8 @@ UTILITY_ACTIVITY_DATA.update(duel_arena_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(troll_invasion_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shattered_heart_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(mage_training_arena_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(temple_trekking_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(crucible_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(goblin_raids_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(treasure_trails_activity_as_dict())
@@ -825,6 +840,22 @@ _shattered_heart_icon = os.path.join(
 if os.path.exists(_shattered_heart_icon):
     UTILITY_ACTIVITY_DATA[SHATTERED_HEART_ACTIVITY_ID]["icon_path"] = (
         _shattered_heart_icon
+    )
+_mage_training_arena_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "mage_training_arena.png",
+)
+if os.path.exists(_mage_training_arena_icon):
+    UTILITY_ACTIVITY_DATA[MAGE_TRAINING_ARENA_ACTIVITY_ID]["icon_path"] = (
+        _mage_training_arena_icon
+    )
+_temple_trekking_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "temple_trekking.png",
+)
+if os.path.exists(_temple_trekking_icon):
+    UTILITY_ACTIVITY_DATA[TEMPLE_TREKKING_ACTIVITY_ID]["icon_path"] = (
+        _temple_trekking_icon
     )
 _crucible_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1602,6 +1633,7 @@ EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
 EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
 EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
 EQUIPMENT_DATA.update(duel_arena_equipment_data_as_dict())
+EQUIPMENT_DATA.update(mage_training_arena_equipment_data_as_dict())
 EQUIPMENT_DATA.update(crucible_equipment_data_as_dict())
 EQUIPMENT_DATA.update(goblin_raids_equipment_data_as_dict())
 EQUIPMENT_DATA.update(diary_equipment_data_as_dict())
@@ -1672,6 +1704,28 @@ for _row in SHATTERED_HEART_SKILLS:
     if os.path.exists(_replica_path):
         for _item_name in _row.replica_items:
             SHATTERED_HEART_ITEM_IMAGES[_item_name] = _replica_path
+MAGE_TRAINING_ARENA_EXTRA_ITEM_DATA = mage_training_arena_extra_items_as_dict()
+MAGE_TRAINING_ARENA_ITEM_IMAGES = {
+    str(row["item_name"]): os.path.join(current_dir, str(row["output_path"]))
+    for row in MAGE_TRAINING_ARENA_ASSET_MANIFEST
+    if str(row["output_path"]).startswith("activityitems/")
+}
+MAGE_TRAINING_ARENA_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in MAGE_TRAINING_ARENA_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+TEMPLE_TREKKING_EXTRA_ITEM_DATA = temple_trekking_extra_items_as_dict()
+TEMPLE_TREKKING_ITEM_IMAGES = {
+    str(row["item_name"]): os.path.join(current_dir, str(row["output_path"]))
+    for row in TEMPLE_TREKKING_ASSET_MANIFEST
+    if str(row["output_path"]).startswith("activityitems/")
+}
+TEMPLE_TREKKING_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in TEMPLE_TREKKING_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
 ENCHANTED_KEY_EXTRA_ITEM_DATA = enchanted_key_extra_items_as_dict()
 ENCHANTED_KEY_ITEM_IMAGES = {
     _item_name: os.path.join(
@@ -2287,6 +2341,8 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SKELETAL_HORROR_EXTRA_ITEM_DATA,
     **TROLL_INVASION_EXTRA_ITEM_DATA,
     **SHATTERED_HEART_EXTRA_ITEM_DATA,
+    **MAGE_TRAINING_ARENA_EXTRA_ITEM_DATA,
+    **TEMPLE_TREKKING_EXTRA_ITEM_DATA,
     **ENCHANTED_KEY_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
@@ -2340,6 +2396,8 @@ EXTRA_ITEM_IMAGES = {
     **SKELETAL_HORROR_ITEM_IMAGES,
     **TROLL_INVASION_ITEM_IMAGES,
     **SHATTERED_HEART_ITEM_IMAGES,
+    **MAGE_TRAINING_ARENA_ITEM_IMAGES,
+    **TEMPLE_TREKKING_ITEM_IMAGES,
     **ENCHANTED_KEY_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,
