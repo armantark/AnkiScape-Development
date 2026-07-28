@@ -24,7 +24,7 @@ cleared. Those are fixed and merged.
 | Mage Training Arena | 14-20 h | no audit |
 | Temple Trekking | 14-20 h | no audit |
 | Dominion Tower | 14-20 h | no audit |
-| Gnome Restaurant | 12-18 h | no audit, and it carries design fork 3.7 territory |
+| ~~Gnome Restaurant~~ | done 2026-07-28 | breadth one; see `source-audits/gnome-restaurant-harvest-2026-07-28.md` and design fork 3.19 |
 | Mobilising Armies | 18-26 h | no audit |
 | ~~Achievement Diaries~~ | done 2026-07-26 | breadth one; see `source-audits/achievement-diary-harvest-2026-07-26.json` and design forks 3.8/3.9 |
 | Dungeoneering | 40-64 h | plus source research; its data module parks the Skills surface |
@@ -44,11 +44,12 @@ families, real tiers, real reward equipment, a claim flow and a durable ledger i
 `player_data["achievement_diaries"]` — so only the miniquest still blocks it. See
 `source-audits/bork-loop-2026-07-18.md`.
 
-**Gnome Restaurant** still carries the presentation fork deferred in
-`source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`. The placeholder rule
-makes its data surface approximable, so the fork is now answerable — but it is the
-owner's, and it belongs in the design queue as a concrete choice once the data
-shape exists.
+**Gnome Restaurant reached breadth one on 2026-07-28.** Gnome cooking is live as
+twenty real Cooking targets with exact levels, XP and ingredients; the delivery
+loop runs one order per productive review with the source point, token and tip
+tables; and the long-deferred presentation fork is queued as design decision 3.19
+with both layouts drawn and the recommended one implemented. See
+`source-audits/gnome-restaurant-harvest-2026-07-28.md`.
 
 ## What every brief must carry
 

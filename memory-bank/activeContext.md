@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+Gnome Restaurant satisfies horizontal breadth level one. Gnome cooking is twenty
+real Cooking targets with exact levels, XP and ingredients; the Activity runs one
+delivery per productive review with the source point, reward-token and tip tables;
+and `Again` spends the order's source delivery window instead of destroying it.
+Schema 97, migration and activity arbitration, direct-action undo, cadence,
+registries, pre-cutoff art with provenance, and the compact ticket card are
+integrated. The long-deferred presentation fork is design decision 3.19: both
+layouts are drawn in the queue and the recommended one ships. Durable record:
+`source-audits/gnome-restaurant-harvest-2026-07-28.md`.
+
+
+## Earlier Focus
+
 The always-visible reviewer strip from pass 3 of the playtest notes is built,
 which closes the last unbuilt section 4.8 decision. The strip now shows only what
 is live: a running activity's real skill experience bars, so a shooting star
@@ -32,8 +45,6 @@ metadata because no cross-family live-status contract exists.
 Combat activities and five reward-table families deliberately show no experience
 bar: their skill is chosen by attack style or at payout, and a guessed bar is
 worse than the empty row they render today.
-
-## Earlier Focus
 
 TzHaar Fight Pit now satisfies horizontal breadth level one as a safe,
 Activities-only last-standing match. Direct entry creates three persistent

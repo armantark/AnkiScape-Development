@@ -2,8 +2,10 @@
 
 Date: 2026-07-17
 
-Status: **period structure pinned; deadline translation owner-settled;
-implementation corroboration and reward-table harvest remain open.**
+Status: **closed 2026-07-28.** The harvest, the conflicts it resolved and every
+value the implementation ships now live in
+`gnome-restaurant-harvest-2026-07-28.md`. The owner-settled abstraction below is
+unchanged and still governs; the "still open" list at the end is answered there.
 
 ## Pinned evidence
 
@@ -62,7 +64,13 @@ Activity must read durable player-production facts rather than duplicate the
 recipes, consume eight tutorial-only reviews, or require an established player
 to remake food solely to replay NPC instruction.
 
-## Still open for source harvest or later grill
+## Still open for source harvest or later grill — all answered 2026-07-28
+
+Each line below is settled in `gnome-restaurant-harvest-2026-07-28.md`. The
+tutorial line needed a correction rather than an answer: the pinned revision says
+"four different gnome dishes" and "four different cocktails", so the count is
+sourced and the prescribed list never existed. The presentation fork is queued as
+design decision 3.19 with a recommendation, implemented.
 
 - Corroborate the timer, point, token, customer, and reward claims against an
   independent period-lineage source.
