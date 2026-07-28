@@ -261,61 +261,6 @@ hand-entering the rows. The counts are already known from Darkan, so a correct
 parse is self-checking — it either matches Darkan's per-tier count exactly, as
 it does for the other five families, or it is wrong.
 
-### 3.10 The skillcape's effective level 100 moves 39 shipped roll paths
-
-Raised 2026-07-27. The design contract says an equipped skillcape puts its skill
-at effective level 100 for success-rate and yield formulas. That is now
-implemented behind a single seam, `effective_roll_level_pure`, which every
-roll-bearing runtime handler calls.
-
-Two things about it are worth a decision.
-
-First, the rule is an AnkiScape invention rather than a period mechanic. Darkan
-at `c95aca4` has no skillcape operate handler, no equip handler and no stat
-boost of any kind; the capes drive only an emote. Nothing in the recovered
-record gives a worn skillcape a numeric effect.
-
-Second, how much it actually moves. **Corrected 2026-07-27**: this section
-previously said the number was "silent almost everywhere" and that "exactly one
-shipped roll is still level-sensitive above 99". That was wrong. Measured
-directly — every roll path evaluated at level 99 and again at effective level
-100 with everything else held fixed — **39 shipped roll paths change**:
-
-| Skill | Paths changed | Why |
-|---|---:|---|
-| Hunter | 33 | `Utils.skillSuccess` interpolates on `level / 99.0` and never clamps its input, so every non-saturated target keeps moving above 99 |
-| Firemaking | 3 | the review-scale tier adapter, on the non-embedded route |
-| Thieving | 2 | multi-pick yield, not success: Paladin and Hero each cross an overshoot boundary |
-| Cooking | 1 | gutting a Leaping trout, a linear source formula rather than a capped interpolation |
-| **Total** | **39** | |
-
-The original claim found the Cooking case and missed the other 38. The mistake
-was assuming every period table saturates at 99; the capped interpolations do,
-but Hunter's does not, and it alone carries 33 of the 39. Example figures, at 99
-then at 100: crimson swift `0.8853` → `0.8868`, golden warbler `0.8231` →
-`0.8248`, magic logs `0.8139` → `0.8240`, Paladin 3 items → 4 items, Leaping
-trout `0.4400` → `0.4444`.
-
-This matters beyond bookkeeping. The rule was presented as very nearly a no-op,
-and the owner may weigh it differently knowing it changes 39 actions — most of
-Hunter among them.
-
-So the mechanic is real, single and wired, and it bites across four skills
-today. The alternatives are unchanged: raise the period caps so it bites
-everywhere, which means inventing numbers the period does not have, or drop the
-rule, which means overriding the owner's own contract.
-
-Recommendation, and what is implemented: keep the rule exactly as the contract
-states it and let the capped period tables saturate. The boost is already
-visible wherever a formula does not cap at 99, and becomes visible elsewhere on
-its own as such formulas ship — the same latent-activation pattern the contract
-already uses for Completionist requirements and Music Log tracks — and no period
-number is invented to manufacture an effect.
-
-The 39 figure is pinned by `tests/test_capes_and_distinctions.py`
-`test_the_boost_moves_thirty_nine_roll_paths_not_one`, so it cannot drift back
-into folklore.
-
 ### 3.11 The all-skills capes have 24 skills to ask for, and the period has 25
 
 Raised 2026-07-27. The pinned Max revision (oldid `6549092`) requires level 99
@@ -623,10 +568,15 @@ then clear by construction the day the skill ships.
 **The 140-threshold ladder stays as hidden substrate.** It is instrumentation the
 semantics clauses and the v88 migration read, not player-visible content.
 
-**Fork 3.10 does not close yet.** The owner's answer on the 39-roll skillcape
-blast radius was to verify against the real game mechanics first. Open question,
-assigned: what exactly did a Cape of Accomplishment do mechanically pre-cutoff —
-passive while worn, or an operate action granting a temporary +1 boost? The
-answer may also overturn the 2026-07-26 change that made the Agility cape boost
-passive. Evidence: `Capes of Accomplishment` oldid 6514341 (already pinned),
-Darkan, rev-727 cache, game-main.
+### 4.10 Skillcape boost mechanic — answered 2026-07-27
+
+- Answer: reshape D13 to the verified worn `Boost` option's visible +1 temporary
+  boost, ported as full uptime while worn because AnkiScape has no real-time
+  decay clock. Do not add an activation button.
+- Visible boosts take the larger value, so an Agility cape does not stack its +1
+  on a +3 potion. Invisible familiar boosts add after the visible boost.
+- Re-measured after the arithmetic fixes: **39 shipped roll paths still change**
+  between 99 and the cape's 100 — 33 Hunter, 3 Firemaking, 2 Thieving and 1
+  Cooking. The blast radius stands, but it now flows through boost semantics.
+- Authority:
+  `memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md`.
