@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from ..core.constants import (
     BIRD_NEST_DROP_CHANCE,
     BIRD_NEST_DROP_TABLE,
@@ -261,11 +263,16 @@ from ..logic.tzhaar_fight_pit_logic import (
 from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..logic.duel_arena_logic import apply_duel_arena_review_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..data.troll_invasion_data import (
+    TROLL_INVASION_ACTIVITY_ID,
+    TROLL_INVASION_REPAIR_MODE,
+)
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
 from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..logic.treasure_trails_logic import apply_treasure_trail_review_pure
 from ..logic.clan_wars_logic import apply_clan_wars_review_pure
+from ..logic.troll_invasion_logic import apply_troll_invasion_review_pure
 from ..logic.crucible_logic import apply_crucible_review_pure
 from ..logic.goblin_raids_logic import apply_goblin_raids_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -2238,6 +2245,72 @@ def handle_clan_wars_answer(
     ctx.show_activity_gain(
         str(result.get("message") or "Clan Wars combat beat resolved")
     )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_troll_invasion_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    session = ctx.player_data.get("troll_invasion")
+    repair = isinstance(session, Mapping) and session.get("mode") == TROLL_INVASION_REPAIR_MODE
+    steps = max(1, int(ctx.review_action_multiplier)) if productive and repair else 1
+    updated, ok, result = apply_troll_invasion_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+        productive=productive,
+        steps=steps,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Troll Invasion unavailable",
+            str(result.get("reason", "Enter Troll Invasion before training it.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    combat = result.get("combat") or {}
+    combat_xp = result.get("xp_rewards") or combat.get("xp_rewards") or {}
+    skill_xp = result.get("skill_xp") or {}
+    skill_rows = {
+        "construction": ("construction_exp", "Construction"),
+        "crafting": ("crafting_exp", "Crafting"),
+        "firemaking": ("firemaking_exp", "Firemaking"),
+    }
+    awarded_skill_xp = 0.0
+    for skill_id, amount in skill_xp.items():
+        if skill_id not in skill_rows or float(amount or 0.0) <= 0:
+            continue
+        exp_key, display_name = skill_rows[skill_id]
+        awarded_skill_xp += ctx.award_skill_exp(exp_key, float(amount))
+        ctx.level_up_check(display_name, ctx.player_data)
+    died = bool(combat.get("died"))
+    actions_resolved = max(0, int(result.get("actions_resolved", 1)))
+    primary_xp = awarded_skill_xp + sum(
+        float(value or 0.0) for value in combat_xp.values()
+    )
+    for _ in range(actions_resolved):
+        _record_action(
+            ctx,
+            "utility",
+            TROLL_INVASION_ACTIVITY_ID,
+            productive and not died,
+            expected_success_chance=1.0,
+            failure_kind="safe_death" if died else None,
+            primary_xp=primary_xp / max(1, actions_resolved),
+        )
+    _refresh_combat_levels(ctx, combat_xp)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if awarded_skill_xp > 0:
+        ctx.show_exp(awarded_skill_xp)
+    ctx.show_activity_gain(str(result.get("message") or "Troll Invasion beat resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

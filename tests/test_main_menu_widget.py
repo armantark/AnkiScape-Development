@@ -8732,6 +8732,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "tears_of_guthix",
                 "enchanted_key",
                 "goblin_raids",
+                "troll_invasion",
                 "treasure_trail",
             },
         )

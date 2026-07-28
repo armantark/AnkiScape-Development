@@ -90,6 +90,12 @@ from ..data.clan_wars_data import (
     CLAN_WARS_ACTIVITY_ID,
     clan_wars_activity_as_dict,
 )
+from ..data.troll_invasion_data import (
+    TROLL_INVASION_ACTIVITY_ID,
+    TROLL_INVASION_REWARD_BOOK,
+    troll_invasion_activity_as_dict,
+    troll_invasion_extra_items_as_dict,
+)
 from ..data.goblin_raids_data import (
     GOBLIN_RAID_ENEMIES,
     GOBLIN_RAIDS_ACTIVITY_ID,
@@ -634,6 +640,7 @@ UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(duel_arena_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(troll_invasion_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(crucible_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(goblin_raids_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(treasure_trails_activity_as_dict())
@@ -794,6 +801,14 @@ _clan_wars_icon = os.path.join(
 )
 if os.path.exists(_clan_wars_icon):
     UTILITY_ACTIVITY_DATA[CLAN_WARS_ACTIVITY_ID]["icon_path"] = _clan_wars_icon
+_troll_invasion_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "troll_invasion.png",
+)
+if os.path.exists(_troll_invasion_icon):
+    UTILITY_ACTIVITY_DATA[TROLL_INVASION_ACTIVITY_ID]["icon_path"] = (
+        _troll_invasion_icon
+    )
 _crucible_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "crucible.png",
@@ -1612,6 +1627,7 @@ VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
 PHOENIX_LAIR_EXTRA_ITEM_DATA = phoenix_lair_extra_items_as_dict()
 SKELETAL_HORROR_EXTRA_ITEM_DATA = skeletal_horror_extra_items_as_dict()
+TROLL_INVASION_EXTRA_ITEM_DATA = troll_invasion_extra_items_as_dict()
 ENCHANTED_KEY_EXTRA_ITEM_DATA = enchanted_key_extra_items_as_dict()
 ENCHANTED_KEY_ITEM_IMAGES = {
     _item_name: os.path.join(
@@ -1834,6 +1850,16 @@ SKELETAL_HORROR_ITEM_IMAGES = {
 SKELETAL_HORROR_ITEM_IMAGES = {
     item_name: path
     for item_name, path in SKELETAL_HORROR_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+TROLL_INVASION_ITEM_IMAGES = {
+    TROLL_INVASION_REWARD_BOOK: os.path.join(
+        current_dir, "activityitems", "troll_invasion_reward_book.png"
+    )
+}
+TROLL_INVASION_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in TROLL_INVASION_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 STEALING_CREATION_ITEM_IMAGES = {}
@@ -2215,6 +2241,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
     **PHOENIX_LAIR_EXTRA_ITEM_DATA,
     **SKELETAL_HORROR_EXTRA_ITEM_DATA,
+    **TROLL_INVASION_EXTRA_ITEM_DATA,
     **ENCHANTED_KEY_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
@@ -2266,6 +2293,7 @@ EXTRA_ITEM_IMAGES = {
     **FIGHT_CAVES_ITEM_IMAGES,
     **PHOENIX_LAIR_ITEM_IMAGES,
     **SKELETAL_HORROR_ITEM_IMAGES,
+    **TROLL_INVASION_ITEM_IMAGES,
     **ENCHANTED_KEY_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,

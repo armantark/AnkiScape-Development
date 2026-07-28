@@ -587,6 +587,18 @@
     "source_wiki": "rs3",
     "timestamp": "2008-07-28T14:53:49Z"
   },
+  "activityicons/troll_invasion.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Troll_Invasion.png",
+    "file_title": "Troll Invasion.png",
+    "image_url": "https://runescape.wiki/images/archive/20130601194028%21Troll_Invasion.png?75757",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fbd70792fc2331fec0127b3af9fa18168c2c993d",
+    "size": 1355540,
+    "source_wiki": "rs3",
+    "timestamp": "2012-07-02T07:44:28Z"
+  },
   "activityicons/trouble_brewing.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pieces_of_eight_3.png",
     "file_title": "Pieces of eight 3.png",
@@ -2686,6 +2698,18 @@
     "size": 825,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:39Z"
+  },
+  "activityitems/troll_invasion_reward_book.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_book.png",
+    "file_title": "Reward book.png",
+    "image_url": "https://runescape.wiki/images/archive/20191201000226%21Reward_book.png?7fd6f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8893c130df6c5623555507a9f8c77df2a6d48f24",
+    "size": 924,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T17:33:03Z"
   },
   "activityitems/varrock_museum_ancient_coin.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ancient_coin.png",

@@ -219,6 +219,11 @@ from ..logic.clan_wars_logic import (
     default_clan_wars_state_pure,
     sanitize_clan_wars_state_pure,
 )
+from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
+from ..logic.troll_invasion_logic import (
+    default_troll_invasion_state_pure,
+    sanitize_troll_invasion_state_pure,
+)
 from ..logic.daily_challenges_logic import (
     default_daily_challenges_state_pure,
     sanitize_daily_challenges_state_pure,
@@ -272,7 +277,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 89
+CURRENT_CONFIG_VERSION = 90
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -530,6 +535,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_tzhaar_fight_pit_state_pure())
     data.update(default_duel_arena_state_pure())
     data.update(default_clan_wars_state_pure())
+    data.update(default_troll_invasion_state_pure())
     data.update(default_crucible_state_pure())
     data["goblin_raids"] = default_goblin_raids_state_pure()
     data.update(default_daily_challenges_state_pure())
@@ -1179,6 +1185,7 @@ def migrate_loaded_data(
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
+    data.update(sanitize_troll_invasion_state_pure(data))
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")
@@ -1334,6 +1341,14 @@ def migrate_loaded_data(
             active_session_id = ""
     elif clan_wars_session:
         active_session_id = CLAN_WARS_ACTIVITY_ID
+    troll_invasion_session = data["troll_invasion"]
+    if active_session_id:
+        if active_session_id != TROLL_INVASION_ACTIVITY_ID:
+            data["troll_invasion"] = {}
+        elif not troll_invasion_session:
+            active_session_id = ""
+    elif troll_invasion_session:
+        active_session_id = TROLL_INVASION_ACTIVITY_ID
     crucible_session = data["crucible"]
     if active_session_id:
         if active_session_id != CRUCIBLE_ACTIVITY_ID:
@@ -1714,6 +1729,11 @@ def migrate_loaded_data(
             data.setdefault(key, value)
         data.update(refresh_capes_pure(data))
         data.update(refresh_music_log_pure(data)[0])
+    # v90: Troll Invasion adds the persisted Combat/Repair run, Standard-attempt
+    # Hard unlock, monthly reward allowances, and pending reward-book fractions.
+    if loaded_config_version < 90:
+        for key, value in default_troll_invasion_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1772,6 +1792,7 @@ def migrate_loaded_data(
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
+    data.update(sanitize_troll_invasion_state_pure(data))
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")

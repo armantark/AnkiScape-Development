@@ -311,6 +311,74 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data["goblin_raids"]["session"], {})
 
+    def test_troll_invasion_entry_and_reward_policy_restore_through_the_seam(self):
+        from ankiscape.data.troll_invasion_data import TROLL_INVASION_REPAIR_MODE
+        from ankiscape.logic.troll_invasion_logic import apply_troll_invasion_command_pure
+
+        addon = self.addon
+        before = copy.deepcopy(addon.player_data)
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current,
+                    "set_policy",
+                    {
+                        "mode": TROLL_INVASION_REPAIR_MODE,
+                        "difficulty": "standard",
+                        "reward_skill": "mining",
+                    },
+                )[:2]
+            )
+        )
+        self.assertEqual(
+            addon.player_data["troll_invasion_policy"]["mode"],
+            TROLL_INVASION_REPAIR_MODE,
+        )
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current, "enter", {}
+                )[:2]
+            )
+        )
+        self.assertTrue(addon.player_data["troll_invasion"])
+        active = copy.deepcopy(addon.player_data["troll_invasion"])
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current, "leave", {}
+                )[:2]
+            )
+        )
+        self.assertEqual(addon.player_data["troll_invasion"], {})
+        self.assertEqual(addon.player_data["troll_invasion_exits"], 1)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["troll_invasion"], active)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["troll_invasion"], {})
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_troll_invasion_reward_book_redemption_restores_through_the_seam(self):
+        from ankiscape.data.troll_invasion_data import TROLL_INVASION_REWARD_BOOK
+        from ankiscape.logic.troll_invasion_logic import apply_troll_invasion_command_pure
+
+        addon = self.addon
+        addon.player_data["inventory"][TROLL_INVASION_REWARD_BOOK] = 1
+        addon.player_data["troll_invasion_reward_fractions"] = [1.0]
+        before = copy.deepcopy(addon.player_data)
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_troll_invasion_command_pure(
+                    current, "redeem_book", {"skill_id": "mining"}
+                )[:2]
+            )
+        )
+        self.assertGreater(addon.player_data["mining_exp"], before["mining_exp"])
+        self.assertEqual(addon.player_data["inventory"].get(TROLL_INVASION_REWARD_BOOK, 0), 0)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_enchanted_key_site_choice_restores_through_the_seam(self):
         from ankiscape.data.enchanted_key_data import ENCHANTED_KEY_SITE_IDS
         from ankiscape.logic.enchanted_key_logic import (

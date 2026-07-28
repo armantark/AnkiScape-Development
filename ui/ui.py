@@ -358,6 +358,9 @@ from ..logic.duel_arena_logic import duel_arena_view_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 from .clan_wars_panel import ClanWarsPanel
+from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
+from ..logic.troll_invasion_logic import troll_invasion_view_pure
+from .troll_invasion_panel import TrollInvasionPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -3635,6 +3638,7 @@ def show_main_menu(
     on_tzhaar_fight_pit_command=None,
     on_duel_arena_command=None,
     on_clan_wars_command=None,
+    on_troll_invasion_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15355,6 +15359,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(clan_wars_box)
 
+        troll_invasion_box = TrollInvasionPanel(
+            player_data,
+            on_command=on_troll_invasion_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(troll_invasion_box)
+
         crucible_box = CruciblePanel(
             player_data,
             on_command=on_crucible_command,
@@ -18407,6 +18420,28 @@ def show_main_menu(
                         ),
                     )
                     return False
+            troll_view = troll_invasion_view_pure(player_data)
+            if activity_id != TROLL_INVASION_ACTIVITY_ID and troll_view["active"]:
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Troll Invasion?",
+                    "Switch activities? The safe run ends and its current partial completion is cashed out.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_troll_invasion_command("leave", {})
+                    if on_troll_invasion_command is not None
+                    else {"ok": False, "message": "Troll Invasion actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Troll Invasion",
+                        str((result or {}).get("message", "Could not leave the invasion.")),
+                    )
+                    return False
             goblin_view = goblin_raids_view_pure(player_data)
             if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
                 question = "Switch activities and walk away from the goblins?"
@@ -18763,6 +18798,10 @@ def show_main_menu(
                 clan_wars_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == TROLL_INVASION_ACTIVITY_ID:
+                troll_invasion_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == CRUCIBLE_ACTIVITY_ID:
                 crucible_box.refresh()
                 _show_activity_detail(activity_id)
@@ -18849,6 +18888,7 @@ def show_main_menu(
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
             DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
             CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
+            TROLL_INVASION_ACTIVITY_ID: ("Troll Invasion", troll_invasion_box),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),
             TREASURE_TRAILS_ACTIVITY_ID: ("Treasure Trails", trail_box),
