@@ -599,3 +599,34 @@ a behaviour inconsistency, not only a visual one.
    `ee75d74b7f4d6f979914593b2c4c015ec0d301ee`. The card now swaps to Spria's
    own registered face after While Guthix Sleeps; it never retains Turael's
    face while naming Spria.
+
+### 4.9 Post-diary grill — answered 2026-07-27
+
+Four forks closed in one sitting.
+
+**The eight rejected condition kinds ship.** The workflow's design judge dropped
+them as "too thin to be worth their evaluation surface", but every one reads
+durable state the game already records, and the contract contains no
+fewest-kinds rule — its rule is to preserve every task whose translation stays
+recognisable. Authority: "I just want whatever I designed." Expected recovery is
+about 18 tasks (310 to ~328).
+
+**Narrow telemetry ledgers are approved** for the ~56 remaining recordable feats:
+finer keys on existing ledgers (per-variant kills, per-shop transactions), added
+only where a contract task needs them. Not a new system.
+
+**Dungeoneering follows the parked-XP pattern.** `pending_skill_exp_rewards`
+already parks XP for unimplemented skills; Dungeoneering joins it, plus stub
+telemetry ledgers so its counters accrue now. The cape and the 25-skill Max gate
+then clear by construction the day the skill ships.
+
+**The 140-threshold ladder stays as hidden substrate.** It is instrumentation the
+semantics clauses and the v88 migration read, not player-visible content.
+
+**Fork 3.10 does not close yet.** The owner's answer on the 39-roll skillcape
+blast radius was to verify against the real game mechanics first. Open question,
+assigned: what exactly did a Cape of Accomplishment do mechanically pre-cutoff —
+passive while worn, or an operate action granting a temporary +1 boost? The
+answer may also overturn the 2026-07-26 change that made the Agility cape boost
+passive. Evidence: `Capes of Accomplishment` oldid 6514341 (already pinned),
+Darkan, rev-727 cache, game-main.
