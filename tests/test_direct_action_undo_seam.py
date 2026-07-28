@@ -356,6 +356,40 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_gnome_restaurant_delivery_job_restores_through_the_seam(self):
+        from ankiscape.data.gnome_restaurant_data import (
+            GNOME_COCKTAIL_TARGET_IDS,
+            GNOME_DISH_TARGET_IDS,
+        )
+        from ankiscape.logic.gnome_restaurant_logic import (
+            apply_gnome_restaurant_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["action_telemetry"] = {
+            "actions": {
+                f"cooking:{target_id}": {"attempts": 1, "successes": 1}
+                for target_id in list(GNOME_DISH_TARGET_IDS)[:4]
+                + list(GNOME_COCKTAIL_TARGET_IDS)[:4]
+            }
+        }
+        before = copy.deepcopy(addon.player_data)
+
+        def change(current):
+            updated, ok, _info = apply_gnome_restaurant_command_pure(
+                current,
+                "open_service",
+                {},
+                lambda: 0.0,
+            )
+            return updated, ok
+
+        self.assertTrue(self.commit(change))
+        self.assertTrue(addon.player_data["gnome_restaurant"]["service_open"])
+        self.assertEqual(addon.player_data["inventory"]["Gianne dough"], 100)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_tears_of_guthix_entry_restores_through_the_seam(self):
         from ankiscape.logic.tears_of_guthix_logic import (
             apply_tears_of_guthix_command_pure,

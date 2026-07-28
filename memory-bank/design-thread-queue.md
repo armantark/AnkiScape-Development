@@ -482,6 +482,68 @@ whenever the primary objective is completed, and keep it only for participation
 rank. That would decouple rank from the objective rates so the rates could later
 be re-tuned freely. It is not implemented, because it would add an unsourced
 exception to an otherwise exact rule.
+### 3.21 Gnome Restaurant: one delivery ticket, or an order-and-reward board
+
+Raised 2026-07-28. This is the presentation fork deferred on 2026-07-17 "after the
+data surface is known". The data surface now exists, so here it is as a choice you
+can answer from your phone.
+
+**What the card has to carry.** Nineteen easy customers and twenty hard ones; one
+outstanding order naming a customer, a location and one of twenty gnome dishes;
+the delivery window in the source's own minutes (six easy, eleven hard) which each
+`Again` spends six of; a cumulative point ledger with a reward every twelve points;
+a Reward token that banks up to ten free meals; and a tip that is coins on an easy
+job and one of thirty-seven sourced rows on a hard one. The whole card has to fit
+in about 560 points.
+
+**Option A — one delivery ticket (implemented).** The card answers "what do I do
+next" in one line and keeps the reward economy to one more:
+
+```
+[icon] Gnome Restaurant                                   ON A JOB
+Hard job: 1 Chocolate bomb for Captain Ninto — the dwarven bar
+under White Wolf Mountain · 0 held
+[####################--------]  5 of 11 delivery minutes left
+27 points · 9 to the next reward · token holds 2/10 meals · 4 easy / 5 hard delivered
+Jobs [ Hard job, anywhere in Gielinor v ]              [ Save ]
+Cook or bank 1 Chocolate bomb
+[ Take a job ]                        [ Decline ]  [ Quit job ]
+[ Order free food ]                              [ Replace token ]
+```
+
+**Option B — order-and-reward board.** The card splits: the live order on the left,
+the reward economy permanently on the right, and both job offers as their own
+buttons showing what each pays:
+
+```
+[icon] Gnome Restaurant                                   ON A JOB
++-- Order ------------------------+-- Rewards ------------------+
+| Captain Ninto                   | Points        27            |
+| the dwarven bar under White     | Next reward   9 points      |
+| Wolf Mountain                   | Token         2 / 10 meals  |
+| Wants 1 Chocolate bomb (0 held) | Last tip      8 Mint cake   |
+| [#########-----] 5 of 11 min    | Delivered     4 easy 5 hard |
++---------------------------------+-----------------------------+
+[ Easy job · 1 point · 6 min ]   [ Hard job · 3 points · 11 min ]
+[ Decline ]  [ Order free food ]  [ Replace token ]  [ Quit job ]
+```
+
+**The trade.** A keeps one idea on screen and costs no new UI vocabulary, but the
+reward economy — the mint cake, the gnome scarf and goggles, the whole reason to
+run hard jobs — shrinks to one grey line. B keeps the payoff visible and makes the
+two job offers self-explaining, at the cost of a two-column grid inside a card that
+already carries a progress bar, which is exactly the shape the offscreen-Qt rule
+warns produces min-height overflow at 560 points.
+
+**Recommendation, and what is implemented: A.** One review is one delivery, so the
+card's job is to say what to deliver and whether you are holding it; the reward
+ledger changes once every twelve deliveries and does not deserve a permanent
+column. If you would rather see the payoff than the instruction, say B and the
+swap is confined to `ui/gnome_restaurant_panel.py` — every flag it renders already
+comes from `gnome_restaurant_view_pure`, so no logic moves.
+
+**Blocks:** nothing. Gnome Restaurant is at breadth one either way; this decides
+which layout ships.
 
 ## 4. Answered decisions
 

@@ -372,6 +372,9 @@ from .temple_trekking_panel import TempleTrekkingPanel
 from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from ..logic.mobilising_armies_logic import mobilising_armies_view_pure
 from .mobilising_armies_panel import MobilisingArmiesPanel
+from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
+from ..logic.gnome_restaurant_logic import gnome_restaurant_view_pure
+from .gnome_restaurant_panel import GnomeRestaurantPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -654,6 +657,10 @@ _COOKING_FAMILY_LABELS = {
     "pizza": "Pizza",
     "meat": "Meat",
     "dairy": "Dairy",
+    "gnome_crunchies": "Gnome crunchies",
+    "gnome_battas": "Gnome battas",
+    "gnome_bowls": "Gnomebowls",
+    "gnome_cocktails": "Gnome cocktails",
 }
 
 _UTILITY_GROUP_LABELS = {
@@ -3705,6 +3712,7 @@ def show_main_menu(
     on_mage_training_arena_command=None,
     on_temple_trekking_command=None,
     on_mobilising_armies_command=None,
+    on_gnome_restaurant_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15486,6 +15494,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(mobilising_armies_box)
 
+        gnome_restaurant_box = GnomeRestaurantPanel(
+            player_data,
+            on_command=on_gnome_restaurant_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(gnome_restaurant_box)
+
         temple_trekking_box = TempleTrekkingPanel(
             player_data,
             on_command=on_temple_trekking_command,
@@ -18617,6 +18634,29 @@ def show_main_menu(
                             str((result or {}).get("message", "Could not forfeit the battle.")),
                         )
                         return False
+            if activity_id != GNOME_RESTAURANT_ACTIVITY_ID:
+                gnome_view = gnome_restaurant_view_pure(player_data)
+                if gnome_view["order"]:
+                    answer = QMessageBox.question(
+                        dialog,
+                        "Drop the gnome delivery?",
+                        "Switch activities and hand the delivery box back?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return False
+                    result = (
+                        on_gnome_restaurant_command("leave", {})
+                        if on_gnome_restaurant_command is not None
+                        else {"ok": False, "message": "Gnome Restaurant actions are unavailable."}
+                    )
+                    if not (result or {}).get("ok", False):
+                        show_error_message(
+                            "Gnome Restaurant",
+                            str((result or {}).get("message", "Could not hand the box back.")),
+                        )
+                        return False
             if activity_id != TEMPLE_TREKKING_ACTIVITY_ID:
                 temple_view = temple_trekking_view_pure(player_data)
                 if temple_view["active"]:
@@ -19016,6 +19056,10 @@ def show_main_menu(
                 temple_trekking_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == GNOME_RESTAURANT_ACTIVITY_ID:
+                gnome_restaurant_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == CRUCIBLE_ACTIVITY_ID:
                 crucible_box.refresh()
                 _show_activity_detail(activity_id)
@@ -19115,6 +19159,10 @@ def show_main_menu(
             MOBILISING_ARMIES_ACTIVITY_ID: (
                 "Mobilising Armies",
                 mobilising_armies_box,
+            ),
+            GNOME_RESTAURANT_ACTIVITY_ID: (
+                "Gnome Restaurant",
+                gnome_restaurant_box,
             ),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),

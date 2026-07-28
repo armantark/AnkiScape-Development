@@ -374,6 +374,19 @@ def apply_consumable_pure(player_data, item_name, rng=None):
         if atk_drain > 0:
             apply_combat_stat_delta_pure(data, "attack", -atk_drain)
             drains["attack"] = atk_drain
+    elif spec["kind"] == "gnome_cocktail":
+        healed = _consumable_heal(data, _non_negative_int(spec.get("heal", 0), 0))
+        for skill_id, amount in (spec.get("boost_levels") or {}).items():
+            apply_combat_stat_delta_pure(data, skill_id, int(amount))
+            boosts[skill_id] = int(amount)
+        for skill_id, amount in (spec.get("drain_levels") or {}).items():
+            apply_combat_stat_delta_pure(data, skill_id, -int(amount))
+            drains[skill_id] = int(amount)
+        leaves = str(spec.get("leaves", ""))
+        if leaves:
+            inv = dict(data.get("inventory", {}) or {})
+            inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
+            data["inventory"] = inv
     elif spec["kind"] == "run_energy_food":
         healed = _consumable_heal(
             data,

@@ -347,6 +347,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:14:02Z"
   },
+  "activityicons/gnome_restaurant.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28Gnome_Restaurant%29.png",
+    "file_title": "Reward token (Gnome Restaurant).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502070217%21Reward_token_%28Gnome_Restaurant%29.png?8a596",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ff0783fce965e9a04f2d08e880237c60faf179f4",
+    "size": 860,
+    "source_wiki": "rs3",
+    "timestamp": "2010-12-05T14:42:30Z"
+  },
   "activityicons/goblin_raids.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Goblin_raid.png",
     "file_title": "Goblin raid.png",
@@ -1774,6 +1786,90 @@
     "size": 475,
     "source_wiki": "rs3",
     "timestamp": "2010-01-07T20:54:28Z"
+  },
+  "activityitems/gnome_restaurant_aluft_aloft_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Aluft_aloft_box.png",
+    "file_title": "Aluft aloft box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072055%21Aluft_aloft_box.png?bf4ab",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e1ec771a0bfb8c6d3aa3cb4793df8ccbc32efd9e",
+    "size": 1556,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T12:55:18Z"
+  },
+  "activityitems/gnome_restaurant_gnome_goggles.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gnome_goggles.png",
+    "file_title": "Gnome goggles.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075745%21Gnome_goggles.png?8356c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df040ed87bc0213d35f3077317c1cca2388a049b",
+    "size": 482,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T02:30:03Z"
+  },
+  "activityitems/gnome_restaurant_gnome_scarf.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gnome_scarf.png",
+    "file_title": "Gnome scarf.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072117%21Gnome_scarf.png?1fbda",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "69678290de33237d06f154c9112cd842b51c422b",
+    "size": 735,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T02:34:47Z"
+  },
+  "activityitems/gnome_restaurant_grand_seed_pod.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Grand_seed_pod.png",
+    "file_title": "Grand seed pod.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072056%21Grand_seed_pod.png?acaca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bf58df75c87c6b80e8659a7c0048fc47486429a7",
+    "size": 1488,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T13:06:53Z"
+  },
+  "activityitems/gnome_restaurant_mint_cake.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mint_cake_detail.png",
+    "file_title": "Mint cake detail.png",
+    "image_url": "https://runescape.wiki/images/archive/20180716144134%21Mint_cake_detail.png?0d4b3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "528fa96cb1991d2f1c4c68a46c018e8e5eb481ad",
+    "size": 42491,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T02:28:32Z"
+  },
+  "activityitems/gnome_restaurant_reward_token.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28Gnome_Restaurant%29.png",
+    "file_title": "Reward token (Gnome Restaurant).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502070217%21Reward_token_%28Gnome_Restaurant%29.png?8a596",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ff0783fce965e9a04f2d08e880237c60faf179f4",
+    "size": 860,
+    "source_wiki": "rs3",
+    "timestamp": "2010-12-05T14:42:30Z"
+  },
+  "activityitems/gnome_restaurant_snake_charm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Snake_charm.png",
+    "file_title": "Snake charm.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070715%21Snake_charm.png?beeda",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "10f656ee7887018720f9712b08356d3eeafb6c68",
+    "size": 629,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T20:57:07Z"
   },
   "activityitems/gold_seal.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_seal.png",
@@ -14275,6 +14371,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:24Z"
   },
+  "cookingitems/batta_tin.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Batta_tin.png",
+    "file_title": "Batta tin.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070925%21Batta_tin.png?9e886",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9543c37190bcc68741bbcdcfc5755ac1fa0b27fa",
+    "size": 262,
+    "source_wiki": "rs3",
+    "timestamp": "2008-07-10T15:41:13Z"
+  },
+  "cookingitems/blurberry_special.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blurberry_Special.png",
+    "file_title": "Blurberry Special.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075913%21Blurberry_Special.png?62a37",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ae65c594bfa7fc8f9c330ec7ebf92b971fb7b12d",
+    "size": 859,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T05:41:39Z"
+  },
   "cookingitems/bowl_of_water.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bowl_of_water.png",
     "file_title": "Bowl of water.png",
@@ -14286,6 +14406,18 @@
     "size": 880,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:58Z"
+  },
+  "cookingitems/brandy.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brandy.png",
+    "file_title": "Brandy.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072053%21Brandy.png?74abc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "31032242cd7cfb1423a5c0edffb45f2fe04896ef",
+    "size": 1415,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T12:33:18Z"
   },
   "cookingitems/bread.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bread.png",
@@ -14325,6 +14457,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-03-01T20:36:01Z"
   },
+  "cookingitems/bucket_of_milk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bucket_of_milk.png",
+    "file_title": "Bucket of milk.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071020%21Bucket_of_milk.png?68047",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "14183d6892e4f783e95b3b7c575ecfd2f26a87ab",
+    "size": 642,
+    "source_wiki": "rs3",
+    "timestamp": "2008-10-13T17:49:45Z"
+  },
   "cookingitems/bucket_of_water.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bucket_of_water.png",
     "file_title": "Bucket of water.png",
@@ -14336,6 +14480,18 @@
     "size": 754,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:05Z"
+  },
+  "cookingitems/burnt_batta.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Burnt_batta.png",
+    "file_title": "Burnt batta.png",
+    "image_url": "https://runescape.wiki/images/archive/20140427120024%21Burnt_batta.png?74fc0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "912eccb926ed57c439d076268191f26fff11cdda",
+    "size": 333,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-11T22:02:02Z"
   },
   "cookingitems/burnt_bread.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Burnt_bread.png",
@@ -14397,6 +14553,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:03:50Z"
   },
+  "cookingitems/burnt_crunchies.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Burnt_crunchies.png",
+    "file_title": "Burnt crunchies.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502020352%21Burnt_crunchies.png?72c5c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1d3443f1db4c4bd7e501e74b3591db37aadf1abd",
+    "size": 1472,
+    "source_wiki": "rs3",
+    "timestamp": "2011-06-20T21:21:20Z"
+  },
   "cookingitems/burnt_curry.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Burnt_curry.png",
     "file_title": "Burnt curry.png",
@@ -14444,6 +14612,18 @@
     "size": 452,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:08Z"
+  },
+  "cookingitems/burnt_gnomebowl.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Burnt_gnomebowl.png",
+    "file_title": "Burnt gnomebowl.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502020422%21Burnt_gnomebowl.png?c6ca4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8b9e99ad10dee086a2a9b517053acc31be945269",
+    "size": 1468,
+    "source_wiki": "rs3",
+    "timestamp": "2011-06-20T21:21:21Z"
   },
   "cookingitems/burnt_lobster.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Burnt_lobster.png",
@@ -14733,6 +14913,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:14Z"
   },
+  "cookingitems/cheese_tom_batta.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cheese%2Btom_batta.png",
+    "file_title": "Cheese+tom batta.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072050%21Cheese%2Btom_batta.png?3cdd8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b36bb9761d3405d0cf0bb71848e49bef7f4b4cdb",
+    "size": 1478,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T12:12:38Z"
+  },
   "cookingitems/cheese_wheel.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cheese_wheel.png",
     "file_title": "Cheese wheel.png",
@@ -14745,6 +14937,54 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T02:01:27Z"
   },
+  "cookingitems/chocchip_crunchies.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chocchip_crunchies.png",
+    "file_title": "Chocchip crunchies.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072052%21Chocchip_crunchies.png?51f3d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ae7aa528e3ef2ee069102bd9b257377474b2b3b9",
+    "size": 1526,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T12:12:50Z"
+  },
+  "cookingitems/chocolate_bar.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chocolate_bar.png",
+    "file_title": "Chocolate bar.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502021801%21Chocolate_bar.png?abc25",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7dfc0152614132b3b06b9b186a7c9ef08b5f749a",
+    "size": 899,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-03T03:06:37Z"
+  },
+  "cookingitems/chocolate_bomb.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chocolate_bomb.png",
+    "file_title": "Chocolate bomb.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072047%21Chocolate_bomb.png?ed8a4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f1c7e207ad95deba3bbcce913ce71f72c6dc9ae5",
+    "size": 1535,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T12:11:42Z"
+  },
+  "cookingitems/chocolate_dust.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chocolate_dust.png",
+    "file_title": "Chocolate dust.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080959%21Chocolate_dust.png?b596a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ef9d7661024a0d78b846655a563bf4cfc280228b",
+    "size": 254,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-03T02:57:19Z"
+  },
   "cookingitems/chopped_onion.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chopped_onion.png",
     "file_title": "Chopped onion.png",
@@ -14756,6 +14996,30 @@
     "size": 813,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:16Z"
+  },
+  "cookingitems/cocktail_glass.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cocktail_glass.png",
+    "file_title": "Cocktail glass.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080013%21Cocktail_glass.png?60a0e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b3f525203d0475582504992aa5030abccf7a8004",
+    "size": 545,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T08:51:28Z"
+  },
+  "cookingitems/cocktail_shaker.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cocktail_shaker.png",
+    "file_title": "Cocktail shaker.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075728%21Cocktail_shaker.png?bdf89",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "56225e8b24a28ee461aee3a88e489086682fa2f0",
+    "size": 588,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T08:51:52Z"
   },
   "cookingitems/cod.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cod.png",
@@ -14865,6 +15129,18 @@
     "source_wiki": "rs3",
     "timestamp": "2024-11-20T04:06:49Z"
   },
+  "cookingitems/crunchy_tray.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crunchy_tray.png",
+    "file_title": "Crunchy tray.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502063806%21Crunchy_tray.png?b4e9d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "17f972bcc49661e325ee70f3f941dbdfd0627869",
+    "size": 689,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T16:07:50Z"
+  },
   "cookingitems/curry.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Curry.png",
     "file_title": "Curry.png",
@@ -14877,6 +15153,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:26Z"
   },
+  "cookingitems/drunk_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Drunk_Dragon.png",
+    "file_title": "Drunk Dragon.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064359%21Drunk_Dragon.png?4cd92",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "41766e5b0188e65f0aaf83d48190fd90cde287ba",
+    "size": 791,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-20T09:55:46Z"
+  },
+  "cookingitems/dwellberries.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dwellberries.png",
+    "file_title": "Dwellberries.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070530%21Dwellberries.png?cb125",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c3af237a7b1ef48375612e7cc8cabcaa50c10197",
+    "size": 308,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-20T12:36:36Z"
+  },
   "cookingitems/egg.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Egg.png",
     "file_title": "Egg.png",
@@ -14888,6 +15188,18 @@
     "size": 570,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:49Z"
+  },
+  "cookingitems/equa_leaves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Equa_leaves.png",
+    "file_title": "Equa leaves.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081025%21Equa_leaves.png?01275",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ef56f04fd80e2327985e5ac702a540fdec1af8d7",
+    "size": 647,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-03T20:39:17Z"
   },
   "cookingitems/fat_snail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fat_snail.png",
@@ -14949,6 +15261,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:10Z"
   },
+  "cookingitems/fruit_batta.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fruit_batta.png",
+    "file_title": "Fruit batta.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064401%21Fruit_batta.png?d614a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "42359dfff8cb411f95970148ee19c27057451432",
+    "size": 478,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T10:06:30Z"
+  },
+  "cookingitems/fruit_blast.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fruit_Blast.png",
+    "file_title": "Fruit Blast.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064403%21Fruit_Blast.png?84395",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "985abc7feb21b49ba645f5b6f5711d4ff772f35a",
+    "size": 853,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T10:06:41Z"
+  },
   "cookingitems/garden_pie.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Garden_pie.png",
     "file_title": "Garden pie.png",
@@ -14960,6 +15296,54 @@
     "size": 676,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:13Z"
+  },
+  "cookingitems/gianne_dough.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gianne_dough.png",
+    "file_title": "Gianne dough.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502035751%21Gianne_dough.png?78206",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2832fe74a4a82b7a54ba721ee124c08600249018",
+    "size": 1020,
+    "source_wiki": "rs3",
+    "timestamp": "2011-09-05T00:23:27Z"
+  },
+  "cookingitems/gin.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gin.png",
+    "file_title": "Gin.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081026%21Gin.png?b9238",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3a301f1497b539176f50bfd61e1f093abfb71d4c",
+    "size": 460,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-03T20:40:04Z"
+  },
+  "cookingitems/gnome_spice.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gnome_spice.png",
+    "file_title": "Gnome spice.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071005%21Gnome_spice.png?99e41",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "328ffdff2608c85c339d0c0d51fd64910373d5c7",
+    "size": 628,
+    "source_wiki": "rs3",
+    "timestamp": "2008-09-14T20:51:31Z"
+  },
+  "cookingitems/gnomebowl_mould.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gnomebowl_mould.png",
+    "file_title": "Gnomebowl mould.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502063809%21Gnomebowl_mould.png?6af58",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8d1a83329e054d5c796fa431398b2b3cc18df6e3",
+    "size": 757,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T02:53:19Z"
   },
   "cookingitems/grain.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Grain.png",
@@ -14985,6 +15369,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:45Z"
   },
+  "cookingitems/king_worm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:King_worm.png",
+    "file_title": "King worm.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070744%21King_worm.png?80269",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2f108d5f5b2d7fb28e21fd57b44033074fc6b891",
+    "size": 762,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T12:23:22Z"
+  },
+  "cookingitems/lava_eel.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lava_eel.png",
+    "file_title": "Lava eel.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071600%21Lava_eel.png?53b79",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8792fb35ee271437b5f6177d6a43da4f98257311",
+    "size": 489,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T11:59:03Z"
+  },
   "cookingitems/lean_snail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lean_snail.png",
     "file_title": "Lean snail.png",
@@ -15008,6 +15416,78 @@
     "size": 634,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:45Z"
+  },
+  "cookingitems/lemon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lemon.png",
+    "file_title": "Lemon.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502180703%21Lemon.png?ee0b0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8d1a1e180934bda1855d9427d9bca1bce7dcfc48",
+    "size": 1257,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-25T08:29:30Z"
+  },
+  "cookingitems/lemon_chunks.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lemon_chunks.png",
+    "file_title": "Lemon chunks.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174213%21Lemon_chunks.png?ee168",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cc20c1b72b39136ab0c1ef045dac99f075d8cfd1",
+    "size": 261,
+    "source_wiki": "rs3",
+    "timestamp": "2011-09-05T12:43:19Z"
+  },
+  "cookingitems/lemon_slices.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lemon_slices.png",
+    "file_title": "Lemon slices.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070915%21Lemon_slices.png?4bbaf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "aa5aebd784b857a4f47d9a9e94a0cfa98ba8f604",
+    "size": 367,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-25T08:30:29Z"
+  },
+  "cookingitems/lime.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lime.png",
+    "file_title": "Lime.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073220%21Lime.png?905c7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7523ad1d56e68699895ec3a8fc0f44f6975f1ebf",
+    "size": 1344,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-03T15:50:18Z"
+  },
+  "cookingitems/lime_chunks.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lime_chunks.png",
+    "file_title": "Lime chunks.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081954%21Lime_chunks.png?736ed",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0c3be861b919182402af970576cc53ce7c20dba1",
+    "size": 255,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-08T02:40:25Z"
+  },
+  "cookingitems/lime_slices.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lime_slices.png",
+    "file_title": "Lime slices.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081010%21Lime_slices.png?b7f40",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "92564b22021861987e9b8e0cc287d124519d122a",
+    "size": 303,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-03T03:09:00Z"
   },
   "cookingitems/lobster.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lobster.png",
@@ -15105,6 +15585,42 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:37Z"
   },
+  "cookingitems/orange.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Orange.png",
+    "file_title": "Orange.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081657%21Orange.png?0e087",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f716f21944dcd4212e8c2bddf28680165ef33aae",
+    "size": 394,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-05T00:59:46Z"
+  },
+  "cookingitems/orange_chunks.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Orange_chunks.png",
+    "file_title": "Orange chunks.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081652%21Orange_chunks.png?1ee53",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "97bc123cfa0325aaa0c5f2cac45b81894cff181a",
+    "size": 246,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-05T00:58:43Z"
+  },
+  "cookingitems/orange_slices.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Orange_slices.png",
+    "file_title": "Orange slices.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081654%21Orange_slices.png?26fec",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4e9ead4d53f5d4740282da940612dcea2512f621",
+    "size": 330,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-05T00:59:20Z"
+  },
   "cookingitems/pastry_dough.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Pastry_dough.png",
     "file_title": "Pastry dough.png",
@@ -15116,6 +15632,18 @@
     "size": 401,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:54Z"
+  },
+  "cookingitems/pat_of_butter.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pat_of_butter.png",
+    "file_title": "Pat of butter.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502173827%21Pat_of_butter.png?defbe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "41e16193d07729fadb31595d0464698408d35a73",
+    "size": 314,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T22:12:00Z"
   },
   "cookingitems/pie_shell.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Pie_shell.png",
@@ -15140,6 +15668,42 @@
     "size": 636,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:03:06Z"
+  },
+  "cookingitems/pineapple.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pineapple.png",
+    "file_title": "Pineapple.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502062941%21Pineapple.png?3cb53",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1832b2718d29f1a73cc2f2d9fbcb93f6cfe1e5e8",
+    "size": 849,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-10T00:58:08Z"
+  },
+  "cookingitems/pineapple_chunks.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pineapple_chunks.png",
+    "file_title": "Pineapple chunks.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071612%21Pineapple_chunks.png?5d886",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "65d2d85282ebfc11d7bf234e9eebf3f892b9be21",
+    "size": 241,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T01:42:22Z"
+  },
+  "cookingitems/pineapple_punch.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pineapple_Punch.png",
+    "file_title": "Pineapple Punch.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064408%21Pineapple_Punch.png?2fd0f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0cf312ef40349c7d5f79a252ceea22d4601d30a8",
+    "size": 870,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T01:42:12Z"
   },
   "cookingitems/pitta_bread.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Pitta_bread.png",
@@ -15188,6 +15752,18 @@
     "size": 637,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:48Z"
+  },
+  "cookingitems/pot_of_cream.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pot_of_cream.png",
+    "file_title": "Pot of cream.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082001%21Pot_of_cream.png?23abd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ae51bd0e1411992b3acbfdb2988c1a31befc5900",
+    "size": 326,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-08T03:01:25Z"
   },
   "cookingitems/pot_of_flour.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Pot_of_flour.png",
@@ -15537,6 +16113,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:35Z"
   },
+  "cookingitems/short_green_guy.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Short_Green_Guy.png",
+    "file_title": "Short Green Guy.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064409%21Short_Green_Guy.png?cb4c2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ad011a376003daa1398276e475a6b8f9cd932fca",
+    "size": 895,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T14:37:26Z"
+  },
   "cookingitems/shrimps.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shrimps.png",
     "file_title": "Shrimps.png",
@@ -15572,6 +16160,18 @@
     "size": 662,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:53Z"
+  },
+  "cookingitems/spicy_crunchies.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spicy_crunchies.png",
+    "file_title": "Spicy crunchies.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064411%21Spicy_crunchies.png?6b6f5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2ccb97c8334d2db8c79804e011a070a889101c64",
+    "size": 557,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T23:38:19Z"
   },
   "cookingitems/stew.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Stew.png",
@@ -15633,6 +16233,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:57Z"
   },
+  "cookingitems/tangled_toads_legs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Tangled_toads%27_legs.png",
+    "file_title": "Tangled toads' legs.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072045%21Tangled_toads%27_legs.png?d7921",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9c19ea8337d66236e273a9f8953aab75aef58fc4",
+    "size": 1542,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-08T12:11:28Z"
+  },
   "cookingitems/thin_snail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thin_snail.png",
     "file_title": "Thin snail.png",
@@ -15656,6 +16268,42 @@
     "size": 557,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:07:00Z"
+  },
+  "cookingitems/toad_batta.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Toad_batta.png",
+    "file_title": "Toad batta.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064415%21Toad_batta.png?05d00",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b0468e6020f19c44afe6fed06af39727bfc46e6b",
+    "size": 470,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T20:21:11Z"
+  },
+  "cookingitems/toad_crunchies.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Toad_crunchies.png",
+    "file_title": "Toad crunchies.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064414%21Toad_crunchies.png?a9f07",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3a17240d7f434f4a4d2684eee09aff90eeb7b0a1",
+    "size": 525,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T20:26:14Z"
+  },
+  "cookingitems/toad_s_legs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Toad%27s_legs.png",
+    "file_title": "Toad's legs.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502084307%21Toad%27s_legs.png?d5a2b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ed0d9f43bc7d0f9520a8e7acf084cdd72d84e24a",
+    "size": 950,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T20:20:05Z"
   },
   "cookingitems/tomato.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tomato.png",
@@ -15789,6 +16437,42 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:07:12Z"
   },
+  "cookingitems/veg_ball.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Veg_ball.png",
+    "file_title": "Veg ball.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072350%21Veg_ball.png?7ffa8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6e2ad365fc054261100991faf128090474a28776",
+    "size": 1443,
+    "source_wiki": "rs3",
+    "timestamp": "2010-02-18T18:56:26Z"
+  },
+  "cookingitems/vegetable_batta.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Vegetable_batta.png",
+    "file_title": "Vegetable batta.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072348%21Vegetable_batta.png?7ffa8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "74d941376479ecf8c92675f4c36197ec87a9152e",
+    "size": 1408,
+    "source_wiki": "rs3",
+    "timestamp": "2010-02-18T18:56:26Z"
+  },
+  "cookingitems/vodka.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Vodka.png",
+    "file_title": "Vodka.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075729%21Vodka.png?55e5c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7aa94572ca54ff5ac721bab783c405d3ed5edd6d",
+    "size": 434,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-30T10:51:30Z"
+  },
   "cookingitems/watermelon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Watermelon.png",
     "file_title": "Watermelon.png",
@@ -15801,6 +16485,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:08:11Z"
   },
+  "cookingitems/whisky.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Whisky.png",
+    "file_title": "Whisky.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081747%21Whisky.png?d2e35",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "74bbb2763b489a1f44a3f4d61a10459350e2866f",
+    "size": 394,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-05T01:45:31Z"
+  },
   "cookingitems/wild_pie.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wild_pie.png",
     "file_title": "Wild pie.png",
@@ -15812,6 +16508,54 @@
     "size": 755,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:13:55Z"
+  },
+  "cookingitems/wizard_blizzard.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Wizard_Blizzard.png",
+    "file_title": "Wizard Blizzard.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064416%21Wizard_Blizzard.png?ba63d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1c9f4c3e2fd150a2e26d5367187a42b1d589ee79",
+    "size": 892,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-05T06:27:31Z"
+  },
+  "cookingitems/worm_batta.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Worm_batta.png",
+    "file_title": "Worm batta.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072355%21Worm_batta.png?109ae",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "53062f663a42a05695096744c85146dc1adfa084",
+    "size": 1422,
+    "source_wiki": "rs3",
+    "timestamp": "2010-02-18T18:56:27Z"
+  },
+  "cookingitems/worm_crunchies.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Worm_crunchies.png",
+    "file_title": "Worm crunchies.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072352%21Worm_crunchies.png?109ae",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "19b800f91109a13e69435faef56e4927d47e817f",
+    "size": 1541,
+    "source_wiki": "rs3",
+    "timestamp": "2010-02-18T18:56:27Z"
+  },
+  "cookingitems/worm_hole.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Worm_hole.png",
+    "file_title": "Worm hole.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064418%21Worm_hole.png?7012d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d5e6c90241047306bac47c1368f8e36554eb6cbc",
+    "size": 723,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-05T08:11:39Z"
   },
   "crafteditems/accursed_urn.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Accursed_urn.png",

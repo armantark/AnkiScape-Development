@@ -1,5 +1,40 @@
 # Progress
 
+## Gnome Restaurant and gnome cooking — 2026-07-28
+
+Reached breadth level one in the `families/gnome-restaurant` worktree, schema 97.
+
+**Gnome cooking is real Cooking.** Twenty period dishes ship as Cooking targets
+with exact levels (6 to 42), exact XP (50 to 190) and the exact ingredient list of
+both period assembly stages, consumed in one action the way the pie and pizza prep
+bridges already work. Seven knife bridges turn fruit into the slices and chunks the
+recipes call for. Every ingredient was already reachable: Grand Tree Groceries and
+Funch's stock the dough, spice, leaves, tins, trays, moulds, shaker, glass and
+spirits, King worm and Swamp toad come from pickpocketing gnomes, and Herblore
+already removes toad's legs. The thirteen dishes are edible with the healing values
+2011Scape's own food table gives them, and the seven cocktails are drinkable with
+their sourced Strength boost and Attack drain through a new flat-level drink
+consumable.
+
+**The delivery loop.** One productive review delivers the outstanding order and
+takes the next job, so the loop needs no direct action between deliveries. `Again`
+never destroys an order: it spends six world minutes of the order's own source
+window, and what survives becomes the chance of the good tip. Nineteen easy and
+twenty hard customers ship complete with their exact quest and Magic gates, easy
+jobs pay one point and hard jobs three, twelve points pay the Reward token and each
+further twelve banks another free meal up to ten, and all thirty-seven sourced tip
+rows are reachable — including the Gnome scarf and goggles, which only Captain
+Ninto and Captain Daerkin ever hand over. The entry gate reads durable Cooking
+production, so four dishes and four cocktails cooked at any time in the past open
+the service without a single tutorial-only review.
+
+Five registered placeholders cover the burn endpoints, the order-request weights,
+the tip weights, the speed-to-tip curve, and the token's food draw. The presentation
+fork deferred since 2026-07-17 is queued as design decision 3.19 with both layouts
+drawn; the recommended one is implemented. Durable record:
+`source-audits/gnome-restaurant-harvest-2026-07-28.md`.
+
+
 ## Current Baseline — 2026-07-16
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.

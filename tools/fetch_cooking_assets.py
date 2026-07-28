@@ -48,6 +48,7 @@ from tools.fetch_assets import (  # noqa: E402
 )
 
 PROVENANCE = Path("assets_provenance.json")
+PRE_EOC_CUTOFF = "2012-11-20T00:00:00Z"
 _COOKING_ITEMS_REL = Path(COOKING_ITEMS_FOLDER).relative_to(REPO_ROOT)
 
 _COVERED_ELSEWHERE = (
@@ -66,6 +67,13 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
     "Cooked meat": "Cooked meat.png",
     "Mushrooms": "Mushroom.png",
     "Uncooked berry pie": "Uncooked berry pie.png",
+    # The wiki files the cocktail articles use are title-cased.
+    "Fruit blast": "Fruit Blast.png",
+    "Pineapple punch": "Pineapple Punch.png",
+    "Wizard blizzard": "Wizard Blizzard.png",
+    "Short green guy": "Short Green Guy.png",
+    "Drunk dragon": "Drunk Dragon.png",
+    "Blurberry special": "Blurberry Special.png",
 }
 
 
@@ -86,7 +94,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     manifest = _manifest()
-    client = HttpWikiClient()
+    client = HttpWikiClient(before_timestamp=PRE_EOC_CUTOFF)
     ok = skipped = failed = 0
     failures: List[str] = []
     print(f"Resolving {len(manifest)} Cooking icons...")
