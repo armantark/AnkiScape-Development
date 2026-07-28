@@ -138,6 +138,23 @@ Imblewyn and Professor Onglewip.
 | `gnome_restaurant.good_tip_curve` | how punctuality converts into the chance of the good-tip group |
 | `gnome_restaurant.token_food_weights` | the token's food draw, where the only sourced fact is that drinks are rarer than dishes |
 
+## Art
+
+Every sprite this family fetched is a pre-cutoff upload, recorded in
+`assets_provenance.json`, and the Cooking fetcher now resolves against the
+full upload history before the cutoff rather than the newest file. Two gaps
+remain and neither is fixable from the wiki: `Bird's nest` has no pre-cutoff
+upload under any of its titles, so that tip row ships without art, and
+`Choc saturday` has none either.
+
+One pre-existing condition is worth naming rather than hiding. A few gnome items
+already had shop sprites fetched in 2021 without the cutoff check, and
+`EXTRA_ITEM_IMAGES` merges the shop images after the Cooking ones, so those items
+display the older post-cutoff sprite even though a pre-cutoff file now sits in
+`cookingitems/`. That merge order is shared by every family and is the measured
+post-cutoff art condition recorded as design-queue item 5.2; it is not changed
+here.
+
 ## Deferred depth
 
 The period intermediate assembly items; the Gnome Restaurant tutorial as a
