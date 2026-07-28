@@ -14,24 +14,24 @@ defects an independent Sol pass found afterwards.
 
 ## Blocker 1 — D1: 384 regional tasks
 
-**What is blocked.** 310 tasks ship. The contract asks for 384.
+**What is blocked.** 326 tasks ship. The contract asks for 384.
 
-**What I tried.** A nine-agent workflow re-derived the omitted task list directly
-from Darkan's `com/rs/game/content/achievements` tree rather than trusting an
-earlier report, classified all of it, and shipped the two condition kinds that
-survived scrutiny — `any_of` and `derived_value`. That recovered six tasks, from
-304 to 310. Earlier in the same goal the roster harvest took the catalog from 171
-to 304 and emptied all 11 empty tiers.
+**What I tried.** The source harvest first took the catalog from 171 to 304. The
+`any_of` and `derived_value` pass raised it to 310. The approved expansion then
+added five condition kinds over existing save state and four contract-limited
+telemetry tasks, reaching 326 without replacing a shipped task or exceeding a
+regional tier's twelve-task budget.
 
-**Why it stops here.** The remaining tasks have no predicate AnkiScape can
-evaluate. They need telemetry the game does not record — which specific creature
-variant was killed, which location an action happened in, which emote was
-performed. Inventing predicates for them would ship rows that can never complete,
-which is the defect this whole programme removed.
+**Why it stops here.** The remaining tasks need state outside the approved narrow
+ledger extension: geography, emotes, inventory choreography, unimplemented enemy
+or vendor routes, or wider mechanic-specific telemetry. Inventing predicates for
+them would ship rows that cannot complete or that no longer describe the source
+deed.
 
-**The single thing that would unblock it.** A decision from the owner about which
-new telemetry AnkiScape should record. That is a product choice about what the
-game tracks, not a harvest, and it is his to make.
+**The single thing that would unblock it.** Implement the missing authentic game
+routes and their own durable event seams. The owner has answered the product
+question about narrow existing-ledger keys; the remaining gap is implementation
+breadth, not an unresolved telemetry policy.
 
 ---
 
@@ -75,4 +75,4 @@ change.
 ---
 
 **Delete this file** when Dungeoneering ships, which clears blockers 2 and 3
-together, and when the owner has answered the telemetry question behind blocker 1.
+together, and when the regional diary catalog reaches its 384-task contract.

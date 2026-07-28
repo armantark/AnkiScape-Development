@@ -90,7 +90,11 @@ from ..logic_pure.logic_pure import (
     red_sandstone_daily_state_pure,
     sanitize_stronghold_state_pure,
 )
-from ..logic.shop_logic import default_shop_state_pure, sanitize_shop_state_pure
+from ..logic.shop_logic import (
+    default_shop_state_pure,
+    migrate_shop_diary_transaction_counts_pure,
+    sanitize_shop_state_pure,
+)
 from ..logic.grand_exchange_logic import default_ge_state_pure, sanitize_ge_state_pure
 from ..data.big_chinchompa_data import BIG_CHINCHOMPA_TICKET_BY_TARGET
 from ..logic.big_chinchompa_logic import (
@@ -272,7 +276,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 89
+CURRENT_CONFIG_VERSION = 90
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1714,6 +1718,12 @@ def migrate_loaded_data(
             data.setdefault(key, value)
         data.update(refresh_capes_pure(data))
         data.update(refresh_music_log_pure(data)[0])
+    # v90: Diary telemetry adds only contract-consumed shop transaction and Fight
+    # Caves variant counters. Retained shop events seed honest retroactive credit;
+    # the canonical sanitizers install empty Fight Caves and Dungeoneering ledgers.
+    if loaded_config_version < 90:
+        data.update(migrate_shop_diary_transaction_counts_pure(data))
+        data.update(refresh_achievement_diaries_pure(data)[0])
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

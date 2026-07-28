@@ -5,7 +5,7 @@ tier membership, names, descriptions and ordinary requirements. Pinned
 pre-cutoff wiki revisions are corroboration only. Tasks without an honest
 AnkiScape predicate are omitted rather than emitted as inert rows.
 
-Tasks kept: 322."""
+Tasks kept: 326."""
 
 from __future__ import annotations
 
@@ -144,7 +144,7 @@ DIARY_FAMILIES = (
                 'ardougne_easy_vial_deeds',
                 'Vial Deeds',
                 'Buy a water-filled vial from the general store run by Aemad and Kortan.',
-                (DiaryCondition('shop_transaction', 'buy|aemads_adventuring_supplies|aemads_adventuring_supplies:9:227', 1, 'Buy a vial of water from Aemad and Kortan'),),
+                (DiaryCondition('counter', 'shop_transaction_counts.aemads_vial_of_water', 1, 'Buy a vial of water from Aemad and Kortan'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 15,
                 0,
@@ -1324,6 +1324,15 @@ DIARY_FAMILIES = (
             'Hard Karamja task rewards.',
             (
             DiaryTask(
+                'karamja_hard_play_dead_doggy',
+                'Play Dead, Doggy',
+                'Kill a Ket-Zek in the Fight Caves.',
+                (DiaryCondition('counter', 'fight_caves.kill_counts.ket_zek', 1, 'Kill a Ket-Zek in the Fight Caves'),),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                212,
+                0,
+            ),
+            DiaryTask(
                 'karamja_hard_at_one_with_nature',
                 'At One With Nature',
                 'Craft some nature runes.',
@@ -1488,6 +1497,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'the_restless_ghost', 1, 'Complete The Restless Ghost'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 61,
+                0,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_the_fruit_of_the_sea',
+                'The Fruit of the Sea',
+                "Sell a raw shrimp to Lumbridge's fishing shop.",
+                (DiaryCondition('counter', 'shop_transaction_counts.lumbridge_raw_shrimps_sale', 1, 'Sell raw shrimps to Lumbridge Fishing Supplies'),),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                79,
                 0,
             ),
             ),
@@ -2247,6 +2265,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'seers_easy_grand_candle',
+                'Grand Candle',
+                'Buy a candle from the candle-maker.',
+                (DiaryCondition('counter', 'shop_transaction_counts.candle_maker_candle', 1, 'Buy a candle from the candle-maker'),),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                230,
+                0,
+            ),
+            DiaryTask(
                 'seers_easy_mack_rolled',
                 'Mack Rolled',
                 'Catch a mackerel.',
@@ -2559,6 +2586,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'agility', 13, 'Level 13 Agility'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 261,
+                0,
+            ),
+            DiaryTask(
+                'varrock_easy_read_all_about_it',
+                'Read All About It',
+                'Buy a copy of the Varrock Herald.',
+                (DiaryCondition('counter', 'shop_transaction_counts.benny_varrock_herald', 1, 'Buy a Varrock Herald from Benny'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                263,
                 0,
             ),
             DiaryTask(

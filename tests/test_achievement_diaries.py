@@ -468,6 +468,14 @@ def _task_by_source_id(source_id):
     )
 
 
+def _assert_task_credited(testcase, player, source_id):
+    task = _task_by_source_id(source_id)
+    testcase.assertTrue(task_progress_pure(player, task)[0], task.id)
+    refreshed, newly = refresh_achievement_diaries_pure(player)
+    completed = refreshed["achievement_diaries"]["completed_tasks"]
+    testcase.assertTrue(task.id in newly or task.id in completed, task.id)
+
+
 def _any_of_tasks():
     return [
         (task, condition)
@@ -523,6 +531,14 @@ class ConditionKeyResolutionTest(unittest.TestCase):
         self.assertTrue(
             resolve_condition_key("equipped_item", "feet|Spiked gauntlets")
         )
+        self.assertTrue(
+            resolve_condition_key(
+                "counter", "shop_transaction_counts.unconsumed_transaction"
+            )
+        )
+        self.assertTrue(
+            resolve_condition_key("counter", "fight_caves.kill_counts.tz_kih")
+        )
 
 
 class NewConditionDegradationTest(unittest.TestCase):
@@ -575,13 +591,6 @@ class NewConditionDegradationTest(unittest.TestCase):
 
 
 class StageOneRealPathTest(unittest.TestCase):
-    def _assert_credited(self, player, source_id):
-        task = _task_by_source_id(source_id)
-        self.assertTrue(task_progress_pure(player, task)[0], task.id)
-        refreshed, newly = refresh_achievement_diaries_pure(player)
-        completed = refreshed["achievement_diaries"]["completed_tasks"]
-        self.assertTrue(task.id in newly or task.id in completed, task.id)
-
     def test_stage_one_combat_tasks_complete_through_real_combat_bursts(self):
         from ankiscape.logic_pure.logic_pure_combat_engine import apply_combat_burst_pure
         from ankiscape.core.constants import COMBAT_ENEMY_DATA
@@ -610,7 +619,7 @@ class StageOneRealPathTest(unittest.TestCase):
                     rng=lambda: 0.5,
                 )
                 self.assertTrue(ok, result)
-                self._assert_credited(player, source_id)
+                _assert_task_credited(self, player, source_id)
 
     def test_vial_deeds_completes_through_aemads_shop(self):
         from ankiscape.logic.shop_logic import apply_shop_buy_pure
@@ -624,7 +633,7 @@ class StageOneRealPathTest(unittest.TestCase):
             1,
         )
         self.assertTrue(result["allowed"], result)
-        self._assert_credited(player, 15)
+        _assert_task_credited(self, player, 15)
 
     def test_dibs_on_the_first_batch_completes_through_taverley_planting(self):
         from ankiscape.data.farming_data import FARMING_CROPS_BY_ID
@@ -645,7 +654,7 @@ class StageOneRealPathTest(unittest.TestCase):
             },
         )
         self.assertTrue(ok, info)
-        self._assert_credited(player, 544)
+        _assert_task_credited(self, player, 544)
 
     def test_heel_boy_completes_through_summoning_a_spirit_wolf(self):
         from ankiscape.logic.summoning_logic import summon_familiar_pure
@@ -654,7 +663,7 @@ class StageOneRealPathTest(unittest.TestCase):
         player["inventory"]["Spirit wolf pouch"] = 1
         player, ok, info = summon_familiar_pure(player, "spiritwolf")
         self.assertTrue(ok, info)
-        self._assert_credited(player, 557)
+        _assert_task_credited(self, player, 557)
 
     def test_hold_item_tasks_complete_through_real_item_grants(self):
         from ankiscape.logic.shop_logic import (
@@ -671,7 +680,7 @@ class StageOneRealPathTest(unittest.TestCase):
             1,
         )
         self.assertTrue(result["allowed"], result)
-        self._assert_credited(amulet_owner, 115)
+        _assert_task_credited(self,amulet_owner, 115)
 
         beer_owner = _fresh()
         beer_owner["inventory"]["Coins"] = 10
@@ -679,7 +688,7 @@ class StageOneRealPathTest(unittest.TestCase):
             beer_owner, "bartender_buy_beer", 1
         )
         self.assertTrue(result["allowed"], result)
-        self._assert_credited(beer_owner, 116)
+        _assert_task_credited(self,beer_owner, 116)
 
     def test_fill_yer_bucket_completes_through_the_utility_runtime(self):
         from ankiscape.runtime.runtime_actions_utility import handle_utility_answer
@@ -688,7 +697,7 @@ class StageOneRealPathTest(unittest.TestCase):
         player["current_utility"] = "draw_bucket_of_water"
         player["inventory"]["Bucket"] = 1
         self.assertTrue(handle_utility_answer(_crafting_context(player, [])))
-        self._assert_credited(player, 121)
+        _assert_task_credited(self, player, 121)
 
     def test_a_gift_from_khazard_completes_through_the_summoning_runtime(self):
         from ankiscape.runtime.runtime_actions_production import handle_summoning_answer
@@ -699,7 +708,7 @@ class StageOneRealPathTest(unittest.TestCase):
             {"Pouch": 1, "Gold charm": 1, "Spirit shards": 7, "Wolf bones": 1}
         )
         self.assertTrue(handle_summoning_answer(_crafting_context(player, [])))
-        self._assert_credited(player, 13)
+        _assert_task_credited(self, player, 13)
 
     def test_spiked_gauntlets_task_completes_through_shop_and_equip(self):
         from ankiscape.logic.shop_logic import apply_shop_buy_pure
@@ -722,7 +731,110 @@ class StageOneRealPathTest(unittest.TestCase):
         self.assertTrue(ok)
         player["inventory"] = inventory
         player["equipment"] = equipment
-        self._assert_credited(player, 551)
+        _assert_task_credited(self, player, 551)
+
+
+class StageTwoRealPathTest(unittest.TestCase):
+    def test_the_fruit_of_the_sea_completes_through_lumbridge_shop_handlers(self):
+        from ankiscape.logic.shop_logic import apply_shop_sell_pure
+
+        from ankiscape.core.constants import FISHING_DATA
+        from ankiscape.logic_pure.logic_pure_gathering import apply_fishing_action_pure
+
+        player = _fresh()
+        inventory, _exp, ok, output, _rewards = apply_fishing_action_pure(
+            "catch_shrimp_anchovies",
+            player["inventory"],
+            FISHING_DATA,
+            fishing_level=15,
+            rolls=(1.0, 0.0),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(output, "Raw shrimps")
+        player["inventory"] = inventory
+        player, result = apply_shop_sell_pure(
+            player, "lumbridge_fishing_supplies", "Raw shrimps", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 79)
+
+    def test_play_dead_doggy_completes_through_a_real_ket_zek_kill(self):
+        from ankiscape.logic.fight_caves_logic import (
+            apply_fight_caves_command_pure,
+            apply_fight_caves_review_pure,
+        )
+
+        player = _fresh()
+        player.update(
+            attack_level=99,
+            strength_level=99,
+            defense_level=99,
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_eat_food=[],
+            combat_auto_flee_percent=0,
+        )
+        player, ok, info = apply_fight_caves_command_pure(player, "enter")
+        self.assertTrue(ok, info)
+        player["fight_caves"].update(
+            wave=31,
+            roster=[
+                {
+                    "instance_id": "diary-ket-zek",
+                    "enemy_id": "ket_zek",
+                    "lifepoints": 1,
+                }
+            ],
+            engaged_instance_id="diary-ket-zek",
+        )
+        player, ok, result = apply_fight_caves_review_pure(
+            player, lambda: 0.0, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        _assert_task_credited(self, player, 212)
+
+    def test_grand_candle_completes_through_the_candle_maker_shop(self):
+        from ankiscape.logic.shop_logic import apply_shop_buy_pure
+
+        player = _fresh()
+        player["inventory"]["Coins"] = 10
+        player, result = apply_shop_buy_pure(
+            player, "candle_shop", "candle_shop:0:36", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 230)
+
+    def test_read_all_about_it_completes_through_bennys_vendor_action(self):
+        from ankiscape.logic.shop_logic import apply_shop_vendor_action_pure
+
+        player = _fresh()
+        player["inventory"]["Coins"] = 100
+        player, result = apply_shop_vendor_action_pure(
+            player, "benny_buy_varrock_herald", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 263)
+
+    def test_salt_in_the_wound_parks_dungeoneering_xp_and_keeps_empty_ledgers(self):
+        player = _complete_quest_for_reward(_fresh(), "salt_in_the_wound")
+        self.assertTrue(player["quests"]["salt_in_the_wound"]["completed"])
+        self.assertNotIn("dungeoneering_exp", player)
+        self.assertEqual(
+            player["pending_skill_exp_rewards"]["dungeoneering_exp"], 5000.0
+        )
+        self.assertEqual(
+            player["achievement_progress"]["skills"]["dungeoneering"],
+            {"actions": {}, "outputs": {}},
+        )
+
+        reloaded = migrate_loaded_data(copy.deepcopy(player), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            reloaded["pending_skill_exp_rewards"]["dungeoneering_exp"], 5000.0
+        )
+        self.assertEqual(
+            reloaded["achievement_progress"]["skills"]["dungeoneering"],
+            {"actions": {}, "outputs": {}},
+        )
 
 
 class AnyOfConditionTest(unittest.TestCase):

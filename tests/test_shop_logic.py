@@ -6,6 +6,7 @@ from ankiscape.logic.shop_fixtures import build_shop_fixture_player_data, build_
 from ankiscape.logic.shop_logic import (
     DECANTABLE_FLASK_POTION_BASES,
     DECANTABLE_FOUR_DOSE_POTION_BASES,
+    SHOP_DIARY_TRANSACTION_KEYS,
     advance_shop_market_clock_pure,
     apply_shop_buy_pure,
     apply_shop_sell_pure,
@@ -235,6 +236,89 @@ class TestShopLogic(unittest.TestCase):
         rolled_back_view = shop_view_model_pure(rolled_back, shop["id"])
         restored_row = next(view_row for view_row in rolled_back_view["rows"] if view_row["id"] == row["id"])
         self.assertEqual(restored_row["current_quantity"], before_stock)
+
+    def test_diary_transaction_counts_record_exact_actions_and_undo_cleanly(self):
+        cases = (
+            (
+                "aemads_vial_of_water",
+                lambda data: apply_shop_buy_pure(
+                    data,
+                    "aemads_adventuring_supplies",
+                    "aemads_adventuring_supplies:9:227",
+                    2,
+                ),
+            ),
+            (
+                "lumbridge_raw_shrimps_sale",
+                lambda data: apply_shop_sell_pure(
+                    data,
+                    "lumbridge_fishing_supplies",
+                    "Raw shrimps",
+                    1,
+                ),
+            ),
+            (
+                "candle_maker_candle",
+                lambda data: apply_shop_buy_pure(
+                    data, "candle_shop", "candle_shop:0:36", 1
+                ),
+            ),
+            (
+                "benny_varrock_herald",
+                lambda data: apply_shop_vendor_action_pure(
+                    data, "benny_buy_varrock_herald", 1
+                ),
+            ),
+        )
+        for key, apply in cases:
+            with self.subTest(key=key):
+                data = build_shop_fixture_player_data()
+                data["inventory"].update({"Coins": 1000, "Raw shrimps": 1})
+                updated, result = apply(data)
+                self.assertTrue(result["allowed"], result)
+                self.assertEqual(updated["shop_transaction_counts"], {key: 1})
+                rolled_back, rollback = rollback_shop_event_pure(
+                    updated, result["event_id"]
+                )
+                self.assertTrue(rollback["allowed"], rollback)
+                self.assertEqual(rolled_back["shop_transaction_counts"], {})
+
+    def test_both_candle_maker_shop_variants_share_one_diary_key(self):
+        for shop_id in ("candle_shop", "candle_with_black_shop"):
+            with self.subTest(shop_id=shop_id):
+                data = build_shop_fixture_player_data()
+                data["inventory"]["Coins"] = 10
+                updated, result = apply_shop_buy_pure(
+                    data, shop_id, f"{shop_id}:0:36", 1
+                )
+                self.assertTrue(result["allowed"], result)
+                self.assertEqual(
+                    updated["shop_transaction_counts"],
+                    {"candle_maker_candle": 1},
+                )
+
+    def test_diary_transaction_sanitizer_keeps_only_positive_known_keys(self):
+        sanitized = sanitize_shop_state_pure(
+            {
+                "shop_transaction_counts": {
+                    "aemads_vial_of_water": "3",
+                    "candle_maker_candle": -1,
+                    "unconsumed_transaction": 99,
+                }
+            }
+        )
+        self.assertEqual(
+            SHOP_DIARY_TRANSACTION_KEYS,
+            {
+                "aemads_vial_of_water",
+                "lumbridge_raw_shrimps_sale",
+                "candle_maker_candle",
+                "benny_varrock_herald",
+            },
+        )
+        self.assertEqual(
+            sanitized["shop_transaction_counts"], {"aemads_vial_of_water": 3}
+        )
 
     def test_shop_bought_arrows_use_equippable_identity_and_undo_cleanly(self):
         shop = SHOP_DATA["armoury"]

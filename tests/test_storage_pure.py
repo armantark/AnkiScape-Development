@@ -316,7 +316,13 @@ class TestStoragePure(unittest.TestCase):
         self.assertFalse(data["fist_of_guthix"]["tutorial_complete"])
         self.assertEqual(data["fist_of_guthix"]["rating"], 1_000)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
-        self.assertEqual(data["achievement_progress"], {"version": 1, "skills": {}})
+        self.assertEqual(
+            data["achievement_progress"],
+            {
+                "version": 1,
+                "skills": {"dungeoneering": {"actions": {}, "outputs": {}}},
+            },
+        )
         self.assertEqual(data["current_combat_target"], "chicken")
         self.assertEqual(data["combat_action"], "attack")
         self.assertEqual(data["combat_attack_style"], "accurate")
@@ -794,6 +800,46 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["slayer_exp"], 5000.0)
         self.assertGreater(migrated["slayer_level"], 1)
         self.assertEqual(migrated["pending_skill_exp_rewards"], {})
+
+    def test_v90_migration_adds_and_sanitizes_diary_telemetry_ledgers(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 89,
+                "shop_events": [
+                    {
+                        "event_id": "shop_evt_1",
+                        "type": "buy",
+                        "shop_id": "aemads_adventuring_supplies",
+                        "row_id": "aemads_adventuring_supplies:9:227",
+                    },
+                    {
+                        "event_id": "shop_evt_2",
+                        "type": "buy",
+                        "shop_id": "aemads_adventuring_supplies",
+                        "row_id": "aemads_adventuring_supplies:9:227",
+                    },
+                ],
+                "fight_caves": {
+                    "kill_counts": {"ket_zek": "3", "tz_kih": 40}
+                },
+                "achievement_progress": {"version": 1, "skills": {}},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["config_version"], 90)
+        self.assertEqual(
+            migrated["shop_transaction_counts"], {"aemads_vial_of_water": 2}
+        )
+        self.assertIn(
+            "ardougne_easy_vial_deeds",
+            migrated["achievement_diaries"]["completed_tasks"],
+        )
+        self.assertEqual(migrated["fight_caves"]["kill_counts"], {"ket_zek": 3})
+        self.assertEqual(
+            migrated["achievement_progress"]["skills"]["dungeoneering"],
+            {"actions": {}, "outputs": {}},
+        )
 
     def test_migrate_equipment_state_and_removes_owned_equipment(self):
         migrated = migrate_loaded_data(

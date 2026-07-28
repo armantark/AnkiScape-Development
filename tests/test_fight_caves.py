@@ -247,6 +247,48 @@ class FightCavesMechanicsTests(unittest.TestCase):
             2,
         )
 
+    def test_real_ket_zek_kill_records_the_exact_diary_variant(self):
+        data = _entered(
+            attack_level=99,
+            strength_level=99,
+            defense_level=99,
+            constitution_level=99,
+            combat_lifepoints=990,
+            equipment={},
+        )
+        data["fight_caves"].update(
+            wave=31,
+            roster=[
+                {
+                    "instance_id": "diary-ket-zek",
+                    "enemy_id": "ket_zek",
+                    "lifepoints": 1,
+                }
+            ],
+            engaged_instance_id="diary-ket-zek",
+        )
+        updated, ok, result = apply_fight_caves_review_pure(
+            data, lambda: 0.0, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(updated["fight_caves"]["kill_counts"], {"ket_zek": 1})
+
+    def test_fight_caves_kill_count_sanitizer_rejects_other_variants(self):
+        sanitized = sanitize_fight_caves_state_pure(
+            {
+                "kill_counts": {
+                    "ket_zek": "2",
+                    "tz_kih": 99,
+                    "not_an_enemy": 100,
+                }
+            }
+        )
+        self.assertEqual(sanitized["kill_counts"], {"ket_zek": 2})
+        self.assertEqual(
+            sanitize_fight_caves_state_pure({"kill_counts": []})["kill_counts"],
+            {},
+        )
+
     def test_tz_kek_melee_recoil_uses_the_shared_combat_slice(self):
         data = _entered(
             attack_level=99,

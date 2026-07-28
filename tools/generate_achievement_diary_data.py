@@ -293,6 +293,16 @@ def resolve_condition_key(kind: str, key: str, expected=None) -> str:
         if len(parts) != 2 or parts[1] not in COMBAT_ENEMY_DATA:
             return f"counter key {key!r} names no enemy in COMBAT_ENEMY_DATA"
         return ""
+    if parts[0] == "shop_transaction_counts":
+        from ankiscape.logic.shop_logic import SHOP_DIARY_TRANSACTION_KEYS
+
+        if len(parts) != 2 or parts[1] not in SHOP_DIARY_TRANSACTION_KEYS:
+            return f"counter key {key!r} names no diary shop transaction"
+        return ""
+    if parts[:2] == ["fight_caves", "kill_counts"]:
+        if len(parts) != 3 or parts[2] != "ket_zek":
+            return f"counter key {key!r} names no recorded Fight Caves variant"
+        return ""
     # The ledger is reachable as a dotted path too, and a fresh save carries no
     # per-skill record, so route those through the ledger registries instead of
     # the save walk below.
@@ -726,8 +736,8 @@ CONDITION_OVERRIDES.update({
     ),
     15: (
         (
-            "shop_transaction",
-            "buy|aemads_adventuring_supplies|aemads_adventuring_supplies:9:227",
+            "counter",
+            "shop_transaction_counts.aemads_vial_of_water",
             1,
             "Buy a vial of water from Aemad and Kortan",
         ),
@@ -762,6 +772,44 @@ CONDITION_OVERRIDES.update({
             1,
             "Summon a spirit wolf",
             "spiritwolf",
+        ),
+    ),
+})
+
+# Contract-limited telemetry added at the existing coarse event seams. Every key
+# below has exactly one diary consumer; unrelated shop and Fight Caves events do
+# not grow parallel ledgers.
+CONDITION_OVERRIDES.update({
+    79: (
+        (
+            "counter",
+            "shop_transaction_counts.lumbridge_raw_shrimps_sale",
+            1,
+            "Sell raw shrimps to Lumbridge Fishing Supplies",
+        ),
+    ),
+    212: (
+        (
+            "counter",
+            "fight_caves.kill_counts.ket_zek",
+            1,
+            "Kill a Ket-Zek in the Fight Caves",
+        ),
+    ),
+    230: (
+        (
+            "counter",
+            "shop_transaction_counts.candle_maker_candle",
+            1,
+            "Buy a candle from the candle-maker",
+        ),
+    ),
+    263: (
+        (
+            "counter",
+            "shop_transaction_counts.benny_varrock_herald",
+            1,
+            "Buy a Varrock Herald from Benny",
         ),
     ),
 })
