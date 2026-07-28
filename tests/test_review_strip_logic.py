@@ -254,7 +254,8 @@ class DistractionFavouritesTest(unittest.TestCase):
 
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
 
-        self.assertEqual(CURRENT_CONFIG_VERSION, 95)
+        # The watch list arrived at v95; later families move CURRENT past it.
+        self.assertGreaterEqual(CURRENT_CONFIG_VERSION, 95)
         self.assertEqual(migrated["config_version"], 95)
         self.assertEqual(migrated["dnd_favourites"], [])
 
