@@ -230,7 +230,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.ui.update_menu_visibility = lambda _skill: None
         addon.update_review_hud = lambda _data, _skill: None
-        addon.update_farming_hud_badge = lambda _data, _callback: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
 
         before = addon._capture_player_data_snapshot()
@@ -275,7 +275,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon.exp_awarded = False
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
 
         addon.on_answer_card(
@@ -321,7 +321,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon.exp_awarded = False
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.level_up_check = lambda *_args: None
         addon.check_achievements = lambda *_args: None

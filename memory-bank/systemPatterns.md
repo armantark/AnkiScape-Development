@@ -1,5 +1,29 @@
 # System Patterns
 
+## One reviewer overlay, one layout function, one live-only rule
+
+Everything that renders under the review card is a tenant of the same overlay
+cluster, and design-thread section 4.8 gives it a single rule: a tenant holds a
+seat only while it is live.
+
+- `logic/review_strip_logic.py` decides every enable and visibility question:
+  which real skill bars a running activity shows, which Distraction and Farming
+  lines the badge lists, and what each line says. `logic/grand_exchange_logic.py`
+  owns the fills-drawer view because it owns Grand Exchange state.
+  `ui/ui.py` renders those projections and computes nothing.
+- `ReviewHUD` stays mouse-transparent, so anything clickable is a sibling
+  widget: `ReviewStatusBadge` (persistent, the strip's only permanent seat, and
+  the exception the record grants because it is the notification system),
+  `ReviewFillDrawer` (only while a Grand Exchange slot is occupied), and
+  `ReviewContextActionStrip`.
+- `_reposition_review_overlay()` is the only place cluster geometry lives. The
+  world-alert and context-action contracts both forbid another independent
+  `_reposition` heuristic; a new tenant extends that function.
+- An activity's trained skills come from `ACTIVITY_TRAINED_SKILLS`, which mirrors
+  the `ctx.award_skill_exp` sites because no activity spec declares them. Two
+  families resolve theirs at award time and answer for themselves. An activity
+  absent from both shows no bar rather than a guessed one.
+
 ## Per-copy condition state overlays flat item holders
 
 Most Bank items remain flat name-to-count entries, but degradable non-stackable

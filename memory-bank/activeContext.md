@@ -2,6 +2,39 @@
 
 ## Current Focus
 
+The always-visible reviewer strip from pass 3 of the playtest notes is built,
+which closes the last unbuilt section 4.8 decision. The strip now shows only what
+is live: a running activity's real skill experience bars, so a shooting star
+shows Mining and an Evil Tree shows Woodcutting instead of replacing the bar with
+a caption, and a Grand Exchange fills drawer that appears under the experience
+bars while a slot is occupied, starts collapsed, and keeps the pass-2 tones. The
+two separate Farming and Distraction badges merged into one persistent
+`ReviewStatusBadge` whose popover lists live events, watched Distractions and
+crop rows, and whose lines navigate to the activity or patch. Watching is
+settable: a star on the Activities detail card's shared control row pins one
+Distraction through `commit_direct_action`, so it undoes like every other
+preference. Schema 95 adds `dnd_favourites` with sanitation and migration; 93 and
+94 belong to sibling branches.
+
+Every visibility decision moved into `logic/review_strip_logic.py` and
+`ge_fill_drawer_view_pure`, and `_reposition_review_overlay()` replaced the
+separate badge-column heuristic, which the world-alert contract had asked for.
+`compute_level_progress` moved from `ui/ui.py` into `logic_pure_progression` so
+the strip and the panel share one calculation. The Grand Exchange tab no longer
+carries a second copy of the drawer.
+
+One fork was queued and its recommendation implemented: design-thread section
+3.15 records that a pin adds a badge line and never removes one, so a live event
+still notifies an unpinned player. Two riders are open there — only Distractions
+can be pinned, and a quiet favourite's status line comes from shared target-row
+metadata because no cross-family live-status contract exists.
+
+Combat activities and five reward-table families deliberately show no experience
+bar: their skill is chosen by attack style or at payout, and a guessed bar is
+worse than the empty row they render today.
+
+## Earlier Focus
+
 TzHaar Fight Pit now satisfies horizontal breadth level one as a safe,
 Activities-only last-standing match. Direct entry creates three persistent
 player-relative rivals. Each productive review advances one six-tick Combat

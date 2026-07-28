@@ -4,6 +4,43 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Always-visible reviewer strip — 2026-07-28
+
+Built in the `hud-strip` worktree; the last unbuilt decision from pass 3 of the
+playtest notes (design-thread section 4.8).
+
+**What the strip contains, and when.** The running activity's real skill bars
+appear whenever that activity can award experience on the next review, so a live
+shooting star shows Mining and the bar disappears when the star resolves; the
+bars come from `ACTIVITY_TRAINED_SKILLS`, which mirrors the runtime award sites,
+with the Evil Tree resolving by phase and Tears of Guthix by its least-experience
+reward skill. Two bars is the cap and the rest are named in the caption. The
+Grand Exchange fills drawer moved out of its tab to sit under the experience
+bars, appears only while a slot is occupied, opens collapsed, and keeps pass 2's
+green-for-complete and yellow-for-partial rows newest first. The Distraction and
+Farming badge is the one permanent seat.
+
+**Watching is settable.** A `★`/`☆` control on the Activities detail card's
+shared control row pins one Distraction. It sits there rather than in forty-odd
+bespoke card headers, which is also how the five panel-class families get it for
+free. The pin commits through `commit_direct_action`, so it undoes. Schema 95
+adds `dnd_favourites`, sanitized against the Distraction group plus the Evil
+Tree, which has no activity spec of its own.
+
+**Boundaries kept honest.** Combat activities and the five reward-table families
+show no bar, because their skill comes from the attack style or from a payout
+choice. Section 3.15 records the one fork this work found — a pin adds a badge
+line and never removes one — with its recommendation implemented.
+
+**Verification.** Both lanes green from the 3251/377 baseline, up 26 tests:
+`tests/test_review_strip_logic.py` (23 pure cases), `tests/test_review_strip.py`
+(15 offscreen Qt cases, replacing `test_farming_hud.py` and
+`test_distraction_hud.py` with every case they pinned carried over), two pin
+cases in `tests/test_main_menu_widget.py`, one relocation case for the Grand
+Exchange tab, and two undo-seam cases in
+`tests/test_direct_action_undo_seam.py`. A light and dark offscreen pass probes
+geometry rather than pixels, per the offscreen rule.
+
 ## Tears of Guthix and Enchanted Key — 2026-07-26
 
 Both reached breadth level one in the `families/batch-c` worktree.

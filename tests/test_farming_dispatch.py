@@ -239,7 +239,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         order = []
         addon.check_achievements = lambda data: order.append(("achievement", data["farming_counters"]["full_runs"]))
         addon.save_player_data = lambda: order.append(("save", addon.player_data["farming_counters"]["full_runs"]))
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
 

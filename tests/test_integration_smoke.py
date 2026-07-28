@@ -118,14 +118,19 @@ class TestIntegrationSmoke(unittest.TestCase):
         ui = addon.ui
 
         self.assertFalse(ui.HAS_QT)
-        for name in ("FarmingHUDBadge", "DistractionHUDBadge"):
+        for name in ("ReviewStatusBadge", "ReviewFillDrawer"):
             placeholder = getattr(ui, name)
             self.assertTrue(hasattr(placeholder(None), "set_data"), name)
 
         # The update helpers must stay callable and inert without Qt.
-        self.assertIsNone(ui.update_distraction_hud_badge({}, lambda _id=None: None))
-        self.assertIsNone(ui.hide_distraction_hud_badge())
-        self.assertIsNone(ui._DISTRACTION_BADGE)
+        self.assertIsNone(
+            ui.update_review_status_badge({}, lambda _id=None: None, lambda _id=None: None)
+        )
+        self.assertIsNone(ui.update_review_fill_drawer({}))
+        self.assertIsNone(ui.hide_review_status_badge())
+        self.assertIsNone(ui.hide_review_fill_drawer())
+        self.assertIsNone(ui._STATUS_BADGE)
+        self.assertIsNone(ui._FILL_DRAWER)
 
     def test_hook_flow_and_settings_gating(self):
         addon = _load_addon_as_package()
@@ -1874,7 +1879,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda _data, _skill: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
@@ -1924,7 +1929,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda _data, _skill: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
@@ -1991,7 +1996,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda _data, _skill: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
@@ -2122,8 +2127,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         world_event_gains = []
         addon._show_activity_gain = world_event_gains.append
@@ -2186,8 +2191,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         world_event_gains = []
         addon._show_activity_gain = world_event_gains.append
@@ -2245,8 +2250,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         world_event_gains = []
         addon._show_activity_gain = world_event_gains.append
@@ -3642,7 +3647,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         addon.update_review_hud = lambda _data, _skill: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda _xp: None
         addon._show_activity_gain = lambda _text: None
@@ -3712,8 +3717,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         addon.update_review_hud = lambda _data, _skill: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         addon.show_error_message = lambda _title, message: self.fail(message)
@@ -3842,7 +3847,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         initial = {
             "inventory": {},
@@ -3922,7 +3927,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol())
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.check_achievements = lambda *_args: None
         addon.current_skill = "Utility / Activities"
@@ -4450,7 +4455,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda _xp: None
         addon._show_activity_gain = lambda _message: None
@@ -4507,7 +4512,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda _xp: None
         addon._show_activity_gain = lambda _message: None
@@ -4553,7 +4558,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda _xp: None
         addon._show_activity_gain = lambda _message: None
@@ -4624,7 +4629,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(col)
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.check_achievements = lambda *_args: None
         addon.current_skill = "Farming"
@@ -4662,7 +4667,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda _xp: None
         addon._show_activity_gain = lambda _message: None
@@ -4779,7 +4784,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_exp = lambda amount: calls["xp"].append(amount)
         addon.current_skill = "Mining"
@@ -5161,8 +5166,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _message: None
         addon.show_error_message = lambda _title, message: self.fail(message)
@@ -5263,8 +5268,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.check_achievements = lambda *_args: None
         addon.level_up_check = lambda *_args: None
@@ -5736,7 +5741,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         shown_xp = []
         addon._show_exp = shown_xp.append
@@ -5812,8 +5817,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         initial = {
@@ -5853,8 +5858,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         initial = {
@@ -6648,8 +6653,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.check_achievements = lambda *_args: None
         addon.level_up_check = lambda *_args: None
@@ -6985,8 +6990,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         base = {
@@ -7031,8 +7036,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
-        addon.update_farming_hud_badge = lambda *_args: None
-        addon.update_distraction_hud_badge = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         addon.check_achievements = lambda *_args: None

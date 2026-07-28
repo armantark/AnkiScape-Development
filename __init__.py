@@ -96,10 +96,10 @@ from .ui.ui import (
     hide_review_hud,
     ensure_review_context_action_strip,
     update_review_context_action_strip,
-    ensure_farming_hud_badge,
-    update_farming_hud_badge,
-    update_distraction_hud_badge,
-    hide_farming_hud_badge,
+    ensure_review_status_badge,
+    update_review_status_badge,
+    update_review_fill_drawer,
+    hide_review_status_badge,
     migrate_legacy_settings,
 )
 from .ui import ui
@@ -202,6 +202,7 @@ from .logic.grand_exchange_logic import (
     apply_ge_frontend_action_pure,
     ge_frontend_projection_pure,
 )
+from .logic.dnd_favourites_logic import toggle_dnd_favourite_pure
 from .logic.farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .logic.agility_logic import apply_agility_command_pure
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
@@ -964,8 +965,10 @@ def _restore_review_award_snapshot(snapshot) -> None:
         pass
     try:
         update_review_hud(player_data, current_skill)
-        update_farming_hud_badge(player_data, _open_farming_sheet)
-        update_distraction_hud_badge(player_data, _open_activities_sheet)
+        update_review_status_badge(
+            player_data, _open_activities_sheet, _open_farming_sheet
+        )
+        update_review_fill_drawer(player_data)
         _update_review_context_surface()
     except Exception:
         pass
@@ -981,8 +984,10 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
     save_player_data()
     try:
         update_review_hud(player_data, current_skill)
-        update_farming_hud_badge(player_data, _open_farming_sheet)
-        update_distraction_hud_badge(player_data, _open_activities_sheet)
+        update_review_status_badge(
+            player_data, _open_activities_sheet, _open_farming_sheet
+        )
+        update_review_fill_drawer(player_data)
         _update_review_context_surface()
     except Exception:
         pass
@@ -997,8 +1002,10 @@ def _restore_direct_action_snapshot(snapshot) -> None:
     save_player_data()
     try:
         update_review_hud(player_data, current_skill)
-        update_farming_hud_badge(player_data, _open_farming_sheet)
-        update_distraction_hud_badge(player_data, _open_activities_sheet)
+        update_review_status_badge(
+            player_data, _open_activities_sheet, _open_farming_sheet
+        )
+        update_review_fill_drawer(player_data)
         _update_review_context_surface()
         _refresh_skill_availability()
     except Exception:
@@ -1618,8 +1625,10 @@ def _on_main_menu(
             except AttributeError:
                 pass
         try:
-            update_farming_hud_badge(player_data, _open_farming_sheet)
-            update_distraction_hud_badge(player_data, _open_activities_sheet)
+            update_review_status_badge(
+                player_data, _open_activities_sheet, _open_farming_sheet
+            )
+            update_review_fill_drawer(player_data)
         except Exception:
             pass
         return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
@@ -1669,6 +1678,28 @@ def _on_main_menu(
         _refresh_skill_availability()
         _show_activity_gain(f"Claimed {info.get('cape', 'god cape')}.")
         return True
+
+    def _toggle_dnd_favourite(activity_id):
+        """Pin or unpin one Distraction on the reviewer badge, undoably."""
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = toggle_dnd_favourite_pure(current, activity_id)
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            return {
+                "ok": False,
+                "message": str(
+                    info.get("reason") or "Anki could not create an undo entry."
+                ),
+                **info,
+            }
+        _refresh_review_surfaces()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        return {"ok": True, **info}
 
     def _apply_agility_command(action_id, payload):
         if action_id == "set_activity_auto_stop":
@@ -3524,6 +3555,7 @@ def _on_main_menu(
         on_unload_combat_loadout=on_unload_combat_loadout,
         on_reclaim_death_office=on_reclaim_death_office,
         on_start_grave_walk=_start_grave_walk,
+        on_favourite_dnd=_toggle_dnd_favourite,
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
@@ -4410,8 +4442,10 @@ def on_answer_card(self, ease, _old):
     card_turned = False
     answer_shown = False  # Reset for the next card
     try:
-        update_farming_hud_badge(player_data, _open_farming_sheet)
-        update_distraction_hud_badge(player_data, _open_activities_sheet)
+        update_review_status_badge(
+            player_data, _open_activities_sheet, _open_farming_sheet
+        )
+        update_review_fill_drawer(player_data)
     except Exception:
         pass
     _update_review_context_surface()
@@ -4472,9 +4506,11 @@ def _refresh_review_surfaces() -> None:
             update_review_hud(player_data, current_skill)
         ensure_review_context_action_strip()
         _update_review_context_surface()
-        ensure_farming_hud_badge()
-        update_farming_hud_badge(player_data, _open_farming_sheet)
-        update_distraction_hud_badge(player_data, _open_activities_sheet)
+        ensure_review_status_badge()
+        update_review_status_badge(
+            player_data, _open_activities_sheet, _open_farming_sheet
+        )
+        update_review_fill_drawer(player_data)
     except Exception:
         pass
 
