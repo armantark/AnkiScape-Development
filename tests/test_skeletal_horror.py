@@ -463,16 +463,16 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
             "hands": "Karamja gloves 4",
             "feet": "Rune boots",
         }
-        data["combat_supply_loadout"] = {
-            **(data.get("combat_supply_loadout") or {}),
-            "food": {"Shark": 28},
-        }
         return data
 
     def _fight_one(self, data, rng):
         """Rest and restock, enter, then review until the instance resolves."""
         data["combat_lifepoints"] = 990
         data["inventory"] = {**data["inventory"], "Shark": 100_000}
+        data["combat_supply_loadout"] = {
+            **(data.get("combat_supply_loadout") or {}),
+            "food": {"Shark": 28},
+        }
         data, ok, info = apply_skeletal_horror_command_pure(
             data, "enter", equipment_data=EQUIPMENT_DATA
         )
