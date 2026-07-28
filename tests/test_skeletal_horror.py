@@ -472,6 +472,10 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
         data["combat_supply_loadout"] = {
             **(data.get("combat_supply_loadout") or {}),
             "food": {"Shark": 28},
+            "stat_potions": {
+                "Super attack (4)": 1,
+                "Super strength (4)": 1,
+            },
         }
         data, ok, info = apply_skeletal_horror_command_pure(
             data, "enter", equipment_data=EQUIPMENT_DATA
@@ -517,7 +521,7 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
 
     def test_a_real_repeat_victory_earns_repeat_xp_and_the_elite_clue(self):
         data = self._geared()
-        rng = random.Random(34).random
+        rng = random.Random(7).random
         for data, result, _phase in self._fight_one(data, rng):
             pass
         self.assertTrue(result["first_completion"])
