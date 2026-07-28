@@ -261,7 +261,8 @@ class StealingCreationSessionTests(unittest.TestCase):
         def _flee(temp, _enemies, _equipment, **_kwargs):
             self.assertEqual(temp["inventory"], {})
             self.assertFalse(temp["combat_auto_flee"])
-            self.assertEqual(temp["combat_auto_flee_percent"], 0)
+            # The old dead combat_auto_flee_percent key is no longer written;
+            # the boolean above is the flag the engine actually reads.
             self.assertFalse(temp["combat_dream_thrift"])
             self.assertFalse(temp["combat_vengeance"])
             self.assertEqual(temp["combat_selected_prayers"], [])

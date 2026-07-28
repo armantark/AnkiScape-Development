@@ -495,5 +495,33 @@ class FightCavesRuntimeTests(unittest.TestCase):
         self.assertTrue(any("Wave 1" in str(value) for value in gains))
 
 
+class FightCavesAutoFleeSuppressionTests(unittest.TestCase):
+    def test_a_starving_low_lp_player_does_not_silently_flee_the_cave(self):
+        """The cave cannot be left mid-fight, so the engine's auto-flee must be
+        suspended for the burst. The old code zeroed combat_auto_flee_percent, a
+        key the engine never reads, so a player at the auto-eat threshold with no
+        food silently fled every burst while believing they were still fighting.
+        """
+        player = _player(
+            combat_lifepoints=40,  # far below the 40% auto-eat threshold of 800
+            inventory={},          # nothing to eat
+        )
+        player["combat_auto_flee"] = True  # the engine default, explicit here
+        entered, ok, _ = apply_fight_caves_command_pure(player, "enter")
+        self.assertTrue(ok)
+
+        updated, ok, result = apply_fight_caves_review_pure(
+            entered, lambda: 0.5, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        combat = updated.get("combat_last_result") or {}
+        self.assertFalse(
+            combat.get("fled", False),
+            "the bounded cave burst must never resolve as a flee",
+        )
+        # The suspension is scoped to the burst: the player's own setting survives.
+        self.assertTrue(updated.get("combat_auto_flee", True))
+
+
 if __name__ == "__main__":
     unittest.main()
