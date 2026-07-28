@@ -199,6 +199,20 @@ class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
             asset = provenance[f"activityitems/mage_training_arena_{wand}_wand.png"]
             self.assertLess(asset["timestamp"], "2012-11-20T00:00:00Z")
 
+    def test_reward_prices_match_the_pinned_period_shop_table(self):
+        self.assertEqual(
+            {reward.id: reward.costs for reward in MAGE_TRAINING_ARENA_REWARDS},
+            {
+                "battlestaff": (1, 2, 20, 2),
+                "beginner_wand": (30, 30, 300, 30),
+                "apprentice_wand": (60, 60, 600, 60),
+                "teacher_wand": (150, 200, 1_500, 150),
+                "master_wand": (240, 240, 2_400, 240),
+                "bones_to_peaches": (200, 300, 2_000, 200),
+                "cosmic_rune": (0, 0, 5, 0),
+            },
+        )
+
     def test_cadence_coverage_names_all_four_activity_owned_room_profiles(self):
         row = next(
             row
@@ -346,6 +360,16 @@ class MageTrainingArenaRoomMechanicsTests(unittest.TestCase):
         self.assertFalse(result["checkpoint"])
         self.assertEqual(waiting["combat_lifepoints"], before)
 
+    def test_unlocked_bones_to_peaches_heals_eighty_after_falling_bone_damage(self):
+        data = _entered("graveyard")
+        data["mage_training_arena"]["completed"] = True
+        data["combat_lifepoints"] = 500
+        after, ok, result = apply_mage_training_arena_review_pure(data, lambda: 0.0)
+        self.assertTrue(ok, result)
+        self.assertEqual(result["fruit"], "peaches")
+        self.assertEqual(result["fruit_eaten"], 1)
+        self.assertEqual(after["combat_lifepoints"], 560)
+
     def test_missing_runes_pause_the_selected_room_without_mutation(self):
         data = _entered("telekinetic")
         data["inventory"]["Law rune"] = 0
@@ -485,6 +509,41 @@ class MageTrainingArenaPersistenceRuntimeAndUiTests(unittest.TestCase):
         self.assertEqual(clean["approach"], "fast_rewards")
         self.assertEqual(clean["reward_goal"], "bones_to_peaches")
         self.assertEqual(clean["wallets"], MAGE_TRAINING_ARENA_POINT_CAPS)
+
+    def test_runtime_dispatches_every_room_and_observes_each_point_wallet(self):
+        observed = {}
+        for room_id in MAGE_TRAINING_ARENA_ROOM_IDS:
+            with self.subTest(room=room_id):
+                player = _entered(room_id)
+                calls = {"errors": [], "saves": 0}
+                ctx = RuntimeActionContext(
+                    player_data=player,
+                    random_random=lambda: 0.5,
+                    show_error_message=lambda title, message: calls["errors"].append((title, message)),
+                    deactivate_current_skill=lambda: None,
+                    award_skill_exp=lambda _key, amount: amount,
+                    award_hidden_skill_exp=lambda *_args: None,
+                    level_up_check=lambda *_args: None,
+                    check_achievements=lambda *_args: None,
+                    save_player_data=lambda: calls.__setitem__("saves", calls["saves"] + 1),
+                    refresh_skill_availability=lambda: None,
+                    refresh_skill_availability_partial=lambda *_args: None,
+                    can_smith_any=lambda: True,
+                    show_exp=lambda *_args: None,
+                    show_activity_gain=lambda *_args: None,
+                    implemented_exp_keys_snapshot=lambda: {},
+                    show_quest_exp_delta=lambda *_args: None,
+                )
+                for _ in range(100):
+                    self.assertTrue(handle_utility_answer(ctx))
+                    if player["mage_training_arena"]["wallets"][room_id]:
+                        break
+                self.assertEqual(calls["errors"], [])
+                observed[room_id] = player["mage_training_arena"]["wallets"][room_id]
+        self.assertEqual(
+            observed,
+            {"telekinetic": 2, "alchemist": 1, "enchantment": 1, "graveyard": 1},
+        )
 
     def test_runtime_dispatches_a_real_room_checkpoint_and_persists(self):
         player = _entered("enchantment")
