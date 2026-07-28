@@ -91,11 +91,12 @@ capes: it is in the source cape table and absent from the shipped one, derived
 from `trainable_skill_definitions()`, so its cape and its 120 master cape appear
 on the day the skill becomes trainable.
 
-## Placeholders
+## Placeholder retirement
 
-One: `capes_of_distinction.prestige_defensive_block`. The 2011Scape config
-carries `equipment: null` for the Max and Completionist capes and Darkan reads
-its item definitions from the cache, so only the prayer bonus is recovered.
+`capes_of_distinction.prestige_defensive_block` was retired on 2026-07-27.
+Darkan's rev-727 cache dumps (`developer-information/itemList.txt:21873,21875`,
+independently rendered in `itemListCS2.txt:20769,20771`) recover all five attack
+and defence columns plus Prayer for both the Max and Completionist capes.
 
 ## Save version
 

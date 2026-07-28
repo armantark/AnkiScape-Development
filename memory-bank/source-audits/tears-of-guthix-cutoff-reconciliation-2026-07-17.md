@@ -90,10 +90,11 @@ cannot be squared with the 180/300 caps in the same period. The launch update's
 consistent with 180/300. The shipped values are the D&D article's caps; the
 ornate article's sentence is recorded here as a period-wiki defect.
 
-Still unrecovered, and now carried as registered placeholders rather than as
-blockers: the per-tick collection rate (`tears_of_guthix.tears_per_tick`) and
-the green-tear roll (`tears_of_guthix.green_tear_chance`). The only period
-anchor is the reported 267 tears at 316 quest points. AnkiScape has no
+The per-tick collection rate was recovered and its placeholder retired on
+2026-07-27: Darkan `TearsOfGuthix.kt:496-510` accepts only one collection update
+per server tick and adds exactly one tear for blue. The green-tear roll
+(`tears_of_guthix.green_tear_chance`) remains a registered placeholder. Its only
+period anchor is the reported 267 tears at 316 quest points. AnkiScape has no
 positional layer for a player to dodge a green stream with, so the green catch
 is necessarily a hidden roll here.
 

@@ -1,7 +1,7 @@
 """Period-pinned Tears of Guthix Distraction and Diversion data.
 
-Every value below is stated by a pinned pre-cutoff revision, except the two
-marked placeholders and one AnkiScape mapping that is called out where it is
+Every value below is stated by a pinned pre-cutoff revision, except the one
+marked placeholder and one AnkiScape mapping that is called out where it is
 used. The 6 November 2012 "Go with the Flow" refresh is the cutoff state, so
 the ornate bowl and the refreshed caps are in scope.
 """
@@ -68,9 +68,8 @@ ORNATE_BOWL_TOOL = "Chisel"
 # the player to dodge a stream with, so both are hidden rolls.
 TEARS_OF_GUTHIX_BLUE_SPOTS = 3
 TEARS_OF_GUTHIX_GREEN_SPOTS = 3
-# PLACEHOLDER(tears_of_guthix.tears_per_tick): the authentic per-tick collection
-# rate. Bounded by the period article's reported 267 tears at 316 quest points,
-# which caps at 300 ticks, so the stream yields at most about one tear per tick.
+# Darkan TearsOfGuthix.kt:496-510 accepts at most one collection update per
+# server tick and adds exactly one tear for a blue stream.
 TEARS_OF_GUTHIX_TEARS_PER_TICK = 1
 # PLACEHOLDER(tears_of_guthix.green_tear_chance): the authentic stream-switch
 # timing and mis-collection roll. 267 net tears from 300 ticks implies roughly

@@ -136,9 +136,11 @@ Superseded on 2026-07-26. The re-issued breadth goal admits a **registered
 placeholder** where this audit had recorded a hard blocker, so the family
 shipped rather than waiting:
 
-- the four phase stat blocks and the shared bonus array are placeholders in
+- the four phase stat blocks remain placeholders in
   `memory-bank/placeholder-values.md`, marked at the value in
-  `data/skeletal_horror_data.py`; the two-style selector weight is a third;
+  `data/skeletal_horror_data.py`;
+- the shared bonus array and two-style selector weight were recovered from
+  Darkan's rev-727 dump and combat script and retired on 2026-07-27;
 - the wish-list dependency is stood in by two explicit commands, recorded as an
   open design decision in `memory-bank/design-thread-queue.md` section 3.1.
 

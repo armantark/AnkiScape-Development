@@ -28,7 +28,9 @@ from ..logic_pure.logic_pure import (
 
 
 SKELETAL_HORROR_STATE_VERSION = 1
-SKELETAL_HORROR_MAGIC_STYLE_CHANCE = 0.5  # PLACEHOLDER(skeletal_horror.magic_style_chance): authentic two-style AI selector weights
+# Darkan SkeletalHorror.kt:114-121 uses Utils.random(2): 0 selects Melee,
+# otherwise Magic, so both styles have equal probability while available.
+SKELETAL_HORROR_MAGIC_STYLE_CHANCE = 0.5
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:

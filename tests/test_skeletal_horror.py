@@ -149,6 +149,24 @@ class SkeletalHorrorDataAndGatesTests(unittest.TestCase):
         enemy = skeletal_horror_enemy_pure(2, "magic")
         self.assertEqual(enemy["attack_style"], "melee")
         self.assertEqual(enemy["attack_speed"], 4)
+        self.assertEqual(
+            enemy["bonuses"],
+            {
+                "attack_stab": 0,
+                "attack_slash": 0,
+                "attack_crush": 0,
+                "attack_magic": 0,
+                "attack_ranged": 0,
+                "defence_stab": 100,
+                "defence_slash": 110,
+                "defence_crush": 50,
+                "defence_magic": 0,
+                "defence_ranged": 100,
+                "melee_strength": 0,
+                "ranged_strength": 0,
+                "magic_damage": 0,
+            },
+        )
         self.assertEqual(enemy["drops"], {"guaranteed": (), "tables": ()})
         self.assertTrue(enemy["encounter_only"])
         self.assertIn(SKELETAL_HORROR_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
@@ -438,13 +456,12 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
             "weapon": "Abyssal whip",
             "body": "Rune platebody",
             "legs": "Rune platelegs",
-            "head": "Rune full helm",
+            "head": "Warrior helm",
             "shield": "Dragon defender",
             "cape": "Fire cape",
-        }
-        data["combat_supply_loadout"] = {
-            **(data.get("combat_supply_loadout") or {}),
-            "food": {"Shark": 26},
+            "neck": "Amulet of glory",
+            "hands": "Karamja gloves 4",
+            "feet": "Rune boots",
         }
         return data
 
@@ -452,6 +469,14 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
         """Rest and restock, enter, then review until the instance resolves."""
         data["combat_lifepoints"] = 990
         data["inventory"] = {**data["inventory"], "Shark": 100_000}
+        data["combat_supply_loadout"] = {
+            **(data.get("combat_supply_loadout") or {}),
+            "food": {"Shark": 28},
+            "stat_potions": {
+                "Super attack (4)": 1,
+                "Super strength (4)": 1,
+            },
+        }
         data, ok, info = apply_skeletal_horror_command_pure(
             data, "enter", equipment_data=EQUIPMENT_DATA
         )
@@ -496,7 +521,7 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
 
     def test_a_real_repeat_victory_earns_repeat_xp_and_the_elite_clue(self):
         data = self._geared()
-        rng = random.Random(34).random
+        rng = random.Random(7).random
         for data, result, _phase in self._fight_one(data, rng):
             pass
         self.assertTrue(result["first_completion"])

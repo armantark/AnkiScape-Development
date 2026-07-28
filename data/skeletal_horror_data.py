@@ -23,7 +23,23 @@ SKELETAL_HORROR_SOURCE = (
     "memory-bank/boss-instance-contract-2026-07-18.md"
 )
 
-_SHARED_BONUSES: dict[str, int] = {}  # PLACEHOLDER(skeletal_horror.shared_bonuses): exact revision-727 NPC bonus-array values
+# Darkan rev-727 cache dump, developer-information/npcListBonuses.txt:9178-9182.
+# NPCs 9176-9180 share this exact attack, defence, and strength bonus array.
+_SHARED_BONUSES: dict[str, int] = {
+    "attack_stab": 0,
+    "attack_slash": 0,
+    "attack_crush": 0,
+    "attack_magic": 0,
+    "attack_ranged": 0,
+    "defence_stab": 100,
+    "defence_slash": 110,
+    "defence_crush": 50,
+    "defence_magic": 0,
+    "defence_ranged": 100,
+    "melee_strength": 0,
+    "ranged_strength": 0,
+    "magic_damage": 0,
+}
 
 SKELETAL_HORROR_PHASES: tuple[dict[str, Any], ...] = (
     {
