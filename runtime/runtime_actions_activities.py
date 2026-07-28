@@ -2294,7 +2294,10 @@ def handle_troll_invasion_answer(
     primary_xp = awarded_skill_xp + sum(
         float(value or 0.0) for value in combat_xp.values()
     )
-    for _ in range(actions_resolved):
+    # Like Clan Wars, an Again answer records a non-productive attempt even
+    # though the activity state does not advance.
+    recorded_actions = max(1, actions_resolved)
+    for _ in range(recorded_actions):
         _record_action(
             ctx,
             "utility",

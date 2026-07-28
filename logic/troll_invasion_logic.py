@@ -6,7 +6,6 @@ import copy
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from ..core.constants import EXP_TABLE
 from ..core.skill_registry import trainable_skill_definitions
 from ..data.troll_invasion_data import (
     TROLL_INVASION_ACTIVITY_ID,
@@ -41,7 +40,6 @@ from ..data.troll_invasion_data import (
 )
 from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
-    calculate_new_level,
     combat_max_lifepoints_pure,
 )
 
@@ -535,12 +533,16 @@ def _apply_repair_review(
         pressure_roll = max(0.0, min(0.999999, float(rng())))
     except (TypeError, ValueError, OverflowError):
         pressure_roll = 0.999999
+    try:
+        interruption_roll = max(0.0, min(0.999999, float(rng())))
+    except (TypeError, ValueError, OverflowError):
+        interruption_roll = 0.999999
     pressure = (
         TROLL_INVASION_REPAIR_SEVERE_PRESSURE
         if pressure_roll < TROLL_INVASION_REPAIR_SEVERE_PRESSURE_CHANCE
         else TROLL_INVASION_REPAIR_PRESSURE
     )
-    interrupted = pressure_roll < TROLL_INVASION_REPAIR_INTERRUPTION_CHANCE
+    interrupted = interruption_roll < TROLL_INVASION_REPAIR_INTERRUPTION_CHANCE
     emergency = before[job_id] <= TROLL_INVASION_REPAIR_SEVERE_PRESSURE
     components = dict(before)
     components[job_id] = min(100, components[job_id] + int(job["repair"]))
@@ -674,12 +676,6 @@ def redeem_troll_invasion_book_pure(player_data: Mapping[str, Any], skill_id: st
     level = max(1, _int(data.get(skill.level_key), 1, minimum=1, maximum=99))
     awarded = troll_invasion_reward_xp_pure(level, fraction)
     data.update(state)
-    data[skill.exp_key] = _float(data.get(skill.exp_key)) + awarded
-    data[skill.level_key] = calculate_new_level(
-        data[skill.exp_key],
-        max(1, _int(data.get(skill.level_key), 1, minimum=1, maximum=99)),
-        EXP_TABLE,
-    )
     data["troll_invasion_reward_fractions"] = fractions
     data["troll_invasion_books_redeemed"] = state["troll_invasion_books_redeemed"] + 1
     data["troll_invasion_policy"] = {**state["troll_invasion_policy"], "reward_skill": skill_id}

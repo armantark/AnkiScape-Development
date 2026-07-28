@@ -84,6 +84,12 @@ def troll_invasion_wave_front_pure(difficulty: str, wave: int) -> dict[str, Any]
     }
 
 
+def troll_invasion_enemy_pure() -> dict[str, Any]:
+    """Return the representative registry row used while an invasion is active."""
+
+    return troll_invasion_wave_front_pure(TROLL_INVASION_STANDARD, 1)
+
+
 # PLACEHOLDER(troll_invasion.dynamite_supply_chance): authentic chance that a
 # Dynamite troll permanently destroys the supply table during a Combat run.
 TROLL_INVASION_DYNAMITE_SUPPLY_CHANCE = 0.05

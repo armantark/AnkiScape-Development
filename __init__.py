@@ -566,8 +566,13 @@ def _cadence_kernel_enabled() -> bool:
     return True
 
 
-def _award_skill_exp(exp_key: str, base_exp: float) -> float:
-    action_skill_id = str(current_skill).lower()
+def _award_skill_exp(
+    exp_key: str,
+    base_exp: float,
+    *,
+    action_skill_id: str | None = None,
+) -> float:
+    action_skill_id = str(action_skill_id or current_skill).lower()
     # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
     # experience out of a 1,000-experience budget, then turns cosmetic. It rides
     # the same seam the Stealing Creation tools use rather than a second one.
@@ -609,12 +614,13 @@ def _update_review_context_surface() -> None:
         pass
 
 
-def commit_direct_action(apply_change):
+def commit_direct_action(apply_change, *, after_apply=None):
     """Run one mutating menu action as a single undoable Anki operation.
 
     `apply_change` receives the live save and returns `(updated, ok)`. Returning
     `ok=False` refuses the action: nothing is written and the random state is put
-    back, so a refusal the player never saw cannot advance the sequence.
+    back, so a refusal the player never saw cannot advance the sequence. Optional
+    `after_apply` work runs after the undo entry exists but before the save commit.
 
     This is the seam. Before it existed the snapshot, custom-undo-entry, bounded
     stack and commit lived inline in `resolve_review_context_action`, which meant
@@ -645,6 +651,8 @@ def commit_direct_action(apply_change):
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
+    if after_apply is not None:
+        after_apply()
     save_player_data()
     try:
         mw.update_undo_actions()
@@ -3029,6 +3037,7 @@ def _on_main_menu(
 
     def _apply_troll_invasion_command(action_id, payload):
         info = {}
+        awarded_xp = 0.0
 
         def _change(current):
             nonlocal info
@@ -3037,21 +3046,34 @@ def _on_main_menu(
                 str(action_id),
                 payload if isinstance(payload, dict) else {},
             )
-            if ok and info.get("xp_rewards"):
-                skill = get_skill(str(info.get("skill_id", "")))
-                if skill is not None:
-                    updated[skill.level_key] = calculate_new_level(
-                        updated.get(skill.exp_key, 0),
-                        updated.get(skill.level_key, 1),
-                        EXP_TABLE,
-                    )
             return updated, ok
 
-        if not commit_direct_action(_change):
+        def _after_apply():
+            nonlocal awarded_xp
+            skill = get_skill(str(info.get("skill_id", "")))
+            rewards = dict(info.get("xp_rewards") or {})
+            if skill is None or float(rewards.get(skill.exp_key, 0.0) or 0.0) <= 0:
+                return
+            awarded_xp = _award_skill_exp(
+                skill.exp_key,
+                float(rewards[skill.exp_key]),
+                action_skill_id=skill.id,
+            )
+            level_up_check(skill.display_name, player_data)
+            info["awarded_xp"] = awarded_xp
+            info["message"] = (
+                f"Read the Troll Invasion reward book · +{awarded_xp:,.0f} "
+                f"{skill.display_name} XP at "
+                f"{float(info.get('completion_fraction', 0.0)):.1%} completion."
+            )
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
             if info.get("reason"):
                 return {"ok": False, "message": str(info["reason"]), **info}
             return {"ok": False, "message": "Anki could not create an undo entry."}
         _refresh_skill_availability()
+        if awarded_xp > 0:
+            _show_exp(awarded_xp)
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:

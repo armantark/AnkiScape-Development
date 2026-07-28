@@ -277,7 +277,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 90
+CURRENT_CONFIG_VERSION = 91
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1729,9 +1729,9 @@ def migrate_loaded_data(
             data.setdefault(key, value)
         data.update(refresh_capes_pure(data))
         data.update(refresh_music_log_pure(data)[0])
-    # v90: Troll Invasion adds the persisted Combat/Repair run, Standard-attempt
+    # v91: Troll Invasion adds the persisted Combat/Repair run, Standard-attempt
     # Hard unlock, monthly reward allowances, and pending reward-book fractions.
-    if loaded_config_version < 90:
+    if loaded_config_version < 91:
         for key, value in default_troll_invasion_state_pure().items():
             data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled

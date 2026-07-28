@@ -359,22 +359,50 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
-    def test_troll_invasion_reward_book_redemption_restores_through_the_seam(self):
+    def test_troll_invasion_reward_book_uses_the_award_seam_and_restores_on_undo(self):
+        from ankiscape.data.goblin_raids_data import (
+            GOBLIN_COWER_SHIELD,
+            GOBLIN_COWER_SHIELD_BONUS_BUDGET,
+        )
         from ankiscape.data.troll_invasion_data import TROLL_INVASION_REWARD_BOOK
+        from ankiscape.logic.goblin_raids_logic import default_goblin_raids_state_pure
         from ankiscape.logic.troll_invasion_logic import apply_troll_invasion_command_pure
 
         addon = self.addon
         addon.player_data["inventory"][TROLL_INVASION_REWARD_BOOK] = 1
+        addon.player_data["inventory"][GOBLIN_COWER_SHIELD] = 1
+        addon.player_data["equipment"]["shield"] = GOBLIN_COWER_SHIELD
+        addon.player_data["goblin_raids"] = default_goblin_raids_state_pure()
+        addon.player_data["goblin_raids"]["cower_shield_bonus_remaining"] = (
+            GOBLIN_COWER_SHIELD_BONUS_BUDGET
+        )
         addon.player_data["troll_invasion_reward_fractions"] = [1.0]
         before = copy.deepcopy(addon.player_data)
-        self.assertTrue(
-            self.commit(
-                lambda current: apply_troll_invasion_command_pure(
-                    current, "redeem_book", {"skill_id": "mining"}
-                )[:2]
+        info = {}
+        gained = 0.0
+        level_checks = []
+        addon.level_up_check = lambda skill, _data: level_checks.append(skill)
+
+        def change(current):
+            nonlocal info
+            updated, ok, info = apply_troll_invasion_command_pure(
+                current, "redeem_book", {"skill_id": "attack"}
             )
-        )
-        self.assertGreater(addon.player_data["mining_exp"], before["mining_exp"])
+            return updated, ok
+
+        def award():
+            nonlocal gained
+            base = float(info["xp_rewards"]["attack_exp"])
+            gained = addon._award_skill_exp(
+                "attack_exp", base, action_skill_id="attack"
+            )
+            addon.level_up_check("Attack", addon.player_data)
+
+        self.assertTrue(self.commit(change, after_apply=award))
+        base = float(info["xp_rewards"]["attack_exp"])
+        self.assertEqual(gained, base * 1.25)
+        self.assertEqual(addon.player_data["attack_exp"] - before["attack_exp"], gained)
+        self.assertEqual(level_checks, ["Attack"])
         self.assertEqual(addon.player_data["inventory"].get(TROLL_INVASION_REWARD_BOOK, 0), 0)
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)

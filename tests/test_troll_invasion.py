@@ -7,6 +7,7 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from ankiscape.core.constants import (
+    COMBAT_ENEMY_DATA,
     EQUIPMENT_DATA,
     EXP_TABLE,
     EXTRA_ITEM_DATA,
@@ -19,6 +20,7 @@ from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_d
 from ankiscape.data.troll_invasion_data import (
     TROLL_INVASION_ACTIVITY_ID,
     TROLL_INVASION_COMBAT_MODE,
+    TROLL_INVASION_COMBAT_TARGET_ID,
     TROLL_INVASION_HARD,
     TROLL_INVASION_HARD_WAVES,
     TROLL_INVASION_MONTH_REVIEWS,
@@ -153,6 +155,11 @@ class TrollInvasionRegistryLayerTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(activity["icon_path"]))
         self.assertIn(TROLL_INVASION_REWARD_BOOK, EXTRA_ITEM_DATA)
         self.assertTrue(os.path.isfile(EXTRA_ITEM_IMAGES[TROLL_INVASION_REWARD_BOOK]))
+        self.assertIn(TROLL_INVASION_COMBAT_TARGET_ID, COMBAT_ENEMY_DATA)
+        self.assertEqual(
+            COMBAT_ENEMY_DATA[TROLL_INVASION_COMBAT_TARGET_ID]["group"],
+            "Troll Invasion",
+        )
         with open(os.path.join(ROOT, "assets_provenance.json"), encoding="utf-8") as handle:
             provenance = json.load(handle)
         for path in (
@@ -277,8 +284,9 @@ class TrollInvasionPureLayerTest(unittest.TestCase):
         redeemed, ok, info = redeem_troll_invasion_book_pure(left, "agility")
         self.assertTrue(ok, info)
         expected = troll_invasion_reward_xp_pure(left["agility_level"], 3 / 20)
-        self.assertEqual(redeemed["agility_exp"] - before, expected)
-        self.assertGreater(redeemed["agility_level"], before_level)
+        self.assertEqual(info["xp_rewards"], {"agility_exp": expected})
+        self.assertEqual(redeemed["agility_exp"], before)
+        self.assertEqual(redeemed["agility_level"], before_level)
         self.assertNotIn(TROLL_INVASION_REWARD_BOOK, redeemed["inventory"])
         self.assertEqual(redeemed["troll_invasion_books_redeemed"], 1)
 
@@ -293,7 +301,7 @@ class TrollInvasionPureLayerTest(unittest.TestCase):
         interruptions = 0
         emergencies = 0
         reviews = 0
-        rng = random.Random(14).random
+        rng = random.Random(8).random
         while True:
             player, ok, result = apply_troll_invasion_review_pure(
                 player, rng, equipment_data=EQUIPMENT_DATA
@@ -315,6 +323,33 @@ class TrollInvasionPureLayerTest(unittest.TestCase):
         self.assertEqual(reviews, TROLL_INVASION_REPAIR_ACTION_CEILING)
         self.assertTrue(result["complete"])
         self.assertEqual(player["inventory"][TROLL_INVASION_REWARD_BOOK], 1)
+
+    def test_severe_pressure_and_interruption_use_independent_rolls(self):
+        severe, ok, info = enter_troll_invasion_pure(
+            _player(), {"mode": TROLL_INVASION_REPAIR_MODE}
+        )
+        self.assertTrue(ok, info)
+        rolls = iter((0.0, 0.5))
+        severe, ok, result = apply_troll_invasion_review_pure(
+            severe, lambda: next(rolls), equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["pressure"], 30)
+        self.assertFalse(result["interrupted"])
+        self.assertEqual(result["credited_trolls"], 10)
+
+        interrupted, ok, info = enter_troll_invasion_pure(
+            _player(), {"mode": TROLL_INVASION_REPAIR_MODE}
+        )
+        self.assertTrue(ok, info)
+        rolls = iter((0.5, 0.0))
+        interrupted, ok, result = apply_troll_invasion_review_pure(
+            interrupted, lambda: next(rolls), equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["pressure"], 4)
+        self.assertTrue(result["interrupted"])
+        self.assertEqual(result["credited_trolls"], 0)
 
     def test_repair_gatehouse_failure_is_reachable_through_the_real_reducer(self):
         player, ok, info = enter_troll_invasion_pure(
@@ -393,14 +428,14 @@ class TrollInvasionPureLayerTest(unittest.TestCase):
 
 
 class TrollInvasionPersistenceLayerTest(unittest.TestCase):
-    def test_schema_90_migration_and_interrupted_session_round_trip(self):
+    def test_schema_91_migration_and_interrupted_session_round_trip(self):
         old = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        old["config_version"] = 89
+        old["config_version"] = 90
         for key in default_troll_invasion_state_pure():
             old.pop(key, None)
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 90)
-        self.assertEqual(migrated["config_version"], 90)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 91)
+        self.assertEqual(migrated["config_version"], 91)
         self.assertEqual(migrated["troll_invasion"], {})
         self.assertEqual(migrated["troll_invasion_policy"]["mode"], TROLL_INVASION_COMBAT_MODE)
 
@@ -494,7 +529,7 @@ class TrollInvasionRuntimeLayerTest(unittest.TestCase):
             1,
         )
 
-    def test_again_records_no_foreground_action_or_progress(self):
+    def test_again_records_a_non_productive_attempt_without_progress(self):
         player, ok, info = enter_troll_invasion_pure(
             _player(), {"mode": TROLL_INVASION_REPAIR_MODE}
         )
@@ -502,10 +537,11 @@ class TrollInvasionRuntimeLayerTest(unittest.TestCase):
         calls = {"errors": [], "activity": [], "xp": [], "saves": 0, "deactivated": False, "rng": random.Random(0).random}
         self.assertTrue(handle_troll_invasion_answer(_context(player, calls), productive=False))
         self.assertEqual(player["troll_invasion"]["repair_actions"], 0)
-        self.assertNotIn(
-            f"utility:{TROLL_INVASION_ACTIVITY_ID}",
-            player["action_telemetry"]["actions"],
-        )
+        telemetry = player["action_telemetry"]["actions"][
+            f"utility:{TROLL_INVASION_ACTIVITY_ID}"
+        ]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["successes"], 0)
 
     def test_unselected_activity_refuses_and_deactivates(self):
         player = _player(current_utility=TROLL_INVASION_ACTIVITY_ID)
