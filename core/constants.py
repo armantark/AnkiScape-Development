@@ -130,6 +130,13 @@ from ..data.mobilising_armies_data import (
     mobilising_armies_equipment_data_as_dict,
     mobilising_armies_extra_items_as_dict,
 )
+from ..data.dominion_tower_data import (
+    DOMINION_TOWER_ACTIVITY_ID,
+    DOMINION_TOWER_ASSET_MANIFEST,
+    dominion_tower_activity_as_dict,
+    dominion_tower_equipment_data_as_dict,
+    dominion_tower_extra_items_as_dict,
+)
 from ..data.goblin_raids_data import (
     GOBLIN_RAID_ENEMIES,
     GOBLIN_RAIDS_ACTIVITY_ID,
@@ -680,6 +687,7 @@ UTILITY_ACTIVITY_DATA.update(mage_training_arena_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(temple_trekking_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(mobilising_armies_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(gnome_restaurant_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(dominion_tower_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(crucible_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(goblin_raids_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(treasure_trails_activity_as_dict())
@@ -887,6 +895,14 @@ _mobilising_armies_icon = os.path.join(
 if os.path.exists(_mobilising_armies_icon):
     UTILITY_ACTIVITY_DATA[MOBILISING_ARMIES_ACTIVITY_ID]["icon_path"] = (
         _mobilising_armies_icon
+    )
+_dominion_tower_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "dominion_tower.png",
+)
+if os.path.exists(_dominion_tower_icon):
+    UTILITY_ACTIVITY_DATA[DOMINION_TOWER_ACTIVITY_ID]["icon_path"] = (
+        _dominion_tower_icon
     )
 _crucible_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1666,6 +1682,7 @@ EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
 EQUIPMENT_DATA.update(duel_arena_equipment_data_as_dict())
 EQUIPMENT_DATA.update(mage_training_arena_equipment_data_as_dict())
 EQUIPMENT_DATA.update(mobilising_armies_equipment_data_as_dict())
+EQUIPMENT_DATA.update(dominion_tower_equipment_data_as_dict())
 EQUIPMENT_DATA.update(crucible_equipment_data_as_dict())
 EQUIPMENT_DATA.update(goblin_raids_equipment_data_as_dict())
 EQUIPMENT_DATA.update(diary_equipment_data_as_dict())
@@ -1767,6 +1784,17 @@ GNOME_RESTAURANT_ITEM_IMAGES = {
 GNOME_RESTAURANT_ITEM_IMAGES = {
     item_name: path
     for item_name, path in GNOME_RESTAURANT_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+DOMINION_TOWER_EXTRA_ITEM_DATA = dominion_tower_extra_items_as_dict()
+DOMINION_TOWER_ITEM_IMAGES = {
+    str(row["item_name"]): os.path.join(current_dir, str(row["output_path"]))
+    for row in DOMINION_TOWER_ASSET_MANIFEST
+    if str(row["output_path"]).startswith("activityitems/")
+}
+DOMINION_TOWER_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in DOMINION_TOWER_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 TEMPLE_TREKKING_EXTRA_ITEM_DATA = temple_trekking_extra_items_as_dict()
@@ -2399,6 +2427,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **TEMPLE_TREKKING_EXTRA_ITEM_DATA,
     **MOBILISING_ARMIES_EXTRA_ITEM_DATA,
     **GNOME_RESTAURANT_EXTRA_ITEM_DATA,
+    **DOMINION_TOWER_EXTRA_ITEM_DATA,
     **ENCHANTED_KEY_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
@@ -2456,6 +2485,7 @@ EXTRA_ITEM_IMAGES = {
     **TEMPLE_TREKKING_ITEM_IMAGES,
     **MOBILISING_ARMIES_ITEM_IMAGES,
     **GNOME_RESTAURANT_ITEM_IMAGES,
+    **DOMINION_TOWER_ITEM_IMAGES,
     **ENCHANTED_KEY_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,

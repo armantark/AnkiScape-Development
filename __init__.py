@@ -157,6 +157,8 @@ from .logic.mobilising_armies_logic import apply_mobilising_armies_command_pure
 from .data.item_values import ITEM_VALUES
 from .data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from .logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure
+from .data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from .logic.dominion_tower_logic import apply_dominion_tower_command_pure
 from .data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from .logic.crucible_logic import apply_crucible_command_pure
 from .data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -3215,6 +3217,32 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_dominion_tower_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_dominion_tower_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+                random.random,
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_temple_trekking_command(action_id, payload):
         info = {}
 
@@ -3625,6 +3653,7 @@ def _on_main_menu(
         on_temple_trekking_command=_apply_temple_trekking_command,
         on_mobilising_armies_command=_apply_mobilising_armies_command,
         on_gnome_restaurant_command=_apply_gnome_restaurant_command,
+        on_dominion_tower_command=_apply_dominion_tower_command,
         on_crucible_command=_apply_crucible_command,
         on_goblin_raids_command=_apply_goblin_raids_command,
         on_daily_challenges_command=_apply_daily_challenges_command,

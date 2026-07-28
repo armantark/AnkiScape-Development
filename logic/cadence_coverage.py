@@ -878,6 +878,27 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "dominion_tower":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "dominion_tower",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "cadence_profile": "activity_default",
+                    "review_ticks": 6,
+                    "probability_mode": "embedded",
+                    "notes": (
+                        "One productive review resolves one six-tick Combat slice "
+                        "against the engaged arena target while the rest of the "
+                        "roster applies bounded pressure; mode selection, the "
+                        "handicap spinner, power-ups, potions, reward claims and "
+                        "exchanges are direct actions outside review cadence."
+                    ),
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

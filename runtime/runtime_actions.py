@@ -275,6 +275,11 @@ from ..logic.mobilising_armies_logic import (
     mobilising_armies_can_review_pure,
     mobilising_armies_view_pure,
 )
+from ..data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from ..logic.dominion_tower_logic import (
+    dominion_tower_can_review_pure,
+    dominion_tower_view_pure,
+)
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -556,6 +561,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_temple_trekking_answer,
     handle_mobilising_armies_answer,
     handle_gnome_restaurant_answer,
+    handle_dominion_tower_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_flash_powder_factory_answer,

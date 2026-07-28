@@ -266,6 +266,8 @@ from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from ..logic.mobilising_armies_logic import mobilising_armies_can_review_pure
 from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from ..logic.gnome_restaurant_logic import gnome_restaurant_can_review_pure
+from ..data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from ..logic.dominion_tower_logic import dominion_tower_can_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -679,6 +681,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return mobilising_armies_can_review_pure(ctx.player_data)
     if activity_key == GNOME_RESTAURANT_ACTIVITY_ID:
         return gnome_restaurant_can_review_pure(ctx.player_data)
+    if activity_key == DOMINION_TOWER_ACTIVITY_ID:
+        return dominion_tower_can_review_pure(ctx.player_data)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

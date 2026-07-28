@@ -270,6 +270,8 @@ from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from ..logic.mobilising_armies_logic import mobilising_armies_view_pure
 from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from ..logic.gnome_restaurant_logic import gnome_restaurant_view_pure
+from ..data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from ..logic.dominion_tower_logic import dominion_tower_view_pure
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -456,6 +458,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_temple_trekking_answer,
     handle_mobilising_armies_answer,
     handle_gnome_restaurant_answer,
+    handle_dominion_tower_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_varrock_museum_answer,
@@ -536,6 +539,7 @@ from .runtime_actions_activities import (
     handle_temple_trekking_answer,
     handle_mobilising_armies_answer,
     handle_gnome_restaurant_answer,
+    handle_dominion_tower_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_varrock_museum_answer,
@@ -632,6 +636,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_mobilising_armies_answer(ctx)
     if activity_key == GNOME_RESTAURANT_ACTIVITY_ID:
         return handle_gnome_restaurant_answer(ctx)
+    if activity_key == DOMINION_TOWER_ACTIVITY_ID:
+        return handle_dominion_tower_answer(ctx)
     if activity_key == CRUCIBLE_ACTIVITY_ID:
         return handle_crucible_answer(ctx)
     if activity_key == GOBLIN_RAIDS_ACTIVITY_ID:

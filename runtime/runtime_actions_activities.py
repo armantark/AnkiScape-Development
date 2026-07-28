@@ -282,6 +282,8 @@ from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from ..logic.mobilising_armies_logic import apply_mobilising_armies_review_pure
 from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from ..logic.gnome_restaurant_logic import apply_gnome_restaurant_review_pure
+from ..data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from ..logic.dominion_tower_logic import apply_dominion_tower_review_pure
 from ..logic.crucible_logic import apply_crucible_review_pure
 from ..logic.goblin_raids_logic import apply_goblin_raids_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -2502,6 +2504,40 @@ def handle_gnome_restaurant_answer(
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Gnome Restaurant delivery"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_dominion_tower_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_dominion_tower_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.show_error_message(
+            "Dominion Tower unavailable",
+            str(result.get("reason", "Enter the tower before training it.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards") or {})
+    _record_action(
+        ctx,
+        "utility",
+        DOMINION_TOWER_ACTIVITY_ID,
+        not result.get("player_died"),
+        expected_success_chance=1.0,
+        failure_kind="safe_death" if result.get("player_died") else None,
+        primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("status") or "Dominion Tower round resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
