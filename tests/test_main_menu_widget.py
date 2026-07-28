@@ -3572,8 +3572,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(price.value(), 2_147_483_647)
         dialog.deleteLater()
 
-    def test_grand_exchange_fill_log_colours_partial_and_completed_rows(self) -> None:
-        from aqt.qt import QColor
+    def test_grand_exchange_tab_no_longer_carries_the_fill_log_drawer(self) -> None:
+        """The drawer moved under the reviewer experience bars.
+
+        Design-thread section 4.8: "I wanted it to be under the xp bar box. It
+        should be a drawer." Its rows, ordering and two tones are pinned against
+        their new home in tests/test_review_strip.py; what matters here is that
+        the tab does not keep a second copy reporting the same log.
+        """
         from ankiscape.logic.grand_exchange_logic import ge_frontend_projection_pure
 
         player = _make_player_data()
@@ -3586,13 +3592,6 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "item_name": "Logs",
                 "completed_quantity": 3,
                 "original_quantity": 10,
-            },
-            {
-                "card": 12,
-                "side": "buy",
-                "item_name": "Coal",
-                "completed_quantity": 5,
-                "original_quantity": 5,
             },
         ]
         catalog = {
@@ -3614,24 +3613,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         _open_ge_tab(dialog)
 
-        toggle = dialog.findChild(QToolButton, "geFillLogToggle")
-        log_list = dialog.findChild(QListWidget, "geFillLogList")
-        self.assertEqual(toggle.text(), "Recent fills (2)")
-        self.assertTrue(log_list.isHidden())
-        toggle.click()
-        QApplication.processEvents()
-        self.assertFalse(log_list.isHidden())
-
-        # Newest first, and "cards ago" rather than wall time.
-        self.assertEqual(
-            _list_texts(log_list),
-            ["Now: Coal - 5/5 bought", "2 cards ago: Logs - 3/10 sold"],
+        self.assertIsNone(dialog.findChild(QToolButton, "geFillLogToggle"))
+        self.assertIsNone(dialog.findChild(QListWidget, "geFillLogList"))
+        # The projection still carries the log, because the reviewer drawer and
+        # any future surface read the same ordered rows.
+        self.assertTrue(
+            ge_frontend_projection_pure(player, item_catalog=catalog)["fill_log"]
         )
-        completed = log_list.item(0).foreground().color()
-        partial = log_list.item(1).foreground().color()
-        self.assertIn(completed, (QColor("#3f6e1e"), QColor("#85c54b")))
-        self.assertIn(partial, (QColor("#8a6100"), QColor("#e0b341")))
-        self.assertNotEqual(completed, partial)
         dialog.deleteLater()
 
     def test_grand_exchange_ironman_toggle_locks_only_offer_creation(self) -> None:
@@ -9342,6 +9330,78 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._open_activities(dialog)
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         self.assertEqual(button.text(), "Select active event")
+
+    def test_a_distraction_surface_carries_the_reviewer_badge_pin(self) -> None:
+        """Section 4.8: "There is no way to add a d&d to favorites."
+
+        The pin sits on the Activities detail card's shared control row, so one
+        widget serves all forty-odd surfaces including the five that ship as
+        their own panel class.
+        """
+        from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+        from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+
+        pd = _make_player_data()
+        pd["current_utility"] = SHOOTING_STAR_ACTIVITY_ID
+        pinned: list = []
+
+        def _favourite(activity_id):
+            updated, ok, info = toggle_dnd_favourite_pure(pd, activity_id)
+            if ok:
+                pd.update(updated)
+                pinned.append(activity_id)
+            return {"ok": ok, **info}
+
+        dialog = self._open(pd, on_favourite_dnd=_favourite)
+        self._open_activities(dialog)
+        dialog.resize(1000, 560)
+        dialog.show()
+        for _ in range(8):
+            QApplication.processEvents()
+
+        pin = _find_named_widget(dialog, "activityFavouriteButton")
+        self.assertTrue(pin.isVisible())
+        self.assertTrue(pin.isEnabled())
+        self.assertEqual(pin.text(), "\u2606")
+        self.assertIn("badge", pin.toolTip().lower())
+
+        pin.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(pinned, [SHOOTING_STAR_ACTIVITY_ID])
+        self.assertEqual(pd["dnd_favourites"], [SHOOTING_STAR_ACTIVITY_ID])
+        self.assertEqual(pin.text(), "\u2605")
+
+        pin.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(pd["dnd_favourites"], [])
+        self.assertEqual(pin.text(), "\u2606")
+
+        # Back on the tree there is no activity to pin, and a minigame is not a
+        # Distraction, so neither carries the control.
+        _find_named_button(dialog, "activityChooseAnotherButton").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertFalse(pin.isVisible())
+        dialog.deleteLater()
+
+    def test_the_pin_is_absent_on_an_activity_the_badge_cannot_watch(self) -> None:
+        from ankiscape.data.castle_wars_data import CASTLE_WARS_ACTIVITY_ID
+
+        pd = _make_player_data()
+        pd["current_utility"] = CASTLE_WARS_ACTIVITY_ID
+        dialog = self._open(pd, on_favourite_dnd=lambda _id: {"ok": True})
+        self._open_activities(dialog)
+        dialog.resize(1000, 560)
+        dialog.show()
+        for _ in range(8):
+            QApplication.processEvents()
+
+        self.assertFalse(
+            _find_named_widget(dialog, "activityFavouriteButton").isVisible()
+        )
+        dialog.deleteLater()
 
     def test_activity_details_replace_the_activity_tree(self) -> None:
         from ankiscape.logic.big_chinchompa_logic import (

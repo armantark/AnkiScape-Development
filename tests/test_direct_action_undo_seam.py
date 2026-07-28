@@ -130,6 +130,42 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertTrue(addon.player_data["activity_auto_stop_on_danger"])
 
+    def test_pinning_a_distraction_commits_and_restores_through_the_seam(self):
+        """The reviewer badge's watch list is a preference like any other."""
+        from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
+        from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+
+        addon = self.addon
+        self.assertEqual(addon.player_data["dnd_favourites"], [])
+
+        def pin(current):
+            updated, ok, _info = toggle_dnd_favourite_pure(
+                current, EVIL_TREE_UTILITY_ID
+            )
+            return updated, ok
+
+        committed = self.commit(pin)
+
+        self.assertTrue(committed)
+        self.assertEqual(
+            addon.player_data["dnd_favourites"], [EVIL_TREE_UTILITY_ID]
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["dnd_favourites"], [])
+
+    def test_pinning_something_that_is_not_a_distraction_commits_nothing(self):
+        from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+
+        addon = self.addon
+
+        committed = self.commit(
+            lambda current: toggle_dnd_favourite_pure(current, "castle_wars")[:2]
+        )
+
+        self.assertFalse(committed)
+        self.assertEqual(addon.player_data["dnd_favourites"], [])
+        self.assertEqual(self.collection.entries, [])
+
     def test_a_refused_change_writes_nothing_and_restores_the_rng(self):
         addon = self.addon
 

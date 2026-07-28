@@ -158,7 +158,7 @@ from ..core.constants import (
     current_dir,
 )
 
-from ..logic.grand_exchange_logic import GE_SLOT_COUNT
+from ..logic.grand_exchange_logic import GE_SLOT_COUNT, ge_fill_drawer_view_pure
 
 from ..data.pack_data import ITEM_PACK_DATA
 
@@ -412,7 +412,7 @@ from ..logic.slayer_logic import (
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -563,6 +563,16 @@ from ..logic.farming_logic import (
     CURE_PLANT_SPELL_FIRST,
     PLANT_CURE_ITEM_FIRST,
     farming_frontend_projection_pure,
+)
+from ..logic.dnd_favourites_logic import (
+    DND_ACTIVITY_IDS,
+    is_dnd_favourite_pure,
+)
+from ..logic.review_strip_logic import (
+    WORLD_EVENT_OUTCOME_REVIEWS,
+    activity_xp_bars_pure,
+    review_status_badge_view_pure,
+    world_event_rows_pure,
 )
 
 # Central debug logger (support both package and flat import in tests)
@@ -997,93 +1007,12 @@ def _landmark_activity_name(activity_key: object) -> str:
 # Not sourced — the source game had no such surface. Long enough to be seen
 # during an ordinary run, short enough that the strip does not become the
 # permanent clutter the popups were removed for.
-_WORLD_EVENT_OUTCOME_REVIEWS = 10
+_WORLD_EVENT_OUTCOME_REVIEWS = WORLD_EVENT_OUTCOME_REVIEWS
 
-
-def _world_event_rows(player_data: dict, *, suppress_id: str = "") -> tuple:
-    """(activity_id, one-line summary) for every live review-clock world event.
-
-    Shared by the Activities hub's "Live world events" strip and the reviewer
-    D&D badge so the two can never drift. Only the three events that spawn on
-    the review clock without the player asking belong here; player-started
-    sessions such as Fist of Guthix already have their own counters. The
-    activity id rides along so a badge click can open that event's card.
-    """
-    rows = []
-    if suppress_id != EVIL_TREE_UTILITY_ID:
-        evil_view = evil_tree_view_pure(
-            player_data,
-            has_usable_hatchet=(
-                best_woodcutting_axe_pure(
-                    int(player_data.get("woodcutting_level", 1) or 1),
-                    player_data.get("inventory", {}) or {},
-                    player_data.get("toolbelt", {}) or {},
-                    WOODCUTTING_AXE_DATA,
-                )
-                is not None
-            ),
-        )
-        if evil_view["active"]:
-            rows.append((
-                EVIL_TREE_UTILITY_ID,
-                f"{evil_view['tier_name']} · "
-                f"{evil_view['location']} · "
-                f"{int(evil_view['reviews_remaining'])} reviews left",
-            ))
-        blessing = int(evil_view.get("blessing_reviews_remaining", 0) or 0)
-        if blessing > 0:
-            rows.append((
-                EVIL_TREE_UTILITY_ID,
-                f"Evil Tree blessing · {blessing} reviews left",
-            ))
-    if suppress_id != SHOOTING_STAR_ACTIVITY_ID:
-        star = shooting_star_view_pure(
-            player_data,
-            has_usable_pickaxe=(
-                best_mining_pickaxe_pure(
-                    int(player_data.get("mining_level", 1) or 1),
-                    player_data.get("inventory", {}) or {},
-                    player_data.get("toolbelt", {}) or {},
-                    MINING_PICKAXE_DATA,
-                )
-                is not None
-            ),
-        )
-        if star["active"]:
-            rows.append((
-                SHOOTING_STAR_ACTIVITY_ID,
-                f"Shooting Star size {int(star['current_size'])} · "
-                f"{int(star['layer_remaining']):,} layer dust left · "
-                f"{int(star['dust'])}/{int(star['dust_cap'])} stardust",
-            ))
-        elif star["sprite_available"]:
-            rows.append((
-                SHOOTING_STAR_ACTIVITY_ID,
-                "Star sprite ready to exchange · "
-                f"{int(star['sprite_reviews_remaining'])} reviews left · "
-                f"{int(star['dust'])} stardust",
-            ))
-    if suppress_id != BIG_CHINCHOMPA_UTILITY_ID:
-        big = big_chinchompa_view_pure(player_data)
-        if big["active"]:
-            rows.append((
-                BIG_CHINCHOMPA_UTILITY_ID,
-                f"Big Chinchompa · "
-                f"{int(big['minutes_remaining'])} source min left · "
-                f"{int(big['fullness_percent'])}% full",
-            ))
-        else:
-            # No `or -1` fallback here: the resolution card itself reports 0,
-            # which is falsy, so that idiom silently swallowed the one review
-            # where the outcome matters most.
-            try:
-                resolved_ago = int(big.get("resolved_reviews_ago", -1))
-            except (TypeError, ValueError):
-                resolved_ago = -1
-            result = str(big.get("last_result", "") or "")
-            if result and 0 <= resolved_ago < _WORLD_EVENT_OUTCOME_REVIEWS:
-                rows.append((BIG_CHINCHOMPA_UTILITY_ID, result))
-    return tuple(rows)
+# The rows themselves are decided in logic/review_strip_logic.py, because the
+# reviewer badge and the Activities hub strip both render them and panels decide
+# nothing.
+_world_event_rows = world_event_rows_pure
 
 
 def _utility_surface_name_for_target(activity_key: object) -> str:
@@ -1460,48 +1389,6 @@ def refresh_skill_availability(
         pass
 
 
-def compute_level_progress(level: int, exp: float, exp_table: list) -> tuple[int, float, int]:
-    """Pure helper for computing percent, remaining XP, and target level.
-    Returns (percent, xp_remaining, target_level). Clamps values sensibly.
-    - At max level (99 or end of table), always return 100% and 0 remaining.
-    """
-    try:
-        lvl = max(1, int(level))
-        xp = float(exp or 0)
-        table_len = len(exp_table)
-
-        # If at or above the maximum supported level, treat progress as complete.
-        # Many games cap at 99; also guard when lvl maps to the last index of the table.
-        if lvl >= 99 or lvl >= table_len:
-            return 100, 0.0, 99
-
-        # Compute thresholds for the current level segment
-        prev = float(exp_table[lvl - 1]) if (lvl - 1) < table_len else 0.0
-        nxt = float(exp_table[lvl]) if lvl < table_len else prev
-
-        # If thresholds are degenerate (e.g., at end), treat as maxed
-        if nxt <= prev:
-            return 100, 0.0, 99
-
-        # Clamp percent to [0, 100] and remaining to >= 0
-        span = nxt - prev
-        pct_float = ((xp - prev) / span) * 100.0
-        if xp >= nxt:
-            pct = 100
-            remain = 0.0
-        else:
-            pct = int(max(0.0, min(100.0, pct_float)))
-            remain = max(0.0, nxt - xp)
-
-        target_lv = min(lvl + 1, 99)
-        return pct, remain, target_lv
-    except Exception:
-        # Fallback on error: show safe defaults and a reasonable next target
-        try:
-            safe_lvl = max(1, int(level))
-        except Exception:
-            safe_lvl = 1
-        return 0, 0.0, min(safe_lvl + 1, 99)
 
 
 # Maps a skill id to the data table that resolves its current-target id into a
@@ -2087,6 +1974,19 @@ if HAS_QT:
             )
             info.addWidget(self.progress)
 
+            # A running activity trains real skills, and section 4.8 says those
+            # bars are what the strip is for. The primary skill reuses
+            # self.progress; this holds a second one, which is as many as one
+            # compact row can carry.
+            self.second_progress = QProgressBar()
+            self.second_progress.setObjectName("reviewHudSecondSkillBar")
+            self.second_progress.setFixedHeight(12)
+            self.second_progress.setRange(0, 100)
+            self.second_progress.setValue(0)
+            self.second_progress.setStyleSheet(self.progress.styleSheet())
+            self.second_progress.setVisible(False)
+            info.addWidget(self.second_progress)
+
             self.sub_lbl = QLabel("")
             self.sub_lbl.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 11px;")
             info.addWidget(self.sub_lbl)
@@ -2175,6 +2075,34 @@ if HAS_QT:
             p = os.path.join(current_dir, "crafteditems", "None.png")
             return p if os.path.exists(p) else None
 
+        def _render_activity_xp_bars(self, xp_view: dict) -> None:
+            """Draw the running activity's real skill bars, or nothing at all.
+
+            The bar carries its own skill name and percentage so a second skill
+            costs one thin row rather than a row plus a label, which is what
+            keeps the strip to one compact block.
+            """
+            bars = tuple(xp_view.get("bars", ()))
+            if not bars:
+                self.progress.setVisible(False)
+                # The target name already appears in sub_lbl.
+                self.target_lbl.setText("")
+                self.target_lbl.setVisible(False)
+                return
+            for bar, widget in zip(bars, (self.progress, self.second_progress)):
+                widget.setValue(int(bar["percent"]))
+                widget.setTextVisible(True)
+                widget.setFormat(
+                    f"{bar['skill']} Lv {int(bar['level'])} · "
+                    f"{int(bar['percent'])}% to {int(bar['target_level'])}"
+                )
+                widget.setVisible(True)
+            also_trains = tuple(xp_view.get("also_trains", ()))
+            self.target_lbl.setText(
+                f"also trains {', '.join(also_trains)}" if also_trains else ""
+            )
+            self.target_lbl.setVisible(bool(also_trains))
+
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
@@ -2221,13 +2149,16 @@ if HAS_QT:
                 )
             self.world_notice_lbl.setText(" • ".join(world_notices))
             self.world_notice_lbl.setVisible(bool(world_notices))
-            # Enemy bar + chips are combat-only; keep them hidden unless the
-            # combat branch below explicitly turns them on.
+            # Enemy bar + chips are combat-only, and the in-bar percentage and
+            # second skill bar belong to a running activity: reset all four here
+            # so a branch that does not want them cannot inherit them.
             self.enemy_progress.setVisible(False)
             self.chips_lbl.setVisible(False)
+            self.second_progress.setVisible(False)
+            self.progress.setTextVisible(False)
             if skill in _UTILITY_SKILL_NAMES:
-                # Utilities and Activities have no level or XP; show the active
-                # target and make the no-XP nature explicit instead of a bar.
+                # Utilities have no level or XP, but an Activity trains real
+                # skills, so its bars come from activity_xp_bars_pure below.
                 activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
                 surface_name = (
                     skill
@@ -2333,10 +2264,8 @@ if HAS_QT:
                         )
                         self.target_lbl.setVisible(True)
                     else:
-                        self.progress.setVisible(False)
-                        # The target name already appears in sub_lbl.
-                        self.target_lbl.setText("")
-                        self.target_lbl.setVisible(False)
+                        xp_view = activity_xp_bars_pure(player_data, activity_key)
+                        self._render_activity_xp_bars(xp_view)
                 except Exception:
                     pass
                 self.adjustSize()
@@ -2488,12 +2417,15 @@ if HAS_QT:
                 w = min(max(self.width(), 360), 520)
                 h = self.height()
                 x = int((pw - w) / 2)
-                # Keep clear of bottom actions/status; give more breathing room
-                y = int(ph - h - 72)
+                # Keep clear of bottom actions/status; give more breathing room.
+                # An open Grand Exchange drawer sits below this, so the whole
+                # block lifts by however much that drawer needs.
+                y = int(ph - h - 72 - _review_overlay_drawer_lift())
                 self.setFixedWidth(w)
-                self.move(x, y)
+                self.move(x, max(8, y))
                 if _REVIEW_CONTEXT_STRIP is not None and _REVIEW_CONTEXT_STRIP.isVisible():
                     _REVIEW_CONTEXT_STRIP._reposition()
+                _reposition_review_overlay()
             except Exception:
                 pass
 
@@ -2695,79 +2627,92 @@ if HAS_QT:
                 pass
             return False
 
-    class FarmingHUDBadge(QWidget):
-        """Interactive Farming status sibling; ReviewHUD remains mouse-transparent."""
+    class ReviewStatusBadge(QWidget):
+        """The strip's one permanent tenant: Distractions and Farming together.
+
+        Section 4.8 gives the always-visible strip a single compact row, so the
+        two separate badges this replaces — Farming, always shown, and D&D, shown
+        only while a world event was live — became one seat that persists and
+        opens a popover. ``ReviewHUD`` stays mouse-transparent; this is the
+        interactive sibling that can be clicked.
+        """
 
         def __init__(self, parent=None):
             super().__init__(parent)
-            self.setObjectName("AnkiScapeFarmingBadge")
+            self.setObjectName("AnkiScapeStatusBadge")
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-            self._projection = {}
-            self._open_callback = None
+            self._view = {}
+            self._open_activity = None
+            self._open_farm = None
             root = QHBoxLayout(self)
             root.setContentsMargins(5, 5, 5, 5)
             root.setSpacing(3)
             self.button = QToolButton(self)
-            self.button.setObjectName("farmingStatusButton")
+            self.button.setObjectName("reviewStatusButton")
             self.button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             self.button.setCursor(Qt.CursorShape.PointingHandCursor)
             self.button.setMinimumSize(42, 34)
+            # A single "&" would be read as a keyboard mnemonic.
+            self.button.setText("D&&D · Farming")
             self.badge = QLabel(self)
-            self.badge.setObjectName("farmingStatusBadge")
+            self.badge.setObjectName("reviewStatusBadge")
             self.badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.queue_badge = QLabel(self)
-            self.queue_badge.setObjectName("farmingHudQueueIndicator")
+            self.queue_badge.setObjectName("reviewStatusQueueIndicator")
             self.queue_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
             root.addWidget(self.button)
             root.addWidget(self.badge)
             root.addWidget(self.queue_badge)
             self.setStyleSheet(
-                f"QWidget#AnkiScapeFarmingBadge {{ background: {_HUD_BG}; border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
+                f"QWidget#AnkiScapeStatusBadge {{ background: {_HUD_BG}; border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
                 " QToolButton { color: white; background: transparent; border: none; padding: 3px; font-weight: 700; }"
                 " QLabel { color: white; background: rgba(76,175,80,0.35); border-radius: 8px; padding: 2px 5px; font-weight: 700; }"
             )
-            self.button.clicked.connect(self._open_status)
+            self.button.clicked.connect(self._toggle_popover)
             if parent is not None:
                 parent.installEventFilter(self)
             self.hide()
 
-        def set_data(self, projection: dict, open_callback=None) -> None:
-            self._projection = projection or {}
-            self._open_callback = open_callback
-            hud = self._projection.get("hud", self._projection)
-            priority = str(hud.get("priority", "none"))
-            ready = int(hud.get("ready_count", 0) or 0)
-            urgent = int(hud.get("urgent_count", 0) or 0)
-            queued = int(hud.get("queue_count", hud.get("queued_count", 0)) or 0)
-            icon_path = FARMING_HUD_SPROUT_ICON or skill_icon_path_for("Farming")
-            if icon_path:
+        def set_data(self, view: dict, open_activity=None, open_farm=None) -> None:
+            self._view = view or {}
+            self._open_activity = open_activity
+            self._open_farm = open_farm
+            icon_path = _ACTIVITY_GROUP_ICONS.get("distractions_and_diversions")
+            if icon_path and os.path.exists(icon_path):
                 self.button.setIcon(QIcon(icon_path))
                 self.button.setIconSize(QSize(24, 24))
-            self.button.setText("Farming")
-            self.badge.setText(f"!{urgent}" if priority == "alert" else str(ready) if priority == "ready" else str(queued) if priority == "queue" else "")
-            self.badge.setVisible(priority != "none")
+            live = int(self._view.get("count", 0) or 0)
+            queued = int(self._view.get("queued_count", 0) or 0)
+            self.badge.setText(
+                f"!{live}" if self._view.get("alert") else str(live)
+            )
+            self.badge.setVisible(live > 0)
             self.queue_badge.setText(f"Q{queued}" if queued else "")
-            self.queue_badge.setVisible(bool(queued) and priority != "queue")
-            tooltip = str(hud.get("tooltip", "Farming"))
-            if queued and priority != "queue":
-                tooltip += f" · {queued} Farming steps queued"
+            self.queue_badge.setVisible(bool(queued))
+            tooltip = str(self._view.get("tooltip", "Distractions and Farming"))
             self.setToolTip(tooltip)
             self.button.setToolTip(tooltip)
             self.button.setAccessibleName(tooltip)
             self.adjustSize()
-            # show() precedes the layout pass because the shared column
-            # measures visible badges only.
+            # show() precedes the layout pass because the shared column measures
+            # visible widgets only.
             self.show()
             self._reposition()
             self.raise_()
+            if _STATUS_POPOVER is not None and _STATUS_POPOVER.isVisible():
+                show_review_status_popover(
+                    self._view, self._open_activity, self._open_farm
+                )
 
-        def _open_status(self) -> None:
-            show_farming_status_dialog(self._projection, self._open_callback)
+        def _toggle_popover(self) -> None:
+            show_review_status_popover(
+                self._view, self._open_activity, self._open_farm
+            )
 
         def _reposition(self) -> None:
-            _reposition_hud_side_badges()
+            _reposition_review_overlay()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -2777,82 +2722,103 @@ if HAS_QT:
                 pass
             return False
 
-    class DistractionHUDBadge(QWidget):
-        """Interactive Distractions and Diversions sibling of the Farming badge.
+    class ReviewFillDrawer(QWidget):
+        """The Grand Exchange fills drawer, directly under the experience bars.
 
-        Renders nothing at all unless a review-clock world event is live, which
-        is why it replaced three HUD notice lines and five floating popups
-        without adding a permanent surface.
+        Section 4.8: "I wanted it to be under the xp bar box. It should be a
+        drawer." It holds a seat only while the player has an offer on the
+        market, starts collapsed, and lists newest first.
         """
 
         def __init__(self, parent=None):
             super().__init__(parent)
-            self.setObjectName("AnkiScapeDistractionBadge")
+            self.setObjectName("AnkiScapeReviewFillDrawer")
             self.setWindowFlags(Qt.WindowType.Widget)
-            self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-            self._rows = ()
-            self._open_callback = None
-            root = QHBoxLayout(self)
-            root.setContentsMargins(5, 5, 5, 5)
-            root.setSpacing(3)
-            self.button = QToolButton(self)
-            self.button.setObjectName("distractionStatusButton")
-            self.button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-            self.button.setCursor(Qt.CursorShape.PointingHandCursor)
-            self.button.setMinimumSize(42, 34)
-            self.badge = QLabel(self)
-            self.badge.setObjectName("distractionStatusBadge")
-            self.badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            root.addWidget(self.button)
-            root.addWidget(self.badge)
-            self.setStyleSheet(
-                f"QWidget#AnkiScapeDistractionBadge {{ background: {_HUD_BG}; border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
-                " QToolButton { color: white; background: transparent; border: none; padding: 3px; font-weight: 700; }"
-                " QLabel { color: white; background: rgba(76,175,80,0.35); border-radius: 8px; padding: 2px 5px; font-weight: 700; }"
+            root = QVBoxLayout(self)
+            root.setContentsMargins(8, 5, 8, 5)
+            root.setSpacing(4)
+            self.toggle = QToolButton(self)
+            self.toggle.setObjectName("reviewFillLogToggle")
+            self.toggle.setText("Recent fills")
+            self.toggle.setCheckable(True)
+            self.toggle.setChecked(False)
+            self.toggle.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.toggle.setArrowType(Qt.ArrowType.RightArrow)
+            self.toggle.setToolButtonStyle(
+                Qt.ToolButtonStyle.ToolButtonTextBesideIcon
             )
-            self.button.clicked.connect(self._open_activity)
+            root.addWidget(self.toggle, 0, Qt.AlignmentFlag.AlignLeft)
+            self.rows = QListWidget(self)
+            self.rows.setObjectName("reviewFillLogList")
+            self.rows.setVisible(False)
+            # About four rows: the drawer opens into the gap above Anki's answer
+            # buttons and must not reach them.
+            self.rows.setMaximumHeight(96)
+            self.rows.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+            self.rows.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            self.rows.setFrameShape(QFrame.Shape.NoFrame)
+            root.addWidget(self.rows)
+            self.setStyleSheet(
+                f"QWidget#AnkiScapeReviewFillDrawer {{ background: {_HUD_BG};"
+                f" border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
+                " QToolButton { color: white; background: transparent;"
+                " border: none; padding: 2px; font-weight: 600; }"
+                " QListWidget { background: transparent; border: none;"
+                " color: white; }"
+            )
+            self.toggle.toggled.connect(self._on_toggled)
             if parent is not None:
                 parent.installEventFilter(self)
             self.hide()
 
-        def set_data(self, rows, open_callback=None) -> None:
-            self._rows = tuple(rows or ())
-            self._open_callback = open_callback
-            if not self._rows:
+        def set_data(self, view: dict) -> None:
+            view = view or {}
+            if not view.get("visible"):
                 self.hide()
-                _reposition_hud_side_badges()
+                _reposition_review_overlay()
                 return
-            icon_path = _ACTIVITY_GROUP_ICONS.get("distractions_and_diversions")
-            if icon_path and os.path.exists(icon_path):
-                self.button.setIcon(QIcon(icon_path))
-                self.button.setIconSize(QSize(24, 24))
-            self.button.setText("D&&D")
-            self.badge.setText(str(len(self._rows)))
-            tooltip = "\n".join(text for _activity_id, text in self._rows)
-            self.setToolTip(tooltip)
-            self.button.setToolTip(tooltip)
-            self.button.setAccessibleName(tooltip)
-            self.adjustSize()
+            self.toggle.setText(str(view.get("title", "Recent fills")))
+            self.rows.clear()
+            entries = tuple(view.get("rows", ()))
+            if not entries:
+                item = QListWidgetItem(str(view.get("empty_text", "")))
+                item.setFlags(Qt.ItemFlag.NoItemFlags)
+                item.setForeground(QColor(255, 255, 255, 150))
+                self.rows.addItem(item)
+            for entry in entries:
+                item = QListWidgetItem(str(entry["text"]))
+                item.setFlags(Qt.ItemFlag.NoItemFlags)
+                # The overlay is always dark, so these are the dark-theme tones
+                # from the drawer's old home in the Grand Exchange tab.
+                item.setForeground(
+                    QColor("#85c54b")
+                    if str(entry["tone"]) == "complete"
+                    else QColor("#e0b341")
+                )
+                self.rows.addItem(item)
             self.show()
             self._reposition()
             self.raise_()
 
-        def _open_activity(self) -> None:
-            if self._open_callback is None:
-                return
-            # One live event opens its own card; several open the hub list,
-            # where the "Live world events" strip is already at the top.
-            activity_ids = {activity_id for activity_id, _text in self._rows}
-            target = next(iter(activity_ids)) if len(activity_ids) == 1 else None
-            self._open_callback(target)
+        def _on_toggled(self, expanded: bool) -> None:
+            self.toggle.setArrowType(
+                Qt.ArrowType.DownArrow if expanded else Qt.ArrowType.RightArrow
+            )
+            self.rows.setVisible(bool(expanded))
+            self.adjustSize()
+            _reposition_review_overlay()
 
         def _reposition(self) -> None:
-            _reposition_hud_side_badges()
+            _reposition_review_overlay()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
-                if event.type() in (QEvent.Type.Resize, QEvent.Type.Move, QEvent.Type.Show):
+                if event.type() in (
+                    QEvent.Type.Resize,
+                    QEvent.Type.Move,
+                    QEvent.Type.Show,
+                ):
                     self._reposition()
             except Exception:
                 pass
@@ -2997,16 +2963,16 @@ else:
         def set_data(self, projection: dict, action_callback=None) -> None:
             pass
 
-    class FarmingHUDBadge:
+    class ReviewStatusBadge:
         def __init__(self, parent=None):
             pass
-        def set_data(self, projection: dict, open_callback=None) -> None:
+        def set_data(self, view: dict, open_activity=None, open_farm=None) -> None:
             pass
 
-    class DistractionHUDBadge:
+    class ReviewFillDrawer:
         def __init__(self, parent=None):
             pass
-        def set_data(self, rows, open_callback=None) -> None:
+        def set_data(self, view: dict) -> None:
             pass
 
 # UI Functions
@@ -3016,9 +2982,9 @@ else:
 # --- Review HUD management ---
 _REVIEW_HUD = None  # type: ignore
 _REVIEW_CONTEXT_STRIP = None  # type: ignore
-_FARMING_BADGE = None  # type: ignore
-_DISTRACTION_BADGE = None  # type: ignore
-_FARM_STATUS_DIALOG = None  # type: ignore
+_STATUS_BADGE = None  # type: ignore
+_STATUS_POPOVER = None  # type: ignore
+_FILL_DRAWER = None  # type: ignore
 
 
 def _raise_exp_popup() -> None:
@@ -3037,44 +3003,90 @@ def _raise_exp_popup() -> None:
         pass
 
 
-def _reposition_hud_side_badges() -> None:
-    """Lay the interactive HUD siblings out as one left-hand column.
+def _review_overlay_drawer_lift() -> int:
+    """How far the experience HUD rises to keep the fills drawer under it.
 
-    Farming and D&D appear and disappear independently, so the cluster geometry
-    lives in one place: Farming on top, D&D under it, the whole column centred
-    on the HUD and falling back to above the HUD near the left screen edge.
+    The drawer's whole point is being *under* the experience bars, so when it
+    expands the block above it moves rather than the drawer climbing over it.
     """
     try:
-        badges = [
-            badge
-            for badge in (_FARMING_BADGE, _DISTRACTION_BADGE)
-            if badge is not None and badge.isVisible()
-        ]
-        if not badges:
-            return
-        parent = badges[0].parent() or mw
+        drawer = _FILL_DRAWER
+        if drawer is None or not drawer.isVisible():
+            return 0
+        drawer.adjustSize()
+        return max(0, drawer.height() + 6)
+    except Exception:
+        return 0
+
+
+def _reposition_review_overlay() -> None:
+    """Place every reviewer-overlay tenant from one function.
+
+    The world-alert and context-action contracts both forbid a fourth
+    independent `_reposition` heuristic, so the badge column and the Grand
+    Exchange drawer are laid out here relative to the experience HUD: the badge
+    to its left, the drawer directly under it, and both falling back to the
+    HUD's own lower-centre anchor when the HUD itself is hidden.
+    """
+    try:
+        parent = mw
+        hud = _REVIEW_HUD
+        hud_visible = hud is not None and hud.isVisible()
+        if hud_visible:
+            parent = hud.parent() or mw
         if parent is None:
             return
-        for badge in badges:
+        badge = _STATUS_BADGE if (
+            _STATUS_BADGE is not None and _STATUS_BADGE.isVisible()
+        ) else None
+        drawer = _FILL_DRAWER if (
+            _FILL_DRAWER is not None and _FILL_DRAWER.isVisible()
+        ) else None
+        if hud_visible:
+            # Idempotent: always derived from the parent height, so opening and
+            # closing the drawer cannot walk the HUD up the screen.
+            hud.move(
+                hud.x(),
+                max(
+                    8,
+                    parent.height()
+                    - hud.height()
+                    - 72
+                    - _review_overlay_drawer_lift(),
+                ),
+            )
+        if badge is not None:
             badge.adjustSize()
-        spacing = 6
-        width = max(badge.width() for badge in badges)
-        total = sum(badge.height() for badge in badges) + spacing * (len(badges) - 1)
-        hud = _REVIEW_HUD
-        if hud is not None and hud.isVisible():
-            x = hud.x() - width - 8
-            y = hud.y() + max(0, (hud.height() - total) // 2)
+            x = (
+                hud.x() - badge.width() - 8
+                if hud_visible
+                else max(8, (parent.width() - badge.width()) // 2 - 210)
+            )
+            y = (
+                hud.y() + max(0, (hud.height() - badge.height()) // 2)
+                if hud_visible
+                else max(8, parent.height() - badge.height() - 72)
+            )
             if x < 8:
-                x = hud.x()
-                y = max(8, hud.y() - total - 6)
-        else:
-            x = max(8, (parent.width() - width) // 2 - 210)
-            y = max(8, parent.height() - total - 72)
-        for badge in badges:
-            badge.move(x, y)
-            y += badge.height() + spacing
-        if _FARM_STATUS_DIALOG is not None and _FARM_STATUS_DIALOG.isVisible():
-            _position_farming_status_dialog()
+                # Near the left edge the column sits above the HUD instead.
+                x = hud.x() if hud_visible else 8
+                y = max(8, y - badge.height() - 6)
+            badge.move(max(8, x), max(8, y))
+        if drawer is not None:
+            drawer.adjustSize()
+            width = min(max(drawer.width(), 300), 520, max(1, parent.width() - 16))
+            drawer.setFixedWidth(width)
+            if hud_visible:
+                x = hud.x() + (hud.width() - width) // 2
+                y = hud.y() + hud.height() + 6
+            else:
+                x = (parent.width() - width) // 2
+                # The HUD's own lower-centre anchor, minus the 72px it leaves
+                # clear of Anki's answer buttons.
+                y = parent.height() - drawer.height() - 72
+            drawer.move(max(8, x), max(8, y))
+        if _STATUS_POPOVER is not None and _STATUS_POPOVER.isVisible():
+            _position_review_status_popover()
     except Exception:
         pass
 
@@ -3095,12 +3107,13 @@ def _cleanup_extra_huds() -> None:
             for w in QApplication.topLevelWidgets():
                 try:
                     name = getattr(w, "objectName", lambda: "")()
-                    if name in {"AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeFarmingBadge", "AnkiScapeDistractionBadge", "farmingStatusDialog"}:
+                    if name in {"AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeStatusBadge", "AnkiScapeReviewFillDrawer", "reviewStatusPopover"}:
                         current = {
                             "AnkiScapeReviewHUD": _REVIEW_HUD,
                             "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
-                            "AnkiScapeFarmingBadge": _FARMING_BADGE,
-                            "AnkiScapeDistractionBadge": _DISTRACTION_BADGE,
+                            "AnkiScapeStatusBadge": _STATUS_BADGE,
+                            "AnkiScapeReviewFillDrawer": _FILL_DRAWER,
+                            "reviewStatusPopover": _STATUS_POPOVER,
                         }.get(name)
                         if current is None or w is not current:
                             try:
@@ -3134,15 +3147,15 @@ def _cleanup_extra_huds() -> None:
                         child.deleteLater()
                     except Exception:
                         pass
-            for child in par.findChildren(_QW, "AnkiScapeDistractionBadge"):
-                if _DISTRACTION_BADGE is None or child is not _DISTRACTION_BADGE:
+            for child in par.findChildren(_QW, "AnkiScapeStatusBadge"):
+                if _STATUS_BADGE is None or child is not _STATUS_BADGE:
                     try:
                         child.hide()
                         child.deleteLater()
                     except Exception:
                         pass
-            for child in par.findChildren(_QW, "AnkiScapeFarmingBadge"):
-                if _FARMING_BADGE is None or child is not _FARMING_BADGE:
+            for child in par.findChildren(_QW, "AnkiScapeReviewFillDrawer"):
+                if _FILL_DRAWER is None or child is not _FILL_DRAWER:
                     try:
                         child.hide()
                         child.deleteLater()
@@ -3235,165 +3248,202 @@ def hide_review_context_action_strip() -> None:
         pass
 
 
-def ensure_farming_hud_badge() -> None:
-    global _FARMING_BADGE
+def ensure_review_status_badge() -> None:
+    global _STATUS_BADGE
     if not HAS_QT:
         return
     _cleanup_extra_huds()
-    if _FARMING_BADGE is None and mw is not None:
-        _FARMING_BADGE = FarmingHUDBadge(mw)
-        _FARMING_BADGE.setParent(mw)
-    if _FARMING_BADGE is not None:
-        _FARMING_BADGE.raise_()
+    if _STATUS_BADGE is None and mw is not None:
+        _STATUS_BADGE = ReviewStatusBadge(mw)
+        _STATUS_BADGE.setParent(mw)
+    if _STATUS_BADGE is not None:
+        _STATUS_BADGE.raise_()
         _raise_exp_popup()
 
 
-def update_farming_hud_badge(player_data: dict, open_callback=None) -> None:
+def update_review_status_badge(
+    player_data: dict, open_activity=None, open_farm=None
+) -> None:
+    """Refresh the strip's one permanent tenant.
+
+    The badge persists whatever the projection says, because section 4.8 exempts
+    exactly this seat from the live-only rule; only the experience-HUD setting
+    takes it away.
+    """
     if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
-        hide_farming_hud_badge()
+        hide_review_status_badge()
         return
-    ensure_farming_hud_badge()
-    if _FARMING_BADGE is not None:
-        _FARMING_BADGE.set_data(farming_frontend_projection_pure(player_data), open_callback)
+    ensure_review_status_badge()
+    if _STATUS_BADGE is not None:
+        _STATUS_BADGE.set_data(
+            review_status_badge_view_pure(player_data),
+            open_activity,
+            open_farm,
+        )
 
 
-def ensure_distraction_hud_badge() -> None:
-    global _DISTRACTION_BADGE
+def ensure_review_fill_drawer() -> None:
+    global _FILL_DRAWER
     if not HAS_QT:
         return
-    if _DISTRACTION_BADGE is None and mw is not None:
-        _DISTRACTION_BADGE = DistractionHUDBadge(mw)
-        _DISTRACTION_BADGE.setParent(mw)
-    if _DISTRACTION_BADGE is not None:
-        _DISTRACTION_BADGE.raise_()
+    _cleanup_extra_huds()
+    if _FILL_DRAWER is None and mw is not None:
+        _FILL_DRAWER = ReviewFillDrawer(mw)
+        _FILL_DRAWER.setParent(mw)
+    if _FILL_DRAWER is not None:
+        _FILL_DRAWER.raise_()
         _raise_exp_popup()
 
 
-def update_distraction_hud_badge(player_data: dict, open_callback=None) -> None:
+def update_review_fill_drawer(player_data: dict) -> None:
     if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
-        hide_distraction_hud_badge()
+        hide_review_fill_drawer()
         return
-    ensure_distraction_hud_badge()
-    if _DISTRACTION_BADGE is not None:
-        _DISTRACTION_BADGE.set_data(_world_event_rows(player_data), open_callback)
+    ensure_review_fill_drawer()
+    if _FILL_DRAWER is not None:
+        _FILL_DRAWER.set_data(ge_fill_drawer_view_pure(player_data))
 
 
-def _position_farming_status_dialog() -> None:
+def _position_review_status_popover() -> None:
     try:
-        if _FARM_STATUS_DIALOG is None or _FARMING_BADGE is None or mw is None:
+        if _STATUS_POPOVER is None or _STATUS_BADGE is None or mw is None:
             return
-        frame = _FARM_STATUS_DIALOG
+        frame = _STATUS_POPOVER
         frame.adjustSize()
         frame.resize(max(360, frame.width()), min(380, max(180, frame.sizeHint().height())))
-        x = min(max(8, _FARMING_BADGE.x()), max(8, mw.width() - frame.width() - 8))
-        y = _FARMING_BADGE.y() - frame.height() - 8
+        x = min(max(8, _STATUS_BADGE.x()), max(8, mw.width() - frame.width() - 8))
+        y = _STATUS_BADGE.y() - frame.height() - 8
         if y < 8:
-            y = min(mw.height() - frame.height() - 8, _FARMING_BADGE.y() + _FARMING_BADGE.height() + 8)
+            y = min(mw.height() - frame.height() - 8, _STATUS_BADGE.y() + _STATUS_BADGE.height() + 8)
         frame.move(x, max(8, y))
     except Exception:
         pass
 
 
-def close_farming_status_dialog() -> None:
-    global _FARM_STATUS_DIALOG
-    if _FARM_STATUS_DIALOG is not None:
+def close_review_status_popover() -> None:
+    global _STATUS_POPOVER
+    if _STATUS_POPOVER is not None:
         try:
-            _FARM_STATUS_DIALOG.hide()
-            _FARM_STATUS_DIALOG.deleteLater()
+            _STATUS_POPOVER.hide()
+            _STATUS_POPOVER.deleteLater()
         except Exception:
             pass
-    _FARM_STATUS_DIALOG = None
+    _STATUS_POPOVER = None
 
 
-def show_farming_status_dialog(projection: dict, open_callback=None) -> None:
-    global _FARM_STATUS_DIALOG
+def show_review_status_popover(view: dict, open_activity=None, open_farm=None) -> None:
+    """The badge's mini popover: one line per Distraction or crop.
+
+    Clicking a line goes to that activity's own surface, which is the whole
+    point of the notification: "the real game operates like that too."
+    """
+    global _STATUS_POPOVER
     if not HAS_QT or mw is None:
         return
-    if _FARM_STATUS_DIALOG is not None and _FARM_STATUS_DIALOG.isVisible():
-        close_farming_status_dialog()
+    already_open = _STATUS_POPOVER is not None and _STATUS_POPOVER.isVisible()
+    close_review_status_popover()
+    if already_open:
         return
 
     class _StatusFrame(QFrame):
         def keyPressEvent(self, event):  # type: ignore[override]
             if event.key() == Qt.Key.Key_Escape:
-                close_farming_status_dialog()
-                if _FARMING_BADGE is not None:
-                    _FARMING_BADGE.setFocus()
+                close_review_status_popover()
+                if _STATUS_BADGE is not None:
+                    _STATUS_BADGE.setFocus()
                 return
             super().keyPressEvent(event)
 
     frame = _StatusFrame(mw)
-    frame.setObjectName("farmingStatusDialog")
+    frame.setObjectName("reviewStatusPopover")
     frame.setWindowFlags(Qt.WindowType.Widget)
     frame.setFrameShape(QFrame.Shape.StyledPanel)
     frame.setStyleSheet(
-        "QFrame#farmingStatusDialog { background: palette(base); color: palette(text); border: 1px solid palette(mid); border-radius: 10px; }"
+        "QFrame#reviewStatusPopover { background: palette(base); color: palette(text); border: 1px solid palette(mid); border-radius: 10px; }"
     )
     root = QVBoxLayout(frame)
     root.setContentsMargins(12, 10, 12, 10)
     header = QHBoxLayout()
-    title = QLabel("Farming")
+    title = QLabel("Distractions and Farming")
     title.setStyleSheet("font-weight: 700; color: palette(text);")
     close = QToolButton()
     close.setText("×")
-    close.setAccessibleName("Close Farming status")
-    close.clicked.connect(close_farming_status_dialog)
+    close.setAccessibleName("Close the Distractions and Farming status")
+    close.clicked.connect(close_review_status_popover)
     header.addWidget(title)
     header.addStretch(1)
     header.addWidget(close)
     root.addLayout(header)
     rows = QListWidget()
-    rows.setObjectName("farmingStatusList")
+    rows.setObjectName("reviewStatusList")
     rows.setMaximumHeight(220)
-    compact_rows = tuple(projection.get("compact_rows", ()))
-    if compact_rows:
-        for row in compact_rows:
-            item = QListWidgetItem(f"{row['crop_name']} · {row['status_label']} · {row['patch_name']}")
-            item.setData(Qt.ItemDataRole.UserRole, row["patch_id"])
+    view = view or {}
+    entries = tuple(view.get("rows", ()))
+    if entries:
+        for entry in entries:
+            item = QListWidgetItem(f"{entry['name']} · {entry['status']}")
+            item.setData(
+                Qt.ItemDataRole.UserRole,
+                (str(entry["kind"]), str(entry.get("activity_id") or entry.get("patch_id") or "")),
+            )
+            if not entry["live"]:
+                item.setForeground(dim_text_color(rows))
             rows.addItem(item)
     else:
-        item = QListWidgetItem("No crops are growing.")
+        item = QListWidgetItem(
+            "Nothing live. Pin a Distraction on its own page to watch it here."
+        )
         item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         rows.addItem(item)
     root.addWidget(rows)
-    queue = QLabel(f"Queue: {int(projection.get('queued_count', 0) or 0)} steps · next successful reviews")
+    queued = int(view.get("queued_count", 0) or 0)
+    queue = QLabel(f"Queue: {queued} Farming steps · next successful reviews")
     queue.setStyleSheet(f"color: {dim_text_css(queue)};")
+    queue.setVisible(bool(queued))
     root.addWidget(queue)
     footer = QHBoxLayout()
     footer.addStretch(1)
     open_button = QPushButton("Open full farm")
-    open_button.setObjectName("farmingOpenFarmButton")
+    open_button.setObjectName("reviewStatusOpenFarmButton")
 
-    def _open(patch_id=None):
-        close_farming_status_dialog()
-        if open_callback is not None:
-            open_callback(patch_id)
+    def _navigate(kind: str, target: str) -> None:
+        close_review_status_popover()
+        if kind == "farming":
+            if open_farm is not None:
+                open_farm(target or None)
+        elif open_activity is not None:
+            open_activity(target or None)
 
-    open_button.clicked.connect(lambda _=False: _open())
-    rows.itemActivated.connect(lambda item: _open(item.data(Qt.ItemDataRole.UserRole)))
-    rows.itemDoubleClicked.connect(lambda item: _open(item.data(Qt.ItemDataRole.UserRole)))
+    def _activate(item) -> None:
+        payload = item.data(Qt.ItemDataRole.UserRole)
+        if isinstance(payload, tuple):
+            _navigate(payload[0], payload[1])
+
+    open_button.clicked.connect(lambda _=False: _navigate("farming", ""))
+    rows.itemActivated.connect(_activate)
+    rows.itemClicked.connect(_activate)
     footer.addWidget(open_button)
     root.addLayout(footer)
-    _FARM_STATUS_DIALOG = frame
-    _position_farming_status_dialog()
+    _STATUS_POPOVER = frame
+    _position_review_status_popover()
     frame.show()
     frame.raise_()
     frame.setFocus()
 
 
-def hide_farming_hud_badge() -> None:
-    close_farming_status_dialog()
+def hide_review_status_badge() -> None:
+    close_review_status_popover()
     try:
-        if _FARMING_BADGE is not None:
-            _FARMING_BADGE.hide()
+        if _STATUS_BADGE is not None:
+            _STATUS_BADGE.hide()
     except Exception:
         pass
 
 
-def hide_distraction_hud_badge() -> None:
+def hide_review_fill_drawer() -> None:
     try:
-        if _DISTRACTION_BADGE is not None:
-            _DISTRACTION_BADGE.hide()
+        if _FILL_DRAWER is not None:
+            _FILL_DRAWER.hide()
     except Exception:
         pass
 
@@ -3406,8 +3456,8 @@ def hide_review_hud() -> None:
     except Exception:
         pass
     hide_review_context_action_strip()
-    hide_farming_hud_badge()
-    hide_distraction_hud_badge()
+    hide_review_status_badge()
+    hide_review_fill_drawer()
 
 def show_error_message(title: str, message: str):
     """Centralized error dialog helper."""
@@ -3695,6 +3745,9 @@ def show_main_menu(
     on_unload_combat_loadout=None,
     on_reclaim_death_office=None,
     on_start_grave_walk=None,
+    # Pins one Distraction onto the reviewer badge. Undoable like every other
+    # preference command; see commit_direct_action.
+    on_favourite_dnd=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -19051,12 +19104,54 @@ def show_main_menu(
         activity_change_button.setObjectName("activityChooseAnotherButton")
         activity_change_button.setAccessibleName("Choose another activity")
 
+        # The pin lives on the shared control row rather than in each of the
+        # forty-odd bespoke card headers, so every Distraction — including the
+        # five that ship as their own panel class — gets exactly one.
+        activity_favourite_button = QToolButton()
+        activity_favourite_button.setObjectName("activityFavouriteButton")
+        activity_favourite_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        activity_favourite_button.setEnabled(on_favourite_dnd is not None)
+        activity_favourite_button.setVisible(False)
+
+        def _refresh_activity_favourite(activity_id: object, show_detail: bool) -> None:
+            target = str(activity_id or "")
+            watchable = show_detail and target in DND_ACTIVITY_IDS
+            activity_favourite_button.setVisible(watchable)
+            if not watchable:
+                return
+            pinned = is_dnd_favourite_pure(player_data, target)
+            activity_favourite_button.setText("★" if pinned else "☆")
+            hint = (
+                "Stop watching this Distraction on the reviewer badge"
+                if pinned
+                else "Watch this Distraction on the reviewer badge"
+            )
+            activity_favourite_button.setToolTip(hint)
+            activity_favourite_button.setAccessibleName(hint)
+
+        def _toggle_activity_favourite() -> None:
+            target = str(visible_detail_id["id"] or "")
+            if on_favourite_dnd is None or not target:
+                return
+            result = on_favourite_dnd(target) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Reviewer badge",
+                    str(result.get("message", "That Distraction cannot be watched.")),
+                )
+            _refresh_activity_favourite(target, True)
+
+        activity_favourite_button.clicked.connect(
+            lambda _checked=False: _toggle_activity_favourite()
+        )
+
         def _show_activity_detail(activity_id: object) -> None:
             selected = detail_cards.get(str(activity_id or ""))
             selected_widget = selected[1] if selected else None
             show_detail = is_activities and selected_widget is not None
             cards_stack.setVisible(show_detail)
             activity_change_button.setVisible(show_detail)
+            _refresh_activity_favourite(activity_id, show_detail)
             tree.setVisible(not show_detail)
             if not show_detail and tree.currentItem() is not None:
                 tree.scrollToItem(
@@ -19118,7 +19213,13 @@ def show_main_menu(
         container._ankiscape_show_activity = _show_activity_detail
 
         container_layout.addWidget(cards_stack)
-        container_layout.addWidget(activity_change_button)
+        activity_controls = QWidget()
+        activity_controls_layout = QHBoxLayout(activity_controls)
+        activity_controls_layout.setContentsMargins(0, 0, 0, 0)
+        activity_controls_layout.setSpacing(6)
+        activity_controls_layout.addWidget(activity_change_button, 1)
+        activity_controls_layout.addWidget(activity_favourite_button)
+        container_layout.addWidget(activity_controls)
         activity_change_button.clicked.connect(
             lambda _checked=False: _show_activity_detail("")
         )
@@ -19602,7 +19703,7 @@ def show_main_menu(
         return first_category_id(hub)
 
     def _open_farming_in_dialog(patch_id=None) -> None:
-        close_farming_status_dialog()
+        close_review_status_popover()
         farming_ui_state["focus_patch"] = patch_id
         state["details_open"] = False
         state["category"] = "gathering"
@@ -19951,26 +20052,9 @@ def show_main_menu(
     ge_order_layout.addWidget(ge_cancel)
     ge_layout.addWidget(ge_order_panel)
 
-    ge_log_toggle = QToolButton()
-    ge_log_toggle.setObjectName("geFillLogToggle")
-    ge_log_toggle.setText("Recent fills")
-    ge_log_toggle.setCheckable(True)
-    ge_log_toggle.setChecked(False)
-    ge_log_toggle.setArrowType(Qt.ArrowType.RightArrow)
-    ge_log_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-    ge_log_toggle.setStyleSheet(f"color: {dim_text_css(ge_log_toggle)};")
-    ge_layout.addWidget(ge_log_toggle, 0, Qt.AlignmentFlag.AlignLeft)
-
-    ge_log_list = QListWidget()
-    ge_log_list.setObjectName("geFillLogList")
-    ge_log_list.setVisible(False)
-    # About four rows: the tab must still fit the ~560pt Anki dialog height.
-    ge_log_list.setMaximumHeight(110)
-    ge_log_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-    ge_log_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-    ge_log_list.setAlternatingRowColors(False)
-    ge_layout.addWidget(ge_log_list)
-
+    # The "Recent fills" drawer moved out of this tab and under the reviewer
+    # experience bars, where the owner asked for it; see ReviewFillDrawer and
+    # ge_fill_drawer_view_pure. Nothing replaces it here on purpose.
     ge_state = {
         "projection": {
             "ironman_mode": False,
@@ -20117,40 +20201,6 @@ def show_main_menu(
             ge_item_list.setCurrentItem(selected_widget_item)
         ge_item_list.blockSignals(False)
 
-    def _populate_ge_fill_log() -> None:
-        entries = tuple(ge_state["projection"].get("fill_log", ()) or ())
-        answered_cards = int(ge_state["projection"].get("answered_cards", 0) or 0)
-        ge_log_toggle.setText(f"Recent fills ({len(entries)})")
-        ge_log_list.clear()
-        if not entries:
-            empty = QListWidgetItem("No fills yet — place an offer and answer cards.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            empty.setForeground(dim_text_color(ge_log_list))
-            ge_log_list.addItem(empty)
-            return
-        base = ge_log_list.palette().color(QPalette.ColorRole.Base)
-        light = base.lightness() > 128
-        done_color = QColor("#3f6e1e" if light else "#85c54b")
-        partial_color = QColor("#8a6100" if light else "#e0b341")
-        for entry in entries:
-            delta = answered_cards - int(entry.get("card", 0) or 0)
-            when = (
-                "Now"
-                if delta <= 0
-                else f"{delta} card ago"
-                if delta == 1
-                else f"{delta} cards ago"
-            )
-            done = int(entry.get("completed_quantity", 0) or 0)
-            total = int(entry.get("original_quantity", 0) or 0)
-            verb = "sold" if str(entry.get("side")) == "sell" else "bought"
-            row = QListWidgetItem(
-                f"{when}: {entry.get('item_name')} - {done}/{total} {verb}"
-            )
-            row.setFlags(Qt.ItemFlag.NoItemFlags)
-            row.setForeground(done_color if done >= total else partial_color)
-            ge_log_list.addItem(row)
-
     def _selected_ge_order():
         selected_id = ge_state.get("selected_order_id")
         for order in ge_state["projection"].get("slots", ()):
@@ -20280,7 +20330,6 @@ def show_main_menu(
                 ge_state["editing_order_id"] = None
         ge_collect_all.setEnabled(has_collectible and callable(on_ge_action))
         _populate_ge_items()
-        _populate_ge_fill_log()
         _refresh_ge_preview()
         if message:
             ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
@@ -20551,17 +20600,6 @@ def show_main_menu(
             ge_safety_panel.setVisible(bool(expanded)),
         )
     )
-    ge_log_toggle.toggled.connect(
-        lambda expanded=False: (
-            ge_log_toggle.setArrowType(
-                Qt.ArrowType.DownArrow
-                if expanded
-                else Qt.ArrowType.RightArrow
-            ),
-            ge_log_list.setVisible(bool(expanded)),
-        )
-    )
-
     _refresh_ge()
     tabs.addTab(ge_tab, "Grand Exchange")
     _set_global_tab_icon(ge_tab, "grand_exchange_icon.png")

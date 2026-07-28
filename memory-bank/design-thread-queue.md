@@ -405,6 +405,43 @@ clock and route it through the same Enchantment wallet. Do not fold it into
 `mage_training_arena.enchantment_shapes_per_hour`, because the two opportunities
 had different counters and rewards in the period game.
 
+### 3.15 Does the reviewer badge list only favourited Distractions?
+
+Raised 2026-07-28 while building the always-visible strip from section 4.8.
+
+Section 4.8 gives the badge one permanent seat and says its popover lists
+"favourited D&Ds and farming state". It does not say what happens to a live
+Distraction the player never pinned. Before this work the badge showed the three
+review-clock events and nothing else, so reading the record strictly would
+*remove* notifications the player already had.
+
+- **Option A (implemented and recommended).** A favourite adds a line; it never
+  removes one. Every live event still appears whether or not it is pinned,
+  because the strip's rule is "only what is live" and a live star is live. A pin
+  adds a permanent line for a Distraction that is quiet, so the player can watch
+  a weekly errand he would otherwise forget. The badge count counts only live or
+  attention-needing lines, so pinning ten quiet Distractions does not turn the
+  badge into a "10".
+- **Option B.** Strict favourites: the popover shows pinned Distractions only.
+  Cleanest reading of the words, but a fresh save with no pins loses the star and
+  Evil Tree alerts that already work, and the owner would have to discover the
+  pin before the notification system does anything at all.
+- **Option C.** Pin everything by default, then let the player unpin. Rejected:
+  sixteen lines in a reviewer popover is the clutter section 4.8 exists to stop.
+
+Two smaller calls ride along, both open to reversal:
+
+1. **Only Distractions can be pinned.** The record names D&Ds and Farming, so the
+   pin is hidden on minigames, Warriors' Guild and landmark surfaces. Castle Wars
+   has no live state worth a notification line today.
+2. **A quiet favourite's status line comes from the shared target-row metadata**
+   ("Ready — nothing live", or its first locked reason). No cross-family live
+   status exists: each family has a bespoke `*_view_pure`, and only three feed
+   `world_event_rows_pure`. A richer quiet line means either fifteen bespoke
+   formatters or a new per-family status contract.
+
+Blocks: nothing under option A.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

@@ -22,6 +22,14 @@ QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
 The non-Qt runner deliberately skips environment-dependent Qt cases; the
 offscreen command is the release gate for those surfaces.
 
+Run the two lanes **one after the other, never at the same time**. They share the
+checkout, and a concurrent pair produced one bogus failure on 2026-07-28: an
+integration test that reloads the add-on as a fresh package raised
+`ImportError: cannot import name ... from ...ui.ui` for a function that plainly
+exists, which is the shape of a partially loaded module. Both lanes passed
+immediately afterwards when run sequentially. If you see an ImportError naming a
+function you can grep at column zero, check whether the other lane was running.
+
 ## Debug logging during development
 
 This add-on now uses a centralized, rotating debug log stored next to the package as `ankiscape_debug.log`.
