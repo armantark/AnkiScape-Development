@@ -343,6 +343,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     _COMBAT_EXP_KEY_DISPLAY,
     _COMBAT_STYLE_XP_KEYS,
     _combat_roll_damage_lifepoints,
+    advance_combat_grave_review_pure,
     apply_combat_burst_pure,
     apply_safe_combat_recovery_pure,
     bank_gear_rows_pure,

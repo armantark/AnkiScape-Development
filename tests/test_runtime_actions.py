@@ -3,6 +3,8 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
@@ -1295,6 +1297,55 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
         self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
         self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+
+    def test_brimhaven_death_walks_back_on_five_noncombat_reviews_and_restores_loadout(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update({
+            "current_agility": "brimhaven_arena",
+            "agility_level": 99,
+            "combat_lifepoints": 20,
+            "inventory": {"Shark": 1},
+            "equipment": {"weapon": "Bronze sword", "shield": "Wooden shield"},
+            "carried_inventory": {"brimhaven_arena": {"Shark": 1}},
+            "agility_activity_state": {
+                "brimhaven": {
+                    "stint_active": True,
+                    "activated": True,
+                    "needs_chase": False,
+                    "crossings_remaining": 1,
+                    "attempts_remaining": 8,
+                    "obstacle_id": "low_wall",
+                    "obstacle_label": "Low wall",
+                    "obstacle_xp": 8.0,
+                    "obstacle_fail": 1.0,
+                    "temporary_drain": 0,
+                }
+            },
+        })
+
+        self.assertTrue(
+            handle_agility_answer(
+                _context(player_data, calls, random_values=(0.0, 0.0, 0.0, 0.0))
+            )
+        )
+        self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+        self.assertCountEqual(
+            player_data["combat_grave"]["items"],
+            ["Bronze sword", "Wooden shield", "Shark"],
+        )
+
+        for _ in range(5):
+            runtime_actions.advance_farming_clock_for_review(
+                _context(player_data, calls, random_values=(0.5,))
+            )
+
+        self.assertEqual(player_data["combat_grave"], {})
+        self.assertEqual(
+            player_data["equipment"],
+            {"weapon": "Bronze sword", "shield": "Wooden shield"},
+        )
+        self.assertEqual(player_data["inventory"]["Shark"], 1)
 
     def test_agility_auto_pack_carries_food_and_auto_eats_from_that_pack(self):
         calls = {"xp": [], "saves": 0, "errors": []}

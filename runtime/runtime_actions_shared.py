@@ -55,6 +55,7 @@ from ..core.constants import (
 )
 from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
+    advance_combat_grave_review_pure,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
     apply_cooking_action_pure,
@@ -653,9 +654,16 @@ def _charge_urn_for_action(
     return info
 
 
-def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any]:
-    """Advance the background farm clock once for any answered review card."""
+def _advance_grave_walk_for_review(ctx: RuntimeActionContext) -> None:
+    updated, _reclaimed = advance_combat_grave_review_pure(ctx.player_data)
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
 
+
+def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any]:
+    """Advance shared background state once for any answered review card."""
+
+    _advance_grave_walk_for_review(ctx)
     updated, info = advance_farm_clock_pure(ctx.player_data, 1, ctx.random_random)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
@@ -761,6 +769,7 @@ def handle_farming_queue_answer(ctx: RuntimeActionContext) -> bool:
 def handle_farming_review_answer(ctx: RuntimeActionContext) -> bool:
     """Apply one successful review's queued detour and eager clock tick once."""
 
+    _advance_grave_walk_for_review(ctx)
     old_levels = _farming_levels_before_answer(ctx)
     updated, consumed, info = apply_farming_review_with_queue_pure(
         ctx.player_data,

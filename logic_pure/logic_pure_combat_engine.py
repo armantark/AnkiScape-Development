@@ -877,33 +877,45 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     if bank_run_result is not None:
         data["combat_last_result"] = bank_run_result
         return data
-    grave = data.get("combat_grave", {}) or {}
-    if isinstance(grave, Mapping) and grave.get("items"):
-        grave = dict(grave)
-        remaining = max(
-            0,
-            _positive_int(
-                grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
-                COMBAT_GRAVE_RECOVERY_REVIEWS,
-            )
-            - 1,
-        )
-        grave["reviews_remaining"] = remaining
-        if remaining <= 0:
-            _combat_reclaim_items_to_player(
-                data,
-                grave.get("items", ()) or (),
-                _combat_stored_loadout(grave),
-            )
-            data["combat_grave"] = {}
-        else:
-            data["combat_grave"] = grave
     data.update(
         sanitize_equipment_instance_state_pure(
             data, EQUIPMENT_CONDITION_DATA
         )
     )
     return data
+
+
+def advance_combat_grave_review_pure(player_data):
+    """Advance the walk back to a gravestone by one answered card."""
+    data = _copy_player_data_with_nested(player_data)
+    grave = data.get("combat_grave", {}) or {}
+    if not isinstance(grave, Mapping) or not grave.get("items"):
+        return data, False
+    grave = dict(grave)
+    remaining = max(
+        0,
+        _positive_int(
+            grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
+            COMBAT_GRAVE_RECOVERY_REVIEWS,
+        )
+        - 1,
+    )
+    grave["reviews_remaining"] = remaining
+    if remaining <= 0:
+        _combat_reclaim_items_to_player(
+            data,
+            grave.get("items", ()) or (),
+            _combat_stored_loadout(grave),
+        )
+        data["combat_grave"] = {}
+        data.update(
+            sanitize_equipment_instance_state_pure(
+                data, EQUIPMENT_CONDITION_DATA
+            )
+        )
+        return data, True
+    data["combat_grave"] = grave
+    return data, False
 
 
 def combat_death_office_items_pure(player_data):
