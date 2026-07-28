@@ -837,3 +837,48 @@ semantics clauses and the v88 migration read, not player-visible content.
 - **Fork:** At the 2012-11-20 cutoff, an unretrieved gravestone ultimately exposed/dropped its contents and then deleted them; the paid Death's Office item-reclaim system is a later mechanic and is not the period expiry consequence.
 - **Recommendation implemented:** Expired AnkiScape gravestones permanently lose their held items. Keep the existing Death's Office bridge isolated to its pre-existing stacked-grave behavior until that subsystem receives its own source-parity replacement.
 - **Evidence:** Darkan `GraveStone` expiry adjusts remaining public/delete time and finishes the grave rather than transferring items to paid reclaim; `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` records that 2011Scape has no full gravestone plugin and that the current Death's Office fee is explicitly an AnkiScape bridge. The rev-727/game-main local evidence supplies no paid expiry reclaim path.
+
+### 3.22 Dominion Tower — the tower-only reward items are obtainable but thin — implemented recommendation, owner review pending
+
+- **Fork:** The three dominion weapons, the four two-dose tower potions, the
+  three bombs and the help horn are all real period rewards, but the period
+  record describes their effects and never quantifies most of them. The
+  crossbow's hundred shots, the sword's five minutes of combat, the diminutive
+  bomb's tenth of current lifepoints, the horn's five charges and the scorpion
+  meat's 220 healing are exact; the weapons' combat bonuses, the massive and
+  colossal bombs' damage, and the staff's hit budget are stated nowhere.
+- **Recommendation implemented:** the weapons are power-ups a player activates
+  for a match rather than equipment with a slot, because no source gives them a
+  bonus block to equip. They carry their sourced charge budgets and a single
+  registered damage multiplier, and every one of them keeps the sourced
+  Xp-book exchange as a second real sink.
+- **What would change it:** a period item revision with a bonus block, or a
+  decoded interface script for the arena weapon rack.
+
+### 3.23 Dominion Tower — Tarn Razorlor is gated on a miniquest the ledger has no room for — recorded, not implemented
+
+- **Fork:** The tower's class H includes Tarn Razorlor and his terror dogs, but
+  its gate is The Lair of Tarn Razorlor, a *miniquest*. The tower's own list of
+  thirty-eight quests does not include it, and AnkiScape's quest ledger carries
+  the 194 pre-EOC quests with no miniquest rows at all.
+- **What shipped:** the encounter row is present and gated on
+  `lair_of_tarn_razorlor` exactly as the period gates it, so it lights up by
+  itself the day the ledger grows miniquests. Today it is the one boss of
+  forty-eight a player cannot reach, and it belongs to no reward set, so no
+  reward is blocked by it.
+- **Options if you want it sooner:** add a miniquest ledger (large), or attach
+  the boss to a quest that already exists (inauthentic). Recommendation: leave
+  it, and let the miniquest work carry it.
+
+### 3.24 Dominion Tower — a defeat's Dominion Factor cost is nowhere in the record — implemented recommendation, owner review pending
+
+- **Fork:** The tower page says plainly that "Losing a fight reduces the
+  player's dominion factor" and advises cashing out before a fight you expect to
+  lose. No pre-cutoff revision, no guide page and no Darkan code gives the
+  amount; Darkan's own loss path reduces nothing at all.
+- **Recommendation implemented:** a defeat forfeits the factor the last won
+  round paid, which is the smallest reduction that makes the article's own
+  advice rational, and it is registered as
+  `dominion_tower.loss_factor_penalty`.
+- **Alternatives if you prefer:** a flat percentage of the banked factor, or a
+  reset to zero. Both are inventions of the same size; this one is the least.

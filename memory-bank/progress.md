@@ -4422,3 +4422,16 @@ Test counts are snapshots; current runs outrank this note.
   Guthix Sleeps has started, matching its existing alternate-display metadata.
 - Verification: `python3 run_tests.py` passed 3,022 tests with 348 skips; the
   full offscreen Qt lane passed the same 3,022 tests with one skip.
+
+## Dominion Tower — complete, 2026-07-28
+
+The tower ships whole: the 110-combat and twenty-of-thirty-eight quest gates read
+the real quest ledger, forty-eight encounters carry the quest that unlocks them
+and the class floor gate that limits them, the twenty-two handicap wheel runs
+with its sourced per-round factor deltas and its nudge-and-respin rules, and all
+four playable modes plus spectating work. Every reward on the achievement ladder
+is reached in tests by actually killing the bosses its unlock condition names,
+including the five hundred kills the gloves, dreadnip and mines all read.
+
+Schema 98. Sources: `memory-bank/source-audits/dominion-tower-harvest-2026-07-28.md`.
+Forks queued as design threads 3.19, 3.20 and 3.21.

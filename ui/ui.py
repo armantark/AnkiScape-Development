@@ -375,6 +375,9 @@ from .mobilising_armies_panel import MobilisingArmiesPanel
 from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from ..logic.gnome_restaurant_logic import gnome_restaurant_view_pure
 from .gnome_restaurant_panel import GnomeRestaurantPanel
+from ..data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from ..logic.dominion_tower_logic import dominion_tower_view_pure
+from .dominion_tower_panel import DominionTowerPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -3713,6 +3716,7 @@ def show_main_menu(
     on_temple_trekking_command=None,
     on_mobilising_armies_command=None,
     on_gnome_restaurant_command=None,
+    on_dominion_tower_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15503,6 +15507,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(gnome_restaurant_box)
 
+        dominion_tower_box = DominionTowerPanel(
+            player_data,
+            on_command=on_dominion_tower_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(dominion_tower_box)
+
         temple_trekking_box = TempleTrekkingPanel(
             player_data,
             on_command=on_temple_trekking_command,
@@ -18657,6 +18670,29 @@ def show_main_menu(
                             str((result or {}).get("message", "Could not hand the box back.")),
                         )
                         return False
+            if activity_id != DOMINION_TOWER_ACTIVITY_ID:
+                tower_view = dominion_tower_view_pure(player_data)
+                if tower_view["active"]:
+                    answer = QMessageBox.question(
+                        dialog,
+                        "Leave the Dominion Tower?",
+                        "Switch activities and end the current tower run?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return False
+                    result = (
+                        on_dominion_tower_command("leave", {})
+                        if on_dominion_tower_command is not None
+                        else {"ok": False, "message": "Dominion Tower actions are unavailable."}
+                    )
+                    if not (result or {}).get("ok", False):
+                        show_error_message(
+                            "Dominion Tower",
+                            str((result or {}).get("message", "Could not leave the tower.")),
+                        )
+                        return False
             if activity_id != TEMPLE_TREKKING_ACTIVITY_ID:
                 temple_view = temple_trekking_view_pure(player_data)
                 if temple_view["active"]:
@@ -19060,6 +19096,10 @@ def show_main_menu(
                 gnome_restaurant_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == DOMINION_TOWER_ACTIVITY_ID:
+                dominion_tower_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == CRUCIBLE_ACTIVITY_ID:
                 crucible_box.refresh()
                 _show_activity_detail(activity_id)
@@ -19163,6 +19203,10 @@ def show_main_menu(
             GNOME_RESTAURANT_ACTIVITY_ID: (
                 "Gnome Restaurant",
                 gnome_restaurant_box,
+            ),
+            DOMINION_TOWER_ACTIVITY_ID: (
+                "Dominion Tower",
+                dominion_tower_box,
             ),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),

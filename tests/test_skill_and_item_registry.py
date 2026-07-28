@@ -515,6 +515,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "temple_trekking",
                 "mobilising_armies",
                 "gnome_restaurant",
+                "dominion_tower",
                 "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",

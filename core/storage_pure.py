@@ -253,6 +253,11 @@ from ..logic.mobilising_armies_logic import (
     default_mobilising_armies_state_pure,
     sanitize_mobilising_armies_state_pure,
 )
+from ..data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
+from ..logic.dominion_tower_logic import (
+    default_dominion_tower_state_pure,
+    sanitize_dominion_tower_state_pure,
+)
 from ..logic.daily_challenges_logic import (
     default_daily_challenges_state_pure,
     sanitize_daily_challenges_state_pure,
@@ -306,7 +311,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 97
+CURRENT_CONFIG_VERSION = 98
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -488,6 +493,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["temple_trekking"] = default_temple_trekking_state_pure()
     data.update(default_mobilising_armies_state_pure())
     data["gnome_restaurant"] = default_gnome_restaurant_state_pure()
+    data["dominion_tower"] = default_dominion_tower_state_pure()
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["current_quest"] = DEFAULT_QUEST_TARGET
     data["construction_actions_completed"] = 0
@@ -1237,6 +1243,9 @@ def migrate_loaded_data(
     data["gnome_restaurant"] = sanitize_gnome_restaurant_state_pure(
         data.get("gnome_restaurant")
     )
+    data["dominion_tower"] = sanitize_dominion_tower_state_pure(
+        data.get("dominion_tower")
+    )
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")
@@ -1433,6 +1442,17 @@ def migrate_loaded_data(
             active_session_id = ""
     elif mobilising_armies_session:
         active_session_id = MOBILISING_ARMIES_ACTIVITY_ID
+    dominion_tower_active = bool(
+        data["dominion_tower"]["mode"] and data["dominion_tower"]["roster"]
+    )
+    if active_session_id:
+        if active_session_id != DOMINION_TOWER_ACTIVITY_ID:
+            data["dominion_tower"]["roster"] = []
+            data["dominion_tower"]["mode"] = ""
+        elif not dominion_tower_active:
+            active_session_id = ""
+    elif dominion_tower_active:
+        active_session_id = DOMINION_TOWER_ACTIVITY_ID
     crucible_session = data["crucible"]
     if active_session_id:
         if active_session_id != CRUCIBLE_ACTIVITY_ID:
@@ -1850,6 +1870,11 @@ def migrate_loaded_data(
     # v97: Gnome Restaurant adds the delivery job, its punctuality window, the
     # cumulative point ledger, and the reward token's banked meals. Its
     # unconditional sanitizer above supplies the complete additive migration.
+    # v98: Dominion Tower adds the Strange face gate, the four modes, the live
+    # arena roster, the handicap wheel and its suffered set, Dominion Factor and
+    # floor records, journal pages, boss-kill and reward-credit counters, and the
+    # achievement ladder's claim record. Its unconditional sanitizer above
+    # supplies the complete additive migration.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

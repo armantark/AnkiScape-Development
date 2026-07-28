@@ -8824,6 +8824,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "temple_trekking",
                 "mobilising_armies",
                 "gnome_restaurant",
+                "dominion_tower",
                 "crucible",
             },
         )

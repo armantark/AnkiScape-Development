@@ -390,6 +390,29 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_dominion_tower_face_command_restores_through_the_seam(self):
+        from ankiscape.logic.dominion_tower_logic import (
+            apply_dominion_tower_command_pure,
+        )
+
+        addon = self.addon
+        for skill in ("attack", "strength", "defense", "constitution", "magic", "ranged"):
+            addon.player_data[f"{skill}_level"] = 99
+        before = copy.deepcopy(addon.player_data)
+
+        def change(current):
+            updated, ok, _info = apply_dominion_tower_command_pure(
+                current,
+                "talk_to_face",
+                {},
+            )
+            return updated, ok
+
+        self.assertTrue(self.commit(change))
+        self.assertTrue(addon.player_data["dominion_tower"]["talked_with_face"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_tears_of_guthix_entry_restores_through_the_seam(self):
         from ankiscape.logic.tears_of_guthix_logic import (
             apply_tears_of_guthix_command_pure,
