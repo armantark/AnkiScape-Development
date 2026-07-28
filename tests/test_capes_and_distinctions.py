@@ -334,6 +334,30 @@ class PrestigeCapeTest(unittest.TestCase):
             self.assertTrue(cape.seller, cape.id)
             self.assertGreater(cape.price, 0, cape.id)
 
+    def test_max_and_completionist_capes_use_cache_bonus_blocks(self):
+        for name, attack, defence, prayer in (
+            ("Max cape", 5, 11, 10),
+            ("Completionist cape", 10, 12, 13),
+        ):
+            bonuses = EQUIPMENT_DATA[name].bonuses
+            for field in (
+                "attack_stab",
+                "attack_slash",
+                "attack_crush",
+                "attack_magic",
+                "attack_ranged",
+            ):
+                self.assertEqual(getattr(bonuses, field), attack, (name, field))
+            for field in (
+                "defence_stab",
+                "defence_slash",
+                "defence_crush",
+                "defence_magic",
+                "defence_ranged",
+            ):
+                self.assertEqual(getattr(bonuses, field), defence, (name, field))
+            self.assertEqual(bonuses.prayer, prayer, name)
+
     def test_the_quest_point_cape_is_earned_by_finishing_every_quest(self):
         player = _player()
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}

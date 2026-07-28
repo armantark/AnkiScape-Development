@@ -241,6 +241,42 @@ class PrestigeCape:
 # 365 independent 240-answer world days, never the wall clock.
 VETERAN_ANSWERED_CARDS_PER_YEAR = 240 * 365
 
+# Darkan rev-727 cache dumps, developer-information/itemList.txt:21873,21875
+# (independently rendered in itemListCS2.txt:20769,20771). Params 0-4 are the
+# five attack columns, 5-9 the five defence columns, and 11 Prayer.
+PRESTIGE_CAPE_BONUSES: dict[str, dict[str, int]] = {
+    "max": {
+        "attack_stab": 5,
+        "attack_slash": 5,
+        "attack_crush": 5,
+        "attack_magic": 5,
+        "attack_ranged": 5,
+        "defence_stab": 11,
+        "defence_slash": 11,
+        "defence_crush": 11,
+        "defence_magic": 11,
+        "defence_ranged": 11,
+        "prayer": 10,
+    },
+    "completionist": {
+        "attack_stab": 10,
+        "attack_slash": 10,
+        "attack_crush": 10,
+        "attack_magic": 10,
+        "attack_ranged": 10,
+        "defence_stab": 12,
+        "defence_slash": 12,
+        "defence_crush": 12,
+        "defence_magic": 12,
+        "defence_ranged": 12,
+        "prayer": 13,
+    },
+}
+PRESTIGE_CAPE_BONUS_SOURCE = (
+    "darkan-world-server developer-information/itemList.txt:21873,21875; "
+    "itemListCS2.txt:20769,20771 (rev-727 cache item params)"
+)
+
 PRESTIGE_CAPES: tuple[PrestigeCape, ...] = (
     PrestigeCape(
         "quest_point",
@@ -267,14 +303,10 @@ PRESTIGE_CAPES: tuple[PrestigeCape, ...] = (
         99,
         20767,
         20768,
-        # PLACEHOLDER(capes_of_distinction.prestige_defensive_block): the Max and
-        # Completionist capes have no equipment block in the 2011Scape item
-        # config and Darkan reads theirs from the cache, so only the prayer
-        # bonus is recovered; every defensive column ships at zero.
         10,
         "darkan-world-server c95aca4 content/world/npcs/max/MaxD.java:47-75"
-        " (isMaxed(false), 2,475,000 coins, cape 20767 + hood 20768);"
-        " prayer +10 from Max cape oldid 6549092, 2012-11-12",
+        " (isMaxed(false), 2,475,000 coins, cape 20767 + hood 20768); "
+        + PRESTIGE_CAPE_BONUS_SOURCE,
     ),
     PrestigeCape(
         "completionist",
@@ -286,11 +318,11 @@ PRESTIGE_CAPES: tuple[PrestigeCape, ...] = (
         0,
         20769,
         20770,
-        # PLACEHOLDER(capes_of_distinction.prestige_defensive_block): as above.
         13,
         "Completionist cape oldid 6560039, 2012-11-15 (5,000,000 coins from the"
-        " Varrock Museum guard, prayer +13); item ids 20769/20770 from"
-        " darkan-world-server c95aca4 content/ItemConstants.java:412-414",
+        " Varrock Museum guard); item ids 20769/20770 from darkan-world-server"
+        " c95aca4 content/ItemConstants.java:412-414; "
+        + PRESTIGE_CAPE_BONUS_SOURCE,
     ),
     PrestigeCape(
         "veteran_5",
@@ -382,16 +414,15 @@ def cape_equipment_data_as_dict() -> "dict[str, Any]":
         )
 
     for prestige in PRESTIGE_CAPES:
-        bonuses = (
-            EquipmentBonuses(**SKILLCAPE_BONUSES)
-            if prestige.id == "quest_point"
-            else EquipmentBonuses(prayer=prestige.prayer_bonus)
-        )
-        status = (
-            "items.yml equipment block"
-            if prestige.id == "quest_point"
-            else "prayer bonus sourced; defensive block is a registered placeholder"
-        )
+        if prestige.id == "quest_point":
+            bonuses = EquipmentBonuses(**SKILLCAPE_BONUSES)
+            status = "items.yml equipment block"
+        elif prestige.id in PRESTIGE_CAPE_BONUSES:
+            bonuses = EquipmentBonuses(**PRESTIGE_CAPE_BONUSES[prestige.id])
+            status = "rev-727 cache item-definition bonus params"
+        else:
+            bonuses = EquipmentBonuses(prayer=prestige.prayer_bonus)
+            status = "period cape page; zero bonuses stated"
         rows[prestige.cape] = _cape(prestige.cape, prestige.cape_item_id, (), bonuses, prestige.source, status)
         rows.setdefault(
             prestige.hood,
