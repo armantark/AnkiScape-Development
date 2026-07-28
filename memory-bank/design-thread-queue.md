@@ -441,6 +441,47 @@ Two smaller calls ride along, both open to reversal:
    formatters or a new per-family status contract.
 
 Blocks: nothing under option A.
+### 3.19 Mobilising Armies' hourly rank cap has no clock to hang on
+
+Raised 2026-07-28. The period rule is exact: "A maximum of 12 ranks can be gained
+per hour." Its whole purpose is to stop rank farming through three-minute suicide
+games, which the Siege article documents as a mainstream strategy. AnkiScape's
+review loop has no wall clock, so an hour has to become something else or the cap
+has to be dropped — and dropping it would leave the fastest rank route
+uncapped, which is exactly the behaviour Jagex added the cap to prevent.
+
+Three options were considered. A real timestamp would be faithful but would make
+rank progress depend on how long the player leaves Anki open, which contradicts
+the review-driven model everywhere else. Dropping the cap would let a player
+forfeit-farm rank far faster than the period allowed. Counting review beats keeps
+the cap's purpose intact and stays inside the existing model.
+
+Recommendation, and what is implemented: the hour is a rolling window of
+**36 review beats** — two full eighteen-beat scenarios, which is one hour of
+scenario time. Registered as
+`mobilising_armies.rank_window_reviews`. The replacement seam is a single
+counter: if a real-time clock ever becomes available to the review loop, swap the
+window without touching the award rules.
+
+### 3.20 Winning by the primary objective can outrun the ten-order rank gate
+
+Raised 2026-07-28. Two sourced rules interact awkwardly once a thirty-minute
+battle becomes eighteen orders. Rank needs "at least 10 actions"; some primary
+objectives can be reached in fewer orders than that. In the period game the two
+never collided, because ten commands in thirty minutes is trivial.
+
+Breadth one resolves it by calibration rather than by special-casing: every
+scenario's primary objective is tuned to need at least ten orders, so a legitimate
+win always earns rank. Siege's direct assault deals 10 wall damage per order
+(exactly ten orders), its catapult route needs twelve, Hoard needs thirteen and
+Rescue fourteen. The rank gate still bites on forfeits, on early wipes, and on
+players who spend reviews on Again — which is where the period rule bit too.
+
+The alternative, and the fork the owner may prefer: waive the ten-order threshold
+whenever the primary objective is completed, and keep it only for participation
+rank. That would decouple rank from the objective rates so the rates could later
+be re-tuned freely. It is not implemented, because it would add an unsourced
+exception to an otherwise exact rule.
 
 ## 4. Answered decisions
 

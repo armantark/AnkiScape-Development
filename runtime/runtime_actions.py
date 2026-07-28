@@ -265,6 +265,11 @@ from ..logic.temple_trekking_logic import (
     temple_trekking_can_review_pure,
     temple_trekking_view_pure,
 )
+from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
+from ..logic.mobilising_armies_logic import (
+    mobilising_armies_can_review_pure,
+    mobilising_armies_view_pure,
+)
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -544,6 +549,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_troll_invasion_answer,
     handle_mage_training_arena_answer,
     handle_temple_trekking_answer,
+    handle_mobilising_armies_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_flash_powder_factory_answer,

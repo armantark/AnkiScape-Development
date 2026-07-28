@@ -56,6 +56,7 @@ from ankiscape.logic import pest_control_logic
 from ankiscape.logic import pet_logic
 from ankiscape.logic import phoenix_lair_logic
 from ankiscape.logic import pyramid_plunder_logic
+from ankiscape.logic import mobilising_armies_logic
 from ankiscape.logic import shades_of_mortton_logic
 from ankiscape.logic import slayer_logic
 from ankiscape.logic import sorceress_garden_logic
@@ -192,6 +193,27 @@ _MODULE_GATES = (
             "leave_pyramid_plunder_pure",
         ),
         ("tests.test_pyramid_plunder",),
+    ),
+    (
+        mobilising_armies_logic,
+        (
+            "set_mobilising_armies_policy_pure",
+            "invest_items_pure",
+            "recruit_squads_pure",
+            "buy_special_units_pure",
+            "enter_mobilising_armies_pure",
+            "apply_mobilising_armies_review_pure",
+            "deploy_special_unit_pure",
+            "forfeit_mobilising_armies_pure",
+            "roll_spoils_offer_pure",
+            "claim_spoils_pure",
+            "buy_reward_pure",
+            "refund_reward_pure",
+            "set_prefix_pure",
+            "use_locator_pure",
+            "open_quest_kit_pure",
+        ),
+        ("tests.test_mobilising_armies",),
     ),
     (
         shades_of_mortton_logic,

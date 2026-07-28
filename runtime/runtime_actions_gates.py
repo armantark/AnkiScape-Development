@@ -262,6 +262,8 @@ from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..logic.mage_training_arena_logic import mage_training_arena_can_review_pure
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import temple_trekking_can_review_pure
+from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
+from ..logic.mobilising_armies_logic import mobilising_armies_can_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -671,6 +673,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return mage_training_arena_can_review_pure(ctx.player_data)
     if activity_key == TEMPLE_TREKKING_ACTIVITY_ID:
         return temple_trekking_can_review_pure(ctx.player_data)
+    if activity_key == MOBILISING_ARMIES_ACTIVITY_ID:
+        return mobilising_armies_can_review_pure(ctx.player_data)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

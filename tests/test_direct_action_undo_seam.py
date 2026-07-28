@@ -328,6 +328,34 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_mobilising_armies_investment_restores_state_and_inventory_through_the_seam(self):
+        from ankiscape.data.item_values import ITEM_VALUES
+        from ankiscape.logic.mobilising_armies_logic import (
+            apply_mobilising_armies_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["inventory"]["Adamant bar"] = 4
+        before = copy.deepcopy(addon.player_data)
+
+        def change(current):
+            updated, ok, _info = apply_mobilising_armies_command_pure(
+                current,
+                "invest",
+                {"item_name": "Adamant bar", "quantity": 4},
+                lambda: 0.5,
+                item_values=ITEM_VALUES,
+            )
+            return updated, ok
+
+        self.assertTrue(self.commit(change))
+        self.assertEqual(
+            addon.player_data["mobilising_armies_investment_credits"], 4 * 129
+        )
+        self.assertNotIn("Adamant bar", addon.player_data["inventory"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_tears_of_guthix_entry_restores_through_the_seam(self):
         from ankiscape.logic.tears_of_guthix_logic import (
             apply_tears_of_guthix_command_pure,

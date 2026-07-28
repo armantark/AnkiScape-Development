@@ -369,6 +369,9 @@ from .mage_training_arena_panel import MageTrainingArenaPanel
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import temple_trekking_view_pure
 from .temple_trekking_panel import TempleTrekkingPanel
+from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
+from ..logic.mobilising_armies_logic import mobilising_armies_view_pure
+from .mobilising_armies_panel import MobilisingArmiesPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -3701,6 +3704,7 @@ def show_main_menu(
     on_shattered_heart_command=None,
     on_mage_training_arena_command=None,
     on_temple_trekking_command=None,
+    on_mobilising_armies_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15473,6 +15477,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(mage_training_arena_box)
 
+        mobilising_armies_box = MobilisingArmiesPanel(
+            player_data,
+            on_command=on_mobilising_armies_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(mobilising_armies_box)
+
         temple_trekking_box = TempleTrekkingPanel(
             player_data,
             on_command=on_temple_trekking_command,
@@ -18581,6 +18594,29 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the Arena.")),
                     )
                     return False
+            if activity_id != MOBILISING_ARMIES_ACTIVITY_ID:
+                mobilising_view = mobilising_armies_view_pure(player_data)
+                if mobilising_view["active"]:
+                    answer = QMessageBox.question(
+                        dialog,
+                        "Forfeit the scenario?",
+                        "Switch activities and forfeit the battle without rank or credits?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return False
+                    result = (
+                        on_mobilising_armies_command("forfeit", {})
+                        if on_mobilising_armies_command is not None
+                        else {"ok": False, "message": "Mobilising Armies actions are unavailable."}
+                    )
+                    if not (result or {}).get("ok", False):
+                        show_error_message(
+                            "Mobilising Armies",
+                            str((result or {}).get("message", "Could not forfeit the battle.")),
+                        )
+                        return False
             if activity_id != TEMPLE_TREKKING_ACTIVITY_ID:
                 temple_view = temple_trekking_view_pure(player_data)
                 if temple_view["active"]:
@@ -18972,6 +19008,10 @@ def show_main_menu(
                 mage_training_arena_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == MOBILISING_ARMIES_ACTIVITY_ID:
+                mobilising_armies_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == TEMPLE_TREKKING_ACTIVITY_ID:
                 temple_trekking_box.refresh()
                 _show_activity_detail(activity_id)
@@ -19071,6 +19111,10 @@ def show_main_menu(
             TEMPLE_TREKKING_ACTIVITY_ID: (
                 "Temple Trekking",
                 temple_trekking_box,
+            ),
+            MOBILISING_ARMIES_ACTIVITY_ID: (
+                "Mobilising Armies",
+                mobilising_armies_box,
             ),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),

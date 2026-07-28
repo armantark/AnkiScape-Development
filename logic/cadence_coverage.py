@@ -816,6 +816,28 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "mobilising_armies":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "mobilising_armies",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "cadence_profile": "activity_default",
+                    "review_ticks": 6,
+                    "probability_mode": "embedded",
+                    "notes": (
+                        "One productive review issues one squad order in the "
+                        "eighteen-beat scenario; Again spends a beat without "
+                        "issuing an order, which is how the sourced ten-order "
+                        "rank threshold can be missed. Investment, recruitment, "
+                        "special-unit deployment, forfeit and every Officer "
+                        "Tower action are direct actions outside review cadence."
+                    ),
+                }
+            )
+            continue
         elif str(action_id) == "temple_trekking":
             rows.append(
                 {
