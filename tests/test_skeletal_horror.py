@@ -149,6 +149,24 @@ class SkeletalHorrorDataAndGatesTests(unittest.TestCase):
         enemy = skeletal_horror_enemy_pure(2, "magic")
         self.assertEqual(enemy["attack_style"], "melee")
         self.assertEqual(enemy["attack_speed"], 4)
+        self.assertEqual(
+            enemy["bonuses"],
+            {
+                "attack_stab": 0,
+                "attack_slash": 0,
+                "attack_crush": 0,
+                "attack_magic": 0,
+                "attack_ranged": 0,
+                "defence_stab": 100,
+                "defence_slash": 110,
+                "defence_crush": 50,
+                "defence_magic": 0,
+                "defence_ranged": 100,
+                "melee_strength": 0,
+                "ranged_strength": 0,
+                "magic_damage": 0,
+            },
+        )
         self.assertEqual(enemy["drops"], {"guaranteed": (), "tables": ()})
         self.assertTrue(enemy["encounter_only"])
         self.assertIn(SKELETAL_HORROR_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
