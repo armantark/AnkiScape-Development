@@ -473,8 +473,12 @@ def apply_phoenix_lair_review_pure(
 
     data["current_combat_target"] = target_id
     data["combat_encounter"] = _sanitize_encounter(state.get("encounter"), target_id, lifepoints)
-    auto_flee = data.get("combat_auto_flee_percent", 0)
-    data["combat_auto_flee_percent"] = 0
+    # The bounded encounter cannot be left mid-fight, so the engine's
+    # auto-flee is suspended for the burst and restored after — the engine
+    # reads the boolean combat_auto_flee, not the old percent key, which
+    # this family zeroed for months without effect.
+    auto_flee = data.get("combat_auto_flee", True)
+    data["combat_auto_flee"] = False
     data, ok, combat_result = apply_combat_burst_pure(
         data,
         {target_id: enemy},
@@ -486,7 +490,7 @@ def apply_phoenix_lair_review_pure(
         safe_death=False,
         allow_bank_run=False,
     )
-    data["combat_auto_flee_percent"] = auto_flee
+    data["combat_auto_flee"] = auto_flee
     if not ok:
         # Shallow rollback: apply_combat_burst_pure copies nested values before
         # touching them, so nothing of the input was written, and

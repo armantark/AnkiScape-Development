@@ -699,7 +699,6 @@ def _raid_review(
     temp["combat_status_effects"] = {}
     temp["combat_auto_eat_food"] = []
     temp["combat_auto_flee"] = False
-    temp["combat_auto_flee_percent"] = 0
     temp["combat_selected_prayers"] = []
     temp["combat_vengeance"] = False
     temp["combat_dream_thrift"] = False
