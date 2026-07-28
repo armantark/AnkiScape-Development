@@ -816,6 +816,26 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "temple_trekking":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "temple_trekking",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "cadence_profile": "activity_default",
+                    "review_ticks": 6,
+                    "probability_mode": "embedded",
+                    "notes": (
+                        "One productive review resolves one obstacle beat or one "
+                        "six-tick Combat slice; Again advances nothing and direct "
+                        "planning, supply, abandonment, and redemption actions are "
+                        "outside review cadence."
+                    ),
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

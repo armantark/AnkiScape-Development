@@ -510,6 +510,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "duel_arena",
                 "clan_wars",
                 "mage_training_arena",
+                "temple_trekking",
                 "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",

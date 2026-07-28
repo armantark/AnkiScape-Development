@@ -372,6 +372,41 @@ clock and route it through the same Enchantment wallet. Do not fold it into
 `mage_training_arena.enchantment_shapes_per_hour`, because the two opportunities
 had different counters and rewards in the period game.
 
+### 3.13 Temple Trekking and Burgh de Rott Ramble share one surface
+
+The period exposes two directions with different quest gates, but companions,
+progression, follower food and reward tokens are one system. Separate cards would
+duplicate policy and make shared state harder to read.
+
+Recommendation and implemented behaviour: keep one Temple Trekking card with a
+direction selector. The pure view changes the available companions and quest gate
+for that direction. Blocks nothing; splitting later is a presentation-only change.
+
+### 3.14 Route choice applies to each encounter, not the whole trek
+
+The earlier owner note described one route tier chosen at entry. The pinned period
+page instead lets the player choose easy, medium or hard again after each event.
+A literal prompt between every answered card would interrupt the review loop.
+
+Recommendation and implemented behaviour: the saved route is the next-encounter
+policy. Entry freezes it for the first node; completing a node freezes the current
+policy for the next node. `route_history` records every actual choice for token
+quality and diary proof. This preserves the period choice point without a modal
+review interruption.
+
+### 3.15 Breadth-one follower supplies stay compact and explicit
+
+The period follower inventory accepted food generally and the Druid pouch had
+charges. A full carried-food editor would add a second inventory surface to a
+breadth activity, while a Boolean pouch would erase an attested resource.
+
+Recommendation and implemented behaviour: use one shared 28-slot Lobster pack as
+an explicit AnkiScape abstraction, allow it to be stocked during a trek, and store
+three Druid-pouch charges separately from the item. The direct fill action
+compresses Bloom, flora collection and filling; the placeholder register names the
+remaining follower eating policy. This can widen to ordinary food rows without a
+save migration.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

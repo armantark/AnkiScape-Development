@@ -587,6 +587,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T06:10:19Z"
   },
+  "activityicons/temple_trekking.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28red%29.png",
+    "file_title": "Reward token (red).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625045844%21Reward_token_%28red%29.png?6e9fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce76de7c0ed0b57309d0294fc990248ff31c8ea9",
+    "size": 597,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-01T01:56:40Z"
+  },
   "activityicons/treasure_trail.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Mg_treasuretrails.jpg",
     "file_title": "Mg treasuretrails.jpg",
@@ -2747,6 +2759,54 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:39Z"
   },
+  "activityitems/temple_trekking_druid_pouch.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Druid_pouch.png",
+    "file_title": "Druid pouch.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073204%21Druid_pouch.png?37fe6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "61d568d269ea32ebd518559066e68076077cbfc5",
+    "size": 1435,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-03T15:07:24Z"
+  },
+  "activityitems/temple_trekking_token_blue.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28blue%29.png",
+    "file_title": "Reward token (blue).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625045034%21Reward_token_%28blue%29.png?b758e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "83ba6672484ba107378a38dc1b6cd96cf6b7b729",
+    "size": 621,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-01T01:54:27Z"
+  },
+  "activityitems/temple_trekking_token_red.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28red%29.png",
+    "file_title": "Reward token (red).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625045844%21Reward_token_%28red%29.png?6e9fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce76de7c0ed0b57309d0294fc990248ff31c8ea9",
+    "size": 597,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-01T01:56:40Z"
+  },
+  "activityitems/temple_trekking_token_yellow.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Reward_token_%28yellow%29.png",
+    "file_title": "Reward token (yellow).png",
+    "image_url": "https://runescape.wiki/images/archive/20140625034402%21Reward_token_%28yellow%29.png?97496",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dc525655a897bcee88793fbfa27e1561c2c55210",
+    "size": 600,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-05T09:36:53Z"
+  },
   "activityitems/varrock_museum_ancient_coin.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ancient_coin.png",
     "file_title": "Ancient coin.png",
@@ -3349,7 +3409,7 @@
   },
   "agilityitems/skoll_boots.png": {
     "file_page_url": "https://runescape.wiki/w/File:Sk%C3%B6ll_boots.png",
-    "file_title": "Sköll boots.png",
+    "file_title": "Sk\u00f6ll boots.png",
     "image_url": "https://runescape.wiki/images/archive/20160502074538%21Sk%C3%B6ll_boots.png?853c8",
     "license_string": "unknown",
     "mediatype": "BITMAP",
