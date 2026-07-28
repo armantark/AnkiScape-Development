@@ -120,7 +120,7 @@ def _force_nodes(data, nodes):
 
 class TempleTrekkingDataSourceAssetTests(unittest.TestCase):
     def test_schema_registries_sources_assets_and_cutoff_uploads(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 94)
+        self.assertGreaterEqual(CURRENT_CONFIG_VERSION, 94)
         self.assertIn(TEMPLE_TREKKING_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
         self.assertIn(TEMPLE_TREKKING_COMBAT_TARGET_ID, COMBAT_ENEMY_DATA)
         self.assertEqual(len(TEMPLE_TREKKING_COMPANION_XP_THRESHOLDS), 99)
@@ -430,7 +430,7 @@ class TempleTrekkingPersistenceRuntimeTests(unittest.TestCase):
         old = _force_nodes(_entered(), ("bog",) * 4)
         old["config_version"] = 93
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(migrated["config_version"], 94)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(
             migrated["activity_session"], {"active_id": TEMPLE_TREKKING_ACTIVITY_ID}
         )

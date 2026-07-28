@@ -534,8 +534,8 @@ class ShatteredHeartPersistenceTests(unittest.TestCase):
         old["config_version"] = 91
         old.pop("shattered_heart", None)
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 92)
-        self.assertEqual(migrated["config_version"], 92)
+        self.assertGreaterEqual(CURRENT_CONFIG_VERSION, 92)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(
             migrated["shattered_heart"], default_shattered_heart_state_pure()
         )
