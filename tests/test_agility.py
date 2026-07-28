@@ -1,6 +1,7 @@
 import ast
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.agility_data import (
@@ -653,6 +654,27 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(player["agility_effect_charges"]["surefooted_reviews"], 332)
         self.assertEqual(player["agility_effect_charges"]["surefooted_cooldown_reviews"], 1999)
+
+    def test_real_course_roll_takes_the_larger_potion_or_cape_boost(self):
+        player = {
+            **default_agility_state_pure(),
+            "agility_level": 99,
+            "agility_effective_boost": 3,
+            "agility_boost_actions_remaining": 10,
+            "equipment": {"cape": "Agility cape"},
+        }
+        with patch(
+            "ankiscape.logic.agility_logic.agility_failure_probability_pure",
+            wraps=agility_failure_probability_pure,
+        ) as probability:
+            updated, result = apply_agility_review_pure(
+                player,
+                (0.99, 0.99, 0.99, 0.99),
+            )
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(probability.call_args.args[2], 102)
+        self.assertEqual(updated["agility_boost_actions_remaining"], 9)
 
     def test_skillcape_boost_has_full_uptime_only_while_equipped(self):
         player = {

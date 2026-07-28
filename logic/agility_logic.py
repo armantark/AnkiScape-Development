@@ -300,10 +300,10 @@ def agility_effective_level_pure(player_data: Mapping[str, Any]) -> int:
         if _int(player_data.get("agility_boost_actions_remaining")) > 0
         else 0
     )
-    # The skillcape's passive boost is not Agility's own: it comes from the
-    # project's single effective-level seam, which composes the familiar boost
-    # and the worn cape so no skill grows a private second mechanism.
-    return effective_roll_level_pure(player_data, "agility", level) + temporary_boost
+    # Potions and the cape are both visible boosts, so the larger one wins.
+    # Passing the active potion level into the shared seam lets the cape's +1
+    # apply only when it is larger instead of stacking afterward.
+    return effective_roll_level_pure(player_data, "agility", level + temporary_boost)
 
 
 def _answered_card_week(player_data: Mapping[str, Any]) -> int:
