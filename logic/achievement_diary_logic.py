@@ -28,6 +28,7 @@ from ..data.achievement_diary_data import (
     DiaryTask,
     DiaryTier,
 )
+from ..data.summoning_data import SUMMONING_ACTION_IDS_BY_FAMILY
 from ..logic_pure.logic_pure_quest import _apply_skill_xp_reward
 from .achievement_diary_derived import (  # noqa: F401  (re-export)
     DIARY_DERIVED_VALUE_CEILINGS,
@@ -120,13 +121,58 @@ def _ledger_bucket(
     return _mapping(_mapping(skills.get(skill_id)).get(bucket))
 
 
-def _counter_at(player_data: Mapping[str, Any], path: str) -> int:
+_MISSING = object()
+
+
+def _value_at(player_data: Mapping[str, Any], path: str) -> Any:
     node: Any = player_data
     for part in path.split("."):
-        if not isinstance(node, Mapping):
-            return 0
-        node = node.get(part)
-    return _int(node)
+        if not isinstance(node, Mapping) or part not in node:
+            return _MISSING
+        node = node[part]
+    return node
+
+
+def _counter_at(player_data: Mapping[str, Any], path: str) -> int:
+    value = _value_at(player_data, path)
+    return 0 if value is _MISSING else _int(value)
+
+
+def _shop_transaction_count(player_data: Mapping[str, Any], key: str) -> int:
+    transaction_type, separator, remainder = key.partition("|")
+    shop_id, row_separator, row_id = remainder.partition("|")
+    events = player_data.get("shop_events")
+    if (
+        not separator
+        or not row_separator
+        or not isinstance(events, Sequence)
+        or isinstance(events, (str, bytes))
+    ):
+        return 0
+    rolled_back = {
+        str(event.get("rolled_back_event_id", ""))
+        for event in events
+        if isinstance(event, Mapping) and event.get("type") == "rollback"
+    }
+    return sum(
+        1
+        for event in events
+        if isinstance(event, Mapping)
+        and str(event.get("event_id", "")) not in rolled_back
+        and event.get("type") == transaction_type
+        and event.get("shop_id") == shop_id
+        and event.get("row_id") == row_id
+    )
+
+
+def _ledger_action_family_count(
+    player_data: Mapping[str, Any], skill_id: str, family_id: str
+) -> int:
+    if skill_id != "summoning":
+        return 0
+    action_ids = SUMMONING_ACTION_IDS_BY_FAMILY.get(family_id, ())
+    actions = _ledger_bucket(player_data, skill_id, "actions")
+    return sum(_int(actions.get(action_id)) for action_id in action_ids)
 
 
 def _held_quantity(player_data: Mapping[str, Any], item_name: str) -> int:
@@ -158,10 +204,30 @@ def condition_progress_pure(
         skill_id, _, key = condition.key.partition(":")
         bucket = "outputs" if kind == "ledger_output" else "actions"
         return _int(_ledger_bucket(player_data, skill_id, bucket).get(key)), need
+    if kind == "ledger_action_family":
+        skill_id, _, family_id = condition.key.partition(":")
+        return _ledger_action_family_count(player_data, skill_id, family_id), need
     if kind == "counter":
         return _counter_at(player_data, condition.key), need
+    if kind == "combat_kill":
+        return _counter_at(player_data, f"combat_kill_counts.{condition.key}"), need
+    if kind == "shop_transaction":
+        return _shop_transaction_count(player_data, condition.key), need
+    if kind == "state_equals":
+        actual = _value_at(player_data, condition.key)
+        matches = (
+            condition.expected is not None
+            and actual is not _MISSING
+            and type(actual) is type(condition.expected)
+            and actual == condition.expected
+        )
+        return (1 if matches else 0), 1
     if kind == "hold_item":
         return _held_quantity(player_data, condition.key), need
+    if kind == "equipped_item":
+        slot, separator, item_name = condition.key.partition("|")
+        worn = _mapping(player_data.get("equipment")).get(slot)
+        return (1 if separator and worn == item_name else 0), 1
     if kind == "derived_value":
         # An unregistered name reads zero, never `need`: the import-time
         # assertion in the data module is what stands between a typo and an

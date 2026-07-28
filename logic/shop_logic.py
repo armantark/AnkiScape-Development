@@ -44,6 +44,28 @@ _CANONICAL_SHOP_ROW_NAMES = {
     for shop in SHOP_DATA.values()
     for row in shop.get("stock", ())
 }
+_SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY = {
+    (
+        "buy",
+        "aemads_adventuring_supplies",
+        "aemads_adventuring_supplies:9:227",
+    ): "aemads_vial_of_water",
+    (
+        "sell",
+        "lumbridge_fishing_supplies",
+        "lumbridge_fishing_supplies:6:317",
+    ): "lumbridge_raw_shrimps_sale",
+    ("buy", "candle_shop", "candle_shop:0:36"): "candle_maker_candle",
+    (
+        "buy",
+        "candle_with_black_shop",
+        "candle_with_black_shop:0:36",
+    ): "candle_maker_candle",
+    ("vendor_action", "", "benny_buy_varrock_herald"): "benny_varrock_herald",
+}
+SHOP_DIARY_TRANSACTION_KEYS = frozenset(
+    _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.values()
+)
 
 # Bob Barter's ordinary-vial catalog is the live, non-Daemonheim Herblore
 # catalog. Barbarian mixes use two-dose bowls rather than four-dose vials.
@@ -78,6 +100,7 @@ def default_shop_state_pure() -> Dict[str, Any]:
         "shop_market_clock": {"version": 1, "answered_cards": 0, "market_tick": 0},
         "shop_stock_state": {},
         "shop_events": [],
+        "shop_transaction_counts": {},
         "shop_next_event_id": 1,
         "wilderness_shop_slots": 0,
     }
@@ -134,15 +157,27 @@ def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
 
     raw_events = data.get("shop_events")
     clean_events = (
-        [_migrate_saved_shop_event_item_names(event) for event in raw_events if isinstance(event, Mapping)]
+        [
+            _migrate_saved_shop_event_item_names(event)
+            for event in raw_events
+            if isinstance(event, Mapping)
+        ]
         if isinstance(raw_events, list)
         else []
     )
+    raw_transaction_counts = data.get("shop_transaction_counts")
+    clean_transaction_counts = {}
+    if isinstance(raw_transaction_counts, Mapping):
+        for key, value in raw_transaction_counts.items():
+            count = _clean_int(value, 0, minimum=0)
+            if key in SHOP_DIARY_TRANSACTION_KEYS and count > 0:
+                clean_transaction_counts[key] = count
     return {
         "shop_data_version": SHOP_DATA_VERSION,
         "shop_market_clock": clean_clock,
         "shop_stock_state": clean_stock,
         "shop_events": clean_events[-MAX_SHOP_EVENT_HISTORY:],
+        "shop_transaction_counts": clean_transaction_counts,
         "shop_next_event_id": _clean_int(data.get("shop_next_event_id"), 1, minimum=1),
         "wilderness_shop_slots": _clean_int(data.get("wilderness_shop_slots"), 0, minimum=0),
     }
@@ -154,6 +189,29 @@ def ensure_shop_state_pure(player_data: Mapping[str, Any] | None) -> Dict[str, A
     # the caller's live save. Do not "optimize" this one.
     data = copy.deepcopy(dict(player_data or {}))
     data.update(sanitize_shop_state_pure(data))
+    return data
+
+
+def migrate_shop_diary_transaction_counts_pure(
+    player_data: Mapping[str, Any] | None,
+) -> Dict[str, Any]:
+    """Seed v90's narrow counters from retained, non-rolled-back shop events."""
+
+    data = ensure_shop_state_pure(player_data)
+    events = data["shop_events"]
+    rolled_back = {
+        str(event.get("rolled_back_event_id", ""))
+        for event in events
+        if event.get("type") == "rollback"
+    }
+    counts: Dict[str, int] = {}
+    for event in events:
+        if str(event.get("event_id", "")) in rolled_back:
+            continue
+        key = _diary_transaction_key(event)
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+    data["shop_transaction_counts"] = counts
     return data
 
 
@@ -609,6 +667,7 @@ def rollback_shop_event_pure(player_data: Mapping[str, Any], event_id: Optional[
                         data.pop(key, None)  # the key did not exist pre-ambush
                     else:
                         data[key] = copy.deepcopy(restore[key])
+    _adjust_diary_transaction_count(data, event, -1)
     rollback_event = {
         "event_id": _next_event_id(data),
         "type": "rollback",
@@ -1634,7 +1693,35 @@ def _next_event_id(data: Dict[str, Any]) -> str:
     return f"shop_evt_{current}"
 
 
+def _diary_transaction_key(event: Mapping[str, Any]) -> str:
+    event_type = str(event.get("type", ""))
+    detail_id = (
+        str(event.get("service_id", ""))
+        if event_type == "vendor_action"
+        else str(event.get("row_id", ""))
+    )
+    identity = (event_type, str(event.get("shop_id", "")), detail_id)
+    return _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.get(identity, "")
+
+
+def _adjust_diary_transaction_count(
+    data: Dict[str, Any], event: Mapping[str, Any], delta: int
+) -> None:
+    key = _diary_transaction_key(event)
+    if not key:
+        return
+    counts = dict(data.get("shop_transaction_counts", {}) or {})
+    updated = max(0, _clean_int(counts.get(key), 0, minimum=0) + delta)
+    if updated:
+        counts[key] = updated
+    else:
+        counts.pop(key, None)
+    data["shop_transaction_counts"] = counts
+
+
 def _append_event(data: Dict[str, Any], event: Mapping[str, Any]) -> None:
+    if event.get("type") != "rollback":
+        _adjust_diary_transaction_count(data, event, 1)
     events = data.setdefault("shop_events", [])
     if not isinstance(events, list):
         events = []

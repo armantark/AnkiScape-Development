@@ -294,6 +294,20 @@ because a cape that no save can reach level 99 to buy is an inert reward. It
 joins the shipped list on its own when the skill does. The level-120 master cape
 the contract also asks for is blocked behind the same gap.
 
+### 3.12 New predicates overfill Ardougne Easy's twelve-task budget
+
+Raised 2026-07-27. Ardougne Easy had ten shipped tasks. The approved expansion
+makes four more source tasks evaluable, but the design contract fixes every
+regional tier at exactly twelve tasks. Keeping raw source order would admit
+Silky Smooth and A Gift from Khazard, while Vial Deeds has the stronger exact
+provider, item and transaction proof that the live shop handler records.
+
+Recommendation, and what is implemented: preserve all ten shipped rows, then
+use the two remaining places for A Gift from Khazard and Vial Deeds. Do not
+replace existing tasks and do not raise the twelve-task budget. Silky Smooth
+and Don't Eat the Pointy Bit stay omitted because the live game does not have
+the exact silk-trader haggling or Poison Arrow skewered-kebab route.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

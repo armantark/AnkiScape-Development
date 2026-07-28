@@ -201,8 +201,37 @@ def _satisfy_condition(player, condition):
         )
         for _ in range(condition.amount if condition.kind == "ledger_action" else 1):
             record_achievement_progress_pure(player, skill_id, key, True, **kwargs)
+    elif condition.kind == "ledger_action_family":
+        from ankiscape.data.summoning_data import SUMMONING_ACTIONS_BY_ID
+
+        skill_id, _, family_id = condition.key.partition(":")
+        action_id = next(
+            action_id
+            for action_id, action in SUMMONING_ACTIONS_BY_ID.items()
+            if action.family == family_id
+        )
+        for _ in range(condition.amount):
+            record_achievement_progress_pure(player, skill_id, action_id, True)
     elif condition.kind == "counter":
         _set_counter(player, condition.key, condition.amount)
+    elif condition.kind == "combat_kill":
+        player.setdefault("combat_kill_counts", {})[condition.key] = condition.amount
+    elif condition.kind == "shop_transaction":
+        transaction_type, _, remainder = condition.key.partition("|")
+        shop_id, _, row_id = remainder.partition("|")
+        player.setdefault("shop_events", []).append(
+            {
+                "event_id": "diary-test-event",
+                "type": transaction_type,
+                "shop_id": shop_id,
+                "row_id": row_id,
+            }
+        )
+    elif condition.kind == "state_equals":
+        _set_counter(player, condition.key, condition.expected)
+    elif condition.kind == "equipped_item":
+        slot, _, item_name = condition.key.partition("|")
+        player.setdefault("equipment", {})[slot] = item_name
     elif condition.kind == "any_of":
         _satisfy_condition(player, condition.alternatives[0])
     elif condition.kind == "derived_value":
@@ -429,6 +458,24 @@ def _every_condition():
                         yield task, alternative
 
 
+def _task_by_source_id(source_id):
+    return next(
+        task
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+        if task.source_id == source_id
+    )
+
+
+def _assert_task_credited(testcase, player, source_id):
+    task = _task_by_source_id(source_id)
+    testcase.assertTrue(task_progress_pure(player, task)[0], task.id)
+    refreshed, newly = refresh_achievement_diaries_pure(player)
+    completed = refreshed["achievement_diaries"]["completed_tasks"]
+    testcase.assertTrue(task.id in newly or task.id in completed, task.id)
+
+
 def _any_of_tasks():
     return [
         (task, condition)
@@ -454,7 +501,11 @@ class ConditionKeyResolutionTest(unittest.TestCase):
         failures = [
             f"{task.id}: {error}"
             for task, condition in _every_condition()
-            if (error := resolve_condition_key(condition.kind, condition.key))
+            if (
+                error := resolve_condition_key(
+                    condition.kind, condition.key, condition.expected
+                )
+            )
         ]
         self.assertEqual(failures, [])
 
@@ -468,6 +519,321 @@ class ConditionKeyResolutionTest(unittest.TestCase):
         self.assertTrue(resolve_condition_key("ledger_action", "no_such_skill:thing"))
         self.assertEqual(
             resolve_condition_key("ledger_action", "utility:draw_bucket_of_water"), ""
+        )
+        self.assertTrue(resolve_condition_key("combat_kill", "no_such_enemy"))
+        self.assertTrue(resolve_condition_key("shop_transaction", "buy|no_shop|no_row"))
+        self.assertTrue(
+            resolve_condition_key("state_equals", "no_such.path", "anything")
+        )
+        self.assertTrue(
+            resolve_condition_key("ledger_action_family", "summoning:no_such_family")
+        )
+        self.assertTrue(
+            resolve_condition_key("equipped_item", "feet|Spiked gauntlets")
+        )
+        self.assertTrue(
+            resolve_condition_key(
+                "counter", "shop_transaction_counts.unconsumed_transaction"
+            )
+        )
+        self.assertTrue(
+            resolve_condition_key("counter", "fight_caves.kill_counts.tz_kih")
+        )
+
+
+class NewConditionDegradationTest(unittest.TestCase):
+    def test_combat_kill_degrades_on_absent_or_wrong_typed_state(self):
+        condition = DiaryCondition("combat_kill", "highwayman")
+        self.assertEqual(condition_progress_pure({}, condition), (0, 1))
+        self.assertEqual(
+            condition_progress_pure(
+                {"combat_kill_counts": "not a mapping"}, condition
+            ),
+            (0, 1),
+        )
+
+    def test_shop_transaction_degrades_on_absent_or_wrong_typed_state(self):
+        condition = DiaryCondition(
+            "shop_transaction",
+            "buy|aemads_adventuring_supplies|aemads_adventuring_supplies:9:227",
+        )
+        self.assertEqual(condition_progress_pure({}, condition), (0, 1))
+        self.assertEqual(
+            condition_progress_pure({"shop_events": "not a sequence"}, condition),
+            (0, 1),
+        )
+
+    def test_state_equals_degrades_on_absent_or_wrong_typed_state(self):
+        condition = DiaryCondition(
+            "state_equals",
+            "farm_patches.taverley_potato.last_crop_id",
+            expected="potato",
+        )
+        self.assertEqual(condition_progress_pure({}, condition), (0, 1))
+        self.assertEqual(
+            condition_progress_pure({"farm_patches": []}, condition), (0, 1)
+        )
+
+    def test_ledger_action_family_degrades_on_absent_or_wrong_typed_state(self):
+        condition = DiaryCondition("ledger_action_family", "summoning:infuse")
+        self.assertEqual(condition_progress_pure({}, condition), (0, 1))
+        self.assertEqual(
+            condition_progress_pure({"achievement_progress": []}, condition),
+            (0, 1),
+        )
+
+    def test_equipped_item_degrades_on_absent_or_wrong_typed_state(self):
+        condition = DiaryCondition("equipped_item", "hands|Spiked gauntlets")
+        self.assertEqual(condition_progress_pure({}, condition), (0, 1))
+        self.assertEqual(
+            condition_progress_pure({"equipment": []}, condition), (0, 1)
+        )
+
+
+class StageOneRealPathTest(unittest.TestCase):
+    def test_stage_one_combat_tasks_complete_through_real_combat_bursts(self):
+        from ankiscape.logic_pure.logic_pure_combat_engine import apply_combat_burst_pure
+        from ankiscape.core.constants import COMBAT_ENEMY_DATA
+
+        for source_id, enemy_id in (
+            (124, "highwayman"),
+            (135, "ice_giant"),
+            (153, "rock_crab"),
+            (161, "black_unicorn"),
+        ):
+            with self.subTest(source_id=source_id):
+                player = _fresh()
+                player.update(
+                    current_combat_target=enemy_id,
+                    attack_level=99,
+                    strength_level=99,
+                    defense_level=99,
+                    constitution_level=99,
+                    combat_lifepoints=990,
+                )
+                player, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=500,
+                    rng=lambda: 0.5,
+                )
+                self.assertTrue(ok, result)
+                _assert_task_credited(self, player, source_id)
+
+    def test_vial_deeds_completes_through_aemads_shop(self):
+        from ankiscape.logic.shop_logic import apply_shop_buy_pure
+
+        player = _fresh()
+        player["inventory"]["Coins"] = 100
+        player, result = apply_shop_buy_pure(
+            player,
+            "aemads_adventuring_supplies",
+            "aemads_adventuring_supplies:9:227",
+            1,
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 15)
+
+    def test_dibs_on_the_first_batch_completes_through_taverley_planting(self):
+        from ankiscape.data.farming_data import FARMING_CROPS_BY_ID
+        from ankiscape.logic.farming_logic import execute_farm_field_step_pure
+
+        player = _fresh()
+        crop = FARMING_CROPS_BY_ID["potato"]
+        player["inventory"].update(
+            {"Rake": 1, "Seed dibber": 1, "Spade": 1, crop.seed_item: crop.seeds}
+        )
+        player, ok, info = execute_farm_field_step_pure(
+            player,
+            {
+                "kind": "plant",
+                "patch_id": "taverley_potato",
+                "crop_id": "potato",
+                "compost_tier": "none",
+            },
+        )
+        self.assertTrue(ok, info)
+        _assert_task_credited(self, player, 544)
+
+    def test_heel_boy_completes_through_summoning_a_spirit_wolf(self):
+        from ankiscape.logic.summoning_logic import summon_familiar_pure
+
+        player = _fresh()
+        player["inventory"]["Spirit wolf pouch"] = 1
+        player, ok, info = summon_familiar_pure(player, "spiritwolf")
+        self.assertTrue(ok, info)
+        _assert_task_credited(self, player, 557)
+
+    def test_hold_item_tasks_complete_through_real_item_grants(self):
+        from ankiscape.logic.shop_logic import (
+            apply_shop_buy_pure,
+            apply_shop_vendor_action_pure,
+        )
+
+        amulet_owner = _fresh()
+        amulet_owner["inventory"]["Coins"] = 500
+        amulet_owner, result = apply_shop_buy_pure(
+            amulet_owner,
+            "sarahs_farming_shop",
+            "sarahs_farming_shop:0:12622",
+            1,
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self,amulet_owner, 115)
+
+        beer_owner = _fresh()
+        beer_owner["inventory"]["Coins"] = 10
+        beer_owner, result = apply_shop_vendor_action_pure(
+            beer_owner, "bartender_buy_beer", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self,beer_owner, 116)
+
+    def test_fill_yer_bucket_completes_through_the_utility_runtime(self):
+        from ankiscape.runtime.runtime_actions_utility import handle_utility_answer
+
+        player = _fresh()
+        player["current_utility"] = "draw_bucket_of_water"
+        player["inventory"]["Bucket"] = 1
+        self.assertTrue(handle_utility_answer(_crafting_context(player, [])))
+        _assert_task_credited(self, player, 121)
+
+    def test_a_gift_from_khazard_completes_through_the_summoning_runtime(self):
+        from ankiscape.runtime.runtime_actions_production import handle_summoning_answer
+
+        player = _fresh()
+        player["current_summoning"] = "infuse_spiritwolf"
+        player["inventory"].update(
+            {"Pouch": 1, "Gold charm": 1, "Spirit shards": 7, "Wolf bones": 1}
+        )
+        self.assertTrue(handle_summoning_answer(_crafting_context(player, [])))
+        _assert_task_credited(self, player, 13)
+
+    def test_spiked_gauntlets_task_completes_through_shop_and_equip(self):
+        from ankiscape.logic.shop_logic import apply_shop_buy_pure
+
+        player = _fresh()
+        player["inventory"]["Coins"] = 10
+        player, result = apply_shop_buy_pure(
+            player,
+            "turaels_slayer_equipment",
+            "turaels_slayer_equipment:22:23035",
+            1,
+        )
+        self.assertTrue(result["allowed"], result)
+        inventory, equipment, ok = equip_item_pure(
+            "Spiked gauntlets",
+            player["inventory"],
+            player["equipment"],
+            EQUIPMENT_DATA,
+        )
+        self.assertTrue(ok)
+        player["inventory"] = inventory
+        player["equipment"] = equipment
+        _assert_task_credited(self, player, 551)
+
+
+class StageTwoRealPathTest(unittest.TestCase):
+    def test_the_fruit_of_the_sea_completes_through_lumbridge_shop_handlers(self):
+        from ankiscape.logic.shop_logic import apply_shop_sell_pure
+
+        from ankiscape.core.constants import FISHING_DATA
+        from ankiscape.logic_pure.logic_pure_gathering import apply_fishing_action_pure
+
+        player = _fresh()
+        inventory, _exp, ok, output, _rewards = apply_fishing_action_pure(
+            "catch_shrimp_anchovies",
+            player["inventory"],
+            FISHING_DATA,
+            fishing_level=15,
+            rolls=(1.0, 0.0),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(output, "Raw shrimps")
+        player["inventory"] = inventory
+        player, result = apply_shop_sell_pure(
+            player, "lumbridge_fishing_supplies", "Raw shrimps", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 79)
+
+    def test_play_dead_doggy_completes_through_a_real_ket_zek_kill(self):
+        from ankiscape.logic.fight_caves_logic import (
+            apply_fight_caves_command_pure,
+            apply_fight_caves_review_pure,
+        )
+
+        player = _fresh()
+        player.update(
+            attack_level=99,
+            strength_level=99,
+            defense_level=99,
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_eat_food=[],
+            combat_auto_flee_percent=0,
+        )
+        player, ok, info = apply_fight_caves_command_pure(player, "enter")
+        self.assertTrue(ok, info)
+        player["fight_caves"].update(
+            wave=31,
+            roster=[
+                {
+                    "instance_id": "diary-ket-zek",
+                    "enemy_id": "ket_zek",
+                    "lifepoints": 1,
+                }
+            ],
+            engaged_instance_id="diary-ket-zek",
+        )
+        player, ok, result = apply_fight_caves_review_pure(
+            player, lambda: 0.0, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        _assert_task_credited(self, player, 212)
+
+    def test_grand_candle_completes_through_the_candle_maker_shop(self):
+        from ankiscape.logic.shop_logic import apply_shop_buy_pure
+
+        player = _fresh()
+        player["inventory"]["Coins"] = 10
+        player, result = apply_shop_buy_pure(
+            player, "candle_shop", "candle_shop:0:36", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 230)
+
+    def test_read_all_about_it_completes_through_bennys_vendor_action(self):
+        from ankiscape.logic.shop_logic import apply_shop_vendor_action_pure
+
+        player = _fresh()
+        player["inventory"]["Coins"] = 100
+        player, result = apply_shop_vendor_action_pure(
+            player, "benny_buy_varrock_herald", 1
+        )
+        self.assertTrue(result["allowed"], result)
+        _assert_task_credited(self, player, 263)
+
+    def test_salt_in_the_wound_parks_dungeoneering_xp_and_keeps_empty_ledgers(self):
+        player = _complete_quest_for_reward(_fresh(), "salt_in_the_wound")
+        self.assertTrue(player["quests"]["salt_in_the_wound"]["completed"])
+        self.assertNotIn("dungeoneering_exp", player)
+        self.assertEqual(
+            player["pending_skill_exp_rewards"]["dungeoneering_exp"], 5000.0
+        )
+        self.assertEqual(
+            player["achievement_progress"]["skills"]["dungeoneering"],
+            {"actions": {}, "outputs": {}},
+        )
+
+        reloaded = migrate_loaded_data(copy.deepcopy(player), ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            reloaded["pending_skill_exp_rewards"]["dungeoneering_exp"], 5000.0
+        )
+        self.assertEqual(
+            reloaded["achievement_progress"]["skills"]["dungeoneering"],
+            {"actions": {}, "outputs": {}},
         )
 
 

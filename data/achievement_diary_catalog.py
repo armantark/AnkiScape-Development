@@ -5,7 +5,7 @@ tier membership, names, descriptions and ordinary requirements. Pinned
 pre-cutoff wiki revisions are corroboration only. Tasks without an honest
 AnkiScape predicate are omitted rather than emitted as inert rows.
 
-Tasks kept: 310."""
+Tasks kept: 326."""
 
 from __future__ import annotations
 
@@ -129,6 +129,24 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'monks_friend', 1, "Complete Monk's Friend"),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 14,
+                0,
+            ),
+            DiaryTask(
+                'ardougne_easy_a_gift_from_khazard',
+                'A Gift from Khazard',
+                'Use the Summoning obelisk to the east of the Fight Arena.',
+                (DiaryCondition('ledger_action_family', 'summoning:infuse', 1, 'Infuse a Summoning pouch'),),
+                'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+                13,
+                0,
+            ),
+            DiaryTask(
+                'ardougne_easy_vial_deeds',
+                'Vial Deeds',
+                'Buy a water-filled vial from the general store run by Aemad and Kortan.',
+                (DiaryCondition('counter', 'shop_transaction_counts.aemads_vial_of_water', 1, 'Buy a vial of water from Aemad and Kortan'),),
+                'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+                15,
                 0,
             ),
             ),
@@ -447,6 +465,24 @@ DIARY_FAMILIES = (
             "Redbeard Frank's thanks.",
             (
             DiaryTask(
+                'falador_easy_amulet_of_weedspeak',
+                'Amulet of Weedspeak',
+                'Buy a Farming amulet from Sarah on the farm north of Port Sarim.',
+                (DiaryCondition('hold_item', 'Amulet of farming (8)', 1, 'Own an amulet of farming'),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                115,
+                0,
+            ),
+            DiaryTask(
+                'falador_easy_the_good_stuff',
+                'The Good Stuff',
+                'Buy a stat-boosting beer from a waitress in the Rising Sun tavern.',
+                (DiaryCondition('hold_item', 'Beer', 1, 'Own a stat-boosting beer'),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                116,
+                0,
+            ),
+            DiaryTask(
                 'falador_easy_family_values',
                 'Family Values',
                 'Discover your family crest from Sir Renitee.',
@@ -456,12 +492,30 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'falador_easy_fill_yer_bucket',
+                'Fill Yer Bucket',
+                "Fill a bucket from the pump north of the Falador's west bank.",
+                (DiaryCondition('ledger_action', 'utility:draw_bucket_of_water', 1, 'Draw a bucket of water'),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                121,
+                0,
+            ),
+            DiaryTask(
                 'falador_easy_it_s_not_wabbit_season',
                 "It's Not Wabbit Season",
                 'Kill a duck in Falador Park.',
                 (DiaryCondition('any_of', '', 1, 'Kill a duck', (DiaryCondition('counter', 'combat_kill_counts.duck_land', 1, 'Kill a duck (land)'), DiaryCondition('counter', 'combat_kill_counts.duck_water', 1, 'Kill a duck (water)'),)),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 123,
+                0,
+            ),
+            DiaryTask(
+                'falador_easy_stand_and_deliver',
+                'Stand and Deliver',
+                'Kill a highwayman on the road south of Falador.',
+                (DiaryCondition('combat_kill', 'highwayman', 1, 'Kill a highwayman'),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                124,
                 0,
             ),
             DiaryTask(
@@ -527,6 +581,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'wanted', 1, 'Complete Wanted!'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 134,
+                0,
+            ),
+            DiaryTask(
+                'falador_medium_ice_the_icy',
+                'Ice the Icy',
+                'Kill an ice giant in the Asgarnian Ice Dungeon.',
+                (DiaryCondition('combat_kill', 'ice_giant', 1, 'Kill an ice giant'),),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                135,
                 0,
             ),
             DiaryTask(
@@ -768,6 +831,24 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'slayer', 10, 'Level 10 Slayer'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 152,
+                0,
+            ),
+            DiaryTask(
+                'fremennik_easy_why_won_t_you_die',
+                "Why Won't You Die?",
+                'Kill five rock crabs on the shore near Rellekka or on Waterbirth Island.',
+                (DiaryCondition('combat_kill', 'rock_crab', 5, 'Kill five rock crabs'),),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                153,
+                0,
+            ),
+            DiaryTask(
+                'fremennik_easy_endangered_species',
+                'Endangered Species',
+                'Kill an adult black unicorn.',
+                (DiaryCondition('combat_kill', 'black_unicorn', 1, 'Kill an adult black unicorn'),),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                161,
                 0,
             ),
             ),
@@ -1243,6 +1324,15 @@ DIARY_FAMILIES = (
             'Hard Karamja task rewards.',
             (
             DiaryTask(
+                'karamja_hard_play_dead_doggy',
+                'Play Dead, Doggy',
+                'Kill a Ket-Zek in the Fight Caves.',
+                (DiaryCondition('counter', 'fight_caves.kill_counts.ket_zek', 1, 'Kill a Ket-Zek in the Fight Caves'),),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                212,
+                0,
+            ),
+            DiaryTask(
                 'karamja_hard_at_one_with_nature',
                 'At One With Nature',
                 'Craft some nature runes.',
@@ -1407,6 +1497,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('quest', 'the_restless_ghost', 1, 'Complete The Restless Ghost'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 61,
+                0,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_the_fruit_of_the_sea',
+                'The Fruit of the Sea',
+                "Sell a raw shrimp to Lumbridge's fishing shop.",
+                (DiaryCondition('counter', 'shop_transaction_counts.lumbridge_raw_shrimps_sale', 1, 'Sell raw shrimps to Lumbridge Fishing Supplies'),),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                79,
                 0,
             ),
             ),
@@ -2166,6 +2265,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'seers_easy_grand_candle',
+                'Grand Candle',
+                'Buy a candle from the candle-maker.',
+                (DiaryCondition('counter', 'shop_transaction_counts.candle_maker_candle', 1, 'Buy a candle from the candle-maker'),),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                230,
+                0,
+            ),
+            DiaryTask(
                 'seers_easy_mack_rolled',
                 'Mack Rolled',
                 'Catch a mackerel.',
@@ -2478,6 +2586,15 @@ DIARY_FAMILIES = (
                 (DiaryCondition('skill_level', 'agility', 13, 'Level 13 Agility'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 261,
+                0,
+            ),
+            DiaryTask(
+                'varrock_easy_read_all_about_it',
+                'Read All About It',
+                'Buy a copy of the Varrock Herald.',
+                (DiaryCondition('counter', 'shop_transaction_counts.benny_varrock_herald', 1, 'Buy a Varrock Herald from Benny'),),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                263,
                 0,
             ),
             DiaryTask(
@@ -2877,6 +2994,15 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'burthorpe_period_dibs_on_the_first_batch',
+                'Dibs On The First Batch',
+                'Plant some potato seeds so they grow into potatoes.',
+                (DiaryCondition('state_equals', 'farm_patches.taverley_potato.last_crop_id', 1, 'Plant potatoes in Taverley', expected='potato'),),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                544,
+                0,
+            ),
+            DiaryTask(
                 'burthorpe_period_two_in_the_bush',
                 'Two In The Bush',
                 'Hunt a crimson swift for its delicious meat.',
@@ -2886,12 +3012,30 @@ DIARY_FAMILIES = (
                 0,
             ),
             DiaryTask(
+                'burthorpe_period_these_aren_t_oven_gloves',
+                "These Aren't Oven Gloves.",
+                'Wear spiked gauntlets so you can slay the abominations.',
+                (DiaryCondition('equipped_item', 'hands|Spiked gauntlets', 1, 'Wear spiked gauntlets'),),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                551,
+                0,
+            ),
+            DiaryTask(
                 'burthorpe_period_all_fell_down',
                 'All Fell Down',
                 'Complete a Slayer assignment to improve your monster slaying abilities.',
                 (DiaryCondition('counter', 'slayer_tasks_completed', 1, 'Complete a Slayer assignment'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 555,
+                0,
+            ),
+            DiaryTask(
+                'burthorpe_period_heel_boy',
+                'Heel, Boy',
+                'Summon a spirit wolf to aid you in combat.',
+                (DiaryCondition('state_equals', 'summoning_state.active_follower.entity_id', 1, 'Summon a spirit wolf', expected='spiritwolf'),),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                557,
                 0,
             ),
             DiaryTask(

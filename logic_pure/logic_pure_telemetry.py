@@ -41,7 +41,10 @@ def default_action_telemetry_pure():
 
 def default_achievement_progress_pure():
     """Durable action-owner progress used by cumulative achievements."""
-    return {"version": 1, "skills": {}}
+    return {
+        "version": 1,
+        "skills": {"dungeoneering": {"actions": {}, "outputs": {}}},
+    }
 
 
 def sanitize_achievement_progress_pure(progress):
@@ -51,7 +54,7 @@ def sanitize_achievement_progress_pure(progress):
     raw_skills = progress.get("skills", {})
     if not isinstance(raw_skills, Mapping):
         return sanitized
-    skills = {}
+    skills = dict(sanitized["skills"])
     for skill_id, raw_record in raw_skills.items():
         if not isinstance(skill_id, str) or not isinstance(raw_record, Mapping):
             continue

@@ -62,6 +62,7 @@ def default_fight_caves_state_pure() -> dict[str, Any]:
         "previous_combat_target": "",
         "total_kills": 0,
         "wave_kills": 0,
+        "kill_counts": {},
         "clears": 0,
         "healer_generation": 0,
         "jad_healed_full": False,
@@ -127,6 +128,13 @@ def sanitize_fight_caves_state_pure(raw: Any) -> dict[str, Any]:
     jad_style = str(source.get("jad_next_style", "ranged"))
     if jad_style not in FIGHT_CAVES_JAD_STYLES:
         jad_style = "ranged"
+    raw_kill_counts = source.get("kill_counts")
+    ket_zek_kills = (
+        _int(raw_kill_counts.get("ket_zek"))
+        if isinstance(raw_kill_counts, Mapping)
+        else 0
+    )
+    kill_counts = {"ket_zek": ket_zek_kills} if ket_zek_kills else {}
     return {
         **defaults,
         "active": bool(source.get("active", False)),
@@ -143,6 +151,7 @@ def sanitize_fight_caves_state_pure(raw: Any) -> dict[str, Any]:
         )[:120],
         "total_kills": _int(source.get("total_kills")),
         "wave_kills": _int(source.get("wave_kills")),
+        "kill_counts": kill_counts,
         "clears": _int(source.get("clears")),
         "healer_generation": min(2, _int(source.get("healer_generation"))),
         "jad_healed_full": bool(source.get("jad_healed_full", False)),
@@ -533,6 +542,10 @@ def apply_fight_caves_review_pure(
         ]
         state["total_kills"] += 1
         state["wave_kills"] += 1
+        if enemy_id == "ket_zek":
+            kill_counts = dict(state.get("kill_counts", {}) or {})
+            kill_counts[enemy_id] = _int(kill_counts.get(enemy_id)) + 1
+            state["kill_counts"] = kill_counts
         for split_id in enemy.get("splits_into", ()) or ():
             split_members.append(_new_member(state, str(split_id)))
         state["roster"].extend(split_members)
