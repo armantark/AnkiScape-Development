@@ -109,7 +109,10 @@ def _deliverable(data):
 
 class GnomeRestaurantDataSourceAssetTests(unittest.TestCase):
     def test_schema_registries_recipes_and_cutoff_uploads(self):
-        self.assertGreaterEqual(CURRENT_CONFIG_VERSION, 97)
+        self.assertEqual(
+            default_player_data(ORE_DATA, ITEM_DEFINITIONS)["config_version"],
+            CURRENT_CONFIG_VERSION,
+        )
         self.assertIn(GNOME_RESTAURANT_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
         self.assertEqual(
             UTILITY_ACTIVITY_DATA[GNOME_RESTAURANT_ACTIVITY_ID]["surface"], "activities"
