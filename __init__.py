@@ -155,6 +155,8 @@ from .logic.temple_trekking_logic import apply_temple_trekking_command_pure
 from .data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from .logic.mobilising_armies_logic import apply_mobilising_armies_command_pure
 from .data.item_values import ITEM_VALUES
+from .data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
+from .logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure
 from .data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from .logic.crucible_logic import apply_crucible_command_pure
 from .data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -3266,6 +3268,32 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_gnome_restaurant_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_gnome_restaurant_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+                random.random,
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -3596,6 +3624,7 @@ def _on_main_menu(
         on_mage_training_arena_command=_apply_mage_training_arena_command,
         on_temple_trekking_command=_apply_temple_trekking_command,
         on_mobilising_armies_command=_apply_mobilising_armies_command,
+        on_gnome_restaurant_command=_apply_gnome_restaurant_command,
         on_crucible_command=_apply_crucible_command,
         on_goblin_raids_command=_apply_goblin_raids_command,
         on_daily_challenges_command=_apply_daily_challenges_command,
@@ -4529,6 +4558,16 @@ def on_answer_card(self, ease, _old):
             and runtime_actions.temple_trekking_can_review_pure(player_data)
         ):
             runtime_actions.handle_temple_trekking_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.GNOME_RESTAURANT_ACTIVITY_ID
+            and runtime_actions.gnome_restaurant_view_pure(player_data).get("order")
+        ):
+            runtime_actions.handle_gnome_restaurant_answer(
                 _runtime_action_context(),
                 productive=False,
             )

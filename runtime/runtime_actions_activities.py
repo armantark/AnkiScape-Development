@@ -280,6 +280,8 @@ from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import apply_temple_trekking_review_pure
 from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from ..logic.mobilising_armies_logic import apply_mobilising_armies_review_pure
+from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
+from ..logic.gnome_restaurant_logic import apply_gnome_restaurant_review_pure
 from ..logic.crucible_logic import apply_crucible_review_pure
 from ..logic.goblin_raids_logic import apply_goblin_raids_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -2464,6 +2466,42 @@ def handle_mobilising_armies_answer(
     ctx.show_activity_gain(
         str(result.get("message") or "Mobilising Armies order resolved")
     )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_gnome_restaurant_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_gnome_restaurant_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+    )
+    if not ok:
+        ctx.show_error_message(
+            "Gnome Restaurant unavailable",
+            str(result.get("reason", "Take a delivery job before reviewing.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    if result.get("advanced"):
+        _record_action(
+            ctx,
+            "utility",
+            GNOME_RESTAURANT_ACTIVITY_ID,
+            True,
+            expected_success_chance=1.0,
+            output_items=dict(result.get("output_items") or {}),
+        )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Gnome Restaurant delivery"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

@@ -162,6 +162,34 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertEqual(
             blocked,
             {
+                # The pinned buy-limit table lists all seven gnome cocktails but
+                # no gnome baked dish, no sliced or diced fruit, and none of the
+                # Gnome Restaurant's own reward items. Their tradeability comes
+                # from their own item revisions; the limit stays unresolved.
+                "Cheese+tom batta",
+                "Chocchip crunchies",
+                "Chocolate bomb",
+                "Fruit batta",
+                "Gnome goggles",
+                "Gnome scarf",
+                "Grand seed pod",
+                "Lemon chunks",
+                "Lemon slices",
+                "Lime chunks",
+                "Lime slices",
+                "Mint cake",
+                "Orange chunks",
+                "Orange slices",
+                "Pineapple chunks",
+                "Spicy crunchies",
+                "Tangled toads\' legs",
+                "Toad batta",
+                "Toad crunchies",
+                "Veg ball",
+                "Vegetable batta",
+                "Worm batta",
+                "Worm crunchies",
+                "Worm hole",
                 # The Arena wand revisions establish tradeability, but the
                 # pinned period buy-limit table has no row for any of the four.
                 "Apprentice wand",

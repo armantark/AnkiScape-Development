@@ -838,6 +838,26 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "gnome_restaurant":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "gnome_restaurant",
+                    "mode": "source_action",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "cadence_profile": "activity_default",
+                    "review_ticks": 6,
+                    "probability_mode": "embedded",
+                    "notes": (
+                        "One productive review delivers the outstanding order and "
+                        "takes the next job. Again spends six world minutes of the "
+                        "order's source delivery window and never destroys it; "
+                        "cooking the food uses ordinary Cooking cadence."
+                    ),
+                }
+            )
+            continue
         elif str(action_id) == "temple_trekking":
             rows.append(
                 {
