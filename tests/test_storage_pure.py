@@ -827,7 +827,7 @@ class TestStoragePure(unittest.TestCase):
             ORE_DATA,
             ITEM_DEFINITIONS,
         )
-        self.assertEqual(migrated["config_version"], 90)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(
             migrated["shop_transaction_counts"], {"aemads_vial_of_water": 2}
         )
