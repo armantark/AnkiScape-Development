@@ -8834,6 +8834,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "clan_wars",
                 "mage_training_arena",
                 "temple_trekking",
+                "mobilising_armies",
                 "crucible",
             },
         )

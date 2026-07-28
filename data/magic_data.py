@@ -95,8 +95,12 @@ _add(
     _spell("high_alchemy", "High Level Alchemy", "standard", "Alchemy", 55, 65, {"Fire rune": 5, "Nature rune": 1}, "alchemy", source=f"{SPELLBOOK_SOURCE}: HIGH_ALCHEMY; {ALCHEMY_SOURCE}: high=60% cache value, 65 XP; {STANDARD_WIKI}"),
 )
 
+# The Mobilising Armies Teleport carried no quest requirement: both
+# SpellbookData.kt and the pinned article give it a Magic level and runes and
+# nothing else. It previously held a `mobilising_armies` quest gate, which is not
+# a quest AnkiScape has, so the spell could never be cast at all.
 for row in (
-    ("mobilising_armies_teleport", "Mobilising Armies Teleport", 10, 19, {"Air rune": 1, "Water rune": 1, "Law rune": 1}, "mobilising_armies"),
+    ("mobilising_armies_teleport", "Mobilising Armies Teleport", 10, 19, {"Air rune": 1, "Water rune": 1, "Law rune": 1}, None),
     ("varrock_teleport", "Varrock Teleport", 25, 35, {"Air rune": 3, "Fire rune": 1, "Law rune": 1}, None),
     ("lumbridge_teleport", "Lumbridge Teleport", 31, 41, {"Air rune": 3, "Earth rune": 1, "Law rune": 1}, None),
     ("falador_teleport", "Falador Teleport", 37, 47, {"Air rune": 3, "Water rune": 1, "Law rune": 1}, None),

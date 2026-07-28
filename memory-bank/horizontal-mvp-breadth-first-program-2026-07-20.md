@@ -74,7 +74,34 @@ but it does not control the frontier.
 
 ## Current frontier
 
-### Live frontier update — 2026-07-22
+### Live frontier update — 2026-07-28
+
+Mobilising Armies now satisfies breadth level one, on
+`families/mobilising-armies` at schema 96.
+
+All four scenarios ship with their own primary objective and the sourced unlock
+chain that gates each behind playing the last. The whole graph is live end to
+end: the investment wallet prices every registry item by the exact period rule,
+mercenary squads and special units are bought and consumed, formations unlock by
+rank, an eighteen-beat scenario resolves squad orders against a rival army
+through the combat triangle, and settlement pays the exact rank rules and the
+exact reward-credit formula. The Officer Tower's four rank-gated floors sell
+Spoils of War, quest kits, locators, the Serjeant uniform and eight imbued rings,
+with the sourced refund rates, and every one of those rewards has a real use:
+spoils are ordinary items, kits empty into their exact tool sets, locators
+relocate real gathering targets, uniforms and rings are real equipment.
+
+The one disclosed translation is the eighteen-beat scenario at one squad order
+per productive review. Six placeholders cover per-second server behaviour the
+sources never state; every target, price, gate, formula and item identity is
+exact. Two forks are queued at 3.19 and 3.20. Audit:
+`memory-bank/source-audits/mobilising-armies-breadth-one-2026-07-28.md`.
+
+Deferred data depth, all recorded in that audit: three of the four uniform sets,
+the five imbued rings whose base ring no shipped family stocks, and the locator
+destinations with no gathering target.
+
+### Earlier live frontier update — 2026-07-22
 
 TzHaar Fight Pit now satisfies breadth level one. Its three persistent bounded
 rivals, six-tick safe Combat, personally credited additive TokKul, Fire-cape

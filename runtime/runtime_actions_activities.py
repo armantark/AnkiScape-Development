@@ -278,6 +278,8 @@ from ..logic.troll_invasion_logic import apply_troll_invasion_review_pure
 from ..logic.mage_training_arena_logic import apply_mage_training_arena_review_pure
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import apply_temple_trekking_review_pure
+from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
+from ..logic.mobilising_armies_logic import apply_mobilising_armies_review_pure
 from ..logic.crucible_logic import apply_crucible_review_pure
 from ..logic.goblin_raids_logic import apply_goblin_raids_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -2423,6 +2425,45 @@ def handle_temple_trekking_answer(
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Temple Trekking event resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_mobilising_armies_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_mobilising_armies_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Mobilising Armies unavailable",
+            str(result.get("reason", "Enter a scenario before commanding it.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        MOBILISING_ARMIES_ACTIVITY_ID,
+        productive and not result.get("stalled"),
+        expected_success_chance=1.0,
+        failure_kind="squad_lost" if result.get("squad_lost") else None,
+        output_items={str(result["loot"]): 1} if result.get("loot") else None,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("message") or "Mobilising Armies order resolved")
+    )
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

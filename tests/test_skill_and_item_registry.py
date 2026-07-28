@@ -513,6 +513,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "shattered_heart",
                 "mage_training_arena",
                 "temple_trekking",
+                "mobilising_armies",
                 "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",

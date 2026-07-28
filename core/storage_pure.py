@@ -242,6 +242,11 @@ from ..logic.temple_trekking_logic import (
     default_temple_trekking_state_pure,
     sanitize_temple_trekking_state_pure,
 )
+from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
+from ..logic.mobilising_armies_logic import (
+    default_mobilising_armies_state_pure,
+    sanitize_mobilising_armies_state_pure,
+)
 from ..logic.daily_challenges_logic import (
     default_daily_challenges_state_pure,
     sanitize_daily_challenges_state_pure,
@@ -295,7 +300,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 94
+CURRENT_CONFIG_VERSION = 96
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -475,6 +480,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["mage_arena"] = default_mage_arena_state_pure()
     data["mage_training_arena"] = default_mage_training_arena_state_pure()
     data["temple_trekking"] = default_temple_trekking_state_pure()
+    data.update(default_mobilising_armies_state_pure())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["current_quest"] = DEFAULT_QUEST_TARGET
     data["construction_actions_completed"] = 0
@@ -1216,6 +1222,7 @@ def migrate_loaded_data(
     data["temple_trekking"] = sanitize_temple_trekking_state_pure(
         data.get("temple_trekking")
     )
+    data.update(sanitize_mobilising_armies_state_pure(data))
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")
@@ -1396,6 +1403,14 @@ def migrate_loaded_data(
             active_session_id = ""
     elif temple_trekking_session:
         active_session_id = TEMPLE_TREKKING_ACTIVITY_ID
+    mobilising_armies_session = data["mobilising_armies"]
+    if active_session_id:
+        if active_session_id != MOBILISING_ARMIES_ACTIVITY_ID:
+            data["mobilising_armies"] = {}
+        elif not mobilising_armies_session:
+            active_session_id = ""
+    elif mobilising_armies_session:
+        active_session_id = MOBILISING_ARMIES_ACTIVITY_ID
     crucible_session = data["crucible"]
     if active_session_id:
         if active_session_id != CRUCIBLE_ACTIVITY_ID:
@@ -1799,6 +1814,12 @@ def migrate_loaded_data(
     # v94: Temple Trekking adds plan policy, companion progression, the persistent
     # event session, reward tokens, and redemption counters. Its unconditional
     # sanitizer above supplies the complete additive migration.
+    # v96: Mobilising Armies adds the two credit wallets, rank and rank window,
+    # squad and special-unit contracts, the scenario unlock ledger, the Officer
+    # Tower spoils offer, the name prefix, and the persistent scenario session.
+    if loaded_config_version < 96:
+        for key, value in default_mobilising_armies_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
