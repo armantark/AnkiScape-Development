@@ -247,6 +247,18 @@ class EffectiveLevelTest(unittest.TestCase):
         player = _wear(player, "Mining cape (t)")
         self.assertEqual(effective_roll_level_pure(player, "mining", 99), 100)
 
+    def test_invisible_familiar_boost_adds_after_the_visible_cape_boost(self):
+        player = _player(
+            mining_level=SKILLCAPE_LEVEL,
+            equipment={"cape": "Mining cape"},
+        )
+        player["summoning_state"]["active_follower"] = {
+            "kind": "familiar",
+            "entity_id": "lavatitan",
+        }
+
+        self.assertEqual(effective_roll_level_pure(player, "mining", 99), 110)
+
     def test_a_real_review_changes_its_outcome_because_the_cape_is_worn(self):
         """The seam reaches a shipped handler, not just a helper.
 

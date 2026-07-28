@@ -178,10 +178,13 @@ def effective_roll_level_pure(
     allowed, and passes this value only to the roll.
     """
 
-    level = familiar_effective_roll_level_pure(player_data, skill_id, base_level)
-    if worn_skillcape_skill_pure(player_data, skill_id) and level < SKILLCAPE_EFFECTIVE_LEVEL:
-        return level + 1
-    return level
+    visible_level = max(1, _int(base_level, 1))
+    if (
+        worn_skillcape_skill_pure(player_data, skill_id)
+        and visible_level < SKILLCAPE_EFFECTIVE_LEVEL
+    ):
+        visible_level += 1
+    return familiar_effective_roll_level_pure(player_data, skill_id, visible_level)
 
 
 # ---------------------------------------------------------------------------
