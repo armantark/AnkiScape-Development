@@ -248,6 +248,29 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_temple_trekking_food_command_restores_state_and_inventory_through_the_seam(self):
+        from ankiscape.logic.temple_trekking_logic import (
+            apply_temple_trekking_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["inventory"]["Lobster"] = 28
+        before = copy.deepcopy(addon.player_data)
+
+        def change(current):
+            updated, ok, _info = apply_temple_trekking_command_pure(
+                current,
+                "stock_food",
+                {"quantity": 28},
+            )
+            return updated, ok
+
+        self.assertTrue(self.commit(change))
+        self.assertEqual(addon.player_data["temple_trekking"]["companion_food"], 28)
+        self.assertEqual(addon.player_data["inventory"]["Lobster"], 0)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_tears_of_guthix_entry_restores_through_the_seam(self):
         from ankiscape.logic.tears_of_guthix_logic import (
             apply_tears_of_guthix_command_pure,

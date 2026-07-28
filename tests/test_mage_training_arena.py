@@ -162,7 +162,7 @@ def _buy_reward_through_play(data, reward_id, observed_reviews):
 
 class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
     def test_activity_items_asset_and_point_caps_are_registered(self):
-        self.assertEqual(CURRENT_CONFIG_VERSION, 93)
+        self.assertGreaterEqual(CURRENT_CONFIG_VERSION, 93)
         self.assertIn(MAGE_TRAINING_ARENA_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
         activity = UTILITY_ACTIVITY_DATA[MAGE_TRAINING_ARENA_ACTIVITY_ID]
         self.assertEqual(activity["skill_requirements"], {"magic": 7})
@@ -475,7 +475,7 @@ class MageTrainingArenaRewardAndPolicyTests(unittest.TestCase):
 
 
 class MageTrainingArenaPersistenceRuntimeAndUiTests(unittest.TestCase):
-    def test_legacy_unlock_and_interrupted_room_migrate_into_schema_93(self):
+    def test_legacy_unlock_and_interrupted_room_migrate_into_current_schema(self):
         old = _player()
         old["config_version"] = 89
         old["mage_training_arena"] = {
@@ -487,7 +487,7 @@ class MageTrainingArenaPersistenceRuntimeAndUiTests(unittest.TestCase):
         }
         old["activity_session"] = {"active_id": MAGE_TRAINING_ARENA_ACTIVITY_ID}
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(migrated["config_version"], 93)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         state = migrated["mage_training_arena"]
         self.assertTrue(state["completed"])
         self.assertTrue(state["active"])

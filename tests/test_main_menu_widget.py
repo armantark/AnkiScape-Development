@@ -8712,6 +8712,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "duel_arena",
                 "clan_wars",
                 "mage_training_arena",
+                "temple_trekking",
                 "crucible",
             },
         )
