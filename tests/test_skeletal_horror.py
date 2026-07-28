@@ -456,13 +456,16 @@ class SkeletalHorrorRealCombatPathTests(unittest.TestCase):
             "weapon": "Abyssal whip",
             "body": "Rune platebody",
             "legs": "Rune platelegs",
-            "head": "Rune full helm",
+            "head": "Warrior helm",
             "shield": "Dragon defender",
             "cape": "Fire cape",
+            "neck": "Amulet of glory",
+            "hands": "Karamja gloves 4",
+            "feet": "Rune boots",
         }
         data["combat_supply_loadout"] = {
             **(data.get("combat_supply_loadout") or {}),
-            "food": {"Shark": 26},
+            "food": {"Shark": 28},
         }
         return data
 
