@@ -2411,12 +2411,15 @@ if HAS_QT:
                 w = min(max(self.width(), 360), 520)
                 h = self.height()
                 x = int((pw - w) / 2)
-                # Keep clear of bottom actions/status; give more breathing room
-                y = int(ph - h - 72)
+                # Keep clear of bottom actions/status; give more breathing room.
+                # An open Grand Exchange drawer sits below this, so the whole
+                # block lifts by however much that drawer needs.
+                y = int(ph - h - 72 - _review_overlay_drawer_lift())
                 self.setFixedWidth(w)
-                self.move(x, y)
+                self.move(x, max(8, y))
                 if _REVIEW_CONTEXT_STRIP is not None and _REVIEW_CONTEXT_STRIP.isVisible():
                     _REVIEW_CONTEXT_STRIP._reposition()
+                _reposition_review_overlay()
             except Exception:
                 pass
 
@@ -2994,6 +2997,22 @@ def _raise_exp_popup() -> None:
         pass
 
 
+def _review_overlay_drawer_lift() -> int:
+    """How far the experience HUD rises to keep the fills drawer under it.
+
+    The drawer's whole point is being *under* the experience bars, so when it
+    expands the block above it moves rather than the drawer climbing over it.
+    """
+    try:
+        drawer = _FILL_DRAWER
+        if drawer is None or not drawer.isVisible():
+            return 0
+        drawer.adjustSize()
+        return max(0, drawer.height() + 6)
+    except Exception:
+        return 0
+
+
 def _reposition_review_overlay() -> None:
     """Place every reviewer-overlay tenant from one function.
 
@@ -3017,6 +3036,19 @@ def _reposition_review_overlay() -> None:
         drawer = _FILL_DRAWER if (
             _FILL_DRAWER is not None and _FILL_DRAWER.isVisible()
         ) else None
+        if hud_visible:
+            # Idempotent: always derived from the parent height, so opening and
+            # closing the drawer cannot walk the HUD up the screen.
+            hud.move(
+                hud.x(),
+                max(
+                    8,
+                    parent.height()
+                    - hud.height()
+                    - 72
+                    - _review_overlay_drawer_lift(),
+                ),
+            )
         if badge is not None:
             badge.adjustSize()
             x = (
@@ -3043,9 +3075,9 @@ def _reposition_review_overlay() -> None:
                 y = hud.y() + hud.height() + 6
             else:
                 x = (parent.width() - width) // 2
-                y = parent.height() - drawer.height() - 40
-            # Never let an expanded drawer reach Anki's answer buttons.
-            y = min(y, max(8, parent.height() - drawer.height() - 8))
+                # The HUD's own lower-centre anchor, minus the 72px it leaves
+                # clear of Anki's answer buttons.
+                y = parent.height() - drawer.height() - 72
             drawer.move(max(8, x), max(8, y))
         if _STATUS_POPOVER is not None and _STATUS_POPOVER.isVisible():
             _position_review_status_popover()

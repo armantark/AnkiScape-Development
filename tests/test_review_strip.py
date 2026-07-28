@@ -473,6 +473,8 @@ class ReviewStripTest(unittest.TestCase):
             "the drawer belongs under the experience bars",
         )
 
+        collapsed_hud_y = hud.y()
+
         drawer.toggle.click()
         for _ in range(4):
             QApplication.processEvents()
@@ -482,6 +484,20 @@ class ReviewStripTest(unittest.TestCase):
             drawer.y() + drawer.height(),
             self.parent.height(),
             "an expanded drawer must not run off the review screen",
+        )
+        # The block above it lifts rather than the drawer climbing over it: an
+        # offscreen probe caught exactly that overlap before this assertion.
+        self.assertFalse(hud.geometry().intersects(drawer.geometry()))
+        self.assertGreaterEqual(drawer.y(), hud.y() + hud.height())
+        self.assertLess(hud.y(), collapsed_hud_y)
+
+        drawer.toggle.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(
+            hud.y(),
+            collapsed_hud_y,
+            "opening and closing the drawer must not walk the HUD up the screen",
         )
 
     def test_the_rows_run_newest_first_with_the_settled_two_tones(self) -> None:
