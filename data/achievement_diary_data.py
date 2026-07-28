@@ -34,12 +34,17 @@ ACHIEVEMENTS_SOURCE = (
 CONDITION_KINDS: Tuple[str, ...] = (
     "skill_level",      # key: skill id, amount: level
     "quest",            # key: quest id
-    "ledger_output",    # key: "<skill id>:<item name>", amount: quantity
-    "ledger_action",    # key: "<skill id>:<action id>", amount: successes
-    "counter",          # key: dotted player_data path, amount: threshold
-    "hold_item",        # key: item name, amount: quantity held or worn
-    "any_of",           # key: "", amount: 1, meaning lives in `alternatives`
-    "derived_value",    # key: DIARY_DERIVED_VALUES name, amount: threshold
+    "ledger_output",       # key: "<skill id>:<item name>", amount: quantity
+    "ledger_action",       # key: "<skill id>:<action id>", amount: successes
+    "ledger_action_family",  # key: "<skill id>:<family id>", amount: successes
+    "counter",             # key: dotted player_data path, amount: threshold
+    "combat_kill",         # key: combat target id, amount: lifetime kills
+    "shop_transaction",    # key: "<type>|<shop id>|<row id>", amount: transactions
+    "state_equals",        # key: dotted player_data path, expected: exact value
+    "hold_item",           # key: item name, amount: quantity held or worn
+    "equipped_item",       # key: "<slot>|<item name>", amount: 1
+    "any_of",              # key: "", amount: 1, meaning lives in `alternatives`
+    "derived_value",       # key: DIARY_DERIVED_VALUES name, amount: threshold
 )
 
 # The kinds an ``any_of`` alternative may take: the plain state reads only. A
@@ -50,8 +55,13 @@ BASE_CONDITION_KINDS: Tuple[str, ...] = (
     "quest",
     "ledger_output",
     "ledger_action",
+    "ledger_action_family",
     "counter",
+    "combat_kill",
+    "shop_transaction",
+    "state_equals",
     "hold_item",
+    "equipped_item",
 )
 
 
@@ -64,6 +74,9 @@ class DiaryCondition:
     # Only ``any_of`` populates this. The task is satisfied when any single
     # alternative is satisfied; an empty tuple is unsatisfiable, never free.
     alternatives: Tuple["DiaryCondition", ...] = ()
+    # Only ``state_equals`` populates this. ``None`` is deliberately invalid so
+    # an absent path can never equal the default and hand out free completion.
+    expected: Any = None
 
 
 @dataclass(frozen=True)

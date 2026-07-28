@@ -61,6 +61,7 @@ _SKILL_ACTION_REGISTRIES = {
     "prayer": ("ankiscape.core.constants", "PRAYER_DATA"),
     "runecrafting": ("ankiscape.core.constants", "RUNECRAFTING_DATA"),
     "smithing": ("ankiscape.core.constants", "SMITHING_DATA"),
+    "summoning": ("ankiscape.data.summoning_data", "SUMMONING_ACTIONS_BY_ID"),
     "utility": ("ankiscape.core.constants", "UTILITY_ACTIVITY_DATA"),
     "woodcutting": ("ankiscape.core.constants", "TREE_DATA"),
 }
@@ -185,11 +186,92 @@ def _resolve_ledger_key(kind: str, key: str) -> str:
     return ""
 
 
-def resolve_condition_key(kind: str, key: str) -> str:
+def _resolve_ledger_action_family(key: str) -> str:
+    skill_id, separator, family_id = key.partition(":")
+    if not separator or not skill_id or not family_id:
+        return f"ledger_action_family key {key!r} is not '<skill id>:<family id>'"
+    registry_spec = _SKILL_ACTION_REGISTRIES.get(skill_id)
+    if registry_spec is None:
+        return f"ledger_action_family key {key!r} names no registered skill"
+    actions = _import_attr(*registry_spec)
+    matches = [
+        action_id
+        for action_id, action in actions.items()
+        if getattr(action, "family", None) == family_id
+    ]
+    if not matches:
+        return f"ledger_action_family key {key!r} matches no recorded actions"
+    emitted = _emitted_ledger_actions().get(skill_id, set())
+    missing = sorted(set(matches) - emitted)
+    if missing:
+        return f"ledger_action_family key {key!r} includes actions never recorded: {missing}"
+    return ""
+
+
+def _resolve_shop_transaction(key: str) -> str:
+    transaction_type, separator, remainder = key.partition("|")
+    shop_id, row_separator, row_id = remainder.partition("|")
+    if not separator or not row_separator or transaction_type not in {"buy", "sell"}:
+        return f"shop_transaction key {key!r} is not '<buy|sell>|<shop id>|<row id>'"
+    shops = _import_attr("ankiscape.data.shop_data", "SHOP_DATA")
+    shop = shops.get(shop_id)
+    if not isinstance(shop, dict):
+        return f"shop_transaction key {key!r} names no shop"
+    if not any(row.get("id") == row_id for row in shop.get("stock", ())):
+        return f"shop_transaction key {key!r} names no stock row"
+    return ""
+
+
+def _resolve_state_path(key: str) -> str:
+    node = _default_save()
+    parts = key.split(".")
+    for index, part in enumerate(parts):
+        if not isinstance(node, dict):
+            return f"state_equals key {key!r} walks through a non-mapping at {part!r}"
+        if part not in node:
+            if index == len(parts) - 1:
+                return ""
+            return f"state_equals key {key!r} has no {part!r} in a default save"
+        node = node[part]
+    return ""
+
+
+def resolve_condition_key(kind: str, key: str, expected=None) -> str:
     """Return an error describing why ``key`` reads nothing, or ``""``."""
 
     if kind in {"ledger_action", "ledger_output"}:
         return _resolve_ledger_key(kind, key)
+    if kind == "ledger_action_family":
+        return _resolve_ledger_action_family(key)
+    if kind == "combat_kill":
+        from ankiscape.core.constants import COMBAT_ENEMY_DATA
+
+        return (
+            ""
+            if key in COMBAT_ENEMY_DATA
+            else f"combat_kill key {key!r} names no enemy"
+        )
+    if kind == "shop_transaction":
+        return _resolve_shop_transaction(key)
+    if kind == "state_equals":
+        if expected is None:
+            return f"state_equals key {key!r} has no expected value"
+        return _resolve_state_path(key)
+    if kind == "hold_item":
+        from ankiscape.core.constants import ITEM_DEFINITIONS
+
+        names = {row.storage_key for row in ITEM_DEFINITIONS}
+        return "" if key in names else f"hold_item key {key!r} names no item"
+    if kind == "equipped_item":
+        from ankiscape.core.constants import EQUIPMENT_DATA
+
+        slot, separator, item_name = key.partition("|")
+        item = EQUIPMENT_DATA.get(item_name)
+        if not separator or item is None:
+            return f"equipped_item key {key!r} names no equipment item"
+        if item.slot != slot:
+            return f"equipped_item key {key!r} uses slot {slot!r}, expected {item.slot!r}"
+        return ""
     if kind == "derived_value":
         registry = _import_attr(
             "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUES"
@@ -354,6 +436,9 @@ FAMILIES = {
 # Preserve source-backed rows that were already shipped when more than twelve
 # evaluable tasks compete for a regional tier. Remaining slots keep Darkan order.
 PREFERRED_SOURCE_IDS = {
+    # Preserve the ten shipped rows, then use the two remaining places for the
+    # exact live predicates rather than weaker same-item abstractions.
+    ("ardougne", "easy"): (0, 1, 3, 5, 6, 7, 8, 9, 11, 14, 13, 15),
     ("karamja", "medium"): (192, 193, 194, 195, 196, 197, 209, 199, 200, 201, 202, 203),
     ("morytania", "medium"): (957, 958, 960, 962, 963, 964, 966, 968, 970, 971, 972, 973),
 }
@@ -633,6 +718,54 @@ CONDITION_OVERRIDES.update({
     ),
 })
 
+# Existing durable state that the initial harvest could not name. Geography and
+# NPC choreography are dropped only where the distinctive deed remains intact.
+CONDITION_OVERRIDES.update({
+    13: (
+        ("ledger_action_family", "summoning:infuse", 1, "Infuse a Summoning pouch"),
+    ),
+    15: (
+        (
+            "shop_transaction",
+            "buy|aemads_adventuring_supplies|aemads_adventuring_supplies:9:227",
+            1,
+            "Buy a vial of water from Aemad and Kortan",
+        ),
+    ),
+    115: (
+        ("hold_item", "Amulet of farming (8)", 1, "Own an amulet of farming"),
+    ),
+    116: (("hold_item", "Beer", 1, "Own a stat-boosting beer"),),
+    121: (
+        ("ledger_action", "utility:draw_bucket_of_water", 1, "Draw a bucket of water"),
+    ),
+    124: (("combat_kill", "highwayman", 1, "Kill a highwayman"),),
+    135: (("combat_kill", "ice_giant", 1, "Kill an ice giant"),),
+    153: (("combat_kill", "rock_crab", 5, "Kill five rock crabs"),),
+    161: (("combat_kill", "black_unicorn", 1, "Kill an adult black unicorn"),),
+    544: (
+        (
+            "state_equals",
+            "farm_patches.taverley_potato.last_crop_id",
+            1,
+            "Plant potatoes in Taverley",
+            "potato",
+        ),
+    ),
+    551: (
+        ("equipped_item", "hands|Spiked gauntlets", 1, "Wear spiked gauntlets"),
+    ),
+    557: (
+        (
+            "state_equals",
+            "summoning_state.active_follower.entity_id",
+            1,
+            "Summon a spirit wolf",
+            "spiritwolf",
+        ),
+    ),
+})
+
 
 def _slug(text: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", text.lower()))[:60]
@@ -670,8 +803,9 @@ def _condition_src(condition: tuple) -> str:
     """Serialise one condition, refusing any key the runtime never writes."""
 
     kind, key, amount, label = condition[:4]
-    alternatives = condition[4] if len(condition) > 4 else ()
-    error = resolve_condition_key(kind, key)
+    alternatives = condition[4] if kind == "any_of" and len(condition) > 4 else ()
+    expected = condition[4] if kind == "state_equals" and len(condition) > 4 else None
+    error = resolve_condition_key(kind, key, expected)
     if error:
         raise SystemExit(f"unresolvable diary condition ({label}): {error}")
     if kind == "derived_value":
@@ -683,6 +817,11 @@ def _condition_src(condition: tuple) -> str:
                 f"derived_value {key!r} threshold {amount} is above the implemented"
                 f" ceiling {ceiling}, so the row could never complete"
             )
+    if kind == "state_equals":
+        return (
+            f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r},"
+            f" expected={expected!r})"
+        )
     if kind != "any_of":
         return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
     if not alternatives:

@@ -220,6 +220,16 @@ SUMMONING_ACTIONS = _actions()
 SUMMONING_ACTIONS_BY_ID: Mapping[str, SummoningAction] = MappingProxyType(
     {action.id: action for action in SUMMONING_ACTIONS}
 )
+SUMMONING_ACTION_IDS_BY_FAMILY: Mapping[ActionFamily, tuple[str, ...]] = (
+    MappingProxyType(
+        {
+            family: tuple(
+                action.id for action in SUMMONING_ACTIONS if action.family == family
+            )
+            for family in ("infuse", "scroll")
+        }
+    )
+)
 
 
 def _slug(value: str) -> str:
