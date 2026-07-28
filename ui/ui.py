@@ -4100,6 +4100,10 @@ def show_main_menu(
         target_list = QListWidget()
         target_list.setIconSize(QSize(28, 28))
         target_list.setAlternatingRowColors(True)
+        target_list.setStyleSheet(
+            "QListWidget::item:selected { background: rgba(66,133,244,0.35);"
+            " color: palette(text); }"
+        )
         for row in rows:
             item = QListWidgetItem(row.label)
             item.setData(Qt.ItemDataRole.UserRole, row.target_id)
@@ -4144,6 +4148,7 @@ def show_main_menu(
         target_list.currentItemChanged.connect(
             lambda current, _previous: _show_target_details(current)
         )
+        target_list.clearSelection()
         _show_target_details(target_list.currentItem())
         return target_list
 
@@ -4170,12 +4175,15 @@ def show_main_menu(
         tree.setRootIsDecorated(True)
         tree.setIndentation(14)
         tree.setUniformRowHeights(True)
-        tree.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
             " QTreeWidget::item { min-height: 32px; padding: 5px;"
             " border-radius: 6px; }"
+            " QTreeWidget::item:selected { border: 2px solid rgba(66,133,244,0.95);"
+            " color: palette(text); }"
+            " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
 
@@ -4234,6 +4242,7 @@ def show_main_menu(
 
         if selected_child is not None:
             tree.setCurrentItem(selected_child)
+            tree.clearSelection()
 
         def _on_target_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None:

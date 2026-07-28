@@ -5600,8 +5600,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(slice_row.icon(0).isNull())
         self.assertEqual(
             tree.selectionMode(),
-            QAbstractItemView.SelectionMode.NoSelection,
+            QAbstractItemView.SelectionMode.SingleSelection,
         )
+        self.assertFalse(slice_row.isSelected())
         self.assertTrue(slice_row.font(0).bold())
         self.assertIn(
             "Success output: Cheese x5-35 (one Slice-all action)",
@@ -6455,8 +6456,47 @@ class MainMenuWidgetTest(unittest.TestCase):
                     current.background().color().getRgb()[:3], (76, 175, 80), skill
                 )
                 self.assertTrue(current.font().bold(), skill)
+                self.assertFalse(current.isSelected(), skill)
+                self.assertIn("QListWidget::item:selected", target_list.styleSheet())
+                self.assertIn("rgba(66,133,244,0.35)", target_list.styleSheet())
             finally:
                 dialog.deleteLater()
+
+    def test_grouped_target_tree_styles_clicked_selection_separately_from_current_target(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze bar": 10}
+        pd["current_smith"] = "forge_bronze_dagger"
+        dialog = self._open(pd)
+        dialog.show()
+        dialog.resize(900, 560)
+        _goto_smithing(dialog)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        tree = _find_smith_tree(dialog)
+        current = tree.currentItem()
+        self.assertIsNotNone(current)
+        self.assertFalse(current.isSelected())
+        clicked = next(
+            item
+            for item in _smith_tree_items(tree)
+            if item.parent() is not None
+            and item is not current
+            and not item.isDisabled()
+        )
+        tree.setCurrentItem(clicked)
+
+        self.assertTrue(clicked.isSelected())
+        self.assertFalse(current.isSelected())
+        self.assertEqual(
+            tree.selectionMode(), QAbstractItemView.SelectionMode.SingleSelection
+        )
+        self.assertRegex(
+            tree.styleSheet(),
+            r"QTreeWidget::item:selected \{ border: 2px solid rgba\(66,133,244,0\.95\);",
+        )
+        self.assertNotIn("rgba(76,175,80", tree.styleSheet())
+        self.assertEqual(current.background(0).color(), QColor(76, 175, 80, 76))
 
     def test_smithing_highlights_current_target_on_open(self) -> None:
         pd = _make_player_data()
