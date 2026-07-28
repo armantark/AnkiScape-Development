@@ -70,6 +70,50 @@ def get_exp_to_next_level(player_data, EXP_TABLE):
     return needed if needed > 0 else 0
 
 
+def compute_level_progress(level: int, exp: float, exp_table: list) -> tuple[int, float, int]:
+    """Pure helper for computing percent, remaining XP, and target level.
+    Returns (percent, xp_remaining, target_level). Clamps values sensibly.
+    - At max level (99 or end of table), always return 100% and 0 remaining.
+    """
+    try:
+        lvl = max(1, int(level))
+        xp = float(exp or 0)
+        table_len = len(exp_table)
+
+        # If at or above the maximum supported level, treat progress as complete.
+        # Many games cap at 99; also guard when lvl maps to the last index of the table.
+        if lvl >= 99 or lvl >= table_len:
+            return 100, 0.0, 99
+
+        # Compute thresholds for the current level segment
+        prev = float(exp_table[lvl - 1]) if (lvl - 1) < table_len else 0.0
+        nxt = float(exp_table[lvl]) if lvl < table_len else prev
+
+        # If thresholds are degenerate (e.g., at end), treat as maxed
+        if nxt <= prev:
+            return 100, 0.0, 99
+
+        # Clamp percent to [0, 100] and remaining to >= 0
+        span = nxt - prev
+        pct_float = ((xp - prev) / span) * 100.0
+        if xp >= nxt:
+            pct = 100
+            remain = 0.0
+        else:
+            pct = int(max(0.0, min(100.0, pct_float)))
+            remain = max(0.0, nxt - xp)
+
+        target_lv = min(lvl + 1, 99)
+        return pct, remain, target_lv
+    except Exception:
+        # Fallback on error: show safe defaults and a reasonable next target
+        try:
+            safe_lvl = max(1, int(level))
+        except Exception:
+            safe_lvl = 1
+        return 0, 0.0, min(safe_lvl + 1, 99)
+
+
 def calculate_new_level(skill_exp, current_level, EXP_TABLE):
     """
     Calculate the new level for a skill given experience, current level, and EXP_TABLE.

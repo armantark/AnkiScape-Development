@@ -228,6 +228,7 @@ from ..logic.troll_invasion_logic import (
     default_troll_invasion_state_pure,
     sanitize_troll_invasion_state_pure,
 )
+from ..logic.dnd_favourites_logic import sanitize_dnd_favourites_pure
 from ..logic.shattered_heart_logic import (
     default_shattered_heart_state_pure,
     sanitize_shattered_heart_state_pure,
@@ -285,7 +286,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 92
+CURRENT_CONFIG_VERSION = 95
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -545,6 +546,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_clan_wars_state_pure())
     data.update(default_troll_invasion_state_pure())
     data["shattered_heart"] = default_shattered_heart_state_pure()
+    data["dnd_favourites"] = []
     data.update(default_crucible_state_pure())
     data["goblin_raids"] = default_goblin_raids_state_pure()
     data.update(default_daily_challenges_state_pure())
@@ -1198,6 +1200,9 @@ def migrate_loaded_data(
     data["shattered_heart"] = sanitize_shattered_heart_state_pure(
         data.get("shattered_heart")
     )
+    data["dnd_favourites"] = sanitize_dnd_favourites_pure(
+        data.get("dnd_favourites")
+    )
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")
@@ -1757,6 +1762,11 @@ def migrate_loaded_data(
     # progress, the weekly final-pair gate, and replica-statue progression.
     if loaded_config_version < 92:
         data.setdefault("shattered_heart", default_shattered_heart_state_pure())
+    # v95: the reviewer badge's Distractions watch list. Nobody has pinned
+    # anything yet, so an existing save starts with live events only, exactly as
+    # it behaved before. 93 and 94 belong to sibling branches.
+    if loaded_config_version < 95:
+        data.setdefault("dnd_favourites", [])
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1818,6 +1828,9 @@ def migrate_loaded_data(
     data.update(sanitize_troll_invasion_state_pure(data))
     data["shattered_heart"] = sanitize_shattered_heart_state_pure(
         data.get("shattered_heart")
+    )
+    data["dnd_favourites"] = sanitize_dnd_favourites_pure(
+        data.get("dnd_favourites")
     )
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(

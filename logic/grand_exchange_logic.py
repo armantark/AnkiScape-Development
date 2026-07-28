@@ -1416,6 +1416,50 @@ def advance_ge_market_tick_pure(
     }
 
 
+def ge_fill_drawer_view_pure(player_data: Mapping[str, Any]) -> Dict[str, Any]:
+    """The reviewer strip's Grand Exchange drawer.
+
+    Design-thread section 4.8 moved the fills log out of the Grand Exchange tab
+    and under the reviewer experience bars, where it holds a seat only while the
+    player has something on the market. The row text and the two tones settled in
+    pass 2 are decided here so the drawer cannot drift from the tab's old copy.
+
+    This deliberately does not reuse ``ge_frontend_projection_pure``: that walks
+    the whole tradeable catalogue to price it, and the drawer needs none of it.
+    """
+
+    data = ensure_ge_state_pure(player_data)
+    occupied = len(data["ge_player_orders"])
+    clock = data.get("shop_market_clock")
+    answered_cards = _clean_int(
+        clock.get("answered_cards") if isinstance(clock, Mapping) else 0,
+        0,
+    )
+    rows = []
+    # Newest first, matching the tab's old order and the projection's contract.
+    for entry in reversed(data["ge_fill_log"]):
+        elapsed = answered_cards - _clean_int(entry.get("card"), 0)
+        if elapsed <= 0:
+            when = "Now"
+        elif elapsed == 1:
+            when = "1 card ago"
+        else:
+            when = f"{elapsed} cards ago"
+        done = _clean_int(entry.get("completed_quantity"), 0)
+        total = _clean_int(entry.get("original_quantity"), 0)
+        verb = "sold" if entry["side"] == "sell" else "bought"
+        rows.append({
+            "text": f"{when}: {entry['item_name']} - {done}/{total} {verb}",
+            "tone": "complete" if done >= total else "partial",
+        })
+    return {
+        "visible": occupied > 0,
+        "title": f"Recent fills ({len(rows)})",
+        "rows": tuple(rows),
+        "empty_text": "No fills yet — answer cards and the market moves.",
+    }
+
+
 def ge_frontend_projection_pure(
     player_data: Mapping[str, Any],
     *,

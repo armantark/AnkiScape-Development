@@ -643,6 +643,7 @@ from .logic_pure_progression import (  # noqa: F401  (re-export)
     REVIEW_SUCCESS_SCALE,
     calculate_new_level,
     calculate_probability_with_level,
+    compute_level_progress,
     default_red_sandstone_daily_state_pure,
     get_exp_to_next_level,
     get_newly_completed_achievements,
