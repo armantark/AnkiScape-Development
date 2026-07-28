@@ -277,7 +277,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 92
+CURRENT_CONFIG_VERSION = 93
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1732,7 +1732,7 @@ def migrate_loaded_data(
             data.setdefault(key, value)
         data.update(refresh_capes_pure(data))
         data.update(refresh_music_log_pure(data)[0])
-    # v92: Mage Training Arena adds the four Pizazz wallets, room cadence,
+    # v93: Mage Training Arena adds the four Pizazz wallets, room cadence,
     # reward-goal policy, persistent entry state, and representative reward shop.
     # The unconditional sanitizer above is the additive migration from the legacy
     # {"completed": bool} spell-unlock shape.
