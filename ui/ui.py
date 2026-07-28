@@ -361,6 +361,8 @@ from .clan_wars_panel import ClanWarsPanel
 from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from .troll_invasion_panel import TrollInvasionPanel
+from ..data.shattered_heart_data import SHATTERED_HEART_ACTIVITY_ID
+from .shattered_heart_panel import ShatteredHeartPanel
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from .crucible_panel import CruciblePanel
@@ -3639,6 +3641,7 @@ def show_main_menu(
     on_duel_arena_command=None,
     on_clan_wars_command=None,
     on_troll_invasion_command=None,
+    on_shattered_heart_command=None,
     on_crucible_command=None,
     on_goblin_raids_command=None,
     on_daily_challenges_command=None,
@@ -15368,6 +15371,14 @@ def show_main_menu(
         )
         cards_stack.addWidget(troll_invasion_box)
 
+        shattered_heart_box = ShatteredHeartPanel(
+            player_data,
+            on_command=on_shattered_heart_command,
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(shattered_heart_box)
+
         crucible_box = CruciblePanel(
             player_data,
             on_command=on_crucible_command,
@@ -18802,6 +18813,10 @@ def show_main_menu(
                 troll_invasion_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == SHATTERED_HEART_ACTIVITY_ID:
+                shattered_heart_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == CRUCIBLE_ACTIVITY_ID:
                 crucible_box.refresh()
                 _show_activity_detail(activity_id)
@@ -18889,6 +18904,7 @@ def show_main_menu(
             DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
             CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
             TROLL_INVASION_ACTIVITY_ID: ("Troll Invasion", troll_invasion_box),
+            SHATTERED_HEART_ACTIVITY_ID: ("Shattered Heart", shattered_heart_box),
             CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
             GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),
             TREASURE_TRAILS_ACTIVITY_ID: ("Treasure Trails", trail_box),

@@ -120,6 +120,9 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(rewards["magic"], 35.0)
         self.assertEqual(result["inventory"]["Varrock teleport tablet"], 1)
 
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
         player = _house(
             current_construction=target["id"],
             construction_exp=0.0,
@@ -127,14 +130,25 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
             house_built_flags={"mahogany_eagle_lecturn": True},
             inventory=dict(target["requirements"]),
             completed_achievements=[],
+            shattered_heart=default_shattered_heart_state_pure(),
         )
-        self.assertTrue(handle_construction_answer(self._context(player, {})))
+        self.assertTrue(
+            handle_construction_answer(
+                self._context(player, {}, random_random=lambda: 0.0)
+            )
+        )
         skills = player["achievement_progress"]["skills"]
         self.assertEqual(
             skills["construction"]["outputs"],
             {"Varrock teleport tablet": 1},
         )
         self.assertNotIn("magic", skills)
+        self.assertFalse(
+            any(
+                player["inventory"].get(item_name, 0)
+                for item_name in SHATTERED_HEART_SKILLS_BY_ID["construction"].rock_items
+            )
+        )
 
     def test_owned_gilded_altar_counts_at_most_two_burners(self):
         data = _house(house_built_flags={"guilded_altar": True, "marble_burner": True})

@@ -224,6 +224,10 @@ from ..logic.troll_invasion_logic import (
     default_troll_invasion_state_pure,
     sanitize_troll_invasion_state_pure,
 )
+from ..logic.shattered_heart_logic import (
+    default_shattered_heart_state_pure,
+    sanitize_shattered_heart_state_pure,
+)
 from ..logic.daily_challenges_logic import (
     default_daily_challenges_state_pure,
     sanitize_daily_challenges_state_pure,
@@ -277,7 +281,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 91
+CURRENT_CONFIG_VERSION = 92
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -536,6 +540,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_duel_arena_state_pure())
     data.update(default_clan_wars_state_pure())
     data.update(default_troll_invasion_state_pure())
+    data["shattered_heart"] = default_shattered_heart_state_pure()
     data.update(default_crucible_state_pure())
     data["goblin_raids"] = default_goblin_raids_state_pure()
     data.update(default_daily_challenges_state_pure())
@@ -1186,6 +1191,9 @@ def migrate_loaded_data(
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
     data.update(sanitize_troll_invasion_state_pure(data))
+    data["shattered_heart"] = sanitize_shattered_heart_state_pure(
+        data.get("shattered_heart")
+    )
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")
@@ -1734,6 +1742,10 @@ def migrate_loaded_data(
     if loaded_config_version < 91:
         for key, value in default_troll_invasion_state_pure().items():
             data.setdefault(key, value)
+    # v92: Shattered Heart adds passive strange-rock collection, museum-pair
+    # progress, the weekly final-pair gate, and replica-statue progression.
+    if loaded_config_version < 92:
+        data.setdefault("shattered_heart", default_shattered_heart_state_pure())
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1793,6 +1805,9 @@ def migrate_loaded_data(
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
     data.update(sanitize_troll_invasion_state_pure(data))
+    data["shattered_heart"] = sanitize_shattered_heart_state_pure(
+        data.get("shattered_heart")
+    )
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")

@@ -922,6 +922,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        if str(action_id) == "shattered_heart":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "shattered_heart",
+                    "mode": "exempt",
+                    "source_status": "bounded_abstraction",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "Shattered Heart is a passive overlay: each successful "
+                        "eligible skill action rolls at most two strange rocks, "
+                        "while plinth commands consume no review."
+                    ),
+                    "includes": (
+                        "one source-shaped strange-rock roll",
+                        "the exact same-skill second-rock half chance",
+                        "one atomic inventory or bag mutation",
+                    ),
+                    "multiplier_behavior": (
+                        "One roll follows each resolved successful skill action"
+                    ),
+                    "undo_boundary": "the owning review or direct-action transaction",
+                    "flag_off_behavior": "same passive skilling hook",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "livid_farm":
             rows.append(
                 {

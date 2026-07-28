@@ -407,6 +407,45 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_shattered_heart_pair_turn_in_and_xp_restore_through_the_seam(self):
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import apply_shattered_heart_command_pure
+
+        addon = self.addon
+        for item_name in SHATTERED_HEART_SKILLS_BY_ID["agility"].rock_items:
+            addon.player_data["inventory"][item_name] = 1
+        before = copy.deepcopy(addon.player_data)
+        info = {}
+        awarded = 0.0
+        level_checks = []
+        addon.level_up_check = lambda skill, _data: level_checks.append(skill)
+
+        def change(current):
+            nonlocal info
+            updated, ok, info = apply_shattered_heart_command_pure(
+                current, "add_completed_pairs", {}
+            )
+            return updated, ok
+
+        def award():
+            nonlocal awarded
+            amount = float(info["skill_xp"]["agility"])
+            awarded = addon._award_skill_exp(
+                "agility_exp", amount, action_skill_id="agility"
+            )
+            addon.level_up_check("Agility", addon.player_data)
+
+        self.assertTrue(self.commit(change, after_apply=award))
+        self.assertEqual(
+            addon.player_data["shattered_heart"]["placed_pairs"], ["agility"]
+        )
+        self.assertEqual(
+            addon.player_data["agility_exp"] - before["agility_exp"], awarded
+        )
+        self.assertEqual(level_checks, ["Agility"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_enchanted_key_site_choice_restores_through_the_seam(self):
         from ankiscape.data.enchanted_key_data import ENCHANTED_KEY_SITE_IDS
         from ankiscape.logic.enchanted_key_logic import (

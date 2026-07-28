@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from .shattered_heart_data import SHATTERED_HEART_KUDOS_REWARD
+
 
 VARROCK_MUSEUM_ACTIVITY_ID = "varrock_museum"
 VARROCK_MUSEUM_SOURCE_MAX_KUDOS = 183
-VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS = 163
+VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS = 163 + SHATTERED_HEART_KUDOS_REWARD
 VARROCK_MUSEUM_SOURCE = (
     "RuneScape Wiki Varrock Museum oldid=6550044 "
     "(2012-11-12T19:18:01Z); Kudos oldid=6514304 "

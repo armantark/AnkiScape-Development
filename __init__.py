@@ -146,6 +146,7 @@ from .data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from .logic.clan_wars_logic import apply_clan_wars_command_pure
 from .data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from .logic.troll_invasion_logic import apply_troll_invasion_command_pure
+from .logic.shattered_heart_logic import apply_shattered_heart_command_pure
 from .data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from .logic.crucible_logic import apply_crucible_command_pure
 from .data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -3082,6 +3083,50 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_shattered_heart_command(action_id, payload):
+        info = {}
+        awarded_xp = 0.0
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_shattered_heart_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        def _after_apply():
+            nonlocal awarded_xp
+            for skill_id, amount in dict(info.get("skill_xp") or {}).items():
+                skill = get_skill(str(skill_id))
+                if skill is None or float(amount or 0.0) <= 0:
+                    continue
+                awarded_xp += _award_skill_exp(
+                    skill.exp_key,
+                    float(amount),
+                    action_skill_id=skill.id,
+                )
+                level_up_check(skill.display_name, player_data)
+            if awarded_xp > 0:
+                info["awarded_xp"] = awarded_xp
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        if awarded_xp > 0:
+            _show_exp(awarded_xp)
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -3405,6 +3450,7 @@ def _on_main_menu(
         on_duel_arena_command=_apply_duel_arena_command,
         on_clan_wars_command=_apply_clan_wars_command,
         on_troll_invasion_command=_apply_troll_invasion_command,
+        on_shattered_heart_command=_apply_shattered_heart_command,
         on_crucible_command=_apply_crucible_command,
         on_goblin_raids_command=_apply_goblin_raids_command,
         on_daily_challenges_command=_apply_daily_challenges_command,

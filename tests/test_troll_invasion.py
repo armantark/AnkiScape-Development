@@ -434,8 +434,8 @@ class TrollInvasionPersistenceLayerTest(unittest.TestCase):
         for key in default_troll_invasion_state_pure():
             old.pop(key, None)
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 91)
-        self.assertEqual(migrated["config_version"], 91)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 92)
+        self.assertEqual(migrated["config_version"], 92)
         self.assertEqual(migrated["troll_invasion"], {})
         self.assertEqual(migrated["troll_invasion_policy"]["mode"], TROLL_INVASION_COMBAT_MODE)
 

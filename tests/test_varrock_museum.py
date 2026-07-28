@@ -80,7 +80,7 @@ class VarrockMuseumPureTest(unittest.TestCase):
             [int(row["kudos"]) for row in KUDOS_THRESHOLD_REWARDS],
             [51, 101, 151],
         )
-        self.assertEqual(VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS, 163)
+        self.assertEqual(VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS, 173)
         self.assertEqual(VARROCK_MUSEUM_SOURCE_MAX_KUDOS, 183)
 
     def test_state_repair_discards_unknown_rows_and_invalid_route(self):
@@ -214,6 +214,12 @@ class VarrockMuseumPureTest(unittest.TestCase):
             player, "claim_quest_stories"
         )
         self.assertFalse(ok)
+
+    def test_first_shattered_heart_statue_supplies_its_ten_kudos(self):
+        player = _player()
+        self.assertEqual(varrock_museum_kudos_pure(player), 0)
+        player["shattered_heart"] = {"statues_completed": 1}
+        self.assertEqual(varrock_museum_kudos_pure(player), 10)
 
     def test_all_three_threshold_packages_are_direct_and_one_time(self):
         player = _player()

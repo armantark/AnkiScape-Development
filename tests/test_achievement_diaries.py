@@ -179,6 +179,17 @@ def _max_out_varrock_museum(player):
 
     player, ok, info = apply_varrock_museum_command_pure(player, "claim_quest_stories")
     assert ok, info
+
+    from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS
+    from ankiscape.logic.shattered_heart_logic import apply_shattered_heart_command_pure
+
+    for skill in SHATTERED_HEART_SKILLS:
+        for item_name in skill.rock_items:
+            player["inventory"][item_name] = 1
+    player, ok, info = apply_shattered_heart_command_pure(
+        player, "add_completed_pairs"
+    )
+    assert ok, info
     return player
 
 

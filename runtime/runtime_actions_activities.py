@@ -747,6 +747,7 @@ def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=1.0,
         primary_xp=hunter_xp,
+        shattered_heart_skill_id="hunter",
     )
     gained = _award_action_xp_rewards(
         ctx,

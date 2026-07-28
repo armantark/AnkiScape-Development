@@ -510,6 +510,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "duel_arena",
                 "clan_wars",
                 "troll_invasion",
+                "shattered_heart",
                 "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",

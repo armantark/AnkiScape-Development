@@ -825,6 +825,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         player_data["logs_cut_today"] += successful_actions
         player_data["inventory"] = new_inv
         output_items: dict[str, int] = {}
+        primary_outputs: dict[str, int] = {}
         incinerated_xp = 0.0
         incinerated_count = 0
         for action_output, action_nest, action_exp in action_outputs:
@@ -836,6 +837,10 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
                 action_exp,
                 action_output,
             )
+            if action_output:
+                primary_outputs[action_output] = (
+                    primary_outputs.get(action_output, 0) + 1
+                )
             for item_name in (action_output, action_nest):
                 if item_name:
                     output_items[item_name] = output_items.get(item_name, 0) + 1
@@ -861,6 +866,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             output_items=output_items,
             achievement_output_items=achievement_outputs,
             primary_xp=total_base_exp,
+            shattered_heart_output_items=primary_outputs,
         )
         exp_gained = ctx.award_skill_exp("woodcutting_exp", total_base_exp)
         ctx.level_up_check("Woodcutting", player_data)
@@ -983,6 +989,10 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         player_data["inventory"] = new_inv
         _charge_urn_for_action(ctx, "mining", ore, ore_spec, base_exp, output_item)
         output_items: dict[str, int] = {}
+        primary_outputs: dict[str, int] = {}
+        for item_name in (output_item, extra_output, ore_bonus_output):
+            if item_name:
+                primary_outputs[item_name] = primary_outputs.get(item_name, 0) + 1
         for item_name in (
             output_item,
             gem,
@@ -999,6 +1009,7 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
             expected_success_chance=expected_success,
             output_items=output_items,
             primary_xp=base_exp,
+            shattered_heart_output_items=primary_outputs,
         )
         exp_gained = ctx.award_skill_exp("mining_exp", base_exp)
         ctx.level_up_check("Mining", player_data)
