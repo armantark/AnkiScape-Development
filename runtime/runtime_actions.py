@@ -258,6 +258,8 @@ from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
+from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.crucible_logic import crucible_view_pure
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -535,6 +537,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_castle_wars_answer,
     handle_clan_wars_answer,
     handle_troll_invasion_answer,
+    handle_mage_training_arena_answer,
     handle_crucible_answer,
     handle_goblin_raids_answer,
     handle_flash_powder_factory_answer,

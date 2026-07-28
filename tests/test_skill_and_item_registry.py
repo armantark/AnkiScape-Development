@@ -511,6 +511,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "clan_wars",
                 "troll_invasion",
                 "shattered_heart",
+                "mage_training_arena",
                 "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",

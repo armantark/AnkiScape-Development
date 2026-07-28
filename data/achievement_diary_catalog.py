@@ -3370,7 +3370,7 @@ DIARY_FAMILIES = (
                 'miscellaneous_miscellaneous_mage_training_arena',
                 'Mage Training Arena',
                 'Practice your non-combat spells and display your pizazz.',
-                (DiaryCondition('skill_level', 'magic', 7, 'Level 7 Magic'),),
+                (DiaryCondition('counter', 'mage_training_arena.entries', 1, 'Enter the Mage Training Arena'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3026,
                 100,

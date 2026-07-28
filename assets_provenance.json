@@ -383,6 +383,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-25T06:03:16Z"
   },
+  "activityicons/mage_training_arena.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_hat.png",
+    "file_title": "Infinity hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044642%21Infinity_hat.png?8be83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3945e963de05b129d378e1777e8aef37c05fbb3b",
+    "size": 1567,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-25T01:12:22Z"
+  },
   "activityicons/make_soft_clay.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Soft_clay.png",
     "file_title": "Soft clay.png",
@@ -1834,6 +1846,54 @@
     "size": 658,
     "source_wiki": "rs3",
     "timestamp": "2011-03-15T20:00:25Z"
+  },
+  "activityitems/mage_training_arena_apprentice_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Apprentice_wand.png",
+    "file_title": "Apprentice wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502005347%21Apprentice_wand.png?0daea",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "270b705e75be712dea115fd6b0e3593705653a4f",
+    "size": 467,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T22:56:42Z"
+  },
+  "activityitems/mage_training_arena_beginner_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Beginner_wand.png",
+    "file_title": "Beginner wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502012930%21Beginner_wand.png?9b4bf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a54909c4a93a7647c9df4ff64565071b2adeabf6",
+    "size": 315,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T22:53:40Z"
+  },
+  "activityitems/mage_training_arena_master_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Master_wand.png",
+    "file_title": "Master wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160501222700%21Master_wand.png?18683",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5f058ad0750893f267581ec4e15d84f16271252e",
+    "size": 378,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T23:03:48Z"
+  },
+  "activityitems/mage_training_arena_teacher_wand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Teacher_wand.png",
+    "file_title": "Teacher wand.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502083246%21Teacher_wand.png?0318d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2ed8349d163207f0a885f84a1eb92512470e4203",
+    "size": 466,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T23:00:44Z"
   },
   "activityitems/ornate_bowl.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ornate_bowl.png",

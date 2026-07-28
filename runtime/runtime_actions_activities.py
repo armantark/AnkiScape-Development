@@ -267,12 +267,14 @@ from ..data.troll_invasion_data import (
     TROLL_INVASION_ACTIVITY_ID,
     TROLL_INVASION_REPAIR_MODE,
 )
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
 from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..logic.treasure_trails_logic import apply_treasure_trail_review_pure
 from ..logic.clan_wars_logic import apply_clan_wars_review_pure
 from ..logic.troll_invasion_logic import apply_troll_invasion_review_pure
+from ..logic.mage_training_arena_logic import apply_mage_training_arena_review_pure
 from ..logic.crucible_logic import apply_crucible_review_pure
 from ..logic.goblin_raids_logic import apply_goblin_raids_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
@@ -2315,6 +2317,54 @@ def handle_troll_invasion_answer(
     if awarded_skill_xp > 0:
         ctx.show_exp(awarded_skill_xp)
     ctx.show_activity_gain(str(result.get("message") or "Troll Invasion beat resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_mage_training_arena_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_mage_training_arena_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Mage Training Arena unavailable",
+            str(result.get("reason", "Enter the Arena before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    magic_xp = float(result.get("magic_xp", 0.0) or 0.0)
+    if productive and result.get("checkpoint") is False:
+        record_cadence_wait_telemetry_pure(
+            ctx.player_data,
+            "utility",
+            MAGE_TRAINING_ARENA_ACTIVITY_ID,
+        )
+    elif result.get("advanced"):
+        _record_action(
+            ctx,
+            "utility",
+            MAGE_TRAINING_ARENA_ACTIVITY_ID,
+            not result.get("died"),
+            expected_success_chance=1.0,
+            failure_kind="safe_death" if result.get("died") else None,
+            primary_xp=magic_xp,
+        )
+    if magic_xp:
+        _refresh_combat_levels(ctx, {"magic_exp": magic_xp})
+        ctx.show_exp(magic_xp)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Arena checkpoint resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
