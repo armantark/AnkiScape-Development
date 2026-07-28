@@ -28,3 +28,14 @@ reaching breadth level one, so deferring them costs nothing today.
    invalidate work the later items would otherwise build on.
 3. A GPT run never gets git, release, or other external side effects. Those stay
    with Claude, per the owner's routing rules.
+
+## Art sweep tranche ledger (2026-07-27)
+
+Tranche 1 (combatenemies + shopitems, 672 assets): 39 replaced with verified
+pre-cutoff revisions. UNRESOLVED, queued for re-research — not absent: ~203
+assets whose research agents hit a wrong API endpoint (use
+`https://runescape.wiki/api.php`, not `/w/api.php`) or erred out, 25 with
+unreachable archive URLs, 9 with sha mismatches. Genuine no-period-art
+remainder: roughly 390, many likely recoverable only under `(historical)` or
+renamed titles — a title-variant pass is the next lever. Tranches 2+: the other
+~2,350 post-cutoff assets (constructionitems 414, herbloreitems 252, ...).
