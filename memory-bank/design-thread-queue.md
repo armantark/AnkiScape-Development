@@ -347,63 +347,6 @@ more rocks from that skill until every other non-combat skill is complete.
 Blocks: nothing under option A. Evidence: RuneScape Wiki `Shattered Heart`
 oldid `6514590` and `Strange rock` oldid `6564676`, reconciled in
 `memory-bank/source-audits/shattered-heart-loop-2026-07-17.md`.
-### 3.12 Mage Training Arena ordinary dragonstone spawns in breadth one
-
-Raised 2026-07-27. The period Enchanting Chamber spawned six dragonstones every
-five minutes, each worth twice the enchantment level. The settled Arena contract
-excluded world-hopping the spawn, but did not say whether the ordinary timed
-spawn belongs in the breadth-one room loop. At Enchant Level 6 the ordinary
-spawn can contribute up to 864 points per hour, so silently mixing it into the
-placeholder shape throughput or silently omitting it from a claim of exhaustive
-room fidelity would both be misleading.
-
-Recommendation, and what is implemented: breadth one models the chamber's core
-bonus-shape loop, tenth-shape bonus, twentieth-orb rune reward, and exact spell
-XP, while leaving the separate timed dragonstone opportunity for the later
-catalog/depth pass. The UI and source strings make no claim that the room's
-maximum period throughput is closed. This keeps the requested smallest
-mechanically complete room loop without inventing a conversion between the
-five-minute world spawn and answered reviews.
-
-The replacement seam is explicit: add a separately persisted dragonstone spawn
-clock and route it through the same Enchantment wallet. Do not fold it into
-`mage_training_arena.enchantment_shapes_per_hour`, because the two opportunities
-had different counters and rewards in the period game.
-
-### 3.13 Temple Trekking and Burgh de Rott Ramble share one surface
-
-The period exposes two directions with different quest gates, but companions,
-progression, follower food and reward tokens are one system. Separate cards would
-duplicate policy and make shared state harder to read.
-
-Recommendation and implemented behaviour: keep one Temple Trekking card with a
-direction selector. The pure view changes the available companions and quest gate
-for that direction. Blocks nothing; splitting later is a presentation-only change.
-
-### 3.14 Route choice applies to each encounter, not the whole trek
-
-The earlier owner note described one route tier chosen at entry. The pinned period
-page instead lets the player choose easy, medium or hard again after each event.
-A literal prompt between every answered card would interrupt the review loop.
-
-Recommendation and implemented behaviour: the saved route is the next-encounter
-policy. Entry freezes it for the first node; completing a node freezes the current
-policy for the next node. `route_history` records every actual choice for token
-quality and diary proof. This preserves the period choice point without a modal
-review interruption.
-
-### 3.15 Breadth-one follower supplies stay compact and explicit
-
-The period follower inventory accepted food generally and the Druid pouch had
-charges. A full carried-food editor would add a second inventory surface to a
-breadth activity, while a Boolean pouch would erase an attested resource.
-
-Recommendation and implemented behaviour: use one shared 28-slot Lobster pack as
-an explicit AnkiScape abstraction, allow it to be stocked during a trek, and store
-three Druid-pouch charges separately from the item. The direct fill action
-compresses Bloom, flora collection and filling; the placeholder register names the
-remaining follower eating policy. This can widen to ordinary food rows without a
-save migration.
 
 ## 4. Answered decisions
 

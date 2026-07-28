@@ -232,16 +232,6 @@ from ..logic.shattered_heart_logic import (
     default_shattered_heart_state_pure,
     sanitize_shattered_heart_state_pure,
 )
-from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
-from ..logic.mage_training_arena_logic import (
-    default_mage_training_arena_state_pure,
-    sanitize_mage_training_arena_state_pure,
-)
-from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
-from ..logic.temple_trekking_logic import (
-    default_temple_trekking_state_pure,
-    sanitize_temple_trekking_state_pure,
-)
 from ..logic.daily_challenges_logic import (
     default_daily_challenges_state_pure,
     sanitize_daily_challenges_state_pure,
@@ -295,7 +285,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 94
+CURRENT_CONFIG_VERSION = 92
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -473,8 +463,6 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["magic_charge_active"] = False
     data["magic_charge_ticks_remaining"] = 0
     data["mage_arena"] = default_mage_arena_state_pure()
-    data["mage_training_arena"] = default_mage_training_arena_state_pure()
-    data["temple_trekking"] = default_temple_trekking_state_pure()
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["current_quest"] = DEFAULT_QUEST_TARGET
     data["construction_actions_completed"] = 0
@@ -1210,12 +1198,6 @@ def migrate_loaded_data(
     data["shattered_heart"] = sanitize_shattered_heart_state_pure(
         data.get("shattered_heart")
     )
-    data["mage_training_arena"] = sanitize_mage_training_arena_state_pure(
-        data.get("mage_training_arena")
-    )
-    data["temple_trekking"] = sanitize_temple_trekking_state_pure(
-        data.get("temple_trekking")
-    )
     data.update(sanitize_crucible_state_pure(data))
     data["goblin_raids"] = sanitize_goblin_raids_state_pure(
         data.get("goblin_raids")
@@ -1379,23 +1361,6 @@ def migrate_loaded_data(
             active_session_id = ""
     elif troll_invasion_session:
         active_session_id = TROLL_INVASION_ACTIVITY_ID
-    mage_training_arena_session = data["mage_training_arena"]
-    if active_session_id:
-        if active_session_id != MAGE_TRAINING_ARENA_ACTIVITY_ID:
-            mage_training_arena_session["active"] = False
-            mage_training_arena_session["current_room"] = ""
-        elif not mage_training_arena_session["active"]:
-            active_session_id = ""
-    elif mage_training_arena_session["active"]:
-        active_session_id = MAGE_TRAINING_ARENA_ACTIVITY_ID
-    temple_trekking_session = data["temple_trekking"]["session"]
-    if active_session_id:
-        if active_session_id != TEMPLE_TREKKING_ACTIVITY_ID:
-            data["temple_trekking"]["session"] = {}
-        elif not temple_trekking_session:
-            active_session_id = ""
-    elif temple_trekking_session:
-        active_session_id = TEMPLE_TREKKING_ACTIVITY_ID
     crucible_session = data["crucible"]
     if active_session_id:
         if active_session_id != CRUCIBLE_ACTIVITY_ID:
@@ -1792,13 +1757,6 @@ def migrate_loaded_data(
     # progress, the weekly final-pair gate, and replica-statue progression.
     if loaded_config_version < 92:
         data.setdefault("shattered_heart", default_shattered_heart_state_pure())
-    # v93: Mage Training Arena adds the four Pizazz wallets, room cadence,
-    # reward-goal policy, persistent entry state, and representative reward shop.
-    # The unconditional sanitizer above is the additive migration from the legacy
-    # {"completed": bool} spell-unlock shape.
-    # v94: Temple Trekking adds plan policy, companion progression, the persistent
-    # event session, reward tokens, and redemption counters. Its unconditional
-    # sanitizer above supplies the complete additive migration.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1816,6 +1774,7 @@ def migrate_loaded_data(
     data["magic_charge_ticks_remaining"] = charge_ticks
     data["magic_charge_active"] = charge_ticks > 0
     data["mage_arena"] = sanitize_mage_arena_state_pure(data.get("mage_arena"))
+    data.setdefault("mage_training_arena", {"completed": False})
     data.setdefault("current_construction", "crude_wooden_chair")
     data.setdefault("construction_actions_completed", 0)
     data.setdefault("construction_outputs_created", 0)

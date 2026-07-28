@@ -162,11 +162,7 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertEqual(
             blocked,
             {
-                # The Arena wand revisions establish tradeability, but the
-                # pinned period buy-limit table has no row for any of the four.
-                "Apprentice wand",
                 "Arctic pyre logs",
-                "Beginner wand",
                 "Black warlock",
                 "Cape",
                 "Elemental talisman",
@@ -185,7 +181,6 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Loar remains",
                 "Magic pyre logs",
                 "Mahogany pyre logs",
-                "Master wand",
                 "Maple pyre logs",
                 "Oak pyre logs",
                 "Olive oil (1)",
@@ -204,7 +199,6 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Saradomin mjolnir",
                 "Snowy knight",
                 "Stripy pirate shirt",
-                "Teacher wand",
                 "Teak pyre logs",
                 "Tribal top",
                 "Villager armband",

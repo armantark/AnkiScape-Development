@@ -450,7 +450,7 @@ PREFERRED_SOURCE_IDS = {
     # exact live predicates rather than weaker same-item abstractions.
     ("ardougne", "easy"): (0, 1, 3, 5, 6, 7, 8, 9, 11, 14, 13, 15),
     ("karamja", "medium"): (192, 193, 194, 195, 196, 197, 209, 199, 200, 201, 202, 203),
-    ("morytania", "medium"): (957, 958, 960, 962, 963, 964, 965, 966, 968, 970, 971, 972, 973),
+    ("morytania", "medium"): (957, 958, 960, 962, 963, 964, 966, 968, 970, 971, 972, 973),
 }
 
 # Burthorpe/Taverley pays one starter-equipment bundle for the whole set, not a
@@ -598,17 +598,16 @@ CONDITION_OVERRIDES.update({
     209: (("quest", "shilo_village", 1, "Complete Shilo Village"),),
     97: (("quest", "rune_mysteries", 1, "Complete Rune Mysteries"),),
     107: (("quest", "dragon_slayer", 1, "Complete Dragon Slayer"),),
-    952: (("counter", "temple_trekking.completions.trek_easy_easy", 1, "Take an easy companion through easy Temple Trekking routes"),),
+    952: (("quest", "in_aid_of_the_myreque", 1, "Complete In Aid of the Myreque"),),
     993: (("quest", "ritual_of_the_mahjarrat", 1, "Complete Ritual of the Mahjarrat"),),
     985: (
         ("skill_level", "runecrafting", 50, "Level 50 Runecrafting"),
         ("quest", "legacy_of_seergaze", 1, "Complete Legacy of Seergaze"),
     ),
-    983: (("counter", "temple_trekking.completions.trek_hard_hard", 1, "Take a hard companion through hard Temple Trekking routes"),),
+    983: (("quest", "in_aid_of_the_myreque", 1, "Complete In Aid of the Myreque"),),
     963: (("quest", "ghosts_ahoy", 1, "Complete Ghosts Ahoy"),),
     971: (("quest", "in_search_of_the_myreque", 1, "Complete In Search of the Myreque"),),
-    964: (("counter", "temple_trekking.completions.trek_medium_medium", 1, "Take a medium companion through medium Temple Trekking routes"),),
-    965: (("counter", "temple_trekking.completions.ramble_any", 1, "Complete a Burgh de Rott Ramble"),),
+    964: (("quest", "in_aid_of_the_myreque", 1, "Complete In Aid of the Myreque"),),
     257: (("quest", "rune_mysteries", 1, "Complete Rune Mysteries"),),
     268: (("quest", "the_dig_site", 1, "Complete The Dig Site"),),
     267: (("skill_level", "construction", 10, "Level 10 Construction"),),
@@ -640,7 +639,6 @@ CONDITION_OVERRIDES.update({
     3023: (("counter", "barrows.chests_opened", 1, "Open a Barrows chest"),),
     3024: (("counter", "pyramid_plunder_runs_completed", 1, "Complete a Pyramid Plunder run"),),
     3025: (("counter", "sorceress_garden.successful_trips", 1, "Complete a Sorceress's Garden trip"),),
-    3026: (("counter", "mage_training_arena.entries", 1, "Enter the Mage Training Arena"),),
     3027: (("counter", "duel_arena_matches", 1, "Enter a Duel Arena match"),),
     3028: (("counter", "fist_of_guthix.matches_started", 1, "Enter a Fist of Guthix match"),),
     3029: (("counter", "stealing_creation.games", 1, "Enter a Stealing Creation game"),),

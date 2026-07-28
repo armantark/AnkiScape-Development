@@ -4,33 +4,20 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **owner-settled trek shape; breadth implementation source-audited, with
-registered placeholders for unrecovered server orchestration.**
+Status: **owner-settled trek shape (hybrid nodes); all period values remain
+harvest work.**
 
 ## Evidence position
 
-Darkan has no Temple Trekking activity controller (only quest references in
-`InAidOfTheMyreque.kt`), so route generation, event weights and token scoring
-still lean on pinned pre-cutoff wiki revisions. The rev-727 client record does
-close several data seams that the first audit missed:
-
-- `developer-information/enums.txt:51827-51834` — companion milestone structs;
-- `developer-information/enums.txt:51837-51936` — exact level 1-99 cumulative
-  companion XP curve, ending at 16,000 XP;
-- `developer-information/npcList.txt:14018-14069` — companion and ambush
-  identities/levels;
-- OpenRS2 cache 309 — corroborating item and NPC definitions.
-
-The breadth implementation uses that exact XP curve. Unrecovered event counts,
-combat pressure/stats, companion XP awards, event selection, campsite/swamp
-branches, token mapping/scoring and reward rolls are all registered in
-`memory-bank/placeholder-values.md`, not presented as canon.
+Darkan has no Temple Trekking implementation (only quest references in
+`InAidOfTheMyreque.kt`), so the contract leans on a pinned pre-cutoff wiki
+revision of the 2011-reworked activity plus dated-cache corroboration. Nothing
+below is source-closed yet.
 
 ## Owner-settled model (2026-07-18): hybrid nodes
 
-- A trek is a seeded short sequence of event nodes. Source audit supersedes the
-  earlier whole-trek route lock: the saved route is the next encounter choice,
-  frozen at each node boundary and retained in `route_history`.
+- A trek is a seeded short sequence of event nodes, generated at entry from
+  the chosen route tier and companion.
 - Non-combat obstacle events (bog, broken bridge, river, and the rest of the
   period event table) resolve as one review beat each with their source
   consequences.

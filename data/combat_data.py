@@ -35,7 +35,6 @@ from .troll_invasion_data import (
     TROLL_INVASION_COMBAT_TARGET_ID,
     troll_invasion_enemy_pure,
 )
-from .temple_trekking_data import temple_trekking_enemy_registry_as_dict
 from .stronghold_player_safety_data import (
     COCKROACH_SOLDIER_TARGET_ID,
     cockroach_soldier_enemy_as_dict,
@@ -13410,7 +13409,6 @@ COMBAT_ENEMY_DATA[TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID] = (
     tzhaar_fight_pit_enemy_pure()
 )
 COMBAT_ENEMY_DATA[CLAN_WARS_COMBAT_TARGET_ID] = clan_wars_enemy_pure()
-COMBAT_ENEMY_DATA.update(temple_trekking_enemy_registry_as_dict())
 COMBAT_ENEMY_DATA[CRUCIBLE_COMBAT_TARGET_ID] = crucible_enemy_pure()
 COMBAT_ENEMY_DATA[TROLL_INVASION_COMBAT_TARGET_ID] = troll_invasion_enemy_pure()
 # Must run after the goblin rows it inherits its offensive stats from.

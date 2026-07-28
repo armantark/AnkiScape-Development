@@ -428,10 +428,6 @@ from .runtime_actions_shared import (
 from .runtime_actions_context import (
     RuntimeActionContext,
 )
-from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
-from ..logic.mage_training_arena_logic import apply_mage_training_arena_review_pure
-from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
-from ..logic.temple_trekking_logic import apply_temple_trekking_review_pure
 
 
 STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
@@ -2631,103 +2627,6 @@ def handle_treasure_trail_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Treasure Trail step resolved"))
-    if result.get("terminal"):
-        ctx.deactivate_current_skill()
-    return True
-
-def handle_mage_training_arena_answer(
-    ctx: RuntimeActionContext,
-    *,
-    productive: bool = True,
-) -> bool:
-    updated, ok, result = apply_mage_training_arena_review_pure(
-        ctx.player_data,
-        ctx.random_random,
-        productive=productive,
-    )
-    if not ok:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Mage Training Arena unavailable",
-            str(result.get("reason", "Enter the Arena before training.")),
-        )
-        return False
-    ctx.player_data.clear()
-    ctx.player_data.update(updated)
-    magic_xp = float(result.get("magic_xp", 0.0) or 0.0)
-    if productive and result.get("checkpoint") is False:
-        record_cadence_wait_telemetry_pure(
-            ctx.player_data,
-            "utility",
-            MAGE_TRAINING_ARENA_ACTIVITY_ID,
-        )
-    elif result.get("advanced"):
-        _record_action(
-            ctx,
-            "utility",
-            MAGE_TRAINING_ARENA_ACTIVITY_ID,
-            not result.get("died"),
-            expected_success_chance=1.0,
-            failure_kind="safe_death" if result.get("died") else None,
-            primary_xp=magic_xp,
-        )
-    if magic_xp:
-        _refresh_combat_levels(ctx, {"magic_exp": magic_xp})
-        ctx.show_exp(magic_xp)
-    ctx.check_achievements(ctx.player_data)
-    ctx.save_player_data()
-    ctx.refresh_skill_availability()
-    ctx.show_activity_gain(str(result.get("message") or "Arena checkpoint resolved"))
-    if result.get("terminal"):
-        ctx.deactivate_current_skill()
-    return True
-
-def handle_temple_trekking_answer(
-    ctx: RuntimeActionContext,
-    *,
-    productive: bool = True,
-) -> bool:
-    updated, ok, result = apply_temple_trekking_review_pure(
-        ctx.player_data,
-        ctx.random_random,
-        equipment_data=EQUIPMENT_DATA,
-        productive=productive,
-    )
-    if not ok:
-        ctx.show_error_message(
-            "Temple Trekking unavailable",
-            str(result.get("reason", "Start or resume a trek before training.")),
-        )
-        return False
-    if not productive and not result.get("advanced"):
-        return True
-    ctx.player_data.clear()
-    ctx.player_data.update(updated)
-    combat = dict(result.get("combat") or {})
-    xp_rewards = dict(combat.get("xp_rewards") or {})
-    if result.get("advanced"):
-        player_died = bool(result.get("player_died") or combat.get("died"))
-        companion_died = bool(result.get("companion_died"))
-        outputs = (
-            {str(result["token_item"]): 1}
-            if result.get("completed") and result.get("token_item")
-            else None
-        )
-        _record_action(
-            ctx,
-            "utility",
-            TEMPLE_TREKKING_ACTIVITY_ID,
-            not player_died and not companion_died,
-            expected_success_chance=1.0,
-            failure_kind="dangerous_death" if player_died else "escort_failure" if companion_died else None,
-            output_items=outputs,
-            primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
-        )
-    _refresh_combat_levels(ctx, xp_rewards)
-    ctx.check_achievements(ctx.player_data)
-    ctx.save_player_data()
-    ctx.refresh_skill_availability()
-    ctx.show_activity_gain(str(result.get("message") or "Temple Trekking event resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
