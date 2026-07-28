@@ -654,7 +654,7 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertEqual(player["agility_effect_charges"]["surefooted_reviews"], 332)
         self.assertEqual(player["agility_effect_charges"]["surefooted_cooldown_reviews"], 1999)
 
-    def test_skillcape_boost_is_passive_only_while_equipped(self):
+    def test_skillcape_boost_has_full_uptime_only_while_equipped(self):
         player = {
             **default_agility_state_pure(),
             "agility_level": 99,

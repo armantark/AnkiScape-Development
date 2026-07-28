@@ -295,8 +295,8 @@ class EffectiveLevelTest(unittest.TestCase):
         self.assertEqual(len(changed), 33)
         self.assertIn("catch_crimson_swift", changed)
 
-    def test_the_boost_is_passive_and_needs_no_activation(self):
-        """The shipped Agility cape used to need a ten-action activation."""
+    def test_the_operate_boost_has_full_uptime_and_needs_no_activation(self):
+        """The real-time operate boost is abstracted to full uptime while worn."""
 
         player = _player(agility_level=SKILLCAPE_LEVEL)
         player["inventory"] = {"Coins": SKILLCAPE_PRICE}
