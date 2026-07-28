@@ -526,6 +526,7 @@ from ..logic.agility_logic import (
     agility_effective_level_pure,
     agility_aura_rows_pure,
     agility_panel_activity_view_pure,
+    agility_safety_option_view_pure,
     agility_status_line_pure,
     agility_target_locked_reasons_pure,
 )
@@ -6033,6 +6034,28 @@ def show_main_menu(
         status.setWordWrap(True)
         status.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(status)
+
+        safety_view = agility_safety_option_view_pure(player_data)
+        danger_auto_stop = QCheckBox(str(safety_view["label"]))
+        danger_auto_stop.setObjectName("activityDangerAutoStopCheckBox")
+        danger_auto_stop.setChecked(bool(safety_view["checked"]))
+        danger_auto_stop.setToolTip(str(safety_view["tooltip"]))
+        danger_auto_stop.setVisible(bool(safety_view["visible"]))
+
+        def _set_danger_auto_stop(enabled: bool) -> None:
+            if on_agility_command is None:
+                return
+            result = on_agility_command(
+                "set_activity_auto_stop",
+                {"enabled": bool(enabled)},
+            ) or {}
+            if not result.get("ok", result.get("allowed", False)):
+                danger_auto_stop.blockSignals(True)
+                danger_auto_stop.setChecked(not enabled)
+                danger_auto_stop.blockSignals(False)
+
+        danger_auto_stop.toggled.connect(_set_danger_auto_stop)
+        layout.addWidget(danger_auto_stop)
 
         pit_auto_accept = QCheckBox(
             "Automatically accept Talent Scout invitations"

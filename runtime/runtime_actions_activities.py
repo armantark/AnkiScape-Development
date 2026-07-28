@@ -169,6 +169,7 @@ from ..data.urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
 from ..data.thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS
 from ..data.agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET
 from ..logic.agility_logic import (
+    agility_maximum_failure_damage_pure,
     agility_target_locked_reasons_pure,
     apply_agility_command_pure,
     apply_agility_review_pure,
@@ -2488,6 +2489,7 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data.update(updated)
 
     damage = int(result.get("damage", 0) or 0)
+    safety_stop_message = ""
     if damage > 0:
         wilderness_ambush = bool((result.get("wilderness_ambush") or {}).get("triggered"))
         deferred_pit_accept = bool(
@@ -2551,6 +2553,21 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
                 death_status = "Wilderness PKer ambush · died before the lap reward"
                 player_data["agility_status"] = death_status
                 result["status"] = death_status
+        elif (
+            not result.get("success")
+            and player_data.get("activity_auto_stop_on_danger", True)
+        ):
+            maximum_failure_damage = agility_maximum_failure_damage_pure(
+                player_data, target_id
+            )
+            lifepoints = int(player_data.get("combat_lifepoints", 0) or 0)
+            if maximum_failure_damage > 0 and lifepoints <= maximum_failure_damage:
+                ctx.deactivate_current_skill()
+                safety_stop_message = (
+                    f"Safety stop — {lifepoints} LP left; "
+                    f"{AGILITY_TARGETS_BY_ID[target_id].display_name} can hit "
+                    f"up to {maximum_failure_damage} LP on a failure"
+                )
 
     outputs = {
         str(item): int(quantity)
@@ -2602,6 +2619,8 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     elif damage_result.get("food_used"):
         food = damage_result["food_used"]
         ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")
+    if safety_stop_message:
+        ctx.show_activity_gain(safety_stop_message)
     return True
 
 def handle_treasure_trail_answer(ctx: RuntimeActionContext) -> bool:

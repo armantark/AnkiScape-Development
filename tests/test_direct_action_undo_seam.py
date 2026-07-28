@@ -109,6 +109,27 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         )
         self.assertEqual(len(self.saves), 1, "a committed change must persist")
 
+    def test_activity_danger_toggle_commits_and_restores_through_the_seam(self):
+        from ankiscape.logic.agility_logic import apply_agility_command_pure
+
+        addon = self.addon
+        self.assertTrue(addon.player_data["activity_auto_stop_on_danger"])
+
+        def disable(current):
+            updated, result = apply_agility_command_pure(
+                current,
+                "set_activity_auto_stop",
+                {"enabled": False},
+            )
+            return updated, bool(result.get("allowed"))
+
+        committed = self.commit(disable)
+
+        self.assertTrue(committed)
+        self.assertFalse(addon.player_data["activity_auto_stop_on_danger"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertTrue(addon.player_data["activity_auto_stop_on_danger"])
+
     def test_a_refused_change_writes_nothing_and_restores_the_rng(self):
         addon = self.addon
 

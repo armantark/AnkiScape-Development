@@ -1935,6 +1935,20 @@ class MainMenuWidgetTest(unittest.TestCase):
                 ],
                 [],
             )
+            danger_auto_stop = dialog.findChild(
+                QCheckBox, "activityDangerAutoStopCheckBox"
+            )
+            self.assertIsNotNone(danger_auto_stop)
+            self.assertTrue(danger_auto_stop.isChecked())
+            self.assertIn("AnkiScape safety option", danger_auto_stop.toolTip())
+            danger_auto_stop.click()
+            QApplication.processEvents()
+            self.assertEqual(
+                self._agility_command_calls[-1],
+                ("set_activity_auto_stop", {"enabled": False}),
+            )
+            self.assertFalse(player_data["activity_auto_stop_on_danger"])
+
             auto_accept = dialog.findChild(
                 QCheckBox, "agilityPitAutoAcceptCheckBox"
             )

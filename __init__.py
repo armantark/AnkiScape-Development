@@ -1670,6 +1670,28 @@ def _on_main_menu(
         return True
 
     def _apply_agility_command(action_id, payload):
+        if action_id == "set_activity_auto_stop":
+            outcome = {}
+
+            def _apply_safety_toggle(current):
+                updated, result = apply_agility_command_pure(
+                    current, action_id, payload, roll=0.5
+                )
+                outcome.update(result)
+                return updated, bool(result.get("allowed"))
+
+            committed = commit_direct_action(
+                _apply_safety_toggle,
+                after_apply=_refresh_skill_availability,
+            )
+            if committed:
+                try:
+                    update_review_hud(player_data, current_skill)
+                except AttributeError:
+                    pass
+                _update_review_context_surface()
+            return {"ok": committed, **outcome}
+
         before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
         pit_reward = (player_data.get("agility_activity_state") or {}).get("pit_reward")
         roll = random.random() if action_id == "gamble_pit_reward" and pit_reward else 0.5

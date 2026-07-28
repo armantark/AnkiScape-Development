@@ -138,6 +138,7 @@ def default_agility_state_pure() -> dict[str, Any]:
         "agility_pit_offer": False,
         "agility_pit_origin_course": "",
         "agility_pit_auto_accept": True,
+        "activity_auto_stop_on_danger": True,
         "agility_pit_successes": 0,
         "agility_activity_completions": {},
         "agility_toy_mouse_pending": False,
@@ -259,6 +260,9 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
     )
     source["agility_pit_auto_accept"] = bool(
         source.get("agility_pit_auto_accept", True)
+    )
+    source["activity_auto_stop_on_danger"] = bool(
+        source.get("activity_auto_stop_on_danger", True)
     )
     source["agility_pit_successes"] = _int(source.get("agility_pit_successes"))
     source["agility_toy_mouse_pending"] = bool(source.get("agility_toy_mouse_pending", False))
@@ -393,6 +397,44 @@ def _failure_damage(stage: AgilityStage, target_id: str, current_lp: int) -> int
     if stage.fail_profile == "wilderness_stones":
         return max(1, int(math.floor(max(1, current_lp) * .266)))
     return int(_clamp(math.floor(max(1, current_lp) / 10), 10, 100))
+
+
+def agility_maximum_failure_damage_pure(
+    player_data: Mapping[str, Any],
+    target_id: str | None = None,
+) -> int:
+    """Return the selected target's largest possible next obstacle hit."""
+    data = sanitize_agility_state_pure(player_data)
+    selected = str(target_id or data["current_agility"])
+    if selected == "brimhaven_arena":
+        return 60
+    target = AGILITY_TARGETS_BY_ID.get(selected)
+    if target is None:
+        return 0
+    current_lp = _int(
+        data.get("combat_lifepoints"), 1000, minimum=1, maximum=10000
+    )
+    return max(
+        (
+            _failure_damage(stage, selected, current_lp)
+            for stage in target.stages
+            if stage.can_fail
+        ),
+        default=0,
+    )
+
+
+def agility_safety_option_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    data = sanitize_agility_state_pure(player_data)
+    return {
+        "visible": True,
+        "checked": bool(data["activity_auto_stop_on_danger"]),
+        "label": "Stop before the next failure could kill me",
+        "tooltip": (
+            "AnkiScape safety option: after a damaging failure, stop training when "
+            "the selected target's maximum failure hit could kill you next."
+        ),
+    }
 
 
 def _active_familiar_pure(data: Mapping[str, Any]) -> bool:
@@ -943,6 +985,15 @@ def apply_agility_command_pure(
                 "gamble" if action_id == "gamble_pit_reward" else "take_xp",
             )
         return data, {"allowed": True, "xp": xp, "multiplier": multiplier, "message": f"Claimed {xp:g} Agility XP"}
+    if action_id == "set_activity_auto_stop":
+        data = sanitize_agility_state_pure(copy.deepcopy(player_data))
+        # This is a disclosed AnkiScape safety abstraction, not period content.
+        data["activity_auto_stop_on_danger"] = bool(body.get("enabled", True))
+        state = "enabled" if data["activity_auto_stop_on_danger"] else "disabled"
+        return data, {
+            "allowed": True,
+            "message": f"Activity danger auto-stop {state}",
+        }
     if action_id == "set_pit_auto_accept":
         data = sanitize_agility_state_pure(copy.deepcopy(player_data))
         data["agility_pit_auto_accept"] = bool(body.get("enabled", True))

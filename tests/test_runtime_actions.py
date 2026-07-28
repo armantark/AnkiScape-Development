@@ -1347,6 +1347,55 @@ class TestRuntimeActions(unittest.TestCase):
         )
         self.assertEqual(player_data["inventory"]["Shark"], 1)
 
+    def test_agility_danger_auto_stop_uses_target_maximum_and_toggle_disables_it(self):
+        def brimhaven_player(enabled):
+            player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+            player.update({
+                "current_agility": "brimhaven_arena",
+                "agility_level": 99,
+                "combat_lifepoints": 70,
+                "inventory": {},
+                "equipment": {},
+                "activity_auto_stop_on_danger": enabled,
+                "agility_activity_state": {
+                    "brimhaven": {
+                        "stint_active": True,
+                        "activated": True,
+                        "needs_chase": False,
+                        "crossings_remaining": 1,
+                        "attempts_remaining": 8,
+                        "obstacle_id": "low_wall",
+                        "obstacle_label": "Low wall",
+                        "obstacle_xp": 8.0,
+                        "obstacle_fail": 1.0,
+                        "temporary_drain": 0,
+                    }
+                },
+            })
+            return player
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        protected = brimhaven_player(True)
+        self.assertTrue(
+            handle_agility_answer(
+                _context(protected, calls, random_values=(0.0, 0.0, 0.0, 0.0))
+            )
+        )
+        self.assertEqual(protected["combat_lifepoints"], 50)
+        self.assertTrue(calls["deactivated"])
+        self.assertTrue(any("Safety stop" in text and "60 LP" in text for text in calls["activity"]))
+
+        disabled_calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        unprotected = brimhaven_player(False)
+        self.assertTrue(
+            handle_agility_answer(
+                _context(unprotected, disabled_calls, random_values=(0.0, 0.0, 0.0, 0.0))
+            )
+        )
+        self.assertEqual(unprotected["combat_lifepoints"], 50)
+        self.assertNotIn("deactivated", disabled_calls)
+        self.assertFalse(any("Safety stop" in text for text in disabled_calls["activity"]))
+
     def test_agility_auto_pack_carries_food_and_auto_eats_from_that_pack(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
