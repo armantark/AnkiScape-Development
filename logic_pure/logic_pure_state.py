@@ -69,6 +69,11 @@ COMBAT_BANK_RUN_REVIEWS = 2
 
 
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
+# An AnkiScape safety abstraction, not a period mechanic: below this share of
+# maximum lifepoints with nothing left to eat and nothing bankable to fetch, the
+# next burst is refused and the player is asked whether to leave. The period had
+# no such prompt; it also had a human watching the health bar in real time.
+COMBAT_NEAR_DEATH_PERCENT = 20
 
 
 # `sendPVPItemsOnDeath` keeps three items on an unskulled death. AnkiScape has no

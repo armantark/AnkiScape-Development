@@ -55,6 +55,7 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
 )
 from ..logic_pure.logic_pure import (
+    combat_near_death_without_food_pure,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
@@ -436,6 +437,21 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             "Combat has been switched off. Reopen AnkiScape, review the current "
             "kept/lost equipment preview, and confirm this Wilderness target.",
         )
+        return False
+
+    if combat_near_death_without_food_pure(player_data):
+        # Nothing to eat and nothing to fetch: the next exchange can end the run,
+        # so refuse the review rather than resolve it. The bank-run path already
+        # covers the recoverable case where the bank still holds food.
+        ctx.deactivate_current_skill()
+        if callable(ctx.prompt_near_death):
+            ctx.prompt_near_death("combat")
+        else:
+            ctx.show_error_message(
+                "You are about to die",
+                "Lifepoints are critical and you have no food left, in the pack "
+                "or the bank. Combat has been switched off.",
+            )
         return False
 
     locked_reasons = combat_target_locked_reasons_pure(

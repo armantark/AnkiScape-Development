@@ -32,4 +32,8 @@ class RuntimeActionContext:
     # Fired once when the Stronghold of Security is finished, so the UI can pop
     # the boot-choice reward dialog. Optional so older call sites keep working.
     prompt_stronghold_reward: Optional[Callable[[], None]] = None
+    # Fired when a review is refused because the player is near death with no
+    # food and nothing bankable to fetch. The UI asks whether to leave; the
+    # handler has already stopped the review either way.
+    prompt_near_death: Optional[Callable[[str], None]] = None
     switch_to_bankstanding: Optional[Callable[[], None]] = None

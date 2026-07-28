@@ -300,6 +300,7 @@ from .logic_pure_state import (
     _positive_int,
     _sanitize_combat_bank_run,
     _sanitize_combat_supply_loadout,
+    COMBAT_NEAR_DEATH_PERCENT,
 )
 
 
@@ -722,6 +723,27 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
     # The same bank trip deposits accumulated loot (owner: loot banks alongside
     # supply depletion).
     _combat_deposit_loot(data, target_id)
+
+
+def combat_near_death_without_food_pure(data, max_lifepoints=None):
+    """Report whether the next burst would be fought at near-death with no food.
+
+    Distinct from the bank-run trigger above, which fires when the pack is empty
+    but the bank still holds food — that case fixes itself. This one is the dead
+    end: nothing loaded, nothing to fetch, and lifepoints already low enough that
+    one more exchange can end the run.
+    """
+
+    if max_lifepoints is None:
+        max_lifepoints = combat_max_lifepoints_pure(data)
+    max_lifepoints = max(1, _non_negative_int(max_lifepoints, 1))
+    current = _non_negative_int(data.get("combat_lifepoints", max_lifepoints), max_lifepoints)
+    threshold = max(1, int(max_lifepoints * COMBAT_NEAR_DEATH_PERCENT / 100.0))
+    if current > threshold:
+        return False
+    if _combat_loaded_food_count(data) > 0:
+        return False
+    return _combat_banked_auto_food_count(data) <= 0
 
 
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):

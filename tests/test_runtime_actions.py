@@ -2443,6 +2443,57 @@ class TestRuntimeActions(unittest.TestCase):
             ["Vampyre: 0 damage dealt, 320 LP left, 20 LP healed by 1 bite"],
         )
 
+    def test_a_near_death_review_with_no_food_anywhere_is_refused(self):
+        """The owner's report: dying mid-activity with no warning. A review that
+        would begin below the near-death line with nothing to eat and nothing
+        bankable is refused outright rather than resolved."""
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "cow",
+            "combat_lifepoints": 15,   # 15% of 100
+            "combat_auto_eat_food": [],
+            "attack_level": 10,
+            "strength_level": 10,
+            "defense_level": 10,
+            "constitution_level": 10,
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "deactivated": []}
+        prompted = []
+        ctx = _context(player_data, calls)
+        ctx.prompt_near_death = lambda source: prompted.append(source)
+
+        ok = handle_combat_answer(ctx)
+
+        self.assertFalse(ok, "the review must not resolve")
+        self.assertEqual(prompted, ["combat"], "the player must be asked")
+        self.assertNotIn("combat_last_result", player_data)
+
+    def test_near_death_with_food_in_the_bank_is_not_refused(self):
+        """The recoverable case belongs to the bank run, not the prompt: with
+        food still in the bank the engine fetches it instead of stopping."""
+        player_data = {
+            "inventory": {"Shark": 6},
+            "equipment": {},
+            "current_combat_target": "cow",
+            "combat_lifepoints": 15,
+            "combat_auto_eat_food": ["Shark"],
+            "attack_level": 10,
+            "strength_level": 10,
+            "defense_level": 10,
+            "constitution_level": 10,
+            "completed_achievements": [],
+        }
+        prompted = []
+        ctx = _context(player_data, {"xp": [], "saves": 0, "errors": []})
+        ctx.prompt_near_death = lambda source: prompted.append(source)
+
+        handle_combat_answer(ctx)
+
+        self.assertEqual(prompted, [], "a fetchable bank must not raise the prompt")
+
+
     def test_fatal_combat_burst_graves_loot_earned_before_death(self):
         enemy = {
             "display_name": "Fatal looter",
@@ -2459,7 +2510,10 @@ class TestRuntimeActions(unittest.TestCase):
             "equipment": {},
             "current_combat_target": "fatal_looter",
             "combat_attack_style": "accurate",
-            "combat_lifepoints": 1,
+            # Starts above the near-death guard (20% of 100 max LP) so the burst
+            # is allowed to run; the level-99 attacker then kills outright. The
+            # guard refuses reviews that begin below the line, not deaths.
+            "combat_lifepoints": 100,
             "combat_auto_flee": False,
             "combat_auto_eat_food": [],
             "attack_level": 99,

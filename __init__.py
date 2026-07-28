@@ -882,6 +882,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         cadence_shadow_enabled=False,
         cadence_live_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
+        prompt_near_death=_prompt_near_death,
     )
 
 
@@ -3986,6 +3987,51 @@ def _claim_stronghold_reward() -> bool:
     except Exception:
         pass
     return True
+
+
+def _prompt_near_death(source: str) -> None:
+    """Ask whether to leave when a review is refused for near-death with no food.
+
+    Deferred to the event loop for the same reason the Stronghold prompt is: the
+    modal must not open inside Anki's answer-card processing. The handler has
+    already switched training off, so declining simply leaves the player parked
+    where they are.
+    """
+
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None  # type: ignore
+
+    def _ask() -> None:
+        try:
+            from aqt.qt import QMessageBox  # type: ignore
+        except Exception:
+            return
+        label = "the activity" if source != "combat" else "combat"
+        answer = QMessageBox.question(
+            mw,
+            "You are about to die",
+            f"Lifepoints are critical and there is no food left in your pack or "
+            f"your bank.\n\n{label.capitalize()} has been switched off so the "
+            f"next review cannot kill you. Walk away from the fight as well?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        # Yes also walks away from the open encounter, so the next session does
+        # not resume standing in front of the thing that nearly killed you.
+        # Training is already off either way; declining just keeps the fight
+        # pending.
+        player_data["combat_encounter"] = {}
+        _save_player_data_if_anki_ready()
+        _refresh_skill_availability()
+
+    if QTimer is not None:
+        QTimer.singleShot(0, _ask)
+    else:
+        _ask()
 
 
 def _prompt_stronghold_reward() -> None:

@@ -369,6 +369,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_combat_supplies import (  # noqa: F401  (re-export)
+    combat_near_death_without_food_pure,
     _combat_advance_dragonfire_effects,
     _combat_advance_status_effects,
     _combat_apply_poison_effect_to_data,
