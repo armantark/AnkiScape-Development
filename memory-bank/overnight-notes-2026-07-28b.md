@@ -147,6 +147,18 @@ Dungeoneering and family-fix workflows keep sole ownership of the canonical
 checkout. Merge is rebase-based after the main-branch workflows land, per the
 family-merges convention.
 
+## Quota boundary, 2026-07-29
+
+Codex crossed its daily share (22/13) mid-evening; the phase C implementer
+died twice on OpenAI API errors at that boundary with a clean tree. Phase C
+is parked in `~/.local/state/quota-guard/parked.md` for the next codex block
+rather than rerouted — Claude sits at its own day line and is reserved for
+orchestration and close-out, Kimi is over. The in-flight Conquest workflow
+predates the breach and runs to completion; nothing new goes to codex today.
+Dungeoneering A/B1/B2 are merged and green, so the skill trains and floors
+run; phase C is trader/kinship/assets polish on top, not a blocker to the
+family being mechanic-complete at its shipped depth.
+
 ## Done this session
 
 - Dungeoneering shipped to A/B1/B2 (`0ac64a57`): 25th trainable skill, 120
