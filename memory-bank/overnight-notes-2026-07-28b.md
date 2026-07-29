@@ -130,6 +130,23 @@ unverified phase. Phase C (kinship tiers, reward trader with the functional
 Coal bag, period assets) is deliberately held until the art workflow's apply
 stage releases `assets_provenance.json` — one writer per file.
 
+## Pass 4 arrived (owner, evening)
+
+Notes: `~/Downloads/ankiscape notes.rtfd`. Nine directives recorded as
+design-thread section 4.13 (commit `512ad5bf`). Highlights: the merged
+D&D-Farming badge is overruled back to two badges left of the XP bar; a
+review-counted event-log drawer; right-click D&D favouriting; Treasure Trails
+start moves to a Bank right-click; the Arachnophagia achievement fired on a
+mackerel cook (screenshot-confirmed — the gnome-cooking predicate is wrong);
+plus overlay-over-footnotes, equipment points display, missing cooking
+options, and lag investigations.
+
+Implementation runs as workflow `wf_ab318b58-eae` inside the guarded worktree
+`ankiscape_worktrees/pass4-fixes` (branch `pass4/fixes`) so the concurrent
+Dungeoneering and family-fix workflows keep sole ownership of the canonical
+checkout. Merge is rebase-based after the main-branch workflows land, per the
+family-merges convention.
+
 ## Done this session
 
 - Tranche board refresh (`90ff8fe8`).
