@@ -578,6 +578,7 @@ CONDITION_OVERRIDES = {
     566: (("ledger_action", "herblore:clean_guam", 1, "Clean guam"),),
     567: (("ledger_action", "herblore:finished_attack_potion", 1, "Brew an attack potion"),),
     574: (("ledger_action", "agility:burthorpe_course", 1, "Complete the Burthorpe Agility Course"),),
+    197: (("ledger_action", "cooking:cook_spider_on_a_stick", 1, "Cook a spider on a stick"),),
     580: (("counter", "house_owned", 1, "Own a player house"),),
     582: (("ledger_action", "construction:crude_wooden_chair", 1, "Build a crude wooden chair"),),
     570: (("ledger_action", "runecrafting:craft_mind_runes", 1, "Craft mind runes"),),

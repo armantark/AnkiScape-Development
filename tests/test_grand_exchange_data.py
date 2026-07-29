@@ -190,6 +190,9 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Worm batta",
                 "Worm crunchies",
                 "Worm hole",
+                # 2011Scape items.yml marks item 6305 tradeable, but the pinned
+                # period buy-limit table has no Skewer stick row.
+                "Skewer stick",
                 # The Arena wand revisions establish tradeability, but the
                 # pinned period buy-limit table has no row for any of the four.
                 "Apprentice wand",

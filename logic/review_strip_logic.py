@@ -4,7 +4,7 @@ Design-thread section 4.8 settles the rule: the strip shows only what is live
 right now. Every enable and visibility decision therefore lives in this module,
 and ``ui.py`` renders the result without deciding anything.
 
-Three tenants sit under the review card:
+The cluster below or beside the review card contains:
 
 * the running target's real experience bars. A shooting star trains Mining and an
   Evil Tree trains Woodcutting, so those are the bars the strip must show; the
@@ -12,8 +12,9 @@ Three tenants sit under the review card:
   that produced this contract.
 * the Grand Exchange fills drawer, whose own view lives with the Grand Exchange
   state in ``grand_exchange_logic``.
-* the persistent Distractions-and-Farming badge, the one seat the live-only rule
-  exempts, because it is the notification system rather than a status readout.
+* separate persistent Distractions and Farming badges, each with its own popover.
+* the retained event-log drawer for floating XP, achievements, and activity
+  results that disappear before the player can read them.
 """
 from __future__ import annotations
 
@@ -67,6 +68,177 @@ WORLD_EVENT_OUTCOME_REVIEWS = 10
 # becoming the stacked rectangle section 4.8 exists to prevent; an activity that
 # trains more names the rest in its caption instead.
 MAX_STRIP_XP_BARS = 2
+
+# The event drawer opens on the ten newest floating notifications and expands in
+# ten-row pages without discarding older emissions.
+REVIEW_EVENT_LOG_DEFAULT_LIMIT = 10
+REVIEW_EVENT_LOG_PAGE_SIZE = 10
+
+
+def _answered_reviews_pure(player_data: Mapping[str, Any]) -> int:
+    clock = player_data.get("shop_market_clock")
+    if not isinstance(clock, Mapping):
+        return 0
+    try:
+        return max(0, int(clock.get("answered_cards", 0) or 0))
+    except (TypeError, ValueError, OverflowError):
+        return 0
+
+
+def sanitize_review_event_log_pure(value: Any) -> list[dict[str, Any]]:
+    """Normalize the retained floating-notification history, oldest first."""
+
+    if not isinstance(value, (list, tuple)):
+        return []
+    rows: list[dict[str, Any]] = []
+    for raw in value:
+        if not isinstance(raw, Mapping):
+            continue
+        text = str(raw.get("text", "") or "").strip()
+        if not text:
+            continue
+        try:
+            review = max(0, int(raw.get("review", 0) or 0))
+        except (TypeError, ValueError, OverflowError):
+            review = 0
+        kind = str(raw.get("kind", "activity") or "activity")[:32]
+        rows.append({"review": review, "kind": kind, "text": text[:500]})
+    return rows
+
+
+def record_review_event_pure(
+    player_data: Mapping[str, Any], kind: str, text: str
+) -> dict[str, Any]:
+    """Append one emitted floating notification through the shared save seam."""
+
+    message = str(text or "").strip()
+    if not message:
+        return dict(player_data)
+    updated = dict(player_data)
+    rows = sanitize_review_event_log_pure(player_data.get("review_event_log"))
+    rows.append({
+        "review": _answered_reviews_pure(player_data),
+        "kind": str(kind or "activity")[:32],
+        "text": message[:500],
+    })
+    updated["review_event_log"] = rows
+    return updated
+
+
+def review_event_log_drawer_view_pure(
+    player_data: Mapping[str, Any],
+    *,
+    visible_limit: int = REVIEW_EVENT_LOG_DEFAULT_LIMIT,
+    expanded: bool = False,
+) -> dict[str, Any]:
+    """Projection for the collapsed notification drawer, newest first."""
+
+    rows = sanitize_review_event_log_pure(player_data.get("review_event_log"))
+    try:
+        limit = max(
+            REVIEW_EVENT_LOG_DEFAULT_LIMIT,
+            int(visible_limit or REVIEW_EVENT_LOG_DEFAULT_LIMIT),
+        )
+    except (TypeError, ValueError, OverflowError):
+        limit = REVIEW_EVENT_LOG_DEFAULT_LIMIT
+    now = _answered_reviews_pure(player_data)
+    visible_rows = []
+    for entry in reversed(rows[-limit:]):
+        reviews_ago = max(0, now - int(entry["review"]))
+        unit = "review" if reviews_ago == 1 else "reviews"
+        visible_rows.append({
+            **entry,
+            "label": f"{reviews_ago} {unit} ago · {entry['text']}",
+        })
+    remaining = max(0, len(rows) - len(visible_rows))
+    next_count = min(REVIEW_EVENT_LOG_PAGE_SIZE, remaining)
+    return {
+        "visible": bool(rows),
+        "title": f"Event log ({len(rows)})",
+        "rows": tuple(visible_rows),
+        "rows_visible": bool(expanded),
+        "show_more_visible": bool(expanded and remaining),
+        "show_more_enabled": remaining > 0,
+        "show_more_text": f"Show {next_count} more" if next_count else "",
+        "next_limit": limit + next_count,
+        "retained_count": len(rows),
+    }
+
+
+def review_overlay_layout_view_pure(
+    *,
+    parent_size: tuple[int, int],
+    content_rect: tuple[int, int, int, int] | None,
+    cluster_size: tuple[int, int],
+    margin: int = 8,
+    gap: int = 20,
+) -> dict[str, Any]:
+    """Choose a card-safe dock for the complete reviewer-overlay cluster.
+
+    The card viewport owns its rectangle. The cluster first tries the space below
+    it, then either side, then above. If no outside rectangle can hold the compact
+    cluster, the pure projection hides it instead of letting UI heuristics cover
+    card material.
+    """
+
+    parent_w = max(0, int(parent_size[0]))
+    parent_h = max(0, int(parent_size[1]))
+    cluster_w = max(0, int(cluster_size[0]))
+    cluster_h = max(0, int(cluster_size[1]))
+    if cluster_w <= 0 or cluster_h <= 0:
+        return {"visible": False, "x": margin, "y": margin, "dock": "none"}
+    if content_rect is None:
+        return {
+            "visible": cluster_w <= parent_w - 2 * margin and cluster_h <= parent_h - 2 * margin,
+            "x": max(margin, (parent_w - cluster_w) // 2),
+            "y": max(margin, parent_h - cluster_h - 72),
+            "dock": "review-bottom",
+        }
+
+    cx, cy, cw, ch = (int(value) for value in content_rect)
+    content_left = max(0, cx)
+    content_top = max(0, cy)
+    content_right = min(parent_w, cx + max(0, cw))
+    content_bottom = min(parent_h, cy + max(0, ch))
+    candidates = (
+        (
+            "below",
+            margin,
+            content_bottom + gap,
+            parent_w - 2 * margin,
+            parent_h - content_bottom - gap - margin,
+        ),
+        (
+            "right",
+            content_right + gap,
+            margin,
+            parent_w - content_right - gap - margin,
+            parent_h - 2 * margin,
+        ),
+        (
+            "left",
+            margin,
+            margin,
+            content_left - gap - margin,
+            parent_h - 2 * margin,
+        ),
+        (
+            "above",
+            margin,
+            margin,
+            parent_w - 2 * margin,
+            content_top - gap - margin,
+        ),
+    )
+    for dock, zx, zy, zw, zh in candidates:
+        if cluster_w <= max(0, zw) and cluster_h <= max(0, zh):
+            return {
+                "visible": True,
+                "x": zx + max(0, (zw - cluster_w) // 2),
+                "y": zy + max(0, (zh - cluster_h) // 2),
+                "dock": dock,
+            }
+    return {"visible": False, "x": margin, "y": margin, "dock": "none"}
 
 
 def _has_usable_hatchet(player_data: Mapping[str, Any]) -> bool:
@@ -338,15 +510,13 @@ def _quiet_favourite_status_pure(row: Any) -> str:
     return "Ready — nothing live"
 
 
-def review_status_badge_view_pure(
+def review_status_badges_view_pure(
     player_data: Mapping[str, Any]
-) -> dict[str, Any]:
-    """The persistent left-hand badge: live Distractions, watched ones, Farming.
+) -> dict[str, dict[str, Any]]:
+    """Separate persistent D&D and Farming badge projections.
 
-    Section 4.8 gives this badge the strip's only permanent seat, so unlike the
-    experience bars it renders even when every line is quiet. ``count`` counts
-    only the lines that are live or need an answer, which is what the player
-    reads at a glance.
+    Pass 4 overrules the merged seat. Both badges remain to the left of the XP
+    area, but each owns only its own rows, count, tooltip and navigation surface.
     """
 
     favourites = sanitize_dnd_favourites_pure(player_data.get("dnd_favourites"))
@@ -359,8 +529,6 @@ def review_status_badge_view_pure(
         for activity_id in favourites
         if activity_id not in live_by_id
     ]
-    # Walking every activity's requirements is only worth it when a quiet
-    # favourite actually needs a status line, which for most saves is never.
     rows_by_id: dict[str, Any] = (
         {
             row.target_id: row
@@ -377,10 +545,9 @@ def review_status_badge_view_pure(
         else {}
     )
 
-    rows: list[dict[str, Any]] = []
+    distraction_rows: list[dict[str, Any]] = []
     for activity_id, text in live_rows:
-        rows.append({
-            "kind": "distraction",
+        distraction_rows.append({
             "activity_id": activity_id,
             "name": dnd_activity_display_name_pure(activity_id),
             "status": text,
@@ -388,39 +555,64 @@ def review_status_badge_view_pure(
             "favourite": activity_id in favourites,
         })
     for activity_id in quiet_favourites:
-        rows.append({
-            "kind": "distraction",
+        distraction_rows.append({
             "activity_id": activity_id,
             "name": dnd_activity_display_name_pure(activity_id),
             "status": _quiet_favourite_status_pure(rows_by_id.get(activity_id)),
             "live": False,
             "favourite": True,
         })
+    distraction_count = sum(1 for row in distraction_rows if row["live"])
+    distraction_tooltip = "\n".join(
+        f"{row['name']} · {row['status']}" for row in distraction_rows
+    ) or "Nothing live. Pin a Distraction to watch it here."
 
     farming = farming_frontend_projection_pure(player_data)
+    farming_rows: list[dict[str, Any]] = []
     for crop_row in farming.get("compact_rows", ()):
-        rows.append({
-            "kind": "farming",
+        farming_rows.append({
             "patch_id": str(crop_row["patch_id"]),
             "name": str(crop_row["crop_name"]),
             "status": f"{crop_row['status_label']} · {crop_row['patch_name']}",
             "live": str(crop_row["status"]) in {"ready", "diseased", "dead"},
-            "favourite": False,
         })
-
     hud = farming.get("hud", farming)
     queued = int(hud.get("queue_count", hud.get("queued_count", 0)) or 0)
-    live_count = sum(1 for row in rows if row["live"])
-    tooltip_lines = [f"{row['name']} · {row['status']}" for row in rows]
+    farming_count = sum(1 for row in farming_rows if row["live"])
+    farming_tooltip_lines = [
+        f"{row['name']} · {row['status']}" for row in farming_rows
+    ]
     if queued:
-        tooltip_lines.append(f"{queued} Farming steps queued")
+        farming_tooltip_lines.append(f"{queued} Farming steps queued")
+
     return {
-        "rows": tuple(rows),
-        "count": live_count,
-        # A diseased or dead crop is the one line that needs the player rather
-        # than merely informing them, so it keeps the old badge's "!" form.
-        "alert": int(hud.get("urgent_count", 0) or 0) > 0,
-        "queued_count": queued,
-        "tooltip": "\n".join(tooltip_lines)
-        or "Nothing live. Pin a Distraction to watch it here.",
+        "distractions": {
+            "visible": True,
+            "title": "D&D",
+            "rows": tuple(distraction_rows),
+            "count": distraction_count,
+            "count_visible": distraction_count > 0,
+            "alert": False,
+            "queued_count": 0,
+            "queue_visible": False,
+            "tooltip": distraction_tooltip,
+            "empty_text": "Nothing live. Pin a Distraction to watch it here.",
+            "open_full_visible": False,
+        },
+        "farming": {
+            "visible": True,
+            "title": "Farming",
+            "rows": tuple(farming_rows),
+            "count": farming_count,
+            "count_visible": farming_count > 0,
+            # A diseased or dead crop needs the player rather than merely
+            # informing them, so the Farming count keeps the old "!" form.
+            "alert": int(hud.get("urgent_count", 0) or 0) > 0,
+            "queued_count": queued,
+            "queue_visible": queued > 0,
+            "tooltip": "\n".join(farming_tooltip_lines)
+            or "No crops need attention.",
+            "empty_text": "No crops need attention.",
+            "open_full_visible": True,
+        },
     }

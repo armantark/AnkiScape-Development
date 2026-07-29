@@ -8,7 +8,13 @@ from .constants import (
     LEVEL_BONUS_FACTOR,
 )
 from ..ui.ui import show_level_up_dialog, show_achievement_dialog
+from ..logic.review_strip_logic import record_review_event_pure
 from .skill_registry import skill_level_exp_keys
+
+
+def _record_review_event(player_data, kind: str, text: str) -> None:
+    updated = record_review_event_pure(player_data, kind, text)
+    player_data["review_event_log"] = updated["review_event_log"]
 
 
 def get_exp_to_next_level(player_data, exp_table):
@@ -33,6 +39,11 @@ def level_up_check(skill, player_data):
         if new_level > old_level:
             for lvl in range(old_level + 1, new_level + 1):
                 player_data[level_key] = lvl
+                _record_review_event(
+                    player_data,
+                    "achievement",
+                    f"{skill} advanced to level {lvl}",
+                )
                 # Respect user setting for popups
                 try:
                     from aqt import mw  # type: ignore
@@ -92,30 +103,36 @@ def check_achievements(player_data):
     updated, newly_tracks = refresh_music_log_pure(updated)
     player_data.clear()
     player_data.update(updated)
-    if not _popups_enabled():
-        return
-    for track_name in newly_tracks:
-        show_achievement_dialog(
+    notifications = [
+        (
             track_name,
             {
                 "description": "Added to the Music Log.",
                 "difficulty": "Music",
             },
         )
-    if not newly_tasks:
-        return
+        for track_name in newly_tracks
+    ]
     for task_id in newly_tasks:
         found = diary_task_by_id_pure(task_id)
         if found is None:
             continue
         family, tier, task = found
-        show_achievement_dialog(
+        notifications.append((
             task.name,
             {
                 "description": task.description,
                 "difficulty": f"{family.name} — {tier.name}",
             },
-        )
+        ))
+    for title, data in notifications:
+        description = str(data.get("description", "") or "").strip()
+        message = f"{title} — {description}" if description else str(title)
+        _record_review_event(player_data, "achievement", message)
+    if not _popups_enabled():
+        return
+    for title, data in notifications:
+        show_achievement_dialog(title, data)
 
 
 def calculate_woodcutting_probability(player_level: int, tree_probability: float) -> float:

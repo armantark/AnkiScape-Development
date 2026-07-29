@@ -130,6 +130,31 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertTrue(addon.player_data["activity_auto_stop_on_danger"])
 
+    def test_bank_started_treasure_trail_commits_and_restores_through_the_seam(self):
+        from ankiscape.logic.treasure_trails_logic import (
+            apply_treasure_trails_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["inventory"] = {"Clue scroll (easy)": 1}
+
+        def start_trail(current):
+            updated, ok, _info = apply_treasure_trails_command_pure(
+                current, "start_from_bank", {"tier": "easy"}, lambda: 0.0
+            )
+            return updated, ok
+
+        committed = self.commit(start_trail)
+
+        self.assertTrue(committed)
+        self.assertEqual(
+            addon.player_data["activity_session"]["active_id"], "treasure_trail"
+        )
+        self.assertTrue(addon.player_data["treasure_trail"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["inventory"], {"Clue scroll (easy)": 1})
+        self.assertEqual(addon.player_data["treasure_trail"], {})
+
     def test_pinning_a_distraction_commits_and_restores_through_the_seam(self):
         """The reviewer badge's watch list is a preference like any other."""
         from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID

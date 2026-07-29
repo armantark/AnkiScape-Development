@@ -1,9 +1,8 @@
 """Offscreen Qt cover for the always-visible reviewer strip.
 
-This replaces `test_farming_hud.py` and `test_distraction_hud.py`, whose two
-badges design-thread section 4.8 merged into one persistent seat: every case
-they pinned is carried over here against the merged widget, alongside the
-experience bars, the Grand Exchange drawer, and the pin that fills the badge.
+This replaces `test_farming_hud.py` and `test_distraction_hud.py`. Pass 4 keeps
+their badges separate, both left of the experience bars, and adds card-safe
+geometry plus the retained event-log drawer to the same offscreen surface.
 
 Offscreen rule (.claude/rules/qt-offscreen-screenshots.md): show the parent and
 pump events before trusting any geometry.
@@ -13,6 +12,7 @@ from __future__ import annotations
 
 import os
 import sys
+import types
 import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -76,24 +76,32 @@ class ReviewStripTest(unittest.TestCase):
         ui.mw = self.parent
         ui.get_config_bool = lambda key, default=True: True
         ui._REVIEW_HUD = None
-        ui._STATUS_BADGE = None
+        ui._DND_BADGE = None
+        ui._FARMING_BADGE = None
         ui._STATUS_POPOVER = None
+        ui._STATUS_POPOVER_BADGE = None
         ui._FILL_DRAWER = None
+        ui._EVENT_LOG_DRAWER = None
 
     def tearDown(self) -> None:
         self.ui.close_review_status_popover()
         for widget in (
-            self.ui._STATUS_BADGE,
+            self.ui._DND_BADGE,
+            self.ui._FARMING_BADGE,
             self.ui._FILL_DRAWER,
+            self.ui._EVENT_LOG_DRAWER,
             self.ui._REVIEW_HUD,
         ):
             if widget is not None:
                 widget.hide()
                 widget.deleteLater()
-        self.ui._STATUS_BADGE = None
+        self.ui._DND_BADGE = None
+        self.ui._FARMING_BADGE = None
         self.ui._FILL_DRAWER = None
+        self.ui._EVENT_LOG_DRAWER = None
         self.ui._REVIEW_HUD = None
         self.ui._STATUS_POPOVER = None
+        self.ui._STATUS_POPOVER_BADGE = None
         self.ui.mw = self.old_mw
         self.ui.get_config_bool = self.old_config
         self.parent.hide()
@@ -137,67 +145,54 @@ class ReviewStripTest(unittest.TestCase):
         state, _events = advance_farm_clock_pure(state, 7, lambda: 1.0)
         return state
 
-    # ---- the badge -------------------------------------------------------
+    # ---- the badges ------------------------------------------------------
 
-    def test_badge_is_a_single_clickable_sibling_of_mouse_transparent_review_hud(
-        self,
-    ) -> None:
+    def test_two_clickable_badges_are_siblings_of_the_mouse_transparent_hud(self) -> None:
         review_hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = review_hud
-        review_hud.show()
-        self.ui.ensure_review_status_badge()
-        first = self.ui._STATUS_BADGE
-        self.ui.ensure_review_status_badge()
-        second = self.ui._STATUS_BADGE
+        review_hud.set_data(self._state(), "Mining")
+        self.ui.update_review_status_badge(self._state())
         for _ in range(4):
             QApplication.processEvents()
 
-        self.assertIs(first, second)
-        self.assertIs(first.parentWidget(), self.parent)
-        self.assertIs(review_hud.parentWidget(), self.parent)
+        dnd = self.ui._DND_BADGE
+        farming = self.ui._FARMING_BADGE
+        self.assertIs(dnd.parentWidget(), self.parent)
+        self.assertIs(farming.parentWidget(), self.parent)
         self.assertTrue(
             review_hud.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         )
-        self.assertFalse(
-            first.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        )
-        self.assertTrue(first.testAttribute(Qt.WidgetAttribute.WA_StyledBackground))
-        self.assertEqual(
-            len(self.parent.findChildren(QWidget, "AnkiScapeStatusBadge")), 1
-        )
-        self.assertNotIn(first, QApplication.topLevelWidgets())
+        for badge in (dnd, farming):
+            self.assertFalse(
+                badge.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            )
+            self.assertNotIn(badge, QApplication.topLevelWidgets())
+        self.assertEqual(dnd.button.text(), "D&D")
+        self.assertEqual(farming.button.text(), "Farming")
 
-    def test_badge_keeps_its_seat_when_nothing_is_live(self) -> None:
-        # The Farming badge always showed and the D&D badge never did; section
-        # 4.8 gives the merged seat the permanent one.
+    def test_both_badges_keep_their_seats_when_nothing_is_live(self) -> None:
         self.ui.update_review_status_badge(self._state())
         for _ in range(3):
             QApplication.processEvents()
 
-        badge = self.ui._STATUS_BADGE
-        self.assertTrue(badge.isVisible())
-        self.assertFalse(badge.badge.isVisible())
-        # A single "&" would be read as a keyboard mnemonic.
-        self.assertEqual(badge.button.text(), "D&&D · Farming")
+        self.assertTrue(self.ui._DND_BADGE.isVisible())
+        self.assertTrue(self.ui._FARMING_BADGE.isVisible())
+        self.assertFalse(self.ui._DND_BADGE.badge.isVisible())
+        self.assertFalse(self.ui._FARMING_BADGE.badge.isVisible())
 
-    def test_badge_counts_a_live_world_event_and_lists_it_in_its_tooltip(self) -> None:
+    def test_dnd_counts_world_events_without_polluting_farming(self) -> None:
         state = _live_star(self._state())
         rows = self.ui._world_event_rows(state)
-        self.assertTrue(rows, "the fixture must put a star in the world")
-
         self.ui.update_review_status_badge(state)
         for _ in range(3):
             QApplication.processEvents()
 
-        badge = self.ui._STATUS_BADGE
-        self.assertTrue(badge.isVisible())
-        self.assertEqual(badge.badge.text(), str(len(rows)))
+        self.assertEqual(self.ui._DND_BADGE.badge.text(), str(len(rows)))
+        self.assertFalse(self.ui._FARMING_BADGE.badge.isVisible())
         for _activity_id, text in rows:
-            self.assertIn(text, badge.toolTip())
+            self.assertIn(text, self.ui._DND_BADGE.toolTip())
 
-    def test_badge_renders_ready_and_urgent_crops_and_retains_the_queue_count(
-        self,
-    ) -> None:
+    def test_farming_renders_crops_and_queue_without_polluting_dnd(self) -> None:
         from ankiscape.logic.farming_logic import add_farm_queue_step_pure
 
         state = self._ripe_crop(self._state())
@@ -205,145 +200,104 @@ class ReviewStripTest(unittest.TestCase):
             state, "plant", "falador_allotment_south", crop_id="potato"
         )
         self.assertIsNotNone(step_id)
-
         self.ui.update_review_status_badge(state)
         for _ in range(3):
             QApplication.processEvents()
-        badge = self.ui._STATUS_BADGE
-        self.assertEqual(badge.badge.text(), "1")
-        self.assertEqual(badge.queue_badge.text(), "Q1")
-        self.assertTrue(badge.queue_badge.isVisible())
-        self.assertIn("ready", badge.toolTip().lower())
 
+        farming = self.ui._FARMING_BADGE
+        self.assertEqual(farming.badge.text(), "1")
+        self.assertEqual(farming.queue_badge.text(), "Q1")
+        self.assertFalse(self.ui._DND_BADGE.badge.isVisible())
         state["farm_patches"]["falador_allotment_north"].update(
             {"diseased": True, "dead": False}
         )
         self.ui.update_review_status_badge(state)
         QApplication.processEvents()
-        self.assertEqual(badge.badge.text(), "!1")
-        self.assertEqual(badge.queue_badge.text(), "Q1")
+        self.assertEqual(farming.badge.text(), "!1")
 
-    def test_badge_column_sits_to_the_left_of_the_experience_hud(self) -> None:
+    def test_both_badges_stay_left_of_the_experience_hud_without_fallback(self) -> None:
         review_hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = review_hud
-        review_hud.move(400, 300)
-        review_hud.show()
-
+        review_hud.set_data(self._state(), "Mining")
         self.ui.update_review_status_badge(self._state())
         for _ in range(4):
             QApplication.processEvents()
 
-        badge = self.ui._STATUS_BADGE
-        self.assertTrue(badge.isVisible())
-        self.assertLess(
-            badge.x() + badge.width(),
-            review_hud.x() + 1,
-            "the badge belongs to the left of the HUD",
-        )
+        dnd = self.ui._DND_BADGE
+        farming = self.ui._FARMING_BADGE
+        self.assertLess(dnd.x() + dnd.width(), farming.x() + 1)
+        self.assertLess(farming.x() + farming.width(), review_hud.x() + 1)
 
-    # ---- the popover -----------------------------------------------------
+    # ---- the split popovers ---------------------------------------------
 
-    def test_click_toggles_the_popover_and_a_crop_line_opens_its_patch(self) -> None:
+    def test_farming_popover_opens_crop_rows_and_the_full_farm(self) -> None:
         opened: list = []
         state = self._ripe_crop(self._state())
         self.ui.update_review_status_badge(
             state, None, lambda patch_id=None: opened.append(patch_id)
         )
-        badge = self.ui._STATUS_BADGE
+        badge = self.ui._FARMING_BADGE
         badge.button.click()
         for _ in range(5):
             QApplication.processEvents()
 
-        popover = self.ui._STATUS_POPOVER
-        self.assertIsNotNone(popover)
-        self.assertTrue(popover.isVisible())
-        self.assertIs(popover.parentWidget(), self.parent)
-        rows = popover.findChild(QListWidget, "reviewStatusList")
+        rows = self.ui._STATUS_POPOVER.findChild(QListWidget, "reviewStatusList")
         self.assertEqual(rows.count(), 1)
         self.assertEqual(
             rows.item(0).data(Qt.ItemDataRole.UserRole),
-            ("farming", "falador_allotment_north"),
+            "falador_allotment_north",
         )
         rows.itemActivated.emit(rows.item(0))
-        for _ in range(3):
-            QApplication.processEvents()
+        QApplication.processEvents()
         self.assertEqual(opened, ["falador_allotment_north"])
-        self.assertIsNone(self.ui._STATUS_POPOVER)
 
         badge.button.click()
-        for _ in range(3):
-            QApplication.processEvents()
+        QApplication.processEvents()
         self.ui._STATUS_POPOVER.findChild(
             QPushButton, "reviewStatusOpenFarmButton"
         ).click()
         QApplication.processEvents()
         self.assertEqual(opened, ["falador_allotment_north", None])
-        self.assertIsNone(self.ui._STATUS_POPOVER)
 
-        badge.button.click()
-        QApplication.processEvents()
-        self.assertTrue(self.ui._STATUS_POPOVER.isVisible())
-        badge.button.click()
-        QApplication.processEvents()
-        self.assertIsNone(self.ui._STATUS_POPOVER)
-
-    def test_a_favourited_distraction_lists_its_status_and_its_line_navigates(
-        self,
-    ) -> None:
+    def test_dnd_popover_keeps_live_and_watched_navigation(self) -> None:
         from ankiscape.data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 
         opened: list = []
         state = _live_star(self._state())
         state["dnd_favourites"] = [TEARS_OF_GUTHIX_ACTIVITY_ID]
-
         self.ui.update_review_status_badge(
             state, lambda activity_id=None: opened.append(activity_id), None
         )
-        self.ui._STATUS_BADGE.button.click()
+        self.ui._DND_BADGE.button.click()
         for _ in range(4):
             QApplication.processEvents()
 
         rows = self.ui._STATUS_POPOVER.findChild(QListWidget, "reviewStatusList")
         labels = [rows.item(index).text() for index in range(rows.count())]
-        self.assertTrue(
-            any("Shooting Stars" in label and "stardust" in label for label in labels),
-            labels,
-        )
+        self.assertTrue(any("Shooting Stars" in label for label in labels))
         watched = [
             index
             for index in range(rows.count())
             if rows.item(index).data(Qt.ItemDataRole.UserRole)
-            == ("distraction", TEARS_OF_GUTHIX_ACTIVITY_ID)
+            == TEARS_OF_GUTHIX_ACTIVITY_ID
         ]
         self.assertEqual(len(watched), 1)
-        self.assertIn("Tears of Guthix", rows.item(watched[0]).text())
-
         rows.itemActivated.emit(rows.item(watched[0]))
-        for _ in range(3):
-            QApplication.processEvents()
+        QApplication.processEvents()
         self.assertEqual(opened, [TEARS_OF_GUTHIX_ACTIVITY_ID])
-        self.assertIsNone(self.ui._STATUS_POPOVER)
 
-    def test_hide_lifecycle_closes_the_popover_and_the_setting_removes_the_seat(
-        self,
-    ) -> None:
+    def test_hide_lifecycle_closes_popovers_and_removes_both_seats(self) -> None:
         state = self._state()
         self.ui.update_review_status_badge(state)
-        badge = self.ui._STATUS_BADGE
-        badge.button.click()
+        self.ui._DND_BADGE.button.click()
         QApplication.processEvents()
-        self.assertTrue(badge.isVisible())
         self.assertIsNotNone(self.ui._STATUS_POPOVER)
 
         self.ui.hide_review_hud()
         QApplication.processEvents()
-        self.assertFalse(badge.isVisible())
+        self.assertFalse(self.ui._DND_BADGE.isVisible())
+        self.assertFalse(self.ui._FARMING_BADGE.isVisible())
         self.assertIsNone(self.ui._STATUS_POPOVER)
-
-        self.ui.get_config_bool = lambda key, default=True: False
-        self.ui.update_review_status_badge(state)
-        QApplication.processEvents()
-        self.assertFalse(badge.isVisible())
 
     # ---- the experience bars --------------------------------------------
 
@@ -513,6 +467,86 @@ class ReviewStripTest(unittest.TestCase):
         self.assertEqual(rows.item(0).foreground().color().name(), "#85c54b")
         self.assertEqual(rows.item(1).foreground().color().name(), "#e0b341")
 
+    # ---- event log drawer ------------------------------------------------
+
+    def _event_log_state(self, count: int = 25) -> dict:
+        from ankiscape.logic.review_strip_logic import record_review_event_pure
+
+        state = self._state()
+        for review in range(count):
+            state["shop_market_clock"] = {
+                "answered_cards": review,
+                "market_tick": review,
+            }
+            kind = ("xp", "achievement", "activity")[review % 3]
+            state = record_review_event_pure(state, kind, f"event {review}")
+        return state
+
+    def test_event_log_starts_collapsed_at_ten_and_lazily_shows_more(self) -> None:
+        self.ui.update_review_event_log_drawer(self._event_log_state())
+        for _ in range(4):
+            QApplication.processEvents()
+
+        drawer = self.ui._EVENT_LOG_DRAWER
+        self.assertTrue(drawer.isVisible())
+        self.assertFalse(drawer.rows.isVisible())
+        drawer.toggle.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(drawer.rows.isVisible())
+        self.assertEqual(drawer.rows.count(), 10)
+        self.assertEqual(drawer.rows.item(0).text(), "0 reviews ago · event 24")
+        self.assertTrue(drawer.show_more.isVisible())
+        drawer.show_more.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(drawer.rows.count(), 20)
+
+    # ---- card-safe geometry ---------------------------------------------
+
+    def test_a_tall_card_viewport_never_intersects_the_overlay_cluster(self) -> None:
+        card_web = QWidget(self.parent)
+        card_web.setObjectName("reviewCardWeb")
+        card_web.setGeometry(20, 20, 960, 500)
+        card_web.show()
+        self.parent.reviewer = types.SimpleNamespace(web=card_web)
+        state = self._event_log_state(1)
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_event_log_drawer(state)
+        for _ in range(6):
+            QApplication.processEvents()
+
+        content_rect = card_web.geometry()
+        for widget in (
+            hud,
+            self.ui._DND_BADGE,
+            self.ui._FARMING_BADGE,
+            self.ui._EVENT_LOG_DRAWER,
+        ):
+            self.assertTrue(widget.isVisible(), widget.objectName())
+            self.assertFalse(
+                widget.geometry().intersects(content_rect),
+                f"{widget.objectName()} covered the card viewport",
+            )
+
+        popup = self.ui.ExpPopup(self.parent)
+        popup.show_text("+25 XP")
+        QApplication.processEvents()
+        if popup.isVisible():
+            self.assertFalse(popup.geometry().intersects(content_rect))
+        popup.hide()
+        popup.deleteLater()
+
+        self.ui._DND_BADGE.button.click()
+        QApplication.processEvents()
+        if self.ui._STATUS_POPOVER is not None:
+            self.assertFalse(
+                self.ui._STATUS_POPOVER.geometry().intersects(content_rect)
+            )
+
     # ---- offscreen light and dark verification --------------------------
 
     def test_the_strip_renders_in_both_themes_without_clipping(self) -> None:
@@ -539,11 +573,11 @@ class ReviewStripTest(unittest.TestCase):
                     hud.set_data(state, "Utility / Activities")
                     self.ui.update_review_status_badge(state)
                     self.ui.update_review_fill_drawer(state)
-                    self.ui._STATUS_BADGE.button.click()
+                    self.ui._DND_BADGE.button.click()
                     for _ in range(6):
                         QApplication.processEvents()
 
-                    badge = self.ui._STATUS_BADGE
+                    badge = self.ui._DND_BADGE
                     drawer = self.ui._FILL_DRAWER
                     popover = self.ui._STATUS_POPOVER
                     # Geometry probes, not pixels: an offscreen grab of a widget

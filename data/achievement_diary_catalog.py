@@ -1253,7 +1253,7 @@ DIARY_FAMILIES = (
                 'karamja_medium_arachnophagia',
                 'Arachnophagia',
                 'Cook a spider on a stick.',
-                (DiaryCondition('skill_level', 'cooking', 16, 'Level 16 Cooking'),),
+                (DiaryCondition('ledger_action', 'cooking:cook_spider_on_a_stick', 1, 'Cook a spider on a stick'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 197,
                 0,

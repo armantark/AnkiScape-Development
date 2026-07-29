@@ -1468,6 +1468,9 @@ COOKING_ITEM_IMAGES = {}
 COOKING_SHARED_ITEM_IMAGES = {
     "Lava eel": os.path.join(QUEST_ITEMS_FOLDER, "lava_eel.png"),
     "Bucket of milk": os.path.join(QUEST_ITEMS_FOLDER, "bucket_of_milk.png"),
+    "Raw spider on stick": os.path.join(SHOP_ITEMS_FOLDER, "spider_on_stick.png"),
+    "Burnt spider": os.path.join(SHOP_ITEMS_FOLDER, "spider_on_stick.png"),
+    "Skewer stick": os.path.join(SHOP_ITEMS_FOLDER, "skewer.png"),
 }
 _COOKING_ITEM_NAMES = set(COOKING_EXTRA_ITEM_DATA)
 _COOKING_ITEM_NAMES.update(COOKING_RAW_ITEMS)

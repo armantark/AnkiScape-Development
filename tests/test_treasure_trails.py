@@ -135,6 +135,23 @@ class TrailStartTest(unittest.TestCase):
         self.assertEqual(started["current_utility"], TREASURE_TRAILS_ACTIVITY_ID)
         self.assertEqual(started["treasure_trails_started"], 1)
 
+    def test_activity_entry_is_locked_until_the_bank_starts_the_trail(self):
+        save = player(inventory={"Clue scroll (easy)": 1})
+        unchanged, ok, info = apply_treasure_trails_command_pure(
+            save, "read", {"tier": "easy"}, lambda: 0.0
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, save)
+        self.assertIn("Right-click the clue in the Bank", info["reason"])
+
+        view = treasure_trails_view_pure(save)
+        row = next(row for row in view["clue_rows"] if row["tier"] == "easy")
+        self.assertFalse(row["can_read"])
+        self.assertTrue(row["can_start_from_bank"])
+        self.assertIn(
+            "Right-click the clue in the Bank", view["activity_start_locked_reason"]
+        )
+
     def test_a_second_trail_cannot_start_while_one_is_running(self):
         _updated, ok, info = read_clue_scroll_pure(
             _trail(["simple_port_sarim_sailor"]), "easy"
@@ -164,7 +181,7 @@ class TrailProgressTest(unittest.TestCase):
     def test_a_review_outside_a_trail_is_refused(self):
         _updated, ok, info = apply_treasure_trail_review_pure(player())
         self.assertFalse(ok)
-        self.assertIn("Read a clue scroll", info["reason"])
+        self.assertIn("clue scroll in the Bank", info["reason"])
 
     def test_each_review_resolves_one_step(self):
         save = _trail(["simple_port_sarim_sailor", "map_lumberyard_crate"])
@@ -383,7 +400,7 @@ class CommandDispatchTest(unittest.TestCase):
     def test_read_follow_and_open_run_end_to_end_through_the_dispatcher(self):
         save = player(inventory={"Clue scroll (easy)": 1})
         started, ok, _info = apply_treasure_trails_command_pure(
-            save, "read", {"tier": "easy"}, lambda: 0.0
+            save, "start_from_bank", {"tier": "easy"}, lambda: 0.0
         )
         self.assertTrue(ok)
         while started["treasure_trail"]:

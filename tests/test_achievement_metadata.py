@@ -189,6 +189,64 @@ class AchievementMetadataTest(unittest.TestCase):
 
         self.assertIn("First Fire", newly_completed)
 
+    def test_dependency_cache_preserves_full_scan_results_and_skips_unchanged_groups(self):
+        calls = {name: 0 for name in ACHIEVEMENTS}
+        instrumented = {}
+        for name, data in ACHIEVEMENTS.items():
+            row = dict(data)
+            condition = data["condition"]
+
+            def counted(player, achievement_name=name, predicate=condition):
+                calls[achievement_name] += 1
+                return predicate(player)
+
+            row["condition"] = counted
+            instrumented[name] = row
+
+        def full_scan(player):
+            completed_names = list(player.get("completed_achievements", []))
+            completed = set(completed_names)
+            newly_completed = []
+            projected = dict(player)
+            while True:
+                added = False
+                projected["completed_achievements"] = completed_names + newly_completed
+                for achievement_name, data in ACHIEVEMENTS.items():
+                    if achievement_name in completed or achievement_name in newly_completed:
+                        continue
+                    if data["condition"](projected):
+                        newly_completed.append(achievement_name)
+                        projected["completed_achievements"] = completed_names + newly_completed
+                        added = True
+                if not added:
+                    return newly_completed
+
+        player = {"inventory": {}, "completed_achievements": []}
+        self.assertEqual(
+            get_newly_completed_achievements(player, instrumented),
+            full_scan(player),
+        )
+
+        calls.update(dict.fromkeys(calls, 0))
+        player["review_counter"] = 1
+        self.assertEqual(
+            get_newly_completed_achievements(player, instrumented),
+            full_scan(player),
+        )
+        self.assertEqual(sum(calls.values()), 0)
+
+        player["achievement_progress"] = {
+            "skills": {"mining": {"outputs": {"Copper ore": 1}}}
+        }
+        calls.update(dict.fromkeys(calls, 0))
+        self.assertEqual(
+            get_newly_completed_achievements(player, instrumented),
+            full_scan(player),
+        )
+        self.assertIn("First Steps", get_newly_completed_achievements(player, instrumented))
+        self.assertGreater(sum(calls.values()), 0)
+        self.assertLess(sum(calls.values()), len(ACHIEVEMENTS))
+
     def test_potion_hold_achievements_are_dose_invariant(self):
         condition = ACHIEVEMENTS["Potion Collector"]["condition"]
 

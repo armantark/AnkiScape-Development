@@ -1,5 +1,6 @@
 import os
 import unittest
+from collections.abc import Iterable, Mapping
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
@@ -120,6 +121,89 @@ class WoodcuttingSplitTest(unittest.TestCase):
                 QUEST_UNLOCK_RULES,
             )
         )
+
+    def test_precomputed_unlock_index_matches_the_uncached_rule_walk(self):
+        def reference(player_data, skill_id, target_id):
+            reasons = []
+            for rule in QUEST_UNLOCK_RULES:
+                if rule.get("gate_kind", "target") != "target":
+                    continue
+                if rule.get("skill_id") != skill_id:
+                    continue
+                target_ids = rule.get("target_ids", ())
+                if isinstance(target_ids, str):
+                    target_ids = (target_ids,)
+                if not isinstance(target_ids, Iterable) or target_id not in target_ids:
+                    continue
+                requirements = rule.get("requirements", ())
+                if isinstance(requirements, Mapping):
+                    requirements = (requirements,)
+                for requirement in requirements:
+                    kind = requirement.get("kind", "quest_completed")
+                    quest_id = requirement.get("quest_id")
+                    ability_id = requirement.get("ability_id")
+                    if kind == "quest_completed":
+                        completed = bool(
+                            (player_data.get("quests", {}).get(quest_id, {}) or {}).get(
+                                "completed"
+                            )
+                        )
+                        if not completed:
+                            reasons.append(
+                                str(
+                                    requirement.get("reason")
+                                    or str(quest_id).replace("_", " ").title()
+                                )
+                            )
+                    elif kind == "quest_started":
+                        state = player_data.get("quests", {}).get(quest_id, {}) or {}
+                        if not state.get("started") and not state.get("completed"):
+                            reasons.append(
+                                str(
+                                    requirement.get("reason")
+                                    or str(quest_id).replace("_", " ").title()
+                                )
+                            )
+                    elif kind == "ability_unlocked":
+                        if ability_id not in player_data.get("unlocked_abilities", ()):
+                            reasons.append(
+                                str(
+                                    requirement.get("reason")
+                                    or str(ability_id).replace("_", " ").title()
+                                )
+                            )
+            return tuple(dict.fromkeys(reasons))
+
+        players = (
+            {},
+            {
+                "quests": {
+                    requirement.get("quest_id"): {"completed": True}
+                    for rule in QUEST_UNLOCK_RULES
+                    for requirement in rule.get("requirements", ())
+                    if requirement.get("quest_id")
+                },
+                "unlocked_abilities": [
+                    requirement.get("ability_id")
+                    for rule in QUEST_UNLOCK_RULES
+                    for requirement in rule.get("requirements", ())
+                    if requirement.get("ability_id")
+                ],
+            },
+        )
+        for rule in QUEST_UNLOCK_RULES:
+            for target_id in rule.get("target_ids", ()):
+                for player in players:
+                    with self.subTest(skill=rule.get("skill_id"), target=target_id):
+                        self.assertEqual(
+                            target_unlock_locked_reasons_pure(
+                                player,
+                                rule.get("skill_id"),
+                                target_id,
+                                QUEST_UNLOCK_RULES,
+                            ),
+                            reference(player, rule.get("skill_id"), target_id),
+                        )
 
     def test_target_row_shows_materials_and_does_not_require_hatchet(self):
         player = _player_data()

@@ -36,6 +36,14 @@ GNOME_COOKING_SOURCE = (
     "tables; Cooking oldid=6548144 (2012-11-11T16:17:12Z) level/XP table; "
     "memory-bank/source-audits/gnome-restaurant-harvest-2026-07-28.md"
 )
+SPIDER_COOKING_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/cooking/Cooking.java"
+)
+SPIDER_RECIPE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/cooking/CookingCombos.java"
+)
 # The period built each dish over several clicks, adding the first ingredients to
 # the tin, tray or mould and the rest to the part-baked dish. One AnkiScape action
 # consumes both stages and awards the sourced grand-total XP; the intermediate
@@ -132,6 +140,10 @@ class CookingPrepActivity:
 _GNOME_CRUNCHY_BURN = (98, 452)
 _GNOME_BATTA_BURN = (68, 392)
 _GNOME_BOWL_BURN = (58, 372)
+# PLACEHOLDER(cooking.spider_on_stick_burn_endpoints): Darkan gives the exact
+# level-16 recipe, 80 XP and level-48 no-burn point, but not the pre-EOC roll
+# endpoints. The adjacent level-15 trout row has the same one-level burn curve.
+_SPIDER_ON_STICK_BURN = (88, 432)
 
 COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_shrimps', 'SHRIMPS', 'Cook raw shrimps', 'fish', 'RAW_SHRIMPS', 317, 'Raw shrimps', 'SHRIMPS', 315, 'Shrimps', 'BURNT_SHRIMP', 7954, 'Burnt shrimp', 1, 30.0, 128, 512, output_variant='primary'),
@@ -141,6 +153,7 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_herring', 'HERRING', 'Cook raw herring', 'fish', 'RAW_HERRING', 345, 'Raw herring', 'HERRING', 347, 'Herring', 'BURNT_FISH_357', 357, 'Burnt fish', 5, 50.0, 108, 472, output_variant='primary'),
     CookingTarget('cook_mackerel', 'MACKEREL', 'Cook raw mackerel', 'fish', 'RAW_MACKEREL', 353, 'Raw mackerel', 'MACKEREL', 355, 'Mackerel', 'BURNT_FISH_357', 357, 'Burnt fish', 10, 60.0, 98, 452, output_variant='primary'),
     CookingTarget('cook_trout', 'TROUT', 'Cook raw trout', 'fish', 'RAW_TROUT', 335, 'Raw trout', 'TROUT', 333, 'Trout', 'BURNT_FISH_343', 343, 'Burnt fish', 15, 70.0, 88, 432, output_variant='primary'),
+    CookingTarget('cook_spider_on_a_stick', 'RAW_SPIDER_ON_STICK', 'Cook a spider on a stick', 'meat', 'RAW_SPIDER_ON_STICK', 6293, 'Raw spider on stick', 'SPIDER_ON_STICK_6297', 6297, 'Spider on stick', 'BURNT_SPIDER', 6301, 'Burnt spider', 16, 80.0, *_SPIDER_ON_STICK_BURN, output_variant='primary', source=SPIDER_COOKING_SOURCE_PATH, runtime_source=SPIDER_COOKING_SOURCE_PATH),
     CookingTarget('cook_cod', 'COD', 'Cook raw cod', 'fish', 'RAW_COD', 341, 'Raw cod', 'COD', 339, 'Cod', 'BURNT_FISH_343', 343, 'Burnt fish', 18, 75.0, 88, 432, output_variant='primary'),
     CookingTarget('cook_pike', 'PIKE', 'Cook raw pike', 'fish', 'RAW_PIKE', 349, 'Raw pike', 'PIKE', 351, 'Pike', 'BURNT_FISH_343', 343, 'Burnt fish', 20, 80.0, 78, 412, output_variant='primary'),
     CookingTarget('cook_salmon', 'SALMON', 'Cook raw salmon', 'fish', 'RAW_SALMON', 331, 'Raw salmon', 'SALMON', 329, 'Salmon', 'BURNT_FISH_343', 343, 'Burnt fish', 25, 90.0, 68, 392, output_variant='primary'),
@@ -228,6 +241,13 @@ DEFAULT_COOKING_TARGET = "cook_shrimps"
 
 COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
     CookingPrepActivity("gather_grain", "Gather grain", {}, "Grain", group="gathering", source=WHEAT_PICK_SOURCE_PATH),
+    CookingPrepActivity(
+        "skewer_spider_on_a_stick",
+        "Skewer a spider carcass",
+        {"Spider carcass": 1, "Skewer stick": 1},
+        "Raw spider on stick",
+        source=SPIDER_RECIPE_SOURCE_PATH,
+    ),
     CookingPrepActivity("grind_grain_to_flour", "Grind grain to flour", {"Grain": 1, "Empty pot": 1}, "Pot of flour", source=MILL_SOURCE_PATH),
     CookingPrepActivity(
         "wet_flour_to_bread_dough",
@@ -360,6 +380,9 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Burnt crayfish": (13437, False),
     "Raw lava eel": (2148, False),
     "Lava eel": (2149, False),
+    "Spider carcass": (6291, True),
+    "Raw spider on stick": (6293, True),
+    "Skewer stick": (6305, True),
     # Gnome cooking inputs. Every id is from 2011Scape items.yml; every one is live
     # NPC shop stock (Grand Tree Groceries, Funch's Fine Groceries, Blurberry Bar)
     # except King worm and Toad's legs, which come from pickpocketing gnomes and
@@ -416,6 +439,7 @@ _MATERIAL_CATEGORIES = {
     "Empty pot": "crafted",
     "Bowl": "crafted",
     "Pie dish": "crafted",
+    "Skewer stick": "crafted",
     "Clay": "ore",
 }
 

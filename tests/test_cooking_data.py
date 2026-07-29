@@ -19,7 +19,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 82)
+        self.assertEqual(len(COOKING_TARGETS), 83)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -40,6 +40,18 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["cook_lava_eel"]["exp"], 30.0)
         self.assertEqual(data["cook_lava_eel"]["source"], LAVA_EEL_WIKI_SOURCE)
         self.assertTrue(data["cook_lava_eel"]["source_always_succeeds"])
+        self.assertEqual(data["cook_spider_on_a_stick"]["level"], 16)
+        self.assertEqual(data["cook_spider_on_a_stick"]["exp"], 80.0)
+        self.assertEqual(
+            data["cook_spider_on_a_stick"]["requirements"],
+            {"Raw spider on stick": 1},
+        )
+        self.assertEqual(
+            data["cook_spider_on_a_stick"]["output_item"], "Spider on stick"
+        )
+        self.assertEqual(
+            data["cook_spider_on_a_stick"]["burnt_item"], "Burnt spider"
+        )
 
     def test_runtime_extra_targets_preserve_live_source_rows(self):
         data = cooking_targets_as_dict()
@@ -86,6 +98,14 @@ class TestCookingData(unittest.TestCase):
             {"Pizza base": 1, "Empty pot": 1, "Bucket": 1},
         )
         self.assertEqual(data["draw_bucket_of_water"]["requirements"], {"Bucket": 1})
+        self.assertEqual(
+            data["skewer_spider_on_a_stick"]["requirements"],
+            {"Spider carcass": 1, "Skewer stick": 1},
+        )
+        self.assertEqual(
+            data["skewer_spider_on_a_stick"]["output_item"],
+            "Raw spider on stick",
+        )
         # Shop-covered gather bridges and buy_bucket retired 2026-07-07:
         # their outputs are live NPC shop stock at cache prices.
         for retired in ("buy_bucket", "gather_potatoes", "gather_cheese", "scavenge_raw_yak_meat", "gather_thin_snails"):
@@ -108,6 +128,13 @@ class TestCookingData(unittest.TestCase):
         self.assertFalse(extra["Crayfish"]["tradeable"])
         self.assertFalse(extra["Raw lava eel"]["tradeable"])
         self.assertFalse(extra["Lava eel"]["tradeable"])
+        self.assertEqual(extra["Spider carcass"]["item_id"], 6291)
+        self.assertEqual(extra["Raw spider on stick"]["item_id"], 6293)
+        self.assertEqual(extra["Spider on stick"]["item_id"], 6297)
+        self.assertEqual(extra["Burnt spider"]["item_id"], 6301)
+        self.assertFalse(extra["Burnt spider"]["tradeable"])
+        self.assertEqual(extra["Skewer stick"]["category"], "crafted")
+        self.assertTrue(extra["Skewer stick"]["tradeable"])
         self.assertEqual(extra["Empty pot"]["category"], "crafted")
         self.assertEqual(extra["Bowl of water"]["category"], "material")
         self.assertEqual(extra["Clay"]["category"], "ore")

@@ -1,5 +1,6 @@
 """logic_pure_progression.py - split out of logic_pure.py; see that module's header."""
 
+from functools import lru_cache
 from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
@@ -151,10 +152,46 @@ def calculate_new_level(skill_exp, current_level, EXP_TABLE):
     return new_level
 
 
-def get_newly_completed_achievements(player_data, ACHIEVEMENTS):
-    """
-    Returns a list of achievement names that are newly completed (not yet in player_data["completed_achievements"])
-    """
+@lru_cache(maxsize=256)
+def _unfinished_achievement_names(catalog_names, completed_names):
+    completed = set(completed_names)
+    return tuple(name for name in catalog_names if name not in completed)
+
+
+_ACHIEVEMENT_EVALUATION_CACHE = []
+
+
+def _achievement_dependency_snapshots(player_data, achievements, unfinished_names):
+    snapshots = {}
+    dependency_by_name = {}
+    for name in unfinished_names:
+        data = achievements[name]
+        dependency = data.get("dependency")
+        dependency_state = data.get("dependency_state")
+        if not isinstance(dependency, str) or not callable(dependency_state):
+            return None, None
+        dependency_by_name[name] = dependency
+        if dependency not in snapshots:
+            snapshots[dependency] = dependency_state(player_data)
+    return snapshots, dependency_by_name
+
+
+def _achievement_cache_entry(player_data, achievements):
+    for entry in _ACHIEVEMENT_EVALUATION_CACHE:
+        if entry["player_data"] is player_data and entry["achievements"] is achievements:
+            return entry
+    return None
+
+
+def _remember_achievement_cache_entry(entry):
+    existing = _achievement_cache_entry(entry["player_data"], entry["achievements"])
+    if existing is not None:
+        _ACHIEVEMENT_EVALUATION_CACHE.remove(existing)
+    _ACHIEVEMENT_EVALUATION_CACHE.append(entry)
+    del _ACHIEVEMENT_EVALUATION_CACHE[:-8]
+
+
+def _get_newly_completed_achievements_full_scan(player_data, achievements):
     completed_names = list(player_data.get("completed_achievements", []))
     completed = set(completed_names)
     newly_completed = []
@@ -162,7 +199,7 @@ def get_newly_completed_achievements(player_data, ACHIEVEMENTS):
     while True:
         added = False
         projected_data["completed_achievements"] = completed_names + newly_completed
-        for name, data in ACHIEVEMENTS.items():
+        for name, data in achievements.items():
             if name in completed or name in newly_completed:
                 continue
             if data["condition"](projected_data):
@@ -171,6 +208,82 @@ def get_newly_completed_achievements(player_data, ACHIEVEMENTS):
                 added = True
         if not added:
             break
+    return newly_completed
+
+
+def get_newly_completed_achievements(player_data, ACHIEVEMENTS):
+    """Return newly completed names without rescanning unchanged dependencies."""
+    completed_names = tuple(player_data.get("completed_achievements", []) or ())
+    catalog_names = tuple(ACHIEVEMENTS)
+    unfinished_names = _unfinished_achievement_names(catalog_names, completed_names)
+    snapshots, dependency_by_name = _achievement_dependency_snapshots(
+        player_data,
+        ACHIEVEMENTS,
+        unfinished_names,
+    )
+    if snapshots is None:
+        return _get_newly_completed_achievements_full_scan(player_data, ACHIEVEMENTS)
+
+    cache_entry = _achievement_cache_entry(player_data, ACHIEVEMENTS)
+    if (
+        cache_entry is not None
+        and cache_entry["completed_names"] == completed_names
+        and cache_entry["snapshots"] == snapshots
+    ):
+        return list(cache_entry["result"])
+
+    if cache_entry is None:
+        candidate_names = set(unfinished_names)
+    else:
+        previous_unfinished = set(cache_entry["unfinished_names"])
+        changed_dependencies = {
+            dependency
+            for dependency, state in snapshots.items()
+            if cache_entry["snapshots"].get(dependency) != state
+        }
+        candidate_names = {
+            name
+            for name in unfinished_names
+            if dependency_by_name[name] in changed_dependencies
+        }
+        candidate_names.update(set(unfinished_names) - previous_unfinished)
+        candidate_names.update(
+            name
+            for name in cache_entry["result"]
+            if name in unfinished_names
+        )
+
+    newly_completed = []
+    projected_data = dict(player_data)
+    while candidate_names:
+        added = False
+        projected_data["completed_achievements"] = list(completed_names) + newly_completed
+        for name in unfinished_names:
+            if name not in candidate_names or name in newly_completed:
+                continue
+            if ACHIEVEMENTS[name]["condition"](projected_data):
+                newly_completed.append(name)
+                projected_data["completed_achievements"] = list(completed_names) + newly_completed
+                added = True
+        if not added:
+            break
+        candidate_names = {
+            name
+            for name in unfinished_names
+            if name not in newly_completed
+            and dependency_by_name[name] == "completed_achievements"
+        }
+
+    _remember_achievement_cache_entry(
+        {
+            "player_data": player_data,
+            "achievements": ACHIEVEMENTS,
+            "completed_names": completed_names,
+            "unfinished_names": unfinished_names,
+            "snapshots": snapshots,
+            "result": tuple(newly_completed),
+        }
+    )
     return newly_completed
 
 

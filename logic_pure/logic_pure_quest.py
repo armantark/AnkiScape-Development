@@ -1016,10 +1016,10 @@ def ability_unlocked_pure(player_data, ability_id):
 def _target_ids_for_unlock_rule(rule):
     target_ids = rule.get("target_ids", ())
     if isinstance(target_ids, str):
-        return {target_ids}
+        return (target_ids,)
     if isinstance(target_ids, Iterable):
-        return {item for item in target_ids if isinstance(item, str)}
-    return set()
+        return tuple(item for item in target_ids if isinstance(item, str))
+    return tuple()
 
 
 def _requirements_for_unlock_rule(rule):
@@ -1041,38 +1041,65 @@ def _requirements_for_unlock_rule(rule):
     return tuple()
 
 
-def target_unlock_locked_reasons_pure(player_data, skill_id, target_id, target_unlock_rules):
-    reasons = []
+_TARGET_UNLOCK_RULE_INDEX_CACHE = {}
+
+
+def _normalized_target_unlock_rule_index(target_unlock_rules):
+    rules = target_unlock_rules or ()
+    if not isinstance(rules, tuple):
+        return _build_normalized_target_unlock_rule_index(rules)
+    cache_key = id(rules)
+    cached = _TARGET_UNLOCK_RULE_INDEX_CACHE.get(cache_key)
+    if cached is not None and cached[0] is rules:
+        return cached[1]
+    index = _build_normalized_target_unlock_rule_index(rules)
+    _TARGET_UNLOCK_RULE_INDEX_CACHE[cache_key] = (rules, index)
+    return index
+
+
+def _build_normalized_target_unlock_rule_index(target_unlock_rules):
+    index = {}
     for rule in target_unlock_rules or ():
         if not isinstance(rule, Mapping):
             continue
         if rule.get("gate_kind", "target") != "target":
             continue
-        if rule.get("skill_id") != skill_id:
+        skill_id = rule.get("skill_id")
+        if not isinstance(skill_id, str):
             continue
-        if target_id not in _target_ids_for_unlock_rule(rule):
-            continue
-        for requirement in _requirements_for_unlock_rule(rule):
-            kind = requirement.get("kind", "quest_completed")
-            if kind == "quest_completed":
-                quest_id = requirement.get("quest_id")
-                if not isinstance(quest_id, str) or quest_completed_pure(player_data, quest_id):
-                    continue
-                reason = requirement.get("reason") or quest_id.replace("_", " ").title()
-                reasons.append(str(reason))
-            elif kind == "quest_started":
-                quest_id = requirement.get("quest_id")
-                state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {}
-                if state.get("started") or state.get("completed"):
-                    continue
-                reason = requirement.get("reason") or str(quest_id).replace("_", " ").title()
-                reasons.append(str(reason))
-            elif kind == "ability_unlocked":
-                ability_id = requirement.get("ability_id")
-                if not isinstance(ability_id, str) or ability_unlocked_pure(player_data, ability_id):
-                    continue
-                reason = requirement.get("reason") or ability_id.replace("_", " ").title()
-                reasons.append(str(reason))
+        requirements = tuple(
+            (
+                str(requirement.get("kind", "quest_completed")),
+                requirement.get("quest_id"),
+                requirement.get("ability_id"),
+                requirement.get("reason"),
+            )
+            for requirement in _requirements_for_unlock_rule(rule)
+        )
+        for target_id in _target_ids_for_unlock_rule(rule):
+            index.setdefault((skill_id, target_id), []).extend(requirements)
+    return {key: tuple(requirements) for key, requirements in index.items()}
+
+
+def target_unlock_locked_reasons_pure(player_data, skill_id, target_id, target_unlock_rules):
+    reasons = []
+    requirements = _normalized_target_unlock_rule_index(target_unlock_rules).get(
+        (skill_id, target_id), ()
+    )
+    for kind, quest_id, ability_id, reason in requirements:
+        if kind == "quest_completed":
+            if not isinstance(quest_id, str) or quest_completed_pure(player_data, quest_id):
+                continue
+            reasons.append(str(reason or quest_id.replace("_", " ").title()))
+        elif kind == "quest_started":
+            state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {}
+            if state.get("started") or state.get("completed"):
+                continue
+            reasons.append(str(reason or str(quest_id).replace("_", " ").title()))
+        elif kind == "ability_unlocked":
+            if not isinstance(ability_id, str) or ability_unlocked_pure(player_data, ability_id):
+                continue
+            reasons.append(str(reason or ability_id.replace("_", " ").title()))
     return tuple(dict.fromkeys(reasons))
 
 

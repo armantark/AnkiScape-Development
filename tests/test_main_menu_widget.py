@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMessageBox, QPalette, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -382,19 +382,23 @@ def _utility_row(tree: "QTreeWidget", activity_id: str) -> "QTreeWidgetItem":
 
 def _find_bank_list(dialog: "QDialog") -> "QListWidget":
     """The bank list is the one whose rows carry category headers."""
-    for lw in dialog.findChildren(QListWidget):
-        for i in range(lw.count()):
-            if lw.item(i).data(Qt.ItemDataRole.UserRole) == "__header__":
-                return lw
+    bank_list = dialog.findChild(QListWidget, "bankList")
+    if bank_list is None:
+        _open_bank_tab(dialog)
+        bank_list = dialog.findChild(QListWidget, "bankList")
+    if bank_list is not None:
+        return bank_list
     raise AssertionError("bank list (with category headers) not found")
 
 
 def _find_gear_list(dialog: "QDialog") -> "QListWidget":
     """The gear panel is the separate (non-striped) list below the inventory."""
-    for lw in dialog.findChildren(QListWidget):
-        for i in range(lw.count()):
-            if lw.item(i).data(Qt.ItemDataRole.UserRole) == "__gear_header__":
-                return lw
+    gear_list = dialog.findChild(QListWidget, "gearList")
+    if gear_list is None:
+        _open_bank_tab(dialog)
+        gear_list = dialog.findChild(QListWidget, "gearList")
+    if gear_list is not None:
+        return gear_list
     raise AssertionError("gear list (toolbelt/equipped) not found")
 
 
@@ -499,6 +503,9 @@ def _open_ge_tab(dialog: "QDialog") -> None:
 def _open_bank_tab(dialog: "QDialog") -> None:
     tabs = _find_main_tabs(dialog)
     index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Bank")
+    if tabs.currentIndex() == index and dialog.findChild(QListWidget, "bankList") is None:
+        tabs.setCurrentIndex(0)
+        QApplication.processEvents()
     tabs.setCurrentIndex(index)
     QApplication.processEvents()
 
@@ -1171,6 +1178,23 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_bank_catalog_is_built_only_on_first_selection(self) -> None:
+        self.assertIsNone(self.dialog.findChild(QListWidget, "bankList"))
+        self.assertIsNone(self.dialog.findChild(QListWidget, "gearList"))
+
+        _open_bank_tab(self.dialog)
+
+        bank_list = self.dialog.findChild(QListWidget, "bankList")
+        gear_list = self.dialog.findChild(QListWidget, "gearList")
+        self.assertIsNotNone(bank_list)
+        self.assertIsNotNone(gear_list)
+        self.assertGreater(bank_list.count(), 0)
+        self.assertGreater(gear_list.count(), 0)
+
+        _open_equipment_tab(self.dialog)
+        _open_bank_tab(self.dialog)
+        self.assertIs(self.dialog.findChild(QListWidget, "bankList"), bank_list)
 
     def test_global_tabs_use_unique_semantic_icons(self) -> None:
         tabs = _find_main_tabs(self.dialog)
@@ -2987,6 +3011,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_bank_carried_inventory_panel_is_present_and_collapsible(self) -> None:
+        _open_bank_tab(self.dialog)
         summary = self.dialog.findChild(QLabel, "carriedInventorySummary")
         self.assertIsNotNone(summary)
         self.assertIn("bank run", summary.text().lower())
@@ -3021,6 +3046,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             player_data,
             carried_stackable_names=frozenset({"Air rune"}),
         )
+        _open_bank_tab(dialog)
 
         summary = dialog.findChild(QLabel, "carriedInventorySummary")
         self.assertIsNotNone(summary)
@@ -3036,6 +3062,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             carried_keep_drop_state="keep",
             on_set_carried_keep_drop=lambda drop: calls.append(drop),
         )
+        _open_bank_tab(dialog)
         check = dialog.findChild(QCheckBox, "carriedKeepDropCheck")
         self.assertIsNotNone(check, "Keep/Drop toggle missing when a gathering target is active")
         self.assertFalse(check.isChecked())  # default keep
@@ -7809,6 +7836,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["runecrafting_level"] = 1
         pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         dialog = self._open(pd)
+        _open_bank_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Bank Claims", labels)
@@ -7839,6 +7867,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"]["Coins"] = 250
         pd["death_office"] = {"items": ["Bronze sword", "Cape"], "source": "combat_stacked_grave"}
         dialog = self._open(pd)
+        _open_bank_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Death's Office", labels)
@@ -7856,6 +7885,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_bank_claims_expose_tutorial_starter_kit_bundle(self) -> None:
         pd = _make_player_data()
         dialog = self._open(pd)
+        _open_bank_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Bank Claims", labels)
@@ -7877,6 +7907,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_bank_claims_hide_locked_rows_entirely(self) -> None:
         pd = _make_player_data()
         dialog = self._open(pd)
+        _open_bank_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Bank Claims", labels)
@@ -7902,6 +7933,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd.setdefault("claims", {})["tutorial_island_starter_kit"] = {"claimed": True}
         dialog = self._open(pd)
+        _open_bank_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Bank Claims", labels)
@@ -7926,6 +7958,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         }
         try:
             dialog = self._open(pd)
+            _open_bank_tab(dialog)
         finally:
             self._ui.CLAIM_DATA = original_claim_data
 
@@ -8473,6 +8506,54 @@ class MainMenuWidgetTest(unittest.TestCase):
         if _ui.equipment_slot_icon_path("head"):
             head_row = _equip_slot_row(equip_list, "head")
             self.assertFalse(head_row.icon().isNull(), "head slot has no placeholder icon")
+
+    def test_equipment_points_header_renders_and_refreshes_live_values(self) -> None:
+        player_data = _make_player_data()
+        player_data.update(
+            {
+                "constitution_level": 73,
+                "combat_lifepoints": 512,
+                "prayer_level": 50,
+                "combat_prayer_points": 310,
+                "summoning_level": 42,
+                "summoning_state": {"summoning_points_current": 17},
+            }
+        )
+        dialog = self._open(player_data)
+        _open_equipment_tab(dialog)
+        dialog.show()
+        dialog.resize(1000, 560)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        header = dialog.findChild(QWidget, "equipmentPointsHeader")
+        life = dialog.findChild(QLabel, "equipmentPoint_lifepoints")
+        prayer = dialog.findChild(QLabel, "equipmentPoint_prayer")
+        summoning = dialog.findChild(QLabel, "equipmentPoint_summoning")
+        self.assertIsNotNone(header)
+        self.assertTrue(header.isVisible())
+        self.assertGreater(header.height(), 0)
+        self.assertEqual(life.text(), "Life points  512 / 730")
+        self.assertEqual(prayer.text(), "Prayer points  31 / 50")
+        self.assertEqual(summoning.text(), "Summoning points  17 / 42")
+
+        player_data.update(
+            {
+                "constitution_level": 80,
+                "combat_lifepoints": 321,
+                "prayer_level": 70,
+                "combat_prayer_points": 125,
+                "summoning_level": 55,
+                "summoning_state": {"summoning_points_current": 9},
+            }
+        )
+        dialog._ankiscape_refresh_equipment()
+        for _ in range(3):
+            QApplication.processEvents()
+
+        self.assertEqual(life.text(), "Life points  321 / 800")
+        self.assertEqual(prayer.text(), "Prayer points  12 / 70")
+        self.assertEqual(summoning.text(), "Summoning points  9 / 55")
 
     def test_empty_slot_text_is_dark_mode_safe_not_palette_mid(self) -> None:
         # Regression guard for the recurring "greyed text vanishes in dark mode"
@@ -9333,6 +9414,74 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._open_activities(dialog)
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         self.assertEqual(button.text(), "Select active event")
+
+    def test_activity_tree_context_menu_adds_and_removes_a_distraction(self) -> None:
+        from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+        from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+
+        pd = _make_player_data()
+
+        def _favourite(activity_id):
+            updated, ok, info = toggle_dnd_favourite_pure(pd, activity_id)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, **info}
+
+        dialog = self._open(pd, on_favourite_dnd=_favourite)
+        activity_tree = self._open_activities(dialog)
+        dialog.show()
+        dialog.resize(1000, 560)
+        for _ in range(8):
+            QApplication.processEvents()
+
+        captured_menus: list[QMenu] = []
+        original_menu_exec = QMenu.exec
+
+        def _capture_menu(menu, *_args):
+            captured_menus.append(menu)
+            return None
+
+        def _open_row_menu(activity_id: str) -> QMenu | None:
+            row = _utility_row(activity_tree, activity_id)
+            activity_tree.scrollToItem(
+                row, QAbstractItemView.ScrollHint.PositionAtCenter
+            )
+            for _ in range(4):
+                QApplication.processEvents()
+            before = len(captured_menus)
+            activity_tree.customContextMenuRequested.emit(
+                activity_tree.visualItemRect(row).center()
+            )
+            for _ in range(4):
+                QApplication.processEvents()
+            return captured_menus[-1] if len(captured_menus) > before else None
+
+        QMenu.exec = _capture_menu  # type: ignore[assignment,method-assign]
+        try:
+            menu = _open_row_menu(SHOOTING_STAR_ACTIVITY_ID)
+            self.assertIsNotNone(menu)
+            action = menu.actions()[0]
+            self.assertEqual(action.text(), "Add to notifications")
+            self.assertTrue(action.isEnabled())
+            action.trigger()
+            for _ in range(4):
+                QApplication.processEvents()
+            self.assertEqual(pd["dnd_favourites"], [SHOOTING_STAR_ACTIVITY_ID])
+
+            menu = _open_row_menu(SHOOTING_STAR_ACTIVITY_ID)
+            self.assertIsNotNone(menu)
+            action = menu.actions()[0]
+            self.assertEqual(action.text(), "Remove from notifications")
+            action.trigger()
+            for _ in range(4):
+                QApplication.processEvents()
+            self.assertEqual(pd["dnd_favourites"], [])
+
+            self.assertIsNone(_open_row_menu("castle_wars"))
+        finally:
+            QMenu.exec = original_menu_exec  # type: ignore[assignment,method-assign]
+            dialog.deleteLater()
 
     def test_a_distraction_surface_carries_the_reviewer_badge_pin(self) -> None:
         """Section 4.8: "There is no way to add a d&d to favorites."
@@ -14243,7 +14392,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(pd["shades_of_mortton"]["altar_lit"])
         dialog.close()
 
-    def test_treasure_trails_card_reads_a_clue_and_opens_the_casket(self) -> None:
+    def test_bank_context_action_starts_a_trail_and_unlocks_its_card(self) -> None:
         from ankiscape.logic.treasure_trails_logic import (
             apply_treasure_trails_command_pure,
             default_treasure_trails_state_pure,
@@ -14272,7 +14421,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_treasure_trails_command=trails_command,
         )
         dialog.show()
-        QApplication.processEvents()
+        dialog.resize(900, 560)
+        for _ in range(4):
+            QApplication.processEvents()
         tree = self._open_activities(dialog)
         item = next(
             row
@@ -14287,10 +14438,26 @@ class MainMenuWidgetTest(unittest.TestCase):
             if widget.isVisible()
         )
         read_button = panel.findChild(QPushButton, "treasureTrailsPrimary")
-        self.assertTrue(read_button.isEnabled())
-        read_button.click()
-        QApplication.processEvents()
-        self.assertEqual(command_calls[-1], ("read", {"tier": "easy"}))
+        self.assertFalse(read_button.isEnabled())
+        self.assertIn(
+            "Right-click the clue in the Bank",
+            panel.findChild(QLabel, "treasureTrailsSummary").text(),
+        )
+
+        menu = dialog._ankiscape_equip_menu_for("Clue scroll (easy)")
+        start_action = next(
+            action for action in menu.actions() if action.text() == "Start trail"
+        )
+        self.assertEqual(start_action.objectName(), "startTreasureTrailAction")
+        self.assertEqual(start_action.data(), "easy")
+        self.assertTrue(start_action.isEnabled())
+        start_action.trigger()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(command_calls[-1], ("start_from_bank", {"tier": "easy"}))
+        tree.itemClicked.emit(item, 0)
+        for _ in range(4):
+            QApplication.processEvents()
         self.assertIn(
             "Following an easy trail",
             panel.findChild(QLabel, "treasureTrailsSummary").text(),
