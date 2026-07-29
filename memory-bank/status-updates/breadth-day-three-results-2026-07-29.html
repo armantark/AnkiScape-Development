@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breadth day three — the catalog closes</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛏️</text></svg>">
+<style>
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff;
+    --accent-glow: rgba(79,140,255,.15); --red: #ff5c5c; --green: #4ade80;
+    --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit','Avenir Next','Segoe UI',system-ui,sans-serif; line-height:1.55; padding:2.2rem 1.2rem 4rem; }
+.wrap { max-width:1080px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',ui-monospace,Menlo,monospace; font-size:.7rem; letter-spacing:.12em; color:var(--accent); background:var(--accent-glow); border:1px solid var(--accent); border-radius:999px; padding:.3rem .9rem; margin-bottom:1rem; }
+h1 { font-size:2rem; font-weight:700; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:62rem; }
+.statrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; margin:1.8rem 0; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem; }
+.stat b { display:block; font-size:1.5rem; font-weight:700; }
+.stat span { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
+h2 { font-size:1.15rem; margin:2.4rem 0 .9rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; }
+.card h3 { font-size:.95rem; margin-bottom:.5rem; }
+.card p, .card li { font-size:.85rem; color:var(--text-dim); }
+.card ul { padding-left:1.1rem; margin:.4rem 0; }
+.card li { margin:.25rem 0; }
+.card li b, .card p b { color:var(--text); font-weight:600; }
+.pri { font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:.15rem .55rem; border-radius:999px; margin-right:.5rem; }
+.pri.done { color:var(--green); border:1px solid var(--green); }
+.pri.parked { color:var(--amber); border:1px solid var(--amber); }
+.pri.fork { color:var(--purple); border:1px solid var(--purple); }
+.pri.bug { color:var(--red); border:1px solid var(--red); }
+.tag { display:inline-block; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.63rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:.1rem .45rem; margin:.12rem .15rem 0 0; color:var(--text-dim); }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.tablewrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+th, td { text-align:left; padding:.55rem .8rem; border-bottom:1px solid var(--border); vertical-align:top; }
+th { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); background:var(--surface-2); }
+tr:last-child td { border-bottom:none; }
+td:first-child { white-space:nowrap; }
+.bar { display:flex; height:22px; border-radius:6px; overflow:hidden; margin:.6rem 0 .3rem; border:1px solid var(--border); }
+.bar div { height:100%; }
+.legend { display:flex; gap:1.2rem; flex-wrap:wrap; font-size:.75rem; color:var(--text-dim); }
+.dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.35rem; }
+details { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.8rem 1.1rem; margin:.6rem 0; }
+summary { cursor:pointer; font-size:.9rem; font-weight:600; }
+details p, details li { font-size:.83rem; color:var(--text-dim); }
+details ul { padding-left:1.2rem; margin:.5rem 0; }
+.mono { font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.78rem; }
+.callout { border-left:3px solid var(--amber); background:var(--surface); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; margin:1rem 0; font-size:.87rem; }
+.callout.blue { border-left-color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="badge">GOAL RUN · DAY THREE RESULTS · 2026-07-29</span>
+<h1>Every settled family is built. Two items wait on tomorrow's quota.</h1>
+<p class="sub">Dungeoneering ships as the 25th trainable skill with its full Frozen floor runtime. Pass 4 is implemented and merged. The art library is period-pinned wholesale. Three independent verification layers caught 21 real defects before you did. What remains is polish on two items, parked with one-command resumes.</p>
+
+<div class="statrow">
+  <div class="stat"><b>3,552</b><span>tests, green in both lanes</span></div>
+  <div class="stat"><b>25th</b><span>skill live — DG trains to 120</span></div>
+  <div class="stat"><b>2,385</b><span>assets pinned to pre-EOC revisions</span></div>
+  <div class="stat"><b>21</b><span>real defects caught &amp; fixed by verification</span></div>
+  <div class="stat"><b>9/9</b><span>pass-4 directives shipped</span></div>
+</div>
+
+<h2>The two big ships</h2>
+<div class="grid">
+<div class="card">
+  <h3><span class="pri done">SHIPPED</span>Dungeoneering — skill, floors, economy</h3>
+  <ul>
+    <li><b>Phase A:</b> registry flip, XP curve to 120 for DG alone, parked XP released by migration. The skillcape, nine milestone capes, and the 25-skill Max gate all cleared <b>by construction</b> — two of the three old GOAL-BLOCKED blockers died here.</li>
+    <li><b>B1:</b> persistent seeded Frozen floors, one room per review under the eight-review small-floor budget, Casual auto-routing / Advanced frontier choice, death, resume, prestige with restored-Darkan replay substitution.</li>
+    <li><b>B2:</b> binds (a sale now kills its pending offer — the verifier caught a sold arrow becoming permanent), the Smuggler at pinned prices, both starter chains reachable in a natural floor.</li>
+    <li>Nine placeholders registered, all period-bounded; the death curve deliberately <b>rejects</b> Darkan's rule where the period record contradicts it.</li>
+  </ul>
+  <span class="tag">0ac64a57</span><span class="tag">schema 99–101</span><span class="tag">dungeoneering-harvest-2026-07-28.md</span>
+</div>
+<div class="card">
+  <h3><span class="pri done">SHIPPED</span>Pass 4 — all nine directives</h3>
+  <ul>
+    <li>Overlay never covers card content; badges <b>un-merged</b> and left of the XP bars; event-log drawer with no hidden cap (the verifier killed a silent 200-row limit), counted in reviews-ago.</li>
+    <li>Equipment tab shows live points; D&amp;Ds favourite by <b>right-click</b>; Treasure Trails start from a Bank clue right-click.</li>
+    <li><b>Arachnophagia mystery solved:</b> not the gnome update — a generated diary task whose only condition was <i>Cooking level 16</i>. Your mackerel level-up completed it. It now requires actually cooking a Spider on a stick, which exists as a real sourced target.</li>
+    <li><b>Your "missing" cooking options were never missing:</b> the twenty gnome recipes are the four collapsed groups at the bottom of the Cooking tree, and your Anki session predated the merge by ~40 min. Restart Anki.</li>
+    <li>Review-path lag profiled; bounded fixes applied (top cost: skill-availability refresh ×2 per review).</li>
+  </ul>
+  <span class="tag">9c988b33</span><span class="tag">design-thread 4.13</span>
+</div>
+</div>
+
+<h2>Verification earned its keep — 21 defects, three layers</h2>
+<div class="tablewrap"><table>
+<tr><th>Layer</th><th>Caught</th><th>Worst catch</th></tr>
+<tr><td><span class="pri bug">SOL PASS</span></td><td>13 defects across the four newest families — no family clean, fourth consecutive cross-lineage catch</td><td>Gnome Restaurant order acceptance stole a live activity session; the next save <b>deleted the running trek</b>. Dominion Tower's No Food handicap permanently rewrote your real auto-eat config.</td></tr>
+<tr><td><span class="pri bug">WORKFLOW VERIFIERS</span></td><td>2 in DG B1 (five-review floor, wrong Kinship pin) + 2 in B2 (bind/sell exploit, inert Herblore chain) + 1 in pass 4 (hidden event cap)</td><td>Selling an item with a pending bind offer materialized it next floor as permanent equipment — a closed-economy breach.</td></tr>
+<tr><td><span class="pri bug">TEST GATES</span></td><td>6 XP-bar omissions + 2 art recoveries (wrong-variant lizard, renamed dragon) + 1 staff charge miscount</td><td>The art audit caught an <b>orange</b> desert lizard smuggled under the roster's green pin — reverted; honest post-cutoff art beats wrong-variant period art.</td></tr>
+</table></div>
+
+<h2>The art library, period-pinned</h2>
+<div class="card">
+  <div class="bar">
+    <div style="width:80%; background:var(--green);"></div>
+    <div style="width:12%; background:var(--surface-2);"></div>
+    <div style="width:8%; background:var(--amber);"></div>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--green)"></span><b>2,385 replaced</b> — sha-verified pre-EOC revisions (tranche 1 managed 39)</span>
+    <span><span class="dot" style="background:var(--surface-2)"></span><b>356</b> genuinely no period art, with evidence</span>
+    <span><span class="dot" style="background:var(--amber)"></span><b>243</b> honest unresolved — needs a different lever (Wayback, cache sprites)</span>
+  </div>
+  <p style="margin-top:.6rem">The difference from tranche 1's 6% recovery: a repo tool now owns the protocol — correct endpoint, full upload histories, sha1 of the bytes actually served, and a fallback that recovers files the 2018 wiki migration scrambled. A Sol title-hunt over every absence claim plus an adversarial audit sample kept the "no period art" claims honest.</p>
+  <span class="tag">tools/reresearch_period_art.py</span><span class="tag">495b48af</span>
+</div>
+
+<h2>Waiting on you</h2>
+<div class="grid">
+<div class="card">
+  <h3><span class="pri fork">FORK 3.25</span>The Herblore coin cache</h3>
+  <p>The DG starter Herblore chain needs 1,010 coins the floor can't earn by selling. Shipped: a registered placeholder coin cache in the resource room. Alternatives queued: placeholder coin drops on guardians, or nothing until a period drop table is decoded.</p>
+</div>
+<div class="card">
+  <h3><span class="pri fork">FORK 3.23</span>Bork still waits on miniquests</h3>
+  <p>The last unbuilt catalog family. Its gate is the Hunt for Surok <i>miniquest</i>, and the quest ledger has no miniquest rows. Options recorded; recommendation was to let future miniquest work carry it.</p>
+</div>
+</div>
+
+<div class="callout">
+<b>Parked on the codex day quota (22/13):</b> Dungeoneering phase C (Kinship tiers, the staged 42-row trader with its functional Coal bag, period assets) and the Conquest implementation (fully harvested — commands, units, rating, commendations all pinned, with the wiki's own copy-paste errors corrected against cache evidence). Both are scripted, resumable workflows in <span class="mono">~/.local/state/quota-guard/parked.md</span>; next block in ~15h. Neither blocks what shipped: the skill trains and floors run today.
+</div>
+
+<details>
+<summary>Where that leaves the goal</summary>
+<ul>
+<li><b>GOAL-BLOCKED.md</b> carries two entries: the 384-diary-task clause (implementation breadth — more families shipping grows the predicate surface) and the quota boundary above.</li>
+<li>Every other settled pre-EOC family is at breadth one. Conquest is the only family below it, and it is spec-complete.</li>
+<li>The Darkan restoration thread's source-qualified floor progression was consumed, not duplicated; our harvest records exactly what they qualified and what neither side has (the floor-XP curve — theirs is also unsourced).</li>
+<li>Design forks awaiting review: 3.22–3.25 (Dominion rewards ×3, Herblore cache), 4.12 (grave expiry), plus the standing 3.23 (Bork).</li>
+<li>Restart Anki before your next playtest — everything above postdates the build you played.</li>
+</ul>
+</details>
+
+</div>
+</body>
+</html>
