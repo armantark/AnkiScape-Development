@@ -3208,25 +3208,67 @@ def _review_card_content_rect(parent) -> tuple[int, int, int, int] | None:
         # The webview widget fills the reviewer even when the rendered card is
         # a few lines tall, so the widget rect alone would claim the whole
         # window as card territory and hide every overlay everywhere — the
-        # 2026-07-29 playtest regression. The page's cached document size
-        # bounds the real content; when it is unavailable, report None so
-        # callers use the visible bottom fallback rather than hiding.
-        try:
-            document_height = int(
-                web.page().contentsSize().height() * float(web.zoomFactor())
-            )
-        except Exception:
-            document_height = 0
-        if document_height <= 0:
+        # 2026-07-29 playtest regression. The page's contentsSize cannot help
+        # either: Anki stretches the card body to 100% viewport height, so the
+        # document always measures exactly as tall as the webview. The only
+        # honest bound is the card container's rendered bounding box, measured
+        # by JS on every card show (measure_card_content below). Until a
+        # measurement arrives, report None so callers use the visible bottom
+        # fallback rather than hiding.
+        measured = int(_CARD_CONTENT_BOTTOM_PX)
+        if measured <= 0:
             return None
+        try:
+            measured = int(measured * float(web.zoomFactor()))
+        except Exception:
+            pass
         return (
             point.x(),
             point.y(),
             target.width(),
-            min(target.height(), document_height),
+            min(target.height(), measured),
         )
     except Exception:
         return None
+
+
+_CARD_CONTENT_BOTTOM_PX = 0
+
+_CARD_CONTENT_JS = """
+(function () {
+    var qa = document.getElementById("qa");
+    var target = qa || document.body;
+    if (!target) { return 0; }
+    var rect = target.getBoundingClientRect();
+    return Math.max(0, Math.ceil(rect.bottom));
+})();
+"""
+
+
+def note_card_content_bottom(value) -> None:
+    """JS-measured card bottom in CSS pixels; 0 means unknown."""
+
+    global _CARD_CONTENT_BOTTOM_PX
+    try:
+        _CARD_CONTENT_BOTTOM_PX = max(0, int(value or 0))
+    except (TypeError, ValueError):
+        _CARD_CONTENT_BOTTOM_PX = 0
+    _reposition_review_overlay()
+
+
+def measure_card_content() -> None:
+    """Re-measure the rendered card on show; stale heights must never leak
+    from a tall card into the next short one, so the cache resets first."""
+
+    global _CARD_CONTENT_BOTTOM_PX
+    _CARD_CONTENT_BOTTOM_PX = 0
+    try:
+        web = getattr(getattr(mw, "reviewer", None), "web", None)
+        if web is None:
+            return
+        web.evalWithCallback(_CARD_CONTENT_JS, note_card_content_bottom)
+    except Exception:
+        pass
 
 
 def _reposition_review_overlay() -> None:

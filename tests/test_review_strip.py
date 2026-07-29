@@ -510,14 +510,13 @@ class ReviewStripTest(unittest.TestCase):
         card_web.setObjectName("reviewCardWeb")
         card_web.setGeometry(20, 20, 960, 500)
         card_web.show()
-        # The rect source clamps to the rendered document height: the card
-        # owns only its rendered 380px, and the viewport's empty lower band
-        # is legitimate overlay territory.
-        card_web.page = lambda: types.SimpleNamespace(
-            contentsSize=lambda: types.SimpleNamespace(height=lambda: 380.0)
-        )
+        # The rect source clamps to the JS-measured card bottom: the card owns
+        # only its rendered 380px, and the viewport's empty lower band is
+        # legitimate overlay territory.
         card_web.zoomFactor = lambda: 1.0
         self.parent.reviewer = types.SimpleNamespace(web=card_web)
+        self.ui._CARD_CONTENT_BOTTOM_PX = 380
+        self.addCleanup(lambda: setattr(self.ui, "_CARD_CONTENT_BOTTOM_PX", 0))
         state = self._event_log_state(1)
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
@@ -632,7 +631,7 @@ class ReviewCardContentRectTest(unittest.TestCase):
     """The 2026-07-29 regression: the webview widget fills the reviewer, so
     reporting its rect as card content hid every overlay on every card."""
 
-    def _web(self, *, viewport_h=1500, doc_h=600.0, zoom=1.0, doc_raises=False):
+    def _web(self, *, viewport_h=1500, measured=600, zoom=1.0):
         from ankiscape.ui import ui as ui_module
 
         class Point:
@@ -652,16 +651,6 @@ class ReviewCardContentRectTest(unittest.TestCase):
             def height(self):
                 return viewport_h
 
-        class Size:
-            def height(self):
-                if doc_raises:
-                    raise RuntimeError("not ready")
-                return doc_h
-
-        class Page:
-            def contentsSize(self):
-                return Size()
-
         class Web:
             def isVisible(self):
                 return True
@@ -669,25 +658,42 @@ class ReviewCardContentRectTest(unittest.TestCase):
             def viewport(self):
                 return Target()
 
-            def page(self):
-                return Page()
-
             def zoomFactor(self):
                 return zoom
 
         class Parent:
             reviewer = types.SimpleNamespace(web=Web())
 
-        return ui_module._review_card_content_rect(Parent())
+        previous = ui_module._CARD_CONTENT_BOTTOM_PX
+        ui_module._CARD_CONTENT_BOTTOM_PX = measured
+        try:
+            return ui_module._review_card_content_rect(Parent())
+        finally:
+            ui_module._CARD_CONTENT_BOTTOM_PX = previous
 
-    def test_a_short_document_frees_the_space_below_it(self):
-        rect = self._web(viewport_h=1500, doc_h=600.0)
+    def test_a_short_card_frees_the_space_below_it(self):
+        rect = self._web(viewport_h=1500, measured=600)
         self.assertEqual(rect, (10, 20, 1400, 600))
 
-    def test_a_tall_document_still_owns_the_whole_viewport(self):
-        rect = self._web(viewport_h=1500, doc_h=4000.0)
+    def test_zoom_scales_the_measured_css_pixels(self):
+        rect = self._web(viewport_h=1500, measured=600, zoom=1.5)
+        self.assertEqual(rect, (10, 20, 1400, 900))
+
+    def test_a_tall_card_still_owns_the_whole_viewport(self):
+        rect = self._web(viewport_h=1500, measured=4000)
         self.assertEqual(rect, (10, 20, 1400, 1500))
 
-    def test_an_unknown_document_size_reports_none_not_full_screen(self):
-        self.assertIsNone(self._web(doc_raises=True))
-        self.assertIsNone(self._web(doc_h=0.0))
+    def test_no_measurement_reports_none_not_full_screen(self):
+        self.assertIsNone(self._web(measured=0))
+
+    def test_the_measurement_note_sanitizes_and_repositions(self):
+        from ankiscape.ui import ui as ui_module
+
+        previous = ui_module._CARD_CONTENT_BOTTOM_PX
+        try:
+            ui_module.note_card_content_bottom("not a number")
+            self.assertEqual(ui_module._CARD_CONTENT_BOTTOM_PX, 0)
+            ui_module.note_card_content_bottom(412.0)
+            self.assertEqual(ui_module._CARD_CONTENT_BOTTOM_PX, 412)
+        finally:
+            ui_module._CARD_CONTENT_BOTTOM_PX = previous
