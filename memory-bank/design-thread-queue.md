@@ -934,3 +934,34 @@ open forks, except where marked.
   enemies (same invented magnitude, spread thinner), or repricing the
   secondaries (contradicts the pinned Smuggler bands). A decoded period drop
   table for the Frozen-floor guardians would retire the placeholder entirely.
+
+### 4.14 Grill of 2026-07-29 — six answers
+
+1. **3.23 answered: minimal miniquest ledger now.** Miniquests become a
+   flagged category on the existing quest ledger — same storage, same unlock
+   engine, separate UI grouping — starting with exactly the two consumers:
+   Hunt for Surok (unblocks Bork) and The Lair of Tarn Razorlor (lights the
+   Dominion class-H boss). No up-front catalog sweep; other miniquests join
+   as content needs them.
+2. **3.25 answered: guardian coin drops replace the cache.** Same registered
+   placeholder magnitude, but the period mechanism — guardian-room enemies
+   drop the coins that fund the starter Herblore chain. The resource-room
+   cache is to be removed when this lands.
+3. **3.15 rider affirmed: favourites stay Distractions-only.** Rows without
+   live-event state get no right-click entry; the badge remains a notifier,
+   not a bookmark list.
+4. **4.12 confirmed:** expired gravestones permanently lose their items; the
+   Death's Office bridge keeps only legacy stacked-grave behaviour.
+5. **3.22 and 3.24 confirmed:** dominion weapons stay activated power-ups
+   with sourced charge budgets; a defeat forfeits the last won round's
+   Dominion Factor.
+6. **3.19 confirmed:** the Gnome Restaurant ticket card stays; the order
+   board alternative is retired.
+
+Follow-up harvest (not a fork): the Slayer off-task XP scoping lead from
+2026-07-15 — pin a pre-cutoff Slayer oldid plus Darkan/game-main kill
+handlers; if confirmed, amend the contract sentence to "no assignment
+progress, and no Slayer XP for monsters without a Slayer-level requirement."
+
+Build queue consequences, sequenced behind the two parked codex items:
+the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
