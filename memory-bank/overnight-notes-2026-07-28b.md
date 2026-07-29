@@ -108,6 +108,28 @@ family on disjoint files, independent execution reverification, refix loop
 capped at two extra rounds. Git stays with this session; full-suite runs and
 commits happen here after the workflow returns.
 
+## Dungeoneering harvest landed; implementation running
+
+`source-audits/dungeoneering-harvest-2026-07-28.md` (commit `fb3aa002`) pins
+all 60 floors, complexities, prestige, tokens, binds, Kinship costs, Frozen
+rooms/bosses/doors/keys, the 42-row reward catalog, Smuggler bands and starter
+chains, and names nine bounded placeholder candidates. Notable: nobody has the
+floor-XP curve or death coefficient — the restoration thread didn't qualify
+them either, and the period death record (additive, 15-death cap, 4-70%)
+contradicts Darkan's multiplicative rule. Both ship as registered placeholders
+under the amended goal. The audit also flags that shipped
+`resolve_floor_replay_pure` uses nearest-lower-first while restored Darkan
+uses lowest-unticked-lower-first.
+
+Workflow `wf_f088bd72-27f` is implementing: Phase A (25th trainable skill:
+registry flip, 120 curve, parked-XP release, cape and Max gate by
+construction — clears GOAL-BLOCKED blockers 2 and 3) → B1 (floor runtime
+core) → B2 (in-floor economy), Sol xhigh implementers, execution verifiers,
+refix loops, phase gates that stop the workflow rather than build on an
+unverified phase. Phase C (kinship tiers, reward trader with the functional
+Coal bag, period assets) is deliberately held until the art workflow's apply
+stage releases `assets_provenance.json` — one writer per file.
+
 ## Done this session
 
 - Tranche board refresh (`90ff8fe8`).
