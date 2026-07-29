@@ -27,8 +27,8 @@ cleared. Those are fixed and merged.
 | ~~Gnome Restaurant~~ | done 2026-07-28 | breadth one; see `source-audits/gnome-restaurant-harvest-2026-07-28.md` and design fork 3.19 |
 | ~~Mobilising Armies~~ | done 2026-07-28 | breadth one; see `source-audits/mobilising-armies-breadth-one-2026-07-28.md` |
 | ~~Achievement Diaries~~ | done 2026-07-26 | breadth one; see `source-audits/achievement-diary-harvest-2026-07-26.json` and design forks 3.8/3.9 |
-| Dungeoneering | 40-64 h | harvest running 2026-07-28; substrate exists (`data/dungeoneering_data.py`, `logic/dungeoneering_logic.py`), parked only on the floor-XP curve and death coefficient, which Darkan's restored floor progression (`e1cf61bf2` in the Darkan thread) supplies |
-| Conquest | 20-30 h | sequenced after Dungeoneering by the programme |
+| ~~Dungeoneering~~ | A/B1/B2 done 2026-07-29 | the 25th trainable skill with its full Frozen floor runtime (`0ac64a57`); phase C (kinship tiers, staged trader, assets) parked on the codex day quota with a resumable workflow |
+| Conquest | parked 2026-07-29 | fully harvested (`source-audits/conquest-harvest-2026-07-28.md`), workflow scripted in the `conquest` worktree at schema 102, parked on the codex day quota |
 
 The Sol cross-lineage verification pass over Temple Trekking, Mobilising
 Armies, Gnome Restaurant, and Dominion Tower is running as of 2026-07-28; its
