@@ -19,16 +19,20 @@ cleared. Those are fixed and merged.
 
 | family | estimate | source state |
 | --- | --- | --- |
-| Shattered Heart | 14-20 h | no audit |
-| Troll Invasion | 14-20 h | no audit |
-| Mage Training Arena | 14-20 h | no audit |
-| Temple Trekking | 14-20 h | no audit |
-| Dominion Tower | 14-20 h | no audit |
+| ~~Shattered Heart~~ | done 2026-07-27 | breadth one; commit `eeff3738` |
+| ~~Troll Invasion~~ | done 2026-07-27 | breadth one; see `source-audits/troll-invasion-horizontal-implementation-2026-07-27.md` |
+| ~~Mage Training Arena~~ | done 2026-07-27 | breadth one; the placeholder rule unblocked the Enchantment rate; commits `c9fbc163`/`62d60965` |
+| ~~Temple Trekking~~ | done 2026-07-27 | breadth one; see `source-audits/temple-trekking-trek-model-2026-07-18.md`; commit `0abb8c33` |
+| ~~Dominion Tower~~ | done 2026-07-28 | breadth one; see `source-audits/dominion-tower-harvest-2026-07-28.md` and design forks 3.22-3.24 |
 | ~~Gnome Restaurant~~ | done 2026-07-28 | breadth one; see `source-audits/gnome-restaurant-harvest-2026-07-28.md` and design fork 3.19 |
-| Mobilising Armies | 18-26 h | no audit |
+| ~~Mobilising Armies~~ | done 2026-07-28 | breadth one; see `source-audits/mobilising-armies-breadth-one-2026-07-28.md` |
 | ~~Achievement Diaries~~ | done 2026-07-26 | breadth one; see `source-audits/achievement-diary-harvest-2026-07-26.json` and design forks 3.8/3.9 |
-| Dungeoneering | 40-64 h | plus source research; its data module parks the Skills surface |
+| Dungeoneering | 40-64 h | harvest running 2026-07-28; substrate exists (`data/dungeoneering_data.py`, `logic/dungeoneering_logic.py`), parked only on the floor-XP curve and death coefficient, which Darkan's restored floor progression (`e1cf61bf2` in the Darkan thread) supplies |
 | Conquest | 20-30 h | sequenced after Dungeoneering by the programme |
+
+The Sol cross-lineage verification pass over Temple Trekking, Mobilising
+Armies, Gnome Restaurant, and Dominion Tower is running as of 2026-07-28; its
+findings gate calling those four settled.
 
 **Do not plan from these estimates.** They come from a frontier audit that
 predates both the placeholder rule and the parallel-agent workflow, and they are
