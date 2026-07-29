@@ -29,6 +29,7 @@ try:
         QListWidget,
         QProgressBar,
         QPushButton,
+        QRect,
         Qt,
         QWidget,
     )
@@ -509,6 +510,13 @@ class ReviewStripTest(unittest.TestCase):
         card_web.setObjectName("reviewCardWeb")
         card_web.setGeometry(20, 20, 960, 500)
         card_web.show()
+        # The rect source clamps to the rendered document height: the card
+        # owns only its rendered 380px, and the viewport's empty lower band
+        # is legitimate overlay territory.
+        card_web.page = lambda: types.SimpleNamespace(
+            contentsSize=lambda: types.SimpleNamespace(height=lambda: 380.0)
+        )
+        card_web.zoomFactor = lambda: 1.0
         self.parent.reviewer = types.SimpleNamespace(web=card_web)
         state = self._event_log_state(1)
         hud = self.ui.ReviewHUD(self.parent)
@@ -519,7 +527,7 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(6):
             QApplication.processEvents()
 
-        content_rect = card_web.geometry()
+        content_rect = QRect(20, 20, 960, 380)
         for widget in (
             hud,
             self.ui._DND_BADGE,
@@ -617,3 +625,69 @@ class ReviewStripTest(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
+
+
+@unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
+class ReviewCardContentRectTest(unittest.TestCase):
+    """The 2026-07-29 regression: the webview widget fills the reviewer, so
+    reporting its rect as card content hid every overlay on every card."""
+
+    def _web(self, *, viewport_h=1500, doc_h=600.0, zoom=1.0, doc_raises=False):
+        from ankiscape.ui import ui as ui_module
+
+        class Point:
+            def x(self):
+                return 10
+
+            def y(self):
+                return 20
+
+        class Target:
+            def mapTo(self, _parent, _point):
+                return Point()
+
+            def width(self):
+                return 1400
+
+            def height(self):
+                return viewport_h
+
+        class Size:
+            def height(self):
+                if doc_raises:
+                    raise RuntimeError("not ready")
+                return doc_h
+
+        class Page:
+            def contentsSize(self):
+                return Size()
+
+        class Web:
+            def isVisible(self):
+                return True
+
+            def viewport(self):
+                return Target()
+
+            def page(self):
+                return Page()
+
+            def zoomFactor(self):
+                return zoom
+
+        class Parent:
+            reviewer = types.SimpleNamespace(web=Web())
+
+        return ui_module._review_card_content_rect(Parent())
+
+    def test_a_short_document_frees_the_space_below_it(self):
+        rect = self._web(viewport_h=1500, doc_h=600.0)
+        self.assertEqual(rect, (10, 20, 1400, 600))
+
+    def test_a_tall_document_still_owns_the_whole_viewport(self):
+        rect = self._web(viewport_h=1500, doc_h=4000.0)
+        self.assertEqual(rect, (10, 20, 1400, 1500))
+
+    def test_an_unknown_document_size_reports_none_not_full_screen(self):
+        self.assertIsNone(self._web(doc_raises=True))
+        self.assertIsNone(self._web(doc_h=0.0))

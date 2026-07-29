@@ -46,3 +46,9 @@ back under the orange-variant title against the roster's green pin, so the
 honest post-cutoff green art stays. The remaining 243 rows are the only
 re-research candidates left; a further pass needs a different lever (Wayback
 snapshots or cache sprites), not another wiki sweep.
+
+**Sweep boundary, 2026-07-29:** `icon/` is navigation vocabulary settled by
+the owner-grilled 2026-07-20 icon audit, not sweepable art. Tranche 2 replaced
+seven of its glyphs (including the Stats bar graph the owner prefers) and they
+are reverted; future sweeps exclude `icon/` entirely. `equipment_slots/` stays
+swept — no owner settlement covers it.

@@ -3205,7 +3205,26 @@ def _review_card_content_rect(parent) -> tuple[int, int, int, int] | None:
         viewport = getattr(web, "viewport", None)
         target = viewport() if callable(viewport) else web
         point = target.mapTo(parent, QPoint(0, 0))
-        return (point.x(), point.y(), target.width(), target.height())
+        # The webview widget fills the reviewer even when the rendered card is
+        # a few lines tall, so the widget rect alone would claim the whole
+        # window as card territory and hide every overlay everywhere — the
+        # 2026-07-29 playtest regression. The page's cached document size
+        # bounds the real content; when it is unavailable, report None so
+        # callers use the visible bottom fallback rather than hiding.
+        try:
+            document_height = int(
+                web.page().contentsSize().height() * float(web.zoomFactor())
+            )
+        except Exception:
+            document_height = 0
+        if document_height <= 0:
+            return None
+        return (
+            point.x(),
+            point.y(),
+            target.width(),
+            min(target.height(), document_height),
+        )
     except Exception:
         return None
 
@@ -3264,8 +3283,10 @@ def _reposition_review_overlay() -> None:
             + [drawer.width() for drawer in drawers]
         )
         cluster_height = context_height + main_height + drawers_height
+        # Reserve the bottom bar's strip so a "below" dock never sits on
+        # Anki's answer buttons.
         layout = review_overlay_layout_view_pure(
-            parent_size=(parent.width(), parent.height()),
+            parent_size=(parent.width(), max(0, parent.height() - 72)),
             content_rect=_review_card_content_rect(parent),
             cluster_size=(cluster_width, cluster_height),
         )

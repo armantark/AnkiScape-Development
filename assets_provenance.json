@@ -27250,16 +27250,16 @@
     "timestamp": "2012-01-21T22:42:30Z"
   },
   "icon/dnd_icon.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:D%26D_icon.png",
-    "file_title": "D&D icon.png",
-    "image_url": "https://runescape.wiki/images/archive/20140914110639%21D%26D_icon.png?9eaf8",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Distraction_%26_Diversion_icon.png",
+    "file_title": "Distraction & Diversion icon.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Distraction_%26_Diversion_icon.png?8b333",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "cd97b71f1cd7d5ad3546437fb6ae6f05784343d5",
-    "size": 7329,
-    "source_wiki": "rs3",
-    "timestamp": "2010-09-12T13:10:49Z"
+    "sha1": "a4108ec9379558191967bca54ba46d58e54f7f26",
+    "size": 3731,
+    "source_wiki": "osrs",
+    "timestamp": "2023-01-24T21:31:39Z"
   },
   "icon/dungeoneering_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Dungeoneering_icon_highscores.png",
@@ -27382,16 +27382,16 @@
     "timestamp": "2012-01-21T22:33:43Z"
   },
   "icon/minigame_icon.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Activity_icon.png",
-    "file_title": "Activity icon.png",
-    "image_url": "https://runescape.wiki/images/archive/20251105092114%21Activity_icon.png?0506c",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Minigame_icon.png",
+    "file_title": "Minigame icon.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Minigame_icon.png?e4ffe",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "304970c2621e78042640f9cf3afcf9918284bf77",
-    "size": 1398,
-    "source_wiki": "rs3",
-    "timestamp": "2011-11-17T04:09:26Z"
+    "sha1": "7e7eea0df8c63b50db009cca5a8b1d36828ddc91",
+    "size": 3390,
+    "source_wiki": "osrs",
+    "timestamp": "2015-06-06T07:49:34Z"
   },
   "icon/mining_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Mining_icon_highscores.png",
@@ -27418,16 +27418,16 @@
     "timestamp": "2012-01-21T22:41:51Z"
   },
   "icon/quest_icon.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Quest_icon_fixed.png",
-    "file_title": "Quest icon fixed.png",
-    "image_url": "https://runescape.wiki/images/Quest_icon_fixed.png?79caf",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Quest_List_tab_icon.png",
+    "file_title": "Quest List tab icon.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Quest_List_tab_icon.png?15cf5",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ed46f36961d0a226cf6164783b4a78f521931295",
-    "size": 301,
-    "source_wiki": "rs3",
-    "timestamp": "2011-11-24T09:21:52Z"
+    "sha1": "03ec5b8950edad47fe27dce5ded91da9b47ede57",
+    "size": 626,
+    "source_wiki": "osrs",
+    "timestamp": "2024-11-17T09:51:02Z"
   },
   "icon/ranged_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Ranged_icon_highscores.png",
