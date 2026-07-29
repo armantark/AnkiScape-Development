@@ -215,6 +215,23 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(advanced["shop_market_clock"]["market_tick"], 10)
         self.assertEqual(data["shop_market_clock"]["market_tick"], 0)
 
+    def test_market_clock_shallow_path_matches_the_sanitized_deepcopy_result(self):
+        from ankiscape.logic.shop_logic import ensure_shop_state_pure
+
+        data = build_shop_fixture_player_data()
+        data["unrelated_large_state"] = {"nested": [1, 2, 3]}
+        expected = ensure_shop_state_pure(data)
+        expected_clock = dict(expected["shop_market_clock"])
+        expected_clock["answered_cards"] += 3
+        expected_clock["market_tick"] += 3
+        expected["shop_market_clock"] = expected_clock
+
+        advanced = advance_shop_market_clock_pure(data, answered_cards=3)
+
+        self.assertEqual(advanced, expected)
+        self.assertEqual(data["shop_market_clock"]["market_tick"], 0)
+        self.assertIs(advanced["unrelated_large_state"], data["unrelated_large_state"])
+
     def test_buy_live_stock_records_event_and_rollback_restores_state(self):
         shop, row = _live_shop_and_row()
         data = build_shop_fixture_player_data()

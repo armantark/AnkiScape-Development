@@ -216,7 +216,10 @@ def migrate_shop_diary_transaction_counts_pure(
 
 
 def advance_shop_market_clock_pure(player_data: Mapping[str, Any], answered_cards: int = 1) -> Dict[str, Any]:
-    data = ensure_shop_state_pure(player_data)
+    # This path mutates only the clock. Sanitizing returns fresh shop-owned nested
+    # state, so the full save does not need the vendor paths' load-bearing deepcopy.
+    data = dict(player_data or {})
+    data.update(sanitize_shop_state_pure(data))
     increment = max(0, int(answered_cards))
     clock = dict(data["shop_market_clock"])
     clock["answered_cards"] += increment

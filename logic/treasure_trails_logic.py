@@ -32,6 +32,9 @@ from ..data.treasure_trails_data import (
 
 
 TREASURE_TRAILS_STATE_VERSION = 1
+TREASURE_TRAILS_BANK_START_LOCK = (
+    "Right-click the clue in the Bank and choose Start trail."
+)
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0, maximum: int = 2_147_483_647) -> int:
@@ -48,7 +51,7 @@ def default_treasure_trails_state_pure() -> dict[str, Any]:
     return {
         "treasure_trail": {},
         # An abandoned trail is only put away, not torn up: the retained trail
-        # waits here so re-reading the same scroll picks it back up mid-trail.
+        # waits here so starting the same scroll again picks it back up mid-trail.
         "treasure_trail_retained": {},
         "treasure_trails_started": 0,
         "treasure_trails_completed": 0,
@@ -293,7 +296,9 @@ def apply_treasure_trail_review_pure(
     active = data.get("activity_session")
     active_id = str(active.get("active_id", "")) if isinstance(active, Mapping) else ""
     if not trail or active_id != TREASURE_TRAILS_ACTIVITY_ID:
-        return data, False, {"reason": "Read a clue scroll before following a trail."}
+        return data, False, {
+            "reason": "Start a trail from the clue scroll in the Bank before following it."
+        }
     data.update(state)
     step_id = trail["steps"][int(trail["index"])]
     step = TREASURE_TRAILS_EASY_STEPS[step_id]
@@ -360,7 +365,7 @@ def abandon_treasure_trail_pure(
     data["treasure_trail_retained"] = dict(state["treasure_trail"])
     data["treasure_trail"] = {}
     data["activity_session"] = {"active_id": ""}
-    message = "You put the clue scroll away. Read it again to pick the trail back up."
+    message = "You put the clue scroll away. Start it again from the Bank to pick the trail back up."
     data["treasure_trails_last_result"] = message
     return data, True, {"message": message}
 
@@ -424,8 +429,10 @@ def apply_treasure_trails_command_pure(
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     body = payload if isinstance(payload, Mapping) else {}
     tier = str(body.get("tier", EASY_TIER)) or EASY_TIER
-    if action_id == "read":
+    if action_id == "start_from_bank":
         return read_clue_scroll_pure(player_data, tier, rng)
+    if action_id == "read":
+        return dict(player_data), False, {"reason": TREASURE_TRAILS_BANK_START_LOCK}
     if action_id == "abandon":
         return abandon_treasure_trail_pure(player_data)
     if action_id == "open_casket":
@@ -441,6 +448,13 @@ def treasure_trails_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     trail = state["treasure_trail"]
     inventory = player_data.get("inventory")
     inventory = inventory if isinstance(inventory, Mapping) else {}
+    active_session = player_data.get("activity_session")
+    active_id = (
+        str(active_session.get("active_id", ""))
+        if isinstance(active_session, Mapping)
+        else ""
+    )
+    session_available = active_id in {"", TREASURE_TRAILS_ACTIVITY_ID}
     step = None
     if trail:
         step_id = trail["steps"][int(trail["index"])]
@@ -467,7 +481,19 @@ def treasure_trails_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                     f"{item_name} trails are not built yet — only the easy tier is. "
                     "The scroll keeps, and it still blocks a new clue from dropping."
                 ),
-                "can_read": tier in IMPLEMENTED_CLUE_TIERS and not trail,
+                "can_read": False,
+                "can_start_from_bank": (
+                    tier in IMPLEMENTED_CLUE_TIERS and not trail and session_available
+                ),
+                "bank_start_locked_reason": (
+                    ""
+                    if tier in IMPLEMENTED_CLUE_TIERS and not trail and session_available
+                    else (
+                        "Finish the active persistent activity first."
+                        if not session_available
+                        else "You are already following a Treasure Trail."
+                    )
+                ),
             }
         )
     ownership_reason = clue_ownership_reason_pure(player_data)
@@ -476,6 +502,11 @@ def treasure_trails_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "active": bool(trail),
         "step": step,
         "clue_rows": tuple(clue_rows),
+        "activity_start_locked_reason": (
+            TREASURE_TRAILS_BANK_START_LOCK
+            if any(row["implemented"] for row in clue_rows) and not trail
+            else ""
+        ),
         # The single ownership rule, published so no panel re-derives it.
         "can_receive_clue": not ownership_reason,
         "clue_blocked_reason": ownership_reason,

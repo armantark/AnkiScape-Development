@@ -2,9 +2,9 @@
 
 The badge is the player's notification system, so the watch list is player state
 rather than a setting: ``dnd_favourites`` holds Distraction-and-Diversion
-activity ids in the order the player pinned them. The pin itself lives on each
-activity's own surface, beside the Activities detail card's shared control row,
-and commits through ``commit_direct_action`` like every other policy command.
+activity ids in the order the player pinned them. The primary toggle is the
+Activities-tree row's context menu; the detail-card star remains as a second route.
+Both commit through ``commit_direct_action`` like every other policy command.
 
 A favourite never hides a live event. It adds a permanent line to the badge
 popover so an idle Distraction can still be watched; see design-thread-queue
@@ -61,6 +61,46 @@ def is_dnd_favourite_pure(player_data: Mapping[str, Any], activity_id: Any) -> b
     return str(activity_id or "") in sanitize_dnd_favourites_pure(
         player_data.get("dnd_favourites")
     )
+
+
+def dnd_favourite_context_menu_view_pure(
+    player_data: Mapping[str, Any], activity_id: Any, *, can_toggle: bool = True
+) -> dict[str, Any]:
+    """Project the one row action; non-Distractions have no menu entry."""
+
+    target = str(activity_id or "")
+    visible = target in DND_ACTIVITY_IDS
+    pinned = visible and is_dnd_favourite_pure(player_data, target)
+    return {
+        "visible": visible,
+        "enabled": visible and bool(can_toggle),
+        "label": "Remove from notifications" if pinned else "Add to notifications",
+    }
+
+
+def dnd_favourite_detail_button_view_pure(
+    player_data: Mapping[str, Any],
+    activity_id: Any,
+    *,
+    show_detail: bool,
+    can_toggle: bool = True,
+) -> dict[str, Any]:
+    """Project the retained detail-card star without UI-side policy."""
+
+    target = str(activity_id or "")
+    visible = bool(show_detail) and target in DND_ACTIVITY_IDS
+    pinned = visible and is_dnd_favourite_pure(player_data, target)
+    hint = (
+        "Stop watching this Distraction on the reviewer badge"
+        if pinned
+        else "Watch this Distraction on the reviewer badge"
+    )
+    return {
+        "visible": visible,
+        "enabled": visible and bool(can_toggle),
+        "text": "★" if pinned else "☆",
+        "tooltip": hint,
+    }
 
 
 def toggle_dnd_favourite_pure(

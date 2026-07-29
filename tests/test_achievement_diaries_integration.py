@@ -11,6 +11,7 @@ from __future__ import annotations
 import copy
 import sys
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
@@ -127,6 +128,78 @@ class DiaryReviewDispatchTest(unittest.TestCase):
             task.id,
             player["achievement_diaries"]["completed_tasks"],
             "the review path did not advance the diary ledger",
+        )
+        self.assertTrue(
+            any(
+                row["kind"] == "achievement" and task.name in row["text"]
+                for row in player["review_event_log"]
+            ),
+            "the emitted achievement toast did not enter the review event log",
+        )
+
+    def test_arachnophagia_requires_the_real_spider_cooking_action(self):
+        from ankiscape.core.logic import check_achievements, level_up_check
+        from ankiscape.runtime.runtime_actions_production import handle_cooking_answer
+        from ankiscape.runtime.runtime_actions_shared import RuntimeActionContext
+
+        task = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.source_id == 197
+        )
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player.update(
+            cooking_level=15,
+            cooking_exp=2745.0,
+            current_cooking="cook_mackerel",
+        )
+        player["inventory"].update(
+            {"Raw mackerel": 1, "Raw spider on stick": 1}
+        )
+        errors: list = []
+
+        def _award(exp_key, amount):
+            player[exp_key] = float(player.get(exp_key, 0)) + float(amount)
+            return amount
+
+        ctx = RuntimeActionContext(
+            player_data=player,
+            random_random=lambda: 0.0,
+            show_error_message=lambda title, message: errors.append((title, message)),
+            deactivate_current_skill=lambda: None,
+            award_skill_exp=_award,
+            award_hidden_skill_exp=lambda *_args: None,
+            level_up_check=level_up_check,
+            check_achievements=check_achievements,
+            save_player_data=lambda: None,
+            refresh_skill_availability=lambda: None,
+            refresh_skill_availability_partial=lambda *_args: None,
+            can_smith_any=lambda: False,
+            show_exp=lambda _amount: None,
+            show_activity_gain=lambda _message: None,
+            implemented_exp_keys_snapshot=lambda: {},
+            show_quest_exp_delta=lambda _before: None,
+        )
+
+        with patch("ankiscape.core.logic.show_level_up_dialog"):
+            self.assertTrue(handle_cooking_answer(ctx), errors)
+        self.assertEqual(player["cooking_level"], 16)
+        self.assertNotIn(task.id, player["achievement_diaries"]["completed_tasks"])
+        self.assertNotIn(
+            "cook_spider_on_a_stick",
+            player["achievement_progress"]["skills"]["cooking"]["actions"],
+        )
+
+        player["current_cooking"] = "cook_spider_on_a_stick"
+        self.assertTrue(handle_cooking_answer(ctx), errors)
+        self.assertIn(task.id, player["achievement_diaries"]["completed_tasks"])
+        self.assertEqual(
+            player["achievement_progress"]["skills"]["cooking"]["actions"][
+                "cook_spider_on_a_stick"
+            ],
+            1,
         )
 
     def test_the_review_hook_leaves_the_old_catalog_sticky(self):

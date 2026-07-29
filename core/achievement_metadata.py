@@ -17,6 +17,7 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 
 PlayerData = Mapping[str, Any]
 AchievementCondition = Callable[[PlayerData], bool]
+AchievementDependencyState = Callable[[PlayerData], Any]
 
 ACHIEVEMENT_DIFFICULTIES: tuple[str, ...] = (
     "Easy",
@@ -32,12 +33,16 @@ class AchievementDefinition:
     description: str
     difficulty: str
     condition: AchievementCondition
+    dependency: str
+    dependency_state: AchievementDependencyState
 
     def as_legacy_dict(self) -> dict[str, Any]:
         return {
             "description": self.description,
             "difficulty": self.difficulty,
             "condition": self.condition,
+            "dependency": self.dependency,
+            "dependency_state": self.dependency_state,
         }
 
 
@@ -235,6 +240,19 @@ def _owns_or_equipped(player: PlayerData, item_name: str) -> bool:
     )
 
 
+def _achievement_dependency_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return tuple(
+            sorted(
+                (str(key), _achievement_dependency_value(item))
+                for key, item in value.items()
+            )
+        )
+    if isinstance(value, (tuple, list, set)):
+        return tuple(_achievement_dependency_value(item) for item in value)
+    return value
+
+
 def build_achievement_definitions(
     mining_output_items: Iterable[str],
     woodcutting_log_items: Iterable[str],
@@ -257,9 +275,29 @@ def build_achievement_definitions(
 
     definitions: list[AchievementDefinition] = []
     final_count = {"value": 0}
+    dependency = "mining"
+    dependency_state: AchievementDependencyState = lambda player: (
+        _achievement_dependency_value(_achievement_skill_record(player, "mining")),
+        _level(player, "mining_level"),
+        player.get("mining_exp", 0),
+    )
+
+    def use_dependency(name: str, state: AchievementDependencyState) -> None:
+        nonlocal dependency, dependency_state
+        dependency = name
+        dependency_state = state
 
     def add(name: str, description: str, difficulty: str, condition: AchievementCondition) -> None:
-        definitions.append(AchievementDefinition(name, description, difficulty, condition))
+        definitions.append(
+            AchievementDefinition(
+                name,
+                description,
+                difficulty,
+                condition,
+                dependency,
+                dependency_state,
+            )
+        )
 
     add("First Steps", "Mine your first ore", "Easy", lambda player: _achievement_output_total(player, "mining", mining_output_items) > 0)
     add("Novice Miner", "Reach Mining level 10", "Easy", lambda player: _level(player, "mining_level") >= 10)
@@ -301,6 +339,13 @@ def build_achievement_definitions(
     add("Ore Completionist", "Mine 10,000 of each ore type", "Very Challenging", lambda player: _achievement_has_each(player, "mining", mining_output_items, 10000))
     add("XP Master", "Gain 1,000,000 total Mining experience", "Very Challenging", lambda player: float(player.get("mining_exp", 0) or 0) >= 1000000)
 
+    use_dependency(
+        "woodcutting",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "woodcutting")),
+            _level(player, "woodcutting_level"),
+        ),
+    )
     add("First Chop", "Cut your first log", "Easy", lambda player: _achievement_output_total(player, "woodcutting", woodcutting_log_items) > 0)
     add("Novice Woodcutter", "Reach Woodcutting level 10", "Easy", lambda player: _level(player, "woodcutting_level") >= 10)
     add("Log Collector", "Collect 100 total logs", "Easy", lambda player: _achievement_output_total(player, "woodcutting", woodcutting_log_items) >= 100)
@@ -319,6 +364,15 @@ def build_achievement_definitions(
 
     add("Master Woodcutter", "Reach Woodcutting level 99", "Very Challenging", lambda player: _level(player, "woodcutting_level") >= 99)
 
+    use_dependency(
+        "mining_woodcutting",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "mining")),
+            _achievement_dependency_value(_achievement_skill_record(player, "woodcutting")),
+            _level(player, "mining_level"),
+            _level(player, "woodcutting_level"),
+        ),
+    )
     add("Jack of Two Trades", "Reach level 50 in both Mining and Woodcutting", "Moderate", lambda player: _level(player, "mining_level") >= 50 and _level(player, "woodcutting_level") >= 50)
     add(
         "Resource Baron",
@@ -330,6 +384,10 @@ def build_achievement_definitions(
     add("Skilling Prodigy", "Reach level 80 in both Mining and Woodcutting", "Very Challenging", lambda player: _level(player, "mining_level") >= 80 and _level(player, "woodcutting_level") >= 80)
     add("Master of Resources", "Reach level 99 in both Mining and Woodcutting", "Very Challenging", lambda player: _level(player, "mining_level") >= 99 and _level(player, "woodcutting_level") >= 99)
 
+    use_dependency(
+        "completed_achievements",
+        lambda player: tuple(player.get("completed_achievements", ()) or ()),
+    )
     add(
         "Living Legend",
         "Complete all other achievements",
@@ -337,6 +395,14 @@ def build_achievement_definitions(
         lambda player: _completed_achievement_count(player) >= final_count["value"] - 1,
     )
 
+    use_dependency(
+        "mining",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "mining")),
+            _level(player, "mining_level"),
+            player.get("mining_exp", 0),
+        ),
+    )
     add("Gem Finder", "Mine your first gem", "Easy", lambda player: _achievement_output_total(player, "mining", gem_items) > 0)
     add("Sapphire Collector", "Mine 10 uncut sapphires", "Moderate", lambda player: _achievement_output_count(player, "mining", "Uncut sapphire") >= 10)
     add("Emerald Hunter", "Mine 10 uncut emeralds", "Moderate", lambda player: _achievement_output_count(player, "mining", "Uncut emerald") >= 10)
@@ -344,6 +410,15 @@ def build_achievement_definitions(
     add("Diamond Prospector", "Mine 10 uncut diamonds", "Very Challenging", lambda player: _achievement_output_count(player, "mining", "Uncut diamond") >= 10)
     add("Gem Master", "Mine 100 gems in total", "Very Challenging", lambda player: _achievement_output_total(player, "mining", gem_items) >= 100)
 
+    use_dependency(
+        "runecrafting",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "runecrafting")),
+            _level(player, "runecrafting_level"),
+            _quest_completed(player, "rune_mysteries"),
+            _claim_completed(player, "wicked_hood"),
+        ),
+    )
     add("Rune Mysteries", "Complete Rune Mysteries", "Easy", lambda player: _quest_completed(player, "rune_mysteries"))
     add("Novice Runecrafter", "Reach Runecrafting level 10", "Easy", lambda player: _level(player, "runecrafting_level") >= 10)
     add("Hooded Runecrafter", "Claim the Wicked hood", "Easy", lambda player: _claim_completed(player, "wicked_hood"))
@@ -352,6 +427,12 @@ def build_achievement_definitions(
     add("Expert Runecrafter", "Reach Runecrafting level 60", "Difficult", lambda player: _level(player, "runecrafting_level") >= 60)
     add("Master Runecrafter", "Reach Runecrafting level 99", "Very Challenging", lambda player: _level(player, "runecrafting_level") >= 99)
 
+    use_dependency(
+        "smithing",
+        lambda player: _achievement_dependency_value(
+            _achievement_skill_record(player, "smithing")
+        ),
+    )
     add("Novice Smith", "Smelt your first bar", "Easy", lambda player: _achievement_output_total(player, "smithing", bar_items) > 0)
     add("Bronze Master", "Smelt 100 Bronze bars", "Easy", lambda player: _achievement_output_count(player, "smithing", "Bronze bar") >= 100)
     add("Iron Forger", "Smelt 500 Iron bars", "Moderate", lambda player: _achievement_output_count(player, "smithing", "Iron bar") >= 500)
@@ -360,12 +441,26 @@ def build_achievement_definitions(
     add("Adamantite Artisan", "Smelt 250 Adamant bars", "Very Challenging", lambda player: _achievement_output_count(player, "smithing", "Adamant bar") >= 250)
     add("Runite Refiner", "Smelt 100 Rune bars", "Very Challenging", lambda player: _achievement_output_count(player, "smithing", "Rune bar") >= 100)
 
+    use_dependency(
+        "crafting",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "crafting")),
+            _level(player, "crafting_level"),
+        ),
+    )
     add("Novice Crafter", "Reach level 2 in Crafting", "Easy", lambda player: _level(player, "crafting_level") > 1)
     add("Pottery Apprentice", "Craft 100 pots", "Easy", lambda player: _achievement_output_count(player, "crafting", "Empty pot") >= 100)
     add("Jewelry Novice", "Craft 50 gold rings", "Moderate", lambda player: _achievement_output_count(player, "crafting", "Gold ring") >= 50)
     add("Gem Cutter", "Cut 10 of each gem type", "Difficult", lambda player: _achievement_has_each(player, "crafting", ("Sapphire", "Emerald", "Ruby", "Diamond"), 10))
     add("Master Crafter", "Reach Crafting level 99", "Very Challenging", lambda player: _level(player, "crafting_level") >= 99)
 
+    use_dependency(
+        "firemaking",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "firemaking")),
+            _level(player, "firemaking_level"),
+        ),
+    )
     add("First Fire", "Burn your first log", "Easy", lambda player: _achievement_output_count(player, "firemaking", "Ashes") > 0)
     add("Novice Firemaker", "Reach Firemaking level 10", "Easy", lambda player: _level(player, "firemaking_level") >= 10)
     add("Ash Collector", "Collect 100 Ashes", "Easy", lambda player: _achievement_output_count(player, "firemaking", "Ashes") >= 100)
@@ -375,6 +470,13 @@ def build_achievement_definitions(
     add("Ash Stockpile", "Collect 10,000 Ashes", "Difficult", lambda player: _achievement_output_count(player, "firemaking", "Ashes") >= 10000)
     add("Master Firemaker", "Reach Firemaking level 99", "Very Challenging", lambda player: _level(player, "firemaking_level") >= 99)
 
+    use_dependency(
+        "fishing",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "fishing")),
+            _level(player, "fishing_level"),
+        ),
+    )
     add("First Catch", "Catch your first fish", "Easy", lambda player: _achievement_output_total(player, "fishing", fishing_output_items) > 0)
     add("Novice Angler", "Reach Fishing level 10", "Easy", lambda player: _level(player, "fishing_level") >= 10)
     add("Fish Collector", "Catch 100 total fish", "Easy", lambda player: _achievement_output_total(player, "fishing", fishing_output_items) >= 100)
@@ -384,6 +486,13 @@ def build_achievement_definitions(
     add("Fish Stockpile", "Catch 10,000 total fish", "Difficult", lambda player: _achievement_output_total(player, "fishing", fishing_output_items) >= 10000)
     add("Master Angler", "Reach Fishing level 99", "Very Challenging", lambda player: _level(player, "fishing_level") >= 99)
 
+    use_dependency(
+        "hunter",
+        lambda player: (
+            _level(player, "hunter_level"),
+            _level(player, "hunter_success_count", 0),
+        ),
+    )
     add("First Hunt", "Catch your first Hunter creature", "Easy", lambda player: _level(player, "hunter_success_count", 0) >= 1)
     add("Novice Hunter", "Reach Hunter level 10", "Easy", lambda player: _level(player, "hunter_level") >= 10)
     add("Trap Starter", "Catch 100 Hunter creatures", "Easy", lambda player: _level(player, "hunter_success_count", 0) >= 100)
@@ -393,6 +502,14 @@ def build_achievement_definitions(
     add("Hunter Stockpile", "Catch 10,000 Hunter creatures", "Difficult", lambda player: _level(player, "hunter_success_count", 0) >= 10000)
     add("Master Hunter", "Reach Hunter level 99", "Very Challenging", lambda player: _level(player, "hunter_level") >= 99)
 
+    use_dependency(
+        "cooking",
+        lambda player: (
+            _level(player, "cooking_level"),
+            _level(player, "cooking_success_count", 0),
+            _level(player, "cooking_burn_count", 0),
+        ),
+    )
     add("First Cook", "Cook your first food", "Easy", lambda player: _level(player, "cooking_success_count", 0) >= 1)
     add("First Burn", "Burn your first food", "Easy", lambda player: _level(player, "cooking_burn_count", 0) >= 1)
     add("Novice Cook", "Reach Cooking level 10", "Easy", lambda player: _level(player, "cooking_level") >= 10)
@@ -403,6 +520,17 @@ def build_achievement_definitions(
     add("Kitchen Stockpile", "Successfully cook 10,000 items", "Difficult", lambda player: _level(player, "cooking_success_count", 0) >= 10000)
     add("Master Cook", "Reach Cooking level 99", "Very Challenging", lambda player: _level(player, "cooking_level") >= 99)
 
+    use_dependency(
+        "herblore",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "herblore")),
+            _level(player, "herblore_level"),
+            tuple(
+                (item_name, _item_count(player, item_name))
+                for item_name in finished_potion_dose_items
+            ),
+        ),
+    )
     add("First Potion", "Mix your first potion", "Easy", lambda player: _achievement_output_total(player, "herblore", finished_potion_dose_items) > 0)
     add("Novice Herbalist", "Reach Herblore level 10", "Easy", lambda player: _level(player, "herblore_level") >= 10)
     add("Potion Collector", "Hold 400 finished potion doses at once", "Easy", lambda player: _inventory_dose_total(player, finished_potion_dose_items) >= 400)
@@ -411,6 +539,15 @@ def build_achievement_definitions(
     add("Expert Herbalist", "Reach Herblore level 60", "Difficult", lambda player: _level(player, "herblore_level") >= 60)
     add("Master Herbalist", "Reach Herblore level 99", "Very Challenging", lambda player: _level(player, "herblore_level") >= 99)
 
+    use_dependency(
+        "prayer",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "prayer")),
+            _level(player, "prayer_level"),
+            _level(player, "prayer_bury_count", 0),
+            _level(player, "prayer_actions_completed", 0),
+        ),
+    )
     add("Rest in Pieces", "Bury your first bone", "Easy", lambda player: _level(player, "prayer_bury_count", 0) >= 1)
     add("Novice Devotee", "Reach Prayer level 10", "Easy", lambda player: _level(player, "prayer_level") >= 10)
     add("Faithful", "Complete 100 Prayer training actions", "Easy", lambda player: _level(player, "prayer_actions_completed", 0) >= 100)
@@ -418,6 +555,14 @@ def build_achievement_definitions(
     add("Ghostly Disciple", "Collect 500 ecto-tokens", "Moderate", lambda player: _achievement_output_count(player, "prayer", "Ecto-token") >= 500)
     add("Expert Devotee", "Reach Prayer level 60", "Difficult", lambda player: _level(player, "prayer_level") >= 60)
     add("Master Devotee", "Reach Prayer level 99", "Very Challenging", lambda player: _level(player, "prayer_level") >= 99)
+    use_dependency(
+        "construction",
+        lambda player: (
+            _level(player, "construction_level"),
+            _level(player, "construction_actions_completed", 0),
+            _level(player, "construction_outputs_created", 0),
+        ),
+    )
     add("First Foundations", "Complete your first Construction build", "Easy", lambda player: _level(player, "construction_actions_completed", 0) >= 1)
     add("Novice Builder", "Reach Construction level 10", "Easy", lambda player: _level(player, "construction_level") >= 10)
     add("Established Builder", "Reach Construction level 30", "Moderate", lambda player: _level(player, "construction_level") >= 30)
@@ -425,6 +570,13 @@ def build_achievement_definitions(
     add("Construction Cape", "Reach Construction level 99", "Very Challenging", lambda player: _level(player, "construction_level") >= 99)
     add("Packed Flat", "Create 100 Construction outputs", "Difficult", lambda player: _level(player, "construction_outputs_created", 0) >= 100)
 
+    use_dependency(
+        "farming",
+        lambda player: (
+            _level(player, "farming_level"),
+            _achievement_dependency_value(player.get("farming_counters", {})),
+        ),
+    )
     add("First Plant", "Plant your first Farming crop", "Easy", lambda player: _farming_counter(player, "plants") >= 1)
     for name, required_level, difficulty in FARMING_LEVEL_ACHIEVEMENTS:
         add(
@@ -443,11 +595,36 @@ def build_achievement_definitions(
     add("Tree Doctor", "Check the health of your first Farming tree", "Easy", lambda player: _farming_counter(player, "tree_health_checks") >= 1)
     add("Full Farm Run", "Queue your first full farm run", "Moderate", lambda player: _farming_counter(player, "full_runs") >= 1)
 
+    use_dependency(
+        "thieving",
+        lambda player: (
+            _level(player, "thieving_level"),
+            _level(player, "thieving_success_count", 0),
+        ),
+    )
     add("First Lift", "Complete your first successful Thieving action", "Easy", lambda player: _level(player, "thieving_success_count", 0) >= 1)
     add("Novice Thief", "Reach Thieving level 10", "Easy", lambda player: _level(player, "thieving_level") >= 10)
     add("Sticky Fingers", "Complete 100 successful Thieving actions", "Moderate", lambda player: _level(player, "thieving_success_count", 0) >= 100)
     add("Master Thief", "Reach Thieving level 99", "Very Challenging", lambda player: _level(player, "thieving_level") >= 99)
 
+    use_dependency(
+        "agility",
+        lambda player: (
+            _achievement_dependency_value(_achievement_skill_record(player, "agility")),
+            _level(player, "agility_level"),
+            _level(player, "agility_actions_completed", 0),
+            _level(player, "agility_pit_successes", 0),
+            _achievement_dependency_value(player.get("agility_lap_counts", {})),
+            _achievement_dependency_value(
+                player.get("agility_activity_completions", {})
+            ),
+            tuple(
+                _item_count(player, item_name)
+                for item_name in ("Agility arena ticket", "Agile top", "Agile legs")
+            ),
+            _achievement_dependency_value(player.get("equipment", {})),
+        ),
+    )
     add("First Agility Action", "Complete your first Agility action", "Easy", lambda player: _level(player, "agility_actions_completed", 0) >= 1)
     add("Novice Acrobat", "Reach Agility level 10", "Easy", lambda player: _level(player, "agility_level") >= 10)
     add("Course Runner", "Complete your first Agility lap", "Easy", lambda player: _agility_counter(player, "total") >= 1)
@@ -463,6 +640,14 @@ def build_achievement_definitions(
     add("Master Acrobat", "Reach Agility level 99", "Very Challenging", lambda player: _level(player, "agility_level") >= 99)
     add("Endurance", "Complete 1,000 Agility actions", "Very Challenging", lambda player: _level(player, "agility_actions_completed", 0) >= 1000)
 
+    use_dependency(
+        "magic",
+        lambda player: (
+            _level(player, "magic_level"),
+            _level(player, "magic_actions_completed", 0),
+            bool((player.get("mage_arena", {}) or {}).get("completed")),
+        ),
+    )
     add("First Cast", "Complete your first standalone Magic cast", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 1)
     add("Novice Mage", "Reach Magic level 10", "Easy", lambda player: _level(player, "magic_level") >= 10)
     add("Spell Slinger", "Complete 100 standalone Magic casts", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 100)

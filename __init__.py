@@ -37,6 +37,7 @@ import inspect
 import random
 import os
 import datetime
+from collections.abc import Mapping
 from .logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_item_pack_open_pure,
@@ -99,6 +100,7 @@ from .ui.ui import (
     ensure_review_status_badge,
     update_review_status_badge,
     update_review_fill_drawer,
+    update_review_event_log_drawer,
     hide_review_status_badge,
     migrate_legacy_settings,
 )
@@ -215,6 +217,7 @@ from .logic.grand_exchange_logic import (
     ge_frontend_projection_pure,
 )
 from .logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+from .logic.review_strip_logic import record_review_event_pure
 from .logic.farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .logic.agility_logic import apply_agility_command_pure
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
@@ -335,6 +338,7 @@ _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
+_REVIEW_FEEDBACK_FLUSHING = False
 
 def show_review_popup():
     ui.show_review_popup()
@@ -384,8 +388,24 @@ def _initialize_debug_from_config():
 
 
 # --- Small helpers to reduce duplication ---
+def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
+    """The single runtime seam behind every floating review notification."""
+
+    updated = record_review_event_pure(player_data, kind, text)
+    player_data["review_event_log"] = updated["review_event_log"]
+    if persist:
+        try:
+            storage_save_player_data(player_data, current_skill)
+        except (AttributeError, RuntimeError):
+            pass
+    try:
+        update_review_event_log_drawer(player_data)
+    except Exception:
+        pass
+
+
 def _show_exp(exp_gained) -> None:
-    """Ensure the ExpPopup exists and display exp."""
+    """Record one XP drop, then display it when floating feedback is enabled."""
     try:
         if _REVIEW_FEEDBACK_CONTEXT is not None:
             try:
@@ -393,6 +413,10 @@ def _show_exp(exp_gained) -> None:
             except (TypeError, ValueError):
                 pass
             return
+        message = f"+{int(float(exp_gained))} XP"
+        _record_review_event(
+            "xp", message, persist=not _REVIEW_FEEDBACK_FLUSHING
+        )
         # Respect user setting for floating XP (default True)
         show_xp = True
         try:
@@ -414,15 +438,15 @@ def _show_exp(exp_gained) -> None:
 
 
 def _show_activity_gain(text: str) -> None:
-    """Floating confirmation for no-XP Utilities/Activities (for example, "+28 Flax").
-
-    Reuses the floating XP popup so utility actions get the same lightweight
-    feedback as XP skills, and respects the same floating-notification setting.
-    """
+    """Record and show a no-XP Utility or Activity result."""
     try:
         if _REVIEW_FEEDBACK_CONTEXT is not None:
             _REVIEW_FEEDBACK_CONTEXT["activity"].append(str(text))
             return
+        message = str(text)
+        _record_review_event(
+            "activity", message, persist=not _REVIEW_FEEDBACK_FLUSHING
+        )
         show_popup = True
         try:
             if mw and getattr(mw, "col", None):
@@ -432,7 +456,7 @@ def _show_activity_gain(text: str) -> None:
         if show_popup:
             if not hasattr(mw, "exp_popup"):
                 mw.exp_popup = ExpPopup(mw)
-            mw.exp_popup.show_text(text)
+            mw.exp_popup.show_text(message)
     except Exception:
         pass
 
@@ -480,81 +504,233 @@ def _begin_review_feedback_context() -> None:
 
 
 def _finish_review_feedback_context() -> None:
-    global _REVIEW_FEEDBACK_CONTEXT
+    global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_FLUSHING
     context = _REVIEW_FEEDBACK_CONTEXT or {"xp": 0.0, "activity": []}
     _REVIEW_FEEDBACK_CONTEXT = None
-    xp_total = context.get("xp", 0.0)
+    _REVIEW_FEEDBACK_FLUSHING = True
     try:
-        xp_total = float(xp_total)
-    except (TypeError, ValueError):
-        xp_total = 0.0
-    if xp_total > 0:
-        _show_exp(xp_total)
-        return
-    activity_messages = context.get("activity", [])
-    if activity_messages:
-        combined = _combine_activity_feedback(activity_messages)
-        if combined:
-            _show_activity_gain(combined)
-    try:
-        update_review_hud(player_data, current_skill)
-    except Exception:
-        pass
+        xp_total = context.get("xp", 0.0)
+        try:
+            xp_total = float(xp_total)
+        except (TypeError, ValueError):
+            xp_total = 0.0
+        if xp_total > 0:
+            _show_exp(xp_total)
+            return
+        activity_messages = context.get("activity", [])
+        if activity_messages:
+            combined = _combine_activity_feedback(activity_messages)
+            if combined:
+                _show_activity_gain(combined)
+        try:
+            update_review_hud(player_data, current_skill)
+        except Exception:
+            pass
+    finally:
+        _REVIEW_FEEDBACK_FLUSHING = False
+
+
+def _catalog_requirement_item_names(*catalogs) -> set[str]:
+    names = set()
+    for catalog in catalogs:
+        for spec in catalog.values():
+            if not isinstance(spec, Mapping):
+                continue
+            for key in ("requirements", "required_items", "tools"):
+                values = spec.get(key, {})
+                if isinstance(values, Mapping):
+                    names.update(str(name) for name in values)
+            material_options = spec.get("material_options", {})
+            if isinstance(material_options, Mapping):
+                for name, alternatives in material_options.items():
+                    names.add(str(name))
+                    if isinstance(alternatives, (tuple, list, set)):
+                        names.update(str(alternative) for alternative in alternatives)
+    return names
+
+
+_SKILL_AVAILABILITY_INVENTORY_NAMES = _catalog_requirement_item_names(
+    SMITHING_DATA,
+    CRAFTING_DATA,
+    FLETCHING_DATA,
+    FIREMAKING_DATA,
+    HUNTER_DATA,
+    COOKING_DATA,
+)
+_SKILL_AVAILABILITY_LEVEL_KEYS = {
+    "smithing_level",
+    "crafting_level",
+    "fletching_level",
+    "firemaking_level",
+    "hunter_level",
+    "cooking_level",
+    "runecrafting_level",
+}
+for _hunter_spec in HUNTER_DATA.values():
+    _requirements = _hunter_spec.get("skill_requirements", {})
+    if isinstance(_requirements, Mapping):
+        _SKILL_AVAILABILITY_LEVEL_KEYS.update(
+            f"{skill_id}_level" for skill_id in _requirements
+        )
+_SKILL_AVAILABILITY_QUEST_IDS = {"rune_mysteries"}
+_SKILL_AVAILABILITY_ABILITY_IDS = set()
+for _unlock_rule in QUEST_UNLOCK_RULES:
+    if not isinstance(_unlock_rule, Mapping):
+        continue
+    if _unlock_rule.get("skill_id") not in {
+        "fletching",
+        "firemaking",
+        "hunter",
+        "cooking",
+        "runecrafting",
+    }:
+        continue
+    for _requirement in _unlock_rule.get("requirements", ()) or ():
+        if not isinstance(_requirement, Mapping):
+            continue
+        _quest_id = _requirement.get("quest_id")
+        _ability_id = _requirement.get("ability_id")
+        if isinstance(_quest_id, str) and _quest_id:
+            _SKILL_AVAILABILITY_QUEST_IDS.add(_quest_id)
+        if isinstance(_ability_id, str) and _ability_id:
+            _SKILL_AVAILABILITY_ABILITY_IDS.add(_ability_id)
+for _runecrafting_spec in RUNECRAFTING_DATA.values():
+    for _key in (
+        "component_rune",
+        "consumed_talisman",
+        "input_item",
+        "talisman_item",
+    ):
+        _item_name = _runecrafting_spec.get(_key)
+        if isinstance(_item_name, str) and _item_name:
+            _SKILL_AVAILABILITY_INVENTORY_NAMES.add(_item_name)
+    _SKILL_AVAILABILITY_INVENTORY_NAMES.update(
+        str(item_name)
+        for item_name in _runecrafting_spec.get("essence_items", ()) or ()
+    )
+_SKILL_AVAILABILITY_INVENTORY_NAMES.update(
+    {"Pure essence", "Tiara", "Wicked hood"}
+)
+_SKILL_AVAILABILITY_INVENTORY_NAMES = tuple(
+    sorted(_SKILL_AVAILABILITY_INVENTORY_NAMES)
+)
+_SKILL_AVAILABILITY_LEVEL_KEYS = tuple(sorted(_SKILL_AVAILABILITY_LEVEL_KEYS))
+_SKILL_AVAILABILITY_QUEST_IDS = tuple(sorted(_SKILL_AVAILABILITY_QUEST_IDS))
+_SKILL_AVAILABILITY_ABILITY_IDS = tuple(sorted(_SKILL_AVAILABILITY_ABILITY_IDS))
+_SKILL_AVAILABILITY_CACHE_FINGERPRINT = None
+
+
+def _freeze_skill_availability_value(value):
+    if isinstance(value, Mapping):
+        return tuple(
+            sorted(
+                (str(key), _freeze_skill_availability_value(item))
+                for key, item in value.items()
+            )
+        )
+    if isinstance(value, (tuple, list, set)):
+        return tuple(_freeze_skill_availability_value(item) for item in value)
+    return value
+
+
+def _skill_availability_fingerprint():
+    inventory = player_data.get("inventory", {}) or {}
+    quests = player_data.get("quests", {}) or {}
+    abilities = player_data.get("unlocked_abilities", ()) or ()
+    current_runecrafting = str(player_data.get("current_runecrafting", "") or "")
+    carried = player_data.get("carried_inventory", {}) or {}
+    carried_view = carried.get(current_runecrafting, {}) if isinstance(carried, Mapping) else {}
+    equipment = player_data.get("equipment", {}) or {}
+    return (
+        tuple((key, player_data.get(key, 1)) for key in _SKILL_AVAILABILITY_LEVEL_KEYS),
+        tuple((name, inventory.get(name, 0)) for name in _SKILL_AVAILABILITY_INVENTORY_NAMES),
+        tuple(
+            (
+                quest_id,
+                bool((quests.get(quest_id, {}) or {}).get("started")),
+                bool((quests.get(quest_id, {}) or {}).get("completed")),
+            )
+            for quest_id in _SKILL_AVAILABILITY_QUEST_IDS
+        ),
+        tuple(
+            (ability_id, ability_id in abilities)
+            for ability_id in _SKILL_AVAILABILITY_ABILITY_IDS
+        ),
+        bool(player_data.get("magic_imbue_active", False)),
+        equipment.get("head") if isinstance(equipment, Mapping) else None,
+        _freeze_skill_availability_value(player_data.get("wicked_hood", {})),
+        current_runecrafting,
+        (
+            carried_view.get("Wicked hood", 0)
+            if isinstance(carried_view, Mapping)
+            else 0
+        ),
+    )
 
 
 def _refresh_skill_availability() -> None:
-    """Recompute and refresh Smithing/Crafting availability in the menu."""
+    """Refresh menu availability only when one of its real inputs changed."""
+    global _SKILL_AVAILABILITY_CACHE_FINGERPRINT
     try:
-        can_craft_any = any(
-            can_craft_item_pure(
-                player_data.get("crafting_level", 1),
-                player_data.get("inventory", {}),
-                item_name,
-                CRAFTING_DATA,
-            )
-            for item_name in CRAFTING_DATA.keys()
-        )
-        can_fletch_any = any(
-            not fletching_target_locked_reasons_pure(
-                player_data,
-                target_key,
-                FLETCHING_DATA,
-                QUEST_UNLOCK_RULES,
-            )
-            for target_key in FLETCHING_DATA.keys()
-        )
-        can_firemake_any = any(
-            not firemaking_target_locked_reasons_pure(player_data, target_key, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
-            for target_key in FIREMAKING_DATA.keys()
-        )
-        can_hunt_any = any(
-            not hunter_target_locked_reasons_pure(
-                player_data,
-                target_key,
-                HUNTER_DATA,
-                QUEST_UNLOCK_RULES,
-            )
-            for target_key in HUNTER_DATA.keys()
-        )
-        can_cook_any = any(
-            not cooking_target_locked_reasons_pure(
-                player_data,
-                target_key,
-                COOKING_DATA,
-                QUEST_UNLOCK_RULES,
-            )
-            for target_key in COOKING_DATA.keys()
-        )
-        can_runecraft_any = can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA, QUEST_UNLOCK_RULES)
-        refresh_skill_availability(
+        fingerprint = _skill_availability_fingerprint()
+        if fingerprint == _SKILL_AVAILABILITY_CACHE_FINGERPRINT:
+            return
+        values = (
             can_smith_any(),
-            can_craft_any,
-            can_fletch_any,
-            can_firemake_any,
-            can_hunt_any,
-            can_cook_any,
-            can_runecraft_any,
+            any(
+                can_craft_item_pure(
+                    player_data.get("crafting_level", 1),
+                    player_data.get("inventory", {}),
+                    item_name,
+                    CRAFTING_DATA,
+                )
+                for item_name in CRAFTING_DATA.keys()
+            ),
+            any(
+                not fletching_target_locked_reasons_pure(
+                    player_data,
+                    target_key,
+                    FLETCHING_DATA,
+                    QUEST_UNLOCK_RULES,
+                )
+                for target_key in FLETCHING_DATA.keys()
+            ),
+            any(
+                not firemaking_target_locked_reasons_pure(
+                    player_data,
+                    target_key,
+                    FIREMAKING_DATA,
+                    QUEST_UNLOCK_RULES,
+                )
+                for target_key in FIREMAKING_DATA.keys()
+            ),
+            any(
+                not hunter_target_locked_reasons_pure(
+                    player_data,
+                    target_key,
+                    HUNTER_DATA,
+                    QUEST_UNLOCK_RULES,
+                )
+                for target_key in HUNTER_DATA.keys()
+            ),
+            any(
+                not cooking_target_locked_reasons_pure(
+                    player_data,
+                    target_key,
+                    COOKING_DATA,
+                    QUEST_UNLOCK_RULES,
+                )
+                for target_key in COOKING_DATA.keys()
+            ),
+            can_runecraft_any_pure(
+                player_data,
+                RUNECRAFTING_DATA,
+                RUNECRAFTING_POUCH_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
         )
+        refresh_skill_availability(*values)
+        _SKILL_AVAILABILITY_CACHE_FINGERPRINT = fingerprint
     except Exception:
         pass
 
@@ -982,6 +1158,7 @@ def _restore_review_award_snapshot(snapshot) -> None:
             player_data, _open_activities_sheet, _open_farming_sheet
         )
         update_review_fill_drawer(player_data)
+        update_review_event_log_drawer(player_data)
         _update_review_context_surface()
     except Exception:
         pass
@@ -1001,6 +1178,7 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
             player_data, _open_activities_sheet, _open_farming_sheet
         )
         update_review_fill_drawer(player_data)
+        update_review_event_log_drawer(player_data)
         _update_review_context_surface()
     except Exception:
         pass
@@ -1019,6 +1197,7 @@ def _restore_direct_action_snapshot(snapshot) -> None:
             player_data, _open_activities_sheet, _open_farming_sheet
         )
         update_review_fill_drawer(player_data)
+        update_review_event_log_drawer(player_data)
         _update_review_context_surface()
         _refresh_skill_availability()
     except Exception:
@@ -4522,6 +4701,9 @@ def on_answer_card(self, ease, _old):
         else:
             runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
     if successful_answer and review_answered and not exp_awarded and farm_preempted:
+        if context_xp > 0:
+            _show_exp(context_xp)
+            context_xp = 0.0
         _advance_world_events_after_review()
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
@@ -4695,6 +4877,9 @@ def on_answer_card(self, ease, _old):
                 _runtime_action_context(),
                 productive=False,
             )
+        if context_xp > 0:
+            _show_exp(context_xp)
+            context_xp = 0.0
         _advance_world_events_after_review()
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
@@ -4707,6 +4892,7 @@ def on_answer_card(self, ease, _old):
             player_data, _open_activities_sheet, _open_farming_sheet
         )
         update_review_fill_drawer(player_data)
+        update_review_event_log_drawer(player_data)
     except Exception:
         pass
     _update_review_context_surface()
@@ -4772,6 +4958,7 @@ def _refresh_review_surfaces() -> None:
             player_data, _open_activities_sheet, _open_farming_sheet
         )
         update_review_fill_drawer(player_data)
+        update_review_event_log_drawer(player_data)
     except Exception:
         pass
 

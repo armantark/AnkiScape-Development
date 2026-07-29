@@ -1,9 +1,8 @@
 """The reviewer strip decides everything here; ui.py only renders it.
 
-Design-thread section 4.8: the always-visible strip shows what is live right
-now — the running activity's real experience bars, the Grand Exchange fills
-drawer while an offer is open — plus one permanent seat for the Distractions and
-Farming badge, which is the player's notification system.
+The always-visible strip shows live experience bars and the Grand Exchange
+fills drawer. Pass 4 keeps Distractions and Farming in separate persistent
+badges and adds a retained, review-counted event-log drawer.
 """
 
 from __future__ import annotations
@@ -23,6 +22,8 @@ from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ankiscape.data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 from ankiscape.logic.dnd_favourites_logic import (
     DND_ACTIVITY_IDS,
+    dnd_favourite_context_menu_view_pure,
+    dnd_favourite_detail_button_view_pure,
     is_dnd_favourite_pure,
     sanitize_dnd_favourites_pure,
     toggle_dnd_favourite_pure,
@@ -30,10 +31,14 @@ from ankiscape.logic.dnd_favourites_logic import (
 from ankiscape.logic.grand_exchange_logic import ge_fill_drawer_view_pure
 from ankiscape.logic.review_strip_logic import (
     ACTIVITY_TRAINED_SKILLS,
+    REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     activity_awards_experience_now_pure,
     activity_trained_skills_pure,
     activity_xp_bars_pure,
-    review_status_badge_view_pure,
+    record_review_event_pure,
+    review_event_log_drawer_view_pure,
+    review_overlay_layout_view_pure,
+    review_status_badges_view_pure,
     skill_xp_bar_pure,
 )
 from ankiscape.logic.shooting_star_logic import (
@@ -214,6 +219,63 @@ class DistractionFavouritesTest(unittest.TestCase):
         self.assertIn(BIG_CHINCHOMPA_UTILITY_ID, DND_ACTIVITY_IDS)
         self.assertNotIn("castle_wars", DND_ACTIVITY_IDS)
 
+    def test_every_distraction_gets_one_context_toggle_and_other_rows_get_none(self):
+        data = _player()
+
+        for activity_id in DND_ACTIVITY_IDS:
+            with self.subTest(activity=activity_id):
+                view = dnd_favourite_context_menu_view_pure(data, activity_id)
+                self.assertTrue(view["visible"])
+                self.assertTrue(view["enabled"])
+                self.assertEqual(view["label"], "Add to notifications")
+
+        data["dnd_favourites"] = [SHOOTING_STAR_ACTIVITY_ID]
+        self.assertEqual(
+            dnd_favourite_context_menu_view_pure(
+                data, SHOOTING_STAR_ACTIVITY_ID
+            )["label"],
+            "Remove from notifications",
+        )
+        hidden = dnd_favourite_context_menu_view_pure(data, "castle_wars")
+        self.assertFalse(hidden["visible"])
+        self.assertFalse(hidden["enabled"])
+
+    def test_detail_star_visibility_and_enabled_state_come_from_its_pure_view(self):
+        data = _player()
+
+        hidden = dnd_favourite_detail_button_view_pure(
+            data,
+            SHOOTING_STAR_ACTIVITY_ID,
+            show_detail=False,
+        )
+        disabled = dnd_favourite_detail_button_view_pure(
+            data,
+            SHOOTING_STAR_ACTIVITY_ID,
+            show_detail=True,
+            can_toggle=False,
+        )
+        data["dnd_favourites"] = [SHOOTING_STAR_ACTIVITY_ID]
+        pinned = dnd_favourite_detail_button_view_pure(
+            data,
+            SHOOTING_STAR_ACTIVITY_ID,
+            show_detail=True,
+        )
+        not_watchable = dnd_favourite_detail_button_view_pure(
+            data,
+            "castle_wars",
+            show_detail=True,
+        )
+
+        self.assertFalse(hidden["visible"])
+        self.assertTrue(disabled["visible"])
+        self.assertFalse(disabled["enabled"])
+        self.assertEqual(disabled["text"], "☆")
+        self.assertTrue(pinned["enabled"])
+        self.assertEqual(pinned["text"], "★")
+        self.assertIn("Stop watching", pinned["tooltip"])
+        self.assertFalse(not_watchable["visible"])
+        self.assertFalse(not_watchable["enabled"])
+
     def test_the_same_click_pins_and_unpins(self):
         data = _player()
 
@@ -280,31 +342,39 @@ class DistractionFavouritesTest(unittest.TestCase):
 
 
 class StatusBadgeViewTest(unittest.TestCase):
-    def test_the_badge_keeps_its_seat_with_nothing_live(self):
-        view = review_status_badge_view_pure(_player())
+    def test_both_badges_keep_separate_seats_with_nothing_live(self):
+        views = review_status_badges_view_pure(_player())
 
-        self.assertEqual(view["rows"], ())
-        self.assertEqual(view["count"], 0)
-        self.assertFalse(view["alert"])
-        self.assertIn("Pin a Distraction", view["tooltip"])
+        dnd = views["distractions"]
+        farming = views["farming"]
+        self.assertTrue(dnd["visible"])
+        self.assertTrue(farming["visible"])
+        self.assertEqual(dnd["rows"], ())
+        self.assertEqual(farming["rows"], ())
+        self.assertEqual(dnd["title"], "D&D")
+        self.assertEqual(farming["title"], "Farming")
+        self.assertIn("Pin a Distraction", dnd["tooltip"])
 
-    def test_a_live_event_becomes_a_row_whether_or_not_it_is_pinned(self):
+    def test_a_live_event_belongs_only_to_the_dnd_badge(self):
         data = _with_live_star(_player())
 
-        view = review_status_badge_view_pure(data)
+        views = review_status_badges_view_pure(data)
+        dnd = views["distractions"]
+        farming = views["farming"]
         star_rows = [
             row
-            for row in view["rows"]
+            for row in dnd["rows"]
             if row.get("activity_id") == SHOOTING_STAR_ACTIVITY_ID
         ]
         self.assertEqual(len(star_rows), 1)
         self.assertTrue(star_rows[0]["live"])
         self.assertFalse(star_rows[0]["favourite"])
         self.assertIn("stardust", star_rows[0]["status"])
-        self.assertEqual(view["count"], 1)
+        self.assertEqual(dnd["count"], 1)
+        self.assertEqual(farming["rows"], ())
 
         data["dnd_favourites"] = [SHOOTING_STAR_ACTIVITY_ID]
-        pinned = review_status_badge_view_pure(data)
+        pinned = review_status_badges_view_pure(data)["distractions"]
         star_rows = [
             row
             for row in pinned["rows"]
@@ -313,22 +383,21 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertEqual(len(star_rows), 1, "a pin must not duplicate a live row")
         self.assertTrue(star_rows[0]["favourite"])
 
-    def test_a_quiet_favourite_still_gets_a_line_and_carries_its_own_status(self):
+    def test_a_quiet_favourite_still_gets_a_dnd_line(self):
         data = _player()
         data["dnd_favourites"] = [TEARS_OF_GUTHIX_ACTIVITY_ID]
 
-        view = review_status_badge_view_pure(data)
+        view = review_status_badges_view_pure(data)["distractions"]
 
         self.assertEqual(len(view["rows"]), 1)
         row = view["rows"][0]
         self.assertEqual(row["activity_id"], TEARS_OF_GUTHIX_ACTIVITY_ID)
-        self.assertEqual(row["kind"], "distraction")
         self.assertFalse(row["live"])
         self.assertTrue(row["status"])
         self.assertEqual(view["count"], 0, "a quiet line is not a notification")
         self.assertIn("Tears of Guthix", view["tooltip"])
 
-    def test_farming_rows_join_the_same_popover_with_their_patch(self):
+    def test_farming_rows_belong_only_to_the_farming_badge(self):
         from ankiscape.logic.farming_logic import (
             advance_farm_clock_pure,
             execute_farm_field_step_pure,
@@ -350,15 +419,16 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertTrue(ok)
         data, _events = advance_farm_clock_pure(data, 7, lambda: 1.0)
 
-        view = review_status_badge_view_pure(data)
-        farming_rows = [row for row in view["rows"] if row["kind"] == "farming"]
+        views = review_status_badges_view_pure(data)
+        farming_rows = views["farming"]["rows"]
+        self.assertEqual(views["distractions"]["rows"], ())
         self.assertEqual(len(farming_rows), 1)
         self.assertEqual(farming_rows[0]["patch_id"], "falador_allotment_north")
         self.assertEqual(farming_rows[0]["name"], "Potato")
         self.assertTrue(farming_rows[0]["live"], "a mature crop needs the player")
-        self.assertEqual(view["count"], 1)
+        self.assertEqual(views["farming"]["count"], 1)
 
-    def test_a_diseased_crop_keeps_the_alert_form(self):
+    def test_a_diseased_crop_keeps_the_farming_alert_form(self):
         from ankiscape.logic.farming_logic import (
             advance_farm_clock_pure,
             execute_farm_field_step_pure,
@@ -383,7 +453,103 @@ class StatusBadgeViewTest(unittest.TestCase):
             {"diseased": True, "dead": False}
         )
 
-        self.assertTrue(review_status_badge_view_pure(data)["alert"])
+        self.assertTrue(review_status_badges_view_pure(data)["farming"]["alert"])
+
+
+class EventLogViewTest(unittest.TestCase):
+    def test_notifications_are_newest_first_and_review_counted(self):
+        data = _player()
+        data["shop_market_clock"] = {"answered_cards": 3, "market_tick": 3}
+        data = record_review_event_pure(data, "xp", "+25 XP")
+        data["shop_market_clock"] = {"answered_cards": 5, "market_tick": 5}
+        data = record_review_event_pure(data, "activity", "+1 Mackerel")
+
+        view = review_event_log_drawer_view_pure(data, expanded=True)
+
+        self.assertTrue(view["visible"])
+        self.assertEqual(
+            [row["label"] for row in view["rows"]],
+            ["0 reviews ago · +1 Mackerel", "2 reviews ago · +25 XP"],
+        )
+
+    def test_the_drawer_starts_with_ten_then_expands_lazily(self):
+        data = _player()
+        for review in range(25):
+            data["shop_market_clock"] = {
+                "answered_cards": review,
+                "market_tick": review,
+            }
+            data = record_review_event_pure(data, "activity", f"event {review}")
+
+        collapsed = review_event_log_drawer_view_pure(data)
+        first = review_event_log_drawer_view_pure(data, expanded=True)
+        second = review_event_log_drawer_view_pure(
+            data,
+            visible_limit=first["next_limit"],
+            expanded=True,
+        )
+
+        self.assertFalse(collapsed["rows_visible"])
+        self.assertEqual(len(first["rows"]), REVIEW_EVENT_LOG_DEFAULT_LIMIT)
+        self.assertTrue(first["show_more_visible"])
+        self.assertEqual(len(second["rows"]), 20)
+        self.assertEqual(first["rows"][0]["text"], "event 24")
+
+    def test_history_expands_past_200_without_dropping_the_first_event(self):
+        data = _player()
+        for review in range(201):
+            data["shop_market_clock"] = {
+                "answered_cards": review,
+                "market_tick": review,
+            }
+            data = record_review_event_pure(data, "xp", f"event {review}")
+
+        expanded = review_event_log_drawer_view_pure(
+            data,
+            visible_limit=201,
+            expanded=True,
+        )
+
+        self.assertEqual(len(data["review_event_log"]), 201)
+        self.assertEqual(data["review_event_log"][0]["text"], "event 0")
+        self.assertEqual(len(expanded["rows"]), 201)
+        self.assertEqual(expanded["rows"][-1]["text"], "event 0")
+        self.assertFalse(expanded["show_more_enabled"])
+
+    def test_migration_repairs_malformed_rows(self):
+        old = _player()
+        old["config_version"] = 98
+        old["review_event_log"] = [
+            {"review": "4", "kind": "xp", "text": "+4 XP"},
+            {"review": -2, "kind": "activity", "text": ""},
+            "junk",
+        ]
+        migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["review_event_log"],
+            [{"review": 4, "kind": "xp", "text": "+4 XP"}],
+        )
+
+
+class OverlayLayoutViewTest(unittest.TestCase):
+    def test_the_card_viewport_wins_and_the_cluster_docks_below_it(self):
+        view = review_overlay_layout_view_pure(
+            parent_size=(1000, 700),
+            content_rect=(20, 20, 960, 500),
+            cluster_size=(700, 130),
+        )
+        self.assertTrue(view["visible"])
+        self.assertEqual(view["dock"], "below")
+        self.assertGreaterEqual(view["y"], 540)
+
+    def test_the_cluster_hides_when_no_outside_rectangle_can_hold_it(self):
+        view = review_overlay_layout_view_pure(
+            parent_size=(600, 500),
+            content_rect=(0, 0, 600, 500),
+            cluster_size=(500, 100),
+        )
+        self.assertFalse(view["visible"])
 
 
 class FillDrawerViewTest(unittest.TestCase):

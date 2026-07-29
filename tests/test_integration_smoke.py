@@ -110,6 +110,79 @@ class TestIntegrationSmoke(unittest.TestCase):
         sys.modules.clear()
         sys.modules.update(self._orig_modules)
 
+    def test_skill_availability_cache_reuses_results_until_a_real_dependency_changes(self):
+        addon = _load_addon_as_package("ankiscape_availability_cache")
+        addon.player_data = {
+            "inventory": {},
+            "smithing_level": 1,
+            "crafting_level": 1,
+            "fletching_level": 1,
+            "firemaking_level": 1,
+            "hunter_level": 1,
+            "cooking_level": 1,
+            "runecrafting_level": 1,
+            "quests": {},
+            "equipment": {},
+            "wicked_hood": {},
+        }
+        refreshes = []
+        addon.refresh_skill_availability = lambda *values: refreshes.append(values)
+        addon._SKILL_AVAILABILITY_CACHE_FINGERPRINT = None
+
+        addon._refresh_skill_availability()
+        addon._refresh_skill_availability()
+        addon.player_data["inventory"]["Unrelated profile marker"] = 1
+        addon._refresh_skill_availability()
+
+        self.assertEqual(len(refreshes), 1)
+        self.assertEqual(len(refreshes[0]), 7)
+
+        addon.player_data["inventory"]["Copper ore"] = 1
+        addon._refresh_skill_availability()
+        self.assertEqual(len(refreshes), 2)
+
+    def test_floating_xp_and_activity_results_share_the_event_log_seam(self):
+        addon = _load_addon_as_package("ankiscape_event_log_emissions")
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.current_skill = "Mining"
+        addon.player_data = {
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+
+        addon._show_exp(25)
+        addon._show_activity_gain("+1 Iron ore")
+
+        self.assertEqual(
+            [row["kind"] for row in addon.player_data["review_event_log"]],
+            ["xp", "activity"],
+        )
+        self.assertEqual(
+            [row["text"] for row in addon.player_data["review_event_log"]],
+            ["+25 XP", "+1 Iron ore"],
+        )
+
+    def test_review_undo_rolls_back_the_event_log_atomically(self):
+        addon = _load_addon_as_package("ankiscape_event_log_undo")
+        addon.save_player_data = lambda: None
+        addon.player_data = {
+            "shop_market_clock": {"answered_cards": 12, "market_tick": 12},
+            "review_event_log": [],
+        }
+        addon.current_skill = "Mining"
+        addon._REVIEW_UNDO_STACK.clear()
+        before = addon._capture_player_data_snapshot()
+
+        addon._record_review_event("activity", "+1 Iron ore", persist=False)
+        addon._remember_review_award_snapshot(before)
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+
+        self.assertEqual(addon.player_data["review_event_log"], [])
+
     def test_hud_badges_have_no_qt_placeholders_with_matching_signatures(self):
         # This suite loads the add-on without aqt.qt, so ui.py takes its
         # HAS_QT-false branch. A new Qt widget class without a placeholder
@@ -118,7 +191,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         ui = addon.ui
 
         self.assertFalse(ui.HAS_QT)
-        for name in ("ReviewStatusBadge", "ReviewFillDrawer"):
+        for name in ("ReviewStatusBadge", "ReviewFillDrawer", "ReviewEventLogDrawer"):
             placeholder = getattr(ui, name)
             self.assertTrue(hasattr(placeholder(None), "set_data"), name)
 
@@ -127,10 +200,14 @@ class TestIntegrationSmoke(unittest.TestCase):
             ui.update_review_status_badge({}, lambda _id=None: None, lambda _id=None: None)
         )
         self.assertIsNone(ui.update_review_fill_drawer({}))
+        self.assertIsNone(ui.update_review_event_log_drawer({}))
         self.assertIsNone(ui.hide_review_status_badge())
         self.assertIsNone(ui.hide_review_fill_drawer())
-        self.assertIsNone(ui._STATUS_BADGE)
+        self.assertIsNone(ui.hide_review_event_log_drawer())
+        self.assertIsNone(ui._DND_BADGE)
+        self.assertIsNone(ui._FARMING_BADGE)
         self.assertIsNone(ui._FILL_DRAWER)
+        self.assertIsNone(ui._EVENT_LOG_DRAWER)
 
     def test_hook_flow_and_settings_gating(self):
         addon = _load_addon_as_package()
