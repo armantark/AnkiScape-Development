@@ -61,6 +61,37 @@ Phases:
 One agent per phase, serial merges, execution-verified — per the
 two-family-briefs lesson, never two families or two heavy phases in one brief.
 
+## Owner steer mid-session
+
+Use dynamic workflows for orchestration (session workflow cap raised to 50
+agents). Applied from the art sweep onward; the three already-running agents
+were left to finish.
+
+## Art sweep tranche 2 — running as a dynamic workflow
+
+`tools/reresearch_period_art.py` now owns the per-asset protocol (correct
+endpoint, full upload history, strictly-pre-2012-11-20 revision, sha1 of the
+actually-served bytes, migration-glitch fallback across same-sha revision
+URLs, shared write_png normalization, resumable JSONL rows). Smoke-tested:
+Air battlestaff recovered through the fallback; Duel arena honestly absent
+under its guessed title. The workflow: 30 Luna research batches (100 assets
+each) with a script-side suspicion gate that requeues to Sol, a Sol title-hunt
+over every absence claim, a 30-sample adversarial audit with a full re-hunt
+trigger, one retry pass, and a single Sol apply step that owns
+`assets_provenance.json`. Git stays with this session.
+
+## Conquest research arriving
+
+The harvest agent's sub-worker returned pinned command/unit tables, the
+rating and commendation rules, and a corrections list (Knight range 1, not
+the copy-pasted infobox 4; combat req 40; no combat triangle). Placeholder
+candidates already visible: squad budget (unsourced 1000 vs implied 800),
+board size (20×20 vs 22×22), rating formula, command-point income, ratio
+curve. Parent agent still compiling the audit file.
+
 ## Done this session
 
 - Tranche board refresh (`90ff8fe8`).
+- Running notes started (`7db64576`).
+- Period-art research tool committed and smoke-tested.
+- Art tranche-2 workflow launched (research phase running).
