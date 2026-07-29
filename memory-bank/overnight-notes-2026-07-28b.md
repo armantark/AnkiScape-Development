@@ -149,6 +149,16 @@ family-merges convention.
 
 ## Done this session
 
+- Pass 4 implemented and verified clean on `pass4/fixes` (`24059e7e` in the
+  guarded worktree), 12-agent workflow, one refix round (a hidden 200-event
+  retention cap violated the expandable-indefinitely directive and is gone).
+  Answers for the owner: the "missing" cooking options were build staleness
+  plus tree position — the twenty gnome rows are the four collapsed groups at
+  the bottom of the Cooking tree, and Anki must restart to load the merged
+  code; Arachnophagia was the generated diary task's skill-level predicate,
+  now a ledger-action on a real sourced Spider on a stick target. Merge onto
+  main waits for the Dungeoneering workflow, per the rebase convention.
+
 - Art tranche 2 closed (`495b48af`): 2,384 pre-EOC revisions pinned by the
   56-agent workflow, 356 evidence-backed absences, 243 honest unresolved; the
   wrong-variant desert lizard reverted by hand, the green dragon re-pinned to
