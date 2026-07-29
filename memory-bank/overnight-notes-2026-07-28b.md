@@ -149,6 +149,12 @@ family-merges convention.
 
 ## Done this session
 
+- All thirteen cross-lineage findings fixed and committed (`782cc06b`), 16-agent
+  workflow, three families verified clean by execution; the one issue its final
+  pass left open (staff charges counting attack opportunities) closed by hand:
+  the engine now reports landed hits per slice and hit-denominated charges
+  consume that count, with a pinned-seed mixed hit/miss regression.
+
 - Tranche board refresh (`90ff8fe8`).
 - Running notes started (`7db64576`).
 - Period-art research tool committed and smoke-tested.
