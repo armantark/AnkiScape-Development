@@ -93,6 +93,7 @@ from ..data.dominion_tower_data import (
     RECIPE_FOR_DISASTER_SUBQUESTS,
     dominion_tower_enemy_pure,
 )
+from .summoning_logic import dismiss_familiar_pure, sanitize_summoning_state_pure
 from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     apply_combat_poison_effect_pure,
@@ -166,6 +167,12 @@ def _str_list(raw: Any, *, allowed: Any = None, limit: int = 256) -> list[str]:
         if len(out) >= limit:
             break
     return out
+
+
+def _positive_int_list(raw: Any, *, limit: int = 256) -> list[int]:
+    if not isinstance(raw, (list, tuple)):
+        return []
+    return [_int(value) for value in raw[:limit] if _int(value) > 0]
 
 
 # ---------------------------------------------------------------------------
@@ -250,7 +257,8 @@ def default_dominion_tower_state_pure() -> dict[str, Any]:
         "help_horn_charges": 0,
         "claimed": [],
         "marker_stage": 0,
-        "xp_book_factor": 0,
+        "xp_book_factors": [],
+        "summoning_points_before_no_familiar": -1,
         "previous_combat_target": "",
         "last_result": "",
     }
@@ -292,6 +300,7 @@ def _sanitize_member(raw: Any, next_id: int) -> dict[str, Any] | None:
 def _sanitize_match(raw: Any) -> dict[str, Any]:
     source = raw if isinstance(raw, Mapping) else {}
     return {
+        "started": bool(source.get("started", True)),
         "stun_ticks": _int(source.get("stun_ticks")),
         "life_saver_used": bool(source.get("life_saver_used", False)),
         "bombs_used": min(
@@ -317,6 +326,26 @@ def _sanitize_offer(raw: Any) -> dict[str, Any]:
             DOMINION_TOWER_HANDICAP_NUDGE_LIMIT, _int(source.get("nudges_used"))
         ),
     }
+
+
+def _reconcile_xp_book_factors(
+    player_data: Mapping[str, Any], state: dict[str, Any]
+) -> None:
+    inventory = player_data.get("inventory")
+    held = (
+        _int(inventory.get(DOMINION_TOWER_XP_BOOK))
+        if isinstance(inventory, Mapping)
+        else 0
+    )
+    factors = _positive_int_list(state.get("xp_book_factors"))
+    if held <= 0:
+        factors = []
+    elif len(factors) > held:
+        factors = factors[:held]
+    elif len(factors) == 1 and held > 1:
+        # Legacy saves stored one global factor shared by every book then held.
+        factors = factors * held
+    state["xp_book_factors"] = factors
 
 
 def sanitize_dominion_tower_state_pure(raw: Any) -> dict[str, Any]:
@@ -366,6 +395,10 @@ def sanitize_dominion_tower_state_pure(raw: Any) -> dict[str, Any]:
         if item_name in DOMINION_TOWER_WEAPON_POWERUPS and charges > 0:
             weapon = {"item": item_name, "charges": charges}
     boss_kills = _int(source.get("boss_kills"))
+    xp_book_factors = _positive_int_list(source.get("xp_book_factors"))
+    legacy_xp_book_factor = _int(source.get("xp_book_factor"))
+    if not xp_book_factors and legacy_xp_book_factor > 0:
+        xp_book_factors = [legacy_xp_book_factor]
     return {
         **defaults,
         "talked_with_face": bool(source.get("talked_with_face", False)),
@@ -415,7 +448,10 @@ def sanitize_dominion_tower_state_pure(raw: Any) -> dict[str, Any]:
         ),
         "claimed": _str_list(source.get("claimed")),
         "marker_stage": min(4, _int(source.get("marker_stage"))),
-        "xp_book_factor": _int(source.get("xp_book_factor")),
+        "xp_book_factors": xp_book_factors,
+        "summoning_points_before_no_familiar": _int(
+            source.get("summoning_points_before_no_familiar"), -1, minimum=-1
+        ),
         "previous_combat_target": str(source.get("previous_combat_target", ""))[:120],
         "last_result": str(source.get("last_result", ""))[:500],
     }
@@ -580,6 +616,21 @@ def _nudged_handicap(handicap_id: str) -> str:
     return DOMINION_TOWER_HANDICAP_IDS[(index - 1) % DOMINION_TOWER_HANDICAP_COUNT]
 
 
+def _suppress_familiar_summoning(
+    data: dict[str, Any], state: dict[str, Any]
+) -> None:
+    summoning = sanitize_summoning_state_pure(
+        data.get("summoning_state"),
+        summoning_level=_int(data.get("summoning_level"), 1, minimum=1),
+    )
+    if _int(state.get("summoning_points_before_no_familiar"), -1, minimum=-1) < 0:
+        state["summoning_points_before_no_familiar"] = _int(
+            summoning.get("summoning_points_current")
+        )
+    summoning["summoning_points_current"] = 0
+    data["summoning_state"] = summoning
+
+
 def _apply_handicap_start_effect(
     data: dict[str, Any],
     state: dict[str, Any],
@@ -611,6 +662,18 @@ def _apply_handicap_start_effect(
         if skill:
             apply_combat_stat_delta_pure(data, skill, -DOMINION_TOWER_DISEASE_DRAIN)
             return data, f"{skill} diseased"
+    if effect == "no_familiar":
+        note = ""
+        summoning = data.get("summoning_state")
+        follower = summoning.get("active_follower") if isinstance(summoning, Mapping) else None
+        if isinstance(follower, Mapping) and follower.get("kind") == "familiar":
+            dismissed, ok, _info = dismiss_familiar_pure(data)
+            if ok:
+                data.clear()
+                data.update(dismissed)
+                note = "familiar dismissed"
+        _suppress_familiar_summoning(data, state)
+        return data, note
     return data, ""
 
 
@@ -630,13 +693,22 @@ def _apply_match_start_handicaps(
 
 def _apply_burst_handicaps(
     data: dict[str, Any],
-    state: Mapping[str, Any],
+    state: dict[str, Any],
     rng,
 ) -> tuple[dict[str, Any], float]:
     """Handicaps that constrain one six-tick slice, and the damage they cost."""
     handicaps = state.get("handicaps") or ()
     effects = _handicap_effects(handicaps)
     multiplier = 1.0
+    if "no_familiar" in effects:
+        summoning = data.get("summoning_state")
+        follower = summoning.get("active_follower") if isinstance(summoning, Mapping) else None
+        if isinstance(follower, Mapping) and follower.get("kind") == "familiar":
+            dismissed, ok, _info = dismiss_familiar_pure(data)
+            if ok:
+                data.clear()
+                data.update(dismissed)
+        _suppress_familiar_summoning(data, state)
     if "no_prayer" in effects:
         data["combat_selected_prayers"] = []
         data["combat_prayer_uptime"] = "off"
@@ -644,14 +716,14 @@ def _apply_burst_handicaps(
         data["combat_special_attack_energy"] = 0
     if "no_food" in effects or "no_potions" in effects:
         loadout = data.get("combat_supply_loadout")
+        blocked_keys = set()
+        if "no_food" in effects:
+            blocked_keys.add("food")
+        if "no_potions" in effects:
+            blocked_keys.update(("potions", "stat_potions"))
         if isinstance(loadout, Mapping):
             data["combat_supply_loadout"] = {
-                key: value
-                for key, value in loadout.items()
-                if not (
-                    ("no_food" in effects and str(key) == "food")
-                    or ("no_potions" in effects and str(key) != "food")
-                )
+                key: value for key, value in loadout.items() if str(key) not in blocked_keys
             }
         if "no_food" in effects:
             data["combat_auto_eat_food"] = ""
@@ -667,6 +739,7 @@ def _apply_burst_handicaps(
         ):
             equipment = data.get("equipment")
             if isinstance(equipment, Mapping) and equipment.get(slot):
+                _grant(data, str(equipment[slot]), 1)
                 data["equipment"] = {
                     key: value for key, value in equipment.items() if str(key) != slot
                 }
@@ -763,6 +836,17 @@ def _engaged_member(state: Mapping[str, Any]) -> dict[str, Any] | None:
 
 
 def _clear_session(data: dict[str, Any], state: dict[str, Any], message: str) -> None:
+    summoning_points = _int(
+        state.get("summoning_points_before_no_familiar"), -1, minimum=-1
+    )
+    if summoning_points >= 0:
+        summoning = sanitize_summoning_state_pure(
+            data.get("summoning_state"),
+            summoning_level=_int(data.get("summoning_level"), 1, minimum=1),
+        )
+        summoning["summoning_points_current"] = summoning_points
+        data["summoning_state"] = summoning
+    state["summoning_points_before_no_familiar"] = -1
     state["mode"] = ""
     state["encounter_id"] = ""
     state["special_id"] = ""
@@ -811,6 +895,7 @@ def _entry_reasons(
 
 def dominion_tower_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_dominion_tower_state_pure(player_data.get("dominion_tower"))
+    _reconcile_xp_book_factors(player_data, state)
     # The credit ledger is derived, so the view shows the same figure the next
     # command will act on rather than a stale one.
     _accrue_reward_credits(state)
@@ -843,6 +928,29 @@ def dominion_tower_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         for row in DOMINION_TOWER_GLOVE_SETS
         if _glove_set_complete(state, row["id"])
     )
+    credit_ready = state["reward_credits"] > 0
+    reward_labels = (
+        ("goliath_gloves", "Goliath gloves"),
+        ("spellcaster_gloves", "Spellcaster gloves"),
+        ("swift_gloves", "Swift gloves"),
+        ("dreadnip", "Dreadnip ×100"),
+    )
+    claim_reward_rows = [
+        {"id": reward_id, "display_name": label, "ready": credit_ready}
+        for reward_id, label in reward_labels
+        if reward_id in unlocked
+    ]
+    if "ascendancy_mines" in unlocked:
+        required = DOMINION_TOWER_ASCENDANCY_KILL_REQUIREMENT * (
+            _int(state["ascendancy_claims"]) + 1
+        )
+        claim_reward_rows.append(
+            {
+                "id": "ascendancy_mines",
+                "display_name": "Ascendancy mines ×10",
+                "ready": _int(state["boss_kills"]) >= required,
+            }
+        )
     return {
         **state,
         "active": active,
@@ -930,8 +1038,12 @@ def dominion_tower_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "marker_stage": _marker_stage(state),
         "marker_boost": DOMINION_TOWER_MARKER_STAGE_BOOSTS.get(_marker_stage(state), 0),
         "claimable_gloves": claimable,
-        "dreadnip_ready": "dreadnip" in unlocked and state["reward_credits"] > 0,
-        "ascendancy_ready": "ascendancy_mines" in unlocked,
+        "claim_reward_rows": tuple(claim_reward_rows),
+        "dreadnip_ready": "dreadnip" in unlocked and credit_ready,
+        "ascendancy_ready": any(
+            row["id"] == "ascendancy_mines" and row["ready"]
+            for row in claim_reward_rows
+        ),
         "mines_ready": "mines" in unlocked,
         "exchangeable_items": tuple(
             item_name
@@ -943,6 +1055,10 @@ def dominion_tower_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "primary_label": "Continue in the Tower" if active else "Enter the Tower",
         "primary_enabled": bool(active or not entry_reasons),
         "leave_visible": bool(state["mode"]),
+        "leave_enabled": bool(
+            state["mode"]
+            and (not state["roster"] or not state["match"].get("started", True))
+        ),
         "claim_enabled": _int(state["dominion_factor"]) > 0,
         "source": DOMINION_TOWER_SOURCE,
     }
@@ -1018,15 +1134,22 @@ def _open_reward_box(
     granted: dict[str, int] = {}
     _grant(data, DOMINION_TOWER_XP_BOOK, 1)
     granted[DOMINION_TOWER_XP_BOOK] = 1
+    state["xp_book_factors"] = [*state["xp_book_factors"], factor]
     for _ in range(DOMINION_TOWER_REWARD_BOX_ROLLS):
         row = _pick(rng, DOMINION_TOWER_REWARD_BOX_ITEMS)
         if row is None:
             continue
+        item_name = str(row["item_name"])
         quantity = _int(row["quantity"], 1, minimum=1)
         if row["capped"]:
-            quantity = min(quantity, DOMINION_TOWER_REWARD_BOX_ITEM_CAP)
-        _grant(data, str(row["item_name"]), quantity)
-        granted[str(row["item_name"])] = granted.get(str(row["item_name"]), 0) + quantity
+            quantity = min(
+                quantity,
+                max(0, DOMINION_TOWER_REWARD_BOX_ITEM_CAP - granted.get(item_name, 0)),
+            )
+        if quantity <= 0:
+            continue
+        _grant(data, item_name, quantity)
+        granted[item_name] = granted.get(item_name, 0) + quantity
     page_found = False
     if _int(state.get("journal_pages")) < DOMINION_TOWER_JOURNAL_PAGE_COUNT and _roll(
         rng
@@ -1049,7 +1172,6 @@ def _open_reward_box(
             granted[powerup_item] = 1
     state["dominion_factor"] = 0
     state["progress"] = 0
-    state["xp_book_factor"] = factor
     data["dominion_tower"] = state
     return {"granted": granted, "factor": factor, "journal_page": page_found}
 
@@ -1067,11 +1189,13 @@ def _start_match(
     npc_keys,
     lifepoint_fraction=None,
     survive_ticks: int = 0,
+    started: bool = True,
 ) -> None:
     previous_target = str(data.get("current_combat_target", ""))[:120]
     if previous_target != DOMINION_TOWER_TARGET_ID:
         state["previous_combat_target"] = previous_target
     _spawn_roster(state, npc_keys, lifepoint_fraction=lifepoint_fraction)
+    state["match"]["started"] = bool(started)
     state["match"]["survive_ticks"] = max(0, int(survive_ticks))
     data, _notes = _apply_match_start_handicaps(data, state, rng)
     engaged = _engaged_member(state)
@@ -1092,6 +1216,7 @@ def apply_dominion_tower_command_pure(
     payload = payload if isinstance(payload, Mapping) else {}
     rng = rng or (lambda: 0.0)
     state = sanitize_dominion_tower_state_pure(data.get("dominion_tower"))
+    _reconcile_xp_book_factors(data, state)
     # Spectating and a glove set's last boss can both unlock a credit reward
     # outside a win, so the ledger is refreshed before any command reads it.
     _accrue_reward_credits(state)
@@ -1278,6 +1403,7 @@ def apply_dominion_tower_command_pure(
             state["handicaps"] = [*state["handicaps"], handicap_id]
         if handicap_id not in state["suffered_handicaps"]:
             state["suffered_handicaps"] = [*state["suffered_handicaps"], handicap_id]
+        state["match"]["started"] = True
         state["offer"] = {}
         data, note = _apply_handicap_start_effect(data, state, handicap_id, rng)
         row = DOMINION_TOWER_HANDICAPS_BY_ID[handicap_id]
@@ -1290,6 +1416,10 @@ def apply_dominion_tower_command_pure(
     if action_id == "leave":
         if not state["mode"]:
             return data, False, {"reason": "You are not in the tower."}
+        if state["roster"] and state["match"].get("started", True):
+            return data, False, {
+                "reason": "You cannot leave a match before victory or defeat."
+            }
         banked = _int(state["dominion_factor"])
         _clear_session(
             data,
@@ -1329,12 +1459,13 @@ def apply_dominion_tower_command_pure(
         for item_name, quantity in held.items():
             _consume(data, item_name, quantity)
         _grant(data, DOMINION_TOWER_XP_BOOK, 1)
-        state["xp_book_factor"] = total * DOMINION_TOWER_EXCHANGE_FACTOR_PER_ITEM
+        book_factor = total * DOMINION_TOWER_EXCHANGE_FACTOR_PER_ITEM
+        state["xp_book_factors"] = [*state["xp_book_factors"], book_factor]
         state["last_result"] = f"Exchanged {total} rewards for an Xp book."
         return data, True, {
             "message": state["last_result"],
             "exchanged": total,
-            "book_factor": state["xp_book_factor"],
+            "book_factor": book_factor,
         }
 
     if action_id == "read_xp_book":
@@ -1349,11 +1480,14 @@ def apply_dominion_tower_command_pure(
                     f"{DOMINION_TOWER_XP_BOOK_SKILL_LEVEL}."
                 )
             }
+        factors = list(state.get("xp_book_factors") or ())
+        if not factors:
+            return data, False, {"reason": "That Xp book has no recorded Dominion Factor."}
         if not _consume(data, DOMINION_TOWER_XP_BOOK, 1):
             return data, False, {"reason": "You hold no Xp book."}
-        amount = dominion_tower_xp_book_amount_pure(
-            _int(state.get("xp_book_factor")), skill_id
-        )
+        factor = _int(factors.pop(0))
+        state["xp_book_factors"] = factors
+        amount = dominion_tower_xp_book_amount_pure(factor, skill_id)
         data[f"{skill_id}_exp"] = _float(data.get(f"{skill_id}_exp")) + amount
         state["last_result"] = f"Read the Xp book for {amount:,.0f} {skill_id} XP."
         return data, True, {
@@ -1641,6 +1775,7 @@ def _advance_to_next_boss(
         state,
         rng,
         npc_keys=DOMINION_TOWER_ENCOUNTERS_BY_ID[state["encounter_id"]]["npcs"],
+        started=False,
     )
     return True
 
@@ -1661,6 +1796,39 @@ def _apply_life_saver(data: dict[str, Any], state: dict[str, Any]) -> bool:
     return True
 
 
+def _weapon_charge_cost(
+    weapon: Mapping[str, Any],
+    encounter: Mapping[str, Any],
+    combat_result: Mapping[str, Any],
+    equipment_data: Mapping[str, Any],
+) -> int:
+    item_name = str(weapon.get("item", ""))
+    unit = str(DOMINION_TOWER_POWERUPS_BY_ITEM.get(item_name, {}).get("charge_unit", ""))
+    if unit == "ticks":
+        return _int(combat_result.get("ticks_elapsed"))
+    if unit == "shots":
+        ammo_used = combat_result.get("ammo_used")
+        return (
+            sum(_int(quantity) for quantity in ammo_used.values())
+            if isinstance(ammo_used, Mapping)
+            else 0
+        )
+    if unit != "hits":
+        return 0
+    combat_class = str(combat_result.get("combat_class", ""))
+    if combat_class == "ranged":
+        ammo_used = combat_result.get("ammo_used")
+        return (
+            sum(_int(quantity) for quantity in ammo_used.values())
+            if isinstance(ammo_used, Mapping)
+            else 0
+        )
+    # The staff's budget is landed hits, so a missed cast costs nothing; the
+    # engine counts them per attack rather than this reducer re-deriving the
+    # cadence from ticks and attack speed.
+    return _int(combat_result.get("player_hits_landed"))
+
+
 def apply_dominion_tower_review_pure(
     player_data: Mapping[str, Any],
     rng,
@@ -1669,6 +1837,7 @@ def apply_dominion_tower_review_pure(
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
     state = sanitize_dominion_tower_state_pure(data.get("dominion_tower"))
+    _reconcile_xp_book_factors(data, state)
     if not state["mode"] or not state["roster"]:
         return data, False, {"reason": "Enter the Dominion Tower before training it."}
     if state["offer"]:
@@ -1685,11 +1854,16 @@ def apply_dominion_tower_review_pure(
     if engaged is None:
         return data, False, {"reason": "The arena is empty."}
 
+    state["match"]["started"] = True
     npc = DOMINION_TOWER_NPCS[engaged["npc_key"]]
     attack_style = str(_pick(rng, npc["attack_styles"]) or npc["attack_styles"][0])
     enemy = _enemy_for_member(state, engaged, attack_style)
     data["current_combat_target"] = DOMINION_TOWER_TARGET_ID
     data["combat_encounter"] = copy.deepcopy(engaged["encounter"])
+    had_loadout = "combat_supply_loadout" in data
+    original_loadout = copy.deepcopy(data.get("combat_supply_loadout"))
+    had_auto_eat = "combat_auto_eat_food" in data
+    original_auto_eat = copy.deepcopy(data.get("combat_auto_eat_food"))
     burst_data, damage_multiplier = _apply_burst_handicaps(dict(data), state, rng)
     # The arena gates lock behind the player, so the ordinary auto-flee stance
     # cannot apply: "you cannot leave a match once it begins, until you win or
@@ -1711,6 +1885,31 @@ def apply_dominion_tower_review_pure(
         player_damage_multiplier=damage_multiplier,
     )
     burst_data["combat_auto_flee"] = auto_flee
+    effects = _handicap_effects(state["handicaps"])
+    blocked_loadout_keys = set()
+    if "no_food" in effects:
+        blocked_loadout_keys.add("food")
+    if "no_potions" in effects:
+        blocked_loadout_keys.update(("potions", "stat_potions"))
+    if blocked_loadout_keys:
+        if isinstance(original_loadout, Mapping):
+            current_loadout = burst_data.get("combat_supply_loadout")
+            restored_loadout = dict(current_loadout) if isinstance(current_loadout, Mapping) else {}
+            for key in blocked_loadout_keys:
+                if key in original_loadout:
+                    restored_loadout[key] = copy.deepcopy(original_loadout[key])
+                else:
+                    restored_loadout.pop(key, None)
+            burst_data["combat_supply_loadout"] = restored_loadout
+        elif had_loadout:
+            burst_data["combat_supply_loadout"] = original_loadout
+        else:
+            burst_data.pop("combat_supply_loadout", None)
+    if "no_food" in effects:
+        if had_auto_eat:
+            burst_data["combat_auto_eat_food"] = original_auto_eat
+        else:
+            burst_data.pop("combat_auto_eat_food", None)
     if not ok:
         return dict(player_data), False, combat_result
     data = burst_data
@@ -1721,7 +1920,9 @@ def apply_dominion_tower_review_pure(
         match["stun_ticks"] = max(0, _int(match["stun_ticks"]) - DOMINION_TOWER_REVIEW_TICKS)
     weapon = state.get("weapon_powerup") or {}
     if weapon:
-        charges = _int(weapon.get("charges")) - DOMINION_TOWER_REVIEW_TICKS
+        charges = _int(weapon.get("charges")) - _weapon_charge_cost(
+            weapon, engaged["encounter"], combat_result, equipment_data or {}
+        )
         state["weapon_powerup"] = (
             {"item": weapon["item"], "charges": charges} if charges > 0 else {}
         )

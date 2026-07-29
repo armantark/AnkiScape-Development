@@ -1490,6 +1490,7 @@ def apply_combat_burst_pure(
         return 1.0 + (full - 1.0) * ratio
 
     player_damage = 0
+    player_hits_landed = 0
     enemy_damage = 0
     food_used = []
     potions_used = list(stat_potion_events)
@@ -1687,6 +1688,8 @@ def apply_combat_burst_pure(
                 landed = False
             if enemy.get("protect_from_player_class") == combat_class:
                 landed = False
+            if landed:
+                player_hits_landed += 1
             damage = _combat_roll_damage_lifepoints(live_player_max_hit, rng) if landed else 0
             try:
                 damage = int(damage * max(0.0, float(player_damage_multiplier)))
@@ -2312,6 +2315,7 @@ def apply_combat_burst_pure(
         "ticks": total_ticks,
         "ticks_elapsed": ticks_elapsed,
         "player_damage": player_damage,
+        "player_hits_landed": player_hits_landed,
         "enemy_damage": enemy_damage,
         "enemy_healing": enemy_healing,
         "vampyre_bites": vampyre_bites,

@@ -90,6 +90,7 @@ class DominionTowerPanelTest(unittest.TestCase):
         self.assertIn(view["engaged_name"], panel.enemy_health.format())
         self.assertEqual(panel.enemy_health.maximum(), view["engaged_max_lifepoints"])
         self.assertTrue(panel.leave_button.isVisible())
+        self.assertFalse(panel.leave_button.isEnabled())
         self.assertFalse(panel.mode_combo.isEnabled())
 
     def test_the_spinner_buttons_track_the_view_not_a_panel_rule(self):
@@ -114,6 +115,32 @@ class DominionTowerPanelTest(unittest.TestCase):
         panel._run_command("accept_handicap")
         self.assertFalse(panel.accept_button.isEnabled())
         self.assertIn("suffered 1/22", panel.handicap_status.text())
+
+    def test_an_unlocked_reward_without_a_credit_stays_disabled(self):
+        rng = random.Random(5).random
+        player = _geared(_player(*_twenty_quests()))
+        state = dict(player["dominion_tower"])
+        state.update(
+            {
+                "talked_with_face": True,
+                "boss_kills": 450,
+                "spectated": True,
+                "reward_credits": 0,
+                "credit_kill_marker": 450,
+            }
+        )
+        player["dominion_tower"] = state
+        panel = self._panel(player, rng)
+        view = dominion_tower_view_pure(player)
+        self.assertFalse(view["dreadnip_ready"])
+        self.assertEqual(panel.reward_combo.count(), 1)
+        self.assertEqual(panel.reward_combo.currentData(), "dreadnip")
+        self.assertFalse(panel.claim_reward_button.isEnabled())
+        _updated, ok, info = apply_dominion_tower_command_pure(
+            player, "claim_reward", {"reward_id": "dreadnip"}, rng
+        )
+        self.assertFalse(ok)
+        self.assertIn("No reward credits", info["reason"])
 
     def test_the_panel_fits_a_laptop_dialog_without_clipping(self):
         rng = random.Random(5).random

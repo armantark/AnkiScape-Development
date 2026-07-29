@@ -241,6 +241,12 @@ def _accept_reason(
         return "Ask Aluft Gianne Jr for the job first."
     if state["order"]:
         return "Deliver or decline the outstanding order first."
+    session = player_data.get("activity_session")
+    active_id = (
+        str(session.get("active_id", "")) if isinstance(session, Mapping) else ""
+    )
+    if active_id and active_id != GNOME_RESTAURANT_ACTIVITY_ID:
+        return "Finish the active persistent activity."
     if difficulty == "hard":
         waiting = state["hard_decline_ready_card"] - _answered_cards(player_data)
         if waiting > 0:
@@ -645,6 +651,8 @@ def apply_gnome_restaurant_review_pure(
     thresholds = (state["points"] // GNOME_RESTAURANT_TOKEN_POINTS) - (
         before // GNOME_RESTAURANT_TOKEN_POINTS
     )
+    crossed_first_threshold = before < GNOME_RESTAURANT_TOKEN_POINTS <= state["points"]
+    meal_thresholds = thresholds - int(crossed_first_threshold)
     token_granted = False
     if thresholds > 0:
         if not state["token_claimed"]:
@@ -652,7 +660,8 @@ def apply_gnome_restaurant_review_pure(
             token_granted = True
             _grant_item(data, GNOME_RESTAURANT_TOKEN_ITEM)
         state["token_meals"] = min(
-            GNOME_RESTAURANT_TOKEN_MEAL_CAP, state["token_meals"] + thresholds
+            GNOME_RESTAURANT_TOKEN_MEAL_CAP,
+            state["token_meals"] + meal_thresholds,
         )
     state["order"] = {}
     tip_text = ", ".join(

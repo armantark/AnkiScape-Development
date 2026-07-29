@@ -26,6 +26,22 @@ combat pressure/stats, companion XP awards, event selection, campsite/swamp
 branches, token mapping/scoring and reward rolls are all registered in
 `memory-bank/placeholder-values.md`, not presented as canon.
 
+Druid pouch charging is source-pinned rather than reconstructed:
+
+- pinned `Druid pouch` oldid `6356857` says a fill consumes at least three Mort
+  Myre fruits, fungi add one charge each, stems add two, pears add three, and
+  charges accumulate; it explicitly says no charge limit was known;
+- Darkan `c95aca409` `quests/naturespirit/Blooming.kt:16-19,37-50` gathers held
+  Bloom resources, sorts them by descending 1/2/3-charge value, requires at
+  least three, and consumes exactly the first three while adding their values
+  to the existing charged pouch, with no fixed cap; it corroborates charge
+  weighting and accumulation, not the compact action's three-fungi preparation;
+- Darkan `quests/naturespirit/Ghasts.kt:67-75` consumes exactly one pouch charge
+  when a ghast becomes visible.
+
+The compact preparation action therefore gathers the minimum three fungi and
+adds three charges to the existing pouch. Repeated preparations accumulate.
+
 ## Owner-settled model (2026-07-18): hybrid nodes
 
 - A trek is a seeded short sequence of event nodes. Source audit supersedes the

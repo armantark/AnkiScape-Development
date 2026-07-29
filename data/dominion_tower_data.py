@@ -1487,7 +1487,7 @@ DOMINION_TOWER_POWERUPS: tuple[dict[str, Any], ...] = (
         "effect": "weapon",
         # "only lasts for 100 shots before crumbling to pieces"
         "charges": 100,
-        "charge_unit": "hits",
+        "charge_unit": "shots",
         "required_skill": ("ranged", 90),
         "source": f"{_W}/Dominion_crossbow?oldid=6155090",
     },
@@ -1566,8 +1566,8 @@ DOMINION_TOWER_REWARD_BOX_ITEMS: tuple[dict[str, Any], ...] = (
     {"item_name": "Dragon bones", "quantity": 20, "capped": True},
     {"item_name": "Dagannoth bones", "quantity": 20, "capped": True},
 )
-# Darkan draws three common reward rolls per claim, which is the only stated
-# shape for how many items a box holds.
+# PLACEHOLDER(dominion_tower.reward_box_rolls): Darkan's reconstructed reward
+# routine draws three common rewards, but no period source states the roll count.
 DOMINION_TOWER_REWARD_BOX_ROLLS = 3
 # PLACEHOLDER(dominion_tower.journal_page_chance): journal pages are stated to
 # come from the reward box, and the strategy advice is to claim small boxes often

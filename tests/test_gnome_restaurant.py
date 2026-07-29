@@ -33,6 +33,7 @@ from ankiscape.data.gnome_restaurant_data import (
     GNOME_RESTAURANT_TOKEN_MEAL_CAP,
     GNOME_RESTAURANT_TOKEN_POINTS,
 )
+from ankiscape.data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.logic.gnome_restaurant_logic import (
     apply_gnome_restaurant_command_pure,
@@ -43,6 +44,7 @@ from ankiscape.logic.gnome_restaurant_logic import (
     gnome_restaurant_view_pure,
     sanitize_gnome_restaurant_state_pure,
 )
+from ankiscape.logic.temple_trekking_logic import enter_temple_trekking_pure
 from ankiscape.logic_pure.logic_pure_consumables import apply_consumable_pure
 from ankiscape.runtime.runtime_actions import RuntimeActionContext
 from ankiscape.runtime.runtime_actions_utility import handle_utility_answer
@@ -263,6 +265,39 @@ class GnomeRestaurantEntryAndOrderTests(unittest.TestCase):
         self.assertEqual(swapped["gnome_restaurant"]["hard_decline_ready_card"], 0)
         self.assertTrue(swapped["gnome_restaurant"]["order"])
 
+    def test_accepting_a_job_cannot_steal_a_temple_trekking_session(self):
+        data = _hired()
+        data["quests"]["in_aid_of_the_myreque"] = {
+            "started": True,
+            "progress": 99,
+            "completed": True,
+        }
+        data, ok, info = enter_temple_trekking_pure(data)
+        self.assertTrue(ok, info)
+        self.assertEqual(
+            data["activity_session"]["active_id"], TEMPLE_TREKKING_ACTIVITY_ID
+        )
+        trek = copy.deepcopy(data["temple_trekking"]["session"])
+
+        option = gnome_restaurant_view_pure(data)["difficulty_options"][0]
+        self.assertFalse(option["accept_enabled"])
+        self.assertEqual(
+            option["accept_reason"], "Finish the active persistent activity."
+        )
+        blocked, ok, info = apply_gnome_restaurant_command_pure(
+            data, "accept_order", {"difficulty": "easy"}, _rng([0.0])
+        )
+        self.assertFalse(ok)
+        self.assertEqual(info["reason"], "Finish the active persistent activity.")
+        self.assertEqual(blocked["gnome_restaurant"]["order"], {})
+        self.assertEqual(
+            blocked["activity_session"]["active_id"], TEMPLE_TREKKING_ACTIVITY_ID
+        )
+        self.assertEqual(blocked["temple_trekking"]["session"], trek)
+
+        reloaded = migrate_loaded_data(blocked, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(reloaded["temple_trekking"]["session"], trek)
+
     def test_unreachable_hard_customers_never_enter_the_pool(self):
         data = _hired()
         data["quests"] = {}
@@ -387,6 +422,25 @@ class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
         self.assertEqual(
             seen["pure_essence"], {"professor_imblewyn", "professor_onglewip"}
         )
+
+    def test_first_reward_threshold_grants_only_the_token(self):
+        data = _on_job("hard")
+        data["gnome_restaurant"]["points"] = 9
+        data = _deliverable(data)
+        data, ok, result = apply_gnome_restaurant_review_pure(data, _rng([0.5]))
+        self.assertTrue(ok, result)
+        self.assertEqual(data["gnome_restaurant"]["points"], 12)
+        self.assertTrue(result["token_granted"])
+        self.assertEqual(data["inventory"][GNOME_RESTAURANT_TOKEN_ITEM], 1)
+        self.assertEqual(data["gnome_restaurant"]["token_meals"], 0)
+
+        data["gnome_restaurant"]["points"] = 21
+        data = _deliverable(data)
+        data, ok, result = apply_gnome_restaurant_review_pure(data, _rng([0.5]))
+        self.assertTrue(ok, result)
+        self.assertEqual(data["gnome_restaurant"]["points"], 24)
+        self.assertFalse(result["token_granted"])
+        self.assertEqual(data["gnome_restaurant"]["token_meals"], 1)
 
     def test_twelve_points_pay_a_token_and_each_twelve_more_bank_a_meal(self):
         data = _on_job("hard")

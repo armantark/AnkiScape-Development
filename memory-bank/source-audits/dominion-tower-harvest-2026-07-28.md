@@ -100,6 +100,10 @@ thread 3.20.
 - **The six reduced attack/defence handicaps** are stated only as "reduced". The
   attack half scales the player's damage; the defence half raises the arena's own
   maximum hits, which this family owns. One registered fraction covers both.
+- **Reward boxes draw three common items only as a registered reconstruction.**
+  Darkan's `giveRewards` routine performs three common draws, but Darkan is a
+  shape source here and no period record states the roll count. The shipped count
+  is registered as `dominion_tower.reward_box_rolls` rather than treated as exact.
 - **Unsourced stat blocks use Temple Trekking's core-stat ratio.** Copying an
   NPC's combat level into all four combat stats gave the level-699 Nomad a
   defence of 699 and made him literally unbeatable, which is a placeholder

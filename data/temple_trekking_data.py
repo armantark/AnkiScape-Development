@@ -22,9 +22,9 @@ TEMPLE_TREKKING_DESTINATIONS = {
 }
 TEMPLE_TREKKING_EVENTS_PER_TREK = 4  # PLACEHOLDER(temple_trekking.events_per_trek): authentic trek node-count distribution
 TEMPLE_TREKKING_COMPANION_FOOD_CAP = 28  # Period follower inventory capacity.
-# Breadth-one abstractions: one filled pouch is represented by three charges, and
-# the compact shared food pack accepts Lobster with its ordinary 120-LP heal.
-TEMPLE_TREKKING_DRUID_POUCH_CAP = 3
+# One preparation compresses gathering the minimum three Mort myre fungi; each
+# fungus adds one charge, and repeated fills accumulate rather than hitting a cap.
+TEMPLE_TREKKING_DRUID_POUCH_PREP_CHARGES = 3
 TEMPLE_TREKKING_COMPANION_FOOD_ITEM = "Lobster"
 TEMPLE_TREKKING_COMPANION_FOOD_HEAL = 120
 TEMPLE_TREKKING_COMPANION_EAT_THRESHOLD_NUMERATOR = 1  # PLACEHOLDER(temple_trekking.companion_eat_threshold): authentic follower food-selection timing

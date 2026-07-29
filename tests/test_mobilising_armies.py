@@ -545,6 +545,33 @@ class MobilisingArmiesScenarioTests(unittest.TestCase):
         self.assertTrue(outcomes <= {"timeout", "loss"})
         self.assertEqual(outcomes, {"timeout", "loss"})
 
+    def test_explore_orders_do_not_count_toward_rank(self):
+        data = _mustered(
+            squad="heavy_dwarf", scenario="conflict", order="explore"
+        )
+        rng = lambda: 0.0
+        data, _info = _command(data, "enter", rng=rng)
+        results = []
+        for beat in range(MOBILISING_ARMIES_SCENARIO_BEATS):
+            if beat == 7:
+                data = migrate_loaded_data(
+                    json.loads(json.dumps(data)), ORE_DATA, ITEM_DEFINITIONS
+                )
+            data, ok, result = apply_mobilising_armies_review_pure(
+                data, rng, productive=True
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["order"], "explore")
+            results.append(result)
+            if result.get("terminal"):
+                break
+
+        self.assertEqual(len(results), MOBILISING_ARMIES_SCENARIO_BEATS)
+        self.assertEqual(results[-1]["outcome"], "timeout")
+        self.assertFalse(results[-1]["rank_eligible"])
+        self.assertEqual(results[-1]["rank_gained"], 0)
+        self.assertEqual(data["mobilising_armies_rank"], 0)
+
     def test_a_scenario_that_runs_its_clock_out_pays_the_participation_rank(self):
         for squad in MOBILISING_ARMIES_SQUAD_IDS:
             for seed in range(6):

@@ -27,7 +27,7 @@ from ..data.temple_trekking_data import (
     TEMPLE_TREKKING_DEFAULT_REWARD,
     TEMPLE_TREKKING_DESTINATIONS,
     TEMPLE_TREKKING_DIRECTION_QUESTS,
-    TEMPLE_TREKKING_DRUID_POUCH_CAP,
+    TEMPLE_TREKKING_DRUID_POUCH_PREP_CHARGES,
     TEMPLE_TREKKING_DIRECTIONS,
     TEMPLE_TREKKING_EVENTS_BY_ID,
     TEMPLE_TREKKING_EVENTS_PER_TREK,
@@ -285,10 +285,7 @@ def sanitize_temple_trekking_state_pure(raw: Any) -> dict[str, Any]:
             TEMPLE_TREKKING_COMPANION_FOOD_CAP,
             _int(source.get("companion_food")),
         ),
-        "pouch_charges": min(
-            TEMPLE_TREKKING_DRUID_POUCH_CAP,
-            _int(source.get("pouch_charges")),
-        ),
+        "pouch_charges": _int(source.get("pouch_charges")),
         "treks_started": _int(source.get("treks_started")),
         "treks_completed": _int(source.get("treks_completed")),
         "treks_failed": _int(source.get("treks_failed")),
@@ -411,15 +408,18 @@ def prepare_druid_pouch_pure(
     if not quest_completed_pure(data, "nature_spirit"):
         return data, False, {"reason": "Complete Nature Spirit first."}
     state = sanitize_temple_trekking_state_pure(data.get("temple_trekking"))
-    if state["pouch_charges"] >= TEMPLE_TREKKING_DRUID_POUCH_CAP:
-        return data, False, {"reason": "The Druid pouch is already fully charged."}
     if _held(data, "Silver sickle (b)") <= 0:
         return data, False, {"reason": "A Silver sickle (b) is required to gather Mort Myre flora."}
     if _held(data, "Druid pouch") <= 0:
         _grant(data, "Druid pouch", 1)
-    # One direct action compresses Bloom, flora harvest and pouch filling.
-    state["pouch_charges"] = TEMPLE_TREKKING_DRUID_POUCH_CAP
-    state["last_result"] = "Used Bloom in Mort Myre Swamp and filled a Druid pouch."
+    # One direct action compresses Bloom, harvesting three fungi, and pouch filling.
+    state["pouch_charges"] = _int(
+        state["pouch_charges"] + TEMPLE_TREKKING_DRUID_POUCH_PREP_CHARGES
+    )
+    state["last_result"] = (
+        f"Used Bloom in Mort Myre Swamp and added "
+        f"{TEMPLE_TREKKING_DRUID_POUCH_PREP_CHARGES} Druid pouch charges."
+    )
     data["temple_trekking"] = state
     return data, True, {"message": state["last_result"]}
 
@@ -968,10 +968,8 @@ def temple_trekking_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "food_load_enabled": state["companion_food"] < TEMPLE_TREKKING_COMPANION_FOOD_CAP and _held(player_data, TEMPLE_TREKKING_COMPANION_FOOD_ITEM) > 0,
         "pouch_prepare_enabled": (
             quest_completed_pure(player_data, "nature_spirit")
-            and state["pouch_charges"] < TEMPLE_TREKKING_DRUID_POUCH_CAP
             and _held(player_data, "Silver sickle (b)") > 0
         ),
-        "pouch_charge_cap": TEMPLE_TREKKING_DRUID_POUCH_CAP,
         "event_stage": session["event_stage"] if session else 0,
         "token_counts": token_counts,
         "available_token_colors": available_colors,

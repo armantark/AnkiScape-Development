@@ -69,6 +69,7 @@ from ankiscape.logic.dominion_tower_logic import (
     dominion_tower_xp_book_amount_pure,
     sanitize_dominion_tower_state_pure,
 )
+from ankiscape.logic.summoning_logic import summon_familiar_pure
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
 
 
@@ -567,6 +568,81 @@ class DominionTowerHandicapTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(result["prayer_uptime"], 0.0)
 
+    def test_no_familiar_dismisses_and_blocks_summoning_during_the_match(self):
+        rng = random.Random(11).random
+        data = _geared(_player(*_twenty_quests()))
+        data["summoning_state"]["summoning_points_current"] = 99
+        data["inventory"] = {**data["inventory"], "Spirit wolf pouch": 2}
+        data, ok, info = summon_familiar_pure(data, "spiritwolf")
+        self.assertTrue(ok, info)
+        expected_points = data["summoning_state"]["summoning_points_current"]
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
+        self.assertTrue(ok, info)
+        state = dict(data["dominion_tower"])
+        state["defeated"] = {"delrith": 1}
+        data["dominion_tower"] = state
+        data, ok, info = apply_dominion_tower_command_pure(
+            data,
+            "start_mode",
+            {"mode": "freestyle", "encounter_id": "delrith", "handicaps": ["no_familiar"]},
+            rng,
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(data["summoning_state"]["active_follower"], {})
+        pouch_count = data["inventory"]["Spirit wolf pouch"]
+        blocked, ok, info = summon_familiar_pure(data, "spiritwolf")
+        self.assertFalse(ok, info)
+        self.assertEqual(blocked["inventory"]["Spirit wolf pouch"], pouch_count)
+        self.assertEqual(blocked["summoning_state"]["active_follower"], {})
+        data, ok, result = apply_dominion_tower_review_pure(
+            data, rng, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(data["summoning_state"]["active_follower"], {})
+        for _ in range(20):
+            if not data["dominion_tower"]["mode"]:
+                break
+            data, ok, result = apply_dominion_tower_review_pure(
+                data, lambda: 0.1, equipment_data=EQUIPMENT_DATA
+            )
+            self.assertTrue(ok, result)
+        self.assertFalse(data["dominion_tower"]["mode"])
+        self.assertEqual(
+            data["summoning_state"]["summoning_points_current"], expected_points
+        )
+
+    def test_removed_armour_is_banked_instead_of_deleted(self):
+        cases = (
+            ("no_body_armour", "body", "Dragon chainbody"),
+            ("no_shield", "shield", "Rune kiteshield"),
+        )
+        for handicap_id, slot, item_name in cases:
+            with self.subTest(handicap=handicap_id):
+                data, rng = self._forced(handicap_id)
+                data["equipment"] = {
+                    **data["equipment"],
+                    "weapon": "Abyssal whip",
+                    slot: item_name,
+                }
+                before = int(data["inventory"].get(item_name, 0))
+                data, ok, result = apply_dominion_tower_review_pure(
+                    data, rng, equipment_data=EQUIPMENT_DATA
+                )
+                self.assertTrue(ok, result)
+                self.assertNotIn(slot, data["equipment"])
+                self.assertEqual(int(data["inventory"].get(item_name, 0)), before + 1)
+
+    def test_no_food_restores_auto_eat_and_the_food_loadout_after_the_slice(self):
+        data, rng = self._forced("no_food")
+        expected_loadout = copy.deepcopy(data["combat_supply_loadout"])
+        data["combat_auto_eat_food"] = "Shark"
+        data, ok, result = apply_dominion_tower_review_pure(
+            data, rng, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(data["combat_auto_eat_food"], "Shark")
+        self.assertEqual(data["combat_supply_loadout"], expected_loadout)
+
     def test_every_accepted_handicap_joins_the_suffered_set_forever(self):
         data, _rng = self._forced("no_food")
         self.assertIn("no_food", data["dominion_tower"]["suffered_handicaps"])
@@ -606,6 +682,28 @@ class DominionTowerRunTest(unittest.TestCase):
         self.assertEqual(
             view["dominion_factor"], result["factor"]
         )
+
+    def test_a_live_match_cannot_be_left_before_victory_or_defeat(self):
+        rng = random.Random(5).random
+        data = _geared(_player(*_twenty_quests()))
+        state = dict(data["dominion_tower"])
+        state["defeated"] = {"delrith": 1}
+        data["dominion_tower"] = state
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
+        self.assertTrue(ok, info)
+        data, ok, info = apply_dominion_tower_command_pure(
+            data,
+            "start_mode",
+            {"mode": "freestyle", "encounter_id": "delrith"},
+            rng,
+        )
+        self.assertTrue(ok, info)
+        roster_before = len(data["dominion_tower"]["roster"])
+        updated, ok, info = apply_dominion_tower_command_pure(data, "leave", {}, rng)
+        self.assertFalse(ok)
+        self.assertIn("victory or defeat", info["reason"])
+        self.assertEqual(len(updated["dominion_tower"]["roster"]), roster_before)
+        self.assertEqual(updated["activity_session"]["active_id"], DOMINION_TOWER_ACTIVITY_ID)
 
     def test_a_defeat_ends_the_run_and_costs_the_last_round(self):
         """A stripped fighter against a heavy boss loses, safely, and pays."""
@@ -688,9 +786,24 @@ class DominionTowerRunTest(unittest.TestCase):
         self.assertEqual(dominion_tower_view_pure(data)["dominion_factor"], 0)
         self.assertEqual(dominion_tower_view_pure(data)["progress"], 0)
 
-    def test_an_empty_factor_cannot_be_claimed(self):
+    def test_the_reward_box_caps_repeated_capped_item_rolls_per_box(self):
         data, rng = self._entered()
+        data, result = _run_match(self, data, rng)
+        self.assertTrue(result.get("won"), result)
         data, ok, info = apply_dominion_tower_command_pure(data, "leave", {}, rng)
+        self.assertTrue(ok, info)
+        blood_rune_roll = lambda: 5.2 / 14
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "claim_rewards", {}, blood_rune_roll
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(info["granted"]["Blood rune"], 20)
+        self.assertEqual(int(data["inventory"].get("Blood rune", 0)), 20)
+
+    def test_an_empty_factor_cannot_be_claimed(self):
+        rng = random.Random(5).random
+        data = _geared(_player(*_twenty_quests()))
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
         self.assertTrue(ok, info)
         _updated, ok, info = apply_dominion_tower_command_pure(
             data, "claim_rewards", {}, rng
@@ -705,7 +818,7 @@ class DominionTowerRunTest(unittest.TestCase):
         self.assertTrue(ok)
         data, ok, _info = apply_dominion_tower_command_pure(data, "claim_rewards", {}, rng)
         self.assertTrue(ok)
-        factor = data["dominion_tower"]["xp_book_factor"]
+        factor = data["dominion_tower"]["xp_book_factors"][0]
         data["prayer_level"] = 70
         _updated, ok, info = apply_dominion_tower_command_pure(
             data, "read_xp_book", {"skill": "prayer"}, rng
@@ -755,9 +868,10 @@ class DominionTowerRunTest(unittest.TestCase):
         self.assertGreater(sum(result.get("xp_rewards", {}).values()), 0.0)
 
     def test_freestyle_refuses_a_boss_that_was_never_beaten(self):
-        data, rng = self._entered()
-        data, ok, _info = apply_dominion_tower_command_pure(data, "leave", {}, rng)
-        self.assertTrue(ok)
+        rng = random.Random(5).random
+        data = _geared(_player(*_twenty_quests()))
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
+        self.assertTrue(ok, info)
         _updated, ok, info = apply_dominion_tower_command_pure(
             data, "start_mode", {"mode": "freestyle", "encounter_id": "nomad"}, rng
         )
@@ -765,9 +879,10 @@ class DominionTowerRunTest(unittest.TestCase):
         self.assertIn("Defeat a boss", info["reason"])
 
     def test_special_mode_waits_for_climber_exposure(self):
-        data, rng = self._entered()
-        data, ok, _info = apply_dominion_tower_command_pure(data, "leave", {}, rng)
-        self.assertTrue(ok)
+        rng = random.Random(5).random
+        data = _geared(_player(*_twenty_quests()))
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
+        self.assertTrue(ok, info)
         _updated, ok, info = apply_dominion_tower_command_pure(
             data, "start_mode", {"mode": "special", "special_id": "just_die_already"}, rng
         )
@@ -874,9 +989,12 @@ class DominionTowerRewardLadderTest(unittest.TestCase):
         )
         self.assertTrue(ok, info)
         self.assertEqual(int(data["inventory"].get("Dreadnip", 0)), 100)
-        self.assertEqual(
-            dominion_tower_view_pure(data)["reward_credits"], credits_before - 1
+        view = dominion_tower_view_pure(data)
+        self.assertEqual(view["reward_credits"], credits_before - 1)
+        dreadnip_row = next(
+            row for row in view["claim_reward_rows"] if row["id"] == "dreadnip"
         )
+        self.assertFalse(dreadnip_row["ready"])
 
     def test_the_ascendancy_mines_arrive_ten_at_a_time_and_repeat(self):
         data = self.data
@@ -885,6 +1003,7 @@ class DominionTowerRewardLadderTest(unittest.TestCase):
         )
         self.assertTrue(ok, info)
         self.assertEqual(int(data["inventory"].get("Ascendancy mine", 0)), 10)
+        self.assertFalse(dominion_tower_view_pure(data)["ascendancy_ready"])
         _updated, ok, info = apply_dominion_tower_command_pure(
             data, "claim_reward", {"reward_id": "ascendancy_mines"}, self.rng
         )
@@ -992,6 +1111,20 @@ class DominionTowerPowerupTest(unittest.TestCase):
         self.assertTrue(ok, info)
         return data, rng
 
+    def _freestyle_nomad(self):
+        rng = random.Random(13).random
+        data = _geared(_player(*_twenty_quests()))
+        state = dict(data["dominion_tower"])
+        state["defeated"] = {"nomad": 1}
+        data["dominion_tower"] = state
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
+        self.assertTrue(ok, info)
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "start_mode", {"mode": "freestyle", "encounter_id": "nomad"}, rng
+        )
+        self.assertTrue(ok, info)
+        return data, rng
+
     def test_a_bomb_takes_the_stated_share_of_the_target(self):
         data, rng = self._in_arena()
         data["inventory"] = {**data["inventory"], "Diminutive bomb": 1}
@@ -1065,12 +1198,101 @@ class DominionTowerPowerupTest(unittest.TestCase):
         )
         self.assertTrue(ok, info)
         self.assertEqual(data["dominion_tower"]["weapon_powerup"]["charges"], 500)
-        data, ok, _result = apply_dominion_tower_review_pure(
+        data, ok, result = apply_dominion_tower_review_pure(
             data, rng, equipment_data=EQUIPMENT_DATA
         )
-        self.assertTrue(ok)
+        self.assertTrue(ok, result)
         weapon = data["dominion_tower"]["weapon_powerup"]
-        self.assertEqual(weapon.get("charges"), 494)
+        self.assertEqual(500 - weapon.get("charges", 0), result["ticks_elapsed"])
+
+    def test_the_crossbow_spends_one_charge_per_shot_fired(self):
+        data, rng = self._freestyle_nomad()
+        data["equipment"] = {"weapon": "Rune crossbow"}
+        data["combat_attack_style"] = "ranged_rapid"
+        data["combat_supply_loadout"] = {"ammo": {"Broad-tipped bolts": 100}}
+        data["inventory"] = {**data["inventory"], "Dominion crossbow": 1}
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "use_powerup", {"item": "Dominion crossbow"}, rng
+        )
+        self.assertTrue(ok, info)
+        data, ok, result = apply_dominion_tower_review_pure(
+            data, rng, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        shots = sum(int(quantity) for quantity in result["ammo_used"].values())
+        self.assertGreater(shots, 0)
+        self.assertEqual(100 - data["dominion_tower"]["weapon_powerup"]["charges"], shots)
+        self.assertNotEqual(shots, 6)
+
+    def test_the_staff_spends_one_charge_per_magic_hit(self):
+        data, _unused_rng = self._freestyle_nomad()
+        rng = lambda: 0.1
+        data["equipment"] = {"weapon": "Staff"}
+        data["combat_attack_style"] = "magic_standard"
+        data["current_combat_spell"] = "wind_strike"
+        data["combat_supply_loadout"] = {
+            "runes": {"Air rune": 100, "Mind rune": 100}
+        }
+        data["inventory"] = {**data["inventory"], "Dominion staff": 1}
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "use_powerup", {"item": "Dominion staff"}, rng
+        )
+        self.assertTrue(ok, info)
+        data, ok, result = apply_dominion_tower_review_pure(
+            data, rng, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["combat_class"], "magic")
+        self.assertGreater(result["player_damage"], 0)
+        self.assertEqual(100 - data["dominion_tower"]["weapon_powerup"]["charges"], 2)
+
+    def test_the_staff_does_not_spend_a_charge_when_every_cast_misses(self):
+        rng = lambda: 0.999999
+        data, _unused_rng = self._freestyle_nomad()
+        data["equipment"] = {"weapon": "Staff"}
+        data["combat_attack_style"] = "magic_standard"
+        data["current_combat_spell"] = "wind_strike"
+        data["combat_supply_loadout"] = {
+            "runes": {"Air rune": 100, "Mind rune": 100}
+        }
+        data["inventory"] = {**data["inventory"], "Dominion staff": 1}
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "use_powerup", {"item": "Dominion staff"}, rng
+        )
+        self.assertTrue(ok, info)
+        data, ok, result = apply_dominion_tower_review_pure(
+            data, rng, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["player_damage"], 0)
+        self.assertGreater(sum(result["runes_used"].values()), 0)
+        self.assertEqual(data["dominion_tower"]["weapon_powerup"]["charges"], 100)
+
+    def test_the_staff_charges_only_the_landed_cast_in_a_mixed_slice(self):
+        # Seed 1 makes the slice cast twice with exactly one cast landing, so
+        # a charge count of one distinguishes landed-hit budgeting from the
+        # old per-attack-opportunity derivation, which would charge two.
+        rng = random.Random(1).random
+        data, _unused_rng = self._freestyle_nomad()
+        data["equipment"] = {"weapon": "Staff"}
+        data["combat_attack_style"] = "magic_standard"
+        data["current_combat_spell"] = "wind_strike"
+        data["combat_supply_loadout"] = {
+            "runes": {"Air rune": 100, "Mind rune": 100}
+        }
+        data["inventory"] = {**data["inventory"], "Dominion staff": 1}
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "use_powerup", {"item": "Dominion staff"}, rng
+        )
+        self.assertTrue(ok, info)
+        data, ok, result = apply_dominion_tower_review_pure(
+            data, rng, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["player_hits_landed"], 1)
+        self.assertGreater(result["player_damage"], 0)
+        self.assertGreaterEqual(sum(result["runes_used"].values()), 2)
+        self.assertEqual(100 - data["dominion_tower"]["weapon_powerup"]["charges"], 1)
 
     def test_the_dominion_staff_needs_its_ninety_magic(self):
         data, rng = self._in_arena()
@@ -1114,6 +1336,34 @@ class DominionTowerPowerupTest(unittest.TestCase):
         self.assertEqual(int(data["inventory"].get("Scorpion meat", 0)), 0)
         self.assertEqual(int(data["inventory"].get(DOMINION_TOWER_XP_BOOK, 0)), 1)
 
+    def test_each_xp_book_keeps_the_factor_that_created_it(self):
+        data = _player(*_twenty_quests())
+        data["inventory"] = {**data["inventory"], "Scorpion meat": 1}
+        data, ok, first = apply_dominion_tower_command_pure(
+            data, "exchange_rewards", {}, random.random
+        )
+        self.assertTrue(ok, first)
+        data["inventory"] = {**data["inventory"], "Scorpion meat": 2}
+        data, ok, second = apply_dominion_tower_command_pure(
+            data, "exchange_rewards", {}, random.random
+        )
+        self.assertTrue(ok, second)
+        self.assertEqual(data["dominion_tower"]["xp_book_factors"], [500, 1000])
+        before = float(data.get("attack_exp", 0.0))
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "read_xp_book", {"skill": "attack"}, random.random
+        )
+        self.assertTrue(ok, info)
+        first_paid = float(data["attack_exp"]) - before
+        before = float(data["attack_exp"])
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "read_xp_book", {"skill": "attack"}, random.random
+        )
+        self.assertTrue(ok, info)
+        second_paid = float(data["attack_exp"]) - before
+        self.assertEqual(first_paid, dominion_tower_xp_book_amount_pure(500, "attack"))
+        self.assertEqual(second_paid, dominion_tower_xp_book_amount_pure(1000, "attack"))
+
 
 class DominionTowerPersistenceTest(unittest.TestCase):
     """Sanitize, migrate, and the runtime handler."""
@@ -1121,6 +1371,62 @@ class DominionTowerPersistenceTest(unittest.TestCase):
     def test_the_default_state_survives_a_sanitize_round_trip(self):
         state = default_dominion_tower_state_pure()
         self.assertEqual(sanitize_dominion_tower_state_pure(state), state)
+
+    def test_a_legacy_global_book_factor_survives_state_only_sanitization(self):
+        state = sanitize_dominion_tower_state_pure({"xp_book_factor": 750})
+        self.assertEqual(state["xp_book_factors"], [750])
+
+    def test_legacy_global_factor_values_every_book_held_at_migration(self):
+        legacy = _player(*_twenty_quests())
+        legacy["inventory"] = {
+            **legacy["inventory"],
+            DOMINION_TOWER_XP_BOOK: 2,
+        }
+        legacy["dominion_tower"] = {"xp_book_factor": 1000}
+        data = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            dominion_tower_view_pure(data)["xp_book_factors"],
+            [1000, 1000],
+        )
+        before = float(data.get("attack_exp", 0.0))
+
+        for _ in range(2):
+            data, ok, info = apply_dominion_tower_command_pure(
+                data, "read_xp_book", {"skill": "attack"}, random.random
+            )
+            self.assertTrue(ok, info)
+
+        self.assertEqual(
+            float(data["attack_exp"]) - before,
+            2 * dominion_tower_xp_book_amount_pure(1000, "attack"),
+        )
+        self.assertEqual(
+            int(data["inventory"].get(DOMINION_TOWER_XP_BOOK, 0)),
+            0,
+        )
+        self.assertEqual(data["dominion_tower"]["xp_book_factors"], [])
+
+    def test_legacy_factor_without_a_book_cannot_value_a_new_exchange(self):
+        legacy = _player(*_twenty_quests())
+        legacy["inventory"] = {**legacy["inventory"], "Scorpion meat": 1}
+        legacy["dominion_tower"] = {"xp_book_factor": 750}
+        data = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(dominion_tower_view_pure(data)["xp_book_factors"], [])
+
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "exchange_rewards", {}, random.random
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(data["dominion_tower"]["xp_book_factors"], [500])
+        before = float(data.get("attack_exp", 0.0))
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "read_xp_book", {"skill": "attack"}, random.random
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(
+            float(data["attack_exp"]) - before,
+            dominion_tower_xp_book_amount_pure(500, "attack"),
+        )
 
     def test_junk_state_is_rebuilt_rather_than_trusted(self):
         state = sanitize_dominion_tower_state_pure(

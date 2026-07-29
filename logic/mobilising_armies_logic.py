@@ -972,7 +972,8 @@ def apply_mobilising_armies_review_pure(
         order = "stalled"
         order_result = {"stalled": True}
     elif productive:
-        session["commands"] = int(session["commands"]) + 1
+        if order != "explore":
+            session["commands"] = int(session["commands"]) + 1
         if order == "attack":
             order_result = _attack_rival(session, rng)
             scenario = MOBILISING_ARMIES_SCENARIOS_BY_ID[str(session["scenario"])]

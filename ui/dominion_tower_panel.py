@@ -210,6 +210,9 @@ if HAS_QT:
                     "read_xp_book", {"skill": str(self.skill_combo.currentData() or "")}
                 )
             )
+            self.reward_combo.currentIndexChanged.connect(
+                lambda _index=0: self._refresh_reward_claim()
+            )
             self.claim_reward_button.clicked.connect(
                 lambda _checked=False: self._run_command(
                     "claim_reward",
@@ -287,6 +290,22 @@ if HAS_QT:
             item_name = str(self.powerup_combo.currentData() or "")
             action = "drink_potion" if item_name.startswith("Dom ") else "use_powerup"
             self._run_command(action, {"item": item_name})
+
+        def _refresh_reward_claim(self) -> None:
+            reward_id = str(self.reward_combo.currentData() or "")
+            row = next(
+                (
+                    row
+                    for row in dominion_tower_view_pure(self._player_data)[
+                        "claim_reward_rows"
+                    ]
+                    if row["id"] == reward_id
+                ),
+                {},
+            )
+            self.claim_reward_button.setEnabled(
+                self._on_command is not None and bool(row.get("ready"))
+            )
 
         def _primary_clicked(self) -> None:
             """One button, two jobs: meet the face, then enter the tower."""
@@ -404,23 +423,13 @@ if HAS_QT:
             blocked = self.reward_combo.blockSignals(True)
             selected_reward = str(self.reward_combo.currentData() or "")
             self.reward_combo.clear()
-            reward_rows = [
-                (item_name, reward_id)
-                for item_name, reward_id in (
-                    ("Goliath gloves", "goliath_gloves"),
-                    ("Spellcaster gloves", "spellcaster_gloves"),
-                    ("Swift gloves", "swift_gloves"),
-                    ("Dreadnip ×100", "dreadnip"),
-                    ("Ascendancy mines ×10", "ascendancy_mines"),
-                )
-                if reward_id in view["unlocked_rewards"]
-            ]
-            for item_name, reward_id in reward_rows:
-                self.reward_combo.addItem(item_name, reward_id)
+            reward_rows = view["claim_reward_rows"]
+            for row in reward_rows:
+                self.reward_combo.addItem(row["display_name"], row["id"])
             self._select(self.reward_combo, selected_reward)
             self.reward_combo.blockSignals(blocked)
             self.reward_combo.setEnabled(enabled and bool(reward_rows))
-            self.claim_reward_button.setEnabled(enabled and bool(reward_rows))
+            self._refresh_reward_claim()
             self.claim_reward_button.setToolTip(
                 f"{view['reward_credits']}/15 reward credits banked"
             )
@@ -445,7 +454,7 @@ if HAS_QT:
                 )
             )
             self.leave_button.setVisible(bool(view["leave_visible"]))
-            self.leave_button.setEnabled(enabled and bool(view["leave_visible"]))
+            self.leave_button.setEnabled(enabled and bool(view["leave_enabled"]))
 
 else:
 

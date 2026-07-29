@@ -196,6 +196,37 @@ class TempleTrekkingDataSourceAssetTests(unittest.TestCase):
 
 
 class TempleTrekkingPureGraphRewardTests(unittest.TestCase):
+    def test_repeated_pouch_preparation_accumulates_enough_for_four_ghast_ambushes(self):
+        data = _player()
+        for expected_charges in (3, 6):
+            data, ok, info = apply_temple_trekking_command_pure(
+                data, "prepare_pouch"
+            )
+            self.assertTrue(ok, info)
+            self.assertEqual(data["temple_trekking"]["pouch_charges"], expected_charges)
+
+        data, ok, info = enter_temple_trekking_pure(data)
+        self.assertTrue(ok, info)
+        data = _force_nodes(data, ("ghasts",) * 4)
+        for _ in range(20):
+            data["temple_trekking"]["session"]["encounter"] = {
+                "target_id": TEMPLE_TREKKING_COMBAT_TARGET_ID,
+                "enemy_lifepoints": 1,
+            }
+            data, ok, result = apply_temple_trekking_review_pure(
+                data,
+                lambda: 0.0,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            self.assertTrue(ok, result)
+            if result.get("terminal"):
+                break
+        else:
+            self.fail("four sourced Druid pouch charges did not finish the trek")
+
+        self.assertTrue(result.get("completed"), result)
+        self.assertEqual(data["temple_trekking"]["pouch_charges"], 2)
+
     def test_smallest_event_graph_has_live_hybrid_direction_and_quest_edges(self):
         trek = _player(direction="trek")
         trek["quests"].pop("legacy_of_seergaze", None)
@@ -475,7 +506,7 @@ class TempleTrekkingPersistenceRuntimeTests(unittest.TestCase):
         self.assertEqual(clean["policy"]["direction"], "trek")
         self.assertEqual(clean["companion_xp"]["dean_vellio"], 16_000)
         self.assertEqual(clean["companion_levels"]["dean_vellio"], 99)
-        self.assertEqual(clean["pouch_charges"], 3)
+        self.assertEqual(clean["pouch_charges"], 99)
         self.assertEqual(clean["companion_food"], 28)
         self.assertEqual(clean["session"], {})
 

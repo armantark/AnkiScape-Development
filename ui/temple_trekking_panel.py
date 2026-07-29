@@ -304,7 +304,7 @@ if HAS_QT:
             self.companion_health.setFormat(f"Companion LP {current}/{maximum}")
             self.supplies.setText(
                 f"Follower food {view['companion_food']}/28 · "
-                f"Druid pouch {view['pouch_charges']}/{view['pouch_charge_cap']} · "
+                f"Druid pouch {view['pouch_charges']} charges · "
                 + " · ".join(
                     f"{color.title()} tokens {count}"
                     for color, count in view["token_counts"].items()
