@@ -882,3 +882,38 @@ semantics clauses and the v88 migration read, not player-visible content.
   `dominion_tower.loss_factor_penalty`.
 - **Alternatives if you prefer:** a flat percentage of the banked factor, or a
   reset to zero. Both are inventions of the same size; this one is the least.
+
+### 4.13 Pass 4 of the playtest notes — owner directives, 2026-07-28
+
+Source: `~/Downloads/ankiscape notes.rtfd` (pass-4 section plus its screenshot
+of the Arachnophagia modal over a mackerel cook). These are directives, not
+open forks, except where marked.
+
+1. **The review overlay must never cover card material,** the footnotes
+   especially. Reposition or shrink; the card wins every collision.
+2. **The merged D&D·Farming badge is overruled.** Pass 3's single
+   `ReviewStatusBadge` (rider on 3.15) is not what the owner wanted: the two
+   badges stay separate, both sit to the **left of the XP-bar area** rather
+   than on top of it, and the current sometimes-pops-left behaviour is a bug
+   to remove, not a fallback to keep.
+3. **An event-log drawer replaces missed popovers.** Last ten actions by
+   default, lazily expandable indefinitely, timestamped in "x reviews ago"
+   units, containing exactly what the floating popovers emit — XP drops
+   included. It is a drawer, like the GE fills drawer.
+4. **The Equipment tab shows current points** — life, Prayer, and whatever
+   else is live (summoning points).
+5. **Arachnophagia fired while cooking mackerel.** The gnome-cooking
+   achievement predicate triggers on the wrong target; it must fire only on an
+   actual Spider on a stick cook.
+6. **Favoriting a D&D happens by right-click on its row** (add/remove). The
+   pass-3 star on the detail card was not discoverable and is not the asked-for
+   surface; keep or drop it, but right-click must work.
+7. **Treasure Trails start from the Bank:** right-click a clue scroll to
+   start. The existing activity-target UI survives but locks behind a
+   bank-started trail.
+8. **"Weren't there supposed to be extra cooking options?"** — investigation
+   item: the twenty gnome cooking targets merged 2026-07-28; determine why the
+   owner's build did not show them (gate, ordering, or build staleness) before
+   changing anything.
+9. **Lag, again.** Pass-1 noted menu load; pass 4 reports in-review lag and
+   suspects backend calculation cost. Profile before fixing.
