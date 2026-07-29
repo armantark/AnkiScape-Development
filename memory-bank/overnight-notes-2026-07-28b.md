@@ -149,6 +149,11 @@ family-merges convention.
 
 ## Done this session
 
+- Art tranche 2 closed (`495b48af`): 2,384 pre-EOC revisions pinned by the
+  56-agent workflow, 356 evidence-backed absences, 243 honest unresolved; the
+  wrong-variant desert lizard reverted by hand, the green dragon re-pinned to
+  its renamed period title.
+
 - All thirteen cross-lineage findings fixed and committed (`782cc06b`), 16-agent
   workflow, three families verified clean by execution; the one issue its final
   pass left open (staff charges counting attack opportunities) closed by hand:
