@@ -39,6 +39,7 @@ from ..data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
 from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
 from ..data.great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID
 from ..data.livid_farm_data import LIVID_FARM_ACTIVITY_ID
+from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
 from ..data.pyramid_plunder_data import PYRAMID_PLUNDER_ACTIVITY_ID
 from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
@@ -422,7 +423,18 @@ ACTIVITY_TRAINED_SKILLS: dict[str, tuple[str, ...]] = {
     FISHING_TRAWLER_ACTIVITY_ID: ("Fishing",),       # :1576
     GREAT_ORB_PROJECT_ACTIVITY_ID: ("Runecrafting",),  # :1619
     MANAGING_MISCELLANIA_ACTIVITY_ID: ("Woodcutting",),  # :2437
-    LIVID_FARM_ACTIVITY_ID: ("Magic",),              # :581
+    LIVID_FARM_ACTIVITY_ID: (
+        "Magic",
+        "Farming",
+        "Construction",
+        "Crafting",
+        "Agility",
+    ),                                               # livid_farm_logic.py:199-205
+    MAGE_TRAINING_ARENA_ACTIVITY_ID: ("Magic",),     # mage_training_arena_logic.py:604-687
+    "warriors_guild_attack_dummy": ("Attack",),      # warriors_guild_logic.py:262-264
+    "warriors_guild_catapult": ("Defence",),         # warriors_guild_logic.py:265-267
+    "warriors_guild_keg_balance": ("Strength",),     # warriors_guild_logic.py:270-277
+    "warriors_guild_shot_put": ("Strength",),        # warriors_guild_logic.py:268-269
 }
 
 

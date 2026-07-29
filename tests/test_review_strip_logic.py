@@ -209,6 +209,31 @@ class ActivityExperienceBarsTest(unittest.TestCase):
                 for skill in skills:
                     self.assertIn(skill, known_skills)
 
+    def test_the_exhaustiveness_sweep_defects_stay_closed(self):
+        # The 2026-07-29 sweep drove every family's real reducers; these six
+        # granted XP the strip did not show. The expected sets are the sweep's
+        # reducer-probe ground truth, not the table read back to itself.
+        data = _player()
+        expected = {
+            "livid_farm": (
+                "Magic",
+                "Farming",
+                "Construction",
+                "Crafting",
+                "Agility",
+            ),
+            "mage_training_arena": ("Magic",),
+            "warriors_guild_attack_dummy": ("Attack",),
+            "warriors_guild_catapult": ("Defence",),
+            "warriors_guild_keg_balance": ("Strength",),
+            "warriors_guild_shot_put": ("Strength",),
+        }
+        for activity_id, skills in expected.items():
+            with self.subTest(activity=activity_id):
+                self.assertEqual(
+                    activity_trained_skills_pure(data, activity_id), skills
+                )
+
 
 class DistractionFavouritesTest(unittest.TestCase):
     def test_the_evil_tree_can_be_watched_even_without_an_activity_spec(self):
