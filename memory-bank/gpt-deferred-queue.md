@@ -29,13 +29,20 @@ reaching breadth level one, so deferring them costs nothing today.
 3. A GPT run never gets git, release, or other external side effects. Those stay
    with Claude, per the owner's routing rules.
 
-## Art sweep tranche ledger (2026-07-27)
+## Art sweep tranche ledger (2026-07-27; closed 2026-07-29)
 
 Tranche 1 (combatenemies + shopitems, 672 assets): 39 replaced with verified
-pre-cutoff revisions. UNRESOLVED, queued for re-research — not absent: ~203
-assets whose research agents hit a wrong API endpoint (use
-`https://runescape.wiki/api.php`, not `/w/api.php`) or erred out, 25 with
-unreachable archive URLs, 9 with sha mismatches. Genuine no-period-art
-remainder: roughly 390, many likely recoverable only under `(historical)` or
-renamed titles — a title-variant pass is the next lever. Tranches 2+: the other
-~2,350 post-cutoff assets (constructionitems 414, herbloreitems 252, ...).
+pre-cutoff revisions; ~237 lost to tool failure and queued for re-research.
+
+**Tranche 2 closed 2026-07-29.** One 56-agent workflow re-researched all 2,984
+post-cutoff assets (tranche-1 leftovers included) through
+`tools/reresearch_period_art.py`, which owns the endpoint, full-history, and
+sha-of-served-bytes protocol: **2,385 replaced** with verified pre-cutoff
+revisions, **356 no-period-art with recorded evidence** (earliest-upload
+timestamps or exhausted title variants), **243 unresolved** (unreachable
+archives and unrecoverable sha mismatches, evidence in the run's
+`summary.json`). One recovery was manually reverted: the desert lizard came
+back under the orange-variant title against the roster's green pin, so the
+honest post-cutoff green art stays. The remaining 243 rows are the only
+re-research candidates left; a further pass needs a different lever (Wayback
+snapshots or cache sprites), not another wiki sweep.

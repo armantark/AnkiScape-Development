@@ -389,7 +389,9 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("gargoyle", "Gargoyle icon.png"),
             ("mutated_zygomite_level_74", "Mutated zygomite icon.png"),
             ("mutated_zygomite_level_86", "Mutated zygomite icon.png"),
-            ("green_dragon", "Green dragon.png"),
+            # The art sweep recovered the period image under the wiki's
+            # renamed "Green dragon 1.png" title; the creature is the same.
+            ("green_dragon", "Green dragon 1.png"),
             ("harpie_bug_swarm", "Harpie Bugs Swarm.png"),
             ("killerwatt", "Killerwatt icon.png"),
             ("sea_snake_hatchling", "Sea Snake Hatchling.png"),
