@@ -239,7 +239,16 @@ def review_overlay_layout_view_pure(
                 "y": zy + max(0, (zh - cluster_h) // 2),
                 "dock": dock,
             }
-    return {"visible": False, "x": margin, "y": margin, "dock": "none"}
+    # A scrolling card fills the viewport, so no outside rectangle exists —
+    # but the bars must never vanish (2026-07-29 playtest). The cluster docks
+    # over the viewport bottom and the UI injects matching bottom padding into
+    # the card document, so every line, footnotes included, can scroll clear.
+    return {
+        "visible": True,
+        "x": max(margin, (parent_w - cluster_w) // 2),
+        "y": max(margin, parent_h - cluster_h - margin),
+        "dock": "overlay-bottom",
+    }
 
 
 def _has_usable_hatchet(player_data: Mapping[str, Any]) -> bool:

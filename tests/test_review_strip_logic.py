@@ -568,13 +568,18 @@ class OverlayLayoutViewTest(unittest.TestCase):
         self.assertEqual(view["dock"], "below")
         self.assertGreaterEqual(view["y"], 540)
 
-    def test_the_cluster_hides_when_no_outside_rectangle_can_hold_it(self):
+    def test_a_full_viewport_card_gets_the_padded_overlay_bottom_dock(self):
+        # A scrolling card leaves no outside rectangle; the cluster must stay
+        # visible over the viewport bottom (the UI pads the document to match)
+        # rather than vanish — the 2026-07-29 tall-card regression.
         view = review_overlay_layout_view_pure(
             parent_size=(600, 500),
             content_rect=(0, 0, 600, 500),
             cluster_size=(500, 100),
         )
-        self.assertFalse(view["visible"])
+        self.assertTrue(view["visible"])
+        self.assertEqual(view["dock"], "overlay-bottom")
+        self.assertEqual(view["y"], 500 - 100 - 8)
 
 
 class FillDrawerViewTest(unittest.TestCase):

@@ -3271,6 +3271,28 @@ def measure_card_content() -> None:
         pass
 
 
+_CARD_PADDING_ACTIVE = False
+
+
+def _sync_card_bottom_padding(parent, layout, cluster_height) -> None:
+    """Overlay-bottom docking reserves scroll room inside the card document,
+    so the cluster never permanently covers content it sits over."""
+
+    global _CARD_PADDING_ACTIVE
+    wants = layout.get("dock") == "overlay-bottom"
+    if not wants and not _CARD_PADDING_ACTIVE:
+        return
+    try:
+        web = getattr(getattr(parent, "reviewer", None), "web", None)
+        if web is None:
+            return
+        pad = f"{int(cluster_height) + 24}px" if wants else ""
+        web.eval(f"document.body.style.paddingBottom = '{pad}';")
+        _CARD_PADDING_ACTIVE = wants
+    except Exception:
+        pass
+
+
 def _reposition_review_overlay() -> None:
     """Dock the complete overlay cluster outside the card webview viewport."""
 
@@ -3333,6 +3355,7 @@ def _reposition_review_overlay() -> None:
             cluster_size=(cluster_width, cluster_height),
         )
         visible = bool(layout.get("visible"))
+        _sync_card_bottom_padding(parent, layout, cluster_height)
         for widget in widgets:
             widget.setVisible(visible and _overlay_requested(widget))
         if not visible:
