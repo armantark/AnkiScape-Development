@@ -149,6 +149,17 @@ family-merges convention.
 
 ## Done this session
 
+- Dungeoneering shipped to A/B1/B2 (`0ac64a57`): 25th trainable skill, 120
+  curve, parked-XP release, capes and Max gate by construction, the full
+  Frozen starter floor loop, binds with sale-invalidated offers, Smuggler,
+  both starter chains. GOAL-BLOCKED is down to the one diary-count clause.
+- Pass 4 rebase-merged to main (`9c988b33`), event-log schema renumbered to
+  v101; both lanes green at 3,552 tests.
+- Dungeoneering phase C (kinship, trader with functional Coal bag, assets)
+  running on main as `wf_aad2b78c-a75`; Conquest breadth one running in the
+  `conquest` worktree (branch `conquest/breadth-one`, schema 102) as
+  `wf_b1e6a35a-735`. The XP-bar sweep agent is still enumerating.
+
 - Pass 4 implemented and verified clean on `pass4/fixes` (`24059e7e` in the
   guarded worktree), 12-agent workflow, one refix round (a hidden 200-event
   retention cap violated the expandable-indefinitely directive and is gone).
