@@ -2561,6 +2561,41 @@ EXP_TABLE = [
     5346332, 5902831, 6517253, 7195629, 7944614, 8771558, 9684577, 10692629, 11805606, 13034431
 ]
 
+# Dungeoneering continues the standard period curve through level 120.
+# Source: RuneScape Wiki Dungeoneering oldid=6579699, pinned in
+# data/dungeoneering_data.py SOURCE_REVISIONS.
+DUNGEONEERING_EXP_TABLE = EXP_TABLE + [
+    14391160,
+    15889109,
+    17542976,
+    19368992,
+    21385073,
+    23611006,
+    26068632,
+    28782069,
+    31777943,
+    35085654,
+    38737661,
+    42769801,
+    47221641,
+    52136869,
+    57563718,
+    63555443,
+    70170840,
+    77474828,
+    85539082,
+    94442737,
+    104273167,
+]
+
+
+def exp_table_for_skill(skill_id):
+    return (
+        DUNGEONEERING_EXP_TABLE
+        if str(skill_id).strip().lower() == "dungeoneering"
+        else EXP_TABLE
+    )
+
 # Achievement metadata
 ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     MINING_OUTPUT_ITEMS,

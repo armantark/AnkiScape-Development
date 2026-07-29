@@ -137,20 +137,27 @@ class StrongholdPlayerSafetyPureTest(unittest.TestCase):
         self.assertEqual(unchanged, player)
         self.assertIn("No Stronghold XP lamp", result["reason"])
 
-    def test_lamp_rejects_non_trainable_or_unknown_skills(self):
+    def test_lamp_accepts_live_dungeoneering_and_rejects_unknown_skills(self):
         player = _reach_chest(_player())
         player, ok, _result = apply_stronghold_player_safety_command_pure(
             player, "claim_chest"
         )
         self.assertTrue(ok)
-        for skill_id in ("dungeoneering", "not_a_skill"):
-            with self.subTest(skill_id=skill_id):
-                unchanged, ok, result = apply_stronghold_player_safety_command_pure(
-                    player, "claim_lamp", {"skill_id": skill_id}
-                )
-                self.assertFalse(ok)
-                self.assertEqual(unchanged, player)
-                self.assertIn("trainable", result["reason"])
+        awarded, ok, result = apply_stronghold_player_safety_command_pure(
+            player,
+            "claim_lamp",
+            {"skill_id": "dungeoneering"},
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(awarded["dungeoneering_exp"], 500.0)
+        unchanged, ok, result = apply_stronghold_player_safety_command_pure(
+            awarded,
+            "claim_lamp",
+            {"skill_id": "not_a_skill"},
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, awarded)
+        self.assertIn("trainable", result["reason"])
 
     def test_gloves_reclaim_respects_every_owned_location(self):
         player = _reach_chest(_player())

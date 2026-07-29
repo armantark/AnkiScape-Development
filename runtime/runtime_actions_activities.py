@@ -352,6 +352,7 @@ from ..logic.fight_caves_logic import (
     apply_fight_caves_review_pure,
     fight_caves_view_pure,
 )
+from ..logic.dungeoneering_logic import apply_dungeoneering_review_pure
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import (
     apply_phoenix_lair_review_pure,
@@ -986,6 +987,53 @@ def _handle_fight_caves_answer(ctx: RuntimeActionContext) -> bool:
     if result.get("outcome"):
         ctx.deactivate_current_skill()
     ctx.show_activity_gain(str(result.get("status", "Fight Cave review complete")))
+    return True
+
+
+def handle_dungeoneering_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_dungeoneering_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+        player_died=int(ctx.player_data.get("combat_lifepoints", 1) or 0) <= 0,
+    )
+    if not ok:
+        ctx.show_error_message(
+            "Dungeoneering unavailable",
+            str(result.get("reason", "Enter or resume a floor before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = tuple(
+        {"skill_id": skill_id, "amount": amount}
+        for skill_id, amount in dict(result.get("xp_rewards", {}) or {}).items()
+    )
+    primary_xp = _award_action_xp_rewards(
+        ctx,
+        xp_rewards,
+        "dungeoneering",
+    )
+    _refresh_combat_levels(
+        ctx,
+        dict(result.get("combat_xp_rewards", {}) or {}),
+    )
+    _record_action(
+        ctx,
+        "dungeoneering",
+        "starter_floor",
+        True,
+        expected_success_chance=1.0,
+        primary_xp=primary_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if primary_xp > 0:
+        ctx.show_exp(primary_xp)
+    if result.get("complete"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(str(result.get("status", "Dungeoneering room resolved.")))
     return True
 
 

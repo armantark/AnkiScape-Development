@@ -26,6 +26,10 @@ from ..logic.fight_caves_logic import (
     default_fight_caves_state_pure,
     sanitize_fight_caves_state_pure,
 )
+from ..logic.dungeoneering_logic import (
+    default_dungeoneering_state_pure,
+    sanitize_dungeoneering_state_pure,
+)
 from ..logic.phoenix_lair_logic import (
     default_phoenix_lair_state_pure,
     sanitize_phoenix_lair_state_pure,
@@ -50,7 +54,7 @@ from ..logic.stealing_creation_logic import (
 from ..data.urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
 from .constants import (
     BAR_DATA,
-    EXP_TABLE,
+    exp_table_for_skill,
     FISHING_OUTPUT_ITEMS,
     GEM_DATA,
     HERBLORE_FINISHED_OUTPUT_ITEMS,
@@ -311,7 +315,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 98
+CURRENT_CONFIG_VERSION = 100
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -545,6 +549,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["shooting_star"] = default_shooting_star_state_pure()
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["fight_caves"] = default_fight_caves_state_pure()
+    data["dungeoneering"] = default_dungeoneering_state_pure()
     data["phoenix_lair"] = default_phoenix_lair_state_pure()
     data["skeletal_horror"] = default_skeletal_horror_state_pure()
     data["tears_of_guthix"] = default_tears_of_guthix_state_pure()
@@ -611,10 +616,10 @@ def _default_combat_state() -> Dict[str, int]:
 
 
 def _default_hidden_support_state() -> Dict[str, int]:
-    """Support skills with hidden XP side effects but no visible surface yet."""
+    """Partial support skills whose full training surface is still landing."""
     state: Dict[str, int] = {}
     for skill in planned_skill_definitions():
-        if skill.id != "agility":
+        if skill.category != "support" or not skill.trainable:
             continue
         state[skill.level_key] = 1
         state[skill.exp_key] = 0
@@ -819,8 +824,12 @@ def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
                 if not math.isfinite(existing) or existing < 0:
                     existing = 0.0
                 skill = trainable_by_exp_key[exp_key]
+                exp_table = exp_table_for_skill(skill.id)
                 try:
-                    current_level = max(1, int(data.get(skill.level_key, 1) or 1))
+                    current_level = max(
+                        1,
+                        min(int(data.get(skill.level_key, 1) or 1), len(exp_table)),
+                    )
                 except (TypeError, ValueError, OverflowError):
                     current_level = 1
                 total = existing + amount
@@ -830,10 +839,25 @@ def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
                 data[skill.level_key] = calculate_new_level(
                     total,
                     current_level,
-                    EXP_TABLE,
+                    exp_table,
                 )
             else:
                 clean_pending[exp_key] = clean_pending.get(exp_key, 0.0) + amount
+
+    dungeoneering = trainable_by_exp_key.get("dungeoneering_exp")
+    if dungeoneering is not None:
+        try:
+            dungeoneering_exp = float(data.get(dungeoneering.exp_key, 0) or 0)
+        except (TypeError, ValueError, OverflowError):
+            dungeoneering_exp = 0.0
+        if not math.isfinite(dungeoneering_exp) or dungeoneering_exp < 0:
+            dungeoneering_exp = 0.0
+        data[dungeoneering.exp_key] = dungeoneering_exp
+        data[dungeoneering.level_key] = calculate_new_level(
+            dungeoneering_exp,
+            1,
+            exp_table_for_skill(dungeoneering.id),
+        )
     data["pending_skill_exp_rewards"] = clean_pending
 
 
@@ -1187,6 +1211,9 @@ def migrate_loaded_data(
     data["fight_caves"] = sanitize_fight_caves_state_pure(
         data.get("fight_caves")
     )
+    data["dungeoneering"] = sanitize_dungeoneering_state_pure(
+        data.get("dungeoneering")
+    )
     data["phoenix_lair"] = sanitize_phoenix_lair_state_pure(
         data.get("phoenix_lair")
     )
@@ -1469,6 +1496,11 @@ def migrate_loaded_data(
             active_session_id = ""
     elif goblin_raids_session:
         active_session_id = GOBLIN_RAIDS_ACTIVITY_ID
+    if data["dungeoneering"]["active"]:
+        if active_session_id in {"", "dungeoneering"}:
+            active_session_id = "dungeoneering"
+    elif active_session_id == "dungeoneering":
+        active_session_id = ""
     # Tears of Guthix is deliberately outside the exclusive ladder above. Its
     # cavern session survives leaving with its remaining beats intact, so
     # another activity holding the session must not clear it, and a suspended
@@ -1875,6 +1907,13 @@ def migrate_loaded_data(
     # floor records, journal pages, boss-kill and reward-credit counters, and the
     # achievement ladder's claim record. Its unconditional sanitizer above
     # supplies the complete additive migration.
+    # v99: Dungeoneering becomes a partial trainable skill. The registry-backed
+    # defaults and pending-skill migration above add its flat level/XP keys,
+    # sanitize parked rewards, and release them against its level-120 XP table.
+    # v100: the Frozen starter floor adds its persistent graph, route policy,
+    # per-theme prestige ledgers, token wallet, completion ledger, and repair.
+    if loaded_config_version < 100:
+        data.setdefault("dungeoneering", default_dungeoneering_state_pure())
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

@@ -54,16 +54,7 @@ def milestone_cape_name(level: int) -> str:
 
 
 def milestone_cape_wear_requirements(level: int) -> tuple[tuple[str, int], ...]:
-    """The period's all-skills gate, over the skills AnkiScape actually has.
-
-    Dungeoneering is deliberately absent: it is a `planned` skill with no
-    training loop, so including it would make every one of the nine capes
-    permanently unwearable — an inert reward, which is the failure this repair
-    exists to remove. The requirement is derived from the skill registry rather
-    than listed, so Dungeoneering joins the gate automatically on the day it
-    becomes trainable, the same way the design contract treats every other
-    latent requirement.
-    """
+    """The period's all-skills gate, derived from the trainable registry."""
 
     return tuple((skill.id, level) for skill in trainable_skill_definitions())
 
@@ -210,13 +201,7 @@ SKILLCAPES_BY_SKILL: dict[str, Skillcape] = {cape.skill_id: cape for cape in SKI
 
 
 def skillcape_definitions() -> tuple[Skillcape, ...]:
-    """Only the capes a player can actually reach level 99 in.
-
-    Dungeoneering is in ``SKILLCAPES`` because the period sold its cape, and
-    absent from this tuple because the skill has no training loop yet. Shipping
-    it today would be an unreachable reward; deriving the list from the skill
-    registry lets it appear on its own the day Dungeoneering becomes trainable.
-    """
+    """Only the capes a player can actually reach level 99 in."""
 
     trainable = {skill.id for skill in trainable_skill_definitions()}
     return tuple(cape for cape in SKILLCAPES if cape.skill_id in trainable)

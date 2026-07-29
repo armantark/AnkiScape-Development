@@ -826,22 +826,20 @@ class StageTwoRealPathTest(unittest.TestCase):
         self.assertTrue(result["allowed"], result)
         _assert_task_credited(self, player, 263)
 
-    def test_salt_in_the_wound_parks_dungeoneering_xp_and_keeps_empty_ledgers(self):
+    def test_salt_in_the_wound_awards_live_dungeoneering_xp_and_keeps_empty_ledgers(self):
         player = _complete_quest_for_reward(_fresh(), "salt_in_the_wound")
         self.assertTrue(player["quests"]["salt_in_the_wound"]["completed"])
-        self.assertNotIn("dungeoneering_exp", player)
-        self.assertEqual(
-            player["pending_skill_exp_rewards"]["dungeoneering_exp"], 5000.0
-        )
+        self.assertEqual(player["dungeoneering_exp"], 5000.0)
+        self.assertEqual(player["pending_skill_exp_rewards"], {})
         self.assertEqual(
             player["achievement_progress"]["skills"]["dungeoneering"],
             {"actions": {}, "outputs": {}},
         )
 
         reloaded = migrate_loaded_data(copy.deepcopy(player), ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(
-            reloaded["pending_skill_exp_rewards"]["dungeoneering_exp"], 5000.0
-        )
+        self.assertEqual(reloaded["dungeoneering_exp"], 5000.0)
+        self.assertEqual(reloaded["dungeoneering_level"], 20)
+        self.assertEqual(reloaded["pending_skill_exp_rewards"], {})
         self.assertEqual(
             reloaded["achievement_progress"]["skills"]["dungeoneering"],
             {"actions": {}, "outputs": {}},

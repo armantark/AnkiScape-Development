@@ -141,7 +141,10 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
         line = self._named(page, "cabinetCompletionistRequirements", QLabel)
         self.assertIsNotNone(line)
         self.assertIn("Level 99 in every skill", line.text())
-        self.assertIn("latent", line.text())
+        # Dungeoneering's activation removed the skill-shortfall note; the
+        # boss long-tail row stays latent until Fight Kiln and QBD exist.
+        self.assertNotIn("latent until the skill ships", line.text())
+        self.assertIn("(latent)", line.text())
 
     def test_the_music_log_shows_its_totals_and_marks_an_unlocked_track(self):
         from ankiscape.data.music_log_data import MUSIC_TRACKS

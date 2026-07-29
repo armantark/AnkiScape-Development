@@ -113,6 +113,7 @@ from .data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from .logic.barrows_logic import apply_barrows_command_pure
 from .logic.fist_of_guthix_logic import apply_fist_of_guthix_command_pure
 from .logic.fight_caves_logic import apply_fight_caves_command_pure
+from .logic.dungeoneering_logic import apply_dungeoneering_command_pure
 from .logic.phoenix_lair_logic import (
     apply_phoenix_lair_command_pure,
     resolve_phoenix_egg_choice_pure,
@@ -2088,6 +2089,33 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_dungeoneering_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        updated, ok, info = apply_dungeoneering_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Dungeoneering action failed.")),
+            }
+        if not commit_direct_action(lambda _current: (updated, True)):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        check_achievements(player_data)
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_fight_caves_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         before = _capture_player_data_snapshot()
@@ -3624,6 +3652,7 @@ def _on_main_menu(
         on_sorceress_garden_command=_apply_sorceress_garden_command,
         on_penguin_command=_apply_penguin_command,
         on_vinesweeper_command=_apply_vinesweeper_command,
+        on_dungeoneering_command=_apply_dungeoneering_command,
         on_fight_caves_command=_apply_fight_caves_command,
         on_phoenix_lair_command=_apply_phoenix_lair_command,
         on_skeletal_horror_command=_apply_skeletal_horror_command,
@@ -4342,7 +4371,7 @@ def on_good_answer(before_state=None):
             else:
                 action_ticks = (
                     1
-                    if handler_key in {"thieving", "agility"}
+                    if handler_key in {"thieving", "agility", "dungeoneering"}
                     or (
                         handler_key == "utility"
                         and player_data.get("current_utility")

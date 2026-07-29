@@ -386,6 +386,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Thieving",
                 "Agility",
                 "Summoning",
+                "Dungeoneering",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -403,6 +404,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Thieving"))
         self.assertTrue(is_review_skill("Agility"))
         self.assertTrue(is_review_skill("Summoning"))
+        self.assertTrue(is_review_skill("Dungeoneering"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
@@ -416,6 +418,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Thieving"), "thieving")
         self.assertEqual(review_handler_key("Agility"), "agility")
         self.assertEqual(review_handler_key("Summoning"), "summoning")
+        self.assertEqual(review_handler_key("Dungeoneering"), "dungeoneering")
         self.assertEqual(
             [skill.display_name for skill in CURRENT_SKILLS if skill.participates_in_review],
             list(implemented_review_skill_names()),
@@ -449,6 +452,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_action_handler_key("Herblore"), "herblore")
         self.assertEqual(review_action_handler_key("Thieving"), "thieving")
         self.assertEqual(
+            review_action_handler_key("Dungeoneering"),
+            "dungeoneering",
+        )
+        self.assertEqual(
             review_action_display_names(),
             (
                 "Mining",
@@ -468,6 +475,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Thieving",
                 "Agility",
                 "Summoning",
+                "Dungeoneering",
                 "Combat",
                 "Quests",
                 "Utilities",
@@ -541,16 +549,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             },
         )
 
-    def test_planned_catalog_contains_2011_era_targets_without_enabling_them(self):
+    def test_unimplemented_catalog_tracks_live_partial_surfaces(self):
         planned = {skill.id: skill for skill in planned_skill_definitions()}
         for skill_id in [
             "attack",
             "constitution",
-            "dungeoneering",
         ]:
             self.assertIn(skill_id, planned)
             self.assertFalse(planned[skill_id].implemented)
             self.assertFalse(planned[skill_id].participates_in_review)
+        self.assertNotIn("dungeoneering", planned)
+        dungeoneering = get_skill("dungeoneering")
+        self.assertIsNotNone(dungeoneering)
+        self.assertTrue(dungeoneering.trainable)
+        self.assertTrue(dungeoneering.implemented)
+        self.assertTrue(dungeoneering.participates_in_review)
+        self.assertEqual(dungeoneering.surface_state, "partial")
+        self.assertEqual(dungeoneering.training_source, "Daemonheim floors")
         self.assertNotIn("slayer", planned)
         slayer = get_skill("Slayer")
         self.assertIsNotNone(slayer)
@@ -577,16 +592,31 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIsNone(farming.review_handler_key)
         self.assertIsNone(review_handler_key("Farming"))
 
-    def test_partial_combat_skills_are_truthfully_trainable_without_complete_surfaces(self):
+    def test_partial_skills_are_truthfully_trainable_without_complete_surfaces(self):
         partial = {skill.id: skill for skill in partial_skill_definitions()}
         self.assertEqual(
             set(partial),
-            {"attack", "constitution", "defense", "ranged", "strength"},
+            {"attack", "constitution", "defense", "ranged", "strength", "dungeoneering"},
         )
         self.assertTrue(all(skill.trainable for skill in partial.values()))
-        self.assertTrue(all(skill.training_source == "Combat" for skill in partial.values()))
-        self.assertTrue(all(not skill.implemented for skill in partial.values()))
-        self.assertTrue(all(not skill.participates_in_review for skill in partial.values()))
+        self.assertTrue(
+            all(partial[skill_id].training_source == "Combat" for skill_id in {
+                "attack", "constitution", "defense", "ranged", "strength"
+            })
+        )
+        self.assertEqual(partial["dungeoneering"].training_source, "Daemonheim floors")
+        combat_partial_ids = {"attack", "constitution", "defense", "ranged", "strength"}
+        self.assertTrue(
+            all(not partial[skill_id].implemented for skill_id in combat_partial_ids)
+        )
+        self.assertTrue(
+            all(
+                not partial[skill_id].participates_in_review
+                for skill_id in combat_partial_ids
+            )
+        )
+        self.assertTrue(partial["dungeoneering"].implemented)
+        self.assertTrue(partial["dungeoneering"].participates_in_review)
         trainable = {skill.id for skill in trainable_skill_definitions()}
         self.assertTrue(set(partial).issubset(trainable))
         self.assertIn("prayer", trainable)
@@ -687,6 +717,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "slayer_exp": 0,
                 "summoning_level": 1,
                 "summoning_exp": 0,
+                "dungeoneering_level": 1,
+                "dungeoneering_exp": 0,
             },
         )
         self.assertEqual(

@@ -440,6 +440,79 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data["tears_of_guthix"], before)
         self.assertFalse(addon.player_data["tears_of_guthix"]["active"])
 
+    def test_dungeoneering_entry_policy_route_and_abandon_restore_independently(self):
+        from ankiscape.logic.dungeoneering_logic import (
+            apply_dungeoneering_command_pure,
+            dungeoneering_view_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["dungeoneering_level"] = 1
+        before = copy.deepcopy(addon.player_data)
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_dungeoneering_command_pure(
+                    current,
+                    "enter",
+                    {
+                        "floor": 1,
+                        "size": "small",
+                        "complexity": 1,
+                        "automation_mode": "casual",
+                    },
+                )[:2]
+            )
+        )
+        self.assertTrue(addon.player_data["dungeoneering"]["active"])
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_dungeoneering_command_pure(
+                    current,
+                    "set_policy",
+                    {"automation_mode": "advanced"},
+                )[:2]
+            )
+        )
+        room_id = dungeoneering_view_pure(
+            addon.player_data,
+            selected_skill="Dungeoneering",
+        )["frontier_rows"][0]["room_id"]
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_dungeoneering_command_pure(
+                    current,
+                    "select_route",
+                    {"room_id": room_id},
+                )[:2]
+            )
+        )
+        selected = copy.deepcopy(addon.player_data["dungeoneering"])
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_dungeoneering_command_pure(
+                    current,
+                    "abandon",
+                )[:2]
+            )
+        )
+        self.assertFalse(addon.player_data["dungeoneering"]["active"])
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["dungeoneering"], selected)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["dungeoneering"]["selected_room_id"], -1)
+        self.assertEqual(
+            addon.player_data["dungeoneering"]["automation_mode"],
+            "advanced",
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(
+            addon.player_data["dungeoneering"]["automation_mode"],
+            "casual",
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_crucible_lesson_and_purchase_restore_through_the_seam(self):
         """The Crucible spends a currency, so both mutations must be undoable."""
         from ankiscape.data.crucible_data import (

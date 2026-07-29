@@ -11,7 +11,7 @@ from __future__ import annotations
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.constants import DUNGEONEERING_EXP_TABLE, ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import (
     CURRENT_CONFIG_VERSION,
     default_player_data,
@@ -34,6 +34,7 @@ from ankiscape.logic.review_strip_logic import (
     activity_trained_skills_pure,
     activity_xp_bars_pure,
     review_status_badge_view_pure,
+    skill_xp_bar_pure,
 )
 from ankiscape.logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
@@ -76,6 +77,20 @@ class ActivityExperienceBarsTest(unittest.TestCase):
         self.assertEqual(bar["target_level"], 31)
         self.assertGreater(bar["percent"], 0)
         self.assertLess(bar["percent"], 100)
+
+    def test_dungeoneering_training_bar_continues_past_level_99(self):
+        bar = skill_xp_bar_pure(
+            {
+                "dungeoneering_level": 100,
+                "dungeoneering_exp": DUNGEONEERING_EXP_TABLE[99],
+            },
+            "Dungeoneering",
+        )
+
+        self.assertEqual(bar["level"], 100)
+        self.assertEqual(bar["target_level"], 101)
+        self.assertEqual(bar["percent"], 0)
+        self.assertGreater(bar["remaining"], 0)
 
     def test_the_bar_vanishes_when_the_star_session_ends(self):
         data = _with_live_star(_player())

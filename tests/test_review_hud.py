@@ -1,8 +1,13 @@
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.ui.ui import compute_level_progress, current_target_display_name, grouped_inventory
-from ankiscape.core.constants import EXP_TABLE
+from ankiscape.ui.ui import (
+    compute_level_progress,
+    current_target_display_name,
+    grouped_inventory,
+    stats_skill_progress_pure,
+)
+from ankiscape.core.constants import DUNGEONEERING_EXP_TABLE, EXP_TABLE
 from ankiscape.logic_pure.logic_pure import (
     combat_attack_style_trained_skills_pure,
     combat_hud_state_pure,
@@ -53,6 +58,31 @@ class TestReviewHUDProgress(unittest.TestCase):
         self.assertEqual(pct, 100)
         self.assertEqual(remain, 0.0)
         self.assertEqual(target, 99)
+
+    def test_stats_view_uses_dungeoneering_levels_above_99(self):
+        level_100 = stats_skill_progress_pure(
+            "Dungeoneering",
+            100,
+            DUNGEONEERING_EXP_TABLE[99],
+        )
+        self.assertEqual(level_100["percent"], 0)
+        self.assertEqual(level_100["target_level"], 101)
+        self.assertEqual(level_100["max_level"], 120)
+        self.assertEqual(
+            level_100["remaining"],
+            DUNGEONEERING_EXP_TABLE[100] - DUNGEONEERING_EXP_TABLE[99],
+        )
+
+        level_120 = stats_skill_progress_pure(
+            "Dungeoneering",
+            120,
+            DUNGEONEERING_EXP_TABLE[-1],
+        )
+        self.assertEqual(
+            level_120,
+            {"percent": 100, "remaining": 0.0, "target_level": 120, "max_level": 120},
+        )
+
 
 class TestCurrentTargetDisplayName(unittest.TestCase):
     def test_echoes_selected_target_display_name(self):

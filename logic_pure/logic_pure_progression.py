@@ -53,7 +53,8 @@ def get_exp_to_next_level(player_data, EXP_TABLE):
     When at or beyond max level or threshold missing, returns 0.
     """
     current_level = player_data.get("mining_level", player_data.get("level", 1))
-    if current_level >= 99:
+    max_level = 99 if isinstance(EXP_TABLE, dict) else len(EXP_TABLE)
+    if current_level >= max_level:
         return 0
     # Determine threshold for next level from EXP_TABLE
     if isinstance(EXP_TABLE, dict):
@@ -73,25 +74,23 @@ def get_exp_to_next_level(player_data, EXP_TABLE):
 def compute_level_progress(level: int, exp: float, exp_table: list) -> tuple[int, float, int]:
     """Pure helper for computing percent, remaining XP, and target level.
     Returns (percent, xp_remaining, target_level). Clamps values sensibly.
-    - At max level (99 or end of table), always return 100% and 0 remaining.
+    - At the table's maximum level, always return 100% and 0 remaining.
     """
     try:
         lvl = max(1, int(level))
         xp = float(exp or 0)
-        table_len = len(exp_table)
+        max_level = len(exp_table)
 
-        # If at or above the maximum supported level, treat progress as complete.
-        # Many games cap at 99; also guard when lvl maps to the last index of the table.
-        if lvl >= 99 or lvl >= table_len:
-            return 100, 0.0, 99
+        if lvl >= max_level:
+            return 100, 0.0, max_level
 
         # Compute thresholds for the current level segment
-        prev = float(exp_table[lvl - 1]) if (lvl - 1) < table_len else 0.0
-        nxt = float(exp_table[lvl]) if lvl < table_len else prev
+        prev = float(exp_table[lvl - 1])
+        nxt = float(exp_table[lvl])
 
         # If thresholds are degenerate (e.g., at end), treat as maxed
         if nxt <= prev:
-            return 100, 0.0, 99
+            return 100, 0.0, max_level
 
         # Clamp percent to [0, 100] and remaining to >= 0
         span = nxt - prev
@@ -103,7 +102,7 @@ def compute_level_progress(level: int, exp: float, exp_table: list) -> tuple[int
             pct = int(max(0.0, min(100.0, pct_float)))
             remain = max(0.0, nxt - xp)
 
-        target_lv = min(lvl + 1, 99)
+        target_lv = min(lvl + 1, max_level)
         return pct, remain, target_lv
     except Exception:
         # Fallback on error: show safe defaults and a reasonable next target
@@ -111,7 +110,11 @@ def compute_level_progress(level: int, exp: float, exp_table: list) -> tuple[int
             safe_lvl = max(1, int(level))
         except Exception:
             safe_lvl = 1
-        return 0, 0.0, min(safe_lvl + 1, 99)
+        try:
+            max_level = max(1, len(exp_table))
+        except Exception:
+            max_level = 99
+        return 0, 0.0, min(safe_lvl + 1, max_level)
 
 
 def calculate_new_level(skill_exp, current_level, EXP_TABLE):
@@ -121,7 +124,17 @@ def calculate_new_level(skill_exp, current_level, EXP_TABLE):
     Returns the new level (int).
     """
     new_level = current_level
-    while new_level < 99:
+    if isinstance(EXP_TABLE, dict):
+        try:
+            max_level = max(int(level) for level in EXP_TABLE)
+        except (TypeError, ValueError):
+            max_level = new_level
+    else:
+        try:
+            max_level = len(EXP_TABLE)
+        except TypeError:
+            max_level = new_level
+    while new_level < max_level:
         # Determine threshold to reach next level (new_level+1)
         if isinstance(EXP_TABLE, dict):
             threshold = EXP_TABLE.get(new_level + 1)

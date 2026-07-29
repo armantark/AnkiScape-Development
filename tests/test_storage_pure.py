@@ -12,6 +12,7 @@ from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
 from ankiscape.core.constants import (
     BAR_DATA,
     CRAFTING_DATA,
+    DUNGEONEERING_EXP_TABLE,
     FIREMAKING_DATA,
     FIREMAKING_LOG_ITEMS,
     FIREMAKING_OUTPUT_ITEMS,
@@ -244,6 +245,8 @@ class TestStoragePure(unittest.TestCase):
             "equipment",
             "attack_level",
             "defense_level",
+            "dungeoneering_level",
+            "dungeoneering_exp",
             "ranged_level",
             "strength_level",
             "agility_level",
@@ -297,6 +300,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["equipment"], {})
         self.assertEqual(data["attack_level"], 1)
         self.assertEqual(data["defense_level"], 1)
+        self.assertEqual(data["dungeoneering_level"], 1)
+        self.assertEqual(data["dungeoneering_exp"], 0)
         self.assertEqual(data["agility_level"], 1)
         self.assertEqual(data["agility_exp"], 0)
         self.assertEqual(data["slayer_level"], 1)
@@ -800,6 +805,46 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["slayer_exp"], 5000.0)
         self.assertGreater(migrated["slayer_level"], 1)
         self.assertEqual(migrated["pending_skill_exp_rewards"], {})
+
+    def test_v99_releases_and_sanitizes_parked_dungeoneering_xp(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 98,
+                "dungeoneering_exp": float("nan"),
+                "dungeoneering_level": 999,
+                "pending_skill_exp_rewards": {
+                    "dungeoneering_exp": DUNGEONEERING_EXP_TABLE[-1],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["dungeoneering_exp"],
+            float(DUNGEONEERING_EXP_TABLE[-1]),
+        )
+        self.assertEqual(migrated["dungeoneering_level"], 120)
+        self.assertEqual(migrated["pending_skill_exp_rewards"], {})
+        self.assertEqual(
+            migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)[
+                "dungeoneering_exp"
+            ],
+            float(DUNGEONEERING_EXP_TABLE[-1]),
+        )
+
+    def test_nonzero_dungeoneering_save_derives_its_level_without_pending_xp(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "dungeoneering_exp": DUNGEONEERING_EXP_TABLE[99],
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["dungeoneering_level"], 100)
 
     def test_v90_migration_adds_and_sanitizes_diary_telemetry_ledgers(self):
         migrated = migrate_loaded_data(

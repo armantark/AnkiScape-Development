@@ -11,14 +11,24 @@ from ankiscape.data.dungeoneering_data import (
     FLOOR_SIZES_BY_ID,
     FLOOR_THEMES,
     FROZEN_BOSSES,
+    FROZEN_BOSS_COMBAT_LEVEL_LADDERS,
+    FROZEN_SKILL_DOORS,
     KINSHIP_CLASSES,
     KINSHIP_TIER_COSTS,
     RING_OF_KINSHIP_CLASS_ITEM_IDS,
     RING_OF_KINSHIP_ITEM_ID,
     SALT_IN_THE_WOUND_AMMO_BIND_CAPACITY,
+    SKILL_DOOR_FAILURE_CHANCE,
+    SKILL_DOOR_FAILURE_DAMAGE_MULTIPLIER,
+    SMUGGLER_ITEMS_BY_ID,
+    SMUGGLER_SELLBACK_RATE,
+    SMUGGLER_STOCK_BANDS,
     SOURCE_REVISIONS,
     STARTER_HERBLORE_CHAIN,
     STARTER_RESOURCE_CHAIN,
+    STARTER_SKILL_DOOR_REQUIREMENT,
+    STARTER_SMALL_GRAPH_ROOM_COUNT,
+    STARTER_SMALL_REVIEW_BUDGET,
 )
 from ankiscape.data.herblore_data import DUNGEONEERING_HERBLORE_TARGETS
 from ankiscape.core.skill_registry import get_skill
@@ -31,7 +41,7 @@ class DungeoneeringDataTests(unittest.TestCase):
             "floors": (6542025, "2012-11-08T00:49:39Z"),
             "prestige": (6516987, "2012-11-01T21:57:13Z"),
             "complexity": (6555542, "2012-11-14T19:37:17Z"),
-            "kinship_classes": (6190515, "2012-09-03T19:30:40Z"),
+            "kinship_classes": (6521933, "2012-11-03T01:29:00Z"),
             "coal_bag": (6283103, "2012-09-22T22:36:07Z"),
             "bosses": (6398065, "2012-10-14T01:46:52Z"),
             "doors": (6325508, "2012-09-30T17:22:57Z"),
@@ -39,6 +49,7 @@ class DungeoneeringDataTests(unittest.TestCase):
             "cooking": (6457563, "2012-10-23T01:30:20Z"),
             "herblore": (6555616, "2012-11-14T20:45:41Z"),
             "rewards": (6297239, "2012-09-25T21:01:33Z"),
+            "smuggler": (6564954, "2012-11-17T04:36:56Z"),
         }
         for source_id, revision in expected.items():
             with self.subTest(source_id=source_id):
@@ -79,10 +90,17 @@ class DungeoneeringDataTests(unittest.TestCase):
         self.assertTrue(COMPLEXITIES_BY_LEVEL[1].forced_guide_mode)
         self.assertFalse(COMPLEXITIES_BY_LEVEL[1].skill_doors)
         self.assertTrue(COMPLEXITIES_BY_LEVEL[6].skill_doors)
+        self.assertEqual(SKILL_DOOR_FAILURE_CHANCE, 0.11)
+        self.assertEqual(SKILL_DOOR_FAILURE_DAMAGE_MULTIPLIER, 4)
         self.assertEqual(BIND_SLOTS_BY_LEVEL, ((1, 1), (20, 2), (50, 3), (90, 4), (120, 5)))
         self.assertEqual(COLLECTED_BIND_LIMIT, 10)
         self.assertEqual(BIND_LOADOUT_COUNT, 3)
         self.assertEqual((AMMO_BIND_CAPACITY, SALT_IN_THE_WOUND_AMMO_BIND_CAPACITY), (125, 225))
+        self.assertEqual(
+            (STARTER_SMALL_REVIEW_BUDGET, STARTER_SMALL_GRAPH_ROOM_COUNT),
+            (8, 10),
+        )
+        self.assertEqual(STARTER_SKILL_DOOR_REQUIREMENT, 1)
 
     def test_kinship_boss_and_reward_tables_are_complete_for_the_starter(self):
         self.assertEqual(len(KINSHIP_CLASSES), 12)
@@ -144,11 +162,93 @@ class DungeoneeringDataTests(unittest.TestCase):
                 existing = dungeoneering_herblore_by_id[step.existing_target_id]
                 self.assertEqual((existing.level, existing.exp), (step.level, step.xp))
 
-    def test_source_substrate_does_not_accidentally_expose_the_incomplete_skill(self):
+    def test_frozen_doors_boss_ladders_and_smuggler_bands_match_the_harvest(self):
+        self.assertEqual(
+            [(door.skill_id, door.frozen_object_id) for door in FROZEN_SKILL_DOORS],
+            [
+                ("runecrafting", 50278),
+                ("strength", 50272),
+                ("mining", 50305),
+                ("firemaking", 50314),
+                ("magic", 50329),
+                ("prayer", 50332),
+                ("woodcutting", 50317),
+                ("smithing", 50308),
+                ("crafting", 50299),
+            ],
+        )
+        self.assertEqual(
+            FROZEN_BOSS_COMBAT_LEVEL_LADDERS["gluttonous_behemoth"],
+            (5, 25, 41, 63, 91, 132, 170, 199, 238, 278, 299, 334, 362, 389, 437, 476, 518),
+        )
+        self.assertEqual(
+            FROZEN_BOSS_COMBAT_LEVEL_LADDERS["tokash_bloodchiller"],
+            (8, 22, 49, 67, 104, 127, 159, 188, 216, 255, 292, 355, 408, 442, 477, 512),
+        )
+        self.assertEqual(
+            [SMUGGLER_STOCK_BANDS[level].source_row_count for level in range(1, 7)],
+            [0, 4, 19, 26, 86, 86],
+        )
+        self.assertEqual(len(SMUGGLER_ITEMS_BY_ID), 86)
+        self.assertEqual(
+            SMUGGLER_STOCK_BANDS[2].item_ids,
+            ("raw_heim_crab", "tangle_gum_branches", "feather", "antipoison"),
+        )
+        self.assertEqual(
+            SMUGGLER_STOCK_BANDS[3].item_ids[:10],
+            (
+                "novite_ore",
+                "bathus_ore",
+                "marmaros_ore",
+                "raw_heim_crab",
+                "raw_red_eye",
+                "raw_dusk_eel",
+                "tangle_gum_branches",
+                "seeping_elm_branches",
+                "blood_spindle_branches",
+                "rune_essence",
+            ),
+        )
+        self.assertEqual(
+            (SMUGGLER_ITEMS_BY_ID["novite_ore"].source_item_id, SMUGGLER_ITEMS_BY_ID["novite_ore"].buy_price),
+            (17630, 525),
+        )
+        self.assertEqual(
+            {
+                item_id: SMUGGLER_ITEMS_BY_ID[item_id].buy_price
+                for item_id in (
+                    "raw_heim_crab",
+                    "tangle_gum_branches",
+                    "feather",
+                    "antipoison",
+                    "valerian_seed",
+                    "void_dust",
+                    "vial",
+                )
+            },
+            {
+                "raw_heim_crab": 200,
+                "tangle_gum_branches": 225,
+                "feather": 6,
+                "antipoison": 200,
+                "valerian_seed": 3000,
+                "void_dust": 1000,
+                "vial": 10,
+            },
+        )
+        self.assertEqual(SMUGGLER_ITEMS_BY_ID["novite_rapier"].equipment_slot, "weapon")
+        self.assertEqual(SMUGGLER_ITEMS_BY_ID["novite_kiteshield"].equipment_slot, "shield")
+        self.assertTrue(SMUGGLER_ITEMS_BY_ID["novite_arrows"].ammo_bind)
+        self.assertEqual(SMUGGLER_SELLBACK_RATE, 0.30)
+
+    def test_skill_is_trainable_without_claiming_the_floor_surface_is_complete(self):
         skill = get_skill("dungeoneering")
         self.assertIsNotNone(skill)
-        self.assertFalse(skill.implemented)
-        self.assertEqual(skill.surface_state, "planned")
+        self.assertTrue(skill.trainable)
+        self.assertTrue(skill.implemented)
+        self.assertTrue(skill.participates_in_review)
+        self.assertEqual(skill.review_handler_key, "dungeoneering")
+        self.assertEqual(skill.surface_state, "partial")
 
 
 if __name__ == "__main__":

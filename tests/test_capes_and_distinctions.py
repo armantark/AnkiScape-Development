@@ -102,42 +102,25 @@ class SkillcapeTest(unittest.TestCase):
             self.assertEqual(EQUIPMENT_DATA[cape.hood].bonuses.prayer, 0)
             self.assertTrue(cape.master, cape.skill_id)
 
-    def test_dungeoneering_keeps_its_period_cape_row_but_cannot_ship_it_yet(self):
-        """The contract wants the cape; nothing in the save can earn it.
-
-        The contract asks for both Dungeoneering capes, and the period data is
-        here: `SKILLCAPES` carries the row with its item ids and its master. But
-        no shipped code writes `dungeoneering_exp`, so no save can ever reach
-        level 99 in it, and a cape nobody can buy is an inert reward. It joins
-        `skillcape_definitions()` on its own the day the skill becomes
-        trainable, which is why the list is derived from the registry rather
-        than written out. Deleting this test would hide that gap; it is here to
-        fail loudly once Dungeoneering ships and the cape is still missing.
-        """
-
+    def test_dungeoneering_skillcape_is_live_and_purchasable(self):
         trainable = {skill.id for skill in trainable_skill_definitions()}
-        self.assertNotIn("dungeoneering", trainable)
-        # The period row exists and is complete, so nothing has to be harvested
-        # again later.
+        self.assertIn("dungeoneering", trainable)
         row = next(cape for cape in SKILLCAPES if cape.skill_id == "dungeoneering")
         self.assertEqual(row.master, "Thok, Master of Dungeoneering")
-        self.assertGreater(row.cape_item_id, 0)
-        # But it is not shipped, and the Cabinet says why rather than hiding it.
-        self.assertNotIn(
+        self.assertIn(
             "dungeoneering", {cape.skill_id for cape in skillcape_definitions()}
         )
-        self.assertNotIn("Dungeoneering cape", EQUIPMENT_DATA)
-        self.assertEqual(latent_cutoff_skills_pure(), ("dungeoneering",))
+        self.assertIn("Dungeoneering cape", EQUIPMENT_DATA)
+        self.assertEqual(latent_cutoff_skills_pure(), ())
 
-    def test_the_all_skills_gate_counts_every_skill_a_save_can_actually_train(self):
-        """Max's gate is 24 today and 25 the day Dungeoneering ships.
+        player = _player(dungeoneering_level=SKILLCAPE_LEVEL)
+        player["inventory"] = {"Coins": SKILLCAPE_PRICE}
+        player, ok, info = _buy(player, "dungeoneering")
+        self.assertTrue(ok, info)
+        self.assertIn("Thok", info["message"])
+        self.assertEqual(player["inventory"]["Dungeoneering cape"], 1)
 
-        The pinned Max revision requires all 25 cutoff skills. Enforcing 25 now
-        would make Max, Completionist and all nine milestone capes permanently
-        unobtainable, so the gate is derived from the skill registry — and the
-        shortfall is named out loud, never silently dropped. Design fork 3.11.
-        """
-
+    def test_the_all_skills_gate_counts_all_twenty_five_cutoff_skills(self):
         player = _maxed(_player())
         ok, reason = prestige_cape_eligible_pure(player, "max")
         self.assertTrue(ok, reason)
@@ -145,9 +128,9 @@ class SkillcapeTest(unittest.TestCase):
         row = next(
             item for item in cape_view_pure(player)["completionist"] if item["id"] == "max"
         )
-        self.assertEqual(row["need"], len(trainable_skill_definitions()))
-        self.assertIn("Dungeoneering", row["label"])
-        self.assertIn("latent", row["label"])
+        self.assertEqual(row["need"], 25)
+        self.assertEqual(row["have"], 25)
+        self.assertEqual(row["label"], "Level 99 in every skill")
 
     def test_a_cape_is_earned_bought_from_its_master_and_worn(self):
         player = _player(mining_level=SKILLCAPE_LEVEL)

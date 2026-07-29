@@ -67,6 +67,7 @@ except Exception:
 
 from ..core.constants import (
     EXP_TABLE,
+    exp_table_for_skill,
     ORE_DATA,
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
@@ -202,6 +203,7 @@ from ..logic.vinesweeper_logic import vinesweeper_view_pure
 
 from ..data.fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
 from ..logic.fight_caves_logic import fight_caves_view_pure
+from ..logic.dungeoneering_logic import dungeoneering_view_pure
 
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
@@ -613,6 +615,18 @@ _MAIN_MENU_CTX = {
 # These keep Stats/Bank/HUD in sync with the skill + item registries so a new
 # playable skill (e.g. Fletching) surfaces everywhere without another hardcoded
 # four-skill branch. Icons follow the existing convention: icon/<skill_id>_icon.png.
+
+
+def stats_skill_progress_pure(skill_name: str, level: int, exp: float) -> dict[str, float | int]:
+    exp_table = exp_table_for_skill(skill_name)
+    percent, remaining, target_level = compute_level_progress(level, exp, exp_table)
+    return {
+        "percent": percent,
+        "remaining": remaining,
+        "target_level": target_level,
+        "max_level": len(exp_table),
+    }
+
 
 # Bank grouping order + labels. Categories come from item_registry.ItemCategory.
 _ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "hunter", "runecrafting", "material", "equipment", "smithed", "tool")
@@ -2392,7 +2406,11 @@ if HAS_QT:
             self.title_lbl.setText(f"{skill} — Lv {level}")
 
             # Compute progress within current level via pure helper
-            pct, remain, target_lv = compute_level_progress(level, exp, EXP_TABLE)
+            pct, remain, target_lv = compute_level_progress(
+                level,
+                exp,
+                exp_table_for_skill(skill),
+            )
             self.progress.setValue(pct)
             progress_text = f"{pct}% to Lv {target_lv} • {remain:,.0f} XP to next"
             if combat_status:
@@ -3687,6 +3705,7 @@ def show_main_menu(
     on_sorceress_garden_command=None,
     on_penguin_command=None,
     on_vinesweeper_command=None,
+    on_dungeoneering_command=None,
     on_fight_caves_command=None,
     on_phoenix_lair_command=None,
     on_skeletal_horror_command=None,
@@ -19367,6 +19386,564 @@ def show_main_menu(
         container_layout.addWidget(tree, 1)
         return container
 
+    def _build_dungeoneering_panel() -> QWidget:
+        panel = QtFrame()
+        panel.setObjectName("dungeoneeringPanel")
+        panel.setStyleSheet(
+            "QFrame#dungeoneeringPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setSpacing(6)
+
+        top = QWidget()
+        top_layout = QHBoxLayout(top)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(8)
+        icon = QLabel()
+        icon.setFixedSize(28, 28)
+        icon_path = os.path.join(current_dir, "icon", "dungeoneering_icon.png")
+        if os.path.exists(icon_path):
+            icon.setPixmap(
+                QPixmap(icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        title = QLabel("Daemonheim starter expedition")
+        title.setStyleSheet("font-weight: 700; color: palette(text);")
+        status = QLabel()
+        status.setObjectName("dungeoneeringStatusChip")
+        status.setStyleSheet(
+            f"color: {dim_text_css(status)}; font-size: 11px; font-weight: 700;"
+        )
+        top_layout.addWidget(icon)
+        top_layout.addWidget(title)
+        top_layout.addStretch(1)
+        top_layout.addWidget(status)
+        layout.addWidget(top)
+
+        summary = QLabel()
+        summary.setObjectName("dungeoneeringSummary")
+        summary.setWordWrap(True)
+        summary.setStyleSheet("color: palette(text);")
+        layout.addWidget(summary)
+
+        controls = QWidget()
+        controls_layout = QGridLayout(controls)
+        controls_layout.setContentsMargins(0, 0, 0, 0)
+        controls_layout.setHorizontalSpacing(6)
+        controls_layout.setVerticalSpacing(4)
+        floor_combo = QComboBox()
+        floor_combo.setObjectName("dungeoneeringFloorCombo")
+        floor_combo.setAccessibleName("Dungeoneering floor")
+        size_label = QLabel("Small")
+        size_label.setObjectName("dungeoneeringSizeLabel")
+        size_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        size_label.setStyleSheet(
+            "QLabel { border: 1px solid palette(mid); border-radius: 4px;"
+            " padding: 4px; color: palette(text); }"
+        )
+        complexity_combo = QComboBox()
+        complexity_combo.setObjectName("dungeoneeringComplexityCombo")
+        complexity_combo.setAccessibleName("Dungeoneering complexity")
+        complexity_combo.addItem("Complexity 1", 1)
+        complexity_combo.addItem("Complexity 6", 6)
+        mode_combo = QComboBox()
+        mode_combo.setObjectName("dungeoneeringModeCombo")
+        mode_combo.setAccessibleName("Dungeoneering route policy")
+        mode_combo.addItem("Casual · route to boss", "casual")
+        mode_combo.addItem("Advanced · choose door", "advanced")
+        resource_combo = QComboBox()
+        resource_combo.setObjectName("dungeoneeringResourcePolicyCombo")
+        resource_combo.setAccessibleName("Dungeoneering resource policy")
+        resource_combo.addItem("Gather + process", "gather_and_process")
+        resource_combo.addItem("Gather only", "gather_only")
+        resource_combo.addItem("Skip resources", "skip")
+        bind_loadout_combo = QComboBox()
+        bind_loadout_combo.setObjectName("dungeoneeringBindLoadoutCombo")
+        bind_loadout_combo.setAccessibleName("Dungeoneering bind loadout")
+        for loadout_index in range(3):
+            bind_loadout_combo.addItem(f"Loadout {loadout_index + 1}", loadout_index)
+        for column, (label_text, widget) in enumerate(
+            (
+                ("Floor", floor_combo),
+                ("Size", size_label),
+                ("Complexity", complexity_combo),
+                ("Route", mode_combo),
+                ("Resources", resource_combo),
+                ("Binds", bind_loadout_combo),
+            )
+        ):
+            label = QLabel(label_text)
+            label.setStyleSheet(f"color: {dim_text_css(label)}; font-size: 10px;")
+            controls_layout.addWidget(label, 0, column)
+            controls_layout.addWidget(widget, 1, column)
+        controls_layout.setColumnStretch(0, 1)
+        controls_layout.setColumnStretch(2, 1)
+        controls_layout.setColumnStretch(3, 2)
+        controls_layout.setColumnStretch(4, 2)
+        controls_layout.setColumnStretch(5, 1)
+        layout.addWidget(controls)
+
+        bind_config_row = QWidget()
+        bind_config_row.setObjectName("dungeoneeringBindConfigRow")
+        bind_config_layout = QHBoxLayout(bind_config_row)
+        bind_config_layout.setContentsMargins(0, 0, 0, 0)
+        bind_config_layout.setSpacing(6)
+        bind_config_label = QLabel("Loadout item")
+        bind_config_label.setStyleSheet(
+            f"color: {dim_text_css(bind_config_label)};"
+        )
+        bind_item_combo = QComboBox()
+        bind_item_combo.setObjectName("dungeoneeringBindItemCombo")
+        bind_item_combo.setAccessibleName("Collected item for bind loadout")
+        bind_item_button = QPushButton()
+        bind_item_button.setObjectName("dungeoneeringBindItemButton")
+        bind_config_layout.addWidget(bind_config_label)
+        bind_config_layout.addWidget(bind_item_combo, 1)
+        bind_config_layout.addWidget(bind_item_button)
+        layout.addWidget(bind_config_row)
+
+        route_row = QWidget()
+        route_layout = QHBoxLayout(route_row)
+        route_layout.setContentsMargins(0, 0, 0, 0)
+        route_layout.setSpacing(6)
+        route_label = QLabel("Revealed frontier")
+        route_label.setStyleSheet(f"color: {dim_text_css(route_label)};")
+        route_combo = QComboBox()
+        route_combo.setObjectName("dungeoneeringRouteCombo")
+        route_combo.setAccessibleName("Revealed Dungeoneering frontier door")
+        route_layout.addWidget(route_label)
+        route_layout.addWidget(route_combo, 1)
+        layout.addWidget(route_row)
+
+        projection = QLabel()
+        projection.setObjectName("dungeoneeringProjection")
+        projection.setWordWrap(True)
+        projection.setStyleSheet(f"color: {dim_text_css(projection)}; font-size: 11px;")
+        layout.addWidget(projection)
+
+        economy = QLabel()
+        economy.setObjectName("dungeoneeringEconomySummary")
+        economy.setWordWrap(True)
+        economy.setStyleSheet(f"color: {dim_text_css(economy)}; font-size: 11px;")
+        layout.addWidget(economy)
+        bind_summary = QLabel()
+        bind_summary.setObjectName("dungeoneeringBindSummary")
+        bind_summary.setWordWrap(True)
+        bind_summary.setStyleSheet(f"color: {dim_text_css(bind_summary)}; font-size: 11px;")
+        layout.addWidget(bind_summary)
+        automation = QLabel()
+        automation.setObjectName("dungeoneeringAutomationSummary")
+        automation.setWordWrap(True)
+        automation.setStyleSheet(f"color: {dim_text_css(automation)}; font-size: 11px;")
+        layout.addWidget(automation)
+
+        smuggler_row = QWidget()
+        smuggler_row.setObjectName("dungeoneeringSmugglerRow")
+        smuggler_layout = QHBoxLayout(smuggler_row)
+        smuggler_layout.setContentsMargins(0, 0, 0, 0)
+        smuggler_layout.setSpacing(6)
+        smuggler_label = QLabel("Smuggler")
+        smuggler_label.setStyleSheet(f"color: {dim_text_css(smuggler_label)};")
+        smuggler_combo = QComboBox()
+        smuggler_combo.setObjectName("dungeoneeringSmugglerCombo")
+        smuggler_combo.setAccessibleName("Dungeoneering Smuggler stock")
+        smuggler_buy = QPushButton("Buy")
+        smuggler_buy.setObjectName("dungeoneeringSmugglerBuyButton")
+        smuggler_sell = QPushButton("Sell")
+        smuggler_sell.setObjectName("dungeoneeringSmugglerSellButton")
+        smuggler_layout.addWidget(smuggler_label)
+        smuggler_layout.addWidget(smuggler_combo, 1)
+        smuggler_layout.addWidget(smuggler_buy)
+        smuggler_layout.addWidget(smuggler_sell)
+        layout.addWidget(smuggler_row)
+
+        bind_row = QWidget()
+        bind_row.setObjectName("dungeoneeringBindOfferRow")
+        bind_layout = QHBoxLayout(bind_row)
+        bind_layout.setContentsMargins(0, 0, 0, 0)
+        bind_layout.setSpacing(6)
+        bind_offer_label = QLabel()
+        bind_offer_label.setObjectName("dungeoneeringBindOfferLabel")
+        bind_button = QPushButton("Bind")
+        bind_button.setObjectName("dungeoneeringBindButton")
+        replace_button = QPushButton("Replace")
+        replace_button.setObjectName("dungeoneeringReplaceBindButton")
+        skip_button = QPushButton("Skip")
+        skip_button.setObjectName("dungeoneeringSkipBindButton")
+        bind_layout.addWidget(bind_offer_label, 1)
+        bind_layout.addWidget(bind_button)
+        bind_layout.addWidget(replace_button)
+        bind_layout.addWidget(skip_button)
+        layout.addWidget(bind_row)
+
+        action_row = QWidget()
+        action_layout = QHBoxLayout(action_row)
+        action_layout.setContentsMargins(0, 0, 0, 0)
+        action_layout.setSpacing(6)
+        primary = QPushButton()
+        primary.setObjectName("dungeoneeringPrimaryButton")
+        abandon = QPushButton("Abandon floor")
+        abandon.setObjectName("dungeoneeringAbandonButton")
+        action_layout.addWidget(primary, 1)
+        action_layout.addWidget(abandon, 1)
+        layout.addWidget(action_row)
+
+        syncing = {"active": False, "initialized": False}
+
+        def _run_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_dungeoneering_command is None:
+                return {"ok": False}
+            result = on_dungeoneering_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Dungeoneering",
+                    str(result.get("message", "That Dungeoneering action is unavailable.")),
+                )
+            _refresh()
+            return result
+
+        def _refresh() -> None:
+            view = dungeoneering_view_pure(
+                player_data,
+                selected_skill=state["active"],
+            )
+            syncing["active"] = True
+            if not syncing["initialized"]:
+                floor_combo.clear()
+                for floor in view["floor_options"]:
+                    floor_combo.addItem(f"Floor {floor}", floor)
+                floor_index = floor_combo.findData(int(view["floor"]))
+                if floor_index >= 0:
+                    floor_combo.setCurrentIndex(floor_index)
+                complexity_index = complexity_combo.findData(int(view["complexity"]))
+                if complexity_index >= 0:
+                    complexity_combo.setCurrentIndex(complexity_index)
+                syncing["initialized"] = True
+            elif view["active"]:
+                floor_index = floor_combo.findData(int(view["floor"]))
+                if floor_index >= 0:
+                    floor_combo.setCurrentIndex(floor_index)
+                complexity_index = complexity_combo.findData(int(view["complexity"]))
+                if complexity_index >= 0:
+                    complexity_combo.setCurrentIndex(complexity_index)
+            mode_index = mode_combo.findData(str(view["automation_mode"]))
+            if mode_index >= 0:
+                mode_combo.setCurrentIndex(mode_index)
+            resource_index = resource_combo.findData(str(view["resource_policy"]))
+            if resource_index >= 0:
+                resource_combo.setCurrentIndex(resource_index)
+            bind_loadout_index = bind_loadout_combo.findData(
+                int(view["active_bind_loadout"])
+            )
+            if bind_loadout_index >= 0:
+                bind_loadout_combo.setCurrentIndex(bind_loadout_index)
+            selected_bind_item = bind_item_combo.currentData()
+            bind_item_combo.clear()
+            for row in view["bound_rows"]:
+                item_name = str(row["item_name"])
+                bind_item_combo.addItem(item_name, item_name)
+            bind_item_index = bind_item_combo.findData(selected_bind_item)
+            if bind_item_index >= 0:
+                bind_item_combo.setCurrentIndex(bind_item_index)
+            route_combo.clear()
+            for row in view["frontier_rows"]:
+                marker = "Boss route · " if row["casual_recommended"] else ""
+                route_combo.addItem(marker + str(row["label"]), int(row["room_id"]))
+            route_index = route_combo.findData(int(view["selected_room_id"]))
+            if route_index >= 0:
+                route_combo.setCurrentIndex(route_index)
+            selected_smuggler_id = smuggler_combo.currentData()
+            smuggler_combo.clear()
+            for row in view["smuggler_rows"]:
+                smuggler_combo.addItem(
+                    f"{row['item_name']} · {int(row['buy_price']):,} buy / {int(row['sell_price']):,} sell · owned {int(row['owned'])}",
+                    str(row["item_id"]),
+                )
+            if not view["smuggler_rows"]:
+                smuggler_combo.addItem(
+                    "No stock remains fundable from this floor",
+                    "",
+                )
+            smuggler_index = smuggler_combo.findData(selected_smuggler_id)
+            if smuggler_index >= 0:
+                smuggler_combo.setCurrentIndex(smuggler_index)
+
+            status.setText(str(view["status_label"]))
+            if view["active"]:
+                summary.setText(
+                    f"{view['theme_label']} floor {int(view['floor'])} · "
+                    f"{int(view['resolved_rooms'])}/{int(view['room_budget'])} rooms resolved · "
+                    f"{int(view['deaths'])} deaths · projected "
+                    f"{float(view['projected_xp']):,.1f} XP / {int(view['projected_tokens']):,} tokens"
+                )
+            else:
+                summary.setText(
+                    f"Frozen floors 1–{int(view['floor_options'][-1])} unlocked · "
+                    f"{int(view['floors_completed'])} completed · "
+                    f"{int(view['tokens']):,} tokens"
+                )
+            inventory_text = ", ".join(
+                f"{name} ×{int(quantity)}"
+                for name, quantity in view["session_inventory_rows"]
+            ) or "empty"
+            equipment_text = ", ".join(
+                f"{slot}: {name}" for slot, name in view["session_equipment_rows"]
+            ) or "none"
+            economy.setText(
+                f"Floor pack · {int(view['session_coins']):,} session coins · "
+                f"{int(view['smuggler_reachable_coins']):,} reachable from live floor goods · "
+                f"Inventory: {inventory_text} · Equipment: {equipment_text}"
+            )
+            bound_text = ", ".join(
+                str(row["item_name"]) for row in view["active_bound_rows"]
+            ) or "none"
+            collection_text = ", ".join(
+                str(row["item_name"]) for row in view["bound_rows"]
+            ) or "none"
+            ammo_text = (
+                f"{view['ammo_bind']['item_name']} ×{int(view['ammo_bind']['quantity'])}"
+                if view["ammo_bind"]
+                else "none"
+            )
+            bind_summary.setText(
+                f"Binds {int(view['bind_slots_used'])}/{int(view['bind_slots'])} in loadout "
+                f"{int(view['active_bind_loadout']) + 1}: {bound_text} · Collection "
+                f"{len(view['bound_rows'])}/{int(view['collected_bind_limit'])}: {collection_text} · "
+                f"Ammo: {ammo_text} · remembered {view['remembered_bind_choice']}"
+            )
+            automation.setText(
+                f"Automation · {view['last_automation']} · eat Heim crab at or below "
+                f"{int(view['eat_threshold_percent'])}% LP"
+            )
+            economy.setVisible(bool(view["active"]))
+            bind_summary.setVisible(bool(view["active"] or view["bound_rows"] or view["ammo_bind"]))
+            automation.setVisible(bool(view["active"]))
+            size_label.setText(str(view["size_label"]))
+            floor_combo.setEnabled(bool(view["entry_controls_enabled"]))
+            complexity_combo.setEnabled(bool(view["entry_controls_enabled"]))
+            size_label.setEnabled(bool(view["entry_controls_enabled"]))
+            mode_combo.setEnabled(
+                bool(view["policy_control_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            resource_combo.setEnabled(
+                bool(view["resource_policy_control_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            bind_loadout_combo.setEnabled(
+                bool(view["bind_loadout_control_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            configured_bind_names = set(
+                view["bind_loadouts"][int(view["active_bind_loadout"])]
+            )
+            selected_bind_name = str(bind_item_combo.currentData() or "")
+            removing_bind = selected_bind_name in configured_bind_names
+            bind_item_button.setText(
+                "Remove" if removing_bind else "Add to loadout"
+            )
+            bind_config_visible = bool(
+                view["bind_loadout_control_enabled"] and view["bound_rows"]
+            )
+            bind_config_row.setVisible(bind_config_visible)
+            bind_item_combo.setEnabled(
+                bind_config_visible and on_dungeoneering_command is not None
+            )
+            bind_item_button.setEnabled(
+                bind_config_visible
+                and bool(selected_bind_name)
+                and (
+                    removing_bind
+                    or len(configured_bind_names) < int(view["bind_slots"])
+                )
+                and on_dungeoneering_command is not None
+            )
+            smuggler_row.setVisible(bool(view["smuggler_open"]))
+            smuggler_combo.setEnabled(
+                bool(view["smuggler_controls_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            selected_smuggler = next(
+                (
+                    row
+                    for row in view["smuggler_rows"]
+                    if row["item_id"] == smuggler_combo.currentData()
+                ),
+                None,
+            )
+            smuggler_buy.setEnabled(
+                bool(selected_smuggler and selected_smuggler["can_buy"])
+                and on_dungeoneering_command is not None
+            )
+            smuggler_sell.setEnabled(
+                bool(selected_smuggler and selected_smuggler["can_sell"])
+                and on_dungeoneering_command is not None
+            )
+            bind_row.setVisible(bool(view["bind_offer_visible"]))
+            bind_offer_label.setText(
+                f"Bind offer · {view['bind_offer_label']}"
+            )
+            bind_button.setEnabled(
+                bool(view["bind_can_bind"])
+                and on_dungeoneering_command is not None
+            )
+            replace_button.setEnabled(
+                bool(view["bind_can_replace"])
+                and on_dungeoneering_command is not None
+            )
+            skip_button.setEnabled(
+                bool(view["bind_offer_visible"])
+                and on_dungeoneering_command is not None
+            )
+            bind_button.setDefault(
+                bool(view["bind_offer_visible"])
+                and view["remembered_bind_choice"] == "bind"
+            )
+            replace_button.setDefault(
+                bool(view["bind_offer_visible"])
+                and view["remembered_bind_choice"] == "replace"
+            )
+            skip_button.setDefault(
+                bool(view["bind_offer_visible"])
+                and view["remembered_bind_choice"] == "skip"
+            )
+            route_label.setVisible(bool(view["route_choice_visible"]))
+            route_combo.setVisible(bool(view["route_choice_visible"]))
+            route_combo.setEnabled(
+                bool(view["route_choice_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            projection.setVisible(bool(view["projection_visible"]))
+            projection.setText(str(view["projection_disclosure"]))
+            primary.setText(str(view["primary_text"]))
+            primary.setEnabled(
+                bool(view["primary_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            abandon.setVisible(bool(view["abandon_visible"]))
+            abandon.setEnabled(
+                bool(view["abandon_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            syncing["active"] = False
+
+        def _toggle_bind_item() -> None:
+            item_name = str(bind_item_combo.currentData() or "")
+            if not item_name:
+                return
+            view = dungeoneering_view_pure(
+                player_data,
+                selected_skill=state["active"],
+            )
+            loadout_index = int(view["active_bind_loadout"])
+            item_names = list(view["bind_loadouts"][loadout_index])
+            if item_name in item_names:
+                item_names.remove(item_name)
+            else:
+                item_names.append(item_name)
+            _run_command(
+                "set_bind_loadout",
+                {
+                    "loadout_index": loadout_index,
+                    "item_names": item_names,
+                },
+            )
+
+        primary.clicked.connect(
+            lambda _checked=False: _run_command(
+                "enter",
+                {
+                    "floor": int(floor_combo.currentData() or 1),
+                    "size": "small",
+                    "complexity": int(complexity_combo.currentData() or 1),
+                    "automation_mode": str(mode_combo.currentData() or "casual"),
+                },
+            )
+        )
+        abandon.clicked.connect(
+            lambda _checked=False: _run_command("abandon")
+        )
+        mode_combo.currentIndexChanged.connect(
+            lambda _index: _run_command(
+                "set_policy",
+                {"automation_mode": str(mode_combo.currentData() or "casual")},
+            )
+            if not syncing["active"]
+            else None
+        )
+        resource_combo.currentIndexChanged.connect(
+            lambda _index: _run_command(
+                "set_resource_policy",
+                {"resource_policy": str(resource_combo.currentData() or "gather_and_process")},
+            )
+            if not syncing["active"]
+            else None
+        )
+        bind_loadout_combo.currentIndexChanged.connect(
+            lambda _index: _run_command(
+                "select_bind_loadout",
+                {"loadout_index": int(bind_loadout_combo.currentData() or 0)},
+            )
+            if not syncing["active"]
+            else None
+        )
+        bind_item_combo.currentIndexChanged.connect(
+            lambda _index: _refresh() if not syncing["active"] else None
+        )
+        bind_item_button.clicked.connect(
+            lambda _checked=False: _toggle_bind_item()
+        )
+        route_combo.currentIndexChanged.connect(
+            lambda _index: _run_command(
+                "select_route",
+                {"room_id": int(route_combo.currentData())},
+            )
+            if not syncing["active"] and route_combo.currentData() is not None
+            else None
+        )
+        smuggler_combo.currentIndexChanged.connect(
+            lambda _index: _refresh() if not syncing["active"] else None
+        )
+        smuggler_buy.clicked.connect(
+            lambda _checked=False: _run_command(
+                "smuggler_buy",
+                {"item_id": str(smuggler_combo.currentData() or "")},
+            )
+        )
+        smuggler_sell.clicked.connect(
+            lambda _checked=False: _run_command(
+                "smuggler_sell",
+                {"item_id": str(smuggler_combo.currentData() or "")},
+            )
+        )
+        bind_button.clicked.connect(
+            lambda _checked=False: _run_command(
+                "resolve_bind_offer",
+                {"choice": "bind"},
+            )
+        )
+        replace_button.clicked.connect(
+            lambda _checked=False: _run_command(
+                "resolve_bind_offer",
+                {"choice": "replace"},
+            )
+        )
+        skip_button.clicked.connect(
+            lambda _checked=False: _run_command(
+                "resolve_bind_offer",
+                {"choice": "skip"},
+            )
+        )
+        _refresh()
+        panel._ankiscape_refresh_dungeoneering = _refresh
+        return panel
+
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
         "Woodcutting": _build_tree_list,
@@ -19387,6 +19964,7 @@ def show_main_menu(
         "Agility": _build_agility_list,
         "Summoning": _build_summoning_list,
         "Slayer": _build_slayer_list,
+        "Dungeoneering": _build_dungeoneering_panel,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITIES_HUB_NAME: lambda: _build_utility_list(_UTILITIES_HUB_NAME),
         _ACTIVITIES_HUB_NAME: lambda: _build_utility_list(_ACTIVITIES_HUB_NAME),
@@ -19408,6 +19986,7 @@ def show_main_menu(
         "Agility": "Select a course or activity",
         "Summoning": "Select a pouch to infuse or scrolls to create",
         "Slayer": "Manage assignments, masters, and rewards",
+        "Dungeoneering": "Configure or resume the Frozen starter expedition",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITIES_HUB_NAME: "Select a utility",
         _ACTIVITIES_HUB_NAME: "Select an activity",
@@ -20872,8 +21451,9 @@ def show_main_menu(
         grid.addWidget(QLabel(f"{current_level} / {level}"), 0, 1)
         grid.addWidget(QLabel("Total Experience:"), 1, 0)
         grid.addWidget(QLabel(exp_text), 1, 1)
-        if level < 99:
-            exp_to_next = round(max(0, EXP_TABLE[level] - exp), 1)
+        progress = stats_skill_progress_pure(skill_name, level, exp)
+        if level < progress["max_level"]:
+            exp_to_next = round(progress["remaining"], 1)
             exp_to_next_text = (
                 f"{int(exp_to_next):,}"
                 if float(exp_to_next).is_integer()
@@ -20885,11 +21465,7 @@ def show_main_menu(
         prog.setObjectName("statsSkillProgress")
         prog.setMinimumWidth(240)
         prog.setMaximumWidth(320)
-        try:
-            progress_percentage = (exp - EXP_TABLE[level - 1]) / (EXP_TABLE[level] - EXP_TABLE[level - 1]) * 100
-            prog.setValue(int(max(0, min(100, progress_percentage))))
-        except Exception:
-            prog.setValue(0)
+        prog.setValue(int(progress["percent"]))
         grid.addWidget(QLabel("Level Progress:"), 3, 0)
         grid.addWidget(prog, 3, 1)
         b_layout.addWidget(
@@ -20906,7 +21482,7 @@ def show_main_menu(
 
     # The registry remains authoritative for save keys. The period ordering
     # intentionally includes Combat's separately tracked component skills and
-    # Dungeoneering's existing stat row even before its training surface ships.
+    # Dungeoneering's level-120 stat row.
     _stats_fallback = os.path.join(current_dir, "icon", "stats_icon.png")
     skills_info = [
         (
@@ -23867,14 +24443,14 @@ def show_stats(player_data: dict, current_skill: str):
             stats_layout.addWidget(create_label("Total Experience:"), 1, 0)
             stats_layout.addWidget(create_label(f"{exp:,}", True), 1, 1)
 
-            if level < 99:
-                exp_to_next = round(max(0, EXP_TABLE[level] - exp), 1)
+            progress = stats_skill_progress_pure(skill_name, level, exp)
+            if level < progress["max_level"]:
+                exp_to_next = round(progress["remaining"], 1)
                 stats_layout.addWidget(create_label("Experience to Next Level:"), 2, 0)
                 stats_layout.addWidget(create_label(f"{exp_to_next:,}", True), 2, 1)
 
             progress_bar = QProgressBar()
-            progress_percentage = (exp - EXP_TABLE[level - 1]) / (EXP_TABLE[level] - EXP_TABLE[level - 1]) * 100
-            progress_bar.setValue(int(progress_percentage))
+            progress_bar.setValue(int(progress["percent"]))
             progress_bar.setFormat("")
             progress_bar.setStyleSheet(
                 """

@@ -334,6 +334,7 @@ from ..logic.fight_caves_logic import (
     apply_fight_caves_review_pure,
     fight_caves_view_pure,
 )
+from ..logic.dungeoneering_logic import dungeoneering_view_pure
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import (
     apply_phoenix_lair_review_pure,
@@ -562,6 +563,15 @@ def _can_start_combat_action(ctx: RuntimeActionContext) -> bool:
 def _can_start_quest_action(ctx: RuntimeActionContext) -> bool:
     quest_id = ctx.player_data.get("current_quest", "rune_mysteries")
     return can_attempt_quest_review_pure(ctx.player_data, quest_id, QUEST_DATA)
+
+
+def _can_start_dungeoneering_action(ctx: RuntimeActionContext) -> bool:
+    return bool(
+        dungeoneering_view_pure(
+            ctx.player_data,
+            selected_skill="Dungeoneering",
+        ).get("can_review", False)
+    )
 
 
 def _can_start_crafting_action(ctx: RuntimeActionContext) -> bool:

@@ -57,7 +57,7 @@ from tests.test_runtime_actions import _context
 class TestCadenceLiveCoverage(unittest.TestCase):
     def test_every_runtime_handler_and_selectable_route_is_declared(self):
         summary = validate_cadence_coverage_pure(ANSWER_HANDLERS)
-        self.assertEqual(summary["handlers"], 20)
+        self.assertEqual(summary["handlers"], 21)
         self.assertGreaterEqual(summary["foreground_routes"], 2_190)
         self.assertGreaterEqual(summary["modes"]["combat_ticks"], 130)
         self.assertTrue(
@@ -65,6 +65,17 @@ class TestCadenceLiveCoverage(unittest.TestCase):
                 row["action_id"] == "attached:winter_storage"
                 for row in cadence_coverage_rows_pure()
             )
+        )
+        dungeoneering = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["handler_key"] == "dungeoneering"
+            and row["action_id"] == "starter_floor"
+        )
+        self.assertEqual(dungeoneering["mode"], "passthrough")
+        self.assertEqual(
+            dungeoneering["undo_boundary"],
+            "one answered-card transaction",
         )
 
     def test_new_handler_fails_closed_until_it_has_a_declaration(self):

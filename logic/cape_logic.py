@@ -202,17 +202,7 @@ def _all_quests_complete(player_data: Mapping[str, Any]) -> bool:
 
 
 def latent_cutoff_skills_pure() -> tuple[str, ...]:
-    """Cutoff skills the all-skills capes cannot ask for yet, in registry order.
-
-    The pinned Max revision (oldid 6549092) requires 99 in all 25 cutoff skills.
-    AnkiScape ships 24 of them: Dungeoneering has no training loop, so no save
-    can ever raise ``dungeoneering_level``. Gating Max on 25 today would make it
-    — and Completionist above it, and all nine milestone capes — permanently
-    unobtainable, which is the inert-reward failure the contract's own
-    latent-requirement pattern exists to avoid. So the gate is derived from the
-    skill registry and this list names the shortfall out loud instead of letting
-    a 24-skill max read as the period's 25. See design fork 3.11.
-    """
+    """Cutoff skills the all-skills capes cannot ask for yet, in registry order."""
 
     trainable = {skill.id for skill in trainable_skill_definitions()}
     return tuple(skill.id for skill in ALL_SKILLS if skill.id not in trainable)
@@ -255,8 +245,6 @@ def completionist_requirements_pure(
     return (
         {
             "id": "max",
-            # The period figure is 25. Naming the shortfall in the label is what
-            # keeps a 24-skill max from silently reading as the period's max.
             "label": "Level 99 in every skill" + _latent_skill_note(),
             "met": _all_skills_99(player_data),
             "latent": False,
@@ -290,7 +278,9 @@ def completionist_requirements_pure(
         {
             # Darkan's own comp gate adds a Fight Kiln clear, a Queen Black
             # Dragon kill and 500 Dominion Tower bosses (Player.java:3219-3238).
-            # None of the three has an AnkiScape feature, so the row is latent.
+            # Dominion Tower ships and its boss_kills ledger is durable, but
+            # Fight Kiln and the Queen Black Dragon have no AnkiScape feature,
+            # so the row stays latent as a whole rather than half-reporting.
             "id": "boss_long_tail",
             "label": "Fight Kiln, Queen Black Dragon and 500 Dominion Tower bosses",
             "met": False,
@@ -526,7 +516,5 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             "",
         ),
         "completionist": completionist_requirements_pure(player_data),
-        # Cutoff skills with no cape and no place in the all-skills gate, because
-        # they have no training loop. Empty the day the last one ships.
         "latent_skills": latent_cutoff_skills_pure(),
     }

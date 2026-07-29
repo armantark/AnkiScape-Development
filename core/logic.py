@@ -1,8 +1,8 @@
 """Anki-aware game logic orchestrators (no direct persistence here)."""
 
 from .constants import (
-    EXP_TABLE,
     ACHIEVEMENTS,
+    exp_table_for_skill,
     BASE_WOODCUTTING_PROBABILITY,
     BASE_MINING_PROBABILITY,
     LEVEL_BONUS_FACTOR,
@@ -13,7 +13,8 @@ from .skill_registry import skill_level_exp_keys
 
 def get_exp_to_next_level(player_data, exp_table):
     current_level = player_data["mining_level"]
-    if current_level >= 99:
+    max_level = 99 if isinstance(exp_table, dict) else len(exp_table)
+    if current_level >= max_level:
         return 0
     return exp_table[current_level] - player_data["total_exp"]
 
@@ -24,7 +25,11 @@ def level_up_check(skill, player_data):
     if skill_keys is not None:
         level_key, exp_key = skill_keys
         old_level = player_data[level_key]
-        new_level = calculate_new_level(player_data[exp_key], old_level, EXP_TABLE)
+        new_level = calculate_new_level(
+            player_data[exp_key],
+            old_level,
+            exp_table_for_skill(skill),
+        )
         if new_level > old_level:
             for lvl in range(old_level + 1, new_level + 1):
                 player_data[level_key] = lvl

@@ -23,8 +23,8 @@ from ..core.constants import (
     BIRD_NEST_OPEN_TABLES,
     COOKING_ITEM_IMAGES,
     DEFAULT_UTILITY_ACTIVITY,
-    EXP_TABLE,
     MINING_PICKAXE_DATA,
+    exp_table_for_skill,
     QUEST_UNLOCK_RULES,
     UTILITY_ACTIVITY_DATA,
     UTILITY_ITEM_IMAGES,
@@ -211,7 +211,9 @@ def skill_xp_bar_pure(
     level = int(player_data.get(f"{skill.lower()}_level", 1) or 1)
     exp = float(player_data.get(f"{skill.lower()}_exp", 0) or 0)
     percent, remaining, target_level = compute_level_progress(
-        level, exp, EXP_TABLE
+        level,
+        exp,
+        exp_table_for_skill(skill),
     )
     return {
         "skill": skill,

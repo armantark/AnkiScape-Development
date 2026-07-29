@@ -49,6 +49,7 @@ FOREGROUND_ROUTE_TABLES: dict[str, Mapping[str, Any]] = {
     "agility": AGILITY_TARGETS_BY_ID,
     "summoning": SUMMONING_ACTIONS_BY_ID,
     "combat": COMBAT_ENEMY_DATA,
+    "dungeoneering": {"starter_floor": {}},
 }
 
 CADENCE_DECLARED_HANDLER_KEYS = frozenset(
@@ -1220,21 +1221,6 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 "includes": (),
                 "multiplier_behavior": "inherits 6 * M combat ticks",
                 "undo_boundary": "same combat review transaction",
-                "flag_off_behavior": "must declare before handler registration",
-                "profile": None,
-                "condition": "",
-                "route_kind": "planned",
-            },
-            {
-                "handler_key": "dungeoneering",
-                "action_id": "future_attachment",
-                "mode": "future_attachment",
-                "source_status": "not_implemented",
-                "source_row": "",
-                "source_reason": "future floor actions must declare cadence before handler registration",
-                "includes": (),
-                "multiplier_behavior": "must be settled with the implementation",
-                "undo_boundary": "one answered-card transaction",
                 "flag_off_behavior": "must declare before handler registration",
                 "profile": None,
                 "condition": "",

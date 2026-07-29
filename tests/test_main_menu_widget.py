@@ -10013,6 +10013,253 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["farming_exp"], farming_exp_before + 30.0)
         self.assertFalse(redeem.isEnabled())
 
+    def test_dungeoneering_skill_surface_drives_entry_routing_and_abandon_at_laptop_height(self) -> None:
+        from ankiscape.logic.dungeoneering_logic import (
+            apply_dungeoneering_command_pure,
+            record_dungeon_drop_pure,
+        )
+
+        original_palette = QApplication.palette()
+        original_style = QApplication.style().objectName()
+        dark = QPalette(original_palette)
+        dark.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
+        dark.setColor(QPalette.ColorRole.WindowText, QColor(235, 235, 235))
+        dark.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
+        dark.setColor(QPalette.ColorRole.Text, QColor(235, 235, 235))
+        dark.setColor(QPalette.ColorRole.Button, QColor(55, 55, 55))
+        dark.setColor(QPalette.ColorRole.ButtonText, QColor(235, 235, 235))
+        dark.setColor(QPalette.ColorRole.Mid, QColor(95, 95, 95))
+        QApplication.setStyle("Fusion")
+        QApplication.setPalette(dark)
+        dialog = None
+        try:
+            pd = _make_player_data()
+            pd["dungeoneering_level"] = 11
+            pd["dungeoneering_exp"] = 0.0
+            calls = []
+
+            def command(action_id, payload):
+                calls.append((action_id, dict(payload)))
+                updated, ok, info = apply_dungeoneering_command_pure(
+                    pd,
+                    action_id,
+                    payload,
+                )
+                if ok:
+                    pd.clear()
+                    pd.update(updated)
+                return {
+                    "ok": ok,
+                    "message": info.get("reason", info.get("message", "")),
+                    **info,
+                }
+
+            dialog = self._open(
+                pd,
+                current_skill="Dungeoneering",
+                initial_skill="Dungeoneering",
+                on_dungeoneering_command=command,
+            )
+            dialog.show()
+            for _ in range(4):
+                QApplication.processEvents()
+
+            panel = _find_named_widget(dialog, "dungeoneeringPanel")
+            status = _find_named_label(dialog, "dungeoneeringStatusChip")
+            summary = _find_named_label(dialog, "dungeoneeringSummary")
+            projection = _find_named_label(dialog, "dungeoneeringProjection")
+            economy = _find_named_label(dialog, "dungeoneeringEconomySummary")
+            bind_summary = _find_named_label(dialog, "dungeoneeringBindSummary")
+            automation = _find_named_label(dialog, "dungeoneeringAutomationSummary")
+            primary = _find_named_button(dialog, "dungeoneeringPrimaryButton")
+            abandon = _find_named_button(dialog, "dungeoneeringAbandonButton")
+            floor = panel.findChild(QComboBox, "dungeoneeringFloorCombo")
+            size = _find_named_label(dialog, "dungeoneeringSizeLabel")
+            complexity = panel.findChild(
+                QComboBox,
+                "dungeoneeringComplexityCombo",
+            )
+            mode = panel.findChild(QComboBox, "dungeoneeringModeCombo")
+            resources = panel.findChild(
+                QComboBox,
+                "dungeoneeringResourcePolicyCombo",
+            )
+            bind_loadout = panel.findChild(
+                QComboBox,
+                "dungeoneeringBindLoadoutCombo",
+            )
+            bind_config_row = _find_named_widget(
+                dialog,
+                "dungeoneeringBindConfigRow",
+            )
+            bind_item = panel.findChild(
+                QComboBox,
+                "dungeoneeringBindItemCombo",
+            )
+            bind_item_button = _find_named_button(
+                dialog,
+                "dungeoneeringBindItemButton",
+            )
+            route = panel.findChild(QComboBox, "dungeoneeringRouteCombo")
+            smuggler = panel.findChild(QComboBox, "dungeoneeringSmugglerCombo")
+            smuggler_row = _find_named_widget(dialog, "dungeoneeringSmugglerRow")
+            bind_row = _find_named_widget(dialog, "dungeoneeringBindOfferRow")
+            bind_item_action = _find_named_button(
+                dialog,
+                "dungeoneeringBindButton",
+            )
+            self.assertIsNone(panel.findChild(QScrollArea))
+            self.assertEqual(status.text(), "READY")
+            self.assertEqual(floor.count(), 6)
+            self.assertEqual(size.text(), "Small")
+            self.assertEqual(complexity.count(), 2)
+            self.assertEqual(resources.count(), 3)
+            self.assertEqual(bind_loadout.count(), 3)
+            self.assertTrue(bind_loadout.isEnabled())
+            self.assertTrue(abandon.isHidden())
+            self.assertTrue(projection.isHidden())
+            self.assertTrue(economy.isHidden())
+            self.assertTrue(automation.isHidden())
+            self.assertTrue(smuggler_row.isHidden())
+            self.assertTrue(bind_row.isHidden())
+            self.assertTrue(bind_config_row.isHidden())
+            self.assertLessEqual(
+                panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+                dialog.contentsRect().bottom(),
+            )
+
+            floor.setCurrentIndex(floor.findData(6))
+            complexity.setCurrentIndex(complexity.findData(6))
+            mode.setCurrentIndex(mode.findData("advanced"))
+            QApplication.processEvents()
+            self.assertEqual(
+                calls[-1],
+                ("set_policy", {"automation_mode": "advanced"}),
+            )
+            resources.setCurrentIndex(resources.findData("gather_only"))
+            QApplication.processEvents()
+            self.assertEqual(
+                calls[-1],
+                ("set_resource_policy", {"resource_policy": "gather_only"}),
+            )
+            bind_loadout.setCurrentIndex(bind_loadout.findData(1))
+            QApplication.processEvents()
+            self.assertEqual(
+                calls[-1],
+                ("select_bind_loadout", {"loadout_index": 1}),
+            )
+            primary.click()
+            QApplication.processEvents()
+            self.assertEqual(calls[-1][0], "enter")
+            self.assertEqual(calls[-1][1]["floor"], 6)
+            self.assertEqual(calls[-1][1]["complexity"], 6)
+            self.assertTrue(pd["dungeoneering"]["active"])
+            self.assertEqual(pd["dungeoneering"]["active_bind_loadout"], 1)
+            self.assertEqual(status.text(), "ACTIVE")
+            self.assertFalse(bind_loadout.isEnabled())
+            self.assertFalse(route.isHidden())
+            self.assertTrue(route.isEnabled())
+            self.assertGreater(route.count(), 0)
+            self.assertFalse(abandon.isHidden())
+            self.assertFalse(projection.isHidden())
+            self.assertFalse(economy.isHidden())
+            self.assertFalse(automation.isHidden())
+            self.assertFalse(smuggler_row.isHidden())
+            self.assertTrue(bind_row.isHidden())
+            self.assertTrue(bind_config_row.isHidden())
+            self.assertGreater(smuggler.count(), 0)
+            self.assertLess(smuggler.count(), 86)
+            self.assertEqual(smuggler.findData("novite_rapier"), -1)
+            self.assertIn("session coins", economy.text())
+            self.assertIn("reachable from live floor goods", economy.text())
+            self.assertIn("Binds 0/1", bind_summary.text())
+            self.assertIn("eat Heim crab", automation.text())
+            self.assertIn("projected", summary.text())
+
+            updated, ok, info = record_dungeon_drop_pure(
+                pd,
+                "Eligible blade",
+                equipment_slot="weapon",
+            )
+            self.assertTrue(ok, info)
+            pd.clear()
+            pd.update(updated)
+            panel._ankiscape_refresh_dungeoneering()
+            QApplication.processEvents()
+            self.assertFalse(bind_row.isHidden())
+            self.assertEqual(status.text(), "CHOICE")
+            bind_item_action.click()
+            QApplication.processEvents()
+            self.assertEqual(
+                calls[-1],
+                ("resolve_bind_offer", {"choice": "bind"}),
+            )
+            self.assertTrue(bind_row.isHidden())
+
+            route.setCurrentIndex(-1)
+            route.setCurrentIndex(0)
+            QApplication.processEvents()
+            self.assertEqual(calls[-1][0], "select_route")
+            self.assertEqual(
+                pd["dungeoneering"]["selected_room_id"],
+                route.currentData(),
+            )
+
+            dialog.resize(900, 560)
+            for _ in range(6):
+                QApplication.processEvents()
+            self.assertLessEqual(
+                panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+                dialog.contentsRect().bottom(),
+            )
+            self.assertGreater(panel.height(), 0)
+            self.assertGreater(route.width(), 0)
+
+            abandon.click()
+            QApplication.processEvents()
+            self.assertEqual(calls[-1], ("abandon", {}))
+            self.assertFalse(pd["dungeoneering"]["active"])
+            self.assertEqual(status.text(), "READY")
+            self.assertTrue(abandon.isHidden())
+            self.assertTrue(economy.isHidden())
+            self.assertTrue(smuggler_row.isHidden())
+            self.assertFalse(bind_config_row.isHidden())
+            self.assertEqual(bind_item.count(), 1)
+            self.assertEqual(bind_item.currentData(), "Eligible blade")
+
+            bind_loadout.setCurrentIndex(bind_loadout.findData(2))
+            QApplication.processEvents()
+            self.assertEqual(
+                calls[-1],
+                ("select_bind_loadout", {"loadout_index": 2}),
+            )
+            self.assertEqual(bind_item_button.text(), "Add to loadout")
+            bind_item_button.click()
+            QApplication.processEvents()
+            self.assertEqual(
+                calls[-1],
+                (
+                    "set_bind_loadout",
+                    {
+                        "loadout_index": 2,
+                        "item_names": ["Eligible blade"],
+                    },
+                ),
+            )
+            self.assertEqual(
+                pd["dungeoneering"]["bind_loadouts"][2],
+                ["Eligible blade"],
+            )
+            self.assertLessEqual(
+                panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+                dialog.contentsRect().bottom(),
+            )
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+            QApplication.setPalette(original_palette)
+            QApplication.setStyle(original_style)
+
     def test_fight_caves_card_enters_targets_and_leaves_without_nested_scroll(self) -> None:
         from ankiscape.logic.fight_caves_logic import default_fight_caves_state_pure
 
