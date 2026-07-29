@@ -917,3 +917,20 @@ open forks, except where marked.
    changing anything.
 9. **Lag, again.** Pass-1 noted menu load; pass 4 reports in-review lag and
    suspects backend calculation cost. Profile before fixing.
+
+### 3.25 Dungeoneering — the starter Herblore chain is funded by a coin cache — implemented recommendation, owner review pending
+
+- **Fork:** the ratified contract requires the quarantined starter Herblore
+  chain to be mechanically reachable inside a floor, but the audit's pinned
+  Smuggler prices (Vial of water 10, Void dust 1,000) exceed anything a
+  natural starter floor can earn by selling gathered goods (~120 coins).
+  The period game funded floor purchases through monster coin drops, whose
+  starter-floor amounts no source pins.
+- **Recommendation implemented:** a resource-room coin cache of 1,010 coins,
+  registered as `PLACEHOLDER(dungeoneering.starter_herblore_coin_cache)` —
+  the smallest disclosed translation that makes the contract's chain real.
+  Session coins evaporate at floor end like everything else.
+- **Alternatives if you prefer:** placeholder coin drops on guardian-room
+  enemies (same invented magnitude, spread thinner), or repricing the
+  secondaries (contradicts the pinned Smuggler bands). A decoded period drop
+  table for the Frozen-floor guardians would retire the placeholder entirely.
