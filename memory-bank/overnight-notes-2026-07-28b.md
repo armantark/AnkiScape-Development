@@ -89,6 +89,25 @@ candidates already visible: squad budget (unsourced 1000 vs implied 800),
 board size (20×20 vs 22×22), rating formula, command-point income, ratio
 curve. Parent agent still compiling the audit file.
 
+## Cross-lineage verification returned: 13 defects, no family clean
+
+Report: `scratchpad/sol-verification-2026-07-28.md` (session scratchpad).
+Temple Trekking 1 (unregistered three-charge Druid pouch), Mobilising Armies 1
+(Explore counts toward rank against the sourced exclusion), Gnome Restaurant 2
+(meal granted at the first twelve-point threshold; order acceptance steals a
+live activity session and the next save round-trip deletes the stolen trek),
+Dominion Tower 9 (leavable uncleared matches, inert No Familiar, deleted
+instead of banked armour, No Food persisting into real auto-eat config,
+shot/hit weapons drained as ticks, one global Xp-book factor, per-roll instead
+of per-box reward caps, unregistered three-roll constant, panel re-deriving
+claimability). The fourth consecutive Sol pass to find real shipped bugs that
+Claude passes cleared — the routing rule stands.
+
+Fix-and-reverify workflow `wf_e33dcde2-bf5` is running: one Sol fixer per
+family on disjoint files, independent execution reverification, refix loop
+capped at two extra rounds. Git stays with this session; full-suite runs and
+commits happen here after the workflow returns.
+
 ## Done this session
 
 - Tranche board refresh (`90ff8fe8`).
