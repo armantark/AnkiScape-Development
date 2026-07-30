@@ -42,6 +42,10 @@ from .music_log_logic import refresh_music_log_pure
 CONQUEST_STATE_VERSION = 1
 _DOCTRINES = frozenset(row[0] for row in CONQUEST_DOCTRINES)
 _SIDES = ("player", "opponent")
+# A stored troop count is bounded only so a corrupt save cannot allocate without
+# limit. The squad cap is a rule the reducers refuse, never a silent clamp: a
+# clamp would turn an illegal squad into a legal one and report success.
+_SQUAD_INPUT_MAX = 999_999
 
 
 def _int(value: Any, default: int = 0, *, maximum: int = 2_147_483_647) -> int:
@@ -62,7 +66,7 @@ def _roll(rng: Callable[[], float] | None) -> float:
 def _copy_squad(raw: Any) -> dict[str, int]:
     source = raw if isinstance(raw, Mapping) else {}
     return {
-        unit.id: _int(source.get(unit.id), maximum=CONQUEST_UNIT_CAP)
+        unit.id: _int(source.get(unit.id), maximum=_SQUAD_INPUT_MAX)
         for unit in CONQUEST_UNITS
     }
 
@@ -81,9 +85,9 @@ def _copy_commands(raw: Any) -> tuple[str, ...]:
 
 
 def _squad_totals(squad: Mapping[str, Any]) -> tuple[int, int]:
-    count = sum(_int(squad.get(unit.id), maximum=CONQUEST_UNIT_CAP) for unit in CONQUEST_UNITS)
+    count = sum(_int(squad.get(unit.id), maximum=_SQUAD_INPUT_MAX) for unit in CONQUEST_UNITS)
     cost = sum(
-        unit.cost * _int(squad.get(unit.id), maximum=CONQUEST_UNIT_CAP)
+        unit.cost * _int(squad.get(unit.id), maximum=_SQUAD_INPUT_MAX)
         for unit in CONQUEST_UNITS
     )
     return count, cost
@@ -192,6 +196,13 @@ def sanitize_conquest_session_pure(raw: Any) -> dict[str, Any]:
         return {}
     if not any(unit["side"] == "opponent" for unit in units):
         return {}
+    for side in _SIDES:
+        squad: dict[str, int] = {}
+        for unit in units:
+            if unit["side"] == side:
+                squad[unit["unit_type"]] = squad.get(unit["unit_type"], 0) + 1
+        if _setup_errors(squad, ()):
+            return {}
     selected_commands = {
         side: list(_copy_commands(
             (raw.get("commands") if isinstance(raw.get("commands"), Mapping) else {}).get(side)
@@ -268,10 +279,11 @@ def sanitize_conquest_session_pure(raw: Any) -> dict[str, Any]:
             )
             for side in _SIDES
         },
+        # The harvest observes the rating floor of 0 and states no maximum, so
+        # only the shared storage bound applies here.
         "opponent_rating": _int(
             raw.get("opponent_rating", CONQUEST_RATING_START),
             CONQUEST_RATING_START,
-            maximum=99_999,
         ),
         "last_exchange": str(raw.get("last_exchange", ""))[:500],
     }
@@ -292,7 +304,6 @@ def sanitize_conquest_state_pure(
         "conquest_rating": _int(
             source.get("conquest_rating", CONQUEST_RATING_START),
             CONQUEST_RATING_START,
-            maximum=99_999,
         ),
         "conquest_matches_started": _int(source.get("conquest_matches_started")),
         "conquest_games_won": _int(source.get("conquest_games_won")),
@@ -366,6 +377,9 @@ def set_conquest_policy_pure(
 
 def _deployed_units(squad: Mapping[str, int], side: str) -> list[dict[str, Any]]:
     units: list[dict[str, Any]] = []
+    # PLACEHOLDER(conquest.default_deployment): troops fill the owner's three
+    # deployment rows in reading order, starting on the row at the owner's own
+    # edge, so a ten-troop squad forms a single line.
     positions = [
         (column, row if side == "player" else CONQUEST_BOARD_SIZE - 1 - row)
         for row in range(CONQUEST_DEPLOYMENT_ROWS)
@@ -429,6 +443,7 @@ def enter_conquest_pure(
     first_player = (
         "player" if _roll(rng) < 0.5 else "opponent"
     )  # PLACEHOLDER(conquest.first_player_selection)
+    # PLACEHOLDER(conquest.simulated_opponent_rating)
     opponent_rating = max(
         CONQUEST_RATING_FLOOR,
         state["conquest_rating"] + int((_roll(rng) - 0.5) * 200),
@@ -487,6 +502,7 @@ def _units_for(session: Mapping[str, Any], side: str) -> list[dict[str, Any]]:
 
 
 def _distance(left: Mapping[str, Any], right: Mapping[str, Any]) -> int:
+    # PLACEHOLDER(conquest.board_metric): four-direction (Manhattan) squares.
     return abs(int(left["x"]) - int(right["x"])) + abs(int(left["y"]) - int(right["y"]))
 
 
@@ -598,6 +614,8 @@ def _reachable_positions(
         (x, y), steps = queue.popleft()
         if steps >= movement:
             continue
+        # PLACEHOLDER(conquest.board_metric): steps share the same four
+        # directions the range metric measures.
         for point in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
             if (
                 0 <= point[0] < CONQUEST_BOARD_SIZE
@@ -748,6 +766,9 @@ def _finish_match(
         data["pest_control_commendations"] = min(
             PEST_CONTROL_COMMENDATION_CAP, old_wallet + commendations
         )
+        # A wallet at the shared cap absorbs part of the award, so the match
+        # reports what it actually paid rather than what it earned.
+        commendations = data["pest_control_commendations"] - old_wallet
         player_rating = state["conquest_rating"]
         opponent_rating = _int(session.get("opponent_rating"), CONQUEST_RATING_START)
         if outcome == "won":

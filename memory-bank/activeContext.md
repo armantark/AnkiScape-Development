@@ -31,6 +31,19 @@ Coal, and feeds the real Smithing reducer before loose Coal. Token earned,
 spent, and balance values are visible on the card. The v100 Dungeoneering
 sanitizer was extended additively; `CURRENT_CONFIG_VERSION` remains 101.
 
+Schema 102, migration and repair, activity arbitration, cadence, telemetry,
+review/direct undo, normalized period assets, provenance, and the compact
+three-page Activities card are integrated. The source corrections are locked:
+Knight range 1, Mage range 4, Champion 500 LP, Stoicism 75 CP, no combat
+triangle, and no hybrid roster. Eighteen in-scope unknowns are registered in the
+placeholder ledger. The quest-only pest battle and its Torcher candidate, staked
+mode, human truce/disconnect interaction, and an unimplemented Void-set bonus
+remain outside this breadth slice. Focused verification passes 137 backend tests,
+3 integration undo tests, and 2 real offscreen-Qt tests. Durable source:
+`source-audits/conquest-harvest-2026-07-28.md`. Results:
+`status-updates/conquest-breadth-one-results-2026-07-30.html` and
+<https://859ao4lbxil1.postplan.dev>.
+
 **Conquest reached breadth one on this branch** (schema 102): the solo
 adaptation on the harvest's exact tables, execution-verified over three Sol
 rounds; see `source-audits/conquest-harvest-2026-07-28.md` and

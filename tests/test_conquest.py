@@ -23,14 +23,18 @@ from ankiscape.data.conquest_data import (
     CONQUEST_DEFAULT_COMMANDS,
     CONQUEST_DEFAULT_SQUAD,
     CONQUEST_DEFLECTOR_ITEM,
+    CONQUEST_DEPLOYMENT_ROWS,
     CONQUEST_SETUP_BUDGET,
     CONQUEST_UNIT_CAP,
     CONQUEST_UNITS_BY_ID,
 )
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.data.pest_control_data import PEST_CONTROL_COMMENDATION_CAP
 from ankiscape.logic.conquest_logic import (
     _commendation_multiplier,
+    _distance,
     _rating_delta,
+    _reachable_positions,
     _turn_ratio,
     apply_conquest_command_pure,
     apply_conquest_review_pure,
@@ -191,6 +195,32 @@ class ConquestEntryAndSetupTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("at most 4 commands", info["reason"])
 
+    def test_over_cap_squad_is_refused_rather_than_clamped(self):
+        draft = {
+            "automation_mode": "advanced",
+            "squad": {"scout": CONQUEST_UNIT_CAP + 1},
+            "commands": [],
+        }
+        original = _player()
+        unchanged, ok, info = set_conquest_policy_pure(original, draft)
+        self.assertFalse(ok)
+        self.assertIn(f"{CONQUEST_UNIT_CAP} troops", info["reason"])
+        self.assertEqual(unchanged, original)
+        view = conquest_view_pure(original, draft)
+        self.assertFalse(view["save_enabled"])
+        self.assertEqual(view["squad_rows"][0]["count"], CONQUEST_UNIT_CAP + 1)
+
+    def test_simulated_opponent_rating_stays_inside_the_registered_band(self):
+        for roll in (0.0, 0.999999999):
+            with self.subTest(roll=roll):
+                player, ok, info = enter_conquest_pure(
+                    _player(conquest_rating=1_000), {}, lambda: roll
+                )
+                self.assertTrue(ok, info)
+                self.assertLessEqual(
+                    abs(player["conquest"]["opponent_rating"] - 1_000), 100
+                )
+
     def test_entry_builds_a_bounded_board_and_unlocks_both_tracks(self):
         player = _entered()
         session = player["conquest"]
@@ -214,6 +244,25 @@ class ConquestEntryAndSetupTests(unittest.TestCase):
         }
         self.assertIn("Right of Conquest", unlocked)
         self.assertIn("Conquest", unlocked)
+
+    def test_the_starting_formation_is_the_registered_placeholder(self):
+        """The arrangement is unsourced, so it must stay a marked placeholder."""
+        session = _entered()["conquest"]
+        player_rows = set(range(CONQUEST_DEPLOYMENT_ROWS))
+        opponent_rows = {
+            CONQUEST_BOARD_SIZE - 1 - row for row in range(CONQUEST_DEPLOYMENT_ROWS)
+        }
+        for unit in session["units"]:
+            rows = player_rows if unit["side"] == "player" else opponent_rows
+            self.assertIn(unit["y"], rows)
+        self.assertEqual(
+            [
+                (unit["x"], unit["y"])
+                for unit in session["units"]
+                if unit["side"] == "player"
+            ],
+            [(column, 0) for column in range(CONQUEST_UNIT_CAP)],
+        )
 
     def test_view_owns_draft_validation_and_command_limit_decisions(self):
         draft = {
@@ -559,6 +608,60 @@ class ConquestReviewTests(unittest.TestCase):
             loss["commendations"],
         )
 
+    def test_a_capped_wallet_reports_only_the_commendations_it_paid(self):
+        player = _entered(
+            pest_control_commendations=PEST_CONTROL_COMMENDATION_CAP - 5
+        )
+        player["conquest"]["round"] = 18
+        player["conquest"]["first_player"] = "player"
+        player["conquest"]["commands"] = {"player": [], "opponent": []}
+        player["conquest"]["cooldowns"] = {"player": {}, "opponent": {}}
+        player["conquest"]["units"] = [
+            {
+                **player["conquest"]["units"][0],
+                "unit_type": "champion",
+                "lifepoints": 500,
+                "x": 0,
+                "y": 0,
+            },
+            {
+                **player["conquest"]["units"][10],
+                "unit_type": "scout",
+                "lifepoints": 100,
+                "x": 0,
+                "y": 1,
+            },
+        ]
+        settled, ok, result = apply_conquest_review_pure(player, lambda: 0.5)
+        self.assertTrue(ok, result)
+        self.assertEqual(
+            settled["pest_control_commendations"], PEST_CONTROL_COMMENDATION_CAP
+        )
+        self.assertEqual(result["commendations"], 5)
+        self.assertIn("5 commendations", result["message"])
+
+    def test_range_and_movement_share_the_registered_four_direction_metric(self):
+        self.assertEqual(_distance({"x": 3, "y": 3}, {"x": 4, "y": 4}), 2)
+        unit = {"id": "solo", "x": 3, "y": 3}
+        self.assertEqual(
+            _reachable_positions({"units": [unit], "obstacles": []}, unit, 1),
+            {(3, 3), (2, 3), (4, 3), (3, 2), (3, 4)},
+        )
+        register = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "memory-bank",
+            "placeholder-values.md",
+        )
+        with open(register, encoding="utf-8") as handle:
+            rows = handle.read()
+        for placeholder_id in (
+            "conquest.board_metric",
+            "conquest.simulated_opponent_rating",
+            "conquest.default_squad",
+            "conquest.default_commands",
+        ):
+            self.assertIn(placeholder_id, rows)
+
     def test_cadence_declares_exact_review_and_direct_action_boundaries(self):
         row = next(
             row
@@ -632,6 +735,32 @@ class ConquestStorageAndShopTests(unittest.TestCase):
         self.assertEqual(
             migrated["conquest_policy"]["squad"], CONQUEST_DEFAULT_SQUAD
         )
+
+    def test_schema_102_drops_a_persisted_over_cap_squad(self):
+        session = copy.deepcopy(_entered()["conquest"])
+        session["units"].append(
+            {
+                **session["units"][0],
+                "id": "player-scout-extra",
+                "x": 5,
+                "y": 5,
+            }
+        )
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 101,
+                "activity_session": {"active_id": "conquest"},
+                "conquest": session,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["conquest"], {})
+        self.assertEqual(migrated["activity_session"], {"active_id": ""})
+
+    def test_rating_keeps_no_undocumented_maximum(self):
+        state = sanitize_conquest_state_pure({"conquest_rating": 1_000_000})
+        self.assertEqual(state["conquest_rating"], 1_000_000)
 
     def test_sanitizer_repairs_missing_and_conflicting_activity_ownership(self):
         entered = _entered()

@@ -600,7 +600,7 @@ def buy_void_knight_deflector_pure(
         return data, False, {"reason": "Finish the active persistent activity first."}
     if _owns_void_knight_deflector(data):
         return data, False, {"reason": "The Void knight deflector is already owned."}
-    rating = _int(data.get("conquest_rating"), 1_000, maximum=99_999)
+    rating = _int(data.get("conquest_rating"), 1_000)
     if rating < CONQUEST_DEFLECTOR_RATING:
         return data, False, {
             "reason": f"Requires Conquest rating {CONQUEST_DEFLECTOR_RATING:,}."
@@ -643,9 +643,7 @@ def pest_control_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         else ""
     )
     deflector_owned = _owns_void_knight_deflector(player_data)
-    deflector_rating = _int(
-        player_data.get("conquest_rating"), 1_000, maximum=99_999
-    )
+    deflector_rating = _int(player_data.get("conquest_rating"), 1_000)
     deflector_reason = ""
     seal_reason = ""
     if persistent_active:

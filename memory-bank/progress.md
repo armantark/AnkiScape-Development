@@ -29,7 +29,7 @@ Migration and repair, activity arbitration, cadence, telemetry, review/direct
 undo, activity/equipment/item registration, normalized art and provenance, and
 the compact three-page Activities card are integrated. The correction guard tests
 pin Knight range 1, Mage range 4, Champion 500 LP, Stoicism 75 CP, and the absence
-of a combat triangle or hybrid roster. Thirteen in-scope placeholders are
+of a combat triangle or hybrid roster. Eighteen in-scope placeholders are
 registered. The quest-only pest battle and Torcher candidate, staked mode,
 human-only truce/disconnect flows, and Void-set substitution semantics remain
 outside this slice.

@@ -99,8 +99,9 @@ CONQUEST_UNITS = (
 )
 CONQUEST_UNITS_BY_ID = {unit.id: unit for unit in CONQUEST_UNITS}
 
-# Reconstructed from the sourced full default squad and the guide's documented
-# one-Archer alternative (replace both Foot Soldiers with a second Archer).
+# PLACEHOLDER(conquest.default_squad): reconstructed from the sourced full
+# default squad and the guide's documented one-Archer alternative (replace both
+# Foot Soldiers with a second Archer).
 CONQUEST_DEFAULT_SQUAD = {
     "scout": 2,
     "foot_soldier": 2,
@@ -175,6 +176,7 @@ CONQUEST_COMMANDS = (
     ),
 )
 CONQUEST_COMMANDS_BY_ID = {command.id: command for command in CONQUEST_COMMANDS}
+# PLACEHOLDER(conquest.default_commands): the four commands Casual installs.
 CONQUEST_DEFAULT_COMMANDS = (
     "battle_cry",
     "charge",
