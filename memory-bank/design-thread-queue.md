@@ -969,3 +969,24 @@ progress, and no Slayer XP for monsters without a Slayer-level requirement."
 
 Build queue consequences, sequenced behind the two parked codex items:
 the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
+
+### 4.15 Grill of 2026-07-30 — design-gap answers
+
+1. **Conquest squad budget stays 1,000** (registered placeholder, 800
+   discrepancy noted). The owner defers on Conquest specifics.
+2. **Event-log retention: large bounded window.** Keep the last ~2,000
+   events, trimmed oldest-first on write; "indefinitely" governs drawer
+   scroll depth, not immortal storage.
+3. **Tarn Tower gate ratified:** Haunted Mine per the pinned source; the
+   Lair miniquest stays optional for the fight.
+4. **Kinship reopens fork 14: party simulation is wanted.** The owner
+   designed a fake-player simulation suite in Darkan and wants a flattened
+   port giving AnkiScape simulated party members (player-chosen count),
+   restoring real correspondence for Medic-type classes. Deliverable:
+   a DESIGN PACKET ONLY for owner review before any implementation —
+   the flattened-port proposal, per-class effect mapping with the party sim
+   in place, and a propose-and-review analog table for classes that remain
+   without correspondence (smallest effect in the spirit of the sourced
+   description, labeled as an AnkiScape analog; nothing ships unsigned).
+   Requires coordination with the Darkan restoration thread over the suite.
+   Until the packet is approved, the honest no-effect display stays.

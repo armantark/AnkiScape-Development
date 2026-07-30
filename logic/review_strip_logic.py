@@ -70,6 +70,10 @@ WORLD_EVENT_OUTCOME_REVIEWS = 10
 # trains more names the rest in its caption instead.
 MAX_STRIP_XP_BARS = 2
 
+# The owner's retention answer (design-thread 4.15): weeks of history, flat
+# save size. Oldest rows trim on write once the window is full.
+REVIEW_EVENT_LOG_RETAINED = 2000
+
 # The event drawer opens on the ten newest floating notifications and expands in
 # ten-row pages without discarding older emissions.
 REVIEW_EVENT_LOG_DEFAULT_LIMIT = 10
@@ -122,7 +126,9 @@ def record_review_event_pure(
         "kind": str(kind or "activity")[:32],
         "text": message[:500],
     })
-    updated["review_event_log"] = rows
+    # 4.15 answer 2: the drawer expands through everything retained, but the
+    # save keeps a large bounded window rather than growing forever.
+    updated["review_event_log"] = rows[-REVIEW_EVENT_LOG_RETAINED:]
     return updated
 
 

@@ -541,6 +541,25 @@ class EventLogViewTest(unittest.TestCase):
         self.assertEqual(expanded["rows"][-1]["text"], "event 0")
         self.assertFalse(expanded["show_more_enabled"])
 
+    def test_the_retention_window_trims_oldest_first_at_the_bound(self):
+        """4.15 answer 2: the save keeps a large bounded window, not forever."""
+        from ankiscape.logic.review_strip_logic import (
+            REVIEW_EVENT_LOG_RETAINED,
+            record_review_event_pure,
+        )
+
+        data = _player()
+        for review in range(REVIEW_EVENT_LOG_RETAINED + 5):
+            data["shop_market_clock"] = {
+                "answered_cards": review,
+                "market_tick": review,
+            }
+            data = record_review_event_pure(data, "xp", f"event {review}")
+        log = data["review_event_log"]
+        self.assertEqual(len(log), REVIEW_EVENT_LOG_RETAINED)
+        self.assertEqual(log[0]["text"], "event 5")
+        self.assertEqual(log[-1]["text"], f"event {REVIEW_EVENT_LOG_RETAINED + 4}")
+
     def test_migration_repairs_malformed_rows(self):
         old = _player()
         old["config_version"] = 98
