@@ -8894,6 +8894,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "great_orb_project",
                 "trouble_brewing",
                 "castle_wars",
+                "conquest",
                 "pest_control",
                 "barbarian_assault",
                 "soul_wars",
