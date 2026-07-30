@@ -1,10 +1,25 @@
-# Goal blocked — one Achievement Diary clause, 2026-07-29
+# Goal blocked — one diary clause and one parked reshape, 2026-07-30
 
-**Status.** Fifteen of the diary contract's sixteen clauses are MET.
-Dungeoneering activation cleared the skillcape and 25-skill Max-gate blockers
-by construction. The 2026-07-29 codex-quota blocker cleared with the new
-block; the parked builds resume from `~/.local/state/quota-guard/parked.md`.
-One clause remains blocked.
+**Status.** Every family in the pre-EOC catalog is at breadth one: the
+overnight run merged Dungeoneering phase C, Conquest, the miniquest ledger,
+Bork, and the Tarn corrections, with the sixteen-activity cadence class fix
+and the disproven Slayer off-task lead alongside. Two blockers remain.
+
+## Blocker 0 — the 3.25 guardian-drop reshape is parked on quota
+
+**What is blocked.** One settled, owner-answered change: moving the
+Dungeoneering starter Herblore funding from the placeholder coin cache to
+placeholder guardian-room coin drops (design answers 4.14 item 2 / 3.25).
+The cache variant ships and works; this is mechanism fidelity, not a
+missing mechanic.
+
+**What I tried.** Two codex CLI runs; both were killed externally with a
+clean tree. All three subscriptions are now at or over their day lines, and
+the task would finish before any next block lands.
+
+**The single thing that would unblock it.** The next codex block (~8h). The
+exact brief and resume command are in
+`~/.local/state/quota-guard/parked.md`.
 
 ## Blocker 1 — D1: 384 regional tasks
 
