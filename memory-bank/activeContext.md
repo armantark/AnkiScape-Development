@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+**2026-07-29, ready for the next goal run.** Main is green in both lanes at
+3,553 tests. Dungeoneering ships as the 25th trainable skill with its Frozen
+floor runtime (phases A/B1/B2; capes and the 25-skill Max gate cleared by
+construction). Pass 4 is merged, plus three same-day overlay fixes from live
+playtest reports: the reviewer strip measures the card's JS bounding box, a
+scrolling card docks the bars over injected bottom padding instead of hiding
+them, and the sweep-overwritten navigation icons are reverted (icon/ is now
+excluded from art sweeps). Luna computer-use verified the short-card overlay
+in the real app with zero study progress.
+
+Immediate queue, in order: resume the two parked workflows
+(Dungeoneering phase C — kinship tiers, staged 42-row trader with functional
+Coal bag, assets; and Conquest breadth one in the `conquest` worktree at
+schema 102) from `~/.local/state/quota-guard/parked.md`; then the 4.14 grill
+consequences (minimal miniquest ledger with Hunt for Surok → Bork and Lair of
+Tarn Razorlor → Dominion class H; guardian coin drops replacing the 3.25
+cache); then the Slayer off-task XP source check. GOAL-BLOCKED carries only
+the 384-diary-task clause. Design forks 3.15/3.19/3.22/3.23/3.24/3.25/4.12
+are all owner-answered as of the 2026-07-29 grill (section 4.14).
+
 Gnome Restaurant satisfies horizontal breadth level one. Gnome cooking is twenty
 real Cooking targets with exact levels, XP and ingredients; the Activity runs one
 delivery per productive review with the source point, reward-token and tip tables;

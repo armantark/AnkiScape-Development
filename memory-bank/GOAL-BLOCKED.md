@@ -1,34 +1,10 @@
-# Goal blocked — one diary clause and the codex day quota, 2026-07-29
+# Goal blocked — one Achievement Diary clause, 2026-07-29
 
 **Status.** Fifteen of the diary contract's sixteen clauses are MET.
-Dungeoneering activation cleared the skillcape and 25-skill Max-gate blockers by
-construction. Two blockers remain: the diary task count below, and a quota
-boundary on the last two build items.
-
----
-
-## Blocker 0 — the codex daily share is exhausted
-
-**What is blocked.** The final two build items: Dungeoneering phase C (kinship
-tiers, the staged reward trader with its functional Coal bag, period assets)
-and the Conquest breadth-one implementation. Everything else in the goal is
-done: every other settled family is at breadth one, Dungeoneering A/B1/B2 are
-merged and green (the skill trains and floors run end to end), pass 4 is
-merged, the art sweep and XP-bar sweep are closed, and both remaining items
-are fully harvested, specced, and scripted as resumable workflows.
-
-**What I tried.** Both workflows launched on Sol; their implementers died on
-OpenAI API errors (`502`, then `503 auth_unavailable`) exactly as the quota
-guard reported codex crossing its daily share (22/13). Working trees are
-clean; nothing partial or unverified exists. Rerouting was considered and
-rejected: Claude sits at its own day line and is reserved for orchestration,
-and Kimi is over.
-
-**The single thing that would unblock it.** The next codex block (~15 hours).
-Both items are parked in `~/.local/state/quota-guard/parked.md` with their
-exact `Workflow({scriptPath, resumeFromRunId})` resume commands.
-
----
+Dungeoneering activation cleared the skillcape and 25-skill Max-gate blockers
+by construction. The 2026-07-29 codex-quota blocker cleared with the new
+block; the parked builds resume from `~/.local/state/quota-guard/parked.md`.
+One clause remains blocked.
 
 ## Blocker 1 — D1: 384 regional tasks
 
