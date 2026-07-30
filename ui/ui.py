@@ -209,6 +209,13 @@ from ..data.dungeoneering_data import DUNGEONEERING_ITEM_IMAGES
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
 
+from ..data.bork_data import (
+    BORK_ACTIVITY_ID,
+    BORK_MAX_LIFEPOINTS,
+    BORK_ORK_SUMMON_MAXIMUM,
+    BORK_ORK_SUMMON_MINIMUM,
+    BORK_ORK_SUMMON_THRESHOLD_LIFEPOINTS,
+)
 from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_ACTIVITY_ID,
     SKELETAL_HORROR_ELITE_CLUE_CHANCE,
@@ -217,6 +224,7 @@ from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_PHASES,
     SKELETAL_HORROR_REPEAT_REWARDS,
 )
+from ..logic.bork_logic import bork_view_pure
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 
 from ..data.tears_of_guthix_data import (
@@ -4042,6 +4050,7 @@ def show_main_menu(
     on_fight_caves_command=None,
     on_phoenix_lair_command=None,
     on_skeletal_horror_command=None,
+    on_bork_command=None,
     on_tears_of_guthix_command=None,
     on_enchanted_key_command=None,
     on_barrows_command=None,
@@ -10568,6 +10577,198 @@ def show_main_menu(
         skeletal_leave.clicked.connect(_confirm_skeletal_horror_leave)
         _refresh_skeletal_horror_panel()
         cards_stack.addWidget(skeletal_box)
+
+        bork_box = QtFrame()
+        bork_box.setObjectName("borkPanel")
+        bork_box.setStyleSheet(
+            "QFrame#borkPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        bork_layout = QVBoxLayout(bork_box)
+        bork_layout.setContentsMargins(10, 8, 10, 8)
+        bork_layout.setSpacing(6)
+
+        bork_header = QWidget()
+        bork_header_layout = QHBoxLayout(bork_header)
+        bork_header_layout.setContentsMargins(0, 0, 0, 0)
+        bork_header_layout.setSpacing(8)
+        bork_icon = QLabel()
+        bork_icon.setObjectName("borkIcon")
+        bork_icon.setFixedSize(28, 28)
+        bork_icon_path = os.path.join(current_dir, "combatenemies", "bork.png")
+        if os.path.exists(bork_icon_path):
+            bork_icon.setPixmap(
+                QPixmap(bork_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        bork_title = QLabel("Bork")
+        bork_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        bork_status = QLabel()
+        bork_status.setObjectName("borkStatusChip")
+        bork_status.setStyleSheet(
+            f"color: {dim_text_css(bork_status)}; font-size: 11px; font-weight: 700;"
+        )
+        bork_header_layout.addWidget(bork_icon)
+        bork_header_layout.addWidget(bork_title)
+        bork_header_layout.addStretch(1)
+        bork_header_layout.addWidget(bork_status)
+        bork_layout.addWidget(bork_header)
+
+        bork_summary = QLabel()
+        bork_summary.setObjectName("borkSummary")
+        bork_summary.setWordWrap(True)
+        bork_summary.setStyleSheet("color: palette(text);")
+        bork_layout.addWidget(bork_summary)
+
+        bork_progress = QProgressBar()
+        bork_progress.setObjectName("borkProgress")
+        bork_progress.setRange(0, BORK_MAX_LIFEPOINTS)
+        bork_progress.setTextVisible(True)
+        bork_progress.setFormat("%v / %m LP")
+        bork_progress.setFixedHeight(17)
+        bork_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #6D4C41; }"
+        )
+        bork_layout.addWidget(bork_progress)
+
+        bork_mechanics = QLabel(
+            f"At {BORK_ORK_SUMMON_THRESHOLD_LIFEPOINTS:,} LP Bork calls "
+            f"{BORK_ORK_SUMMON_MINIMUM}–{BORK_ORK_SUMMON_MAXIMUM} orks of the "
+            "Ork legion. They cannot be engaged and vanish with him; they press "
+            "in melee every review, and the lair's caster lands a 100–250 magic "
+            "bolt that Protect from Magic stops outright."
+        )
+        bork_mechanics.setObjectName("borkMechanics")
+        bork_mechanics.setWordWrap(True)
+        bork_mechanics.setStyleSheet(f"color: {dim_text_css(bork_mechanics)};")
+        bork_layout.addWidget(bork_mechanics)
+
+        bork_rewards = QLabel()
+        bork_rewards.setObjectName("borkRewards")
+        bork_rewards.setWordWrap(True)
+        bork_rewards.setStyleSheet(f"color: {dim_text_css(bork_rewards)};")
+        bork_layout.addWidget(bork_rewards)
+
+        bork_actions = QWidget()
+        bork_actions_layout = QHBoxLayout(bork_actions)
+        bork_actions_layout.setContentsMargins(0, 0, 0, 0)
+        bork_actions_layout.setSpacing(6)
+        bork_primary = QPushButton()
+        bork_primary.setObjectName("borkPrimaryButton")
+        bork_leave = QPushButton("Leave the chamber…")
+        bork_leave.setObjectName("borkLeaveButton")
+        bork_actions_layout.addWidget(bork_primary, 1)
+        bork_actions_layout.addWidget(bork_leave, 1)
+        bork_layout.addWidget(bork_actions)
+
+        def _refresh_bork_panel() -> None:
+            view = bork_view_pure(player_data)
+            active = bool(view["active"])
+            selected = (
+                active
+                and str(player_data.get("current_utility", "")) == BORK_ACTIVITY_ID
+            )
+            coin_low, coin_high = view["coin_range"]
+            drops = view["guaranteed_drops"]
+            bork_rewards.setText(
+                f"{int(view['slayer_xp']):,} Slayer XP, {coin_low:,}–{coin_high:,} "
+                f"coins and {drops.get('Blue charm', 0)} blue, "
+                f"{drops.get('Crimson charm', 0)} crimson, "
+                f"{drops.get('Green charm', 0)} green charms per kill"
+                + (" · Varrock Elite bonus active" if view["varrock_elite"] else "")
+                + (" · Ring of wealth worn" if view["ring_of_wealth"] else "")
+            )
+            if active:
+                bork_status.setText("IN THE CHAMBER")
+                legion = int(view["ork_count"])
+                bork_summary.setText(
+                    f"{int(view['lifepoints']):,}/{BORK_MAX_LIFEPOINTS:,} LP · "
+                    + (
+                        f"{legion} orks on the field"
+                        if legion
+                        else "no orks summoned yet"
+                    )
+                )
+                bork_progress.setValue(int(view["lifepoints"]))
+                bork_progress.setVisible(True)
+            elif not view["requirements_met"]:
+                bork_status.setText("LOCKED")
+                bork_summary.setText(
+                    "Requires: " + " · ".join(view["missing_requirements"])
+                )
+                bork_progress.setVisible(False)
+            elif view["daily_ready"]:
+                bork_status.setText("READY TODAY")
+                bork_summary.setText(
+                    f"{int(view['kills'])} kills · Bork may be defeated once "
+                    "per world day."
+                )
+                bork_progress.setVisible(False)
+            else:
+                bork_status.setText("DEFEATED TODAY")
+                bork_summary.setText(
+                    f"Next kill in {int(view['reviews_to_reset']):,} answered reviews."
+                )
+                bork_progress.setVisible(False)
+            bork_summary.setToolTip(str(view["last_result"]))
+            bork_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Bork's chamber"
+            )
+            bork_primary.setEnabled(
+                on_bork_command is not None
+                and not selected
+                and (active or (view["requirements_met"] and view["daily_ready"]))
+            )
+            bork_leave.setVisible(active)
+            bork_leave.setEnabled(on_bork_command is not None)
+            _fit_current_activity_detail()
+
+        def _run_bork_command(action_id: str) -> dict[str, Any]:
+            if on_bork_command is None:
+                return {"ok": False}
+            result = on_bork_command(action_id, {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Bork",
+                    str(result.get("message", "That Bork action is unavailable.")),
+                )
+            _refresh_bork_panel()
+            return result
+
+        def _select_or_enter_bork(_checked=False) -> None:
+            if not bork_view_pure(player_data)["active"]:
+                if not _run_bork_command("enter").get("ok", False):
+                    return
+            _set_utility_selection(BORK_ACTIVITY_ID)
+            _refresh_bork_panel()
+
+        def _confirm_bork_leave(_checked=False) -> None:
+            if not bork_view_pure(player_data)["active"]:
+                return
+            answer = QMessageBox.question(
+                bork_box,
+                "Leave Bork's chamber?",
+                "Leave now? Bork heals to full, but the daily kill is not consumed.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_bork_command("leave")
+
+        bork_primary.clicked.connect(_select_or_enter_bork)
+        bork_leave.clicked.connect(_confirm_bork_leave)
+        _refresh_bork_panel()
+        cards_stack.addWidget(bork_box)
 
         tears_box = QtFrame()
         tears_box.setObjectName("tearsOfGuthixPanel")
@@ -19296,6 +19497,35 @@ def show_main_menu(
                         ),
                     )
                     return False
+            if (
+                activity_id != BORK_ACTIVITY_ID
+                and bork_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Bork's chamber?",
+                    "Switch activities? Bork heals to full, but the daily kill "
+                    "is not consumed.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_bork_command("leave", {})
+                    if on_bork_command is not None
+                    else {"ok": False, "message": "Bork actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Bork",
+                        str(
+                            (result or {}).get(
+                                "message", "Could not leave the chamber."
+                            )
+                        ),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -19312,6 +19542,7 @@ def show_main_menu(
             _refresh_fight_caves_panel()
             _refresh_phoenix_lair_panel()
             _refresh_skeletal_horror_panel()
+            _refresh_bork_panel()
             _refresh_tears_of_guthix_panel()
             _refresh_enchanted_key_panel()
             _refresh_flash_factory_panel()
@@ -19388,6 +19619,9 @@ def show_main_menu(
                 _show_activity_detail(activity_id)
                 return
             if activity_id == SKELETAL_HORROR_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == BORK_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
             if activity_id == BARROWS_ACTIVITY_ID:
@@ -19526,6 +19760,7 @@ def show_main_menu(
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
             PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
             SKELETAL_HORROR_ACTIVITY_ID: ("Skeletal Horror", skeletal_box),
+            BORK_ACTIVITY_ID: ("Bork", bork_box),
             TEARS_OF_GUTHIX_ACTIVITY_ID: ("Tears of Guthix", tears_box),
             ENCHANTED_KEY_ACTIVITY_ID: ("Enchanted Key", key_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),

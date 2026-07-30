@@ -311,6 +311,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "bork":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "bork",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances six live Combat ticks against Bork "
+                        "while his legion and the lair's caster press the player."
+                    ),
+                    "includes": (
+                        "one six-tick Combat slice",
+                        "one Ork-legion and caster pressure beat",
+                        "one atomic drop payout and daily-kill boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one six-tick Bork interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "shooting_stars":
             rows.append(
                 {

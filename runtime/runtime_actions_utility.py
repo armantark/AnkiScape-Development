@@ -347,7 +347,9 @@ from ..logic.phoenix_lair_logic import (
     apply_phoenix_lair_review_pure,
     phoenix_lair_view_pure,
 )
+from ..data.bork_data import BORK_ACTIVITY_ID
 from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
+from ..logic.bork_logic import bork_view_pure
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
@@ -432,6 +434,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     _handle_managing_miscellania_answer,
     _handle_penguin_answer,
     _handle_phoenix_lair_answer,
+    _handle_bork_answer,
     _handle_skeletal_horror_answer,
     _handle_tears_of_guthix_answer,
     _handle_enchanted_key_answer,
@@ -578,6 +581,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_phoenix_lair_answer(ctx)
     if activity_key == SKELETAL_HORROR_ACTIVITY_ID:
         return _handle_skeletal_horror_answer(ctx)
+    if activity_key == BORK_ACTIVITY_ID:
+        return _handle_bork_answer(ctx)
     if activity_key == TEARS_OF_GUTHIX_ACTIVITY_ID:
         return _handle_tears_of_guthix_answer(ctx)
     if activity_key == ENCHANTED_KEY_ACTIVITY_ID:

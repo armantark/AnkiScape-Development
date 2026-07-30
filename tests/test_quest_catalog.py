@@ -104,7 +104,7 @@ class TestQuestCatalog(unittest.TestCase):
 
         self.assertEqual(PRE_EOC_QUEST_CATALOG_SOURCE["cutoff_date"], "2012-11-20")
         self.assertEqual(len(PRE_EOC_QUEST_CATALOG), 194)
-        self.assertEqual(len(QUESTS), 194)
+        self.assertEqual(len([quest for quest in QUESTS if not quest.miniquest]), 194)
         self.assertEqual(PRE_EOC_QUEST_CATALOG[0]["display_name"], "Cook's Assistant")
         self.assertEqual(PRE_EOC_QUEST_CATALOG[-1]["display_name"], "What's Mine is Yours")
 
@@ -162,7 +162,10 @@ class TestQuestCatalog(unittest.TestCase):
 
     def test_release_order_is_real_game_catalog_order(self):
         data = quests_as_dict()
-        ordered = sorted(data.values(), key=lambda quest: quest["release_order"])
+        ordered = sorted(
+            (quest for quest in data.values() if not quest["miniquest"]),
+            key=lambda quest: quest["release_order"],
+        )
 
         self.assertEqual(ordered[0]["display_name"], "Cook's Assistant")
         self.assertEqual(ordered[1]["display_name"], "Demon Slayer")
@@ -724,7 +727,7 @@ class TestQuestCatalog(unittest.TestCase):
             )
         ]
 
-        self.assertEqual(len(quests_with_stage_requirements), 194)
+        self.assertEqual(len(quests_with_stage_requirements), 196)
         self.assertGreaterEqual(len(quests_with_combat), 110)
         self.assertGreaterEqual(len(quests_with_item_requirements), 160)
         self.assertGreaterEqual(len(quests_with_narrative_actions), 190)

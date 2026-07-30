@@ -82,6 +82,14 @@ LEGENDS_QUEST_ID = "legends_quest"
 THE_FEUD_ID = "the_feud"
 RFD_FREEING_SIR_AMIK_VARZE_ID = "recipe_for_disaster_freeing_sir_amik_varze"
 
+# Miniquests share the quest ledger, storage and unlock engine; the flag below
+# only moves them into their own grouping on the Quests tab. See
+# memory-bank/source-audits/miniquest-ledger-2026-07-29.md.
+HUNT_FOR_SUROK_ID = "hunt_for_surok"
+LAIR_OF_TARN_RAZORLOR_ID = "lair_of_tarn_razorlor"
+WHAT_LIES_BELOW_ID = "what_lies_below"
+HAUNTED_MINE_ID = "haunted_mine"
+
 RESTLESS_GHOST_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/TheRestlessGhost.kt"
@@ -144,6 +152,10 @@ DARKAN_QUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/quests"
 )
+DARKAN_MINIQUEST_SOURCE_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
+    "com/rs/game/content/miniquests"
+)
 DARKAN_TUTORIAL_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/tutorialisland"
@@ -195,6 +207,34 @@ SMOKING_KILLS_MIGHTY_BANSHEE_DARKAN_SOURCE = (
 SMOKING_KILLS_MISTRESS_DARKAN_SOURCE = (
     f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/banshee_mistress/"
     "banshee_mistress_(111) (nostats) (noanims).json"
+)
+MINIQUEST_LIST_SOURCE = "https://runescape.wiki/w/Miniquests?oldid=6020341"
+HUNT_FOR_SUROK_WIKI_SOURCE = (
+    "https://runescape.wiki/w/The_Hunt_for_Surok_%28miniquest%29?oldid=6097199"
+)
+HUNT_FOR_SUROK_BORK_SOURCE = "https://runescape.wiki/w/Bork?oldid=6565904"
+HUNT_FOR_SUROK_DARKAN_SOURCE = f"{DARKAN_MINIQUEST_SOURCE_ROOT}/huntforsurok/HuntForSurok.kt"
+HUNT_FOR_SUROK_MINIQUEST_ENUM_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/engine/miniquest/Miniquest.java"
+)
+HUNT_FOR_SUROK_BORK_DARKAN_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/bork (nostats).json"
+HUNT_FOR_SUROK_BORK_HANDLER_SOURCE = (
+    f"{DARKAN_MINIQUEST_SOURCE_ROOT}/huntforsurok/bork/Bork.kt"
+)
+LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE = (
+    "https://runescape.wiki/w/Lair_of_Tarn_Razorlor_%28miniquest%29?oldid=6448364"
+)
+LAIR_OF_TARN_RAZORLOR_TARN_SOURCE = "https://runescape.wiki/w/Tarn?oldid=6448021"
+LAIR_OF_TARN_RAZORLOR_TERROR_DOG_SOURCE = "https://runescape.wiki/w/Terror_dog?oldid=6547220"
+LAIR_OF_TARN_RAZORLOR_TARN_DARKAN_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/tarn (noanims).json"
+)
+LAIR_OF_TARN_RAZORLOR_MUTANT_TARN_DARKAN_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/mutant_tarn (nostats) (noanims).json"
+)
+LAIR_OF_TARN_RAZORLOR_TERROR_DOG_DARKAN_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/terror_dog/terror_dog_(110) (noanims).json"
 )
 DARKAN_TUTORIAL_COMBAT_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/CombatInstructor.java"
 DARKAN_TUTORIAL_MAGIC_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/MagicInstructor.java"
@@ -914,6 +954,9 @@ class QuestDefinition:
     stage_requirements: Tuple[QuestStageRequirement, ...] = ()
     start_inventory: Tuple[Tuple[str, int], ...] = ()
     choices: Tuple[QuestChoice, ...] = ()
+    # Miniquests are ordinary ledger rows that award no quest points; the flag
+    # only tells the Quests tab to group them separately.
+    miniquest: bool = False
 
 
 @dataclass(frozen=True)
@@ -8843,6 +8886,419 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
     )
 
 
+# ---- Miniquests -----------------------------------------------------------
+# The pre-EOC quest catalog is built from the wiki's quest release list, which
+# does not carry miniquests. These rows are written by hand from the pinned
+# period record and join the same ledger, storage and unlock engine; only the
+# Quests tab groups them apart. Miniquests award no quest points, which
+# `Miniquests` oldid 6020341 states outright.
+
+HUNT_FOR_SUROK_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "I can start this miniquest by speaking to Surok after mining the",
+        "statue of Saradomin to gain access to the Tunnels of Chaos.",
+    ),
+    _simple_stage(2, "I confronted Surok outside the statue and he fled into the tunnels beneath."),
+    _simple_stage(
+        3,
+        "I found Surok fleeing from the Tunnels of Chaos and into a portal",
+        "leading into the Chaos Tunnels.",
+    ),
+    _simple_stage(4, "I found Surok again near the fire giants but he fled off to the south."),
+    _simple_stage(
+        5,
+        "I found Surok again near the skeletons next to the moss giant room",
+        "but he got away again fleeing to the west.",
+    ),
+    _simple_stage(
+        6,
+        "I managed to defeat Bork but Surok managed to escape somewhere unknown.",
+        "Miniquest complete!",
+    ),
+)
+
+LAIR_OF_TARN_RAZORLOR_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "Odovacar the banker told me that Tarn Razorlor still haunts the",
+        "abandoned mine west of Burgh de Rott. I should climb down into",
+        "his lair and see what became of him.",
+    ),
+    _simple_stage(
+        2,
+        "I am inside Tarn's Lair. Odovacar keeps a bank at the end of the",
+        "northern hall, behind two wall traps I will have to search out.",
+    ),
+    _simple_stage(
+        3,
+        "I reached Odovacar's bank. Beyond it the lair is a maze of floor",
+        "traps, swinging logs and pillars I must jump between.",
+    ),
+    _simple_stage(
+        4,
+        "I crossed the trapped halls. The last pillar room is watched by two",
+        "skeleton mages; past it a stairway leads down to Tarn's chamber.",
+    ),
+    _simple_stage(
+        5,
+        "Tarn transformed into a lashing green mutant and set two terror dogs",
+        "on me.",
+    ),
+    _simple_stage(
+        6,
+        "The mutant fell, but Tarn rose again as a ghost. This form is the",
+        "weaker of the two.",
+    ),
+    _simple_stage(
+        7,
+        "Tarn is dead and the room beyond his chamber has opened. His diary",
+        "is on the table inside.",
+    ),
+    _simple_stage(
+        8,
+        "I took Tarn's diary from his bedroom. Reading it over a salve amulet",
+        "would enchant the amulet against the undead.",
+        "Miniquest complete!",
+    ),
+)
+
+HUNT_FOR_SUROK_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
+    _stage_req(
+        1,
+        "Excavate the statue of Saradomin and confront Surok, who flees into the tunnel below.",
+        f"{HUNT_FOR_SUROK_WIKI_SOURCE}; {HUNT_FOR_SUROK_DARKAN_SOURCE}",
+        required_tools=(("Pickaxe", 1),),
+        auto_actions=(
+            "Ask Anna Jones to let you at the statue, then excavate it with a pickaxe",
+            "Attempt to arrest Surok and watch him slip into the Tunnel of Chaos",
+        ),
+    ),
+    _stage_req(
+        2,
+        "Follow Surok through the Tunnel of Chaos, past Dakh'thoulan Aegis, into the Chaos Tunnels.",
+        f"{HUNT_FOR_SUROK_WIKI_SOURCE}; {HUNT_FOR_SUROK_DARKAN_SOURCE}",
+        auto_actions=(
+            "Enter the opening under the statue and head north through the Tunnel of Chaos",
+            "Take the footprinted portal in Dakh'thoulan Aegis's room",
+        ),
+    ),
+    _stage_req(
+        3,
+        "Catch Surok in the red spider room, where he kills two fire giants outright, and follow him south.",
+        HUNT_FOR_SUROK_WIKI_SOURCE,
+        auto_actions=(
+            "Cross the multi-combat caverns by their footprinted portals",
+            "Watch Surok destroy two fire giants and take the southern portal after him",
+        ),
+    ),
+    _stage_req(
+        4,
+        "Catch Surok in the skeleton room and get past the two wolves he summons.",
+        HUNT_FOR_SUROK_WIKI_SOURCE,
+        auto_actions=(
+            "Confront Surok among the skeletons beside the moss giant room",
+            "Run past the two summoned wolves to the western portal",
+        ),
+    ),
+    _stage_req(
+        5,
+        "Enter the last portal in the Dagannoth chamber and defeat Bork.",
+        (
+            f"{HUNT_FOR_SUROK_WIKI_SOURCE}; {HUNT_FOR_SUROK_BORK_SOURCE}; "
+            f"{HUNT_FOR_SUROK_BORK_DARKAN_SOURCE}"
+        ),
+        auto_actions=(
+            "Take the western footprinted portal out of the Dagannoth chamber",
+            "Grab Bork's drops and leave before the cave collapses",
+        ),
+        combat_encounters=(
+            _combat(
+                HUNT_FOR_SUROK_ID,
+                "bork",
+                "Bork",
+                267,
+                (
+                    f"{HUNT_FOR_SUROK_WIKI_SOURCE}; {HUNT_FOR_SUROK_BORK_SOURCE}; "
+                    f"{HUNT_FOR_SUROK_BORK_DARKAN_SOURCE}; {HUNT_FOR_SUROK_BORK_HANDLER_SOURCE}"
+                ),
+                (
+                    "Bork is a level 267 aggressive Ork immune to poison, with 3,000 life points, "
+                    "crush attacks at speed 6 and a maximum hit of 254. At 2,000 life points he "
+                    "calls three to nine level 70 orks of the Ork legion, and Surok bombards the "
+                    "fight for up to 350 every fifteen seconds. A quest stage resolves one "
+                    "attacker, so both pressures stay narration here; the walkthrough tells the "
+                    "player to ignore the legions, and the repeatable Bork context is where every "
+                    "attacker in the room is fought review by review."
+                ),
+                # PLACEHOLDER(dominion_tower.unsourced_boss_stat_blocks): Darkan's
+                # Bork row is a "nostats" file whose combat levels are all zero, so
+                # the core stats use the registered conversion exactly — 72% of the
+                # combat level capped at 99, in all four stats. Copying the composite
+                # level 267 straight into the stats would make him unhittable and
+                # unsurvivable.
+                npc_stats=(
+                    ("hitpoints", 3000),
+                    ("attack", 99),
+                    ("strength", 99),
+                    ("defence", 99),
+                    ("magic", 99),
+                ),
+                npc_configs=(
+                    ("max_hit", 254),
+                    ("attack_speed", 6),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                    # `Bork` oldid 6565904 prints `immune to poison = Yes`, and
+                    # Darkan's `Bork.processEntity()` resets poison every tick.
+                    ("poison_immune", True),
+                    # The period states no player combat requirement for Bork — his own
+                    # Slayer requirement is level 1 — so the miniquest gate is the only
+                    # gate, and the enemy level must not become an invented one.
+                    ("minimum_player_combat", 1),
+                ),
+                npc_stats_source=(
+                    "Period life points, maximum hit, attack speed and crush style, matched by "
+                    "Darkan's combat definition; hidden combat stats use the settled "
+                    "72%-of-combat-level conversion, capped at 99"
+                ),
+            ),
+        ),
+    ),
+)
+
+LAIR_OF_TARN_RAZORLOR_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
+    _stage_req(
+        1,
+        "Climb into the abandoned mine west of Burgh de Rott and follow the path north into Tarn's Lair.",
+        f"{LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE}; {MINIQUEST_LIST_SOURCE}",
+        auto_actions=(
+            "Climb over the mine cart and crawl down the cart tunnel",
+            "Follow the first level of the mine north to its end",
+        ),
+    ),
+    _stage_req(
+        2,
+        "Search out the two wall traps on the northern hall and reach Odovacar's bank room.",
+        LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE,
+        auto_actions=(
+            "Pass the floor traps east to the end of the entrance passage",
+            "Disarm the southern and northern wall traps by searching them",
+        ),
+    ),
+    _stage_req(
+        3,
+        "Take the D-S-T route through the floor traps to the western pillar room and drop the log swing.",
+        LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE,
+        auto_actions=(
+            "Cross the six-trap room through Doorway S and the three-trap room through Doorway T",
+            "Jump the southern pillars and search the flagstone to deactivate the log swing",
+        ),
+    ),
+    _stage_req(
+        4,
+        "Time the pit room's walls, cross the second pillar room past two level 94 skeleton mages, and take Doorway U.",
+        LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE,
+        auto_actions=(
+            "Time the shifting walls so the pit never takes you",
+            "Zigzag the pillars while the skeleton mages fire, then descend Doorway U",
+        ),
+    ),
+    _stage_req(
+        5,
+        "Defeat Tarn's mutant form with two level 110 terror dogs loose in the chamber.",
+        (
+            f"{LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE}; {LAIR_OF_TARN_RAZORLOR_TARN_SOURCE}; "
+            f"{LAIR_OF_TARN_RAZORLOR_TERROR_DOG_SOURCE}; "
+            f"{LAIR_OF_TARN_RAZORLOR_MUTANT_TARN_DARKAN_SOURCE}; "
+            f"{LAIR_OF_TARN_RAZORLOR_TERROR_DOG_DARKAN_SOURCE}"
+        ),
+        combat_encounters=(
+            _combat(
+                LAIR_OF_TARN_RAZORLOR_ID,
+                "mutant_tarn",
+                "Mutant tarn",
+                69,
+                (
+                    f"{LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE}; {LAIR_OF_TARN_RAZORLOR_TARN_SOURCE}; "
+                    f"{LAIR_OF_TARN_RAZORLOR_MUTANT_TARN_DARKAN_SOURCE}"
+                ),
+                (
+                    "The cutscene turns Tarn into a level 69 mutant with 650 life points, attacks "
+                    "at speed 5 and an approximate maximum hit of 190. The infobox lists melee and "
+                    "magic, but the same revision's strategy section says he \"attacks solely with "
+                    "melee if approached\" — which is every AnkiScape battle — so this fight is "
+                    "melee, exactly as Darkan's file has it. Two level 110 terror dogs enter with "
+                    "him. A quest stage resolves one attacker, so they stay narration on the same "
+                    "terms as Bork's legions; the source says Tarn is the only monster that must "
+                    "die, and the period lets a player manoeuvre the dogs behind him to escape "
+                    "them entirely."
+                ),
+                # PLACEHOLDER(lair_of_tarn_razorlor.mutant_tarn_stat_block): Darkan's
+                # mutant file is a "nostats" row with every combat level zeroed, so
+                # the ghost form's block stands in for the mutant's. The two forms
+                # share a level, life-point total, maximum hit and attack speed in the
+                # period record, which is why the substitution is the same body twice.
+                npc_stats=(
+                    ("hitpoints", 650),
+                    ("attack", 40),
+                    ("strength", 80),
+                    ("defence", 40),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 190),
+                    ("attack_speed", 5),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                    # Slayer 40 is the period gate and it is already a quest requirement,
+                    # so the enemy level must not add a second, unsourced one.
+                    ("minimum_player_combat", 1),
+                ),
+                npc_stats_source=(
+                    f"Period level, life points, maximum hit and attack speed from "
+                    f"{LAIR_OF_TARN_RAZORLOR_MUTANT_TARN_DARKAN_SOURCE}, which states no combat "
+                    f"levels; the block stands in from the ghost form's "
+                    f"{LAIR_OF_TARN_RAZORLOR_TARN_DARKAN_SOURCE}"
+                ),
+            ),
+        ),
+    ),
+    _stage_req(
+        6,
+        "Defeat the ghost Tarn rises as when his mutant form falls.",
+        (
+            f"{LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE}; {LAIR_OF_TARN_RAZORLOR_TARN_SOURCE}; "
+            f"{LAIR_OF_TARN_RAZORLOR_TARN_DARKAN_SOURCE}"
+        ),
+        combat_encounters=(
+            _combat(
+                LAIR_OF_TARN_RAZORLOR_ID,
+                "tarn_ghost",
+                "Tarn",
+                69,
+                (
+                    f"{LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE}; {LAIR_OF_TARN_RAZORLOR_TARN_SOURCE}; "
+                    f"{LAIR_OF_TARN_RAZORLOR_TARN_DARKAN_SOURCE}"
+                ),
+                (
+                    "Tarn's ghost keeps level 69, 650 life points and the approximate 190 maximum "
+                    "hit, but attacks with melee alone, which is why the source calls it the easier "
+                    "form. Poison carried over from the mutant form persists."
+                ),
+                npc_stats=(
+                    ("hitpoints", 650),
+                    ("attack", 40),
+                    ("strength", 80),
+                    ("defence", 40),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 190),
+                    ("attack_speed", 5),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                    ("minimum_player_combat", 1),
+                ),
+                npc_stats_source=(
+                    f"Period level, life points, maximum hit and attack speed; combat levels from "
+                    f"{LAIR_OF_TARN_RAZORLOR_TARN_DARKAN_SOURCE}"
+                ),
+            ),
+        ),
+    ),
+    _stage_req(
+        7,
+        "Take Tarn's diary from the table in the room his death opens.",
+        LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE,
+        auto_actions=(
+            "Enter Tarn's bedroom once the wall opens",
+            "Take Tarn's diary from the table",
+        ),
+    ),
+)
+
+
+MINIQUESTS: Tuple[QuestDefinition, ...] = (
+    QuestDefinition(
+        id=HUNT_FOR_SUROK_ID,
+        display_name="The Hunt for Surok",
+        stages=len(HUNT_FOR_SUROK_STAGES),
+        point_reward=0,
+        rewards=(),
+        start_point="Speak to Surok by the statue of Saradomin, east of Varrock.",
+        requirements=("What Lies Below", "Mining 42"),
+        required_items=(),
+        combat="Bork: level 267, 3,000 life points, maximum hit 254.",
+        source=(
+            f"{HUNT_FOR_SUROK_WIKI_SOURCE}; {MINIQUEST_LIST_SOURCE}; "
+            f"{HUNT_FOR_SUROK_DARKAN_SOURCE}; {HUNT_FOR_SUROK_MINIQUEST_ENUM_SOURCE}"
+        ),
+        journal_stages=HUNT_FOR_SUROK_STAGES,
+        release_date="2008-03-04",
+        members=True,
+        difficulty="Special",
+        length="Short to Medium",
+        timeline="Fifth Age",
+        # The release list the catalog is built from carries no miniquests, so
+        # they take the catalog's own unknown-order value and sort last.
+        release_order=9999,
+        required_quests=(QuestPrerequisite(WHAT_LIES_BELOW_ID, "What Lies Below"),),
+        # What Lies Below already demands Mining 42, so this row can never be the
+        # binding gate. It is kept because it is the miniquest's own stated
+        # requirement and stage 1 spends it on the statue; the prerequisite quest
+        # is a separate fact that happens to cover it today. Its unannotated
+        # sibling Slayer 44 is dropped instead — see the source audit, which
+        # records both readings.
+        required_skills=(QuestSkillRequirement("mining", "Mining", 42),),
+        xp_rewards=(QuestXpReward("slayer", 5000),),
+        unlocks=(
+            "Ability to fight Bork in the Chaos Tunnels once per day",
+            "Ability to wear Dagon'hai robes",
+        ),
+        stage_requirements=HUNT_FOR_SUROK_STAGE_REQUIREMENTS,
+        miniquest=True,
+    ),
+    QuestDefinition(
+        id=LAIR_OF_TARN_RAZORLOR_ID,
+        display_name="The Lair of Tarn Razorlor",
+        stages=len(LAIR_OF_TARN_RAZORLOR_STAGES),
+        point_reward=0,
+        rewards=(),
+        start_point=(
+            "Talk to Odovacar the banker in the abandoned mine west of Burgh de Rott."
+        ),
+        requirements=("Haunted Mine", "Slayer 40"),
+        required_items=(),
+        combat="Tarn Razorlor: a level 69 mutant form, then a level 69 ghost form.",
+        source=(
+            f"{LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE}; {MINIQUEST_LIST_SOURCE}; "
+            f"{LAIR_OF_TARN_RAZORLOR_TARN_SOURCE}"
+        ),
+        journal_stages=LAIR_OF_TARN_RAZORLOR_STAGES,
+        release_date="2007-01-22",
+        members=True,
+        difficulty="Special",
+        length="Short",
+        timeline="Fifth Age",
+        release_order=9999,
+        required_quests=(QuestPrerequisite(HAUNTED_MINE_ID, "Haunted Mine"),),
+        required_skills=(QuestSkillRequirement("slayer", "Slayer", 40),),
+        xp_rewards=(QuestXpReward("slayer", 5000),),
+        unlocks=(
+            "Tarn's diary",
+            "Ability to enchant a salve amulet into a Salve amulet (e)",
+        ),
+        stage_requirements=LAIR_OF_TARN_RAZORLOR_STAGE_REQUIREMENTS,
+        miniquest=True,
+    ),
+)
+
 QUESTS: Tuple[QuestDefinition, ...] = tuple(
     _quest_with_stage_requirements(
         replace(QUEST_OVERRIDES_BY_ID[row_id], release_order=_catalog_int(row, "release_order", 9999))
@@ -8852,6 +9308,8 @@ QUESTS: Tuple[QuestDefinition, ...] = tuple(
     )
     for row in PRE_EOC_QUEST_CATALOG
     for row_id in (_quest_catalog_row_id(row),)
+) + tuple(
+    _quest_with_stage_requirements(quest, {}) for quest in MINIQUESTS
 )
 QUESTS_BY_ID: Dict[str, QuestDefinition] = {quest.id: quest for quest in QUESTS}
 QUEST_DISPLAY_NAMES: Dict[str, str] = {quest.id: quest.display_name for quest in QUESTS}
@@ -9188,6 +9646,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "length": quest.length,
             "timeline": quest.timeline,
             "unlocks": quest.unlocks,
+            "miniquest": quest.miniquest,
             "journal_stages": {stage.stage: stage.journal for stage in quest.journal_stages},
             "stage_requirements": tuple(_stage_requirement_dict(req) for req in quest.stage_requirements),
             "choices": tuple(_quest_choice_dict(choice) for choice in quest.choices),

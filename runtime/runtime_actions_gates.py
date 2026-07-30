@@ -342,7 +342,9 @@ from ..logic.phoenix_lair_logic import (
     apply_phoenix_lair_review_pure,
     phoenix_lair_view_pure,
 )
+from ..data.bork_data import BORK_ACTIVITY_ID
 from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
+from ..logic.bork_logic import bork_view_pure
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 from ..logic.tears_of_guthix_logic import tears_of_guthix_view_pure
@@ -418,6 +420,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     _handle_managing_miscellania_answer,
     _handle_penguin_answer,
     _handle_phoenix_lair_answer,
+    _handle_bork_answer,
     _handle_skeletal_horror_answer,
     _handle_tears_of_guthix_answer,
     _handle_enchanted_key_answer,
@@ -616,6 +619,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(phoenix_lair_view_pure(ctx.player_data).get("active", False))
     if activity_key == SKELETAL_HORROR_ACTIVITY_ID:
         return bool(skeletal_horror_view_pure(ctx.player_data).get("active", False))
+    if activity_key == BORK_ACTIVITY_ID:
+        return bool(bork_view_pure(ctx.player_data).get("active", False))
     if activity_key == TEARS_OF_GUTHIX_ACTIVITY_ID:
         return bool(tears_of_guthix_view_pure(ctx.player_data).get("active", False))
     if activity_key == ENCHANTED_KEY_ACTIVITY_ID:

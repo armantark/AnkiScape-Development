@@ -121,6 +121,7 @@ from .logic.phoenix_lair_logic import (
     apply_phoenix_lair_command_pure,
     resolve_phoenix_egg_choice_pure,
 )
+from .logic.bork_logic import apply_bork_command_pure
 from .logic.skeletal_horror_logic import apply_skeletal_horror_command_pure
 from .logic.tears_of_guthix_logic import apply_tears_of_guthix_command_pure
 from .logic.enchanted_key_logic import apply_enchanted_key_command_pure
@@ -2470,6 +2471,34 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_bork_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        updated, ok, info = apply_bork_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+            equipment_data=EQUIPMENT_DATA,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Bork action failed.")),
+            }
+        if not commit_direct_action(lambda _current: (updated, True)):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        check_achievements(player_data)
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_barrows_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         before = _capture_player_data_snapshot()
@@ -3874,6 +3903,7 @@ def _on_main_menu(
         on_fight_caves_command=_apply_fight_caves_command,
         on_phoenix_lair_command=_apply_phoenix_lair_command,
         on_skeletal_horror_command=_apply_skeletal_horror_command,
+        on_bork_command=_apply_bork_command,
         on_tears_of_guthix_command=_apply_tears_of_guthix_command,
         on_enchanted_key_command=_apply_enchanted_key_command,
         on_barrows_command=_apply_barrows_command,

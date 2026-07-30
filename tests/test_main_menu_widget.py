@@ -6800,7 +6800,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIsNone(dialog.findChild(QWidget, "questCard_lost_city"))
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
-        self.assertRegex(summary.text(), r"^Showing \d+/194$")
+        self.assertRegex(summary.text(), r"^Showing \d+/196$")
 
     def test_quests_tab_shows_stage_blockers_without_hiding_started_quests(self) -> None:
         pd = _make_player_data()
@@ -7808,6 +7808,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_while_guthix_sleeps"))
 
+    def test_quests_tab_groups_miniquests_under_their_own_heading(self) -> None:
+        dialog = self._open(_make_player_data())
+        _open_quests_tab(dialog)
+
+        heading = dialog.findChild(QLabel, "questSection_Miniquests")
+        self.assertIsNotNone(heading)
+        self.assertEqual(heading.text(), "Miniquests")
+        self.assertIsNotNone(dialog.findChild(QLabel, "questSection_Quests"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_hunt_for_surok"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_lair_of_tarn_razorlor"))
+
+        # The heading must sit above its own rows and below every ordinary quest.
+        layout = dialog.findChild(QWidget, "questCard_cooks_assistant").parentWidget().layout()
+        order = [layout.itemAt(i).widget().objectName() for i in range(layout.count() - 1)]
+        self.assertLess(order.index("questSection_Miniquests"), order.index("questCard_hunt_for_surok"))
+        self.assertGreater(order.index("questSection_Miniquests"), order.index("questCard_cooks_assistant"))
+
+        # A search that hits only miniquests leaves one group, so the heading goes.
+        search = _find_named_line_edit(dialog, "questSearchInput")
+        search.setText("hunt_for_surok")
+        QApplication.processEvents()
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_hunt_for_surok"))
+        self.assertIsNone(dialog.findChild(QLabel, "questSection_Miniquests"))
+
     def test_quest_search_composes_with_filters_and_has_shared_empty_state(self) -> None:
         dialog = self._open(_make_player_data())
         _open_quests_tab(dialog)
@@ -7817,18 +7841,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         search.setText("while_guthix_sleeps")
         QApplication.processEvents()
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_while_guthix_sleeps"))
-        self.assertEqual(summary.text(), "Showing 1/194")
+        self.assertEqual(summary.text(), "Showing 1/196")
 
         hide_locked = dialog.findChild(QCheckBox, "questHideLockedCheck")
         hide_locked.setChecked(True)
         QApplication.processEvents()
-        self.assertEqual(summary.text(), "Showing 0/194")
+        self.assertEqual(summary.text(), "Showing 0/196")
         self.assertIsNotNone(dialog.findChild(QLabel, "questEmptyFilterLabel"))
 
         hide_locked.setChecked(False)
         search.clear()
         QApplication.processEvents()
-        self.assertEqual(summary.text(), "Showing 194/194")
+        self.assertEqual(summary.text(), "Showing 196/196")
         dialog.deleteLater()
 
     def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:
@@ -8931,6 +8955,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "troll_invasion",
                 "shattered_heart",
                 "treasure_trail",
+                "bork",
             },
         )
         self.assertTrue(

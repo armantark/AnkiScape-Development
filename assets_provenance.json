@@ -4703,6 +4703,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-02-01T13:53:37Z"
   },
+  "combatenemies/bork.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bork.png",
+    "file_title": "Bork.png",
+    "image_url": "https://runescape.wiki/images/archive/20130415211356%21Bork.png?8a294",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cd14526f936d31b72e9c8a86fa228b9dfbc20f57",
+    "size": 609728,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T04:55:02Z"
+  },
   "combatenemies/brine_rat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Brine_rat_icon.png",
     "file_title": "Brine rat icon.png",
@@ -5722,6 +5734,18 @@
     "size": 119860,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T17:47:11Z"
+  },
+  "combatenemies/ork_legion.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ork_legions.png",
+    "file_title": "Ork legions.png",
+    "image_url": "https://runescape.wiki/images/Ork_legions.png?4a092",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4ec7e3c54514ee0113c7415f9e5027e5bacd607a",
+    "size": 264772,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-20T01:14:19Z"
   },
   "combatenemies/otherworldly_being.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Otherworldly_being.png",

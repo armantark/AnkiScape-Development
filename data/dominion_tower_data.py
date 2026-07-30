@@ -1063,8 +1063,8 @@ DOMINION_TOWER_ENCOUNTERS: tuple[dict[str, Any], ...] = (
         "Tarn Razorlor and terror dogs",
         "H",
         # The tower gates this one on the Lair of Tarn Razorlor miniquest, which
-        # is not one of the 38 quests and which AnkiScape's ledger does not yet
-        # carry. The row stays authentic and lights up when it does.
+        # is not one of the 38 quests. The ledger carries it as a miniquest row,
+        # so this gate resolves off that row rather than off the quest pool.
         "lair_of_tarn_razorlor",
         ("tarn_razorlor", "terror_dog_100", "terror_dog_110"),
     ),
