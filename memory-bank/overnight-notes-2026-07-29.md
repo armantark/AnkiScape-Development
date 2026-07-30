@@ -3,6 +3,14 @@
 Autonomous mode: running notes here; one results artifact at the end. The
 standing breadth goal was re-issued verbatim at ~22:30.
 
+## Budget amendment (owner, mid-run)
+
+The owner authorized spending up to another 24-hour block's worth of codex
+beyond today's line. Quota-based parking is off for this run; availability
+(upstream "overloaded" refusals) is the only remaining gate, and the
+sentinel owns that. The Sol cross-lineage pass over the Opus-authored
+miniquest work is affordable the moment Sol serves.
+
 ## Budget stance at start
 
 Codex reads over its fresh day line by 3 (carryover from yesterday) but auth
