@@ -28,6 +28,20 @@ untouched tonight by design.
 - Diary D1 growth from any new routes the miniquests open.
 - Merges, both full lanes, memory-bank close-out, one results artifact.
 
+## Mid-run restructure (owner steer: dynamic workflows)
+
+Both codex resumes died on upstream "servers currently overloaded" (proxy
+502→503; auth record fresh, patch intact — verified via the
+restore-custom-models diagnostics). Replaced the static retry with
+`codex-sentinel` (`wf_32a99f49-374`): an Opus probe loop pinging the gateway
+through claude-mockingbird every 7 minutes for up to ~3.5h, then running
+phase C and Conquest serially as nested child workflows on recovery.
+Meanwhile the miniquest work runs on the Anthropic seat as a staged pipeline
+(`wf_f6439686-f7f`, Opus medium, `miniquests` worktree, schema 103):
+substrate+both quests → Bork ∥ Tarn branches → integration verifier with
+per-area parallel refixes. A Sol cross-lineage pass over the Opus-authored
+miniquest work is queued for after codex recovers.
+
 ## Done this run
 
 - (nothing yet)
