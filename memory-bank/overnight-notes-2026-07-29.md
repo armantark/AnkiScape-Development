@@ -67,4 +67,13 @@ is retired. The miniquest Opus pipeline continues in parallel.
 
 ## Done this run
 
-- (nothing yet)
+- Dungeoneering phase C shipped and execution-verified clean over CLI
+  transport (`d0cac104`) — the family is fully at breadth one, trader staging
+  truthful on all 41 catalogued rows, Coal bag real through Smithing. The
+  implementer's full discovery ran 3,572 tests green. Note: the codex
+  implementer also wrote a status artifact and opened Arc, which autonomous
+  runs shouldn't do — fold its content into the final artifact and tighten
+  the next brief.
+- Conquest codex build is running as an orphaned CLI process (PID 1032,
+  healthy log); a persistent Monitor watches for exit, then a verify+refix
+  workflow follows, then rebase-merge.
