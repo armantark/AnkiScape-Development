@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The catalog is closed</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏰</text></svg>">
+<style>
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff;
+    --accent-glow: rgba(79,140,255,.15); --red: #ff5c5c; --green: #4ade80;
+    --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit','Avenir Next','Segoe UI',system-ui,sans-serif; line-height:1.55; padding:2.2rem 1.2rem 4rem; }
+.wrap { max-width:1080px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',ui-monospace,Menlo,monospace; font-size:.7rem; letter-spacing:.12em; color:var(--green); background:rgba(74,222,128,.12); border:1px solid var(--green); border-radius:999px; padding:.3rem .9rem; margin-bottom:1rem; }
+h1 { font-size:2rem; font-weight:700; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:62rem; }
+.statrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; margin:1.8rem 0; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem; }
+.stat b { display:block; font-size:1.5rem; font-weight:700; }
+.stat span { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
+h2 { font-size:1.15rem; margin:2.4rem 0 .9rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; }
+.card h3 { font-size:.95rem; margin-bottom:.5rem; }
+.card p, .card li { font-size:.85rem; color:var(--text-dim); }
+.card ul { padding-left:1.1rem; margin:.4rem 0; }
+.card li { margin:.25rem 0; }
+.card li b, .card p b { color:var(--text); font-weight:600; }
+.pri { font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:.15rem .55rem; border-radius:999px; margin-right:.5rem; }
+.pri.done { color:var(--green); border:1px solid var(--green); }
+.pri.parked { color:var(--amber); border:1px solid var(--amber); }
+.pri.bug { color:var(--red); border:1px solid var(--red); }
+.tag { display:inline-block; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.63rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:.1rem .45rem; margin:.12rem .15rem 0 0; color:var(--text-dim); }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.tablewrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+th, td { text-align:left; padding:.55rem .8rem; border-bottom:1px solid var(--border); vertical-align:top; }
+th { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); background:var(--surface-2); }
+tr:last-child td { border-bottom:none; }
+.callout { border-left:3px solid var(--amber); background:var(--surface); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; margin:1rem 0; font-size:.87rem; }
+.mono { font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.78rem; }
+details { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.8rem 1.1rem; margin:.6rem 0; }
+summary { cursor:pointer; font-size:.9rem; font-weight:600; }
+details p, details li { font-size:.83rem; color:var(--text-dim); }
+details ul { padding-left:1.2rem; margin:.5rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="badge">OVERNIGHT RESULTS · 2026-07-30 · CATALOG CLOSED</span>
+<h1>Every pre-EOC family is at breadth one.</h1>
+<p class="sub">The overnight run finished the last three: Dungeoneering's reward layer, Conquest, and — through the new miniquest ledger — Bork. Main is green in both lanes at 3,655 tests. One owner-answered polish item is parked on quota with a one-command resume; nothing else waits on anything but depth.</p>
+
+<div class="statrow">
+  <div class="stat"><b>0</b><span>families below breadth one</span></div>
+  <div class="stat"><b>3,655</b><span>tests, green in both lanes</span></div>
+  <div class="stat"><b>16</b><span>activities rescued by the cadence drift test</span></div>
+  <div class="stat"><b>5<span style="font-size:1rem">th</span></b><span>consecutive cross-lineage pass to find real bugs</span></div>
+  <div class="stat"><b>1</b><span>item parked (quota), resume in ~8h</span></div>
+</div>
+
+<h2>What merged tonight</h2>
+<div class="grid">
+<div class="card">
+  <h3><span class="pri done">MERGED</span>Dungeoneering phase C</h3>
+  <ul>
+    <li>All twelve Kinship classes with exact-cost tier upgrades; classes without an honest floor effect say so.</li>
+    <li>The 42-row trader shows every sourced cost and gate; only the working Coal bag sells — 4,000 tokens, 27 Coal, Bank fill, real Smithing consumes bag Coal first.</li>
+    <li>Verified clean by Sol probes: gate refusals, exact costs, undo round-trips, all 41 catalogued rows refusing truthfully.</li>
+  </ul>
+  <span class="tag">d0cac104</span>
+</div>
+<div class="card">
+  <h3><span class="pri done">MERGED</span>Conquest</h3>
+  <ul>
+    <li>Seven units and nine commands at the harvest's exact values, the wiki's own copy-paste errors corrected; 1,000-point setup, CP economy, rating from 1,000, deflector at 1,250, shared commendation wallet at the exact multipliers.</li>
+    <li>Three Sol verify rounds; the final leftovers were two stale fixtures, and the drift test caught Conquest's own missing cadence row on its first full lane.</li>
+  </ul>
+  <span class="tag">10e342dc</span><span class="tag">schema 102</span>
+</div>
+<div class="card">
+  <h3><span class="pri done">MERGED</span>Miniquests, Bork, and Tarn</h3>
+  <ul>
+    <li>Miniquests are a flagged category on the quest ledger: Hunt for Surok and The Lair of Tarn Razorlor play end to end.</li>
+    <li><b>Bork</b> — the last unbuilt family — runs his daily Chaos Tunnels loop behind Surok.</li>
+    <li>Sol's fifth cross-lineage pass found four real defects (Bork's cadence, miniquests leaking into quest counts, the Tarn fight missing its ghost phase, three unlabelled labels); all fixed and re-verified. The Tarn fight then got its source-pinned gate: Haunted Mine, with the Lair optional.</li>
+  </ul>
+  <span class="tag">f69bb751</span><span class="tag">schema 103</span>
+</div>
+<div class="card">
+  <h3><span class="pri bug">CLASS FIX</span>Sixteen cadence contracts now bind</h3>
+  <p>Bork's finding generalized: sixteen activities declared "never foreground-multiplied" while the runtime set silently omitted them — at multiplier M, one answer ran M full intervals (Castle Wars, Pest Control, Soul Wars, Fight Caves among them). The set now lives beside the contracts as <span class="mono">SINGLE_TICK_UTILITY_IDS</span> with a drift test that already caught its first new offender the day it was written.</p>
+  <span class="tag">e84cfabe</span>
+</div>
+</div>
+
+<h2>Also closed</h2>
+<div class="tablewrap"><table>
+<tr><th>Item</th><th>Outcome</th></tr>
+<tr><td>Slayer off-task XP lead (2026-07-15)</td><td><b>Disproven.</b> Pinned wiki text and both engines' kill handlers grant Slayer XP only on assigned kills; the contract stands. Audit: <span class="mono">audits/slayer-offtask-xp-check-2026-07-30.md</span>.</td></tr>
+<tr><td>Third literal schema pin</td><td>Conquest's migration test asserted <span class="mono">== 102</span>; now schema-relative, per the convention this exact failure created twice before.</td></tr>
+<tr><td>Transport saga</td><td>Gateway subagents' single mega-requests drew upstream "overloaded" and tripped the proxy breaker; the codex CLI's incremental requests never did. All heavy builds moved to CLI transport and completed there.</td></tr>
+</table></div>
+
+<div class="callout">
+<b>Parked, resumes in ~8h:</b> the 3.25 reshape (guardian-room coin drops replacing the starter Herblore coin cache — mechanism fidelity, owner-answered; the cache variant works today). Two runs were killed externally with a clean tree; brief and command in <span class="mono">~/.local/state/quota-guard/parked.md</span>. All three quotas ended at or just over their lines; your extra codex block covered the night.
+</div>
+
+<details>
+<summary>What remains for the programme</summary>
+<ul>
+<li><b>GOAL-BLOCKED:</b> the parked reshape above, and the 384-diary-task clause (326 ship; the rest need routes like geography and emotes — tonight's miniquests may open a few, unassessed).</li>
+<li><b>Depth queues:</b> boss drop-table harvest, placeholder retirement (now including the nine Dungeoneering and thirteen Conquest rows), the 243 unresolved art rows (needs Wayback or cache sprites, not another wiki sweep).</li>
+<li><b>Process note:</b> both codex implementers wrote their own status artifacts and opened Arc mid-run, against the autonomous-run rule — their content is folded here; future briefs will forbid it.</li>
+<li><b>Restart Anki</b> before playing: schema migrates 101 → 103, and Dungeoneering's trader, Conquest, and Bork all appear.</li>
+</ul>
+</details>
+
+</div>
+</body>
+</html>
