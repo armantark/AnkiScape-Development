@@ -50,6 +50,21 @@ substrate+both quests → Bork ∥ Tarn branches → integration verifier with
 per-area parallel refixes. A Sol cross-lineage pass over the Opus-authored
 miniquest work is queued for after codex recovers.
 
+## Transport diagnosis and the CLI reroute
+
+The gateway failures are now understood: session client tokens match
+client.env (not stale), small Sol requests succeed, and the harness
+subagent's single giant first request draws upstream "overloaded", after
+which the proxy cools its codex credential and fast-fails 503
+auth_unavailable. The codex CLI never trips this because it builds context
+incrementally with small requests — every CLI run tonight worked. Both
+builds therefore moved to CLI transport: workflow `wf_d7522c72-fde` runs
+phase C then Conquest as codex-exec tasks (sol, xhigh implement / high
+verify, refix loops), each driven by a thin Opus wrapper that nohup-launches
+codex and polls past the ten-minute Bash cap, with one auto-retry after a
+ten-minute sleep if the launch itself draws the overload error. Sentinel v2
+is retired. The miniquest Opus pipeline continues in parallel.
+
 ## Done this run
 
 - (nothing yet)
