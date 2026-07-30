@@ -149,7 +149,9 @@ from .data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from .logic.duel_arena_logic import apply_duel_arena_command_pure
 from .data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from .logic.clan_wars_logic import apply_clan_wars_command_pure
+from .data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
 from .data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
+
 from .logic.troll_invasion_logic import apply_troll_invasion_command_pure
 from .logic.shattered_heart_logic import apply_shattered_heart_command_pure
 from .data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
@@ -278,6 +280,8 @@ from .logic.pet_logic import (
 )
 from .runtime import runtime_actions
 from .runtime.runtime_actions import RuntimeActionContext
+from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
+
 
 global card_turned, exp_awarded, answer_shown
 
@@ -4555,19 +4559,7 @@ def on_good_answer(before_state=None):
                     or (
                         handler_key == "utility"
                         and player_data.get("current_utility")
-                        in {
-                            EVIL_TREE_UTILITY_ID,
-                            BIG_CHINCHOMPA_UTILITY_ID,
-                            SHOOTING_STAR_ACTIVITY_ID,
-                            SORCERESS_GARDEN_ACTIVITY_ID,
-                            PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
-                            runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID,
-                            runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
-                            runtime_actions.WEREWOLF_SKULLBALL_ACTIVITY_ID,
-                            DUEL_ARENA_ACTIVITY_ID,
-                            CLAN_WARS_ACTIVITY_ID,
-                            TROLL_INVASION_ACTIVITY_ID,
-                        }
+                        in SINGLE_TICK_UTILITY_IDS
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()

@@ -988,3 +988,30 @@ class TestAnsweredCardResidualEffects(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SingleTickExemptionSetTest(unittest.TestCase):
+    def test_every_never_multiplied_utility_contract_is_in_the_one_tick_set(self):
+        """The runtime's exemption set must cover every declaration.
+
+        Bork and Skeletal Horror both shipped foreground-multiplied because
+        their contracts said "Never foreground-multiplied" while the runtime
+        set silently omitted them. This cross-check makes the drift a failure
+        instead of a live cadence bug.
+        """
+        from ankiscape.logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
+
+        missing = [
+            row["action_id"]
+            for row in cadence_coverage_rows_pure()
+            if row.get("handler_key") == "utility"
+            and "ever foreground-multiplied" in str(row.get("multiplier_behavior", ""))
+            and "Never" in str(row.get("multiplier_behavior", ""))
+            and row["action_id"] not in SINGLE_TICK_UTILITY_IDS
+        ]
+        self.assertEqual(
+            missing,
+            [],
+            "utility contracts declared never-multiplied but absent from "
+            f"SINGLE_TICK_UTILITY_IDS: {missing}",
+        )
