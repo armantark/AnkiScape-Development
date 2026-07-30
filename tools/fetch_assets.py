@@ -145,7 +145,7 @@ class HttpWikiClient:
             params.update(
                 {
                     "iistart": self.before_timestamp,
-                    "iilimit": "1",
+                    "iilimit": "max",
                 }
             )
         url = f"{source.api_url}?{urllib.parse.urlencode(params)}"
@@ -159,7 +159,21 @@ class HttpWikiClient:
         imageinfo = page.get("imageinfo", [])
         if not isinstance(imageinfo, list) or not imageinfo:
             return None
-        info = imageinfo[0]
+        eligible_info = [
+            info
+            for info in imageinfo
+            if isinstance(info, dict)
+            and (
+                not self.before_timestamp
+                or str(info.get("timestamp") or "") <= self.before_timestamp
+            )
+        ]
+        if not eligible_info:
+            return None
+        info = max(
+            eligible_info,
+            key=lambda candidate: str(candidate.get("timestamp") or ""),
+        )
         if not isinstance(info, dict):
             return None
         image_url = str(info.get("url") or self._special_file_path(source, file_title))

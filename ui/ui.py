@@ -204,6 +204,7 @@ from ..logic.vinesweeper_logic import vinesweeper_view_pure
 from ..data.fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
 from ..logic.fight_caves_logic import fight_caves_view_pure
 from ..logic.dungeoneering_logic import dungeoneering_view_pure
+from ..data.dungeoneering_data import DUNGEONEERING_ITEM_IMAGES
 
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
@@ -19851,6 +19852,107 @@ def show_main_menu(
         controls_layout.setColumnStretch(5, 1)
         layout.addWidget(controls)
 
+        token_summary = QLabel()
+        token_summary.setObjectName("dungeoneeringTokenSummary")
+        token_summary.setStyleSheet(
+            f"color: {dim_text_css(token_summary)}; font-size: 11px;"
+        )
+        layout.addWidget(token_summary)
+
+        kinship_row = QWidget()
+        kinship_row.setObjectName("dungeoneeringKinshipRow")
+        kinship_layout = QHBoxLayout(kinship_row)
+        kinship_layout.setContentsMargins(0, 0, 0, 0)
+        kinship_layout.setSpacing(6)
+        kinship_icon = QLabel()
+        kinship_icon.setFixedSize(24, 24)
+        kinship_icon_path = os.path.join(
+            current_dir,
+            DUNGEONEERING_ITEM_IMAGES["Ring of kinship"],
+        )
+        if os.path.exists(kinship_icon_path):
+            kinship_icon.setPixmap(
+                QPixmap(kinship_icon_path).scaled(
+                    24,
+                    24,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        kinship_combo = QComboBox()
+        kinship_combo.setObjectName("dungeoneeringKinshipCombo")
+        kinship_combo.setAccessibleName("Ring of Kinship class")
+        kinship_upgrade = QPushButton()
+        kinship_upgrade.setObjectName("dungeoneeringKinshipUpgradeButton")
+        kinship_layout.addWidget(kinship_icon)
+        kinship_layout.addWidget(kinship_combo, 1)
+        kinship_layout.addWidget(kinship_upgrade)
+        layout.addWidget(kinship_row)
+
+        kinship_detail = QLabel()
+        kinship_detail.setObjectName("dungeoneeringKinshipDetail")
+        kinship_detail.setWordWrap(True)
+        kinship_detail.setStyleSheet(
+            f"color: {dim_text_css(kinship_detail)}; font-size: 11px;"
+        )
+        layout.addWidget(kinship_detail)
+
+        reward_row = QWidget()
+        reward_row.setObjectName("dungeoneeringRewardTraderRow")
+        reward_layout = QHBoxLayout(reward_row)
+        reward_layout.setContentsMargins(0, 0, 0, 0)
+        reward_layout.setSpacing(6)
+        reward_icon = QLabel()
+        reward_icon.setFixedSize(24, 24)
+        reward_icon_path = os.path.join(
+            current_dir,
+            DUNGEONEERING_ITEM_IMAGES["Coal bag"],
+        )
+        if os.path.exists(reward_icon_path):
+            reward_icon.setPixmap(
+                QPixmap(reward_icon_path).scaled(
+                    24,
+                    24,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        reward_combo = QComboBox()
+        reward_combo.setObjectName("dungeoneeringRewardCombo")
+        reward_combo.setAccessibleName("Dungeoneering reward trader")
+        reward_buy = QPushButton("Buy")
+        reward_buy.setObjectName("dungeoneeringRewardBuyButton")
+        reward_layout.addWidget(reward_icon)
+        reward_layout.addWidget(reward_combo, 1)
+        reward_layout.addWidget(reward_buy)
+        layout.addWidget(reward_row)
+
+        reward_detail = QLabel()
+        reward_detail.setObjectName("dungeoneeringRewardDetail")
+        reward_detail.setWordWrap(True)
+        reward_detail.setStyleSheet(
+            f"color: {dim_text_css(reward_detail)}; font-size: 11px;"
+        )
+        layout.addWidget(reward_detail)
+
+        coal_bag_row = QWidget()
+        coal_bag_row.setObjectName("dungeoneeringCoalBagRow")
+        coal_bag_layout = QHBoxLayout(coal_bag_row)
+        coal_bag_layout.setContentsMargins(0, 0, 0, 0)
+        coal_bag_layout.setSpacing(6)
+        coal_bag_summary = QLabel()
+        coal_bag_summary.setObjectName("dungeoneeringCoalBagSummary")
+        coal_bag_fill_bank = QPushButton("Fill from Bank")
+        coal_bag_fill_bank.setObjectName("dungeoneeringCoalBagFillBankButton")
+        coal_bag_fill_carried = QPushButton("Fill from carried")
+        coal_bag_fill_carried.setObjectName(
+            "dungeoneeringCoalBagFillCarriedButton"
+        )
+        coal_bag_layout.addWidget(coal_bag_summary, 1)
+        coal_bag_layout.addWidget(coal_bag_fill_bank)
+        coal_bag_layout.addWidget(coal_bag_fill_carried)
+        layout.addWidget(coal_bag_row)
+
         bind_config_row = QWidget()
         bind_config_row.setObjectName("dungeoneeringBindConfigRow")
         bind_config_layout = QHBoxLayout(bind_config_row)
@@ -20005,6 +20107,29 @@ def show_main_menu(
             )
             if bind_loadout_index >= 0:
                 bind_loadout_combo.setCurrentIndex(bind_loadout_index)
+            kinship_combo.clear()
+            for row in view["kinship_rows"]:
+                kinship_combo.addItem(
+                    f"{row['category']} · {row['display_name']} · tier {int(row['tier'])}",
+                    str(row["class_id"]),
+                )
+            kinship_index = kinship_combo.findData(
+                str(view["kinship_effect"]["id"])
+            )
+            if kinship_index >= 0:
+                kinship_combo.setCurrentIndex(kinship_index)
+            selected_reward_id = reward_combo.currentData()
+            reward_combo.clear()
+            for row in view["reward_rows"]:
+                reward_combo.addItem(
+                    f"{row['display_name']} · {int(row['token_cost']):,} tokens · {row['status_text']}",
+                    str(row["reward_id"]),
+                )
+            reward_index = reward_combo.findData(selected_reward_id)
+            if reward_index < 0:
+                reward_index = reward_combo.findData("coal_bag")
+            if reward_index >= 0:
+                reward_combo.setCurrentIndex(reward_index)
             selected_bind_item = bind_item_combo.currentData()
             bind_item_combo.clear()
             for row in view["bound_rows"]:
@@ -20037,6 +20162,11 @@ def show_main_menu(
                 smuggler_combo.setCurrentIndex(smuggler_index)
 
             status.setText(str(view["status_label"]))
+            token_summary.setText(
+                f"Tokens · {int(view['token_balance']):,} balance · "
+                f"{int(view['token_earned']):,} earned · "
+                f"{int(view['token_spent']):,} spent"
+            )
             if view["active"]:
                 summary.setText(
                     f"{view['theme_label']} floor {int(view['floor'])} · "
@@ -20083,6 +20213,36 @@ def show_main_menu(
                 f"Automation · {view['last_automation']} · eat Heim crab at or below "
                 f"{int(view['eat_threshold_percent'])}% LP"
             )
+            selected_kinship = next(
+                row
+                for row in view["kinship_rows"]
+                if row["class_id"] == kinship_combo.currentData()
+            )
+            kinship_detail.setText(
+                f"{selected_kinship['source_effect']} "
+                f"{view['kinship_effect']['application']}"
+            )
+            kinship_upgrade.setText(
+                "Tier 10 complete"
+                if int(selected_kinship["tier"]) >= 10
+                else (
+                    f"Upgrade to tier {int(selected_kinship['next_tier'])} · "
+                    f"{int(selected_kinship['next_cost']):,}"
+                )
+            )
+            selected_reward = next(
+                row
+                for row in view["reward_rows"]
+                if row["reward_id"] == reward_combo.currentData()
+            )
+            reward_detail.setText(
+                f"{selected_reward['requirements_text']} · "
+                f"{selected_reward['status_text']} · {selected_reward['notes']}"
+            )
+            coal_bag_summary.setText(
+                f"Coal bag · {int(view['coal_bag_coal'])}/"
+                f"{int(view['coal_bag_capacity'])} Coal"
+            )
             economy.setVisible(bool(view["active"]))
             bind_summary.setVisible(bool(view["active"] or view["bound_rows"] or view["ammo_bind"]))
             automation.setVisible(bool(view["active"]))
@@ -20100,6 +20260,36 @@ def show_main_menu(
             )
             bind_loadout_combo.setEnabled(
                 bool(view["bind_loadout_control_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            phase_c_visible = bool(view["phase_c_entry_controls_visible"])
+            kinship_row.setVisible(phase_c_visible)
+            kinship_detail.setVisible(phase_c_visible)
+            reward_row.setVisible(phase_c_visible)
+            reward_detail.setVisible(phase_c_visible)
+            kinship_combo.setEnabled(
+                bool(view["kinship_control_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            kinship_upgrade.setEnabled(
+                bool(selected_kinship["can_upgrade"])
+                and on_dungeoneering_command is not None
+            )
+            reward_combo.setEnabled(
+                bool(view["reward_trader_enabled"])
+                and on_dungeoneering_command is not None
+            )
+            reward_buy.setEnabled(
+                bool(selected_reward["can_purchase"])
+                and on_dungeoneering_command is not None
+            )
+            coal_bag_row.setVisible(bool(view["coal_bag_controls_visible"]))
+            coal_bag_fill_bank.setEnabled(
+                bool(view["coal_bag_can_fill_bank"])
+                and on_dungeoneering_command is not None
+            )
+            coal_bag_fill_carried.setEnabled(
+                bool(view["coal_bag_can_fill_carried"])
                 and on_dungeoneering_command is not None
             )
             configured_bind_names = set(
@@ -20254,6 +20444,41 @@ def show_main_menu(
             )
             if not syncing["active"]
             else None
+        )
+        kinship_combo.currentIndexChanged.connect(
+            lambda _index: _run_command(
+                "select_kinship_class",
+                {"class_id": str(kinship_combo.currentData() or "")},
+            )
+            if not syncing["active"] and kinship_combo.currentData()
+            else None
+        )
+        kinship_upgrade.clicked.connect(
+            lambda _checked=False: _run_command(
+                "upgrade_kinship_class",
+                {"class_id": str(kinship_combo.currentData() or "")},
+            )
+        )
+        reward_combo.currentIndexChanged.connect(
+            lambda _index: _refresh() if not syncing["active"] else None
+        )
+        reward_buy.clicked.connect(
+            lambda _checked=False: _run_command(
+                "purchase_reward",
+                {"reward_id": str(reward_combo.currentData() or "")},
+            )
+        )
+        coal_bag_fill_bank.clicked.connect(
+            lambda _checked=False: _run_command(
+                "fill_coal_bag",
+                {"source": "bank"},
+            )
+        )
+        coal_bag_fill_carried.clicked.connect(
+            lambda _checked=False: _run_command(
+                "fill_coal_bag",
+                {"source": "carried"},
+            )
         )
         bind_item_combo.currentIndexChanged.connect(
             lambda _index: _refresh() if not syncing["active"] else None

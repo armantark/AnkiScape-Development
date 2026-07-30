@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dungeoneering Phase C Plan</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b1020;
+    --panel: #141b2d;
+    --line: #2b3856;
+    --text: #edf3ff;
+    --muted: #a9b7d0;
+    --cyan: #62d8f3;
+    --gold: #f4cb68;
+    --green: #72dda1;
+    --red: #ff8a91;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at 15% 0%, #172443 0, var(--bg) 42%);
+    color: var(--text);
+  }
+  main { width: min(1100px, calc(100% - 32px)); margin: 32px auto 56px; }
+  h1 { margin: 8px 0 6px; font-size: clamp(30px, 5vw, 52px); line-height: 1.05; }
+  h2 { margin: 0 0 8px; font-size: 19px; }
+  p { margin: 0; }
+  .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+  .lead { max-width: 780px; color: var(--muted); font-size: 17px; }
+  .contract {
+    margin: 24px 0;
+    padding: 18px 20px;
+    border: 1px solid #4d6596;
+    border-radius: 14px;
+    background: #101a31;
+  }
+  .contract strong { color: var(--gold); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .card {
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(145deg, #151e34, #111827);
+  }
+  .num {
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+    place-items: center;
+    border-radius: 8px;
+    background: #1a5570;
+    color: white;
+    font-weight: 800;
+  }
+  ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); }
+  li + li { margin-top: 5px; }
+  code { color: #c8e8ff; }
+  .truth { color: var(--green); }
+  .blocked { color: var(--red); }
+  .flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+  }
+  .flow > div:not(.arrow) {
+    min-height: 98px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #10172a;
+  }
+  .arrow { color: var(--cyan); font-size: 25px; }
+  footer { margin-top: 22px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .arrow { transform: rotate(90deg); text-align: center; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Settled implementation plan · 2026-07-30</div>
+  <h1>Dungeoneering Phase C</h1>
+  <p class="lead">Close the Kinship and token-reward loop without claiming mechanics that do not exist. The Coal bag is the one proof purchase. Its Coal must reach the existing Smithing reducer and undo path.</p>
+
+  <section class="contract">
+    <strong>Completion contract:</strong> The card shows all 42 sourced reward rows and their exact gates. Only a fully functional row can be bought. The Coal bag costs 4,000 tokens, holds 27 Coal, fills from Bank or carried inventory, and supplies Coal before loose inventory during a real Smithing action.
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2><span class="num">1</span>Kinship at floor entry</h2>
+      <ul>
+        <li>Show all 12 sourced Ring classes.</li>
+        <li>Select one class before a floor starts.</li>
+        <li>Upgrade the selected class at the exact ten tier costs.</li>
+        <li>Use direct actions so selection and upgrades are undoable.</li>
+        <li>Automate only Gatherer and Artisan where the existing floor reducer has an honest hook. Show sourced text for the other classes.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2><span class="num">2</span>Truthful reward trader</h2>
+      <ul>
+        <li>Render the complete 42-row catalog with exact token, skill, and quest gates.</li>
+        <li><span class="truth">Coal bag:</span> purchasable when all gates pass.</li>
+        <li><span class="blocked">Other 41 rows:</span> visible and explicitly not yet purchasable.</li>
+        <li>Show token balance, lifetime earned, and lifetime spent.</li>
+        <li>Use period art only when a pre-cutoff file revision exists.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2><span class="num">3</span>Coal bag through Smithing</h2>
+      <ul>
+        <li>Keep the bag state in the additive Dungeoneering v100 sanitizer.</li>
+        <li>Fill manually from Bank or carried Coal, up to 27.</li>
+        <li>Pass bag Coal into the real Smithing material check and action reducer.</li>
+        <li>Reconcile the action result bag-first, then loose Coal.</li>
+        <li>Preserve the existing carried-inventory and review-undo seams.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2><span class="num">4</span>Proof before completion</h2>
+      <ul>
+        <li>Reducer tests cover select, upgrade, purchase, refusal, fill, and undo.</li>
+        <li>Runtime tests smelt with bag-only and mixed Coal.</li>
+        <li>Qt tests check all controls in a 560-pixel dark offscreen card.</li>
+        <li>Dungeoneering, Smithing, and placeholder-register modules must finish green.</li>
+        <li>No configuration-version bump unless the additive sanitizer cannot carry the state.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <h2>Runtime path under test</h2>
+    <div class="flow">
+      <div><b>Trader direct action</b><br>Spend 4,000 tokens and set one-owned bag state.</div>
+      <div class="arrow">→</div>
+      <div><b>Manual fill</b><br>Move Bank or carried Coal into the 27-Coal bag.</div>
+      <div class="arrow">→</div>
+      <div><b>Real Smithing action</b><br>Validate, smelt, reconcile bag-first, then verify undo.</div>
+    </div>
+  </section>
+
+  <footer>Scope boundary: one breadth-first step. Phase C closes the stated Kinship, trader, Coal bag, card, asset, and test surfaces. Unrelated reward mechanics remain staged.</footer>
+</main>
+</body>
+</html>

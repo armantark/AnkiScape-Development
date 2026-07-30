@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.dungeoneering_data import (
@@ -8,6 +10,8 @@ from ankiscape.data.dungeoneering_data import (
     COAL_BAG_REWARD,
     COLLECTED_BIND_LIMIT,
     COMPLEXITIES_BY_LEVEL,
+    DUNGEONEERING_ITEM_IMAGES,
+    DUNGEONEERING_REWARDS,
     FLOOR_SIZES_BY_ID,
     FLOOR_THEMES,
     FROZEN_BOSSES,
@@ -31,10 +35,41 @@ from ankiscape.data.dungeoneering_data import (
     STARTER_SMALL_REVIEW_BUDGET,
 )
 from ankiscape.data.herblore_data import DUNGEONEERING_HERBLORE_TARGETS
+from ankiscape.core.constants import ITEM_DEFINITIONS
 from ankiscape.core.skill_registry import get_skill
 
 
 class DungeoneeringDataTests(unittest.TestCase):
+    def test_phase_c_item_art_is_period_pinned_with_provenance(self):
+        root = Path(__file__).resolve().parents[1]
+        provenance = json.loads(
+            (root / "assets_provenance.json").read_text(encoding="utf-8")
+        )
+        expected = {
+            "Ring of kinship": (
+                "2010-09-18T03:48:18Z",
+                "bea3e2c288332d3a0fc90f083861aab543b36aa2",
+            ),
+            "Coal bag": (
+                "2010-09-18T04:20:22Z",
+                "9963825b60920a01c7aae0a761ddbce02ab5aef6",
+            ),
+        }
+        for item_name, (timestamp, sha1) in expected.items():
+            with self.subTest(item_name=item_name):
+                asset_path = DUNGEONEERING_ITEM_IMAGES[item_name]
+                self.assertTrue((root / asset_path).is_file())
+                self.assertEqual(provenance[asset_path]["timestamp"], timestamp)
+                self.assertEqual(provenance[asset_path]["sha1"], sha1)
+
+        ring = next(
+            item
+            for item in ITEM_DEFINITIONS
+            if item.display_name == "Ring of kinship"
+        )
+        self.assertEqual(ring.category, "tool")
+        self.assertIsNone(ring.equipment_slot)
+
     def test_pinned_period_revisions_cover_every_starter_table(self):
         expected = {
             "dungeoneering": (6579699, "2012-11-19T02:31:37Z"),
@@ -139,6 +174,79 @@ class DungeoneeringDataTests(unittest.TestCase):
             (4000, 35, (("Mining", 35),), 18339),
         )
         self.assertTrue(COAL_BAG_REWARD.fully_functional)
+
+    def test_reward_catalog_matches_all_42_sourced_cost_and_gate_rows(self):
+        expected = (
+            ("dungeoneering_xp_lamp", 1, 0, ()),
+            ("gem_bag", 2000, 25, ()),
+            ("coal_bag", 4000, 35, (("Mining", 35),)),
+            ("arcane_pulse_necklace", 6500, 30, ()),
+            ("twisted_bird_skull_necklace", 8500, 30, ()),
+            ("scroll_of_life", 10000, 25, ()),
+            ("longbow_sight", 10000, 45, ()),
+            ("law_staff", 10000, 45, (("Magic", 45),)),
+            ("nature_staff", 12500, 53, (("Magic", 53),)),
+            ("arcane_blast_necklace", 15500, 50, ()),
+            ("split_dragontooth_necklace", 17000, 60, ()),
+            ("scroll_of_cleansing", 20000, 49, ()),
+            ("scroll_of_efficiency", 20000, 55, ()),
+            ("arcane_stream_necklace", 30500, 70, ()),
+            ("bonecrusher", 34000, 21, ()),
+            ("herbicide", 34000, 21, ()),
+            ("demon_horn_necklace", 35000, 90, ()),
+            ("amulet_of_zealots", 40000, 48, ()),
+            ("gravite_rapier", 40000, 45, ()),
+            ("gravite_longsword", 40000, 45, ()),
+            ("gravite_two_handed_sword", 40000, 45, ()),
+            ("gravite_staff", 40000, 45, ()),
+            ("gravite_shortbow", 40000, 45, ()),
+            (
+                "magical_blastbox",
+                40000,
+                30,
+                (("Magic", 30), ("Runecrafting", 30)),
+            ),
+            ("tome_of_frost", 43000, 48, ()),
+            ("anti_poison_totem", 44000, 60, ()),
+            ("spirit_cape", 45000, 50, ()),
+            ("mercenarys_gloves", 48500, 73, ()),
+            ("ring_of_vigour", 50000, 62, ()),
+            (
+                "celestial_surgebox",
+                65000,
+                70,
+                (("Magic", 70), ("Runecrafting", 70)),
+            ),
+            ("sneakerpeeper", 85000, 80, ()),
+            ("scroll_of_renewal", 107000, 65, ()),
+            ("scroll_of_rigour", 140000, 74, ()),
+            ("scroll_of_augury", 153000, 77, ()),
+            ("chaotic_rapier", 200000, 80, ()),
+            ("chaotic_longsword", 200000, 80, ()),
+            ("chaotic_maul", 200000, 80, ()),
+            ("chaotic_staff", 200000, 80, ()),
+            ("chaotic_crossbow", 200000, 80, ()),
+            ("chaotic_kiteshield", 200000, 80, ()),
+            ("eagle_eye_kiteshield", 200000, 80, ()),
+            ("farseer_kiteshield", 200000, 80, ()),
+        )
+
+        self.assertEqual(
+            tuple(
+                (
+                    reward.id,
+                    reward.token_cost,
+                    reward.dungeoneering_level,
+                    reward.other_skill_requirements,
+                )
+                for reward in DUNGEONEERING_REWARDS
+            ),
+            expected,
+        )
+        self.assertEqual(
+            [reward.id for reward in DUNGEONEERING_REWARDS if reward.fully_functional],
+            ["coal_bag"],
+        )
 
     def test_starter_resource_and_herblore_chains_are_period_shaped(self):
         dungeoneering_herblore_by_id = {

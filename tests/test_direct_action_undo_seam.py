@@ -538,6 +538,78 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_dungeoneering_kinship_purchase_and_fill_restore_independently(self):
+        from ankiscape.logic.dungeoneering_logic import (
+            apply_dungeoneering_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["dungeoneering_level"] = 35
+        addon.player_data["mining_level"] = 35
+        addon.player_data["dungeoneering"]["tokens"] = 10_000
+        addon.player_data["inventory"]["Coal"] = 27
+        before = copy.deepcopy(addon.player_data)
+
+        def commit_command(action_id, payload):
+            return self.commit(
+                lambda current: apply_dungeoneering_command_pure(
+                    current,
+                    action_id,
+                    payload,
+                )[:2]
+            )
+
+        self.assertTrue(
+            commit_command(
+                "select_kinship_class",
+                {"class_id": "gatherer"},
+            )
+        )
+        selected = copy.deepcopy(addon.player_data)
+        self.assertEqual(
+            addon.player_data["dungeoneering"]["kinship_active_class"],
+            "gatherer",
+        )
+        self.assertTrue(
+            commit_command(
+                "upgrade_kinship_class",
+                {"class_id": "gatherer"},
+            )
+        )
+        self.assertEqual(
+            addon.player_data["dungeoneering"]["kinship_tiers"]["gatherer"],
+            1,
+        )
+        self.assertEqual(addon.player_data["dungeoneering"]["tokens"], 9_865)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, selected)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+        self.assertTrue(
+            commit_command(
+                "purchase_reward",
+                {"reward_id": "coal_bag"},
+            )
+        )
+        purchased = copy.deepcopy(addon.player_data)
+        self.assertTrue(addon.player_data["dungeoneering"]["coal_bag_owned"])
+        self.assertTrue(
+            commit_command(
+                "fill_coal_bag",
+                {"source": "bank"},
+            )
+        )
+        self.assertEqual(
+            addon.player_data["dungeoneering"]["coal_bag_coal"],
+            27,
+        )
+        self.assertNotIn("Coal", addon.player_data["inventory"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, purchased)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
     def test_crucible_lesson_and_purchase_restore_through_the_seam(self):
         """The Crucible spends a currency, so both mutations must be undoable."""
         from ankiscape.data.crucible_data import (

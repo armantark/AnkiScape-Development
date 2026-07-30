@@ -4435,3 +4435,29 @@ including the five hundred kills the gloves, dreadnip and mines all read.
 
 Schema 98. Sources: `memory-bank/source-audits/dominion-tower-harvest-2026-07-28.md`.
 Forks queued as design threads 3.19, 3.20 and 3.21.
+
+## Dungeoneering phase C — complete, 2026-07-30
+
+- Added between-floor Ring of Kinship class selection and all ten exact
+  token-tier upgrades as undoable direct actions. Gatherer and Artisan use
+  bounded live effects. Other classes expose sourced descriptions without
+  invented automation.
+- Rendered the complete forty-two-row reward catalog with exact costs and
+  gates. Forty-one rows are visibly staged and refuse purchases. The Coal bag
+  is the sole functional purchase at 4,000 tokens with Dungeoneering 35 and
+  Mining 35 gates, one-owned enforcement, a twenty-seven-Coal capacity, and
+  undoable manual Bank/carried fills.
+- Connected Coal bag consumption to the real Smithing answer path. Smithing
+  availability includes bag Coal, smelting consumes bag Coal before loose or
+  carried Coal, and review undo restores the exact prior state.
+- Added earned, spent, and balance token values to the Dungeoneering card.
+  Entry-only Phase C controls use pure-view visibility and enable flags.
+- Added exact pre-cutoff Ring of Kinship and Coal bag sprites through
+  `tools/fetch_assets.py`; `assets_provenance.json` records the selected
+  historical revisions. No safe pre-cutoff reward-trader image was found, so
+  the trader uses the functional Coal bag row art rather than invented art.
+- Extended the v100 Dungeoneering sanitizer additively. The repository config
+  version remains 101.
+- Verification: the requested Dungeoneering, Smithing, and placeholder module
+  gate passes 53 tests; the focused dark offscreen Qt card check passes; full
+  discovery passes 3,572 tests with 415 expected skips.

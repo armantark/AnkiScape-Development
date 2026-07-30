@@ -19,9 +19,11 @@ from ankiscape.core.storage_pure import (
     migrate_loaded_data,
 )
 from ankiscape.data.dungeoneering_data import (
+    COAL_BAG_CAPACITY,
     DUNGEONEERING_STATE_VERSION,
     FROZEN_BOSSES,
     FROZEN_BOSS_COMBAT_LEVEL_LADDERS,
+    KINSHIP_TIER_COSTS,
     STARTER_SKILL_DOOR_REQUIREMENT,
     STARTER_SMALL_GRAPH_ROOM_COUNT,
     STARTER_SMALL_REVIEW_BUDGET,
@@ -1168,6 +1170,261 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             set(cleaned),
             set(default_dungeoneering_state_pure()),
         )
+
+
+class DungeoneeringPhaseCTests(unittest.TestCase):
+    def _player(self, **overrides):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player.update(overrides)
+        return player
+
+    def test_v100_sanitizer_adds_and_clamps_phase_c_state(self):
+        old_state = default_dungeoneering_state_pure()
+        for key in (
+            "kinship_active_class",
+            "kinship_tiers",
+            "tokens_earned",
+            "tokens_spent",
+            "coal_bag_owned",
+            "coal_bag_coal",
+        ):
+            old_state.pop(key)
+        old_state["tokens"] = 50
+
+        cleaned = sanitize_dungeoneering_state_pure(old_state)
+
+        self.assertEqual(cleaned["kinship_active_class"], "tank")
+        self.assertEqual(len(cleaned["kinship_tiers"]), 12)
+        self.assertEqual(cleaned["tokens_earned"], 50)
+        self.assertEqual(cleaned["tokens_spent"], 0)
+        self.assertFalse(cleaned["coal_bag_owned"])
+        self.assertEqual(cleaned["coal_bag_coal"], 0)
+
+        cleaned = sanitize_dungeoneering_state_pure(
+            {
+                **cleaned,
+                "kinship_active_class": "not-a-class",
+                "kinship_tiers": {"gatherer": 99, "artisan": -2},
+                "coal_bag_owned": True,
+                "coal_bag_coal": 999,
+            }
+        )
+        self.assertEqual(cleaned["kinship_active_class"], "tank")
+        self.assertEqual(cleaned["kinship_tiers"]["gatherer"], 10)
+        self.assertEqual(cleaned["kinship_tiers"]["artisan"], 0)
+        self.assertEqual(cleaned["coal_bag_coal"], COAL_BAG_CAPACITY)
+
+    def test_v100_save_receives_phase_c_defaults_without_a_schema_bump(self):
+        player = self._player()
+        player["config_version"] = 100
+        for key in (
+            "kinship_active_class",
+            "kinship_tiers",
+            "tokens_earned",
+            "tokens_spent",
+            "coal_bag_owned",
+            "coal_bag_coal",
+        ):
+            player["dungeoneering"].pop(key)
+
+        migrated = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["dungeoneering"]["kinship_active_class"], "tank")
+        self.assertEqual(len(migrated["dungeoneering"]["kinship_tiers"]), 12)
+        self.assertFalse(migrated["dungeoneering"]["coal_bag_owned"])
+        self.assertEqual(migrated["dungeoneering"]["coal_bag_coal"], 0)
+
+    def test_kinship_selection_and_exact_tier_upgrades_use_the_command_reducer(self):
+        player = self._player()
+        player["dungeoneering"]["tokens"] = sum(KINSHIP_TIER_COSTS)
+
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "select_kinship_class",
+            {"class_id": "gatherer"},
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(player["dungeoneering"]["kinship_active_class"], "gatherer")
+
+        balance = sum(KINSHIP_TIER_COSTS)
+        for tier, exact_cost in enumerate(KINSHIP_TIER_COSTS, start=1):
+            player, ok, info = apply_dungeoneering_command_pure(
+                player,
+                "upgrade_kinship_class",
+                {"class_id": "gatherer"},
+            )
+            self.assertTrue(ok, info)
+            balance -= exact_cost
+            self.assertEqual(
+                player["dungeoneering"]["kinship_tiers"]["gatherer"],
+                tier,
+            )
+            self.assertEqual(player["dungeoneering"]["tokens"], balance)
+        self.assertEqual(
+            player["dungeoneering"]["tokens_spent"],
+            sum(KINSHIP_TIER_COSTS),
+        )
+
+        unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "upgrade_kinship_class",
+            {"class_id": "gatherer"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("tier 10", info["reason"])
+        self.assertEqual(unchanged["dungeoneering"], player["dungeoneering"])
+
+    def test_kinship_changes_are_refused_during_a_floor(self):
+        player = self._player(dungeoneering_level=1)
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "enter",
+            {
+                "floor": 1,
+                "size": "small",
+                "complexity": 1,
+                "automation_mode": "casual",
+            },
+        )
+        self.assertTrue(ok, info)
+
+        for action_id in ("select_kinship_class", "upgrade_kinship_class"):
+            with self.subTest(action_id=action_id):
+                _unchanged, ok, info = apply_dungeoneering_command_pure(
+                    player,
+                    action_id,
+                    {"class_id": "artisan"},
+                )
+                self.assertFalse(ok)
+                self.assertIn("between floors", info["reason"])
+
+    def test_trader_renders_42_rows_but_only_functional_coal_bag_can_open(self):
+        player = self._player(
+            dungeoneering_level=99,
+            mining_level=99,
+            magic_level=99,
+            runecrafting_level=99,
+        )
+        player["dungeoneering"]["tokens"] = 500_000
+
+        view = dungeoneering_view_pure(player)
+
+        self.assertEqual(view["reward_catalog_count"], 42)
+        self.assertEqual(view["reward_purchase_count"], 1)
+        purchasable = [row["reward_id"] for row in view["reward_rows"] if row["can_purchase"]]
+        self.assertEqual(purchasable, ["coal_bag"])
+        for row in view["reward_rows"]:
+            if row["reward_id"] == "coal_bag":
+                self.assertEqual(row["status_text"], "Available")
+            else:
+                self.assertFalse(row["fully_functional"])
+                self.assertEqual(
+                    row["status_text"],
+                    "Catalogued — not purchasable yet",
+                )
+
+    def test_trader_enforces_level_token_functionality_and_one_owned_gates(self):
+        player = self._player()
+        player["dungeoneering"]["tokens"] = 500_000
+        _unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "purchase_reward",
+            {"reward_id": "coal_bag"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("Dungeoneering 35", info["reason"])
+
+        player["dungeoneering_level"] = 35
+        _unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "purchase_reward",
+            {"reward_id": "coal_bag"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("Mining 35", info["reason"])
+
+        player["mining_level"] = 35
+        player["dungeoneering"]["tokens"] = 3_999
+        _unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "purchase_reward",
+            {"reward_id": "coal_bag"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("4,000 tokens", info["reason"])
+
+        player["dungeoneering"]["tokens"] = 4_000
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "purchase_reward",
+            {"reward_id": "coal_bag"},
+        )
+        self.assertTrue(ok, info)
+        self.assertTrue(player["dungeoneering"]["coal_bag_owned"])
+        self.assertEqual(player["dungeoneering"]["tokens"], 0)
+        self.assertEqual(player["dungeoneering"]["tokens_spent"], 4_000)
+
+        _unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "purchase_reward",
+            {"reward_id": "coal_bag"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("Only one", info["reason"])
+
+        player["dungeoneering"]["tokens"] = 500_000
+        _unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "purchase_reward",
+            {"reward_id": "chaotic_rapier"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("not purchasable yet", info["reason"])
+
+    def test_coal_bag_fill_moves_bank_or_carried_coal_and_stops_at_27(self):
+        player = self._player(
+            dungeoneering_level=35,
+            mining_level=35,
+            current_smith="smelt_steel_bar",
+        )
+        player["dungeoneering"].update(
+            {"coal_bag_owned": True, "coal_bag_coal": 0}
+        )
+        player["inventory"]["Coal"] = 40
+        player["carried_inventory"] = {"smelt_steel_bar": {"Coal": 10}}
+
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "fill_coal_bag",
+            {"source": "bank"},
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(player["dungeoneering"]["coal_bag_coal"], 27)
+        self.assertEqual(player["inventory"]["Coal"], 13)
+        self.assertEqual(
+            player["carried_inventory"]["smelt_steel_bar"]["Coal"],
+            10,
+        )
+
+        _unchanged, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "fill_coal_bag",
+            {"source": "bank"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("already holds 27", info["reason"])
+
+        player["dungeoneering"]["coal_bag_coal"] = 0
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "fill_coal_bag",
+            {"source": "carried"},
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(player["dungeoneering"]["coal_bag_coal"], 10)
+        self.assertEqual(player["inventory"]["Coal"], 3)
+        self.assertNotIn("smelt_steel_bar", player["carried_inventory"])
 
 
 class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):

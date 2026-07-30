@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from typing import Mapping
+
+from ..data.dungeoneering_data import COAL_BAG_CAPACITY
+
 from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
@@ -144,6 +148,55 @@ def has_smithing_materials_pure(target, inventory, smithing_data):
     return True
 
 
+def coal_bag_coal_pure(player_data):
+    """Return the usable Coal held by the owned Dungeoneering Coal bag."""
+    state = player_data.get("dungeoneering")
+    if not isinstance(state, Mapping) or not state.get("coal_bag_owned"):
+        return 0
+    return min(
+        COAL_BAG_CAPACITY,
+        _non_negative_int(state.get("coal_bag_coal")),
+    )
+
+
+def smithing_inventory_with_coal_bag_pure(player_data):
+    """Expose stored bag Coal to the existing Smithing material reducer."""
+    inventory = dict(player_data.get("inventory", {}) or {})
+    bag_coal = coal_bag_coal_pure(player_data)
+    if bag_coal:
+        inventory["Coal"] = _non_negative_int(inventory.get("Coal")) + bag_coal
+    return inventory
+
+
+def reconcile_smithing_coal_bag_pure(
+    player_data,
+    inventory_before,
+    effective_inventory_after,
+):
+    """Reconcile one real Smithing result, consuming Coal from the bag first."""
+    bag_coal = coal_bag_coal_pure(player_data)
+    loose_coal = _non_negative_int((inventory_before or {}).get("Coal"))
+    coal_after = _non_negative_int((effective_inventory_after or {}).get("Coal"))
+    coal_consumed = max(0, loose_coal + bag_coal - coal_after)
+    bag_consumed = min(bag_coal, coal_consumed)
+    loose_consumed = max(0, coal_consumed - bag_consumed)
+
+    inventory = dict(effective_inventory_after or {})
+    loose_remaining = max(0, loose_coal - loose_consumed)
+    if loose_remaining:
+        inventory["Coal"] = loose_remaining
+    else:
+        inventory.pop("Coal", None)
+
+    data = dict(player_data)
+    state = dict(data.get("dungeoneering") or {})
+    if bag_coal:
+        state["coal_bag_coal"] = bag_coal - bag_consumed
+        data["dungeoneering"] = state
+    data["inventory"] = inventory
+    return data, bag_consumed
+
+
 def can_smith_item_pure(smithing_level, inventory, target, smithing_data):
     """Return True if level and materials allow one Smithing recipe action."""
     spec = smithing_data.get(target)
@@ -163,7 +216,11 @@ def smithing_target_locked_reasons_pure(player_data, target, smithing_data, ques
     required_level = _positive_int(spec.get("level", 1), 1)
     if smithing_level < required_level:
         reasons.append(f"level {required_level}")
-    if not has_smithing_materials_pure(target, player_data.get("inventory", {}) or {}, smithing_data):
+    if not has_smithing_materials_pure(
+        target,
+        smithing_inventory_with_coal_bag_pure(player_data),
+        smithing_data,
+    ):
         reasons.append("materials")
     reasons.extend(
         quest_unlock_locked_reasons_pure(

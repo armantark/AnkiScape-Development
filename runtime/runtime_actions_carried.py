@@ -113,6 +113,7 @@ from ..logic_pure.logic_pure import (
     can_progress_quest_pure,
     can_runecraft_target_pure,
     can_smith_item_pure,
+    coal_bag_coal_pure,
     can_start_quest_pure,
     cooking_target_locked_reasons_pure,
     combat_target_locked_reasons_pure,
@@ -506,6 +507,15 @@ def _processing_requirements_for(
             if resolved is not None:
                 return resolved
         resolved = {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+        if handler_key == "smithing" and "Coal" in resolved:
+            remaining_coal = max(
+                0,
+                resolved["Coal"] - coal_bag_coal_pure(player_data),
+            )
+            if remaining_coal:
+                resolved["Coal"] = remaining_coal
+            else:
+                resolved.pop("Coal")
         if (
             handler_key == "prayer"
             and spec.get("method") == "gilded_altar"

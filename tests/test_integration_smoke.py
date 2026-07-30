@@ -2955,6 +2955,68 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [70.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_coal_bag_smithing_consumption_rolls_back_on_review_undo(self):
+        addon = _load_addon_as_package(
+            "ankiscape_coal_bag_smithing_undo_integration"
+        )
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save",
+            calls["save"] + 1,
+        )
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Iron ore": 1},
+            "smithing_level": 30,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "smelt_steel_bar",
+            "completed_achievements": [],
+            "dungeoneering": {
+                "coal_bag_owned": True,
+                "coal_bag_coal": 2,
+            },
+        }
+        addon.current_skill = "Smithing"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        before = copy.deepcopy(addon.player_data)
+        self.assertTrue(addon.can_smith_any())
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertEqual(addon.player_data["inventory"]["Iron ore"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Steel bar"], 1)
+        self.assertNotIn("Coal", addon.player_data["inventory"])
+        self.assertEqual(
+            addon.player_data["dungeoneering"]["coal_bag_coal"],
+            0,
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [17.5])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_undo_after_coloured_feather_fletching_restores_the_same_colour(self):
         addon = _load_addon_as_package("ankiscape_coloured_feather_undo_integration")
 

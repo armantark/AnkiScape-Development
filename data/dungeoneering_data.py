@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Literal, Mapping
+from typing import Literal, Mapping, Optional
 
 
 RoomFamily = Literal["start", "guardian", "key", "skill", "resource", "boss"]
@@ -38,6 +38,13 @@ DUNGEONEERING_COMBAT_TICKS_PER_REVIEW = 6
 DUNGEONEERING_STATE_VERSION = 3
 DUNGEONEERING_MAX_LEVEL = 120
 DUNGEONEERING_MAX_FLOOR = 60
+COAL_BAG_CAPACITY = 27
+DUNGEONEERING_ITEM_IMAGES: Mapping[str, str] = MappingProxyType(
+    {
+        "Ring of kinship": "activityitems/ring_of_kinship.png",
+        "Coal bag": "activityitems/coal_bag.png",
+    }
+)
 COLLECTED_BIND_LIMIT = 10
 BIND_LOADOUT_COUNT = 3
 AMMO_BIND_CAPACITY = 125
@@ -515,22 +522,81 @@ class DungeoneeringReward:
     display_name: str
     token_cost: int
     dungeoneering_level: int
-    other_skill_requirements: tuple[tuple[str, int], ...]
-    source_item_id: int
-    fully_functional: bool
-    notes: str
+    other_skill_requirements: tuple[tuple[str, int], ...] = ()
+    source_item_id: Optional[int] = None
+    fully_functional: bool = False
+    notes: str = "Catalogued only; its mechanic is not implemented yet."
 
 
-COAL_BAG_REWARD = DungeoneeringReward(
-    "coal_bag",
-    "Coal bag",
-    4000,
-    35,
-    (("Mining", 35),),
-    18339,
-    True,
-    "One owned; holds 27 Coal; manual/bank fill; smelting consumes bag Coal first.",
+DUNGEONEERING_REWARDS = (
+    DungeoneeringReward("dungeoneering_xp_lamp", "Dungeoneering XP lamp", 1, 0),
+    DungeoneeringReward("gem_bag", "Gem bag", 2000, 25),
+    DungeoneeringReward(
+        "coal_bag",
+        "Coal bag",
+        4000,
+        35,
+        (("Mining", 35),),
+        18339,
+        True,
+        "One owned; holds 27 Coal; manual Bank/carried fill; smelting consumes bag Coal first.",
+    ),
+    DungeoneeringReward("arcane_pulse_necklace", "Arcane pulse necklace", 6500, 30),
+    DungeoneeringReward("twisted_bird_skull_necklace", "Twisted bird skull necklace", 8500, 30),
+    DungeoneeringReward("scroll_of_life", "Scroll of life", 10000, 25),
+    DungeoneeringReward("longbow_sight", "Longbow sight", 10000, 45),
+    DungeoneeringReward("law_staff", "Law staff", 10000, 45, (("Magic", 45),)),
+    DungeoneeringReward("nature_staff", "Nature staff", 12500, 53, (("Magic", 53),)),
+    DungeoneeringReward("arcane_blast_necklace", "Arcane blast necklace", 15500, 50),
+    DungeoneeringReward("split_dragontooth_necklace", "Split dragontooth necklace", 17000, 60),
+    DungeoneeringReward("scroll_of_cleansing", "Scroll of cleansing", 20000, 49),
+    DungeoneeringReward("scroll_of_efficiency", "Scroll of efficiency", 20000, 55),
+    DungeoneeringReward("arcane_stream_necklace", "Arcane stream necklace", 30500, 70),
+    DungeoneeringReward("bonecrusher", "Bonecrusher", 34000, 21),
+    DungeoneeringReward("herbicide", "Herbicide", 34000, 21),
+    DungeoneeringReward("demon_horn_necklace", "Demon horn necklace", 35000, 90),
+    DungeoneeringReward("amulet_of_zealots", "Amulet of zealots", 40000, 48),
+    DungeoneeringReward("gravite_rapier", "Gravite rapier", 40000, 45),
+    DungeoneeringReward("gravite_longsword", "Gravite longsword", 40000, 45),
+    DungeoneeringReward("gravite_two_handed_sword", "Gravite two-handed sword", 40000, 45),
+    DungeoneeringReward("gravite_staff", "Gravite staff", 40000, 45),
+    DungeoneeringReward("gravite_shortbow", "Gravite shortbow", 40000, 45),
+    DungeoneeringReward(
+        "magical_blastbox",
+        "Magical blastbox",
+        40000,
+        30,
+        (("Magic", 30), ("Runecrafting", 30)),
+    ),
+    DungeoneeringReward("tome_of_frost", "Tome of frost", 43000, 48),
+    DungeoneeringReward("anti_poison_totem", "Anti-poison totem", 44000, 60),
+    DungeoneeringReward("spirit_cape", "Spirit cape", 45000, 50),
+    DungeoneeringReward("mercenarys_gloves", "Mercenary's gloves", 48500, 73),
+    DungeoneeringReward("ring_of_vigour", "Ring of vigour", 50000, 62),
+    DungeoneeringReward(
+        "celestial_surgebox",
+        "Celestial surgebox",
+        65000,
+        70,
+        (("Magic", 70), ("Runecrafting", 70)),
+    ),
+    DungeoneeringReward("sneakerpeeper", "Sneakerpeeper", 85000, 80),
+    DungeoneeringReward("scroll_of_renewal", "Scroll of renewal", 107000, 65),
+    DungeoneeringReward("scroll_of_rigour", "Scroll of rigour", 140000, 74),
+    DungeoneeringReward("scroll_of_augury", "Scroll of augury", 153000, 77),
+    DungeoneeringReward("chaotic_rapier", "Chaotic rapier", 200000, 80),
+    DungeoneeringReward("chaotic_longsword", "Chaotic longsword", 200000, 80),
+    DungeoneeringReward("chaotic_maul", "Chaotic maul", 200000, 80),
+    DungeoneeringReward("chaotic_staff", "Chaotic staff", 200000, 80),
+    DungeoneeringReward("chaotic_crossbow", "Chaotic crossbow", 200000, 80),
+    DungeoneeringReward("chaotic_kiteshield", "Chaotic kiteshield", 200000, 80),
+    DungeoneeringReward("eagle_eye_kiteshield", "Eagle-eye kiteshield", 200000, 80),
+    DungeoneeringReward("farseer_kiteshield", "Farseer kiteshield", 200000, 80),
 )
+DUNGEONEERING_REWARDS_BY_ID: Mapping[str, DungeoneeringReward] = MappingProxyType(
+    {reward.id: reward for reward in DUNGEONEERING_REWARDS}
+)
+COAL_BAG_REWARD = DUNGEONEERING_REWARDS_BY_ID["coal_bag"]
 
 RING_OF_KINSHIP_ITEM_ID = 15707
 RING_OF_KINSHIP_CLASS_ITEM_IDS: Mapping[str, int] = MappingProxyType(
@@ -540,3 +606,21 @@ RING_OF_KINSHIP_CLASS_ITEM_IDS: Mapping[str, int] = MappingProxyType(
     }
 )
 
+
+def dungeoneering_extra_items_as_dict() -> dict[str, dict[str, object]]:
+    return {
+        "Ring of kinship": {
+            "category": "tool",
+            "source_item_id": RING_OF_KINSHIP_ITEM_ID,
+            "stackable": False,
+            "tradeable": False,
+            "source": "period/wiki-oldid-6521933",
+        },
+        "Coal bag": {
+            "category": "tool",
+            "source_item_id": COAL_BAG_REWARD.source_item_id,
+            "stackable": False,
+            "tradeable": False,
+            "source": "period/wiki-oldid-6283103",
+        },
+    }

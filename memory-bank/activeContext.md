@@ -2,25 +2,34 @@
 
 ## Current Focus
 
-**2026-07-29, ready for the next goal run.** Main is green in both lanes at
-3,553 tests. Dungeoneering ships as the 25th trainable skill with its Frozen
-floor runtime (phases A/B1/B2; capes and the 25-skill Max gate cleared by
-construction). Pass 4 is merged, plus three same-day overlay fixes from live
+**2026-07-30, Dungeoneering phase C complete.** Repository discovery is green
+at 3,572 tests.
+Dungeoneering ships as the 25th trainable skill with its Frozen floor runtime
+(phases A/B1/B2) and its phase C Ring of Kinship, staged reward trader, and
+functional Coal bag. Pass 4 is merged, plus three same-day overlay fixes from live
 playtest reports: the reviewer strip measures the card's JS bounding box, a
 scrolling card docks the bars over injected bottom padding instead of hiding
 them, and the sweep-overwritten navigation icons are reverted (icon/ is now
 excluded from art sweeps). Luna computer-use verified the short-card overlay
 in the real app with zero study progress.
 
-Immediate queue, in order: resume the two parked workflows
-(Dungeoneering phase C — kinship tiers, staged 42-row trader with functional
-Coal bag, assets; and Conquest breadth one in the `conquest` worktree at
-schema 102) from `~/.local/state/quota-guard/parked.md`; then the 4.14 grill
-consequences (minimal miniquest ledger with Hunt for Surok → Bork and Lair of
-Tarn Razorlor → Dominion class H; guardian coin drops replacing the 3.25
-cache); then the Slayer off-task XP source check. GOAL-BLOCKED carries only
-the 384-diary-task clause. Design forks 3.15/3.19/3.22/3.23/3.24/3.25/4.12
-are all owner-answered as of the 2026-07-29 grill (section 4.14).
+Immediate queue, in order: resume Conquest breadth one in the `conquest`
+worktree at schema 102; then the 4.14 grill consequences (minimal miniquest
+ledger with Hunt for Surok → Bork and Lair of Tarn Razorlor → Dominion class
+H; guardian coin drops replacing the 3.25 cache); then the Slayer off-task XP
+source check. GOAL-BLOCKED carries only the 384-diary-task clause. Design forks
+3.15/3.19/3.22/3.23/3.24/3.25/4.12 are all owner-answered as of the 2026-07-29
+grill (section 4.14).
+
+Phase C uses the exact twelve Kinship classes and ten tier costs as undoable
+between-floor actions. Gatherer and Artisan have bounded live effects; the
+other roles show their sourced descriptions without invented solo automation.
+The trader renders all forty-two sourced rows with exact token and skill gates,
+but only the fully implemented Coal bag can be bought. The bag costs 4,000
+tokens, is unique, stores twenty-seven Coal, fills manually from Bank or carried
+Coal, and feeds the real Smithing reducer before loose Coal. Token earned,
+spent, and balance values are visible on the card. The v100 Dungeoneering
+sanitizer was extended additively; `CURRENT_CONFIG_VERSION` remains 101.
 
 Gnome Restaurant satisfies horizontal breadth level one. Gnome cooking is twenty
 real Cooking targets with exact levels, XP and ingredients; the Activity runs one

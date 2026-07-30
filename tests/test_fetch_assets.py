@@ -90,6 +90,14 @@ class TestFetchAssets(unittest.TestCase):
                                         "mime": "image/png",
                                         "timestamp": "2012-09-28T00:00:00Z",
                                         "mediatype": "BITMAP",
+                                    },
+                                    {
+                                        "url": "https://runescape.wiki/images/example.png",
+                                        "sha1": "post-cutoff",
+                                        "size": 456,
+                                        "mime": "image/png",
+                                        "timestamp": "2014-01-01T00:00:00Z",
+                                        "mediatype": "BITMAP",
                                     }
                                 ],
                             }
@@ -102,9 +110,42 @@ class TestFetchAssets(unittest.TestCase):
         query = parse_qs(urlparse(client.url).query)
 
         self.assertEqual(query["iistart"], ["2012-11-20T00:00:00Z"])
-        self.assertEqual(query["iilimit"], ["1"])
+        self.assertEqual(query["iilimit"], ["max"])
         self.assertEqual(info.timestamp, "2012-09-28T00:00:00Z")
         self.assertIn("/archive/", info.image_url)
+
+    def test_historical_lookup_refuses_file_without_pre_cutoff_revision(self):
+        class PostCutoffOnlyClient(fetch_assets.HttpWikiClient):
+            def __init__(self):
+                super().__init__(before_timestamp="2012-11-20T00:00:00Z")
+
+            def _request_json(self, _url):
+                return {
+                    "query": {
+                        "pages": [
+                            {
+                                "title": "File:Future reward.png",
+                                "imageinfo": [
+                                    {
+                                        "url": "https://runescape.wiki/images/future.png",
+                                        "sha1": "future",
+                                        "size": 123,
+                                        "mime": "image/png",
+                                        "timestamp": "2014-01-01T00:00:00Z",
+                                        "mediatype": "BITMAP",
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                }
+
+        info = PostCutoffOnlyClient().query_image_info(
+            fetch_assets.RS3_WIKI,
+            "Future reward.png",
+        )
+
+        self.assertIsNone(info)
 
     def test_wiki_title_mapping_uses_tree_log_overrides(self):
         self.assertEqual(fetch_assets.wiki_title_for_item("Tree"), "Logs.png")

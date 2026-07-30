@@ -43,6 +43,7 @@ from .logic_pure.logic_pure import (
     apply_item_pack_open_pure,
     combat_enemy_drop_item_names_pure,
     can_smith_any_pure,
+    smithing_inventory_with_coal_bag_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
     fletching_target_locked_reasons_pure,
@@ -4918,7 +4919,11 @@ def on_show_answer(reviewer):
 
 
 def can_smith_any():
-    return can_smith_any_pure(player_data["inventory"], player_data["smithing_level"], SMITHING_DATA)
+    return can_smith_any_pure(
+        smithing_inventory_with_coal_bag_pure(player_data),
+        player_data["smithing_level"],
+        SMITHING_DATA,
+    )
 
 
 def can_smelt_any_bar():

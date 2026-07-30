@@ -1211,6 +1211,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-11-02T03:01:58Z"
   },
+  "activityitems/coal_bag.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Coal_bag.png",
+    "file_title": "Coal bag.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075947%21Coal_bag.png?cea76",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9963825b60920a01c7aae0a761ddbce02ab5aef6",
+    "size": 706,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-18T04:20:22Z"
+  },
   "activityitems/compost_potion_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%281%29.png",
     "file_title": "Compost potion (1).png",
@@ -2926,6 +2938,18 @@
     "size": 1022,
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T18:12:20Z"
+  },
+  "activityitems/ring_of_kinship.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ring_of_kinship.png",
+    "file_title": "Ring of kinship.png",
+    "image_url": "https://runescape.wiki/images/archive/20140223054054%21Ring_of_kinship.png?a7057",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bea3e2c288332d3a0fc90f083861aab543b36aa2",
+    "size": 1118,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-18T03:48:18Z"
   },
   "activityitems/ringmaster_hat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ringmaster_hat.png",

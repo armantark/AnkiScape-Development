@@ -137,6 +137,8 @@ from ..logic_pure.logic_pure import (
     record_cadence_wait_telemetry_pure,
     record_achievement_progress_pure,
     consume_ring_of_forging_charge_pure,
+    reconcile_smithing_coal_bag_pure,
+    smithing_inventory_with_coal_bag_pure,
     smithing_success_probability_pure,
     smithing_target_locked_reasons_pure,
     utility_activity_locked_reasons_pure,
@@ -1310,9 +1312,11 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         has_ring_of_forging=has_forging_ring,
     )
     roll = ctx.random_random() if expected_success_chance < 1.0 else 0.0
+    inventory_before = dict(player_data["inventory"])
+    effective_inventory = smithing_inventory_with_coal_bag_pure(player_data)
     new_inv, base_exp, processed, output_item, failed = apply_smithing_action_pure(
         target,
-        player_data["inventory"],
+        effective_inventory,
         SMITHING_DATA,
         success_level,
         roll,
@@ -1321,7 +1325,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     if not processed:
         missing_requirements = dict(spec.get("requirements", {}))
         missing_requirements.update(spec.get("required_items", {}))
-        missing = missing_materials_text(missing_requirements, player_data["inventory"])
+        missing = missing_materials_text(missing_requirements, effective_inventory)
         _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
@@ -1330,7 +1334,14 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    player_data["inventory"] = new_inv
+    reconciled, _bag_coal_consumed = reconcile_smithing_coal_bag_pure(
+        player_data,
+        inventory_before,
+        new_inv,
+    )
+    player_data["inventory"] = reconciled["inventory"]
+    if "dungeoneering" in reconciled:
+        player_data["dungeoneering"] = reconciled["dungeoneering"]
     if target == "smelt_iron_bar" and has_forging_ring:
         ring_data = consume_ring_of_forging_charge_pure(player_data)
         player_data["equipment"] = ring_data.get("equipment", {}) or {}

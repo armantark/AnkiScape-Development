@@ -3915,6 +3915,30 @@ class TestRuntimeActions(unittest.TestCase):
         telemetry = player_data["action_telemetry"]["actions"]["smithing:forge_cannonballs"]
         self.assertEqual(telemetry["outputs"], {"Cannonball": 4})
 
+    def test_smithing_consumes_owned_coal_bag_before_loose_coal(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Iron ore": 1, "Coal": 2},
+            "smithing_level": 30,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "smelt_steel_bar",
+            "completed_achievements": [],
+            "dungeoneering": {
+                "coal_bag_owned": True,
+                "coal_bag_coal": 1,
+            },
+        }
+
+        ok = handle_smithing_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Iron ore"], 0)
+        self.assertEqual(player_data["inventory"]["Coal"], 1)
+        self.assertEqual(player_data["inventory"]["Steel bar"], 1)
+        self.assertEqual(player_data["dungeoneering"]["coal_bag_coal"], 0)
+        self.assertEqual(calls["errors"], [])
+
 
 class TestCarriedOverlayWrapper(unittest.TestCase):
     """The overlay wrapper that runs a skilling tick through the 28-slot pack."""
@@ -4136,6 +4160,58 @@ class TestProcessingPackOverlay(unittest.TestCase):
         # The pack was seeded with all 5 logs, then one was consumed.
         self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 4})
         self.assertIn("logs", player_data["carried_primed_targets"])
+
+    def test_smithing_pack_uses_bag_coal_first_through_the_real_handler(self):
+        player_data = {
+            "inventory": {"Iron ore": 3, "Coal": 3},
+            "smithing_level": 30,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "smelt_steel_bar",
+            "completed_achievements": [],
+            "dungeoneering": {
+                "coal_bag_owned": True,
+                "coal_bag_coal": 2,
+            },
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        result = run_answer_with_carried_overlay(
+            _context(player_data, calls, random_values=[0.0] * 20),
+            "smithing",
+            handle_smithing_answer,
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Iron ore"], 2)
+        self.assertEqual(player_data["inventory"]["Coal"], 3)
+        self.assertEqual(player_data["inventory"]["Steel bar"], 1)
+        self.assertEqual(player_data["dungeoneering"]["coal_bag_coal"], 0)
+        self.assertEqual(
+            player_data["carried_inventory"]["smelt_steel_bar"],
+            {"Iron ore": 2},
+        )
+        self.assertEqual(calls["errors"], [])
+
+        player_data["dungeoneering"]["coal_bag_coal"] = 1
+        for _review in range(10):
+            result = run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=[0.0] * 20),
+                "smithing",
+                handle_smithing_answer,
+            )
+            self.assertTrue(result)
+            if player_data["inventory"].get("Steel bar") == 2:
+                break
+
+        self.assertEqual(player_data["inventory"]["Steel bar"], 2)
+        self.assertEqual(player_data["inventory"]["Iron ore"], 1)
+        self.assertEqual(player_data["inventory"]["Coal"], 2)
+        self.assertEqual(player_data["dungeoneering"]["coal_bag_coal"], 0)
+        self.assertEqual(
+            player_data["carried_inventory"]["smelt_steel_bar"],
+            {"Iron ore": 1, "Coal": 1},
+        )
 
     def test_pack_depletes_then_forces_a_bank_run_leaving_bank_remainder(self):
         # 30 logs but a 28-slot pack: the pack primes to 28, 28 actions drain it,

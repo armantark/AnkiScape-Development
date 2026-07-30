@@ -14,12 +14,16 @@ from ..data.dungeoneering_data import (
     AMMO_BIND_CAPACITY,
     BIND_LOADOUT_COUNT,
     BIND_SLOTS_BY_LEVEL,
+    COAL_BAG_CAPACITY,
+    COAL_BAG_REWARD,
     COLLECTED_BIND_LIMIT,
     COMPLEXITIES_BY_LEVEL,
     DUNGEONEERING_ACTIVITY_ID,
     DUNGEONEERING_COMBAT_TARGET_ID,
     DUNGEONEERING_COMBAT_TICKS_PER_REVIEW,
     DUNGEONEERING_MAX_FLOOR,
+    DUNGEONEERING_REWARDS,
+    DUNGEONEERING_REWARDS_BY_ID,
     DUNGEONEERING_MAX_LEVEL,
     DUNGEONEERING_STATE_VERSION,
     FLOOR_SIZES_BY_ID,
@@ -30,6 +34,9 @@ from ..data.dungeoneering_data import (
     FROZEN_BOSS_COMBAT_LEVEL_LADDERS,
     FROZEN_SKILL_DOORS,
     FROZEN_SKILL_DOORS_BY_ID,
+    KINSHIP_CLASSES,
+    KINSHIP_CLASSES_BY_ID,
+    KINSHIP_TIER_COSTS,
     SALT_IN_THE_WOUND_AMMO_BIND_CAPACITY,
     SKILL_DOOR_FAILURE_CHANCE,
     SKILL_DOOR_FAILURE_DAMAGE_MULTIPLIER,
@@ -717,9 +724,15 @@ def default_dungeoneering_state_pure() -> dict[str, Any]:
         "active_bind_loadout": 0,
         "ammo_bind": {},
         "remembered_bind_choice": "skip",
+        "kinship_active_class": KINSHIP_CLASSES[0].id,
+        "kinship_tiers": {kinship_class.id: 0 for kinship_class in KINSHIP_CLASSES},
         "checked_floors": {theme.id: [] for theme in FLOOR_THEMES},
         "previous_progress": {theme.id: 0 for theme in FLOOR_THEMES},
         "tokens": 0,
+        "tokens_earned": 0,
+        "tokens_spent": 0,
+        "coal_bag_owned": False,
+        "coal_bag_coal": 0,
         "floors_completed": 0,
         "total_deaths": 0,
         "last_payout": {},
@@ -818,6 +831,14 @@ def _sanitize_ammo_bind(raw: object) -> dict[str, Any]:
         _non_negative_int(raw.get("quantity")),
     )
     return {"item_name": item_name, "quantity": quantity} if item_name and quantity else {}
+
+
+def _sanitize_kinship_tiers(raw: object) -> dict[str, int]:
+    source = raw if isinstance(raw, Mapping) else {}
+    return {
+        kinship_class.id: min(10, _non_negative_int(source.get(kinship_class.id)))
+        for kinship_class in KINSHIP_CLASSES
+    }
 
 
 def _sanitize_bind_offer(raw: object) -> dict[str, Any]:
@@ -975,6 +996,24 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
     remembered_choice = str(source.get("remembered_bind_choice", "skip"))
     if remembered_choice not in {"bind", "replace", "skip"}:
         remembered_choice = "skip"
+    kinship_active_class = str(
+        source.get("kinship_active_class", KINSHIP_CLASSES[0].id)
+    )
+    if kinship_active_class not in KINSHIP_CLASSES_BY_ID:
+        kinship_active_class = KINSHIP_CLASSES[0].id
+    kinship_tiers = _sanitize_kinship_tiers(source.get("kinship_tiers"))
+    tokens = _non_negative_int(source.get("tokens"))
+    tokens_spent = _non_negative_int(source.get("tokens_spent"))
+    tokens_earned = max(
+        _non_negative_int(source.get("tokens_earned")),
+        tokens + tokens_spent,
+    )
+    coal_bag_owned = bool(source.get("coal_bag_owned", False))
+    coal_bag_coal = (
+        min(COAL_BAG_CAPACITY, _non_negative_int(source.get("coal_bag_coal")))
+        if coal_bag_owned
+        else 0
+    )
     session_inventory = _sanitize_item_counts(source.get("session_inventory")) if active else {}
     session_equipment = _sanitize_session_equipment(source.get("session_equipment")) if active else {}
     session_coins = _non_negative_int(source.get("session_coins")) if active else 0
@@ -1008,9 +1047,15 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
         "active_bind_loadout": active_bind_loadout,
         "ammo_bind": ammo_bind,
         "remembered_bind_choice": remembered_choice,
+        "kinship_active_class": kinship_active_class,
+        "kinship_tiers": kinship_tiers,
         "checked_floors": checked_floors,
         "previous_progress": previous_progress,
-        "tokens": _non_negative_int(source.get("tokens")),
+        "tokens": tokens,
+        "tokens_earned": tokens_earned,
+        "tokens_spent": tokens_spent,
+        "coal_bag_owned": coal_bag_owned,
+        "coal_bag_coal": coal_bag_coal,
         "floors_completed": _non_negative_int(source.get("floors_completed")),
         "total_deaths": _non_negative_int(source.get("total_deaths")),
         "last_payout": last_payout,
@@ -1019,6 +1064,74 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
         )[:500],
         "last_result": str(source.get("last_result", defaults["last_result"]))[:500],
     }
+
+
+def _player_requirement_level_pure(
+    player_data: Mapping[str, Any],
+    skill_name: str,
+) -> int:
+    return _clean_level(player_data.get(f"{skill_name.lower()}_level", 1))
+
+
+def _carried_coal_for_current_smith_pure(player_data: Mapping[str, Any]) -> int:
+    carried = player_data.get("carried_inventory")
+    if not isinstance(carried, Mapping):
+        return 0
+    target = str(player_data.get("current_smith", ""))
+    pack = carried.get(target)
+    return (
+        _non_negative_int(pack.get("Coal"))
+        if isinstance(pack, Mapping)
+        else 0
+    )
+
+
+def _kinship_effect_view_pure(state: Mapping[str, Any]) -> dict[str, Any]:
+    class_id = str(state.get("kinship_active_class", KINSHIP_CLASSES[0].id))
+    kinship_class = KINSHIP_CLASSES_BY_ID[class_id]
+    tier = min(10, _non_negative_int((state.get("kinship_tiers") or {}).get(class_id)))
+    percent = kinship_class.tier_values_percent[tier - 1] if tier else 0
+    if class_id == "gatherer":
+        application = (
+            f"Live at {percent}%: a chance at one extra gathered resource and "
+            f"{percent}% less failed skill-task damage."
+            if tier
+            else "Buy tier 1 to activate extra resources and failed-task damage reduction."
+        )
+    elif class_id == "artisan":
+        application = (
+            f"Live at {percent}%: a chance to save processing inputs and "
+            f"{percent}% less failed skill-task damage."
+            if tier
+            else "Buy tier 1 to activate resource saves and failed-task damage reduction."
+        )
+    elif class_id == "medic":
+        application = (
+            "No solo-floor effect: the sourced perk heals another player, and the starter expedition is solo."
+        )
+    else:
+        application = (
+            "No automated-floor effect: this sourced combat perk depends on a per-hit stance or spell behavior "
+            "that the starter floor does not expose, so no substitute bonus is invented."
+        )
+    return {
+        "id": kinship_class.id,
+        "display_name": kinship_class.display_name,
+        "category": kinship_class.category,
+        "tier": tier,
+        "percent": percent,
+        "source_effect": kinship_class.effect,
+        "application": application,
+    }
+
+
+def _active_kinship_task_reduction_percent(state: Mapping[str, Any]) -> int:
+    effect = _kinship_effect_view_pure(state)
+    return (
+        int(effect["percent"])
+        if effect["id"] in {"gatherer", "artisan"}
+        else 0
+    )
 
 
 def _casual_route_room_pure(session: DungeonSession) -> int | None:
@@ -1398,10 +1511,29 @@ def _run_chain_step_pure(
     return True
 
 
+def _kinship_resource_roll_succeeds_pure(
+    state: Mapping[str, Any],
+    class_id: str,
+    rng: Callable[[], float] | None,
+) -> bool:
+    effect = _kinship_effect_view_pure(state)
+    return (
+        effect["id"] == class_id
+        and int(effect["percent"]) > 0
+        and _roll(rng) < int(effect["percent"]) / 100.0
+    )
+
+
+def _restore_chain_inputs_pure(state: dict[str, Any], step: Any) -> None:
+    for item_name, quantity in step.inputs:
+        _add_session_item(state, item_name, quantity)
+
+
 def _automate_resource_room_pure(
     state: dict[str, Any],
     player_data: Mapping[str, Any],
     session: DungeonSession,
+    rng: Callable[[], float] | None,
 ) -> tuple[dict[str, float], tuple[str, ...]]:
     policy = state["resource_policy"]
     if policy == "skip":
@@ -1412,6 +1544,9 @@ def _automate_resource_room_pure(
     if _run_chain_step_pure(state, player_data, caught):
         _award_chain_xp(rewards, "fishing", caught.xp)
         reports.append("caught Raw heim crab")
+        if _kinship_resource_roll_succeeds_pure(state, "gatherer", rng):
+            _add_session_item(state, caught.output[0], caught.output[1])
+            reports.append("Gatherer found one extra Raw heim crab")
     first_resource_room = not any(
         session.rooms[room_id].family == "resource"
         for room_id in session.resolved_room_ids
@@ -1432,6 +1567,9 @@ def _automate_resource_room_pure(
         if _run_chain_step_pure(state, player_data, cooked):
             _award_chain_xp(rewards, "cooking", cooked.xp)
             reports.append("cooked Heim crab")
+            if _kinship_resource_roll_succeeds_pure(state, "artisan", rng):
+                _restore_chain_inputs_pure(state, cooked)
+                reports.append("Artisan saved the Raw heim crab")
         if state["complexity"] >= 5 and _quest_complete(player_data, "druidic_ritual"):
             if (
                 _non_negative_int(state["session_inventory"].get("Vial")) > 0
@@ -1444,6 +1582,11 @@ def _automate_resource_room_pure(
                 if _run_chain_step_pure(state, player_data, step):
                     _award_chain_xp(rewards, "herblore", step.xp)
                     reports.append(step.display_name.lower())
+                    if step.inputs and _kinship_resource_roll_succeeds_pure(
+                        state, "artisan", rng
+                    ):
+                        _restore_chain_inputs_pure(state, step)
+                        reports.append(f"Artisan saved inputs for {step.display_name.lower()}")
     return rewards, tuple(reports)
 
 
@@ -1541,6 +1684,82 @@ def dungeoneering_view_pure(
             f"{boss.display_name} · level {boss_state['combat_level']} · "
             f"{boss_state['lifepoints']:,}/{maximum:,} LP"
         )
+    kinship_effect = _kinship_effect_view_pure(state)
+    kinship_rows = []
+    for kinship_class in KINSHIP_CLASSES:
+        tier = state["kinship_tiers"][kinship_class.id]
+        next_cost = KINSHIP_TIER_COSTS[tier] if tier < 10 else 0
+        kinship_rows.append(
+            {
+                "class_id": kinship_class.id,
+                "display_name": kinship_class.display_name,
+                "category": kinship_class.category,
+                "tier": tier,
+                "next_tier": tier + 1 if tier < 10 else 10,
+                "next_cost": next_cost,
+                "source_effect": kinship_class.effect,
+                "selected": kinship_class.id == state["kinship_active_class"],
+                "can_upgrade": (
+                    not active
+                    and tier < 10
+                    and state["tokens"] >= next_cost
+                ),
+            }
+        )
+    reward_rows = []
+    for reward in DUNGEONEERING_REWARDS:
+        locked_reasons = []
+        if level < reward.dungeoneering_level:
+            locked_reasons.append(f"Dungeoneering {reward.dungeoneering_level}")
+        for skill_name, required_level in reward.other_skill_requirements:
+            if _player_requirement_level_pure(player_data, skill_name) < required_level:
+                locked_reasons.append(f"{skill_name} {required_level}")
+        owned = reward.id == "coal_bag" and state["coal_bag_owned"]
+        if not reward.fully_functional:
+            status_text = "Catalogued — not purchasable yet"
+        elif owned:
+            status_text = "Owned"
+        elif locked_reasons:
+            status_text = "Requires " + ", ".join(locked_reasons)
+        elif state["tokens"] < reward.token_cost:
+            status_text = f"Need {reward.token_cost - state['tokens']:,} more tokens"
+        elif active:
+            status_text = "Leave the floor to purchase"
+        else:
+            status_text = "Available"
+        reward_rows.append(
+            {
+                "reward_id": reward.id,
+                "display_name": reward.display_name,
+                "token_cost": reward.token_cost,
+                "dungeoneering_level": reward.dungeoneering_level,
+                "other_skill_requirements": reward.other_skill_requirements,
+                "requirements_text": (
+                    "No level requirement"
+                    if reward.dungeoneering_level <= 0 and not reward.other_skill_requirements
+                    else ", ".join(
+                        ([f"Dungeoneering {reward.dungeoneering_level}"] if reward.dungeoneering_level > 0 else [])
+                        + [f"{skill_name} {required_level}" for skill_name, required_level in reward.other_skill_requirements]
+                    )
+                ),
+                "fully_functional": reward.fully_functional,
+                "owned": owned,
+                "locked_reasons": tuple(locked_reasons),
+                "status_text": status_text,
+                "can_purchase": (
+                    reward.fully_functional
+                    and not owned
+                    and not locked_reasons
+                    and not active
+                    and state["tokens"] >= reward.token_cost
+                ),
+                "notes": reward.notes,
+            }
+        )
+    total_coal = _non_negative_int((player_data.get("inventory") or {}).get("Coal"))
+    carried_coal = min(total_coal, _carried_coal_for_current_smith_pure(player_data))
+    bank_coal = max(0, total_coal - carried_coal)
+    coal_space = COAL_BAG_CAPACITY - state["coal_bag_coal"]
     return {
         **state,
         "theme": "frozen",
@@ -1565,6 +1784,37 @@ def dungeoneering_view_pure(
         ),
         "bind_loadout_options": tuple(range(BIND_LOADOUT_COUNT)),
         "bind_loadout_control_enabled": not active,
+        "kinship_rows": tuple(kinship_rows),
+        "kinship_effect": kinship_effect,
+        "kinship_control_enabled": not active,
+        "phase_c_entry_controls_visible": not active,
+        "kinship_upgrade_enabled": bool(
+            next(
+                row["can_upgrade"]
+                for row in kinship_rows
+                if row["selected"]
+            )
+        ),
+        "reward_rows": tuple(reward_rows),
+        "reward_catalog_count": len(reward_rows),
+        "reward_purchase_count": sum(row["can_purchase"] for row in reward_rows),
+        "reward_trader_enabled": not active,
+        "token_balance": state["tokens"],
+        "token_earned": state["tokens_earned"],
+        "token_spent": state["tokens_spent"],
+        "coal_bag_capacity": COAL_BAG_CAPACITY,
+        "coal_bag_bank_coal": bank_coal,
+        "coal_bag_carried_coal": carried_coal,
+        "coal_bag_space": coal_space,
+        "coal_bag_can_fill_bank": bool(
+            state["coal_bag_owned"] and coal_space > 0 and bank_coal > 0
+        ),
+        "coal_bag_can_fill_carried": bool(
+            state["coal_bag_owned"] and coal_space > 0 and carried_coal > 0
+        ),
+        "coal_bag_controls_visible": bool(
+            state["coal_bag_owned"] and not active
+        ),
         "collected_bind_limit": COLLECTED_BIND_LIMIT,
         "bind_slots": bind_slots,
         "bind_slots_used": len(active_loadout),
@@ -1656,6 +1906,125 @@ def apply_dungeoneering_command_pure(
         else ""
     )
 
+    if action_id == "select_kinship_class":
+        if state["active"]:
+            return data, False, {"reason": "Choose a Ring of Kinship class between floors."}
+        class_id = str(payload.get("class_id", ""))
+        kinship_class = KINSHIP_CLASSES_BY_ID.get(class_id)
+        if kinship_class is None:
+            return data, False, {"reason": "Choose one of the twelve Ring of Kinship classes."}
+        state["kinship_active_class"] = class_id
+        state["last_result"] = f"Ring of Kinship set to {kinship_class.display_name}."
+        data["dungeoneering"] = state
+        return data, True, {"message": state["last_result"]}
+
+    if action_id == "upgrade_kinship_class":
+        if state["active"]:
+            return data, False, {"reason": "Upgrade Ring of Kinship classes between floors."}
+        class_id = str(payload.get("class_id", state["kinship_active_class"]))
+        kinship_class = KINSHIP_CLASSES_BY_ID.get(class_id)
+        if kinship_class is None:
+            return data, False, {"reason": "Choose one of the twelve Ring of Kinship classes."}
+        tier = state["kinship_tiers"][class_id]
+        if tier >= 10:
+            return data, False, {"reason": f"{kinship_class.display_name} is already tier 10."}
+        cost = KINSHIP_TIER_COSTS[tier]
+        if state["tokens"] < cost:
+            return data, False, {"reason": f"Need {cost:,} tokens for {kinship_class.display_name} tier {tier + 1}."}
+        state["tokens"] -= cost
+        state["tokens_spent"] += cost
+        state["kinship_tiers"][class_id] = tier + 1
+        state["last_result"] = (
+            f"Upgraded {kinship_class.display_name} to tier {tier + 1} for {cost:,} tokens."
+        )
+        data["dungeoneering"] = state
+        return data, True, {"message": state["last_result"], "tokens_spent": cost}
+
+    if action_id == "purchase_reward":
+        if state["active"]:
+            return data, False, {"reason": "Leave the floor before using the reward trader."}
+        reward_id = str(payload.get("reward_id", ""))
+        reward = DUNGEONEERING_REWARDS_BY_ID.get(reward_id)
+        if reward is None:
+            return data, False, {"reason": "Unknown Dungeoneering reward."}
+        if not reward.fully_functional:
+            return data, False, {"reason": f"{reward.display_name} is catalogued but not purchasable yet."}
+        if reward.id == "coal_bag" and state["coal_bag_owned"]:
+            return data, False, {"reason": "Only one Coal bag may be owned."}
+        if _clean_level(data.get("dungeoneering_level", 1)) < reward.dungeoneering_level:
+            return data, False, {"reason": f"Need Dungeoneering {reward.dungeoneering_level} for {reward.display_name}."}
+        for skill_name, required_level in reward.other_skill_requirements:
+            if _player_requirement_level_pure(data, skill_name) < required_level:
+                return data, False, {"reason": f"Need {skill_name} {required_level} for {reward.display_name}."}
+        if state["tokens"] < reward.token_cost:
+            return data, False, {"reason": f"Need {reward.token_cost:,} tokens for {reward.display_name}."}
+        state["tokens"] -= reward.token_cost
+        state["tokens_spent"] += reward.token_cost
+        if reward.id == "coal_bag":
+            state["coal_bag_owned"] = True
+            state["coal_bag_coal"] = 0
+        state["last_result"] = f"Bought {reward.display_name} for {reward.token_cost:,} tokens."
+        data["dungeoneering"] = state
+        return data, True, {"message": state["last_result"], "tokens_spent": reward.token_cost}
+
+    if action_id == "fill_coal_bag":
+        if not state["coal_bag_owned"]:
+            return data, False, {"reason": "Buy the Coal bag before filling it."}
+        space = COAL_BAG_CAPACITY - state["coal_bag_coal"]
+        if space <= 0:
+            return data, False, {"reason": "The Coal bag already holds 27 Coal."}
+        source_id = str(payload.get("source", "bank"))
+        inventory = dict(data.get("inventory") or {})
+        total_coal = _non_negative_int(inventory.get("Coal"))
+        carried_root = dict(data.get("carried_inventory") or {})
+        target_id = str(data.get("current_smith", ""))
+        carried_pack = dict(carried_root.get(target_id) or {})
+        carried_coal = min(total_coal, _non_negative_int(carried_pack.get("Coal")))
+        available = carried_coal if source_id == "carried" else max(0, total_coal - carried_coal)
+        if source_id not in {"bank", "carried"}:
+            return data, False, {"reason": "Fill the Coal bag from Bank or carried Coal."}
+        amount = min(space, available)
+        if amount <= 0:
+            source_label = "carried pack" if source_id == "carried" else "Bank"
+            return data, False, {"reason": f"No Coal is available in the {source_label}."}
+        remaining_total = total_coal - amount
+        if remaining_total:
+            inventory["Coal"] = remaining_total
+        else:
+            inventory.pop("Coal", None)
+        if source_id == "carried":
+            remaining_carried = carried_coal - amount
+            if remaining_carried:
+                carried_pack["Coal"] = remaining_carried
+            else:
+                carried_pack.pop("Coal", None)
+            if carried_pack:
+                carried_root[target_id] = carried_pack
+            else:
+                carried_root.pop(target_id, None)
+        for carried_target, raw_pack in tuple(carried_root.items()):
+            pack = dict(raw_pack) if isinstance(raw_pack, Mapping) else {}
+            if "Coal" in pack:
+                clamped = min(remaining_total, _non_negative_int(pack.get("Coal")))
+                if clamped:
+                    pack["Coal"] = clamped
+                else:
+                    pack.pop("Coal", None)
+                if pack:
+                    carried_root[str(carried_target)] = pack
+                else:
+                    carried_root.pop(carried_target, None)
+        state["coal_bag_coal"] += amount
+        state["last_result"] = (
+            f"Filled the Coal bag with {amount} Coal from "
+            f"{'the carried pack' if source_id == 'carried' else 'Bank'} "
+            f"({state['coal_bag_coal']}/{COAL_BAG_CAPACITY})."
+        )
+        data["inventory"] = inventory
+        data["carried_inventory"] = carried_root
+        data["dungeoneering"] = state
+        return data, True, {"message": state["last_result"], "coal_added": amount}
+
     if action_id == "enter":
         if active_session_id not in {"", DUNGEONEERING_ACTIVITY_ID}:
             return data, False, {"reason": "Another persistent activity is active."}
@@ -1692,6 +2061,7 @@ def apply_dungeoneering_command_pure(
         )
         boss_enemy = frozen_boss_enemy_pure(boss.id, boss_level)
         boss_lifepoints = boss_enemy["stats"]["hitpoints"]
+        kinship_effect = _kinship_effect_view_pure(state)
         state.update(
             {
                 "active": True,
@@ -1889,7 +2259,18 @@ def _skill_door_review_pure(
             "automation": f"opened {door.display_name} for {xp} {door.skill_id.title()} XP",
         }
 
-    damage = room.required_level * SKILL_DOOR_FAILURE_DAMAGE_MULTIPLIER
+    base_damage = room.required_level * SKILL_DOOR_FAILURE_DAMAGE_MULTIPLIER
+    reduction_percent = _active_kinship_task_reduction_percent(state)
+    damage = (
+        max(1, math.floor(base_damage * (100 - reduction_percent) / 100))
+        if base_damage > 0
+        else 0
+    )
+    ring_report = (
+        f"; Ring reduced the failed-task damage from {base_damage} to {damage}"
+        if reduction_percent and damage < base_damage
+        else ""
+    )
     current = _non_negative_int(
         data.get("combat_lifepoints"),
         combat_max_lifepoints_pure(data),
@@ -1908,9 +2289,9 @@ def _skill_door_review_pure(
         "death": died,
         "healed": healed,
         "status": (
-            f"Failed {door.display_name} for {damage} true damage; respawned at the floor start."
+            f"Failed {door.display_name} for {damage} true damage{ring_report}; respawned at the floor start."
             if died
-            else f"Failed {door.display_name} for {damage} true damage"
+            else f"Failed {door.display_name} for {damage} true damage{ring_report}"
             + (f"; auto-ate Heim crab for {healed} LP." if healed else ".")
         ),
     }
@@ -2138,7 +2519,12 @@ def apply_dungeoneering_review_pure(
     resolved = resolve_starter_room_pure(session, room_id)
     state["selected_room_id"] = -1
     if room.family == "resource":
-        chain_xp, chain_reports = _automate_resource_room_pure(state, data, session)
+        chain_xp, chain_reports = _automate_resource_room_pure(
+            state,
+            data,
+            session,
+            rng,
+        )
         for skill_id, amount in chain_xp.items():
             xp_rewards[skill_id] = xp_rewards.get(skill_id, 0.0) + amount
         automation_reports.extend(chain_reports)
@@ -2191,6 +2577,7 @@ def apply_dungeoneering_review_pure(
         checked.clear()
     state["checked_floors"]["frozen"] = sorted(checked)
     state["tokens"] += payout.tokens
+    state["tokens_earned"] += payout.tokens
     state["floors_completed"] += 1
     state["active"] = False
     state["last_payout"] = {

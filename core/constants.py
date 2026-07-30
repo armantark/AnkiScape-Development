@@ -8,6 +8,10 @@ from ..data.agility_data import (
     AGILITY_ITEM_IMAGES,
     AGILITY_TARGETS_BY_ID,
 )
+from ..data.dungeoneering_data import (
+    DUNGEONEERING_ITEM_IMAGES,
+    dungeoneering_extra_items_as_dict,
+)
 from ..data.fist_of_guthix_data import (
     fist_of_guthix_activity_as_dict,
     fist_of_guthix_extra_items_as_dict,
@@ -1837,6 +1841,7 @@ CRUCIBLE_EXTRA_ITEM_DATA = crucible_extra_items_as_dict()
 GOBLIN_RAIDS_EXTRA_ITEM_DATA = goblin_raids_extra_items_as_dict()
 DAILY_CHALLENGE_EXTRA_ITEM_DATA = daily_challenge_extra_items_as_dict()
 TREASURE_TRAILS_EXTRA_ITEM_DATA = treasure_trails_extra_items_as_dict()
+DUNGEONEERING_EXTRA_ITEM_DATA = dungeoneering_extra_items_as_dict()
 COURT_CASES_ITEM_IMAGES = {
     "Court summons": os.path.join(
         UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -2444,6 +2449,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **GOBLIN_RAIDS_EXTRA_ITEM_DATA,
     **DAILY_CHALLENGE_EXTRA_ITEM_DATA,
     **TREASURE_TRAILS_EXTRA_ITEM_DATA,
+    **DUNGEONEERING_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -2497,6 +2503,7 @@ EXTRA_ITEM_IMAGES = {
     **FISH_FLINGERS_ITEM_IMAGES,
     **DAILY_CHALLENGE_ITEM_IMAGES,
     **TREASURE_TRAILS_ITEM_IMAGES,
+    **DUNGEONEERING_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 
