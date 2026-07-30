@@ -137,6 +137,7 @@ from .logic.circus_logic import apply_circus_command_pure
 from .logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
 from .logic.castle_wars_logic import apply_castle_wars_command_pure
 from .logic.pest_control_logic import apply_pest_control_command_pure
+from .logic.conquest_logic import apply_conquest_command_pure
 from .logic.barbarian_assault_logic import apply_barbarian_assault_command_pure
 from .logic.stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
@@ -3314,6 +3315,39 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_conquest_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_conquest_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+                random.random,
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {
+                    "ok": False,
+                    "message": str(info["reason"]),
+                    **info,
+                }
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_troll_invasion_command(action_id, payload):
         info = {}
         awarded_xp = 0.0
@@ -3852,6 +3886,7 @@ def _on_main_menu(
         on_trouble_brewing_command=_apply_trouble_brewing_command,
         on_castle_wars_command=_apply_castle_wars_command,
         on_pest_control_command=_apply_pest_control_command,
+        on_conquest_command=_apply_conquest_command,
         on_barbarian_assault_command=_apply_barbarian_assault_command,
         on_stronghold_player_safety_command=(
             _apply_stronghold_player_safety_command

@@ -49,6 +49,12 @@ from ..data.pest_control_data import (
     pest_control_equipment_data_as_dict,
     pest_control_extra_items_as_dict,
 )
+from ..data.conquest_data import (
+    CONQUEST_ACTIVITY_ID,
+    conquest_activity_as_dict,
+    conquest_equipment_data_as_dict,
+    conquest_extra_items_as_dict,
+)
 
 from ..data.barbarian_assault_data import (
     BARBARIAN_ASSAULT_ACTIVITY_ID,
@@ -678,6 +684,7 @@ UTILITY_ACTIVITY_DATA.update(circus_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(trouble_brewing_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(castle_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pest_control_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(conquest_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barbarian_assault_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stronghold_player_safety_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(soul_wars_activity_as_dict())
@@ -796,6 +803,9 @@ _pest_control_icon = os.path.join(
 )
 if os.path.exists(_pest_control_icon):
     UTILITY_ACTIVITY_DATA[PEST_CONTROL_ACTIVITY_ID]["icon_path"] = _pest_control_icon
+_conquest_icon = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "conquest.png")
+if os.path.exists(_conquest_icon):
+    UTILITY_ACTIVITY_DATA[CONQUEST_ACTIVITY_ID]["icon_path"] = _conquest_icon
 _barbarian_assault_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "barbarian_assault.png",
@@ -1683,6 +1693,7 @@ EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
+EQUIPMENT_DATA.update(conquest_equipment_data_as_dict())
 EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
 EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
 EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
@@ -1702,6 +1713,7 @@ CIRCUS_EXTRA_ITEM_DATA = circus_extra_items_as_dict()
 TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
 CASTLE_WARS_EXTRA_ITEM_DATA = castle_wars_extra_items_as_dict()
 PEST_CONTROL_EXTRA_ITEM_DATA = pest_control_extra_items_as_dict()
+CONQUEST_EXTRA_ITEM_DATA = conquest_extra_items_as_dict()
 BARBARIAN_ASSAULT_EXTRA_ITEM_DATA = barbarian_assault_extra_items_as_dict()
 STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA = (
     stronghold_player_safety_extra_items_as_dict()
@@ -1902,6 +1914,19 @@ PEST_CONTROL_ITEM_IMAGES = {
         f"pest_control_{_asset_slug(item_name)}.png",
     )
     for item_name in PEST_CONTROL_EXTRA_ITEM_DATA
+}
+CONQUEST_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"conquest_{_asset_slug(item_name)}.png",
+    )
+    for item_name in CONQUEST_EXTRA_ITEM_DATA
+}
+CONQUEST_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in CONQUEST_ITEM_IMAGES.items()
+    if os.path.exists(path)
 }
 PEST_CONTROL_ITEM_IMAGES = {
     item_name: path
@@ -2419,6 +2444,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **TROUBLE_BREWING_EXTRA_ITEM_DATA,
     **CASTLE_WARS_EXTRA_ITEM_DATA,
     **PEST_CONTROL_EXTRA_ITEM_DATA,
+    **CONQUEST_EXTRA_ITEM_DATA,
     **BARBARIAN_ASSAULT_EXTRA_ITEM_DATA,
     **STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA,
     **STRONGHOLD_OF_SECURITY_EXTRA_ITEM_DATA,
@@ -2478,6 +2504,7 @@ EXTRA_ITEM_IMAGES = {
     **TROUBLE_BREWING_ITEM_IMAGES,
     **CASTLE_WARS_ITEM_IMAGES,
     **PEST_CONTROL_ITEM_IMAGES,
+    **CONQUEST_ITEM_IMAGES,
     **BARBARIAN_ASSAULT_ITEM_IMAGES,
     **STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES,
     **STRONGHOLD_OF_SECURITY_ITEM_IMAGES,

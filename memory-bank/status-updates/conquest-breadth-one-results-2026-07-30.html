@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#090d12">
+  <title>Conquest breadth-one results</title>
+  <style>
+    :root {
+      --bg: #090d12;
+      --panel: #111821;
+      --panel-2: #17212d;
+      --line: #263647;
+      --text: #e8f0f7;
+      --muted: #91a1b2;
+      --blue: #61a8ff;
+      --cyan: #5eead4;
+      --green: #57dc85;
+      --amber: #f6c453;
+      --red: #ff7a7a;
+      --purple: #b99cff;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(97, 168, 255, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(97, 168, 255, .035) 1px, transparent 1px),
+        radial-gradient(circle at 12% 0%, rgba(97, 168, 255, .18), transparent 31rem),
+        radial-gradient(circle at 92% 18%, rgba(94, 234, 212, .1), transparent 28rem),
+        var(--bg);
+      background-size: 28px 28px, 28px 28px, auto, auto, auto;
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: inherit; }
+    button { font: inherit; }
+    main {
+      width: min(1140px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+    }
+    .mono {
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
+    }
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(87, 220, 133, .38);
+      border-radius: 999px;
+      color: #a4f2bd;
+      background: rgba(87, 220, 133, .08);
+      font: 800 11px/1 "JetBrains Mono", "SFMono-Regular", monospace;
+      letter-spacing: .08em;
+    }
+    .badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green);
+    }
+    .date { color: var(--muted); font-size: 12px; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(23, 33, 45, .96), rgba(13, 19, 27, .98));
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -110px;
+      width: 340px;
+      height: 340px;
+      border: 1px solid rgba(97, 168, 255, .25);
+      border-radius: 42%;
+      transform: rotate(18deg);
+      box-shadow:
+        inset 0 0 0 36px rgba(97, 168, 255, .025),
+        inset 0 0 0 72px rgba(97, 168, 255, .018);
+      pointer-events: none;
+    }
+    .kicker {
+      margin: 0 0 10px;
+      color: var(--blue);
+      font: 800 11px/1 "JetBrains Mono", "SFMono-Regular", monospace;
+      letter-spacing: .12em;
+    }
+    h1 {
+      max-width: 800px;
+      margin: 0;
+      font-size: clamp(34px, 6vw, 62px);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+    .hero p {
+      max-width: 780px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 28px;
+    }
+    .metric {
+      padding: 14px;
+      border: 1px solid rgba(97, 168, 255, .18);
+      border-radius: 12px;
+      background: rgba(7, 12, 18, .5);
+    }
+    .metric strong {
+      display: block;
+      color: var(--metric, var(--blue));
+      font-size: 25px;
+      line-height: 1;
+    }
+    .metric span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 20px 0 28px;
+    }
+    nav a {
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(17, 24, 33, .86);
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    nav a:hover, nav a:focus-visible {
+      color: var(--text);
+      border-color: var(--blue);
+      outline: none;
+    }
+    section { margin-top: 28px; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+    h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .compare {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: linear-gradient(180deg, rgba(23, 33, 45, .9), rgba(17, 24, 33, .94));
+    }
+    .compare .label {
+      color: var(--tone, var(--blue));
+      font: 800 10px/1 "JetBrains Mono", "SFMono-Regular", monospace;
+      letter-spacing: .1em;
+    }
+    .compare h3 { margin: 10px 0 8px; font-size: 16px; }
+    .compare p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.48; }
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 13px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .node {
+      flex: 0 0 auto;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #0c1219;
+      font: 700 10px/1.2 "JetBrains Mono", "SFMono-Regular", monospace;
+    }
+    .arrow { color: var(--muted); }
+    .contract-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .contract {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 33, .88);
+    }
+    .contract .value {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      border-radius: 9px;
+      color: var(--tone, var(--cyan));
+      background: rgba(94, 234, 212, .07);
+      font: 900 14px/1 "JetBrains Mono", "SFMono-Regular", monospace;
+    }
+    .contract h3 { margin: 1px 0 5px; font-size: 14px; }
+    .contract p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .test-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 12px;
+    }
+    .test-panel, .file-panel, .open-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17, 24, 33, .9);
+      overflow: hidden;
+    }
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(23, 33, 45, .72);
+    }
+    .panel-title strong { font-size: 13px; }
+    .panel-title span { color: var(--green); font: 800 11px/1.4 "JetBrains Mono", monospace; }
+    .test-row {
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      gap: 11px;
+      align-items: center;
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(38, 54, 71, .65);
+    }
+    .test-row:last-child { border-bottom: 0; }
+    .test-row strong { color: var(--green); font-size: 18px; }
+    .test-row b { display: block; font-size: 12px; }
+    .test-row small { display: block; margin-top: 3px; color: var(--muted); line-height: 1.35; }
+    .test-row code { color: var(--muted); font-size: 10px; }
+    .mini-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      padding: 18px;
+    }
+    .square {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--muted);
+      background: #0c1219;
+      font: 800 10px/1 "JetBrains Mono", monospace;
+    }
+    .square.pass { color: var(--green); border-color: rgba(87, 220, 133, .36); background: rgba(87, 220, 133, .07); }
+    .file-columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+    }
+    .file-group { min-width: 0; padding: 16px; background: var(--panel); }
+    .file-group h3 {
+      margin: 0 0 10px;
+      color: var(--tone, var(--blue));
+      font-size: 12px;
+      letter-spacing: .03em;
+    }
+    .file-group ul { margin: 0; padding: 0; list-style: none; }
+    .file-group li {
+      margin-top: 7px;
+      color: var(--muted);
+      font: 600 10px/1.35 "JetBrains Mono", "SFMono-Regular", monospace;
+      overflow-wrap: anywhere;
+    }
+    .open-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+    }
+    .open-card { padding: 16px; background: var(--panel); }
+    .open-card .state {
+      color: var(--tone, var(--amber));
+      font: 800 10px/1 "JetBrains Mono", monospace;
+      letter-spacing: .08em;
+    }
+    .open-card h3 { margin: 9px 0 7px; font-size: 14px; }
+    .open-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    details {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: rgba(12, 18, 25, .8);
+    }
+    summary {
+      padding: 12px 14px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    pre {
+      margin: 0;
+      padding: 0 14px 14px;
+      color: #afbdd0;
+      font: 10px/1.55 "JetBrains Mono", "SFMono-Regular", monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+    @media (max-width: 850px) {
+      .metrics, .comparison { grid-template-columns: repeat(2, 1fr); }
+      .test-grid { grid-template-columns: 1fr; }
+      .file-columns, .open-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 520px); padding-top: 20px; }
+      .topline, .section-head, .foot { align-items: flex-start; flex-direction: column; }
+      .metrics, .comparison, .contract-grid { grid-template-columns: 1fr; }
+      .hero { padding: 23px 18px; }
+      .test-row { grid-template-columns: 40px 1fr; }
+      .test-row code { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topline">
+      <span class="badge">BREADTH ONE COMPLETE</span>
+      <span class="date mono">CONQUEST · 2026-07-30 · SCHEMA 102</span>
+    </div>
+
+    <header class="hero">
+      <p class="kicker">RESULTS / SAFE COMPETITIVE ACTIVITY</p>
+      <h1>Conquest is playable, bounded, and settled.</h1>
+      <p>A combat-40 player can configure a sourced squad, enter a safe match against a labelled simulated opponent, advance one complete exchange per productive review, earn shared commendations, change rating, and buy the Void knight deflector.</p>
+      <div class="metrics" aria-label="Closure metrics">
+        <div class="metric" style="--metric: var(--green)"><strong>142</strong><span>focused checks pass</span></div>
+        <div class="metric" style="--metric: var(--cyan)"><strong>20/20</strong><span>seeded matches terminate</span></div>
+        <div class="metric" style="--metric: var(--blue)"><strong>9</strong><span>sourced commands are live</span></div>
+        <div class="metric" style="--metric: var(--amber)"><strong>13</strong><span>placeholders registered</span></div>
+      </div>
+    </header>
+
+    <nav aria-label="Result sections">
+      <a href="#delivered">Delivered</a>
+      <a href="#contracts">Pinned contracts</a>
+      <a href="#verification">Verification</a>
+      <a href="#files">Files</a>
+      <a href="#open">Open items</a>
+    </nav>
+
+    <section id="delivered">
+      <div class="section-head">
+        <h2>Plan → delivered system</h2>
+        <p>The plan artifact remains unchanged for direct comparison.</p>
+      </div>
+      <div class="comparison">
+        <article class="compare" style="--tone: var(--blue)">
+          <div class="label">MATCH ENGINE</div>
+          <h3>A real bounded board reducer</h3>
+          <p>The 20×20 placeholder board persists troops, obstacles, command points, cooldowns, ratings, and only the state that changes later play.</p>
+          <div class="flow"><span class="node">review</span><span class="arrow">→</span><span class="node">player turn</span><span class="arrow">→</span><span class="node">opponent turn</span></div>
+        </article>
+        <article class="compare" style="--tone: var(--purple)">
+          <div class="label">PLAYER SURFACE</div>
+          <h3>Compact setup without board micromanagement</h3>
+          <p>Casual uses the reconstructed default. Advanced exposes the seven troops, nine commands, four-command cap, and three doctrines across three compact pages.</p>
+          <div class="flow"><span class="node">overview</span><span class="arrow">→</span><span class="node">squad</span><span class="arrow">→</span><span class="node">commands</span></div>
+        </article>
+        <article class="compare" style="--tone: var(--green)">
+          <div class="label">SETTLEMENT</div>
+          <h3>One economy, no duplicate wallet</h3>
+          <p>Conquest credits Pest Control's wallet, applies exact combat multipliers and caps, gives no win bonus, updates rating, and unlocks the deflector at 1,250.</p>
+          <div class="flow"><span class="node">ratio 1–10</span><span class="arrow">×</span><span class="node">combat band</span><span class="arrow">→</span><span class="node">wallet ≤500</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="contracts">
+      <div class="section-head">
+        <h2>Source corrections locked in tests</h2>
+        <p>No combat triangle. No hybrid roster.</p>
+      </div>
+      <div class="contract-grid">
+        <article class="contract" style="--tone: var(--cyan)"><div class="value">1</div><div><h3>Knight attack range</h3><p>Movement stays 4. The copied range value does not survive.</p></div></article>
+        <article class="contract" style="--tone: var(--cyan)"><div class="value">4</div><div><h3>Mage attack range</h3><p>The period details value replaces the incorrect prose value.</p></div></article>
+        <article class="contract" style="--tone: var(--amber)"><div class="value">500</div><div><h3>Champion life points</h3><p>Temporary command health expires back to the sourced maximum.</p></div></article>
+        <article class="contract" style="--tone: var(--amber)"><div class="value">75</div><div><h3>Stoicism command points</h3><p>All nine command costs, cooldowns, effects, and durations are represented.</p></div></article>
+        <article class="contract" style="--tone: var(--blue)"><div class="value">40</div><div><h3>Combat entry requirement</h3><p>Ordinary Conquest has no quest gate in the Activities adaptation.</p></div></article>
+        <article class="contract" style="--tone: var(--green)"><div class="value">0×</div><div><h3>No winner reward bonus</h3><p>Both outcomes use the same match-length ratio and the player's combat band.</p></div></article>
+      </div>
+    </section>
+
+    <section id="verification">
+      <div class="section-head">
+        <h2>Verification matrix</h2>
+        <p>All gameplay tests use the real reducers and callbacks.</p>
+      </div>
+      <div class="test-grid">
+        <div class="test-panel">
+          <div class="panel-title"><strong>Executed checks</strong><span>ALL GREEN</span></div>
+          <div class="test-row"><strong>137</strong><div><b>Backend target modules</b><small>Conquest, placeholder register, cadence, Pest Control, Music Log, and schema storage.</small></div><code>1.445s</code></div>
+          <div class="test-row"><strong>3</strong><div><b>Exact undo integrations</b><small>Setup, entry, resignation, and the complete pre-review match snapshot.</small></div><code>0.887s</code></div>
+          <div class="test-row"><strong>2</strong><div><b>Real offscreen Qt</b><small>Three-page Conquest card at 900×700 and 760×560, plus the shared deflector shop.</small></div><code>2.011s</code></div>
+          <div class="test-row"><strong>✓</strong><div><b>Compilation</b><small>The affected core, data, logic, runtime, UI, and test surfaces compile.</small></div><code>compileall</code></div>
+        </div>
+        <div class="test-panel">
+          <div class="panel-title"><strong>Mechanical proof</strong><span>BOUNDED</span></div>
+          <div class="mini-board" aria-label="Twenty seeded simulations passed">
+            <span class="square pass">01</span><span class="square pass">02</span><span class="square pass">03</span><span class="square pass">04</span><span class="square pass">05</span>
+            <span class="square pass">06</span><span class="square pass">07</span><span class="square pass">08</span><span class="square pass">09</span><span class="square pass">10</span>
+            <span class="square pass">11</span><span class="square pass">12</span><span class="square pass">13</span><span class="square pass">14</span><span class="square pass">15</span>
+            <span class="square pass">16</span><span class="square pass">17</span><span class="square pass">18</span><span class="square pass">19</span><span class="square pass">20</span>
+          </div>
+          <div style="padding: 0 18px 18px; color: var(--muted); font-size: 12px; line-height: 1.45;">Every sampled match reached a terminal state within the declared 60-exchange test bound.</div>
+        </div>
+      </div>
+      <details>
+        <summary>Exact backend command</summary>
+        <pre id="test-command">python -m unittest tests.test_conquest tests.test_placeholder_register tests.test_cadence_live tests.test_pest_control tests.test_music_log tests.test_storage_pure</pre>
+      </details>
+    </section>
+
+    <section id="files">
+      <div class="section-head">
+        <h2>Changed surfaces</h2>
+        <p>New Conquest files are separated from shared integration seams.</p>
+      </div>
+      <div class="file-panel">
+        <div class="file-columns">
+          <div class="file-group" style="--tone: var(--cyan)">
+            <h3>NEW CONQUEST CORE</h3>
+            <ul>
+              <li>data/conquest_data.py</li>
+              <li>logic/conquest_logic.py</li>
+              <li>ui/conquest_panel.py</li>
+              <li>tests/test_conquest.py</li>
+              <li>tools/fetch_conquest_assets.py</li>
+              <li>activityicons/conquest.png</li>
+              <li>activityitems/conquest_void_knight_deflector.png</li>
+            </ul>
+          </div>
+          <div class="file-group" style="--tone: var(--blue)">
+            <h3>SHARED INTEGRATION</h3>
+            <ul>
+              <li>__init__.py</li>
+              <li>core/constants.py</li>
+              <li>core/storage_pure.py</li>
+              <li>data/music_log_data.py</li>
+              <li>logic/cadence_coverage.py</li>
+              <li>logic/music_log_logic.py</li>
+              <li>logic/pest_control_logic.py</li>
+              <li>runtime/runtime_actions.py</li>
+              <li>runtime/runtime_actions_activities.py</li>
+              <li>runtime/runtime_actions_gates.py</li>
+              <li>runtime/runtime_actions_utility.py</li>
+              <li>ui/ui.py</li>
+              <li>assets_provenance.json</li>
+            </ul>
+          </div>
+          <div class="file-group" style="--tone: var(--purple)">
+            <h3>PROOF AND MEMORY</h3>
+            <ul>
+              <li>tests/test_direct_action_undo_seam.py</li>
+              <li>tests/test_integration_smoke.py</li>
+              <li>tests/test_main_menu_widget.py</li>
+              <li>tests/test_music_log.py</li>
+              <li>memory-bank/placeholder-values.md</li>
+              <li>memory-bank/activeContext.md</li>
+              <li>memory-bank/progress.md</li>
+              <li>memory-bank/future-work-kanban.md</li>
+              <li>memory-bank/status-updates/conquest-breadth-one-plan-2026-07-30.html</li>
+              <li>memory-bank/status-updates/conquest-breadth-one-results-2026-07-30.html</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="open">
+      <div class="section-head">
+        <h2>Honest open items</h2>
+        <p>These items do not block the requested breadth slice.</p>
+      </div>
+      <div class="open-panel">
+        <div class="open-grid">
+          <article class="open-card" style="--tone: var(--amber)">
+            <div class="state">REGISTERED PLACEHOLDERS</div>
+            <h3>Thirteen values await stronger period evidence</h3>
+            <p>Board size and layouts, unit cap, Foot Soldier cost, start/passive/kill CP, cooldown boundary, first player, early threshold, rating formula, ratio curve, and timeout resolution are labelled in code and the register.</p>
+          </article>
+          <article class="open-card" style="--tone: var(--purple)">
+            <div class="state">EXPLICIT DATA DEPTH</div>
+            <h3>Quest battle and staked play stay out</h3>
+            <p>The Void Stares Back pest roster, its Torcher placeholder, and simulated stakes are not ordinary Conquest. Human truce and disconnect flows also have no role against the bounded local opponent.</p>
+          </article>
+          <article class="open-card" style="--tone: var(--red)">
+            <div class="state">ADJACENT INFRASTRUCTURE</div>
+            <h3>No Void-set engine exists to extend</h3>
+            <p>The deflector can be bought and equipped with its sourced stats. Its historical non-helm substitution rule cannot affect a set bonus because the current shared shop does not model that set bonus.</p>
+          </article>
+        </div>
+      </div>
+      <details>
+        <summary>Documentation audit note</summary>
+        <pre>The documentation audit checked 493 Markdown and 421 HTML files. It found six older status artifacts without a doctype. No Conquest document failed. Those historical files are a second-level finding and were not changed.</pre>
+      </details>
+    </section>
+
+    <footer class="foot">
+      <span>Authority: memory-bank/source-audits/conquest-harvest-2026-07-28.md</span>
+      <span>No git commands were run.</span>
+    </footer>
+  </main>
+</body>
+</html>

@@ -27,6 +27,11 @@ from ..data.pest_control_data import (
     VOID_SEAL_ITEMS,
     pest_control_portal_enemy_pure,
 )
+from ..data.conquest_data import (
+    CONQUEST_DEFLECTOR_COST,
+    CONQUEST_DEFLECTOR_ITEM,
+    CONQUEST_DEFLECTOR_RATING,
+)
 
 
 PEST_CONTROL_STATE_VERSION = 1
@@ -555,8 +560,10 @@ def buy_void_seal_pure(
     # and the follower alias this module reads is never written.
     data = dict(player_data)
     state = sanitize_pest_control_state_pure(data)
-    if state["pest_control"]:
-        return data, False, {"reason": "Finish the current Pest Control game first."}
+    active = data.get("activity_session")
+    active_id = str(active.get("active_id", "")) if isinstance(active, Mapping) else ""
+    if active_id:
+        return data, False, {"reason": "Finish the active persistent activity first."}
     wallet = state["pest_control_commendations"]
     if wallet < VOID_SEAL_COST:
         return data, False, {"reason": f"Requires {VOID_SEAL_COST} commendations."}
@@ -566,6 +573,51 @@ def buy_void_seal_pure(
     data["inventory"] = inventory
     data["pest_control_commendations"] = wallet - VOID_SEAL_COST
     return data, True, {"message": "Bought a Void seal (8)."}
+
+
+def _owns_void_knight_deflector(player_data: Mapping[str, Any]) -> bool:
+    equipment = player_data.get("equipment")
+    if (
+        isinstance(equipment, Mapping)
+        and str(equipment.get("shield", "")) == CONQUEST_DEFLECTOR_ITEM
+    ):
+        return True
+    inventory = player_data.get("inventory")
+    return (
+        isinstance(inventory, Mapping)
+        and _int(inventory.get(CONQUEST_DEFLECTOR_ITEM)) > 0
+    )
+
+
+def buy_void_knight_deflector_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    data = dict(player_data)
+    state = sanitize_pest_control_state_pure(data)
+    active = data.get("activity_session")
+    active_id = str(active.get("active_id", "")) if isinstance(active, Mapping) else ""
+    if active_id:
+        return data, False, {"reason": "Finish the active persistent activity first."}
+    if _owns_void_knight_deflector(data):
+        return data, False, {"reason": "The Void knight deflector is already owned."}
+    rating = _int(data.get("conquest_rating"), 1_000, maximum=99_999)
+    if rating < CONQUEST_DEFLECTOR_RATING:
+        return data, False, {
+            "reason": f"Requires Conquest rating {CONQUEST_DEFLECTOR_RATING:,}."
+        }
+    wallet = state["pest_control_commendations"]
+    if wallet < CONQUEST_DEFLECTOR_COST:
+        return data, False, {
+            "reason": f"Requires {CONQUEST_DEFLECTOR_COST} commendations."
+        }
+    inventory = dict(data.get("inventory") or {})
+    inventory[CONQUEST_DEFLECTOR_ITEM] = (
+        _int(inventory.get(CONQUEST_DEFLECTOR_ITEM)) + 1
+    )
+    data.update(state)
+    data["inventory"] = inventory
+    data["pest_control_commendations"] = wallet - CONQUEST_DEFLECTOR_COST
+    return data, True, {"message": f"Bought the {CONQUEST_DEFLECTOR_ITEM}."}
 
 
 def pest_control_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
@@ -584,6 +636,32 @@ def pest_control_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         }
         for lander in PEST_CONTROL_LANDERS
     )
+    active_state = player_data.get("activity_session")
+    persistent_active = (
+        str(active_state.get("active_id", ""))
+        if isinstance(active_state, Mapping)
+        else ""
+    )
+    deflector_owned = _owns_void_knight_deflector(player_data)
+    deflector_rating = _int(
+        player_data.get("conquest_rating"), 1_000, maximum=99_999
+    )
+    deflector_reason = ""
+    seal_reason = ""
+    if persistent_active:
+        seal_reason = "Finish the active persistent activity first."
+    elif state["pest_control_commendations"] < VOID_SEAL_COST:
+        seal_reason = f"Requires {VOID_SEAL_COST} commendations."
+    if persistent_active:
+        deflector_reason = "Finish the active persistent activity first."
+    elif deflector_owned:
+        deflector_reason = "Already owned."
+    elif deflector_rating < CONQUEST_DEFLECTOR_RATING:
+        deflector_reason = (
+            f"Requires Conquest rating {CONQUEST_DEFLECTOR_RATING:,}."
+        )
+    elif state["pest_control_commendations"] < CONQUEST_DEFLECTOR_COST:
+        deflector_reason = f"Requires {CONQUEST_DEFLECTOR_COST} commendations."
     return {
         **state,
         "active": bool(session),
@@ -603,7 +681,15 @@ def pest_control_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         ),
         "seal_available": _has_void_seal(player_data),
         "seal_cost": VOID_SEAL_COST,
+        "seal_enabled": not seal_reason,
+        "seal_reason": seal_reason,
         "commendation_cap": PEST_CONTROL_COMMENDATION_CAP,
+        "deflector_cost": CONQUEST_DEFLECTOR_COST,
+        "deflector_rating_required": CONQUEST_DEFLECTOR_RATING,
+        "deflector_rating": deflector_rating,
+        "deflector_owned": deflector_owned,
+        "deflector_enabled": not deflector_reason,
+        "deflector_reason": deflector_reason,
     }
 
 
@@ -620,6 +706,8 @@ def apply_pest_control_command_pure(
         return set_pest_control_policy_pure(player_data, payload)
     if action_id == "buy_void_seal":
         return buy_void_seal_pure(player_data)
+    if action_id == "buy_void_knight_deflector":
+        return buy_void_knight_deflector_pure(player_data)
     # Shallow on purpose: nothing ran, and callers discard the save they get
     # back on a failed command.
     return dict(player_data), False, {"reason": "Unknown Pest Control command."}

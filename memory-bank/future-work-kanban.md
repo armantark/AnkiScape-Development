@@ -14,6 +14,31 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Conquest — horizontal mechanics shipped 2026-07-30
+
+Labels: `SOURCE AUDIT` for registered placeholder values and deferred data depth.
+
+- The combat-40 safe match, Casual reconstructed setup, Advanced squad/command
+  setup, seven sourced troops, nine sourced commands, persisted board, bounded
+  symmetric heuristic, one-exchange review cadence, command-point economy,
+  elimination, and direct resignation are live.
+- Match settlement credits Pest Control's shared wallet with the exact combat
+  multipliers and caps and no winner bonus. Opponent-sensitive rating starts at
+  1,000 and floors at zero. Rating 1,250 unlocks the 150-commendation Void knight
+  deflector in the existing shop.
+- Schema 102, repair, activity arbitration, cadence/telemetry, review/direct
+  undo, both Music Log tracks, registries, normalized assets, provenance, and the
+  compact paginated Activities card are integrated.
+- Thirteen in-scope unknowns are registered in
+  `memory-bank/placeholder-values.md`. The quest-only pest battle and Torcher
+  candidate, staked mode, human-only truce/disconnect handling, and absent
+  Void-set substitution system remain data depth outside this slice.
+- Focused verification passes 137 backend tests, 3 undo integration tests, and
+  2 real offscreen-Qt tests.
+- Durable audit:
+  `memory-bank/source-audits/conquest-harvest-2026-07-28.md`.
+- Closure report: <https://859ao4lbxil1.postplan.dev>.
+
 ### TzHaar Fight Pit — horizontal mechanics shipped 2026-07-22
 
 Labels: `SOURCE AUDIT` only for hidden pressure timing, hybrid reward chance,

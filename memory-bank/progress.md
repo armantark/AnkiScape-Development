@@ -1,5 +1,47 @@
 # Progress
 
+## Conquest — 2026-07-30
+
+Reached horizontal breadth level one in the `conquest/breadth-one` worktree,
+schema 102.
+
+Conquest is a safe persistent Activities match against a labelled bounded
+simulated opponent. Combat level 40 gates entry. Casual uses the reconstructed
+default ten-troop formation and four commands; Advanced exposes the complete
+seven-unit source roster, 1,000-point budget, ten-unit placeholder cap, up to four
+of all nine exact commands, and balanced/aggressive/defensive doctrines. The
+persisted board uses the settled 20×20 placeholder geometry and seeded obstacle
+layouts. One productive review runs one troop action for each side through the
+same bounded heuristic, with exact movement, range, damage, LP, command effects,
+cooldowns, normal-kill command-point income, Bombard's zero income, and Chastise's
+last-troop restriction. Twenty seeded reducer matches all terminate within 60
+exchanges.
+
+Elimination and direct resignation settle into Pest Control's shared commendation
+wallet. The monotone 1–10 placeholder curve uses the exact ×2/×3/×4 combat bands
+and 20/30/40 caps, pays both outcomes without a win bonus, and respects the shared
+500-point cap. Rating starts at 1,000, floors at zero, uses a registered
+opponent-sensitive placeholder formula, and unlocks the 150-commendation Void
+knight deflector purchase at 1,250. The deflector's sourced equipment row and both
+period Music Log tracks are live.
+
+Migration and repair, activity arbitration, cadence, telemetry, review/direct
+undo, activity/equipment/item registration, normalized art and provenance, and
+the compact three-page Activities card are integrated. The correction guard tests
+pin Knight range 1, Mage range 4, Champion 500 LP, Stoicism 75 CP, and the absence
+of a combat triangle or hybrid roster. Thirteen in-scope placeholders are
+registered. The quest-only pest battle and Torcher candidate, staked mode,
+human-only truce/disconnect flows, and Void-set substitution semantics remain
+outside this slice.
+
+Focused verification passes 137 backend tests, 3 direct/review undo integration
+tests, 2 real offscreen-Qt card tests, and compilation of the affected package
+surfaces. Source authority:
+`source-audits/conquest-harvest-2026-07-28.md`. Results:
+`status-updates/conquest-breadth-one-results-2026-07-30.html` and
+<https://859ao4lbxil1.postplan.dev>.
+
+
 ## Gnome Restaurant and gnome cooking — 2026-07-28
 
 Reached breadth level one in the `families/gnome-restaurant` worktree, schema 97.

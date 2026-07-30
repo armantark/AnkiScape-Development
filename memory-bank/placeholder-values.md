@@ -20,6 +20,19 @@ Placeholders".
 
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
+| `conquest.board_size` | 20×20 bounded board | Conquest | Period map-region data, interface tile grid, or dated screenshots sufficient to count the authentic battlefield dimensions |
+| `conquest.squad_unit_cap` | 10 troops | Conquest | Pre-cutoff rules text or server setup validation proving the formal cap; the current value follows full default and guide formations |
+| `conquest.foot_soldier_cost` | 50 setup points | Conquest | A period server troop table or decoded setup script that resolves the cutoff wikitext's 50 against the release-era in-game image's 30 |
+| `conquest.starting_command_points` | 0 CP | Conquest | Period match initialization code or an interface record showing the initial balance before either side moves |
+| `conquest.passive_command_points` | 25 CP at each ordinary owner-turn start except the opening player's first turn | Conquest | Server turn-transition code or decoded client script showing the exact grant boundary |
+| `conquest.kill_command_points` | Normal kills award the defeated troop's setup cost; Bombard kills award 0 | Conquest | Server defeat code or period rules text stating the exact kill-award equation |
+| `conquest.command_cooldown_boundary` | Decrement once at the start of the command owner's turn | Conquest | Server command scheduler or decoded phase transition |
+| `conquest.first_player_selection` | Seeded fair choice between sides | Conquest | Period matchmaking or start routine |
+| `conquest.early_game_eligibility_threshold` | 4 completed turn exchanges | Conquest | Period reward code or dated guide stating the minimum match length for rating and commendations |
+| `conquest.rating_formula` | Symmetric Elo translation with K 46 and divisor 2360 | Conquest | Period server formula, cache operands, or official equation; the placeholder preserves the sourced 2500 defeats 1311 result at ±11 |
+| `conquest.turn_ratio_curve` | Monotone ratios 1–10 at rounds 1, 4, 7, 10, 13, 16, 19, 22, 25, and 28 | Conquest | Period reward routine or a complete dated ratio table |
+| `conquest.turn_timeout_resolution` | End the current turn without a forfeit | Conquest | Period server timeout routine or dated gameplay recording; the Activities simulation itself has no wall-clock timer |
+| `conquest.battlefield_layouts` | Three seeded symmetric layouts | Conquest | Period map-region data, interface tile grid, or dated screenshots sufficient to reconstruct authentic obstacles |
 | `skeletal_horror.phase_320_stats` | Attack 320, Strength 320, Defence 320, Magic 320 | Skeletal Horror | An authentic combat definition or period server script for NPC 9176 |
 | `skeletal_horror.phase_260_stats` | Attack 260, Strength 260, Defence 260, Magic 260 | Skeletal Horror | An authentic combat definition or period server script for NPC 9177 |
 | `skeletal_horror.phase_180_stats` | Attack 180, Strength 180, Defence 180, Magic 180 | Skeletal Horror | The cited rev-727 rows do not settle this block: they identify NPC 9178 as the level-260 form, expose Attack/Defence/Magic/Ranged 62, and expose no separate Strength value. The level-180 combat form is NPC 9179 in Darkan. An authentic level-180 combat definition or period server script that includes Strength would settle it. |

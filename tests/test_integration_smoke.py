@@ -183,6 +183,59 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["review_event_log"], [])
 
+    def test_conquest_review_undo_restores_the_exact_pre_exchange_match(self):
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+        from ankiscape.logic.conquest_logic import (
+            apply_conquest_review_pure,
+            enter_conquest_pure,
+        )
+
+        addon = _load_addon_as_package("ankiscape_conquest_review_undo")
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            player[key] = 40
+        player["activity_session"] = {"active_id": ""}
+        player["combat_encounter"] = {}
+        player, ok, info = enter_conquest_pure(player, {}, lambda: 0.25)
+        self.assertTrue(ok, info)
+        addon.player_data = player
+        addon.current_skill = "Activities"
+        addon.save_player_data = lambda: None
+        addon.ui.update_menu_visibility = lambda _skill: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._REVIEW_UNDO_STACK.clear()
+        exact_before = copy.deepcopy(addon.player_data)
+        snapshot = addon._capture_player_data_snapshot()
+
+        advanced, ok, result = apply_conquest_review_pure(
+            addon.player_data, lambda: 0.5
+        )
+        self.assertTrue(ok, result)
+        addon.player_data.clear()
+        addon.player_data.update(advanced)
+        self.assertNotEqual(addon.player_data["conquest"], exact_before["conquest"])
+        addon._remember_review_award_snapshot(snapshot)
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, exact_before)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_hud_badges_have_no_qt_placeholders_with_matching_signatures(self):
         # This suite loads the add-on without aqt.qt, so ui.py takes its
         # HAS_QT-false branch. A new Qt widget class without a placeholder
@@ -6291,6 +6344,74 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
 
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_conquest_setup_entry_and_resignation_are_direct_undoable_actions(self):
+        addon = _load_addon_as_package("ankiscape_conquest_integration")
+        logic = sys.modules[f"{addon.__name__}.logic.conquest_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "combat_encounter": {},
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "pest_control_commendations": 0,
+            "music_log": {"version": 1, "unlocked_tracks": []},
+            "achievement_diaries": {"completed_tasks": []},
+            "quests": {},
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 40,
+            "constitution_level": 40,
+            "ranged_level": 40,
+            "magic_level": 40,
+            "prayer_level": 40,
+            "summoning_level": 1,
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_conquest_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        callback = captured["on_conquest_command"]
+        setup = callback(
+            "set_policy",
+            {"automation_mode": "casual", "doctrine": "aggressive"},
+        )
+        self.assertTrue(setup["ok"])
+        after_setup = copy.deepcopy(addon.player_data)
+        entered = callback("enter", {})
+        self.assertTrue(entered["ok"])
+        active = copy.deepcopy(addon.player_data)
+        resigned = callback("resign", {})
+        self.assertTrue(resigned["ok"])
+        self.assertEqual(
+            col.custom_undo_entries,
+            ["AnkiScape direct action"] * 3,
+        )
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, active)
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, after_setup)
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )

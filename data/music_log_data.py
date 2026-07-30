@@ -17,13 +17,15 @@ from typing import Tuple
 
 MUSIC_SOURCE = (
     "darkan-world-server c95aca409f397cab12c13b6d5269b73f6cd8abe9"
-    " data/music/songs.json; period track names, hints and ids"
+    " data/music/songs.json; period track names, hints and ids; rev-727/rev-742 "
+    "music index 17 archives 5 and 14"
 )
 
 # Trigger kinds. Each names durable state that already exists in the save.
 TRIGGER_KINDS: Tuple[str, ...] = (
     "quest",       # key: quest id — the track's own quest is complete
     "task_count",  # no key: the achievement-task milestone below
+    "activity",    # key: persistent activity id — its first session has started
 )
 
 
@@ -36,7 +38,12 @@ class MusicTrack:
     trigger_key: str = ""
 
 
-from .music_log_catalog import MUSIC_TRACKS  # noqa: E402  (avoids a cycle at import)
+from .music_log_catalog import MUSIC_TRACKS as _GENERATED_MUSIC_TRACKS  # noqa: E402
+
+MUSIC_TRACKS = _GENERATED_MUSIC_TRACKS + (
+    MusicTrack(5, "Right of Conquest", "Play Conquest.", "activity", "conquest"),
+    MusicTrack(14, "Conquest", "Play Conquest.", "activity", "conquest"),
+)
 
 MUSIC_TRACKS_BY_ID = {track.id: track for track in MUSIC_TRACKS}
 

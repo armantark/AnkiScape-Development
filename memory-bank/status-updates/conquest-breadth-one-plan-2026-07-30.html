@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Conquest breadth-one plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% -10%, rgba(79, 140, 255, .18), transparent 34rem),
+        linear-gradient(145deg, #0c0e12 0%, #10131a 58%, #0c0e12 100%);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 54px; }
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid rgba(79, 140, 255, .45);
+      border-radius: 999px;
+      color: #9fc0ff;
+      background: var(--accent-glow);
+      font: 700 11px/1 "JetBrains Mono", ui-monospace, monospace;
+      letter-spacing: .09em;
+    }
+    h1 { margin: 16px 0 8px; font-size: clamp(28px, 5vw, 48px); line-height: 1.02; letter-spacing: -.035em; }
+    .lede { max-width: 760px; margin: 0; color: var(--text-dim); font-size: 16px; line-height: 1.55; }
+    .rule-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 26px 0;
+    }
+    .rule {
+      min-height: 76px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(22, 26, 33, .82);
+    }
+    .rule b { display: block; color: var(--accent); font: 700 11px/1.2 "JetBrains Mono", ui-monospace, monospace; }
+    .rule span { display: block; margin-top: 8px; font-size: 13px; line-height: 1.35; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(30, 35, 44, .92), rgba(22, 26, 33, .96));
+      box-shadow: 0 18px 46px rgba(0, 0, 0, .18);
+    }
+    .card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--tone, var(--accent)); }
+    .card h2 { margin: 7px 0 10px; font-size: 19px; }
+    .eyebrow { color: var(--tone, var(--accent)); font: 700 10px/1 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .1em; }
+    .card p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.5; }
+    .flow { display: flex; align-items: center; gap: 7px; margin-top: 16px; overflow-x: auto; padding-bottom: 4px; }
+    .node {
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      font: 600 11px/1.2 "JetBrains Mono", ui-monospace, monospace;
+    }
+    .arrow { color: var(--text-dim); }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 14px; }
+    .fact { padding: 9px; border-radius: 8px; background: #11151c; text-align: center; }
+    .fact strong { display: block; color: var(--tone, var(--accent)); font-size: 18px; }
+    .fact small { color: var(--text-dim); font-size: 10px; }
+    .steps { margin-top: 16px; display: grid; gap: 8px; }
+    .step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+    .num { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-glow); color: var(--accent); font-weight: 800; }
+    .step p { padding-top: 4px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .tag { padding: 4px 7px; border-radius: 6px; background: #11151c; color: #aeb8ca; font: 600 10px/1 "JetBrains Mono", ui-monospace, monospace; }
+    .gate { margin-top: 14px; padding: 18px; border: 1px solid rgba(74, 222, 128, .32); border-radius: var(--radius); background: rgba(74, 222, 128, .055); }
+    .gate h2 { margin: 0 0 10px; font-size: 18px; }
+    .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+    .check { color: var(--text-dim); font-size: 13px; line-height: 1.4; }
+    .check::before { content: "□"; color: var(--green); margin-right: 8px; }
+    @media (max-width: 780px) {
+      main { width: min(100% - 20px, 640px); padding-top: 22px; }
+      .rule-strip, .grid, .checks { grid-template-columns: 1fr; }
+      .rule-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 430px) {
+      .rule-strip { grid-template-columns: 1fr; }
+      .facts { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-IMPLEMENTATION PLAN · 2026-07-30</span>
+    <h1>Conquest, one complete breadth slice</h1>
+    <p class="lede">Build a safe competitive board game for Activities. One productive review resolves one player turn and one simulated-opponent turn.</p>
+
+    <section class="rule-strip" aria-label="Non-negotiable source corrections">
+      <div class="rule"><b>RANGE</b><span>Knight 1. Mage 4. Do not add a combat triangle.</span></div>
+      <div class="rule"><b>HEALTH</b><span>Champion has 500 life points. Do not add hybrid units.</span></div>
+      <div class="rule"><b>GATES</b><span>Combat 40 starts play. Rating 1,250 unlocks the deflector.</span></div>
+      <div class="rule"><b>REWARD</b><span>Both sides use the turn ratio. A win adds no reward bonus.</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card" style="--tone: var(--accent)">
+        <div class="eyebrow">BACKEND · PURE REDUCER</div>
+        <h2>Bounded match state</h2>
+        <p>Store only the board, squads, commands, command points, cooldowns, ratings, and result state.</p>
+        <div class="flow" aria-label="Review transaction flow">
+          <span class="node">pre-review state</span><span class="arrow">→</span>
+          <span class="node">player turn</span><span class="arrow">→</span>
+          <span class="node">opponent turn</span><span class="arrow">→</span>
+          <span class="node">atomic save</span>
+        </div>
+        <div class="facts">
+          <div class="fact"><strong>20×20</strong><small>board placeholder</small></div>
+          <div class="fact"><strong>10</strong><small>unit cap placeholder</small></div>
+          <div class="fact"><strong>1,000</strong><small>setup points</small></div>
+        </div>
+      </article>
+
+      <article class="card" style="--tone: var(--purple)">
+        <div class="eyebrow">FRONTEND · VIEW-OWNED RULES</div>
+        <h2>Compact paginated card</h2>
+        <p>The pure view supplies labels, pages, warnings, enabled states, and summaries. Qt only renders them and sends commands.</p>
+        <div class="facts">
+          <div class="fact"><strong>3</strong><small>compact pages</small></div>
+          <div class="fact"><strong>7</strong><small>sourced units</small></div>
+          <div class="fact"><strong>9</strong><small>sourced commands</small></div>
+        </div>
+        <div class="tags">
+          <span class="tag">Casual default squad</span>
+          <span class="tag">Advanced setup</span>
+          <span class="tag">direct resignation</span>
+        </div>
+      </article>
+
+      <article class="card" style="--tone: var(--amber)">
+        <div class="eyebrow">ECONOMY · STORAGE</div>
+        <h2>One shared commendation wallet</h2>
+        <p>Use the Pest Control wallet and its 500-point cap. Add the rating gate to the existing commendation shop.</p>
+        <div class="flow" aria-label="Match settlement flow">
+          <span class="node">turn ratio 1–10</span><span class="arrow">×</span>
+          <span class="node">combat band</span><span class="arrow">→</span>
+          <span class="node">shared wallet</span>
+        </div>
+        <div class="tags">
+          <span class="tag">schema 102</span>
+          <span class="tag">repair malformed state</span>
+          <span class="tag">rating floor 0</span>
+        </div>
+      </article>
+
+      <article class="card" style="--tone: var(--green)">
+        <div class="eyebrow">UNDO · ARBITRATION · TELEMETRY</div>
+        <h2>Exact transactional boundaries</h2>
+        <p>Review undo restores the complete pre-review match. Entry, setup changes, and resignation use direct undo entries.</p>
+        <div class="steps">
+          <div class="step"><span class="num">1</span><p>Declare the review cadence and record one Conquest action.</p></div>
+          <div class="step"><span class="num">2</span><p>Reject entry while another persistent activity is active.</p></div>
+          <div class="step"><span class="num">3</span><p>Repair stale sessions during schema migration.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="gate">
+      <h2>Completion gates</h2>
+      <div class="checks">
+        <div class="check">The Conquest reducer tests pass through real state transitions.</div>
+        <div class="check">The placeholder register has no missing or stale Conquest rows.</div>
+        <div class="check">The activity arbitration tests reject conflicting sessions.</div>
+        <div class="check">The offscreen Qt tests use shown dialogs and geometry probes.</div>
+        <div class="check">The music log exposes both sourced Conquest tracks.</div>
+        <div class="check">The results list all unresolved placeholder values.</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

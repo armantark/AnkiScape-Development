@@ -172,6 +172,10 @@ from ..logic.pest_control_logic import (
     default_pest_control_state_pure,
     sanitize_pest_control_state_pure,
 )
+from ..logic.conquest_logic import (
+    default_conquest_state_pure,
+    sanitize_conquest_state_pure,
+)
 from ..logic.barbarian_assault_logic import (
     default_barbarian_assault_state_pure,
     sanitize_barbarian_assault_state_pure,
@@ -316,7 +320,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 101
+CURRENT_CONFIG_VERSION = 102
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -568,6 +572,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_trouble_brewing_state_pure())
     data.update(default_castle_wars_state_pure())
     data.update(default_pest_control_state_pure())
+    data.update(default_conquest_state_pure())
     data.update(default_barbarian_assault_state_pure())
     data["stronghold_player_safety"] = (
         default_stronghold_player_safety_state_pure()
@@ -1243,6 +1248,7 @@ def migrate_loaded_data(
     data.update(sanitize_trouble_brewing_state_pure(data))
     data.update(sanitize_castle_wars_state_pure(data))
     data.update(sanitize_pest_control_state_pure(data))
+    data.update(sanitize_conquest_state_pure(data))
     data.update(sanitize_barbarian_assault_state_pure(data))
     data["stronghold_player_safety"] = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
@@ -1920,6 +1926,11 @@ def migrate_loaded_data(
     # XP, achievement and activity notification. Existing saves start empty.
     if loaded_config_version < 101:
         data.setdefault("review_event_log", [])
+    # v102: Conquest adds the saved squad/command policy, persistent board,
+    # rating ledger, shared-commendation settlement, and repair invariants.
+    if loaded_config_version < 102:
+        for key, value in default_conquest_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1965,6 +1976,7 @@ def migrate_loaded_data(
     data.update(sanitize_trouble_brewing_state_pure(data))
     data.update(sanitize_castle_wars_state_pure(data))
     data.update(sanitize_pest_control_state_pure(data))
+    data.update(sanitize_conquest_state_pure(data))
     data.update(sanitize_barbarian_assault_state_pure(data))
     data["stronghold_player_safety"] = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")

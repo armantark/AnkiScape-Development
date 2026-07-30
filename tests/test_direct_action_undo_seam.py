@@ -869,6 +869,64 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data["enchanted_key"], before)
 
+    def test_conquest_setup_entry_and_resignation_each_restore_exactly(self):
+        from ankiscape.logic.conquest_logic import apply_conquest_command_pure
+
+        addon = self.addon
+        for key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            addon.player_data[key] = 40
+        addon.player_data["activity_session"] = {"active_id": ""}
+        addon.player_data["combat_encounter"] = {}
+        before = copy.deepcopy(addon.player_data)
+
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_conquest_command_pure(
+                    current,
+                    "set_policy",
+                    {"automation_mode": "casual", "doctrine": "aggressive"},
+                    lambda: 0.25,
+                )[:2]
+            )
+        )
+        after_setup = copy.deepcopy(addon.player_data)
+        self.assertEqual(
+            addon.player_data["conquest_policy"]["doctrine"], "aggressive"
+        )
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_conquest_command_pure(
+                    current, "enter", {}, lambda: 0.25
+                )[:2]
+            )
+        )
+        active = copy.deepcopy(addon.player_data)
+        self.assertEqual(
+            addon.player_data["activity_session"], {"active_id": "conquest"}
+        )
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_conquest_command_pure(
+                    current, "resign", {}, lambda: 0.25
+                )[:2]
+            )
+        )
+        self.assertEqual(addon.player_data["activity_session"], {"active_id": ""})
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, active)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, after_setup)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
 
 if __name__ == "__main__":
     unittest.main()
