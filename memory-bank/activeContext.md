@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+**2026-07-30, the catalog is closed.** The overnight run merged Dungeoneering
+phase C (kinship, staged trader, working Coal bag), Conquest, and the
+miniquest ledger with Bork and the Tarn corrections — every family in the
+pre-EOC catalog is at breadth one. The cross-lineage discipline caught real
+defects five passes in a row; its last round generalized into the
+sixteen-activity cadence class fix bound by `SINGLE_TICK_UTILITY_IDS` and its
+drift test. The Slayer off-task lead is disproven and closed. Open:
+the parked 3.25 guardian-drop reshape (quota; brief in the quota-guard
+parked file), the 384-diary-task clause, and depth work per the tranche
+board's closing note.
+
 **2026-07-30, Dungeoneering phase C complete.** Repository discovery is green
 at 3,572 tests.
 Dungeoneering ships as the 25th trainable skill with its Frozen floor runtime

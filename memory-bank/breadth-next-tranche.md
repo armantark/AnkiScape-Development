@@ -28,7 +28,7 @@ cleared. Those are fixed and merged.
 | ~~Mobilising Armies~~ | done 2026-07-28 | breadth one; see `source-audits/mobilising-armies-breadth-one-2026-07-28.md` |
 | ~~Achievement Diaries~~ | done 2026-07-26 | breadth one; see `source-audits/achievement-diary-harvest-2026-07-26.json` and design forks 3.8/3.9 |
 | ~~Dungeoneering~~ | DONE 2026-07-30 | breadth one complete: skill + floors (`0ac64a57`) and phase C kinship/trader/Coal bag (`d0cac104`), execution-verified clean |
-| Conquest | building 2026-07-30 | codex CLI build running in the `conquest` worktree (schema 102), monitor armed; verify + rebase-merge follow |
+| ~~Conquest~~ | DONE 2026-07-30 | breadth one merged (`10e342dc`) after three Sol verify rounds; schema 102 |
 
 The Sol cross-lineage verification pass over Temple Trekking, Mobilising
 Armies, Gnome Restaurant, and Dominion Tower is running as of 2026-07-28; its
@@ -54,6 +54,13 @@ loop runs one order per productive review with the source point, token and tip
 tables; and the long-deferred presentation fork is queued as design decision 3.19
 with both layouts drawn and the recommended one implemented. See
 `source-audits/gnome-restaurant-harvest-2026-07-28.md`.
+
+**The catalog is closed (2026-07-30).** Bork merged with the minimal
+miniquest ledger (`f69bb751`): Hunt for Surok and The Lair of Tarn Razorlor
+are playable miniquest rows, Bork runs his daily loop, and the Dominion Tarn
+fight gates on Haunted Mine per its pinned source. Every family in the
+pre-EOC catalog is at breadth one. Remaining programme work is depth, the
+384-diary-task clause, and the parked 3.25 guardian-drop reshape.
 
 ## What every brief must carry
 
