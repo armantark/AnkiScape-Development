@@ -58,6 +58,9 @@ SINGLE_TICK_UTILITY_IDS = frozenset({
     # Caught by this very drift test on its second day: one Conquest turn per
     # answer, never multiplied.
     "conquest",
+    # Bork's cross-lineage finding was the case that exposed this whole
+    # class: one six-tick daily encounter per answer.
+    "bork",
 })
 from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
 from ..core.constants import (
@@ -302,6 +305,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     "multiplier_behavior": (
                         "Never foreground-multiplied; one answered card remains "
                         "one six-tick Skeletal Horror interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
+        elif str(action_id) == "bork":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "bork",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances six live Combat ticks against Bork "
+                        "while his legion and the lair's caster press the player."
+                    ),
+                    "includes": (
+                        "one six-tick Combat slice",
+                        "one Ork-legion and caster pressure beat",
+                        "one atomic drop payout and daily-kill boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one six-tick Bork interval"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",

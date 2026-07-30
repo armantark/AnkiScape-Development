@@ -468,6 +468,7 @@ def _npc(
     role: str = "boss",
     poison_damage: int = 0,
     heals_boss: int = 0,
+    successor: str = "",
 ) -> dict[str, Any]:
     return {
         "display_name": display_name,
@@ -477,7 +478,11 @@ def _npc(
         "max_hit": max_hit,
         "attack_styles": attack_styles,
         "attack_speed": attack_speed,
+        # "boss" foes must all die before the arena is cleared; a "minion" never
+        # has to be killed, and a "healer" neither attacks nor ends the match.
         "role": role,
+        # The next form this foe turns into when it dies, spawned in its place.
+        "successor": successor,
         "poison_damage": poison_damage,
         "heals_boss": heals_boss,
         "bonuses": bonuses if bonuses is not None else _bonuses(),
@@ -835,19 +840,29 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
         stats=_stats(60, 60, 60, 1, 690),
     ),
     # ---- Class H -------------------------------------------------------
-    "tarn_razorlor": _npc(
-        "Tarn Razorlor", 6477, 69, 650, 190, ("melee", "magic"),
-        f"{_W}/Tarn_Razorlor?oldid=6448021",
+    # "Tarn starts the match in mutant form with four large Terror dogs next to
+    # him. In mutant form, Tarn attacks with magic while the dogs attack with
+    # melee. Once mutant Tarn is slain, his ghost form appears and attacks with
+    # melee." The lair's melee-only reading does not apply here, because the
+    # tower states the mutant's style itself.
+    "mutant_tarn": _npc(
+        "Mutant tarn", 6477, 69, 650, 190, ("magic",),
+        f"{_W}/Tarn?oldid=6448021",
+        successor="tarn_ghost",
     ),
-    "terror_dog_100": _npc(
-        "Terror dog", 5418, 100, 820, 110, ("melee",),
-        f"{_W}/Terror_dog?oldid=6547220; npcListBonuses 5418",
-        bonuses=_bonuses(strength=(10, 0, 0)),
+    "tarn_ghost": _npc(
+        # PLACEHOLDER(dominion_tower.tarn_ghost_npc_id): the ghost form's own id.
+        "Tarn", 0, 69, 650, 190, ("melee",),
+        f"{_W}/Tarn?oldid=6448021",
     ),
     "terror_dog_110": _npc(
+        # The tower's dogs are the "large" ones: the two forms differ by size and
+        # the level-110 is the one the lair's own strategy calls too big to crowd
+        # a corner. They never have to die, so the match cannot stall on them.
         "Terror dog", 5417, 110, 880, 150, ("melee",),
         f"{_W}/Terror_dog?oldid=6547220; npcListBonuses 5417",
         bonuses=_bonuses(strength=(20, 0, 0)),
+        role="minion",
     ),
     "sigmund": _npc(
         # PLACEHOLDER(dominion_tower.sigmund_combat_definition): rev 727 pins the
@@ -1062,11 +1077,12 @@ DOMINION_TOWER_ENCOUNTERS: tuple[dict[str, Any], ...] = (
         "tarn_razorlor",
         "Tarn Razorlor and terror dogs",
         "H",
-        # The tower gates this one on the Lair of Tarn Razorlor miniquest, which
-        # is not one of the 38 quests and which AnkiScape's ledger does not yet
-        # carry. The row stays authentic and lights up when it does.
-        "lair_of_tarn_razorlor",
-        ("tarn_razorlor", "terror_dog_100", "terror_dog_110"),
+        # Tarn oldid 6448021's own trivia states the Dominion fight needs only
+        # Haunted Mine, not the Lair miniquest, so the period gate is the
+        # quest. The Lair row still exists in the miniquest ledger for its own
+        # completion record.
+        "haunted_mine",
+        ("mutant_tarn", *("terror_dog_110",) * 4),
     ),
     _encounter("sigmund", "Sigmund", "H", "the_chosen_commander", ("sigmund",)),
     _encounter("melzar_the_mad", "Melzar the Mad", "H", "dragon_slayer", ("melzar_the_mad",)),

@@ -43,6 +43,10 @@ from ..logic.tears_of_guthix_logic import (
     default_tears_of_guthix_state_pure,
     sanitize_tears_of_guthix_state_pure,
 )
+from ..logic.bork_logic import (
+    default_bork_state_pure,
+    sanitize_bork_state_pure,
+)
 from ..logic.skeletal_horror_logic import (
     default_skeletal_horror_state_pure,
     sanitize_skeletal_horror_state_pure,
@@ -320,7 +324,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 102
+CURRENT_CONFIG_VERSION = 103
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -557,6 +561,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["dungeoneering"] = default_dungeoneering_state_pure()
     data["phoenix_lair"] = default_phoenix_lair_state_pure()
     data["skeletal_horror"] = default_skeletal_horror_state_pure()
+    data["bork"] = default_bork_state_pure()
     data["tears_of_guthix"] = default_tears_of_guthix_state_pure()
     data["enchanted_key"] = default_enchanted_key_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
@@ -1227,6 +1232,7 @@ def migrate_loaded_data(
     data["skeletal_horror"] = sanitize_skeletal_horror_state_pure(
         data.get("skeletal_horror")
     )
+    data["bork"] = sanitize_bork_state_pure(data.get("bork"))
     data["tears_of_guthix"] = sanitize_tears_of_guthix_state_pure(
         data.get("tears_of_guthix")
     )
@@ -1311,6 +1317,9 @@ def migrate_loaded_data(
                 "encounter": {},
             }
         )
+        data["bork"] = sanitize_bork_state_pure(
+            {**data["bork"], "active": False}
+        )
         data["phoenix_lair"].update(
             {
                 "active": False,
@@ -1339,6 +1348,9 @@ def migrate_loaded_data(
                 "encounter": {},
             }
         )
+        data["bork"] = sanitize_bork_state_pure(
+            {**data["bork"], "active": False}
+        )
         data["stealing_creation"]["active_session"] = {}
         data["barrows"]["active"] = False
         data["barrows"]["suspended"] = True
@@ -1348,6 +1360,18 @@ def migrate_loaded_data(
         data["fish_flingers"] = {}
     elif data["skeletal_horror"]["active"]:
         active_session_id = "skeletal_horror"
+        data["bork"] = sanitize_bork_state_pure(
+            {**data["bork"], "active": False}
+        )
+        data["stealing_creation"]["active_session"] = {}
+        data["barrows"]["active"] = False
+        data["barrows"]["suspended"] = True
+        data["pyramid_plunder"] = {}
+        data["werewolf_skullball"] = {}
+        data["gnome_ball"] = {}
+        data["fish_flingers"] = {}
+    elif data["bork"]["active"]:
+        active_session_id = "bork"
         data["stealing_creation"]["active_session"] = {}
         data["barrows"]["active"] = False
         data["barrows"]["suspended"] = True
@@ -1385,6 +1409,7 @@ def migrate_loaded_data(
         active_session_id = FISH_FLINGERS_ACTIVITY_ID
     elif active_session_id in {
         "skeletal_horror",
+        "bork",
         WEREWOLF_SKULLBALL_ACTIVITY_ID,
         GNOME_BALL_ACTIVITY_ID,
         FISH_FLINGERS_ACTIVITY_ID,
@@ -1931,6 +1956,10 @@ def migrate_loaded_data(
     if loaded_config_version < 102:
         for key, value in default_conquest_state_pure().items():
             data.setdefault(key, value)
+    # v103: the quest ledger grows its first two miniquest rows, The Hunt for
+    # Surok and The Lair of Tarn Razorlor. They are ordinary quest rows, so
+    # `_migrate_quest_state` above already adds their unstarted state to every
+    # existing save; nothing else in the payload changes.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

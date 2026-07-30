@@ -785,35 +785,42 @@ def _enemy_for_member(
 # ---------------------------------------------------------------------------
 
 
+def _new_member(
+    state: dict[str, Any],
+    npc_key: str,
+    *,
+    lifepoint_fraction: tuple[int, int] | None = None,
+) -> dict[str, Any]:
+    npc = DOMINION_TOWER_NPCS[npc_key]
+    maximum = _int(npc["lifepoints"], 1, minimum=1)
+    if lifepoint_fraction:
+        numerator, denominator = lifepoint_fraction
+        maximum = max(1, maximum * numerator // denominator)
+    instance_id = _int(state.get("next_instance_id"), 1, minimum=1)
+    state["next_instance_id"] = instance_id + 1
+    return {
+        "instance_id": instance_id,
+        "npc_key": npc_key,
+        "max_lifepoints": maximum,
+        "lifepoints": maximum,
+        "encounter": {
+            "target_id": DOMINION_TOWER_TARGET_ID,
+            "enemy_lifepoints": maximum,
+        },
+    }
+
+
 def _spawn_roster(
     state: dict[str, Any],
     npc_keys,
     *,
     lifepoint_fraction: tuple[int, int] | None = None,
 ) -> None:
-    roster: list[dict[str, Any]] = []
-    next_id = _int(state.get("next_instance_id"), 1, minimum=1)
-    for npc_key in npc_keys:
-        npc = DOMINION_TOWER_NPCS[npc_key]
-        maximum = _int(npc["lifepoints"], 1, minimum=1)
-        if lifepoint_fraction:
-            numerator, denominator = lifepoint_fraction
-            maximum = max(1, maximum * numerator // denominator)
-        roster.append(
-            {
-                "instance_id": next_id,
-                "npc_key": npc_key,
-                "max_lifepoints": maximum,
-                "lifepoints": maximum,
-                "encounter": {
-                    "target_id": DOMINION_TOWER_TARGET_ID,
-                    "enemy_lifepoints": maximum,
-                },
-            }
-        )
-        next_id += 1
+    roster = [
+        _new_member(state, npc_key, lifepoint_fraction=lifepoint_fraction)
+        for npc_key in npc_keys
+    ]
     state["roster"] = roster
-    state["next_instance_id"] = next_id
     state["engaged_instance_id"] = roster[0]["instance_id"] if roster else 0
     state["match"] = _sanitize_match({})
 
@@ -1929,11 +1936,17 @@ def apply_dominion_tower_review_pure(
 
     engaged_died = bool(combat_result.get("killed"))
     if engaged_died:
-        state["roster"] = [
+        survivors = [
             member
             for member in state["roster"]
             if member["instance_id"] != engaged["instance_id"]
         ]
+        # A foe with a successor changes form rather than leaving the arena, and
+        # the new form takes the fallen one's place at the head of the roster.
+        successor = str(npc.get("successor", ""))
+        state["roster"] = (
+            [_new_member(state, successor), *survivors] if successor else survivors
+        )
         state["engaged_instance_id"] = (
             state["roster"][0]["instance_id"] if state["roster"] else 0
         )
@@ -2021,7 +2034,13 @@ def apply_dominion_tower_review_pure(
             "status": state["last_result"],
         }
 
-    arena_cleared = survived or not state["roster"]
+    # Minions never have to die: "the match is won by killing the ghost Tarn. The
+    # terror dogs do not have to be killed."
+    arena_cleared = survived or not [
+        member
+        for member in state["roster"]
+        if DOMINION_TOWER_NPCS[member["npc_key"]]["role"] != "minion"
+    ]
     if not arena_cleared:
         state["last_result"] = (
             f"{DOMINION_TOWER_NPCS[_engaged_member(state)['npc_key']]['display_name']}: "

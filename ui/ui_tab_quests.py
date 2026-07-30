@@ -24,6 +24,7 @@ from ..logic_pure.logic_pure import (
     apply_quest_route_choice_pure,
     can_attempt_quest_review_pure,
     quest_availability_state_pure,
+    quest_catalog_sections_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_choices_pure,
     quest_journal_rows_pure,
@@ -436,15 +437,26 @@ def build_quests_tab(ctx) -> "QWidget":
         toggle_btn.clicked.connect(_toggle_quest)
         quest_content_layout.addWidget(card)
 
+    def _add_section_heading(title: str) -> None:
+        heading = QLabel(title)
+        heading.setObjectName(f"questSection_{title}")
+        heading.setStyleSheet("font-weight: 700; color: palette(text); margin-top: 6px;")
+        quest_content_layout.addWidget(heading)
+
     def _rebuild_quest_cards() -> None:
         _clear_quest_cards()
         mode = quest_sort_combo.currentText() or "Release Order"
-        visible_count = 0
-        for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode)):
-            if not _quest_matches_filters(quest_id, quest):
-                continue
-            _add_quest_card(quest_id, quest)
-            visible_count += 1
+        visible_rows = tuple(
+            (quest_id, quest)
+            for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode))
+            if _quest_matches_filters(quest_id, quest)
+        )
+        visible_count = len(visible_rows)
+        for section in quest_catalog_sections_pure(visible_rows):
+            if section["title"]:
+                _add_section_heading(section["title"])
+            for quest_id, quest in section["rows"]:
+                _add_quest_card(quest_id, quest)
         if visible_count == 0:
             empty_label = QLabel("No quests match the current filters.")
             empty_label.setObjectName("questEmptyFilterLabel")

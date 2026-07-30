@@ -199,6 +199,11 @@ from ..data.tears_of_guthix_data import (
     TEARS_OF_GUTHIX_ACTIVITY_ID,
     tears_of_guthix_activity_as_dict,
 )
+from ..data.bork_data import (
+    BORK_ACTIVITY_ID,
+    bork_activity_as_dict,
+    bork_extra_items_as_dict,
+)
 from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_ACTIVITY_ID,
     skeletal_horror_activity_as_dict,
@@ -706,6 +711,7 @@ UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(skeletal_horror_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(bork_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tears_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(enchanted_key_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
@@ -953,6 +959,9 @@ if os.path.exists(_skeletal_horror_icon):
     UTILITY_ACTIVITY_DATA[SKELETAL_HORROR_ACTIVITY_ID]["icon_path"] = (
         _skeletal_horror_icon
     )
+_bork_icon = os.path.join(current_dir, "combatenemies", "bork.png")
+if os.path.exists(_bork_icon):
+    UTILITY_ACTIVITY_DATA[BORK_ACTIVITY_ID]["icon_path"] = _bork_icon
 _enchanted_key_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "enchanted_key.png",
@@ -1744,6 +1753,7 @@ VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
 PHOENIX_LAIR_EXTRA_ITEM_DATA = phoenix_lair_extra_items_as_dict()
 SKELETAL_HORROR_EXTRA_ITEM_DATA = skeletal_horror_extra_items_as_dict()
+BORK_EXTRA_ITEM_DATA = bork_extra_items_as_dict()
 TROLL_INVASION_EXTRA_ITEM_DATA = troll_invasion_extra_items_as_dict()
 SHATTERED_HEART_EXTRA_ITEM_DATA = shattered_heart_extra_items_as_dict()
 SHATTERED_HEART_ITEM_IMAGES = {}
@@ -2455,6 +2465,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
     **PHOENIX_LAIR_EXTRA_ITEM_DATA,
     **SKELETAL_HORROR_EXTRA_ITEM_DATA,
+    **BORK_EXTRA_ITEM_DATA,
     **TROLL_INVASION_EXTRA_ITEM_DATA,
     **SHATTERED_HEART_EXTRA_ITEM_DATA,
     **MAGE_TRAINING_ARENA_EXTRA_ITEM_DATA,

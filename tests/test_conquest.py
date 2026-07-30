@@ -727,8 +727,10 @@ class ConquestStorageAndShopTests(unittest.TestCase):
             ORE_DATA,
             ITEM_DEFINITIONS,
         )
-        self.assertEqual(CURRENT_CONFIG_VERSION, 102)
-        self.assertEqual(migrated["config_version"], 102)
+        # Schema-relative, per convention: later branches add versions above
+        # Conquest's own v102 migration.
+        self.assertGreaterEqual(CURRENT_CONFIG_VERSION, 102)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["conquest"], {})
         self.assertEqual(migrated["activity_session"], {"active_id": ""})
         self.assertEqual(migrated["conquest_rating"], 0)

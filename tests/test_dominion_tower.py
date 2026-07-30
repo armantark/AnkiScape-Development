@@ -1519,5 +1519,70 @@ class DominionTowerPersistenceTest(unittest.TestCase):
         self.assertLess(dominion_tower_view_pure(data)["engaged_lifepoints"], before)
 
 
+class DominionTowerTarnPhaseTest(unittest.TestCase):
+    """The tower's Tarn is two forms and four optional dogs, not one fight.
+
+    "Tarn starts the match in mutant form with four large Terror dogs next to
+    him... Once mutant Tarn is slain, his ghost form appears... The match is won
+    by killing the ghost Tarn. The terror dogs do not have to be killed."
+    """
+
+    def _freestyle_tarn(self):
+        rng = random.Random(11).random
+        data = _geared(_player(*_twenty_quests()))
+        state = dict(data["dominion_tower"])
+        state["defeated"] = {"tarn_razorlor": 1}
+        data["dominion_tower"] = state
+        data, ok, info = apply_dominion_tower_command_pure(data, "talk_to_face", {}, rng)
+        self.assertTrue(ok, info)
+        data, ok, info = apply_dominion_tower_command_pure(
+            data, "start_mode", {"mode": "freestyle", "encounter_id": "tarn_razorlor"}, rng
+        )
+        self.assertTrue(ok, info)
+        return data, rng
+
+    def test_the_match_opens_on_the_mutant_beside_four_dogs(self):
+        data, _rng = self._freestyle_tarn()
+        roster = data["dominion_tower"]["roster"]
+        self.assertEqual(
+            [member["npc_key"] for member in roster],
+            ["mutant_tarn", *["terror_dog_110"] * 4],
+        )
+        view = dominion_tower_view_pure(data)
+        self.assertEqual(view["engaged_name"], "Mutant tarn")
+        # The tower states the mutant's own style, so it is not the lair's melee.
+        self.assertEqual(DOMINION_TOWER_NPCS["mutant_tarn"]["attack_styles"], ("magic",))
+        self.assertEqual(DOMINION_TOWER_NPCS["tarn_ghost"]["attack_styles"], ("melee",))
+
+    def test_the_ghost_rises_when_the_mutant_falls_and_ends_the_match_alone(self):
+        data, rng = self._freestyle_tarn()
+        seen_ghost = False
+        for _ in range(600):
+            data["combat_lifepoints"] = 990
+            data, ok, result = apply_dominion_tower_review_pure(
+                data, rng, equipment_data=EQUIPMENT_DATA
+            )
+            self.assertTrue(ok, result)
+            self.assertFalse(result.get("player_died"), result)
+            if result.get("won"):
+                break
+            keys = [member["npc_key"] for member in data["dominion_tower"]["roster"]]
+            if "mutant_tarn" not in keys:
+                # The mutant left one form behind, not an empty slot, and the
+                # dogs the player never touched are all still in the arena.
+                self.assertEqual(keys, ["tarn_ghost", *["terror_dog_110"] * 4])
+                self.assertEqual(
+                    dominion_tower_view_pure(data)["engaged_name"], "Tarn"
+                )
+                seen_ghost = True
+        else:
+            self.fail("the match never resolved")
+
+        self.assertTrue(seen_ghost, "the ghost form never appeared")
+        # Won with every dog alive: the ghost's death is the whole victory
+        # condition, so the arena must not wait on the minions.
+        self.assertEqual(data["dominion_tower"]["defeated"]["tarn_razorlor"], 2)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -196,8 +196,12 @@ def _all_quests_complete(player_data: Mapping[str, Any]) -> bool:
     from ..data.quest_data import QUESTS
 
     quests = _mapping(player_data.get("quests"))
-    return bool(QUESTS) and all(
-        bool(_mapping(quests.get(quest.id)).get("completed")) for quest in QUESTS
+    # The Completionist source lists quests and miniquests as two separate
+    # requirements, and the Quest point cape gates on quests alone, so the
+    # miniquest rows the catalog carries must not join either count.
+    pool = tuple(quest for quest in QUESTS if not quest.miniquest)
+    return bool(pool) and all(
+        bool(_mapping(quests.get(quest.id)).get("completed")) for quest in pool
     )
 
 

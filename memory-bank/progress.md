@@ -4503,3 +4503,63 @@ Forks queued as design threads 3.19, 3.20 and 3.21.
 - Verification: the requested Dungeoneering, Smithing, and placeholder module
   gate passes 53 tests; the focused dark offscreen Qt card check passes; full
   discovery passes 3,572 tests with 415 expected skips.
+
+## Miniquest ledger — stage 1 complete, 2026-07-29
+
+Miniquests are a flag on the existing quest ledger, not a second system: same
+storage, same unlock engine, same stage and journal machinery, with their own
+`Miniquests` grouping on the Quests tab that only appears when both groups are
+on screen. Two rows ship, exactly the two the owner named — The Hunt for Surok,
+which makes the parked Bork loop reachable, and The Lair of Tarn Razorlor,
+which lights the Dominion Tower class-H encounter that already gated on this
+id. No catalog sweep.
+
+Both play end to end through the ordinary reducers. Surok gates on What Lies
+Below plus Mining 42 and ends on Bork; Tarn gates on Haunted Mine plus Slayer
+40 and ends on Tarn's two forms. Each awards the sourced 5,000 Slayer XP and no
+quest points.
+
+Two lessons worth keeping. First, the quest catalog builder reads the wiki's
+quest release list, which carries no miniquests at all, so any miniquest row
+has to be written by hand and appended to `QUESTS`. Second, an enemy's
+RuneScape combat level must never be copied into its four core stats: Bork at
+level 267 was both unhittable and unsurvivable until the row adopted the
+already-registered 72%-of-level conversion the Dominion Tower work settled for
+the same problem.
+
+Schema 103. Sources and the recorded data-depth gaps — the whole salve amulet
+chain, Tarn's diary as an item, and the still-parked Bork daily loop — are in
+`memory-bank/source-audits/miniquest-ledger-2026-07-29.md`.
+
+Stage 2 closed the sourcing: every requirement, stage and reward was re-read
+against the pinned revisions and against Darkan, and nothing moved. Two
+requirements were considered and deliberately left out — Prayer 43, which
+Darkan's miniquest enum enforces but the same wiki table it came from annotates
+"not needed to complete the quest", and Slayer 44, which appears on one page
+only and gates nothing that must be killed. Darkan's Bork is level 107 with a
+1,500 XP daily, both post-cutoff figures; the pre-cutoff record's 267 and 250
+win. Design thread 3.23 is closed, and its claim that the Tarn boss belongs to
+no glove set was re-checked and now has a test.
+
+## Bork, the daily Chaos Tunnels encounter — 2026-07-30
+
+The loop the 2026-07-18 audit parked is live. Bork is a Distraction and
+Diversion: one kill per answered-card day, gated on the `hunt_for_surok`
+miniquest the ledger just made completable, fought through the ordinary
+six-tick live Combat slices. At 2,000 of his 3,000 life points he calls three
+to nine Ork legions, which cannot be engaged and press from range every review,
+and the lair's Dagon'hai Elite lands a 100-250 magic bolt every 33 ticks that
+Protect from Magic answers. A victory pays 250 Slayer XP, 2,000-10,000 coins
+and the full guaranteed bundle; the Varrock Elite tasks and a worn Ring of
+Wealth each move the payout to its own sourced column.
+
+Three findings worth keeping. The 2026-07-18 audit's `source_blocked` charm
+bundle is closed: Darkan's `guaranteedDrops` reproduces the pinned page's drop
+table in all four columns, so the table's 5 blue / 7 crimson / 2 green stands
+and the same page's prose is simply wrong. Every kill in this loop is a repeat
+kill, because the miniquest completion already pays the sourced 5,000 first-kill
+Slayer XP. And a homogeneous pressure front needs no target picker at all — the
+legions despawn with Bork, so there was never a choice to offer.
+
+Sources, the omitted rateless drops and the rest of the judgements are in
+`memory-bank/source-audits/bork-daily-loop-2026-07-30.md`.

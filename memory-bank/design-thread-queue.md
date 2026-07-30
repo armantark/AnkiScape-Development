@@ -855,7 +855,7 @@ semantics clauses and the v88 migration read, not player-visible content.
 - **What would change it:** a period item revision with a bonus block, or a
   decoded interface script for the arena weapon rack.
 
-### 3.23 Dominion Tower — Tarn Razorlor is gated on a miniquest the ledger has no room for — recorded, not implemented
+### 3.23 Dominion Tower — Tarn Razorlor is gated on a miniquest the ledger has no room for — closed 2026-07-29, the ledger landed
 
 - **Fork:** The tower's class H includes Tarn Razorlor and his terror dogs, but
   its gate is The Lair of Tarn Razorlor, a *miniquest*. The tower's own list of
@@ -863,12 +863,16 @@ semantics clauses and the v88 migration read, not player-visible content.
   the 194 pre-EOC quests with no miniquest rows at all.
 - **What shipped:** the encounter row is present and gated on
   `lair_of_tarn_razorlor` exactly as the period gates it, so it lights up by
-  itself the day the ledger grows miniquests. Today it is the one boss of
-  forty-eight a player cannot reach, and it belongs to no reward set, so no
-  reward is blocked by it.
-- **Options if you want it sooner:** add a miniquest ledger (large), or attach
-  the boss to a quest that already exists (inauthentic). Recommendation: leave
-  it, and let the miniquest work carry it.
+  itself the day the ledger grows miniquests. Until then it was the one boss of
+  forty-eight a player could not reach, and it belongs to no reward set, so no
+  reward was blocked by it.
+- **Resolution (2026-07-29):** section 4.14 item 1 chose the minimal miniquest
+  ledger, and it landed — the two rows are in `QUESTS`, the tower's class-H gate
+  resolves off the completed miniquest row, and the boss count is whole again.
+  The no-reward-set claim was re-checked against `DOMINION_TOWER_GLOVE_SETS` and
+  still holds. Both facts are pinned by
+  `tests/test_miniquest_ledger.py::TestLairOfTarnRazorlor`; the ledger's own
+  sourcing lives in `source-audits/miniquest-ledger-2026-07-29.md`.
 
 ### 3.24 Dominion Tower — a defeat's Dominion Factor cost is nowhere in the record — implemented recommendation, owner review pending
 

@@ -649,6 +649,8 @@ def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
     max_hit = _positive_int(configs.get("max_hit", 0), 0)
     if max_hit > 0:
         enemy["max_hit"] = max_hit
+    if configs.get("poison_immune"):
+        enemy["poison_immune"] = True
     return enemy
 
 
@@ -1002,6 +1004,27 @@ def quest_availability_state_pure(player_data, quest_id, quest_data):
     if quest_locked_reasons_pure(player_data, quest_id, quest_data):
         return "locked"
     return "can_start"
+
+
+QUEST_SECTION_QUESTS = "Quests"
+QUEST_SECTION_MINIQUESTS = "Miniquests"
+
+
+def quest_catalog_sections_pure(rows):
+    """Split already-sorted ``(quest_id, quest)`` rows into catalog sections.
+
+    Miniquests share the ledger but read as their own list, so they always come
+    last. A lone section carries an empty title: a heading over the only group
+    on screen is noise, and the tab shows nothing where the title is empty.
+    """
+    sections = []
+    for title, wanted in ((QUEST_SECTION_QUESTS, False), (QUEST_SECTION_MINIQUESTS, True)):
+        matched = tuple(row for row in rows if bool(row[1].get("miniquest", False)) == wanted)
+        if matched:
+            sections.append({"title": title, "rows": matched})
+    if len(sections) == 1:
+        sections[0]["title"] = ""
+    return tuple(sections)
 
 
 def ability_unlocked_pure(player_data, ability_id):
