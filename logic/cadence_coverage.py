@@ -55,6 +55,9 @@ SINGLE_TICK_UTILITY_IDS = frozenset({
     "phoenix_lair",
     "enchanted_key",
     "managing_miscellania",
+    # Caught by this very drift test on its second day: one Conquest turn per
+    # answer, never multiplied.
+    "conquest",
 })
 from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
 from ..core.constants import (
