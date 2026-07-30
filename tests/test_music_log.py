@@ -82,6 +82,8 @@ class MusicCatalogTest(unittest.TestCase):
             player = _player()
             if track.trigger_kind == "quest":
                 player = _complete_quest(player, track.trigger_key)
+            elif track.trigger_kind == "activity":
+                player["conquest_matches_started"] = 1
             else:
                 diaries = dict(player["achievement_diaries"])
                 diaries["completed_tasks"] = _all_task_ids()

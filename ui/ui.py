@@ -361,6 +361,8 @@ from ..logic.duel_arena_logic import duel_arena_view_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 from .clan_wars_panel import ClanWarsPanel
+from ..data.conquest_data import CONQUEST_ACTIVITY_ID
+from .conquest_panel import ConquestPanel
 from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from .troll_invasion_panel import TrollInvasionPanel
@@ -4052,6 +4054,7 @@ def show_main_menu(
     on_trouble_brewing_command=None,
     on_castle_wars_command=None,
     on_pest_control_command=None,
+    on_conquest_command=None,
     on_barbarian_assault_command=None,
     on_stronghold_player_safety_command=None,
     on_soul_wars_command=None,
@@ -14562,10 +14565,13 @@ def show_main_menu(
         pest_primary.setObjectName("pestControlPrimaryButton")
         pest_buy = QPushButton("Buy Void seal · 10")
         pest_buy.setObjectName("pestControlBuySealButton")
+        pest_deflector = QPushButton("Buy deflector · 150")
+        pest_deflector.setObjectName("pestControlBuyDeflectorButton")
         pest_leave = QPushButton("Leave game")
         pest_leave.setObjectName("pestControlLeaveButton")
         pest_actions_layout.addWidget(pest_primary, 1)
         pest_actions_layout.addWidget(pest_buy)
+        pest_actions_layout.addWidget(pest_deflector)
         pest_actions_layout.addWidget(pest_leave)
         pest_layout.addWidget(pest_actions)
         cards_stack.addWidget(pest_box)
@@ -14677,10 +14683,16 @@ def show_main_menu(
             pest_save.setEnabled(not active and on_pest_control_command is not None)
             pest_buy.setVisible(not active)
             pest_buy.setEnabled(
-                not active
-                and on_pest_control_command is not None
-                and int(view["pest_control_commendations"]) >= int(view["seal_cost"])
+                on_pest_control_command is not None
+                and bool(view["seal_enabled"])
             )
+            pest_buy.setToolTip(str(view["seal_reason"]))
+            pest_deflector.setVisible(not active)
+            pest_deflector.setEnabled(
+                on_pest_control_command is not None
+                and bool(view["deflector_enabled"])
+            )
+            pest_deflector.setToolTip(str(view["deflector_reason"]))
             syncing_pest["active"] = False
             _fit_current_activity_detail()
 
@@ -14742,6 +14754,11 @@ def show_main_menu(
         pest_primary.clicked.connect(lambda _checked=False: _select_or_enter_pest())
         pest_buy.clicked.connect(
             lambda _checked=False: _run_pest_command("buy_void_seal")
+        )
+        pest_deflector.clicked.connect(
+            lambda _checked=False: _run_pest_command(
+                "buy_void_knight_deflector"
+            )
         )
         pest_leave.clicked.connect(lambda _checked=False: _confirm_pest_leave())
         _refresh_pest_panel()
@@ -15812,6 +15829,15 @@ def show_main_menu(
             parent=cards_stack,
         )
         cards_stack.addWidget(clan_wars_box)
+
+        conquest_box = ConquestPanel(
+            player_data,
+            on_command=on_conquest_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(conquest_box)
 
         troll_invasion_box = TrollInvasionPanel(
             player_data,
@@ -19423,6 +19449,10 @@ def show_main_menu(
                 clan_wars_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == CONQUEST_ACTIVITY_ID:
+                conquest_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == TROLL_INVASION_ACTIVITY_ID:
                 troll_invasion_box.refresh()
                 _show_activity_detail(activity_id)
@@ -19537,6 +19567,7 @@ def show_main_menu(
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
             DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
             CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
+            CONQUEST_ACTIVITY_ID: ("Conquest", conquest_box),
             TROLL_INVASION_ACTIVITY_ID: ("Troll Invasion", troll_invasion_box),
             SHATTERED_HEART_ACTIVITY_ID: ("Shattered Heart", shattered_heart_box),
             MAGE_TRAINING_ARENA_ACTIVITY_ID: (

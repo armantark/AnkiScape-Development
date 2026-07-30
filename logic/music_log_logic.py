@@ -99,6 +99,11 @@ def track_unlocked_now_pure(player_data: Mapping[str, Any], track: MusicTrack) -
         # system gave "The Task at Hand" at 350 completed tasks, and songs.json
         # carries that same figure in the track's own hint.
         return diary_totals_pure(player_data)["completed"] >= MUSIC_UNLOCK_TASK_COUNT
+    if track.trigger_kind == "activity":
+        return bool(
+            track.trigger_key == "conquest"
+            and int(player_data.get("conquest_matches_started", 0) or 0) > 0
+        )
     return False
 
 

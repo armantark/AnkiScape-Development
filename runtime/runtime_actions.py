@@ -289,6 +289,8 @@ from ..logic.pest_control_logic import (
     apply_pest_control_review_pure,
     pest_control_view_pure,
 )
+from ..data.conquest_data import CONQUEST_ACTIVITY_ID
+from ..logic.conquest_logic import conquest_view_pure
 from ..data.barbarian_assault_data import BARBARIAN_ASSAULT_ACTIVITY_ID
 from ..logic.barbarian_assault_logic import (
     apply_barbarian_assault_review_pure,
@@ -568,6 +570,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_goblin_raids_answer,
     handle_flash_powder_factory_answer,
     handle_pest_control_answer,
+    handle_conquest_answer,
     handle_shades_of_mortton_answer,
     handle_soul_wars_answer,
     handle_stronghold_player_safety_answer,

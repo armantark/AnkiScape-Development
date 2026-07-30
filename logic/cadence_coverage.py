@@ -55,6 +55,9 @@ SINGLE_TICK_UTILITY_IDS = frozenset({
     "phoenix_lair",
     "enchanted_key",
     "managing_miscellania",
+    # Caught by this very drift test on its second day: one Conquest turn per
+    # answer, never multiplied.
+    "conquest",
 })
 from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
 from ..core.constants import (
@@ -825,6 +828,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     "flag_off_behavior": "same one-beat activity handler",
                     "profile": None,
                     "condition": "disclosed twelve-beat no-wall-clock translation",
+                    "route_kind": "activity",
+                }
+            )
+            continue
+        elif str(action_id) == "conquest":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "conquest",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One productive answered card resolves one complete "
+                        "player/opponent turn exchange on the bounded board; "
+                        "entry, setup, and resignation are direct actions."
+                    ),
+                    "includes": (
+                        "one ordinary turn for each simulated side",
+                        "one persistent board-state transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one productive answered "
+                        "card remains one complete turn exchange"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same one-exchange activity handler",
+                    "profile": None,
+                    "condition": "disclosed bounded-board translation",
                     "route_kind": "activity",
                 }
             )

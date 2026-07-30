@@ -95,6 +95,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T06:16:44Z"
   },
+  "activityicons/conquest.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Conquest_icon.jpg",
+    "file_title": "Conquest icon.jpg",
+    "image_url": "https://runescape.wiki/images/Conquest_icon.jpg?f541b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/jpeg",
+    "sha1": "e15c2ee5dd12232f773b8bc4bbd181ec76cfbf9a",
+    "size": 3992,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-28T10:14:25Z"
+  },
   "activityicons/court_cases.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Court_summons.png",
     "file_title": "Court summons.png",
@@ -1270,6 +1282,18 @@
     "size": 1514,
     "source_wiki": "rs3",
     "timestamp": "2010-03-21T15:12:42Z"
+  },
+  "activityitems/conquest_void_knight_deflector.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_deflector_detail_old.png",
+    "file_title": "Void knight deflector detail old.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_deflector_detail_old.png?db090",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "594a06a9c5c4240875084ac2fd619bc13b701dc6",
+    "size": 135561,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-09T05:43:30Z"
   },
   "activityitems/cracked_phoenix_egg.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cracked_phoenix_egg.png",

@@ -412,8 +412,13 @@ class PrestigeCapeTest(unittest.TestCase):
         diaries = dict(player["achievement_diaries"])
         diaries["taskmaster"] = True
         player["achievement_diaries"] = diaries
-        # Earn the music rather than assert it: finishing every quest unlocks
-        # every live track, which is exactly what the requirement measures.
+        # Earn the music rather than assert it: quests unlock the quest
+        # tracks, and the two Conquest tracks need a real match started
+        # through the real entry reducer.
+        from ankiscape.logic.conquest_logic import enter_conquest_pure
+
+        player, ok, info = enter_conquest_pure(player)
+        assert ok, info
         player, _newly = refresh_music_log_pure(player)
 
         rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}

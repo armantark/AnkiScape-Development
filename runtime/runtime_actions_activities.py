@@ -236,6 +236,8 @@ from ..logic.pest_control_logic import (
     apply_pest_control_review_pure,
     pest_control_view_pure,
 )
+from ..data.conquest_data import CONQUEST_ACTIVITY_ID
+from ..logic.conquest_logic import apply_conquest_review_pure
 from ..data.barbarian_assault_data import BARBARIAN_ASSAULT_ACTIVITY_ID
 from ..logic.barbarian_assault_logic import (
     apply_barbarian_assault_review_pure,
@@ -1974,6 +1976,45 @@ def handle_pest_control_answer(
         ctx.show_exp(xp_total)
     ctx.show_activity_gain(
         str(result.get("message") or result.get("status") or "Pest Control beat resolved")
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_conquest_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_conquest_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+    )
+    if not ok:
+        if productive:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Conquest unavailable",
+                str(result.get("reason", "Enter Conquest before training.")),
+            )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        CONQUEST_ACTIVITY_ID,
+        productive,
+        expected_success_chance=1.0,
+        failure_kind="safe_loss" if result.get("terminal") and not result.get("won") else None,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("message") or "Conquest turn exchange resolved")
     )
     if result.get("terminal"):
         ctx.deactivate_current_skill()
