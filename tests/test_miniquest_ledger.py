@@ -297,17 +297,25 @@ class TestLairOfTarnRazorlor(unittest.TestCase):
         self.assertEqual(player_data["quest_points"], 0)
 
     def test_the_dominion_tower_class_h_gate_now_resolves(self):
-        """Section 3.23's one unreachable boss lights up, and only it."""
+        """Section 3.23's one unreachable boss lights up behind Haunted Mine.
+
+        Tarn oldid 6448021's trivia pins the period gate: the Dominion fight
+        needs only Haunted Mine, not the Lair miniquest. The ledger row exists
+        for its own completion record and must not be required here.
+        """
         player_data = _combat_ready_player()
-        player_data["quests"]["haunted_mine"]["completed"] = True
         player_data["slayer_level"] = 40
 
         before = dominion_tower_view_pure(player_data)
         self.assertNotIn("tarn_razorlor", dominion_tower_available_encounters_pure(player_data, 1))
         self.assertNotIn("tarn_razorlor", before["available_encounters"])
 
-        player_data = _complete_lair_of_tarn_razorlor(self, player_data)
+        player_data["quests"]["haunted_mine"]["completed"] = True
 
+        self.assertIn("tarn_razorlor", dominion_tower_available_encounters_pure(player_data, 1))
+        # The Lair stays optional for the fight while still recording its own
+        # completion when played.
+        player_data = _complete_lair_of_tarn_razorlor(self, player_data)
         self.assertIn("tarn_razorlor", dominion_tower_available_encounters_pure(player_data, 1))
         after = dominion_tower_view_pure(player_data)
         self.assertIn("tarn_razorlor", after["available_encounters"])
@@ -319,9 +327,11 @@ class TestLairOfTarnRazorlor(unittest.TestCase):
             ),
             ("Tarn Razorlor and terror dogs",),
         )
-        # The tower's entry gate counts its own 38 quests; a miniquest is not
-        # one of them and must not inflate that count.
-        self.assertEqual(after["completed_quests"], before["completed_quests"])
+        # The tower's entry gate counts its own 38 quests; completing the
+        # Lair miniquest must not inflate that count beyond Haunted Mine's own
+        # contribution.
+        with_mine_only = 1
+        self.assertEqual(after["completed_quests"], with_mine_only)
 
     def test_the_tarn_encounter_belongs_to_no_glove_set(self):
         """Section 3.23's other claim: no reward was ever blocked on this boss."""

@@ -370,6 +370,28 @@ class PrestigeCapeTest(unittest.TestCase):
         player = _wear(player, "Quest point cape")
         self.assertEqual(player["equipment"]["cape"], "Quest point cape")
 
+    def test_unfinished_miniquests_do_not_hold_back_the_quest_capes(self):
+        """The catalog's miniquest rows are not quests, and must not count.
+
+        The Completionist source lists quests and miniquests as two separate
+        requirements, so a player who has finished every quest earns the Quest
+        point cape and clears the Completionist's quest row with both miniquests
+        still untouched.
+        """
+        miniquests = tuple(quest.id for quest in QUESTS if quest.miniquest)
+        self.assertTrue(miniquests, "the catalog carries no miniquest rows")
+
+        player = _all_quests_done(_player())
+        for quest_id in miniquests:
+            player["quests"][quest_id]["completed"] = False
+
+        rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
+        self.assertTrue(rows["quests"]["met"])
+
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
+        player, ok, info = _buy(player, "quest_point")
+        self.assertTrue(ok, info)
+
     def test_the_max_cape_is_earned_by_99_in_every_skill(self):
         player = _player()
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["max"].price}

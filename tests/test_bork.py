@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import os
 import random
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -28,6 +29,7 @@ from ankiscape.data.bork_data import (
     BORK_ORK_SUMMON_THRESHOLD_LIFEPOINTS,
     BORK_QUEST_ID,
     BORK_RARE_DROPS,
+    BORK_REVIEW_TICKS,
     BORK_TARGET_ID,
     BORK_WORLD_DAY_REVIEWS,
     bork_enemy_pure,
@@ -44,6 +46,7 @@ from ankiscape.logic.bork_logic import (
 )
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
 
 def _player(**overrides):
@@ -627,6 +630,43 @@ class BorkReviewSeamTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("Enter Bork's chamber", info["reason"])
         self.assertFalse(refused["bork"]["active"])
+
+
+class BorkCadenceTests(unittest.TestCase):
+    """The contract's "never foreground-multiplied" claim, driven end to end."""
+
+    def setUp(self):
+        self._orig_modules = dict(sys.modules)
+        _install_runtime_fakes()
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._orig_modules)
+
+    def test_one_answered_card_is_one_six_tick_bork_interval(self):
+        addon = _load_addon_as_package("ankiscape_bork_hook")
+        addon.player_data = _entered()
+        addon.player_data["current_utility"] = BORK_ACTIVITY_ID
+        addon.current_skill = "Utility / Activities"
+        addon.exp_awarded = False
+        addon._review_action_multiplier = lambda: 3
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+        addon._show_exp = lambda _amount: None
+        addon._advance_world_events_after_review = lambda: None
+        addon._save_player_data_if_anki_ready = lambda: None
+        addon._remember_review_award_snapshot = lambda _before: None
+
+        addon.on_good_answer()
+
+        # The caster's clock is the durable witness: it gains the review's six
+        # ticks once. A multiplied answer would have spent three slices on it.
+        self.assertTrue(addon.player_data["bork"]["active"])
+        self.assertEqual(
+            addon.player_data["bork"]["mage_ticks"], BORK_REVIEW_TICKS
+        )
 
 
 if __name__ == "__main__":

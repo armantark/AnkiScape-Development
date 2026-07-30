@@ -9242,6 +9242,9 @@ MINIQUESTS: Tuple[QuestDefinition, ...] = (
         journal_stages=HUNT_FOR_SUROK_STAGES,
         release_date="2008-03-04",
         members=True,
+        # PLACEHOLDER(hunt_for_surok.difficulty_label): the pinned page's quest
+        # details block carries `wdifficulty=4` and no difficulty word, and the
+        # miniquest list carries no difficulty column at all.
         difficulty="Special",
         length="Short to Medium",
         timeline="Fifth Age",
@@ -9283,7 +9286,12 @@ MINIQUESTS: Tuple[QuestDefinition, ...] = (
         journal_stages=LAIR_OF_TARN_RAZORLOR_STAGES,
         release_date="2007-01-22",
         members=True,
+        # PLACEHOLDER(lair_of_tarn_razorlor.difficulty_label): the pinned page
+        # carries no quest details block, so it states neither a difficulty word
+        # nor the numeric grade its sibling page carries.
         difficulty="Special",
+        # PLACEHOLDER(lair_of_tarn_razorlor.length_label): the same missing block
+        # is the only place a length would have been stated.
         length="Short",
         timeline="Fifth Age",
         release_order=9999,

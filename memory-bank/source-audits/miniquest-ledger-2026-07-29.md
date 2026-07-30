@@ -218,8 +218,12 @@ infobox, the strategy line and the conclusion together. This is why Darkan's
 **Two labels remain inference, and are marked as such.** `difficulty` is
 `Special` for both rows and the Lair's `length` is `Short`; the Lair page
 carries no quest-details infobox at all, and neither page carries a difficulty
-word. Surok's `Short to Medium` is the catalog spelling of his page's
-"Short-Medium".
+word — Surok's page carries only the numeric `wdifficulty=4`, which the catalog
+builder does not read. Surok's `Short to Medium` is the catalog spelling of his
+page's "Short-Medium", and is the one label here that is not an inference. The
+three inferred values now carry `PLACEHOLDER` markers and register rows:
+`hunt_for_surok.difficulty_label`, `lair_of_tarn_razorlor.difficulty_label` and
+`lair_of_tarn_razorlor.length_label`.
 
 ## Verification
 
