@@ -548,23 +548,21 @@ def _seed_v107_diary_output_holdings(data: Dict[str, Any]) -> None:
     """Seed only outputs that become achievement-relevant in config v107."""
 
     progress = sanitize_achievement_progress_pure(data.get("achievement_progress"))
-    inventory = data.get("inventory", {})
-    if not isinstance(inventory, dict):
-        data["achievement_progress"] = progress
-        return
-    for skill_id, item_names in _V107_DIARY_OUTPUT_SEED_ITEMS.items():
-        record = progress["skills"].setdefault(
-            skill_id,
-            {"actions": {}, "outputs": {}},
-        )
-        outputs = record["outputs"]
-        for item_name in item_names:
-            try:
-                held = max(0, int(inventory.get(item_name, 0) or 0))
-            except (TypeError, ValueError):
-                held = 0
-            if held:
-                outputs[item_name] = max(outputs.get(item_name, 0), held)
+    inventory = data.get("inventory", {}) or {}
+    if isinstance(inventory, dict):
+        for skill_id, item_names in _V107_DIARY_OUTPUT_SEED_ITEMS.items():
+            record = progress["skills"].setdefault(
+                skill_id,
+                {"actions": {}, "outputs": {}},
+            )
+            outputs = record["outputs"]
+            for item_name in item_names:
+                try:
+                    held = max(0, int(inventory.get(item_name, 0) or 0))
+                except (TypeError, ValueError):
+                    held = 0
+                if held:
+                    outputs[item_name] = max(outputs.get(item_name, 0), held)
     data["achievement_progress"] = progress
 
 

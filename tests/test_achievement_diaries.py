@@ -51,6 +51,7 @@ from ankiscape.logic.achievement_diary_logic import (
     task_progress_pure,
     tier_reward_names_pure,
 )
+from ankiscape.logic.shop_logic import shop_diary_transaction_counter_key_pure
 from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure, claim_rows_pure
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
@@ -232,10 +233,6 @@ def _satisfy_condition(player, condition):
     elif condition.kind == "combat_kill":
         player.setdefault("combat_kill_counts", {})[condition.key] = condition.amount
     elif condition.kind == "shop_transaction":
-        from ankiscape.logic.shop_logic import (
-            shop_diary_transaction_counter_key_pure,
-        )
-
         transaction_type, _, remainder = condition.key.partition("|")
         shop_id, _, row_id = remainder.partition("|")
         counter_key = shop_diary_transaction_counter_key_pure(

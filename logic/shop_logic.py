@@ -73,9 +73,11 @@ def shop_diary_transaction_counter_key_pure(
 ) -> str:
     """Return the approved narrow diary counter for one exact transaction."""
 
-    return _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.get(
-        (str(transaction_type), str(shop_id), str(row_id)),
-        "",
+    return (
+        _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.get(
+            (str(transaction_type), str(shop_id), str(row_id))
+        )
+        or ""
     )
 
 # Bob Barter's ordinary-vial catalog is the live, non-Daemonheim Herblore

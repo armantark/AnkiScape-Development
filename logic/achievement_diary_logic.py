@@ -141,15 +141,11 @@ def _counter_at(player_data: Mapping[str, Any], path: str) -> int:
 def _shop_transaction_count(player_data: Mapping[str, Any], key: str) -> int:
     transaction_type, separator, remainder = key.partition("|")
     shop_id, row_separator, row_id = remainder.partition("|")
-    if not separator or not row_separator:
-        return 0
-    counter_key = shop_diary_transaction_counter_key_pure(
-        transaction_type,
-        shop_id,
-        row_id,
+    counter_key = (
+        shop_diary_transaction_counter_key_pure(transaction_type, shop_id, row_id)
+        if separator and row_separator
+        else ""
     )
-    if not counter_key:
-        return 0
     return _int(_mapping(player_data.get("shop_transaction_counts")).get(counter_key))
 
 
