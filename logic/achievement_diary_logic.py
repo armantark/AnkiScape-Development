@@ -441,12 +441,9 @@ def _create_tier_lamp_claim(data: dict[str, Any], tier: DiaryTier) -> str:
 def claim_diary_tier_pure(
     player_data: Mapping[str, Any],
     tier_id: str,
-    *,
-    lamp_skill: str = "",
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """Grant or upgrade equipment and place the sourced lamp in Bank Claims."""
 
-    del lamp_skill  # Kept for save/UI call compatibility; lamps are spent in Bank.
     found = diary_tier_by_id_pure(tier_id)
     if found is None:
         return dict(player_data), False, {"reason": "Unknown diary tier."}
@@ -477,9 +474,7 @@ def claim_diary_tier_pure(
         else f"{family.name}: {tier.name} claimed."
     )
     if tier.lamp is not None:
-        message += (
-            f" A {tier.lamp.experience:,} XP reward lamp is waiting in Bank Claims."
-        )
+        message += f" A {tier.lamp.experience:,} XP reward lamp is waiting in Bank Claims."
     return (
         data,
         True,
@@ -774,11 +769,7 @@ def apply_achievement_diary_command_pure(
 
     body = _mapping(payload)
     if action_id == "claim_tier":
-        return claim_diary_tier_pure(
-            player_data,
-            str(body.get("tier_id", "")),
-            lamp_skill=str(body.get("lamp_skill", "")),
-        )
+        return claim_diary_tier_pure(player_data, str(body.get("tier_id", "")))
     if action_id == "pin_task":
         return pin_diary_task_pure(player_data, str(body.get("task_id", "")))
     if action_id == "purchase_cape":

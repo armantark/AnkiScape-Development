@@ -1290,8 +1290,8 @@ class ClaimTest(unittest.TestCase):
     def test_a_tier_cannot_be_claimed_twice(self):
         family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
-        _again, ok, info = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
+        _again, ok, info = claim_diary_tier_pure(player, family.tiers[0].id)
         self.assertFalse(ok)
         self.assertIn("already claimed", info["reason"])
 
@@ -1300,7 +1300,7 @@ class ClaimTest(unittest.TestCase):
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
-        _updated, ok, info = claim_diary_tier_pure(player, family.tiers[1].id, lamp_skill="mining")
+        _updated, ok, info = claim_diary_tier_pure(player, family.tiers[1].id)
         self.assertFalse(ok)
         self.assertIn("Claim Easy before Medium", info["reason"])
 
@@ -1309,10 +1309,8 @@ class ClaimTest(unittest.TestCase):
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
-        player, ok, _info = claim_diary_tier_pure(
-            player, family.tiers[1].id, lamp_skill="mining"
-        )
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
+        player, ok, _info = claim_diary_tier_pure(player, family.tiers[1].id)
         self.assertTrue(ok)
         self.assertNotIn("Ardougne cloak 1", player["inventory"])
         self.assertEqual(player["inventory"].get("Ardougne cloak 2"), 1)
@@ -1322,13 +1320,13 @@ class ClaimTest(unittest.TestCase):
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         inventory, equipment, worn = equip_item_pure(
             "Ardougne cloak 1", player["inventory"], player["equipment"], EQUIPMENT_DATA
         )
         self.assertTrue(worn)
         player["inventory"], player["equipment"] = inventory, equipment
-        player = claim_diary_tier_pure(player, family.tiers[1].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[1].id)[0]
         self.assertEqual(player["equipment"].get("cape"), "Ardougne cloak 2")
         self.assertFalse(player["inventory"].get("Ardougne cloak 1"))
 
@@ -1344,7 +1342,7 @@ class ClaimTest(unittest.TestCase):
     def test_the_granted_item_can_actually_be_worn(self):
         family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         allowed, reason = can_equip_item_pure(
             "Ardougne cloak 1", EQUIPMENT_DATA, player
         )
@@ -1467,7 +1465,7 @@ class PinAndCommandTest(unittest.TestCase):
         player = _complete_tier(_fresh(), family.tiers[0])
         frozen = copy.deepcopy(player)
         apply_achievement_diary_command_pure(
-            player, "claim_tier", {"tier_id": family.tiers[0].id, "lamp_skill": "mining"}
+            player, "claim_tier", {"tier_id": family.tiers[0].id}
         )
         self.assertEqual(player["inventory"], frozen["inventory"])
         self.assertEqual(player["achievement_diaries"], frozen["achievement_diaries"])
@@ -1575,7 +1573,7 @@ class MigrationTest(unittest.TestCase):
         player = _fresh()
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
         player = _complete_tier(player, family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         claimed = list(player["achievement_diaries"]["claimed_tiers"])
 
         loaded = migrate_loaded_data(

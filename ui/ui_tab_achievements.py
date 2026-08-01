@@ -179,9 +179,7 @@ def build_achievements_tab(ctx) -> "QWidget":
         claim.setObjectName(f"cabinetClaim_{tier['tier_id']}")
         claim.setEnabled(bool(tier["ready"]) and on_command is not None)
         claim.clicked.connect(
-            lambda _=False, tid=tier["tier_id"]: _run(
-                "claim_tier", {"tier_id": tid}
-            )
+            lambda _=False, tid=tier["tier_id"]: _run("claim_tier", {"tier_id": tid})
         )
         header.addWidget(claim)
         block_layout.addLayout(header)

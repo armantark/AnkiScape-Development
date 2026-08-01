@@ -940,21 +940,15 @@ def _migrate_legacy_claimed_diary_lamps(data: Dict[str, Any]) -> None:
 
     diary_state = data.get("achievement_diaries")
     claimed_tiers = (
-        diary_state.get("claimed_tiers", ())
-        if isinstance(diary_state, dict)
-        else ()
+        diary_state.get("claimed_tiers", ()) if isinstance(diary_state, dict) else ()
     )
     claims = data.get("claims")
     clean_claims = dict(claims) if isinstance(claims, dict) else {}
-    for tier_id in claimed_tiers if isinstance(claimed_tiers, list) else ():
-        claim_id = DIARY_LAMP_CLAIM_IDS_BY_TIER.get(tier_id)
-        if claim_id is None:
-            continue
-        state = clean_claims.get(claim_id)
-        clean_claims[claim_id] = {
-            **(state if isinstance(state, dict) else {}),
-            "claimed": True,
-        }
+    if isinstance(claimed_tiers, list):
+        for tier_id in claimed_tiers:
+            claim_id = DIARY_LAMP_CLAIM_IDS_BY_TIER.get(tier_id)
+            if claim_id is not None:
+                clean_claims[claim_id] = {"claimed": True}
     data["claims"] = clean_claims
 
 

@@ -137,15 +137,11 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     if isinstance(required_diary_tier, str) and required_diary_tier:
         diary_state = player_data.get("achievement_diaries", {})
         claimed_tiers = (
-            diary_state.get("claimed_tiers", ())
-            if isinstance(diary_state, Mapping)
-            else ()
+            diary_state.get("claimed_tiers", ()) if isinstance(diary_state, Mapping) else ()
         )
-        if (
-            not isinstance(claimed_tiers, Iterable)
-            or isinstance(claimed_tiers, (str, bytes, Mapping))
-            or required_diary_tier not in claimed_tiers
-        ):
+        if not isinstance(claimed_tiers, Iterable):
+            claimed_tiers = ()
+        if required_diary_tier not in claimed_tiers:
             reasons.append("diary tier")
     return tuple(reasons)
 
@@ -200,9 +196,7 @@ def claim_rows_pure(player_data, claim_data):
                 "items": items,
                 "xp_amount": float(claim.get("xp_amount", 0) or 0),
                 "skill_options": (
-                    _claim_skill_options(claim)
-                    if claim.get("claim_type") == "xp_lamp"
-                    else ()
+                    _claim_skill_options(claim) if claim.get("claim_type") == "xp_lamp" else ()
                 ),
                 "minimum_level": _positive_int(claim.get("minimum_level", 1), 1),
                 "eligible": eligible,

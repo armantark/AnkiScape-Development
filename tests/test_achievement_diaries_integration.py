@@ -257,7 +257,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
 
         committed = addon.commit_direct_action(
             lambda current: apply_achievement_diary_command_pure(
-                current, "claim_tier", {"tier_id": tier.id, "lamp_skill": "mining"}
+                current, "claim_tier", {"tier_id": tier.id}
             )[:2]
         )
 
@@ -391,7 +391,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
         tier = self._ready_to_claim()
         addon.commit_direct_action(
             lambda current: apply_achievement_diary_command_pure(
-                current, "claim_tier", {"tier_id": tier.id, "lamp_skill": "mining"}
+                current, "claim_tier", {"tier_id": tier.id}
             )[:2]
         )
         allowed, reason = can_equip_item_pure(
