@@ -701,7 +701,7 @@ def _session_from_storage_pure(
     )
 
 
-def _starter_guardian_coin_room_ids_pure(
+def _critical_guardian_coin_room_ids_pure(
     session: DungeonSession,
 ) -> tuple[int, ...]:
     if session.complexity < 5:
@@ -711,6 +711,19 @@ def _starter_guardian_coin_room_ids_pure(
         for room in session.rooms
         if room.family == "guardian" and room.critical_path
     )
+
+
+def _starter_guardian_coin_room_ids_pure(
+    session: DungeonSession,
+    player_data: Mapping[str, Any],
+) -> tuple[int, ...]:
+    if (
+        not _quest_complete(player_data, "druidic_ritual")
+        or _clean_level(player_data.get("herblore_level", 1))
+        < STARTER_HERBLORE_CHAIN[-1].level
+    ):
+        return ()
+    return _critical_guardian_coin_room_ids_pure(session)
 
 
 def default_dungeoneering_state_pure() -> dict[str, Any]:
@@ -925,7 +938,10 @@ def _sanitize_boss_state(
     }
 
 
-def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
+def sanitize_dungeoneering_state_pure(
+    raw: object,
+    player_data: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     defaults = default_dungeoneering_state_pure()
     source = raw if isinstance(raw, Mapping) else {}
     mode = str(source.get("automation_mode", "casual"))
@@ -1032,7 +1048,12 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
     session_coins = _non_negative_int(source.get("session_coins")) if active else 0
     guardian_coin_room_ids: list[int] = []
     if session is not None:
-        eligible_guardian_ids = _starter_guardian_coin_room_ids_pure(session)
+        critical_guardian_ids = _critical_guardian_coin_room_ids_pure(session)
+        eligible_guardian_ids = (
+            _starter_guardian_coin_room_ids_pure(session, player_data)
+            if player_data is not None
+            else critical_guardian_ids
+        )
         raw_guardian_coin_room_ids = source.get("guardian_coin_room_ids")
         if isinstance(raw_guardian_coin_room_ids, (list, tuple)):
             guardian_coin_room_ids = sorted(
@@ -1043,16 +1064,19 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
                     in eligible_guardian_ids
                 }
             )
-        if "guardian_coin_room_ids" not in source:
-            guardian_coin_room_ids = [
-                room_id
-                for room_id in eligible_guardian_ids
-                if room_id not in session.resolved_room_ids
-            ]
-            if eligible_guardian_ids and not guardian_coin_room_ids:
-                session_coins += _STARTER_GUARDIAN_COIN_DROPS
-        elif not guardian_coin_room_ids:
-            guardian_coin_room_ids = list(eligible_guardian_ids)
+        if "guardian_coin_room_ids" not in source and player_data is not None:
+            resource_cache_granted = any(
+                session.rooms[room_id].family == "resource"
+                for room_id in session.resolved_room_ids
+            )
+            if eligible_guardian_ids and not resource_cache_granted:
+                guardian_coin_room_ids = [
+                    room_id
+                    for room_id in eligible_guardian_ids
+                    if room_id not in session.resolved_room_ids
+                ]
+                if not guardian_coin_room_ids:
+                    session_coins += _STARTER_GUARDIAN_COIN_DROPS
     pending_offer = (
         _bind_offer_backed_by_inventory_pure(
             source.get("pending_bind_offer"),
@@ -1328,7 +1352,7 @@ def record_dungeon_drop_pure(
     ammo: bool = False,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
-    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"), data)
     if not state["active"]:
         return data, False, {"reason": "Enter a floor before recording an in-floor drop."}
     name = str(item_name)[:120]
@@ -1647,7 +1671,10 @@ def dungeoneering_view_pure(
     *,
     selected_skill: object = "",
 ) -> dict[str, Any]:
-    state = sanitize_dungeoneering_state_pure(player_data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(
+        player_data.get("dungeoneering"),
+        player_data,
+    )
     session = _session_from_storage_pure(state["session"], state["entry_skill_levels"])
     level = _clean_level(player_data.get("dungeoneering_level", 1))
     maximum_floor = min(11, maximum_floor_for_level_pure(level))
@@ -1948,7 +1975,7 @@ def apply_dungeoneering_command_pure(
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
-    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"), data)
     data["dungeoneering"] = state
     payload = payload if isinstance(payload, Mapping) else {}
     active_session = data.get("activity_session")
@@ -2129,7 +2156,7 @@ def apply_dungeoneering_command_pure(
                 "session_equipment": session_equipment,
                 "session_coins": 0,
                 "guardian_coin_room_ids": list(
-                    _starter_guardian_coin_room_ids_pure(session)
+                    _starter_guardian_coin_room_ids_pure(session, data)
                 ),
                 "pending_bind_offer": {},
                 "boss": {
@@ -2479,7 +2506,7 @@ def apply_dungeoneering_review_pure(
     player_died: bool = False,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
-    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"), data)
     session = _session_from_storage_pure(state["session"], state["entry_skill_levels"])
     active_session = data.get("activity_session")
     active_session_id = (
