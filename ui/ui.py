@@ -23106,6 +23106,7 @@ def show_main_menu(
     # current. carried_mode_state is the single source of truth the bank context
     # menu reads to decide whether "Set carried quantity" applies.
     carried_grid_refreshers: list = []
+    carried_inventory_refreshers: list = []
     carried_switch_setters: list = []
     carried_section_refreshers: list = []
     carried_mode_state = {"advanced": bool(carried_advanced_state)}
@@ -23150,6 +23151,10 @@ def show_main_menu(
 
     def _refresh_carried_layout_grid() -> None:
         for _refresh in carried_grid_refreshers:
+            _refresh()
+
+    def _refresh_carried_inventory_views() -> None:
+        for _refresh in carried_inventory_refreshers:
             _refresh()
 
     def _refresh_carried_sections() -> None:
@@ -23697,8 +23702,9 @@ def show_main_menu(
                 current_inventory_layout.addWidget(item_button)
             current_inventory_layout.addStretch(1)
 
-        carried_grid_refreshers.extend(
-            (_refresh_grid, _refresh_bank_picker, _refresh_current_inventory)
+        carried_grid_refreshers.append(_refresh_grid)
+        carried_inventory_refreshers.extend(
+            (_refresh_bank_picker, _refresh_current_inventory)
         )
 
         _apply_mode(bool(carried_mode_state["advanced"]))
@@ -23737,6 +23743,7 @@ def show_main_menu(
         carried_summary.setText(_carried_panel_summary_text())
         _refresh_carried_sections()
         _refresh_carried_layout_grid()
+        _refresh_carried_inventory_views()
 
     bk_layout.addWidget(carried_header)
     bk_layout.addWidget(carried_body)
