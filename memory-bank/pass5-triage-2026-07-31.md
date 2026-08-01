@@ -253,6 +253,12 @@ that tests the fake instead of the app.
   xp bounding box in the bottom right corner." Small native QPushButton;
   behavior unchanged.
 
+- **Vanilla bottom bar clause (owner, 2026-08-01).** The Edit / Show answer /
+  More bar must render exactly as vanilla Anki — the native strip is inserted
+  after it, never restyling or replacing it. The offscreen grabs show a test
+  mock of that bar; the laptop re-probe on real Anki must photograph the
+  genuine bar unchanged.
+
 ## Skill routing (owner-approved 2026-07-31)
 
 Loop seats: `codex-implementation` (maker), `codex-review` (verifier),
