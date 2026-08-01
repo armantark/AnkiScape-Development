@@ -236,10 +236,6 @@ def _latent_skill_note() -> str:
     return f" ({names} latent until the skill ships)"
 
 
-def _all_skills_99(player_data: Mapping[str, Any]) -> bool:
-    return len(skills_at_99_pure(player_data)) == len(trainable_skill_definitions())
-
-
 def _answered_cards(player_data: Mapping[str, Any]) -> int:
     return _int(_mapping(player_data.get("shop_market_clock")).get("answered_cards"))
 
@@ -316,12 +312,20 @@ def _completionist_requirement_view_pure(
         latent = value is _MISSING
         if latent:
             met = False
-        elif kind == "collection_count" and isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        elif (
+            kind == "collection_count"
+            and isinstance(value, Sequence)
+            and not isinstance(value, (str, bytes))
+        ):
             have, need = len(value), requirement.threshold
             met = have >= need
-        elif kind == "contains_any" and isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
-            have, need = int(bool(set(requirement.accepted_values) & set(value))), 1
-            met = bool(have)
+        elif (
+            kind == "contains_any"
+            and isinstance(value, Sequence)
+            and not isinstance(value, (str, bytes))
+        ):
+            met = any(candidate in value for candidate in requirement.accepted_values)
+            have, need = int(met), 1
         elif kind == "flag" or isinstance(value, bool):
             have, need = int(bool(value)), 1
             met = bool(value)
