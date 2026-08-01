@@ -69,6 +69,70 @@ land (blocks play, risks corruption, or is a repeat report).
 
 16. Event log copy-pastable.
 
+## Closure protocol — items run to exhaustion
+
+Owner (2026-07-31): repeat items keep missing the mark, "usually due to
+laziness." The failure mode is fixing a paraphrase of the complaint and
+closing on green tests. Rules for every item in this file:
+
+1. **Briefs quote the owner verbatim.** The implementer maps each clause of
+   the quoted sentence to a concrete change; the verifier checks the clauses,
+   never the implementer's summary. No "reasonable interpretation"
+   substitutions — the toolbelt went from "can't attach" (P2) to
+   "auto-attaches" (P5) exactly this way, overshooting the actual ask
+   (manual attach is the ceremony).
+2. **Green tests never close an item** (green-suite-proves-nothing). Closure
+   evidence is real-app verification — computer-use screenshots or driven
+   runtime probes — one piece of evidence per clause, linked from the
+   checklist below.
+3. **Repeat offenders get a clause checklist** in this file. An item stays
+   open until every clause has evidence; partial delivery re-opens the whole
+   item, it does not shrink it.
+4. **Owner confirmation on the next pass is the only final closure.** Until
+   then items are "fixed-pending-confirmation", never "done".
+
+## Repeat-offender ledger
+
+| Item | Reports | History |
+|---|---|---|
+| D&D favorites/notifications | 4 | P2 idea → P3 no add → P4 still none, right-click spec → P5 add-only, no remove, no default visibility, wrong coverage (no Fish Flingers) |
+| Overlay placement over card | 3 | P4 covers footnotes → tall-card vanish report → P5 bouncing, image heights ignored, popup anchor detached |
+| GE status log | 3 | P2 full spec (drawer, reverse-chron, yellow/green, "Now / 1 card ago") → P3 "where is it? under the xp bar box" → P5 stale clutter, no click-through; the green/yellow semantics got misapplied to XP drops instead |
+| Event log | 2 | P4 spec (drawer, last 10, lazily expanded, contains all popovers) → P5 colors wrong, no skill names, no word wrap, not copy-pastable |
+| Toolbelt attach | 2 | P2 can't attach mithril hatchet → P5 auto-attaches (overcorrected past the ask) |
+| Achievements spec | 1 open | P3: "not up to the spec I designed… it's already all recorded, find it." Never re-verified — add an audit: locate the recorded spec, diff the shipped achievements against it clause by clause. |
+
+### Clause checklists (fill evidence links before closing)
+
+**D&D notifications (P5 wording):**
+- [ ] Right-click a D&D → add to notification set
+- [ ] Right-click a D&D → remove from notification set
+- [ ] Default set is visible somewhere inspectable
+- [ ] Every D&D is coverable, Fish Flingers included — not just stars/trees/Big Chinchompa
+- [ ] Click on an active notification opens a mini popover with status; its line navigates to the D&D (P3 wording)
+
+**Overlay (P5 wording):**
+- [ ] Cluster pinned to window bottom — no per-card bouncing
+- [ ] No-cover fixes still hold at the pinned position
+- [ ] Vertical measurement includes images, not just text (verify on the Greek harvest card)
+- [ ] Floating-text popup anchor moves with the box
+
+**Event log (P4+P5 wording):**
+- [ ] Skill named on every XP drop row
+- [ ] XP drops not green; green/yellow reserved for GE
+- [ ] Word wrap
+- [ ] Copy-pastable
+- [ ] Contains all emitted popovers, not just XP (P4: "the floating popovers that get emitted")
+
+**GE status log (P2+P5 wording):**
+- [ ] Reverse-chron "Now / N cards ago" rows, yellow partial, green complete
+- [ ] Stale entries cleared when the panel hides
+- [ ] Row click opens the GE interface
+
+**Toolbelt (P2+P5 wording):**
+- [ ] Buying a better tool never auto-replaces
+- [ ] Explicit attach action exists and works from the bank/toolbelt UI
+
 ## Proposed execution order (work packages)
 
 - **A. Combat cluster** (items 1–3): one investigation — pacing, food loading,
