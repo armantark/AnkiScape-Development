@@ -32,6 +32,7 @@ from ankiscape.data.achievement_diary_data import (
     DiaryFamily,
     DiaryTask,
     DiaryTier,
+    V107_DEED_REVALIDATION_SOURCE_IDS,
     diary_lamp_claim_id,
 )
 from ankiscape.logic.achievement_diary_derived import (
@@ -374,14 +375,7 @@ class CatalogIntegrityTest(unittest.TestCase):
                     self.assertGreaterEqual(task.source_id, 0, task.id)
 
     def test_first_deed_tranche_uses_durable_predicates_not_requirement_gates(self):
-        source_ids = {
-            5, 15, 29, 40, 44, 50, 52, 56, 79, 84, 86, 88, 99, 104, 105,
-            108, 109, 110, 112, 113, 114, 125, 134, 139, 152, 165, 171, 175,
-            179, 184, 199, 200, 201, 214, 226, 230, 232, 243, 246, 247, 250,
-            253, 263, 271, 272, 288, 302, 305, 309, 310, 311, 314, 323, 336,
-            357, 945, 962, 972, 986, 987, 3003, 3004, 3005, 3019,
-        }
-        for source_id in source_ids:
+        for source_id in V107_DEED_REVALIDATION_SOURCE_IDS:
             task = _task_by_source_id(source_id)
             kinds = {
                 condition.kind

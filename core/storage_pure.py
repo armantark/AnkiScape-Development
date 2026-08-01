@@ -568,6 +568,30 @@ def _seed_v107_diary_output_holdings(data: Dict[str, Any]) -> None:
     data["achievement_progress"] = progress
 
 
+def _revalidate_v107_diary_deeds(data: Dict[str, Any]) -> None:
+    """Drop superseded gate completions so refresh can re-prove the deeds."""
+
+    from ..data.achievement_diary_data import (
+        ACHIEVEMENT_DIARY_CATALOG,
+        V107_DEED_REVALIDATION_SOURCE_IDS,
+    )
+
+    deed_task_ids = {
+        task.id
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+        if task.source_id in V107_DEED_REVALIDATION_SOURCE_IDS
+    }
+    state = sanitize_achievement_diary_state_pure(data)["achievement_diaries"]
+    state["completed_tasks"] = [
+        task_id
+        for task_id in state["completed_tasks"]
+        if task_id not in deed_task_ids
+    ]
+    data["achievement_diaries"] = state
+
+
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
     data: Dict[str, Any] = {
         "config_version": CURRENT_CONFIG_VERSION,
@@ -2159,8 +2183,7 @@ def migrate_loaded_data(
     # retired during migration rather than paying the same lamp twice.
     if loaded_config_version < 107:
         _migrate_legacy_claimed_diary_lamps(data)
-        # This branch originally shared v107 with the lamp migration. It is
-        # rebased to its own version after the deed commits finish replaying.
+        _revalidate_v107_diary_deeds(data)
         _seed_v107_diary_output_holdings(data)
         data.update(migrate_shop_diary_transaction_counts_pure(data))
         data.update(refresh_achievement_diaries_pure(data)[0])
