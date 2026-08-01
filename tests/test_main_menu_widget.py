@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -3288,6 +3288,120 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(clear_calls, [True])
         dialog.deleteLater()
+
+    def test_custom_pack_bank_grid_icons_quantity_menu_and_live_inventory(self) -> None:
+        from ankiscape.logic import inventory_pure
+
+        pd = _make_player_data()
+        pd["inventory"] = {"Iron ore": 20, "Coins": 100}
+        layout: dict[str, int] = {}
+        stackables = {"Coins"}
+
+        def get_cells():
+            return tuple(inventory_pure.layout_to_grid_cells_pure(layout, stackables))
+
+        def set_quantity(item_name: str, quantity: int) -> bool:
+            updated, ok = inventory_pure.set_carried_layout_quantity_pure(
+                layout,
+                item_name,
+                quantity,
+                stackables,
+            )
+            if ok:
+                layout.clear()
+                layout.update(updated)
+            return ok
+
+        dialog = self._open(
+            pd,
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            get_carried_inventory_items=lambda: (
+                ("Iron ore", 2),
+                ("Uncut sapphire", 1),
+            ),
+            on_set_carried_layout_quantity=set_quantity,
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_equipment_tab(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        bank_grid = dialog.findChild(QScrollArea, "carriedBankPicker")
+        self.assertIsNotNone(bank_grid)
+        pack_grid = dialog.findChild(QWidget, "carriedLayoutGrid")
+        self.assertGreater(
+            bank_grid.mapTo(dialog, QPoint(0, 0)).x(),
+            pack_grid.mapTo(dialog, QPoint(0, 0)).x() + pack_grid.width(),
+        )
+        iron_button = dialog.findChild(QPushButton, "carriedBankItem::Iron ore")
+        self.assertIsNotNone(iron_button)
+        self.assertFalse(iron_button.icon().isNull())
+        iron_button.click()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], 1)
+
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
+        self.assertEqual(
+            [action.text() for action in menu.actions()],
+            [
+                "Add 1",
+                "Add 5",
+                "Add 10",
+                "Add last X",
+                "Add X…",
+                "Add all",
+                "Add all-but-one",
+            ],
+        )
+        add_five = next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddFiveAction"
+        )
+        add_five.trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], 6)
+
+        original_get_int = self._ui.QInputDialog.getInt
+        self._ui.QInputDialog.getInt = lambda *a, **k: (7, True)
+        try:
+            add_x = next(
+                action
+                for action in menu.actions()
+                if action.objectName() == "carriedAddXAction"
+            )
+            add_x.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QInputDialog.getInt = original_get_int
+        self.assertEqual(layout["Iron ore"], 13)
+        refreshed_menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
+        self.assertEqual(refreshed_menu.actions()[3].text(), "Add last X (7)")
+
+        coins_menu = dialog._ankiscape_carried_add_menu_for("Coins", 100)
+        next(
+            action
+            for action in coins_menu.actions()
+            if action.objectName() == "carriedAddAllButOneAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Coins"], 99)
+        next(
+            action
+            for action in coins_menu.actions()
+            if action.objectName() == "carriedAddAllAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Coins"], 100)
+
+        current_loot = dialog.findChild(
+            QPushButton,
+            "carriedCurrentItem::Uncut sapphire",
+        )
+        self.assertIsNotNone(current_loot)
+        self.assertIn("Uncut sapphire ×1", current_loot.toolTip())
 
     def test_combat_supply_mode_dropdown_present_and_wired(self) -> None:
         from aqt.qt import QComboBox

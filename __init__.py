@@ -1729,6 +1729,19 @@ def _on_main_menu(
             inventory_pure.layout_to_grid_cells_pure(layout, runtime_actions._OVERLAY_STACKABLE_NAMES)
         )
 
+    def _current_carried_inventory_items():
+        target_id = _current_carried_pack_target()
+        if target_id is None:
+            return ()
+        carried = (player_data.get("carried_inventory") or {}).get(target_id, {})
+        if not isinstance(carried, Mapping):
+            return ()
+        return tuple(
+            (item_name, int(amount))
+            for item_name, amount in carried.items()
+            if isinstance(item_name, str) and int(amount or 0) > 0
+        )
+
     def _current_carried_auto_summary():
         handler_key = review_action_handler_key(current_skill)
         target_id = _current_carried_pack_target()
@@ -4086,6 +4099,7 @@ def _on_main_menu(
         # A callback, not a snapshot: the grid re-reads live player_data after
         # every quantity edit/clear, so it refreshes without rebuilding the dialog.
         get_carried_layout_cells=_current_carried_layout_cells,
+        get_carried_inventory_items=_current_carried_inventory_items,
         on_set_carried_layout_quantity=_set_carried_layout_quantity,
         on_clear_carried_layout=_clear_carried_layout,
         carried_stackable_names=runtime_actions._OVERLAY_STACKABLE_NAMES,
