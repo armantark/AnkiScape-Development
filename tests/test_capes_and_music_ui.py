@@ -128,11 +128,15 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
 
         line = self._named(page, "cabinetCompletionistRequirements", QLabel)
         self.assertIsNotNone(line)
-        self.assertIn("Level 99 in every skill", line.text())
-        # Dungeoneering's activation removed the skill-shortfall note; the
-        # boss long-tail row stays latent until Fight Kiln and QBD exist.
+        self.assertIn("Maximum level in every skill", line.text())
         self.assertNotIn("latent until the skill ships", line.text())
-        self.assertIn("(latent)", line.text())
+        self.assertIn("Fight Kiln completed (latent)", line.text())
+        self.assertIn("Queen Black Dragon", line.text())
+
+        trim = self._named(page, "cabinetTrimmedCompletionistRequirements", QLabel)
+        self.assertIsNotNone(trim)
+        self.assertIn("5,000 Castle Wars games", trim.text())
+        self.assertNotIn("5,000 Castle Wars games (latent)", trim.text())
 
     def test_the_cabinet_keeps_only_a_compact_music_summary(self):
         player = default_player_data(ORE_DATA)

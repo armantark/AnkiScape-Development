@@ -207,6 +207,132 @@ def skillcape_definitions() -> tuple[Skillcape, ...]:
     return tuple(cape for cape in SKILLCAPES if cape.skill_id in trainable)
 
 
+@dataclass(frozen=True)
+class MasterCape:
+    """A cutoff skill's true-mastery cape above level 99."""
+
+    id: str
+    skill_id: str
+    cape: str
+    master: str
+    level: int
+    price: int
+    cape_item_id: int
+    source: str
+
+
+DUNGEONEERING_MASTER_CAPE_LEVEL = 120
+DUNGEONEERING_MASTER_CAPE_PRICE = 120_000
+MASTER_CAPES: tuple[MasterCape, ...] = (
+    MasterCape(
+        "dungeoneering_master",
+        "dungeoneering",
+        "Dungeoneering master cape",
+        "Thok, Master of Dungeoneering",
+        DUNGEONEERING_MASTER_CAPE_LEVEL,
+        DUNGEONEERING_MASTER_CAPE_PRICE,
+        19709,
+        "Dungeoneering master cape oldid 6591294, 2012-11-20 (level 120,"
+        " 120,000 coins from Thok, one untrimmed form); item id and worn Boost"
+        " option from OpenRS2 rev-742 item 19709",
+    ),
+)
+MASTER_CAPES_BY_ID: dict[str, MasterCape] = {cape.id: cape for cape in MASTER_CAPES}
+
+
+def master_cape_definitions() -> tuple[MasterCape, ...]:
+    """Master capes whose owning skill has a live training path."""
+
+    trainable = {skill.id for skill in trainable_skill_definitions()}
+    return tuple(cape for cape in MASTER_CAPES if cape.skill_id in trainable)
+
+
+# ---------------------------------------------------------------------------
+# Completionist requirement registry
+# ---------------------------------------------------------------------------
+
+COMPLETIONIST_SOURCE = (
+    "https://runescape.wiki/w/Special:PermanentLink/6560039; Completionist cape,"
+    " 2012-11-15; frozen regular and trimmed requirement lists"
+)
+
+
+@dataclass(frozen=True)
+class CompletionistRequirement:
+    """One frozen cutoff requirement, owned by the feature that proves it."""
+
+    id: str
+    label: str
+    owner_feature: str
+    tier: str  # completionist or trimmed
+    predicate_kind: str = "counter"
+    counter_path: tuple[str, ...] = ()
+    threshold: int = 1
+    source: str = COMPLETIONIST_SOURCE
+
+
+COMPLETIONIST_REQUIREMENTS: tuple[CompletionistRequirement, ...] = (
+    CompletionistRequirement("max", "Maximum level in every skill (120 Dungeoneering, 99 others)", "Skills", "completionist", "max_levels"),
+    CompletionistRequirement("quests", "Every quest complete, including capers", "Quests", "completionist", "all_quests"),
+    CompletionistRequirement("music", "Every music track unlocked", "Music Log", "completionist", "music"),
+    CompletionistRequirement("taskmaster", "Taskmaster: every achievement task complete", "Achievements", "completionist", "taskmaster"),
+    CompletionistRequirement("magic_spell_unlocks", "All Livid Farm, Mage Training Arena and Mage Arena spells unlocked", "Magic unlock activities", "completionist", "latent"),
+    CompletionistRequirement("dungeoneering_prayers", "All Dungeoneering prayers unlocked", "Dungeoneering", "completionist", "latent"),
+    CompletionistRequirement("museum_kudos", "All Varrock Museum Kudos earned", "Varrock Museum", "completionist", "latent"),
+    CompletionistRequirement("abyss_access", "Abyss usage unlocked", "Runecrafting", "completionist", "latent"),
+    CompletionistRequirement("goblin_high_priests", "Goblin High Priests laid to rest", "Goblin High Priests", "completionist", "latent"),
+    CompletionistRequirement("tarn_salve", "Salve amulet enchanted in Tarn's Lair", "Tarn's Lair", "completionist", "latent"),
+    CompletionistRequirement("clarence", "Clarence returned to rest", "Clarence", "completionist", "latent"),
+    CompletionistRequirement("player_safety", "Stronghold of Player Safety completed", "Stronghold of Player Safety", "completionist", "latent"),
+    CompletionistRequirement("stronghold_security", "Stronghold of Security completed", "Stronghold of Security", "completionist", "flag", ("stronghold_of_security", "completed")),
+    CompletionistRequirement("fremennik_sagas", "All five Fremennik Sagas completed at 100%", "Dungeoneering Sagas", "completionist", "latent"),
+    CompletionistRequirement("thalassus", "Thalassus hunted ten times after Deadliest Catch", "Deadliest Catch", "completionist", "latent"),
+    CompletionistRequirement("fight_kiln", "Fight Kiln completed", "Fight Kiln", "completionist", "latent"),
+    CompletionistRequirement("queen_black_dragon", "Queen Black Dragon killed and first dragonkin journal obtained", "Queen Black Dragon", "completionist", "latent"),
+    CompletionistRequirement("claus_reward", "Claus's reward claimed after Carnillean Rising", "Carnillean Rising", "completionist", "latent"),
+    CompletionistRequirement("big_chinchompa", "Score 1,111 in one Big Chinchompa session", "Big Chinchompa", "completionist", "latent"),
+    CompletionistRequirement("doric_boric", "What's Mine is Yours and every Doric and Boric post-quest task completed", "Doric and Boric tasks", "completionist", "latent"),
+    CompletionistRequirement("chompy_kills", "Kill 4,000 chompy birds", "Chompy hunting", "trimmed", "latent"),
+    CompletionistRequirement("scabarite_research", "Scabarite research completed", "Scabarite research", "trimmed", "latent"),
+    CompletionistRequirement("ali_rune_shop", "Highest Ali Morrisane rune-shop tier unlocked", "Ali Morrisane", "trimmed", "latent"),
+    CompletionistRequirement("balloon_routes", "All hot-air balloon routes unlocked", "Balloon transport", "trimmed", "latent"),
+    CompletionistRequirement("eagle_routes", "All eagle transport routes unlocked", "Eagle transport", "trimmed", "latent"),
+    CompletionistRequirement("pollnivneach_subbosses", "All four Pollnivneach Slayer Dungeon sub-bosses defeated", "Pollnivneach Slayer Dungeon", "trimmed", "latent"),
+    CompletionistRequirement("slayer_unlocks", "Slayer item crafting and quicker killing blows unlocked", "Slayer rewards", "trimmed", "latent"),
+    CompletionistRequirement("white_knight_rank", "Master White Knight rank obtained", "White Knights", "trimmed", "latent"),
+    CompletionistRequirement("broomstick", "Flying broomstick teleport and Magic XP unlocked", "Sorceress's Garden", "trimmed", "latent"),
+    CompletionistRequirement("making_history_treasures", "All Making History hidden treasures found", "Making History", "trimmed", "latent"),
+    CompletionistRequirement("conquest_rating", "Reach 1,250 Conquest rating", "Conquest", "trimmed", "counter", ("conquest_rating",), 1_250),
+    CompletionistRequirement("vyrewatch_burns", "Fully power Ivandis flail and blisterwood weapons by burning 500 vyrewatch", "Vyrewatch cremation", "trimmed", "latent"),
+    CompletionistRequirement("castle_wars_games", "Finish 5,000 Castle Wars games", "Castle Wars", "trimmed", "counter", ("castle_wars_games_played",), 5_000),
+    CompletionistRequirement("mobilising_armies_rank", "Reach rank 401 in Mobilising Armies", "Mobilising Armies", "trimmed", "counter", ("mobilising_armies_rank",), 401),
+    CompletionistRequirement("champions", "Defeat every champion", "Champion's Challenge", "trimmed", "latent"),
+    CompletionistRequirement("barbarian_assault_roles", "Reach level 5 in every Barbarian Assault role", "Barbarian Assault", "trimmed", "latent"),
+    CompletionistRequirement("court_cases", "Complete every court case", "Court Cases", "trimmed", "latent"),
+    CompletionistRequirement("chimp_ice", "Complete 25 chimp-ice deliveries", "Do No Evil", "trimmed", "latent"),
+    CompletionistRequirement("barbarian_training", "Complete all Barbarian Training with Otto", "Barbarian Training", "trimmed", "latent"),
+    CompletionistRequirement("ancient_cavern_notes", "Find every barbarian note in the Ancient Cavern", "Ancient Cavern", "trimmed", "latent"),
+    CompletionistRequirement("artisans_workshop", "Unlock every Artisans' Workshop reward", "Artisans' Workshop", "trimmed", "latent"),
+    CompletionistRequirement("circus_clothing", "Obtain every piece of circus clothing", "Circus", "trimmed", "latent"),
+    CompletionistRequirement("dahmaroc_statue", "Complete the Dahmaroc statue in the player-owned house", "Shattered Heart", "trimmed", "latent"),
+    CompletionistRequirement("scroll_of_life", "Unlock the Scroll of life ability", "Dungeoneering rewards", "trimmed", "latent"),
+    CompletionistRequirement("scroll_of_cleansing", "Unlock the Scroll of cleansing ability", "Dungeoneering rewards", "trimmed", "latent"),
+    CompletionistRequirement("scroll_of_efficiency", "Unlock the Scroll of efficiency ability", "Dungeoneering rewards", "trimmed", "latent"),
+    CompletionistRequirement("vyre_title", "Earn the Vyrelord or Vyrelady title", "Branches of Darkmeyer", "trimmed", "latent"),
+    CompletionistRequirement("dominion_tower_top", "Visit the top of Dominion Tower after completing every achievement", "Dominion Tower", "trimmed", "latent"),
+    CompletionistRequirement("zaros_symbol", "Make the Zaros symbol in Char's training cave", "The Firemaker's Curse", "trimmed", "latent"),
+    CompletionistRequirement("sunfreet", "Kill Sunfreet in Dominion Tower", "Dominion Tower", "trimmed", "latent"),
+    CompletionistRequirement("runespan_esteem", "Reach rank 1 Esteem in Runespan", "Runespan", "trimmed", "latent"),
+    CompletionistRequirement("song_from_depths_rewards", "Obtain the Song from the Depths hidden rewards", "Song from the Depths", "trimmed", "latent"),
+    CompletionistRequirement("dragonkin_journals", "Acquire every dragonkin journal", "Queen Black Dragon", "trimmed", "latent"),
+    CompletionistRequirement("champions_tackle_box", "Acquire the champion's tackle box", "Fish Flingers", "trimmed", "latent"),
+)
+
+
+def completionist_requirement_definitions(tier: str) -> tuple[CompletionistRequirement, ...]:
+    return tuple(row for row in COMPLETIONIST_REQUIREMENTS if row.tier == tier)
+
+
 # ---------------------------------------------------------------------------
 # Capes of Distinction — quest point, Max, Completionist and Veteran
 # ---------------------------------------------------------------------------
@@ -214,7 +340,7 @@ def skillcape_definitions() -> tuple[Skillcape, ...]:
 
 @dataclass(frozen=True)
 class PrestigeCape:
-    """A cape bought once, from one named seller, against one durable gate."""
+    """A cape bought or upgraded once against one durable gate."""
 
     id: str
     cape: str
@@ -227,6 +353,8 @@ class PrestigeCape:
     hood_item_id: int
     prayer_bonus: int
     source: str
+    upgrade_from: str = ""
+    purchase_label: str = "Buy"
 
 
 # The design contract's five-year and ten-year thresholds: an AnkiScape year is
@@ -251,6 +379,22 @@ PRESTIGE_CAPE_BONUSES: dict[str, dict[str, int]] = {
         "prayer": 10,
     },
     "completionist": {
+        "attack_stab": 10,
+        "attack_slash": 10,
+        "attack_crush": 10,
+        "attack_magic": 10,
+        "attack_ranged": 10,
+        "defence_stab": 12,
+        "defence_slash": 12,
+        "defence_crush": 12,
+        "defence_magic": 12,
+        "defence_ranged": 12,
+        "prayer": 13,
+    },
+    # Rev-742 items 20769 and 20771 carry the same bonus parameters. The cache
+    # names both "Completionist cape"; AnkiScape adds "(t)" only to preserve
+    # their distinct item identities in the Bank.
+    "trimmed_completionist": {
         "attack_stab": 10,
         "attack_slash": 10,
         "attack_crush": 10,
@@ -315,6 +459,23 @@ PRESTIGE_CAPES: tuple[PrestigeCape, ...] = (
         " Varrock Museum guard); item ids 20769/20770 from darkan-world-server"
         " c95aca4 content/ItemConstants.java:412-414; "
         + PRESTIGE_CAPE_BONUS_SOURCE,
+    ),
+    PrestigeCape(
+        "trimmed_completionist",
+        "Completionist cape (t)",
+        "Completionist hood",
+        "Museum guard",
+        0,
+        "trimmed_completionist",
+        0,
+        20771,
+        20770,
+        13,
+        "Completionist cape oldid 6560039, 2012-11-15 (the regular cape is"
+        " upgraded after the trim-only list is complete); item 20771 and its"
+        " identical bonus block from OpenRS2 rev-742",
+        upgrade_from="Completionist cape",
+        purchase_label="Upgrade",
     ),
     PrestigeCape(
         "veteran_5",
@@ -403,6 +564,16 @@ def cape_equipment_data_as_dict() -> "dict[str, Any]":
             source,
             "items.yml equipment block; hoods carry no bonuses",
             slot="head",
+        )
+
+    for master in master_cape_definitions():
+        rows[master.cape] = _cape(
+            master.cape,
+            master.cape_item_id,
+            ((master.skill_id, master.level),),
+            EquipmentBonuses(**TRIMMED_SKILLCAPE_BONUSES),
+            master.source,
+            "rev-742 cache item-definition bonus params",
         )
 
     for prestige in PRESTIGE_CAPES:

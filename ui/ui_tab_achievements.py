@@ -283,6 +283,8 @@ def build_achievements_tab(ctx) -> "QWidget":
             card_layout.addWidget(keepsake)
         for row in capes["skillcapes"]:
             card_layout.addWidget(_cape_row(row))
+        for row in capes["master_capes"]:
+            card_layout.addWidget(_cape_row(row))
         for row in capes["distinctions"]:
             card_layout.addWidget(_cape_row(row))
         outstanding = QLabel(
@@ -297,6 +299,21 @@ def build_achievements_tab(ctx) -> "QWidget":
         outstanding.setWordWrap(True)
         outstanding.setStyleSheet(f"color: {dim_text_css(outstanding)};")
         card_layout.addWidget(outstanding)
+        trim_outstanding = QLabel(
+            "Trim: "
+            + (
+                " · ".join(
+                    f"{item['label']}{' (latent)' if item['latent'] else ''}"
+                    for item in capes["trimmed_completionist"]
+                    if not item["met"]
+                )
+                or "Every trimmed Completionist requirement is met."
+            )
+        )
+        trim_outstanding.setObjectName("cabinetTrimmedCompletionistRequirements")
+        trim_outstanding.setWordWrap(True)
+        trim_outstanding.setStyleSheet(f"color: {dim_text_css(trim_outstanding)};")
+        card_layout.addWidget(trim_outstanding)
         if capes["latent_skills"]:
             names = ", ".join(
                 skill_id.replace("_", " ").title() for skill_id in capes["latent_skills"]

@@ -26,11 +26,16 @@ from typing import Any
 
 from ..core.skill_registry import ALL_SKILLS, trainable_skill_definitions
 from ..data.achievement_cape_data import (
+    MASTER_CAPES_BY_ID,
     PRESTIGE_CAPES,
     PRESTIGE_CAPES_BY_ID,
     SKILLCAPE_LEVEL,
     SKILLCAPE_PRICE,
+    CompletionistRequirement,
+    MasterCape,
     Skillcape,
+    completionist_requirement_definitions,
+    master_cape_definitions,
     skillcape_definitions,
 )
 from .summoning_logic import familiar_effective_roll_level_pure
@@ -161,10 +166,12 @@ def worn_skillcape_skill_pure(player_data: Mapping[str, Any], skill_id: str) -> 
     """Whether ``skill_id``'s cape — trimmed or not — is in a worn slot."""
 
     cape = next((row for row in skillcape_definitions() if row.skill_id == skill_id), None)
-    if cape is None:
-        return False
+    names = {cape.cape, cape.trimmed_cape} if cape is not None else set()
+    names.update(
+        row.cape for row in master_cape_definitions() if row.skill_id == skill_id
+    )
     worn = {str(item) for item in _mapping(player_data.get("equipment")).values()}
-    return bool(worn & {cape.cape, cape.trimmed_cape})
+    return bool(worn & names)
 
 
 def effective_roll_level_pure(
@@ -228,70 +235,113 @@ def _answered_cards(player_data: Mapping[str, Any]) -> int:
     return _int(_mapping(player_data.get("shop_market_clock")).get("answered_cards"))
 
 
-def completionist_requirements_pure(
-    player_data: Mapping[str, Any]
-) -> tuple[dict[str, Any], ...]:
-    """The 2012 Completionist requirement families AnkiScape can evaluate today.
+_MISSING = object()
 
-    The design contract freezes the requirement list at 2012-11-20 and says that
-    families whose feature has not shipped stay latent and activate when it
-    does. A latent row is reported so the Cabinet can show the long tail, and is
-    not enforced, because enforcing a predicate nothing can satisfy would make
-    the cape an ornament rather than a goal.
+
+def _path_value(player_data: Mapping[str, Any], path: Sequence[str]) -> Any:
+    value: Any = player_data
+    for key in path:
+        if not isinstance(value, Mapping) or key not in value:
+            return _MISSING
+        value = value[key]
+    return value
+
+
+def _completionist_maxed_skills_pure(player_data: Mapping[str, Any]) -> tuple[int, int]:
+    skills = trainable_skill_definitions()
+    completed = sum(
+        _int(player_data.get(f"{skill.id}_level", 1), 1)
+        >= (120 if skill.id == "dungeoneering" else SKILLCAPE_LEVEL)
+        for skill in skills
+    )
+    return completed, len(skills)
+
+
+def _registered_requirement_value(
+    player_data: Mapping[str, Any], requirement: CompletionistRequirement
+) -> Any:
+    """Read an owning feature's direct counter or its registry-keyed counter.
+
+    Rows without a direct path stay latent until their feature writes the stable
+    requirement id into ``completionist_counters``. No cape-logic edit is needed
+    when that counter ships.
     """
 
+    direct = (
+        _path_value(player_data, requirement.counter_path)
+        if requirement.counter_path
+        else _MISSING
+    )
+    if direct is not _MISSING:
+        return direct
+    counters = _mapping(player_data.get("completionist_counters"))
+    return counters.get(requirement.id, _MISSING)
+
+
+def _completionist_requirement_view_pure(
+    player_data: Mapping[str, Any], requirement: CompletionistRequirement
+) -> dict[str, Any]:
     from .achievement_diary_logic import diary_totals_pure
     from .music_log_logic import music_log_totals_pure
 
-    diary = diary_totals_pure(player_data)
-    music = music_log_totals_pure(player_data)
-    taskmaster = bool(_mapping(player_data.get("achievement_diaries")).get("taskmaster"))
-    return (
-        {
-            "id": "max",
-            "label": "Level 99 in every skill" + _latent_skill_note(),
-            "met": _all_skills_99(player_data),
-            "latent": False,
-            "have": len(skills_at_99_pure(player_data)),
-            "need": len(trainable_skill_definitions()),
-        },
-        {
-            "id": "quests",
-            "label": "Every quest complete",
-            "met": _all_quests_complete(player_data),
-            "latent": False,
-            "have": 0,
-            "need": 0,
-        },
-        {
-            "id": "taskmaster",
-            "label": "Taskmaster: every achievement task complete",
-            "met": taskmaster,
-            "latent": False,
-            "have": diary["completed"],
-            "need": diary["total"],
-        },
-        {
-            "id": "music",
-            "label": "Every music track in the log",
-            "met": music["unlocked"] >= music["total"] and music["total"] > 0,
-            "latent": False,
-            "have": music["unlocked"],
-            "need": music["total"],
-        },
-        {
-            # Darkan's own comp gate adds a Fight Kiln clear, a Queen Black
-            # Dragon kill and 500 Dominion Tower bosses (Player.java:3219-3238).
-            # Dominion Tower ships and its boss_kills ledger is durable, but
-            # Fight Kiln and the Queen Black Dragon have no AnkiScape feature,
-            # so the row stays latent as a whole rather than half-reporting.
-            "id": "boss_long_tail",
-            "label": "Fight Kiln, Queen Black Dragon and 500 Dominion Tower bosses",
-            "met": False,
-            "latent": True,
-            "have": 0,
-            "need": 0,
-        },
+    kind = requirement.predicate_kind
+    have = 0
+    need = 0
+    latent = False
+    if kind == "max_levels":
+        have, need = _completionist_maxed_skills_pure(player_data)
+        met = have == need and need > 0
+    elif kind == "all_quests":
+        met = _all_quests_complete(player_data)
+    elif kind == "taskmaster":
+        diary = diary_totals_pure(player_data)
+        have, need = diary["completed"], diary["total"]
+        met = bool(_mapping(player_data.get("achievement_diaries")).get("taskmaster"))
+    elif kind == "music":
+        music = music_log_totals_pure(player_data)
+        have, need = music["unlocked"], music["total"]
+        met = have >= need and need > 0
+    else:
+        value = _registered_requirement_value(player_data, requirement)
+        latent = value is _MISSING
+        if latent:
+            met = False
+        elif kind == "flag" or isinstance(value, bool):
+            have, need = int(bool(value)), 1
+            met = bool(value)
+        else:
+            have, need = _int(value), requirement.threshold
+            met = have >= need
+    return {
+        "id": requirement.id,
+        "label": requirement.label,
+        "owner_feature": requirement.owner_feature,
+        "met": met,
+        "latent": latent,
+        "have": have,
+        "need": need,
+    }
+
+
+def completionist_requirements_pure(
+    player_data: Mapping[str, Any]
+) -> tuple[dict[str, Any], ...]:
+    """Frozen regular Completionist rows, active only when their counters exist."""
+
+    return tuple(
+        _completionist_requirement_view_pure(player_data, requirement)
+        for requirement in completionist_requirement_definitions("completionist")
+    )
+
+
+def trimmed_completionist_requirements_pure(
+    player_data: Mapping[str, Any]
+) -> tuple[dict[str, Any], ...]:
+    """The frozen trim-only long tail; 5,000 Castle Wars games is live today."""
+
+    return tuple(
+        _completionist_requirement_view_pure(player_data, requirement)
+        for requirement in completionist_requirement_definitions("trimmed")
     )
 
 
@@ -321,11 +371,12 @@ def prestige_cape_eligible_pure(
             if have >= cape.threshold
             else (False, f"{cape.threshold - have:,} more answered cards.")
         )
-    if cape.requirement == "completionist":
+    if cape.requirement in {"completionist", "trimmed_completionist"}:
+        rows = list(completionist_requirements_pure(player_data))
+        if cape.requirement == "trimmed_completionist":
+            rows.extend(trimmed_completionist_requirements_pure(player_data))
         outstanding = [
-            row["label"]
-            for row in completionist_requirements_pure(player_data)
-            if not row["met"] and not row["latent"]
+            row["label"] for row in rows if not row["met"] and not row["latent"]
         ]
         return (True, "") if not outstanding else (False, "; ".join(outstanding))
     return False, "Unknown cape requirement."
@@ -387,6 +438,25 @@ def _grant(data: dict[str, Any], names: Sequence[str], price: int) -> dict[str, 
     return data
 
 
+def _replace_owned_item(data: dict[str, Any], old: str, new: str) -> dict[str, Any]:
+    inventory = dict(_mapping(data.get("inventory")))
+    equipment = dict(_mapping(data.get("equipment")))
+    held = _int(inventory.get(old))
+    if held:
+        if held == 1:
+            inventory.pop(old, None)
+        else:
+            inventory[old] = held - 1
+        inventory[new] = _int(inventory.get(new)) + 1
+    else:
+        slot = next((slot for slot, worn in equipment.items() if worn == old), "")
+        if slot:
+            equipment[slot] = new
+    data["inventory"] = inventory
+    data["equipment"] = equipment
+    return data
+
+
 def purchase_cape_pure(
     player_data: Mapping[str, Any], cape_id: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
@@ -398,6 +468,9 @@ def purchase_cape_pure(
     )
     if skillcape is not None:
         return _purchase_skillcape(data, skillcape)
+    master_cape = MASTER_CAPES_BY_ID.get(cape_id)
+    if master_cape is not None and master_cape in master_cape_definitions():
+        return _purchase_master_cape(data, master_cape)
     prestige = PRESTIGE_CAPES_BY_ID.get(cape_id)
     if prestige is None:
         return data, False, {"reason": "Unknown cape."}
@@ -405,9 +478,21 @@ def purchase_cape_pure(
     owned = _owned_names(data)
     if prestige.cape in owned:
         return data, False, {"reason": f"You already own the {prestige.cape}."}
+    if prestige.upgrade_from and prestige.upgrade_from not in owned:
+        return data, False, {"reason": f"Own the {prestige.upgrade_from} first."}
     eligible, reason = prestige_cape_eligible_pure(data, cape_id)
     if not eligible:
         return data, False, {"reason": reason}
+    if prestige.upgrade_from:
+        data = _replace_owned_item(data, prestige.upgrade_from, prestige.cape)
+        return (
+            data,
+            True,
+            {
+                "message": f"{prestige.seller} upgrades the cape to {prestige.cape}.",
+                "item": prestige.cape,
+            },
+        )
     if _int(_mapping(data.get("inventory")).get("Coins")) < prestige.price:
         return data, False, {"reason": f"Requires {prestige.price:,} coins."}
     data = _grant(data, (prestige.cape, prestige.hood), prestige.price)
@@ -418,6 +503,23 @@ def purchase_cape_pure(
             "message": f"{prestige.seller} hands over the {prestige.cape}.",
             "item": prestige.cape,
         },
+    )
+
+
+def _purchase_master_cape(
+    data: dict[str, Any], cape: MasterCape
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    if cape.cape in _owned_names(data):
+        return data, False, {"reason": f"You already own the {cape.cape}."}
+    if _int(data.get(f"{cape.skill_id}_level", 1), 1) < cape.level:
+        return data, False, {"reason": f"Requires level {cape.level} Dungeoneering"}
+    if _int(_mapping(data.get("inventory")).get("Coins")) < cape.price:
+        return data, False, {"reason": f"Requires {cape.price:,} coins"}
+    data = _grant(data, (cape.cape,), cape.price)
+    return (
+        data,
+        True,
+        {"message": f"{cape.master} hands over the {cape.cape}.", "item": cape.cape},
     )
 
 
@@ -485,12 +587,43 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             }
         )
 
+    master_capes: list[dict[str, Any]] = []
+    for cape in master_cape_definitions():
+        level = _int(player_data.get(f"{cape.skill_id}_level", 1), 1)
+        held = cape.cape in owned
+        eligible = level >= cape.level
+        if held:
+            reason = "Owned"
+        elif not eligible:
+            reason = f"Level {cape.level} needed ({level} now)"
+        elif coins < cape.price:
+            reason = f"{cape.price:,} coins needed"
+        else:
+            reason = ""
+        master_capes.append(
+            {
+                "cape_id": cape.id,
+                "name": cape.cape,
+                "hood": "",
+                "master": cape.master,
+                "price": cape.price,
+                "owned": held,
+                "can_buy": eligible and not held and coins >= cape.price,
+                "show_in_shop": eligible or held,
+                "reason": reason,
+                "purchase_label": "Buy",
+            }
+        )
+
     distinctions: list[dict[str, Any]] = []
     for cape in PRESTIGE_CAPES:
         held = cape.cape in owned
         eligible, reason = prestige_cape_eligible_pure(player_data, cape.id)
+        owns_source = not cape.upgrade_from or cape.upgrade_from in owned
         if held:
             reason = "Owned"
+        elif cape.upgrade_from and not owns_source:
+            reason = f"Own the {cape.upgrade_from} first"
         elif eligible and coins < cape.price:
             reason = f"{cape.price:,} coins needed"
         distinctions.append(
@@ -501,13 +634,15 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "master": cape.seller,
                 "price": cape.price,
                 "owned": held,
-                "can_buy": eligible and not held and coins >= cape.price,
+                "can_buy": eligible and owns_source and not held and coins >= cape.price,
                 "reason": reason,
+                "purchase_label": cape.purchase_label,
             }
         )
 
     return {
         "skillcapes": tuple(skillcapes),
+        "master_capes": tuple(master_capes),
         "distinctions": tuple(distinctions),
         "trimmed": trimmed,
         "keepsake_skill": state["keepsake_skill"],
@@ -520,5 +655,6 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             "",
         ),
         "completionist": completionist_requirements_pure(player_data),
+        "trimmed_completionist": trimmed_completionist_requirements_pure(player_data),
         "latent_skills": latent_cutoff_skills_pure(),
     }
