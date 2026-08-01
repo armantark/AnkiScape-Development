@@ -2531,8 +2531,8 @@ def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
     data = derive_casual_combat_magic_pure(data)
     if combat_has_active_encounter_pure(data):
         return data
-    data, _ok, _reason = unload_combat_supply_loadout_pure(data)
-    data, _ok, _reason = refill_combat_supply_loadout_pure(data, equipment_data)
+    data, _, _ = unload_combat_supply_loadout_pure(data)
+    data, _, _ = refill_combat_supply_loadout_pure(data, equipment_data)
     return data
 
 

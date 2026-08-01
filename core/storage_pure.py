@@ -1975,14 +1975,9 @@ def migrate_loaded_data(
         if isinstance(raw_auto_food, list):
             inserted = [
                 item_name
-                for item_name in (
-                    "Bass",
-                    "Pike",
-                    "Cod",
-                    "Mackerel",
-                    "Herring",
-                    "Sardine",
-                )
+                for item_name in default_combat_state_pure()[
+                    "combat_auto_eat_food"
+                ]
                 if item_name not in raw_auto_food
             ]
             low_food_index = next(

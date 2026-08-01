@@ -19105,7 +19105,12 @@ def show_main_menu(
         def _set_utility_selection(
             activity_id: str, *, activate: bool = False
         ) -> bool:
-            if on_set_utility is None and (not activate or on_start_activity is None):
+            selection_callback = (
+                on_start_activity
+                if activate and on_start_activity is not None
+                else on_set_utility
+            )
+            if selection_callback is None:
                 return False
             if (
                 activity_id != FLASH_POWDER_FACTORY_ACTIVITY_ID
@@ -19835,11 +19840,8 @@ def show_main_menu(
                         ),
                     )
                     return False
-            if activate and on_start_activity is not None:
-                if on_start_activity(activity_id) is False:
-                    return False
-            elif on_set_utility is not None:
-                on_set_utility(activity_id)
+            if selection_callback(activity_id) is False:
+                return False
             player_data["current_utility"] = activity_id
             if activate or (
                 state["active"] in _UTILITY_SKILL_NAMES
@@ -19879,8 +19881,8 @@ def show_main_menu(
             return True
 
         utility_selection_handler["call"] = _set_utility_selection
-        activity_start_transition["call"] = lambda activity_id: (
-            _set_utility_selection(activity_id, activate=True)
+        activity_start_transition["call"] = lambda activity_id: _set_utility_selection(
+            activity_id, activate=True
         )
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):

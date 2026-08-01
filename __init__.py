@@ -332,22 +332,12 @@ def _normalize_legacy_utility_skill(skill) -> str:
 
 def start_activity_for_reviews(activity_id) -> bool:
     """Select one utility/activity target and its review surface atomically."""
-    global current_skill
     target = str(activity_id or "")
     if not target:
         return False
     player_data["current_utility"] = target
-    current_skill = _utility_surface_for_target(target)
-    try:
-        mw.col.set_config("ankiscape_current_skill", current_skill)
-    except Exception:
-        pass
+    save_skill(_utility_surface_for_target(target), None)
     save_player_data()
-    ui.update_menu_visibility(current_skill)
-    try:
-        update_review_hud(player_data, current_skill)
-    except Exception:
-        pass
     return True
 
 # --- Debug logging (centralized) ---
