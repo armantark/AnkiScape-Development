@@ -119,49 +119,35 @@ def best_mining_pickaxe_pure(mining_level, _inventory, toolbelt, pickaxe_data):
 def attach_tool_to_toolbelt_pure(
     item_name: str,
     inventory: Mapping[str, int],
-    toolbelt: Mapping[str, object],
+    toolbelt: Mapping[str, list[str]],
     pickaxe_data: Mapping[str, Mapping[str, object]],
     axe_data: Mapping[str, Mapping[str, object]],
 ) -> tuple[dict[str, int], dict[str, list[str]], bool]:
-    """Move one bank tool onto its family toolbelt through an explicit action."""
-    attachments: list[tuple[str, str]] = []
+    """Move one bank tool onto its family toolbelt through an explicit action.
+
+    A dual-purpose tool such as the Inferno adze belongs to both families, so it
+    attaches to every family that lists it rather than only the first match.
+    """
+    missing: list[tuple[str, str]] = []
     for skill, tool_data in (("mining", pickaxe_data), ("woodcutting", axe_data)):
         for tool_id, spec in tool_data.items():
             if spec.get("status", "implemented") != "implemented":
                 continue
-            if str(spec.get("display_name", tool_id)) == item_name:
-                attachments.append((skill, tool_id))
-                break
-    clean_inventory = {
-        name: int(amount)
-        for name, amount in inventory.items()
-        if isinstance(name, str) and isinstance(amount, int)
-    }
-    clean_toolbelt: dict[str, list[str]] = {}
-    if isinstance(toolbelt, Mapping):
-        for skill, raw_items in toolbelt.items():
-            if not isinstance(skill, str):
+            if str(spec.get("display_name", tool_id)) != item_name:
                 continue
-            if isinstance(raw_items, str):
-                items = [raw_items]
-            elif isinstance(raw_items, Iterable):
-                items = [item for item in raw_items if isinstance(item, str)]
-            else:
-                items = []
-            clean_toolbelt[skill] = list(dict.fromkeys(items))
-    missing: list[tuple[str, str]] = []
-    for skill, tool_id in attachments:
-        attached = clean_toolbelt.setdefault(skill, [])
-        if tool_id not in attached:
-            missing.append((skill, tool_id))
-    if not missing or clean_inventory.get(item_name, 0) <= 0:
-        return clean_inventory, clean_toolbelt, False
-    clean_inventory[item_name] -= 1
-    if clean_inventory[item_name] <= 0:
-        clean_inventory.pop(item_name, None)
+            if tool_id not in _toolbelt_ids(toolbelt, skill):
+                missing.append((skill, tool_id))
+            break
+    new_inventory = dict(inventory)
+    new_toolbelt = {skill: list(items) for skill, items in toolbelt.items()}
+    if not missing or new_inventory.get(item_name, 0) <= 0:
+        return new_inventory, new_toolbelt, False
+    new_inventory[item_name] -= 1
+    if new_inventory[item_name] <= 0:
+        new_inventory.pop(item_name, None)
     for skill, tool_id in missing:
-        clean_toolbelt[skill].append(tool_id)
-    return clean_inventory, clean_toolbelt, True
+        new_toolbelt.setdefault(skill, []).append(tool_id)
+    return new_inventory, new_toolbelt, True
 
 
 def _equipment_value(spec: object, key: str, default: object = None) -> object:

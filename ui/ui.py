@@ -23228,11 +23228,8 @@ def show_main_menu(
         return True
 
     def _add_pack_quantity(item_name: str, requested: int, parent=None) -> bool:
-        current = _current_layout_quantity(item_name)
         return _set_pack_quantity_from_picker(
-            item_name,
-            current + max(0, int(requested)),
-            parent,
+            item_name, _current_layout_quantity(item_name) + requested, parent
         )
 
     def _prompt_add_pack_x(item_name: str, bank_amount: int, parent=None) -> None:
@@ -23251,55 +23248,40 @@ def show_main_menu(
         _add_pack_quantity(item_name, quantity, parent)
 
     def _build_add_to_pack_menu(item_name: str, bank_amount: int, parent=None) -> QMenu:
+        # "all" and "all-but-one" set an absolute quantity; the rest add to what
+        # the plan already holds.
+        can_edit = on_set_carried_layout_quantity is not None and bank_amount > 0
+        last_x = int(carried_picker_state.get("last_x") or 0)
+        rows = (
+            ("Add 1", "carriedAddOneAction", lambda: _add_pack_quantity(item_name, 1, parent), can_edit),
+            ("Add 5", "carriedAddFiveAction", lambda: _add_pack_quantity(item_name, 5, parent), can_edit),
+            ("Add 10", "carriedAddTenAction", lambda: _add_pack_quantity(item_name, 10, parent), can_edit),
+            (
+                f"Add last X ({last_x})" if last_x else "Add last X",
+                "carriedAddLastXAction",
+                lambda: _add_pack_quantity(item_name, last_x, parent),
+                can_edit and last_x > 0,
+            ),
+            ("Add X…", "carriedAddXAction", lambda: _prompt_add_pack_x(item_name, bank_amount, parent), can_edit),
+            (
+                "Add all",
+                "carriedAddAllAction",
+                lambda: _set_pack_quantity_from_picker(item_name, bank_amount, parent),
+                can_edit,
+            ),
+            (
+                "Add all-but-one",
+                "carriedAddAllButOneAction",
+                lambda: _set_pack_quantity_from_picker(item_name, bank_amount - 1, parent),
+                can_edit and bank_amount > 1,
+            ),
+        )
         menu = QMenu(parent or dialog)
-
-        def _fixed_action(text: str, object_name: str, amount: int):
+        for text, object_name, handler, enabled in rows:
             action = menu.addAction(text)
             action.setObjectName(object_name)
-            action.setEnabled(bank_amount > 0 and on_set_carried_layout_quantity is not None)
-            action.triggered.connect(
-                lambda _checked=False, quantity=amount: _add_pack_quantity(
-                    item_name, quantity, parent
-                )
-            )
-            return action
-
-        _fixed_action("Add 1", "carriedAddOneAction", 1)
-        _fixed_action("Add 5", "carriedAddFiveAction", 5)
-        _fixed_action("Add 10", "carriedAddTenAction", 10)
-        last_x = carried_picker_state.get("last_x")
-        last_action = _fixed_action(
-            f"Add last X ({int(last_x)})" if last_x else "Add last X",
-            "carriedAddLastXAction",
-            int(last_x or 0),
-        )
-        last_action.setEnabled(
-            bool(last_x) and bank_amount > 0 and on_set_carried_layout_quantity is not None
-        )
-        x_action = menu.addAction("Add X…")
-        x_action.setObjectName("carriedAddXAction")
-        x_action.setEnabled(bank_amount > 0 and on_set_carried_layout_quantity is not None)
-        x_action.triggered.connect(
-            lambda _checked=False: _prompt_add_pack_x(item_name, bank_amount, parent)
-        )
-        all_action = menu.addAction("Add all")
-        all_action.setObjectName("carriedAddAllAction")
-        all_action.setEnabled(bank_amount > 0 and on_set_carried_layout_quantity is not None)
-        all_action.triggered.connect(
-            lambda _checked=False: _set_pack_quantity_from_picker(
-                item_name, bank_amount, parent
-            )
-        )
-        all_but_one = menu.addAction("Add all-but-one")
-        all_but_one.setObjectName("carriedAddAllButOneAction")
-        all_but_one.setEnabled(
-            bank_amount > 1 and on_set_carried_layout_quantity is not None
-        )
-        all_but_one.triggered.connect(
-            lambda _checked=False: _set_pack_quantity_from_picker(
-                item_name, bank_amount - 1, parent
-            )
-        )
+            action.setEnabled(enabled)
+            action.triggered.connect(lambda _checked=False, run=handler: run())
         return menu
 
     def _sync_carried_switches(advanced: bool) -> None:
@@ -24148,31 +24130,30 @@ def show_main_menu(
         )
 
     def _toolbelt_attachment(item_name: str):
-        matches = []
+        """(slot label, already attached) for a Bank tool, or None if it is not one.
+
+        The Inferno adze belongs to both families, so it reads as "Tool" and is
+        only "attached" once every family holds it.
+        """
         toolbelt = player_data.get("toolbelt", {}) or {}
+        labels: list[str] = []
+        attached: list[bool] = []
         for skill_id, slot_label, tool_data in (
             ("mining", "Pickaxe", MINING_PICKAXE_DATA),
             ("woodcutting", "Hatchet", WOODCUTTING_AXE_DATA),
         ):
+            bound_ids = toolbelt.get(skill_id) or ()
             for tool_id, spec in tool_data.items():
                 if spec.get("status", "implemented") != "implemented":
                     continue
                 if str(spec.get("display_name", tool_id)) != item_name:
                     continue
-                raw_attached = toolbelt.get(skill_id, ())
-                attached = (
-                    raw_attached == tool_id
-                    if isinstance(raw_attached, str)
-                    else tool_id in raw_attached
-                    if isinstance(raw_attached, (list, tuple, set, frozenset))
-                    else False
-                )
-                matches.append((skill_id, slot_label, tool_id, attached))
+                labels.append(slot_label)
+                attached.append(tool_id in bound_ids)
                 break
-        if not matches:
+        if not labels:
             return None
-        slot_label = matches[0][1] if len(matches) == 1 else "Tool"
-        return slot_label, all(match[3] for match in matches)
+        return labels[0] if len(labels) == 1 else "Tool", all(attached)
 
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.

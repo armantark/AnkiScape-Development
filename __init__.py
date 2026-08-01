@@ -1734,12 +1734,10 @@ def _on_main_menu(
         if target_id is None:
             return ()
         carried = (player_data.get("carried_inventory") or {}).get(target_id, {})
-        if not isinstance(carried, Mapping):
-            return ()
         return tuple(
             (item_name, int(amount))
             for item_name, amount in carried.items()
-            if isinstance(item_name, str) and int(amount or 0) > 0
+            if int(amount) > 0
         )
 
     def _current_carried_auto_summary():
