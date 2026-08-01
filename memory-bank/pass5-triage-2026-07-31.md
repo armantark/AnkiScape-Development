@@ -219,10 +219,18 @@ that tests the fake instead of the app.
    profile, install/verify codex CLI, and run the Luna computer-use prober
    ON the laptop so probe clicks/screenshots never steal the desktop
    screen. Route decided 2026-07-31: SSH over Tailscale + laptop-local
-   codex CLI, same nohup-wrapper/poll pattern as the local overnight runs,
-   just prefixed with `ssh Armans-MacBook-Pro.local`. The Codex app's
-   remote-thread device channel was considered and rejected as an
-   unscriptable middleman ("playing telephone" — owner's words).
+   codex CLI, same nohup-wrapper/poll pattern as the local overnight runs.
+   The Codex app's remote-thread device channel was considered and
+   rejected as an unscriptable middleman ("playing telephone" — owner's
+   words). **Smoke-tested end to end 2026-07-31:**
+   `ssh ArmanTarkhanian@armans-macbook-pro` (user `armantarkhanian`,
+   key auth via agent; mDNS `.local` has no route — always use the
+   tailnet name) → `/Applications/ChatGPT.app/Contents/Resources/codex
+   exec -m gpt-5.6-luna` replied `ok`. Laptop: macOS 26.4, 14 cores,
+   48 GB. Anki install started via `brew install --cask anki`
+   (log: laptop `/tmp/anki-install.log`); remaining setup next block:
+   rsync the add-on + synthetic test profile, verify screen-recording
+   permission for computer use.
 
 ## Skill routing (owner-approved 2026-07-31)
 
