@@ -646,7 +646,7 @@ def achievement_cabinet_view_pure(
     # Late imports: both modules read the diary ledger, so binding them at
     # module scope would close a cycle.
     from .cape_logic import cape_view_pure
-    from .music_log_logic import music_log_view_pure
+    from .music_log_logic import music_log_totals_pure
 
     state = _state(player_data)
     completed = set(state["completed_tasks"])
@@ -744,7 +744,7 @@ def achievement_cabinet_view_pure(
         "taskmaster": bool(state["taskmaster"]),
         "taskmaster_presentation": taskmaster_presentation_pure(player_data),
         "capes": cape_view_pure(player_data),
-        "music": music_log_view_pure(player_data),
+        "music": music_log_totals_pure(player_data),
         "pinned_task": pinned,
         "filters": {
             "families": tuple((family.id, family.name) for family in ACHIEVEMENT_DIARY_CATALOG),

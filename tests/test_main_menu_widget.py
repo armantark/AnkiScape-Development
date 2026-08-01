@@ -1290,6 +1290,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Stats": "stats_icon.png",
             "Challenges": "challenges_icon.png",
             "Achievements": "achievement_icon.png",
+            "Collections": "dnd_icon.png",
             "Settings": "settings_icon.png",
         }
         rendered = {}
@@ -1317,6 +1318,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Stats": "Stats",
             "Challenges": "Daily Challenges",
             "Achievements": "Achievements",
+            "Collections": "Collections",
             "Settings": "Settings",
         }
         tabs = _find_main_tabs(self.dialog)
@@ -5047,11 +5049,11 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_expensive_tabs_are_unbuilt_until_shown(self) -> None:
         """Regression guard for the deferred build: opening the menu must not
-        construct the Shop, Quests or Achievements pages, while the tab that is
-        actually visible (Skills) is fully rendered."""
+        construct the Shop, Quests, Achievements or Collections pages, while the
+        tab that is actually visible (Skills) is fully rendered."""
         dialog = self._open(_make_player_data())
         tabs = _find_main_tabs(dialog)
-        for label in ("Shop", "Quests", "Achievements"):
+        for label in ("Shop", "Quests", "Achievements", "Collections"):
             index = next(i for i in range(tabs.count()) if tabs.tabText(i) == label)
             page = tabs.widget(index)
             self.assertEqual(

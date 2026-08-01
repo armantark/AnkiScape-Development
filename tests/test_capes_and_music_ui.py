@@ -23,7 +23,7 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 try:
-    from aqt.qt import QApplication, QLabel, QPushButton  # type: ignore
+    from aqt.qt import QApplication, QLabel, QPushButton, QTreeWidget  # type: ignore
 
     _QT = True
 except Exception:  # pragma: no cover - the non-Qt lane skips this module
@@ -134,56 +134,62 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
         self.assertNotIn("latent until the skill ships", line.text())
         self.assertIn("(latent)", line.text())
 
-    def test_the_music_log_shows_its_totals_and_marks_an_unlocked_track(self):
+    def test_the_cabinet_keeps_only_a_compact_music_summary(self):
+        player = default_player_data(ORE_DATA)
+        page, _ctx = self._build(player, _command(player))
+
+        summary = self._named(page, "cabinetMusicSummary", QLabel)
+        self.assertIsNotNone(summary)
+        self.assertIn("Collections", summary.text())
+        self.assertFalse(
+            any(label.objectName().startswith("cabinetTrack_") for label in page.findChildren(QLabel))
+        )
+
+    def test_collections_exposes_name_hint_source_and_completion_for_every_track(self):
         from ankiscape.data.music_log_data import MUSIC_TRACKS
         from ankiscape.logic.music_log_logic import refresh_music_log_pure
+        from ankiscape.ui.ui_tab_collections import build_collections_tab
 
         track = next(row for row in MUSIC_TRACKS if row.trigger_kind == "quest")
         player = default_player_data(ORE_DATA)
         player.setdefault("quests", {})[track.trigger_key] = {"completed": True}
         player.update(refresh_music_log_pure(player)[0])
-
-        page, _ctx = self._build(player, _command(player))
-        labels = " ".join(self._labels(page))
-        self.assertIn("Music Log", labels)
-        row = self._named(page, f"cabinetTrack_{track.id}", QLabel)
-        if row is not None:
-            self.assertIn("♪", row.text())
-
-    def test_the_unreachable_task_track_is_visible_and_labelled_latent(self):
-        from ankiscape.data.music_log_data import MUSIC_TRACKS
-
-        track = next(row for row in MUSIC_TRACKS if row.name == "The Task at Hand")
-        player = default_player_data(ORE_DATA)
-        page, _ctx = self._build(player, _command(player))
-
-        row = self._named(page, f"cabinetTrack_{track.id}", QLabel)
-        self.assertIsNotNone(row)
-        self.assertIn("latent", row.text().lower())
-
-    def test_the_show_all_toggle_is_a_real_route_to_the_hidden_tracks(self):
-        """A hidden row is only honest if something on the page reveals it."""
-
-        from aqt.qt import QToolButton  # type: ignore
-
-        from ankiscape.data.music_log_data import MUSIC_TRACKS
-
-        player = default_player_data(ORE_DATA)
-        page, _ctx = self._build(player, _command(player))
-
-        toggle = self._named(page, "cabinetMusicShowAll", QToolButton)
-        self.assertIsNotNone(toggle)
-        rows = [
-            self._named(page, f"cabinetTrack_{track.id}", QLabel) for track in MUSIC_TRACKS
-        ]
-        self.assertNotIn(None, rows, "every track needs a row of its own")
-        self.assertTrue(any(not row.isVisible() for row in rows))
-
-        toggle.click()
+        ctx = _Ctx(player, _command(player))
+        page = build_collections_tab(ctx)
+        page.show()
+        page.resize(900, 560)
         for _ in range(3):
             QApplication.instance().processEvents()
 
-        self.assertTrue(all(row.isVisible() for row in rows))
+        tree = self._named(page, "collectionsMusicTracks", QTreeWidget)
+        self.assertIsNotNone(tree)
+        self.assertEqual(tree.topLevelItemCount(), len(MUSIC_TRACKS))
+        item = next(
+            tree.topLevelItem(index)
+            for index in range(tree.topLevelItemCount())
+            if tree.topLevelItem(index).text(0) == track.name
+        )
+        self.assertEqual(item.text(1), track.hint)
+        self.assertEqual(item.text(2), track.source)
+        self.assertEqual(item.text(3), "Unlocked")
+
+    def test_collections_labels_the_task_track_latent(self):
+        from ankiscape.ui.ui_tab_collections import build_collections_tab
+
+        ctx = _Ctx(default_player_data(ORE_DATA))
+        page = build_collections_tab(ctx)
+        page.show()
+        page.resize(900, 560)
+        for _ in range(3):
+            QApplication.instance().processEvents()
+
+        tree = self._named(page, "collectionsMusicTracks", QTreeWidget)
+        item = next(
+            tree.topLevelItem(index)
+            for index in range(tree.topLevelItemCount())
+            if tree.topLevelItem(index).text(0) == "The Task at Hand"
+        )
+        self.assertEqual(item.text(3), "Latent")
 
     def test_the_taskmaster_presentation_appears_once_and_the_button_clears_it(self):
         player = default_player_data(ORE_DATA)

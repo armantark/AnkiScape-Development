@@ -4537,6 +4537,7 @@ def show_main_menu(
     # here rather than at module scope because they import ui.
     from .ui_menu_ctx import MainMenuCtx
     from .ui_tab_achievements import build_achievements_tab
+    from .ui_tab_collections import build_collections_tab
     from .ui_tab_quests import build_quests_tab
     from .ui_tab_shop import build_shop_tab
 
@@ -25506,6 +25507,13 @@ def show_main_menu(
         "achievement_icon.png",
         "Review your achievements",
         build_achievements_tab,
+    )
+
+    _add_deferred_tab(
+        "Collections",
+        "dnd_icon.png",
+        "Review passive collections such as the Music Log",
+        build_collections_tab,
     )
 
     # Settings tab (controls)
