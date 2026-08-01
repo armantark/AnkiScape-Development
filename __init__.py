@@ -29,6 +29,7 @@ from .core.constants import (
     EQUIPMENT_DATA,
 )
 from .data.smithing_data import DEFAULT_SMITHING_TARGET
+from .data.combat_data import DEFAULT_COMBAT_TARGET
 from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer

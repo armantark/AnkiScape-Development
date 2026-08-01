@@ -2510,6 +2510,19 @@ def combat_has_active_encounter_pure(player_data):
     )
 
 
+def request_combat_bank_run_now_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    if combat_has_active_encounter_pure(data):
+        return data, False, "An active fight must end before making a bank run."
+    target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    data["combat_bank_run"] = {
+        "reviews_remaining": COMBAT_BANK_RUN_REVIEWS,
+        "target_id": target_id,
+    }
+    return data, True, ""
+
+
 def set_combat_pack_mode_pure(player_data, mode):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))

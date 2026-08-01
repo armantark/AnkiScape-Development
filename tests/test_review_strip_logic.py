@@ -840,6 +840,19 @@ class ReviewBankRunViewTest(unittest.TestCase):
         self.assertTrue(utility_ok)
         self.assertEqual(utility["review_bank_run_requested_handler"], "utility")
 
+    def test_combat_request_uses_the_engine_gate_instead_of_rebuilding_state(self):
+        combat, ok = request_review_bank_run_pure(
+            {
+                **_player(),
+                "combat_encounter": {"target_id": "chicken", "disengaged": False},
+            },
+            "combat",
+            "chicken",
+        )
+
+        self.assertFalse(ok)
+        self.assertFalse(combat.get("combat_bank_run"))
+
 
 class FillDrawerViewTest(unittest.TestCase):
     def _order(self, **overrides) -> dict:

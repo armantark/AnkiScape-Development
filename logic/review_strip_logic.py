@@ -90,10 +90,10 @@ from ..logic.tears_of_guthix_logic import reward_skill_pure, tears_of_guthix_vie
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from ..logic_pure.logic_pure import (
-    COMBAT_BANK_RUN_REVIEWS,
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
     compute_level_progress,
+    request_combat_bank_run_now_pure,
 )
 
 # A resolved Big Chinchompa keeps reporting its outcome for this many reviews.
@@ -388,12 +388,8 @@ def request_review_bank_run_pure(
         return dict(player_data), False
     updated = dict(player_data)
     if handler == "combat":
-        if not target or player_data.get("combat_bank_run"):
-            return updated, False
-        updated["combat_bank_run"] = {
-            "reviews_remaining": COMBAT_BANK_RUN_REVIEWS,
-            "target_id": target,
-        }
+        requested, ok, _reason = request_combat_bank_run_now_pure(player_data)
+        return requested, ok
     elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
         if (
             not target

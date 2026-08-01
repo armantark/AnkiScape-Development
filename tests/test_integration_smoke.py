@@ -7413,6 +7413,38 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_combat_strip_bank_button_queues_the_engine_route_and_refreshes(self):
+        addon = _load_addon_as_package("ankiscape_combat_strip_bank_run")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.current_skill = "Combat"
+        addon.player_data = {"combat_encounter": {}}
+        surfaces = []
+        addon.update_review_bank_run_button = (
+            lambda data, handler, callback, target_id=None: surfaces.append(
+                {
+                    "handler": handler,
+                    "target_id": target_id,
+                    "callback": callback,
+                    "bank_run": copy.deepcopy(data.get("combat_bank_run")),
+                }
+            )
+        )
+
+        addon._update_review_bank_run_surface()
+        committed = surfaces[-1]["callback"]()
+
+        self.assertTrue(committed)
+        self.assertEqual(surfaces[0]["handler"], "combat")
+        self.assertEqual(surfaces[0]["target_id"], "chicken")
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        self.assertEqual(surfaces[-1]["bank_run"], addon.player_data["combat_bank_run"])
+        self.assertEqual(len(addon.mw.col.custom_undo_entries), 1)
+        self.assertEqual(addon.mw.undo_updates, 1)
+
     def test_circus_review_and_world_clock_undo_together(self):
         addon = _load_addon_as_package("ankiscape_circus_review_integration")
         logic = sys.modules[f"{addon.__name__}.logic.circus_logic"]
