@@ -3299,12 +3299,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_custom_pack_bank_grid_icons_quantity_menu_and_live_inventory(self) -> None:
+        from ankiscape.core.constants import ITEM_DEFINITIONS
         from ankiscape.logic import inventory_pure
 
         pd = _make_player_data()
         pd["inventory"] = {"Iron ore": 20, "Bronze arrow": 11, "Coins": 100}
+        for definition in ITEM_DEFINITIONS:
+            if len(pd["inventory"]) >= 80:
+                break
+            pd["inventory"].setdefault(
+                definition.storage_key, len(pd["inventory"]) + 1
+            )
         layout: dict[str, int] = {}
         stackables = {"Coins"}
+        saved: list[dict] = []
 
         def get_cells():
             return tuple(inventory_pure.layout_to_grid_cells_pure(layout, stackables))
@@ -3331,6 +3339,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ),
             carried_stackable_names=stackables,
             on_set_carried_layout_quantity=set_quantity,
+            on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
         )
         dialog.show()
         dialog.resize(900, 560)
@@ -3351,10 +3360,77 @@ class MainMenuWidgetTest(unittest.TestCase):
             equipment_scroll = equipment_scroll.parentWidget()
         self.assertIsNotNone(equipment_scroll)
         self.assertEqual(equipment_scroll.horizontalScrollBar().maximum(), 0)
+
+        def primary_bank_buttons() -> list[QPushButton]:
+            return [
+                button
+                for button in bank_grid.findChildren(QPushButton)
+                if button.objectName().startswith("carriedBankItem::")
+            ]
+
+        self.assertGreaterEqual(len(primary_bank_buttons()), 80)
+
+        def assert_bank_grid_fits() -> tuple[int, int]:
+            viewport = bank_grid.viewport()
+            bank_buttons = primary_bank_buttons()
+            viewport_left = viewport.mapToGlobal(QPoint(0, 0)).x()
+            column_positions = {
+                button.mapToGlobal(QPoint(0, 0)).x() - viewport_left
+                for button in bank_buttons
+            }
+            for button in bank_buttons:
+                left = button.mapToGlobal(QPoint(0, 0)).x() - viewport_left
+                self.assertGreaterEqual(left, 0, button.objectName())
+                self.assertLessEqual(
+                    left + button.width(),
+                    viewport.width(),
+                    button.objectName(),
+                )
+            self.assertEqual(bank_grid.horizontalScrollBar().maximum(), 0)
+            return bank_grid.width(), len(column_positions)
+
+        width_at_900, columns_at_900 = assert_bank_grid_fits()
+        self.assertGreater(columns_at_900, 2)
+        dialog.resize(1200, 800)
+        for _ in range(6):
+            QApplication.processEvents()
+        width_at_1200, columns_at_1200 = assert_bank_grid_fits()
+        self.assertGreater(width_at_1200, width_at_900)
+        self.assertGreater(columns_at_1200, columns_at_900)
+
+        _open_bank_tab(dialog)
+        carried_header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        if not carried_header.isChecked():
+            carried_header.click()
+        for _ in range(6):
+            QApplication.processEvents()
+        bank_tab_grid = dialog.findChild(QScrollArea, "carriedBankPickerBank")
+        bank_tab_buttons = [
+            button
+            for button in bank_tab_grid.findChildren(QPushButton)
+            if button.objectName().startswith("carriedBankItemBank::")
+        ]
+        bank_tab_viewport = bank_tab_grid.viewport()
+        bank_tab_viewport_left = bank_tab_viewport.mapToGlobal(QPoint(0, 0)).x()
+        bank_tab_columns = {
+            button.mapToGlobal(QPoint(0, 0)).x() - bank_tab_viewport_left
+            for button in bank_tab_buttons
+        }
+        self.assertGreater(len(bank_tab_columns), 2)
+        for button in bank_tab_buttons:
+            left = button.mapToGlobal(QPoint(0, 0)).x() - bank_tab_viewport_left
+            self.assertGreaterEqual(left, 0, button.objectName())
+            self.assertLessEqual(
+                left + button.width(), bank_tab_viewport.width(), button.objectName()
+            )
+        self.assertEqual(bank_tab_grid.horizontalScrollBar().maximum(), 0)
+
+        _open_equipment_tab(dialog)
         dialog.resize(760, 560)
         for _ in range(4):
             QApplication.processEvents()
         self.assertEqual(equipment_scroll.horizontalScrollBar().maximum(), 0)
+        assert_bank_grid_fits()
 
         iron_button = dialog.findChild(QPushButton, "carriedBankItem::Iron ore")
         self.assertIsNotNone(iron_button)
@@ -3420,6 +3496,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(layout["Iron ore"], 13)
         refreshed_menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
         self.assertEqual(refreshed_menu.actions()[3].text(), "Add last X (7)")
+        self.assertEqual(pd["carried_picker_last_x"], 7)
+        self.assertEqual(saved[-1]["carried_picker_last_x"], 7)
 
         layout["Coins"] = 25
         coins_menu = dialog._ankiscape_carried_add_menu_for("Coins", 100)
@@ -3445,11 +3523,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         current_inventory = dialog.findChild(QScrollArea, "carriedCurrentInventory")
         self.assertIsNotNone(current_loot)
         self.assertIn("Uncut sapphire ×1", current_loot.toolTip())
+        self.assertTrue(current_loot.isEnabled())
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         dialog.findChild(QPushButton, "carriedModeAuto").click()
         QApplication.processEvents()
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         self.assertTrue(current_loot.isVisibleTo(dialog))
+
+        reopened = self._open(
+            pd,
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            get_carried_inventory_items=lambda: (),
+            carried_stackable_names=stackables,
+            on_set_carried_layout_quantity=set_quantity,
+        )
+        reopened_menu = reopened._ankiscape_carried_add_menu_for("Iron ore", 20)
+        self.assertEqual(reopened_menu.actions()[3].text(), "Add last X (7)")
+        self.assertTrue(reopened_menu.actions()[3].isEnabled())
+        reopened.deleteLater()
         dialog.deleteLater()
 
     def test_custom_pack_picker_plans_beyond_bank_stock_and_fills_available_slots(self) -> None:

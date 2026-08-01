@@ -1507,6 +1507,18 @@ if HAS_QT:
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
 
+    class _ResponsiveGridScrollArea(QScrollArea):
+        """Notify a grid when its viewport width changes."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.on_viewport_resize = None
+
+        def resizeEvent(self, event):  # type: ignore[no-untyped-def]
+            super().resizeEvent(event)
+            if self.on_viewport_resize is not None:
+                self.on_viewport_resize()
+
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
 
@@ -23120,7 +23132,9 @@ def show_main_menu(
     carried_switch_setters: list = []
     carried_section_refreshers: list = []
     carried_mode_state = {"advanced": bool(carried_advanced_state)}
-    carried_picker_state = {"last_x": None}
+    carried_picker_state = {
+        "last_x": max(0, int(player_data.get("carried_picker_last_x", 0) or 0))
+    }
     _legacy_icon_maps = (
         ORE_IMAGES,
         TREE_IMAGES,
@@ -23330,6 +23344,9 @@ def show_main_menu(
         if not ok:
             return
         carried_picker_state["last_x"] = int(quantity)
+        player_data["carried_picker_last_x"] = int(quantity)
+        if on_save_player_data is not None:
+            on_save_player_data()
         _add_pack_quantity(item_name, quantity, parent)
 
     def _build_add_to_pack_menu(item_name: str, bank_amount: int, parent=None) -> QMenu:
@@ -23544,7 +23561,6 @@ def show_main_menu(
         _CARRIED_CELL_HEIGHT = 44
         _CARRIED_CELL_SPACING = 4
         _CARRIED_GRID_COLS = 4
-        _CARRIED_BANK_COLS = 2
         _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
 
         cell_buttons: list = []
@@ -23594,19 +23610,35 @@ def show_main_menu(
         bank_picker_layout = QGridLayout(bank_picker_host)
         bank_picker_layout.setContentsMargins(4, 4, 4, 4)
         bank_picker_layout.setSpacing(_CARRIED_CELL_SPACING)
-        bank_picker_scroll = QScrollArea()
+        bank_picker_layout.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )
+        bank_picker_scroll = _ResponsiveGridScrollArea()
         bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
         bank_picker_scroll.setWidgetResizable(True)
-        bank_picker_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        bank_picker_scroll.setFixedSize(
-            _CARRIED_BANK_COLS * _CARRIED_CELL_WIDTH
-            + (_CARRIED_BANK_COLS - 1) * _CARRIED_CELL_SPACING
-            + 8,
-            grid_container.height(),
+        bank_picker_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        bank_picker_scroll.setFixedHeight(grid_container.height())
+        bank_picker_scroll.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        minimum_bank_viewport_width = (
+            _CARRIED_CELL_WIDTH
+            + bank_picker_layout.contentsMargins().left()
+            + bank_picker_layout.contentsMargins().right()
+        )
+        bank_picker_scroll.setMinimumWidth(
+            minimum_bank_viewport_width
+            + bank_picker_scroll.verticalScrollBar().sizeHint().width()
+            + bank_picker_scroll.frameWidth() * 2
         )
         bank_picker_scroll.setWidget(bank_picker_host)
 
         bank_column = QWidget()
+        bank_column.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+        )
         bank_column_layout = QVBoxLayout(bank_column)
         bank_column_layout.setContentsMargins(0, 0, 0, 0)
         bank_column_layout.setSpacing(2)
@@ -23620,8 +23652,7 @@ def show_main_menu(
         grid_row_layout.setContentsMargins(0, 0, 0, 0)
         grid_row_layout.setSpacing(8)
         grid_row_layout.addWidget(pack_column)
-        grid_row_layout.addWidget(bank_column)
-        grid_row_layout.addStretch(1)
+        grid_row_layout.addWidget(bank_column, 1)
         custom_layout.addWidget(grid_row)
 
         pack_hint = QLabel(
@@ -23689,15 +23720,65 @@ def show_main_menu(
                     cell_button.setEnabled(False)
                     cell_button.setStyleSheet(_CARRIED_CELL_EMPTY_CSS)
 
+        bank_picker_buttons: list[QPushButton] = []
+        bank_picker_empty_label: Optional[QLabel] = None
+        bank_picker_columns = 0
+        bank_picker_stretch_row = 0
+
+        def _bank_picker_column_count() -> int:
+            margins = bank_picker_layout.contentsMargins()
+            available = (
+                bank_picker_scroll.viewport().width()
+                - margins.left()
+                - margins.right()
+                - bank_picker_scroll.verticalScrollBar().sizeHint().width()
+            )
+            return max(
+                1,
+                (available + _CARRIED_CELL_SPACING)
+                // (_CARRIED_CELL_WIDTH + _CARRIED_CELL_SPACING),
+            )
+
+        def _relayout_bank_picker() -> None:
+            nonlocal bank_picker_columns, bank_picker_stretch_row
+            columns = _bank_picker_column_count()
+            if columns == bank_picker_columns and bank_picker_layout.count():
+                return
+            while bank_picker_layout.count():
+                bank_picker_layout.takeAt(0)
+            if bank_picker_stretch_row:
+                bank_picker_layout.setRowStretch(bank_picker_stretch_row, 0)
+            bank_picker_columns = columns
+            if bank_picker_empty_label is not None:
+                bank_picker_layout.addWidget(bank_picker_empty_label, 0, 0, 1, columns)
+                bank_picker_stretch_row = 1
+            else:
+                for index, item_button in enumerate(bank_picker_buttons):
+                    bank_picker_layout.addWidget(
+                        item_button,
+                        index // columns,
+                        index % columns,
+                    )
+                bank_picker_stretch_row = (
+                    len(bank_picker_buttons) + columns - 1
+                ) // columns
+            bank_picker_layout.setRowStretch(bank_picker_stretch_row, 1)
+            bank_picker_host.updateGeometry()
+
+        bank_picker_scroll.on_viewport_resize = _relayout_bank_picker
+
         def _refresh_bank_picker() -> None:
+            nonlocal bank_picker_columns, bank_picker_empty_label
             _clear_layout(bank_picker_layout)
+            bank_picker_buttons.clear()
+            bank_picker_empty_label = None
             items = _pack_pickable_items()
             if not items:
-                empty = QLabel("Bank empty")
-                empty.setStyleSheet(f"color: {dim_text_css(empty)};")
-                bank_picker_layout.addWidget(empty, 0, 0, 1, _CARRIED_BANK_COLS)
-                return
-            for index, (item_name, amount, asset_path) in enumerate(items):
+                bank_picker_empty_label = QLabel("Bank empty")
+                bank_picker_empty_label.setStyleSheet(
+                    f"color: {dim_text_css(bank_picker_empty_label)};"
+                )
+            for item_name, amount, asset_path in items:
                 item_button = QPushButton()
                 item_button.setObjectName(f"carriedBankItem{name_suffix}::{item_name}")
                 item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
@@ -23721,15 +23802,9 @@ def show_main_menu(
                     menu.exec(button.mapToGlobal(pos))
 
                 item_button.customContextMenuRequested.connect(_open_add_menu)
-                bank_picker_layout.addWidget(
-                    item_button,
-                    index // _CARRIED_BANK_COLS,
-                    index % _CARRIED_BANK_COLS,
-                )
-            bank_picker_layout.setRowStretch(
-                (len(items) + _CARRIED_BANK_COLS - 1) // _CARRIED_BANK_COLS,
-                1,
-            )
+                bank_picker_buttons.append(item_button)
+            bank_picker_columns = 0
+            _relayout_bank_picker()
 
         def _refresh_current_inventory() -> None:
             _clear_layout(current_inventory_layout)
@@ -23754,7 +23829,7 @@ def show_main_menu(
                 item_button.setAccessibleName(
                     f"Current inventory: {item_name} ×{int(amount)}"
                 )
-                item_button.setEnabled(False)
+                item_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
                 item_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
                 current_inventory_layout.addWidget(item_button)
             current_inventory_layout.addStretch(1)
