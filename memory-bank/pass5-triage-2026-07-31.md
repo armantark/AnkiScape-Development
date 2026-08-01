@@ -10,12 +10,21 @@ land (blocks play, risks corruption, or is a repeat report).
 
 ## P-high / U-high — do first
 
-1. **Combat cadence pacing feels broken.** 1–6 XP per review vs Man/Woman with
-   a scimitar, zero kills in ~14 reviews at multiplier R=1000(?). Diagnose
-   whether the kernel is granting one attack-roll's worth of progress per
-   review instead of a full interval's worth. If the math is parity-correct,
-   the review→tick mapping is an AnkiScape design dial — record as design fork
-   instead of "balancing" the engine (parity-over-safeguards).
+1. **Combat cadence pacing — RESOLVED BY EVIDENCE (2026-07-31 grill).** The
+   observed 1–6 XP/review matches the ratified kernel contract
+   (cadence-kernel-contract-2026-07-13.md): 6 ticks ≈ 3.6s game time per
+   review at the owner's M=1 (config unset → default 1), scimitar = 4-tick
+   speed → ~1.5 attacks/review at low accuracy. Save telemetry confirms the
+   exchange rate is uniform across skills: teak 85 XP every ~2 reviews
+   (226 attempts, 52% success), iron ~1 attempt/review at 82%, cooking
+   ~40 XP/review — i.e. 30–45 XP/review for gathering vs ~1.6 for low-level
+   melee, a ~20× ratio that matches the authentic era ratio (low-level melee
+   ~3–4k XP/hr vs ~40–60k for mid gathering). Owner verdict: "as long as
+   it's truly consistent… it is fair"; they may corroborate the feel in
+   Darkan. **No kernel change.** The item reduces to: the food-loading bug
+   (item 3), the Dream error (item 2), the save-integrity check (item 5),
+   and event-log display fixes. The disposable-evidence sim is now optional —
+   run it only if the owner's Darkan comparison disagrees with the kernel.
 2. **"Dream is required (79 Magic, Dream Mentor)" error repeatedly switches
    the player off combat.** Owner suspects HP-level trigger. Recurring; kicks
    the player out of training. Bug hunt in spell/ability auto-selection.
@@ -187,6 +196,32 @@ read-only save inspection before any fix touches state.
 to "fixed-pending-confirmation"; the loop must not tune to its own probes —
 any surprising instant-pass gets inspected for scope reduction or a probe
 that tests the fake instead of the app.
+
+## Grill decisions (2026-07-31, owner-ratified)
+
+1. **Pinned strip layout — Option A ratified.** One fixed-height horizontal
+   strip just above Anki's answer-button bar: D&D badge(s) left (label
+   "D&D", never "DD"), Farming beside them, XP-bar box to their right. The
+   GE status log and event log are stacked drawers rising from the XP box's
+   top edge, expanding UPWARD; the card gets fixed bottom padding equal to
+   the strip height, so nothing bounces per card and nothing covers card
+   material or answer buttons. The always-visible "do bank run" button lives
+   in this strip (owner said always-visible; the strip is the only
+   always-visible surface).
+2. **Combat pacing — kernel contract stands** (see item 1 above; telemetry
+   verified the uniform exchange rate against the owner's live save).
+3. **D&D notification default set — EMPTY, favorites opt-in.** Right-click
+   any D&D to add/remove; the set is visible and editable. The current
+   uninvited star/evil-tree/Big Chinchompa pings disappear until favorited.
+4. **Laptop prober — approved.** The laptop is a Mac
+   (`Armans-MacBook-Pro.local`), reachable via Tailscale + SSH. Setup task
+   for next block: install Anki there, rsync the add-on + a synthetic test
+   profile, install/verify codex CLI, and run the Luna computer-use prober
+   ON the laptop so probe clicks/screenshots never steal the desktop
+   screen. Note: the owner's Codex desktop app already shows a device
+   connection to this laptop ("Control other devices" → Connected) — at
+   setup time check whether the codex CLI can drive that channel; if not,
+   SSH + laptop-local codex CLI is the route.
 
 ## Skill routing (owner-approved 2026-07-31)
 
