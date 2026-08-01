@@ -4140,7 +4140,7 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Bank run — arrived at the bank"])
         self.assertEqual(calls["saves"], 1)
 
-    def test_legacy_non_carried_bank_requests_do_not_steal_review_progress(self):
+    def test_non_carried_bank_requests_complete_without_stealing_review_progress(self):
         for handler_key, target_key, target_id in (
             ("utility", "current_utility", "shooting_stars"),
             ("quest", "current_quest", "rune_mysteries"),

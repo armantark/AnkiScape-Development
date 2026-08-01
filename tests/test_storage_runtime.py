@@ -95,7 +95,7 @@ class StorageRuntimeTest(unittest.TestCase):
         collection = _LegacyTextCollection()
         collection.values = {
             "ankiscape_player_data": {
-                "config_version": 105,
+                "config_version": 104,
                 "current_utility": "shooting_stars",
                 "activity_session": {"active_id": ""},
             },

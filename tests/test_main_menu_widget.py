@@ -10225,25 +10225,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             ui.mw = orig_mw
 
-    def test_bank_run_button_is_always_visible_and_drives_the_callback(self) -> None:
-        calls = []
-        dialog = self._open(
-            _make_player_data(),
-            current_skill="Mining",
-            on_do_bank_run_now=lambda: calls.append("bank") or True,
-        )
-        dialog.show()
-        dialog.resize(1200, 560)
-        for _ in range(4):
-            QApplication.processEvents()
-
-        button = _find_named_button(dialog, "doBankRunButton")
-        self.assertTrue(button.isVisible())
-        self.assertEqual(button.text(), "Do bank run")
-        button.click()
-        QApplication.processEvents()
-        self.assertEqual(calls, ["bank"])
-
     def test_shooting_star_selects_from_utilities_without_building_activities(self) -> None:
         from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
@@ -10348,6 +10329,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
         )
+
+    def test_activity_start_control_rerenders_as_currently_active(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "warriors_guild_animated_armour"
+        dialog = self._open(pd, current_skill="Mining")
+        self._open_activities(dialog)
+        start = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Start activity"
+        )
+
+        start.click()
+        for _ in range(3):
+            QApplication.processEvents()
+
+        self.assertEqual(
+            self._activity_start_calls, ["warriors_guild_animated_armour"]
+        )
+        current = [
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Currently active"
+        ]
+        self.assertEqual(len(current), 1)
+        self.assertFalse(current[0].isEnabled())
 
     def test_activity_start_control_refuses_a_target_from_the_other_surface(self) -> None:
         pd = _make_player_data()

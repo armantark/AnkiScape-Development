@@ -101,6 +101,7 @@ from .ui.ui import (
     hide_review_hud,
     ensure_review_context_action_strip,
     update_review_context_action_strip,
+    update_review_bank_run_button,
     ensure_review_status_badge,
     update_review_status_badge,
     update_review_fill_drawer,
@@ -4070,7 +4071,6 @@ def _on_main_menu(
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_start_activity=start_activity_for_reviews,
-        on_do_bank_run_now=on_do_bank_run_now,
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
@@ -4261,7 +4261,7 @@ def on_set_combat_pack_mode(mode):
     if not ok:
         show_error_message("Cannot change combat supplies", reason)
         return False
-    _save_combat_state_update(new_data)
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
@@ -4278,25 +4278,30 @@ def on_do_bank_run_now():
     """Run or request the active skill/activity's bank visit."""
     handler_key = review_action_handler_key(current_skill)
     skill = get_skill(current_skill)
+    completes_immediately = False
     if handler_key == "combat" or (skill is not None and skill.id == "slayer"):
         new_data, ok, reason = request_combat_bank_run_now_pure(player_data)
-    elif handler_key in runtime_actions._OVERLAY_TARGET_KEYS:
-        target_key = runtime_actions._OVERLAY_TARGET_KEYS[handler_key]
+    elif handler_key in runtime_actions._BANK_RUN_TARGET_KEYS:
+        target_key = runtime_actions._BANK_RUN_TARGET_KEYS[handler_key]
+        target_id = (player_data.get(target_key) if target_key else None) or handler_key
         new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
-            player_data, player_data.get(target_key)
+            player_data, target_id
         )
     elif handler_key is not None or (skill is not None and skill.implemented):
-        # Surfaces without a carried pack have nothing to deposit or refill.
-        # Their bank visit therefore completes immediately instead of consuming
-        # a review for a cosmetic queued route.
+        # Farming and any registry-backed surface without a review handler are
+        # already bank-side. Complete the visit now instead of queuing a request
+        # that no production review path can consume.
         new_data = restore_summoning_points_pure(player_data)
         ok, reason = True, ""
+        completes_immediately = True
     else:
         new_data, ok, reason = player_data, False, "No active target can make a bank run."
     if not ok:
         show_error_message("Cannot make a bank run", reason)
         return False
     _save_combat_state_update(new_data)
+    if completes_immediately:
+        _show_activity_gain("Bank run — arrived and ready")
     return True
 
 

@@ -1593,10 +1593,10 @@ class TestStoragePure(unittest.TestCase):
                     migrated["activity_session"], {"active_id": session_id}
                 )
 
-    def test_v106_food_order_refills_monkfish_before_cooked_chicken(self):
+    def test_v104_food_order_refills_monkfish_before_cooked_chicken(self):
         migrated = migrate_loaded_data(
             {
-                "config_version": 105,
+                "config_version": 103,
                 "inventory": {"Monkfish": 50, "Cooked chicken": 50},
                 "combat_pack_mode": "max_output",
                 "combat_supply_loadout": {},
@@ -1635,7 +1635,7 @@ class TestStoragePure(unittest.TestCase):
             with self.subTest(activity_id=activity_id):
                 migrated = migrate_loaded_data(
                     {
-                        "config_version": 105,
+                        "config_version": CURRENT_CONFIG_VERSION,
                         "current_utility": activity_id,
                         "activity_session": {"active_id": activity_id},
                     },

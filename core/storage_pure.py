@@ -2041,10 +2041,8 @@ def migrate_loaded_data(
                 )
                 merged.insert(cut, name)
             data["combat_auto_eat_food"] = merged
-    # v105 repairs the pass-5 combat split: an ineligible Dream latch clears the
-    # fight it stranded and refills the selected supply mode.
-    # These defaults are also required for a new v30-shaped payload assembled
-    # outside load_player_data (tests, imports, or a future alternate frontend).
+    # These defaults are required for a new v30-shaped payload assembled outside
+    # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
     data.setdefault("magic_alchemy_item", "")
     data.setdefault("magic_actions_completed", 0)
@@ -2156,6 +2154,9 @@ def migrate_loaded_data(
         except ImportError:
             # A disabled optional observer must never make an existing save unloadable.
             pass
+    # Load invariant, not a schema migration: an ineligible Dream latch can
+    # strand an encounter before combat resolves it. Sanitize every payload and
+    # refill only when that repair actually cleared the latch.
     invalid_dream_latch = bool(data.get("combat_dream_thrift", False)) and bool(
         combat_dream_thrift_locked_reasons_pure(data)
     )
