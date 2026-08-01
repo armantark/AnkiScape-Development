@@ -218,10 +218,11 @@ that tests the fake instead of the app.
    for next block: install Anki there, rsync the add-on + a synthetic test
    profile, install/verify codex CLI, and run the Luna computer-use prober
    ON the laptop so probe clicks/screenshots never steal the desktop
-   screen. Note: the owner's Codex desktop app already shows a device
-   connection to this laptop ("Control other devices" → Connected) — at
-   setup time check whether the codex CLI can drive that channel; if not,
-   SSH + laptop-local codex CLI is the route.
+   screen. Route decided 2026-07-31: SSH over Tailscale + laptop-local
+   codex CLI, same nohup-wrapper/poll pattern as the local overnight runs,
+   just prefixed with `ssh Armans-MacBook-Pro.local`. The Codex app's
+   remote-thread device channel was considered and rejected as an
+   unscriptable middleman ("playing telephone" — owner's words).
 
 ## Skill routing (owner-approved 2026-07-31)
 
