@@ -281,9 +281,6 @@ def _registered_requirement_value(
 def _completionist_requirement_view_pure(
     player_data: Mapping[str, Any], requirement: CompletionistRequirement
 ) -> dict[str, Any]:
-    from .achievement_diary_logic import diary_totals_pure
-    from .music_log_logic import music_log_totals_pure
-
     kind = requirement.predicate_kind
     have = 0
     need = 0
@@ -294,10 +291,14 @@ def _completionist_requirement_view_pure(
     elif kind == "all_quests":
         met = _all_quests_complete(player_data)
     elif kind == "taskmaster":
+        from .achievement_diary_logic import diary_totals_pure
+
         diary = diary_totals_pure(player_data)
         have, need = diary["completed"], diary["total"]
         met = bool(_mapping(player_data.get("achievement_diaries")).get("taskmaster"))
     elif kind == "music":
+        from .music_log_logic import music_log_totals_pure
+
         music = music_log_totals_pure(player_data)
         have, need = music["unlocked"], music["total"]
         met = have >= need and need > 0
