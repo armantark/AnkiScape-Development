@@ -1961,12 +1961,9 @@ def migrate_loaded_data(
     # `_migrate_quest_state` above already adds their unstarted state to every
     # existing save; nothing else in the payload changes.
     # v104: D&D notifications become strictly opt-in. The old world-clock trio
-    # was an implicit projection default, never stored in this list, so migration
-    # installs the empty set where absent and preserves every explicit pin.
-    if loaded_config_version < 104:
-        data["dnd_favourites"] = sanitize_dnd_favourites_pure(
-            data.get("dnd_favourites")
-        )
+    # was an implicit projection default, never stored in this list, so the
+    # unconditional sanitizer above already installs the empty set where the
+    # key is absent and preserves every explicit pin.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
