@@ -116,6 +116,8 @@ REVIEW_STRIP_HEIGHT = 128
 REVIEW_STRIP_WIDTH = 684
 REVIEW_ANSWER_BAR_HEIGHT = 72
 
+# Combat plus the carried-overlay handler keys (runtime _OVERLAY_TARGET_KEYS);
+# the pure layer cannot import the runtime one, so keep the two in step.
 REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
     {
         "combat",
@@ -211,13 +213,9 @@ def review_event_log_drawer_view_pure(
     for entry in reversed(rows[-limit:]):
         reviews_ago = max(0, now - int(entry["review"]))
         unit = "review" if reviews_ago == 1 else "reviews"
-        tone = (
-            "xp"
-            if entry["kind"] == "xp"
-            else "achievement"
-            if entry["kind"] == "achievement"
-            else "neutral"
-        )
+        # Green and yellow belong to the Grand Exchange drawer alone, so the
+        # event log stays on neutral tones.
+        tone = entry["kind"] if entry["kind"] in ("xp", "achievement") else "neutral"
         visible_rows.append({
             **entry,
             "label": f"{reviews_ago} {unit} ago · {entry['text']}",
@@ -250,14 +248,12 @@ def review_overlay_layout_view_pure(
     cluster_size: tuple[int, int],
     answer_bar_top: int | None = None,
     margin: int = 8,
-    gap: int = 20,
 ) -> dict[str, Any]:
     """Pin the fixed strip immediately above Anki's answer-button bar.
 
-    ``content_rect`` and the legacy sizing arguments remain accepted for callers
-    from older add-on copies, but card content no longer participates in this
-    decision. A fixed document-bottom inset protects both short and late-growing
-    image cards without moving the strip.
+    ``content_rect`` is still taken so callers keep one layout entry point, but
+    card content no longer moves the strip: a fixed document-bottom inset
+    protects both short cards and late-growing image cards instead.
     """
 
     parent_w = max(0, int(parent_size[0]))
@@ -265,11 +261,9 @@ def review_overlay_layout_view_pure(
     cluster_w = max(0, int(cluster_size[0]))
     if cluster_w <= 0:
         return {"visible": False, "x": margin, "y": margin, "dock": "none"}
-    try:
-        bar_top = int(answer_bar_top) if answer_bar_top is not None else parent_h - REVIEW_ANSWER_BAR_HEIGHT
-    except (TypeError, ValueError, OverflowError):
-        bar_top = parent_h - REVIEW_ANSWER_BAR_HEIGHT
-    bar_top = max(0, min(parent_h, bar_top))
+    if answer_bar_top is None:
+        answer_bar_top = parent_h - REVIEW_ANSWER_BAR_HEIGHT
+    bar_top = max(0, min(parent_h, int(answer_bar_top)))
     visible = (
         cluster_w <= max(0, parent_w - 2 * margin)
         and REVIEW_STRIP_HEIGHT <= bar_top
@@ -295,24 +289,24 @@ def review_bank_run_button_view_pure(
     requested_target = str(
         player_data.get("review_bank_run_requested_target", "") or ""
     )
-    active = bool(
-        player_data.get("combat_bank_run")
-        if handler == "combat"
-        else player_data.get("skilling_bank_run")
-        or (requested_target and (not target or requested_target == target))
-    )
+    if handler == "combat":
+        active = bool(player_data.get("combat_bank_run"))
+    else:
+        active = bool(player_data.get("skilling_bank_run")) or bool(
+            requested_target and (not target or requested_target == target)
+        )
     supported = handler in REVIEW_BANK_RUN_HANDLER_KEYS
+    if not supported:
+        tooltip = "This review activity has no bank-run path."
+    elif active:
+        tooltip = "A bank run is already queued or in progress."
+    else:
+        tooltip = "Spend upcoming review progress on the normal bank-run route."
     return {
         "visible": True,
         "text": "Do bank run",
         "enabled": supported and not active,
-        "tooltip": (
-            "A bank run is already queued or in progress."
-            if supported and active
-            else "Spend upcoming review progress on the normal bank-run route."
-            if supported
-            else "This review activity has no bank-run path."
-        ),
+        "tooltip": tooltip,
     }
 
 

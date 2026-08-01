@@ -3407,8 +3407,9 @@ def measure_card_content() -> None:
             return
         _sync_card_bottom_padding(
             mw,
-            {"visible": _REVIEW_STRIP is not None and _REVIEW_STRIP.isVisible()},
-            _review_overlay_reserved_height(),
+            _review_overlay_reserved_height()
+            if _REVIEW_STRIP is not None and _REVIEW_STRIP.isVisible()
+            else 0,
             force=True,
         )
         web.evalWithCallback(_CARD_CONTENT_JS, note_card_content_bottom)
@@ -3427,11 +3428,11 @@ def _review_overlay_reserved_height(gap: int = 6) -> int:
     return height
 
 
-def _sync_card_bottom_padding(parent, layout, cluster_height, *, force=False) -> None:
+def _sync_card_bottom_padding(parent, reserved_height, *, force=False) -> None:
     """Reserve the fixed strip plus any open drawer stack in the card document."""
 
     global _CARD_PADDING_PX
-    padding = max(REVIEW_STRIP_HEIGHT, int(cluster_height)) if layout.get("visible") else 0
+    padding = max(0, int(reserved_height))
     if not force and padding == _CARD_PADDING_PX:
         return
     try:
@@ -3489,14 +3490,13 @@ def _reposition_review_overlay() -> None:
             _FARMING_BADGE,
             _REVIEW_HUD,
             _BANK_RUN_BUTTON,
+            context,
+            *drawers,
         ):
             if widget is not None:
                 widget.setVisible(visible and _overlay_requested(widget))
-        for widget in (context, *drawers):
-            if widget is not None:
-                widget.setVisible(visible and _overlay_requested(widget))
         if not visible:
-            _sync_card_bottom_padding(parent, layout, 0)
+            _sync_card_bottom_padding(parent, 0)
             close_review_status_popover()
             return
 
@@ -3528,11 +3528,7 @@ def _reposition_review_overlay() -> None:
                 max(0, cursor_y - context.height()),
             )
             context.raise_()
-        _sync_card_bottom_padding(
-            parent,
-            layout,
-            _review_overlay_reserved_height(gap),
-        )
+        _sync_card_bottom_padding(parent, _review_overlay_reserved_height(gap))
         if (
             _STATUS_POPOVER is not None
             and _STATUS_POPOVER.isVisible()
@@ -3986,12 +3982,7 @@ def hide_review_hud() -> None:
     try:
         if _REVIEW_STRIP is not None:
             _REVIEW_STRIP.hide()
-        _sync_card_bottom_padding(
-            mw,
-            {"visible": False},
-            REVIEW_STRIP_HEIGHT,
-            force=True,
-        )
+        _sync_card_bottom_padding(mw, 0, force=True)
     except Exception:
         pass
     hide_review_context_action_strip()

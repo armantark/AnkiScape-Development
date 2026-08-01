@@ -351,7 +351,9 @@ _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 _REVIEW_FEEDBACK_FLUSHING = False
-_REVIEW_FEEDBACK_OUTPUT_SKILLS = ()
+# Skills named on the next XP event, whether it is emitted per award or
+# aggregated at the end of a review.
+_REVIEW_FEEDBACK_SKILLS = []
 
 def show_review_popup():
     ui.show_review_popup()
@@ -417,25 +419,16 @@ def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
         pass
 
 
-def _show_exp(exp_gained, *, skills=()) -> None:
+def _show_exp(exp_gained) -> None:
     """Record one XP drop, then display it when floating feedback is enabled."""
-    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
     try:
         if _REVIEW_FEEDBACK_CONTEXT is not None:
             try:
                 _REVIEW_FEEDBACK_CONTEXT["xp"] += float(exp_gained)
             except (TypeError, ValueError):
                 pass
-            for skill_name in skills or ():
-                name = str(skill_name or "").strip()
-                if name and name not in _REVIEW_FEEDBACK_CONTEXT["skills"]:
-                    _REVIEW_FEEDBACK_CONTEXT["skills"].append(name)
             return
-        skill_names = []
-        for skill_name in skills or _REVIEW_FEEDBACK_OUTPUT_SKILLS:
-            name = str(skill_name or "").strip()
-            if name and name not in skill_names:
-                skill_names.append(name)
+        skill_names = list(_REVIEW_FEEDBACK_SKILLS)
         if not skill_names and current_skill not in {"", "None"}:
             skill_names.append(str(current_skill))
         message = f"+{int(float(exp_gained))} XP"
@@ -464,7 +457,7 @@ def _show_exp(exp_gained, *, skills=()) -> None:
         pass
     finally:
         if _REVIEW_FEEDBACK_CONTEXT is None:
-            _REVIEW_FEEDBACK_OUTPUT_SKILLS = ()
+            _REVIEW_FEEDBACK_SKILLS.clear()
 
 
 def _show_activity_gain(text: str) -> None:
@@ -529,19 +522,14 @@ def _begin_review_feedback_context() -> None:
     _REVIEW_FEEDBACK_CONTEXT = {
         "xp": float(_REVIEW_FEEDBACK_INITIAL_XP or 0.0),
         "activity": [],
-        "skills": [],
     }
+    _REVIEW_FEEDBACK_SKILLS.clear()
     _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 
 
 def _finish_review_feedback_context() -> None:
     global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_FLUSHING
-    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
-    context = _REVIEW_FEEDBACK_CONTEXT or {
-        "xp": 0.0,
-        "activity": [],
-        "skills": [],
-    }
+    context = _REVIEW_FEEDBACK_CONTEXT or {"xp": 0.0, "activity": []}
     _REVIEW_FEEDBACK_CONTEXT = None
     _REVIEW_FEEDBACK_FLUSHING = True
     try:
@@ -552,7 +540,6 @@ def _finish_review_feedback_context() -> None:
             xp_total = 0.0
         activity_messages = context.get("activity", [])
         if xp_total > 0:
-            _REVIEW_FEEDBACK_OUTPUT_SKILLS = tuple(context.get("skills", ()))
             _show_exp(xp_total)
             for message in activity_messages:
                 _show_activity_gain(str(message))
@@ -565,7 +552,7 @@ def _finish_review_feedback_context() -> None:
         except Exception:
             pass
     finally:
-        _REVIEW_FEEDBACK_OUTPUT_SKILLS = ()
+        _REVIEW_FEEDBACK_SKILLS.clear()
         _REVIEW_FEEDBACK_FLUSHING = False
 
 
@@ -802,22 +789,14 @@ def _award_skill_exp(
     *,
     action_skill_id: str | None = None,
 ) -> float:
-    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
     action_skill_id = str(action_skill_id or current_skill).lower()
-    skill = get_skill(str(exp_key).removesuffix("_exp"))
+    skill_id = str(exp_key).removesuffix("_exp")
+    skill = get_skill(skill_id)
     skill_name = (
-        skill.display_name
-        if skill is not None
-        else str(exp_key).removesuffix("_exp").replace("_", " ").title()
+        skill.display_name if skill is not None else skill_id.replace("_", " ").title()
     )
-    if _REVIEW_FEEDBACK_CONTEXT is not None:
-        if skill_name not in _REVIEW_FEEDBACK_CONTEXT["skills"]:
-            _REVIEW_FEEDBACK_CONTEXT["skills"].append(skill_name)
-    elif skill_name not in _REVIEW_FEEDBACK_OUTPUT_SKILLS:
-        _REVIEW_FEEDBACK_OUTPUT_SKILLS = (
-            *_REVIEW_FEEDBACK_OUTPUT_SKILLS,
-            skill_name,
-        )
+    if skill_name not in _REVIEW_FEEDBACK_SKILLS:
+        _REVIEW_FEEDBACK_SKILLS.append(skill_name)
     # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
     # experience out of a 1,000-experience budget, then turns cosmetic. It rides
     # the same seam the Stealing Creation tools use rather than a second one.
@@ -1073,9 +1052,7 @@ def _implemented_exp_keys_snapshot() -> dict[str, float]:
 
 
 def _show_quest_exp_delta(before: dict[str, float]) -> None:
-    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
     total = 0.0
-    skill_names = []
     for skill in trainable_skill_definitions():
         old_exp = before.get(skill.exp_key, 0.0)
         try:
@@ -1084,18 +1061,13 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
             new_exp = old_exp
         if new_exp > old_exp:
             total += new_exp - old_exp
-            skill_names.append(skill.display_name)
+            if skill.display_name not in _REVIEW_FEEDBACK_SKILLS:
+                _REVIEW_FEEDBACK_SKILLS.append(skill.display_name)
             # Minimal/legacy saves can receive a Combat-stat quest reward before
             # the normal storage migration has seeded that stat's level key.
             player_data.setdefault(skill.level_key, 1)
             level_up_check(skill.display_name, player_data)
     if total > 0:
-        if _REVIEW_FEEDBACK_CONTEXT is not None:
-            for skill_name in skill_names:
-                if skill_name not in _REVIEW_FEEDBACK_CONTEXT["skills"]:
-                    _REVIEW_FEEDBACK_CONTEXT["skills"].append(skill_name)
-        else:
-            _REVIEW_FEEDBACK_OUTPUT_SKILLS = tuple(skill_names)
         _show_exp(total)
 
 
