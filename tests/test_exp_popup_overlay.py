@@ -52,16 +52,29 @@ class ExpPopupOverlayTest(unittest.TestCase):
             QApplication.processEvents()
         self.old_mw = ui.mw
         self.old_config = ui.get_config_bool
+        self.old_globals = {
+            name: getattr(ui, name)
+            for name in (
+                "_REVIEW_HUD",
+                "_REVIEW_STRIP",
+                "_REVIEW_CONTEXT_STRIP",
+                "_BANK_RUN_BUTTON",
+                "_DND_BADGE",
+                "_FARMING_BADGE",
+                "_FILL_DRAWER",
+                "_EVENT_LOG_DRAWER",
+            )
+        }
         ui.mw = self.parent
         ui.get_config_bool = lambda key, default=True: True
-        ui._REVIEW_HUD = None
-        ui._REVIEW_CONTEXT_STRIP = None
-        ui._FARMING_BADGE = None
+        for name in self.old_globals:
+            setattr(ui, name, None)
         # Creation order matters: in production the popup is built at profile
         # load, before the lazily created HUD cluster, so it is the earliest
         # sibling and therefore the bottom of the paint order.
         self.popup = ui.ExpPopup(self.parent)
         self.parent.exp_popup = self.popup
+        ui.ensure_review_hud()
         self.strip = ui.ReviewContextActionStrip(self.parent)
         ui._REVIEW_CONTEXT_STRIP = self.strip
         self.strip.set_data(_PROJECTION)
@@ -69,13 +82,12 @@ class ExpPopupOverlayTest(unittest.TestCase):
             QApplication.processEvents()
 
     def tearDown(self) -> None:
-        for widget in (self.popup, self.strip, self.ui._REVIEW_HUD):
+        for widget in (self.popup, self.strip, self.ui._REVIEW_STRIP):
             if widget is not None:
                 widget.hide()
                 widget.deleteLater()
-        self.ui._REVIEW_HUD = None
-        self.ui._REVIEW_CONTEXT_STRIP = None
-        self.ui._FARMING_BADGE = None
+        for name, value in self.old_globals.items():
+            setattr(self.ui, name, value)
         self.ui.mw = self.old_mw
         self.ui.get_config_bool = self.old_config
         self.parent.hide()

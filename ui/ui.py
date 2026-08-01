@@ -3145,7 +3145,18 @@ if HAS_QT:
                 return None
             point = anchor.mapTo(par, QPoint(0, 0))
             x = point.x() + (anchor.width() - self.width()) // 2
-            y = point.y() - self.height() - _POPUP_CLEARANCE_PX
+            anchor_top = point.y()
+            for widget in (
+                _EVENT_LOG_DRAWER,
+                _FILL_DRAWER,
+                _REVIEW_CONTEXT_STRIP,
+            ):
+                if widget is not None and widget.isVisible():
+                    anchor_top = min(
+                        anchor_top,
+                        widget.mapTo(par, QPoint(0, 0)).y(),
+                    )
+            y = anchor_top - self.height() - _POPUP_CLEARANCE_PX
             return x, max(8, y), max(8, y - _POPUP_FLOAT_PX)
 
         def reanchor_to_strip(self) -> None:
