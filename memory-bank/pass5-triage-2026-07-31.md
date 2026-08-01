@@ -244,8 +244,10 @@ that tests the fake instead of the app.
   (Edit/answer/More) bar; above it with complete separation is the fallback.
   This retires the overlay/padding mechanism and the whole
   cover-the-card defect class (including the probe's 667×602 overlap).
-  Drawers still open upward from the strip but may never intersect the card
-  scroll window — they overlay the strip region/expand the strip, not the card.
+  Drawer amendment (owner, same day): "The drawer can cover the card scroll
+  window, since it is a translucent drawer" — the event/GE drawers open
+  upward as TRANSLUCENT overlays and MAY cover the card area; only the strip
+  itself must be a separate native row that never occupies card space.
 - **Bank-run control.** Owner verbatim: text "Bank run", tooltip "Deposit
   inventory and restock same supplies", "a native button sitting inside the
   xp bounding box in the bottom right corner." Small native QPushButton;
