@@ -303,6 +303,29 @@ def sanitize_summoning_state_pure(
     }
 
 
+def familiarisation_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+    """The complete Familiarisation status consumed by every UI surface."""
+
+    state = sanitize_summoning_state_pure(
+        player_data.get("summoning_state"),
+        summoning_level=_clean_int(player_data.get("summoning_level"), 1, minimum=1),
+    )
+    activity = state["familiarisation"]
+    return {
+        **activity,
+        "ready": bool(
+            not activity["active"]
+            and not activity["awaiting_reward"]
+            and activity["cooldown_reviews_remaining"] <= 0
+        ),
+        "triple_charm_reviews_remaining": state[
+            "triple_charm_reviews_remaining"
+        ],
+        "max_segments": FAMILIARISATION_MAX_SEGMENTS,
+        "shard_cap": FAMILIARISATION_SHARD_CAP,
+    }
+
+
 def _copy_player_data(player_data: Mapping[str, Any]) -> dict[str, Any]:
     # Shallow on purpose: callers replace whole keys rather than writing through
     # nested values, and a whole-save deep copy cost 2.07 ms on every review.

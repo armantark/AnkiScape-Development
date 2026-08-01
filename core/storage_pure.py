@@ -324,7 +324,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 103
+CURRENT_CONFIG_VERSION = 104
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1960,6 +1960,10 @@ def migrate_loaded_data(
     # Surok and The Lair of Tarn Razorlor. They are ordinary quest rows, so
     # `_migrate_quest_state` above already adds their unstarted state to every
     # existing save; nothing else in the payload changes.
+    # v104: D&D notifications become strictly opt-in. The old world-clock trio
+    # was an implicit projection default, never stored in this list, so the
+    # unconditional sanitizer above already installs the empty set where the
+    # key is absent and preserves every explicit pin.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

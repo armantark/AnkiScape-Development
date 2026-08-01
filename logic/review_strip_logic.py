@@ -18,12 +18,13 @@ The cluster below or beside the review card contains:
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Collection, Mapping
 
 from ..core.constants import (
     BIRD_NEST_OPEN_TABLES,
     COOKING_ITEM_IMAGES,
     DEFAULT_UTILITY_ACTIVITY,
+    FAMILIARISATION_ACTIVITY_ID,
     MINING_PICKAXE_DATA,
     exp_table_for_skill,
     QUEST_UNLOCK_RULES,
@@ -33,29 +34,57 @@ from ..core.constants import (
 )
 from ..core.target_metadata import utility_activity_rows
 from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+from ..data.bork_data import BORK_ACTIVITY_ID
+from ..data.circus_data import CIRCUS_ACTIVITY_ID
+from ..data.court_cases_data import COURT_CASES_ACTIVITY_ID
+from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
 from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
-from ..data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ..data.fish_flingers_data import (
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISH_FLINGERS_EVENT_REVIEWS,
+)
 from ..data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
 from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
 from ..data.great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID
 from ..data.livid_farm_data import LIVID_FARM_ACTIVITY_ID
 from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
+from ..data.penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
+from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..data.pyramid_plunder_data import PYRAMID_PLUNDER_ACTIVITY_ID
+from ..data.shattered_heart_data import SHATTERED_HEART_ACTIVITY_ID
 from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
 from ..data.sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
 from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
+from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
 from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
 from ..logic.big_chinchompa_logic import big_chinchompa_view_pure
+from ..logic.bork_logic import bork_view_pure
+from ..logic.circus_logic import circus_view_pure
+from ..logic.court_cases_logic import court_cases_view_pure
 from ..logic.dnd_favourites_logic import (
+    DND_ACTIVITY_IDS,
     dnd_activity_display_name_pure,
     sanitize_dnd_favourites_pure,
 )
+from ..logic.enchanted_key_logic import enchanted_key_view_pure
 from ..logic.evil_tree_logic import evil_tree_view_pure
 from ..logic.farming_logic import farming_frontend_projection_pure
+from ..logic.fish_flingers_logic import fish_flingers_view_pure
+from ..logic.goblin_raids_logic import goblin_raids_view_pure
+from ..logic.penguin_hide_and_seek_logic import penguin_view_pure
+from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
+from ..logic.shattered_heart_logic import shattered_heart_view_pure
 from ..logic.shooting_star_logic import shooting_star_view_pure
-from ..logic.tears_of_guthix_logic import reward_skill_pure
+from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
+from ..logic.summoning_logic import familiarisation_view_pure
+from ..logic.tears_of_guthix_logic import reward_skill_pure, tears_of_guthix_view_pure
+from ..logic.treasure_trails_logic import treasure_trails_view_pure
+from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from ..logic_pure.logic_pure import (
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
@@ -281,76 +310,344 @@ def _has_usable_pickaxe(player_data: Mapping[str, Any]) -> bool:
     )
 
 
+def _evil_tree_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = evil_tree_view_pure(
+        player_data,
+        has_usable_hatchet=_has_usable_hatchet(player_data),
+    )
+    rows = []
+    if view["active"]:
+        rows.append(
+            f"{view['tier_name']} · {view['location']} · "
+            f"{int(view['reviews_remaining'])} reviews left"
+        )
+    blessing = int(view.get("blessing_reviews_remaining", 0) or 0)
+    if blessing > 0:
+        rows.append(f"Evil Tree blessing · {blessing} reviews left")
+    return tuple(rows)
+
+
+def _shooting_star_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = shooting_star_view_pure(
+        player_data,
+        has_usable_pickaxe=_has_usable_pickaxe(player_data),
+    )
+    if view["active"]:
+        return (
+            f"Shooting Star size {int(view['current_size'])} · "
+            f"{int(view['layer_remaining']):,} layer dust left · "
+            f"{int(view['dust'])}/{int(view['dust_cap'])} stardust",
+        )
+    if view["sprite_available"]:
+        return (
+            "Star sprite ready to exchange · "
+            f"{int(view['sprite_reviews_remaining'])} reviews left · "
+            f"{int(view['dust'])} stardust",
+        )
+    return ()
+
+
+def _big_chinchompa_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = big_chinchompa_view_pure(player_data)
+    if view["active"]:
+        return (
+            "Big Chinchompa · "
+            f"{int(view['minutes_remaining'])} source min left · "
+            f"{int(view['fullness_percent'])}% full",
+        )
+    try:
+        resolved_ago = int(view.get("resolved_reviews_ago", -1))
+    except (TypeError, ValueError):
+        resolved_ago = -1
+    result = str(view.get("last_result", "") or "")
+    return (
+        (result,)
+        if result and 0 <= resolved_ago < WORLD_EVENT_OUTCOME_REVIEWS
+        else ()
+    )
+
+
+def _fish_flingers_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = fish_flingers_view_pure(player_data)
+    if view["active"]:
+        return (
+            f"Review {int(view['review_number'])}/{FISH_FLINGERS_EVENT_REVIEWS} · "
+            f"{view['location']} · {int(view['stock'])}/{int(view['stock_max'])} stock · "
+            f"{int(view['tickets'])} tickets remaining",
+        )
+    tickets = int(view["tickets"])
+    if tickets > 0:
+        return (
+            f"{tickets} Fish Flingers ticket{'s' if tickets != 1 else ''} available",
+        )
+    return ()
+
+
+def _goblin_raids_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = goblin_raids_view_pure(player_data)
+    if view["active"]:
+        return (f"{view['stage_label']} · {view['summary_text']}",)
+    if view["raid_announced"]:
+        return (
+            f"Raid at {view['raid_site']} · "
+            f"{int(view['raid_reviews_remaining'])} reviews left",
+        )
+    return ()
+
+
+def _tears_of_guthix_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = tears_of_guthix_view_pure(player_data)
+    if view["active"]:
+        return (
+            f"{int(view['tears'])} tears · {int(view['remaining_beats'])} beats left · "
+            f"rewarding {view['reward_skill']['display_name']}",
+        )
+    if view["entry_ready"]:
+        return (
+            f"Entry ready · {int(view['collection_ticks'])} collection ticks · "
+            f"rewarding {view['reward_skill']['display_name']}",
+        )
+    return ()
+
+
+def _circus_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = circus_view_pure(player_data)
+    remaining = int(view["remaining_count"])
+    return (
+        (f"{remaining} weekly performance{'s' if remaining != 1 else ''} available",)
+        if remaining > 0
+        else ()
+    )
+
+
+def _bork_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = bork_view_pure(player_data)
+    if view["active"]:
+        return (
+            f"Bork · {int(view['lifepoints']):,} LP · "
+            f"{int(view['ork_count'])} ork{'s' if int(view['ork_count']) != 1 else ''}",
+        )
+    if view["requirements_met"] and view["daily_ready"]:
+        return ("Daily Bork encounter ready",)
+    return ()
+
+
+def _court_cases_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = court_cases_view_pure(player_data)
+    if view["active"]:
+        return (f"{view['case_name']} · {view['progress']} · {view['current_beat']}",)
+    if not view["locked_reasons"]:
+        return (f"{view['case_name']} · {view['current_beat']}",)
+    return ()
+
+
+def _enchanted_key_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = enchanted_key_view_pure(player_data)
+    if view["can_review"]:
+        selected = view["selected"] or {}
+        return (
+            f"Searching {selected.get('display_name', 'selected site')} · "
+            f"{int(view['remaining'])} sites remain",
+        )
+    if view["requirements_met"] and not view["complete"]:
+        return (f"{int(view['remaining'])} treasure sites remain · choose a site",)
+    return ()
+
+
+def _familiarisation_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = familiarisation_view_pure(player_data)
+    if view["active"]:
+        return (
+            f"{int(view['segments'])}/{int(view['max_segments'])} segments · "
+            f"{int(view['focus'])} focus · "
+            f"{int(view['raw_shards'])}/{int(view['shard_cap'])} shards",
+        )
+    if view["awaiting_reward"]:
+        return (f"Reward ready · {int(view['raw_shards'])} raw shards",)
+    if view["ready"]:
+        return ("Session ready to start",)
+    return ()
+
+
+def _penguin_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = penguin_view_pure(player_data)
+    remaining = int(view["roster_count"]) - int(view["spotted_count"])
+    return (
+        (f"{remaining} penguins unspotted this week · {int(view['points'])}/50 points",)
+        if remaining > 0
+        else ()
+    )
+
+
+def _phoenix_lair_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = phoenix_lair_view_pure(player_data)
+    if view["active"]:
+        phase = str(view["phase"]).replace("_", " ").title()
+        detail = str(view["current_guardian"] or view["last_result"])
+        return (f"{phase} · {detail}",)
+    if view["requirements_met"] and view["daily_ready"]:
+        return ("Daily Phoenix Lair run ready",)
+    return ()
+
+
+def _shattered_heart_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = shattered_heart_view_pure(player_data)
+    statuses = []
+    addable = len(view["addable_pair_ids"])
+    if addable:
+        statuses.append(
+            f"{addable} complete rock pair{'s' if addable != 1 else ''} ready to place"
+        )
+    replicas = len(view["replica_pair_ids_ready"])
+    if replicas:
+        statuses.append(
+            f"{replicas} replica pair{'s' if replicas != 1 else ''} ready to add"
+        )
+    return tuple(statuses)
+
+
+def _skeletal_horror_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = skeletal_horror_view_pure(player_data)
+    if view["active"]:
+        return (
+            f"Phase {int(view['phase_index']) + 1} · "
+            f"{int(view['lifepoints']):,} LP · "
+            f"{len(view['limbs_removed'])} limbs removed",
+        )
+    if view["requirements_met"] and view["entry_ready"]:
+        return ("Weekly Skeletal Horror entry ready",)
+    return ()
+
+
+def _treasure_trails_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = treasure_trails_view_pure(player_data)
+    step = view["step"]
+    if view["active"] and step:
+        return (
+            f"Clue step {int(step['number'])}/{int(step['total'])} · {step['kind']}",
+        )
+    caskets = sum(int(row["held"]) for row in view["caskets"])
+    if caskets:
+        return (f"{caskets} clue casket{'s' if caskets != 1 else ''} ready to open",)
+    startable = tuple(row for row in view["clue_rows"] if row["can_start_from_bank"])
+    if startable:
+        return (
+            f"{len(startable)} clue scroll{'s' if len(startable) != 1 else ''} ready to start",
+        )
+    return ()
+
+
+def _troll_invasion_notification_statuses(
+    player_data: Mapping[str, Any],
+) -> tuple[str, ...]:
+    view = troll_invasion_view_pure(player_data)
+    if view["active"]:
+        return (f"{view['summary_text']} · {view['progress_format']}",)
+    if view["can_enter"]:
+        return (
+            f"{view['status_label'].title()} · "
+            f"{str(view['selected_mode']).replace('_', ' ').title()} route ready",
+        )
+    return ()
+
+
+DND_NOTIFICATION_STATUS_PROJECTIONS: dict[
+    str, Callable[[Mapping[str, Any]], tuple[str, ...]]
+] = {
+    BIG_CHINCHOMPA_UTILITY_ID: _big_chinchompa_notification_statuses,
+    CIRCUS_ACTIVITY_ID: _circus_notification_statuses,
+    BORK_ACTIVITY_ID: _bork_notification_statuses,
+    COURT_CASES_ACTIVITY_ID: _court_cases_notification_statuses,
+    ENCHANTED_KEY_ACTIVITY_ID: _enchanted_key_notification_statuses,
+    EVIL_TREE_UTILITY_ID: _evil_tree_notification_statuses,
+    FAMILIARISATION_ACTIVITY_ID: _familiarisation_notification_statuses,
+    FISH_FLINGERS_ACTIVITY_ID: _fish_flingers_notification_statuses,
+    GOBLIN_RAIDS_ACTIVITY_ID: _goblin_raids_notification_statuses,
+    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID: _penguin_notification_statuses,
+    PHOENIX_LAIR_ACTIVITY_ID: _phoenix_lair_notification_statuses,
+    SHATTERED_HEART_ACTIVITY_ID: _shattered_heart_notification_statuses,
+    SHOOTING_STAR_ACTIVITY_ID: _shooting_star_notification_statuses,
+    SKELETAL_HORROR_ACTIVITY_ID: _skeletal_horror_notification_statuses,
+    TEARS_OF_GUTHIX_ACTIVITY_ID: _tears_of_guthix_notification_statuses,
+    TREASURE_TRAILS_ACTIVITY_ID: _treasure_trails_notification_statuses,
+    TROLL_INVASION_ACTIVITY_ID: _troll_invasion_notification_statuses,
+}
+DND_NOTIFICATION_ACTIVITY_IDS = frozenset(DND_NOTIFICATION_STATUS_PROJECTIONS)
+if DND_NOTIFICATION_ACTIVITY_IDS != DND_ACTIVITY_IDS:
+    raise RuntimeError("The D&D notification table must cover the complete catalog.")
+
+
+def dnd_notification_rows_pure(
+    player_data: Mapping[str, Any],
+    *,
+    activity_ids: Collection[str] | None = None,
+) -> tuple[tuple[str, str], ...]:
+    """Active or actionable status rows for the requested D&D catalog slice."""
+
+    requested = (
+        DND_NOTIFICATION_STATUS_PROJECTIONS
+        if activity_ids is None
+        else activity_ids
+    )
+    rows = []
+    for activity_id in requested:
+        projection = DND_NOTIFICATION_STATUS_PROJECTIONS.get(activity_id)
+        if projection is None:
+            continue
+        rows.extend((activity_id, status) for status in projection(player_data))
+    return tuple(rows)
+
+
 def world_event_rows_pure(
     player_data: Mapping[str, Any], *, suppress_id: str = ""
 ) -> tuple[tuple[str, str], ...]:
-    """(activity_id, one-line summary) for every live review-clock world event.
+    """The review-clock events shown in the Activities hub's live strip."""
 
-    Shared by the Activities hub's "Live world events" strip and the reviewer
-    badge so the two can never drift. Only the three events that spawn on the
-    review clock without the player asking belong here; player-started sessions
-    such as Fist of Guthix already have their own counters. The activity id rides
-    along so a badge click can open that event's card.
-    """
-    rows: list[tuple[str, str]] = []
-    if suppress_id != EVIL_TREE_UTILITY_ID:
-        evil_view = evil_tree_view_pure(
-            player_data,
-            has_usable_hatchet=_has_usable_hatchet(player_data),
-        )
-        if evil_view["active"]:
-            rows.append((
-                EVIL_TREE_UTILITY_ID,
-                f"{evil_view['tier_name']} · "
-                f"{evil_view['location']} · "
-                f"{int(evil_view['reviews_remaining'])} reviews left",
-            ))
-        blessing = int(evil_view.get("blessing_reviews_remaining", 0) or 0)
-        if blessing > 0:
-            rows.append((
-                EVIL_TREE_UTILITY_ID,
-                f"Evil Tree blessing · {blessing} reviews left",
-            ))
-    if suppress_id != SHOOTING_STAR_ACTIVITY_ID:
-        star = shooting_star_view_pure(
-            player_data,
-            has_usable_pickaxe=_has_usable_pickaxe(player_data),
-        )
-        if star["active"]:
-            rows.append((
-                SHOOTING_STAR_ACTIVITY_ID,
-                f"Shooting Star size {int(star['current_size'])} · "
-                f"{int(star['layer_remaining']):,} layer dust left · "
-                f"{int(star['dust'])}/{int(star['dust_cap'])} stardust",
-            ))
-        elif star["sprite_available"]:
-            rows.append((
-                SHOOTING_STAR_ACTIVITY_ID,
-                "Star sprite ready to exchange · "
-                f"{int(star['sprite_reviews_remaining'])} reviews left · "
-                f"{int(star['dust'])} stardust",
-            ))
-    if suppress_id != BIG_CHINCHOMPA_UTILITY_ID:
-        big = big_chinchompa_view_pure(player_data)
-        if big["active"]:
-            rows.append((
-                BIG_CHINCHOMPA_UTILITY_ID,
-                f"Big Chinchompa · "
-                f"{int(big['minutes_remaining'])} source min left · "
-                f"{int(big['fullness_percent'])}% full",
-            ))
-        else:
-            # No `or -1` fallback here: the resolution card itself reports 0,
-            # which is falsy, so that idiom silently swallowed the one review
-            # where the outcome matters most.
-            try:
-                resolved_ago = int(big.get("resolved_reviews_ago", -1))
-            except (TypeError, ValueError):
-                resolved_ago = -1
-            result = str(big.get("last_result", "") or "")
-            if result and 0 <= resolved_ago < WORLD_EVENT_OUTCOME_REVIEWS:
-                rows.append((BIG_CHINCHOMPA_UTILITY_ID, result))
-    return tuple(rows)
+    world_event_ids = (
+        EVIL_TREE_UTILITY_ID,
+        SHOOTING_STAR_ACTIVITY_ID,
+        BIG_CHINCHOMPA_UTILITY_ID,
+    )
+    return dnd_notification_rows_pure(
+        player_data,
+        activity_ids=tuple(
+            activity_id
+            for activity_id in world_event_ids
+            if activity_id != suppress_id
+        ),
+    )
 
 
 # The three world-clock Distractions exist whether or not the player asked for
@@ -547,14 +844,14 @@ def review_status_badges_view_pure(
     """
 
     favourites = sanitize_dnd_favourites_pure(player_data.get("dnd_favourites"))
-    live_rows = world_event_rows_pure(player_data)
     live_by_id: dict[str, list[str]] = {}
-    for activity_id, text in live_rows:
-        live_by_id.setdefault(activity_id, []).append(text)
-    quiet_favourites = [
-        activity_id
-        for activity_id in favourites
-        if activity_id not in live_by_id
+    if favourites:
+        for activity_id, text in dnd_notification_rows_pure(
+            player_data, activity_ids=favourites
+        ):
+            live_by_id.setdefault(activity_id, []).append(text)
+    metadata_favourites = [
+        activity_id for activity_id in favourites if activity_id not in live_by_id
     ]
     rows_by_id: dict[str, Any] = (
         {
@@ -568,31 +865,28 @@ def review_status_badges_view_pure(
                 QUEST_UNLOCK_RULES,
             )
         }
-        if quiet_favourites
+        if metadata_favourites
         else {}
     )
 
     distraction_rows: list[dict[str, Any]] = []
-    for activity_id, text in live_rows:
-        distraction_rows.append({
-            "activity_id": activity_id,
-            "name": dnd_activity_display_name_pure(activity_id),
-            "status": text,
-            "live": True,
-            "favourite": activity_id in favourites,
-        })
-    for activity_id in quiet_favourites:
-        distraction_rows.append({
-            "activity_id": activity_id,
-            "name": dnd_activity_display_name_pure(activity_id),
-            "status": _quiet_favourite_status_pure(rows_by_id.get(activity_id)),
-            "live": False,
-            "favourite": True,
-        })
+    for activity_id in favourites:
+        statuses = live_by_id.get(activity_id) or [
+            _quiet_favourite_status_pure(rows_by_id.get(activity_id))
+        ]
+        for text in statuses:
+            distraction_rows.append({
+                "activity_id": activity_id,
+                "name": dnd_activity_display_name_pure(activity_id),
+                "status": text,
+                "live": activity_id in live_by_id,
+                "favourite": True,
+            })
     distraction_count = sum(1 for row in distraction_rows if row["live"])
+    empty_dnd_text = "Notification set is empty. Right-click any D&D to add it."
     distraction_tooltip = "\n".join(
         f"{row['name']} · {row['status']}" for row in distraction_rows
-    ) or "Nothing live. Pin a Distraction to watch it here."
+    ) or empty_dnd_text
 
     farming = farming_frontend_projection_pure(player_data)
     farming_rows: list[dict[str, Any]] = []
@@ -623,7 +917,7 @@ def review_status_badges_view_pure(
             "queued_count": 0,
             "queue_visible": False,
             "tooltip": distraction_tooltip,
-            "empty_text": "Nothing live. Pin a Distraction to watch it here.",
+            "empty_text": empty_dnd_text,
             "open_full_visible": False,
         },
         "farming": {

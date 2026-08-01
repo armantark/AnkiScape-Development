@@ -10,7 +10,12 @@ from __future__ import annotations
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import DUNGEONEERING_EXP_TABLE, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.constants import (
+    DUNGEONEERING_EXP_TABLE,
+    ITEM_DEFINITIONS,
+    ORE_DATA,
+    UTILITY_ACTIVITY_DATA,
+)
 from ankiscape.core.storage_pure import (
     CURRENT_CONFIG_VERSION,
     default_player_data,
@@ -18,6 +23,11 @@ from ankiscape.core.storage_pure import (
 )
 from ankiscape.data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
+from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ankiscape.data.goblin_raids_data import (
+    GOBLIN_RAIDS_ACTIVITY_ID,
+    GOBLIN_RAIDS_SPAWN_REVIEWS,
+)
 from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ankiscape.data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 from ankiscape.logic.dnd_favourites_logic import (
@@ -28,9 +38,12 @@ from ankiscape.logic.dnd_favourites_logic import (
     sanitize_dnd_favourites_pure,
     toggle_dnd_favourite_pure,
 )
+from ankiscape.logic.fish_flingers_logic import enter_fish_flingers_pure
+from ankiscape.logic.goblin_raids_logic import advance_goblin_raids_world_clock_pure
 from ankiscape.logic.grand_exchange_logic import ge_fill_drawer_view_pure
 from ankiscape.logic.review_strip_logic import (
     ACTIVITY_TRAINED_SKILLS,
+    DND_NOTIFICATION_ACTIVITY_IDS,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     activity_awards_experience_now_pure,
     activity_trained_skills_pure,
@@ -236,12 +249,29 @@ class ActivityExperienceBarsTest(unittest.TestCase):
 
 
 class DistractionFavouritesTest(unittest.TestCase):
-    def test_the_evil_tree_can_be_watched_even_without_an_activity_spec(self):
-        # It is a special activity target rather than a UTILITY_ACTIVITY_DATA
-        # row, and it is one of the two events the owner named.
-        self.assertIn(EVIL_TREE_UTILITY_ID, DND_ACTIVITY_IDS)
-        self.assertIn(SHOOTING_STAR_ACTIVITY_ID, DND_ACTIVITY_IDS)
-        self.assertIn(BIG_CHINCHOMPA_UTILITY_ID, DND_ACTIVITY_IDS)
+    def test_the_watchable_and_status_tables_cover_the_fixed_dnd_catalog(self):
+        expected = {
+            "big_chinchompa",
+            "big_top_bonanza",
+            "bork",
+            "court_cases",
+            "enchanted_key",
+            "evil_tree",
+            "familiarisation",
+            "fish_flingers",
+            "goblin_raids",
+            "penguin_hide_and_seek",
+            "phoenix_lair",
+            "shattered_heart",
+            "shooting_stars",
+            "skeletal_horror",
+            "tears_of_guthix",
+            "treasure_trail",
+            "troll_invasion",
+        }
+
+        self.assertEqual(DND_ACTIVITY_IDS, expected)
+        self.assertEqual(DND_NOTIFICATION_ACTIVITY_IDS, expected)
         self.assertNotIn("castle_wars", DND_ACTIVITY_IDS)
 
     def test_every_distraction_gets_one_context_toggle_and_other_rows_get_none(self):
@@ -365,6 +395,37 @@ class DistractionFavouritesTest(unittest.TestCase):
         reloaded = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
         self.assertEqual(reloaded["dnd_favourites"], [SHOOTING_STAR_ACTIVITY_ID])
 
+    def test_v104_drops_implicit_defaults_without_erasing_explicit_pins(self):
+        implicit = _with_live_star(_player())
+        implicit["config_version"] = 103
+        implicit.pop("dnd_favourites", None)
+
+        migrated_implicit = migrate_loaded_data(
+            implicit, ORE_DATA, ITEM_DEFINITIONS
+        )
+
+        self.assertEqual(migrated_implicit["dnd_favourites"], [])
+        self.assertEqual(
+            review_status_badges_view_pure(migrated_implicit)["distractions"][
+                "rows"
+            ],
+            (),
+        )
+
+        explicit = [
+            SHOOTING_STAR_ACTIVITY_ID,
+            EVIL_TREE_UTILITY_ID,
+            BIG_CHINCHOMPA_UTILITY_ID,
+            FISH_FLINGERS_ACTIVITY_ID,
+        ]
+        implicit["dnd_favourites"] = explicit
+        migrated_explicit = migrate_loaded_data(
+            implicit, ORE_DATA, ITEM_DEFINITIONS
+        )
+
+        self.assertEqual(migrated_explicit["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated_explicit["dnd_favourites"], explicit)
+
 
 class StatusBadgeViewTest(unittest.TestCase):
     def test_both_badges_keep_separate_seats_with_nothing_live(self):
@@ -378,24 +439,16 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertEqual(farming["rows"], ())
         self.assertEqual(dnd["title"], "D&D")
         self.assertEqual(farming["title"], "Farming")
-        self.assertIn("Pin a Distraction", dnd["tooltip"])
+        self.assertIn("Notification set is empty", dnd["tooltip"])
 
-    def test_a_live_event_belongs_only_to_the_dnd_badge(self):
+    def test_live_world_events_notify_only_after_the_player_opts_in(self):
         data = _with_live_star(_player())
 
         views = review_status_badges_view_pure(data)
         dnd = views["distractions"]
         farming = views["farming"]
-        star_rows = [
-            row
-            for row in dnd["rows"]
-            if row.get("activity_id") == SHOOTING_STAR_ACTIVITY_ID
-        ]
-        self.assertEqual(len(star_rows), 1)
-        self.assertTrue(star_rows[0]["live"])
-        self.assertFalse(star_rows[0]["favourite"])
-        self.assertIn("stardust", star_rows[0]["status"])
-        self.assertEqual(dnd["count"], 1)
+        self.assertEqual(dnd["rows"], ())
+        self.assertEqual(dnd["count"], 0)
         self.assertEqual(farming["rows"], ())
 
         data["dnd_favourites"] = [SHOOTING_STAR_ACTIVITY_ID]
@@ -405,8 +458,11 @@ class StatusBadgeViewTest(unittest.TestCase):
             for row in pinned["rows"]
             if row.get("activity_id") == SHOOTING_STAR_ACTIVITY_ID
         ]
-        self.assertEqual(len(star_rows), 1, "a pin must not duplicate a live row")
+        self.assertEqual(len(star_rows), 1)
+        self.assertTrue(star_rows[0]["live"])
         self.assertTrue(star_rows[0]["favourite"])
+        self.assertIn("stardust", star_rows[0]["status"])
+        self.assertEqual(pinned["count"], 1)
 
     def test_a_quiet_favourite_still_gets_a_dnd_line(self):
         data = _player()
@@ -421,6 +477,62 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertTrue(row["status"])
         self.assertEqual(view["count"], 0, "a quiet line is not a notification")
         self.assertIn("Tears of Guthix", view["tooltip"])
+
+    def test_fish_flingers_notifies_before_entry_and_reports_session_status(self):
+        data = _player()
+        data["dnd_favourites"] = [FISH_FLINGERS_ACTIVITY_ID]
+
+        ready = review_status_badges_view_pure(data)["distractions"]
+        self.assertEqual(ready["count"], 1)
+        self.assertIn("2 Fish Flingers tickets available", ready["rows"][0]["status"])
+
+        entered, ok, info = enter_fish_flingers_pure(data)
+        self.assertTrue(ok, info)
+        entered["dnd_favourites"] = [FISH_FLINGERS_ACTIVITY_ID]
+        active = review_status_badges_view_pure(entered)["distractions"]
+
+        self.assertEqual(active["count"], 1)
+        self.assertEqual(active["rows"][0]["activity_id"], FISH_FLINGERS_ACTIVITY_ID)
+        self.assertTrue(active["rows"][0]["live"])
+        self.assertIn("Review 1/8", active["rows"][0]["status"])
+        self.assertIn("stock", active["rows"][0]["status"])
+        self.assertIn("tickets remaining", active["rows"][0]["status"])
+
+    def test_announced_goblin_raid_is_a_live_notification(self):
+        data = _player()
+        data["dnd_favourites"] = [GOBLIN_RAIDS_ACTIVITY_ID]
+        data["shop_market_clock"] = {
+            "answered_cards": GOBLIN_RAIDS_SPAWN_REVIEWS,
+            "market_tick": GOBLIN_RAIDS_SPAWN_REVIEWS,
+        }
+        data, events = advance_goblin_raids_world_clock_pure(
+            data, site_roll=0.0
+        )
+        self.assertTrue(events)
+
+        view = review_status_badges_view_pure(data)["distractions"]
+
+        self.assertEqual(view["count"], 1)
+        self.assertTrue(view["rows"][0]["live"])
+        self.assertIn("Raid at", view["rows"][0]["status"])
+        self.assertIn("reviews left", view["rows"][0]["status"])
+
+    def test_ready_tears_of_guthix_entry_is_a_live_notification(self):
+        data = _player()
+        data["quests"]["tears_of_guthix"] = {
+            "started": True,
+            "progress": 3,
+            "completed": True,
+        }
+        data["quest_points"] = 44
+        data["dnd_favourites"] = [TEARS_OF_GUTHIX_ACTIVITY_ID]
+
+        view = review_status_badges_view_pure(data)["distractions"]
+
+        self.assertEqual(view["count"], 1)
+        self.assertTrue(view["rows"][0]["live"])
+        self.assertIn("Entry ready", view["rows"][0]["status"])
+        self.assertIn("collection ticks", view["rows"][0]["status"])
 
     def test_farming_rows_belong_only_to_the_farming_badge(self):
         from ankiscape.logic.farming_logic import (

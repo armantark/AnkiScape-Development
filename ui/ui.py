@@ -588,9 +588,11 @@ from ..logic.farming_logic import (
     farming_frontend_projection_pure,
 )
 from ..logic.dnd_favourites_logic import (
+    dnd_activity_display_name_pure,
     dnd_favourite_context_menu_view_pure,
     dnd_favourite_detail_button_view_pure,
 )
+from ..logic.summoning_logic import familiarisation_view_pure
 from ..logic.review_strip_logic import (
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     WORLD_EVENT_OUTCOME_REVIEWS,
@@ -7917,32 +7919,17 @@ def show_main_menu(
         cards_stack.addWidget(familiarisation_box)
 
         def _refresh_familiarisation_panel() -> None:
-            state_value = player_data.get("summoning_state", {}) or {}
-            summoning_state = (
-                state_value if isinstance(state_value, dict) else {}
-            )
-            activity = summoning_state.get("familiarisation", {}) or {}
-            charm_reviews = max(
-                0,
-                int(
-                    summoning_state.get(
-                        "triple_charm_reviews_remaining", 0
-                    )
-                    or 0
-                ),
-            )
-            active = bool(activity.get("active"))
-            awaiting_reward = bool(activity.get("awaiting_reward"))
-            cooldown = max(
-                0,
-                int(activity.get("cooldown_reviews_remaining", 0) or 0),
-            )
+            view = familiarisation_view_pure(player_data)
+            active = bool(view["active"])
+            awaiting_reward = bool(view["awaiting_reward"])
+            cooldown = int(view["cooldown_reviews_remaining"])
+            charm_reviews = int(view["triple_charm_reviews_remaining"])
             if active:
                 familiarisation_status.setText("IN PROGRESS")
                 familiarisation_summary.setText(
-                    f"{int(activity.get('segments', 0))}/4 segments · "
-                    f"{int(activity.get('focus', 0))} focus · "
-                    f"{int(activity.get('raw_shards', 0))}/60 shards"
+                    f"{int(view['segments'])}/{int(view['max_segments'])} segments · "
+                    f"{int(view['focus'])} focus · "
+                    f"{int(view['raw_shards'])}/{int(view['shard_cap'])} shards"
                 )
             elif awaiting_reward:
                 familiarisation_status.setText("REWARD READY")
@@ -7951,11 +7938,11 @@ def show_main_menu(
                 )
             else:
                 familiarisation_status.setText(
-                    "READY" if cooldown <= 0 else "COOLDOWN"
+                    "READY" if view["ready"] else "COOLDOWN"
                 )
                 familiarisation_summary.setText(
                     "Ready to start."
-                    if cooldown <= 0
+                    if view["ready"]
                     else f"{cooldown} review(s) until the next session."
                 )
             if charm_reviews:
@@ -7967,7 +7954,7 @@ def show_main_menu(
                 not active and not awaiting_reward
             )
             familiarisation_start.setEnabled(
-                on_summoning_command is not None and cooldown <= 0
+                on_summoning_command is not None and bool(view["ready"])
             )
             familiarisation_ingredients.setVisible(awaiting_reward)
             familiarisation_charms.setVisible(awaiting_reward)
@@ -18514,11 +18501,25 @@ def show_main_menu(
             == surface_id
         )
         current = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+        if is_activities:
+            rows = (
+                *rows,
+                TargetRowMetadata(
+                    target_id=EVIL_TREE_UTILITY_ID,
+                    label=dnd_activity_display_name_pure(EVIL_TREE_UTILITY_ID),
+                    tooltip=(
+                        "A review-clock world event. Open its panel for the live "
+                        "tree, blessing, and participation status."
+                    ),
+                    current=current == EVIL_TREE_UTILITY_ID,
+                    group="distractions_and_diversions",
+                ),
+            )
         ordered_groups = list(_UTILITY_GROUP_LABELS)
         groups = {group: [] for group in ordered_groups}
         for row in rows:
             spec = UTILITY_ACTIVITY_DATA.get(row.target_id, {})
-            group = str(spec.get("group", "material_processing"))
+            group = str(spec.get("group") or row.group or "material_processing")
             if group not in groups:
                 groups[group] = []
                 ordered_groups.append(group)
