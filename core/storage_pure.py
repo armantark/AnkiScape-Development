@@ -1224,7 +1224,8 @@ def migrate_loaded_data(
         data.get("fight_caves")
     )
     data["dungeoneering"] = sanitize_dungeoneering_state_pure(
-        data.get("dungeoneering")
+        data.get("dungeoneering"),
+        data,
     )
     data["phoenix_lair"] = sanitize_phoenix_lair_state_pure(
         data.get("phoenix_lair")

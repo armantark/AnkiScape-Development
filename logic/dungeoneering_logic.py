@@ -111,8 +111,8 @@ _DEATH_PENALTY_MINIMUM = 0.04
 _DEATH_PENALTY_MAXIMUM = 0.70
 _DEATH_PENALTY_COUNT_CAP = 15
 _VALID_RESOURCE_POLICIES = frozenset({"gather_and_process", "gather_only", "skip"})
-# PLACEHOLDER(dungeoneering.starter_herblore_coin_cache): a period Frozen-floor Rusty coin yield or drop table
-_STARTER_HERBLORE_COIN_CACHE = (
+# PLACEHOLDER(dungeoneering.starter_guardian_coin_drops): a decoded period drop table for the Frozen-floor guardians
+_STARTER_GUARDIAN_COIN_DROPS = (
     SMUGGLER_ITEMS_BY_ID["vial"].buy_price
     + SMUGGLER_ITEMS_BY_ID["void_dust"].buy_price
 )
@@ -701,6 +701,31 @@ def _session_from_storage_pure(
     )
 
 
+def _critical_guardian_coin_room_ids_pure(
+    session: DungeonSession,
+) -> tuple[int, ...]:
+    if session.complexity < 5:
+        return ()
+    return tuple(
+        room.id
+        for room in session.rooms
+        if room.family == "guardian" and room.critical_path
+    )
+
+
+def _starter_guardian_coin_room_ids_pure(
+    session: DungeonSession,
+    player_data: Mapping[str, Any],
+) -> tuple[int, ...]:
+    if (
+        not _quest_complete(player_data, "druidic_ritual")
+        or _clean_level(player_data.get("herblore_level", 1))
+        < STARTER_HERBLORE_CHAIN[-1].level
+    ):
+        return ()
+    return _critical_guardian_coin_room_ids_pure(session)
+
+
 def default_dungeoneering_state_pure() -> dict[str, Any]:
     return {
         "version": DUNGEONEERING_STATE_VERSION,
@@ -717,6 +742,7 @@ def default_dungeoneering_state_pure() -> dict[str, Any]:
         "session_inventory": {},
         "session_equipment": {},
         "session_coins": 0,
+        "guardian_coin_room_ids": [],
         "boss": {},
         "pending_bind_offer": {},
         "bound_items": [],
@@ -912,7 +938,10 @@ def _sanitize_boss_state(
     }
 
 
-def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
+def sanitize_dungeoneering_state_pure(
+    raw: object,
+    player_data: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     defaults = default_dungeoneering_state_pure()
     source = raw if isinstance(raw, Mapping) else {}
     mode = str(source.get("automation_mode", "casual"))
@@ -1017,6 +1046,37 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
     session_inventory = _sanitize_item_counts(source.get("session_inventory")) if active else {}
     session_equipment = _sanitize_session_equipment(source.get("session_equipment")) if active else {}
     session_coins = _non_negative_int(source.get("session_coins")) if active else 0
+    guardian_coin_room_ids: list[int] = []
+    if session is not None:
+        critical_guardian_ids = _critical_guardian_coin_room_ids_pure(session)
+        eligible_guardian_ids = (
+            _starter_guardian_coin_room_ids_pure(session, player_data)
+            if player_data is not None
+            else critical_guardian_ids
+        )
+        raw_guardian_coin_room_ids = source.get("guardian_coin_room_ids")
+        if isinstance(raw_guardian_coin_room_ids, (list, tuple)):
+            guardian_coin_room_ids = sorted(
+                {
+                    room_id
+                    for value in raw_guardian_coin_room_ids
+                    if (room_id := _non_negative_int(value, -1))
+                    in eligible_guardian_ids
+                }
+            )
+        if "guardian_coin_room_ids" not in source and player_data is not None:
+            resource_cache_granted = any(
+                session.rooms[room_id].family == "resource"
+                for room_id in session.resolved_room_ids
+            )
+            if eligible_guardian_ids and not resource_cache_granted:
+                guardian_coin_room_ids = [
+                    room_id
+                    for room_id in eligible_guardian_ids
+                    if room_id not in session.resolved_room_ids
+                ]
+                if not guardian_coin_room_ids:
+                    session_coins += _STARTER_GUARDIAN_COIN_DROPS
     pending_offer = (
         _bind_offer_backed_by_inventory_pure(
             source.get("pending_bind_offer"),
@@ -1040,6 +1100,7 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
         "session_inventory": session_inventory,
         "session_equipment": session_equipment,
         "session_coins": session_coins,
+        "guardian_coin_room_ids": guardian_coin_room_ids,
         "boss": boss,
         "pending_bind_offer": pending_offer,
         "bound_items": bound_items,
@@ -1277,6 +1338,7 @@ def _clear_floor_state_pure(state: dict[str, Any]) -> None:
     state["session_inventory"] = {}
     state["session_equipment"] = {}
     state["session_coins"] = 0
+    state["guardian_coin_room_ids"] = []
     state["boss"] = {}
     state["pending_bind_offer"] = {}
 
@@ -1290,7 +1352,7 @@ def record_dungeon_drop_pure(
     ammo: bool = False,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
-    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"), data)
     if not state["active"]:
         return data, False, {"reason": "Enter a floor before recording an in-floor drop."}
     name = str(item_name)[:120]
@@ -1529,6 +1591,44 @@ def _restore_chain_inputs_pure(state: dict[str, Any], step: Any) -> None:
         _add_session_item(state, item_name, quantity)
 
 
+def _guardian_coin_drop_pure(
+    state: Mapping[str, Any],
+    room: DungeonRoom,
+) -> int:
+    guardian_room_ids = tuple(state["guardian_coin_room_ids"])
+    index = guardian_room_ids.index(room.id)
+    share, remainder = divmod(_STARTER_GUARDIAN_COIN_DROPS, len(guardian_room_ids))
+    return share + (index < remainder)
+
+
+def _automate_herblore_chain_pure(
+    state: dict[str, Any],
+    player_data: Mapping[str, Any],
+    rng: Callable[[], float] | None,
+) -> tuple[dict[str, float], tuple[str, ...]]:
+    if state["complexity"] < 5 or not _quest_complete(player_data, "druidic_ritual"):
+        return {}, ()
+    rewards: dict[str, float] = {}
+    reports: list[str] = []
+    if (
+        _non_negative_int(state["session_inventory"].get("Vial")) > 0
+        and _non_negative_int(state["session_inventory"].get("Vial of water")) == 0
+    ):
+        _remove_session_item(state, "Vial", 1)
+        _add_session_item(state, "Vial of water", 1)
+        reports.append("filled a Vial")
+    for step in STARTER_HERBLORE_CHAIN:
+        if _run_chain_step_pure(state, player_data, step):
+            _award_chain_xp(rewards, "herblore", step.xp)
+            reports.append(step.display_name.lower())
+            if step.inputs and _kinship_resource_roll_succeeds_pure(
+                state, "artisan", rng
+            ):
+                _restore_chain_inputs_pure(state, step)
+                reports.append(f"Artisan saved inputs for {step.display_name.lower()}")
+    return rewards, tuple(reports)
+
+
 def _automate_resource_room_pure(
     state: dict[str, Any],
     player_data: Mapping[str, Any],
@@ -1555,13 +1655,6 @@ def _automate_resource_room_pure(
         herb_name, herb_quantity = STARTER_HERBLORE_CHAIN[0].inputs[0]
         _add_session_item(state, herb_name, herb_quantity)
         reports.append(f"gathered {herb_name}")
-        if (
-            _quest_complete(player_data, "druidic_ritual")
-            and _clean_level(player_data.get("herblore_level", 1))
-            >= STARTER_HERBLORE_CHAIN[-1].level
-        ):
-            state["session_coins"] += _STARTER_HERBLORE_COIN_CACHE
-            reports.append(f"found {_STARTER_HERBLORE_COIN_CACHE:,} Rusty coins")
     if policy == "gather_and_process":
         cooked = STARTER_RESOURCE_CHAIN[1]
         if _run_chain_step_pure(state, player_data, cooked):
@@ -1570,23 +1663,6 @@ def _automate_resource_room_pure(
             if _kinship_resource_roll_succeeds_pure(state, "artisan", rng):
                 _restore_chain_inputs_pure(state, cooked)
                 reports.append("Artisan saved the Raw heim crab")
-        if state["complexity"] >= 5 and _quest_complete(player_data, "druidic_ritual"):
-            if (
-                _non_negative_int(state["session_inventory"].get("Vial")) > 0
-                and _non_negative_int(state["session_inventory"].get("Vial of water")) == 0
-            ):
-                _remove_session_item(state, "Vial", 1)
-                _add_session_item(state, "Vial of water", 1)
-                reports.append("filled a Vial")
-            for step in STARTER_HERBLORE_CHAIN:
-                if _run_chain_step_pure(state, player_data, step):
-                    _award_chain_xp(rewards, "herblore", step.xp)
-                    reports.append(step.display_name.lower())
-                    if step.inputs and _kinship_resource_roll_succeeds_pure(
-                        state, "artisan", rng
-                    ):
-                        _restore_chain_inputs_pure(state, step)
-                        reports.append(f"Artisan saved inputs for {step.display_name.lower()}")
     return rewards, tuple(reports)
 
 
@@ -1595,7 +1671,10 @@ def dungeoneering_view_pure(
     *,
     selected_skill: object = "",
 ) -> dict[str, Any]:
-    state = sanitize_dungeoneering_state_pure(player_data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(
+        player_data.get("dungeoneering"),
+        player_data,
+    )
     session = _session_from_storage_pure(state["session"], state["entry_skill_levels"])
     level = _clean_level(player_data.get("dungeoneering_level", 1))
     maximum_floor = min(11, maximum_floor_for_level_pure(level))
@@ -1896,7 +1975,7 @@ def apply_dungeoneering_command_pure(
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
-    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"), data)
     data["dungeoneering"] = state
     payload = payload if isinstance(payload, Mapping) else {}
     active_session = data.get("activity_session")
@@ -2076,6 +2155,9 @@ def apply_dungeoneering_command_pure(
                 "session_inventory": session_inventory,
                 "session_equipment": session_equipment,
                 "session_coins": 0,
+                "guardian_coin_room_ids": list(
+                    _starter_guardian_coin_room_ids_pure(session, data)
+                ),
                 "pending_bind_offer": {},
                 "boss": {
                     "boss_id": boss.id,
@@ -2424,7 +2506,7 @@ def apply_dungeoneering_review_pure(
     player_died: bool = False,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = dict(player_data)
-    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"))
+    state = sanitize_dungeoneering_state_pure(data.get("dungeoneering"), data)
     session = _session_from_storage_pure(state["session"], state["entry_skill_levels"])
     active_session = data.get("activity_session")
     active_session_id = (
@@ -2518,6 +2600,10 @@ def apply_dungeoneering_review_pure(
 
     resolved = resolve_starter_room_pure(session, room_id)
     state["selected_room_id"] = -1
+    if room.family == "guardian" and room.id in state["guardian_coin_room_ids"]:
+        coin_drop = _guardian_coin_drop_pure(state, room)
+        state["session_coins"] += coin_drop
+        automation_reports.append(f"guardian enemies dropped {coin_drop:,} Rusty coins")
     if room.family == "resource":
         chain_xp, chain_reports = _automate_resource_room_pure(
             state,
@@ -2526,7 +2612,15 @@ def apply_dungeoneering_review_pure(
             rng,
         )
         for skill_id, amount in chain_xp.items():
-            xp_rewards[skill_id] = xp_rewards.get(skill_id, 0.0) + amount
+            _award_chain_xp(xp_rewards, skill_id, amount)
+        automation_reports.extend(chain_reports)
+    if state["resource_policy"] == "gather_and_process" and any(
+        resolved.rooms[resolved_room_id].family == "resource"
+        for resolved_room_id in resolved.resolved_room_ids
+    ):
+        chain_xp, chain_reports = _automate_herblore_chain_pure(state, data, rng)
+        for skill_id, amount in chain_xp.items():
+            _award_chain_xp(xp_rewards, skill_id, amount)
         automation_reports.extend(chain_reports)
     state["session"] = dungeon_session_as_dict_pure(resolved)
     if automation_reports:
