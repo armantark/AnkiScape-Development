@@ -3341,6 +3341,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         iron_button.click()
         QApplication.processEvents()
         self.assertEqual(layout["Iron ore"], 1)
+        first_pack_cell = dialog.findChild(QPushButton, "carriedLayoutCell::0")
+        self.assertFalse(first_pack_cell.icon().isNull())
+        self.assertIn("Iron ore", first_pack_cell.toolTip())
 
         menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
         self.assertEqual(
