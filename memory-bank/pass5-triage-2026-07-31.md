@@ -188,6 +188,20 @@ to "fixed-pending-confirmation"; the loop must not tune to its own probes —
 any surprising instant-pass gets inspected for scope reduction or a probe
 that tests the fake instead of the app.
 
+## Skill routing (owner-approved 2026-07-31)
+
+Loop seats: `codex-implementation` (maker), `codex-review` (verifier),
+`codex-computer-use` (prober; Anki is Qt-desktop, Pinchtab does not apply).
+Briefs written under `frontier-prompting`. Per package: `disposable-evidence`
+for the combat-pacing question (throwaway sim charts kills/review at levels
+3–20 against the real kernel before anyone patches it); `simplify` after each
+substantial Sol diff, before its verification round closes; `impeccable` +
+one bounded `ask-kimi` K3 taste review for the shop-tab IA and pack-picker
+interaction design before implementation; `ankiscape-skill-expansion` governs
+Fish Flingers coverage and reward-shop target data; `run` for app launches;
+`cline-rules` + one results `status-artifact` (ste-handoff prose) at pass
+end; `/goal` drives the unattended block.
+
 ## Proposed execution order (work packages)
 
 - **A. Combat cluster** (items 1–3): one investigation — pacing, food loading,
