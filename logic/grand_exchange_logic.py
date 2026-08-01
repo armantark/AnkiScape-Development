@@ -1448,9 +1448,12 @@ def ge_fill_drawer_view_pure(player_data: Mapping[str, Any]) -> Dict[str, Any]:
         done = _clean_int(entry.get("completed_quantity"), 0)
         total = _clean_int(entry.get("original_quantity"), 0)
         verb = "sold" if entry["side"] == "sell" else "bought"
+        tone = "complete" if done >= total else "partial"
         rows.append({
             "text": f"{when}: {entry['item_name']} - {done}/{total} {verb}",
-            "tone": "complete" if done >= total else "partial",
+            "tone": tone,
+            "foreground": "#85c54b" if tone == "complete" else "#e0b341",
+            "action": "open_grand_exchange",
         })
     return {
         "visible": occupied > 0,

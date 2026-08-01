@@ -1,24 +1,28 @@
 # System Patterns
 
-## One reviewer overlay, one layout function, one live-only rule
+## One fixed reviewer strip, one geometry authority
 
-Everything that renders under the review card is a tenant of the same overlay
-cluster, and design-thread section 4.8 gives it a single rule: a tenant holds a
-seat only while it is live.
+Reviewer chrome is a fixed-height row pinned to the live top edge of Anki's
+answer-button bar. Card content never selects its geometry: every new review
+document gets a base inset equal to `REVIEW_STRIP_HEIGHT`, open drawers add only
+temporary scroll reserve, and late web-content measurements must not move the
+row.
 
-- `logic/review_strip_logic.py` decides every enable and visibility question:
-  which real skill bars a running activity shows, which Distraction and Farming
-  lines the badge lists, and what each line says. `logic/grand_exchange_logic.py`
-  owns the fills-drawer view because it owns Grand Exchange state.
-  `ui/ui.py` renders those projections and computes nothing.
-- `ReviewHUD` stays mouse-transparent, so anything clickable is a sibling
-  widget: `ReviewStatusBadge` (persistent, the strip's only permanent seat, and
-  the exception the record grants because it is the notification system),
-  `ReviewFillDrawer` (only while a Grand Exchange slot is occupied), and
-  `ReviewContextActionStrip`.
-- `_reposition_review_overlay()` is the only place cluster geometry lives. The
-  world-alert and context-action contracts both forbid another independent
-  `_reposition` heuristic; a new tenant extends that function.
+- `ReviewStrip` owns four stable left-to-right seats: separate D&D and Farming
+  badges, `ReviewHUD`, and the bank-run button. Hidden or empty content does not
+  resize or reorder those seats.
+- `logic/review_strip_logic.py` decides strip, Event-log, badge, and bank-action
+  views. `logic/grand_exchange_logic.py` owns GE row visibility, text, tone, and
+  action. `ui/ui.py` renders those projections without re-deriving them.
+- `_reposition_review_overlay()` is the only geometry authority. Event log is
+  immediately above the XP box, GE is above Event log, and both expand upward.
+  Floating XP anchors to the strip and is re-anchored by the same pass.
+- Every XP emission goes through the retained Event-log seam. The feedback
+  context accumulates the real awarded skill names so a combined popup names
+  its complete skill set.
+- The strip bank action is only a runtime request seam. Combat uses the existing
+  combat bank-run state; carried activities convert the request into their
+  existing target-specific travel profile on the next productive review.
 - An activity's trained skills come from `ACTIVITY_TRAINED_SKILLS`, which mirrors
   the `ctx.award_skill_exp` sites because no activity spec declares them. Two
   families resolve theirs at award time and answer for themselves. An activity

@@ -102,6 +102,7 @@ from .ui.ui import (
     update_review_status_badge,
     update_review_fill_drawer,
     update_review_event_log_drawer,
+    update_review_bank_run_button,
     hide_review_status_badge,
     migrate_legacy_settings,
 )
@@ -223,7 +224,10 @@ from .logic.grand_exchange_logic import (
     ge_frontend_projection_pure,
 )
 from .logic.dnd_favourites_logic import toggle_dnd_favourite_pure
-from .logic.review_strip_logic import record_review_event_pure
+from .logic.review_strip_logic import (
+    record_review_event_pure,
+    request_review_bank_run_pure,
+)
 from .logic.farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .logic.agility_logic import apply_agility_command_pure
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
@@ -347,6 +351,7 @@ _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 _REVIEW_FEEDBACK_FLUSHING = False
+_REVIEW_FEEDBACK_OUTPUT_SKILLS = ()
 
 def show_review_popup():
     ui.show_review_popup()
@@ -412,16 +417,30 @@ def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
         pass
 
 
-def _show_exp(exp_gained) -> None:
+def _show_exp(exp_gained, *, skills=()) -> None:
     """Record one XP drop, then display it when floating feedback is enabled."""
+    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
     try:
         if _REVIEW_FEEDBACK_CONTEXT is not None:
             try:
                 _REVIEW_FEEDBACK_CONTEXT["xp"] += float(exp_gained)
             except (TypeError, ValueError):
                 pass
+            for skill_name in skills or ():
+                name = str(skill_name or "").strip()
+                if name and name not in _REVIEW_FEEDBACK_CONTEXT["skills"]:
+                    _REVIEW_FEEDBACK_CONTEXT["skills"].append(name)
             return
+        skill_names = []
+        for skill_name in skills or _REVIEW_FEEDBACK_OUTPUT_SKILLS:
+            name = str(skill_name or "").strip()
+            if name and name not in skill_names:
+                skill_names.append(name)
+        if not skill_names and current_skill not in {"", "None"}:
+            skill_names.append(str(current_skill))
         message = f"+{int(float(exp_gained))} XP"
+        if skill_names:
+            message += f" · {', '.join(skill_names)}"
         _record_review_event(
             "xp", message, persist=not _REVIEW_FEEDBACK_FLUSHING
         )
@@ -443,6 +462,9 @@ def _show_exp(exp_gained) -> None:
             pass
     except Exception:
         pass
+    finally:
+        if _REVIEW_FEEDBACK_CONTEXT is None:
+            _REVIEW_FEEDBACK_OUTPUT_SKILLS = ()
 
 
 def _show_activity_gain(text: str) -> None:
@@ -507,13 +529,19 @@ def _begin_review_feedback_context() -> None:
     _REVIEW_FEEDBACK_CONTEXT = {
         "xp": float(_REVIEW_FEEDBACK_INITIAL_XP or 0.0),
         "activity": [],
+        "skills": [],
     }
     _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 
 
 def _finish_review_feedback_context() -> None:
     global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_FLUSHING
-    context = _REVIEW_FEEDBACK_CONTEXT or {"xp": 0.0, "activity": []}
+    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
+    context = _REVIEW_FEEDBACK_CONTEXT or {
+        "xp": 0.0,
+        "activity": [],
+        "skills": [],
+    }
     _REVIEW_FEEDBACK_CONTEXT = None
     _REVIEW_FEEDBACK_FLUSHING = True
     try:
@@ -522,11 +550,13 @@ def _finish_review_feedback_context() -> None:
             xp_total = float(xp_total)
         except (TypeError, ValueError):
             xp_total = 0.0
-        if xp_total > 0:
-            _show_exp(xp_total)
-            return
         activity_messages = context.get("activity", [])
-        if activity_messages:
+        if xp_total > 0:
+            _REVIEW_FEEDBACK_OUTPUT_SKILLS = tuple(context.get("skills", ()))
+            _show_exp(xp_total)
+            for message in activity_messages:
+                _show_activity_gain(str(message))
+        elif activity_messages:
             combined = _combine_activity_feedback(activity_messages)
             if combined:
                 _show_activity_gain(combined)
@@ -535,6 +565,7 @@ def _finish_review_feedback_context() -> None:
         except Exception:
             pass
     finally:
+        _REVIEW_FEEDBACK_OUTPUT_SKILLS = ()
         _REVIEW_FEEDBACK_FLUSHING = False
 
 
@@ -771,7 +802,22 @@ def _award_skill_exp(
     *,
     action_skill_id: str | None = None,
 ) -> float:
+    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
     action_skill_id = str(action_skill_id or current_skill).lower()
+    skill = get_skill(str(exp_key).removesuffix("_exp"))
+    skill_name = (
+        skill.display_name
+        if skill is not None
+        else str(exp_key).removesuffix("_exp").replace("_", " ").title()
+    )
+    if _REVIEW_FEEDBACK_CONTEXT is not None:
+        if skill_name not in _REVIEW_FEEDBACK_CONTEXT["skills"]:
+            _REVIEW_FEEDBACK_CONTEXT["skills"].append(skill_name)
+    elif skill_name not in _REVIEW_FEEDBACK_OUTPUT_SKILLS:
+        _REVIEW_FEEDBACK_OUTPUT_SKILLS = (
+            *_REVIEW_FEEDBACK_OUTPUT_SKILLS,
+            skill_name,
+        )
     # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
     # experience out of a 1,000-experience budget, then turns cosmetic. It rides
     # the same seam the Stealing Creation tools use rather than a second one.
@@ -1027,7 +1073,9 @@ def _implemented_exp_keys_snapshot() -> dict[str, float]:
 
 
 def _show_quest_exp_delta(before: dict[str, float]) -> None:
+    global _REVIEW_FEEDBACK_OUTPUT_SKILLS
     total = 0.0
+    skill_names = []
     for skill in trainable_skill_definitions():
         old_exp = before.get(skill.exp_key, 0.0)
         try:
@@ -1036,11 +1084,18 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
             new_exp = old_exp
         if new_exp > old_exp:
             total += new_exp - old_exp
+            skill_names.append(skill.display_name)
             # Minimal/legacy saves can receive a Combat-stat quest reward before
             # the normal storage migration has seeded that stat's level key.
             player_data.setdefault(skill.level_key, 1)
             level_up_check(skill.display_name, player_data)
     if total > 0:
+        if _REVIEW_FEEDBACK_CONTEXT is not None:
+            for skill_name in skill_names:
+                if skill_name not in _REVIEW_FEEDBACK_CONTEXT["skills"]:
+                    _REVIEW_FEEDBACK_CONTEXT["skills"].append(skill_name)
+        else:
+            _REVIEW_FEEDBACK_OUTPUT_SKILLS = tuple(skill_names)
         _show_exp(total)
 
 
@@ -1167,6 +1222,7 @@ def _restore_review_award_snapshot(snapshot) -> None:
         )
         update_review_fill_drawer(player_data)
         update_review_event_log_drawer(player_data)
+        _update_review_bank_run_surface()
         _update_review_context_surface()
     except Exception:
         pass
@@ -1187,6 +1243,7 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
         )
         update_review_fill_drawer(player_data)
         update_review_event_log_drawer(player_data)
+        _update_review_bank_run_surface()
         _update_review_context_surface()
     except Exception:
         pass
@@ -1206,6 +1263,7 @@ def _restore_direct_action_snapshot(snapshot) -> None:
         )
         update_review_fill_drawer(player_data)
         update_review_event_log_drawer(player_data)
+        _update_review_bank_run_surface()
         _update_review_context_surface()
         _refresh_skill_availability()
     except Exception:
@@ -1473,10 +1531,52 @@ def _open_activities_sheet(activity_id=None):
     _on_main_menu(initial_skill="Activities", initial_activity_id=activity_id)
 
 
+def _open_grand_exchange_sheet():
+    try:
+        if ui.focus_main_menu_if_open():
+            navigate = ui._MAIN_MENU_CTX.get("open_grand_exchange")
+            if navigate is not None:
+                navigate()
+            return
+    except Exception:
+        pass
+    _on_main_menu(initial_global_tab="Grand Exchange")
+
+
+def _active_review_bank_run_target(handler_key: str) -> str:
+    if handler_key == "combat":
+        return str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET) or "")
+    target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+    return str(player_data.get(target_key, "") or "") if target_key else ""
+
+
+def on_request_review_bank_run() -> bool:
+    """Queue the current activity's existing review-paced bank-run path."""
+
+    handler_key = review_action_handler_key(current_skill)
+    target_id = _active_review_bank_run_target(handler_key)
+    committed = commit_direct_action(
+        lambda data: request_review_bank_run_pure(data, handler_key, target_id)
+    )
+    _update_review_bank_run_surface()
+    return committed
+
+
+def _update_review_bank_run_surface() -> None:
+    handler_key = review_action_handler_key(current_skill)
+    update_review_bank_run_button(
+        player_data,
+        handler_key,
+        on_request_review_bank_run,
+        target_id=_active_review_bank_run_target(handler_key),
+    )
+
+
 def _on_main_menu(
     initial_skill=None,
     initial_farming_patch_id=None,
     initial_activity_id=None,
+    initial_global_tab=None,
 ):
     def _set_floating_enabled(val: bool):
         try:
@@ -4003,6 +4103,7 @@ def _on_main_menu(
         initial_skill=initial_skill,
         initial_farming_patch_id=initial_farming_patch_id,
         initial_activity_id=initial_activity_id,
+        initial_global_tab=initial_global_tab,
         on_check_achievements=check_achievements,
         on_save_player_data=save_player_data,
     )
@@ -4952,6 +5053,7 @@ def on_answer_card(self, ease, _old):
         )
         update_review_fill_drawer(player_data)
         update_review_event_log_drawer(player_data)
+        _update_review_bank_run_surface()
     except Exception:
         pass
     _update_review_context_surface()
@@ -5020,8 +5122,9 @@ def _refresh_review_surfaces() -> None:
         update_review_status_badge(
             player_data, _open_activities_sheet, _open_farming_sheet
         )
-        update_review_fill_drawer(player_data)
+        update_review_fill_drawer(player_data, _open_grand_exchange_sheet)
         update_review_event_log_drawer(player_data)
+        _update_review_bank_run_surface()
     except Exception:
         pass
 

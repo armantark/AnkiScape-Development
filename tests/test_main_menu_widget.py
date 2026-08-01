@@ -1179,6 +1179,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
 
+    def test_initial_global_tab_can_focus_the_grand_exchange(self) -> None:
+        dialog = self._open(
+            _make_player_data(),
+            current_skill="Mining",
+            initial_global_tab="Grand Exchange",
+        )
+        tabs = _find_main_tabs(dialog)
+        self.assertEqual(tabs.tabText(tabs.currentIndex()), "Grand Exchange")
+
     def test_bank_catalog_is_built_only_on_first_selection(self) -> None:
         self.assertIsNone(self.dialog.findChild(QListWidget, "bankList"))
         self.assertIsNone(self.dialog.findChild(QListWidget, "gearList"))

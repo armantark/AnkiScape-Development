@@ -44,11 +44,15 @@ from ankiscape.logic.grand_exchange_logic import ge_fill_drawer_view_pure
 from ankiscape.logic.review_strip_logic import (
     ACTIVITY_TRAINED_SKILLS,
     DND_NOTIFICATION_ACTIVITY_IDS,
+    REVIEW_ANSWER_BAR_HEIGHT,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
+    REVIEW_STRIP_HEIGHT,
     activity_awards_experience_now_pure,
     activity_trained_skills_pure,
     activity_xp_bars_pure,
     record_review_event_pure,
+    request_review_bank_run_pure,
+    review_bank_run_button_view_pure,
     review_event_log_drawer_view_pure,
     review_overlay_layout_view_pure,
     review_status_badges_view_pure,
@@ -608,6 +612,23 @@ class EventLogViewTest(unittest.TestCase):
             [row["label"] for row in view["rows"]],
             ["0 reviews ago · +1 Mackerel", "2 reviews ago · +25 XP"],
         )
+        self.assertEqual(view["rows"][1]["tone"], "xp")
+        self.assertNotIn(
+            view["rows"][1]["foreground"],
+            {"#85c54b", "#e0b341"},
+        )
+
+    def test_event_log_tones_never_reuse_ge_yellow_or_green(self):
+        data = _player()
+        for kind in ("xp", "achievement", "activity"):
+            data = record_review_event_pure(data, kind, kind)
+
+        colours = {
+            row["foreground"]
+            for row in review_event_log_drawer_view_pure(data, expanded=True)["rows"]
+        }
+
+        self.assertTrue(colours.isdisjoint({"#85c54b", "#e0b341", "#f0c75e"}))
 
     def test_the_drawer_starts_with_ten_then_expands_lazily(self):
         data = _player()
@@ -689,28 +710,96 @@ class EventLogViewTest(unittest.TestCase):
 
 
 class OverlayLayoutViewTest(unittest.TestCase):
-    def test_the_card_viewport_wins_and_the_cluster_docks_below_it(self):
+    def test_card_content_never_changes_the_fixed_bottom_strip(self):
+        short = review_overlay_layout_view_pure(
+            parent_size=(1000, 700),
+            content_rect=(20, 20, 960, 180),
+            cluster_size=(684, REVIEW_STRIP_HEIGHT),
+        )
+        tall = review_overlay_layout_view_pure(
+            parent_size=(1000, 700),
+            content_rect=(0, 0, 1000, 4000),
+            cluster_size=(684, REVIEW_STRIP_HEIGHT),
+        )
+
+        self.assertEqual(short, tall)
+        self.assertEqual(short["dock"], "review-bottom")
+        self.assertEqual(
+            short["y"],
+            700 - REVIEW_ANSWER_BAR_HEIGHT - REVIEW_STRIP_HEIGHT,
+        )
+        self.assertEqual(short["card_bottom_padding"], REVIEW_STRIP_HEIGHT)
+
+    def test_the_560_point_reviewer_keeps_the_same_strip_height(self):
+        view = review_overlay_layout_view_pure(
+            parent_size=(1000, 560),
+            content_rect=(0, 0, 1000, 2000),
+            cluster_size=(684, REVIEW_STRIP_HEIGHT),
+        )
+
+        self.assertTrue(view["visible"])
+        self.assertEqual(view["height"], REVIEW_STRIP_HEIGHT)
+        self.assertEqual(view["answer_bar_top"], 560 - REVIEW_ANSWER_BAR_HEIGHT)
+        self.assertEqual(
+            view["y"] + view["height"], view["answer_bar_top"]
+        )
+
+    def test_live_answer_bar_top_overrides_the_height_fallback(self):
         view = review_overlay_layout_view_pure(
             parent_size=(1000, 700),
-            content_rect=(20, 20, 960, 500),
-            cluster_size=(700, 130),
+            content_rect=(0, 0, 1000, 2000),
+            cluster_size=(684, REVIEW_STRIP_HEIGHT),
+            answer_bar_top=610,
         )
-        self.assertTrue(view["visible"])
-        self.assertEqual(view["dock"], "below")
-        self.assertGreaterEqual(view["y"], 540)
 
-    def test_a_full_viewport_card_gets_the_padded_overlay_bottom_dock(self):
-        # A scrolling card leaves no outside rectangle; the cluster must stay
-        # visible over the viewport bottom (the UI pads the document to match)
-        # rather than vanish — the 2026-07-29 tall-card regression.
-        view = review_overlay_layout_view_pure(
-            parent_size=(600, 500),
-            content_rect=(0, 0, 600, 500),
-            cluster_size=(500, 100),
+        self.assertEqual(view["answer_bar_top"], 610)
+        self.assertEqual(view["y"] + view["height"], 610)
+
+
+class ReviewBankRunViewTest(unittest.TestCase):
+    def test_the_button_is_always_visible_but_only_enabled_for_real_paths(self):
+        supported = review_bank_run_button_view_pure(_player(), "mining")
+        unsupported = review_bank_run_button_view_pure(_player(), "utility")
+
+        self.assertEqual(supported["text"], "Do bank run")
+        self.assertTrue(supported["visible"])
+        self.assertTrue(supported["enabled"])
+        self.assertTrue(unsupported["visible"])
+        self.assertFalse(unsupported["enabled"])
+
+    def test_a_queued_request_only_disables_its_own_target(self):
+        data = {
+            **_player(),
+            "review_bank_run_requested_target": "copper_ore",
+        }
+
+        self.assertFalse(
+            review_bank_run_button_view_pure(
+                data, "mining", "copper_ore"
+            )["enabled"]
         )
-        self.assertTrue(view["visible"])
-        self.assertEqual(view["dock"], "overlay-bottom")
-        self.assertEqual(view["y"], 500 - 100 - 8)
+        self.assertTrue(
+            review_bank_run_button_view_pure(
+                data, "mining", "iron_ore"
+            )["enabled"]
+        )
+
+    def test_combat_and_skilling_requests_enter_their_existing_state_seams(self):
+        combat, ok = request_review_bank_run_pure(
+            _player(), "combat", "chicken"
+        )
+        skilling, skilling_ok = request_review_bank_run_pure(
+            _player(), "mining", "copper_ore"
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(combat["combat_bank_run"]["target_id"], "chicken")
+        self.assertGreater(combat["combat_bank_run"]["reviews_remaining"], 0)
+        self.assertTrue(skilling_ok)
+        self.assertEqual(
+            skilling["review_bank_run_requested_target"], "copper_ore"
+        )
+        self.assertEqual(skilling.get("skilling_bank_run", {}), {})
 
 
 class FillDrawerViewTest(unittest.TestCase):

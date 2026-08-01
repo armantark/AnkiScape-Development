@@ -161,7 +161,99 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(
             [row["text"] for row in addon.player_data["review_event_log"]],
-            ["+25 XP", "+1 Iron ore"],
+            ["+25 XP · Mining", "+1 Iron ore"],
+        )
+
+    def test_ge_status_navigation_focuses_or_opens_the_ge_tab(self):
+        addon = _load_addon_as_package("ankiscape_ge_status_navigation")
+        opened = []
+        addon.ui._MAIN_MENU_CTX["open_grand_exchange"] = lambda: opened.append(
+            "focused"
+        )
+        addon.ui.focus_main_menu_if_open = lambda: True
+        addon._on_main_menu = lambda **_kwargs: self.fail(
+            "an open menu must be reused"
+        )
+
+        addon._open_grand_exchange_sheet()
+        self.assertEqual(opened, ["focused"])
+
+        addon.ui.focus_main_menu_if_open = lambda: False
+        addon._on_main_menu = lambda **kwargs: opened.append(kwargs)
+        addon._open_grand_exchange_sheet()
+        self.assertEqual(opened[-1], {"initial_global_tab": "Grand Exchange"})
+
+    def test_aggregate_xp_event_names_every_awarded_skill(self):
+        addon = _load_addon_as_package("ankiscape_event_log_skill_names")
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.current_skill = "Mining"
+        addon.player_data = {
+            "mining_exp": 0.0,
+            "woodcutting_exp": 0.0,
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+
+        addon._begin_review_feedback_context()
+        mining = addon._award_skill_exp("mining_exp", 10)
+        addon._show_exp(mining)
+        woodcutting = addon._award_skill_exp("woodcutting_exp", 5)
+        addon._show_exp(woodcutting)
+        addon._finish_review_feedback_context()
+
+        self.assertEqual(
+            addon.player_data["review_event_log"][-1]["text"],
+            "+15 XP · Mining, Woodcutting",
+        )
+
+    def test_xp_review_keeps_every_activity_popover_in_the_event_log(self):
+        addon = _load_addon_as_package("ankiscape_event_log_mixed_feedback")
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "attack_exp": 0.0,
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+
+        addon._begin_review_feedback_context()
+        gained = addon._award_skill_exp("attack_exp", 47)
+        addon._show_exp(gained)
+        addon._show_activity_gain("Defeated Goblin")
+        addon._show_activity_gain("Combat switched off to stop you dying")
+        addon._finish_review_feedback_context()
+
+        self.assertEqual(
+            [row["text"] for row in addon.player_data["review_event_log"]],
+            [
+                "+47 XP · Attack",
+                "Defeated Goblin",
+                "Combat switched off to stop you dying",
+            ],
+        )
+
+    def test_direct_xp_event_uses_the_awarded_skill_not_the_selected_skill(self):
+        addon = _load_addon_as_package("ankiscape_direct_event_skill_name")
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.current_skill = "Mining"
+        addon.player_data = {
+            "hunter_exp": 0.0,
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+
+        gained = addon._award_skill_exp("hunter_exp", 12)
+        addon._show_exp(gained)
+
+        self.assertEqual(
+            addon.player_data["review_event_log"][-1]["text"],
+            "+12 XP · Hunter",
         )
 
     def test_review_undo_rolls_back_the_event_log_atomically(self):
@@ -244,7 +336,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         ui = addon.ui
 
         self.assertFalse(ui.HAS_QT)
-        for name in ("ReviewStatusBadge", "ReviewFillDrawer", "ReviewEventLogDrawer"):
+        for name in (
+            "ReviewStatusBadge",
+            "ReviewFillDrawer",
+            "ReviewEventLogDrawer",
+            "ReviewBankRunButton",
+        ):
             placeholder = getattr(ui, name)
             self.assertTrue(hasattr(placeholder(None), "set_data"), name)
 
@@ -254,6 +351,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertIsNone(ui.update_review_fill_drawer({}))
         self.assertIsNone(ui.update_review_event_log_drawer({}))
+        self.assertIsNone(ui.update_review_bank_run_button({}, "mining"))
         self.assertIsNone(ui.hide_review_status_badge())
         self.assertIsNone(ui.hide_review_fill_drawer())
         self.assertIsNone(ui.hide_review_event_log_drawer())

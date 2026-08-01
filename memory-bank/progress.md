@@ -4563,3 +4563,22 @@ legions despawn with Bork, so there was never a choice to offer.
 
 Sources, the omitted rateless drops and the rest of the judgements are in
 `memory-bank/source-audits/bork-daily-loop-2026-07-30.md`.
+
+## Reviewer-strip pass 5 — fixed-pending-confirmation, 2026-07-31
+
+- Replaced card-content-dependent overlay placement with one fixed 128-pixel
+  strip pinned to the live top edge of Anki's answer buttons. The four stable
+  seats are D&D, Farming, XP, and `Do bank run`.
+- Applied exact base document-bottom padding on each card load, retained it
+  through late image growth, added temporary reserve for open drawers, and made
+  floating XP follow the strip.
+- Added an upward Event drawer with wrapped selectable rows and actual awarded
+  skill names, including aggregate multi-skill awards. XP uses neutral text;
+  GE alone owns yellow partial and green complete status.
+- Stacked GE above Event, cleared hidden GE widgets, and wired each GE row to
+  focus or open the existing Grand Exchange tab.
+- Added one bank-run request seam. Combat and current carried-inventory review
+  activities enter their established review-paced travel paths and costs.
+- Focused pure-view, carried-overlay runtime, integration, and offscreen Qt
+  tests pass. Qt probes show widgets, process events, cover default and
+  560-pixel heights, and simulate late tall image growth.

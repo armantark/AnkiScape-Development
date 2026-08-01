@@ -26,7 +26,9 @@ try:
     import aqt  # noqa: F401
     from aqt.qt import (
         QApplication,
+        QLabel,
         QListWidget,
+        QPoint,
         QProgressBar,
         QPushButton,
         QRect,
@@ -77,21 +79,24 @@ class ReviewStripTest(unittest.TestCase):
         ui.mw = self.parent
         ui.get_config_bool = lambda key, default=True: True
         ui._REVIEW_HUD = None
+        ui._REVIEW_STRIP = None
+        ui._BANK_RUN_BUTTON = None
+        ui._REVIEW_CONTEXT_STRIP = None
         ui._DND_BADGE = None
         ui._FARMING_BADGE = None
         ui._STATUS_POPOVER = None
         ui._STATUS_POPOVER_BADGE = None
         ui._FILL_DRAWER = None
         ui._EVENT_LOG_DRAWER = None
+        ui._CARD_PADDING_PX = -1
 
     def tearDown(self) -> None:
         self.ui.close_review_status_popover()
         for widget in (
-            self.ui._DND_BADGE,
-            self.ui._FARMING_BADGE,
+            self.ui._REVIEW_STRIP,
+            self.ui._REVIEW_CONTEXT_STRIP,
             self.ui._FILL_DRAWER,
             self.ui._EVENT_LOG_DRAWER,
-            self.ui._REVIEW_HUD,
         ):
             if widget is not None:
                 widget.hide()
@@ -101,6 +106,9 @@ class ReviewStripTest(unittest.TestCase):
         self.ui._FILL_DRAWER = None
         self.ui._EVENT_LOG_DRAWER = None
         self.ui._REVIEW_HUD = None
+        self.ui._REVIEW_STRIP = None
+        self.ui._BANK_RUN_BUTTON = None
+        self.ui._REVIEW_CONTEXT_STRIP = None
         self.ui._STATUS_POPOVER = None
         self.ui._STATUS_POPOVER_BADGE = None
         self.ui.mw = self.old_mw
@@ -158,8 +166,8 @@ class ReviewStripTest(unittest.TestCase):
 
         dnd = self.ui._DND_BADGE
         farming = self.ui._FARMING_BADGE
-        self.assertIs(dnd.parentWidget(), self.parent)
-        self.assertIs(farming.parentWidget(), self.parent)
+        self.assertIs(dnd.parentWidget(), self.ui._REVIEW_STRIP)
+        self.assertIs(farming.parentWidget(), self.ui._REVIEW_STRIP)
         self.assertTrue(
             review_hud.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         )
@@ -234,6 +242,17 @@ class ReviewStripTest(unittest.TestCase):
         farming = self.ui._FARMING_BADGE
         self.assertLess(dnd.x() + dnd.width(), farming.x() + 1)
         self.assertLess(farming.x() + farming.width(), review_hud.x() + 1)
+
+        self.ui.update_review_bank_run_button(
+            self._state(), "mining", lambda: None
+        )
+        QApplication.processEvents()
+        bank = self.ui._BANK_RUN_BUTTON
+        self.assertLess(review_hud.x() + review_hud.width(), bank.x() + 1)
+        self.assertEqual(bank.text(), "Do bank run")
+        self.assertEqual(
+            self.ui._REVIEW_STRIP.height(), self.ui.REVIEW_STRIP_HEIGHT
+        )
 
     # ---- the split popovers ---------------------------------------------
 
@@ -418,50 +437,50 @@ class ReviewStripTest(unittest.TestCase):
         self.assertTrue(drawer.isVisible())
         self.assertEqual(drawer.toggle.text(), "Recent fills (2)")
 
-    def test_the_drawer_starts_collapsed_and_expands_under_the_experience_box(
+    def test_drawers_expand_upward_without_moving_the_fixed_strip(
         self,
     ) -> None:
+        scripts = []
+        self.parent.reviewer = types.SimpleNamespace(
+            web=types.SimpleNamespace(eval=scripts.append)
+        )
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
-        hud.set_data(self._state(), "Mining")
-        self.ui.update_review_fill_drawer(self._open_offer(self._state()))
+        state = self._event_log_state(2)
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        self.ui.update_review_event_log_drawer(state)
+        self.ui.update_review_fill_drawer(self._open_offer(state))
         for _ in range(4):
             QApplication.processEvents()
 
-        drawer = self.ui._FILL_DRAWER
-        self.assertFalse(drawer.rows.isVisible())
-        collapsed_height = drawer.height()
-        self.assertGreaterEqual(
-            drawer.y(),
-            hud.y() + hud.height(),
-            "the drawer belongs under the experience bars",
+        strip = self.ui._REVIEW_STRIP
+        event = self.ui._EVENT_LOG_DRAWER
+        ge = self.ui._FILL_DRAWER
+        strip_y = strip.y()
+        self.assertLessEqual(event.y() + event.height(), strip.y())
+        self.assertLessEqual(ge.y() + ge.height(), event.y())
+
+        event.toggle.click()
+        ge.toggle.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(event.rows.isVisible())
+        self.assertTrue(ge.rows.isVisible())
+        self.assertEqual(strip.y(), strip_y)
+        self.assertLessEqual(event.y() + event.height(), strip.y())
+        self.assertLessEqual(ge.y() + ge.height(), event.y())
+        self.assertGreaterEqual(ge.y(), 0)
+        reserved = (
+            self.ui.REVIEW_STRIP_HEIGHT
+            + event.height()
+            + ge.height()
+            + 12
         )
-
-        collapsed_hud_y = hud.y()
-
-        drawer.toggle.click()
-        for _ in range(4):
-            QApplication.processEvents()
-        self.assertTrue(drawer.rows.isVisible())
-        self.assertGreater(drawer.height(), collapsed_height)
-        self.assertLessEqual(
-            drawer.y() + drawer.height(),
-            self.parent.height(),
-            "an expanded drawer must not run off the review screen",
-        )
-        # The block above it lifts rather than the drawer climbing over it: an
-        # offscreen probe caught exactly that overlap before this assertion.
-        self.assertFalse(hud.geometry().intersects(drawer.geometry()))
-        self.assertGreaterEqual(drawer.y(), hud.y() + hud.height())
-        self.assertLess(hud.y(), collapsed_hud_y)
-
-        drawer.toggle.click()
-        for _ in range(4):
-            QApplication.processEvents()
         self.assertEqual(
-            hud.y(),
-            collapsed_hud_y,
-            "opening and closing the drawer must not walk the HUD up the screen",
+            scripts[-1],
+            f"document.body.style.paddingBottom = '{reserved}px';",
         )
 
     def test_the_rows_run_newest_first_with_the_settled_two_tones(self) -> None:
@@ -476,6 +495,26 @@ class ReviewStripTest(unittest.TestCase):
         # A fully filled offer is green; a partial fill is yellow.
         self.assertEqual(rows.item(0).foreground().color().name(), "#85c54b")
         self.assertEqual(rows.item(1).foreground().color().name(), "#e0b341")
+
+    def test_ge_rows_open_the_exchange_and_hidden_state_is_cleared(self) -> None:
+        opened = []
+        self.ui.update_review_fill_drawer(
+            self._open_offer(self._state()), lambda: opened.append(True)
+        )
+        for _ in range(3):
+            QApplication.processEvents()
+
+        drawer = self.ui._FILL_DRAWER
+        drawer.rows.itemClicked.emit(drawer.rows.item(0))
+        self.assertEqual(opened, [True])
+        drawer.toggle.setChecked(True)
+
+        self.ui.update_review_fill_drawer(self._state())
+        for _ in range(3):
+            QApplication.processEvents()
+        self.assertFalse(drawer.isVisible())
+        self.assertEqual(drawer.rows.count(), 0)
+        self.assertFalse(drawer.toggle.isChecked())
 
     # ---- event log drawer ------------------------------------------------
 
@@ -506,62 +545,155 @@ class ReviewStripTest(unittest.TestCase):
         self.assertTrue(drawer.rows.isVisible())
         self.assertEqual(drawer.rows.count(), 10)
         self.assertEqual(drawer.rows.item(0).text(), "0 reviews ago · event 24")
+        row_label = drawer.rows.itemWidget(drawer.rows.item(0))
+        self.assertIsInstance(row_label, QLabel)
+        self.assertTrue(row_label.wordWrap())
+        self.assertTrue(
+            row_label.textInteractionFlags()
+            & Qt.TextInteractionFlag.TextSelectableByMouse
+        )
         self.assertTrue(drawer.show_more.isVisible())
         drawer.show_more.click()
         for _ in range(4):
             QApplication.processEvents()
         self.assertEqual(drawer.rows.count(), 20)
 
+    def test_xp_rows_are_not_coloured_like_ge_status(self) -> None:
+        state = self._state()
+        from ankiscape.logic.review_strip_logic import record_review_event_pure
+
+        state = record_review_event_pure(
+            state,
+            "xp",
+            "+25 XP · Mining and Woodcutting from a deliberately long aggregate",
+        )
+        self.ui.update_review_event_log_drawer(state)
+        self.ui._EVENT_LOG_DRAWER.toggle.click()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        label = self.ui._EVENT_LOG_DRAWER.rows.itemWidget(
+            self.ui._EVENT_LOG_DRAWER.rows.item(0)
+        )
+        style = label.styleSheet().lower()
+        self.assertNotIn("#85c54b", style)
+        self.assertNotIn("#e0b341", style)
+
     # ---- card-safe geometry ---------------------------------------------
 
-    def test_a_tall_card_viewport_never_intersects_the_overlay_cluster(self) -> None:
+    def test_late_image_growth_keeps_fixed_geometry_and_document_padding(self) -> None:
         card_web = QWidget(self.parent)
         card_web.setObjectName("reviewCardWeb")
         card_web.setGeometry(20, 20, 960, 500)
         card_web.show()
-        # The rect source clamps to the JS-measured card bottom: the card owns
-        # only its rendered 380px, and the viewport's empty lower band is
-        # legitimate overlay territory.
+        scripts = []
         card_web.zoomFactor = lambda: 1.0
+        card_web.eval = scripts.append
         self.parent.reviewer = types.SimpleNamespace(web=card_web)
-        self.ui._CARD_CONTENT_BOTTOM_PX = 380
-        self.addCleanup(lambda: setattr(self.ui, "_CARD_CONTENT_BOTTOM_PX", 0))
         state = self._event_log_state(1)
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         hud.set_data(state, "Mining")
         self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
         self.ui.update_review_event_log_drawer(state)
         for _ in range(6):
             QApplication.processEvents()
 
-        content_rect = QRect(20, 20, 960, 380)
-        for widget in (
-            hud,
-            self.ui._DND_BADGE,
-            self.ui._FARMING_BADGE,
-            self.ui._EVENT_LOG_DRAWER,
-        ):
-            self.assertTrue(widget.isVisible(), widget.objectName())
-            self.assertFalse(
-                widget.geometry().intersects(content_rect),
-                f"{widget.objectName()} covered the card viewport",
+        strip = self.ui._REVIEW_STRIP
+        before = strip.geometry()
+        self.ui.note_card_content_bottom(180)
+        self.ui.note_card_content_bottom(2000)  # faithful late image-height jump
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(strip.geometry(), before)
+        self.assertTrue(
+            any(
+                f"paddingBottom = '{self.ui.REVIEW_STRIP_HEIGHT}px'" in script
+                for script in scripts
             )
+        )
+
+    def test_strip_and_popup_follow_default_and_560_point_reviewers(self) -> None:
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
 
         popup = self.ui.ExpPopup(self.parent)
+        self.parent.exp_popup = popup
         popup.show_text("+25 XP")
-        QApplication.processEvents()
-        if popup.isVisible():
-            self.assertFalse(popup.geometry().intersects(content_rect))
+        for _ in range(5):
+            QApplication.processEvents()
+        popup_y = popup.y()
+
+        for height in (700, 560):
+            self.parent.resize(1000, height)
+            for _ in range(5):
+                QApplication.processEvents()
+            strip = self.ui._REVIEW_STRIP
+            self.assertEqual(strip.height(), self.ui.REVIEW_STRIP_HEIGHT)
+            self.assertEqual(
+                strip.y(),
+                height
+                - self.ui.REVIEW_ANSWER_BAR_HEIGHT
+                - self.ui.REVIEW_STRIP_HEIGHT,
+            )
+            answer_rect = QRect(
+                0,
+                height - self.ui.REVIEW_ANSWER_BAR_HEIGHT,
+                self.parent.width(),
+                self.ui.REVIEW_ANSWER_BAR_HEIGHT,
+            )
+            self.assertFalse(strip.geometry().intersects(answer_rect))
+
+        self.assertLess(popup.y(), popup_y)
+        hud_top = hud.mapTo(self.parent, QPoint(0, 0)).y()
+        self.assertLessEqual(popup.y() + popup.height(), hud_top)
         popup.hide()
         popup.deleteLater()
 
-        self.ui._DND_BADGE.button.click()
-        QApplication.processEvents()
-        if self.ui._STATUS_POPOVER is not None:
-            self.assertFalse(
-                self.ui._STATUS_POPOVER.geometry().intersects(content_rect)
-            )
+    def test_strip_uses_the_live_answer_bar_top_when_available(self) -> None:
+        answer_bar = QWidget(self.parent)
+        answer_bar.setGeometry(0, 610, 1000, 90)
+        answer_bar.show()
+        self.parent.bottomWeb = answer_bar
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        for _ in range(5):
+            QApplication.processEvents()
+
+        strip = self.ui._REVIEW_STRIP
+        self.assertEqual(strip.y() + strip.height(), 610)
+        self.assertFalse(strip.geometry().intersects(answer_bar.geometry()))
+
+    def test_bank_button_returns_after_a_too_short_window_is_restored(self) -> None:
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(self.ui._BANK_RUN_BUTTON.isVisible())
+
+        self.parent.resize(1000, 190)
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertFalse(self.ui._REVIEW_STRIP.isVisible())
+
+        self.parent.resize(1000, 700)
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(self.ui._REVIEW_STRIP.isVisible())
+        self.assertTrue(self.ui._BANK_RUN_BUTTON.isVisible())
 
     # ---- offscreen light and dark verification --------------------------
 

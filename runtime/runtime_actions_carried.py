@@ -852,6 +852,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
     churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
     bank_run = player_data.get("skilling_bank_run", {})
+    manual_bank_run = (
+        str(player_data.get("review_bank_run_requested_target", "") or "")
+        == target_id
+    )
     advanced = inventory_pure.carried_advanced_for(player_data, target_id)
     layout = (player_data.get("carried_layout") or {}).get(target_id, {})
     bank = player_data.get("inventory", {}) or {}
@@ -1012,7 +1016,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             player_data.get("cadence_profiles")
         )
     winter_storage_before = None
-    if keep and not active_run:
+    if keep and not active_run and not manual_bank_run:
         winter_storage_before = copy.deepcopy(player_data)
         view, churn, winter_storage_used = _try_pack_yak_winter_storage_overlay(
             player_data,
@@ -1034,11 +1038,14 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         else:
             winter_storage_before = None
     trip_due = bool(
-        keep
-        and (
-            active_run
-            or (churn >= capacity and not evil_tree_overflow)
-            or force
+        manual_bank_run
+        or (
+            keep
+            and (
+                active_run
+                or (churn >= capacity and not evil_tree_overflow)
+                or force
+            )
         )
     )
     travel_profile = None
@@ -1108,8 +1115,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     else:
         gate_churn = min(int(churn or 0), capacity - 1) if evil_tree_overflow and not active_run else churn
         new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
-            view, gate_churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
-            max(1, reviews_cost), capacity, force,
+            view,
+            gate_churn,
+            keep or manual_bank_run,
+            _OVERLAY_STACKABLE_NAMES,
+            target_id,
+            bank_run,
+            max(1, reviews_cost),
+            capacity,
+            force or manual_bank_run,
         )
         if evil_tree_overflow and act:
             new_churn = int(churn or 0)
@@ -1120,6 +1134,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                 new_state["route_phases"] = list(route_phases)
             if outbound_teleport_used:
                 new_state["outbound_teleport_used"] = True
+
+    if manual_bank_run and (event.get("started") or event.get("completed")):
+        player_data.pop("review_bank_run_requested_target", None)
 
     if event.get("completed"):
         player_data.update(restore_summoning_points_pure(player_data))
