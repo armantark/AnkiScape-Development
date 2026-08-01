@@ -9,7 +9,6 @@ from typing import Optional
 try:
     from aqt.qt import (  # type: ignore
         Qt,
-        QComboBox,
         QGridLayout,
         QHBoxLayout,
         QLabel,
@@ -60,12 +59,7 @@ def build_shop_tab(ctx) -> "QWidget":
     dialog = ctx.dialog
     on_check_achievements = ctx.on_check_achievements
     on_save_player_data = ctx.on_save_player_data
-    ensure_reward_shop_sources = getattr(ctx, "ensure_reward_shop_sources", None)
-    reward_shop_source_root = (
-        ensure_reward_shop_sources()
-        if ensure_reward_shop_sources is not None
-        else dialog
-    )
+    reward_shop_source_root = ctx.ensure_reward_shop_sources()
 
     # ---- Shop tab ---------------------------------------------------------
     # Frontend boundary: the tab is deliberately thin. It renders backend view
@@ -429,7 +423,7 @@ def build_shop_tab(ctx) -> "QWidget":
     reward_target_layout.addWidget(reward_inventory_panel, 2)
     shop_shell_layout.addWidget(reward_target_panel, 5)
 
-    reward_target_pages: dict[str, QWidget] = {}
+    reward_pages: list[QWidget] = []
     reward_targets = [
         {
             "id": "brimhaven_tickets",
@@ -471,6 +465,9 @@ def build_shop_tab(ctx) -> "QWidget":
         ("dungeoneering", "Dungeoneering rewards trader", ("dungeoneeringRewardTraderRow", "dungeoneeringRewardDetail")),
         ("crucible", "The Crucible · Trophy bones", ("crucibleRewardShop",)),
         ("mobilising_armies", "Mobilising Armies · Officer Tower", ("mobilisingArmiesRewardShop",)),
+        # The Arena's goal combo lives in its plan grid, so the Shop re-homes
+        # the two reward controls on their own rather than the whole row.
+        ("mage_training_arena", "Mage Training Arena rewards", ("mageTrainingArenaGoalCombo", "mageTrainingArenaPurchaseButton")),
     )
     for target_id, display_name, object_names in external_reward_targets:
         source_widgets = [
@@ -493,7 +490,7 @@ def build_shop_tab(ctx) -> "QWidget":
         reward_target_content_layout.insertWidget(
             reward_target_content_layout.count() - 1, page
         )
-        reward_target_pages[target_id] = page
+        reward_pages.append(page)
         reward_targets.append(
             {
                 "id": target_id,
@@ -502,49 +499,6 @@ def build_shop_tab(ctx) -> "QWidget":
                 "page": page,
             }
         )
-
-    # Mage Training Arena uses its reward goal as part of the activity plan, so
-    # the Shop gets a small proxy rather than stealing that shared policy combo.
-    # The original purchase button remains the command owner and is hidden from
-    # the activity panel, preserving one purchase path and one pure-view gate.
-    mta_source_combo = reward_shop_source_root.findChild(
-        QComboBox, "mageTrainingArenaGoalCombo"
-    )
-    mta_source_button = reward_shop_source_root.findChild(
-        QPushButton, "mageTrainingArenaPurchaseButton"
-    )
-    mta_proxy_combo = None
-    mta_proxy_button = None
-    if mta_source_combo is not None and mta_source_button is not None:
-        mta_page = QWidget()
-        mta_page.setObjectName("rewardShopPage_mage_training_arena")
-        mta_page_layout = QHBoxLayout(mta_page)
-        mta_page_layout.setContentsMargins(0, 0, 0, 0)
-        mta_page_layout.setSpacing(6)
-        mta_proxy_combo = QComboBox()
-        mta_proxy_combo.setObjectName("rewardShopMageTrainingArenaCombo")
-        for index in range(mta_source_combo.count()):
-            mta_proxy_combo.addItem(
-                mta_source_combo.itemText(index), mta_source_combo.itemData(index)
-            )
-        mta_proxy_button = QPushButton("Purchase goal")
-        mta_proxy_button.setObjectName("rewardShopMageTrainingArenaBuyButton")
-        mta_page_layout.addWidget(mta_proxy_combo, 1)
-        mta_page_layout.addWidget(mta_proxy_button)
-        mta_page.setVisible(False)
-        reward_target_content_layout.insertWidget(
-            reward_target_content_layout.count() - 1, mta_page
-        )
-        reward_target_pages["mage_training_arena"] = mta_page
-        reward_targets.append(
-            {
-                "id": "mage_training_arena",
-                "display_name": "Mage Training Arena rewards",
-                "kind": "external",
-                "page": mta_page,
-            }
-        )
-        mta_source_button.setVisible(False)
 
     history_header = QWidget()
     history_header_layout = QHBoxLayout(history_header)
@@ -625,10 +579,10 @@ def build_shop_tab(ctx) -> "QWidget":
         return "".join(ch if ch.isalnum() else "_" for ch in value)[:80]
 
     def _humanize_display(value: object, fallback: str = "") -> str:
-        text = str(value or fallback).strip()
-        if not text:
-            return ""
-        return text.replace("_", " ").strip().capitalize()
+        text = str(value or fallback).replace("_", " ").strip()
+        # Only the first character changes case: backend ids are snake_case but
+        # human fallbacks may carry proper nouns that .capitalize() would eat.
+        return text[:1].upper() + text[1:]
 
     def _visible_shop_defs() -> list:
         return [
@@ -771,38 +725,11 @@ def build_shop_tab(ctx) -> "QWidget":
             _set_list_item_icon(item, item_name)
             reward_inventory.addItem(item)
 
-    def _sync_mta_proxy() -> None:
-        if mta_proxy_combo is None or mta_proxy_button is None:
-            return
-        source_index = mta_source_combo.currentIndex()
-        blocked = mta_proxy_combo.blockSignals(True)
-        mta_proxy_combo.setCurrentIndex(max(0, source_index))
-        mta_proxy_combo.blockSignals(blocked)
-        mta_proxy_button.setEnabled(mta_source_button.isEnabled())
-        mta_proxy_button.setToolTip(mta_source_button.toolTip())
-
-    def _refresh_reward_target_after_action() -> None:
-        _populate_reward_inventory()
-        _sync_mta_proxy()
-
-    for page in reward_target_pages.values():
+    # Re-homed reward controls run their own command, so the Shop only has to
+    # re-read the inventory the purchase just changed.
+    for page in reward_pages:
         for button in page.findChildren(QPushButton):
-            button.clicked.connect(
-                lambda _checked=False: _refresh_reward_target_after_action()
-            )
-
-    if mta_proxy_combo is not None and mta_proxy_button is not None:
-        def _purchase_mta_reward_from_shop() -> None:
-            mta_source_button.click()
-            _refresh_reward_target_after_action()
-
-        mta_proxy_combo.currentIndexChanged.connect(
-            lambda index: mta_source_combo.setCurrentIndex(index)
-        )
-        mta_proxy_button.clicked.connect(
-            lambda _checked=False: _purchase_mta_reward_from_shop()
-        )
-        _sync_mta_proxy()
+            button.clicked.connect(lambda _checked=False: _populate_reward_inventory())
 
     def _replace_player_data(new_data: dict) -> None:
         player_data.clear()
@@ -819,19 +746,13 @@ def build_shop_tab(ctx) -> "QWidget":
             pass
 
     def _refresh_shop_views() -> None:
-        refresh_reward_sources = getattr(
-            reward_shop_source_root, "_ankiscape_refresh_reward_shops", None
-        )
-        if refresh_reward_sources is not None:
-            refresh_reward_sources()
+        reward_shop_source_root._ankiscape_refresh_reward_shops()
         _populate_shop_selector()
         _populate_reward_selector()
         _render_shop_detail()
         _populate_sell_inventory()
         _populate_shop_history()
         _populate_agility_reward_shops()
-        _populate_reward_inventory()
-        _sync_mta_proxy()
 
     def _refresh_after_shop_mutation(message: str) -> None:
         shop_toast.setText(message)
@@ -1494,7 +1415,7 @@ def build_shop_tab(ctx) -> "QWidget":
                 buyers_section,
             ):
                 section.setVisible(False)
-            for page in reward_target_pages.values():
+            for page in reward_pages:
                 page.setVisible(False)
             if target["kind"] == "agility":
                 agility_rewards_panel.setVisible(True)
@@ -1504,7 +1425,6 @@ def build_shop_tab(ctx) -> "QWidget":
                 agility_rewards_panel.setVisible(False)
                 target["page"].setVisible(True)
             _populate_reward_inventory()
-            _sync_mta_proxy()
             return
         provider = shop_state.get("provider", "")
         if provider:
@@ -1825,7 +1745,6 @@ def build_shop_tab(ctx) -> "QWidget":
     _populate_reward_selector()
     _populate_services()
     _populate_agility_reward_shops()
-    _populate_reward_inventory()
     _render_shop_detail()
 
     ctx.refreshers["shop"] = _refresh_shop_views
