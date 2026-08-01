@@ -370,10 +370,7 @@ MORYTANIA_LEG_BONUSES = {
 TASKS_PER_TIER = 12  # design contract: twelve curated tasks in every regional tier
 BURTHORPE_CUTOFF_TASKS = 55
 TOTAL_CUTOFF_TASKS = 534
-REGIONAL_CUTOFF_TASKS = TASKS_PER_TIER * 32
-MISCELLANEOUS_CUTOFF_TASKS = (
-    TOTAL_CUTOFF_TASKS - REGIONAL_CUTOFF_TASKS - BURTHORPE_CUTOFF_TASKS
-)
+MISCELLANEOUS_CUTOFF_TASKS = TOTAL_CUTOFF_TASKS - TASKS_PER_TIER * 32 - BURTHORPE_CUTOFF_TASKS
 # PLACEHOLDER(achievement_diaries.misc_coin_reward): the cache proves a minimum
 # 100-coin reward and monotonic growth by completed-task count, but not the exact
 # curve. The least-assumptive recoverable shape is 100 coins per completion
@@ -954,11 +951,12 @@ def _task_block(
     coin_reward: int = 0,
     latent: bool = False,
 ) -> str:
-    conditions = _conditions(task)
     if latent:
-        conditions = []
-    elif not conditions:
-        return ""
+        conditions: list[tuple] = []
+    else:
+        conditions = _conditions(task)
+        if not conditions:
+            return ""
     task_id = f"{family_id}_{tier_name}_{_slug(task['name'])}"
     condition_src = ", ".join(_condition_src(condition) for condition in conditions)
     conditions_line = f"({condition_src},)" if conditions else "()"
@@ -1009,8 +1007,9 @@ def build(document: dict) -> str:
             task_blocks: list[str] = []
             active_source_ids: set[int] = set()
             for source_id in ordered_ids:
-                task = definitions[str(source_id)]
-                block = _task_block(family_id, tier_name, task, source)
+                block = _task_block(
+                    family_id, tier_name, definitions[str(source_id)], source
+                )
                 if not block:
                     continue
                 task_blocks.append(block)
@@ -1020,17 +1019,16 @@ def build(document: dict) -> str:
             for source_id in ordered_ids:
                 if len(task_blocks) >= TASKS_PER_TIER:
                     break
-                if source_id in active_source_ids:
-                    continue
-                task_blocks.append(
-                    _task_block(
-                        family_id,
-                        tier_name,
-                        definitions[str(source_id)],
-                        source,
-                        latent=True,
+                if source_id not in active_source_ids:
+                    task_blocks.append(
+                        _task_block(
+                            family_id,
+                            tier_name,
+                            definitions[str(source_id)],
+                            source,
+                            latent=True,
+                        )
                     )
-                )
             kept_total += len(task_blocks)
             label = tier_name.capitalize()
             reward_item = f"{meta['item']} {index + 1}"

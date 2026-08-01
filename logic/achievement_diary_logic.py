@@ -300,8 +300,10 @@ _CATALOG_TASKS = tuple(
 _TASKS_BY_ID = {task.id: (family, tier, task) for family, tier, task in _CATALOG_TASKS}
 _TIERS_BY_ID = {tier.id: (family, tier) for family, tier in _CATALOG_TIERS}
 _TASK_IDS = frozenset(_TASKS_BY_ID)
-_ACTIVE_TASK_IDS = frozenset(task.id for _family, _tier, task in _CATALOG_TASKS if not task.latent)
-_DESIGNED_TASK_TOTAL = sum(tier.total_tasks for _family, tier in _CATALOG_TIERS)
+_ACTIVE_TASK_IDS = frozenset(
+    task.id for _, _, task in _CATALOG_TASKS if not task.latent
+)
+_DESIGNED_TASK_TOTAL = sum(tier.total_tasks for _, tier in _CATALOG_TIERS)
 
 
 def _tiers():
@@ -392,7 +394,6 @@ def tier_claim_state_pure(
     claimed = set(state["claimed_tiers"])
     done = sum(1 for task in tier.tasks if not task.latent and task.id in completed)
     total = tier.total_tasks
-    source_gap = max(0, total - len(tier.tasks))
     predecessor = None
     for index, candidate in enumerate(family.tiers):
         if candidate.id == tier.id and index:
@@ -420,7 +421,7 @@ def tier_claim_state_pure(
         "done": done,
         "total": total,
         "latent": sum(1 for task in tier.tasks if task.latent),
-        "source_gap": source_gap,
+        "source_gap": total - len(tier.tasks),
         "claimed": tier.id in claimed,
         "ready": bool(total) and done >= total and not blocked_by and tier.id not in claimed,
         "blocked_by": blocked_by,
@@ -718,7 +719,7 @@ def achievement_cabinet_view_pure(
                         "latent": task.latent,
                         "have": need if done else have,
                         "need": need,
-                        "staged": not task.latent and need > 1,
+                        "staged": need > 1,
                         "pinned": task.id == pinned,
                         "coin_reward": task.coin_reward,
                         "source": task.source,
