@@ -212,14 +212,13 @@ def _resolve_ledger_action_family(key: str) -> str:
 def _resolve_shop_transaction(key: str) -> str:
     transaction_type, separator, remainder = key.partition("|")
     shop_id, row_separator, row_id = remainder.partition("|")
-    if not separator or not row_separator or transaction_type not in {"buy", "sell"}:
-        return f"shop_transaction key {key!r} is not '<buy|sell>|<shop id>|<row id>'"
-    shops = _import_attr("ankiscape.data.shop_data", "SHOP_DATA")
-    shop = shops.get(shop_id)
-    if not isinstance(shop, dict):
-        return f"shop_transaction key {key!r} names no shop"
-    if not any(row.get("id") == row_id for row in shop.get("stock", ())):
-        return f"shop_transaction key {key!r} names no stock row"
+    if not separator or not row_separator:
+        return f"shop_transaction key {key!r} is not '<type>|<shop id>|<row id>'"
+    resolver = _import_attr(
+        "ankiscape.logic.shop_logic", "shop_diary_transaction_counter_key_pure"
+    )
+    if not resolver(transaction_type, shop_id, row_id):
+        return f"shop_transaction key {key!r} is not recorded by the narrow diary seam"
     return ""
 
 
@@ -743,8 +742,8 @@ CONDITION_OVERRIDES.update({
     ),
     15: (
         (
-            "counter",
-            "shop_transaction_counts.aemads_vial_of_water",
+            "shop_transaction",
+            "buy|aemads_adventuring_supplies|aemads_adventuring_supplies:9:227",
             1,
             "Buy a vial of water from Aemad and Kortan",
         ),
@@ -789,8 +788,8 @@ CONDITION_OVERRIDES.update({
 CONDITION_OVERRIDES.update({
     79: (
         (
-            "counter",
-            "shop_transaction_counts.lumbridge_raw_shrimps_sale",
+            "shop_transaction",
+            "sell|lumbridge_fishing_supplies|lumbridge_fishing_supplies:6:317",
             1,
             "Sell raw shrimps to Lumbridge Fishing Supplies",
         ),
@@ -805,20 +804,105 @@ CONDITION_OVERRIDES.update({
     ),
     230: (
         (
-            "counter",
-            "shop_transaction_counts.candle_maker_candle",
+            "any_of",
+            "",
             1,
             "Buy a candle from the candle-maker",
+            (
+                (
+                    "shop_transaction",
+                    "buy|candle_shop|candle_shop:0:36",
+                    1,
+                    "Buy a candle from the candle-maker",
+                ),
+                (
+                    "shop_transaction",
+                    "buy|candle_with_black_shop|candle_with_black_shop:0:36",
+                    1,
+                    "Buy a black candle from the candle-maker",
+                ),
+            ),
         ),
     ),
     263: (
         (
-            "counter",
-            "shop_transaction_counts.benny_varrock_herald",
+            "shop_transaction",
+            "vendor_action||benny_buy_varrock_herald",
             1,
             "Buy a Varrock Herald from Benny",
         ),
     ),
+})
+
+# First owner-approved deed tranche. These predicates replace requirement gates
+# only where durable gameplay already proves the translated deed. Context that
+# the existing ledgers cannot prove (one-action batch size, equipment used,
+# production from scratch, or a duplicate region-specific deed) stays gated for
+# a later narrow-telemetry tranche rather than receiving inferred credit.
+CONDITION_OVERRIDES.update({
+    5: (("ledger_action", "utility:fishing_trawler", 1, "Complete a Fishing Trawler duty"),),
+    29: (("ledger_action", "magic:watchtower_teleport", 1, "Cast Watchtower Teleport"),),
+    40: (("combat_kill", "shadow_warrior", 1, "Kill a shadow warrior"),),
+    44: (("ledger_action", "magic:ourania_teleport", 1, "Cast Ourania Teleport"),),
+    50: (("ledger_action", "magic:ardougne_teleport", 1, "Cast Ardougne Teleport"),),
+    52: (("ledger_action", "hunter:catch_red_salamander", 1, "Catch a red salamander"),),
+    56: (("ledger_output", "utility:Raw manta ray", 1, "Catch a manta ray in Fishing Trawler"),),
+    84: (("ledger_output", "fishing:Raw pike", 1, "Catch a pike"),),
+    86: (("ledger_output", "smithing:Steel bar", 1, "Smelt a steel bar"),),
+    88: (("ledger_output", "runecrafting:Water rune", 1, "Craft a water rune"),),
+    99: (("ledger_output", "crafting:Clay ring", 1, "Create a clay ring"),),
+    104: (("ledger_output", "cooking:Lobster", 1, "Cook a lobster"),),
+    105: (("ledger_output", "fishing:Raw salmon", 1, "Catch a salmon"),),
+    108: (("ledger_output", "smithing:Steel longsword", 1, "Smith a steel longsword"),),
+    109: (("ledger_action", "magic:lumbridge_teleport", 1, "Cast Lumbridge Teleport"),),
+    110: (("ledger_action", "firemaking:willow_logs", 1, "Light a willow-log fire"),),
+    112: (("ledger_action", "mining:silver", 1, "Mine silver ore"),),
+    113: (("ledger_output", "smithing:Silver bar", 1, "Smelt a silver bar"),),
+    114: (("ledger_action", "crafting:silver_unstrung_symbol", 1, "Craft a holy symbol"),),
+    125: (("ledger_output", "runecrafting:Mind tiara", 1, "Make a mind tiara"),),
+    134: (("combat_kill", "black_knight", 1, "Kill a Black Knight"),),
+    139: (("ledger_output", "smithing:Blurite limbs", 1, "Smith blurite crossbow limbs"),),
+    152: (("combat_kill", "cave_crawler", 1, "Kill a cave crawler"),),
+    165: (("ledger_output", "crafting:Vial", 3, "Make three vials"),),
+    171: (("ledger_output", "cooking:Cheese wheel", 1, "Make cheese"),),
+    175: (("ledger_action", "agility:barbarian_normal", 1, "Complete the Barbarian Outpost Agility Course"),),
+    179: (("ledger_action", "magic:bake_pie", 1, "Bake a pie using Magic"),),
+    184: (("ledger_action", "mining:gold", 1, "Mine gold ore"),),
+    199: (("ledger_output", "woodcutting:Teak logs", 1, "Cut teak logs"),),
+    200: (("ledger_output", "woodcutting:Mahogany logs", 1, "Cut mahogany logs"),),
+    201: (("ledger_output", "fishing:Raw karambwan", 1, "Catch a karambwan"),),
+    214: (("ledger_output", "runecrafting:Nature rune", 1, "Craft nature runes"),),
+    226: (("ledger_output", "crafting:Bow string", 5, "Spin five bow strings"),),
+    232: (("ledger_output", "fishing:Raw mackerel", 1, "Catch a mackerel"),),
+    243: (
+        ("ledger_output", "fishing:Raw bass", 1, "Catch a bass"),
+        ("ledger_output", "cooking:Bass", 1, "Cook a bass"),
+    ),
+    246: (("ledger_output", "woodcutting:Yew logs", 5, "Cut five sets of yew logs"),),
+    247: (("ledger_action", "fletching:string_magic_shortbow", 1, "String a magic shortbow"),),
+    250: (("ledger_action", "firemaking:magic_logs", 1, "Burn a magic log"),),
+    253: (("ledger_output", "fishing:Raw shark", 5, "Catch five sharks"),),
+    271: (("ledger_action", "mining:limestone", 1, "Mine limestone"),),
+    272: (("ledger_output", "fishing:Raw trout", 1, "Catch a trout"),),
+    288: (("ledger_action", "magic:varrock_teleport", 1, "Cast Varrock Teleport"),),
+    302: (("ledger_output", "crafting:Air battlestaff", 1, "Craft an air battlestaff"),),
+    305: (("ledger_output", "construction:Varrock teleport tablet", 1, "Make a Varrock Teleport tablet"),),
+    309: (("ledger_output", "fishing:Raw rocktail", 1, "Catch a rocktail"),),
+    310: (("ledger_output", "cooking:Rocktail", 1, "Cook a rocktail"),),
+    311: (("ledger_action", "mining:concentrated_gold", 1, "Mine concentrated gold"),),
+    314: (("ledger_action", "magic:string_jewellery", 1, "Cast String Jewellery"),),
+    323: (("ledger_output", "herblore:Ranging mix (2)", 1, "Make a ranging mix"),),
+    336: (("ledger_action", "magic:fertile_soil", 1, "Cast Fertile Soil"),),
+    357: (("ledger_action", "firemaking:yew_logs", 1, "Burn a yew log"),),
+    945: (("ledger_output", "cooking:Thin snail meat", 1, "Cook a thin snail"),),
+    962: (("ledger_output", "woodcutting:Bark", 1, "Obtain bark from a hollow tree"),),
+    972: (("ledger_action", "smithing:forge_cannonballs", 1, "Make a batch of cannonballs"),),
+    986: (("combat_kill", "abyssal_demon", 1, "Kill an abyssal demon"),),
+    987: (("ledger_output", "runecrafting:Blood rune", 1, "Craft blood runes"),),
+    3003: (("ledger_action", "woodcutting:evil_tree_fell", 1, "Fell an evil tree"),),
+    3004: (("ledger_action", "mining:shooting_stars", 1, "Mine a shooting star"),),
+    3005: (("ledger_action", "hunter:catch_baby_impling_puro_puro", 1, "Catch an impling in Puro-Puro"),),
+    3019: (("ledger_output", "agility:Agility arena ticket", 1, "Earn an Agility arena ticket"),),
 })
 
 

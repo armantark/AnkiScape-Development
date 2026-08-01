@@ -33,6 +33,7 @@ from .achievement_diary_derived import (  # noqa: F401  (re-export)
     DIARY_DERIVED_VALUE_CEILINGS,
     DIARY_DERIVED_VALUES,
 )
+from .shop_logic import shop_diary_transaction_counter_key_pure
 
 
 ACHIEVEMENT_DIARY_STATE_VERSION = 1
@@ -140,28 +141,16 @@ def _counter_at(player_data: Mapping[str, Any], path: str) -> int:
 def _shop_transaction_count(player_data: Mapping[str, Any], key: str) -> int:
     transaction_type, separator, remainder = key.partition("|")
     shop_id, row_separator, row_id = remainder.partition("|")
-    events = player_data.get("shop_events")
-    if (
-        not separator
-        or not row_separator
-        or not isinstance(events, Sequence)
-        or isinstance(events, (str, bytes))
-    ):
+    if not separator or not row_separator:
         return 0
-    rolled_back = {
-        str(event.get("rolled_back_event_id", ""))
-        for event in events
-        if isinstance(event, Mapping) and event.get("type") == "rollback"
-    }
-    return sum(
-        1
-        for event in events
-        if isinstance(event, Mapping)
-        and str(event.get("event_id", "")) not in rolled_back
-        and event.get("type") == transaction_type
-        and event.get("shop_id") == shop_id
-        and event.get("row_id") == row_id
+    counter_key = shop_diary_transaction_counter_key_pure(
+        transaction_type,
+        shop_id,
+        row_id,
     )
+    if not counter_key:
+        return 0
+    return _int(_mapping(player_data.get("shop_transaction_counts")).get(counter_key))
 
 
 def _ledger_action_family_count(

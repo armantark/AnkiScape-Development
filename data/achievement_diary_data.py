@@ -39,7 +39,7 @@ CONDITION_KINDS: Tuple[str, ...] = (
     "ledger_action_family",  # key: "<skill id>:<family id>", amount: successes
     "counter",             # key: dotted player_data path, amount: threshold
     "combat_kill",         # key: combat target id, amount: lifetime kills
-    "shop_transaction",    # key: "<type>|<shop id>|<row id>", amount: transactions
+    "shop_transaction",    # key: "<type>|<shop id>|<row/action id>", amount: transactions
     "state_equals",        # key: dotted player_data path, expected: exact value
     "hold_item",           # key: item name, amount: quantity held or worn
     "equipped_item",       # key: "<slot>|<item name>", amount: 1

@@ -483,15 +483,29 @@ def _achievement_seed_items() -> Dict[str, set[str]]:
         herblore_items.update(f"{flask_base} flask ({dose})" for dose in range(1, 7))
     return {
         "mining": set(MINING_OUTPUT_ITEMS) | set(GEM_DATA),
-        "woodcutting": set(WOODCUTTING_LOG_ITEMS),
-        "runecrafting": set(RUNECRAFTING_RUNE_OUTPUT_ITEMS),
-        "smithing": set(BAR_DATA),
-        "crafting": {"Empty pot", "Gold ring", "Sapphire", "Emerald", "Ruby", "Diamond"},
+        "woodcutting": set(WOODCUTTING_LOG_ITEMS) | {"Bark"},
+        "runecrafting": set(RUNECRAFTING_RUNE_OUTPUT_ITEMS) | {"Mind tiara"},
+        "smithing": set(BAR_DATA) | {"Steel longsword", "Blurite limbs"},
+        "crafting": {
+            "Empty pot",
+            "Gold ring",
+            "Sapphire",
+            "Emerald",
+            "Ruby",
+            "Diamond",
+            "Clay ring",
+            "Vial",
+            "Bow string",
+            "Air battlestaff",
+        },
+        "construction": {"Varrock teleport tablet"},
+        "cooking": {"Lobster", "Bass", "Rocktail", "Cheese wheel", "Thin snail meat"},
         "firemaking": {"Ashes"},
         "fishing": set(FISHING_OUTPUT_ITEMS),
         "herblore": herblore_items,
         "prayer": {"Ecto-token"},
         "agility": {"Agility arena ticket"},
+        "utility": {"Raw manta ray"},
     }
 
 
@@ -527,6 +541,42 @@ def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
                     )
                     record["outputs"][item_name] = max(record["outputs"].get(item_name, 0), held)
     data["achievement_progress"] = sanitize_achievement_progress_pure(progress)
+
+
+_V107_DIARY_OUTPUT_SEED_ITEMS = {
+    "woodcutting": {"Bark"},
+    "runecrafting": {"Mind tiara"},
+    "smithing": {"Steel longsword", "Blurite limbs"},
+    "crafting": {"Clay ring", "Vial", "Bow string", "Air battlestaff"},
+    "construction": {"Varrock teleport tablet"},
+    "cooking": {"Lobster", "Bass", "Rocktail", "Cheese wheel", "Thin snail meat"},
+    "herblore": {"Ranging mix (2)"},
+    "utility": {"Raw manta ray"},
+}
+
+
+def _seed_v107_diary_output_holdings(data: Dict[str, Any]) -> None:
+    """Seed only outputs that become achievement-relevant in config v107."""
+
+    progress = sanitize_achievement_progress_pure(data.get("achievement_progress"))
+    inventory = data.get("inventory", {})
+    if not isinstance(inventory, dict):
+        data["achievement_progress"] = progress
+        return
+    for skill_id, item_names in _V107_DIARY_OUTPUT_SEED_ITEMS.items():
+        record = progress["skills"].setdefault(
+            skill_id,
+            {"actions": {}, "outputs": {}},
+        )
+        outputs = record["outputs"]
+        for item_name in item_names:
+            try:
+                held = max(0, int(inventory.get(item_name, 0) or 0))
+            except (TypeError, ValueError):
+                held = 0
+            if held:
+                outputs[item_name] = max(outputs.get(item_name, 0), held)
+    data["achievement_progress"] = progress
 
 
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
@@ -2120,6 +2170,11 @@ def migrate_loaded_data(
     # retired during migration rather than paying the same lamp twice.
     if loaded_config_version < 107:
         _migrate_legacy_claimed_diary_lamps(data)
+        # This branch originally shared v107 with the lamp migration. It is
+        # rebased to its own version after the deed commits finish replaying.
+        _seed_v107_diary_output_holdings(data)
+        data.update(migrate_shop_diary_transaction_counts_pure(data))
+        data.update(refresh_achievement_diaries_pure(data)[0])
     # These defaults are required for a new v30-shaped payload assembled outside
     # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

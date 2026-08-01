@@ -231,16 +231,19 @@ def _satisfy_condition(player, condition):
     elif condition.kind == "combat_kill":
         player.setdefault("combat_kill_counts", {})[condition.key] = condition.amount
     elif condition.kind == "shop_transaction":
+        from ankiscape.logic.shop_logic import (
+            shop_diary_transaction_counter_key_pure,
+        )
+
         transaction_type, _, remainder = condition.key.partition("|")
         shop_id, _, row_id = remainder.partition("|")
-        player.setdefault("shop_events", []).append(
-            {
-                "event_id": "diary-test-event",
-                "type": transaction_type,
-                "shop_id": shop_id,
-                "row_id": row_id,
-            }
+        counter_key = shop_diary_transaction_counter_key_pure(
+            transaction_type,
+            shop_id,
+            row_id,
         )
+        assert counter_key, condition.key
+        player.setdefault("shop_transaction_counts", {})[counter_key] = condition.amount
     elif condition.kind == "state_equals":
         _set_counter(player, condition.key, condition.expected)
     elif condition.kind == "equipped_item":
@@ -369,6 +372,45 @@ class CatalogIntegrityTest(unittest.TestCase):
                     self.assertTrue(task.description.strip(), task.id)
                     self.assertIn("Darkan", task.source, task.id)
                     self.assertGreaterEqual(task.source_id, 0, task.id)
+
+    def test_first_deed_tranche_uses_durable_predicates_not_requirement_gates(self):
+        source_ids = {
+            5, 15, 29, 40, 44, 50, 52, 56, 79, 84, 86, 88, 99, 104, 105,
+            108, 109, 110, 112, 113, 114, 125, 134, 139, 152, 165, 171, 175,
+            179, 184, 199, 200, 201, 214, 226, 230, 232, 243, 246, 247, 250,
+            253, 263, 271, 272, 288, 302, 305, 309, 310, 311, 314, 323, 336,
+            357, 945, 962, 972, 986, 987, 3003, 3004, 3005, 3019,
+        }
+        for source_id in source_ids:
+            task = _task_by_source_id(source_id)
+            kinds = {
+                condition.kind
+                for root in task.conditions
+                for condition in (root, *root.alternatives)
+            }
+            self.assertTrue(
+                kinds & {
+                    "ledger_output",
+                    "ledger_action",
+                    "combat_kill",
+                    "shop_transaction",
+                },
+                task.id,
+            )
+            self.assertFalse(kinds & {"skill_level", "quest"}, task.id)
+
+        all_conditions = [condition for _task, condition in _every_condition()]
+        self.assertTrue(any(c.kind == "ledger_output" for c in all_conditions))
+        self.assertTrue(any(c.kind == "shop_transaction" for c in all_conditions))
+        self.assertFalse(
+            any(
+                c.kind == "counter"
+                and c.key.startswith(
+                    ("achievement_progress.skills.", "shop_transaction_counts.")
+                )
+                for c in all_conditions
+            )
+        )
 
     def test_every_tier_advertises_only_rewards_it_can_actually_hand_over(self):
         """A tier must never name a reward slot it cannot fill.
@@ -608,8 +650,27 @@ class NewConditionDegradationTest(unittest.TestCase):
         )
         self.assertEqual(condition_progress_pure({}, condition), (0, 1))
         self.assertEqual(
-            condition_progress_pure({"shop_events": "not a sequence"}, condition),
+            condition_progress_pure(
+                {"shop_transaction_counts": "not a mapping"}, condition
+            ),
             (0, 1),
+        )
+
+    def test_shop_transaction_reads_the_durable_counter_not_bounded_history(self):
+        condition = DiaryCondition(
+            "shop_transaction",
+            "buy|aemads_adventuring_supplies|aemads_adventuring_supplies:9:227",
+            2,
+        )
+        self.assertEqual(
+            condition_progress_pure(
+                {
+                    "shop_events": [],
+                    "shop_transaction_counts": {"aemads_vial_of_water": 3},
+                },
+                condition,
+            ),
+            (3, 2),
         )
 
     def test_state_equals_degrades_on_absent_or_wrong_typed_state(self):
@@ -784,6 +845,23 @@ class StageOneRealPathTest(unittest.TestCase):
 
 
 class StageTwoRealPathTest(unittest.TestCase):
+    def test_ledger_output_task_completes_through_the_smithing_runtime(self):
+        from ankiscape.runtime.runtime_actions_production import handle_smithing_answer
+
+        player = _fresh()
+        player["smithing_level"] = 30
+        player["current_smith"] = "smelt_steel_bar"
+        player["inventory"].update({"Iron ore": 1, "Coal": 2})
+
+        self.assertTrue(handle_smithing_answer(_crafting_context(player, [])))
+        self.assertEqual(
+            player["achievement_progress"]["skills"]["smithing"]["outputs"][
+                "Steel bar"
+            ],
+            1,
+        )
+        _assert_task_credited(self, player, 86)
+
     def test_the_fruit_of_the_sea_completes_through_lumbridge_shop_handlers(self):
         from ankiscape.logic.shop_logic import apply_shop_sell_pure
 
