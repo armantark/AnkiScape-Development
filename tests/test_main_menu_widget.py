@@ -5565,7 +5565,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(clear_button)
         self.assertIsNone(dialog.findChild(QPushButton, "combatRefillLoadoutButton"))
         self.assertEqual(threshold_spin.value(), 55)
-        self.assertIn("Food: 3 loaded", summary_label.text())
+        self.assertIn("Food: Lobster x3", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
         self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())

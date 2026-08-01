@@ -4235,7 +4235,9 @@ def on_set_combat_auto_eat_threshold(threshold_percent):
 
 
 def on_set_combat_pack_mode(mode):
-    _save_combat_state_update(set_combat_pack_mode_pure(player_data, mode))
+    _save_combat_state_update(
+        set_combat_pack_mode_pure(player_data, mode, EQUIPMENT_DATA)
+    )
     return True
 
 

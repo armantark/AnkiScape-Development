@@ -4209,7 +4209,7 @@ def _combat_loadout_summary_text(player_data: dict) -> str:
         return ", ".join(f"{item} x{amount}" for item, amount in mapping.items())
 
     return (
-        f"Food: {summary.get('food_loaded', 0)} loaded\n"
+        f"Food: {_mapping_text(summary.get('food_loaded_items'))}\n"
         f"Potions: {_mapping_text(summary.get('potions_loaded_items'))}\n"
         f"Stat potions: {_mapping_text(summary.get('stat_potions_loaded_items'))}\n"
         f"Ammo: {_mapping_text(summary.get('ammo_loaded'))}\n"

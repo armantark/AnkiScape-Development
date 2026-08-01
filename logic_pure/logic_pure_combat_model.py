@@ -243,13 +243,20 @@ from .logic_pure_state import (
 
 _DEFAULT_COMBAT_AUTO_EAT_FOOD = (
     "Shark",
+    "Monkfish",
     "Swordfish",
+    "Bass",
     "Lobster",
     "Tuna",
     "Salmon",
+    "Pike",
     "Trout",
+    "Cod",
+    "Mackerel",
+    "Herring",
     "Cooked meat",
     "Cooked chicken",
+    "Sardine",
     "Shrimps",
     "Crayfish",
 )
@@ -500,7 +507,11 @@ def derive_casual_combat_magic_pure(player_data):
                         selected.append(candidate)
         data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, selected, book))
     data["combat_vengeance"] = bool(rule["vengeance"] and _positive_int(data.get("magic_level", 1), 1) >= 94 and quest_completed_pure(data, "lunar_diplomacy"))
-    data["combat_dream_thrift"] = bool(data.get("combat_dream_thrift", False) or rule["dream"])
+    data["combat_dream_thrift"] = bool(
+        rule["dream"]
+        and _positive_int(data.get("magic_level", 1), 1) >= 79
+        and quest_completed_pure(data, "dream_mentor")
+    )
     return data
 
 
