@@ -31,6 +31,7 @@ if _ADDON_DIR not in sys.path:
 try:
     import aqt  # noqa: F401
     from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -7189,6 +7190,40 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotEqual(silver.background().color(), QColor(76, 175, 80, 76))
         self.assertFalse(silver.font().bold())
         self.assertFalse(coal.isSelected())
+
+    def test_grouped_target_highlight_tracks_a_real_last_click(self) -> None:
+        pd = _make_player_data()
+        pd["smithing_level"] = 99
+        pd["inventory"] = {"Bronze bar": 10}
+        pd["current_smith"] = "forge_bronze_dagger"
+        dialog = self._open(pd)
+        dialog.show()
+        dialog.resize(900, 560)
+        _goto_smithing(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        tree = _find_smith_tree(dialog)
+        dagger = _smith_row(tree, "forge_bronze_dagger")
+        hatchet = _smith_row(tree, "forge_bronze_hatchet")
+        tree.scrollToItem(hatchet)
+        QApplication.processEvents()
+        QTest.mouseClick(
+            tree.viewport(),
+            Qt.MouseButton.LeftButton,
+            Qt.KeyboardModifier.NoModifier,
+            tree.visualItemRect(hatchet).center(),
+        )
+        QApplication.processEvents()
+
+        self.assertEqual(self._smith_calls[-1], "forge_bronze_hatchet")
+        self.assertIs(tree.currentItem(), hatchet)
+        self.assertEqual(hatchet.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertTrue(hatchet.font(0).bold())
+        self.assertNotEqual(dagger.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertFalse(dagger.font(0).bold())
+        self.assertFalse(hatchet.isSelected())
+        dialog.deleteLater()
 
     def test_grouped_target_tree_styles_clicked_selection_separately_from_current_target(self) -> None:
         pd = _make_player_data()

@@ -4887,6 +4887,7 @@ def show_main_menu(
             groups[group].append(row)
 
         selected_child = None
+        child_items: list[QTreeWidgetItem] = []
         rows_by_target = {row.target_id: row for row in rows}
         expanded_groups = expanded_groups or set()
         for group in ordered_groups:
@@ -4919,6 +4920,7 @@ def show_main_menu(
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
                 parent.addChild(child)
+                child_items.append(child)
                 if row.current:
                     current_font = child.font(0)
                     current_font.setBold(True)
@@ -4930,9 +4932,22 @@ def show_main_menu(
                     group_has_current = True
             parent.setExpanded(group in expanded_groups or group_has_current)
 
-        if selected_child is not None:
-            tree.setCurrentItem(selected_child)
+        def _mark_current_target(item: Optional["QTreeWidgetItem"]) -> None:
+            for candidate in child_items:
+                current_font = candidate.font(0)
+                current_font.setBold(candidate is item)
+                candidate.setFont(0, current_font)
+                candidate.setBackground(
+                    0,
+                    QBrush(QColor(76, 175, 80, 76))
+                    if candidate is item
+                    else QBrush(),
+                )
+            if item is not None:
+                tree.setCurrentItem(item)
             tree.clearSelection()
+
+        _mark_current_target(selected_child)
 
         def _on_target_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None:
@@ -4950,6 +4965,7 @@ def show_main_menu(
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
                 on_select(target_id)
+                _mark_current_target(item)
 
         def _group_id(item: "QTreeWidgetItem") -> Optional[str]:
             role = item.data(0, Qt.ItemDataRole.UserRole)
