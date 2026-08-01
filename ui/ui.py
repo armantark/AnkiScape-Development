@@ -23333,8 +23333,6 @@ def show_main_menu(
         _add_pack_quantity(item_name, quantity, parent)
 
     def _build_add_to_pack_menu(item_name: str, bank_amount: int, parent=None) -> QMenu:
-        # "all" and "all-but-one" set an absolute quantity; the rest add to what
-        # the plan already holds.
         can_edit = on_set_carried_layout_quantity is not None and bank_amount > 0
         last_x = int(carried_picker_state.get("last_x") or 0)
         rows = (
@@ -23351,13 +23349,13 @@ def show_main_menu(
             (
                 "Add all",
                 "carriedAddAllAction",
-                lambda: _set_pack_quantity_from_picker(item_name, bank_amount, parent),
+                lambda: _add_pack_quantity(item_name, bank_amount, parent),
                 can_edit,
             ),
             (
                 "Add all-but-one",
                 "carriedAddAllButOneAction",
-                lambda: _set_pack_quantity_from_picker(item_name, bank_amount - 1, parent),
+                lambda: _add_pack_quantity(item_name, bank_amount - 1, parent),
                 can_edit and bank_amount > 1,
             ),
         )
@@ -23537,15 +23535,16 @@ def show_main_menu(
 
         carried_section_refreshers.append(_refresh_auto_view)
 
-        # --- Custom view: 28-slot plan | Bank picker, then live inventory ---
+        # --- Custom view: 28-slot plan | Bank picker ---
         custom_layout = QVBoxLayout(custom_view)
         custom_layout.setContentsMargins(0, 2, 0, 0)
         custom_layout.setSpacing(6)
 
-        _CARRIED_CELL_WIDTH = 76
-        _CARRIED_CELL_HEIGHT = 58
+        _CARRIED_CELL_WIDTH = 44
+        _CARRIED_CELL_HEIGHT = 44
         _CARRIED_CELL_SPACING = 4
         _CARRIED_GRID_COLS = 4
+        _CARRIED_BANK_COLS = 2
         _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
 
         cell_buttons: list = []
@@ -23599,7 +23598,12 @@ def show_main_menu(
         bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
         bank_picker_scroll.setWidgetResizable(True)
         bank_picker_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        bank_picker_scroll.setFixedSize(grid_container.width() + 8, grid_container.height())
+        bank_picker_scroll.setFixedSize(
+            _CARRIED_BANK_COLS * _CARRIED_CELL_WIDTH
+            + (_CARRIED_BANK_COLS - 1) * _CARRIED_CELL_SPACING
+            + 8,
+            grid_container.height(),
+        )
         bank_picker_scroll.setWidget(bank_picker_host)
 
         bank_column = QWidget()
@@ -23614,7 +23618,7 @@ def show_main_menu(
         grid_row = QWidget()
         grid_row_layout = QHBoxLayout(grid_row)
         grid_row_layout.setContentsMargins(0, 0, 0, 0)
-        grid_row_layout.setSpacing(14)
+        grid_row_layout.setSpacing(8)
         grid_row_layout.addWidget(pack_column)
         grid_row_layout.addWidget(bank_column)
         grid_row_layout.addStretch(1)
@@ -23627,21 +23631,6 @@ def show_main_menu(
         pack_hint.setWordWrap(True)
         pack_hint.setStyleSheet(f"color: {dim_text_css(container)}; font-size: 10px;")
         custom_layout.addWidget(pack_hint)
-
-        current_label = QLabel("Current inventory")
-        current_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        custom_layout.addWidget(current_label)
-        current_inventory_host = QWidget()
-        current_inventory_layout = QHBoxLayout(current_inventory_host)
-        current_inventory_layout.setContentsMargins(4, 4, 4, 4)
-        current_inventory_layout.setSpacing(4)
-        current_inventory_scroll = QScrollArea()
-        current_inventory_scroll.setObjectName(f"carriedCurrentInventory{name_suffix}")
-        current_inventory_scroll.setWidgetResizable(True)
-        current_inventory_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        current_inventory_scroll.setFixedHeight(72)
-        current_inventory_scroll.setWidget(current_inventory_host)
-        custom_layout.addWidget(current_inventory_scroll)
 
         clear_layout_btn = QPushButton("Clear layout")
         clear_layout_btn.setObjectName(f"carriedLayoutClearButton{name_suffix}")
@@ -23660,6 +23649,21 @@ def show_main_menu(
         clear_layout_row_layout.addStretch(1)
         custom_layout.addWidget(clear_layout_row)
         section_layout.addWidget(custom_view)
+
+        current_label = QLabel("Current inventory")
+        current_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        section_layout.addWidget(current_label)
+        current_inventory_host = QWidget()
+        current_inventory_layout = QHBoxLayout(current_inventory_host)
+        current_inventory_layout.setContentsMargins(4, 4, 4, 4)
+        current_inventory_layout.setSpacing(4)
+        current_inventory_scroll = QScrollArea()
+        current_inventory_scroll.setObjectName(f"carriedCurrentInventory{name_suffix}")
+        current_inventory_scroll.setWidgetResizable(True)
+        current_inventory_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        current_inventory_scroll.setFixedHeight(58)
+        current_inventory_scroll.setWidget(current_inventory_host)
+        section_layout.addWidget(current_inventory_scroll)
 
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
@@ -23691,7 +23695,7 @@ def show_main_menu(
             if not items:
                 empty = QLabel("Bank empty")
                 empty.setStyleSheet(f"color: {dim_text_css(empty)};")
-                bank_picker_layout.addWidget(empty, 0, 0, 1, _CARRIED_GRID_COLS)
+                bank_picker_layout.addWidget(empty, 0, 0, 1, _CARRIED_BANK_COLS)
                 return
             for index, (item_name, amount, asset_path) in enumerate(items):
                 item_button = QPushButton()
@@ -23719,11 +23723,11 @@ def show_main_menu(
                 item_button.customContextMenuRequested.connect(_open_add_menu)
                 bank_picker_layout.addWidget(
                     item_button,
-                    index // _CARRIED_GRID_COLS,
-                    index % _CARRIED_GRID_COLS,
+                    index // _CARRIED_BANK_COLS,
+                    index % _CARRIED_BANK_COLS,
                 )
             bank_picker_layout.setRowStretch(
-                (len(items) + _CARRIED_GRID_COLS - 1) // _CARRIED_GRID_COLS,
+                (len(items) + _CARRIED_BANK_COLS - 1) // _CARRIED_BANK_COLS,
                 1,
             )
 
