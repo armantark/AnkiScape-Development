@@ -61,6 +61,7 @@ from .logic_pure.logic_pure import (
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
     refill_combat_supply_loadout_pure,
+    request_combat_bank_run_now_pure,
     unload_combat_supply_loadout_pure,
     reclaim_death_office_items_pure,
     start_combat_grave_walk_pure,
@@ -327,6 +328,27 @@ def _normalize_legacy_utility_skill(skill) -> str:
             player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
         )
     return name
+
+
+def start_activity_for_reviews(activity_id) -> bool:
+    """Select one utility/activity target and its review surface atomically."""
+    global current_skill
+    target = str(activity_id or "")
+    if not target:
+        return False
+    player_data["current_utility"] = target
+    current_skill = _utility_surface_for_target(target)
+    try:
+        mw.col.set_config("ankiscape_current_skill", current_skill)
+    except Exception:
+        pass
+    save_player_data()
+    ui.update_menu_visibility(current_skill)
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
 
 # --- Debug logging (centralized) ---
 from .core.debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
@@ -4056,6 +4078,7 @@ def _on_main_menu(
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_start_activity=start_activity_for_reviews,
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
@@ -4247,6 +4270,29 @@ def on_set_combat_auto_eat_food(food_name):
         show_error_message("Cannot configure food", reason or "Choose a supported combat food.")
         return False
     _save_combat_state_update(new_data)
+    return True
+
+
+def on_do_bank_run_now():
+    """Request the current skill or activity's normal bank route."""
+    handler_key = review_action_handler_key(current_skill)
+    if handler_key == "combat":
+        new_data, ok, reason = request_combat_bank_run_now_pure(player_data)
+    else:
+        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+        target_id = player_data.get(target_key) if target_key else None
+        new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
+            player_data, target_id
+        )
+    if not ok:
+        show_error_message("Cannot make a bank run", reason)
+        return False
+    player_data.update(new_data)
+    save_player_data()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
     return True
 
 

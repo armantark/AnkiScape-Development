@@ -324,6 +324,17 @@ def apply_carried_layout_pure(
 SKILLING_BANK_RUN_REVIEWS = 1
 
 
+def request_carried_bank_run_now_pure(
+    player_data: Mapping[str, Any], target_id: Any
+) -> tuple[dict[str, Any], bool, str]:
+    """Request that the target's next review starts its normal bank route."""
+    data = dict(player_data) if isinstance(player_data, Mapping) else {}
+    if not isinstance(target_id, str) or not target_id:
+        return data, False, "No active target can make a bank run."
+    data["skilling_bank_run_requested"] = target_id
+    return data, True, ""
+
+
 def sanitize_bank_run_state(raw: Any, max_reviews: int) -> dict[str, Any]:
     if not isinstance(raw, Mapping):
         return {}
@@ -604,6 +615,7 @@ def default_carried_state() -> dict[str, Any]:
         "carried_churn": {},               # {target_id: int} — slots churned since last bank
         "carried_keep_drop": {},           # {target_id: "keep"|"drop"} — default keep
         "skilling_bank_run": {},           # active {reviews_remaining, target_id} run
+        "skilling_bank_run_requested": "", # target whose next review starts a run
         "agility_last_travel": {},         # last target-local endurance/weight projection
         "loot_value_threshold": DEFAULT_LOOT_VALUE_THRESHOLD,
         "loot_overrides": {},              # {item: "keep"|"leave"} advanced per-drop
@@ -695,6 +707,10 @@ def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
     raw_bank_run = player_data.get("skilling_bank_run")
     max_bank_reviews = 100 if isinstance(raw_bank_run, Mapping) and raw_bank_run.get("reviews_total") else SKILLING_BANK_RUN_REVIEWS
     player_data["skilling_bank_run"] = sanitize_bank_run_state(raw_bank_run, max_bank_reviews)
+    raw_request = player_data.get("skilling_bank_run_requested")
+    player_data["skilling_bank_run_requested"] = (
+        raw_request[:120] if isinstance(raw_request, str) else ""
+    )
     raw_travel = player_data.get("agility_last_travel")
     player_data["agility_last_travel"] = dict(raw_travel) if isinstance(raw_travel, Mapping) else {}
 

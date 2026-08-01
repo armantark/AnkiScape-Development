@@ -1482,6 +1482,35 @@ class TestStoragePure(unittest.TestCase):
         self.assertIsNone(migrated["farm_livid_protection_crop_id"])
         self.assertEqual(migrated["farm_livid_protection_uses_remaining"], 0)
 
+    def test_migration_repairs_double_started_star_and_adds_low_level_food(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 103,
+                "current_utility": "shooting_stars",
+                "activity_session": {"active_id": "shooting_stars"},
+                "combat_auto_eat_food": ["Shark", "Shrimps", "Crayfish"],
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["activity_session"], {"active_id": ""})
+        self.assertEqual(migrated["current_utility"], "shooting_stars")
+        self.assertEqual(
+            migrated["combat_auto_eat_food"],
+            [
+                "Shark",
+                "Bass",
+                "Pike",
+                "Cod",
+                "Mackerel",
+                "Herring",
+                "Sardine",
+                "Shrimps",
+                "Crayfish",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

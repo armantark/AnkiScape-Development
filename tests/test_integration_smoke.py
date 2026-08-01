@@ -3406,6 +3406,25 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["death_office"], {})
         self.assertEqual(calls["achievement_coins"], [50])
 
+    def test_activity_start_transition_selects_target_and_surface_together(self):
+        addon = _load_addon_as_package("ankiscape_activity_start_transition")
+        calls = {"save": 0, "hud": []}
+        addon.player_data = {}
+        addon.current_skill = "Mining"
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.update_review_hud = lambda data, skill: calls["hud"].append(
+            (data.get("current_utility"), skill)
+        )
+
+        self.assertTrue(addon.start_activity_for_reviews("shooting_stars"))
+
+        self.assertEqual(addon.player_data["current_utility"], "shooting_stars")
+        self.assertEqual(addon.current_skill, "Activities")
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["hud"], [("shooting_stars", "Activities")])
+
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
 
@@ -3429,6 +3448,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             "combat_encounter": {},
             "constitution_level": 10,
         }
+
+        self.assertTrue(addon.on_do_bank_run_now())
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        addon.player_data["combat_bank_run"] = {}
+        addon.current_skill = "Mining"
+        addon.player_data["current_ore"] = "coal"
+        self.assertTrue(addon.on_do_bank_run_now())
+        self.assertEqual(
+            addon.player_data["skilling_bank_run_requested"], "coal"
+        )
+        addon.current_skill = "Combat"
 
         self.assertTrue(addon.on_set_combat_auto_eat_threshold(65))
         self.assertEqual(addon.player_data["combat_auto_eat_threshold_percent"], 65)

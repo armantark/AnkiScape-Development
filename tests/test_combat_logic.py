@@ -79,6 +79,7 @@ from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     derive_casual_combat_magic_pure,
     reclaim_death_office_items_pure,
+    request_combat_bank_run_now_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
@@ -536,6 +537,16 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(loaded("max_safety"), (20, 2))
         self.assertEqual(loaded("balanced"), (14, 4))
         self.assertEqual(loaded("max_output"), (8, 6))
+
+    def test_manual_combat_bank_run_request_starts_the_existing_two_review_route(self):
+        requested, ok, reason = request_combat_bank_run_now_pure(
+            self._melee(combat_encounter={})
+        )
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            requested["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
 
     def test_switching_pack_mode_immediately_rebalances_a_stale_loadout(self):
         player = self._melee(

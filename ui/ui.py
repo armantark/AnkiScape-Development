@@ -4318,6 +4318,7 @@ def show_main_menu(
     on_set_magic_alchemy_item=None,
     on_set_farming_spell_patch=None,
     on_set_utility=None,
+    on_start_activity=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
     on_set_loot_threshold=None,
@@ -4512,6 +4513,7 @@ def show_main_menu(
         "details_open": False,
     }
     target_details_context = {"display_row": None}
+    activity_start_transition = {"call": None}
 
     # ---- deferred tabs ----------------------------------------------------
     # Shop, Quests and Achievements each build hundreds to thousands of widgets
@@ -4735,6 +4737,17 @@ def show_main_menu(
         if display_name == _COMBAT_HUB_NAME and not _combat_available():
             warn.setText("You can't fight any source-backed combat target yet.")
             return
+        if display_name in {_UTILITIES_HUB_NAME, _ACTIVITIES_HUB_NAME}:
+            activity_id = str(
+                player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+            )
+            start = activity_start_transition.get("call")
+            if (
+                callable(start)
+                and _utility_surface_name_for_target(activity_id) == display_name
+            ):
+                start(activity_id)
+                return
         warn.setText("")
         state["active"] = display_name
         on_save_skill(display_name)
@@ -8880,9 +8893,8 @@ def show_main_menu(
         star_panel_refresher["call"] = _refresh_shooting_star_panel
 
         def _select_shooting_star() -> None:
-            if on_set_utility is None:
-                return
-            if not _request_utility_selection(SHOOTING_STAR_ACTIVITY_ID):
+            start = activity_start_transition.get("call")
+            if not callable(start) or not start(SHOOTING_STAR_ACTIVITY_ID):
                 return
             tree.clearSelection()
             _refresh_evil_tree_panel()
@@ -19090,8 +19102,10 @@ def show_main_menu(
                 )
             )
 
-        def _set_utility_selection(activity_id: str) -> bool:
-            if on_set_utility is None:
+        def _set_utility_selection(
+            activity_id: str, *, activate: bool = False
+        ) -> bool:
+            if on_set_utility is None and (not activate or on_start_activity is None):
                 return False
             if (
                 activity_id != FLASH_POWDER_FACTORY_ACTIVITY_ID
@@ -19821,11 +19835,19 @@ def show_main_menu(
                         ),
                     )
                     return False
-            on_set_utility(activity_id)
+            if activate and on_start_activity is not None:
+                if on_start_activity(activity_id) is False:
+                    return False
+            elif on_set_utility is not None:
+                on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
-            if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
+            if activate or (
+                state["active"] in _UTILITY_SKILL_NAMES
+                and state["active"] != surface_name
+            ):
                 state["active"] = surface_name
-                on_save_skill(surface_name)
+                if not activate or on_start_activity is None:
+                    on_save_skill(surface_name)
                 _refresh_active_label()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
@@ -19857,6 +19879,9 @@ def show_main_menu(
             return True
 
         utility_selection_handler["call"] = _set_utility_selection
+        activity_start_transition["call"] = lambda activity_id: (
+            _set_utility_selection(activity_id, activate=True)
+        )
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None or item.isDisabled():

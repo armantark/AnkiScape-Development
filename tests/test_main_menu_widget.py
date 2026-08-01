@@ -583,8 +583,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._smith_calls: list = []
         # Same seam for the family-grouped Crafting tree (on_set_craft).
         self._craft_calls: list = []
-        # Same seam for Utility/Activities selection.
+        # Same seams for Utility/Activities selection and activation.
         self._utility_calls: list = []
+        self._activity_start_calls: list = []
         # Same seam for Firemaking target selection.
         self._firemaking_calls: list = []
         # Same seam for Fishing target selection.
@@ -1103,6 +1104,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
 
         save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
+        start_activity_callback = extra.pop(
+            "on_start_activity",
+            lambda activity: (
+                self._activity_start_calls.append(activity),
+                player_data.__setitem__("current_utility", activity),
+                True,
+            )[-1],
+        )
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -1164,6 +1173,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_magic_alchemy_item=lambda item: _set_target("magic_alchemy_item", self._magic_alch_calls, item),
             on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
+            on_start_activity=start_activity_callback,
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_action=lambda action: self._combat_action_calls.append(action),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -10214,7 +10224,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         select.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "shooting_stars")
-        self.assertEqual(self._utility_calls[-1], "shooting_stars")
+        self.assertEqual(self._activity_start_calls[-1], "shooting_stars")
         self.assertEqual(select.text(), "Selected for reviews")
 
         for object_name in (
@@ -10251,6 +10261,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
         )
+
+    def test_activity_start_control_uses_the_same_star_transition(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "shooting_stars"
+        dialog = self._open(pd, current_skill="Mining")
+        self._open_activities(dialog)
+        start = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Start activity"
+        )
+
+        start.click()
+        QApplication.processEvents()
+
+        self.assertEqual(self._activity_start_calls, ["shooting_stars"])
+        self.assertEqual(pd["current_utility"], "shooting_stars")
 
     def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:
         from ankiscape.logic.fist_of_guthix_logic import (

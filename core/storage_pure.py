@@ -113,6 +113,7 @@ from ..logic.evil_tree_logic import (
     default_evil_tree_state_pure,
     sanitize_evil_tree_state_pure,
 )
+from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ..logic.shooting_star_logic import (
     default_shooting_star_state_pure,
     sanitize_shooting_star_state_pure,
@@ -324,7 +325,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 104
+CURRENT_CONFIG_VERSION = 105
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1411,6 +1412,7 @@ def migrate_loaded_data(
     elif active_session_id in {
         "skeletal_horror",
         "bork",
+        SHOOTING_STAR_ACTIVITY_ID,
         WEREWOLF_SKULLBALL_ACTIVITY_ID,
         GNOME_BALL_ACTIVITY_ID,
         FISH_FLINGERS_ACTIVITY_ID,
@@ -1965,6 +1967,37 @@ def migrate_loaded_data(
     # was an implicit projection default, never stored in this list, so the
     # unconditional sanitizer above already installs the empty set where the
     # key is absent and preserves every explicit pin.
+    # v105: the combat food roster gains the ordinary low-level cooked fish that
+    # older defaults omitted. Existing priority lists retain their order and add
+    # the newly recognized foods before shrimps/crayfish.
+    if loaded_config_version < 105:
+        raw_auto_food = data.get("combat_auto_eat_food")
+        if isinstance(raw_auto_food, list):
+            inserted = [
+                item_name
+                for item_name in (
+                    "Bass",
+                    "Pike",
+                    "Cod",
+                    "Mackerel",
+                    "Herring",
+                    "Sardine",
+                )
+                if item_name not in raw_auto_food
+            ]
+            low_food_index = next(
+                (
+                    index
+                    for index, item_name in enumerate(raw_auto_food)
+                    if item_name in {"Shrimps", "Crayfish"}
+                ),
+                len(raw_auto_food),
+            )
+            data["combat_auto_eat_food"] = (
+                raw_auto_food[:low_food_index]
+                + inserted
+                + raw_auto_food[low_food_index:]
+            )
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

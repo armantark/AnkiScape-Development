@@ -4206,6 +4206,28 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 4})
         self.assertIn("logs", player_data["carried_primed_targets"])
 
+    def test_manual_bank_run_request_uses_the_real_route_before_acting(self):
+        player_data = self._base_player_data(5)
+        player_data.update(
+            {
+                "carried_inventory": {"logs": {"Logs": 5}},
+                "carried_primed_targets": {"logs": True},
+                "carried_churn": {"logs": 0},
+                "skilling_bank_run_requested": "logs",
+            }
+        )
+        ctx, calls = self._firemaking_ctx(player_data)
+
+        result = run_answer_with_carried_overlay(
+            ctx, "firemaking", handle_firemaking_answer
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"], {"Logs": 5})
+        self.assertNotIn("skilling_bank_run_requested", player_data)
+        self.assertEqual(player_data["firemaking_exp"], 0)
+        self.assertIn("Bank run", calls["activity"][-1])
+
     def test_smithing_pack_uses_bag_coal_first_through_the_real_handler(self):
         player_data = {
             "inventory": {"Iron ore": 3, "Coal": 3},
