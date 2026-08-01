@@ -111,8 +111,8 @@ _DEATH_PENALTY_MINIMUM = 0.04
 _DEATH_PENALTY_MAXIMUM = 0.70
 _DEATH_PENALTY_COUNT_CAP = 15
 _VALID_RESOURCE_POLICIES = frozenset({"gather_and_process", "gather_only", "skip"})
-# PLACEHOLDER(dungeoneering.starter_herblore_coin_cache): a period Frozen-floor Rusty coin yield or drop table
-_STARTER_HERBLORE_COIN_CACHE = (
+# PLACEHOLDER(dungeoneering.starter_guardian_coin_drops): a decoded period drop table for the Frozen-floor guardians
+_STARTER_GUARDIAN_COIN_DROPS = (
     SMUGGLER_ITEMS_BY_ID["vial"].buy_price
     + SMUGGLER_ITEMS_BY_ID["void_dust"].buy_price
 )
@@ -1529,6 +1529,17 @@ def _restore_chain_inputs_pure(state: dict[str, Any], step: Any) -> None:
         _add_session_item(state, item_name, quantity)
 
 
+def _guardian_coin_drop_pure(session: DungeonSession, room: DungeonRoom) -> int:
+    guardian_room_ids = tuple(
+        candidate.id
+        for candidate in session.rooms
+        if candidate.family == "guardian" and candidate.critical_path
+    )
+    index = guardian_room_ids.index(room.id)
+    share, remainder = divmod(_STARTER_GUARDIAN_COIN_DROPS, len(guardian_room_ids))
+    return share + (index < remainder)
+
+
 def _automate_resource_room_pure(
     state: dict[str, Any],
     player_data: Mapping[str, Any],
@@ -1555,13 +1566,6 @@ def _automate_resource_room_pure(
         herb_name, herb_quantity = STARTER_HERBLORE_CHAIN[0].inputs[0]
         _add_session_item(state, herb_name, herb_quantity)
         reports.append(f"gathered {herb_name}")
-        if (
-            _quest_complete(player_data, "druidic_ritual")
-            and _clean_level(player_data.get("herblore_level", 1))
-            >= STARTER_HERBLORE_CHAIN[-1].level
-        ):
-            state["session_coins"] += _STARTER_HERBLORE_COIN_CACHE
-            reports.append(f"found {_STARTER_HERBLORE_COIN_CACHE:,} Rusty coins")
     if policy == "gather_and_process":
         cooked = STARTER_RESOURCE_CHAIN[1]
         if _run_chain_step_pure(state, player_data, cooked):
@@ -2518,6 +2522,10 @@ def apply_dungeoneering_review_pure(
 
     resolved = resolve_starter_room_pure(session, room_id)
     state["selected_room_id"] = -1
+    if room.family == "guardian" and room.critical_path:
+        coin_drop = _guardian_coin_drop_pure(session, room)
+        state["session_coins"] += coin_drop
+        automation_reports.append(f"guardian enemies dropped {coin_drop:,} Rusty coins")
     if room.family == "resource":
         chain_xp, chain_reports = _automate_resource_room_pure(
             state,

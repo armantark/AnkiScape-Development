@@ -551,6 +551,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
         bank_before = copy.deepcopy(player["inventory"])
         bought_secondaries = False
         brewed = False
+        guardian_coin_drops = []
         final_result = {}
 
         for _review in range(100):
@@ -558,12 +559,17 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
                 break
             view = dungeoneering_view_pure(player, selected_skill="Dungeoneering")
             route = next(row for row in view["frontier_rows"] if row["casual_recommended"])
+            coins_before_review = player["dungeoneering"]["session_coins"]
             player, ok, final_result = apply_dungeoneering_review_pure(
                 player,
                 lambda: 0.5,
                 equipment_data=EQUIPMENT_DATA,
             )
             self.assertTrue(ok, final_result)
+            if route["family"] == "guardian":
+                guardian_coin_drops.append(
+                    player["dungeoneering"]["session_coins"] - coins_before_review
+                )
             if route["family"] != "resource":
                 continue
             if not bought_secondaries:
@@ -574,6 +580,13 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
                 self.assertEqual(
                     player["dungeoneering"]["session_inventory"]["Clean valerian"],
                     1,
+                )
+                self.assertGreater(len(guardian_coin_drops), 1)
+                self.assertTrue(all(drop > 0 for drop in guardian_coin_drops))
+                self.assertEqual(sum(guardian_coin_drops), 1_010)
+                self.assertEqual(
+                    player["dungeoneering"]["session_coins"],
+                    coins_before_review,
                 )
                 self.assertEqual(player["dungeoneering"]["session_coins"], 1_010)
                 player, ok, info = apply_dungeoneering_command_pure(
@@ -604,6 +617,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
         self.assertTrue(final_result["complete"])
         self.assertEqual(player["inventory"], bank_before)
         self.assertEqual(player["dungeoneering"]["session_inventory"], {})
+        self.assertEqual(player["dungeoneering"]["session_coins"], 0)
 
     def test_live_resource_sale_and_smuggler_purchase_produce_an_ammo_bind_offer(self):
         player = self._enter()
@@ -632,7 +646,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             {"item_id": "raw_heim_crab"},
         )
         self.assertTrue(ok, info)
-        self.assertEqual(player["dungeoneering"]["session_coins"], 60)
+        self.assertEqual(player["dungeoneering"]["session_coins"], 1_070)
         self.assertEqual(player["inventory"], bank_before)
         player, ok, info = apply_dungeoneering_command_pure(
             player,
@@ -791,7 +805,10 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             self.assertTrue(ok, info)
 
         view = dungeoneering_view_pure(player, selected_skill="Dungeoneering")
-        self.assertEqual(player["dungeoneering"]["session_coins"], raw_crabs * 60)
+        self.assertEqual(
+            player["dungeoneering"]["session_coins"],
+            1_010 + raw_crabs * 60,
+        )
         self.assertEqual(
             view["smuggler_reachable_coins"],
             player["dungeoneering"]["session_coins"],
@@ -804,16 +821,16 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             )
         )
         self.assertNotIn(
-            "novite_rapier",
+            "novite_kiteshield",
             {row["item_id"] for row in view["smuggler_rows"]},
         )
         _unchanged, ok, info = apply_dungeoneering_command_pure(
             player,
             "smuggler_buy",
-            {"item_id": "novite_rapier"},
+            {"item_id": "novite_kiteshield"},
         )
         self.assertFalse(ok)
-        self.assertIn("Need 875", info["reason"])
+        self.assertIn("Need 1,312", info["reason"])
 
     def test_bind_replace_skip_and_ammo_bind_persist_across_floor_evaporation(self):
         player = self._enter()
