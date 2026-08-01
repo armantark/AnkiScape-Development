@@ -3258,8 +3258,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         # layout compressed it, these would diverge (the bug this test guards).
         self.assertEqual(grid.size(), grid.sizeHint())
         for cell in cells:
-            self.assertEqual(cell.size().width(), 44)
-            self.assertEqual(cell.size().height(), 44)
+            self.assertEqual(cell.size().width(), 76)
+            self.assertEqual(cell.size().height(), 58)
+        stack_caption = cells[5].findChild(QLabel, "carriedCellCaption")
+        stack_icon = cells[5].findChild(QLabel, "carriedCellIcon")
+        self.assertEqual(stack_caption.text(), "×5000")
+        self.assertIsNotNone(stack_icon.pixmap())
+        self.assertLessEqual(
+            stack_caption.mapTo(cells[5], QPoint(0, 0)).x() + stack_caption.width(),
+            cells[5].width(),
+        )
         # Row 6 (the last of 7 rows) must be positioned below row 0, not clipped
         # into the same pixels -- the concrete symptom of the compression bug.
         self.assertGreater(cells[27].geometry().y(), cells[0].geometry().y() + 200)
@@ -3294,7 +3302,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         from ankiscape.logic import inventory_pure
 
         pd = _make_player_data()
-        pd["inventory"] = {"Iron ore": 20, "Coins": 100}
+        pd["inventory"] = {"Iron ore": 20, "Bronze arrow": 11, "Coins": 100}
         layout: dict[str, int] = {}
         stackables = {"Coins"}
 
@@ -3321,6 +3329,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 ("Iron ore", 2),
                 ("Uncut sapphire", 1),
             ),
+            carried_stackable_names=stackables,
             on_set_carried_layout_quantity=set_quantity,
         )
         dialog.show()
@@ -3338,12 +3347,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         iron_button = dialog.findChild(QPushButton, "carriedBankItem::Iron ore")
         self.assertIsNotNone(iron_button)
-        self.assertFalse(iron_button.icon().isNull())
+        iron_icon = iron_button.findChild(QLabel, "carriedCellIcon")
+        iron_count = iron_button.findChild(QLabel, "carriedCellCaption")
+        self.assertIsNotNone(iron_icon.pixmap())
+        self.assertEqual(iron_count.text(), "×20")
+        self.assertLessEqual(
+            iron_count.mapTo(iron_button, QPoint(0, 0)).x() + iron_count.width(),
+            iron_button.width(),
+        )
+        bronze_arrow = dialog.findChild(QPushButton, "carriedBankItem::Bronze arrow")
+        self.assertEqual(
+            bronze_arrow.findChild(QLabel, "carriedCellCaption").text(),
+            "Bronze arrow\n×11",
+        )
         iron_button.click()
         QApplication.processEvents()
         self.assertEqual(layout["Iron ore"], 1)
         first_pack_cell = dialog.findChild(QPushButton, "carriedLayoutCell::0")
-        self.assertFalse(first_pack_cell.icon().isNull())
+        self.assertIsNotNone(
+            first_pack_cell.findChild(QLabel, "carriedCellIcon").pixmap()
+        )
+        self.assertEqual(
+            first_pack_cell.findChild(QLabel, "carriedCellCaption").text(), "×1"
+        )
         self.assertIn("Iron ore", first_pack_cell.toolTip())
 
         menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
@@ -3406,6 +3432,61 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIsNotNone(current_loot)
         self.assertIn("Uncut sapphire ×1", current_loot.toolTip())
+
+    def test_custom_pack_picker_plans_beyond_bank_stock_and_fills_available_slots(self) -> None:
+        from ankiscape.logic import inventory_pure
+
+        pd = _make_player_data()
+        pd["inventory"] = {"Iron ore": 7}
+        layout: dict[str, int] = {}
+
+        def get_cells():
+            return tuple(inventory_pure.layout_to_grid_cells_pure(layout, set()))
+
+        def set_quantity(item_name: str, quantity: int) -> bool:
+            updated, ok = inventory_pure.set_carried_layout_quantity_pure(
+                layout,
+                item_name,
+                quantity,
+                set(),
+            )
+            if ok:
+                layout.clear()
+                layout.update(updated)
+            return ok
+
+        dialog = self._open(
+            pd,
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            on_set_carried_layout_quantity=set_quantity,
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_equipment_tab(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 7)
+        next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddTenAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], 10)
+
+        layout.clear()
+        pd["inventory"]["Iron ore"] = 40
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 40)
+        next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddAllAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], inventory_pure.CARRIED_CAPACITY)
+        dialog.deleteLater()
 
     def test_combat_supply_mode_dropdown_present_and_wired(self) -> None:
         from aqt.qt import QComboBox

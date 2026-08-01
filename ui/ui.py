@@ -23156,7 +23156,7 @@ def show_main_menu(
     _dim_cell = dim_text_css(carried_body)
     _CARRIED_CELL_FILLED_CSS = (
         "QPushButton { border: 1px solid palette(mid); border-radius: 4px; "
-        "background: transparent; color: palette(text); font-size: 9px; padding: 2px; }"
+        "background: transparent; color: palette(text); font-size: 9px; padding: 1px; }"
         "QPushButton:hover { border: 1px solid palette(highlight); }"
     )
     _CARRIED_CELL_EMPTY_CSS = (
@@ -23198,6 +23198,15 @@ def show_main_menu(
             if name == item_name
         )
 
+    def _maximum_layout_quantity(item_name: str) -> int:
+        if item_name in carried_stackable_names:
+            return 2_147_483_647
+        if get_carried_layout_cells is None:
+            return inventory_pure.CARRIED_CAPACITY
+        cells = tuple(get_carried_layout_cells())
+        empty_slots = sum(1 for name, _count in cells if not name)
+        return _current_layout_quantity(item_name) + empty_slots
+
     def _prompt_set_pack_quantity(item_name: str, parent=None) -> None:
         """Set one absolute custom-pack quantity, preserving its queue position."""
         if on_set_carried_layout_quantity is None:
@@ -23230,8 +23239,8 @@ def show_main_menu(
     ) -> bool:
         if on_set_carried_layout_quantity is None:
             return False
-        bank_amount = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
-        desired = min(max(0, int(quantity)), bank_amount)
+        desired = max(0, int(quantity))
+        desired = min(desired, _maximum_layout_quantity(item_name))
         accepted = on_set_carried_layout_quantity(item_name, desired)
         if accepted is False:
             QMessageBox.information(
@@ -23248,14 +23257,18 @@ def show_main_menu(
             item_name, _current_layout_quantity(item_name) + requested, parent
         )
 
-    def _prompt_add_pack_x(item_name: str, bank_amount: int, parent=None) -> None:
+    def _prompt_add_pack_x(item_name: str, _bank_amount: int, parent=None) -> None:
+        maximum_add = max(
+            1,
+            _maximum_layout_quantity(item_name) - _current_layout_quantity(item_name),
+        )
         quantity, ok = QInputDialog.getInt(
             parent or dialog,
             "Add to carried pack",
             f"{item_name} quantity:",
-            min(bank_amount, int(carried_picker_state.get("last_x") or 1)),
+            min(maximum_add, int(carried_picker_state.get("last_x") or 1)),
             1,
-            max(1, bank_amount),
+            maximum_add,
             1,
         )
         if not ok:
@@ -23473,10 +23486,72 @@ def show_main_menu(
         custom_layout.setContentsMargins(0, 2, 0, 0)
         custom_layout.setSpacing(6)
 
-        _CARRIED_CELL_SIZE = 44
+        _CARRIED_CELL_WIDTH = 76
+        _CARRIED_CELL_HEIGHT = 58
         _CARRIED_CELL_SPACING = 4
         _CARRIED_GRID_COLS = 4
         _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
+
+        def _set_cell_visual(
+            button: QPushButton,
+            item_name: Optional[str],
+            quantity: int = 0,
+            icon_path: Optional[str] = None,
+        ) -> None:
+            visual = getattr(button, "_ankiscape_carried_cell_visual", None)
+            if visual is None:
+                visual = QWidget(button)
+                visual.setAttribute(
+                    Qt.WidgetAttribute.WA_TransparentForMouseEvents, True
+                )
+                visual_layout = QVBoxLayout(visual)
+                visual_layout.setContentsMargins(3, 2, 3, 2)
+                visual_layout.setSpacing(0)
+                icon_label = QLabel()
+                icon_label.setObjectName("carriedCellIcon")
+                icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                caption = QLabel()
+                caption.setObjectName("carriedCellCaption")
+                caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                caption.setWordWrap(True)
+                caption.setStyleSheet(
+                    "background: transparent; color: palette(text); font-size: 9px;"
+                )
+                visual_layout.addWidget(icon_label)
+                visual_layout.addWidget(caption, 1)
+                button._ankiscape_carried_cell_visual = (  # type: ignore[attr-defined]
+                    visual,
+                    icon_label,
+                    caption,
+                )
+            else:
+                visual, icon_label, caption = visual
+            visual.setGeometry(button.rect())
+            visual.raise_()
+            button.setText("")
+            button.setIcon(QIcon())
+            icon_label.clear()
+            if not item_name:
+                icon_label.hide()
+                caption.setWordWrap(False)
+                caption.setText("+")
+                return
+            if icon_path:
+                icon_label.show()
+                icon_label.setPixmap(
+                    QPixmap(icon_path).scaled(
+                        30,
+                        30,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+                )
+                caption.setWordWrap(False)
+                caption.setText(f"×{int(quantity)}")
+                return
+            icon_label.hide()
+            caption.setWordWrap(True)
+            caption.setText(f"{item_name}\n×{int(quantity)}")
 
         cell_buttons: list = []
         cell_items: list = [None] * inventory_pure.CARRIED_CAPACITY
@@ -23490,8 +23565,8 @@ def show_main_menu(
             cell_btn = QPushButton()
             cell_btn.setObjectName(f"carriedLayoutCell{name_suffix}::{i}")
             cell_btn.setFlat(True)
-            cell_btn.setFixedSize(_CARRIED_CELL_SIZE, _CARRIED_CELL_SIZE)
-            cell_btn.setIconSize(QSize(28, 28))
+            cell_btn.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
+            _set_cell_visual(cell_btn, None)
 
             def _on_cell_clicked(_checked=False, idx=i):
                 name = cell_items[idx]
@@ -23506,9 +23581,9 @@ def show_main_menu(
         grid_container.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         _grid_margins = grid_layout.contentsMargins()
         grid_container.setFixedSize(
-            _CARRIED_GRID_COLS * _CARRIED_CELL_SIZE + (_CARRIED_GRID_COLS - 1) * _CARRIED_CELL_SPACING
+            _CARRIED_GRID_COLS * _CARRIED_CELL_WIDTH + (_CARRIED_GRID_COLS - 1) * _CARRIED_CELL_SPACING
             + _grid_margins.left() + _grid_margins.right(),
-            _CARRIED_GRID_ROWS * _CARRIED_CELL_SIZE + (_CARRIED_GRID_ROWS - 1) * _CARRIED_CELL_SPACING
+            _CARRIED_GRID_ROWS * _CARRIED_CELL_HEIGHT + (_CARRIED_GRID_ROWS - 1) * _CARRIED_CELL_SPACING
             + _grid_margins.top() + _grid_margins.bottom(),
         )
 
@@ -23529,7 +23604,7 @@ def show_main_menu(
         bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
         bank_picker_scroll.setWidgetResizable(True)
         bank_picker_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        bank_picker_scroll.setFixedSize(230, grid_container.height())
+        bank_picker_scroll.setFixedSize(grid_container.width() + 8, grid_container.height())
         bank_picker_scroll.setWidget(bank_picker_host)
 
         bank_column = QWidget()
@@ -23599,24 +23674,17 @@ def show_main_menu(
             for idx, cell_button in enumerate(cell_buttons):
                 item_name, count = cells[idx] if idx < len(cells) else (None, 0)
                 cell_items[idx] = item_name
-                cell_button.setIcon(QIcon())
                 if item_name:
                     count = int(count)
                     icon_path = _item_icon_path(str(item_name))
-                    if icon_path:
-                        cell_button.setIcon(QIcon(icon_path))
-                        cell_button.setText(f"×{count}" if count > 1 else "")
-                    else:
-                        cell_button.setText(
-                            f"{item_name}\n×{count}" if count > 1 else str(item_name)
-                        )
+                    _set_cell_visual(cell_button, str(item_name), count, icon_path)
                     suffix = f" ×{count}" if count > 1 else ""
                     cell_button.setToolTip(f"{item_name}{suffix} — click to set quantity")
                     cell_button.setAccessibleName(f"Pack plan: {item_name}{suffix}")
                     cell_button.setEnabled(on_set_carried_layout_quantity is not None)
                     cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
                 else:
-                    cell_button.setText("+")
+                    _set_cell_visual(cell_button, None)
                     cell_button.setToolTip("Empty slot — choose an item from the Bank grid")
                     cell_button.setAccessibleName("Empty pack-plan slot")
                     cell_button.setEnabled(False)
@@ -23631,15 +23699,11 @@ def show_main_menu(
                 bank_picker_layout.addWidget(empty, 0, 0, 1, _CARRIED_GRID_COLS)
                 return
             for index, (item_name, amount, asset_path) in enumerate(items):
-                item_button = QPushButton(f"×{amount}")
+                item_button = QPushButton()
                 item_button.setObjectName(f"carriedBankItem{name_suffix}::{item_name}")
-                item_button.setFixedSize(_CARRIED_CELL_SIZE, _CARRIED_CELL_SIZE)
-                item_button.setIconSize(QSize(28, 28))
+                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _bank_icon_path(item_name, asset_path)
-                if icon_path:
-                    item_button.setIcon(QIcon(icon_path))
-                else:
-                    item_button.setText(str(item_name))
+                _set_cell_visual(item_button, item_name, amount, icon_path)
                 item_button.setToolTip(
                     f"{item_name} ×{amount} — click to add 1; right-click for quantities"
                 )
@@ -23680,17 +23744,13 @@ def show_main_menu(
                 empty.setStyleSheet(f"color: {dim_text_css(empty)};")
                 current_inventory_layout.addWidget(empty)
             for item_name, amount in items:
-                item_button = QPushButton(f"×{int(amount)}")
+                item_button = QPushButton()
                 item_button.setObjectName(
                     f"carriedCurrentItem{name_suffix}::{item_name}"
                 )
-                item_button.setFixedSize(50, 44)
-                item_button.setIconSize(QSize(28, 28))
+                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _item_icon_path(str(item_name))
-                if icon_path:
-                    item_button.setIcon(QIcon(icon_path))
-                else:
-                    item_button.setText(str(item_name))
+                _set_cell_visual(item_button, str(item_name), int(amount), icon_path)
                 item_button.setToolTip(f"Currently carrying {item_name} ×{int(amount)}")
                 item_button.setAccessibleName(
                     f"Current inventory: {item_name} ×{int(amount)}"
