@@ -268,12 +268,12 @@ class ReviewStripTest(unittest.TestCase):
 
     def test_active_fish_flingers_notification_opens_status_and_navigates(self) -> None:
         from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+        from ankiscape.logic.fish_flingers_logic import enter_fish_flingers_pure
 
         opened: list = []
-        state = self._state()
+        state, ok, info = enter_fish_flingers_pure(self._state())
+        self.assertTrue(ok, info)
         state["dnd_favourites"] = [FISH_FLINGERS_ACTIVITY_ID]
-        state["current_utility"] = FISH_FLINGERS_ACTIVITY_ID
-        state["activity_session"] = {"active_id": FISH_FLINGERS_ACTIVITY_ID}
         self.ui.update_review_status_badge(
             state, lambda activity_id=None: opened.append(activity_id), None
         )
@@ -285,7 +285,9 @@ class ReviewStripTest(unittest.TestCase):
 
         rows = self.ui._STATUS_POPOVER.findChild(QListWidget, "reviewStatusList")
         self.assertEqual(rows.count(), 1)
-        self.assertEqual(rows.item(0).text(), "Fish Flingers · Active session")
+        self.assertIn("Fish Flingers · Review 1/8", rows.item(0).text())
+        self.assertIn("stock", rows.item(0).text())
+        self.assertIn("tickets remaining", rows.item(0).text())
         self.assertEqual(
             rows.item(0).data(Qt.ItemDataRole.UserRole),
             FISH_FLINGERS_ACTIVITY_ID,

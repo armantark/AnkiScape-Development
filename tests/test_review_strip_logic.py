@@ -24,6 +24,10 @@ from ankiscape.core.storage_pure import (
 from ankiscape.data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ankiscape.data.goblin_raids_data import (
+    GOBLIN_RAIDS_ACTIVITY_ID,
+    GOBLIN_RAIDS_SPAWN_REVIEWS,
+)
 from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ankiscape.data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
 from ankiscape.logic.dnd_favourites_logic import (
@@ -34,9 +38,12 @@ from ankiscape.logic.dnd_favourites_logic import (
     sanitize_dnd_favourites_pure,
     toggle_dnd_favourite_pure,
 )
+from ankiscape.logic.fish_flingers_logic import enter_fish_flingers_pure
+from ankiscape.logic.goblin_raids_logic import advance_goblin_raids_world_clock_pure
 from ankiscape.logic.grand_exchange_logic import ge_fill_drawer_view_pure
 from ankiscape.logic.review_strip_logic import (
     ACTIVITY_TRAINED_SKILLS,
+    DND_NOTIFICATION_ACTIVITY_IDS,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     activity_awards_experience_now_pure,
     activity_trained_skills_pure,
@@ -242,18 +249,29 @@ class ActivityExperienceBarsTest(unittest.TestCase):
 
 
 class DistractionFavouritesTest(unittest.TestCase):
-    def test_the_watchable_set_covers_the_complete_dnd_catalog(self):
-        catalog_ids = {
-            activity_id
-            for activity_id, spec in UTILITY_ACTIVITY_DATA.items()
-            if spec.get("group") == "distractions_and_diversions"
+    def test_the_watchable_and_status_tables_cover_the_fixed_dnd_catalog(self):
+        expected = {
+            "big_chinchompa",
+            "big_top_bonanza",
+            "bork",
+            "court_cases",
+            "enchanted_key",
+            "evil_tree",
+            "familiarisation",
+            "fish_flingers",
+            "goblin_raids",
+            "penguin_hide_and_seek",
+            "phoenix_lair",
+            "shattered_heart",
+            "shooting_stars",
+            "skeletal_horror",
+            "tears_of_guthix",
+            "treasure_trail",
+            "troll_invasion",
         }
-        catalog_ids.add(EVIL_TREE_UTILITY_ID)
 
-        self.assertEqual(DND_ACTIVITY_IDS, catalog_ids)
-        self.assertIn(FISH_FLINGERS_ACTIVITY_ID, DND_ACTIVITY_IDS)
-        self.assertIn(SHOOTING_STAR_ACTIVITY_ID, DND_ACTIVITY_IDS)
-        self.assertIn(BIG_CHINCHOMPA_UTILITY_ID, DND_ACTIVITY_IDS)
+        self.assertEqual(DND_ACTIVITY_IDS, expected)
+        self.assertEqual(DND_NOTIFICATION_ACTIVITY_IDS, expected)
         self.assertNotIn("castle_wars", DND_ACTIVITY_IDS)
 
     def test_every_distraction_gets_one_context_toggle_and_other_rows_get_none(self):
@@ -460,25 +478,61 @@ class StatusBadgeViewTest(unittest.TestCase):
         self.assertEqual(view["count"], 0, "a quiet line is not a notification")
         self.assertIn("Tears of Guthix", view["tooltip"])
 
-    def test_an_active_fish_flingers_session_is_a_navigable_notification(self):
+    def test_fish_flingers_notifies_before_entry_and_reports_session_status(self):
         data = _player()
         data["dnd_favourites"] = [FISH_FLINGERS_ACTIVITY_ID]
-        data["current_utility"] = FISH_FLINGERS_ACTIVITY_ID
-        data["activity_session"] = {"active_id": FISH_FLINGERS_ACTIVITY_ID}
+
+        ready = review_status_badges_view_pure(data)["distractions"]
+        self.assertEqual(ready["count"], 1)
+        self.assertIn("2 Fish Flingers tickets available", ready["rows"][0]["status"])
+
+        entered, ok, info = enter_fish_flingers_pure(data)
+        self.assertTrue(ok, info)
+        entered["dnd_favourites"] = [FISH_FLINGERS_ACTIVITY_ID]
+        active = review_status_badges_view_pure(entered)["distractions"]
+
+        self.assertEqual(active["count"], 1)
+        self.assertEqual(active["rows"][0]["activity_id"], FISH_FLINGERS_ACTIVITY_ID)
+        self.assertTrue(active["rows"][0]["live"])
+        self.assertIn("Review 1/8", active["rows"][0]["status"])
+        self.assertIn("stock", active["rows"][0]["status"])
+        self.assertIn("tickets remaining", active["rows"][0]["status"])
+
+    def test_announced_goblin_raid_is_a_live_notification(self):
+        data = _player()
+        data["dnd_favourites"] = [GOBLIN_RAIDS_ACTIVITY_ID]
+        data["shop_market_clock"] = {
+            "answered_cards": GOBLIN_RAIDS_SPAWN_REVIEWS,
+            "market_tick": GOBLIN_RAIDS_SPAWN_REVIEWS,
+        }
+        data, events = advance_goblin_raids_world_clock_pure(
+            data, site_roll=0.0
+        )
+        self.assertTrue(events)
 
         view = review_status_badges_view_pure(data)["distractions"]
 
         self.assertEqual(view["count"], 1)
-        self.assertEqual(
-            view["rows"],
-            ({
-                "activity_id": FISH_FLINGERS_ACTIVITY_ID,
-                "name": "Fish Flingers",
-                "status": "Active session",
-                "live": True,
-                "favourite": True,
-            },),
-        )
+        self.assertTrue(view["rows"][0]["live"])
+        self.assertIn("Raid at", view["rows"][0]["status"])
+        self.assertIn("reviews left", view["rows"][0]["status"])
+
+    def test_ready_tears_of_guthix_entry_is_a_live_notification(self):
+        data = _player()
+        data["quests"]["tears_of_guthix"] = {
+            "started": True,
+            "progress": 3,
+            "completed": True,
+        }
+        data["quest_points"] = 44
+        data["dnd_favourites"] = [TEARS_OF_GUTHIX_ACTIVITY_ID]
+
+        view = review_status_badges_view_pure(data)["distractions"]
+
+        self.assertEqual(view["count"], 1)
+        self.assertTrue(view["rows"][0]["live"])
+        self.assertIn("Entry ready", view["rows"][0]["status"])
+        self.assertIn("collection ticks", view["rows"][0]["status"])
 
     def test_farming_rows_belong_only_to_the_farming_badge(self):
         from ankiscape.logic.farming_logic import (

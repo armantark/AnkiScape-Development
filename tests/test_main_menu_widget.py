@@ -8951,6 +8951,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "skeletal_horror",
                 "tears_of_guthix",
                 "enchanted_key",
+                "evil_tree",
                 "goblin_raids",
                 "troll_invasion",
                 "shattered_heart",
@@ -9441,10 +9442,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         self.assertEqual(button.text(), "Select active event")
 
-    def test_activity_tree_context_menu_adds_and_removes_a_distraction(self) -> None:
-        from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
-        from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
-        from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+    def test_activity_tree_context_menu_adds_and_removes_every_distraction(self) -> None:
+        from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
+        from ankiscape.logic.dnd_favourites_logic import (
+            DND_ACTIVITY_IDS,
+            toggle_dnd_favourite_pure,
+        )
 
         pd = _make_player_data()
 
@@ -9486,44 +9489,39 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         QMenu.exec = _capture_menu  # type: ignore[assignment,method-assign]
         try:
-            menu = _open_row_menu(SHOOTING_STAR_ACTIVITY_ID)
-            self.assertIsNotNone(menu)
-            action = menu.actions()[0]
-            self.assertEqual(action.text(), "Add to notifications")
-            self.assertTrue(action.isEnabled())
-            action.trigger()
-            for _ in range(4):
-                QApplication.processEvents()
-            self.assertEqual(pd["dnd_favourites"], [SHOOTING_STAR_ACTIVITY_ID])
+            for activity_id in sorted(DND_ACTIVITY_IDS):
+                with self.subTest(activity=activity_id):
+                    menu = _open_row_menu(activity_id)
+                    self.assertIsNotNone(menu)
+                    action = menu.actions()[0]
+                    self.assertEqual(action.text(), "Add to notifications")
+                    self.assertTrue(action.isEnabled())
+                    action.trigger()
+                    for _ in range(2):
+                        QApplication.processEvents()
+                    self.assertEqual(pd["dnd_favourites"], [activity_id])
 
-            menu = _open_row_menu(SHOOTING_STAR_ACTIVITY_ID)
-            self.assertIsNotNone(menu)
-            action = menu.actions()[0]
-            self.assertEqual(action.text(), "Remove from notifications")
-            action.trigger()
-            for _ in range(4):
-                QApplication.processEvents()
-            self.assertEqual(pd["dnd_favourites"], [])
-
-            menu = _open_row_menu(FISH_FLINGERS_ACTIVITY_ID)
-            self.assertIsNotNone(menu)
-            action = menu.actions()[0]
-            self.assertEqual(action.text(), "Add to notifications")
-            action.trigger()
-            for _ in range(4):
-                QApplication.processEvents()
-            self.assertEqual(pd["dnd_favourites"], [FISH_FLINGERS_ACTIVITY_ID])
-
-            menu = _open_row_menu(FISH_FLINGERS_ACTIVITY_ID)
-            self.assertIsNotNone(menu)
-            action = menu.actions()[0]
-            self.assertEqual(action.text(), "Remove from notifications")
-            action.trigger()
-            for _ in range(4):
-                QApplication.processEvents()
-            self.assertEqual(pd["dnd_favourites"], [])
+                    menu = _open_row_menu(activity_id)
+                    self.assertIsNotNone(menu)
+                    action = menu.actions()[0]
+                    self.assertEqual(action.text(), "Remove from notifications")
+                    action.trigger()
+                    for _ in range(2):
+                        QApplication.processEvents()
+                    self.assertEqual(pd["dnd_favourites"], [])
 
             self.assertIsNone(_open_row_menu("castle_wars"))
+
+            evil_row = _utility_row(activity_tree, EVIL_TREE_UTILITY_ID)
+            activity_tree.itemClicked.emit(evil_row, 0)
+            for _ in range(4):
+                QApplication.processEvents()
+            self.assertFalse(
+                _find_named_widget(dialog, "evilTreePanel").isHidden()
+            )
+            self.assertTrue(
+                _find_named_widget(dialog, "activityFavouriteButton").isVisible()
+            )
         finally:
             QMenu.exec = original_menu_exec  # type: ignore[assignment,method-assign]
             dialog.deleteLater()
