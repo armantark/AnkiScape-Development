@@ -463,13 +463,28 @@ def build_shop_tab(ctx) -> "QWidget":
     external_reward_targets = (
         ("big_chinchompa", "Big Chinchompa rewards", ("bigChinchompaRewardShop",)),
         ("fist_of_guthix", "Fist of Guthix · Reggie", ("fistOfGuthixShop",)),
-        ("vinesweeper", "Vinesweeper · Mrs Winkin", ("vinesweeperRewardShop",)),
+        (
+            "penguin_hide_and_seek",
+            "Penguin Hide and Seek rewards",
+            ("penguinRewardShop",),
+        ),
+        (
+            "vinesweeper",
+            "Vinesweeper · Mrs Winkin",
+            ("vinesweeperRewardShop", "vinesweeperRedeemXpButton"),
+        ),
         ("flash_powder_factory", "Flash Powder Factory", ("flashPowderFactoryRewards",)),
         ("fish_flingers", "Fish Flingers reward shop", ("fishFlingersRewardShop",)),
         ("great_orb_project", "Great Orb Project · Wizard Elriss", ("greatOrbProjectShop",)),
         ("trouble_brewing", "Trouble Brewing rewards", ("troubleBrewingRewardShop",)),
         ("castle_wars", "Castle Wars ticket shop", ("castleWarsRewardShop",)),
+        ("pest_control", "Pest Control rewards", ("pestControlRewardShop",)),
         ("soul_wars", "Soul Wars rewards", ("soulWarsRewardShop",)),
+        (
+            "barbarian_assault",
+            "Barbarian Assault rewards",
+            ("barbarianAssaultRewardShop",),
+        ),
         ("stealing_creation", "Stealing Creation reward tools", ("stealingCreationRewardShop",)),
         (
             "dungeoneering",
@@ -481,15 +496,16 @@ def build_shop_tab(ctx) -> "QWidget":
             ),
         ),
         ("crucible", "The Crucible · Trophy bones", ("crucibleRewardShop",)),
+        (
+            "troll_invasion",
+            "Troll Invasion reward books",
+            ("trollInvasionRewardShop",),
+        ),
         ("mobilising_armies", "Mobilising Armies · Officer Tower", ("mobilisingArmiesRewardShop",)),
         (
             "mage_training_arena",
             "Mage Training Arena rewards",
-            (
-                "mageTrainingArenaWallets",
-                "mageTrainingArenaGoalCombo",
-                "mageTrainingArenaPurchaseButton",
-            ),
+            ("mageTrainingArenaRewardShop",),
         ),
     )
     for target_id, display_name, object_names in external_reward_targets:
@@ -1385,7 +1401,9 @@ def build_shop_tab(ctx) -> "QWidget":
         )
         capes = cape_view_pure(player_data)
         rows = [
-            row for row in capes["skillcapes"] if row["cape_id"] != "agility"
+            row
+            for row in capes["skillcapes"]
+            if row["show_in_shop"] and row["cape_id"] != "agility"
         ]
         rows.extend(capes["distinctions"])
         for index, row in enumerate(rows, start=1):

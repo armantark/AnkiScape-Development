@@ -272,10 +272,13 @@ def build_achievements_tab(ctx) -> "QWidget":
             text_layout.addWidget(status)
         line_layout.addWidget(text, 1)
 
-        shop_hint = QLabel("Buy in Shop")
-        shop_hint.setObjectName(f"cabinetCapeShopHint_{row['cape_id']}")
-        shop_hint.setStyleSheet(f"color: {dim_text_css(shop_hint)};")
-        line_layout.addWidget(shop_hint)
+        buy = QPushButton("Buy")
+        buy.setObjectName(f"cabinetCapeBuy_{row['cape_id']}")
+        buy.setEnabled(bool(row["can_buy"]) and on_command is not None)
+        buy.clicked.connect(
+            lambda _=False, cape_id=row["cape_id"]: _run("purchase_cape", {"cape_id": cape_id})
+        )
+        line_layout.addWidget(buy)
         return line
 
     def _capes_card(capes: dict) -> "QWidget":

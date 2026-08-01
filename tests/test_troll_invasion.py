@@ -52,7 +52,7 @@ from ankiscape.runtime.runtime_actions import (
 )
 
 try:
-    from aqt.qt import QApplication, QComboBox, QPushButton
+    from aqt.qt import QApplication, QComboBox, QLabel, QPushButton
     from ankiscape.ui.troll_invasion_panel import TrollInvasionPanel
 
     QT_AVAILABLE = True
@@ -572,7 +572,11 @@ class TrollInvasionQtLayerTest(unittest.TestCase):
         hard_combo = panel.findChild(QComboBox, "trollInvasionDifficultyCombo")
         self.assertEqual(hard_combo.count(), 1, "Hard must stay absent until Standard is attempted")
         self.assertFalse(panel.findChild(QPushButton, "trollInvasionLeaveButton").isVisible())
-        self.assertFalse(panel.findChild(QPushButton, "trollInvasionRedeemButton").isVisible())
+        self.assertFalse(panel.findChild(QPushButton, "trollInvasionRedeemButton").isEnabled())
+        self.assertEqual(
+            panel.findChild(QLabel, "trollInvasionRewardWallet").text(),
+            "0 reward books",
+        )
         panel.close()
 
 

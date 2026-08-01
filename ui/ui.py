@@ -9017,17 +9017,6 @@ def show_main_menu(
         fog_actions_layout.addWidget(fog_forfeit)
         fog_layout.addWidget(fog_actions)
 
-        fog_shop_toggle = QToolButton()
-        fog_shop_toggle.setObjectName("fistOfGuthixShopToggle")
-        fog_shop_toggle.setCheckable(True)
-        fog_shop_toggle.setChecked(False)
-        fog_shop_toggle.setText("▸ Reggie's reward shop")
-        fog_shop_toggle.setToolButtonStyle(
-            Qt.ToolButtonStyle.ToolButtonTextOnly
-        )
-        fog_shop_toggle.setVisible(False)
-        fog_layout.addWidget(fog_shop_toggle)
-
         fog_shop = QWidget()
         fog_shop.setObjectName("fistOfGuthixShop")
         fog_shop_layout = QHBoxLayout(fog_shop)
@@ -9235,17 +9224,6 @@ def show_main_menu(
         )
         fog_stance.currentIndexChanged.connect(
             lambda _index: _set_fist_of_guthix_policy()
-        )
-        fog_shop_toggle.toggled.connect(
-            lambda checked: (
-                fog_shop.setVisible(bool(checked)),
-                fog_shop_toggle.setText(
-                    "▾ Reggie's reward shop"
-                    if checked
-                    else "▸ Reggie's reward shop"
-                ),
-                _fit_current_activity_detail(),
-            )
         )
         fog_reward.currentIndexChanged.connect(
             lambda _index: _refresh_fist_of_guthix_panel()
@@ -9598,9 +9576,13 @@ def show_main_menu(
         penguin_layout.addWidget(penguin_detail)
 
         penguin_reward_row = QWidget()
+        penguin_reward_row.setObjectName("penguinRewardShop")
         penguin_reward_layout = QHBoxLayout(penguin_reward_row)
         penguin_reward_layout.setContentsMargins(0, 0, 0, 0)
         penguin_reward_layout.setSpacing(6)
+        penguin_reward_wallet = QLabel()
+        penguin_reward_wallet.setObjectName("penguinRewardWallet")
+        penguin_reward_wallet.setStyleSheet("color: palette(text); font-weight: 600;")
         penguin_reward_skill = QComboBox()
         penguin_reward_skill.setObjectName("penguinRewardSkill")
         penguin_reward_skill.setAccessibleName("Penguin Point XP skill")
@@ -9612,6 +9594,7 @@ def show_main_menu(
         penguin_redeem_xp.setObjectName("penguinRedeemXpButton")
         penguin_redeem_coins = QPushButton("Redeem all for coins")
         penguin_redeem_coins.setObjectName("penguinRedeemCoinsButton")
+        penguin_reward_layout.addWidget(penguin_reward_wallet)
         penguin_reward_layout.addWidget(penguin_reward_skill, 1)
         penguin_reward_layout.addWidget(penguin_redeem_xp)
         penguin_reward_layout.addWidget(penguin_redeem_coins)
@@ -9708,7 +9691,9 @@ def show_main_menu(
                     and on_set_utility is not None
                 )
             )
-            has_points = int(view["points"]) > 0
+            points = int(view["points"])
+            has_points = points > 0
+            penguin_reward_wallet.setText(f"{points}/50 points")
             penguin_reward_skill.setEnabled(True)
             penguin_redeem_xp.setEnabled(
                 has_points and on_penguin_command is not None
@@ -9716,7 +9701,6 @@ def show_main_menu(
             penguin_redeem_coins.setEnabled(
                 has_points and on_penguin_command is not None
             )
-            points = int(view["points"])
             penguin_redeem_coins.setToolTip(
                 (
                     f"Redeem all {points} points for "
@@ -15007,17 +14991,28 @@ def show_main_menu(
         pest_actions_layout.setSpacing(6)
         pest_primary = QPushButton()
         pest_primary.setObjectName("pestControlPrimaryButton")
+        pest_leave = QPushButton("Leave game")
+        pest_leave.setObjectName("pestControlLeaveButton")
+        pest_actions_layout.addWidget(pest_primary, 1)
+        pest_actions_layout.addWidget(pest_leave)
+        pest_layout.addWidget(pest_actions)
+
+        pest_reward_shop = QWidget()
+        pest_reward_shop.setObjectName("pestControlRewardShop")
+        pest_reward_layout = QHBoxLayout(pest_reward_shop)
+        pest_reward_layout.setContentsMargins(0, 0, 0, 0)
+        pest_reward_layout.setSpacing(6)
+        pest_reward_wallet = QLabel()
+        pest_reward_wallet.setObjectName("pestControlRewardWallet")
+        pest_reward_wallet.setStyleSheet("color: palette(text); font-weight: 600;")
         pest_buy = QPushButton("Buy Void seal · 10")
         pest_buy.setObjectName("pestControlBuySealButton")
         pest_deflector = QPushButton("Buy deflector · 150")
         pest_deflector.setObjectName("pestControlBuyDeflectorButton")
-        pest_leave = QPushButton("Leave game")
-        pest_leave.setObjectName("pestControlLeaveButton")
-        pest_actions_layout.addWidget(pest_primary, 1)
-        pest_actions_layout.addWidget(pest_buy)
-        pest_actions_layout.addWidget(pest_deflector)
-        pest_actions_layout.addWidget(pest_leave)
-        pest_layout.addWidget(pest_actions)
+        pest_reward_layout.addWidget(pest_reward_wallet)
+        pest_reward_layout.addWidget(pest_buy)
+        pest_reward_layout.addWidget(pest_deflector)
+        pest_layout.addWidget(pest_reward_shop)
         cards_stack.addWidget(pest_box)
 
         syncing_pest = {"active": False}
@@ -15125,13 +15120,16 @@ def show_main_menu(
                 and on_pest_control_command is not None
             )
             pest_save.setEnabled(not active and on_pest_control_command is not None)
-            pest_buy.setVisible(not active)
+            pest_reward_wallet.setText(
+                f"{int(view['pest_control_commendations'])}/"
+                f"{int(view['commendation_cap'])} commendations · "
+                f"Conquest rating {int(view['deflector_rating']):,}"
+            )
             pest_buy.setEnabled(
                 on_pest_control_command is not None
                 and bool(view["seal_enabled"])
             )
             pest_buy.setToolTip(str(view["seal_reason"]))
-            pest_deflector.setVisible(not active)
             pest_deflector.setEnabled(
                 on_pest_control_command is not None
                 and bool(view["deflector_enabled"])
@@ -16562,15 +16560,28 @@ def show_main_menu(
         barbarian_primary.setObjectName("barbarianAssaultPrimaryButton")
         barbarian_tutorial = QPushButton("Captain Cain tutorial")
         barbarian_tutorial.setObjectName("barbarianAssaultTutorialButton")
-        barbarian_buy = QPushButton("Buy Runner boots · 100 per role")
-        barbarian_buy.setObjectName("barbarianAssaultBuyBootsButton")
         barbarian_leave = QPushButton("Leave run")
         barbarian_leave.setObjectName("barbarianAssaultLeaveButton")
         barbarian_actions_layout.addWidget(barbarian_primary, 1)
         barbarian_actions_layout.addWidget(barbarian_tutorial)
-        barbarian_actions_layout.addWidget(barbarian_buy)
         barbarian_actions_layout.addWidget(barbarian_leave)
         barbarian_layout.addWidget(barbarian_actions)
+
+        barbarian_reward_shop = QWidget()
+        barbarian_reward_shop.setObjectName("barbarianAssaultRewardShop")
+        barbarian_reward_layout = QHBoxLayout(barbarian_reward_shop)
+        barbarian_reward_layout.setContentsMargins(0, 0, 0, 0)
+        barbarian_reward_layout.setSpacing(6)
+        barbarian_reward_wallet = QLabel()
+        barbarian_reward_wallet.setObjectName("barbarianAssaultRewardWallet")
+        barbarian_reward_wallet.setStyleSheet(
+            "color: palette(text); font-weight: 600;"
+        )
+        barbarian_buy = QPushButton("Buy Runner boots · 100 per role")
+        barbarian_buy.setObjectName("barbarianAssaultBuyBootsButton")
+        barbarian_reward_layout.addWidget(barbarian_reward_wallet, 1)
+        barbarian_reward_layout.addWidget(barbarian_buy)
+        barbarian_layout.addWidget(barbarian_reward_shop)
         cards_stack.addWidget(barbarian_box)
 
         syncing_barbarian = {"active": False}
@@ -16684,7 +16695,7 @@ def show_main_menu(
                 not bool(view["barbarian_assault_tutorial_complete"])
             )
             barbarian_tutorial.setEnabled(on_barbarian_assault_command is not None)
-            barbarian_buy.setVisible(not active)
+            barbarian_reward_wallet.setText(wallet)
             barbarian_buy.setEnabled(
                 on_barbarian_assault_command is not None
                 and bool(view["can_buy_runner_boots"])
@@ -20274,17 +20285,21 @@ def show_main_menu(
             for refresher in (
                 _refresh_big_chinchompa_panel,
                 _refresh_fist_of_guthix_panel,
+                _refresh_penguin_panel,
                 _refresh_vinesweeper_panel,
                 _refresh_flash_factory_panel,
                 _refresh_fish_flingers_panel,
                 _refresh_great_orb_project_panel,
                 _refresh_trouble_panel,
                 _refresh_castle_panel,
+                _refresh_pest_panel,
                 _refresh_soul_panel,
+                _refresh_barbarian_panel,
                 _refresh_stealing_creation_panel,
             ):
                 refresher()
             for panel in (
+                troll_invasion_box,
                 mage_training_arena_box,
                 mobilising_armies_box,
                 crucible_box,
@@ -20335,6 +20350,7 @@ def show_main_menu(
             ):
                 refresher()
             for panel in (
+                troll_invasion_box,
                 mage_training_arena_box,
                 mobilising_armies_box,
                 crucible_box,
@@ -21152,22 +21168,25 @@ def show_main_menu(
     _REHOMED_REWARD_WIDGET_NAMES = (
         "bigChinchompaRewardShop",
         "fistOfGuthixShop",
+        "penguinRewardShop",
         "vinesweeperRewardShop",
+        "vinesweeperRedeemXpButton",
         "flashPowderFactoryRewards",
         "fishFlingersRewardShop",
         "greatOrbProjectShop",
         "troubleBrewingRewardShop",
         "castleWarsRewardShop",
+        "pestControlRewardShop",
         "soulWarsRewardShop",
+        "barbarianAssaultRewardShop",
         "stealingCreationRewardShop",
         "dungeoneeringTokenSummary",
         "dungeoneeringRewardTraderRow",
         "dungeoneeringRewardDetail",
         "crucibleRewardShop",
+        "trollInvasionRewardShop",
         "mobilisingArmiesRewardShop",
-        "mageTrainingArenaWallets",
-        "mageTrainingArenaGoalCombo",
-        "mageTrainingArenaPurchaseButton",
+        "mageTrainingArenaRewardShop",
     )
     reward_staging_host = QWidget(dialog)
     reward_staging_host.setObjectName("rewardShopStagingHost")

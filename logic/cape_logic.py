@@ -476,9 +476,10 @@ def cape_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "level": level,
                 "owned": held,
                 "can_buy": eligible and not held and coins >= SKILLCAPE_PRICE,
-                # Every Cabinet row points to this target, so every skill master
-                # stays visible here; the pure reason explains the level/coin gate.
-                "show_in_shop": True,
+                # 24 masters would be 24 dead buttons at level 1. The shop shows
+                # a cape once the player could conceivably want it; the Cabinet
+                # always lists all of them with their progress.
+                "show_in_shop": eligible or held,
                 "reason": reason,
                 "keepsake": cape.skill_id == state["keepsake_skill"],
             }

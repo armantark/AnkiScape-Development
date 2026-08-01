@@ -91,6 +91,7 @@ if HAS_QT:
             self.wallets.setObjectName("mobilisingArmiesRewardWallet")
             self.wallets.setWordWrap(True)
             self.wallets.setStyleSheet("color: palette(text); font-weight: 600;")
+            layout.addWidget(self.wallets)
             self.battle_status = QLabel(self)
             self.battle_status.setWordWrap(True)
             self.battle_status.setStyleSheet("font-size: 11px; color: palette(text);")
@@ -157,37 +158,62 @@ if HAS_QT:
             muster_layout.addWidget(self.deploy_button, 2, 2)
             layout.addWidget(muster)
 
-            tower = QWidget(self)
-            tower.setObjectName("mobilisingArmiesRewardShop")
-            tower_layout = QGridLayout(tower)
-            tower_layout.setContentsMargins(0, 0, 0, 0)
-            tower_layout.setHorizontalSpacing(6)
-            tower_layout.setVerticalSpacing(3)
-            self.floor_combo = QComboBox(tower)
+            tower_controls = QWidget(self)
+            tower_controls_layout = QGridLayout(tower_controls)
+            tower_controls_layout.setContentsMargins(0, 0, 0, 0)
+            tower_controls_layout.setHorizontalSpacing(6)
+            tower_controls_layout.setVerticalSpacing(3)
+            self.floor_combo = QComboBox(tower_controls)
+            self.floor_combo.setObjectName("mobilisingArmiesFloorCombo")
             self.floor_combo.setAccessibleName("Officer Tower floor")
-            self.spoils_button = QPushButton("View spoils", tower)
-            self.claim_button = QPushButton("Take three lots", tower)
-            self.reward_combo = QComboBox(tower)
-            self.reward_combo.setAccessibleName("Officer Tower reward")
-            self.buy_button = QPushButton("Buy", tower)
-            self.refund_button = QPushButton("Refund", tower)
-            self.prefix_combo = QComboBox(tower)
+            self.prefix_combo = QComboBox(tower_controls)
+            self.prefix_combo.setObjectName("mobilisingArmiesPrefixCombo")
             self.prefix_combo.setAccessibleName("Mobilising Armies name prefix")
-            self.prefix_button = QPushButton("Set prefix", tower)
-            tower_layout.addWidget(self.wallets, 0, 0, 1, 3)
-            tower_layout.addWidget(self.floor_combo, 1, 0)
-            tower_layout.addWidget(self.spoils_button, 1, 1)
-            tower_layout.addWidget(self.claim_button, 1, 2)
-            tower_layout.addWidget(self.reward_combo, 2, 0)
-            tower_layout.addWidget(self.buy_button, 2, 1)
-            tower_layout.addWidget(self.refund_button, 2, 2)
-            tower_layout.addWidget(self.prefix_combo, 3, 0)
-            tower_layout.addWidget(self.prefix_button, 3, 1)
-            layout.addWidget(tower)
-            self.spoils_label = QLabel(self)
+            self.prefix_button = QPushButton("Set prefix", tower_controls)
+            self.prefix_button.setObjectName("mobilisingArmiesPrefixButton")
+            tower_controls_layout.addWidget(self.floor_combo, 0, 0)
+            tower_controls_layout.addWidget(self.prefix_combo, 1, 0)
+            tower_controls_layout.addWidget(self.prefix_button, 1, 1)
+            layout.addWidget(tower_controls)
+
+            reward_shop = QWidget(self)
+            reward_shop.setObjectName("mobilisingArmiesRewardShop")
+            reward_shop_layout = QGridLayout(reward_shop)
+            reward_shop_layout.setContentsMargins(0, 0, 0, 0)
+            reward_shop_layout.setHorizontalSpacing(6)
+            reward_shop_layout.setVerticalSpacing(3)
+            self.shop_wallets = QLabel(reward_shop)
+            self.shop_wallets.setObjectName("mobilisingArmiesShopWallet")
+            self.shop_wallets.setWordWrap(True)
+            self.shop_wallets.setStyleSheet("color: palette(text); font-weight: 600;")
+            self.shop_floor_combo = QComboBox(reward_shop)
+            self.shop_floor_combo.setObjectName("mobilisingArmiesShopFloorCombo")
+            self.shop_floor_combo.setAccessibleName("Spoils of War floor")
+            self.spoils_button = QPushButton("View spoils", reward_shop)
+            self.spoils_button.setObjectName("mobilisingArmiesViewSpoilsButton")
+            self.claim_button = QPushButton("Take three lots", reward_shop)
+            self.claim_button.setObjectName("mobilisingArmiesClaimSpoilsButton")
+            self.spoils_label = QLabel(reward_shop)
+            self.spoils_label.setObjectName("mobilisingArmiesSpoilsOffer")
             self.spoils_label.setWordWrap(True)
             self.spoils_label.setStyleSheet("font-size: 11px; color: palette(text);")
-            layout.addWidget(self.spoils_label)
+            self.reward_combo = QComboBox(reward_shop)
+            self.reward_combo.setObjectName("mobilisingArmiesRewardCombo")
+            self.reward_combo.setAccessibleName("Officer Tower reward")
+            self.buy_button = QPushButton("Buy", reward_shop)
+            self.buy_button.setObjectName("mobilisingArmiesBuyButton")
+            self.refund_button = QPushButton("Refund", reward_shop)
+            self.refund_button.setObjectName("mobilisingArmiesRefundButton")
+            reward_shop_layout.addWidget(self.shop_wallets, 0, 0, 1, 3)
+            reward_shop_layout.addWidget(self.shop_floor_combo, 1, 0)
+            reward_shop_layout.addWidget(self.spoils_button, 1, 1)
+            reward_shop_layout.addWidget(self.claim_button, 1, 2)
+            reward_shop_layout.addWidget(self.spoils_label, 2, 0, 1, 3)
+            reward_shop_layout.addWidget(self.reward_combo, 3, 0)
+            reward_shop_layout.addWidget(self.buy_button, 3, 1)
+            reward_shop_layout.addWidget(self.refund_button, 3, 2)
+            layout.addWidget(reward_shop)
+            reward_shop.hide()
 
             gear = QWidget(self)
             gear_layout = QGridLayout(gear)
@@ -241,9 +267,20 @@ if HAS_QT:
                     "deploy", {"unit": str(self.unit_combo.currentData() or "")}
                 )
             )
+            self.floor_combo.currentIndexChanged.connect(
+                lambda _index: self._select(
+                    self.shop_floor_combo, str(self.floor_combo.currentData() or "")
+                )
+            )
+            self.shop_floor_combo.currentIndexChanged.connect(
+                lambda _index: self._select(
+                    self.floor_combo, str(self.shop_floor_combo.currentData() or "")
+                )
+            )
             self.spoils_button.clicked.connect(
                 lambda _checked=False: self._run_command(
-                    "roll_spoils", {"floor": str(self.floor_combo.currentData() or "")}
+                    "roll_spoils",
+                    {"floor": str(self.shop_floor_combo.currentData() or "")},
                 )
             )
             self.claim_button.clicked.connect(lambda _checked=False: self._claim_spoils())
@@ -396,6 +433,7 @@ if HAS_QT:
                 (self.invest_combo, view["investment_options"]),
                 (self.squad_combo, view["squad_options"]),
                 (self.floor_combo, view["floor_options"]),
+                (self.shop_floor_combo, view["floor_options"]),
             ):
                 self._fill(combo, rows)
             self._fill(
@@ -451,6 +489,7 @@ if HAS_QT:
                 self.invest_combo,
                 self.squad_combo,
                 self.floor_combo,
+                self.shop_floor_combo,
             ):
                 combo.setEnabled(enabled and not view["active"])
             self.order_combo.setEnabled(enabled)
@@ -465,6 +504,7 @@ if HAS_QT:
                 + (f" ({view['rank_prefix_band']})" if view["rank_prefix_band"] else "")
             )
             self.wallets.setText(wallet_text)
+            self.shop_wallets.setText(wallet_text)
             self.battle_status.setText(
                 f"{view['scenario_name']} · order {int(view['beat'])}/{int(view['beat_count'])} · "
                 f"orders given {int(view['commands'])}/{int(view['commands_required'])}"
