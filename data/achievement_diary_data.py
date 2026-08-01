@@ -50,10 +50,10 @@ CONDITION_KINDS: Tuple[str, ...] = (
 # The kinds an ``any_of`` alternative may take: the plain state reads only. A
 # disjunction of disjunctions has no source behind it, and the flat form is what
 # the panel can render.
-# Config v107 changes these stable source rows from requirement gates or dotted
+# Config v108 changes these stable source rows from requirement gates or dotted
 # counter shims to deed predicates. Migration must re-prove them from durable
 # evidence instead of retaining completion earned under the superseded rule.
-V107_DEED_REVALIDATION_SOURCE_IDS = frozenset({
+V108_DEED_REVALIDATION_SOURCE_IDS = frozenset({
     5, 15, 29, 40, 44, 50, 52, 56, 79, 84, 86, 88, 99, 104, 105,
     108, 109, 110, 112, 113, 114, 125, 134, 139, 152, 165, 171, 175,
     179, 184, 199, 200, 201, 214, 226, 230, 232, 243, 246, 247, 250,
@@ -254,6 +254,6 @@ __all__ = [
     "DiaryLamp",
     "DiaryTask",
     "DiaryTier",
-    "V107_DEED_REVALIDATION_SOURCE_IDS",
+    "V108_DEED_REVALIDATION_SOURCE_IDS",
     "diary_equipment_data_as_dict",
 ]

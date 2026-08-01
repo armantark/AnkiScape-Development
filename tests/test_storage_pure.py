@@ -996,10 +996,10 @@ class TestStoragePure(unittest.TestCase):
             {"actions": {}, "outputs": {}},
         )
 
-    def test_v107_seeds_new_deed_outputs_and_preserves_durable_shop_counts(self):
+    def test_v108_seeds_new_deed_outputs_and_preserves_durable_shop_counts(self):
         migrated = migrate_loaded_data(
             {
-                "config_version": 106,
+                "config_version": 107,
                 "inventory": {
                     "Clay ring": 1,
                     "Vial": 3,
