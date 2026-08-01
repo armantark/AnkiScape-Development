@@ -9,6 +9,7 @@ from typing import Optional
 try:
     from aqt.qt import (  # type: ignore
         Qt,
+        QComboBox,
         QGridLayout,
         QHBoxLayout,
         QLabel,
@@ -18,6 +19,7 @@ try:
         QPushButton,
         QScrollArea,
         QSize,
+        QSizePolicy,
         QSpinBox,
         QTabWidget,
         QToolButton,
@@ -336,7 +338,7 @@ def build_shop_tab(ctx) -> "QWidget":
 
     def _agility_section(
         title: str, object_name: str
-    ) -> tuple[QWidget, QGridLayout]:
+    ) -> tuple[QWidget, QLabel, QGridLayout]:
         section = QWidget()
         section_layout = QVBoxLayout(section)
         section_layout.setContentsMargins(0, 0, 0, 0)
@@ -345,27 +347,31 @@ def build_shop_tab(ctx) -> "QWidget":
         label.setObjectName(object_name)
         label.setStyleSheet(f"color: {dim_text_css(label)};")
         section_layout.addWidget(label)
+        balance = QLabel()
+        balance.setObjectName(object_name + "Balance")
+        balance.setStyleSheet("color: palette(text); font-weight: 600;")
+        section_layout.addWidget(balance)
         grid_widget = QWidget()
         grid = QGridLayout(grid_widget)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(5)
         section_layout.addWidget(grid_widget)
         agility_rewards_layout.addWidget(section)
-        return section, grid
+        return section, balance, grid
 
-    brimhaven_section, brimhaven_grid = _agility_section(
+    brimhaven_section, brimhaven_balance, brimhaven_grid = _agility_section(
         "Brimhaven Agility Arena · Pirate Jackie the Fruit",
         "shopBrimhavenSectionLabel",
     )
-    agile_section, agile_grid = _agility_section(
+    agile_section, agile_balance, agile_grid = _agility_section(
         "Advanced courses · the Agile worker",
         "shopAgileSectionLabel",
     )
-    cape_section, cape_grid = _agility_section(
+    cape_section, cape_balance, cape_grid = _agility_section(
         "Capes of Accomplishment and Distinction · the skill masters",
         "shopAgilityCapeSectionLabel",
     )
-    buyers_section, buyers_grid = _agility_section(
+    buyers_section, buyers_balance, buyers_grid = _agility_section(
         "Agility Pyramid · Simon Templeton",
         "shopNamedBuyersSectionLabel",
     )
@@ -387,6 +393,9 @@ def build_shop_tab(ctx) -> "QWidget":
     reward_target_scroll = QScrollArea()
     reward_target_scroll.setObjectName("rewardShopInterfaceScroll")
     reward_target_scroll.setWidgetResizable(True)
+    reward_target_scroll.setHorizontalScrollBarPolicy(
+        Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+    )
     reward_target_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
     reward_target_body = QWidget()
     reward_target_content_layout = QVBoxLayout(reward_target_body)
@@ -459,15 +468,29 @@ def build_shop_tab(ctx) -> "QWidget":
         ("fish_flingers", "Fish Flingers reward shop", ("fishFlingersRewardShop",)),
         ("great_orb_project", "Great Orb Project · Wizard Elriss", ("greatOrbProjectShop",)),
         ("trouble_brewing", "Trouble Brewing rewards", ("troubleBrewingRewardShop",)),
-        ("castle_wars", "Castle Wars ticket shop", ("castleWarsShopButton",)),
+        ("castle_wars", "Castle Wars ticket shop", ("castleWarsRewardShop",)),
         ("soul_wars", "Soul Wars rewards", ("soulWarsRewardShop",)),
         ("stealing_creation", "Stealing Creation reward tools", ("stealingCreationRewardShop",)),
-        ("dungeoneering", "Dungeoneering rewards trader", ("dungeoneeringRewardTraderRow", "dungeoneeringRewardDetail")),
+        (
+            "dungeoneering",
+            "Dungeoneering rewards trader",
+            (
+                "dungeoneeringTokenSummary",
+                "dungeoneeringRewardTraderRow",
+                "dungeoneeringRewardDetail",
+            ),
+        ),
         ("crucible", "The Crucible · Trophy bones", ("crucibleRewardShop",)),
         ("mobilising_armies", "Mobilising Armies · Officer Tower", ("mobilisingArmiesRewardShop",)),
-        # The Arena's goal combo lives in its plan grid, so the Shop re-homes
-        # the two reward controls on their own rather than the whole row.
-        ("mage_training_arena", "Mage Training Arena rewards", ("mageTrainingArenaGoalCombo", "mageTrainingArenaPurchaseButton")),
+        (
+            "mage_training_arena",
+            "Mage Training Arena rewards",
+            (
+                "mageTrainingArenaWallets",
+                "mageTrainingArenaGoalCombo",
+                "mageTrainingArenaPurchaseButton",
+            ),
+        ),
     )
     for target_id, display_name, object_names in external_reward_targets:
         source_widgets = [
@@ -481,8 +504,29 @@ def build_shop_tab(ctx) -> "QWidget":
         page_layout = QVBoxLayout(page)
         page_layout.setContentsMargins(0, 0, 0, 0)
         page_layout.setSpacing(6)
+        page.setMinimumWidth(0)
+        page.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
         for source_widget in source_widgets:
             source_widget.setParent(page)
+            source_widget.setMinimumWidth(0)
+            source_widget.setSizePolicy(
+                QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Preferred,
+            )
+            if isinstance(source_widget, QComboBox):
+                source_widget.setSizePolicy(
+                    QSizePolicy.Policy.Ignored,
+                    QSizePolicy.Policy.Fixed,
+                )
+            for combo in source_widget.findChildren(QComboBox):
+                combo.setMinimumWidth(0)
+                combo.setSizePolicy(
+                    QSizePolicy.Policy.Ignored,
+                    QSizePolicy.Policy.Fixed,
+                )
             source_widget.setVisible(True)
             page_layout.addWidget(source_widget)
         page_layout.addStretch(1)
@@ -1276,6 +1320,16 @@ def build_shop_tab(ctx) -> "QWidget":
     def _populate_agility_reward_shops() -> None:
         for grid in (brimhaven_grid, agile_grid, cape_grid, buyers_grid):
             _clear_layout(grid)
+        brimhaven_balance.setText(
+            f"{_inventory_count_for_ui('Agility arena ticket'):,} tickets"
+        )
+        agile_balance.setText("Course unlock rewards · no currency required")
+        cape_balance.setText(
+            f"{_inventory_count_for_ui('Coins'):,} coins"
+        )
+        buyers_balance.setText(
+            f"{_inventory_count_for_ui('Pyramid top'):,} Pyramid tops held"
+        )
         index = 0
         for tickets in (1, 10, 25, 100, 1000):
             suffix = "ticket" if tickets == 1 else "tickets"
@@ -1331,9 +1385,7 @@ def build_shop_tab(ctx) -> "QWidget":
         )
         capes = cape_view_pure(player_data)
         rows = [
-            row
-            for row in capes["skillcapes"]
-            if row["show_in_shop"] and row["cape_id"] != "agility"
+            row for row in capes["skillcapes"] if row["cape_id"] != "agility"
         ]
         rows.extend(capes["distinctions"])
         for index, row in enumerate(rows, start=1):
@@ -1387,6 +1439,7 @@ def build_shop_tab(ctx) -> "QWidget":
         transaction_panel.setVisible(is_shop)
         history_header.setVisible(is_shop)
         local_history.setVisible(is_shop)
+        shop_lower_scroll.setVisible(is_shop)
         reward_target_panel.setVisible(is_reward)
         if not is_shop:
             global_history.setVisible(False)

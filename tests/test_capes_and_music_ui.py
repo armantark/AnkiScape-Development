@@ -241,22 +241,27 @@ class ShopSkillcapeSectionUITest(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
-    def test_a_level_one_player_sees_a_hint_rather_than_dead_master_buttons(self):
+    def test_a_level_one_player_can_find_every_skill_master_in_the_shop(self):
         from ankiscape.logic.cape_logic import cape_view_pure
 
         view = cape_view_pure(default_player_data(ORE_DATA))
-        self.assertFalse(any(row["show_in_shop"] for row in view["skillcapes"]))
+        shown = [row for row in view["skillcapes"] if row["show_in_shop"]]
+        self.assertEqual(len(shown), len(view["skillcapes"]))
+        self.assertTrue(all(not row["can_buy"] for row in shown))
+        self.assertTrue(all("Level 99 needed" in row["reason"] for row in shown))
 
-    def test_reaching_99_puts_exactly_that_master_s_row_in_the_shop(self):
+    def test_reaching_99_enables_only_that_master_s_row_in_the_shop(self):
         from ankiscape.logic.cape_logic import cape_view_pure
 
         player = default_player_data(ORE_DATA)
         player["mining_level"] = SKILLCAPE_LEVEL
+        player["inventory"] = {"Coins": SKILLCAPE_PRICE}
         view = cape_view_pure(player)
         shown = [row for row in view["skillcapes"] if row["show_in_shop"]]
-        self.assertEqual([row["cape_id"] for row in shown], ["mining"])
-        self.assertEqual(shown[0]["master"], "Dwarf")
-        self.assertEqual(shown[0]["price"], SKILLCAPE_PRICE)
+        enabled = [row for row in shown if row["can_buy"]]
+        self.assertEqual([row["cape_id"] for row in enabled], ["mining"])
+        self.assertEqual(enabled[0]["master"], "Dwarf")
+        self.assertEqual(enabled[0]["price"], SKILLCAPE_PRICE)
 
 
 if __name__ == "__main__":

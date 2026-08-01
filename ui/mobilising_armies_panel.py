@@ -88,9 +88,9 @@ if HAS_QT:
             layout.addWidget(header)
 
             self.wallets = QLabel(self)
+            self.wallets.setObjectName("mobilisingArmiesRewardWallet")
             self.wallets.setWordWrap(True)
-            self.wallets.setStyleSheet("color: palette(text);")
-            layout.addWidget(self.wallets)
+            self.wallets.setStyleSheet("color: palette(text); font-weight: 600;")
             self.battle_status = QLabel(self)
             self.battle_status.setWordWrap(True)
             self.battle_status.setStyleSheet("font-size: 11px; color: palette(text);")
@@ -174,14 +174,15 @@ if HAS_QT:
             self.prefix_combo = QComboBox(tower)
             self.prefix_combo.setAccessibleName("Mobilising Armies name prefix")
             self.prefix_button = QPushButton("Set prefix", tower)
-            tower_layout.addWidget(self.floor_combo, 0, 0)
-            tower_layout.addWidget(self.spoils_button, 0, 1)
-            tower_layout.addWidget(self.claim_button, 0, 2)
-            tower_layout.addWidget(self.reward_combo, 1, 0)
-            tower_layout.addWidget(self.buy_button, 1, 1)
-            tower_layout.addWidget(self.refund_button, 1, 2)
-            tower_layout.addWidget(self.prefix_combo, 2, 0)
-            tower_layout.addWidget(self.prefix_button, 2, 1)
+            tower_layout.addWidget(self.wallets, 0, 0, 1, 3)
+            tower_layout.addWidget(self.floor_combo, 1, 0)
+            tower_layout.addWidget(self.spoils_button, 1, 1)
+            tower_layout.addWidget(self.claim_button, 1, 2)
+            tower_layout.addWidget(self.reward_combo, 2, 0)
+            tower_layout.addWidget(self.buy_button, 2, 1)
+            tower_layout.addWidget(self.refund_button, 2, 2)
+            tower_layout.addWidget(self.prefix_combo, 3, 0)
+            tower_layout.addWidget(self.prefix_button, 3, 1)
             layout.addWidget(tower)
             self.spoils_label = QLabel(self)
             self.spoils_label.setWordWrap(True)
@@ -457,12 +458,13 @@ if HAS_QT:
             self.save_button.setEnabled(enabled)
 
             self.status_chip.setText("IN BATTLE" if view["active"] else "READY")
-            self.wallets.setText(
+            wallet_text = (
                 f"{int(view['mobilising_armies_investment_credits']):,} investment · "
                 f"{int(view['mobilising_armies_reward_credits']):,} reward credits · "
                 f"rank {int(view['mobilising_armies_rank'])}"
                 + (f" ({view['rank_prefix_band']})" if view["rank_prefix_band"] else "")
             )
+            self.wallets.setText(wallet_text)
             self.battle_status.setText(
                 f"{view['scenario_name']} · order {int(view['beat'])}/{int(view['beat_count'])} · "
                 f"orders given {int(view['commands'])}/{int(view['commands_required'])}"
