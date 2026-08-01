@@ -4,6 +4,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.storage_pure import (
     default_player_data,
     migrate_loaded_data,
+    repair_legacy_activity_review_surface_pure,
     CURRENT_CONFIG_VERSION,
 )
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
@@ -1482,12 +1483,22 @@ class TestStoragePure(unittest.TestCase):
         self.assertIsNone(migrated["farm_livid_protection_crop_id"])
         self.assertEqual(migrated["farm_livid_protection_uses_remaining"], 0)
 
-    def test_migration_repairs_double_started_star_and_adds_low_level_food(self):
+    def test_migration_repairs_reported_star_and_dream_save_state(self):
         migrated = migrate_loaded_data(
             {
                 "config_version": 103,
                 "current_utility": "shooting_stars",
-                "activity_session": {"active_id": "shooting_stars"},
+                "activity_session": {"active_id": ""},
+                "magic_level": 1,
+                "quests": {"dream_mentor": {"completed": False}},
+                "combat_dream_thrift": True,
+                "combat_pack_mode": "max_output",
+                "combat_encounter": {
+                    "target_id": "citizen",
+                    "enemy_lifepoints": 67,
+                },
+                "combat_supply_loadout": {"food": {"Shrimps": 1}},
+                "inventory": {"Shrimps": 89},
                 "combat_auto_eat_food": [
                     "Shark",
                     "Swordfish",
@@ -1507,6 +1518,22 @@ class TestStoragePure(unittest.TestCase):
 
         self.assertEqual(migrated["activity_session"], {"active_id": ""})
         self.assertEqual(migrated["current_utility"], "shooting_stars")
+        self.assertFalse(migrated["combat_dream_thrift"])
+        self.assertEqual(migrated["combat_encounter"], {})
+        self.assertEqual(migrated["combat_supply_loadout"]["food"], {"Shrimps": 8})
+        self.assertEqual(migrated["inventory"]["Shrimps"], 82)
+        self.assertEqual(
+            repair_legacy_activity_review_surface_pure(migrated, None, 103),
+            "Activities",
+        )
+        self.assertEqual(
+            repair_legacy_activity_review_surface_pure(migrated, "Woodcutting", 103),
+            "Woodcutting",
+        )
+        self.assertEqual(
+            repair_legacy_activity_review_surface_pure(migrated, None, 105),
+            "None",
+        )
         self.assertEqual(
             migrated["combat_auto_eat_food"],
             [

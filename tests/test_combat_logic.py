@@ -562,9 +562,10 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         }
         for mode, allocation in expected.items():
             with self.subTest(mode=mode):
-                switched = set_combat_pack_mode_pure(
+                switched, ok, reason = set_combat_pack_mode_pure(
                     player, mode, EQUIPMENT_DATA
                 )
+                self.assertTrue(ok, reason)
                 loadout = switched["combat_supply_loadout"]
                 self.assertEqual(
                     (sum(loadout["food"].values()), sum(loadout["stat_potions"].values())),
@@ -573,6 +574,35 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
                 self.assertEqual(
                     loadout["food"], {"Sardine": allocation[0]}
                 )
+
+    def test_pack_mode_repairs_invalid_dream_fight_but_rejects_a_real_fight(self):
+        reported = self._melee(
+            magic_level=1,
+            quests={"dream_mentor": {"completed": False}},
+            combat_dream_thrift=True,
+            combat_encounter={"target_id": "citizen", "enemy_lifepoints": 67},
+            inventory={"Shrimps": 89},
+            combat_auto_eat_food=["Shrimps"],
+            combat_supply_loadout={"food": {"Shrimps": 1}},
+        )
+
+        repaired, ok, reason = set_combat_pack_mode_pure(
+            reported, "max_safety", EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, reason)
+        self.assertFalse(repaired["combat_dream_thrift"])
+        self.assertEqual(repaired["combat_encounter"], {})
+        self.assertEqual(repaired["combat_supply_loadout"]["food"], {"Shrimps": 20})
+
+        active = dict(repaired)
+        active["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 3}
+        refused, ok, reason = set_combat_pack_mode_pure(
+            active, "max_output", EQUIPMENT_DATA
+        )
+        self.assertFalse(ok)
+        self.assertIn("active fight", reason)
+        self.assertEqual(refused["combat_pack_mode"], "max_safety")
+        self.assertEqual(refused["combat_supply_loadout"]["food"], {"Shrimps": 20})
 
 
 class CombatEnemyAttackStyleTest(unittest.TestCase):
@@ -4350,7 +4380,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertLess(second_result["xp_rewards"]["magic_exp"], 130.0)
 
     def test_low_hitpoints_do_not_auto_select_locked_dream_and_stop_combat(self):
-        player = set_combat_pack_mode_pure(
+        player, changed, reason = set_combat_pack_mode_pure(
             _player(
                 magic_level=1,
                 constitution_level=10,
@@ -4360,6 +4390,7 @@ class CombatLogicTest(unittest.TestCase):
             "max_safety",
             EQUIPMENT_DATA,
         )
+        self.assertTrue(changed, reason)
 
         _new_data, ok, result = apply_combat_burst_pure(
             player,

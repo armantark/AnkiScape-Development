@@ -435,6 +435,14 @@ _OVERLAY_TARGET_KEYS = {
     "summoning": "current_summoning",
 }
 
+# Every review surface has a selected target for the always-visible bank-run
+# action, even when it does not use the carried-inventory overlay itself.
+_BANK_RUN_TARGET_KEYS = {
+    **_OVERLAY_TARGET_KEYS,
+    "utility": "current_utility",
+    "quest": "current_quest",
+}
+
 
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
 # use the real cache stackable set so a stack is not miscounted as N slots.
@@ -834,6 +842,17 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             player_data.pop("review_bank_run_requested_handler", None)
             player_data.update(restore_summoning_points_pure(player_data))
             ctx.show_activity_gain("Bank run — arrived at the bank")
+            ctx.save_player_data()
+            return True
+        bank_target_key = _BANK_RUN_TARGET_KEYS.get(handler_key)
+        target_id = str(player_data.get(bank_target_key, "")) if bank_target_key else ""
+        requested_target = player_data.get("skilling_bank_run_requested")
+        if requested_target and requested_target != target_id:
+            player_data.pop("skilling_bank_run_requested", None)
+        elif target_id and requested_target == target_id:
+            player_data.pop("skilling_bank_run_requested", None)
+            player_data.update(restore_summoning_points_pure(player_data))
+            ctx.show_activity_gain("Bank run — arrived and ready")
             ctx.save_player_data()
             return True
         return handler(ctx)

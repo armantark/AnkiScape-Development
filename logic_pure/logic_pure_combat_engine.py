@@ -2526,13 +2526,15 @@ def request_combat_bank_run_now_pure(player_data):
 def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
+    if combat_has_active_encounter_pure(data):
+        return data, False, "Finish the active fight before changing supply mode."
     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
     data = derive_casual_combat_magic_pure(data)
-    # Both calls no-op during an active fight, so a stale loadout is only ever
-    # rebalanced between review bursts.
-    data, _, _ = unload_combat_supply_loadout_pure(data)
-    data, _, _ = refill_combat_supply_loadout_pure(data, equipment_data)
-    return data
+    data, ok, reason = unload_combat_supply_loadout_pure(data)
+    if not ok:
+        return data, False, reason
+    data, ok, reason = refill_combat_supply_loadout_pure(data, equipment_data)
+    return data, ok, reason
 
 
 def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):

@@ -435,7 +435,7 @@ from ..logic.slayer_logic import (
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -4513,7 +4513,7 @@ def show_main_menu(
         "details_open": False,
     }
     target_details_context = {"display_row": None}
-    activity_start_transition = {"call": None}
+    activity_start_transition = {}
 
     # ---- deferred tabs ----------------------------------------------------
     # Shop, Quests and Achievements each build hundreds to thousands of widgets
@@ -4738,16 +4738,12 @@ def show_main_menu(
             warn.setText("You can't fight any source-backed combat target yet.")
             return
         if display_name in {_UTILITIES_HUB_NAME, _ACTIVITIES_HUB_NAME}:
-            activity_id = str(
-                player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-            )
-            start = activity_start_transition.get("call")
-            if (
-                callable(start)
-                and _utility_surface_name_for_target(activity_id) == display_name
-            ):
-                start(activity_id)
+            start = activity_start_transition.get(display_name)
+            if callable(start) and start():
                 return
+            target_label = "activity" if display_name == _ACTIVITIES_HUB_NAME else "utility"
+            warn.setText(f"Select an available {target_label} first.")
+            return
         warn.setText("")
         state["active"] = display_name
         on_save_skill(display_name)
@@ -7233,6 +7229,12 @@ def show_main_menu(
         dream_thrift = QCheckBox("Dream thrift")
         dream_thrift.setObjectName("combatDreamThriftCheck")
         dream_thrift.setChecked(bool(player_data.get("combat_dream_thrift", False)))
+        dream_reasons = combat_dream_thrift_locked_reasons_pure(player_data)
+        dream_thrift.setEnabled(
+            on_set_combat_prayer_config is not None and not dream_reasons
+        )
+        if dream_reasons:
+            dream_thrift.setToolTip(f"Requires {dream_reasons[0]}.")
         if on_set_combat_prayer_config is not None:
             prayer_master.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_prayers_enabled", bool(enabled)))
             dream_thrift.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_dream_thrift", bool(enabled)))
@@ -8893,7 +8895,7 @@ def show_main_menu(
         star_panel_refresher["call"] = _refresh_shooting_star_panel
 
         def _select_shooting_star() -> None:
-            start = activity_start_transition.get("call")
+            start = activity_start_transition.get(_ACTIVITIES_HUB_NAME)
             if not callable(start) or not start(SHOOTING_STAR_ACTIVITY_ID):
                 return
             tree.clearSelection()
@@ -19880,10 +19882,50 @@ def show_main_menu(
             _show_activity_detail(activity_id)
             return True
 
+        def _startable_activity_id(item: "QTreeWidgetItem") -> str:
+            if item is None or item.isDisabled():
+                return ""
+            activity_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if (
+                not isinstance(activity_id, str)
+                or not activity_id
+                or activity_id.startswith("__")
+                or _utility_surface_name_for_target(activity_id) != surface_name
+            ):
+                return ""
+            return activity_id
+
+        def _first_startable_activity_id() -> str:
+            selected_id = _startable_activity_id(tree.currentItem())
+            if selected_id:
+                return selected_id
+
+            def _walk(item: "QTreeWidgetItem") -> str:
+                activity_id = _startable_activity_id(item)
+                if activity_id:
+                    return activity_id
+                for index in range(item.childCount()):
+                    activity_id = _walk(item.child(index))
+                    if activity_id:
+                        return activity_id
+                return ""
+
+            for index in range(tree.topLevelItemCount()):
+                activity_id = _walk(tree.topLevelItem(index))
+                if activity_id:
+                    return activity_id
+            return ""
+
+        def _start_surface_activity(activity_id: str = "") -> bool:
+            target_id = str(activity_id or "")
+            if _utility_surface_name_for_target(target_id) != surface_name:
+                target_id = _first_startable_activity_id()
+            return bool(target_id) and _set_utility_selection(
+                target_id, activate=True
+            )
+
         utility_selection_handler["call"] = _set_utility_selection
-        activity_start_transition["call"] = lambda activity_id: _set_utility_selection(
-            activity_id, activate=True
-        )
+        activity_start_transition[surface_name] = _start_surface_activity
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None or item.isDisabled():
@@ -23244,8 +23286,22 @@ def show_main_menu(
         supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(str(player_data.get("combat_pack_mode", "balanced")))))
 
         def _on_pack_mode(_index: int) -> None:
+            accepted = True
             if on_set_combat_pack_mode is not None:
-                on_set_combat_pack_mode(supply_mode_combo.currentData() or "balanced")
+                accepted = on_set_combat_pack_mode(
+                    supply_mode_combo.currentData() or "balanced"
+                ) is not False
+            if not accepted:
+                supply_mode_combo.blockSignals(True)
+                supply_mode_combo.setCurrentIndex(
+                    max(
+                        0,
+                        supply_mode_combo.findData(
+                            str(player_data.get("combat_pack_mode", "balanced"))
+                        ),
+                    )
+                )
+                supply_mode_combo.blockSignals(False)
             _refresh_carried_sections()
 
         supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)

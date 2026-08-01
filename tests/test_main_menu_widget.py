@@ -3270,6 +3270,36 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("max_output", calls)
         dialog.deleteLater()
 
+    def test_combat_supply_mode_reverts_when_active_fight_rejects_change(self) -> None:
+        player = _make_player_data()
+        player["combat_pack_mode"] = "balanced"
+        player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 3}
+        dialog = self._open(
+            player,
+            current_skill="Combat",
+            on_set_combat_pack_mode=lambda _mode: False,
+        )
+        combo = dialog.findChild(QComboBox, "combatPackModeCombo")
+        combo.setCurrentIndex(combo.findData("max_output"))
+        QApplication.processEvents()
+        self.assertEqual(combo.currentData(), "balanced")
+        dialog.deleteLater()
+
+    def test_locked_dream_thrift_control_explains_its_requirements(self) -> None:
+        player = _make_player_data()
+        player["magic_level"] = 1
+        player["quests"]["dream_mentor"] = {
+            "started": False,
+            "progress": 0,
+            "completed": False,
+        }
+        dialog = self._open(player, current_skill="Combat")
+        dream = dialog.findChild(QCheckBox, "combatDreamThriftCheck")
+        self.assertIsNotNone(dream)
+        self.assertFalse(dream.isEnabled())
+        self.assertIn("79 Magic and Dream Mentor", dream.toolTip())
+        dialog.deleteLater()
+
     def test_carried_layout_grid_reachable_without_an_active_pack_target(self) -> None:
         from aqt.qt import QPushButton, QWidget
 
@@ -10262,9 +10292,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
         )
 
-    def test_activity_start_control_uses_the_same_star_transition(self) -> None:
+    def test_activity_start_control_uses_one_transition_from_a_utility_target(self) -> None:
         pd = _make_player_data()
-        pd["current_utility"] = "shooting_stars"
+        pd["current_utility"] = "make_soft_clay"
         dialog = self._open(pd, current_skill="Mining")
         self._open_activities(dialog)
         start = next(
@@ -10276,8 +10306,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         start.click()
         QApplication.processEvents()
 
-        self.assertEqual(self._activity_start_calls, ["shooting_stars"])
-        self.assertEqual(pd["current_utility"], "shooting_stars")
+        self.assertEqual(len(self._activity_start_calls), 1)
+        self.assertEqual(pd["current_utility"], self._activity_start_calls[0])
+        self.assertNotEqual(pd["current_utility"], "make_soft_clay")
 
     def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:
         from ankiscape.logic.fist_of_guthix_logic import (

@@ -6,7 +6,11 @@
 """
 from aqt import mw
 from .constants import ITEM_DEFINITIONS, ORE_DATA
-from .storage_pure import default_player_data, migrate_loaded_data
+from .storage_pure import (
+    default_player_data,
+    migrate_loaded_data,
+    repair_legacy_activity_review_surface_pure,
+)
 
 
 _PLAYER_DATA_KEY = "ankiscape_player_data"
@@ -40,11 +44,22 @@ def load_player_data():
     loaded = mw.col.get_config(_PLAYER_DATA_KEY)
     if not loaded:
         loaded = mw.col.get_config(_PLAYER_DATA_RECOVERY_KEY)
+    current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
     if loaded:
-        player_data = migrate_loaded_data(dict(loaded), ORE_DATA, ITEM_DEFINITIONS)
+        loaded = dict(loaded)
+        try:
+            loaded_version = int(loaded.get("config_version", 1))
+        except (TypeError, ValueError):
+            loaded_version = 1
+        player_data = migrate_loaded_data(loaded, ORE_DATA, ITEM_DEFINITIONS)
+        repaired_skill = repair_legacy_activity_review_surface_pure(
+            player_data, current_skill, loaded_version
+        )
+        if repaired_skill != current_skill:
+            current_skill = repaired_skill
+            mw.col.set_config("ankiscape_current_skill", current_skill)
     else:
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-    current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
     return player_data, current_skill
 
 

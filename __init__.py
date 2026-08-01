@@ -57,6 +57,7 @@ from .logic_pure.logic_pure import (
     apply_claim_pure,
     apply_safe_combat_recovery_pure,
     advance_temporary_effects_pure,
+    combat_dream_thrift_locked_reasons_pure,
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
@@ -4177,6 +4178,11 @@ def _set_value(key: str, value):
 
 
 def _set_combat_prayer_config(key: str, value):
+    if key == "combat_dream_thrift" and bool(value):
+        reasons = combat_dream_thrift_locked_reasons_pure(player_data)
+        if reasons:
+            show_error_message("Dream unavailable", f"Dream requires {reasons[0]}.")
+            return False
     if key == "apply_preset":
         new_data, ok = apply_combat_preset_pure(player_data, str(value), player_data.get("current_combat_target"))
         if ok:
@@ -4248,9 +4254,13 @@ def on_set_combat_auto_eat_threshold(threshold_percent):
 
 
 def on_set_combat_pack_mode(mode):
-    _save_combat_state_update(
-        set_combat_pack_mode_pure(player_data, mode, EQUIPMENT_DATA)
+    new_data, ok, reason = set_combat_pack_mode_pure(
+        player_data, mode, EQUIPMENT_DATA
     )
+    if not ok:
+        show_error_message("Cannot change combat supplies", reason)
+        return False
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
@@ -4269,7 +4279,7 @@ def on_do_bank_run_now():
     if handler_key == "combat":
         new_data, ok, reason = request_combat_bank_run_now_pure(player_data)
     else:
-        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+        target_key = runtime_actions._BANK_RUN_TARGET_KEYS.get(handler_key)
         target_id = player_data.get(target_key) if target_key else None
         new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
             player_data, target_id

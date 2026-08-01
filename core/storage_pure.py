@@ -89,6 +89,8 @@ from ..logic_pure.logic_pure import (
     default_red_sandstone_daily_state_pure,
     default_stronghold_state_pure,
     calculate_new_level,
+    combat_dream_thrift_locked_reasons_pure,
+    refill_combat_supply_loadout_pure,
     sanitize_action_telemetry_pure,
     sanitize_achievement_progress_pure,
     sanitize_combat_state_pure,
@@ -327,6 +329,21 @@ from ..data.woodcutting_data import (
 
 CURRENT_CONFIG_VERSION = 105
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+
+
+def repair_legacy_activity_review_surface_pure(
+    player_data: Dict[str, Any], current_skill: Any, loaded_config_version: int
+) -> str:
+    """Repair the pass-5 Shooting Star selection/start split exactly once."""
+    skill = str(current_skill or "None")
+    if (
+        loaded_config_version < 105
+        and skill == "None"
+        and player_data.get("current_utility") == SHOOTING_STAR_ACTIVITY_ID
+        and not str((player_data.get("activity_session") or {}).get("active_id", ""))
+    ):
+        return "Activities"
+    return skill
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
 # Saves that still point at one migrate back to the default activity.
@@ -1412,7 +1429,6 @@ def migrate_loaded_data(
     elif active_session_id in {
         "skeletal_horror",
         "bork",
-        SHOOTING_STAR_ACTIVITY_ID,
         WEREWOLF_SKULLBALL_ACTIVITY_ID,
         GNOME_BALL_ACTIVITY_ID,
         FISH_FLINGERS_ACTIVITY_ID,
@@ -1983,6 +1999,10 @@ def migrate_loaded_data(
                 len(raw_auto_food),
             )
             data["combat_auto_eat_food"] = raw_auto_food[:cut] + added + raw_auto_food[cut:]
+    # v105 repairs the pass-5 combat/activity split: an ineligible Dream latch
+    # clears the fight it stranded and refills the selected supply mode, while
+    # storage.py restores the Shooting Star review surface when the old two-step
+    # start left that target selected with no active review action.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -2096,7 +2116,12 @@ def migrate_loaded_data(
         except ImportError:
             # A disabled optional observer must never make an existing save unloadable.
             pass
+    invalid_dream_latch = bool(data.get("combat_dream_thrift", False)) and bool(
+        combat_dream_thrift_locked_reasons_pure(data)
+    )
     data.update(sanitize_combat_state_pure(data))
+    if invalid_dream_latch:
+        data, _refilled, _reason = refill_combat_supply_loadout_pure(data)
     data["wicked_hood"] = sanitize_wicked_hood_state_pure(
         data.get("wicked_hood"),
         review_day=wicked_hood_review_day_pure(data),

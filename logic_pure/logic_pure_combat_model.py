@@ -406,6 +406,16 @@ COMBAT_PRESET_FIELDS = (
 )
 
 
+def combat_dream_thrift_locked_reasons_pure(player_data):
+    """Return the source-backed requirements that prevent automatic Dream use."""
+    if (
+        _positive_int(player_data.get("magic_level", 1), 1) < 79
+        or not quest_completed_pure(player_data, "dream_mentor")
+    ):
+        return ("79 Magic and Dream Mentor",)
+    return ()
+
+
 def combat_magic_preset_locked_reasons_pure(player_data):
     """Enforce implicit spellbooks and the one explicit Lunar swap exception."""
     spell_id = str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL))
@@ -420,8 +430,9 @@ def combat_magic_preset_locked_reasons_pure(player_data):
             return ("Vengeance requires 94 Magic and Lunar Diplomacy",)
         effects.append(("vengeance", "lunar"))
     if bool(player_data.get("combat_dream_thrift", False)):
-        if _positive_int(player_data.get("magic_level", 1), 1) < 79 or not quest_completed_pure(player_data, "dream_mentor"):
-            return ("Dream requires 79 Magic and Dream Mentor",)
+        dream_reasons = combat_dream_thrift_locked_reasons_pure(player_data)
+        if dream_reasons:
+            return (f"Dream requires {dream_reasons[0]}",)
         effects.append(("dream", "lunar"))
     books = {book for _effect, book in effects}
     swap_spell = str(player_data.get("combat_spellbook_swap", "") or "")
@@ -508,9 +519,7 @@ def derive_casual_combat_magic_pure(player_data):
         data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, selected, book))
     data["combat_vengeance"] = bool(rule["vengeance"] and _positive_int(data.get("magic_level", 1), 1) >= 94 and quest_completed_pure(data, "lunar_diplomacy"))
     data["combat_dream_thrift"] = bool(
-        rule["dream"]
-        and _positive_int(data.get("magic_level", 1), 1) >= 79
-        and quest_completed_pure(data, "dream_mentor")
+        rule["dream"] and not combat_dream_thrift_locked_reasons_pure(data)
     )
     return data
 
@@ -1048,6 +1057,13 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     encounter = player_data.get("combat_encounter", {}) or {}
     if not isinstance(encounter, Mapping):
         encounter = {}
+    dream_thrift = bool(player_data.get("combat_dream_thrift", False))
+    if dream_thrift and combat_dream_thrift_locked_reasons_pure(player_data):
+        # The old casual dial could latch Dream on an ineligible save. Combat then
+        # rejected every review before resolving the live encounter, leaving both
+        # the invalid toggle and half-finished fight stuck across launches.
+        dream_thrift = False
+        encounter = {}
     kill_counts = player_data.get("combat_kill_counts", {}) or {}
     if not isinstance(kill_counts, Mapping):
         kill_counts = {}
@@ -1127,7 +1143,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_auto_prayer_training": bool(player_data.get("combat_auto_prayer_training", False)),
         "combat_prayers_enabled": bool(player_data.get("combat_prayers_enabled", True)),
         "combat_vengeance": bool(player_data.get("combat_vengeance", False)),
-        "combat_dream_thrift": bool(player_data.get("combat_dream_thrift", False)),
+        "combat_dream_thrift": dream_thrift,
         "combat_spellbook_swap": str(player_data.get("combat_spellbook_swap", "") or ""),
         "combat_presets": presets,
         "combat_active_preset": active_preset,
