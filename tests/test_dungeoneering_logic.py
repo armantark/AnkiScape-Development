@@ -529,6 +529,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
     def test_natural_c6_floor_brews_the_starter_weak_ranged_potion(self):
         player = self._player(herblore_level=5)
         player["quests"]["druidic_ritual"] = {"completed": True}
+        player["dungeoneering"]["next_seed"] = 7
         player, ok, info = apply_dungeoneering_command_pure(
             player,
             "enter",
@@ -551,6 +552,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
         bank_before = copy.deepcopy(player["inventory"])
         bought_secondaries = False
         brewed = False
+        resource_rooms_resolved = 0
         guardian_coin_drops = []
         final_result = {}
 
@@ -570,32 +572,30 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
                 guardian_coin_drops.append(
                     player["dungeoneering"]["session_coins"] - coins_before_review
                 )
-            if route["family"] != "resource":
-                continue
-            if not bought_secondaries:
-                self.assertEqual(
-                    final_result["xp_rewards"],
-                    {"fishing": 9.0, "cooking": 22.0, "herblore": 3.2},
-                )
-                self.assertEqual(
-                    player["dungeoneering"]["session_inventory"]["Clean valerian"],
-                    1,
-                )
-                self.assertGreater(len(guardian_coin_drops), 1)
+            if route["family"] == "resource":
+                resource_rooms_resolved += 1
+                if resource_rooms_resolved == 1:
+                    self.assertEqual(
+                        final_result["xp_rewards"],
+                        {"fishing": 9.0, "cooking": 22.0, "herblore": 3.2},
+                    )
+                    self.assertEqual(
+                        player["dungeoneering"]["session_inventory"]["Clean valerian"],
+                        1,
+                    )
+            if (
+                not bought_secondaries
+                and player["dungeoneering"]["session_coins"] >= 1_010
+            ):
+                self.assertEqual(resource_rooms_resolved, 2)
                 self.assertTrue(all(drop > 0 for drop in guardian_coin_drops))
                 self.assertEqual(sum(guardian_coin_drops), 1_010)
-                self.assertEqual(
-                    player["dungeoneering"]["session_coins"],
-                    coins_before_review,
-                )
-                self.assertEqual(player["dungeoneering"]["session_coins"], 1_010)
                 player, ok, info = apply_dungeoneering_command_pure(
                     player,
                     "smuggler_buy",
                     {"item_id": "vial"},
                 )
                 self.assertTrue(ok, info)
-                self.assertEqual(player["dungeoneering"]["session_coins"], 1_000)
                 player, ok, info = apply_dungeoneering_command_pure(
                     player,
                     "smuggler_buy",
@@ -604,20 +604,70 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
                 self.assertTrue(ok, info)
                 self.assertEqual(player["dungeoneering"]["session_coins"], 0)
                 bought_secondaries = True
-            else:
-                self.assertEqual(final_result["xp_rewards"]["herblore"], 34.0)
-                self.assertEqual(
-                    player["dungeoneering"]["session_inventory"]["Weak ranged potion"],
-                    1,
-                )
+            if final_result.get("xp_rewards", {}).get("herblore") == 34.0:
                 brewed = True
 
         self.assertTrue(bought_secondaries)
         self.assertTrue(brewed)
+        self.assertIn(
+            "mix weak ranged potion",
+            player["dungeoneering"]["last_automation"],
+        )
         self.assertTrue(final_result["complete"])
         self.assertEqual(player["inventory"], bank_before)
         self.assertEqual(player["dungeoneering"]["session_inventory"], {})
         self.assertEqual(player["dungeoneering"]["session_coins"], 0)
+
+    def test_optional_guardian_room_enemies_drop_their_coin_share(self):
+        player = self._player()
+        player["dungeoneering"]["next_seed"] = 7
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "enter",
+            {
+                "floor": 6,
+                "size": "small",
+                "complexity": 6,
+                "automation_mode": "advanced",
+            },
+        )
+        self.assertTrue(ok, info)
+
+        for room_id in (1, 2, 3):
+            player, ok, info = apply_dungeoneering_command_pure(
+                player,
+                "select_route",
+                {"room_id": room_id},
+            )
+            self.assertTrue(ok, info)
+            player, ok, result = apply_dungeoneering_review_pure(
+                player,
+                lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            self.assertTrue(ok, result)
+
+        coins_before = player["dungeoneering"]["session_coins"]
+        player, ok, info = apply_dungeoneering_command_pure(
+            player,
+            "select_route",
+            {"room_id": 9},
+        )
+        self.assertTrue(ok, info)
+        player, ok, result = apply_dungeoneering_review_pure(
+            player,
+            lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+        )
+        self.assertTrue(ok, result)
+        self.assertFalse(
+            player["dungeoneering"]["session"]["rooms"][9]["critical_path"]
+        )
+        self.assertEqual(player["dungeoneering"]["session_coins"] - coins_before, 505)
+        self.assertIn(
+            "guardian enemies dropped 505 Rusty coins",
+            player["dungeoneering"]["last_automation"],
+        )
 
     def test_live_resource_sale_and_smuggler_purchase_produce_an_ammo_bind_offer(self):
         player = self._enter()
@@ -796,6 +846,8 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             0,
         )
         self.assertGreater(raw_crabs, 0)
+        guardian_coins = player["dungeoneering"]["session_coins"]
+        self.assertGreaterEqual(guardian_coins, 1_010)
         for _ in range(raw_crabs):
             player, ok, info = apply_dungeoneering_command_pure(
                 player,
@@ -807,7 +859,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
         view = dungeoneering_view_pure(player, selected_skill="Dungeoneering")
         self.assertEqual(
             player["dungeoneering"]["session_coins"],
-            1_010 + raw_crabs * 60,
+            guardian_coins + raw_crabs * 60,
         )
         self.assertEqual(
             view["smuggler_reachable_coins"],
@@ -821,16 +873,16 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             )
         )
         self.assertNotIn(
-            "novite_kiteshield",
+            "blood_spindle_branches",
             {row["item_id"] for row in view["smuggler_rows"]},
         )
         _unchanged, ok, info = apply_dungeoneering_command_pure(
             player,
             "smuggler_buy",
-            {"item_id": "novite_kiteshield"},
+            {"item_id": "blood_spindle_branches"},
         )
         self.assertFalse(ok)
-        self.assertIn("Need 1,312", info["reason"])
+        self.assertIn("Need 1,650", info["reason"])
 
     def test_bind_replace_skip_and_ammo_bind_persist_across_floor_evaporation(self):
         player = self._enter()

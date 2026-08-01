@@ -1530,14 +1530,46 @@ def _restore_chain_inputs_pure(state: dict[str, Any], step: Any) -> None:
 
 
 def _guardian_coin_drop_pure(session: DungeonSession, room: DungeonRoom) -> int:
-    guardian_room_ids = tuple(
+    critical_guardian_ids = tuple(
         candidate.id
         for candidate in session.rooms
         if candidate.family == "guardian" and candidate.critical_path
     )
-    index = guardian_room_ids.index(room.id)
-    share, remainder = divmod(_STARTER_GUARDIAN_COIN_DROPS, len(guardian_room_ids))
-    return share + (index < remainder)
+    share, remainder = divmod(
+        _STARTER_GUARDIAN_COIN_DROPS,
+        len(critical_guardian_ids),
+    )
+    if room.id not in critical_guardian_ids:
+        return share
+    return share + (critical_guardian_ids.index(room.id) < remainder)
+
+
+def _automate_herblore_chain_pure(
+    state: dict[str, Any],
+    player_data: Mapping[str, Any],
+    rng: Callable[[], float] | None,
+) -> tuple[dict[str, float], tuple[str, ...]]:
+    if state["complexity"] < 5 or not _quest_complete(player_data, "druidic_ritual"):
+        return {}, ()
+    rewards: dict[str, float] = {}
+    reports: list[str] = []
+    if (
+        _non_negative_int(state["session_inventory"].get("Vial")) > 0
+        and _non_negative_int(state["session_inventory"].get("Vial of water")) == 0
+    ):
+        _remove_session_item(state, "Vial", 1)
+        _add_session_item(state, "Vial of water", 1)
+        reports.append("filled a Vial")
+    for step in STARTER_HERBLORE_CHAIN:
+        if _run_chain_step_pure(state, player_data, step):
+            _award_chain_xp(rewards, "herblore", step.xp)
+            reports.append(step.display_name.lower())
+            if step.inputs and _kinship_resource_roll_succeeds_pure(
+                state, "artisan", rng
+            ):
+                _restore_chain_inputs_pure(state, step)
+                reports.append(f"Artisan saved inputs for {step.display_name.lower()}")
+    return rewards, tuple(reports)
 
 
 def _automate_resource_room_pure(
@@ -1574,23 +1606,6 @@ def _automate_resource_room_pure(
             if _kinship_resource_roll_succeeds_pure(state, "artisan", rng):
                 _restore_chain_inputs_pure(state, cooked)
                 reports.append("Artisan saved the Raw heim crab")
-        if state["complexity"] >= 5 and _quest_complete(player_data, "druidic_ritual"):
-            if (
-                _non_negative_int(state["session_inventory"].get("Vial")) > 0
-                and _non_negative_int(state["session_inventory"].get("Vial of water")) == 0
-            ):
-                _remove_session_item(state, "Vial", 1)
-                _add_session_item(state, "Vial of water", 1)
-                reports.append("filled a Vial")
-            for step in STARTER_HERBLORE_CHAIN:
-                if _run_chain_step_pure(state, player_data, step):
-                    _award_chain_xp(rewards, "herblore", step.xp)
-                    reports.append(step.display_name.lower())
-                    if step.inputs and _kinship_resource_roll_succeeds_pure(
-                        state, "artisan", rng
-                    ):
-                        _restore_chain_inputs_pure(state, step)
-                        reports.append(f"Artisan saved inputs for {step.display_name.lower()}")
     return rewards, tuple(reports)
 
 
@@ -2522,7 +2537,7 @@ def apply_dungeoneering_review_pure(
 
     resolved = resolve_starter_room_pure(session, room_id)
     state["selected_room_id"] = -1
-    if room.family == "guardian" and room.critical_path:
+    if room.family == "guardian":
         coin_drop = _guardian_coin_drop_pure(session, room)
         state["session_coins"] += coin_drop
         automation_reports.append(f"guardian enemies dropped {coin_drop:,} Rusty coins")
@@ -2534,7 +2549,15 @@ def apply_dungeoneering_review_pure(
             rng,
         )
         for skill_id, amount in chain_xp.items():
-            xp_rewards[skill_id] = xp_rewards.get(skill_id, 0.0) + amount
+            _award_chain_xp(xp_rewards, skill_id, amount)
+        automation_reports.extend(chain_reports)
+    if state["resource_policy"] == "gather_and_process" and any(
+        resolved.rooms[resolved_room_id].family == "resource"
+        for resolved_room_id in resolved.resolved_room_ids
+    ):
+        chain_xp, chain_reports = _automate_herblore_chain_pure(state, data, rng)
+        for skill_id, amount in chain_xp.items():
+            _award_chain_xp(xp_rewards, skill_id, amount)
         automation_reports.extend(chain_reports)
     state["session"] = dungeon_session_as_dict_pure(resolved)
     if automation_reports:
