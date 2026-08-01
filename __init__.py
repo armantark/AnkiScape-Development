@@ -542,7 +542,7 @@ def _finish_review_feedback_context() -> None:
         if xp_total > 0:
             _show_exp(xp_total)
             for message in activity_messages:
-                _show_activity_gain(str(message))
+                _record_review_event("activity", str(message), persist=False)
         elif activity_messages:
             combined = _combine_activity_feedback(activity_messages)
             if combined:

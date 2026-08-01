@@ -176,7 +176,8 @@ class ReviewStripTest(unittest.TestCase):
                 badge.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
             )
             self.assertNotIn(badge, QApplication.topLevelWidgets())
-        self.assertEqual(dnd.button.text(), "D&D")
+        self.assertEqual(dnd._view["title"], "D&D")
+        self.assertEqual(dnd.button.text(), "D&&D")
         self.assertEqual(farming.button.text(), "Farming")
 
     def test_both_badges_keep_their_seats_when_nothing_is_live(self) -> None:
@@ -253,6 +254,55 @@ class ReviewStripTest(unittest.TestCase):
         self.assertEqual(
             self.ui._REVIEW_STRIP.height(), self.ui.REVIEW_STRIP_HEIGHT
         )
+
+    def test_all_four_strip_seats_stay_ordered_and_inside_narrow_reviewers(self) -> None:
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+
+        for width in (900, 760, 640, 560, 480):
+            with self.subTest(width=width):
+                self.parent.resize(width, 700)
+                for _ in range(5):
+                    QApplication.processEvents()
+                strip = self.ui._REVIEW_STRIP
+                seats = (
+                    self.ui._DND_BADGE,
+                    self.ui._FARMING_BADGE,
+                    hud,
+                    self.ui._BANK_RUN_BUTTON,
+                )
+                for left, right in zip(seats, seats[1:]):
+                    self.assertLessEqual(
+                        left.geometry().right(), right.geometry().left() - 1
+                    )
+                self.assertGreaterEqual(seats[0].geometry().left(), 0)
+                self.assertLess(seats[-1].geometry().right(), strip.width())
+                self.assertGreater(hud.width(), 0)
+
+    def test_bank_run_button_has_an_opaque_dark_seat_on_a_light_card(self) -> None:
+        from aqt.qt import QColor
+
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        self.parent.setStyleSheet("background: white;")
+        for _ in range(5):
+            QApplication.processEvents()
+
+        image = self.ui._BANK_RUN_BUTTON.grab().toImage()
+        dark_pixels = sum(
+            QColor(image.pixel(x, y)).lightness() < 180
+            for y in range(image.height())
+            for x in range(image.width())
+        )
+        self.assertGreater(dark_pixels, image.width() * image.height() // 2)
 
     # ---- the split popovers ---------------------------------------------
 
@@ -472,15 +522,20 @@ class ReviewStripTest(unittest.TestCase):
         self.assertLessEqual(event.y() + event.height(), strip.y())
         self.assertLessEqual(ge.y() + ge.height(), event.y())
         self.assertGreaterEqual(ge.y(), 0)
-        reserved = (
-            self.ui.REVIEW_STRIP_HEIGHT
-            + event.height()
-            + ge.height()
-            + 12
-        )
         self.assertEqual(
             scripts[-1],
-            f"document.body.style.paddingBottom = '{reserved}px';",
+            f"document.body.style.paddingBottom = '{self.ui.REVIEW_STRIP_HEIGHT}px';",
+        )
+
+        self.parent.resize(700, 360)
+        for _ in range(6):
+            QApplication.processEvents()
+        self.assertGreaterEqual(ge.y(), 8)
+        self.assertLessEqual(ge.y() + ge.height(), event.y())
+        self.assertLessEqual(event.y() + event.height(), strip.y())
+        self.assertEqual(
+            scripts[-1],
+            f"document.body.style.paddingBottom = '{self.ui.REVIEW_STRIP_HEIGHT}px';",
         )
 
     def test_the_rows_run_newest_first_with_the_settled_two_tones(self) -> None:
@@ -544,9 +599,10 @@ class ReviewStripTest(unittest.TestCase):
             QApplication.processEvents()
         self.assertTrue(drawer.rows.isVisible())
         self.assertEqual(drawer.rows.count(), 10)
-        self.assertEqual(drawer.rows.item(0).text(), "0 reviews ago · event 24")
+        self.assertEqual(drawer.rows.item(0).text(), "")
         row_label = drawer.rows.itemWidget(drawer.rows.item(0))
         self.assertIsInstance(row_label, QLabel)
+        self.assertEqual(row_label.text(), "0 reviews ago · event 24")
         self.assertTrue(row_label.wordWrap())
         self.assertTrue(
             row_label.textInteractionFlags()

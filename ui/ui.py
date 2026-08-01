@@ -2764,7 +2764,8 @@ if HAS_QT:
             self.setProperty(
                 "ankiscapeOverlayRequested", bool(self._view.get("visible"))
             )
-            self.button.setText(str(self._view.get("title", "Status")))
+            title = str(self._view.get("title", "Status"))
+            self.button.setText(title.replace("&", "&&"))
             icon_path = (
                 _ACTIVITY_GROUP_ICONS.get("distractions_and_diversions")
                 if self.kind == "distractions"
@@ -2781,7 +2782,7 @@ if HAS_QT:
             self.badge.setVisible(bool(self._view.get("count_visible")))
             self.queue_badge.setText(f"Q{queued}" if queued else "")
             self.queue_badge.setVisible(bool(self._view.get("queue_visible")))
-            tooltip = str(self._view.get("tooltip", self.button.text()))
+            tooltip = str(self._view.get("tooltip", title))
             self.setToolTip(tooltip)
             self.button.setToolTip(tooltip)
             self.button.setAccessibleName(tooltip)
@@ -2820,10 +2821,10 @@ if HAS_QT:
             self._action_callback = None
             self.clicked.connect(self._activate)
             self.setStyleSheet(
-                "QPushButton { color: white; background: rgba(255,255,255,0.10);"
-                " border: 1px solid rgba(255,255,255,0.35); border-radius: 8px;"
+                f"QPushButton {{ color: white; background: {_HUD_BG};"
+                f" border: 1px solid {_HUD_BORDER}; border-radius: 8px;"
                 " padding: 5px 8px; font-weight: 700; }"
-                "QPushButton:hover { background: rgba(255,255,255,0.18); }"
+                "QPushButton:hover { background: rgba(40,40,40,210); }"
                 "QPushButton:disabled { color: rgba(255,255,255,0.45); }"
             )
 
@@ -3032,7 +3033,7 @@ if HAS_QT:
             )
             self.rows.clear()
             for entry in view.get("rows", ()):
-                item = QListWidgetItem(str(entry["label"]))
+                item = QListWidgetItem("")
                 item.setFlags(Qt.ItemFlag.NoItemFlags)
                 self.rows.addItem(item)
                 label = QLabel(str(entry["label"]), self.rows)
@@ -3420,12 +3421,8 @@ def measure_card_content() -> None:
 _CARD_PADDING_PX = -1
 
 
-def _review_overlay_reserved_height(gap: int = 6) -> int:
-    height = REVIEW_STRIP_HEIGHT
-    for widget in (_EVENT_LOG_DRAWER, _FILL_DRAWER, _REVIEW_CONTEXT_STRIP):
-        if _overlay_requested(widget):
-            height += widget.height() + gap
-    return height
+def _review_overlay_reserved_height(_gap: int = 6) -> int:
+    return REVIEW_STRIP_HEIGHT
 
 
 def _sync_card_bottom_padding(parent, reserved_height, *, force=False) -> None:
@@ -3468,15 +3465,58 @@ def _reposition_review_overlay() -> None:
         if strip is None or hud is None:
             return
         strip.sync_children()
+
+        gap = 6
+        strip_width = min(REVIEW_STRIP_WIDTH, max(1, parent.width() - 16))
+        strip.setFixedSize(strip_width, REVIEW_STRIP_HEIGHT)
+        seats = tuple(
+            widget
+            for widget in (_DND_BADGE, _FARMING_BADGE, hud, _BANK_RUN_BUTTON)
+            if widget is not None
+        )
+        nominal_widths = {
+            _DND_BADGE: 82,
+            _FARMING_BADGE: 112,
+            hud: 340,
+            _BANK_RUN_BUTTON: 116,
+        }
+        minimum_widths = {
+            _DND_BADGE: 66,
+            _FARMING_BADGE: 84,
+            _BANK_RUN_BUTTON: 88,
+        }
+        margins = strip.root.contentsMargins()
+        content_width = max(
+            1,
+            strip_width
+            - margins.left()
+            - margins.right()
+            - strip.root.spacing() * max(0, len(seats) - 1),
+        )
+        nominal_total = sum(nominal_widths[seat] for seat in seats)
+        if content_width >= nominal_total:
+            widths = {seat: nominal_widths[seat] for seat in seats}
+        else:
+            ratio = content_width / max(1, nominal_total)
+            widths = {
+                seat: max(
+                    minimum_widths.get(seat, 1),
+                    min(nominal_widths[seat], int(nominal_widths[seat] * ratio)),
+                )
+                for seat in seats
+                if seat is not hud
+            }
+            widths[hud] = max(1, content_width - sum(widths.values()))
+        for seat in seats:
+            seat.setFixedWidth(widths[seat])
+
         for drawer in drawers:
+            drawer.setMaximumHeight(16777215)
             drawer.setFixedWidth(
                 min(max(drawer.width(), 300), 520, max(1, parent.width() - 16))
             )
             drawer.adjustSize()
 
-        gap = 6
-        strip_width = min(REVIEW_STRIP_WIDTH, max(1, parent.width() - 16))
-        strip.setFixedSize(strip_width, REVIEW_STRIP_HEIGHT)
         layout = review_overlay_layout_view_pure(
             parent_size=(parent.width(), parent.height()),
             content_rect=_review_card_content_rect(parent),
@@ -3503,6 +3543,14 @@ def _reposition_review_overlay() -> None:
         origin_x = int(layout["x"])
         strip.move(origin_x, int(layout["y"]))
         strip.raise_()
+
+        stack_budget = max(1, strip.y() - 8 - gap * len(drawers))
+        natural_height = sum(drawer.height() for drawer in drawers)
+        if drawers and natural_height > stack_budget:
+            height_per_drawer = max(1, stack_budget // len(drawers))
+            for drawer in drawers:
+                drawer.setMaximumHeight(height_per_drawer)
+                drawer.adjustSize()
 
         hud_origin = hud.mapTo(parent, QPoint(0, 0))
         cursor_y = strip.y() - gap

@@ -208,9 +208,14 @@ class TestIntegrationSmoke(unittest.TestCase):
             "+15 XP · Mining, Woodcutting",
         )
 
-    def test_xp_review_keeps_every_activity_popover_in_the_event_log(self):
+    def test_xp_review_keeps_every_activity_event_without_replacing_the_xp_popup(self):
         addon = _load_addon_as_package("ankiscape_event_log_mixed_feedback")
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+        popup_calls = []
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": True}))
+        addon.mw.exp_popup = types.SimpleNamespace(
+            show_exp=lambda amount: popup_calls.append(("exp", amount)),
+            show_text=lambda text: popup_calls.append(("text", text)),
+        )
         addon.storage_save_player_data = lambda _data, _skill: None
         addon.update_review_event_log_drawer = lambda _data: None
         addon.current_skill = "Combat"
@@ -235,6 +240,7 @@ class TestIntegrationSmoke(unittest.TestCase):
                 "Combat switched off to stop you dying",
             ],
         )
+        self.assertEqual(popup_calls, [("exp", 47.0)])
 
     def test_direct_xp_event_uses_the_awarded_skill_not_the_selected_skill(self):
         addon = _load_addon_as_package("ankiscape_direct_event_skill_name")
