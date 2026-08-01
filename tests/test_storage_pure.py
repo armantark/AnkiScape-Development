@@ -1,7 +1,11 @@
+import ast
+import importlib
+from pathlib import Path
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.storage_pure import (
+    _SUPPORTED_ACTIVITY_SESSION_IDS,
     default_player_data,
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
@@ -35,6 +39,67 @@ from ankiscape.core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
+
+
+def _activity_session_writer_ids():
+    project_root = Path(__file__).resolve().parents[1]
+    owner_ids = set()
+    unresolved = []
+    for directory in ("logic", "logic_pure"):
+        for path in sorted((project_root / directory).glob("*.py")):
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(path))
+            module = None
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Assign):
+                    continue
+                writes_session = any(
+                    isinstance(target, ast.Subscript)
+                    and isinstance(target.slice, ast.Constant)
+                    and target.slice.value == "activity_session"
+                    for target in node.targets
+                )
+                if not writes_session:
+                    continue
+                value = node.value
+                if (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id.startswith("_empty")
+                ):
+                    continue
+                if not isinstance(value, ast.Dict):
+                    unresolved.append((path.name, node.lineno, ast.unparse(value)))
+                    continue
+                entries = {
+                    key.value: entry
+                    for key, entry in zip(value.keys, value.values)
+                    if isinstance(key, ast.Constant)
+                }
+                active_id = entries.get("active_id")
+                if isinstance(active_id, ast.Constant) and isinstance(
+                    active_id.value, str
+                ):
+                    resolved = active_id.value
+                elif isinstance(active_id, ast.Name):
+                    if module is None:
+                        relative = path.relative_to(project_root).with_suffix("")
+                        module = importlib.import_module(
+                            f"ankiscape.{'.'.join(relative.parts)}"
+                        )
+                    resolved = getattr(module, active_id.id)
+                else:
+                    unresolved.append(
+                        (
+                            path.name,
+                            node.lineno,
+                            ast.unparse(active_id) if active_id is not None else "",
+                        )
+                    )
+                    continue
+                if resolved:
+                    owner_ids.add(resolved)
+    return owner_ids, unresolved
 
 
 class TestStoragePure(unittest.TestCase):
@@ -1546,6 +1611,21 @@ class TestStoragePure(unittest.TestCase):
             ],
         )
 
+    def test_activity_session_allowlist_covers_every_runtime_writer(self):
+        writer_ids, unresolved = _activity_session_writer_ids()
+        self.assertEqual(
+            unresolved,
+            [],
+            f"activity_session writers need an explicit active_id: {unresolved}",
+        )
+        missing = sorted(writer_ids - _SUPPORTED_ACTIVITY_SESSION_IDS)
+        self.assertEqual(
+            missing,
+            [],
+            "runtime activity_session owners absent from "
+            f"_SUPPORTED_ACTIVITY_SESSION_IDS: {missing}",
+        )
+
     def test_migration_preserves_legitimate_activity_session_owners(self):
         session_ids = (
             "barbarian_assault",
@@ -1593,10 +1673,10 @@ class TestStoragePure(unittest.TestCase):
                     migrated["activity_session"], {"active_id": session_id}
                 )
 
-    def test_v104_food_order_refills_monkfish_before_cooked_chicken(self):
+    def test_v105_food_order_refills_monkfish_before_cooked_chicken(self):
         migrated = migrate_loaded_data(
             {
-                "config_version": 103,
+                "config_version": 104,
                 "inventory": {"Monkfish": 50, "Cooked chicken": 50},
                 "combat_pack_mode": "max_output",
                 "combat_supply_loadout": {},
