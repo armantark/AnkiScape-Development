@@ -3417,7 +3417,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(bank_pack_grid.height(), bank_pack_grid.sizeHint().height())
         self.assertEqual(bank_tab_grid.height(), bank_pack_grid.height())
-        self.assertEqual(bank_current_inventory.height(), 58)
+        self.assertEqual(bank_current_inventory.height(), 72)
 
         def assert_reachable_in_bank_tab(widget: QWidget) -> None:
             bank_tab_scroll.ensureWidgetVisible(widget, 0, 0)
