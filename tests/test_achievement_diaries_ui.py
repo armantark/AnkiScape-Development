@@ -289,27 +289,30 @@ class AchievementCabinetUITest(unittest.TestCase):
         QApplication.instance().processEvents()
 
         self.assertEqual(calls[0][0], "claim_tier")
-        self.assertEqual(calls[0][1]["tier_id"], family.tiers[0].id)
+        self.assertEqual(calls[0][1], {"tier_id": family.tiers[0].id})
         self.assertEqual(player["inventory"].get("Ardougne cloak 1"), 1)
         self.assertEqual(
             self._named(page, f"cabinetStatus_{family.tiers[0].id}", QLabel).text(),
             "Claimed",
         )
 
-    def test_the_lamp_choice_offers_only_skills_the_view_allows(self):
+    def test_the_cabinet_defers_lamp_choice_to_bank_claims(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         family = _claim_family()
-        for task in family.tiers[0].tasks:
+        tier = family.tiers[0]
+        for task in tier.tasks:
             _satisfy(player, task)
         player.update(refresh_achievement_diaries_pure(player)[0])
 
         page, _ctx = self._build(player, lambda *_a: {"ok": True})
-        box = self._named(page, f"cabinetLamp_{family.tiers[0].id}", QComboBox)
-        from ankiscape.logic.achievement_diary_logic import lamp_skill_options_pure
 
-        expected = lamp_skill_options_pure(player, family.tiers[0])
-        self.assertEqual(
-            [box.itemData(index) for index in range(box.count())], list(expected)
+        self.assertIsNone(page.findChild(QComboBox, f"cabinetLamp_{tier.id}"))
+        self.assertTrue(
+            any(
+                f"{tier.lamp.experience:,} XP reward lamp" in label
+                and "Bank Claims" in label
+                for label in self._labels(page)
+            )
         )
 
     def test_a_pinned_task_renders_first_in_its_tier(self):

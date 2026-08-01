@@ -130,3 +130,13 @@ older period upload. The asset manifest and provenance tests pin every path, and
 rendered Qt pixmap with that family's own registered source image. The paired
 no-art test proves a named taskmaster with an empty path stays faceless instead
 of inheriting another character's portrait.
+
+## Lamp claim correction — 2026-08-01
+
+A diary tier claim now upgrades the equipment and opens a sourced XP-lamp Bank
+Claim without applying XP. The player chooses the skill from the Bank, and that
+second direct action is independently undoable. Save v107 marks lamps from
+pre-v107 claimed tiers as spent because those saves already received the XP
+directly. The repository still has no exact per-tier minimum-level floors, so
+the former blanket placeholder is split into one registered placeholder per
+regional tier until those 32 values are harvested.

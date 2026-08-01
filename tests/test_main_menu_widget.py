@@ -8786,6 +8786,31 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
 
+    def test_bank_claims_expose_a_claimed_diary_tiers_reward_lamp(self) -> None:
+        from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+
+        pd = _make_player_data()
+        family = next(family for family in ACHIEVEMENT_DIARY_CATALOG if family.id == "varrock")
+        tier = family.tiers[0]
+        pd["achievement_diaries"] = {"claimed_tiers": [tier.id]}
+        dialog = self._open(pd)
+        _open_bank_tab(dialog)
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn(
+            f"{family.name} {tier.name}: reward lamp ({tier.lamp.experience:,} XP)",
+            labels,
+        )
+        self.assertTrue(
+            any(label.startswith(f"{tier.lamp.experience:,} XP lamp") for label in labels)
+        )
+        self.assertTrue(
+            any(
+                button.text() == "Choose skill"
+                for button in dialog.findChildren(QPushButton)
+            )
+        )
+
     def test_bank_death_office_reclaim_row_uses_combat_office_state(self) -> None:
         pd = _make_player_data()
         pd["inventory"]["Coins"] = 250

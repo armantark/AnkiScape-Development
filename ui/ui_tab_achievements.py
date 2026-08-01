@@ -175,34 +175,22 @@ def build_achievements_tab(ctx) -> "QWidget":
         header.addWidget(status)
         header.addStretch(1)
 
-        lamp_box = None
-        if tier["lamp"] and tier["lamp"]["choice_required"] and not tier["claimed"]:
-            lamp_box = QComboBox()
-            lamp_box.setObjectName(f"cabinetLamp_{tier['tier_id']}")
-            for skill_id in tier["lamp"]["options"]:
-                lamp_box.addItem(skill_id.replace("_", " ").title(), skill_id)
-            lamp_box.setToolTip(f"{tier['lamp']['experience']:,} experience lamp")
-            header.addWidget(lamp_box)
-
         claim = QPushButton("Claim")
         claim.setObjectName(f"cabinetClaim_{tier['tier_id']}")
         claim.setEnabled(bool(tier["ready"]) and on_command is not None)
         claim.clicked.connect(
-            lambda _=False, tid=tier["tier_id"], box=lamp_box: _run(
-                "claim_tier",
-                {
-                    "tier_id": tid,
-                    "lamp_skill": box.currentData() if box is not None else "",
-                },
-            )
+            lambda _=False, tid=tier["tier_id"]: _run("claim_tier", {"tier_id": tid})
         )
         header.addWidget(claim)
         block_layout.addLayout(header)
 
         items = ", ".join(tier["reward_items"])
-        reward = QLabel(
+        reward_text = (
             f"{items} — {tier['reward_summary']}" if items else tier["reward_summary"]
         )
+        if tier["lamp"]:
+            reward_text += f" {tier['lamp']['description']}"
+        reward = QLabel(reward_text)
         reward.setWordWrap(True)
         reward.setStyleSheet(f"color: {dim_text_css(reward)};")
         block_layout.addWidget(reward)

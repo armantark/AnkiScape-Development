@@ -18,12 +18,6 @@ from .achievement_diary_data import (
     DiaryTier,
 )
 
-# PLACEHOLDER(achievement_diaries.lamp_minimum_level): every tier lamp ships
-# with no minimum-level restriction. The pinned task-set infoboxes state each
-# tier's lamp experience exactly but never the skill-level floor the period
-# lamp imposed. A period lamp dialogue or a cache interface script would
-# settle it.
-
 # PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous rewards use
 # the cache-proven 100-coin floor multiplied by completion ordinal. The exact
 # period curve needs the server payout routine or decoded completion script.
@@ -163,6 +157,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.ardougne.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1000, 1),
             'period tier: 23 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
             designed_task_count=12,
@@ -295,6 +292,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.ardougne.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(7500, 1),
             'period tier: 16 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
             designed_task_count=12,
@@ -427,6 +427,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.ardougne.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(28000, 1),
             'period tier: 17 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
             designed_task_count=12,
@@ -489,6 +492,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.ardougne.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(50000, 1),
             'period tier: 5 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
             designed_task_count=12,
@@ -631,6 +637,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.falador.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1000, 1),
             'period tier: 15 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
             designed_task_count=12,
@@ -763,6 +772,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.falador.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(5000, 1),
             'period tier: 12 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
             designed_task_count=12,
@@ -875,6 +887,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.falador.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(10000, 1),
             'period tier: 10 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
             designed_task_count=12,
@@ -957,6 +972,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.falador.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(50000, 1),
             'period tier: 7 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
             designed_task_count=12,
@@ -1079,6 +1097,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.fremennik.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(5000, 1),
             'period tier: 10 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
             designed_task_count=12,
@@ -1201,6 +1222,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.fremennik.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(10000, 1),
             'period tier: 11 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
             designed_task_count=12,
@@ -1303,6 +1327,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.fremennik.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(15000, 1),
             'period tier: 9 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
             designed_task_count=12,
@@ -1405,6 +1432,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.fremennik.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(40000, 1),
             'period tier: 9 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
             designed_task_count=12,
@@ -1527,6 +1557,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.karamja.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1000, 1),
             'period tier: 10 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
             designed_task_count=12,
@@ -1659,6 +1692,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.karamja.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(5000, 1),
             'period tier: 19 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
             designed_task_count=12,
@@ -1771,6 +1807,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.karamja.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(10000, 1),
             'period tier: 10 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
             designed_task_count=12,
@@ -1863,6 +1902,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.karamja.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(30000, 1),
             'period tier: 8 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
             designed_task_count=12,
@@ -2005,6 +2047,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.lumbridge.beginner.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(500, 1),
             'period tier: 23 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
             designed_task_count=12,
@@ -2137,6 +2182,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.lumbridge.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1000, 1),
             'period tier: 19 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
             designed_task_count=12,
@@ -2269,6 +2317,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.lumbridge.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1500, 1),
             'period tier: 12 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
             designed_task_count=12,
@@ -2351,6 +2402,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.lumbridge.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(9000, 1),
             'period tier: 7 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
             designed_task_count=12,
@@ -2483,6 +2537,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.morytania.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(4000, 1),
             'period tier: 11 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
             designed_task_count=12,
@@ -2615,6 +2672,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.morytania.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(10000, 1),
             'period tier: 20 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
             designed_task_count=12,
@@ -2737,6 +2797,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.morytania.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(20000, 1),
             'period tier: 11 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
             designed_task_count=12,
@@ -2839,6 +2902,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.morytania.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(40000, 1),
             'period tier: 9 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
             designed_task_count=12,
@@ -2981,6 +3047,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.seers.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1000, 1),
             "period tier: 12 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
             designed_task_count=12,
@@ -3113,6 +3182,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.seers.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(5000, 1),
             "period tier: 12 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
             designed_task_count=12,
@@ -3235,6 +3307,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.seers.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(10000, 1),
             "period tier: 11 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
             designed_task_count=12,
@@ -3297,6 +3372,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.seers.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(25000, 1),
             "period tier: 5 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
             designed_task_count=12,
@@ -3439,6 +3517,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.varrock.easy.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(1000, 1),
             'period tier: 19 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
             designed_task_count=12,
@@ -3571,6 +3652,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.varrock.medium.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(5000, 1),
             'period tier: 21 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
             designed_task_count=12,
@@ -3703,6 +3787,9 @@ DIARY_FAMILIES = (
                 True,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.varrock.hard.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(10000, 1),
             'period tier: 13 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
             designed_task_count=12,
@@ -3805,6 +3892,9 @@ DIARY_FAMILIES = (
                 False,
             ),
             ),
+            # PLACEHOLDER(achievement_diaries.varrock.elite.lamp_minimum_level): the exact period
+            # lamp floor is not recorded in the repository. A period lamp
+            # dialogue or cache interface script would settle this tier.
             DiaryLamp(30000, 1),
             'period tier: 9 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
             designed_task_count=12,

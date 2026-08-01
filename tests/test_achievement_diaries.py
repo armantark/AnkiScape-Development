@@ -14,6 +14,7 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import (
+    CLAIM_DATA,
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
     ORE_DATA,
@@ -31,6 +32,7 @@ from ankiscape.data.achievement_diary_data import (
     DiaryFamily,
     DiaryTask,
     DiaryTier,
+    diary_lamp_claim_id,
 )
 from ankiscape.logic.achievement_diary_derived import (
     DIARY_DERIVED_VALUE_CEILINGS,
@@ -48,6 +50,7 @@ from ankiscape.logic.achievement_diary_logic import (
     task_progress_pure,
     tier_reward_names_pure,
 )
+from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure, claim_rows_pure
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
 from tools.generate_achievement_diary_data import resolve_condition_key
@@ -389,6 +392,23 @@ class CatalogIntegrityTest(unittest.TestCase):
                 for name, count in tier.reward_bundle:
                     self.assertIn(name, known, name)
                     self.assertGreater(count, 0, name)
+
+    def test_every_regional_lamp_has_a_distinct_sourced_bank_claim(self):
+        expected = {}
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            for tier in family.tiers:
+                if tier.lamp is None:
+                    continue
+                claim_id = diary_lamp_claim_id(tier.id)
+                expected[claim_id] = tier
+        self.assertEqual(len(expected), 32)
+        self.assertTrue(expected.keys() <= CLAIM_DATA.keys())
+        for claim_id, tier in expected.items():
+            claim = CLAIM_DATA[claim_id]
+            self.assertEqual(claim["required_diary_tier"], tier.id)
+            self.assertEqual(claim["xp_amount"], float(tier.lamp.experience))
+            self.assertEqual(claim["minimum_level"], tier.lamp.minimum_level)
+            self.assertTrue(claim["source"], claim_id)
 
     def test_every_tier_has_a_roster(self):
         empty = [
@@ -1227,22 +1247,51 @@ class ClaimTest(unittest.TestCase):
         self.assertEqual(view["families"][0]["tiers"][0]["status"], "Ready to Claim")
         self.assertTrue(view["families"][0]["tiers"][0]["ready"])
 
-    def test_claiming_grants_the_tier_item_and_its_lamp(self):
+    def test_claiming_grants_the_item_and_creates_a_bank_claim_without_spending_it(self):
         family = self._claim_family()
-        player = _complete_tier(_fresh(), family.tiers[0])
+        tier = family.tiers[0]
+        player = _complete_tier(_fresh(), tier)
         before = float(player.get("mining_exp", 0))
-        player, ok, info = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")
+        claim_id = diary_lamp_claim_id(tier.id)
+        self.assertNotIn(claim_id, player["claims"])
+
+        player, ok, info = claim_diary_tier_pure(player, tier.id)
+
         self.assertTrue(ok, info)
         self.assertEqual(player["inventory"].get("Ardougne cloak 1"), 1)
+        self.assertEqual(float(player["mining_exp"]), before)
+        self.assertEqual(info["lamp_claim_id"], claim_id)
+        self.assertFalse(player["claims"][claim_id]["claimed"])
+        row = next(row for row in claim_rows_pure(player, CLAIM_DATA) if row["claim_id"] == claim_id)
+        self.assertTrue(row["eligible"])
+        self.assertEqual(row["xp_amount"], float(tier.lamp.experience))
+        self.assertEqual(row["minimum_level"], tier.lamp.minimum_level)
+        self.assertTrue(row["skill_options"])
+        self.assertTrue(CLAIM_DATA[claim_id]["source"])
+
+    def test_the_bank_claim_spends_the_lamp_once_on_the_chosen_skill(self):
+        family = self._claim_family()
+        tier = family.tiers[0]
+        player = claim_diary_tier_pure(_complete_tier(_fresh(), tier), tier.id)[0]
+        claim_id = diary_lamp_claim_id(tier.id)
+        before = float(player["mining_exp"])
+
+        player, ok = apply_claim_pure(player, claim_id, CLAIM_DATA, "mining")
+
+        self.assertTrue(ok)
         self.assertEqual(
-            float(player["mining_exp"]) - before, float(family.tiers[0].lamp.experience)
+            float(player["mining_exp"]) - before, float(tier.lamp.experience)
         )
+        self.assertTrue(player["claims"][claim_id]["claimed"])
+        again, ok = apply_claim_pure(player, claim_id, CLAIM_DATA, "mining")
+        self.assertFalse(ok)
+        self.assertEqual(again["mining_exp"], player["mining_exp"])
 
     def test_a_tier_cannot_be_claimed_twice(self):
         family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
-        _again, ok, info = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
+        _again, ok, info = claim_diary_tier_pure(player, family.tiers[0].id)
         self.assertFalse(ok)
         self.assertIn("already claimed", info["reason"])
 
@@ -1251,7 +1300,7 @@ class ClaimTest(unittest.TestCase):
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
-        _updated, ok, info = claim_diary_tier_pure(player, family.tiers[1].id, lamp_skill="mining")
+        _updated, ok, info = claim_diary_tier_pure(player, family.tiers[1].id)
         self.assertFalse(ok)
         self.assertIn("Claim Easy before Medium", info["reason"])
 
@@ -1260,10 +1309,8 @@ class ClaimTest(unittest.TestCase):
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
-        player, ok, _info = claim_diary_tier_pure(
-            player, family.tiers[1].id, lamp_skill="mining"
-        )
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
+        player, ok, _info = claim_diary_tier_pure(player, family.tiers[1].id)
         self.assertTrue(ok)
         self.assertNotIn("Ardougne cloak 1", player["inventory"])
         self.assertEqual(player["inventory"].get("Ardougne cloak 2"), 1)
@@ -1273,13 +1320,13 @@ class ClaimTest(unittest.TestCase):
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         inventory, equipment, worn = equip_item_pure(
             "Ardougne cloak 1", player["inventory"], player["equipment"], EQUIPMENT_DATA
         )
         self.assertTrue(worn)
         player["inventory"], player["equipment"] = inventory, equipment
-        player = claim_diary_tier_pure(player, family.tiers[1].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[1].id)[0]
         self.assertEqual(player["equipment"].get("cape"), "Ardougne cloak 2")
         self.assertFalse(player["inventory"].get("Ardougne cloak 1"))
 
@@ -1295,7 +1342,7 @@ class ClaimTest(unittest.TestCase):
     def test_the_granted_item_can_actually_be_worn(self):
         family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         allowed, reason = can_equip_item_pure(
             "Ardougne cloak 1", EQUIPMENT_DATA, player
         )
@@ -1418,7 +1465,7 @@ class PinAndCommandTest(unittest.TestCase):
         player = _complete_tier(_fresh(), family.tiers[0])
         frozen = copy.deepcopy(player)
         apply_achievement_diary_command_pure(
-            player, "claim_tier", {"tier_id": family.tiers[0].id, "lamp_skill": "mining"}
+            player, "claim_tier", {"tier_id": family.tiers[0].id}
         )
         self.assertEqual(player["inventory"], frozen["inventory"])
         self.assertEqual(player["achievement_diaries"], frozen["achievement_diaries"])
@@ -1526,13 +1573,34 @@ class MigrationTest(unittest.TestCase):
         player = _fresh()
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
         player = _complete_tier(player, family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
+        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         claimed = list(player["achievement_diaries"]["claimed_tiers"])
 
         loaded = migrate_loaded_data(
             copy.deepcopy(player), ORE_DATA, ITEM_DEFINITIONS
         )
         self.assertEqual(loaded["achievement_diaries"]["claimed_tiers"], claimed)
+
+    def test_pre_bank_claim_save_retires_lamps_already_paid_as_direct_xp(self):
+        player = _fresh()
+        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
+        tier = family.tiers[0]
+        player = _complete_tier(player, tier)
+        player["config_version"] = 106
+        player["achievement_diaries"]["claimed_tiers"] = [tier.id]
+        player["inventory"][tier.reward_item] = 1
+        player["mining_exp"] += float(tier.lamp.experience)
+        paid_exp = player["mining_exp"]
+        claim_id = diary_lamp_claim_id(tier.id)
+        player["claims"].pop(claim_id, None)
+
+        loaded = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(loaded["mining_exp"], paid_exp)
+        self.assertTrue(loaded["claims"][claim_id]["claimed"])
+        row = next(row for row in claim_rows_pure(loaded, CLAIM_DATA) if row["claim_id"] == claim_id)
+        self.assertTrue(row["claimed"])
+        self.assertFalse(row["eligible"])
 
     def test_a_corrupt_ledger_is_repaired_rather_than_fatal(self):
         player = _fresh()

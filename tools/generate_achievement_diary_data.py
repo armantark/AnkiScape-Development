@@ -1035,6 +1035,9 @@ def build(document: dict) -> str:
             reward = TIER_REWARDS.get(
                 (family_id, tier_name), f"{label} {meta['name']} task rewards."
             )
+            lamp_placeholder_id = (
+                f"achievement_diaries.{family_id}.{tier_name}.lamp_minimum_level"
+            )
             tier_blocks.append(
                 "        DiaryTier(\n"
                 f"            {family_id + '_' + tier_name!r},\n"
@@ -1043,6 +1046,9 @@ def build(document: dict) -> str:
                 f"            {reward_item!r},\n"
                 f"            {reward!r},\n"
                 "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
+                f"            # PLACEHOLDER({lamp_placeholder_id}): the exact period\n"
+                "            # lamp floor is not recorded in the repository. A period lamp\n"
+                "            # dialogue or cache interface script would settle this tier.\n"
                 f"            DiaryLamp({meta['lamp'][index]}, 1),\n"
                 f"            {'period tier: ' + str(len(darkan_ids)) + ' tasks; ' + source!r},\n"
                 f"            designed_task_count={TASKS_PER_TIER},\n"
@@ -1132,11 +1138,6 @@ def build(document: dict) -> str:
         "    DiaryTask,\n"
         "    DiaryTier,\n"
         ")\n\n"
-        "# PLACEHOLDER(achievement_diaries.lamp_minimum_level): every tier lamp ships\n"
-        "# with no minimum-level restriction. The pinned task-set infoboxes state each\n"
-        "# tier's lamp experience exactly but never the skill-level floor the period\n"
-        "# lamp imposed. A period lamp dialogue or a cache interface script would\n"
-        "# settle it.\n\n"
         "# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous rewards use\n"
         "# the cache-proven 100-coin floor multiplied by completion ordinal. The exact\n"
         "# period curve needs the server payout routine or decoded completion script.\n\n\n"
