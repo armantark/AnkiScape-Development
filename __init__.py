@@ -5231,13 +5231,11 @@ def _refresh_review_surfaces() -> None:
 def _on_rev_show_question(*_args, **_kwargs):
     _inject_reviewer_floating_button()
     _refresh_review_surfaces()
-    ui.measure_card_content()
 
 def _on_rev_show_answer(*_args, **_kwargs):
     # The injected #ankiscape-float node lives on document.body and survives
     # Anki's per-card innerHTML swap, so injecting once per card is enough.
     _refresh_review_surfaces()
-    ui.measure_card_content()
 
 # Ensure the floating button is injected on the deck Overview as it refreshes
 def _on_overview_did_refresh(overview):

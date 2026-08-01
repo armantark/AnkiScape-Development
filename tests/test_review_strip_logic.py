@@ -48,7 +48,6 @@ from ankiscape.logic.grand_exchange_logic import ge_fill_drawer_view_pure
 from ankiscape.logic.review_strip_logic import (
     ACTIVITY_TRAINED_SKILLS,
     DND_NOTIFICATION_ACTIVITY_IDS,
-    REVIEW_ANSWER_BAR_HEIGHT,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
     activity_awards_experience_now_pure,
@@ -58,9 +57,7 @@ from ankiscape.logic.review_strip_logic import (
     request_review_bank_run_pure,
     review_bank_run_button_view_pure,
     review_event_log_drawer_view_pure,
-    review_overlay_layout_view_pure,
     review_status_badges_view_pure,
-    review_status_popover_layout_view_pure,
     skill_xp_bar_pure,
 )
 from ankiscape.logic.shooting_star_logic import (
@@ -714,77 +711,6 @@ class EventLogViewTest(unittest.TestCase):
         )
 
 
-class OverlayLayoutViewTest(unittest.TestCase):
-    def test_card_content_never_changes_the_fixed_bottom_strip(self):
-        short = review_overlay_layout_view_pure(
-            parent_size=(1000, 700),
-            content_rect=(20, 20, 960, 180),
-            cluster_size=(684, REVIEW_STRIP_HEIGHT),
-        )
-        tall = review_overlay_layout_view_pure(
-            parent_size=(1000, 700),
-            content_rect=(0, 0, 1000, 4000),
-            cluster_size=(684, REVIEW_STRIP_HEIGHT),
-        )
-
-        self.assertEqual(short, tall)
-        self.assertEqual(short["dock"], "review-bottom")
-        self.assertEqual(
-            short["y"],
-            700 - REVIEW_ANSWER_BAR_HEIGHT - REVIEW_STRIP_HEIGHT,
-        )
-        self.assertEqual(short["card_bottom_padding"], REVIEW_STRIP_HEIGHT)
-
-    def test_the_560_point_reviewer_keeps_the_same_strip_height(self):
-        view = review_overlay_layout_view_pure(
-            parent_size=(1000, 560),
-            content_rect=(0, 0, 1000, 2000),
-            cluster_size=(684, REVIEW_STRIP_HEIGHT),
-        )
-
-        self.assertTrue(view["visible"])
-        self.assertEqual(view["height"], REVIEW_STRIP_HEIGHT)
-        self.assertEqual(view["answer_bar_top"], 560 - REVIEW_ANSWER_BAR_HEIGHT)
-        self.assertEqual(
-            view["y"] + view["height"], view["answer_bar_top"]
-        )
-
-    def test_live_answer_bar_top_overrides_the_height_fallback(self):
-        view = review_overlay_layout_view_pure(
-            parent_size=(1000, 700),
-            content_rect=(0, 0, 1000, 2000),
-            cluster_size=(684, REVIEW_STRIP_HEIGHT),
-            answer_bar_top=610,
-        )
-
-        self.assertEqual(view["answer_bar_top"], 610)
-        self.assertEqual(view["y"] + view["height"], 610)
-
-    def test_status_popover_declines_when_every_anchor_position_covers_the_card(self):
-        view = review_status_popover_layout_view_pure(
-            parent_size=(1000, 700),
-            content_rect=(0, 0, 1000, 500),
-            anchor_rect=(160, 520, 82, 48),
-            popover_size=(360, 180),
-            safe_bottom=500,
-        )
-
-        self.assertFalse(view["visible"])
-
-    def test_status_popover_uses_clear_space_above_short_card_content(self):
-        view = review_status_popover_layout_view_pure(
-            parent_size=(1000, 700),
-            content_rect=(20, 20, 960, 180),
-            anchor_rect=(160, 520, 82, 48),
-            popover_size=(360, 180),
-            safe_bottom=500,
-        )
-
-        self.assertTrue(view["visible"])
-        self.assertGreaterEqual(view["y"], 200)
-        self.assertLessEqual(view["y"] + 180, 500)
-
-
 class ReviewBankRunViewTest(unittest.TestCase):
     def test_the_button_is_visible_and_enabled_for_every_registered_action(self):
         views = {
@@ -797,7 +723,11 @@ class ReviewBankRunViewTest(unittest.TestCase):
         self.assertTrue(views)
         for name, view in views.items():
             with self.subTest(name=name):
-                self.assertEqual(view["text"], "Do bank run")
+                self.assertEqual(view["text"], "Bank run")
+                self.assertEqual(
+                    view["tooltip"],
+                    "Deposit inventory and restock same supplies",
+                )
                 self.assertTrue(view["visible"])
                 self.assertTrue(view["enabled"])
 
