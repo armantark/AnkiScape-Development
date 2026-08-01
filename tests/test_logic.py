@@ -7167,6 +7167,23 @@ class TestLogic(unittest.TestCase):
             ["bronze_hatchet", "mithril_hatchet"],
         )
 
+    def test_manual_attach_registers_inferno_adze_for_both_tool_families(self):
+        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+            "Inferno adze",
+            {"Inferno adze": 1},
+            {
+                "mining": ["bronze_pickaxe"],
+                "woodcutting": ["bronze_hatchet"],
+            },
+            MINING_PICKAXE_DATA,
+            WOODCUTTING_AXE_DATA,
+        )
+
+        self.assertTrue(attached)
+        self.assertNotIn("Inferno adze", inventory)
+        self.assertIn("inferno_adze", toolbelt["mining"])
+        self.assertIn("inferno_adze", toolbelt["woodcutting"])
+
     def test_bank_gear_rows_discloses_attached_tool_blocked_by_level(self):
         pd = {
             "mining_level": 1,

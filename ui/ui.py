@@ -24148,6 +24148,8 @@ def show_main_menu(
         )
 
     def _toolbelt_attachment(item_name: str):
+        matches = []
+        toolbelt = player_data.get("toolbelt", {}) or {}
         for skill_id, slot_label, tool_data in (
             ("mining", "Pickaxe", MINING_PICKAXE_DATA),
             ("woodcutting", "Hatchet", WOODCUTTING_AXE_DATA),
@@ -24155,17 +24157,22 @@ def show_main_menu(
             for tool_id, spec in tool_data.items():
                 if spec.get("status", "implemented") != "implemented":
                     continue
-                if str(spec.get("display_name", tool_id)) == item_name:
-                    raw_attached = (player_data.get("toolbelt", {}) or {}).get(skill_id, ())
-                    attached = (
-                        raw_attached == tool_id
-                        if isinstance(raw_attached, str)
-                        else tool_id in raw_attached
-                        if isinstance(raw_attached, (list, tuple, set, frozenset))
-                        else False
-                    )
-                    return skill_id, slot_label, tool_id, attached
-        return None
+                if str(spec.get("display_name", tool_id)) != item_name:
+                    continue
+                raw_attached = toolbelt.get(skill_id, ())
+                attached = (
+                    raw_attached == tool_id
+                    if isinstance(raw_attached, str)
+                    else tool_id in raw_attached
+                    if isinstance(raw_attached, (list, tuple, set, frozenset))
+                    else False
+                )
+                matches.append((skill_id, slot_label, tool_id, attached))
+                break
+        if not matches:
+            return None
+        slot_label = matches[0][1] if len(matches) == 1 else "Tool"
+        return slot_label, all(match[3] for match in matches)
 
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
@@ -24207,7 +24214,7 @@ def show_main_menu(
 
         tool_attachment = _toolbelt_attachment(item_name)
         if tool_attachment is not None:
-            _skill_id, slot_label, _tool_id, attached = tool_attachment
+            slot_label, attached = tool_attachment
             attach_action = menu.addAction(
                 f"{slot_label} attached"
                 if attached

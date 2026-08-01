@@ -124,16 +124,14 @@ def attach_tool_to_toolbelt_pure(
     axe_data: Mapping[str, Mapping[str, object]],
 ) -> tuple[dict[str, int], dict[str, list[str]], bool]:
     """Move one bank tool onto its family toolbelt through an explicit action."""
-    attachment = None
+    attachments: list[tuple[str, str]] = []
     for skill, tool_data in (("mining", pickaxe_data), ("woodcutting", axe_data)):
         for tool_id, spec in tool_data.items():
             if spec.get("status", "implemented") != "implemented":
                 continue
             if str(spec.get("display_name", tool_id)) == item_name:
-                attachment = (skill, tool_id)
+                attachments.append((skill, tool_id))
                 break
-        if attachment is not None:
-            break
     clean_inventory = {
         name: int(amount)
         for name, amount in inventory.items()
@@ -151,16 +149,18 @@ def attach_tool_to_toolbelt_pure(
             else:
                 items = []
             clean_toolbelt[skill] = list(dict.fromkeys(items))
-    if attachment is None or clean_inventory.get(item_name, 0) <= 0:
-        return clean_inventory, clean_toolbelt, False
-    skill, tool_id = attachment
-    attached = clean_toolbelt.setdefault(skill, [])
-    if tool_id in attached:
+    missing: list[tuple[str, str]] = []
+    for skill, tool_id in attachments:
+        attached = clean_toolbelt.setdefault(skill, [])
+        if tool_id not in attached:
+            missing.append((skill, tool_id))
+    if not missing or clean_inventory.get(item_name, 0) <= 0:
         return clean_inventory, clean_toolbelt, False
     clean_inventory[item_name] -= 1
     if clean_inventory[item_name] <= 0:
         clean_inventory.pop(item_name, None)
-    attached.append(tool_id)
+    for skill, tool_id in missing:
+        clean_toolbelt[skill].append(tool_id)
     return clean_inventory, clean_toolbelt, True
 
 
