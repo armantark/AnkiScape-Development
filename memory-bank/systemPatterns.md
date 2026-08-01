@@ -4,9 +4,9 @@
 
 Reviewer chrome is a fixed-height row pinned to the live top edge of Anki's
 answer-button bar. Card content never selects its geometry: every new review
-document gets a base inset equal to `REVIEW_STRIP_HEIGHT`, open drawers add only
-temporary scroll reserve, and late web-content measurements must not move the
-row.
+document always reserves the fixed row plus every visible drawer/header above
+it, and late web-content measurements must not move the row. A badge popover
+closes when no placement avoids the measured card rectangle.
 
 - `ReviewStrip` owns four stable left-to-right seats: separate D&D and Farming
   badges, `ReviewHUD`, and the bank-run button. Hidden or empty content does not
@@ -17,12 +17,13 @@ row.
 - `_reposition_review_overlay()` is the only geometry authority. Event log is
   immediately above the XP box, GE is above Event log, and both expand upward.
   Floating XP anchors to the strip and is re-anchored by the same pass.
-- Every XP emission goes through the retained Event-log seam. The feedback
-  context accumulates the real awarded skill names so a combined popup names
-  its complete skill set.
+- Every XP emission goes through the retained Event-log seam. Award results
+  carry their skill identity, while review aggregation verifies names from the
+  real experience deltas; silent awards cannot leak into a later row.
 - The strip bank action is only a runtime request seam. Combat uses the existing
-  combat bank-run state; carried activities convert the request into their
-  existing target-specific travel profile on the next productive review.
+  combat bank-run state, carried activities use their target-specific travel
+  profile, and actions without a carried pack spend one review on the standard
+  bank trip.
 - An activity's trained skills come from `ACTIVITY_TRAINED_SKILLS`, which mirrors
   the `ctx.award_skill_exp` sites because no activity spec declares them. Two
   families resolve theirs at award time and answer for themselves. An activity

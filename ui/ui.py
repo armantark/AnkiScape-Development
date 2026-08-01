@@ -604,6 +604,7 @@ from ..logic.review_strip_logic import (
     review_event_log_drawer_view_pure,
     review_overlay_layout_view_pure,
     review_status_badges_view_pure,
+    review_status_popover_layout_view_pure,
     world_event_rows_pure,
 )
 
@@ -3421,12 +3422,24 @@ def measure_card_content() -> None:
 _CARD_PADDING_PX = -1
 
 
-def _review_overlay_reserved_height(_gap: int = 6) -> int:
-    return REVIEW_STRIP_HEIGHT
+def _review_overlay_reserved_height() -> int:
+    """Return the full visible stack rising from the fixed strip."""
+
+    strip = _REVIEW_STRIP
+    if strip is None or not strip.isVisible():
+        return 0
+    stack = [strip]
+    stack.extend(
+        widget
+        for widget in (_EVENT_LOG_DRAWER, _FILL_DRAWER, _REVIEW_CONTEXT_STRIP)
+        if _overlay_requested(widget) and widget.isVisible()
+    )
+    top = min(widget.y() for widget in stack)
+    return max(REVIEW_STRIP_HEIGHT, strip.y() + strip.height() - top)
 
 
 def _sync_card_bottom_padding(parent, reserved_height, *, force=False) -> None:
-    """Reserve the fixed strip plus any open drawer stack in the card document."""
+    """Reserve every persistent overlay pixel in the card document."""
 
     global _CARD_PADDING_PX
     padding = max(0, int(reserved_height))
@@ -3576,7 +3589,7 @@ def _reposition_review_overlay() -> None:
                 max(0, cursor_y - context.height()),
             )
             context.raise_()
-        _sync_card_bottom_padding(parent, _review_overlay_reserved_height(gap))
+        _sync_card_bottom_padding(parent, _review_overlay_reserved_height())
         if (
             _STATUS_POPOVER is not None
             and _STATUS_POPOVER.isVisible()
@@ -3858,20 +3871,23 @@ def update_review_event_log_drawer(player_data: dict) -> None:
 def _position_review_status_popover() -> bool:
     try:
         badge = _STATUS_POPOVER_BADGE
-        if _STATUS_POPOVER is None or badge is None or mw is None:
+        strip = _REVIEW_STRIP
+        if _STATUS_POPOVER is None or badge is None or strip is None or mw is None:
             return False
         frame = _STATUS_POPOVER
         frame.adjustSize()
         frame.resize(max(360, frame.width()), min(380, max(180, frame.sizeHint().height())))
         point = badge.mapTo(mw, QPoint(0, 0))
-        x = min(max(8, point.x()), max(8, mw.width() - frame.width() - 8))
-        y = point.y() - frame.height() - 8
-        if y < 8:
-            y = min(
-                mw.height() - frame.height() - 8,
-                point.y() + badge.height() + 8,
-            )
-        frame.move(x, max(8, y))
+        layout = review_status_popover_layout_view_pure(
+            parent_size=(mw.width(), mw.height()),
+            content_rect=_review_card_content_rect(mw),
+            anchor_rect=(point.x(), point.y(), badge.width(), badge.height()),
+            popover_size=(frame.width(), frame.height()),
+            safe_bottom=strip.y(),
+        )
+        if not layout.get("visible"):
+            return False
+        frame.move(int(layout["x"]), int(layout["y"]))
         return True
     except Exception:
         return False

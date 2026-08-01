@@ -511,6 +511,15 @@ class ReviewStripTest(unittest.TestCase):
         strip_y = strip.y()
         self.assertLessEqual(event.y() + event.height(), strip.y())
         self.assertLessEqual(ge.y() + ge.height(), event.y())
+        collapsed_reserved = self.ui._review_overlay_reserved_height()
+        protected_top = strip.y() + strip.height() - collapsed_reserved
+        self.assertGreater(collapsed_reserved, self.ui.REVIEW_STRIP_HEIGHT)
+        self.assertGreaterEqual(event.y(), protected_top)
+        self.assertGreaterEqual(ge.y(), protected_top)
+        self.assertEqual(
+            scripts[-1],
+            f"document.body.style.paddingBottom = '{collapsed_reserved}px';",
+        )
 
         event.toggle.click()
         ge.toggle.click()
@@ -522,9 +531,13 @@ class ReviewStripTest(unittest.TestCase):
         self.assertLessEqual(event.y() + event.height(), strip.y())
         self.assertLessEqual(ge.y() + ge.height(), event.y())
         self.assertGreaterEqual(ge.y(), 0)
+        reserved = self.ui._review_overlay_reserved_height()
+        self.assertGreater(reserved, self.ui.REVIEW_STRIP_HEIGHT)
+        self.assertGreaterEqual(event.y(), strip.y() + strip.height() - reserved)
+        self.assertGreaterEqual(ge.y(), strip.y() + strip.height() - reserved)
         self.assertEqual(
             scripts[-1],
-            f"document.body.style.paddingBottom = '{self.ui.REVIEW_STRIP_HEIGHT}px';",
+            f"document.body.style.paddingBottom = '{reserved}px';",
         )
 
         self.parent.resize(700, 360)
@@ -533,9 +546,12 @@ class ReviewStripTest(unittest.TestCase):
         self.assertGreaterEqual(ge.y(), 8)
         self.assertLessEqual(ge.y() + ge.height(), event.y())
         self.assertLessEqual(event.y() + event.height(), strip.y())
+        reserved = self.ui._review_overlay_reserved_height()
+        self.assertGreater(reserved, self.ui.REVIEW_STRIP_HEIGHT)
+        self.assertGreaterEqual(ge.y(), strip.y() + strip.height() - reserved)
         self.assertEqual(
             scripts[-1],
-            f"document.body.style.paddingBottom = '{self.ui.REVIEW_STRIP_HEIGHT}px';",
+            f"document.body.style.paddingBottom = '{reserved}px';",
         )
 
     def test_the_rows_run_newest_first_with_the_settled_two_tones(self) -> None:
@@ -663,11 +679,11 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
         self.assertEqual(strip.geometry(), before)
-        self.assertTrue(
-            any(
-                f"paddingBottom = '{self.ui.REVIEW_STRIP_HEIGHT}px'" in script
-                for script in scripts
-            )
+        reserved = self.ui._review_overlay_reserved_height()
+        self.assertGreater(reserved, self.ui.REVIEW_STRIP_HEIGHT)
+        self.assertEqual(
+            scripts[-1],
+            f"document.body.style.paddingBottom = '{reserved}px';",
         )
 
     def test_strip_and_popup_follow_default_and_560_point_reviewers(self) -> None:
@@ -710,6 +726,37 @@ class ReviewStripTest(unittest.TestCase):
         self.assertLessEqual(popup.y() + popup.height(), hud_top)
         popup.hide()
         popup.deleteLater()
+
+    def test_status_popover_closes_instead_of_covering_tall_card_material(self) -> None:
+        card_web = QWidget(self.parent)
+        card_web.setGeometry(0, 0, 1000, 500)
+        card_web.show()
+        card_web.zoomFactor = lambda: 1.0
+        self.parent.reviewer = types.SimpleNamespace(web=card_web)
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        self.ui._CARD_CONTENT_BOTTOM_PX = 500
+        for _ in range(5):
+            QApplication.processEvents()
+
+        self.ui._DND_BADGE.button.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertIsNone(self.ui._STATUS_POPOVER)
+
+        self.ui._CARD_CONTENT_BOTTOM_PX = 150
+        self.ui._DND_BADGE.button.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertIsNotNone(self.ui._STATUS_POPOVER)
+        self.assertTrue(self.ui._STATUS_POPOVER.isVisible())
+        popover = self.ui._STATUS_POPOVER.geometry()
+        content = QRect(0, 0, 1000, 150)
+        self.assertFalse(popover.intersects(content))
 
     def test_strip_uses_the_live_answer_bar_top_when_available(self) -> None:
         answer_bar = QWidget(self.parent)

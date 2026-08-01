@@ -4120,6 +4120,26 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertTrue(marker["called"])
         self.assertNotIn("carried_inventory", player_data)
 
+    def test_manual_bank_run_for_an_untracked_handler_spends_the_review(self):
+        player_data = {
+            "inventory": {},
+            "review_bank_run_requested_handler": "utility",
+        }
+        marker = {"called": False}
+        ctx, calls = self._mining_ctx(player_data)
+
+        result = run_answer_with_carried_overlay(
+            ctx,
+            "utility",
+            lambda _ctx: marker.__setitem__("called", True),
+        )
+
+        self.assertTrue(result)
+        self.assertFalse(marker["called"])
+        self.assertNotIn("review_bank_run_requested_handler", player_data)
+        self.assertEqual(calls["activity"], ["Bank run — arrived at the bank"])
+        self.assertEqual(calls["saves"], 1)
+
 
 class TestProcessingPackOverlay(unittest.TestCase):
     """Processing skills draw recipe inputs from the carried pack, not the bank."""

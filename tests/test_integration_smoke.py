@@ -262,6 +262,26 @@ class TestIntegrationSmoke(unittest.TestCase):
             "+12 XP · Hunter",
         )
 
+    def test_silent_award_cannot_name_a_later_unrelated_xp_event(self):
+        addon = _load_addon_as_package("ankiscape_event_log_no_stale_skill")
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.current_skill = "Activities"
+        addon.player_data = {
+            "summoning_exp": 0.0,
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+
+        addon._award_skill_exp("summoning_exp", 25.0)
+        addon._show_exp(addon._NamedExperience(80.0, ("Hunter",)))
+
+        self.assertEqual(
+            addon.player_data["review_event_log"][-1]["text"],
+            "+80 XP · Hunter",
+        )
+
     def test_review_undo_rolls_back_the_event_log_atomically(self):
         addon = _load_addon_as_package("ankiscape_event_log_undo")
         addon.save_player_data = lambda: None

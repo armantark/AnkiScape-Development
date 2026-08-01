@@ -351,9 +351,29 @@ _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 _REVIEW_FEEDBACK_FLUSHING = False
-# Skills named on the next XP event, whether it is emitted per award or
-# aggregated at the end of a review.
-_REVIEW_FEEDBACK_SKILLS = []
+
+
+class _NamedExperience(float):
+    """A numeric XP result that carries the skills which earned it."""
+
+    def __new__(cls, amount, skill_names=()):
+        value = super().__new__(cls, float(amount))
+        value.skill_names = tuple(
+            dict.fromkeys(str(name) for name in skill_names if name)
+        )
+        return value
+
+    def __add__(self, other):
+        return _NamedExperience(
+            float(self) + float(other),
+            (*self.skill_names, *getattr(other, "skill_names", ())),
+        )
+
+    def __radd__(self, other):
+        return _NamedExperience(
+            float(other) + float(self),
+            (*getattr(other, "skill_names", ()), *self.skill_names),
+        )
 
 def show_review_popup():
     ui.show_review_popup()
@@ -422,13 +442,13 @@ def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
 def _show_exp(exp_gained) -> None:
     """Record one XP drop, then display it when floating feedback is enabled."""
     try:
+        skill_names = list(getattr(exp_gained, "skill_names", ()))
         if _REVIEW_FEEDBACK_CONTEXT is not None:
             try:
                 _REVIEW_FEEDBACK_CONTEXT["xp"] += float(exp_gained)
             except (TypeError, ValueError):
                 pass
             return
-        skill_names = list(_REVIEW_FEEDBACK_SKILLS)
         if not skill_names and current_skill not in {"", "None"}:
             skill_names.append(str(current_skill))
         message = f"+{int(float(exp_gained))} XP"
@@ -455,9 +475,6 @@ def _show_exp(exp_gained) -> None:
             pass
     except Exception:
         pass
-    finally:
-        if _REVIEW_FEEDBACK_CONTEXT is None:
-            _REVIEW_FEEDBACK_SKILLS.clear()
 
 
 def _show_activity_gain(text: str) -> None:
@@ -519,17 +536,24 @@ def _combine_activity_feedback(messages) -> str:
 
 def _begin_review_feedback_context() -> None:
     global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_INITIAL_XP
+    initial_xp = _REVIEW_FEEDBACK_INITIAL_XP
     _REVIEW_FEEDBACK_CONTEXT = {
-        "xp": float(_REVIEW_FEEDBACK_INITIAL_XP or 0.0),
+        "xp": float(initial_xp or 0.0),
+        "skills": list(getattr(initial_xp, "skill_names", ())),
+        "initial_exp": _implemented_exp_keys_snapshot(),
         "activity": [],
     }
-    _REVIEW_FEEDBACK_SKILLS.clear()
     _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 
 
 def _finish_review_feedback_context() -> None:
     global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_FLUSHING
-    context = _REVIEW_FEEDBACK_CONTEXT or {"xp": 0.0, "activity": []}
+    context = _REVIEW_FEEDBACK_CONTEXT or {
+        "xp": 0.0,
+        "skills": [],
+        "initial_exp": {},
+        "activity": [],
+    }
     _REVIEW_FEEDBACK_CONTEXT = None
     _REVIEW_FEEDBACK_FLUSHING = True
     try:
@@ -538,9 +562,16 @@ def _finish_review_feedback_context() -> None:
             xp_total = float(xp_total)
         except (TypeError, ValueError):
             xp_total = 0.0
+        skill_names = list(context.get("skills", ()))
+        initial_exp = context.get("initial_exp", {})
+        for skill in trainable_skill_definitions():
+            if float(player_data.get(skill.exp_key, 0) or 0) > float(
+                initial_exp.get(skill.exp_key, 0) or 0
+            ) and skill.display_name not in skill_names:
+                skill_names.append(skill.display_name)
         activity_messages = context.get("activity", [])
         if xp_total > 0:
-            _show_exp(xp_total)
+            _show_exp(_NamedExperience(xp_total, skill_names))
             for message in activity_messages:
                 _record_review_event("activity", str(message), persist=False)
         elif activity_messages:
@@ -552,7 +583,6 @@ def _finish_review_feedback_context() -> None:
         except Exception:
             pass
     finally:
-        _REVIEW_FEEDBACK_SKILLS.clear()
         _REVIEW_FEEDBACK_FLUSHING = False
 
 
@@ -795,8 +825,6 @@ def _award_skill_exp(
     skill_name = (
         skill.display_name if skill is not None else skill_id.replace("_", " ").title()
     )
-    if skill_name not in _REVIEW_FEEDBACK_SKILLS:
-        _REVIEW_FEEDBACK_SKILLS.append(skill_name)
     # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
     # experience out of a 1,000-experience budget, then turns cosmetic. It rides
     # the same seam the Stealing Creation tools use rather than a second one.
@@ -813,7 +841,7 @@ def _award_skill_exp(
         action_skill_id,
     ):
         player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
-        return base_exp
+        return _NamedExperience(base_exp, (skill_name,))
     updated, bonus_exp, _tool_info = apply_stealing_creation_xp_bonus_pure(
         player_data,
         exp_key,
@@ -825,7 +853,7 @@ def _award_skill_exp(
     player_data.update(updated)
     total_exp = float(base_exp) + float(bonus_exp)
     player_data[exp_key] = player_data.get(exp_key, 0) + total_exp
-    return total_exp
+    return _NamedExperience(total_exp, (skill_name,))
 
 
 def _update_review_context_surface() -> None:
@@ -1053,6 +1081,7 @@ def _implemented_exp_keys_snapshot() -> dict[str, float]:
 
 def _show_quest_exp_delta(before: dict[str, float]) -> None:
     total = 0.0
+    skill_names = []
     for skill in trainable_skill_definitions():
         old_exp = before.get(skill.exp_key, 0.0)
         try:
@@ -1061,14 +1090,17 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
             new_exp = old_exp
         if new_exp > old_exp:
             total += new_exp - old_exp
-            if skill.display_name not in _REVIEW_FEEDBACK_SKILLS:
-                _REVIEW_FEEDBACK_SKILLS.append(skill.display_name)
+            skill_names.append(skill.display_name)
             # Minimal/legacy saves can receive a Combat-stat quest reward before
             # the normal storage migration has seeded that stat's level key.
             player_data.setdefault(skill.level_key, 1)
             level_up_check(skill.display_name, player_data)
     if total > 0:
-        _show_exp(total)
+        _show_exp(_NamedExperience(total, skill_names))
+
+
+def _show_runtime_exp(value) -> None:
+    _show_exp(float(value) if _REVIEW_FEEDBACK_CONTEXT is not None else value)
 
 
 def _runtime_action_context() -> RuntimeActionContext:
@@ -1085,7 +1117,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         refresh_skill_availability=_refresh_skill_availability,
         refresh_skill_availability_partial=refresh_skill_availability,
         can_smith_any=can_smith_any,
-        show_exp=_show_exp,
+        show_exp=_show_runtime_exp,
         show_activity_gain=_show_activity_gain,
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
@@ -2145,7 +2177,7 @@ def _on_main_menu(
         if hunter_xp > 0:
             player_data["hunter_level"] = old_hunter_level
             level_up_check("Hunter", player_data)
-            _show_exp(hunter_xp)
+            _show_exp(_NamedExperience(hunter_xp, ("Hunter",)))
         check_achievements(player_data)
         save_player_data()
         _refresh_skill_availability()

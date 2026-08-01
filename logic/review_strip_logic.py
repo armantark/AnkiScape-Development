@@ -20,6 +20,10 @@ from __future__ import annotations
 
 from typing import Any, Callable, Collection, Mapping
 
+from ..core.action_registry import (
+    review_action_display_names,
+    review_action_handler_key,
+)
 from ..core.constants import (
     BIRD_NEST_OPEN_TABLES,
     COOKING_ITEM_IMAGES,
@@ -116,11 +120,11 @@ REVIEW_STRIP_HEIGHT = 128
 REVIEW_STRIP_WIDTH = 684
 REVIEW_ANSWER_BAR_HEIGHT = 72
 
-# Combat plus the carried-overlay handler keys (runtime _OVERLAY_TARGET_KEYS);
-# the pure layer cannot import the runtime one, so keep the two in step.
-REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
+# These handlers refill a target-specific carried pack. Every other registered
+# review action still gets the button and spends one review on the standard
+# bank trip, but has no pack to repopulate.
+REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS = frozenset(
     {
-        "combat",
         "mining",
         "woodcutting",
         "fishing",
@@ -137,6 +141,11 @@ REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
         "agility",
         "summoning",
     }
+)
+REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
+    handler
+    for name in review_action_display_names()
+    if (handler := review_action_handler_key(name)) is not None
 )
 
 
@@ -279,6 +288,62 @@ def review_overlay_layout_view_pure(
     }
 
 
+def review_status_popover_layout_view_pure(
+    *,
+    parent_size: tuple[int, int],
+    content_rect: tuple[int, int, int, int] | None,
+    anchor_rect: tuple[int, int, int, int],
+    popover_size: tuple[int, int],
+    safe_bottom: int,
+    margin: int = 8,
+    gap: int = 8,
+) -> dict[str, Any]:
+    """Place a badge popover only where it cannot cover card material."""
+
+    parent_w = max(0, int(parent_size[0]))
+    parent_h = max(0, int(parent_size[1]))
+    anchor_x, _, anchor_w, _ = (max(0, int(value)) for value in anchor_rect)
+    popover_w, popover_h = (max(0, int(value)) for value in popover_size)
+    bottom = max(margin, min(parent_h, int(safe_bottom)))
+    if (
+        popover_w <= 0
+        or popover_h <= 0
+        or popover_w > max(0, parent_w - 2 * margin)
+        or popover_h > max(0, bottom - margin)
+    ):
+        return {"visible": False, "x": margin, "y": margin}
+
+    content = None
+    if content_rect is not None:
+        cx, cy, cw, ch = (int(value) for value in content_rect)
+        content = (
+            max(0, cx),
+            max(0, cy),
+            min(parent_w, cx + max(0, cw)),
+            min(bottom, cy + max(0, ch)),
+        )
+
+    def covers_card(x: int, y: int) -> bool:
+        if content is None:
+            return False
+        left, top, right, card_bottom = content
+        return (
+            x < right
+            and x + popover_w > left
+            and y < card_bottom
+            and y + popover_h > top
+        )
+
+    x = min(
+        max(margin, anchor_x + (anchor_w - popover_w) // 2),
+        parent_w - popover_w - margin,
+    )
+    y = bottom - popover_h - gap
+    if y < margin or covers_card(x, y):
+        return {"visible": False, "x": margin, "y": margin}
+    return {"visible": True, "x": x, "y": y}
+
+
 def review_bank_run_button_view_pure(
     player_data: Mapping[str, Any], handler_key: Any, target_id: Any = None
 ) -> dict[str, Any]:
@@ -289,23 +354,25 @@ def review_bank_run_button_view_pure(
     requested_target = str(
         player_data.get("review_bank_run_requested_target", "") or ""
     )
+    requested_handler = str(
+        player_data.get("review_bank_run_requested_handler", "") or ""
+    )
     if handler == "combat":
         active = bool(player_data.get("combat_bank_run"))
-    else:
+    elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
         active = bool(player_data.get("skilling_bank_run")) or bool(
             requested_target and (not target or requested_target == target)
         )
-    supported = handler in REVIEW_BANK_RUN_HANDLER_KEYS
-    if not supported:
-        tooltip = "This review activity has no bank-run path."
-    elif active:
+    else:
+        active = bool(requested_handler)
+    if active:
         tooltip = "A bank run is already queued or in progress."
     else:
-        tooltip = "Spend upcoming review progress on the normal bank-run route."
+        tooltip = "Spend the next review on the normal bank-run route."
     return {
         "visible": True,
         "text": "Do bank run",
-        "enabled": supported and not active,
+        "enabled": handler in REVIEW_BANK_RUN_HANDLER_KEYS and not active,
         "tooltip": tooltip,
     }
 
@@ -317,25 +384,30 @@ def request_review_bank_run_pure(
 
     handler = str(handler_key or "")
     target = str(target_id or "")
-    if handler not in REVIEW_BANK_RUN_HANDLER_KEYS or not target:
+    if handler not in REVIEW_BANK_RUN_HANDLER_KEYS:
         return dict(player_data), False
     updated = dict(player_data)
     if handler == "combat":
-        if player_data.get("combat_bank_run"):
+        if not target or player_data.get("combat_bank_run"):
             return updated, False
         updated["combat_bank_run"] = {
             "reviews_remaining": COMBAT_BANK_RUN_REVIEWS,
             "target_id": target,
         }
-    else:
+    elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
         if (
-            player_data.get("skilling_bank_run")
+            not target
+            or player_data.get("skilling_bank_run")
             or player_data.get("review_bank_run_requested_target") == target
         ):
             return updated, False
         # The carried-overlay runtime converts this one thin request into its
         # ordinary target-specific travel profile on the next successful card.
         updated["review_bank_run_requested_target"] = target
+    else:
+        if player_data.get("review_bank_run_requested_handler"):
+            return updated, False
+        updated["review_bank_run_requested_handler"] = handler
     return updated, True
 
 

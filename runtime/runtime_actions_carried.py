@@ -821,13 +821,23 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     only — the pack running out of a required input the bank could still
     supply. On a completed bank run the pack is repacked from the bank (casual
     preset / processing split, or the advanced saved layout) rather than simply
-    cleared. Handlers without carried teeth (utility, quests) run untouched.
+    cleared. Handlers without carried teeth run untouched unless the player
+    explicitly spends that review on a bank run.
     """
+    player_data = ctx.player_data
     target_key = _OVERLAY_TARGET_KEYS.get(handler_key)
     if target_key is None:
+        if (
+            str(player_data.get("review_bank_run_requested_handler", "") or "")
+            == handler_key
+        ):
+            player_data.pop("review_bank_run_requested_handler", None)
+            player_data.update(restore_summoning_points_pure(player_data))
+            ctx.show_activity_gain("Bank run — arrived at the bank")
+            ctx.save_player_data()
+            return True
         return handler(ctx)
 
-    player_data = ctx.player_data
     target_id = str(player_data.get(target_key, ""))
     evil_tree_state = player_data.get("evil_tree")
     if not isinstance(evil_tree_state, dict):

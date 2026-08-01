@@ -10,6 +10,10 @@ from __future__ import annotations
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.action_registry import (
+    review_action_display_names,
+    review_action_handler_key,
+)
 from ankiscape.core.constants import (
     DUNGEONEERING_EXP_TABLE,
     ITEM_DEFINITIONS,
@@ -56,6 +60,7 @@ from ankiscape.logic.review_strip_logic import (
     review_event_log_drawer_view_pure,
     review_overlay_layout_view_pure,
     review_status_badges_view_pure,
+    review_status_popover_layout_view_pure,
     skill_xp_bar_pure,
 )
 from ankiscape.logic.shooting_star_logic import (
@@ -755,17 +760,46 @@ class OverlayLayoutViewTest(unittest.TestCase):
         self.assertEqual(view["answer_bar_top"], 610)
         self.assertEqual(view["y"] + view["height"], 610)
 
+    def test_status_popover_declines_when_every_anchor_position_covers_the_card(self):
+        view = review_status_popover_layout_view_pure(
+            parent_size=(1000, 700),
+            content_rect=(0, 0, 1000, 500),
+            anchor_rect=(160, 520, 82, 48),
+            popover_size=(360, 180),
+            safe_bottom=500,
+        )
+
+        self.assertFalse(view["visible"])
+
+    def test_status_popover_uses_clear_space_above_short_card_content(self):
+        view = review_status_popover_layout_view_pure(
+            parent_size=(1000, 700),
+            content_rect=(20, 20, 960, 180),
+            anchor_rect=(160, 520, 82, 48),
+            popover_size=(360, 180),
+            safe_bottom=500,
+        )
+
+        self.assertTrue(view["visible"])
+        self.assertGreaterEqual(view["y"], 200)
+        self.assertLessEqual(view["y"] + 180, 500)
+
 
 class ReviewBankRunViewTest(unittest.TestCase):
-    def test_the_button_is_always_visible_but_only_enabled_for_real_paths(self):
-        supported = review_bank_run_button_view_pure(_player(), "mining")
-        unsupported = review_bank_run_button_view_pure(_player(), "utility")
+    def test_the_button_is_visible_and_enabled_for_every_registered_action(self):
+        views = {
+            name: review_bank_run_button_view_pure(
+                _player(), review_action_handler_key(name)
+            )
+            for name in review_action_display_names()
+        }
 
-        self.assertEqual(supported["text"], "Do bank run")
-        self.assertTrue(supported["visible"])
-        self.assertTrue(supported["enabled"])
-        self.assertTrue(unsupported["visible"])
-        self.assertFalse(unsupported["enabled"])
+        self.assertTrue(views)
+        for name, view in views.items():
+            with self.subTest(name=name):
+                self.assertEqual(view["text"], "Do bank run")
+                self.assertTrue(view["visible"])
+                self.assertTrue(view["enabled"])
 
     def test_a_queued_request_only_disables_its_own_target(self):
         data = {
@@ -791,6 +825,9 @@ class ReviewBankRunViewTest(unittest.TestCase):
         skilling, skilling_ok = request_review_bank_run_pure(
             _player(), "mining", "copper_ore"
         )
+        utility, utility_ok = request_review_bank_run_pure(
+            _player(), "utility", None
+        )
 
         self.assertTrue(ok)
         self.assertEqual(combat["combat_bank_run"]["target_id"], "chicken")
@@ -800,6 +837,8 @@ class ReviewBankRunViewTest(unittest.TestCase):
             skilling["review_bank_run_requested_target"], "copper_ore"
         )
         self.assertEqual(skilling.get("skilling_bank_run", {}), {})
+        self.assertTrue(utility_ok)
+        self.assertEqual(utility["review_bank_run_requested_handler"], "utility")
 
 
 class FillDrawerViewTest(unittest.TestCase):
