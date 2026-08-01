@@ -4284,10 +4284,7 @@ def on_do_bank_run_now():
         new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
             player_data, player_data.get(target_key)
         )
-    elif (
-        handler_key in runtime_actions._BANK_RUN_TARGET_KEYS
-        or (skill is not None and skill.implemented)
-    ):
+    elif handler_key is not None or (skill is not None and skill.implemented):
         # Surfaces without a carried pack have nothing to deposit or refill.
         # Their bank visit therefore completes immediately instead of consuming
         # a review for a cosmetic queued route.
