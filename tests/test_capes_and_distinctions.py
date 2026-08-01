@@ -36,6 +36,7 @@ from ankiscape.data.achievement_cape_data import (
     SKILLCAPES,
     skillcape_definitions,
 )
+from ankiscape.data.music_log_data import MUSIC_TRACKS
 from ankiscape.data.quest_data import QUESTS
 from ankiscape.logic.achievement_diary_logic import (
     achievement_cabinet_view_pure,
@@ -428,34 +429,24 @@ class PrestigeCapeTest(unittest.TestCase):
             player = _wear(player, cape.cape)
             self.assertEqual(player["equipment"]["cape"], cape.cape)
 
-    def test_the_completionist_cape_is_earned_by_meeting_every_live_requirement(self):
+    def test_completionist_music_uses_the_full_cutoff_catalog(self):
         player = _maxed(_all_quests_done(_player()))
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["completionist"].price}
         diaries = dict(player["achievement_diaries"])
         diaries["taskmaster"] = True
         player["achievement_diaries"] = diaries
-        # Earn the music rather than assert it: quests unlock the quest
-        # tracks, and the two Conquest tracks need a real match started
-        # through the real entry reducer.
-        from ankiscape.logic.conquest_logic import enter_conquest_pure
-
-        player, ok, info = enter_conquest_pure(player)
-        assert ok, info
         player, _newly = refresh_music_log_pure(player)
 
         rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
-        for row_id in ("max", "quests", "taskmaster", "music"):
+        for row_id in ("max", "quests", "taskmaster"):
             self.assertTrue(rows[row_id]["met"], row_id)
-        # The families whose feature has not shipped stay latent, and a latent
-        # row never blocks the purchase.
-        self.assertTrue(rows["boss_long_tail"]["latent"])
-        self.assertFalse(rows["boss_long_tail"]["met"])
+        self.assertFalse(rows["music"]["met"])
+        self.assertEqual(rows["music"]["need"], len(MUSIC_TRACKS))
+        self.assertLess(rows["music"]["have"], rows["music"]["need"])
 
-        player, ok, info = _buy(player, "completionist")
-        self.assertTrue(ok, info)
-        self.assertIn("Museum guard", info["message"])
-        player = _wear(player, "Completionist cape")
-        self.assertEqual(player["equipment"]["cape"], "Completionist cape")
+        _same, ok, info = _buy(player, "completionist")
+        self.assertFalse(ok)
+        self.assertIn("music", info["reason"].lower())
 
     def test_lost_quest_cape_eligibility_unequips_the_owned_cape(self):
         player = _all_quests_done(_player())

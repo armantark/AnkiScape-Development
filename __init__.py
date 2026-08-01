@@ -155,6 +155,7 @@ from .logic.stronghold_player_safety_logic import (
 from .logic.soul_wars_logic import apply_soul_wars_command_pure
 from .logic.shades_of_mortton_logic import apply_shades_of_mortton_command_pure
 from .logic.achievement_diary_logic import apply_achievement_diary_command_pure
+from .logic.music_log_logic import refresh_music_log_pure
 from .logic.tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
 from .data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from .logic.duel_arena_logic import apply_duel_arena_command_pure
@@ -911,6 +912,7 @@ def commit_direct_action(apply_change, *, after_apply=None):
     if not ok:
         random.setstate(before["random_state"])
         return False
+    updated = refresh_music_log_pure(updated)[0]
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):

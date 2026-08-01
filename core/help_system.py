@@ -29,6 +29,7 @@ PRIMARY_HELP_TOPIC_BY_TAB_LABEL: Mapping[str, str] = {
     "Stats": "stats",
     "Challenges": "challenges",
     "Achievements": "achievements",
+    "Collections": "collections",
     "Settings": "settings",
 }
 

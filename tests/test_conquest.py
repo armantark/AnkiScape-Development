@@ -243,7 +243,7 @@ class ConquestEntryAndSetupTests(unittest.TestCase):
             if row.id in player["music_log"]["unlocked_tracks"]
         }
         self.assertIn("Right of Conquest", unlocked)
-        self.assertIn("Conquest", unlocked)
+        self.assertIn("Unavoidable Conflict", unlocked)
 
     def test_the_starting_formation_is_the_registered_placeholder(self):
         """The arrangement is unsourced, so it must stay a marked placeholder."""
