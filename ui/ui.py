@@ -23698,7 +23698,14 @@ def show_main_menu(
         current_inventory_scroll.setObjectName(f"carriedCurrentInventory{name_suffix}")
         current_inventory_scroll.setWidgetResizable(True)
         current_inventory_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        current_inventory_scroll.setFixedHeight(58)
+        current_inventory_margins = current_inventory_layout.contentsMargins()
+        current_inventory_scroll.setFixedHeight(
+            _CARRIED_CELL_HEIGHT
+            + current_inventory_margins.top()
+            + current_inventory_margins.bottom()
+            + current_inventory_scroll.horizontalScrollBar().sizeHint().height()
+            + current_inventory_scroll.frameWidth() * 2
+        )
         current_inventory_scroll.setWidget(current_inventory_host)
         section_layout.addWidget(current_inventory_scroll)
 
