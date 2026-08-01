@@ -47,3 +47,14 @@
 - `python3 run_tests.py` — 3,722 tests passed, 438 skipped, 186.556 seconds.
 - `.venv-qt` with `QT_QPA_PLATFORM=offscreen python run_tests.py` — 3,722 tests passed, 2 skipped, 453.869 seconds.
 - The pre-existing `on_set_combat_auto_eat_food` widget gap remains recorded and intentionally unfixed.
+
+## Fix round addition — v105 food-priority migration
+
+- Verifier rejection: a pre-v105 save that already contained any newly added fish lost the user's explicit relative order because migration removed and canonically reinserted those names.
+- Change: `914b0db4`. The migration now keeps the saved list intact and inserts only absent v105 food names. The v104 refill regression now models the real production input, where none of the new names can already exist.
+- Evidence: migrating `['Shrimps', 'Sardine', 'Shark', 'Herring']` now yields `['Monkfish', 'Bass', 'Pike', 'Cod', 'Mackerel', 'Shrimps', 'Sardine', 'Shark', 'Herring']`; the four explicit names remain in their saved order.
+- Test results:
+  - `python3 -m unittest tests.test_storage_pure` — 52 tests passed.
+  - `python3 run_tests.py` — 3,699 tests passed, 433 skipped.
+  - `.venv-qt` with `QT_QPA_PLATFORM=offscreen python run_tests.py` — 3,699 tests passed, 2 skipped.
+- Verdict: verifier rejection fixed; production v104 behavior remains covered and unchanged.
