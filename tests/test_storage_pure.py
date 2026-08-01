@@ -4,16 +4,17 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.storage_pure import (
     default_player_data,
     migrate_loaded_data,
-    repair_legacy_activity_review_surface_pure,
     CURRENT_CONFIG_VERSION,
 )
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
+from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
 from ankiscape.core.constants import (
     BAR_DATA,
     CRAFTING_DATA,
     DUNGEONEERING_EXP_TABLE,
+    EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FIREMAKING_LOG_ITEMS,
     FIREMAKING_OUTPUT_ITEMS,
@@ -1488,7 +1489,7 @@ class TestStoragePure(unittest.TestCase):
             {
                 "config_version": 103,
                 "current_utility": "shooting_stars",
-                "activity_session": {"active_id": ""},
+                "activity_session": {"active_id": "shooting_stars"},
                 "magic_level": 1,
                 "quests": {"dream_mentor": {"completed": False}},
                 "combat_dream_thrift": True,
@@ -1523,39 +1524,79 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["combat_supply_loadout"]["food"], {"Shrimps": 8})
         self.assertEqual(migrated["inventory"]["Shrimps"], 82)
         self.assertEqual(
-            repair_legacy_activity_review_surface_pure(migrated, None, 103),
-            "Activities",
-        )
-        self.assertEqual(
-            repair_legacy_activity_review_surface_pure(migrated, "Woodcutting", 103),
-            "Woodcutting",
-        )
-        self.assertEqual(
-            repair_legacy_activity_review_surface_pure(migrated, None, 105),
-            "None",
-        )
-        self.assertEqual(
             migrated["combat_auto_eat_food"],
             [
                 "Shark",
+                "Monkfish",
                 "Swordfish",
+                "Bass",
                 "Lobster",
                 "Tuna",
                 "Salmon",
-                "Trout",
-                "Cooked meat",
-                "Cooked chicken",
-                "Monkfish",
-                "Bass",
                 "Pike",
+                "Trout",
                 "Cod",
                 "Mackerel",
                 "Herring",
+                "Cooked meat",
+                "Cooked chicken",
                 "Sardine",
                 "Shrimps",
                 "Crayfish",
             ],
         )
+
+    def test_v106_food_order_refills_monkfish_before_cooked_chicken(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 105,
+                "inventory": {"Monkfish": 50, "Cooked chicken": 50},
+                "combat_pack_mode": "max_output",
+                "combat_supply_loadout": {},
+                "combat_auto_eat_food": [
+                    "Shark",
+                    "Swordfish",
+                    "Lobster",
+                    "Tuna",
+                    "Salmon",
+                    "Trout",
+                    "Cooked meat",
+                    "Cooked chicken",
+                    "Monkfish",
+                    "Bass",
+                    "Pike",
+                    "Cod",
+                    "Mackerel",
+                    "Herring",
+                    "Sardine",
+                    "Shrimps",
+                    "Crayfish",
+                ],
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            migrated, EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, reason)
+        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Monkfish": 8})
+
+    def test_migration_clears_any_selection_only_activity_session(self):
+        for activity_id in ("shooting_stars", "make_soft_clay"):
+            with self.subTest(activity_id=activity_id):
+                migrated = migrate_loaded_data(
+                    {
+                        "config_version": 105,
+                        "current_utility": activity_id,
+                        "activity_session": {"active_id": activity_id},
+                    },
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
+                self.assertEqual(migrated["current_utility"], activity_id)
+                self.assertEqual(migrated["activity_session"], {"active_id": ""})
 
 
 if __name__ == "__main__":

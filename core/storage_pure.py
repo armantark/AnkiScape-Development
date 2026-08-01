@@ -115,7 +115,6 @@ from ..logic.evil_tree_logic import (
     default_evil_tree_state_pure,
     sanitize_evil_tree_state_pure,
 )
-from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ..logic.shooting_star_logic import (
     default_shooting_star_state_pure,
     sanitize_shooting_star_state_pure,
@@ -327,23 +326,36 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 105
+CURRENT_CONFIG_VERSION = 106
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
-
-
-def repair_legacy_activity_review_surface_pure(
-    player_data: Dict[str, Any], current_skill: Any, loaded_config_version: int
-) -> str:
-    """Repair the pass-5 Shooting Star selection/start split exactly once."""
-    skill = str(current_skill or "None")
-    if (
-        loaded_config_version < 105
-        and skill == "None"
-        and player_data.get("current_utility") == SHOOTING_STAR_ACTIVITY_ID
-        and not str((player_data.get("activity_session") or {}).get("active_id", ""))
-    ):
-        return "Activities"
-    return skill
+_SUPPORTED_ACTIVITY_SESSION_IDS = {
+    "fight_caves",
+    "phoenix_lair",
+    "skeletal_horror",
+    "bork",
+    "stealing_creation",
+    "barrows",
+    "pyramid_plunder",
+    WEREWOLF_SKULLBALL_ACTIVITY_ID,
+    GNOME_BALL_ACTIVITY_ID,
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISHING_TRAWLER_ACTIVITY_ID,
+    GREAT_ORB_PROJECT_ACTIVITY_ID,
+    COURT_CASES_ACTIVITY_ID,
+    "tzhaar_fight_pit",
+    DUEL_ARENA_ACTIVITY_ID,
+    CLAN_WARS_ACTIVITY_ID,
+    TROLL_INVASION_ACTIVITY_ID,
+    MAGE_TRAINING_ARENA_ACTIVITY_ID,
+    GNOME_RESTAURANT_ACTIVITY_ID,
+    TEMPLE_TREKKING_ACTIVITY_ID,
+    MOBILISING_ARMIES_ACTIVITY_ID,
+    DOMINION_TOWER_ACTIVITY_ID,
+    CRUCIBLE_ACTIVITY_ID,
+    GOBLIN_RAIDS_ACTIVITY_ID,
+    "dungeoneering",
+    TEARS_OF_GUTHIX_ACTIVITY_ID,
+}
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
 # Saves that still point at one migrate back to the default activity.
@@ -1562,6 +1574,10 @@ def migrate_loaded_data(
         and not data["tears_of_guthix"]["active"]
     ):
         active_session_id = ""
+    if active_session_id not in _SUPPORTED_ACTIVITY_SESSION_IDS:
+        # Selection-only activities never own the exclusive session slot. Clear
+        # any legacy two-step target copied there, not just Shooting Stars.
+        active_session_id = ""
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1983,26 +1999,41 @@ def migrate_loaded_data(
     # was an implicit projection default, never stored in this list, so the
     # unconditional sanitizer above already installs the empty set where the
     # key is absent and preserves every explicit pin.
-    # v105: the combat food roster gains the ordinary low-level cooked fish that
-    # older defaults omitted. Existing priority lists retain their order and add
-    # the newly recognized foods before shrimps/crayfish.
+    # v105 adds ordinary cooked fish at their canonical healing priority. Main's
+    # v104 saves have never seen an earlier pass-5 ordering, so one migration is
+    # sufficient; intermediate branch versions are not a shipped save format.
     if loaded_config_version < 105:
         raw_auto_food = data.get("combat_auto_eat_food")
         if isinstance(raw_auto_food, list):
-            added = [
-                name
-                for name in default_combat_state_pure()["combat_auto_eat_food"]
-                if name not in raw_auto_food
-            ]
-            cut = next(
-                (i for i, name in enumerate(raw_auto_food) if name in {"Shrimps", "Crayfish"}),
-                len(raw_auto_food),
+            canonical_food = list(
+                default_combat_state_pure()["combat_auto_eat_food"]
             )
-            data["combat_auto_eat_food"] = raw_auto_food[:cut] + added + raw_auto_food[cut:]
-    # v105 repairs the pass-5 combat/activity split: an ineligible Dream latch
-    # clears the fight it stranded and refills the selected supply mode, while
-    # storage.py restores the Shooting Star review surface when the old two-step
-    # start left that target selected with no active review action.
+            added_food = {
+                "Monkfish",
+                "Bass",
+                "Pike",
+                "Cod",
+                "Mackerel",
+                "Herring",
+                "Sardine",
+            }
+            priority = {name: index for index, name in enumerate(canonical_food)}
+            merged = [name for name in raw_auto_food if name not in added_food]
+            for name in canonical_food:
+                if name not in added_food:
+                    continue
+                cut = next(
+                    (
+                        index
+                        for index, existing in enumerate(merged)
+                        if priority.get(existing, len(priority)) > priority[name]
+                    ),
+                    len(merged),
+                )
+                merged.insert(cut, name)
+            data["combat_auto_eat_food"] = merged
+    # v105 repairs the pass-5 combat split: an ineligible Dream latch clears the
+    # fight it stranded and refills the selected supply mode.
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

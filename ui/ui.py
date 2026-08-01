@@ -19882,47 +19882,14 @@ def show_main_menu(
             _show_activity_detail(activity_id)
             return True
 
-        def _startable_activity_id(item: "QTreeWidgetItem") -> str:
-            if item is None or item.isDisabled():
-                return ""
-            activity_id = item.data(0, Qt.ItemDataRole.UserRole)
-            if (
-                not isinstance(activity_id, str)
-                or not activity_id
-                or activity_id.startswith("__")
-                or _utility_surface_name_for_target(activity_id) != surface_name
-            ):
-                return ""
-            return activity_id
-
-        def _first_startable_activity_id() -> str:
-            selected_id = _startable_activity_id(tree.currentItem())
-            if selected_id:
-                return selected_id
-
-            def _walk(item: "QTreeWidgetItem") -> str:
-                activity_id = _startable_activity_id(item)
-                if activity_id:
-                    return activity_id
-                for index in range(item.childCount()):
-                    activity_id = _walk(item.child(index))
-                    if activity_id:
-                        return activity_id
-                return ""
-
-            for index in range(tree.topLevelItemCount()):
-                activity_id = _walk(tree.topLevelItem(index))
-                if activity_id:
-                    return activity_id
-            return ""
-
         def _start_surface_activity(activity_id: str = "") -> bool:
-            target_id = str(activity_id or "")
-            if _utility_surface_name_for_target(target_id) != surface_name:
-                target_id = _first_startable_activity_id()
-            return bool(target_id) and _set_utility_selection(
-                target_id, activate=True
+            target_id = str(
+                activity_id
+                or player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
             )
+            if _utility_surface_name_for_target(target_id) != surface_name:
+                return False
+            return _set_utility_selection(target_id, activate=True)
 
         utility_selection_handler["call"] = _set_utility_selection
         activity_start_transition[surface_name] = _start_surface_activity

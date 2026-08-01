@@ -720,6 +720,23 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertTrue(safe["combat_dream_thrift"])
         self.assertIn("protect_from_melee", safe["combat_selected_prayers"])
 
+    def test_casual_dial_preserves_an_eligible_manual_dream_toggle(self):
+        data = default_combat_state_pure()
+        data.update(
+            {
+                "magic_level": 79,
+                "quests": _quest_state("dream_mentor"),
+                "current_combat_target": "chicken",
+                "combat_dream_thrift": True,
+            }
+        )
+
+        for mode in ("balanced", "max_output"):
+            with self.subTest(mode=mode):
+                changed, ok, reason = set_combat_pack_mode_pure(data, mode)
+                self.assertTrue(ok, reason)
+                self.assertTrue(changed["combat_dream_thrift"])
+
     def test_casual_dial_never_auto_selects_locked_dream(self):
         data = default_combat_state_pure()
         data.update(

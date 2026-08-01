@@ -10292,7 +10292,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
         )
 
-    def test_activity_start_control_uses_one_transition_from_a_utility_target(self) -> None:
+    def test_activity_start_control_refuses_a_target_from_the_other_surface(self) -> None:
         pd = _make_player_data()
         pd["current_utility"] = "make_soft_clay"
         dialog = self._open(pd, current_skill="Mining")
@@ -10306,9 +10306,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         start.click()
         QApplication.processEvents()
 
-        self.assertEqual(len(self._activity_start_calls), 1)
-        self.assertEqual(pd["current_utility"], self._activity_start_calls[0])
-        self.assertNotEqual(pd["current_utility"], "make_soft_clay")
+        self.assertEqual(self._activity_start_calls, [])
+        self.assertEqual(pd["current_utility"], "make_soft_clay")
+        self.assertTrue(
+            any(
+                "Select an available activity first" in label.text()
+                for label in dialog.findChildren(QLabel)
+            )
+        )
 
     def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:
         from ankiscape.logic.fist_of_guthix_logic import (

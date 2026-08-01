@@ -158,7 +158,7 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_STEP_NAMES,
     STRONGHOLD_TOTAL_STEPS,
 )
-from ..core.skill_registry import get_skill
+from ..core.skill_registry import CURRENT_SKILLS, get_skill
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
     apply_farming_review_with_queue_pure,
@@ -435,13 +435,19 @@ _OVERLAY_TARGET_KEYS = {
     "summoning": "current_summoning",
 }
 
-# Every review surface has a selected target for the always-visible bank-run
-# action, even when it does not use the carried-inventory overlay itself.
+# Every registered review handler is represented for the always-visible bank-run
+# action. A None value means the surface has no separate target selector.
 _BANK_RUN_TARGET_KEYS = {
-    **_OVERLAY_TARGET_KEYS,
-    "utility": "current_utility",
-    "quest": "current_quest",
+    skill.review_handler_key: skill.current_target_key
+    for skill in CURRENT_SKILLS
+    if skill.review_handler_key
 }
+_BANK_RUN_TARGET_KEYS.update(
+    {
+        "utility": "current_utility",
+        "quest": "current_quest",
+    }
+)
 
 
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
@@ -845,16 +851,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             ctx.save_player_data()
             return True
         bank_target_key = _BANK_RUN_TARGET_KEYS.get(handler_key)
-        target_id = str(player_data.get(bank_target_key, "")) if bank_target_key else ""
-        requested_target = player_data.get("skilling_bank_run_requested")
-        if requested_target and requested_target != target_id:
-            player_data.pop("skilling_bank_run_requested", None)
-        elif target_id and requested_target == target_id:
+        target_id = (
+            str(player_data.get(bank_target_key, ""))
+            if bank_target_key
+            else handler_key
+        )
+        if player_data.get("skilling_bank_run_requested") == target_id:
             player_data.pop("skilling_bank_run_requested", None)
             player_data.update(restore_summoning_points_pure(player_data))
             ctx.show_activity_gain("Bank run — arrived and ready")
             ctx.save_player_data()
-            return True
         return handler(ctx)
 
     target_id = str(player_data.get(target_key, ""))
@@ -887,8 +893,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     )
     requested_target = player_data.get("skilling_bank_run_requested")
     skilling_bank_run_requested = requested_target == target_id
-    if requested_target and not skilling_bank_run_requested:
-        player_data.pop("skilling_bank_run_requested", None)
     bank_run_requested = manual_bank_run or skilling_bank_run_requested
     advanced = inventory_pure.carried_advanced_for(player_data, target_id)
     layout = (player_data.get("carried_layout") or {}).get(target_id, {})

@@ -4140,7 +4140,7 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Bank run — arrived at the bank"])
         self.assertEqual(calls["saves"], 1)
 
-    def test_utility_and_quest_bank_requests_spend_the_next_review(self):
+    def test_legacy_non_carried_bank_requests_do_not_steal_review_progress(self):
         for handler_key, target_key, target_id in (
             ("utility", "current_utility", "shooting_stars"),
             ("quest", "current_quest", "rune_mysteries"),
@@ -4160,10 +4160,28 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
                 ctx, calls = self._mining_ctx(player_data)
                 result = run_answer_with_carried_overlay(ctx, handler_key, handler)
                 self.assertTrue(result)
-                self.assertFalse(marker["called"])
+                self.assertTrue(marker["called"])
                 self.assertNotIn("skilling_bank_run_requested", player_data)
                 self.assertEqual(calls["activity"], ["Bank run — arrived and ready"])
                 self.assertEqual(calls["saves"], 1)
+
+    def test_bank_request_survives_reviews_on_another_surface(self):
+        player_data = {
+            "inventory": {},
+            "current_quest": "rune_mysteries",
+            "skilling_bank_run_requested": "coal",
+        }
+        marker = {"called": False}
+
+        def handler(_ctx):
+            marker["called"] = True
+            return True
+
+        ctx, calls = self._mining_ctx(player_data)
+        self.assertTrue(run_answer_with_carried_overlay(ctx, "quest", handler))
+        self.assertTrue(marker["called"])
+        self.assertEqual(player_data["skilling_bank_run_requested"], "coal")
+        self.assertEqual(calls["activity"], [])
 
 
 class TestProcessingPackOverlay(unittest.TestCase):

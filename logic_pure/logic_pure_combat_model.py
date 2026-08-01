@@ -519,7 +519,8 @@ def derive_casual_combat_magic_pure(player_data):
         data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, selected, book))
     data["combat_vengeance"] = bool(rule["vengeance"] and _positive_int(data.get("magic_level", 1), 1) >= 94 and quest_completed_pure(data, "lunar_diplomacy"))
     data["combat_dream_thrift"] = bool(
-        rule["dream"] and not combat_dream_thrift_locked_reasons_pure(data)
+        (data.get("combat_dream_thrift") or rule["dream"])
+        and not combat_dream_thrift_locked_reasons_pure(data)
     )
     return data
 

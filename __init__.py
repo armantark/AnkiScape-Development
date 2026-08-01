@@ -4260,7 +4260,7 @@ def on_set_combat_pack_mode(mode):
     if not ok:
         show_error_message("Cannot change combat supplies", reason)
         return False
-    _save_combat_state_update(new_data, evaluate_achievements=True)
+    _save_combat_state_update(new_data)
     return True
 
 
@@ -4274,16 +4274,27 @@ def on_set_combat_auto_eat_food(food_name):
 
 
 def on_do_bank_run_now():
-    """Request the current skill or activity's normal bank route."""
+    """Run or request the active skill/activity's bank visit."""
     handler_key = review_action_handler_key(current_skill)
-    if handler_key == "combat":
+    skill = get_skill(current_skill)
+    if handler_key == "combat" or (skill is not None and skill.id == "slayer"):
         new_data, ok, reason = request_combat_bank_run_now_pure(player_data)
-    else:
-        target_key = runtime_actions._BANK_RUN_TARGET_KEYS.get(handler_key)
-        target_id = player_data.get(target_key) if target_key else None
+    elif handler_key in runtime_actions._OVERLAY_TARGET_KEYS:
+        target_key = runtime_actions._OVERLAY_TARGET_KEYS[handler_key]
         new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
-            player_data, target_id
+            player_data, player_data.get(target_key)
         )
+    elif (
+        handler_key in runtime_actions._BANK_RUN_TARGET_KEYS
+        or (skill is not None and skill.implemented)
+    ):
+        # Surfaces without a carried pack have nothing to deposit or refill.
+        # Their bank visit therefore completes immediately instead of consuming
+        # a review for a cosmetic queued route.
+        new_data = restore_summoning_points_pure(player_data)
+        ok, reason = True, ""
+    else:
+        new_data, ok, reason = player_data, False, "No active target can make a bank run."
     if not ok:
         show_error_message("Cannot make a bank run", reason)
         return False
