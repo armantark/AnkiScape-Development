@@ -324,6 +324,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
         )
         before_spend = copy.deepcopy(dict(addon.player_data))
         depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        addon.level_up_check = lambda *_args: None
 
         self.assertTrue(addon.on_claim_reward(claim_id, "mining"))
 
