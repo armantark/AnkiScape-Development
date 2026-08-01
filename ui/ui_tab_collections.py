@@ -38,10 +38,6 @@ def build_collections_tab(ctx) -> "QWidget":
     heading.addStretch(1)
     layout.addLayout(heading)
 
-    subtitle = QLabel("Music Log")
-    subtitle.setStyleSheet("font-weight: 700; color: palette(text);")
-    layout.addWidget(subtitle)
-
     filters = CatalogFilterBar(
         placeholder="Search track names, hints, or sources",
         search_object_name="collectionsMusicSearch",

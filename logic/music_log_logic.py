@@ -19,16 +19,16 @@ _EVALUATABLE_TRACKS = tuple(
     track for track in MUSIC_TRACKS if track.trigger_kind != "latent"
 )
 
-_ACTIVITY_EVIDENCE_KEYS: dict[str, tuple[str, ...]] = {
-    "barbarian_assault": ("barbarian_assault_runs_completed",),
-    "castle_wars": ("castle_wars_games_played",),
-    "conquest": ("conquest_matches_started",),
-    "fist_of_guthix": ("fist_of_guthix.matches_started",),
-    "gnome_ball": ("gnome_ball_runs_completed",),
-    "mobilising_armies": ("mobilising_armies_games_played",),
-    "pyramid_plunder": ("pyramid_plunder_runs_completed",),
-    "soul_wars": ("soul_wars_games_played",),
-    "troll_invasion": ("troll_invasion_completions",),
+_ACTIVITY_EVIDENCE_KEYS: dict[str, str] = {
+    "barbarian_assault": "barbarian_assault_runs_completed",
+    "castle_wars": "castle_wars_games_played",
+    "conquest": "conquest_matches_started",
+    "fist_of_guthix": "fist_of_guthix.matches_started",
+    "gnome_ball": "gnome_ball_runs_completed",
+    "mobilising_armies": "mobilising_armies_games_played",
+    "pyramid_plunder": "pyramid_plunder_runs_completed",
+    "soul_wars": "soul_wars_games_played",
+    "troll_invasion": "troll_invasion_completions",
 }
 
 
@@ -126,10 +126,8 @@ def _activity_started_pure(player_data: Mapping[str, Any], activity_id: str) -> 
         return True
     if player_data.get("current_utility") == activity_id:
         return True
-    return any(
-        _int(_value_at(player_data, key)) > 0
-        for key in _ACTIVITY_EVIDENCE_KEYS.get(activity_id, ())
-    )
+    evidence_key = _ACTIVITY_EVIDENCE_KEYS.get(activity_id)
+    return evidence_key is not None and _int(_value_at(player_data, evidence_key)) > 0
 
 
 def track_unlocked_now_pure(player_data: Mapping[str, Any], track: MusicTrack) -> bool:
@@ -156,15 +154,13 @@ def refresh_music_log_pure(
 
     data = dict(player_data)
     state = sanitize_music_log_state_pure(data)["music_log"]
-    unlocked = list(state["unlocked_tracks"])
-    known = set(unlocked)
+    unlocked = set(state["unlocked_tracks"])
     newly: list[str] = []
     for track in _EVALUATABLE_TRACKS:
-        if track.id in known or track_is_latent_pure(track):
+        if track.id in unlocked or track_is_latent_pure(track):
             continue
         if track_unlocked_now_pure(data, track):
-            unlocked.append(track.id)
-            known.add(track.id)
+            unlocked.add(track.id)
             newly.append(track.name)
     state["unlocked_tracks"] = sorted(unlocked)
     data["music_log"] = state
@@ -214,7 +210,6 @@ def music_log_view_pure(
                 "unlocked": done,
                 "latent": latent,
                 "status": "Unlocked" if done else ("Latent" if latent else "Locked"),
-                "trigger": track.trigger_kind,
             }
         )
     totals = music_log_totals_pure(player_data)
