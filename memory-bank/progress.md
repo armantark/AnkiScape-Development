@@ -4577,8 +4577,9 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   GE alone owns yellow partial and green complete status.
 - Stacked GE above Event, cleared hidden GE widgets, and wired each GE row to
   focus or open the existing Grand Exchange tab.
-- Added one bank-run request seam. Combat and current carried-inventory review
-  activities enter their established review-paced travel paths and costs.
+- Added one bank-run request seam. Combat delegates to the pass5-combat lane's
+  exported `request_combat_bank_run_now_pure` hook; current carried-inventory
+  review activities enter their established review-paced travel paths and costs.
 - Focused pure-view, carried-overlay runtime, integration, and offscreen Qt
   tests pass. Qt probes show widgets, process events, cover default and
   560-pixel heights, and simulate late tall image growth.

@@ -11,7 +11,9 @@ cover card material. Event and Grand Exchange drawers stack upward from the XP
 box; Event rows carry actual awarded skill names and selectable wrapped text,
 while GE alone owns yellow/green status and its rows open the existing GE tab.
 Manual bank runs enter the existing combat or carried-inventory travel state
-instead of bypassing review costs. Focused pure, runtime, integration, and real
+instead of bypassing review costs. The Combat button calls the pass5-combat
+lane's exported `request_combat_bank_run_now_pure` hook; the strip does not
+rebuild its state literal. Focused pure, runtime, integration, and real
 offscreen Qt probes pass at default and 560-pixel reviewer heights; owner
 confirmation on the next playtest remains the closure gate.
 
