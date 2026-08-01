@@ -2008,9 +2008,8 @@ def migrate_loaded_data(
     # was an implicit projection default, never stored in this list, so the
     # unconditional sanitizer above already installs the empty set where the
     # key is absent and preserves every explicit pin.
-    # v105 adds ordinary cooked fish at their canonical healing priority. Main's
-    # v104 saves have never seen an earlier pass-5 ordering, so one migration is
-    # sufficient; intermediate branch versions are not a shipped save format.
+    # v105 adds ordinary cooked fish at their canonical healing priority while
+    # preserving the relative order of every explicit saved preference.
     if loaded_config_version < 105:
         raw_auto_food = data.get("combat_auto_eat_food")
         if isinstance(raw_auto_food, list):
@@ -2027,9 +2026,9 @@ def migrate_loaded_data(
                 "Sardine",
             }
             priority = {name: index for index, name in enumerate(canonical_food)}
-            merged = [name for name in raw_auto_food if name not in added_food]
+            merged = list(raw_auto_food)
             for name in canonical_food:
-                if name not in added_food:
+                if name not in added_food or name in merged:
                     continue
                 cut = next(
                     (

@@ -1689,13 +1689,6 @@ class TestStoragePure(unittest.TestCase):
                     "Trout",
                     "Cooked meat",
                     "Cooked chicken",
-                    "Monkfish",
-                    "Bass",
-                    "Pike",
-                    "Cod",
-                    "Mackerel",
-                    "Herring",
-                    "Sardine",
                     "Shrimps",
                     "Crayfish",
                 ],
@@ -1709,6 +1702,32 @@ class TestStoragePure(unittest.TestCase):
         )
         self.assertTrue(ok, reason)
         self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Monkfish": 8})
+
+    def test_v105_food_order_preserves_explicit_added_food_order(self):
+        saved_order = ["Shrimps", "Sardine", "Shark", "Herring"]
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 103,
+                "combat_auto_eat_food": saved_order,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(
+            migrated["combat_auto_eat_food"],
+            [
+                "Monkfish",
+                "Bass",
+                "Pike",
+                "Cod",
+                "Mackerel",
+                "Shrimps",
+                "Sardine",
+                "Shark",
+                "Herring",
+            ],
+        )
 
     def test_migration_clears_any_selection_only_activity_session(self):
         for activity_id in ("shooting_stars", "make_soft_clay"):
