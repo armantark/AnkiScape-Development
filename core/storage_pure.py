@@ -468,6 +468,18 @@ def _sanitize_thieving_state(data: Dict[str, Any]) -> None:
     data["thieving_blackjack_picks_remaining"] = picks
 
 
+_V107_DIARY_OUTPUT_SEED_ITEMS = {
+    "woodcutting": {"Bark"},
+    "runecrafting": {"Mind tiara"},
+    "smithing": {"Steel longsword", "Blurite limbs"},
+    "crafting": {"Clay ring", "Vial", "Bow string", "Air battlestaff"},
+    "construction": {"Varrock teleport tablet"},
+    "cooking": {"Lobster", "Bass", "Rocktail", "Cheese wheel", "Thin snail meat"},
+    "herblore": {"Ranging mix (2)"},
+    "utility": {"Raw manta ray"},
+}
+
+
 def _achievement_seed_items() -> Dict[str, set[str]]:
     herblore_items: set[str] = set(HERBLORE_FINISHED_OUTPUT_ITEMS)
     for item_name in HERBLORE_FINISHED_OUTPUT_ITEMS:
@@ -481,32 +493,21 @@ def _achievement_seed_items() -> Dict[str, set[str]]:
         herblore_items.update(f"{base} ({dose})" for dose in range(1, max_dose + 1))
         flask_base = base.replace(" potion", "")
         herblore_items.update(f"{flask_base} flask ({dose})" for dose in range(1, 7))
-    return {
+    seed_items = {
         "mining": set(MINING_OUTPUT_ITEMS) | set(GEM_DATA),
-        "woodcutting": set(WOODCUTTING_LOG_ITEMS) | {"Bark"},
-        "runecrafting": set(RUNECRAFTING_RUNE_OUTPUT_ITEMS) | {"Mind tiara"},
-        "smithing": set(BAR_DATA) | {"Steel longsword", "Blurite limbs"},
-        "crafting": {
-            "Empty pot",
-            "Gold ring",
-            "Sapphire",
-            "Emerald",
-            "Ruby",
-            "Diamond",
-            "Clay ring",
-            "Vial",
-            "Bow string",
-            "Air battlestaff",
-        },
-        "construction": {"Varrock teleport tablet"},
-        "cooking": {"Lobster", "Bass", "Rocktail", "Cheese wheel", "Thin snail meat"},
+        "woodcutting": set(WOODCUTTING_LOG_ITEMS),
+        "runecrafting": set(RUNECRAFTING_RUNE_OUTPUT_ITEMS),
+        "smithing": set(BAR_DATA),
+        "crafting": {"Empty pot", "Gold ring", "Sapphire", "Emerald", "Ruby", "Diamond"},
         "firemaking": {"Ashes"},
         "fishing": set(FISHING_OUTPUT_ITEMS),
         "herblore": herblore_items,
         "prayer": {"Ecto-token"},
         "agility": {"Agility arena ticket"},
-        "utility": {"Raw manta ray"},
     }
+    for skill_id, item_names in _V107_DIARY_OUTPUT_SEED_ITEMS.items():
+        seed_items.setdefault(skill_id, set()).update(item_names)
+    return seed_items
 
 
 def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
@@ -541,18 +542,6 @@ def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
                     )
                     record["outputs"][item_name] = max(record["outputs"].get(item_name, 0), held)
     data["achievement_progress"] = sanitize_achievement_progress_pure(progress)
-
-
-_V107_DIARY_OUTPUT_SEED_ITEMS = {
-    "woodcutting": {"Bark"},
-    "runecrafting": {"Mind tiara"},
-    "smithing": {"Steel longsword", "Blurite limbs"},
-    "crafting": {"Clay ring", "Vial", "Bow string", "Air battlestaff"},
-    "construction": {"Varrock teleport tablet"},
-    "cooking": {"Lobster", "Bass", "Rocktail", "Cheese wheel", "Thin snail meat"},
-    "herblore": {"Ranging mix (2)"},
-    "utility": {"Raw manta ray"},
-}
 
 
 def _seed_v107_diary_output_holdings(data: Dict[str, Any]) -> None:
