@@ -10874,8 +10874,26 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertTrue(bind_row.isHidden())
             self.assertTrue(bind_config_row.isHidden())
             self.assertTrue(kinship_row.isHidden())
-            self.assertTrue(reward_trader_row.isHidden())
+            self.assertFalse(reward_trader_row.isHidden())
+            self.assertFalse(reward_detail.isHidden())
             self.assertTrue(coal_bag_row.isHidden())
+
+            reward_page = _open_reward_target(dialog, "dungeoneering")
+            self.assertTrue(reward_trader_row.isVisibleTo(dialog))
+            self.assertTrue(reward_detail.isVisibleTo(dialog))
+            self.assertGreater(reward_page.height(), 0)
+            self.assertFalse(reward_buy.isEnabled())
+            self.assertIn("between dungeons", reward_buy.toolTip())
+            tabs = _find_main_tabs(dialog)
+            tabs.setCurrentIndex(
+                next(
+                    index
+                    for index in range(tabs.count())
+                    if tabs.tabText(index) == "Skills"
+                )
+            )
+            QApplication.processEvents()
+
             self.assertGreater(smuggler.count(), 0)
             self.assertLess(smuggler.count(), 86)
             self.assertEqual(smuggler.findData("novite_rapier"), -1)
@@ -12413,6 +12431,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(progress.isHidden())
         self.assertTrue(panel.findChild(QWidget, "greatOrbProjectPolicy").isHidden())
         self.assertFalse(leave.isHidden())
+        self.assertTrue(
+            reward_page.findChild(QWidget, "greatOrbProjectShop").isVisibleTo(dialog)
+        )
+        self.assertGreater(reward_page.height(), 0)
+        self.assertFalse(buy.isEnabled())
+        self.assertIn("between matches", buy.toolTip())
 
         with patch.object(
             QMessageBox,
@@ -14184,6 +14208,26 @@ class MainMenuWidgetTest(unittest.TestCase):
         buy = _find_named_button(dialog, "shopCapeButton_mining")
         self.assertTrue(buy.isVisibleTo(dialog))
         self.assertTrue(buy.isEnabled())
+
+        _open_achievements_tab(dialog)
+        cabinet_purchase_buttons = [
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.objectName().startswith("cabinetCapeBuy_")
+        ]
+        self.assertEqual(cabinet_purchase_buttons, [])
+        _open_shop_tab(dialog)
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        skillcapes = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "skill_masters"
+        )
+        rewards.setCurrentItem(skillcapes)
+        QApplication.processEvents()
+        buy = _find_named_button(dialog, "shopCapeButton_mining")
+
         buy.click()
         QApplication.processEvents()
 
@@ -14765,6 +14809,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["castle_wars"]["duty"], "defend")
         self.assertEqual(pd["castle_wars"]["team"], "zamorak")
         self.assertTrue(panel.findChild(QProgressBar, "castleWarsProgress").isVisible())
+
+        shop = _open_reward_target(dialog, "castle_wars")
+        self.assertTrue(
+            shop.findChild(QWidget, "castleWarsRewardShop").isVisibleTo(dialog)
+        )
+        self.assertGreater(shop.height(), 0)
+        self.assertFalse(shop.findChild(QPushButton, "castleWarsBuyButton").isEnabled())
+        self.assertIn(
+            "between matches",
+            shop.findChild(QPushButton, "castleWarsBuyButton").toolTip(),
+        )
+        tabs.setCurrentIndex(
+            next(index for index in range(tabs.count()) if tabs.tabText(index) == "Skills")
+        )
+        QApplication.processEvents()
+
         ballista = panel.findChild(QPushButton, "castleWarsBallistaButton")
         chinchompa = panel.findChild(QPushButton, "castleWarsChinchompaButton")
         self.assertTrue(ballista.isEnabled())

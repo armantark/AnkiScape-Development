@@ -13480,7 +13480,7 @@ def show_main_menu(
             great_orb_mode.setEnabled(not active)
             great_orb_save.setEnabled(on_great_orb_project_command is not None and not active)
             great_orb_policy.setVisible(not active)
-            great_orb_shop.setVisible(not active)
+            great_orb_shop.setVisible(True)
             great_orb_currency.setText(f"{int(view['tokens'])} tokens")
             rewards = {str(row["id"]): row for row in view["rewards"]}
             selected_reward = rewards.get(str(great_orb_reward.currentData() or ""))
@@ -13514,7 +13514,9 @@ def show_main_menu(
                 on_great_orb_project_command is not None and affordable and not active
             )
             great_orb_buy.setToolTip(
-                ""
+                "Reward trading is available between matches."
+                if active
+                else ""
                 if affordable
                 else locked_reason
                 or f"Requires {cost} Runecrafting Guild tokens."
@@ -14766,7 +14768,7 @@ def show_main_menu(
                 and on_castle_wars_command is not None
             )
             castle_save.setEnabled(not active and on_castle_wars_command is not None)
-            castle_reward_shop.setVisible(not active)
+            castle_reward_shop.setVisible(True)
             castle_siege.setVisible(active)
             castle_ballista.setEnabled(
                 active
@@ -14858,8 +14860,12 @@ def show_main_menu(
                 f"{int(row['owned'])}{milestone}\n"
                 "Every representative reward sells back for its full ticket cost."
             )
-            castle_buy_button.setEnabled(bool(row["can_buy"]))
-            castle_sell_button.setEnabled(bool(row["can_sell"]))
+            active = bool(view["active"])
+            castle_buy_button.setEnabled(bool(row["can_buy"]) and not active)
+            castle_sell_button.setEnabled(bool(row["can_sell"]) and not active)
+            trade_reason = "Reward trading is available between matches." if active else ""
+            castle_buy_button.setToolTip(trade_reason)
+            castle_sell_button.setToolTip(trade_reason)
 
         def _trade_castle_reward(action_id: str) -> None:
             result = _run_castle_command(
@@ -20899,8 +20905,8 @@ def show_main_menu(
             phase_c_visible = bool(view["phase_c_entry_controls_visible"])
             kinship_row.setVisible(phase_c_visible)
             kinship_detail.setVisible(phase_c_visible)
-            reward_row.setVisible(phase_c_visible)
-            reward_detail.setVisible(phase_c_visible)
+            reward_row.setVisible(True)
+            reward_detail.setVisible(True)
             kinship_combo.setEnabled(
                 bool(view["kinship_control_enabled"])
                 and on_dungeoneering_command is not None
@@ -20916,6 +20922,11 @@ def show_main_menu(
             reward_buy.setEnabled(
                 bool(selected_reward["can_purchase"])
                 and on_dungeoneering_command is not None
+            )
+            reward_buy.setToolTip(
+                "Reward trading is available between dungeons."
+                if view["active"]
+                else ""
             )
             coal_bag_row.setVisible(bool(view["coal_bag_controls_visible"]))
             coal_bag_fill_bank.setEnabled(
