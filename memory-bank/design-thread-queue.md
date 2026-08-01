@@ -930,14 +930,14 @@ open forks, except where marked.
   natural starter floor can earn by selling gathered goods (~120 coins).
   The period game funded floor purchases through monster coin drops, whose
   starter-floor amounts no source pins.
-- **Recommendation implemented:** a resource-room coin cache of 1,010 coins,
-  registered as `PLACEHOLDER(dungeoneering.starter_herblore_coin_cache)` —
-  the smallest disclosed translation that makes the contract's chain real.
-  Session coins evaporate at floor end like everything else.
-- **Alternatives if you prefer:** placeholder coin drops on guardian-room
-  enemies (same invented magnitude, spread thinner), or repricing the
-  secondaries (contradicts the pinned Smuggler bands). A decoded period drop
-  table for the Frozen-floor guardians would retire the placeholder entirely.
+- **Recommendation implemented:** on C5+ floors, critical-path guardian-room
+  enemies split 1,010 coins, registered as
+  `PLACEHOLDER(dungeoneering.starter_guardian_coin_drops)` — the smallest
+  disclosed translation that makes the contract's chain real without letting
+  optional rooms dilute or extend the payout. C1-C4 receive none because the
+  chain and its Smuggler spend are unavailable there. Session coins evaporate
+  at floor end like everything else. A decoded period drop table for the
+  Frozen-floor guardians would retire the placeholder entirely.
 
 ### 4.14 Grill of 2026-07-29 — six answers
 

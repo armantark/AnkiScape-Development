@@ -701,6 +701,18 @@ def _session_from_storage_pure(
     )
 
 
+def _starter_guardian_coin_room_ids_pure(
+    session: DungeonSession,
+) -> tuple[int, ...]:
+    if session.complexity < 5:
+        return ()
+    return tuple(
+        room.id
+        for room in session.rooms
+        if room.family == "guardian" and room.critical_path
+    )
+
+
 def default_dungeoneering_state_pure() -> dict[str, Any]:
     return {
         "version": DUNGEONEERING_STATE_VERSION,
@@ -1020,25 +1032,27 @@ def sanitize_dungeoneering_state_pure(raw: object) -> dict[str, Any]:
     session_coins = _non_negative_int(source.get("session_coins")) if active else 0
     guardian_coin_room_ids: list[int] = []
     if session is not None:
-        guardian_ids = {
-            room.id for room in session.rooms if room.family == "guardian"
-        }
+        eligible_guardian_ids = _starter_guardian_coin_room_ids_pure(session)
         raw_guardian_coin_room_ids = source.get("guardian_coin_room_ids")
         if isinstance(raw_guardian_coin_room_ids, (list, tuple)):
             guardian_coin_room_ids = sorted(
                 {
                     room_id
                     for value in raw_guardian_coin_room_ids
-                    if (room_id := _non_negative_int(value, -1)) in guardian_ids
+                    if (room_id := _non_negative_int(value, -1))
+                    in eligible_guardian_ids
                 }
             )
-        if not guardian_coin_room_ids:
+        if "guardian_coin_room_ids" not in source:
             guardian_coin_room_ids = [
-                room.id
-                for room in session.rooms
-                if room.family == "guardian"
-                and (mode == "advanced" or room.critical_path)
+                room_id
+                for room_id in eligible_guardian_ids
+                if room_id not in session.resolved_room_ids
             ]
+            if eligible_guardian_ids and not guardian_coin_room_ids:
+                session_coins += _STARTER_GUARDIAN_COIN_DROPS
+        elif not guardian_coin_room_ids:
+            guardian_coin_room_ids = list(eligible_guardian_ids)
     pending_offer = (
         _bind_offer_backed_by_inventory_pure(
             source.get("pending_bind_offer"),
@@ -2114,12 +2128,9 @@ def apply_dungeoneering_command_pure(
                 "session_inventory": session_inventory,
                 "session_equipment": session_equipment,
                 "session_coins": 0,
-                "guardian_coin_room_ids": [
-                    room.id
-                    for room in session.rooms
-                    if room.family == "guardian"
-                    and (mode == "advanced" or room.critical_path)
-                ],
+                "guardian_coin_room_ids": list(
+                    _starter_guardian_coin_room_ids_pure(session)
+                ),
                 "pending_bind_offer": {},
                 "boss": {
                     "boss_id": boss.id,
@@ -2153,21 +2164,6 @@ def apply_dungeoneering_command_pure(
         mode = str(payload.get("automation_mode", ""))
         if mode not in {"casual", "advanced"}:
             return data, False, {"reason": "Unknown Dungeoneering route policy."}
-        session = _session_from_storage_pure(state["session"], state["entry_skill_levels"])
-        if session is not None:
-            if any(
-                session.rooms[room_id].family == "guardian"
-                for room_id in session.resolved_room_ids
-            ):
-                return data, False, {
-                    "reason": "Choose the route policy before clearing a guardian room."
-                }
-            state["guardian_coin_room_ids"] = [
-                room.id
-                for room in session.rooms
-                if room.family == "guardian"
-                and (mode == "advanced" or room.critical_path)
-            ]
         state["automation_mode"] = mode
         state["selected_room_id"] = -1
         data["dungeoneering"] = state
@@ -2577,7 +2573,7 @@ def apply_dungeoneering_review_pure(
 
     resolved = resolve_starter_room_pure(session, room_id)
     state["selected_room_id"] = -1
-    if room.family == "guardian":
+    if room.family == "guardian" and room.id in state["guardian_coin_room_ids"]:
         coin_drop = _guardian_coin_drop_pure(state, room)
         state["session_coins"] += coin_drop
         automation_reports.append(f"guardian enemies dropped {coin_drop:,} Rusty coins")
