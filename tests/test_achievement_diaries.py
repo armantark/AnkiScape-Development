@@ -357,12 +357,13 @@ class CatalogIntegrityTest(unittest.TestCase):
         ]
         self.assertEqual(len(tier_ids), len(set(tier_ids)))
 
-    def test_every_task_states_a_requirement_and_cites_its_source(self):
+    def test_every_task_states_its_availability_and_cites_its_source(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
             for tier in family.tiers:
                 for task in tier.tasks:
-                    self.assertTrue(task.conditions, task.id)
+                    self.assertEqual(bool(task.conditions), not task.latent, task.id)
                     self.assertTrue(task.name.strip(), task.id)
+                    self.assertTrue(task.description.strip(), task.id)
                     self.assertIn("Darkan", task.source, task.id)
                     self.assertGreaterEqual(task.source_id, 0, task.id)
 
@@ -436,12 +437,29 @@ class CatalogIntegrityTest(unittest.TestCase):
         self.assertTrue(family.tiers[0].tasks)
         self.assertTrue(all(task.coin_reward == 100 for task in family.tiers[0].tasks))
 
-    def test_regional_tiers_respect_the_twelve_task_curation_budget(self):
+    def test_regional_tiers_have_exact_twelve_slot_designed_rosters(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
             if family.kind != "regional":
                 continue
             for tier in family.tiers:
-                self.assertLessEqual(len(tier.tasks), 12, tier.id)
+                self.assertEqual(tier.designed_task_count, 12, tier.id)
+                self.assertEqual(tier.total_tasks, 12, tier.id)
+                self.assertLessEqual(len(tier.tasks), tier.total_tasks, tier.id)
+
+    def test_cutoff_denominators_are_the_recorded_534_tasks(self):
+        totals = {
+            family.id: sum(tier.total_tasks for tier in family.tiers)
+            for family in ACHIEVEMENT_DIARY_CATALOG
+        }
+        regional = sum(
+            total
+            for family_id, total in totals.items()
+            if family_id not in {"burthorpe", "miscellaneous"}
+        )
+        self.assertEqual(regional, 384)
+        self.assertEqual(totals["burthorpe"], 55)
+        self.assertEqual(totals["miscellaneous"], 95)
+        self.assertEqual(sum(totals.values()), 534)
 
     def test_every_regional_tier_reward_item_is_real_wearable_equipment(self):
         """Guard against the inert-row failure: a reward nobody can ever wear."""
@@ -1056,6 +1074,7 @@ class TaskProgressTest(unittest.TestCase):
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
+            if not task.latent
         ]
         player = _fresh()
         for task in tasks:
@@ -1067,6 +1086,30 @@ class TaskProgressTest(unittest.TestCase):
         self.assertEqual(
             set(player["achievement_diaries"]["completed_tasks"]), expected
         )
+
+    def test_latent_tasks_have_no_predicate_and_never_complete(self):
+        latent = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.latent
+        )
+        player = _fresh()
+        self.assertEqual(latent.conditions, ())
+        self.assertEqual(task_progress_pure(player, latent), (False, 0, 0))
+        player["achievement_diaries"]["completed_tasks"] = [latent.id]
+        view = achievement_cabinet_view_pure(player, search=latent.name)
+        row = next(
+            row
+            for family in view["families"]
+            for tier in family["tiers"]
+            for row in tier["tasks"]
+        )
+        self.assertTrue(row["latent"])
+        self.assertFalse(row["completed"])
+        self.assertFalse(row["staged"])
+        self.assertEqual(row["need"], 0)
 
     def test_fight_pit_gameplay_pays_the_miscellaneous_task_reward(self):
         from ankiscape.logic.tzhaar_fight_pit_logic import enter_tzhaar_fight_pit_pure
@@ -1150,18 +1193,11 @@ class TaskProgressTest(unittest.TestCase):
 
 
 class ClaimTest(unittest.TestCase):
-    def _varrock(self):
-        return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
+    def _claim_family(self):
+        return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
 
-    def test_burthorpe_claim_grants_its_starter_equipment_reward(self):
-        """The period reward is one set bundle, not an upgradeable worn item.
-
-        The pinned revision's Rewards section has Major Nigel Corothers hand the
-        whole kit over at once, and Darkan's ``SetReward`` enum covers eight
-        areas and excludes Burthorpe for that reason. So the tier legitimately
-        has no ``reward_item``; what it must not do is advertise a reward slot
-        it cannot fill.
-        """
+    def test_burthorpe_bundle_waits_for_the_full_55_task_pool(self):
+        """The authentic set reward exists, but latent tasks keep it closed."""
 
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "burthorpe")
         tier = family.tiers[0]
@@ -1170,43 +1206,40 @@ class ClaimTest(unittest.TestCase):
 
         player, ok, info = claim_diary_tier_pure(player, tier.id)
 
-        self.assertTrue(ok, info)
+        self.assertFalse(ok)
+        self.assertIn("outstanding", info["reason"])
+        self.assertEqual(player["inventory"], before)
         self.assertFalse(tier.reward_item)
         self.assertTrue(tier.reward_bundle)
-        for name, count in tier.reward_bundle:
-            self.assertEqual(
-                player["inventory"].get(name, 0) - before.get(name, 0), count, name
-            )
-        # No hole where an item name belongs.
-        self.assertNotIn("  ", info["message"])
-        self.assertIn("Steel full helm", info["message"])
+        self.assertEqual(tier.total_tasks, 55)
+        self.assertTrue(any(task.latent for task in tier.tasks))
 
     def test_a_tier_is_not_claimable_until_every_task_is_done(self):
         player = _fresh()
-        tier = self._varrock().tiers[0]
+        tier = self._claim_family().tiers[0]
         _updated, ok, info = claim_diary_tier_pure(player, tier.id)
         self.assertFalse(ok)
         self.assertIn("outstanding", info["reason"])
 
     def test_completing_a_tier_flips_it_to_ready_to_claim(self):
-        player = _complete_tier(_fresh(), self._varrock().tiers[0])
-        view = achievement_cabinet_view_pure(player, family_filter="varrock")
+        player = _complete_tier(_fresh(), self._claim_family().tiers[0])
+        view = achievement_cabinet_view_pure(player, family_filter="ardougne")
         self.assertEqual(view["families"][0]["tiers"][0]["status"], "Ready to Claim")
         self.assertTrue(view["families"][0]["tiers"][0]["ready"])
 
     def test_claiming_grants_the_tier_item_and_its_lamp(self):
-        family = self._varrock()
+        family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
         before = float(player.get("mining_exp", 0))
         player, ok, info = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")
         self.assertTrue(ok, info)
-        self.assertEqual(player["inventory"].get("Varrock armour 1"), 1)
+        self.assertEqual(player["inventory"].get("Ardougne cloak 1"), 1)
         self.assertEqual(
             float(player["mining_exp"]) - before, float(family.tiers[0].lamp.experience)
         )
 
     def test_a_tier_cannot_be_claimed_twice(self):
-        family = self._varrock()
+        family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
         player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
         _again, ok, info = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")
@@ -1214,7 +1247,7 @@ class ClaimTest(unittest.TestCase):
         self.assertIn("already claimed", info["reason"])
 
     def test_claiming_is_sequential_even_when_later_tasks_are_finished(self):
-        family = self._varrock()
+        family = self._claim_family()
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
@@ -1223,7 +1256,7 @@ class ClaimTest(unittest.TestCase):
         self.assertIn("Claim Easy before Medium", info["reason"])
 
     def test_a_tier_upgrade_replaces_its_predecessor_without_duplicating(self):
-        family = self._varrock()
+        family = self._claim_family()
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
@@ -1232,23 +1265,23 @@ class ClaimTest(unittest.TestCase):
             player, family.tiers[1].id, lamp_skill="mining"
         )
         self.assertTrue(ok)
-        self.assertNotIn("Varrock armour 1", player["inventory"])
-        self.assertEqual(player["inventory"].get("Varrock armour 2"), 1)
+        self.assertNotIn("Ardougne cloak 1", player["inventory"])
+        self.assertEqual(player["inventory"].get("Ardougne cloak 2"), 1)
 
     def test_an_upgrade_replaces_the_worn_item_in_its_own_slot(self):
-        family = self._varrock()
+        family = self._claim_family()
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
         player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
         inventory, equipment, worn = equip_item_pure(
-            "Varrock armour 1", player["inventory"], player["equipment"], EQUIPMENT_DATA
+            "Ardougne cloak 1", player["inventory"], player["equipment"], EQUIPMENT_DATA
         )
         self.assertTrue(worn)
         player["inventory"], player["equipment"] = inventory, equipment
         player = claim_diary_tier_pure(player, family.tiers[1].id, lamp_skill="mining")[0]
-        self.assertEqual(player["equipment"].get("body"), "Varrock armour 2")
-        self.assertFalse(player["inventory"].get("Varrock armour 1"))
+        self.assertEqual(player["equipment"].get("cape"), "Ardougne cloak 2")
+        self.assertFalse(player["inventory"].get("Ardougne cloak 1"))
 
     def test_no_tier_falls_through_the_empty_roster_claim_path(self):
         view = achievement_cabinet_view_pure(_fresh())
@@ -1260,11 +1293,11 @@ class ClaimTest(unittest.TestCase):
             )
 
     def test_the_granted_item_can_actually_be_worn(self):
-        family = self._varrock()
+        family = self._claim_family()
         player = _complete_tier(_fresh(), family.tiers[0])
         player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
         allowed, reason = can_equip_item_pure(
-            "Varrock armour 1", EQUIPMENT_DATA, player
+            "Ardougne cloak 1", EQUIPMENT_DATA, player
         )
         self.assertTrue(allowed, reason)
 
@@ -1444,13 +1477,15 @@ class TaskmasterTest(unittest.TestCase):
             player = _complete_tier(player, tier)
         self.assertFalse(player["achievement_diaries"]["taskmaster"])
 
-    def test_completing_the_whole_catalog_awards_taskmaster(self):
+    def test_completing_every_obtainable_row_does_not_bypass_latent_cutoff_tasks(self):
         player = _fresh()
         for family in ACHIEVEMENT_DIARY_CATALOG:
             for tier in family.tiers:
                 player = _complete_tier(player, tier)
-        self.assertTrue(player["achievement_diaries"]["taskmaster"])
-        self.assertTrue(achievement_cabinet_view_pure(player)["taskmaster"])
+        self.assertFalse(player["achievement_diaries"]["taskmaster"])
+        self.assertFalse(achievement_cabinet_view_pure(player)["taskmaster"])
+        self.assertEqual(diary_totals_pure(player)["total"], 534)
+        self.assertEqual(diary_totals_pure(player)["completed"], 326)
 
 
 class MigrationTest(unittest.TestCase):
@@ -1489,7 +1524,7 @@ class MigrationTest(unittest.TestCase):
 
     def test_a_current_save_is_not_reseeded_on_reload(self):
         player = _fresh()
-        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
+        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
         player = _complete_tier(player, family.tiers[0])
         player = claim_diary_tier_pure(player, family.tiers[0].id, lamp_skill="mining")[0]
         claimed = list(player["achievement_diaries"]["claimed_tiers"])

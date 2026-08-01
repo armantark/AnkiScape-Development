@@ -54,6 +54,7 @@ def _all_task_ids() -> list[str]:
         for family in ACHIEVEMENT_DIARY_CATALOG
         for tier in family.tiers
         for task in tier.tasks
+        if not task.latent
     ]
 
 

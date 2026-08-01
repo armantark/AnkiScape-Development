@@ -6,12 +6,13 @@ document into the checked-in catalog.
 
 Translation rule, applied uniformly and deliberately:
 
-Darkan's rev-727 cache owns the task name, description, and encoded ordinary
-skill/quest requirements. Regional tiers retain the first twelve source-order
-tasks that have an evaluable predicate. Burthorpe/Taverley and Miscellaneous
-retain every source task with either an encoded requirement or an audited exact
-mapping to an existing durable gameplay counter. Tasks with no honest predicate
-are omitted and reported rather than emitted as inert rows.
+Darkan's rev-727 cache owns the task name, description, tier membership, and
+encoded ordinary skill/quest requirements. Regional tiers retain the existing
+source-backed active selection, then fill remaining designed slots with named
+latent rows from the same pinned tier roster. Burthorpe/Taverley and
+Miscellaneous retain every named source row. A latent row has no predicate and
+can never complete; it reserves the authentic cutoff denominator until its
+runtime predicate ships.
 """
 
 from __future__ import annotations
@@ -366,7 +367,13 @@ MORYTANIA_LEG_BONUSES = {
 }
 
 
-TASKS_PER_TIER = 12  # design contract: twelve curated tasks in every tier
+TASKS_PER_TIER = 12  # design contract: twelve curated tasks in every regional tier
+BURTHORPE_CUTOFF_TASKS = 55
+TOTAL_CUTOFF_TASKS = 534
+REGIONAL_CUTOFF_TASKS = TASKS_PER_TIER * 32
+MISCELLANEOUS_CUTOFF_TASKS = (
+    TOTAL_CUTOFF_TASKS - REGIONAL_CUTOFF_TASKS - BURTHORPE_CUTOFF_TASKS
+)
 # PLACEHOLDER(achievement_diaries.misc_coin_reward): the cache proves a minimum
 # 100-coin reward and monotonic growth by completed-task count, but not the exact
 # curve. The least-assumptive recoverable shape is 100 coins per completion
@@ -945,21 +952,26 @@ def _task_block(
     source: str,
     *,
     coin_reward: int = 0,
+    latent: bool = False,
 ) -> str:
     conditions = _conditions(task)
-    if not conditions:
+    if latent:
+        conditions = []
+    elif not conditions:
         return ""
     task_id = f"{family_id}_{tier_name}_{_slug(task['name'])}"
     condition_src = ", ".join(_condition_src(condition) for condition in conditions)
+    conditions_line = f"({condition_src},)" if conditions else "()"
     return (
         "            DiaryTask(\n"
         f"                {task_id!r},\n"
         f"                {task['name']!r},\n"
         f"                {task['description']!r},\n"
-        f"                ({condition_src},),\n"
+        f"                {conditions_line},\n"
         f"                {source!r},\n"
         f"                {int(task['id'])},\n"
         f"                {coin_reward},\n"
+        f"                {latent},\n"
         "            ),"
     )
 
@@ -995,14 +1007,30 @@ def build(document: dict) -> str:
                 source_id for source_id in darkan_ids if source_id not in preferred
             )
             task_blocks: list[str] = []
+            active_source_ids: set[int] = set()
             for source_id in ordered_ids:
                 task = definitions[str(source_id)]
                 block = _task_block(family_id, tier_name, task, source)
                 if not block:
                     continue
                 task_blocks.append(block)
+                active_source_ids.add(source_id)
                 if len(task_blocks) >= TASKS_PER_TIER:
                     break
+            for source_id in ordered_ids:
+                if len(task_blocks) >= TASKS_PER_TIER:
+                    break
+                if source_id in active_source_ids:
+                    continue
+                task_blocks.append(
+                    _task_block(
+                        family_id,
+                        tier_name,
+                        definitions[str(source_id)],
+                        source,
+                        latent=True,
+                    )
+                )
             kept_total += len(task_blocks)
             label = tier_name.capitalize()
             reward_item = f"{meta['item']} {index + 1}"
@@ -1019,6 +1047,7 @@ def build(document: dict) -> str:
                 "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
                 f"            DiaryLamp({meta['lamp'][index]}, 1),\n"
                 f"            {'period tier: ' + str(len(darkan_ids)) + ' tasks; ' + source!r},\n"
+                f"            designed_task_count={TASKS_PER_TIER},\n"
                 "        ),"
             )
         lines.append(
@@ -1040,16 +1069,31 @@ def build(document: dict) -> str:
         task_blocks = []
         for source_id in record["tiers"][tier_name]:
             task = definitions[str(source_id)]
+            coin_reward = MISC_COIN_BASE if family_id == "miscellaneous" else 0
             block = _task_block(
                 family_id,
                 tier_name,
                 task,
                 source,
-                coin_reward=MISC_COIN_BASE if family_id == "miscellaneous" else 0,
+                coin_reward=coin_reward,
             )
-            if block:
-                task_blocks.append(block)
+            task_blocks.append(
+                block
+                or _task_block(
+                    family_id,
+                    tier_name,
+                    task,
+                    source,
+                    coin_reward=coin_reward,
+                    latent=True,
+                )
+            )
         kept_total += len(task_blocks)
+        designed_task_count = (
+            BURTHORPE_CUTOFF_TASKS
+            if family_id == "burthorpe"
+            else MISCELLANEOUS_CUTOFF_TASKS
+        )
         lines.append(
             "    DiaryFamily(\n"
             f"        {family_id!r},\n"
@@ -1066,6 +1110,7 @@ def build(document: dict) -> str:
             "            None,\n"
             f"            {'period pool: ' + str(len(record['tiers'][tier_name])) + ' tasks; ' + source!r},\n"
             f"            {meta['reward_bundle']!r},\n"
+            f"            designed_task_count={designed_task_count},\n"
             "        ),\n"
             "        ),\n"
             f"        {meta['taskmaster']!r},\n"
@@ -1077,9 +1122,10 @@ def build(document: dict) -> str:
         '"""Generated by ``tools/generate_achievement_diary_data.py``. Do not hand-edit.\n\n'
         "Darkan's achievement classes and rev-727 cache enum 3483 own task identity,\n"
         "tier membership, names, descriptions and ordinary requirements. Pinned\n"
-        "pre-cutoff wiki revisions are corroboration only. Tasks without an honest\n"
-        "AnkiScape predicate are omitted rather than emitted as inert rows.\n\n"
-        f"Tasks kept: {kept_total}.\"\"\"\n\n"
+        "pre-cutoff wiki revisions are corroboration only. Named tasks without an\n"
+        "honest AnkiScape predicate are latent rows: visible, incomplete, and\n"
+        "excluded from automatic completion until their predicate ships.\n\n"
+        f"Named task rows: {kept_total}; designed cutoff denominator: {TOTAL_CUTOFF_TASKS}.\"\"\"\n\n"
         "from __future__ import annotations\n\n"
         "from .achievement_diary_data import (\n"
         "    DiaryCondition,\n"

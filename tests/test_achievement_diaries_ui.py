@@ -52,6 +52,10 @@ def _varrock():
     return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
 
 
+def _claim_family():
+    return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
+
+
 # Shared with the pure diary tests rather than reimplemented here, because a
 # local copy that silently skipped the kinds it had never heard of is what made
 # a whole tier quietly unfinishable when a new kind arrived.
@@ -140,7 +144,7 @@ class AchievementCabinetUITest(unittest.TestCase):
 
     def test_claim_enables_only_for_the_tier_the_view_calls_ready(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        family = _varrock()
+        family = _claim_family()
         for tier in family.tiers[:2]:
             for task in tier.tasks:
                 _satisfy(player, task)
@@ -160,28 +164,15 @@ class AchievementCabinetUITest(unittest.TestCase):
             "Claim Easy first",
         )
 
-    def test_every_ready_claim_taskmaster_portrait_matches_its_family(self):
+    def test_every_taskmaster_portrait_matches_its_family(self):
         from ankiscape.core.constants import current_dir
         from ankiscape.ui.ui import _pixel_path_icon
 
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player["achievement_diaries"]["completed_tasks"] = [
-            task.id
-            for family in ACHIEVEMENT_DIARY_CATALOG
-            for task in family.tiers[0].tasks
-        ]
         page, _ctx = self._build(player, lambda *_a: {"ok": True})
 
         for family in ACHIEVEMENT_DIARY_CATALOG:
             with self.subTest(family=family.id):
-                tier = family.tiers[0]
-                self.assertEqual(
-                    self._named(page, f"cabinetStatus_{tier.id}", QLabel).text(),
-                    "Ready to Claim",
-                )
-                self.assertTrue(
-                    self._named(page, f"cabinetClaim_{tier.id}", QPushButton).isEnabled()
-                )
                 if not family.taskmaster:
                     self.assertIsNone(
                         page.findChild(QLabel, f"cabinetTaskmasterPortrait_{family.id}")
@@ -245,9 +236,37 @@ class AchievementCabinetUITest(unittest.TestCase):
                     "Roster pending harvest",
                 )
 
+    def test_latent_tasks_are_labelled_without_fake_progress(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        latent = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.latent
+        )
+        page, _ctx = self._build(player)
+        label = self._named(page, f"cabinetTask_{latent.id}", QLabel)
+        self.assertIn("Not yet obtainable", label.text())
+        labels = self._labels(page)
+        self.assertIn("Not yet obtainable — its predicate has not shipped.", labels)
+        self.assertNotIn("0/0", labels)
+
+    def test_source_incomplete_rosters_are_visible(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        tier = next(
+            tier
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            if tier.total_tasks > len(tier.tasks)
+        )
+        page, _ctx = self._build(player)
+        notice = self._named(page, f"cabinetSourceGap_{tier.id}", QLabel)
+        self.assertIn("roster incomplete at source", notice.text())
+
     def test_pressing_claim_runs_the_command_and_re_renders(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        family = _varrock()
+        family = _claim_family()
         for task in family.tiers[0].tasks:
             _satisfy(player, task)
         player.update(refresh_achievement_diaries_pure(player)[0])
@@ -271,7 +290,7 @@ class AchievementCabinetUITest(unittest.TestCase):
 
         self.assertEqual(calls[0][0], "claim_tier")
         self.assertEqual(calls[0][1]["tier_id"], family.tiers[0].id)
-        self.assertEqual(player["inventory"].get("Varrock armour 1"), 1)
+        self.assertEqual(player["inventory"].get("Ardougne cloak 1"), 1)
         self.assertEqual(
             self._named(page, f"cabinetStatus_{family.tiers[0].id}", QLabel).text(),
             "Claimed",
@@ -279,7 +298,7 @@ class AchievementCabinetUITest(unittest.TestCase):
 
     def test_the_lamp_choice_offers_only_skills_the_view_allows(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        family = _varrock()
+        family = _claim_family()
         for task in family.tiers[0].tasks:
             _satisfy(player, task)
         player.update(refresh_achievement_diaries_pure(player)[0])
@@ -296,7 +315,7 @@ class AchievementCabinetUITest(unittest.TestCase):
     def test_a_pinned_task_renders_first_in_its_tier(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         family = _varrock()
-        target = family.tiers[0].tasks[-1]
+        target = next(task for task in reversed(family.tiers[0].tasks) if not task.latent)
         player.update(
             apply_achievement_diary_command_pure(
                 player, "pin_task", {"task_id": target.id}
