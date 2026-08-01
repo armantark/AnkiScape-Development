@@ -714,10 +714,49 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
     def test_casual_dial_derives_protection_and_dream(self):
         data = default_combat_state_pure()
         data.update({"prayer_level": 99, "magic_level": 99, "quests": _quest_state("dream_mentor"), "current_combat_target": "chicken"})
-        safe = set_combat_pack_mode_pure(data, "max_safety")
+        safe, ok, reason = set_combat_pack_mode_pure(data, "max_safety")
+        self.assertTrue(ok, reason)
         self.assertEqual(safe["combat_pack_mode"], "max_safety")
         self.assertTrue(safe["combat_dream_thrift"])
         self.assertIn("protect_from_melee", safe["combat_selected_prayers"])
+
+    def test_casual_dial_preserves_an_eligible_manual_dream_toggle(self):
+        data = default_combat_state_pure()
+        data.update(
+            {
+                "magic_level": 79,
+                "quests": _quest_state("dream_mentor"),
+                "current_combat_target": "chicken",
+                "combat_dream_thrift": True,
+            }
+        )
+
+        for mode in ("balanced", "max_output"):
+            with self.subTest(mode=mode):
+                changed, ok, reason = set_combat_pack_mode_pure(data, mode)
+                self.assertTrue(ok, reason)
+                self.assertTrue(changed["combat_dream_thrift"])
+
+    def test_casual_dial_never_auto_selects_locked_dream(self):
+        data = default_combat_state_pure()
+        data.update(
+            {
+                "magic_level": 1,
+                "constitution_level": 10,
+                "combat_lifepoints": 42,
+                "current_combat_target": "chicken",
+                "combat_dream_thrift": True,
+            }
+        )
+
+        safe, safe_ok, safe_reason = set_combat_pack_mode_pure(data, "max_safety")
+        output, output_ok, output_reason = set_combat_pack_mode_pure(safe, "max_output")
+
+        self.assertTrue(safe_ok, safe_reason)
+        self.assertTrue(output_ok, output_reason)
+        self.assertFalse(safe["combat_dream_thrift"])
+        self.assertFalse(output["combat_dream_thrift"])
+        self.assertEqual(combat_magic_preset_locked_reasons_pure(output), ())
 
     def test_mage_arena_is_a_five_review_landmark(self):
         data = {

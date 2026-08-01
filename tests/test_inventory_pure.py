@@ -23,6 +23,7 @@ from ankiscape.logic.inventory_pure import (
     filter_loot_pure,
     inventory_delta_gains,
     pack_processing_inputs_pure,
+    request_carried_bank_run_now_pure,
     apply_carried_layout_pure,
     layout_to_grid_cells_pure,
     sanitize_carried_state,
@@ -362,6 +363,11 @@ class TestBagCapacity(unittest.TestCase):
 
 
 class TestBankRunStateMachine(unittest.TestCase):
+    def test_manual_request_records_the_active_target(self):
+        data, ok, reason = request_carried_bank_run_now_pure({}, "coal")
+        self.assertTrue(ok, reason)
+        self.assertEqual(data["skilling_bank_run_requested"], "coal")
+
     def test_one_review_run_starts_and_completes_in_one_answer(self):
         state, event = bank_run_progress_pure({}, needed=True, target_id="coal", reviews_cost=1)
         self.assertEqual(state, {})

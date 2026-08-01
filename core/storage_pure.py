@@ -89,6 +89,8 @@ from ..logic_pure.logic_pure import (
     default_red_sandstone_daily_state_pure,
     default_stronghold_state_pure,
     calculate_new_level,
+    combat_dream_thrift_locked_reasons_pure,
+    refill_combat_supply_loadout_pure,
     sanitize_action_telemetry_pure,
     sanitize_achievement_progress_pure,
     sanitize_combat_state_pure,
@@ -324,8 +326,46 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 104
+CURRENT_CONFIG_VERSION = 105
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+_SUPPORTED_ACTIVITY_SESSION_IDS = {
+    "barbarian_assault",
+    "barrows",
+    "bork",
+    "castle_wars",
+    "conquest",
+    "dungeoneering",
+    "familiarisation",
+    "fight_caves",
+    "flash_powder_factory",
+    "pest_control",
+    "phoenix_lair",
+    "pyramid_plunder",
+    "shades_of_mortton",
+    "skeletal_horror",
+    "soul_wars",
+    "stealing_creation",
+    "treasure_trail",
+    "trouble_brewing",
+    "tzhaar_fight_pit",
+    WEREWOLF_SKULLBALL_ACTIVITY_ID,
+    GNOME_BALL_ACTIVITY_ID,
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISHING_TRAWLER_ACTIVITY_ID,
+    GREAT_ORB_PROJECT_ACTIVITY_ID,
+    COURT_CASES_ACTIVITY_ID,
+    DUEL_ARENA_ACTIVITY_ID,
+    CLAN_WARS_ACTIVITY_ID,
+    TROLL_INVASION_ACTIVITY_ID,
+    MAGE_TRAINING_ARENA_ACTIVITY_ID,
+    GNOME_RESTAURANT_ACTIVITY_ID,
+    TEMPLE_TREKKING_ACTIVITY_ID,
+    MOBILISING_ARMIES_ACTIVITY_ID,
+    DOMINION_TOWER_ACTIVITY_ID,
+    CRUCIBLE_ACTIVITY_ID,
+    GOBLIN_RAIDS_ACTIVITY_ID,
+    TEARS_OF_GUTHIX_ACTIVITY_ID,
+}
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
 # Saves that still point at one migrate back to the default activity.
@@ -1544,6 +1584,9 @@ def migrate_loaded_data(
         and not data["tears_of_guthix"]["active"]
     ):
         active_session_id = ""
+    if active_session_id not in _SUPPORTED_ACTIVITY_SESSION_IDS:
+        # Selection-only activities never own the exclusive session slot.
+        active_session_id = ""
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1965,8 +2008,40 @@ def migrate_loaded_data(
     # was an implicit projection default, never stored in this list, so the
     # unconditional sanitizer above already installs the empty set where the
     # key is absent and preserves every explicit pin.
-    # These defaults are also required for a new v30-shaped payload assembled
-    # outside load_player_data (tests, imports, or a future alternate frontend).
+    # v105 adds ordinary cooked fish at their canonical healing priority while
+    # preserving the relative order of every explicit saved preference.
+    if loaded_config_version < 105:
+        raw_auto_food = data.get("combat_auto_eat_food")
+        if isinstance(raw_auto_food, list):
+            canonical_food = list(
+                default_combat_state_pure()["combat_auto_eat_food"]
+            )
+            added_food = {
+                "Monkfish",
+                "Bass",
+                "Pike",
+                "Cod",
+                "Mackerel",
+                "Herring",
+                "Sardine",
+            }
+            priority = {name: index for index, name in enumerate(canonical_food)}
+            merged = list(raw_auto_food)
+            for name in canonical_food:
+                if name not in added_food or name in merged:
+                    continue
+                cut = next(
+                    (
+                        index
+                        for index, existing in enumerate(merged)
+                        if priority.get(existing, len(priority)) > priority[name]
+                    ),
+                    len(merged),
+                )
+                merged.insert(cut, name)
+            data["combat_auto_eat_food"] = merged
+    # These defaults are required for a new v30-shaped payload assembled outside
+    # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
     data.setdefault("magic_alchemy_item", "")
     data.setdefault("magic_actions_completed", 0)
@@ -2078,7 +2153,15 @@ def migrate_loaded_data(
         except ImportError:
             # A disabled optional observer must never make an existing save unloadable.
             pass
+    # Load invariant, not a schema migration: an ineligible Dream latch can
+    # strand an encounter before combat resolves it. Sanitize every payload and
+    # refill only when that repair actually cleared the latch.
+    invalid_dream_latch = bool(data.get("combat_dream_thrift", False)) and bool(
+        combat_dream_thrift_locked_reasons_pure(data)
+    )
     data.update(sanitize_combat_state_pure(data))
+    if invalid_dream_latch:
+        data, _refilled, _reason = refill_combat_supply_loadout_pure(data)
     data["wicked_hood"] = sanitize_wicked_hood_state_pure(
         data.get("wicked_hood"),
         review_day=wicked_hood_review_day_pure(data),

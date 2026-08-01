@@ -4140,6 +4140,49 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Bank run — arrived at the bank"])
         self.assertEqual(calls["saves"], 1)
 
+    def test_non_carried_bank_requests_complete_without_stealing_review_progress(self):
+        for handler_key, target_key, target_id in (
+            ("utility", "current_utility", "shooting_stars"),
+            ("quest", "current_quest", "rune_mysteries"),
+        ):
+            with self.subTest(handler_key=handler_key):
+                player_data = {
+                    "inventory": {},
+                    target_key: target_id,
+                    "skilling_bank_run_requested": target_id,
+                }
+                marker = {"called": False}
+
+                def handler(_ctx):
+                    marker["called"] = True
+                    return True
+
+                ctx, calls = self._mining_ctx(player_data)
+                result = run_answer_with_carried_overlay(ctx, handler_key, handler)
+                self.assertTrue(result)
+                self.assertTrue(marker["called"])
+                self.assertNotIn("skilling_bank_run_requested", player_data)
+                self.assertEqual(calls["activity"], ["Bank run — arrived and ready"])
+                self.assertEqual(calls["saves"], 1)
+
+    def test_bank_request_survives_reviews_on_another_surface(self):
+        player_data = {
+            "inventory": {},
+            "current_quest": "rune_mysteries",
+            "skilling_bank_run_requested": "coal",
+        }
+        marker = {"called": False}
+
+        def handler(_ctx):
+            marker["called"] = True
+            return True
+
+        ctx, calls = self._mining_ctx(player_data)
+        self.assertTrue(run_answer_with_carried_overlay(ctx, "quest", handler))
+        self.assertTrue(marker["called"])
+        self.assertEqual(player_data["skilling_bank_run_requested"], "coal")
+        self.assertEqual(calls["activity"], [])
+
 
 class TestProcessingPackOverlay(unittest.TestCase):
     """Processing skills draw recipe inputs from the carried pack, not the bank."""
@@ -4205,6 +4248,28 @@ class TestProcessingPackOverlay(unittest.TestCase):
         # The pack was seeded with all 5 logs, then one was consumed.
         self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 4})
         self.assertIn("logs", player_data["carried_primed_targets"])
+
+    def test_manual_bank_run_request_uses_the_real_route_before_acting(self):
+        player_data = self._base_player_data(5)
+        player_data.update(
+            {
+                "carried_inventory": {"logs": {"Logs": 5}},
+                "carried_primed_targets": {"logs": True},
+                "carried_churn": {"logs": 0},
+                "skilling_bank_run_requested": "logs",
+            }
+        )
+        ctx, calls = self._firemaking_ctx(player_data)
+
+        result = run_answer_with_carried_overlay(
+            ctx, "firemaking", handle_firemaking_answer
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"], {"Logs": 5})
+        self.assertNotIn("skilling_bank_run_requested", player_data)
+        self.assertEqual(player_data["firemaking_exp"], 0)
+        self.assertIn("Bank run", calls["activity"][-1])
 
     def test_smithing_pack_uses_bag_coal_first_through_the_real_handler(self):
         player_data = {

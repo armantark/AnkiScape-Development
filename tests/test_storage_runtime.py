@@ -91,6 +91,26 @@ class StorageRuntimeTest(unittest.TestCase):
         self.assertEqual(player_data["coins"], 13)
         self.assertEqual(current_skill, "None")
 
+    def test_load_does_not_activate_an_under_started_activity(self):
+        collection = _LegacyTextCollection()
+        collection.values = {
+            "ankiscape_player_data": {
+                "config_version": 104,
+                "current_utility": "shooting_stars",
+                "activity_session": {"active_id": ""},
+            },
+            "ankiscape_current_skill": "None",
+        }
+        collection.legacy_row = False
+        storage = _load_storage_module(collection)
+
+        player_data, current_skill = storage.load_player_data()
+
+        self.assertEqual(player_data["current_utility"], "shooting_stars")
+        self.assertEqual(player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(current_skill, "None")
+        self.assertEqual(collection.values["ankiscape_current_skill"], "None")
+
     @unittest.skipIf(Collection is None, "Anki runtime is not installed")
     def test_real_anki_collection_repairs_text_backed_config_row(self):
         with tempfile.TemporaryDirectory() as directory:

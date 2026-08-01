@@ -79,8 +79,10 @@ from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     derive_casual_combat_magic_pure,
     reclaim_death_office_items_pure,
+    request_combat_bank_run_now_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
+    set_combat_pack_mode_pure,
     start_combat_grave_walk_pure,
     unload_combat_supply_loadout_pure,
 )
@@ -531,12 +533,76 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
             lo = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)[0]["combat_supply_loadout"]
             return sum(lo["food"].values()), sum(lo["stat_potions"].values())
 
-        # Max-safety fills the 28 budget with food (no room for potions); max-output
-        # carries minimal food and leaves the rest for damage potions; balanced is a mix.
         # Food + a small style-relevant potion set; the rest of the 28 is loot room.
         self.assertEqual(loaded("max_safety"), (20, 2))
         self.assertEqual(loaded("balanced"), (14, 4))
         self.assertEqual(loaded("max_output"), (8, 6))
+
+    def test_manual_combat_bank_run_request_starts_the_existing_two_review_route(self):
+        requested, ok, reason = request_combat_bank_run_now_pure(
+            self._melee(combat_encounter={})
+        )
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            requested["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+
+    def test_switching_pack_mode_immediately_rebalances_a_stale_loadout(self):
+        player = self._melee(
+            inventory={"Sardine": 60, "Super strength (4)": 20},
+            combat_auto_eat_food=["Sardine"],
+            combat_supply_loadout={"food": {"Sardine": 1}},
+        )
+
+        expected = {
+            "max_safety": (20, 2),
+            "balanced": (14, 4),
+            "max_output": (8, 6),
+        }
+        for mode, allocation in expected.items():
+            with self.subTest(mode=mode):
+                switched, ok, reason = set_combat_pack_mode_pure(
+                    player, mode, EQUIPMENT_DATA
+                )
+                self.assertTrue(ok, reason)
+                loadout = switched["combat_supply_loadout"]
+                self.assertEqual(
+                    (sum(loadout["food"].values()), sum(loadout["stat_potions"].values())),
+                    allocation,
+                )
+                self.assertEqual(
+                    loadout["food"], {"Sardine": allocation[0]}
+                )
+
+    def test_pack_mode_repairs_invalid_dream_fight_but_rejects_a_real_fight(self):
+        reported = self._melee(
+            magic_level=1,
+            quests={"dream_mentor": {"completed": False}},
+            combat_dream_thrift=True,
+            combat_encounter={"target_id": "citizen", "enemy_lifepoints": 67},
+            inventory={"Shrimps": 89},
+            combat_auto_eat_food=["Shrimps"],
+            combat_supply_loadout={"food": {"Shrimps": 1}},
+        )
+
+        repaired, ok, reason = set_combat_pack_mode_pure(
+            reported, "max_safety", EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, reason)
+        self.assertFalse(repaired["combat_dream_thrift"])
+        self.assertEqual(repaired["combat_encounter"], {})
+        self.assertEqual(repaired["combat_supply_loadout"]["food"], {"Shrimps": 20})
+
+        active = dict(repaired)
+        active["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 3}
+        refused, ok, reason = set_combat_pack_mode_pure(
+            active, "max_output", EQUIPMENT_DATA
+        )
+        self.assertFalse(ok)
+        self.assertIn("active fight", reason)
+        self.assertEqual(refused["combat_pack_mode"], "max_safety")
+        self.assertEqual(refused["combat_supply_loadout"]["food"], {"Shrimps": 20})
 
 
 class CombatEnemyAttackStyleTest(unittest.TestCase):
@@ -4312,6 +4378,71 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(second["inventory"], player["inventory"])
         self.assertGreaterEqual(first_result["xp_rewards"]["magic_exp"], 130.0)
         self.assertLess(second_result["xp_rewards"]["magic_exp"], 130.0)
+
+    def test_low_hitpoints_do_not_auto_select_locked_dream_and_stop_combat(self):
+        player, changed, reason = set_combat_pack_mode_pure(
+            _player(
+                magic_level=1,
+                constitution_level=10,
+                combat_lifepoints=42,
+                current_combat_target="chicken",
+            ),
+            "max_safety",
+            EQUIPMENT_DATA,
+        )
+        self.assertTrue(changed, reason)
+
+        _new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_burst")
+        self.assertFalse(player["combat_dream_thrift"])
+
+    def test_locked_dream_is_removed_from_target_overrides_and_pinned_presets(self):
+        cases = (
+            {
+                "combat_target_overrides": {
+                    "chicken": {"combat_dream_thrift": True}
+                }
+            },
+            {
+                "combat_presets": {
+                    "Dream": {"combat_dream_thrift": True}
+                },
+                "combat_target_presets": {"chicken": "Dream"},
+                "combat_active_preset": "Dream",
+            },
+        )
+
+        for overrides in cases:
+            with self.subTest(overrides=overrides):
+                player = _player(
+                    magic_level=1,
+                    quests={"dream_mentor": {"completed": False}},
+                    current_combat_target="chicken",
+                    **overrides,
+                )
+                new_data, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=1,
+                    rng=_rng([0.999999]),
+                )
+
+                self.assertTrue(ok, result)
+                self.assertEqual(result["reason"], "combat_burst")
+                self.assertFalse(new_data["combat_dream_thrift"])
+                for values in new_data["combat_target_overrides"].values():
+                    self.assertFalse(values.get("combat_dream_thrift", False))
+                for preset in new_data["combat_presets"].values():
+                    self.assertFalse(preset.get("combat_dream_thrift", False))
 
     def test_dream_does_not_interrupt_an_active_fight(self):
         player = _player(

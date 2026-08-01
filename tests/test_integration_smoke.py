@@ -3406,16 +3406,42 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["death_office"], {})
         self.assertEqual(calls["achievement_coins"], [50])
 
+    def test_activity_start_transition_selects_target_and_surface_together(self):
+        addon = _load_addon_as_package("ankiscape_activity_start_transition")
+        calls = {"save": 0, "hud": []}
+        addon.player_data = {}
+        addon.current_skill = "Mining"
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.update_review_hud = lambda data, skill: calls["hud"].append(
+            (data.get("current_utility"), skill)
+        )
+
+        self.assertTrue(addon.start_activity_for_reviews("shooting_stars"))
+
+        self.assertEqual(addon.player_data["current_utility"], "shooting_stars")
+        self.assertEqual(addon.current_skill, "Activities")
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["hud"], [("shooting_stars", "Activities")])
+
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
 
-        calls = {"save": 0, "hud": 0, "refresh": 0, "achievement_runes": []}
+        calls = {
+            "save": 0,
+            "hud": 0,
+            "refresh": 0,
+            "achievement_runes": [],
+            "activity": [],
+        }
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon.check_achievements = lambda data: calls["achievement_runes"].append(
             data["inventory"].get("Air rune", 0) + data["inventory"].get("Mind rune", 0)
         )
         addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
         addon._refresh_skill_availability = lambda: calls.__setitem__("refresh", calls["refresh"] + 1)
+        addon._show_activity_gain = lambda message: calls["activity"].append(message)
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.current_skill = "Combat"
         addon.player_data = {
@@ -3429,6 +3455,62 @@ class TestIntegrationSmoke(unittest.TestCase):
             "combat_encounter": {},
             "constitution_level": 10,
         }
+
+        self.assertTrue(addon.on_do_bank_run_now())
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        addon.player_data["combat_bank_run"] = {}
+        addon.current_skill = "Mining"
+        addon.player_data["current_ore"] = "coal"
+        self.assertTrue(addon.on_do_bank_run_now())
+        self.assertEqual(
+            addon.player_data["skilling_bank_run_requested"], "coal"
+        )
+        addon.player_data.pop("skilling_bank_run_requested", None)
+        registry = sys.modules[f"{addon.__name__}.core.skill_registry"]
+        for skill in registry.CURRENT_SKILLS:
+            if not skill.participates_in_review:
+                continue
+            if skill.current_target_key:
+                addon.player_data[skill.current_target_key] = skill.default_target
+            addon.current_skill = skill.display_name
+            self.assertTrue(addon.on_do_bank_run_now(), skill.display_name)
+            if skill.review_handler_key == "combat" or skill.id == "slayer":
+                self.assertIn("combat_bank_run", addon.player_data)
+                addon.player_data["combat_bank_run"] = {}
+            elif skill.review_handler_key in addon.runtime_actions._BANK_RUN_TARGET_KEYS:
+                target_key = addon.runtime_actions._BANK_RUN_TARGET_KEYS[
+                    skill.review_handler_key
+                ]
+                expected_target = (
+                    addon.player_data.get(target_key)
+                    if target_key
+                    else None
+                ) or skill.review_handler_key
+                self.assertEqual(
+                    addon.player_data["skilling_bank_run_requested"],
+                    expected_target,
+                )
+                addon.player_data.pop("skilling_bank_run_requested", None)
+        for surface in ("Activities", "Utilities", "Quests"):
+            addon.current_skill = surface
+            self.assertTrue(addon.on_do_bank_run_now(), surface)
+            self.assertIn("skilling_bank_run_requested", addon.player_data)
+            addon.player_data.pop("skilling_bank_run_requested", None)
+        addon.current_skill = "Farming"
+        self.assertTrue(addon.on_do_bank_run_now())
+        self.assertNotIn("skilling_bank_run_requested", addon.player_data)
+        self.assertEqual(calls["activity"], ["Bank run — arrived and ready"])
+        addon.current_skill = "Slayer"
+        self.assertTrue(addon.on_do_bank_run_now())
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        addon.player_data["combat_bank_run"] = {}
+        addon.current_skill = "Combat"
 
         self.assertTrue(addon.on_set_combat_auto_eat_threshold(65))
         self.assertEqual(addon.player_data["combat_auto_eat_threshold_percent"], 65)
@@ -3444,6 +3526,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 0)
         self.assertEqual(addon.player_data["inventory"]["Fire rune"], 5)
 
+        self.assertTrue(addon.on_set_combat_pack_mode("max_output"))
+        self.assertEqual(
+            addon.player_data["combat_supply_loadout"]["food"], {"Shark": 8}
+        )
+        self.assertEqual(calls["achievement_runes"], [0])
+
         self.assertTrue(addon.on_unload_combat_loadout())
         self.assertEqual(
             addon.player_data["combat_supply_loadout"],
@@ -3453,8 +3541,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 1)
         self.assertEqual(addon.player_data["inventory"]["Air rune"], 5)
         self.assertEqual(addon.player_data["inventory"]["Mind rune"], 5)
-        self.assertEqual(calls["achievement_runes"], [10])
-        self.assertGreaterEqual(calls["save"], 4)
+        self.assertEqual(calls["achievement_runes"], [0, 10])
+        self.assertGreaterEqual(calls["save"], 5)
         self.assertGreaterEqual(calls["hud"], 4)
         self.assertGreaterEqual(calls["refresh"], 4)
 

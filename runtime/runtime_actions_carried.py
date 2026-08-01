@@ -158,7 +158,7 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_STEP_NAMES,
     STRONGHOLD_TOTAL_STEPS,
 )
-from ..core.skill_registry import get_skill
+from ..core.skill_registry import CURRENT_SKILLS, get_skill
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
     apply_farming_review_with_queue_pure,
@@ -434,6 +434,20 @@ _OVERLAY_TARGET_KEYS = {
     "agility": "current_agility",
     "summoning": "current_summoning",
 }
+
+# Every registered review handler is represented for the always-visible bank-run
+# action. A None value means the surface has no separate target selector.
+_BANK_RUN_TARGET_KEYS = {
+    skill.review_handler_key: skill.current_target_key
+    for skill in CURRENT_SKILLS
+    if skill.review_handler_key
+}
+_BANK_RUN_TARGET_KEYS.update(
+    {
+        "utility": "current_utility",
+        "quest": "current_quest",
+    }
+)
 
 
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
@@ -836,6 +850,17 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             ctx.show_activity_gain("Bank run — arrived at the bank")
             ctx.save_player_data()
             return True
+        bank_target_key = _BANK_RUN_TARGET_KEYS.get(handler_key)
+        target_id = (
+            str(player_data.get(bank_target_key, ""))
+            if bank_target_key
+            else handler_key
+        )
+        if player_data.get("skilling_bank_run_requested") == target_id:
+            player_data.pop("skilling_bank_run_requested", None)
+            player_data.update(restore_summoning_points_pure(player_data))
+            ctx.show_activity_gain("Bank run — arrived and ready")
+            ctx.save_player_data()
         return handler(ctx)
 
     target_id = str(player_data.get(target_key, ""))
@@ -866,6 +891,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         str(player_data.get("review_bank_run_requested_target", "") or "")
         == target_id
     )
+    requested_target = player_data.get("skilling_bank_run_requested")
+    skilling_bank_run_requested = requested_target == target_id
+    bank_run_requested = manual_bank_run or skilling_bank_run_requested
     advanced = inventory_pure.carried_advanced_for(player_data, target_id)
     layout = (player_data.get("carried_layout") or {}).get(target_id, {})
     bank = player_data.get("inventory", {}) or {}
@@ -929,7 +957,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     if advanced:
         for item_name, need in presence_requirements.items():
             refill_requirements[item_name] = max(refill_requirements.get(item_name, 0), need)
-    force = bool(
+    force = bank_run_requested or bool(
         is_processing and refill_requirements
         and not _pack_can_supply(view, refill_requirements)
         and _bank_can_supply(bank, refill_requirements)
@@ -1026,7 +1054,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             player_data.get("cadence_profiles")
         )
     winter_storage_before = None
-    if keep and not active_run and not manual_bank_run:
+    if keep and not active_run and not bank_run_requested:
         winter_storage_before = copy.deepcopy(player_data)
         view, churn, winter_storage_used = _try_pack_yak_winter_storage_overlay(
             player_data,
@@ -1048,7 +1076,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         else:
             winter_storage_before = None
     trip_due = bool(
-        manual_bank_run
+        bank_run_requested
         or (
             keep
             and (
@@ -1127,13 +1155,13 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
             view,
             gate_churn,
-            keep or manual_bank_run,
+            keep or bank_run_requested,
             _OVERLAY_STACKABLE_NAMES,
             target_id,
             bank_run,
             max(1, reviews_cost),
             capacity,
-            force or manual_bank_run,
+            force or bank_run_requested,
         )
         if evil_tree_overflow and act:
             new_churn = int(churn or 0)
@@ -1147,6 +1175,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     if manual_bank_run and (event.get("started") or event.get("completed")):
         player_data.pop("review_bank_run_requested_target", None)
+    if skilling_bank_run_requested and event.get("active"):
+        player_data.pop("skilling_bank_run_requested", None)
 
     if event.get("completed"):
         player_data.update(restore_summoning_points_pure(player_data))

@@ -2488,7 +2488,7 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
 def combat_supply_loadout_summary_pure(player_data):
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     return {
-        "food_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values()),
+        "food_loaded_items": dict(loadout.get("food", {}) or {}),
         "potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values()),
         "potions_loaded_items": dict(loadout.get("potions", {}) or {}),
         "stat_potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("stat_potions", {}) or {}).values()),
@@ -2523,11 +2523,18 @@ def request_combat_bank_run_now_pure(player_data):
     return data, True, ""
 
 
-def set_combat_pack_mode_pure(player_data, mode):
+def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
+    if combat_has_active_encounter_pure(data):
+        return data, False, "Finish the active fight before changing supply mode."
     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
-    return derive_casual_combat_magic_pure(data)
+    data = derive_casual_combat_magic_pure(data)
+    data, ok, reason = unload_combat_supply_loadout_pure(data)
+    if not ok:
+        return data, False, reason
+    data, ok, reason = refill_combat_supply_loadout_pure(data, equipment_data)
+    return data, ok, reason
 
 
 def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):

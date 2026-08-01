@@ -583,8 +583,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._smith_calls: list = []
         # Same seam for the family-grouped Crafting tree (on_set_craft).
         self._craft_calls: list = []
-        # Same seam for Utility/Activities selection.
+        # Same seams for Utility/Activities selection and activation.
         self._utility_calls: list = []
+        self._activity_start_calls: list = []
         # Same seam for Firemaking target selection.
         self._firemaking_calls: list = []
         # Same seam for Fishing target selection.
@@ -1103,6 +1104,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
 
         save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
+        start_activity_callback = extra.pop(
+            "on_start_activity",
+            lambda activity: (
+                self._activity_start_calls.append(activity),
+                player_data.__setitem__("current_utility", activity),
+                True,
+            )[-1],
+        )
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -1164,6 +1173,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_magic_alchemy_item=lambda item: _set_target("magic_alchemy_item", self._magic_alch_calls, item),
             on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
+            on_start_activity=start_activity_callback,
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_action=lambda action: self._combat_action_calls.append(action),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -3258,6 +3268,36 @@ class MainMenuWidgetTest(unittest.TestCase):
         combo.setCurrentIndex(combo.findData("max_output"))
         QApplication.processEvents()
         self.assertIn("max_output", calls)
+        dialog.deleteLater()
+
+    def test_combat_supply_mode_reverts_when_active_fight_rejects_change(self) -> None:
+        player = _make_player_data()
+        player["combat_pack_mode"] = "balanced"
+        player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 3}
+        dialog = self._open(
+            player,
+            current_skill="Combat",
+            on_set_combat_pack_mode=lambda _mode: False,
+        )
+        combo = dialog.findChild(QComboBox, "combatPackModeCombo")
+        combo.setCurrentIndex(combo.findData("max_output"))
+        QApplication.processEvents()
+        self.assertEqual(combo.currentData(), "balanced")
+        dialog.deleteLater()
+
+    def test_locked_dream_thrift_control_explains_its_requirements(self) -> None:
+        player = _make_player_data()
+        player["magic_level"] = 1
+        player["quests"]["dream_mentor"] = {
+            "started": False,
+            "progress": 0,
+            "completed": False,
+        }
+        dialog = self._open(player, current_skill="Combat")
+        dream = dialog.findChild(QCheckBox, "combatDreamThriftCheck")
+        self.assertIsNotNone(dream)
+        self.assertFalse(dream.isEnabled())
+        self.assertIn("79 Magic and Dream Mentor", dream.toolTip())
         dialog.deleteLater()
 
     def test_carried_layout_grid_reachable_without_an_active_pack_target(self) -> None:
@@ -5565,7 +5605,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(clear_button)
         self.assertIsNone(dialog.findChild(QPushButton, "combatRefillLoadoutButton"))
         self.assertEqual(threshold_spin.value(), 55)
-        self.assertIn("Food: 3 loaded", summary_label.text())
+        self.assertIn("Food: Lobster x3", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
         self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
@@ -10185,6 +10225,44 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             ui.mw = orig_mw
 
+    def test_shooting_star_selects_from_utilities_without_building_activities(self) -> None:
+        from ankiscape.logic.shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "mining_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "shooting_star": default_shooting_star_state_pure(),
+            }
+        )
+        active, _ = advance_shooting_star_world_clock_pure(pd)
+        pd.clear()
+        pd.update(active)
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        dialog.resize(1200, 560)
+        self._open_utility(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        select = _find_named_button(dialog, "shootingStarSelectButton")
+        select.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["current_utility"], "shooting_stars")
+        self.assertEqual(self._activity_start_calls, ["shooting_stars"])
+        self.assertEqual(select.text(), "Selected for reviews")
+        self.assertTrue(
+            any(
+                label.text() == "Training: Activities"
+                for label in dialog.findChildren(QLabel)
+            )
+        )
+
     def test_shooting_star_panel_selects_and_exchanges_without_spawn_controls(self) -> None:
         from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
@@ -10214,7 +10292,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         select.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "shooting_stars")
-        self.assertEqual(self._utility_calls[-1], "shooting_stars")
+        self.assertEqual(self._activity_start_calls[-1], "shooting_stars")
         self.assertEqual(select.text(), "Selected for reviews")
 
         for object_name in (
@@ -10250,6 +10328,55 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Stardust"], 0)
         self.assertEqual(
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
+        )
+
+    def test_activity_start_control_rerenders_as_currently_active(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "warriors_guild_animated_armour"
+        dialog = self._open(pd, current_skill="Mining")
+        self._open_activities(dialog)
+        start = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Start activity"
+        )
+
+        start.click()
+        for _ in range(3):
+            QApplication.processEvents()
+
+        self.assertEqual(
+            self._activity_start_calls, ["warriors_guild_animated_armour"]
+        )
+        current = [
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Currently active"
+        ]
+        self.assertEqual(len(current), 1)
+        self.assertFalse(current[0].isEnabled())
+
+    def test_activity_start_control_refuses_a_target_from_the_other_surface(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "make_soft_clay"
+        dialog = self._open(pd, current_skill="Mining")
+        self._open_activities(dialog)
+        start = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Start activity"
+        )
+
+        start.click()
+        QApplication.processEvents()
+
+        self.assertEqual(self._activity_start_calls, [])
+        self.assertEqual(pd["current_utility"], "make_soft_clay")
+        self.assertTrue(
+            any(
+                "Select an available activity first" in label.text()
+                for label in dialog.findChildren(QLabel)
+            )
         )
 
     def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:

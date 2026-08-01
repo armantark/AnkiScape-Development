@@ -1,18 +1,24 @@
+import ast
+import importlib
+from pathlib import Path
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.storage_pure import (
+    _SUPPORTED_ACTIVITY_SESSION_IDS,
     default_player_data,
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
+from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
 from ankiscape.core.constants import (
     BAR_DATA,
     CRAFTING_DATA,
     DUNGEONEERING_EXP_TABLE,
+    EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FIREMAKING_LOG_ITEMS,
     FIREMAKING_OUTPUT_ITEMS,
@@ -33,6 +39,67 @@ from ankiscape.core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
+
+
+def _activity_session_writer_ids():
+    project_root = Path(__file__).resolve().parents[1]
+    owner_ids = set()
+    unresolved = []
+    for directory in ("logic", "logic_pure"):
+        for path in sorted((project_root / directory).glob("*.py")):
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(path))
+            module = None
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Assign):
+                    continue
+                writes_session = any(
+                    isinstance(target, ast.Subscript)
+                    and isinstance(target.slice, ast.Constant)
+                    and target.slice.value == "activity_session"
+                    for target in node.targets
+                )
+                if not writes_session:
+                    continue
+                value = node.value
+                if (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id.startswith("_empty")
+                ):
+                    continue
+                if not isinstance(value, ast.Dict):
+                    unresolved.append((path.name, node.lineno, ast.unparse(value)))
+                    continue
+                entries = {
+                    key.value: entry
+                    for key, entry in zip(value.keys, value.values)
+                    if isinstance(key, ast.Constant)
+                }
+                active_id = entries.get("active_id")
+                if isinstance(active_id, ast.Constant) and isinstance(
+                    active_id.value, str
+                ):
+                    resolved = active_id.value
+                elif isinstance(active_id, ast.Name):
+                    if module is None:
+                        relative = path.relative_to(project_root).with_suffix("")
+                        module = importlib.import_module(
+                            f"ankiscape.{'.'.join(relative.parts)}"
+                        )
+                    resolved = getattr(module, active_id.id)
+                else:
+                    unresolved.append(
+                        (
+                            path.name,
+                            node.lineno,
+                            ast.unparse(active_id) if active_id is not None else "",
+                        )
+                    )
+                    continue
+                if resolved:
+                    owner_ids.add(resolved)
+    return owner_ids, unresolved
 
 
 class TestStoragePure(unittest.TestCase):
@@ -1481,6 +1548,201 @@ class TestStoragePure(unittest.TestCase):
         self.assertFalse(migrated["farm_livid_patch_active"])
         self.assertIsNone(migrated["farm_livid_protection_crop_id"])
         self.assertEqual(migrated["farm_livid_protection_uses_remaining"], 0)
+
+    def test_migration_repairs_reported_star_and_dream_save_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 103,
+                "current_utility": "shooting_stars",
+                "activity_session": {"active_id": "shooting_stars"},
+                "magic_level": 1,
+                "quests": {"dream_mentor": {"completed": False}},
+                "combat_dream_thrift": True,
+                "combat_pack_mode": "max_output",
+                "combat_encounter": {
+                    "target_id": "citizen",
+                    "enemy_lifepoints": 67,
+                },
+                "combat_supply_loadout": {"food": {"Shrimps": 1}},
+                "inventory": {"Shrimps": 89},
+                "combat_auto_eat_food": [
+                    "Shark",
+                    "Swordfish",
+                    "Lobster",
+                    "Tuna",
+                    "Salmon",
+                    "Trout",
+                    "Cooked meat",
+                    "Cooked chicken",
+                    "Shrimps",
+                    "Crayfish",
+                ],
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["activity_session"], {"active_id": ""})
+        self.assertEqual(migrated["current_utility"], "shooting_stars")
+        self.assertFalse(migrated["combat_dream_thrift"])
+        self.assertEqual(migrated["combat_encounter"], {})
+        self.assertEqual(migrated["combat_supply_loadout"]["food"], {"Shrimps": 8})
+        self.assertEqual(migrated["inventory"]["Shrimps"], 82)
+        self.assertEqual(
+            migrated["combat_auto_eat_food"],
+            [
+                "Shark",
+                "Monkfish",
+                "Swordfish",
+                "Bass",
+                "Lobster",
+                "Tuna",
+                "Salmon",
+                "Pike",
+                "Trout",
+                "Cod",
+                "Mackerel",
+                "Herring",
+                "Cooked meat",
+                "Cooked chicken",
+                "Sardine",
+                "Shrimps",
+                "Crayfish",
+            ],
+        )
+
+    def test_activity_session_allowlist_covers_every_runtime_writer(self):
+        writer_ids, unresolved = _activity_session_writer_ids()
+        self.assertEqual(
+            unresolved,
+            [],
+            f"activity_session writers need an explicit active_id: {unresolved}",
+        )
+        missing = sorted(writer_ids - _SUPPORTED_ACTIVITY_SESSION_IDS)
+        self.assertEqual(
+            missing,
+            [],
+            "runtime activity_session owners absent from "
+            f"_SUPPORTED_ACTIVITY_SESSION_IDS: {missing}",
+        )
+
+    def test_migration_preserves_legitimate_activity_session_owners(self):
+        session_ids = (
+            "barbarian_assault",
+            "castle_wars",
+            "conquest",
+            "familiarisation",
+            "flash_powder_factory",
+            "pest_control",
+            "shades_of_mortton",
+            "soul_wars",
+            "treasure_trail",
+            "trouble_brewing",
+        )
+
+        for session_id in session_ids:
+            with self.subTest(session_id=session_id):
+                saved = {
+                    "config_version": CURRENT_CONFIG_VERSION,
+                    "activity_session": {"active_id": session_id},
+                }
+                if session_id == "conquest":
+                    from ankiscape.logic.conquest_logic import enter_conquest_pure
+
+                    saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                    for level_key in (
+                        "attack_level",
+                        "strength_level",
+                        "defense_level",
+                        "constitution_level",
+                        "ranged_level",
+                        "magic_level",
+                        "prayer_level",
+                    ):
+                        saved[level_key] = 40
+                    saved, ok, reason = enter_conquest_pure(
+                        saved, {}, lambda: 0.0
+                    )
+                    self.assertTrue(ok, reason)
+                migrated = migrate_loaded_data(
+                    saved,
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
+                self.assertEqual(
+                    migrated["activity_session"], {"active_id": session_id}
+                )
+
+    def test_v105_food_order_refills_monkfish_before_cooked_chicken(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 104,
+                "inventory": {"Monkfish": 50, "Cooked chicken": 50},
+                "combat_pack_mode": "max_output",
+                "combat_supply_loadout": {},
+                "combat_auto_eat_food": [
+                    "Shark",
+                    "Swordfish",
+                    "Lobster",
+                    "Tuna",
+                    "Salmon",
+                    "Trout",
+                    "Cooked meat",
+                    "Cooked chicken",
+                    "Shrimps",
+                    "Crayfish",
+                ],
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            migrated, EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, reason)
+        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Monkfish": 8})
+
+    def test_v105_food_order_preserves_explicit_added_food_order(self):
+        saved_order = ["Shrimps", "Sardine", "Shark", "Herring"]
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 103,
+                "combat_auto_eat_food": saved_order,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(
+            migrated["combat_auto_eat_food"],
+            [
+                "Monkfish",
+                "Bass",
+                "Pike",
+                "Cod",
+                "Mackerel",
+                "Shrimps",
+                "Sardine",
+                "Shark",
+                "Herring",
+            ],
+        )
+
+    def test_migration_clears_any_selection_only_activity_session(self):
+        for activity_id in ("shooting_stars", "make_soft_clay"):
+            with self.subTest(activity_id=activity_id):
+                migrated = migrate_loaded_data(
+                    {
+                        "config_version": CURRENT_CONFIG_VERSION,
+                        "current_utility": activity_id,
+                        "activity_session": {"active_id": activity_id},
+                    },
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
+                self.assertEqual(migrated["current_utility"], activity_id)
+                self.assertEqual(migrated["activity_session"], {"active_id": ""})
 
 
 if __name__ == "__main__":

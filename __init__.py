@@ -57,10 +57,12 @@ from .logic_pure.logic_pure import (
     apply_claim_pure,
     apply_safe_combat_recovery_pure,
     advance_temporary_effects_pure,
+    combat_dream_thrift_locked_reasons_pure,
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
     refill_combat_supply_loadout_pure,
+    request_combat_bank_run_now_pure,
     unload_combat_supply_loadout_pure,
     reclaim_death_office_items_pure,
     start_combat_grave_walk_pure,
@@ -99,6 +101,7 @@ from .ui.ui import (
     hide_review_hud,
     ensure_review_context_action_strip,
     update_review_context_action_strip,
+    update_review_bank_run_button,
     ensure_review_status_badge,
     update_review_status_badge,
     update_review_fill_drawer,
@@ -327,6 +330,17 @@ def _normalize_legacy_utility_skill(skill) -> str:
             player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
         )
     return name
+
+
+def start_activity_for_reviews(activity_id) -> bool:
+    """Select one utility/activity target and its review surface atomically."""
+    target = str(activity_id or "")
+    if not target:
+        return False
+    player_data["current_utility"] = target
+    save_skill(_utility_surface_for_target(target), None)
+    save_player_data()
+    return True
 
 # --- Debug logging (centralized) ---
 from .core.debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
@@ -4056,6 +4070,7 @@ def _on_main_menu(
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_start_activity=start_activity_for_reviews,
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
@@ -4164,6 +4179,11 @@ def _set_value(key: str, value):
 
 
 def _set_combat_prayer_config(key: str, value):
+    if key == "combat_dream_thrift" and bool(value):
+        reasons = combat_dream_thrift_locked_reasons_pure(player_data)
+        if reasons:
+            show_error_message("Dream unavailable", f"Dream requires {reasons[0]}.")
+            return False
     if key == "apply_preset":
         new_data, ok = apply_combat_preset_pure(player_data, str(value), player_data.get("current_combat_target"))
         if ok:
@@ -4235,7 +4255,13 @@ def on_set_combat_auto_eat_threshold(threshold_percent):
 
 
 def on_set_combat_pack_mode(mode):
-    _save_combat_state_update(set_combat_pack_mode_pure(player_data, mode))
+    new_data, ok, reason = set_combat_pack_mode_pure(
+        player_data, mode, EQUIPMENT_DATA
+    )
+    if not ok:
+        show_error_message("Cannot change combat supplies", reason)
+        return False
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
@@ -4245,6 +4271,37 @@ def on_set_combat_auto_eat_food(food_name):
         show_error_message("Cannot configure food", reason or "Choose a supported combat food.")
         return False
     _save_combat_state_update(new_data)
+    return True
+
+
+def on_do_bank_run_now():
+    """Run or request the active skill/activity's bank visit."""
+    handler_key = review_action_handler_key(current_skill)
+    skill = get_skill(current_skill)
+    completes_immediately = False
+    if handler_key == "combat" or (skill is not None and skill.id == "slayer"):
+        new_data, ok, reason = request_combat_bank_run_now_pure(player_data)
+    elif handler_key in runtime_actions._BANK_RUN_TARGET_KEYS:
+        target_key = runtime_actions._BANK_RUN_TARGET_KEYS[handler_key]
+        target_id = (player_data.get(target_key) if target_key else None) or handler_key
+        new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
+            player_data, target_id
+        )
+    elif handler_key is not None or (skill is not None and skill.implemented):
+        # Farming and any registry-backed surface without a review handler are
+        # already bank-side. Complete the visit now instead of queuing a request
+        # that no production review path can consume.
+        new_data = restore_summoning_points_pure(player_data)
+        ok, reason = True, ""
+        completes_immediately = True
+    else:
+        new_data, ok, reason = player_data, False, "No active target can make a bank run."
+    if not ok:
+        show_error_message("Cannot make a bank run", reason)
+        return False
+    _save_combat_state_update(new_data)
+    if completes_immediately:
+        _show_activity_gain("Bank run — arrived and ready")
     return True
 
 
