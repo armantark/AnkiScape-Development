@@ -158,6 +158,7 @@ if HAS_QT:
             layout.addWidget(muster)
 
             tower = QWidget(self)
+            tower.setObjectName("mobilisingArmiesRewardShop")
             tower_layout = QGridLayout(tower)
             tower_layout.setContentsMargins(0, 0, 0, 0)
             tower_layout.setHorizontalSpacing(6)

@@ -40,6 +40,9 @@ class MainMenuCtx:
     # Achievement Cabinet claims and task pins. Both mutate the save, so they
     # route through `commit_direct_action` like every other policy command.
     on_achievement_diary_command: Optional[Callable[[str, dict], Any]] = None
+    # Lazily materializes the already-wired activity reward controls so the Shop
+    # tab can re-home them without duplicating reducers or command callbacks.
+    ensure_reward_shop_sources: Optional[Callable[[], Any]] = None
     refreshers: dict = field(default_factory=dict)
 
     def refresh(self, key: str) -> None:

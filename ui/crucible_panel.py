@@ -134,6 +134,7 @@ if HAS_QT:
             layout.addWidget(lessons)
 
             shop = QWidget(self)
+            shop.setObjectName("crucibleRewardShop")
             shop_layout = QHBoxLayout(shop)
             shop_layout.setContentsMargins(0, 0, 0, 0)
             shop_layout.setSpacing(6)

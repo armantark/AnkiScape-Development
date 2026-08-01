@@ -8537,6 +8537,7 @@ def show_main_menu(
         big_layout.addWidget(big_controls)
 
         reward_row = QWidget()
+        reward_row.setObjectName("bigChinchompaRewardShop")
         reward_layout = QHBoxLayout(reward_row)
         reward_layout.setContentsMargins(0, 0, 0, 0)
         reward_layout.setSpacing(6)
@@ -9841,6 +9842,7 @@ def show_main_menu(
         vinesweeper_layout.addWidget(vinesweeper_action_row)
 
         vinesweeper_shop_row = QWidget()
+        vinesweeper_shop_row.setObjectName("vinesweeperRewardShop")
         vinesweeper_shop_layout = QHBoxLayout(vinesweeper_shop_row)
         vinesweeper_shop_layout.setContentsMargins(0, 0, 0, 0)
         vinesweeper_shop_layout.setSpacing(6)
@@ -14346,6 +14348,7 @@ def show_main_menu(
         trouble_layout.addWidget(trouble_plan)
 
         trouble_shop = QWidget()
+        trouble_shop.setObjectName("troubleBrewingRewardShop")
         trouble_shop_layout = QHBoxLayout(trouble_shop)
         trouble_shop_layout.setContentsMargins(0, 0, 0, 0)
         trouble_shop_layout.setSpacing(6)
@@ -15260,24 +15263,30 @@ def show_main_menu(
         soul_layout.addWidget(soul_plan)
 
         soul_actions = QWidget()
-        soul_actions_layout = QGridLayout(soul_actions)
+        soul_actions_layout = QHBoxLayout(soul_actions)
         soul_actions_layout.setContentsMargins(0, 0, 0, 0)
-        soul_actions_layout.setHorizontalSpacing(6)
-        soul_actions_layout.setVerticalSpacing(5)
+        soul_actions_layout.setSpacing(6)
         soul_primary = QPushButton()
         soul_primary.setObjectName("soulWarsPrimaryButton")
+        soul_leave = QPushButton("Leave match")
+        soul_leave.setObjectName("soulWarsLeaveButton")
+        soul_actions_layout.addWidget(soul_primary, 1)
+        soul_actions_layout.addWidget(soul_leave)
+        soul_layout.addWidget(soul_actions)
+
+        soul_reward_shop = QWidget()
+        soul_reward_shop.setObjectName("soulWarsRewardShop")
+        soul_reward_layout = QHBoxLayout(soul_reward_shop)
+        soul_reward_layout.setContentsMargins(0, 0, 0, 0)
+        soul_reward_layout.setSpacing(6)
         soul_reward = QComboBox()
         soul_reward.setObjectName("soulWarsRewardCombo")
         soul_reward.setAccessibleName("Soul Wars charm reward")
         soul_buy = QPushButton("Buy charms")
         soul_buy.setObjectName("soulWarsBuyCharmsButton")
-        soul_leave = QPushButton("Leave match")
-        soul_leave.setObjectName("soulWarsLeaveButton")
-        soul_actions_layout.addWidget(soul_primary, 0, 0, 1, 2)
-        soul_actions_layout.addWidget(soul_leave, 0, 2)
-        soul_actions_layout.addWidget(soul_reward, 1, 0, 1, 2)
-        soul_actions_layout.addWidget(soul_buy, 1, 2)
-        soul_layout.addWidget(soul_actions)
+        soul_reward_layout.addWidget(soul_reward, 1)
+        soul_reward_layout.addWidget(soul_buy)
+        soul_layout.addWidget(soul_reward_shop)
         cards_stack.addWidget(soul_box)
 
         syncing_soul = {"active": False}
@@ -17698,6 +17707,7 @@ def show_main_menu(
         stealing_creation_layout.addWidget(stealing_creation_action_row)
 
         stealing_creation_reward_row = QWidget()
+        stealing_creation_reward_row.setObjectName("stealingCreationRewardShop")
         stealing_creation_reward_layout = QHBoxLayout(stealing_creation_reward_row)
         stealing_creation_reward_layout.setContentsMargins(0, 0, 0, 0)
         stealing_creation_reward_layout.setSpacing(6)
@@ -20215,8 +20225,30 @@ def show_main_menu(
             world_events_refresher["call"] = _refresh_world_events_strip
             container_layout.addWidget(world_events_box)
 
-        # The reviewer D&D badge opens a card in this panel; expose the closure
-        # the same way the Farming panel exposes its refresher.
+        def _refresh_reward_shop_sources() -> None:
+            for refresher in (
+                _refresh_big_chinchompa_panel,
+                _refresh_fist_of_guthix_panel,
+                _refresh_vinesweeper_panel,
+                _refresh_flash_factory_panel,
+                _refresh_fish_flingers_panel,
+                _refresh_great_orb_project_panel,
+                _refresh_trouble_panel,
+                _refresh_castle_panel,
+                _refresh_soul_panel,
+                _refresh_stealing_creation_panel,
+            ):
+                refresher()
+            for panel in (
+                mage_training_arena_box,
+                mobilising_armies_box,
+                crucible_box,
+            ):
+                panel.refresh()
+
+        # The Shop and reviewer D&D badge reuse the activity surface's own
+        # refreshers so neither frontend has to re-derive a pure-view decision.
+        container._ankiscape_refresh_reward_shops = _refresh_reward_shop_sources
         container._ankiscape_show_activity = _show_activity_detail
 
         container_layout.addWidget(cards_stack)
@@ -21045,6 +21077,36 @@ def show_main_menu(
         _UTILITIES_HUB_NAME: lambda: _build_utility_list(_UTILITIES_HUB_NAME),
         _ACTIVITIES_HUB_NAME: lambda: _build_utility_list(_ACTIVITIES_HUB_NAME),
     }
+
+    reward_shop_source_host = {"widget": None}
+
+    def _ensure_reward_shop_sources() -> QWidget:
+        host = reward_shop_source_host["widget"]
+        if host is not None:
+            return host
+        # Reward controls already own their pure views and callbacks inside the
+        # activity builders. Materialize one hidden copy only when Shop opens so
+        # re-homing those live widgets does not duplicate gameplay policy.
+        host = QWidget(dialog)
+        host.setObjectName("rewardShopSourceHost")
+        host_layout = QVBoxLayout(host)
+        host_layout.setContentsMargins(0, 0, 0, 0)
+        activities_panel = _build_utility_list(_ACTIVITIES_HUB_NAME)
+        dungeoneering_panel = _build_dungeoneering_panel()
+        host_layout.addWidget(activities_panel)
+        host_layout.addWidget(dungeoneering_panel)
+
+        def _refresh_reward_shop_sources() -> None:
+            activities_panel._ankiscape_refresh_reward_shops()
+            dungeoneering_panel._ankiscape_refresh_dungeoneering()
+
+        host._ankiscape_refresh_reward_shops = _refresh_reward_shop_sources
+        host.setVisible(False)
+        reward_shop_source_host["widget"] = host
+        return host
+
+    ctx.ensure_reward_shop_sources = _ensure_reward_shop_sources
+
     _TARGET_PROMPTS = {
         "Mining": "Select Ore to Mine",
         "Woodcutting": "Select what to Chop or Split",
@@ -25085,8 +25147,13 @@ def show_main_menu(
     # Connect only now that every placeholder exists: the very first addTab
     # already emitted currentChanged(0), and the open tab must be built even if
     # a future change makes it something other than Skills.
-    tabs.currentChanged.connect(_ensure_tab_built)
-    _ensure_tab_built(tabs.currentIndex())
+    def _on_main_tab_changed(index: int) -> None:
+        _ensure_tab_built(index)
+        if tabs.tabText(index) == "Shop":
+            ctx.refresh("shop")
+
+    tabs.currentChanged.connect(_on_main_tab_changed)
+    _on_main_tab_changed(tabs.currentIndex())
 
     help_topics = load_help_topics()
     help_width_state: dict[str, int | None] = {"before_open": None}

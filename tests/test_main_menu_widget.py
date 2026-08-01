@@ -3757,6 +3757,160 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(shell.isVisibleTo(dialog))
         self.assertIsNone(selector.currentItem())
 
+    def test_shop_browse_splits_normal_and_reward_targets_left_to_right(self) -> None:
+        pd = _make_player_data()
+        dialog = self._open(pd)
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_shop_tab(dialog)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        normal = _find_named_list(dialog, "shopSelectionList")
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        normal_x = normal.mapTo(dialog, normal.rect().topLeft()).x()
+        rewards_x = rewards.mapTo(dialog, rewards.rect().topLeft()).x()
+        self.assertLess(normal_x, rewards_x)
+
+        expected = {
+            "Brimhaven tickets · Pirate Jackie the Fruit",
+            "Advanced courses · the Agile worker",
+            "Skillcapes · the skill masters",
+            "Agility Pyramid · Simon Templeton",
+            "Big Chinchompa rewards",
+            "Fist of Guthix · Reggie",
+            "Vinesweeper · Mrs Winkin",
+            "Flash Powder Factory",
+            "Fish Flingers reward shop",
+            "Great Orb Project · Wizard Elriss",
+            "Trouble Brewing rewards",
+            "Castle Wars ticket shop",
+            "Soul Wars rewards",
+            "Stealing Creation reward tools",
+            "Dungeoneering rewards trader",
+            "The Crucible · Trophy bones",
+            "Mobilising Armies · Officer Tower",
+            "Mage Training Arena rewards",
+        }
+        self.assertEqual(set(_list_texts(rewards)), expected)
+        self.assertFalse(any("_" in text for text in _list_texts(rewards)))
+
+    def test_reward_targets_open_only_their_interface_beside_inventory(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coins": 123_456, "Agility arena ticket": 10}
+        dialog = self._open(pd, current_skill="Agility")
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_shop_tab(dialog)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+
+        def select(target_id: str) -> None:
+            item = next(
+                rewards.item(index)
+                for index in range(rewards.count())
+                if (
+                    isinstance(
+                        rewards.item(index).data(Qt.ItemDataRole.UserRole), dict
+                    )
+                    and rewards.item(index).data(Qt.ItemDataRole.UserRole).get(
+                        "target_id"
+                    )
+                    == target_id
+                )
+            )
+            rewards.setCurrentItem(item)
+            QApplication.processEvents()
+
+        select("brimhaven_tickets")
+        panel = dialog.findChild(QWidget, "rewardShopTargetPanel")
+        inventory = _find_named_list(dialog, "rewardShopInventoryList")
+        self.assertTrue(panel.isVisibleTo(dialog))
+        self.assertTrue(
+            dialog.findChild(QLabel, "shopBrimhavenSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertFalse(
+            dialog.findChild(QLabel, "shopAgileSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertFalse(
+            dialog.findChild(QLabel, "shopAgilityCapeSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertFalse(
+            dialog.findChild(QLabel, "shopNamedBuyersSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertTrue(any("Coins x123,456" == text for text in _list_texts(inventory)))
+
+        select("fish_flingers")
+        fish_page = dialog.findChild(QWidget, "rewardShopPage_fish_flingers")
+        fish_shop = dialog.findChild(QWidget, "fishFlingersRewardShop")
+        self.assertTrue(fish_page.isVisibleTo(dialog))
+        self.assertTrue(fish_shop.isVisibleTo(dialog))
+        self.assertFalse(
+            dialog.findChild(QWidget, "shopAgilityRewardsPanel").isVisibleTo(dialog)
+        )
+
+        _open_first_shop(dialog)
+        self.assertFalse(panel.isVisibleTo(dialog))
+
+    def test_opening_shop_does_not_steal_controls_from_an_open_activity(self) -> None:
+        dialog = self._open(_make_player_data())
+        self._open_activities(dialog)
+        live_shop = dialog.findChild(QWidget, "fishFlingersRewardShop")
+        self.assertIsNotNone(live_shop)
+        original_parent = live_shop.parentWidget()
+
+        _open_shop_tab(dialog)
+        QApplication.processEvents()
+
+        self.assertIs(live_shop.parentWidget(), original_parent)
+        shop_copy = dialog.findChild(QWidget, "rewardShopPage_fish_flingers")
+        self.assertIsNotNone(shop_copy)
+        self.assertIsNot(shop_copy.findChild(QWidget, "fishFlingersRewardShop"), live_shop)
+
+    def test_returning_to_shop_refreshes_rehomed_reward_controls(self) -> None:
+        from ankiscape.logic.big_chinchompa_logic import (
+            default_big_chinchompa_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd["hunter_level"] = 99
+        pd["big_chinchompa"] = default_big_chinchompa_state_pure()
+        pd["big_chinchompa"]["competence_points"] = 100
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        target = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "big_chinchompa"
+        )
+        rewards.setCurrentItem(target)
+        QApplication.processEvents()
+        buy = next(
+            button
+            for button in dialog.findChildren(QPushButton, "bigChinchompaRewardBuyButton")
+            if button.isVisibleTo(dialog)
+        )
+        self.assertTrue(buy.isEnabled())
+
+        tabs = _find_main_tabs(dialog)
+        skills_index = next(
+            index for index in range(tabs.count()) if tabs.tabText(index) == "Skills"
+        )
+        shop_index = next(
+            index for index in range(tabs.count()) if tabs.tabText(index) == "Shop"
+        )
+        tabs.setCurrentIndex(skills_index)
+        pd["big_chinchompa"]["competence_points"] = 0
+        tabs.setCurrentIndex(shop_index)
+        QApplication.processEvents()
+
+        self.assertFalse(buy.isEnabled())
+        self.assertIn("you have 0", buy.toolTip())
+
     def test_shop_icons_render_for_stock_search_sell_and_services(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
@@ -3852,7 +4006,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         preview = _find_named_label(dialog, "shopPreviewLabel")
         button = _find_named_button(dialog, "shopTransactionButton")
-        self.assertIn("currency_not_implemented", preview.text())
+        self.assertIn("Currency not implemented", preview.text())
+        self.assertNotIn("currency_not_implemented", preview.text())
         self.assertFalse(button.isEnabled())
 
     def test_shop_live_stock_buy_updates_inventory_and_history(self) -> None:
@@ -13729,6 +13884,52 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Agile top", pd["inventory"])
         self.assertIn("Agility cape", pd["inventory"])
         self.assertEqual(pd["inventory"].get("Pyramid top", 0), 0)
+
+    def test_all_skillcape_purchases_live_in_the_shop_target(self) -> None:
+        from ankiscape.logic.achievement_diary_logic import (
+            apply_achievement_diary_command_pure,
+        )
+
+        pd = _make_player_data()
+        pd["mining_level"] = 99
+        pd["inventory"] = {"Coins": 99_000}
+
+        def diary_command(action_id, payload):
+            updated, ok, info = apply_achievement_diary_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            on_achievement_diary_command=diary_command,
+        )
+        dialog.show()
+        _open_shop_tab(dialog)
+        QApplication.processEvents()
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        skillcapes = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "skill_masters"
+        )
+        rewards.setCurrentItem(skillcapes)
+        QApplication.processEvents()
+
+        buy = _find_named_button(dialog, "shopCapeButton_mining")
+        self.assertTrue(buy.isVisibleTo(dialog))
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Mining cape"], 1)
+        self.assertEqual(pd["inventory"]["Mining hood"], 1)
+        self.assertEqual(pd["inventory"].get("Coins", 0), 0)
 
     def test_surefooted_aura_activates_from_the_equipment_tab(self) -> None:
         # Auras have a cooldown, so they keep a control — in their own

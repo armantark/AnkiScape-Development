@@ -9,6 +9,7 @@ from typing import Optional
 try:
     from aqt.qt import (  # type: ignore
         Qt,
+        QComboBox,
         QGridLayout,
         QHBoxLayout,
         QLabel,
@@ -59,6 +60,12 @@ def build_shop_tab(ctx) -> "QWidget":
     dialog = ctx.dialog
     on_check_achievements = ctx.on_check_achievements
     on_save_player_data = ctx.on_save_player_data
+    ensure_reward_shop_sources = getattr(ctx, "ensure_reward_shop_sources", None)
+    reward_shop_source_root = (
+        ensure_reward_shop_sources()
+        if ensure_reward_shop_sources is not None
+        else dialog
+    )
 
     # ---- Shop tab ---------------------------------------------------------
     # Frontend boundary: the tab is deliberately thin. It renders backend view
@@ -78,22 +85,48 @@ def build_shop_tab(ctx) -> "QWidget":
     shop_search = shop_filter_bar.search_input
     shop_layout.addWidget(shop_filter_bar)
 
-    shop_selector = QListWidget()
-    shop_selector.setObjectName("shopSelectionList")
-    # Max height is managed by _sync_shop_detail_visibility: full height while
-    # browsing, compact while a shop's detail panel is open.
-    shop_selector.setMinimumHeight(116)
-    shop_selector.setIconSize(QSize(24, 24))
-    shop_selector.setAlternatingRowColors(True)
-    shop_selector.setStyleSheet(
-        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: palette(base); color: palette(text); padding: 3px; }"
-        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
-        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-    )
-    shop_layout.addWidget(shop_selector, 1)
+    browser = QWidget()
+    browser_layout = QHBoxLayout(browser)
+    browser_layout.setContentsMargins(0, 0, 0, 0)
+    browser_layout.setSpacing(8)
 
-    shop_placeholder = QLabel("Click a shop to browse its stock, prices, and services.")
+    def _selector_column(title: str, object_name: str) -> tuple[QWidget, QListWidget]:
+        column = QWidget()
+        column_layout = QVBoxLayout(column)
+        column_layout.setContentsMargins(0, 0, 0, 0)
+        column_layout.setSpacing(4)
+        heading = QLabel(title)
+        heading.setStyleSheet("font-weight: 600; color: palette(text);")
+        column_layout.addWidget(heading)
+        selector = QListWidget()
+        selector.setObjectName(object_name)
+        # Max height is managed by _sync_shop_detail_visibility: full height
+        # while browsing, compact while a detail panel is open.
+        selector.setMinimumHeight(116)
+        selector.setIconSize(QSize(24, 24))
+        selector.setAlternatingRowColors(True)
+        selector.setStyleSheet(
+            "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 3px; }"
+            " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+            " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+        )
+        column_layout.addWidget(selector, 1)
+        return column, selector
+
+    normal_shops_column, shop_selector = _selector_column(
+        "Shops and service providers", "shopSelectionList"
+    )
+    reward_shops_column, reward_selector = _selector_column(
+        "Activity, minigame and D&D rewards", "rewardShopTargetList"
+    )
+    browser_layout.addWidget(normal_shops_column, 1)
+    browser_layout.addWidget(reward_shops_column, 1)
+    shop_layout.addWidget(browser, 1)
+
+    shop_placeholder = QLabel(
+        "Choose a normal shop on the left or a reward shop on the right."
+    )
     shop_placeholder.setObjectName("shopDetailPlaceholder")
     shop_placeholder.setStyleSheet(f"color: {dim_text_css(shop_placeholder)}; padding: 2px;")
     shop_layout.addWidget(shop_placeholder)
@@ -307,32 +340,39 @@ def build_shop_tab(ctx) -> "QWidget":
     agility_rewards_header.setStyleSheet("font-weight: 600; color: palette(text);")
     agility_rewards_layout.addWidget(agility_rewards_header)
 
-    def _agility_section(title: str, object_name: str) -> QGridLayout:
+    def _agility_section(
+        title: str, object_name: str
+    ) -> tuple[QWidget, QGridLayout]:
+        section = QWidget()
+        section_layout = QVBoxLayout(section)
+        section_layout.setContentsMargins(0, 0, 0, 0)
+        section_layout.setSpacing(5)
         label = QLabel(title)
         label.setObjectName(object_name)
         label.setStyleSheet(f"color: {dim_text_css(label)};")
-        agility_rewards_layout.addWidget(label)
+        section_layout.addWidget(label)
         grid_widget = QWidget()
         grid = QGridLayout(grid_widget)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(5)
-        agility_rewards_layout.addWidget(grid_widget)
-        return grid
+        section_layout.addWidget(grid_widget)
+        agility_rewards_layout.addWidget(section)
+        return section, grid
 
-    brimhaven_grid = _agility_section(
+    brimhaven_section, brimhaven_grid = _agility_section(
         "Brimhaven Agility Arena · Pirate Jackie the Fruit",
         "shopBrimhavenSectionLabel",
     )
-    agile_grid = _agility_section(
+    agile_section, agile_grid = _agility_section(
         "Advanced courses · the Agile worker",
         "shopAgileSectionLabel",
     )
-    cape_grid = _agility_section(
+    cape_section, cape_grid = _agility_section(
         "Capes of Accomplishment and Distinction · the skill masters",
         "shopAgilityCapeSectionLabel",
     )
-    buyers_grid = _agility_section(
-        "Named buyers · Simon Templeton",
+    buyers_section, buyers_grid = _agility_section(
+        "Agility Pyramid · Simon Templeton",
         "shopNamedBuyersSectionLabel",
     )
     agility_feedback_label = QLabel("")
@@ -343,6 +383,168 @@ def build_shop_tab(ctx) -> "QWidget":
     )
     agility_feedback_label.setVisible(False)
     agility_rewards_layout.addWidget(agility_feedback_label)
+
+    reward_target_panel = QWidget()
+    reward_target_panel.setObjectName("rewardShopTargetPanel")
+    reward_target_layout = QHBoxLayout(reward_target_panel)
+    reward_target_layout.setContentsMargins(0, 0, 0, 0)
+    reward_target_layout.setSpacing(8)
+
+    reward_target_scroll = QScrollArea()
+    reward_target_scroll.setObjectName("rewardShopInterfaceScroll")
+    reward_target_scroll.setWidgetResizable(True)
+    reward_target_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    reward_target_body = QWidget()
+    reward_target_content_layout = QVBoxLayout(reward_target_body)
+    reward_target_content_layout.setContentsMargins(0, 0, 0, 0)
+    reward_target_content_layout.setSpacing(8)
+    reward_target_content_layout.addWidget(agility_rewards_panel)
+    reward_target_content_layout.addStretch(1)
+    reward_target_scroll.setWidget(reward_target_body)
+    reward_target_layout.addWidget(reward_target_scroll, 3)
+
+    reward_inventory_panel = QWidget()
+    reward_inventory_panel.setObjectName("rewardShopInventoryPanel")
+    reward_inventory_panel.setStyleSheet(
+        "QWidget#rewardShopInventoryPanel { border: 1px solid palette(mid);"
+        " border-radius: 8px; background: rgba(255,255,255,0.03); }"
+    )
+    reward_inventory_layout = QVBoxLayout(reward_inventory_panel)
+    reward_inventory_layout.setContentsMargins(8, 6, 8, 8)
+    reward_inventory_layout.setSpacing(5)
+    reward_inventory_heading = QLabel("Inventory")
+    reward_inventory_heading.setStyleSheet("font-weight: 600; color: palette(text);")
+    reward_inventory_layout.addWidget(reward_inventory_heading)
+    reward_inventory = QListWidget()
+    reward_inventory.setObjectName("rewardShopInventoryList")
+    reward_inventory.setIconSize(QSize(24, 24))
+    reward_inventory.setAlternatingRowColors(True)
+    reward_inventory.setMinimumWidth(220)
+    reward_inventory.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 3px; }"
+        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+    )
+    reward_inventory_layout.addWidget(reward_inventory, 1)
+    reward_target_layout.addWidget(reward_inventory_panel, 2)
+    shop_shell_layout.addWidget(reward_target_panel, 5)
+
+    reward_target_pages: dict[str, QWidget] = {}
+    reward_targets = [
+        {
+            "id": "brimhaven_tickets",
+            "display_name": "Brimhaven tickets · Pirate Jackie the Fruit",
+            "kind": "agility",
+            "section": brimhaven_section,
+        },
+        {
+            "id": "agile_worker",
+            "display_name": "Advanced courses · the Agile worker",
+            "kind": "agility",
+            "section": agile_section,
+        },
+        {
+            "id": "skill_masters",
+            "display_name": "Skillcapes · the skill masters",
+            "kind": "agility",
+            "section": cape_section,
+        },
+        {
+            "id": "simon_templeton",
+            "display_name": "Agility Pyramid · Simon Templeton",
+            "kind": "agility",
+            "section": buyers_section,
+        },
+    ]
+
+    external_reward_targets = (
+        ("big_chinchompa", "Big Chinchompa rewards", ("bigChinchompaRewardShop",)),
+        ("fist_of_guthix", "Fist of Guthix · Reggie", ("fistOfGuthixShop",)),
+        ("vinesweeper", "Vinesweeper · Mrs Winkin", ("vinesweeperRewardShop",)),
+        ("flash_powder_factory", "Flash Powder Factory", ("flashPowderFactoryRewards",)),
+        ("fish_flingers", "Fish Flingers reward shop", ("fishFlingersRewardShop",)),
+        ("great_orb_project", "Great Orb Project · Wizard Elriss", ("greatOrbProjectShop",)),
+        ("trouble_brewing", "Trouble Brewing rewards", ("troubleBrewingRewardShop",)),
+        ("castle_wars", "Castle Wars ticket shop", ("castleWarsShopButton",)),
+        ("soul_wars", "Soul Wars rewards", ("soulWarsRewardShop",)),
+        ("stealing_creation", "Stealing Creation reward tools", ("stealingCreationRewardShop",)),
+        ("dungeoneering", "Dungeoneering rewards trader", ("dungeoneeringRewardTraderRow", "dungeoneeringRewardDetail")),
+        ("crucible", "The Crucible · Trophy bones", ("crucibleRewardShop",)),
+        ("mobilising_armies", "Mobilising Armies · Officer Tower", ("mobilisingArmiesRewardShop",)),
+    )
+    for target_id, display_name, object_names in external_reward_targets:
+        source_widgets = [
+            reward_shop_source_root.findChild(QWidget, object_name)
+            for object_name in object_names
+        ]
+        if any(widget is None for widget in source_widgets):
+            continue
+        page = QWidget()
+        page.setObjectName(f"rewardShopPage_{target_id}")
+        page_layout = QVBoxLayout(page)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        page_layout.setSpacing(6)
+        for source_widget in source_widgets:
+            source_widget.setParent(page)
+            source_widget.setVisible(True)
+            page_layout.addWidget(source_widget)
+        page_layout.addStretch(1)
+        page.setVisible(False)
+        reward_target_content_layout.insertWidget(
+            reward_target_content_layout.count() - 1, page
+        )
+        reward_target_pages[target_id] = page
+        reward_targets.append(
+            {
+                "id": target_id,
+                "display_name": display_name,
+                "kind": "external",
+                "page": page,
+            }
+        )
+
+    # Mage Training Arena uses its reward goal as part of the activity plan, so
+    # the Shop gets a small proxy rather than stealing that shared policy combo.
+    # The original purchase button remains the command owner and is hidden from
+    # the activity panel, preserving one purchase path and one pure-view gate.
+    mta_source_combo = reward_shop_source_root.findChild(
+        QComboBox, "mageTrainingArenaGoalCombo"
+    )
+    mta_source_button = reward_shop_source_root.findChild(
+        QPushButton, "mageTrainingArenaPurchaseButton"
+    )
+    mta_proxy_combo = None
+    mta_proxy_button = None
+    if mta_source_combo is not None and mta_source_button is not None:
+        mta_page = QWidget()
+        mta_page.setObjectName("rewardShopPage_mage_training_arena")
+        mta_page_layout = QHBoxLayout(mta_page)
+        mta_page_layout.setContentsMargins(0, 0, 0, 0)
+        mta_page_layout.setSpacing(6)
+        mta_proxy_combo = QComboBox()
+        mta_proxy_combo.setObjectName("rewardShopMageTrainingArenaCombo")
+        for index in range(mta_source_combo.count()):
+            mta_proxy_combo.addItem(
+                mta_source_combo.itemText(index), mta_source_combo.itemData(index)
+            )
+        mta_proxy_button = QPushButton("Purchase goal")
+        mta_proxy_button.setObjectName("rewardShopMageTrainingArenaBuyButton")
+        mta_page_layout.addWidget(mta_proxy_combo, 1)
+        mta_page_layout.addWidget(mta_proxy_button)
+        mta_page.setVisible(False)
+        reward_target_content_layout.insertWidget(
+            reward_target_content_layout.count() - 1, mta_page
+        )
+        reward_target_pages["mage_training_arena"] = mta_page
+        reward_targets.append(
+            {
+                "id": "mage_training_arena",
+                "display_name": "Mage Training Arena rewards",
+                "kind": "external",
+                "page": mta_page,
+            }
+        )
+        mta_source_button.setVisible(False)
 
     history_header = QWidget()
     history_header_layout = QHBoxLayout(history_header)
@@ -394,7 +596,6 @@ def build_shop_tab(ctx) -> "QWidget":
     shop_lower_layout.setSpacing(8)
     for widget in (
         transaction_panel,
-        agility_rewards_panel,
         history_header,
         local_history,
         global_history,
@@ -415,12 +616,19 @@ def build_shop_tab(ctx) -> "QWidget":
         # are their own selector entries because the backend attaches services
         # to NPC providers, not to any shop.
         "provider": "",
+        "reward_target": "",
         "service_kind": "",
         "service_id": "",
     }
 
     def _safe_object_suffix(value: str) -> str:
         return "".join(ch if ch.isalnum() else "_" for ch in value)[:80]
+
+    def _humanize_display(value: object, fallback: str = "") -> str:
+        text = str(value or fallback).strip()
+        if not text:
+            return ""
+        return text.replace("_", " ").strip().capitalize()
 
     def _visible_shop_defs() -> list:
         return [
@@ -446,7 +654,9 @@ def build_shop_tab(ctx) -> "QWidget":
         # gets its height back when the detail panel is collapsed.
         shop_shell.setVisible(detail_open)
         shop_placeholder.setVisible(not detail_open)
-        shop_selector.setMaximumHeight(104 if detail_open else 16777215)
+        maximum = 104 if detail_open else 16777215
+        shop_selector.setMaximumHeight(maximum)
+        reward_selector.setMaximumHeight(maximum)
 
     def _visible_service_defs() -> list:
         rows = []
@@ -503,7 +713,7 @@ def build_shop_tab(ctx) -> "QWidget":
             detail = _format_requirement_rows(missing if isinstance(missing, list) else [])
             return f"Missing requirements: {detail}." if detail else "Missing requirements."
         if reason == "skill_level":
-            skill_id = str(preview.get("skill_id", "skill")).title()
+            skill_id = _humanize_display(preview.get("skill_id"), "skill")
             required = int(preview.get("required_level", 1) or 1)
             current = int(preview.get("current_level", 1) or 1)
             return f"Requires {required} {skill_id}; you have {current}."
@@ -525,7 +735,7 @@ def build_shop_tab(ctx) -> "QWidget":
             )
         if reason == "no_partial_flasks_to_decant":
             return "You have no 1–4 dose potion flasks for Teplin to decant."
-        return fallback or reason
+        return _humanize_display(fallback or reason, "Unavailable")
 
     def _service_icon_item_name(row: dict) -> str:
         icon_item_name = row.get("icon_item_name")
@@ -543,6 +753,57 @@ def build_shop_tab(ctx) -> "QWidget":
         if icon is not None:
             item.setIcon(icon)
 
+    def _populate_reward_inventory() -> None:
+        reward_inventory.clear()
+        inventory = player_data.get("inventory", {}) or {}
+        rows = [
+            (name, int(quantity or 0))
+            for name, quantity in sorted(inventory.items())
+            if isinstance(name, str) and int(quantity or 0) > 0
+        ]
+        if not rows:
+            empty = QListWidgetItem("Your inventory is empty.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            reward_inventory.addItem(empty)
+            return
+        for item_name, quantity in rows:
+            item = QListWidgetItem(f"{item_name} x{quantity:,}")
+            _set_list_item_icon(item, item_name)
+            reward_inventory.addItem(item)
+
+    def _sync_mta_proxy() -> None:
+        if mta_proxy_combo is None or mta_proxy_button is None:
+            return
+        source_index = mta_source_combo.currentIndex()
+        blocked = mta_proxy_combo.blockSignals(True)
+        mta_proxy_combo.setCurrentIndex(max(0, source_index))
+        mta_proxy_combo.blockSignals(blocked)
+        mta_proxy_button.setEnabled(mta_source_button.isEnabled())
+        mta_proxy_button.setToolTip(mta_source_button.toolTip())
+
+    def _refresh_reward_target_after_action() -> None:
+        _populate_reward_inventory()
+        _sync_mta_proxy()
+
+    for page in reward_target_pages.values():
+        for button in page.findChildren(QPushButton):
+            button.clicked.connect(
+                lambda _checked=False: _refresh_reward_target_after_action()
+            )
+
+    if mta_proxy_combo is not None and mta_proxy_button is not None:
+        def _purchase_mta_reward_from_shop() -> None:
+            mta_source_button.click()
+            _refresh_reward_target_after_action()
+
+        mta_proxy_combo.currentIndexChanged.connect(
+            lambda index: mta_source_combo.setCurrentIndex(index)
+        )
+        mta_proxy_button.clicked.connect(
+            lambda _checked=False: _purchase_mta_reward_from_shop()
+        )
+        _sync_mta_proxy()
+
     def _replace_player_data(new_data: dict) -> None:
         player_data.clear()
         player_data.update(new_data)
@@ -558,11 +819,19 @@ def build_shop_tab(ctx) -> "QWidget":
             pass
 
     def _refresh_shop_views() -> None:
+        refresh_reward_sources = getattr(
+            reward_shop_source_root, "_ankiscape_refresh_reward_shops", None
+        )
+        if refresh_reward_sources is not None:
+            refresh_reward_sources()
         _populate_shop_selector()
+        _populate_reward_selector()
         _render_shop_detail()
         _populate_sell_inventory()
         _populate_shop_history()
         _populate_agility_reward_shops()
+        _populate_reward_inventory()
+        _sync_mta_proxy()
 
     def _refresh_after_shop_mutation(message: str) -> None:
         shop_toast.setText(message)
@@ -604,7 +873,7 @@ def build_shop_tab(ctx) -> "QWidget":
         parts.append(f"Buy: {_format_shop_price(row.get('buy_price'), currency_name)}")
         parts.append(f"Sell: {_format_shop_price(row.get('sell_price'), currency_name)}")
         if row.get("lock_reason"):
-            parts.append(f"Locked: {row.get('lock_reason')}")
+            parts.append(f"Locked: {_humanize_display(row.get('lock_reason'))}")
         if row.get("price_source"):
             parts.append(str(row.get("price_source")))
         if row.get("source"):
@@ -837,10 +1106,8 @@ def build_shop_tab(ctx) -> "QWidget":
         provider_selected = bool(shop_state.get("provider"))
         prefix = "" if provider_selected else f"{label}: "
         provider_suffix = "" if provider_selected else f" · {provider}"
-        return (
-            f"{prefix}{row.get('display_name', row.get('id'))}"
-            f"{provider_suffix} · {cost}{right}"
-        )
+        display_name = row.get("display_name") or _humanize_display(row.get("id"))
+        return f"{prefix}{display_name}{provider_suffix} · {cost}{right}"
 
     def _populate_services() -> None:
         current_id = shop_state.get("service_id", "")
@@ -986,8 +1253,9 @@ def build_shop_tab(ctx) -> "QWidget":
             requirement_suffix = f" {requirement_text}." if requirement_text else ""
             repetitions = "once" if amount == 1 else f"{amount:,} times"
             cost = "free" if total == 0 else f"{total:,} {currency}"
+            display_name = row.get("display_name") or _humanize_display(row.get("id"))
             service_preview.setText(
-                f"{row.get('display_name', row.get('id'))} {repetitions} "
+                f"{display_name} {repetitions} "
                 f"for {cost}.{requirement_suffix}{suffix}"
             )
             service_use_btn.setEnabled(True)
@@ -1009,7 +1277,9 @@ def build_shop_tab(ctx) -> "QWidget":
             return
         _replace_player_data(new_data)
         _persist_shop_state()
-        display_name = row.get("display_name", "vendor action")
+        display_name = row.get("display_name") or _humanize_display(
+            row.get("id"), "vendor action"
+        )
         amount = int(result.get("quantity", 0) or 0)
         suffix = (
             f" {amount:,} times."
@@ -1170,31 +1440,72 @@ def build_shop_tab(ctx) -> "QWidget":
             local_history.addItem(empty)
         else:
             for event in local_rows:
-                local_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
+                display = event.get("display") or _humanize_display(
+                    event.get("event_id"), "Shop event"
+                )
+                local_history.addItem(QListWidgetItem(str(display)))
         if not global_rows:
             empty = QListWidgetItem("No global shop activity yet.")
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
             global_history.addItem(empty)
         else:
             for event in global_rows:
-                global_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
+                display = event.get("display") or _humanize_display(
+                    event.get("event_id"), "Shop event"
+                )
+                global_history.addItem(QListWidgetItem(str(display)))
 
     def _set_shop_detail_mode(mode: str) -> None:
-        # "shop": stock/sell/transaction/history. "provider": services only —
-        # the backend attaches services to provider NPCs, never to shops, so a
-        # shop detail must not advertise unrelated global services.
+        # Normal shops, providers and reward targets share the shell, but never
+        # advertise one another's controls. Reward interfaces own the right-hand
+        # target list and always render beside the player's live inventory.
         is_shop = mode == "shop"
+        is_provider = mode == "provider"
+        is_reward = mode == "reward"
         shop_mode_tabs.setVisible(is_shop)
         transaction_panel.setVisible(is_shop)
         history_header.setVisible(is_shop)
         local_history.setVisible(is_shop)
-        agility_rewards_panel.setVisible(is_shop)
+        reward_target_panel.setVisible(is_reward)
         if not is_shop:
             global_history.setVisible(False)
             global_history_btn.setChecked(False)
-        services_panel.setVisible(not is_shop)
+        services_panel.setVisible(is_provider)
 
     def _render_shop_detail() -> None:
+        target_id = shop_state.get("reward_target", "")
+        if target_id:
+            target = next(
+                (row for row in reward_targets if row["id"] == target_id), None
+            )
+            if target is None:
+                shop_state["reward_target"] = ""
+                _sync_shop_detail_visibility(False)
+                return
+            _sync_shop_detail_visibility(True)
+            _set_shop_detail_mode("reward")
+            display_name = str(target["display_name"])
+            shop_title.setText(display_name)
+            shop_meta.setText("Reward shop · inventory shown alongside")
+            for section in (
+                brimhaven_section,
+                agile_section,
+                cape_section,
+                buyers_section,
+            ):
+                section.setVisible(False)
+            for page in reward_target_pages.values():
+                page.setVisible(False)
+            if target["kind"] == "agility":
+                agility_rewards_panel.setVisible(True)
+                agility_rewards_header.setText(display_name)
+                target["section"].setVisible(True)
+            else:
+                agility_rewards_panel.setVisible(False)
+                target["page"].setVisible(True)
+            _populate_reward_inventory()
+            _sync_mta_proxy()
+            return
         provider = shop_state.get("provider", "")
         if provider:
             provider_rows = [
@@ -1231,7 +1542,7 @@ def build_shop_tab(ctx) -> "QWidget":
         if view.get("general_store"):
             meta_parts.append("General store")
         if view.get("lock_reason"):
-            meta_parts.append(str(view.get("lock_reason")))
+            meta_parts.append(_humanize_display(view.get("lock_reason")))
         shop_meta.setText(" · ".join(meta_parts))
         if not shop_state["row_id"] and view.get("rows"):
             shop_state["row_id"] = str(view["rows"][0].get("id", ""))
@@ -1245,10 +1556,18 @@ def build_shop_tab(ctx) -> "QWidget":
         if kind == "stock":
             price = _format_shop_price(result.get("buy_price"), "Coins")
             stock = f"{int(result.get('current_quantity', 0) or 0):,}/{int(result.get('default_quantity', 0) or 0):,}"
-            lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
+            lock = (
+                f" · {_humanize_display(result.get('lock_reason'))}"
+                if result.get("lock_reason")
+                else ""
+            )
             return f"{result.get('item_name')} · {result.get('shop_name')} · Stock {stock} · {price}{lock}"
         label = "Service" if kind == "service" else "Vendor"
-        lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
+        lock = (
+            f" · {_humanize_display(result.get('lock_reason'))}"
+            if result.get("lock_reason")
+            else ""
+        )
         price = int(result.get("price", 0) or 0)
         cost = (
             "Free"
@@ -1308,8 +1627,11 @@ def build_shop_tab(ctx) -> "QWidget":
             if shop.get("general_store"):
                 suffix.append("general store")
             if shop.get("lock_reason"):
-                suffix.append(str(shop.get("lock_reason")))
-            label = f"{shop.get('display_name', shop.get('id'))} · " + (" · ".join(suffix) if suffix else "read-only")
+                suffix.append(_humanize_display(shop.get("lock_reason")))
+            display_name = shop.get("display_name") or _humanize_display(shop.get("id"))
+            label = f"{display_name} · " + (
+                " · ".join(suffix) if suffix else "read-only"
+            )
             item = QListWidgetItem(label)
             item.setData(Qt.ItemDataRole.UserRole, {"kind": "shop", "shop_id": shop.get("id", "")})
             icon_name = next(
@@ -1362,14 +1684,45 @@ def build_shop_tab(ctx) -> "QWidget":
                 shop_selector.setCurrentItem(item)
                 shop_selector.blockSignals(False)
 
+    def _populate_reward_selector() -> None:
+        current_target = shop_state.get("reward_target", "")
+        query = shop_search.text().strip().lower()
+        reward_selector.clear()
+        visible_targets = [
+            target
+            for target in reward_targets
+            if not query or query in str(target["display_name"]).lower()
+        ]
+        if not visible_targets:
+            empty = QListWidgetItem("No reward shop matches this search.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            reward_selector.addItem(empty)
+            return
+        selected_item = None
+        for target in visible_targets:
+            item = QListWidgetItem(str(target["display_name"]))
+            item.setData(
+                Qt.ItemDataRole.UserRole,
+                {"kind": "reward_target", "target_id": target["id"]},
+            )
+            reward_selector.addItem(item)
+            if target["id"] == current_target:
+                selected_item = item
+        if selected_item is not None:
+            reward_selector.blockSignals(True)
+            reward_selector.setCurrentItem(selected_item)
+            reward_selector.blockSignals(False)
+
     def _collapse_shop_detail() -> None:
         shop_state["shop_id"] = ""
         shop_state["row_id"] = ""
         shop_state["provider"] = ""
-        shop_selector.blockSignals(True)
-        shop_selector.clearSelection()
-        shop_selector.setCurrentItem(None)
-        shop_selector.blockSignals(False)
+        shop_state["reward_target"] = ""
+        for selector in (shop_selector, reward_selector):
+            selector.blockSignals(True)
+            selector.clearSelection()
+            selector.setCurrentItem(None)
+            selector.blockSignals(False)
         _render_shop_detail()
 
     def _on_shop_selector_clicked(item: QListWidgetItem) -> None:
@@ -1377,6 +1730,11 @@ def build_shop_tab(ctx) -> "QWidget":
         if not isinstance(payload, dict):
             return
         kind = payload.get("kind")
+        shop_state["reward_target"] = ""
+        reward_selector.blockSignals(True)
+        reward_selector.clearSelection()
+        reward_selector.setCurrentItem(None)
+        reward_selector.blockSignals(False)
         if kind == "shop":
             shop_state["shop_id"] = str(payload.get("shop_id", ""))
             shop_state["row_id"] = ""
@@ -1406,6 +1764,20 @@ def build_shop_tab(ctx) -> "QWidget":
             _render_shop_detail()
             _refresh_service_preview()
 
+    def _on_reward_selector_clicked(item: QListWidgetItem) -> None:
+        payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        if not isinstance(payload, dict) or payload.get("kind") != "reward_target":
+            return
+        shop_state["reward_target"] = str(payload.get("target_id", ""))
+        shop_state["shop_id"] = ""
+        shop_state["row_id"] = ""
+        shop_state["provider"] = ""
+        shop_selector.blockSignals(True)
+        shop_selector.clearSelection()
+        shop_selector.setCurrentItem(None)
+        shop_selector.blockSignals(False)
+        _render_shop_detail()
+
     def _on_sell_item_clicked(item: QListWidgetItem) -> None:
         item_name = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
         if isinstance(item_name, str):
@@ -1419,9 +1791,21 @@ def build_shop_tab(ctx) -> "QWidget":
             shop_state["service_id"] = str(payload.get("id", ""))
             _refresh_service_preview()
 
-    shop_search.textChanged.connect(lambda _text="": (_populate_shop_selector(), _render_shop_detail()))
+    shop_search.textChanged.connect(
+        lambda _text="": (
+            _populate_shop_selector(),
+            _populate_reward_selector(),
+            _render_shop_detail(),
+        )
+    )
     shop_selector.itemClicked.connect(_on_shop_selector_clicked)
     shop_selector.currentItemChanged.connect(lambda current, _previous: _on_shop_selector_clicked(current) if current is not None else None)
+    reward_selector.itemClicked.connect(_on_reward_selector_clicked)
+    reward_selector.currentItemChanged.connect(
+        lambda current, _previous: _on_reward_selector_clicked(current)
+        if current is not None
+        else None
+    )
     sell_inventory.itemClicked.connect(_on_sell_item_clicked)
     sell_inventory.currentItemChanged.connect(lambda current, _previous: _on_sell_item_clicked(current) if current is not None else None)
     shop_mode_tabs.currentChanged.connect(lambda _index=0: _refresh_transaction_panel())
@@ -1438,8 +1822,10 @@ def build_shop_tab(ctx) -> "QWidget":
     shop_collapse_btn.clicked.connect(lambda _=False: _collapse_shop_detail())
 
     _populate_shop_selector()
+    _populate_reward_selector()
     _populate_services()
     _populate_agility_reward_shops()
+    _populate_reward_inventory()
     _render_shop_detail()
 
     ctx.refreshers["shop"] = _refresh_shop_views
