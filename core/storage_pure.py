@@ -1973,26 +1973,16 @@ def migrate_loaded_data(
     if loaded_config_version < 105:
         raw_auto_food = data.get("combat_auto_eat_food")
         if isinstance(raw_auto_food, list):
-            inserted = [
-                item_name
-                for item_name in default_combat_state_pure()[
-                    "combat_auto_eat_food"
-                ]
-                if item_name not in raw_auto_food
+            added = [
+                name
+                for name in default_combat_state_pure()["combat_auto_eat_food"]
+                if name not in raw_auto_food
             ]
-            low_food_index = next(
-                (
-                    index
-                    for index, item_name in enumerate(raw_auto_food)
-                    if item_name in {"Shrimps", "Crayfish"}
-                ),
+            cut = next(
+                (i for i, name in enumerate(raw_auto_food) if name in {"Shrimps", "Crayfish"}),
                 len(raw_auto_food),
             )
-            data["combat_auto_eat_food"] = (
-                raw_auto_food[:low_food_index]
-                + inserted
-                + raw_auto_food[low_food_index:]
-            )
+            data["combat_auto_eat_food"] = raw_auto_food[:cut] + added + raw_auto_food[cut:]
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

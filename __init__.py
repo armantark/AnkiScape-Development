@@ -4277,12 +4277,7 @@ def on_do_bank_run_now():
     if not ok:
         show_error_message("Cannot make a bank run", reason)
         return False
-    player_data.update(new_data)
-    save_player_data()
-    try:
-        update_review_hud(player_data, current_skill)
-    except Exception:
-        pass
+    _save_combat_state_update(new_data)
     return True
 
 

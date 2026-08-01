@@ -19105,11 +19105,11 @@ def show_main_menu(
         def _set_utility_selection(
             activity_id: str, *, activate: bool = False
         ) -> bool:
-            selection_callback = (
-                on_start_activity
-                if activate and on_start_activity is not None
-                else on_set_utility
-            )
+            # Activation goes through the single callback that selects the
+            # target and its review surface together; without it, selection and
+            # `on_save_skill` stay two separate steps.
+            starting = activate and on_start_activity is not None
+            selection_callback = on_start_activity if starting else on_set_utility
             if selection_callback is None:
                 return False
             if (
@@ -19848,7 +19848,7 @@ def show_main_menu(
                 and state["active"] != surface_name
             ):
                 state["active"] = surface_name
-                if not activate or on_start_activity is None:
+                if not starting:
                     on_save_skill(surface_name)
                 _refresh_active_label()
             _refresh_evil_tree_panel()

@@ -2488,7 +2488,6 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
 def combat_supply_loadout_summary_pure(player_data):
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     return {
-        "food_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values()),
         "food_loaded_items": dict(loadout.get("food", {}) or {}),
         "potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values()),
         "potions_loaded_items": dict(loadout.get("potions", {}) or {}),
@@ -2529,8 +2528,8 @@ def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
     data.update(sanitize_combat_state_pure(data))
     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
     data = derive_casual_combat_magic_pure(data)
-    if combat_has_active_encounter_pure(data):
-        return data
+    # Both calls no-op during an active fight, so a stale loadout is only ever
+    # rebalanced between review bursts.
     data, _, _ = unload_combat_supply_loadout_pure(data)
     data, _, _ = refill_combat_supply_loadout_pure(data, equipment_data)
     return data
