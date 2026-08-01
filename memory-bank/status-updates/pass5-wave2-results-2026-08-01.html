@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pass 5 landed, achievements rebuilt</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%99%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff;
+    --accent-glow: rgba(79,140,255,.15); --red: #ff5c5c; --green: #4ade80;
+    --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit','Avenir Next','Segoe UI',system-ui,sans-serif; line-height:1.55; padding:2.2rem 1.2rem 4rem; }
+.wrap { max-width:1080px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',ui-monospace,Menlo,monospace; font-size:.7rem; letter-spacing:.12em; color:var(--green); background:rgba(74,222,128,.12); border:1px solid var(--green); border-radius:999px; padding:.3rem .9rem; margin-bottom:1rem; }
+h1 { font-size:2rem; font-weight:700; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:64rem; }
+.statrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; margin:1.8rem 0; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem; }
+.stat b { display:block; font-size:1.5rem; font-weight:700; }
+.stat span { font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
+h2 { font-size:1.15rem; margin:2.4rem 0 .9rem; padding-bottom:.4rem; border-bottom:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; }
+.card h3 { font-size:.95rem; margin-bottom:.5rem; }
+.card p, .card li { font-size:.85rem; color:var(--text-dim); }
+.card ul { padding-left:1.1rem; margin:.4rem 0; }
+.card li { margin:.25rem 0; }
+.card li b, .card p b { color:var(--text); font-weight:600; }
+.pri { font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; padding:.15rem .55rem; border-radius:999px; margin-right:.5rem; }
+.pri.done { color:var(--green); border:1px solid var(--green); }
+.pri.parked { color:var(--amber); border:1px solid var(--amber); }
+.pri.evid { color:var(--purple); border:1px solid var(--purple); }
+.tag { display:inline-block; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.63rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:.1rem .45rem; margin:.12rem .15rem 0 0; color:var(--text-dim); }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.tablewrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); }
+th, td { text-align:left; padding:.55rem .8rem; border-bottom:1px solid var(--border); vertical-align:top; }
+th { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); background:var(--surface-2); }
+tr:last-child td { border-bottom:none; }
+.callout { border-left:3px solid var(--amber); background:var(--surface); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; margin:1rem 0; font-size:.87rem; }
+.callout.g { border-left-color:var(--green); }
+.mono { font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.78rem; }
+.mock { border:1px solid var(--border); border-radius:8px; background:var(--surface-2); padding:.6rem; margin:.5rem 0; font-size:.62rem; }
+.mock .cardarea { background:#242a35; border-radius:5px; height:52px; margin-bottom:4px; display:flex; align-items:center; justify-content:center; color:var(--text-dim); }
+.mock .ansbar { background:#1a1f28; border-radius:5px; padding:.25rem .5rem; display:flex; gap:.6rem; justify-content:center; color:var(--text-dim); margin-bottom:4px; }
+.mock .strip { background:#10141b; border:1px solid var(--accent); border-radius:5px; padding:.3rem .5rem; display:flex; gap:.5rem; align-items:center; }
+.mock .chip { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+.mock .xpbox { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:.15rem .4rem; display:flex; justify-content:space-between; align-items:center; }
+.mock .btn { background:#2a3text040; border:1px solid var(--border); border-radius:4px; padding:.05rem .35rem; color:var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="badge">OVERNIGHT RESULTS · 2026-08-01 · PASS 5 + WAVE 2</span>
+<h1>Pass 5 landed. The achievements product now matches its spec's shape.</h1>
+<p class="sub">All six pass-5 lanes merged with your words as the acceptance test, and the run rolled straight into achievements conformance: honest 534-task denominators, lamp claims, an 880-track Music Log, and the first deed-ledger tranche. A real laptop probe photographed the new UI and caught one real defect, which became your native-strip redesign. Three quota plans are spent; a short remainder is parked with a one-command resume.</p>
+
+<div class="statrow">
+  <div class="stat"><b>10</b><span>lanes merged to main</span></div>
+  <div class="stat"><b>3,736</b><span>tests, green in both lanes</span></div>
+  <div class="stat"><b>534</b><span>honest cutoff-task denominator</span></div>
+  <div class="stat"><b>~70</b><span>agents across three workflows</span></div>
+  <div class="stat"><b>1</b><span>lane parked (stream error + quota)</span></div>
+</div>
+
+<h2>Pass 5 — every playtest item, closed against your words</h2>
+<div class="grid">
+<div class="card">
+  <h3><span class="pri done">MERGED</span>Combat cluster</h3>
+  <ul>
+    <li>Supply modes now load distinct, era-sensible amounts and the panel names the food. The Dream error is gone: locked spells are never auto-selected. A driven low-HP regression protects it.</li>
+    <li>The star button and the Activities control share one atomic transition; save v105 repairs doubled sessions. Your save copy showed no corruption.</li>
+    <li>A drift test now guards the session-id allowlist, the same pattern that caught the sixteen cadence activities.</li>
+  </ul>
+  <span class="tag">92937eef</span><span class="tag">v105</span>
+</div>
+<div class="card">
+  <h3><span class="pri done">MERGED</span>Reviewer strip + logs</h3>
+  <ul>
+    <li>The strip is pinned with the D&amp;D badge spelled right; event rows name skills, wrap, stay copyable; GE rows are reverse-chron with click-through and stale-clear.</li>
+    <li>Kimi verified the lane clean; the laptop probe then photographed the strip holding position across cards.</li>
+  </ul>
+  <span class="tag">5a7e2ac4</span>
+</div>
+<div class="card">
+  <h3><span class="pri done">MERGED</span>D&amp;D notifications, shop, bank</h3>
+  <ul>
+    <li>Notifications are strictly opt-in (empty default, right-click add/remove, every D&amp;D covered — Fish Flingers included).</li>
+    <li>The Shop tab splits normal shops from 18 reward-shop targets; skillcapes live there; snake_case is gone.</li>
+    <li>Toolbelt attach is a manual ceremony again; the pack editor has icons, a bank grid, and right-click quantities. v106 carries the toolbelt migration.</li>
+  </ul>
+  <span class="tag">0b40309d</span><span class="tag">9c95e436</span><span class="tag">88543f6f</span>
+</div>
+<div class="card">
+  <h3><span class="pri done">MERGED</span>Guardian-drop reshape</h3>
+  <p>The 1,010-coin starter cache is gone; guardian rooms now drop the coins on the floor's critical path, summing exactly. The placeholder is renamed and the register test proves both directions. This retires the last old goal blocker.</p>
+  <span class="tag">5c2a58d9</span><span class="tag">dungeoneering.starter_guardian_coin_drops</span>
+</div>
+</div>
+
+<h2>The probe earned its keep</h2>
+<div class="grid">
+<div class="card">
+  <h3><span class="pri evid">EVIDENCE</span>Photographed on your MacBook</h3>
+  <ul>
+    <li><b>PASS</b> — strip pinned above the answer bar, identical across consecutive cards; badge reads exactly "D&amp;D".</li>
+    <li><b>FAIL</b> — at 667×602 the open drawer covered card content. Real, reachable, and now the driver of the redesign at right.</li>
+    <li>Evidence set: <span class="mono">pass5-traces/probe/</span> (screenshots + REPORT.md).</li>
+  </ul>
+</div>
+<div class="card">
+  <h3><span class="pri parked">IN FLIGHT</span>Your native-strip redesign</h3>
+  <div class="mock">
+    <div class="cardarea">card (webview) — translucent drawers may overlay</div>
+    <div class="ansbar"><span>Edit</span><span>Again · Hard · Good · Easy</span><span>More</span></div>
+    <div class="strip"><span class="chip">🍋 D&amp;D</span><span class="chip">🚿 Farming</span><span class="xpbox"><span>Combat — Lv 5 ▓▓░</span><span class="btn">Bank run</span></span></div>
+  </div>
+  <p>The whole module becomes a native row below the answer bar — no overlay, no padding sync, no way to cover the card. "Bank run" is a small native button in the XP box corner with your tooltip. An agent is building it now; merge, verification, and a re-probe are parked behind fresh quota.</p>
+</div>
+</div>
+
+<h2>Wave 2 — achievements conformance</h2>
+<div class="tablewrap"><table>
+<tr><th>Lane</th><th>What changed</th></tr>
+<tr><td><b>Latent registry</b> <span class="tag">7ac44785</span></td><td>96 pinned source rows join the catalog as visible "Not yet obtainable" tasks. Denominators are now the designed 384 + 55 + 95 = 534; Taskmaster, Completionist, and tier claims stay closed until real tasks ship. The ≤12 test weakening is gone.</td></tr>
+<tr><td><b>Lamp claims</b> <span class="tag">5726f054</span></td><td>Tier claims grant equipment and create a sourced XP lamp spent from the Bank with real restrictions — no more direct XP. 32 tier-specific registered placeholders replace the blanket level-1 floor. Save v107 prevents duplicate XP for already-claimed tiers.</td></tr>
+<tr><td><b>Music Log</b> <span class="tag">428f126d</span></td><td>880 named Darkan tracks with per-track provenance; latent rows for feature-owned tracks; enemy and activity triggers; Completionist compares the full catalog.</td></tr>
+<tr><td><b>Deed ledgers</b> <span class="tag">1d6529ae</span></td><td>ledger_output and shop_transaction predicates are live; 64 tasks converted from level/quest gates back to designed deeds where telemetry proves them. 205 remaining rows are listed for tranche 2.</td></tr>
+</table></div>
+
+<div class="callout g">
+<b>Also closed:</b> the combat "abysmally slow" lead — your live save shows every skill on the same 3.6s-per-review exchange rate; low-level melee really was ~20× slower than gathering in the era, so the kernel stands (your call, after telemetry). And a peer session's perf dossier fixed the lag at its true source: the Auto Sync, Heatmap, and AnkiConnect add-ons.
+</div>
+
+<div class="callout">
+<b>Parked on quota (all three plans past their lines):</b> the Completionist lane (frozen requirement registry, trimmed cape with 5,000 Castle Wars games, Dungeoneering 120 cape) — its maker died on a provider stream error before writing code; the native-strip merge + laptop re-probe; deed tranche 2. Resume order and one-command entries: <span class="mono">memory-bank/GOAL-BLOCKED.md</span> and <span class="mono">~/.local/state/quota-guard/parked.md</span>. Next blocks: kimi ~6h40m, codex/claude ~10–11h.
+</div>
+
+<h2>Before you play</h2>
+<div class="grid">
+<div class="card">
+  <h3>Restart Anki</h3>
+  <p>The save migrates v103 → v107 in one pass: opt-in D&amp;D notifications (your old star/tree/chinchompa pings stop until you favorite them), combat food priorities, toolbelt state, lamp claims, and deed-evidence seeding. The sequence is schema-relative-tested at every boundary.</p>
+</div>
+<div class="card">
+  <h3>What pass 6 should judge</h3>
+  <p>The strip (currently the merged overlay version; the native row replaces it when quota returns), the new Shop layout, the pack editor, lamp claiming from the Bank, and the Cabinet's latent rows showing honestly as not yet obtainable.</p>
+</div>
+</div>
+
+</div>
+</body>
+</html>
