@@ -10673,7 +10673,7 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
 
 
 def claims_as_dict() -> Dict[str, Dict[str, object]]:
-    return {
+    claims = {
         claim.id: {
             "id": claim.id,
             "display_name": claim.display_name,
@@ -10690,3 +10690,7 @@ def claims_as_dict() -> Dict[str, Dict[str, object]]:
         }
         for claim in CLAIMS
     }
+    from .achievement_diary_data import diary_lamp_claims_as_dict
+
+    claims.update(diary_lamp_claims_as_dict())
+    return claims

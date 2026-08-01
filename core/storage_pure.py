@@ -200,6 +200,7 @@ from ..logic.shades_of_mortton_logic import (
     default_shades_of_mortton_state_pure,
     sanitize_shades_of_mortton_state_pure,
 )
+from ..data.achievement_diary_data import DIARY_LAMP_CLAIM_IDS_BY_TIER
 from ..logic.achievement_diary_logic import (
     default_achievement_diary_state_pure,
     refresh_achievement_diaries_pure,
@@ -328,7 +329,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 106
+CURRENT_CONFIG_VERSION = 107
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -925,6 +926,35 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
                 clean_claims[claim_id] = {"claimed": bool(raw_state.get("claimed", default_state["claimed"]))}
             elif isinstance(raw_state, bool):
                 clean_claims[claim_id] = {"claimed": raw_state}
+        for claim_id in DIARY_LAMP_CLAIM_IDS_BY_TIER.values():
+            raw_state = claims.get(claim_id)
+            if isinstance(raw_state, dict):
+                clean_claims[claim_id] = {"claimed": bool(raw_state.get("claimed", False))}
+            elif isinstance(raw_state, bool):
+                clean_claims[claim_id] = {"claimed": raw_state}
+    data["claims"] = clean_claims
+
+
+def _migrate_legacy_claimed_diary_lamps(data: Dict[str, Any]) -> None:
+    """Do not duplicate XP that pre-v107 tier claims already applied directly."""
+
+    diary_state = data.get("achievement_diaries")
+    claimed_tiers = (
+        diary_state.get("claimed_tiers", ())
+        if isinstance(diary_state, dict)
+        else ()
+    )
+    claims = data.get("claims")
+    clean_claims = dict(claims) if isinstance(claims, dict) else {}
+    for tier_id in claimed_tiers if isinstance(claimed_tiers, list) else ():
+        claim_id = DIARY_LAMP_CLAIM_IDS_BY_TIER.get(tier_id)
+        if claim_id is None:
+            continue
+        state = clean_claims.get(claim_id)
+        clean_claims[claim_id] = {
+            **(state if isinstance(state, dict) else {}),
+            "claimed": True,
+        }
     data["claims"] = clean_claims
 
 
@@ -2091,6 +2121,11 @@ def migrate_loaded_data(
     # migration above attaches tools already owned under the old auto-resolution
     # contract once; tools bought after this version remain in the Bank until the
     # player explicitly attaches them.
+    # v107: diary tier claims stop applying XP directly and create Bank Claims.
+    # Older claimed tiers already received that XP, so their generated claim is
+    # retired during migration rather than paying the same lamp twice.
+    if loaded_config_version < 107:
+        _migrate_legacy_claimed_diary_lamps(data)
     # These defaults are required for a new v30-shaped payload assembled outside
     # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

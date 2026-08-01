@@ -16,7 +16,10 @@ from unittest.mock import patch
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
-from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+from ankiscape.data.achievement_diary_data import (
+    ACHIEVEMENT_DIARY_CATALOG,
+    diary_lamp_claim_id,
+)
 from ankiscape.logic.achievement_diary_logic import refresh_achievement_diaries_pure
 
 
@@ -272,22 +275,26 @@ class DiaryUndoSeamTest(unittest.TestCase):
         )
         self.assertFalse(restored["inventory"].get("Ardougne cloak 1"))
 
-    def test_one_undo_restores_the_item_the_lamp_and_the_ledger_together(self):
+    def test_one_undo_restores_the_item_pending_lamp_and_ledger_together(self):
         from ankiscape.logic.achievement_diary_logic import (
             apply_achievement_diary_command_pure,
         )
+        from ankiscape.logic_pure.logic_pure_claims import claim_locked_reasons_pure
 
         addon = self.addon
         tier = self._ready_to_claim()
         before = copy.deepcopy(dict(addon.player_data))
+        claim_id = diary_lamp_claim_id(tier.id)
 
         addon.commit_direct_action(
             lambda current: apply_achievement_diary_command_pure(
-                current, "claim_tier", {"tier_id": tier.id, "lamp_skill": "mining"}
+                current, "claim_tier", {"tier_id": tier.id}
             )[:2]
         )
-        self.assertGreater(
-            float(addon.player_data["mining_exp"]), float(before.get("mining_exp", 0))
+        self.assertEqual(addon.player_data["mining_exp"], before["mining_exp"])
+        self.assertEqual(
+            claim_locked_reasons_pure(addon.player_data, claim_id, addon.CLAIM_DATA),
+            (),
         )
 
         snapshot = addon._DIRECT_ACTION_UNDO_STACK.pop()["player_data"]
@@ -295,12 +302,45 @@ class DiaryUndoSeamTest(unittest.TestCase):
         addon.player_data.update(snapshot)
 
         self.assertFalse(addon.player_data["inventory"].get("Ardougne cloak 1"))
+        self.assertEqual(addon.player_data["mining_exp"], before["mining_exp"])
+        self.assertEqual(addon.player_data["achievement_diaries"]["claimed_tiers"], [])
         self.assertEqual(
-            float(addon.player_data["mining_exp"]), float(before.get("mining_exp", 0))
+            claim_locked_reasons_pure(addon.player_data, claim_id, addon.CLAIM_DATA),
+            ("diary tier",),
         )
+
+    def test_spending_the_bank_lamp_is_an_undoable_direct_action(self):
+        from ankiscape.logic.achievement_diary_logic import (
+            apply_achievement_diary_command_pure,
+        )
+
+        addon = self.addon
+        tier = self._ready_to_claim()
+        claim_id = diary_lamp_claim_id(tier.id)
+        addon.commit_direct_action(
+            lambda current: apply_achievement_diary_command_pure(
+                current, "claim_tier", {"tier_id": tier.id}
+            )[:2]
+        )
+        before_spend = copy.deepcopy(dict(addon.player_data))
+        depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+
+        self.assertTrue(addon.on_claim_reward(claim_id, "mining"))
+
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth + 1)
         self.assertEqual(
-            addon.player_data["achievement_diaries"]["claimed_tiers"], []
+            addon.player_data["mining_exp"] - before_spend["mining_exp"],
+            float(tier.lamp.experience),
         )
+        self.assertTrue(addon.player_data["claims"][claim_id]["claimed"])
+
+        snapshot = addon._DIRECT_ACTION_UNDO_STACK.pop()["player_data"]
+        addon.player_data.clear()
+        addon.player_data.update(snapshot)
+        self.assertEqual(addon.player_data["mining_exp"], before_spend["mining_exp"])
+        self.assertFalse(addon.player_data["claims"][claim_id]["claimed"])
+        self.assertIn(tier.id, addon.player_data["achievement_diaries"]["claimed_tiers"])
+        self.assertEqual(addon.player_data["inventory"].get(tier.reward_item), 1)
 
     def test_a_refused_claim_writes_nothing(self):
         from ankiscape.logic.achievement_diary_logic import (

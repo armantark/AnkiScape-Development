@@ -103,10 +103,10 @@ def _activity_session_writer_ids():
 
 
 class TestStoragePure(unittest.TestCase):
-    def test_previous_schema_preserves_tools_previously_auto_resolved_from_bank(self):
+    def test_pre_toolbelt_ceremony_schema_preserves_auto_resolved_bank_tools(self):
         migrated = migrate_loaded_data(
             {
-                "config_version": CURRENT_CONFIG_VERSION - 1,
+                "config_version": 105,
                 "inventory": {
                     "Rune pickaxe": 1,
                     "Rune hatchet": 1,

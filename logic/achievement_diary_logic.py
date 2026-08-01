@@ -19,7 +19,6 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from ..core.skill_registry import trainable_skill_definitions
 from ..data.achievement_diary_data import (
     ACHIEVEMENT_DIARY_CATALOG,
     BASE_CONDITION_KINDS,
@@ -27,9 +26,9 @@ from ..data.achievement_diary_data import (
     DiaryFamily,
     DiaryTask,
     DiaryTier,
+    diary_lamp_claim_id,
 )
 from ..data.summoning_data import SUMMONING_ACTION_IDS_BY_FAMILY
-from ..logic_pure.logic_pure_quest import _apply_skill_xp_reward
 from .achievement_diary_derived import (  # noqa: F401  (re-export)
     DIARY_DERIVED_VALUE_CEILINGS,
     DIARY_DERIVED_VALUES,
@@ -429,28 +428,14 @@ def tier_claim_state_pure(
     }
 
 
-def _lamp_choice_required(tier: DiaryTier) -> bool:
-    return tier.lamp is not None and len(tier.lamp.skills) != 1
-
-
-def _trainable_skill_ids() -> tuple[str, ...]:
-    return tuple(skill.id for skill in trainable_skill_definitions())
-
-
-def lamp_skill_options_pure(
-    player_data: Mapping[str, Any], tier: DiaryTier
-) -> tuple[str, ...]:
-    """Skills the tier's lamp may legally be pointed at, minimum level enforced."""
-
-    lamp = tier.lamp
-    if lamp is None:
-        return ()
-    candidates = lamp.skills or _trainable_skill_ids()
-    return tuple(
-        skill_id
-        for skill_id in candidates
-        if _int(player_data.get(f"{skill_id}_level", 1), 1) >= max(1, lamp.minimum_level)
-    )
+def _create_tier_lamp_claim(data: dict[str, Any], tier: DiaryTier) -> str:
+    if tier.lamp is None:
+        return ""
+    claim_id = diary_lamp_claim_id(tier.id)
+    claims = dict(_mapping(data.get("claims")))
+    claims.setdefault(claim_id, {"claimed": False})
+    data["claims"] = claims
+    return claim_id
 
 
 def claim_diary_tier_pure(
@@ -459,8 +444,9 @@ def claim_diary_tier_pure(
     *,
     lamp_skill: str = "",
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    """One atomic claim: equipment grant or upgrade, then the sourced lamp."""
+    """Grant or upgrade equipment and place the sourced lamp in Bank Claims."""
 
+    del lamp_skill  # Kept for save/UI call compatibility; lamps are spent in Bank.
     found = diary_tier_by_id_pure(tier_id)
     if found is None:
         return dict(player_data), False, {"reason": "Unknown diary tier."}
@@ -478,43 +464,30 @@ def claim_diary_tier_pure(
             {"reason": f"Claim {claim_state['blocked_by']} before {tier.name}."},
         )
 
-    options = lamp_skill_options_pure(data, tier)
-    chosen = ""
-    if tier.lamp is not None:
-        if not options:
-            return (
-                data,
-                False,
-                {"reason": f"No skill meets the lamp's level {tier.lamp.minimum_level} minimum."},
-            )
-        chosen = lamp_skill if lamp_skill in options else (options[0] if len(options) == 1 else "")
-        if not chosen:
-            return (
-                data,
-                False,
-                {"reason": "Choose the skill for this tier's lamp.", "lamp_options": options},
-            )
-
     data = _grant_tier_item(data, family, tier)
-    if tier.lamp is not None:
-        _apply_skill_xp_reward(data, chosen, float(tier.lamp.experience))
+    lamp_claim_id = _create_tier_lamp_claim(data, tier)
 
     state = _state(data)
     state["claimed_tiers"] = list(state["claimed_tiers"]) + [tier.id]
     data["achievement_diaries"] = state
     granted = tier_reward_names_pure(tier)
+    message = (
+        f"{family.name}: {tier.name} claimed. {_join(granted)} is yours."
+        if granted
+        else f"{family.name}: {tier.name} claimed."
+    )
+    if tier.lamp is not None:
+        message += (
+            f" A {tier.lamp.experience:,} XP reward lamp is waiting in Bank Claims."
+        )
     return (
         data,
         True,
         {
-            "message": (
-                f"{family.name}: {tier.name} claimed. {_join(granted)} is yours."
-                if granted
-                else f"{family.name}: {tier.name} claimed."
-            ),
+            "message": message,
             "item": tier.reward_item,
             "items": granted,
-            "lamp_skill": chosen,
+            "lamp_claim_id": lamp_claim_id,
             "lamp_experience": tier.lamp.experience if tier.lamp else 0,
         },
     )
@@ -738,10 +711,14 @@ def achievement_cabinet_view_pure(
                     "reward_summary": tier.reward_summary,
                     "lamp": (
                         {
+                            "claim_id": diary_lamp_claim_id(tier.id),
                             "experience": tier.lamp.experience,
                             "minimum_level": tier.lamp.minimum_level,
-                            "choice_required": _lamp_choice_required(tier),
-                            "options": lamp_skill_options_pure(player_data, tier),
+                            "description": (
+                                f"A {tier.lamp.experience:,} XP reward lamp for an"
+                                f" eligible level {tier.lamp.minimum_level}+ skill will"
+                                " be placed in Bank Claims."
+                            ),
                         }
                         if tier.lamp is not None
                         else None

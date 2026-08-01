@@ -154,6 +154,51 @@ from .achievement_diary_catalog import (  # noqa: E402  (avoids a cycle at impor
 ACHIEVEMENT_DIARY_CATALOG: Tuple[DiaryFamily, ...] = DIARY_FAMILIES
 
 
+def diary_lamp_claim_id(tier_id: str) -> str:
+    return f"achievement_diary_{tier_id}_xp_lamp"
+
+
+DIARY_LAMP_CLAIM_IDS_BY_TIER = {
+    tier.id: diary_lamp_claim_id(tier.id)
+    for family in ACHIEVEMENT_DIARY_CATALOG
+    for tier in family.tiers
+    if tier.lamp is not None
+}
+
+
+def diary_lamp_claims_as_dict() -> dict[str, dict[str, Any]]:
+    """Bank Claim rows created by regional diary tier claims."""
+
+    claims: dict[str, dict[str, Any]] = {}
+    for family in ACHIEVEMENT_DIARY_CATALOG:
+        for tier in family.tiers:
+            lamp = tier.lamp
+            if lamp is None:
+                continue
+            claim_id = diary_lamp_claim_id(tier.id)
+            claims[claim_id] = {
+                "id": claim_id,
+                "display_name": (
+                    f"{family.name} {tier.name}: reward lamp"
+                    f" ({lamp.experience:,} XP)"
+                ),
+                "claim_type": "xp_lamp",
+                "item_name": "Reward lamp",
+                "quantity": 1,
+                "items": (),
+                "source": tier.source or family.source,
+                "required_quest": "",
+                "required_runecrafting_level": 0,
+                "required_diary_tier": tier.id,
+                "xp_amount": float(lamp.experience),
+                # Empty is the established Bank Claim representation for any
+                # trainable skill; the claims logic expands it at render/spend time.
+                "skill_options": lamp.skills,
+                "minimum_level": lamp.minimum_level,
+            }
+    return claims
+
+
 def _assert_derived_values_are_registered() -> None:
     """A ``derived_value`` typo must be an ImportError, never a silent row.
 

@@ -133,6 +133,20 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
     if required_level > 1 and _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
         reasons.append(f"Runecrafting level {required_level}")
+    required_diary_tier = claim.get("required_diary_tier")
+    if isinstance(required_diary_tier, str) and required_diary_tier:
+        diary_state = player_data.get("achievement_diaries", {})
+        claimed_tiers = (
+            diary_state.get("claimed_tiers", ())
+            if isinstance(diary_state, Mapping)
+            else ()
+        )
+        if (
+            not isinstance(claimed_tiers, Iterable)
+            or isinstance(claimed_tiers, (str, bytes, Mapping))
+            or required_diary_tier not in claimed_tiers
+        ):
+            reasons.append("diary tier")
     return tuple(reasons)
 
 
@@ -162,6 +176,13 @@ def _claim_bundle_items(claim):
     return tuple(items)
 
 
+def _claim_skill_options(claim):
+    configured = tuple(claim.get("skill_options", ()) or ())
+    if configured:
+        return configured
+    return tuple(skill.id for skill in trainable_skill_definitions())
+
+
 def claim_rows_pure(player_data, claim_data):
     rows = []
     for claim_id, claim in claim_data.items():
@@ -178,7 +199,11 @@ def claim_rows_pure(player_data, claim_data):
                 "quantity": _positive_int(claim.get("quantity", 1), 1),
                 "items": items,
                 "xp_amount": float(claim.get("xp_amount", 0) or 0),
-                "skill_options": tuple(claim.get("skill_options", ()) or ()),
+                "skill_options": (
+                    _claim_skill_options(claim)
+                    if claim.get("claim_type") == "xp_lamp"
+                    else ()
+                ),
                 "minimum_level": _positive_int(claim.get("minimum_level", 1), 1),
                 "eligible": eligible,
                 "claimed": claimed,
@@ -206,8 +231,8 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
         skill_id = selected_skill_id
         if not isinstance(skill_id, str):
             return player_data, False
-        skill_options = tuple(claim.get("skill_options", ()) or ())
-        if skill_options and skill_id not in skill_options:
+        skill_options = _claim_skill_options(claim)
+        if skill_id not in skill_options:
             return player_data, False
         minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
         if _skill_level_for_reward(player_data, skill_id) < minimum_level:
