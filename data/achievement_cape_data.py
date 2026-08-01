@@ -268,6 +268,7 @@ class CompletionistRequirement:
     predicate_kind: str = "counter"
     counter_path: tuple[str, ...] = ()
     threshold: int = 1
+    accepted_values: tuple[str, ...] = ()
     source: str = COMPLETIONIST_SOURCE
 
 
@@ -314,14 +315,38 @@ COMPLETIONIST_REQUIREMENTS: tuple[CompletionistRequirement, ...] = (
     CompletionistRequirement("ancient_cavern_notes", "Find every barbarian note in the Ancient Cavern", "Ancient Cavern", "trimmed"),
     CompletionistRequirement("artisans_workshop", "Unlock every Artisans' Workshop reward", "Artisans' Workshop", "trimmed"),
     CompletionistRequirement("circus_clothing", "Obtain every piece of circus clothing", "Circus", "trimmed"),
-    CompletionistRequirement("dahmaroc_statue", "Complete the Dahmaroc statue in the player-owned house", "Shattered Heart", "trimmed"),
+    CompletionistRequirement(
+        "dahmaroc_statue",
+        "Complete the Dahmaroc statue in the player-owned house",
+        "Shattered Heart",
+        "trimmed",
+        "collection_count",
+        ("shattered_heart", "replica_pairs_added"),
+        15,
+    ),
     CompletionistRequirement("scroll_of_life", "Unlock the Scroll of life ability", "Dungeoneering rewards", "trimmed"),
     CompletionistRequirement("scroll_of_cleansing", "Unlock the Scroll of cleansing ability", "Dungeoneering rewards", "trimmed"),
     CompletionistRequirement("scroll_of_efficiency", "Unlock the Scroll of efficiency ability", "Dungeoneering rewards", "trimmed"),
     CompletionistRequirement("vyre_title", "Earn the Vyrelord or Vyrelady title", "Branches of Darkmeyer", "trimmed"),
-    CompletionistRequirement("dominion_tower_top", "Visit the top of Dominion Tower after completing every achievement", "Dominion Tower", "trimmed"),
+    CompletionistRequirement(
+        "dominion_tower_top",
+        "Visit the top of Dominion Tower after completing every achievement",
+        "Dominion Tower",
+        "trimmed",
+        "counter",
+        ("dominion_tower", "marker_stage"),
+        4,
+    ),
     CompletionistRequirement("zaros_symbol", "Make the Zaros symbol in Char's training cave", "The Firemaker's Curse", "trimmed"),
-    CompletionistRequirement("sunfreet", "Kill Sunfreet in Dominion Tower", "Dominion Tower", "trimmed"),
+    CompletionistRequirement(
+        "sunfreet",
+        "Kill Sunfreet in Dominion Tower",
+        "Dominion Tower",
+        "trimmed",
+        "contains_any",
+        ("dominion_tower", "specials_done"),
+        accepted_values=("the_fire_it_burns", "the_fire_it_burns_easy"),
+    ),
     CompletionistRequirement("runespan_esteem", "Reach rank 1 Esteem in Runespan", "Runespan", "trimmed"),
     CompletionistRequirement("song_from_depths_rewards", "Obtain the Song from the Depths hidden rewards", "Song from the Depths", "trimmed"),
     CompletionistRequirement("dragonkin_journals", "Acquire every dragonkin journal", "Queen Black Dragon", "trimmed"),

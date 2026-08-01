@@ -43,6 +43,7 @@ from ankiscape.data.achievement_cape_data import (
 )
 from ankiscape.data.music_log_data import MUSIC_TRACKS
 from ankiscape.data.quest_data import QUESTS
+from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS
 from ankiscape.logic.achievement_diary_logic import (
     achievement_cabinet_view_pure,
     apply_achievement_diary_command_pure,
@@ -391,6 +392,11 @@ def _completionist_ready(player: dict) -> dict:
     stronghold = dict(player["stronghold_of_security"])
     stronghold["completed"] = True
     player["stronghold_of_security"] = stronghold
+    player["shattered_heart"]["replica_pairs_added"] = [
+        skill.id for skill in SHATTERED_HEART_SKILLS
+    ]
+    player["dominion_tower"]["marker_stage"] = 4
+    player["dominion_tower"]["specials_done"] = ["the_fire_it_burns_easy"]
     player, ok, info = enter_conquest_pure(player)
     assert ok, info
     player["music_log"] = {
@@ -424,6 +430,26 @@ class CompletionistRegistryTest(unittest.TestCase):
         rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
         self.assertFalse(rows["fight_kiln"]["latent"])
         self.assertTrue(rows["fight_kiln"]["met"])
+
+    def test_shipped_feature_counters_activate_without_cape_logic_edits(self):
+        player = _player()
+        rows = {
+            row["id"]: row for row in cape_view_pure(player)["trimmed_completionist"]
+        }
+        for row_id in ("dahmaroc_statue", "dominion_tower_top", "sunfreet"):
+            self.assertFalse(rows[row_id]["latent"], row_id)
+            self.assertFalse(rows[row_id]["met"], row_id)
+
+        player["shattered_heart"]["replica_pairs_added"] = [
+            skill.id for skill in SHATTERED_HEART_SKILLS
+        ]
+        player["dominion_tower"]["marker_stage"] = 4
+        player["dominion_tower"]["specials_done"] = ["the_fire_it_burns_easy"]
+        rows = {
+            row["id"]: row for row in cape_view_pure(player)["trimmed_completionist"]
+        }
+        for row_id in ("dahmaroc_statue", "dominion_tower_top", "sunfreet"):
+            self.assertTrue(rows[row_id]["met"], row_id)
 
     def test_the_live_castle_wars_counter_gates_the_authentic_trim_scale(self):
         player = _player(castle_wars_games_played=4_999)
@@ -493,14 +519,8 @@ class PrestigeCapeTest(unittest.TestCase):
         player = _wear(player, "Quest point cape")
         self.assertEqual(player["equipment"]["cape"], "Quest point cape")
 
-    def test_unfinished_miniquests_do_not_hold_back_the_quest_capes(self):
-        """The catalog's miniquest rows are not quests, and must not count.
-
-        The Completionist source lists quests and miniquests as two separate
-        requirements, so a player who has finished every quest earns the Quest
-        point cape and clears the Completionist's quest row with both miniquests
-        still untouched.
-        """
+    def test_capers_gate_completionist_but_not_the_quest_point_cape(self):
+        """The frozen Completionist quest row includes capers; the quest cape does not."""
         miniquests = tuple(quest.id for quest in QUESTS if quest.miniquest)
         self.assertTrue(miniquests, "the catalog carries no miniquest rows")
 
@@ -509,7 +529,7 @@ class PrestigeCapeTest(unittest.TestCase):
             player["quests"][quest_id]["completed"] = False
 
         rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
-        self.assertTrue(rows["quests"]["met"])
+        self.assertFalse(rows["quests"]["met"])
 
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
         player, ok, info = _buy(player, "quest_point")
@@ -552,7 +572,7 @@ class PrestigeCapeTest(unittest.TestCase):
             self.assertEqual(player["equipment"]["cape"], cape.cape)
 
     def test_completionist_music_uses_the_full_cutoff_catalog(self):
-        player = _maxed(_all_quests_done(_player()))
+        player = _completionist_maxed(_all_quests_done(_player()))
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["completionist"].price}
         diaries = dict(player["achievement_diaries"])
         diaries["taskmaster"] = True
