@@ -181,17 +181,23 @@ class ReviewStripTest(unittest.TestCase):
         self.assertFalse(self.ui._DND_BADGE.badge.isVisible())
         self.assertFalse(self.ui._FARMING_BADGE.badge.isVisible())
 
-    def test_dnd_counts_world_events_without_polluting_farming(self) -> None:
+    def test_dnd_counts_only_opted_in_world_events_without_polluting_farming(self) -> None:
         state = _live_star(self._state())
-        rows = self.ui._world_event_rows(state)
         self.ui.update_review_status_badge(state)
         for _ in range(3):
             QApplication.processEvents()
 
-        self.assertEqual(self.ui._DND_BADGE.badge.text(), str(len(rows)))
+        self.assertFalse(self.ui._DND_BADGE.badge.isVisible())
+        self.assertIn("Notification set is empty", self.ui._DND_BADGE.toolTip())
         self.assertFalse(self.ui._FARMING_BADGE.badge.isVisible())
-        for _activity_id, text in rows:
-            self.assertIn(text, self.ui._DND_BADGE.toolTip())
+
+        state["dnd_favourites"] = ["shooting_stars"]
+        self.ui.update_review_status_badge(state)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        self.assertEqual(self.ui._DND_BADGE.badge.text(), "1")
+        self.assertIn("stardust", self.ui._DND_BADGE.toolTip())
 
     def test_farming_renders_crops_and_queue_without_polluting_dnd(self) -> None:
         from ankiscape.logic.farming_logic import add_farm_queue_step_pure
@@ -260,32 +266,33 @@ class ReviewStripTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(opened, ["falador_allotment_north", None])
 
-    def test_dnd_popover_keeps_live_and_watched_navigation(self) -> None:
-        from ankiscape.data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+    def test_active_fish_flingers_notification_opens_status_and_navigates(self) -> None:
+        from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
 
         opened: list = []
-        state = _live_star(self._state())
-        state["dnd_favourites"] = [TEARS_OF_GUTHIX_ACTIVITY_ID]
+        state = self._state()
+        state["dnd_favourites"] = [FISH_FLINGERS_ACTIVITY_ID]
+        state["current_utility"] = FISH_FLINGERS_ACTIVITY_ID
+        state["activity_session"] = {"active_id": FISH_FLINGERS_ACTIVITY_ID}
         self.ui.update_review_status_badge(
             state, lambda activity_id=None: opened.append(activity_id), None
         )
+        self.assertEqual(self.ui._DND_BADGE.badge.text(), "1")
+
         self.ui._DND_BADGE.button.click()
         for _ in range(4):
             QApplication.processEvents()
 
         rows = self.ui._STATUS_POPOVER.findChild(QListWidget, "reviewStatusList")
-        labels = [rows.item(index).text() for index in range(rows.count())]
-        self.assertTrue(any("Shooting Stars" in label for label in labels))
-        watched = [
-            index
-            for index in range(rows.count())
-            if rows.item(index).data(Qt.ItemDataRole.UserRole)
-            == TEARS_OF_GUTHIX_ACTIVITY_ID
-        ]
-        self.assertEqual(len(watched), 1)
-        rows.itemActivated.emit(rows.item(watched[0]))
+        self.assertEqual(rows.count(), 1)
+        self.assertEqual(rows.item(0).text(), "Fish Flingers · Active session")
+        self.assertEqual(
+            rows.item(0).data(Qt.ItemDataRole.UserRole),
+            FISH_FLINGERS_ACTIVITY_ID,
+        )
+        rows.itemActivated.emit(rows.item(0))
         QApplication.processEvents()
-        self.assertEqual(opened, [TEARS_OF_GUTHIX_ACTIVITY_ID])
+        self.assertEqual(opened, [FISH_FLINGERS_ACTIVITY_ID])
 
     def test_hide_lifecycle_closes_popovers_and_removes_both_seats(self) -> None:
         state = self._state()

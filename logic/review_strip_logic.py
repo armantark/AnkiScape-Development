@@ -547,14 +547,20 @@ def review_status_badges_view_pure(
     """
 
     favourites = sanitize_dnd_favourites_pure(player_data.get("dnd_favourites"))
-    live_rows = world_event_rows_pure(player_data)
+    favourite_set = set(favourites)
     live_by_id: dict[str, list[str]] = {}
-    for activity_id, text in live_rows:
-        live_by_id.setdefault(activity_id, []).append(text)
-    quiet_favourites = [
+    if favourites:
+        for activity_id, text in world_event_rows_pure(player_data):
+            if activity_id in favourite_set:
+                live_by_id.setdefault(activity_id, []).append(text)
+    session = player_data.get("activity_session")
+    active_session_id = str(
+        session.get("active_id", "") if isinstance(session, Mapping) else ""
+    )
+    metadata_favourites = [
         activity_id
         for activity_id in favourites
-        if activity_id not in live_by_id
+        if activity_id not in live_by_id and activity_id != active_session_id
     ]
     rows_by_id: dict[str, Any] = (
         {
@@ -568,31 +574,42 @@ def review_status_badges_view_pure(
                 QUEST_UNLOCK_RULES,
             )
         }
-        if quiet_favourites
+        if metadata_favourites
         else {}
     )
 
     distraction_rows: list[dict[str, Any]] = []
-    for activity_id, text in live_rows:
+    for activity_id in favourites:
+        live_statuses = live_by_id.get(activity_id, ())
+        if live_statuses:
+            for text in live_statuses:
+                distraction_rows.append({
+                    "activity_id": activity_id,
+                    "name": dnd_activity_display_name_pure(activity_id),
+                    "status": text,
+                    "live": True,
+                    "favourite": True,
+                })
+            continue
+        session_active = active_session_id == activity_id
         distraction_rows.append({
             "activity_id": activity_id,
             "name": dnd_activity_display_name_pure(activity_id),
-            "status": text,
-            "live": True,
-            "favourite": activity_id in favourites,
-        })
-    for activity_id in quiet_favourites:
-        distraction_rows.append({
-            "activity_id": activity_id,
-            "name": dnd_activity_display_name_pure(activity_id),
-            "status": _quiet_favourite_status_pure(rows_by_id.get(activity_id)),
-            "live": False,
+            "status": (
+                "Active session"
+                if session_active
+                else _quiet_favourite_status_pure(rows_by_id.get(activity_id))
+            ),
+            "live": session_active,
             "favourite": True,
         })
     distraction_count = sum(1 for row in distraction_rows if row["live"])
+    empty_dnd_text = (
+        "Notification set is empty. Right-click any D&D to add it."
+    )
     distraction_tooltip = "\n".join(
         f"{row['name']} · {row['status']}" for row in distraction_rows
-    ) or "Nothing live. Pin a Distraction to watch it here."
+    ) or empty_dnd_text
 
     farming = farming_frontend_projection_pure(player_data)
     farming_rows: list[dict[str, Any]] = []
@@ -623,7 +640,7 @@ def review_status_badges_view_pure(
             "queued_count": 0,
             "queue_visible": False,
             "tooltip": distraction_tooltip,
-            "empty_text": "Nothing live. Pin a Distraction to watch it here.",
+            "empty_text": empty_dnd_text,
             "open_full_visible": False,
         },
         "farming": {

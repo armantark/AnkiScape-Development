@@ -9442,6 +9442,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(button.text(), "Select active event")
 
     def test_activity_tree_context_menu_adds_and_removes_a_distraction(self) -> None:
+        from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
         from ankiscape.data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
         from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure
 
@@ -9496,6 +9497,24 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertEqual(pd["dnd_favourites"], [SHOOTING_STAR_ACTIVITY_ID])
 
             menu = _open_row_menu(SHOOTING_STAR_ACTIVITY_ID)
+            self.assertIsNotNone(menu)
+            action = menu.actions()[0]
+            self.assertEqual(action.text(), "Remove from notifications")
+            action.trigger()
+            for _ in range(4):
+                QApplication.processEvents()
+            self.assertEqual(pd["dnd_favourites"], [])
+
+            menu = _open_row_menu(FISH_FLINGERS_ACTIVITY_ID)
+            self.assertIsNotNone(menu)
+            action = menu.actions()[0]
+            self.assertEqual(action.text(), "Add to notifications")
+            action.trigger()
+            for _ in range(4):
+                QApplication.processEvents()
+            self.assertEqual(pd["dnd_favourites"], [FISH_FLINGERS_ACTIVITY_ID])
+
+            menu = _open_row_menu(FISH_FLINGERS_ACTIVITY_ID)
             self.assertIsNotNone(menu)
             action = menu.actions()[0]
             self.assertEqual(action.text(), "Remove from notifications")

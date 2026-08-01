@@ -324,8 +324,13 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 103
+CURRENT_CONFIG_VERSION = 104
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+_LEGACY_DEFAULT_DND_FAVOURITES = {
+    "big_chinchompa",
+    "evil_tree",
+    "shooting_stars",
+}
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
 # Saves that still point at one migrate back to the default activity.
@@ -1960,6 +1965,17 @@ def migrate_loaded_data(
     # Surok and The Lair of Tarn Razorlor. They are ordinary quest rows, so
     # `_migrate_quest_state` above already adds their unstarted state to every
     # existing save; nothing else in the payload changes.
+    # v104: D&D notifications become strictly opt-in. Remove the three old
+    # reviewer-clock defaults while preserving any other Distractions the player
+    # deliberately added to the set.
+    if loaded_config_version < 104:
+        data["dnd_favourites"] = [
+            activity_id
+            for activity_id in sanitize_dnd_favourites_pure(
+                data.get("dnd_favourites")
+            )
+            if activity_id not in _LEGACY_DEFAULT_DND_FAVOURITES
+        ]
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
