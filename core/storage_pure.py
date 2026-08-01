@@ -329,7 +329,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 107
+CURRENT_CONFIG_VERSION = 108
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -468,6 +468,18 @@ def _sanitize_thieving_state(data: Dict[str, Any]) -> None:
     data["thieving_blackjack_picks_remaining"] = picks
 
 
+_V108_DIARY_OUTPUT_SEED_ITEMS = {
+    "woodcutting": {"Bark"},
+    "runecrafting": {"Mind tiara"},
+    "smithing": {"Steel longsword", "Blurite limbs"},
+    "crafting": {"Clay ring", "Vial", "Bow string", "Air battlestaff"},
+    "construction": {"Varrock teleport tablet"},
+    "cooking": {"Lobster", "Bass", "Rocktail", "Cheese wheel", "Thin snail meat"},
+    "herblore": {"Ranging mix (2)"},
+    "utility": {"Raw manta ray"},
+}
+
+
 def _achievement_seed_items() -> Dict[str, set[str]]:
     herblore_items: set[str] = set(HERBLORE_FINISHED_OUTPUT_ITEMS)
     for item_name in HERBLORE_FINISHED_OUTPUT_ITEMS:
@@ -481,7 +493,7 @@ def _achievement_seed_items() -> Dict[str, set[str]]:
         herblore_items.update(f"{base} ({dose})" for dose in range(1, max_dose + 1))
         flask_base = base.replace(" potion", "")
         herblore_items.update(f"{flask_base} flask ({dose})" for dose in range(1, 7))
-    return {
+    seed_items = {
         "mining": set(MINING_OUTPUT_ITEMS) | set(GEM_DATA),
         "woodcutting": set(WOODCUTTING_LOG_ITEMS),
         "runecrafting": set(RUNECRAFTING_RUNE_OUTPUT_ITEMS),
@@ -493,6 +505,9 @@ def _achievement_seed_items() -> Dict[str, set[str]]:
         "prayer": {"Ecto-token"},
         "agility": {"Agility arena ticket"},
     }
+    for skill_id, item_names in _V108_DIARY_OUTPUT_SEED_ITEMS.items():
+        seed_items.setdefault(skill_id, set()).update(item_names)
+    return seed_items
 
 
 def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
@@ -527,6 +542,52 @@ def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
                     )
                     record["outputs"][item_name] = max(record["outputs"].get(item_name, 0), held)
     data["achievement_progress"] = sanitize_achievement_progress_pure(progress)
+
+
+def _seed_v108_diary_output_holdings(data: Dict[str, Any]) -> None:
+    """Seed only outputs that become achievement-relevant in config v108."""
+
+    progress = sanitize_achievement_progress_pure(data.get("achievement_progress"))
+    inventory = data.get("inventory", {}) or {}
+    if isinstance(inventory, dict):
+        for skill_id, item_names in _V108_DIARY_OUTPUT_SEED_ITEMS.items():
+            record = progress["skills"].setdefault(
+                skill_id,
+                {"actions": {}, "outputs": {}},
+            )
+            outputs = record["outputs"]
+            for item_name in item_names:
+                try:
+                    held = max(0, int(inventory.get(item_name, 0) or 0))
+                except (TypeError, ValueError):
+                    held = 0
+                if held:
+                    outputs[item_name] = max(outputs.get(item_name, 0), held)
+    data["achievement_progress"] = progress
+
+
+def _revalidate_v108_diary_deeds(data: Dict[str, Any]) -> None:
+    """Drop superseded gate completions so refresh can re-prove the deeds."""
+
+    from ..data.achievement_diary_data import (
+        ACHIEVEMENT_DIARY_CATALOG,
+        V108_DEED_REVALIDATION_SOURCE_IDS,
+    )
+
+    deed_task_ids = {
+        task.id
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+        if task.source_id in V108_DEED_REVALIDATION_SOURCE_IDS
+    }
+    state = sanitize_achievement_diary_state_pure(data)["achievement_diaries"]
+    state["completed_tasks"] = [
+        task_id
+        for task_id in state["completed_tasks"]
+        if task_id not in deed_task_ids
+    ]
+    data["achievement_diaries"] = state
 
 
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
@@ -2120,6 +2181,14 @@ def migrate_loaded_data(
     # retired during migration rather than paying the same lamp twice.
     if loaded_config_version < 107:
         _migrate_legacy_claimed_diary_lamps(data)
+    # v108 activates ledger-output and exact shop-transaction diary predicates.
+    # Newly relevant held outputs seed once under the semantics contract; the
+    # shop seed preserves durable counters beyond the bounded event history.
+    if loaded_config_version < 108:
+        _revalidate_v108_diary_deeds(data)
+        _seed_v108_diary_output_holdings(data)
+        data.update(migrate_shop_diary_transaction_counts_pure(data))
+        data.update(refresh_achievement_diaries_pure(data)[0])
     # These defaults are required for a new v30-shaped payload assembled outside
     # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

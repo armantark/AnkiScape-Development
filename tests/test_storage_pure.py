@@ -996,6 +996,64 @@ class TestStoragePure(unittest.TestCase):
             {"actions": {}, "outputs": {}},
         )
 
+    def test_v108_seeds_new_deed_outputs_and_preserves_durable_shop_counts(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 107,
+                "inventory": {
+                    "Clay ring": 1,
+                    "Vial": 3,
+                    "Raw manta ray": 1,
+                },
+                "achievement_progress": {
+                    "version": 1,
+                    "skills": {
+                        "crafting": {
+                            "actions": {},
+                            "outputs": {"Clay ring": 0},
+                        }
+                    },
+                },
+                "shop_events": [],
+                "shop_transaction_counts": {"aemads_vial_of_water": 2},
+                "achievement_diaries": {
+                    "version": 1,
+                    "completed_tasks": [
+                        "ardougne_hard_who_wants_to_watch_the_watchtower",
+                        "lumbridge_easy_artisan_crafting",
+                    ],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["achievement_progress"]["skills"]["crafting"]["outputs"],
+            {"Clay ring": 1, "Vial": 3},
+        )
+        self.assertEqual(
+            migrated["achievement_progress"]["skills"]["utility"]["outputs"],
+            {"Raw manta ray": 1},
+        )
+        self.assertEqual(
+            migrated["shop_transaction_counts"], {"aemads_vial_of_water": 2}
+        )
+        completed = migrated["achievement_diaries"]["completed_tasks"]
+        self.assertTrue(
+            {
+                "ardougne_easy_vial_deeds",
+                "ardougne_elite_catching_some_rays",
+                "lumbridge_easy_artisan_crafting",
+                "fremennik_medium_only_takes_a_little_vial",
+            }.issubset(completed)
+        )
+        self.assertNotIn(
+            "ardougne_hard_who_wants_to_watch_the_watchtower",
+            completed,
+        )
+
     def test_migrate_equipment_state_and_removes_owned_equipment(self):
         migrated = migrate_loaded_data(
             {

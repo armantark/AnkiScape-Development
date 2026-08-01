@@ -39,7 +39,7 @@ CONDITION_KINDS: Tuple[str, ...] = (
     "ledger_action_family",  # key: "<skill id>:<family id>", amount: successes
     "counter",             # key: dotted player_data path, amount: threshold
     "combat_kill",         # key: combat target id, amount: lifetime kills
-    "shop_transaction",    # key: "<type>|<shop id>|<row id>", amount: transactions
+    "shop_transaction",    # key: "<type>|<shop id>|<row/action id>", amount: transactions
     "state_equals",        # key: dotted player_data path, expected: exact value
     "hold_item",           # key: item name, amount: quantity held or worn
     "equipped_item",       # key: "<slot>|<item name>", amount: 1
@@ -50,6 +50,18 @@ CONDITION_KINDS: Tuple[str, ...] = (
 # The kinds an ``any_of`` alternative may take: the plain state reads only. A
 # disjunction of disjunctions has no source behind it, and the flat form is what
 # the panel can render.
+# Config v108 changes these stable source rows from requirement gates or dotted
+# counter shims to deed predicates. Migration must re-prove them from durable
+# evidence instead of retaining completion earned under the superseded rule.
+V108_DEED_REVALIDATION_SOURCE_IDS = frozenset({
+    5, 15, 29, 40, 44, 50, 52, 56, 79, 84, 86, 88, 99, 104, 105,
+    108, 109, 110, 112, 113, 114, 125, 134, 139, 152, 165, 171, 175,
+    179, 184, 199, 200, 201, 214, 226, 230, 232, 243, 246, 247, 250,
+    253, 263, 271, 272, 288, 302, 305, 309, 310, 311, 314, 323, 336,
+    357, 945, 962, 972, 986, 987, 3003, 3004, 3005, 3019,
+})
+
+
 BASE_CONDITION_KINDS: Tuple[str, ...] = (
     "skill_level",
     "quest",
@@ -242,5 +254,6 @@ __all__ = [
     "DiaryLamp",
     "DiaryTask",
     "DiaryTier",
+    "V108_DEED_REVALIDATION_SOURCE_IDS",
     "diary_equipment_data_as_dict",
 ]

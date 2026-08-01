@@ -67,6 +67,19 @@ SHOP_DIARY_TRANSACTION_KEYS = frozenset(
     _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.values()
 )
 
+
+def shop_diary_transaction_counter_key_pure(
+    transaction_type: str, shop_id: str, row_id: str
+) -> str:
+    """Return the approved narrow diary counter for one exact transaction."""
+
+    return (
+        _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.get(
+            (str(transaction_type), str(shop_id), str(row_id))
+        )
+        or ""
+    )
+
 # Bob Barter's ordinary-vial catalog is the live, non-Daemonheim Herblore
 # catalog. Barbarian mixes use two-dose bowls rather than four-dose vials.
 DECANTABLE_FOUR_DOSE_POTION_BASES = tuple(
@@ -195,7 +208,7 @@ def ensure_shop_state_pure(player_data: Mapping[str, Any] | None) -> Dict[str, A
 def migrate_shop_diary_transaction_counts_pure(
     player_data: Mapping[str, Any] | None,
 ) -> Dict[str, Any]:
-    """Seed v90's narrow counters from retained, non-rolled-back shop events."""
+    """Seed narrow counters from retained events without erasing durable totals."""
 
     data = ensure_shop_state_pure(player_data)
     events = data["shop_events"]
@@ -204,13 +217,16 @@ def migrate_shop_diary_transaction_counts_pure(
         for event in events
         if event.get("type") == "rollback"
     }
-    counts: Dict[str, int] = {}
+    retained_counts: Dict[str, int] = {}
     for event in events:
         if str(event.get("event_id", "")) in rolled_back:
             continue
         key = _diary_transaction_key(event)
         if key:
-            counts[key] = counts.get(key, 0) + 1
+            retained_counts[key] = retained_counts.get(key, 0) + 1
+    counts = dict(data.get("shop_transaction_counts", {}) or {})
+    for key, retained in retained_counts.items():
+        counts[key] = max(_clean_int(counts.get(key), 0, minimum=0), retained)
     data["shop_transaction_counts"] = counts
     return data
 
@@ -1703,8 +1719,11 @@ def _diary_transaction_key(event: Mapping[str, Any]) -> str:
         if event_type == "vendor_action"
         else str(event.get("row_id", ""))
     )
-    identity = (event_type, str(event.get("shop_id", "")), detail_id)
-    return _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.get(identity, "")
+    return shop_diary_transaction_counter_key_pure(
+        event_type,
+        str(event.get("shop_id", "")),
+        detail_id,
+    )
 
 
 def _adjust_diary_transaction_count(
