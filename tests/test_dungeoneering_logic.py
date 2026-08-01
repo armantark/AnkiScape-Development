@@ -618,7 +618,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
         self.assertEqual(player["dungeoneering"]["session_inventory"], {})
         self.assertEqual(player["dungeoneering"]["session_coins"], 0)
 
-    def test_optional_guardian_room_enemies_drop_their_coin_share(self):
+    def test_optional_guardian_room_enemies_share_the_exact_coin_total(self):
         player = self._player()
         player["dungeoneering"]["next_seed"] = 7
         player, ok, info = apply_dungeoneering_command_pure(
@@ -632,8 +632,11 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             },
         )
         self.assertTrue(ok, info)
+        guardian_drops = []
 
-        for room_id in (1, 2, 3):
+        for room_id in (1, 2, 3, 9, 4, 5, 6, 7):
+            room = player["dungeoneering"]["session"]["rooms"][room_id]
+            coins_before = player["dungeoneering"]["session_coins"]
             player, ok, info = apply_dungeoneering_command_pure(
                 player,
                 "select_route",
@@ -646,28 +649,18 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
                 equipment_data=EQUIPMENT_DATA,
             )
             self.assertTrue(ok, result)
+            if room["family"] == "guardian":
+                guardian_drops.append(
+                    (
+                        room["critical_path"],
+                        player["dungeoneering"]["session_coins"] - coins_before,
+                    )
+                )
 
-        coins_before = player["dungeoneering"]["session_coins"]
-        player, ok, info = apply_dungeoneering_command_pure(
-            player,
-            "select_route",
-            {"room_id": 9},
-        )
-        self.assertTrue(ok, info)
-        player, ok, result = apply_dungeoneering_review_pure(
-            player,
-            lambda: 0.5,
-            equipment_data=EQUIPMENT_DATA,
-        )
-        self.assertTrue(ok, result)
-        self.assertFalse(
-            player["dungeoneering"]["session"]["rooms"][9]["critical_path"]
-        )
-        self.assertEqual(player["dungeoneering"]["session_coins"] - coins_before, 505)
-        self.assertIn(
-            "guardian enemies dropped 505 Rusty coins",
-            player["dungeoneering"]["last_automation"],
-        )
+        self.assertEqual(len(guardian_drops), 3)
+        self.assertTrue(any(not critical for critical, _drop in guardian_drops))
+        self.assertTrue(all(drop > 0 for _critical, drop in guardian_drops))
+        self.assertEqual(sum(drop for _critical, drop in guardian_drops), 1_010)
 
     def test_live_resource_sale_and_smuggler_purchase_produce_an_ammo_bind_offer(self):
         player = self._enter()
