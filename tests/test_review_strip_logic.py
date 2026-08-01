@@ -377,20 +377,36 @@ class DistractionFavouritesTest(unittest.TestCase):
         reloaded = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
         self.assertEqual(reloaded["dnd_favourites"], [SHOOTING_STAR_ACTIVITY_ID])
 
-    def test_v104_clears_the_old_default_trio_but_keeps_other_opt_ins(self):
-        old = _player()
-        old["config_version"] = 103
-        old["dnd_favourites"] = [
+    def test_v104_drops_implicit_defaults_without_erasing_explicit_pins(self):
+        implicit = _with_live_star(_player())
+        implicit["config_version"] = 103
+        implicit.pop("dnd_favourites", None)
+
+        migrated_implicit = migrate_loaded_data(
+            implicit, ORE_DATA, ITEM_DEFINITIONS
+        )
+
+        self.assertEqual(migrated_implicit["dnd_favourites"], [])
+        self.assertEqual(
+            review_status_badges_view_pure(migrated_implicit)["distractions"][
+                "rows"
+            ],
+            (),
+        )
+
+        explicit = [
             SHOOTING_STAR_ACTIVITY_ID,
             EVIL_TREE_UTILITY_ID,
             BIG_CHINCHOMPA_UTILITY_ID,
             FISH_FLINGERS_ACTIVITY_ID,
         ]
+        implicit["dnd_favourites"] = explicit
+        migrated_explicit = migrate_loaded_data(
+            implicit, ORE_DATA, ITEM_DEFINITIONS
+        )
 
-        migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-
-        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
-        self.assertEqual(migrated["dnd_favourites"], [FISH_FLINGERS_ACTIVITY_ID])
+        self.assertEqual(migrated_explicit["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated_explicit["dnd_favourites"], explicit)
 
 
 class StatusBadgeViewTest(unittest.TestCase):
