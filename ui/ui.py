@@ -4357,6 +4357,7 @@ def show_main_menu(
     on_mage_arena_action=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
+    on_attach_tool=None,
     on_equip_item=None,
     on_unequip_slot=None,
     on_discard_item=None,
@@ -21712,9 +21713,8 @@ def show_main_menu(
                 prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
                 prompt_lbl.setStyleSheet("color: palette(text);")
                 panel_layout.addWidget(prompt_lbl)
-            # A bought hatchet/pickaxe joins the auto-resolved toolbelt on its
-            # own, so an unusable upgrade otherwise looks ignored. Name the gate
-            # on the skill that owns the tool, not only in the Bank.
+            # An attached hatchet/pickaxe can be above the current skill level.
+            # Name that use gate on the skill surface as well as in the Bank.
             gate_label = {"Woodcutting": "Hatchet", "Mining": "Pickaxe"}.get(name)
             if gate_label is not None:
                 blocked = [
@@ -23915,6 +23915,26 @@ def show_main_menu(
             header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
         )
 
+    def _toolbelt_attachment(item_name: str):
+        for skill_id, slot_label, tool_data in (
+            ("mining", "Pickaxe", MINING_PICKAXE_DATA),
+            ("woodcutting", "Hatchet", WOODCUTTING_AXE_DATA),
+        ):
+            for tool_id, spec in tool_data.items():
+                if spec.get("status", "implemented") != "implemented":
+                    continue
+                if str(spec.get("display_name", tool_id)) == item_name:
+                    raw_attached = (player_data.get("toolbelt", {}) or {}).get(skill_id, ())
+                    attached = (
+                        raw_attached == tool_id
+                        if isinstance(raw_attached, str)
+                        else tool_id in raw_attached
+                        if isinstance(raw_attached, (list, tuple, set, frozenset))
+                        else False
+                    )
+                    return skill_id, slot_label, tool_id, attached
+        return None
+
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
 
@@ -23951,6 +23971,28 @@ def show_main_menu(
                     _refresh_equipment_views()
 
             start_trail_action.triggered.connect(_do_start_trail)
+            menu.addSeparator()
+
+        tool_attachment = _toolbelt_attachment(item_name)
+        if tool_attachment is not None:
+            _skill_id, slot_label, _tool_id, attached = tool_attachment
+            attach_action = menu.addAction(
+                f"{slot_label} attached"
+                if attached
+                else f"Attach {item_name} to toolbelt"
+            )
+            attach_action.setObjectName("attachToolbeltAction")
+            attach_action.setEnabled(not attached and on_attach_tool is not None)
+            if attached:
+                attach_action.setToolTip("This tool is already attached.")
+
+            def _do_attach(_checked: bool = False) -> None:
+                if on_attach_tool is None:
+                    return
+                if on_attach_tool(item_name):
+                    _refresh_equipment_views(refresh_visible_skill=True)
+
+            attach_action.triggered.connect(_do_attach)
             menu.addSeparator()
 
         if is_equippable_item(item_name):
@@ -24099,10 +24141,9 @@ def show_main_menu(
     bk_layout.addWidget(bank_list, 1)
 
     # Gear sits in its own pinned panel below the scrollable, striped inventory
-    # (the owner wanted it "outside the striped window"). The toolbelt is
-    # auto-resolved — best owned tool wins — so we show the active
-    # pickaxe/hatchet. Worn equipment now has its own dedicated Equipment tab,
-    # so the Bank panel is toolbelt-only.
+    # (the owner wanted it "outside the striped window"). The toolbelt changes
+    # only through the explicit Bank attach action. Worn equipment now has its
+    # own dedicated Equipment tab, so the Bank panel is toolbelt-only.
     gear_list = QListWidget()
     gear_list.setObjectName("gearList")
     gear_list.setIconSize(QSize(28, 28))
@@ -24139,13 +24180,12 @@ def show_main_menu(
             empty_tb.setFlags(Qt.ItemFlag.NoItemFlags)
             empty_tb.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
             gear_list.addItem(empty_tb)
-        # Owned upgrades the level gate still blocks. Without this the auto-resolved
-        # toolbelt looks like it ignored the purchase.
+        # Attached upgrades stay visible even while their use level is blocked.
         for slot_label, display_name, skill_label, required_level in gear["toolbelt_blocked"]:
             blocked = QListWidgetItem(f"{display_name} — needs {skill_label} {required_level}")
             blocked.setToolTip(
-                f"You own this {slot_label.lower()}, but it needs {skill_label} level "
-                f"{required_level}. It joins your toolbelt automatically at that level."
+                f"This {slot_label.lower()} is attached, but it needs {skill_label} level "
+                f"{required_level} before it becomes active."
             )
             blocked.setForeground(dim_text_color(gear_list))
             blocked.setFlags(Qt.ItemFlag.ItemIsEnabled)
@@ -24159,7 +24199,13 @@ def show_main_menu(
             gear_height += row_height if row_height > 0 else 30
         gear_list.setFixedHeight(gear_height)
 
+    gear_hint = QLabel("Right-click a Bank hatchet or pickaxe to attach it to the toolbelt.")
+    gear_hint.setObjectName("toolbeltAttachHint")
+    gear_hint.setWordWrap(True)
+    gear_hint.setStyleSheet(f"color: {dim_text_css(gear_hint)}; font-size: 10px;")
+    bk_layout.addWidget(gear_hint)
     bk_layout.addWidget(gear_list)
+    _equipment_refreshers.append(_populate_bank_gear_list)
 
     def _build_bank_tab(_ctx) -> QWidget:
         if not bank_state["initialized"]:

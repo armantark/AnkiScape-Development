@@ -1235,6 +1235,48 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_bank_tab(self.dialog)
         self.assertIs(self.dialog.findChild(QListWidget, "bankList"), bank_list)
 
+    def test_bank_toolbelt_attach_action_moves_mithril_hatchet_end_to_end(self) -> None:
+        from ankiscape.core.constants import MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA
+        from ankiscape.logic_pure.logic_pure import attach_tool_to_toolbelt_pure
+
+        pd = _make_player_data()
+        pd["woodcutting_level"] = 1
+        pd["inventory"]["Mithril hatchet"] = 1
+
+        def attach(item_name: str) -> bool:
+            inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+                item_name,
+                pd.get("inventory", {}),
+                pd.get("toolbelt", {}),
+                MINING_PICKAXE_DATA,
+                WOODCUTTING_AXE_DATA,
+            )
+            if attached:
+                pd["inventory"] = inventory
+                pd["toolbelt"] = toolbelt
+            return attached
+
+        dialog = self._open(pd, on_attach_tool=attach)
+        _open_bank_tab(dialog)
+        menu = dialog._ankiscape_equip_menu_for("Mithril hatchet")
+        action = next(
+            candidate
+            for candidate in menu.actions()
+            if candidate.objectName() == "attachToolbeltAction"
+        )
+        self.assertEqual(action.text(), "Attach Mithril hatchet to toolbelt")
+        self.assertTrue(action.isEnabled())
+
+        action.trigger()
+        QApplication.processEvents()
+
+        self.assertNotIn("Mithril hatchet", pd["inventory"])
+        self.assertIn("mithril_hatchet", pd["toolbelt"]["woodcutting"])
+        gear_list = dialog.findChild(QListWidget, "gearList")
+        self.assertTrue(
+            any("Mithril hatchet — needs Woodcutting 21" == text for text in _list_texts(gear_list))
+        )
+
     def test_global_tabs_use_unique_semantic_icons(self) -> None:
         tabs = _find_main_tabs(self.dialog)
         expected = {

@@ -2401,42 +2401,28 @@ def apply_combat_burst_pure(
     return data, True, result
 
 
-def _blocked_toolbelt_rows(label, skill_label, skill_level, inventory, bound_ids, tool_data):
-    """Owned tools of one family the player cannot use yet, weakest gate first."""
+def _blocked_toolbelt_rows(label, skill_label, skill_level, bound_ids, tool_data):
+    """Attached tools of one family the player cannot use yet, weakest gate first."""
     rows: list = []
     for tool_id, spec in tool_data.items():
         if spec.get("status", "implemented") != "implemented":
             continue
         required = _non_negative_int(spec.get("level", 1), 1)
-        if required <= skill_level:
+        if required <= skill_level or tool_id not in bound_ids:
             continue
         display_name = str(spec.get("display_name", tool_id))
-        if tool_id not in bound_ids and _non_negative_int(inventory.get(display_name, 0), 0) <= 0:
-            continue
         rows.append((label, display_name, skill_label, required))
     rows.sort(key=lambda row: (row[3], row[1]))
     return rows
 
 
 def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
-    """Read-only gear summary the Bank tab renders below the inventory.
+    """Read-only Bank summary of explicitly attached and worn gear.
 
-    Why surface the *best owned* tool rather than the raw bound toolbelt id:
-    the toolbelt is auto-resolved (best_*_pure already picks the strongest
-    usable tool from bound ids + bank items), and the owner has decided that
-    binding a tool is "basically a formality." Showing the active tool keeps
-    the bank honest as the player smiths/loots upgrades, without any equip step.
-
-    Worn equipment now lives in player_data["equipment"]. The Bank frontend still
-    uses this read-only summary until the dedicated Equipment tab lands.
-
-    The flip side of auto-resolution is that a freshly bought upgrade looks
-    ignored. A mithril hatchet cannot be *used* to chop below Woodcutting 21, so
-    best_*_pure keeps returning the bronze one and the purchase reads as lost.
-    "toolbelt_blocked" names owned tools whose level gate is not met yet, so the
-    bank explains the gate instead. No claim is made here about whether the
-    period game refused to *bind* an over-level tool; the gate we model is on
-    use, which is the part that matters for what this row displays.
+    Buying or looting a better gathering tool leaves it in the Bank. The active
+    row changes only after the player uses the Bank's attach action. Attached
+    tools above the player's level remain visible in ``toolbelt_blocked`` while
+    the best usable attached tool stays active.
 
     Returns {"toolbelt": [(label, display_name), ...],
              "toolbelt_blocked": [(label, display_name, skill_label, level), ...],
@@ -2466,7 +2452,6 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
                 label,
                 skill_label,
                 _non_negative_int(player_data.get(level_key, 1), 1),
-                inventory,
                 _toolbelt_ids(toolbelt, skill_label.lower()),
                 tool_data,
             )

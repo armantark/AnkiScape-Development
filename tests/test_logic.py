@@ -42,6 +42,7 @@ from ankiscape.logic_pure.logic_pure import (
     apply_mining_action_pure,
     apply_open_bird_nests_pure,
     action_telemetry_key_pure,
+    attach_tool_to_toolbelt_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
     bank_gear_rows_pure,
@@ -1235,9 +1236,21 @@ class TestLogic(unittest.TestCase):
         target = {"low_chance": 32, "high_chance": 100}
 
         bronze = best_woodcutting_axe_pure(50, {}, {"woodcutting": ["bronze_hatchet"]}, axe_data)
-        rune = best_woodcutting_axe_pure(50, {"Rune hatchet": 1}, {"woodcutting": ["bronze_hatchet"]}, axe_data)
+        still_bronze = best_woodcutting_axe_pure(
+            50,
+            {"Rune hatchet": 1},
+            {"woodcutting": ["bronze_hatchet"]},
+            axe_data,
+        )
+        rune = best_woodcutting_axe_pure(
+            50,
+            {},
+            {"woodcutting": ["bronze_hatchet", "rune_hatchet"]},
+            axe_data,
+        )
 
         self.assertEqual(bronze["display_name"], "Bronze hatchet")
+        self.assertEqual(still_bronze["display_name"], "Bronze hatchet")
         self.assertEqual(rune["display_name"], "Rune hatchet")
         self.assertGreater(
             calculate_woodcutting_success_probability_pure(50, target, rune),
@@ -1252,8 +1265,8 @@ class TestLogic(unittest.TestCase):
 
         axe = best_woodcutting_axe_pure(
             61,
-            {"Dragon hatchet": 1, "Inferno adze": 1},
             {},
+            {"woodcutting": ["dragon_hatchet", "inferno_adze"]},
             axe_data,
         )
 
@@ -1389,27 +1402,27 @@ class TestLogic(unittest.TestCase):
         self.assertIsNone(gem2)
         self.assertEqual(new_inv2, inv)
 
-    def test_best_mining_pickaxe_prefers_best_owned_usable_tool(self):
+    def test_best_mining_pickaxe_prefers_best_attached_usable_tool(self):
         pickaxe = best_mining_pickaxe_pure(
             41,
             {"Rune pickaxe": 1, "Inferno adze": 1},
-            {"mining": ["bronze_pickaxe"]},
+            {"mining": ["bronze_pickaxe", "rune_pickaxe", "inferno_adze"]},
             MINING_PICKAXE_DATA,
         )
         self.assertEqual(pickaxe["display_name"], "Inferno adze")
 
         pickaxe = best_mining_pickaxe_pure(
             41,
-            {"Rune pickaxe": 1, "Dragon pickaxe": 1},
-            {"mining": ["bronze_pickaxe"]},
+            {"Dragon pickaxe": 1},
+            {"mining": ["bronze_pickaxe", "rune_pickaxe"]},
             MINING_PICKAXE_DATA,
         )
         self.assertEqual(pickaxe["display_name"], "Rune pickaxe")
 
         pickaxe = best_mining_pickaxe_pure(
             61,
-            {"Rune pickaxe": 1, "Dragon pickaxe": 1},
-            {"mining": ["bronze_pickaxe"]},
+            {},
+            {"mining": ["bronze_pickaxe", "rune_pickaxe", "dragon_pickaxe"]},
             MINING_PICKAXE_DATA,
         )
         self.assertEqual(pickaxe["display_name"], "Dragon pickaxe")
@@ -7109,10 +7122,7 @@ class TestLogic(unittest.TestCase):
 
         self.assertIn("First Fire", newly_completed)
 
-    def test_bank_gear_rows_shows_active_tool_not_just_bound(self):
-        # Owns a rune pickaxe in the bank; only bronze is bound. Since the
-        # toolbelt is auto-resolved, the Bank should surface the rune pickaxe
-        # (the tool actually used) once the player can use it.
+    def test_bank_gear_rows_does_not_auto_replace_from_bank_inventory(self):
         pd = {
             "mining_level": 41,
             "woodcutting_level": 1,
@@ -7122,7 +7132,7 @@ class TestLogic(unittest.TestCase):
         }
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
         pick = dict(gear["toolbelt"])
-        self.assertEqual(pick["Pickaxe"], "Rune pickaxe")
+        self.assertEqual(pick["Pickaxe"], "Bronze pickaxe")
         self.assertEqual(pick["Hatchet"], "Bronze hatchet")
         self.assertEqual(gear["equipped"], [])
 
@@ -7141,15 +7151,31 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(slot, "neck")
         self.assertEqual(name, MINING_BONUS_ITEM_DATA[bonus_id]["display_name"])
 
-    def test_bank_gear_rows_discloses_owned_tool_blocked_by_level(self):
-        # Playtest report: a bought Mithril hatchet "can't go on the toolbelt".
-        # It is owned and auto-resolved, but gated at Woodcutting 21, and nothing
-        # in the UI said so. The bank must name the gate instead of staying silent.
+    def test_manual_attach_moves_mithril_hatchet_from_bank_to_toolbelt(self):
+        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+            "Mithril hatchet",
+            {"Mithril hatchet": 1},
+            {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            MINING_PICKAXE_DATA,
+            WOODCUTTING_AXE_DATA,
+        )
+
+        self.assertTrue(attached)
+        self.assertNotIn("Mithril hatchet", inventory)
+        self.assertEqual(
+            toolbelt["woodcutting"],
+            ["bronze_hatchet", "mithril_hatchet"],
+        )
+
+    def test_bank_gear_rows_discloses_attached_tool_blocked_by_level(self):
         pd = {
             "mining_level": 1,
             "woodcutting_level": 1,
-            "inventory": {"Mithril hatchet": 1},
-            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "inventory": {},
+            "toolbelt": {
+                "mining": ["bronze_pickaxe"],
+                "woodcutting": ["bronze_hatchet", "mithril_hatchet"],
+            },
             "equipment": {},
         }
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
@@ -7157,12 +7183,15 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(dict(gear["toolbelt"])["Hatchet"], "Bronze hatchet")
         self.assertIn(("Hatchet", "Mithril hatchet", "Woodcutting", 21), gear["toolbelt_blocked"])
 
-    def test_bank_gear_rows_blocked_tool_clears_once_level_is_met(self):
+    def test_bank_gear_rows_attached_tool_becomes_active_at_its_level(self):
         pd = {
             "mining_level": 1,
             "woodcutting_level": 21,
-            "inventory": {"Mithril hatchet": 1},
-            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "inventory": {},
+            "toolbelt": {
+                "mining": ["bronze_pickaxe"],
+                "woodcutting": ["bronze_hatchet", "mithril_hatchet"],
+            },
             "equipment": {},
         }
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
@@ -7170,12 +7199,15 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(dict(gear["toolbelt"])["Hatchet"], "Mithril hatchet")
         self.assertEqual(gear["toolbelt_blocked"], [])
 
-    def test_bank_gear_rows_discloses_blocked_pickaxe(self):
+    def test_bank_gear_rows_discloses_blocked_attached_pickaxe(self):
         pd = {
             "mining_level": 1,
             "woodcutting_level": 1,
-            "inventory": {"Rune pickaxe": 1},
-            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "inventory": {},
+            "toolbelt": {
+                "mining": ["bronze_pickaxe", "rune_pickaxe"],
+                "woodcutting": ["bronze_hatchet"],
+            },
             "equipment": {},
         }
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)

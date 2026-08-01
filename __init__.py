@@ -4,7 +4,9 @@ from .core.constants import (
     COMBAT_ENEMY_DATA,
     CONSUMABLE_DATA,
     ORE_DATA,
+    MINING_PICKAXE_DATA,
     TREE_DATA,
+    WOODCUTTING_AXE_DATA,
     BAR_DATA,
     SMITHING_DATA,
     CRAFTING_DATA,
@@ -71,6 +73,7 @@ from .logic_pure.logic_pure import (
     grant_stronghold_reward_pure,
     STRONGHOLD_REWARD_COINS,
     sanitize_review_action_multiplier,
+    attach_tool_to_toolbelt_pure,
     can_equip_item_pure,
     equip_item_pure,
     unequip_item_pure,
@@ -4109,6 +4112,7 @@ def _on_main_menu(
         on_mage_arena_action=_apply_mage_arena_action,
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
+        on_attach_tool=on_attach_tool,
         on_equip_item=on_equip_item,
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
@@ -4513,6 +4517,26 @@ def on_woodcutting_answer():
 
 def on_mining_answer():
     return runtime_actions.handle_mining_answer(_runtime_action_context())
+
+
+def on_attach_tool(item_name):
+    new_inventory, new_toolbelt, attached = attach_tool_to_toolbelt_pure(
+        item_name,
+        player_data.get("inventory", {}) or {},
+        player_data.get("toolbelt", {}) or {},
+        MINING_PICKAXE_DATA,
+        WOODCUTTING_AXE_DATA,
+    )
+    if not attached:
+        show_error_message(
+            "Cannot attach tool",
+            f"You need an unattached {item_name} in your Bank.",
+        )
+        return False
+    player_data["inventory"] = new_inventory
+    player_data["toolbelt"] = new_toolbelt
+    save_player_data()
+    return True
 
 
 def on_equip_item(item_name):
