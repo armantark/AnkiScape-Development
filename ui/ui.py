@@ -23066,6 +23066,12 @@ def show_main_menu(
     bk_layout = QVBoxLayout(bank_tab)
     bk_layout.setContentsMargins(12, 12, 12, 12)
     bk_layout.setSpacing(8)
+    bank_scroll = QScrollArea()
+    bank_scroll.setObjectName("bankTabScroll")
+    bank_scroll.setWidgetResizable(True)
+    bank_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_scroll.setWidget(bank_tab)
     bank_state = {"initialized": False}
 
     # Carried inventory overlay — the 28-slot pack the review loop draws from and
@@ -23586,8 +23592,8 @@ def show_main_menu(
             cell_btn.clicked.connect(_on_cell_clicked)
             grid_layout.addWidget(cell_btn, i // _CARRIED_GRID_COLS, i % _CARRIED_GRID_COLS)
             cell_buttons.append(cell_btn)
-        # Fixed policy + an exact sizeHint-matching size keeps all seven rows real;
-        # the surrounding tab scrolls instead of geometrically crushing the pack.
+        # The exact fixed size keeps all seven rows real while each tab's outer
+        # scroller handles windows shorter than the complete section.
         grid_container.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         _grid_margins = grid_layout.contentsMargins()
         grid_container.setFixedSize(
@@ -24584,7 +24590,7 @@ def show_main_menu(
             _populate_bank_list()
             _populate_bank_gear_list()
             bank_state["initialized"] = True
-        return bank_tab
+        return bank_scroll
 
     _add_deferred_tab(
         "Bank",

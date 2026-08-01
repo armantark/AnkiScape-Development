@@ -3399,12 +3399,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertGreater(columns_at_1200, columns_at_900)
 
         _open_bank_tab(dialog)
+        dialog.resize(720, 540)
         carried_header = dialog.findChild(QPushButton, "carriedInventoryHeader")
         if not carried_header.isChecked():
             carried_header.click()
         for _ in range(6):
             QApplication.processEvents()
+        bank_tab_scroll = dialog.findChild(QScrollArea, "bankTabScroll")
+        self.assertIsNotNone(bank_tab_scroll)
+        self.assertGreater(bank_tab_scroll.verticalScrollBar().maximum(), 0)
+        self.assertEqual(bank_tab_scroll.horizontalScrollBar().maximum(), 0)
+
+        bank_pack_grid = dialog.findChild(QWidget, "carriedLayoutGridBank")
         bank_tab_grid = dialog.findChild(QScrollArea, "carriedBankPickerBank")
+        bank_current_inventory = dialog.findChild(
+            QScrollArea, "carriedCurrentInventoryBank"
+        )
+        self.assertEqual(bank_pack_grid.height(), bank_pack_grid.sizeHint().height())
+        self.assertEqual(bank_tab_grid.height(), bank_pack_grid.height())
+        self.assertEqual(bank_current_inventory.height(), 58)
+
+        def assert_reachable_in_bank_tab(widget: QWidget) -> None:
+            bank_tab_scroll.ensureWidgetVisible(widget, 0, 0)
+            for _ in range(4):
+                QApplication.processEvents()
+            top = widget.mapTo(bank_tab_scroll.viewport(), QPoint(0, 0)).y()
+            visible_height = max(
+                0,
+                min(bank_tab_scroll.viewport().height(), top + widget.height())
+                - max(0, top),
+            )
+            self.assertEqual(visible_height, widget.height(), widget.objectName())
+
+        assert_reachable_in_bank_tab(bank_pack_grid)
+        assert_reachable_in_bank_tab(bank_tab_grid)
+        assert_reachable_in_bank_tab(bank_current_inventory)
+
         bank_tab_buttons = [
             button
             for button in bank_tab_grid.findChildren(QPushButton)
