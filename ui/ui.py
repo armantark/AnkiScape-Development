@@ -4922,12 +4922,6 @@ def show_main_menu(
                 parent.addChild(child)
                 child_items.append(child)
                 if row.current:
-                    current_font = child.font(0)
-                    current_font.setBold(True)
-                    child.setFont(0, current_font)
-                    child.setBackground(
-                        0, QBrush(QColor(76, 175, 80, 76))
-                    )
                     selected_child = child
                     group_has_current = True
             parent.setExpanded(group in expanded_groups or group_has_current)
@@ -23165,6 +23159,67 @@ def show_main_menu(
         "QPushButton:hover { border: 1px solid palette(highlight); }"
     )
 
+    def _set_carried_cell_visual(
+        button: QPushButton,
+        item_name: Optional[str],
+        quantity: int = 0,
+        icon_path: Optional[str] = None,
+    ) -> None:
+        visual = getattr(button, "_ankiscape_carried_cell_visual", None)
+        if visual is None:
+            visual = QWidget(button)
+            visual.setAttribute(
+                Qt.WidgetAttribute.WA_TransparentForMouseEvents, True
+            )
+            visual_layout = QVBoxLayout(visual)
+            visual_layout.setContentsMargins(3, 2, 3, 2)
+            visual_layout.setSpacing(0)
+            icon_label = QLabel()
+            icon_label.setObjectName("carriedCellIcon")
+            icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            caption = QLabel()
+            caption.setObjectName("carriedCellCaption")
+            caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            caption.setWordWrap(True)
+            caption.setStyleSheet(
+                "background: transparent; color: palette(text); font-size: 9px;"
+            )
+            visual_layout.addWidget(icon_label)
+            visual_layout.addWidget(caption, 1)
+            button._ankiscape_carried_cell_visual = (  # type: ignore[attr-defined]
+                visual,
+                icon_label,
+                caption,
+            )
+        else:
+            visual, icon_label, caption = visual
+        visual.setGeometry(button.rect())
+        visual.raise_()
+        button.setText("")
+        button.setIcon(QIcon())
+        icon_label.clear()
+        if not item_name:
+            icon_label.hide()
+            caption.setWordWrap(False)
+            caption.setText("+")
+            return
+        if icon_path:
+            icon_label.show()
+            icon_label.setPixmap(
+                QPixmap(icon_path).scaled(
+                    30,
+                    30,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+            caption.setWordWrap(False)
+            caption.setText(f"×{int(quantity)}")
+            return
+        icon_label.hide()
+        caption.setWordWrap(True)
+        caption.setText(f"{item_name}\n×{int(quantity)}")
+
     def _refresh_carried_layout_grid() -> None:
         for _refresh in carried_grid_refreshers:
             _refresh()
@@ -23204,8 +23259,9 @@ def show_main_menu(
         if get_carried_layout_cells is None:
             return inventory_pure.CARRIED_CAPACITY
         cells = tuple(get_carried_layout_cells())
+        current = sum(int(count) for name, count in cells if name == item_name)
         empty_slots = sum(1 for name, _count in cells if not name)
-        return _current_layout_quantity(item_name) + empty_slots
+        return current + empty_slots
 
     def _prompt_set_pack_quantity(item_name: str, parent=None) -> None:
         """Set one absolute custom-pack quantity, preserving its queue position."""
@@ -23492,67 +23548,6 @@ def show_main_menu(
         _CARRIED_GRID_COLS = 4
         _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
 
-        def _set_cell_visual(
-            button: QPushButton,
-            item_name: Optional[str],
-            quantity: int = 0,
-            icon_path: Optional[str] = None,
-        ) -> None:
-            visual = getattr(button, "_ankiscape_carried_cell_visual", None)
-            if visual is None:
-                visual = QWidget(button)
-                visual.setAttribute(
-                    Qt.WidgetAttribute.WA_TransparentForMouseEvents, True
-                )
-                visual_layout = QVBoxLayout(visual)
-                visual_layout.setContentsMargins(3, 2, 3, 2)
-                visual_layout.setSpacing(0)
-                icon_label = QLabel()
-                icon_label.setObjectName("carriedCellIcon")
-                icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                caption = QLabel()
-                caption.setObjectName("carriedCellCaption")
-                caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                caption.setWordWrap(True)
-                caption.setStyleSheet(
-                    "background: transparent; color: palette(text); font-size: 9px;"
-                )
-                visual_layout.addWidget(icon_label)
-                visual_layout.addWidget(caption, 1)
-                button._ankiscape_carried_cell_visual = (  # type: ignore[attr-defined]
-                    visual,
-                    icon_label,
-                    caption,
-                )
-            else:
-                visual, icon_label, caption = visual
-            visual.setGeometry(button.rect())
-            visual.raise_()
-            button.setText("")
-            button.setIcon(QIcon())
-            icon_label.clear()
-            if not item_name:
-                icon_label.hide()
-                caption.setWordWrap(False)
-                caption.setText("+")
-                return
-            if icon_path:
-                icon_label.show()
-                icon_label.setPixmap(
-                    QPixmap(icon_path).scaled(
-                        30,
-                        30,
-                        Qt.AspectRatioMode.KeepAspectRatio,
-                        Qt.TransformationMode.SmoothTransformation,
-                    )
-                )
-                caption.setWordWrap(False)
-                caption.setText(f"×{int(quantity)}")
-                return
-            icon_label.hide()
-            caption.setWordWrap(True)
-            caption.setText(f"{item_name}\n×{int(quantity)}")
-
         cell_buttons: list = []
         cell_items: list = [None] * inventory_pure.CARRIED_CAPACITY
 
@@ -23566,7 +23561,7 @@ def show_main_menu(
             cell_btn.setObjectName(f"carriedLayoutCell{name_suffix}::{i}")
             cell_btn.setFlat(True)
             cell_btn.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
-            _set_cell_visual(cell_btn, None)
+            _set_carried_cell_visual(cell_btn, None)
 
             def _on_cell_clicked(_checked=False, idx=i):
                 name = cell_items[idx]
@@ -23677,14 +23672,14 @@ def show_main_menu(
                 if item_name:
                     count = int(count)
                     icon_path = _item_icon_path(str(item_name))
-                    _set_cell_visual(cell_button, str(item_name), count, icon_path)
+                    _set_carried_cell_visual(cell_button, str(item_name), count, icon_path)
                     suffix = f" ×{count}" if count > 1 else ""
                     cell_button.setToolTip(f"{item_name}{suffix} — click to set quantity")
                     cell_button.setAccessibleName(f"Pack plan: {item_name}{suffix}")
                     cell_button.setEnabled(on_set_carried_layout_quantity is not None)
                     cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
                 else:
-                    _set_cell_visual(cell_button, None)
+                    _set_carried_cell_visual(cell_button, None)
                     cell_button.setToolTip("Empty slot — choose an item from the Bank grid")
                     cell_button.setAccessibleName("Empty pack-plan slot")
                     cell_button.setEnabled(False)
@@ -23703,7 +23698,7 @@ def show_main_menu(
                 item_button.setObjectName(f"carriedBankItem{name_suffix}::{item_name}")
                 item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _bank_icon_path(item_name, asset_path)
-                _set_cell_visual(item_button, item_name, amount, icon_path)
+                _set_carried_cell_visual(item_button, item_name, amount, icon_path)
                 item_button.setToolTip(
                     f"{item_name} ×{amount} — click to add 1; right-click for quantities"
                 )
@@ -23750,7 +23745,7 @@ def show_main_menu(
                 )
                 item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _item_icon_path(str(item_name))
-                _set_cell_visual(item_button, str(item_name), int(amount), icon_path)
+                _set_carried_cell_visual(item_button, str(item_name), int(amount), icon_path)
                 item_button.setToolTip(f"Currently carrying {item_name} ×{int(amount)}")
                 item_button.setAccessibleName(
                     f"Current inventory: {item_name} ×{int(amount)}"

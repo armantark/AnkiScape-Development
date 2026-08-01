@@ -1050,10 +1050,9 @@ def _migrate_bank_tools_to_manual_toolbelt(data: Dict[str, Any]) -> None:
     if not isinstance(inventory, dict) or not isinstance(toolbelt, dict):
         return
     inventory = dict(inventory)
-    toolbelt = {
-        skill: list(items) if isinstance(items, list) else []
-        for skill, items in toolbelt.items()
-    }
+    toolbelt = dict(toolbelt)
+    for skill in ("mining", "woodcutting"):
+        toolbelt[skill] = list(toolbelt.get(skill, []))
     bindings_by_item: Dict[str, list[tuple[str, str]]] = {}
     for skill, tool_data in (
         ("mining", MINING_PICKAXE_DATA),
