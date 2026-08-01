@@ -83,13 +83,15 @@ def build_collections_tab(ctx) -> "QWidget":
             completion_filter=state_box.currentData() or "",
         )
         tracks.clear()
+        items = []
         for row in view["tracks"]:
             item = QTreeWidgetItem(
                 (row["name"], row["hint"], row["source"], row["status"])
             )
             for column in range(4):
                 item.setToolTip(column, item.text(column))
-            tracks.addTopLevelItem(item)
+            items.append(item)
+        tracks.addTopLevelItems(items)
         totals.setText(
             f"{view['unlocked']}/{view['total']} unlocked · {view['latent']} latent"
         )

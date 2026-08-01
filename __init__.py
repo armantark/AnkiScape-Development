@@ -912,7 +912,7 @@ def commit_direct_action(apply_change, *, after_apply=None):
     if not ok:
         random.setstate(before["random_state"])
         return False
-    updated, _newly_tracks = refresh_music_log_pure(updated)
+    updated = refresh_music_log_pure(updated)[0]
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):

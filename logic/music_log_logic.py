@@ -15,6 +15,9 @@ from .achievement_diary_logic import MUSIC_UNLOCK_TASK_COUNT, diary_totals_pure
 
 
 MUSIC_LOG_STATE_VERSION = 1
+_EVALUATABLE_TRACKS = tuple(
+    track for track in MUSIC_TRACKS if track.trigger_kind != "latent"
+)
 
 _ACTIVITY_EVIDENCE_KEYS: dict[str, tuple[str, ...]] = {
     "barbarian_assault": ("barbarian_assault_runs_completed",),
@@ -156,7 +159,7 @@ def refresh_music_log_pure(
     unlocked = list(state["unlocked_tracks"])
     known = set(unlocked)
     newly: list[str] = []
-    for track in MUSIC_TRACKS:
+    for track in _EVALUATABLE_TRACKS:
         if track.id in known or track_is_latent_pure(track):
             continue
         if track_unlocked_now_pure(data, track):
