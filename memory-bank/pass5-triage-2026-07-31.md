@@ -232,12 +232,24 @@ that tests the fake instead of the app.
    rsync the add-on + synthetic test profile, verify screen-recording
    permission for computer use.
 
-## Post-probe owner feedback (2026-08-01)
+## Post-probe owner feedback (2026-08-01) — supersedes the overlay reading of decision #1
 
-- Bank-run control, owner verbatim: "The 'do bank run' button should be a
-  small native button, not like that" — i.e. a compact native-styled QPushButton
-  in the strip, not the current oversized/custom-styled element seen in the
-  probe screenshots.
+- **Native separated strip.** Owner verbatim: "is there no way to have the
+  entire ankiscape module sit in its own strip completely separate from the
+  scroll window of the card? It would be even nicer to have it under
+  'edit / show answer / more' but if it's limited to only being above then a
+  clear complete separation would be ideal." Reading: the AnkiScape cluster
+  becomes a native Qt strip in the main-window layout, fully outside the
+  card webview's scroll area — preferred position BELOW the bottom
+  (Edit/answer/More) bar; above it with complete separation is the fallback.
+  This retires the overlay/padding mechanism and the whole
+  cover-the-card defect class (including the probe's 667×602 overlap).
+  Drawers still open upward from the strip but may never intersect the card
+  scroll window — they overlay the strip region/expand the strip, not the card.
+- **Bank-run control.** Owner verbatim: text "Bank run", tooltip "Deposit
+  inventory and restock same supplies", "a native button sitting inside the
+  xp bounding box in the bottom right corner." Small native QPushButton;
+  behavior unchanged.
 
 ## Skill routing (owner-approved 2026-07-31)
 
