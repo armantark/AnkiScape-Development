@@ -133,6 +133,61 @@ closing on green tests. Rules for every item in this file:
 - [ ] Buying a better tool never auto-replaces
 - [ ] Explicit attach action exists and works from the bank/toolbelt UI
 
+## Execution loop design (agentic-loop-design, 2026-07-31)
+
+The pass runs as a verifier-gated improvement loop per work package, not a
+one-shot implement-and-hope. Prerequisites all pass:
+
+- **Objective:** the clause checklists above. Per-clause binary; a package's
+  score is clauses-with-evidence over total. Objective and checklists stay
+  frozen for the whole pass — clause edits require a new owner report.
+- **Baseline:** main at the commit this section lands on. Every accepted
+  change is a commit; revert path is git.
+- **Budget/stops:** per item, max 3 propose→verify rounds. Stop conditions:
+  all clauses evidenced; or same clause fails twice → outer-loop diagnosis
+  (below); or quota out → park with trace intact.
+- **Traces:** `memory-bank/pass5-traces/<package>.md`, one row per round:
+  hypothesis → change (commit) → evidence per clause → per-clause verdict →
+  keep/revert. Written even on revert.
+
+**Roles (maker/checker separated, cross-lineage per the standing rule):**
+
+1. *Implementer* — codex Sol in an isolated worktree
+   (`tools/worktree_guard.py add`, never under addons21). Brief contains the
+   owner-verbatim clauses and ONE attributable hypothesis per round.
+2. *Prober* — Luna computer use (or driven offscreen probes where the
+   qt-offscreen rules allow) produces the per-clause evidence: screenshot or
+   runtime probe output. Probes are scripted where possible so rounds are
+   comparable.
+3. *Verifier* — separate context, different lineage from the implementer.
+   Input: the verbatim clauses + the evidence artifacts only — never the
+   implementer's summary, never the desired verdict. Output: structured
+   `{clause_id, pass: boolean, reason}` per clause. No prose-regex verdicts
+   (the /CLEAN/i lesson).
+
+**Inner loop per round:** freeze → one hypothesis → implement in worktree →
+both test lanes + probe evidence → verifier gate → keep (merge, trace) or
+revert (trace the failed direction so it is not re-proposed).
+
+**Outer loop, only on diagnosed plateau** (same clause failing twice): stop
+nudging the patch. Diagnose which of these it is, then change the mechanism:
+wrong locus (probe a different layer, e.g. live app instead of offscreen);
+spec ambiguity (record a design fork for the owner instead of guessing —
+the toolbelt failure mode); evaluator bottleneck (the probe can't observe
+the clause — build a better probe first); or capability (escalate the
+implementer model). Never resolve a plateau by weakening a clause.
+
+**Authority envelope:** the loop may change how it searches, never its
+scope. No schema changes beyond what a clause requires, no pushes, no
+status artifacts or Arc-opening by subagents (running notes only; one
+results artifact at the end, by the orchestrator). Combat item first step is
+read-only save inspection before any fix touches state.
+
+**Holdout:** the owner's pass-6 playtest. Loop evidence closes an item only
+to "fixed-pending-confirmation"; the loop must not tune to its own probes —
+any surprising instant-pass gets inspected for scope reduction or a probe
+that tests the fake instead of the app.
+
 ## Proposed execution order (work packages)
 
 - **A. Combat cluster** (items 1–3): one investigation — pacing, food loading,
