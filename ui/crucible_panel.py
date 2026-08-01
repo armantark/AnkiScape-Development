@@ -134,9 +134,15 @@ if HAS_QT:
             layout.addWidget(lessons)
 
             shop = QWidget(self)
+            shop.setObjectName("crucibleRewardShop")
             shop_layout = QHBoxLayout(shop)
             shop_layout.setContentsMargins(0, 0, 0, 0)
             shop_layout.setSpacing(6)
+            self.shop_wallet = QLabel(shop)
+            self.shop_wallet.setObjectName("crucibleRewardWallet")
+            self.shop_wallet.setStyleSheet(
+                "color: palette(text); font-weight: 600;"
+            )
             self.shop_combo = QComboBox(shop)
             self.shop_combo.setObjectName("crucibleShopCombo")
             self.shop_combo.setAccessibleName("Crucible reward")
@@ -144,6 +150,7 @@ if HAS_QT:
             self.buy_button.setObjectName("crucibleBuyButton")
             self.helm_button = QPushButton("Buy helm", shop)
             self.helm_button.setObjectName("crucibleHelmButton")
+            shop_layout.addWidget(self.shop_wallet)
             shop_layout.addWidget(self.shop_combo, 1)
             shop_layout.addWidget(self.buy_button)
             shop_layout.addWidget(self.helm_button)
@@ -327,6 +334,7 @@ if HAS_QT:
             self.lesson_combo.setEnabled(enabled and bool(lessons))
             self.lesson_button.setEnabled(enabled and bool(lessons))
 
+            self.shop_wallet.setText(f"{int(view['bones']):,} Trophy bones")
             purchasable = [
                 row for row in view["shop_options"] if not row["owned"]
             ]

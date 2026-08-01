@@ -132,6 +132,29 @@ if HAS_QT:
             plan_layout.addWidget(self.save_button, 3, 1)
             layout.addWidget(plan)
 
+            reward_shop = QWidget(self)
+            reward_shop.setObjectName("mageTrainingArenaRewardShop")
+            reward_shop_layout = QGridLayout(reward_shop)
+            reward_shop_layout.setContentsMargins(0, 0, 0, 0)
+            reward_shop_layout.setHorizontalSpacing(6)
+            reward_shop_layout.setVerticalSpacing(4)
+            self.shop_wallets = QLabel(reward_shop)
+            self.shop_wallets.setObjectName("mageTrainingArenaShopWallet")
+            self.shop_wallets.setWordWrap(True)
+            self.shop_wallets.setStyleSheet("color: palette(text); font-size: 11px;")
+            self.reward_combo = QComboBox(reward_shop)
+            self.reward_combo.setObjectName("mageTrainingArenaRewardCombo")
+            self.reward_combo.setAccessibleName("Mage Training Arena reward to purchase")
+            for reward in MAGE_TRAINING_ARENA_REWARDS:
+                self.reward_combo.addItem(reward.display_name, reward.id)
+            self.purchase_button = QPushButton("Purchase", reward_shop)
+            self.purchase_button.setObjectName("mageTrainingArenaPurchaseButton")
+            reward_shop_layout.addWidget(self.shop_wallets, 0, 0, 1, 2)
+            reward_shop_layout.addWidget(self.reward_combo, 1, 0)
+            reward_shop_layout.addWidget(self.purchase_button, 1, 1)
+            layout.addWidget(reward_shop)
+            reward_shop.hide()
+
             self.requirements = QLabel(self)
             self.requirements.setWordWrap(True)
             self.requirements.setStyleSheet("color: #ef5350; font-size: 11px;")
@@ -143,18 +166,19 @@ if HAS_QT:
             actions_layout.setSpacing(6)
             self.primary_button = QPushButton(actions)
             self.primary_button.setObjectName("mageTrainingArenaPrimaryButton")
-            self.purchase_button = QPushButton("Purchase goal", actions)
-            self.purchase_button.setObjectName("mageTrainingArenaPurchaseButton")
             self.leave_button = QPushButton("Leave", actions)
             self.leave_button.setObjectName("mageTrainingArenaLeaveButton")
             self.leave_button.setStyleSheet("color: #ef5350;")
             actions_layout.addWidget(self.primary_button, 1)
-            actions_layout.addWidget(self.purchase_button)
             actions_layout.addWidget(self.leave_button)
             layout.addWidget(actions)
 
+            self._reward_selection_initialized = False
             self.save_button.clicked.connect(lambda _checked=False: self._save_plan())
             self.primary_button.clicked.connect(lambda _checked=False: self._enter_or_select())
+            self.reward_combo.currentIndexChanged.connect(
+                lambda _index: self.refresh()
+            )
             self.purchase_button.clicked.connect(lambda _checked=False: self._purchase())
             self.leave_button.clicked.connect(lambda _checked=False: self._confirm_leave())
             self.refresh()
@@ -195,8 +219,10 @@ if HAS_QT:
             self.refresh()
 
         def _purchase(self) -> None:
-            reward_id = str(mage_training_arena_view_pure(self._player_data)["reward_goal"])
-            self._run_command("purchase", {"reward_id": reward_id})
+            self._run_command(
+                "purchase",
+                {"reward_id": str(self.reward_combo.currentData() or "")},
+            )
 
         def _confirm_leave(self) -> None:
             answer = QMessageBox.question(
@@ -228,16 +254,36 @@ if HAS_QT:
                 combo.blockSignals(blocked)
                 combo.setEnabled(enabled and bool(view["policy_controls_enabled"]))
             self.save_button.setEnabled(enabled and bool(view["policy_controls_enabled"]))
+            if not self._reward_selection_initialized:
+                blocked = self.reward_combo.blockSignals(True)
+                self._select(self.reward_combo, str(view["reward_goal"]))
+                self.reward_combo.blockSignals(blocked)
+                self._reward_selection_initialized = True
+            selected_reward = str(self.reward_combo.currentData() or "")
+            reward_row = next(
+                (
+                    row
+                    for row in view["reward_options"]
+                    if str(row["id"]) == selected_reward
+                ),
+                None,
+            )
             self.status_chip.setText("ACTIVE" if view["active"] else "LOBBY")
             self.wallets.setText(str(view["wallet_text"]))
+            self.shop_wallets.setText(str(view["wallet_text"]))
             self.status.setText(str(view["status_text"]))
             reasons = view["review_reasons"] if view["active"] else view["entry_reasons"]
             self.requirements.setText(" · ".join(str(value) for value in reasons))
             self.requirements.setVisible(bool(reasons))
             self.primary_button.setText(str(view["primary_label"]))
             self.primary_button.setEnabled(enabled and bool(view["primary_enabled"]))
-            self.purchase_button.setEnabled(enabled and bool(view["purchase_enabled"]))
-            self.purchase_button.setToolTip(str(view["purchase_reason"]))
+            self.reward_combo.setEnabled(enabled)
+            self.purchase_button.setEnabled(
+                enabled and bool(reward_row and reward_row["purchase_enabled"])
+            )
+            self.purchase_button.setToolTip(
+                str(reward_row["purchase_reason"] if reward_row else "Choose a reward.")
+            )
             self.leave_button.setVisible(bool(view["leave_visible"]))
             self.leave_button.setEnabled(enabled and bool(view["leave_visible"]))
 

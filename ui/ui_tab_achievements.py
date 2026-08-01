@@ -271,14 +271,6 @@ def build_achievements_tab(ctx) -> "QWidget":
             status.setStyleSheet(f"color: {dim_text_css(status)};")
             text_layout.addWidget(status)
         line_layout.addWidget(text, 1)
-
-        buy = QPushButton("Buy")
-        buy.setObjectName(f"cabinetCapeBuy_{row['cape_id']}")
-        buy.setEnabled(bool(row["can_buy"]) and on_command is not None)
-        buy.clicked.connect(
-            lambda _=False, cape_id=row["cape_id"]: _run("purchase_cape", {"cape_id": cape_id})
-        )
-        line_layout.addWidget(buy)
         return line
 
     def _capes_card(capes: dict) -> "QWidget":

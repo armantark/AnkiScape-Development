@@ -452,6 +452,26 @@ def _open_shop_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_reward_target(dialog: "QDialog", target_id: str) -> "QWidget":
+    _open_shop_tab(dialog)
+    rewards = _find_named_list(dialog, "rewardShopTargetList")
+    item = next(
+        rewards.item(index)
+        for index in range(rewards.count())
+        if (
+            isinstance(rewards.item(index).data(Qt.ItemDataRole.UserRole), dict)
+            and rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == target_id
+        )
+    )
+    rewards.setCurrentItem(item)
+    QApplication.processEvents()
+    page = dialog.findChild(QWidget, f"rewardShopPage_{target_id}")
+    if page is None:
+        raise AssertionError(f"reward target {target_id!r} has no page")
+    return page
+
+
 def _open_challenges_tab(dialog: "QDialog") -> None:
     tabs = _find_main_tabs(dialog)
     index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Challenges")
@@ -3757,6 +3777,376 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(shell.isVisibleTo(dialog))
         self.assertIsNone(selector.currentItem())
 
+    def test_shop_browse_splits_normal_and_reward_targets_left_to_right(self) -> None:
+        pd = _make_player_data()
+        dialog = self._open(pd)
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_shop_tab(dialog)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        normal = _find_named_list(dialog, "shopSelectionList")
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        normal_x = normal.mapTo(dialog, normal.rect().topLeft()).x()
+        rewards_x = rewards.mapTo(dialog, rewards.rect().topLeft()).x()
+        self.assertLess(normal_x, rewards_x)
+
+        expected = {
+            "Brimhaven tickets · Pirate Jackie the Fruit",
+            "Advanced courses · the Agile worker",
+            "Skillcapes · the skill masters",
+            "Agility Pyramid · Simon Templeton",
+            "Big Chinchompa rewards",
+            "Fist of Guthix · Reggie",
+            "Penguin Hide and Seek rewards",
+            "Vinesweeper · Mrs Winkin",
+            "Flash Powder Factory",
+            "Fish Flingers reward shop",
+            "Great Orb Project · Wizard Elriss",
+            "Trouble Brewing rewards",
+            "Castle Wars ticket shop",
+            "Pest Control rewards",
+            "Soul Wars rewards",
+            "Barbarian Assault rewards",
+            "Stealing Creation reward tools",
+            "Dungeoneering rewards trader",
+            "The Crucible · Trophy bones",
+            "Troll Invasion reward books",
+            "Mobilising Armies · Officer Tower",
+            "Mage Training Arena rewards",
+        }
+        self.assertEqual(set(_list_texts(rewards)), expected)
+        self.assertFalse(any("_" in text for text in _list_texts(rewards)))
+
+    def test_skillcape_shop_consumes_the_pure_visibility_gate(self) -> None:
+        pd = _make_player_data()
+        pd["mining_level"] = 33
+        pd["inventory"]["Coins"] = 500_000
+        dialog = self._open(pd)
+        dialog.show()
+        _open_shop_tab(dialog)
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        target = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "skill_masters"
+        )
+        rewards.setCurrentItem(target)
+        QApplication.processEvents()
+        reward_page = dialog.findChild(QWidget, "shopAgilityRewardsPanel")
+        from ankiscape.logic.cape_logic import cape_view_pure
+
+        hidden_skill_ids = {
+            row["cape_id"]
+            for row in cape_view_pure(pd)["skillcapes"]
+            if not row["show_in_shop"]
+        }
+        visible_skill_buttons = [
+            button
+            for button in reward_page.findChildren(QPushButton)
+            if button.objectName().removeprefix("shopCapeButton_")
+            in hidden_skill_ids
+        ]
+        self.assertEqual(visible_skill_buttons, [])
+        dialog.close()
+
+    def test_reward_targets_open_only_their_interface_beside_inventory(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coins": 123_456, "Agility arena ticket": 10}
+        dialog = self._open(pd, current_skill="Agility")
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_shop_tab(dialog)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+
+        def select(target_id: str) -> None:
+            item = next(
+                rewards.item(index)
+                for index in range(rewards.count())
+                if (
+                    isinstance(
+                        rewards.item(index).data(Qt.ItemDataRole.UserRole), dict
+                    )
+                    and rewards.item(index).data(Qt.ItemDataRole.UserRole).get(
+                        "target_id"
+                    )
+                    == target_id
+                )
+            )
+            rewards.setCurrentItem(item)
+            QApplication.processEvents()
+
+        select("brimhaven_tickets")
+        panel = dialog.findChild(QWidget, "rewardShopTargetPanel")
+        inventory = _find_named_list(dialog, "rewardShopInventoryList")
+        self.assertTrue(panel.isVisibleTo(dialog))
+        self.assertTrue(
+            dialog.findChild(QLabel, "shopBrimhavenSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertFalse(
+            dialog.findChild(QLabel, "shopAgileSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertFalse(
+            dialog.findChild(QLabel, "shopAgilityCapeSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertFalse(
+            dialog.findChild(QLabel, "shopNamedBuyersSectionLabel").isVisibleTo(dialog)
+        )
+        self.assertTrue(any("Coins x123,456" == text for text in _list_texts(inventory)))
+
+        select("fish_flingers")
+        fish_page = dialog.findChild(QWidget, "rewardShopPage_fish_flingers")
+        fish_shop = dialog.findChild(QWidget, "fishFlingersRewardShop")
+        self.assertTrue(fish_page.isVisibleTo(dialog))
+        self.assertTrue(fish_shop.isVisibleTo(dialog))
+        self.assertFalse(
+            dialog.findChild(QWidget, "shopAgilityRewardsPanel").isVisibleTo(dialog)
+        )
+
+        wallet_labels = {
+            "brimhaven_tickets": "shopBrimhavenSectionLabelBalance",
+            "agile_worker": "shopAgileSectionLabelBalance",
+            "skill_masters": "shopAgilityCapeSectionLabelBalance",
+            "simon_templeton": "shopNamedBuyersSectionLabelBalance",
+            "big_chinchompa": "bigChinchompaRewardWallet",
+            "fist_of_guthix": "fistOfGuthixRewardWallet",
+            "penguin_hide_and_seek": "penguinRewardWallet",
+            "vinesweeper": "vinesweeperRewardWallet",
+            "flash_powder_factory": "flashPowderFactoryPoints",
+            "fish_flingers": "fishFlingersCurrencyChip",
+            "great_orb_project": "greatOrbProjectCurrencyLabel",
+            "trouble_brewing": "troubleBrewingWallet",
+            "castle_wars": "castleWarsShopWallet",
+            "pest_control": "pestControlRewardWallet",
+            "soul_wars": "soulWarsRewardWallet",
+            "barbarian_assault": "barbarianAssaultRewardWallet",
+            "stealing_creation": "stealingCreationRewardWallet",
+            "dungeoneering": "dungeoneeringTokenSummary",
+            "crucible": "crucibleRewardWallet",
+            "troll_invasion": "trollInvasionRewardWallet",
+            "mobilising_armies": "mobilisingArmiesShopWallet",
+            "mage_training_arena": "mageTrainingArenaShopWallet",
+        }
+        for target_id, object_name in wallet_labels.items():
+            select(target_id)
+            wallet = dialog.findChild(QLabel, object_name)
+            self.assertIsNotNone(wallet, target_id)
+            self.assertTrue(wallet.isVisibleTo(dialog), target_id)
+            self.assertTrue(wallet.text().strip(), target_id)
+
+        lower_scroll = dialog.findChild(QScrollArea, "shopLowerScroll")
+        reward_scroll = dialog.findChild(QScrollArea, "rewardShopInterfaceScroll")
+        self.assertFalse(lower_scroll.isVisibleTo(dialog))
+        self.assertGreaterEqual(reward_scroll.viewport().height(), 150)
+        self.assertEqual(reward_scroll.horizontalScrollBar().maximum(), 0)
+        dialog.resize(760, 520)
+        select("big_chinchompa")
+        for _ in range(3):
+            QApplication.processEvents()
+        self.assertEqual(reward_scroll.horizontalScrollBar().maximum(), 0)
+
+        _open_first_shop(dialog)
+        self.assertFalse(panel.isVisibleTo(dialog))
+
+    def test_reward_controls_have_one_owner_and_move_out_of_activities(self) -> None:
+        dialog = self._open(_make_player_data())
+        self._open_activities(dialog)
+        fish_shops = dialog.findChildren(QWidget, "fishFlingersRewardShop")
+        self.assertEqual(len(fish_shops), 1)
+        live_shop = fish_shops[0]
+        self.assertEqual(live_shop.parentWidget().objectName(), "rewardShopStagingHost")
+        self.assertFalse(live_shop.isVisibleTo(dialog))
+
+        _open_shop_tab(dialog)
+        QApplication.processEvents()
+
+        shop_page = dialog.findChild(QWidget, "rewardShopPage_fish_flingers")
+        self.assertIsNotNone(shop_page)
+        self.assertIs(shop_page.findChild(QWidget, "fishFlingersRewardShop"), live_shop)
+        self.assertEqual(
+            len(dialog.findChildren(QWidget, "fishFlingersRewardShop")), 1
+        )
+
+    def test_mobilising_armies_keeps_activity_controls_and_shows_spoils_in_shop(self) -> None:
+        from ankiscape.logic.mobilising_armies_logic import (
+            apply_mobilising_armies_command_pure,
+            default_mobilising_armies_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(default_mobilising_armies_state_pure())
+        pd["mobilising_armies_rank"] = 400
+        pd["mobilising_armies_reward_credits"] = 10_000_000
+
+        def command(action_id, payload):
+            updated, ok, info = apply_mobilising_armies_command_pure(
+                pd, action_id, payload, rng=lambda: 0.25
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(pd, on_mobilising_armies_command=command)
+        dialog.show()
+        activity_tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(activity_tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "mobilising_armies"
+        )
+        activity_tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "mobilisingArmiesPanel")
+            if widget.isVisible()
+        )
+        wallet = panel.findChild(QLabel, "mobilisingArmiesRewardWallet")
+        floor = panel.findChild(QComboBox, "mobilisingArmiesFloorCombo")
+        prefix = panel.findChild(QComboBox, "mobilisingArmiesPrefixCombo")
+        self.assertTrue(wallet.isVisibleTo(dialog))
+        self.assertTrue(floor.isVisibleTo(dialog))
+        self.assertTrue(prefix.isVisibleTo(dialog))
+        second_floor = floor.findData("second")
+        self.assertGreaterEqual(second_floor, 0)
+        floor.setCurrentIndex(second_floor)
+
+        reward_page = _open_reward_target(dialog, "mobilising_armies")
+        shop_floor = reward_page.findChild(
+            QComboBox, "mobilisingArmiesShopFloorCombo"
+        )
+        spoils = reward_page.findChild(QLabel, "mobilisingArmiesSpoilsOffer")
+        view_spoils = reward_page.findChild(
+            QPushButton, "mobilisingArmiesViewSpoilsButton"
+        )
+        self.assertEqual(shop_floor.currentData(), "second")
+        self.assertEqual(spoils.text(), "No Spoils of War stall is laid out.")
+        self.assertIsNone(
+            reward_page.findChild(QPushButton, "mobilisingArmiesPrefixButton")
+        )
+        view_spoils.click()
+        QApplication.processEvents()
+        self.assertNotEqual(spoils.text(), "No Spoils of War stall is laid out.")
+        self.assertTrue(spoils.isVisibleTo(dialog))
+        dialog.close()
+
+    def test_troll_invasion_keeps_plan_reward_and_redeems_book_in_shop(self) -> None:
+        from ankiscape.logic.troll_invasion_logic import (
+            apply_troll_invasion_command_pure,
+            default_troll_invasion_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(default_troll_invasion_state_pure())
+        pd["troll_invasion_reward_fractions"] = [1.0]
+        pd["inventory"]["Troll Invasion reward book"] = 1
+        command_calls = []
+
+        def command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_troll_invasion_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(pd, on_troll_invasion_command=command)
+        dialog.show()
+        activity_tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(activity_tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "troll_invasion"
+        )
+        activity_tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "trollInvasionPanel")
+            if widget.isVisible()
+        )
+        policy_reward = panel.findChild(
+            QComboBox, "trollInvasionRewardSkillCombo"
+        )
+        self.assertTrue(policy_reward.isVisibleTo(dialog))
+
+        reward_page = _open_reward_target(dialog, "troll_invasion")
+        shop_reward = reward_page.findChild(
+            QComboBox, "trollInvasionShopRewardSkillCombo"
+        )
+        redeem = reward_page.findChild(QPushButton, "trollInvasionRedeemButton")
+        self.assertTrue(shop_reward.isVisibleTo(dialog))
+        self.assertTrue(redeem.isEnabled())
+        redeem.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1], ("redeem_book", {"skill_id": "agility"}))
+        self.assertEqual(pd["troll_invasion_reward_fractions"], [])
+        self.assertEqual(pd["troll_invasion_books_redeemed"], 1)
+        dialog.close()
+
+    def test_returning_to_shop_refreshes_rehomed_reward_controls(self) -> None:
+        from ankiscape.logic.big_chinchompa_logic import (
+            default_big_chinchompa_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd["hunter_level"] = 99
+        pd["big_chinchompa"] = default_big_chinchompa_state_pure()
+        pd["big_chinchompa"]["competence_points"] = 5
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        target = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "big_chinchompa"
+        )
+        rewards.setCurrentItem(target)
+        QApplication.processEvents()
+        buy = next(
+            button
+            for button in dialog.findChildren(QPushButton, "bigChinchompaRewardBuyButton")
+            if button.isVisibleTo(dialog)
+        )
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["big_chinchompa"]["competence_points"], 1)
+        self.assertFalse(buy.isEnabled())
+        self.assertIn("you have 1", buy.toolTip())
+
+        tabs = _find_main_tabs(dialog)
+        skills_index = next(
+            index for index in range(tabs.count()) if tabs.tabText(index) == "Skills"
+        )
+        shop_index = next(
+            index for index in range(tabs.count()) if tabs.tabText(index) == "Shop"
+        )
+        tabs.setCurrentIndex(skills_index)
+        QApplication.processEvents()
+        visible_activity_buys = [
+            button
+            for button in dialog.findChildren(
+                QPushButton, "bigChinchompaRewardBuyButton"
+            )
+            if button.isVisibleTo(dialog)
+        ]
+        self.assertEqual(visible_activity_buys, [])
+        tabs.setCurrentIndex(shop_index)
+        QApplication.processEvents()
+
+        self.assertFalse(buy.isEnabled())
+        self.assertIn("you have 1", buy.toolTip())
+
     def test_shop_icons_render_for_stock_search_sell_and_services(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
@@ -3852,7 +4242,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         preview = _find_named_label(dialog, "shopPreviewLabel")
         button = _find_named_button(dialog, "shopTransactionButton")
-        self.assertIn("currency_not_implemented", preview.text())
+        self.assertIn("Currency not implemented", preview.text())
+        self.assertNotIn("currency_not_implemented", preview.text())
         self.assertFalse(button.isEnabled())
 
     def test_shop_live_stock_buy_updates_inventory_and_history(self) -> None:
@@ -8810,6 +9201,12 @@ class MainMenuWidgetTest(unittest.TestCase):
     def _open_no_xp_surface(
         self, dialog: "QDialog", surface_name: str
     ) -> "QTreeWidget":
+        tabs = _find_main_tabs(dialog)
+        skills_index = next(
+            index for index in range(tabs.count()) if tabs.tabText(index) == "Skills"
+        )
+        tabs.setCurrentIndex(skills_index)
+        QApplication.processEvents()
         cat = next(
             b for b in dialog.findChildren(QPushButton) if b.text() == surface_name
         )
@@ -9435,7 +9832,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             dialog.findChild(QComboBox, "bigChinchompaPopulationProfile")
         )
 
-        buy = _find_named_button(dialog, "bigChinchompaRewardBuyButton")
+        reward_page = _open_reward_target(dialog, "big_chinchompa")
+        buy = reward_page.findChild(
+            QPushButton, "bigChinchompaRewardBuyButton"
+        )
         self.assertTrue(buy.isEnabled())
         self.assertIn("4 Competence", buy.toolTip())
         buy.click()
@@ -9896,11 +10296,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["fist_of_guthix"]["automation_mode"], "advanced")
         self.assertEqual(pd["fist_of_guthix"]["selected_stance"], "centre")
 
-        shop_toggle = dialog.findChild(QToolButton, "fistOfGuthixShopToggle")
-        shop_toggle.click()
-        QApplication.processEvents()
-        shop = _find_named_widget(dialog, "fistOfGuthixShop")
-        self.assertFalse(shop.isHidden())
+        self.assertIsNone(dialog.findChild(QToolButton, "fistOfGuthixShopToggle"))
+        reward_page = _open_reward_target(dialog, "fist_of_guthix")
+        shop = reward_page.findChild(QWidget, "fistOfGuthixShop")
+        self.assertTrue(shop.isVisibleTo(dialog))
         buy = _find_named_button(dialog, "fistOfGuthixBuyButton")
         self.assertTrue(buy.isEnabled())
         buy.click()
@@ -10095,15 +10494,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["penguin_hide_and_seek"]["points"] = 2
         dialog = self._open(pd)
         activity_tree = self._open_activities(dialog)
-        activity_tree.setCurrentItem(
-            _utility_row(activity_tree, "penguin_hide_and_seek")
-        )
+        penguin_row = _utility_row(activity_tree, "penguin_hide_and_seek")
+        activity_tree.setCurrentItem(penguin_row)
         QApplication.processEvents()
 
         panel = _find_named_widget(dialog, "penguinHideAndSeekPanel")
         roster = panel.findChild(QComboBox, "penguinHideAndSeekRoster")
         primary = _find_named_button(dialog, "penguinHideAndSeekPrimaryButton")
-        redeem_coins = _find_named_button(dialog, "penguinRedeemCoinsButton")
         status = _find_named_label(dialog, "penguinHideAndSeekStatusChip")
         self.assertEqual(roster.count(), 10)
         self.assertIsNone(panel.findChild(QScrollArea))
@@ -10130,16 +10527,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(primary.text(), "Select for next review")
         self.assertEqual(primary.accessibleName(), primary.text())
 
+        reward_page = _open_reward_target(dialog, "penguin_hide_and_seek")
+        redeem_coins = reward_page.findChild(QPushButton, "penguinRedeemCoinsButton")
+        reward_skill = reward_page.findChild(QComboBox, "penguinRewardSkill")
+        self.assertTrue(redeem_coins.isVisibleTo(dialog))
         redeem_coins.click()
         QApplication.processEvents()
         self.assertEqual(pd["inventory"]["Coins"], 13_000)
         self.assertEqual(pd["penguin_hide_and_seek"]["points"], 0)
         self.assertFalse(redeem_coins.isEnabled())
-        self.assertTrue(
-            panel.findChild(QComboBox, "penguinRewardSkill").isEnabled()
-        )
+        self.assertTrue(reward_skill.isEnabled())
         self.assertNotIn("0 points for 0 coins", redeem_coins.toolTip())
 
+        activity_tree = self._open_activities(dialog)
+        activity_tree.setCurrentItem(penguin_row)
+        activity_tree.itemActivated.emit(penguin_row, 0)
+        QApplication.processEvents()
         dialog.resize(900, 560)
         for _ in range(6):
             QApplication.processEvents()
@@ -10168,15 +10571,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         panel = _find_named_widget(dialog, "vinesweeperPanel")
         status = _find_named_label(dialog, "vinesweeperStatusChip")
         primary = _find_named_button(dialog, "vinesweeperPrimaryButton")
-        reward = panel.findChild(QComboBox, "vinesweeperRewardCombo")
-        quantity = panel.findChild(QSpinBox, "vinesweeperRewardQuantity")
-        buy = _find_named_button(dialog, "vinesweeperBuyRewardButton")
-        redeem = _find_named_button(dialog, "vinesweeperRedeemXpButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertEqual(status.text(), "READY")
-        self.assertEqual(reward.count(), 46)
-        self.assertEqual(reward.accessibleName(), "Vinesweeper reward")
-        self.assertEqual(quantity.accessibleName(), "Reward quantity")
 
         primary.click()
         QApplication.processEvents()
@@ -10186,6 +10582,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["vinesweeper"]["flags"], 10)
         self.assertEqual(status.text(), "ACTIVE")
         self.assertEqual(primary.accessibleName(), "Leave Winkin's Farm")
+
+        reward_page = _open_reward_target(dialog, "vinesweeper")
+        reward = reward_page.findChild(QComboBox, "vinesweeperRewardCombo")
+        quantity = reward_page.findChild(QSpinBox, "vinesweeperRewardQuantity")
+        buy = reward_page.findChild(QPushButton, "vinesweeperBuyRewardButton")
+        redeem = reward_page.findChild(QPushButton, "vinesweeperRedeemXpButton")
+        self.assertTrue(redeem.isVisibleTo(dialog))
+        self.assertEqual(reward.count(), 46)
+        self.assertEqual(reward.accessibleName(), "Vinesweeper reward")
+        self.assertEqual(quantity.accessibleName(), "Reward quantity")
 
         pd["vinesweeper"]["flags"] = 7
         flag_index = reward.findData("flag")
@@ -10318,7 +10724,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 dialog,
                 "dungeoneeringKinshipRow",
             )
-            rewards = panel.findChild(
+            rewards = dialog.findChild(
                 QComboBox,
                 "dungeoneeringRewardCombo",
             )
@@ -10468,8 +10874,26 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertTrue(bind_row.isHidden())
             self.assertTrue(bind_config_row.isHidden())
             self.assertTrue(kinship_row.isHidden())
-            self.assertTrue(reward_trader_row.isHidden())
+            self.assertFalse(reward_trader_row.isHidden())
+            self.assertFalse(reward_detail.isHidden())
             self.assertTrue(coal_bag_row.isHidden())
+
+            reward_page = _open_reward_target(dialog, "dungeoneering")
+            self.assertTrue(reward_trader_row.isVisibleTo(dialog))
+            self.assertTrue(reward_detail.isVisibleTo(dialog))
+            self.assertGreater(reward_page.height(), 0)
+            self.assertFalse(reward_buy.isEnabled())
+            self.assertIn("between dungeons", reward_buy.toolTip())
+            tabs = _find_main_tabs(dialog)
+            tabs.setCurrentIndex(
+                next(
+                    index
+                    for index in range(tabs.count())
+                    if tabs.tabText(index) == "Skills"
+                )
+            )
+            QApplication.processEvents()
+
             self.assertGreater(smuggler.count(), 0)
             self.assertLess(smuggler.count(), 86)
             self.assertEqual(smuggler.findData("novite_rapier"), -1)
@@ -11222,8 +11646,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         mode = panel.findChild(QComboBox, "flashPowderFactoryModeCombo")
         strategy = panel.findChild(QComboBox, "flashPowderFactoryStrategyCombo")
         apparatus = panel.findChild(QComboBox, "flashPowderFactoryApparatusCombo")
-        rewards = panel.findChild(QComboBox, "flashPowderFactoryRewardCombo")
-        buy = _find_named_button(dialog, "flashPowderFactoryRewardButton")
+        reward_page = _open_reward_target(dialog, "flash_powder_factory")
+        rewards = reward_page.findChild(QComboBox, "flashPowderFactoryRewardCombo")
+        buy = reward_page.findChild(QPushButton, "flashPowderFactoryRewardButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertEqual(status.text(), "READY")
         self.assertIn("Eight circuits", summary.text())
@@ -11712,8 +12137,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary = _find_named_button(dialog, "fishFlingersPrimaryButton")
         leave = _find_named_button(dialog, "fishFlingersLeaveButton")
         progress = panel.findChild(QProgressBar, "fishFlingersProgress")
-        reward = panel.findChild(QComboBox, "fishFlingersRewardCombo")
-        buy = _find_named_button(dialog, "fishFlingersBuyButton")
+        reward_page = _open_reward_target(dialog, "fish_flingers")
+        reward = reward_page.findChild(QComboBox, "fishFlingersRewardCombo")
+        buy = reward_page.findChild(QPushButton, "fishFlingersBuyButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
         self.assertIn("Six successful reviews", summary.text())
@@ -11933,12 +12359,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         mode = panel.findChild(QComboBox, "greatOrbProjectModeCombo")
         doctrine = panel.findChild(QComboBox, "greatOrbProjectDoctrineCombo")
         crafting = panel.findChild(QComboBox, "greatOrbProjectCraftingCombo")
-        reward = panel.findChild(QComboBox, "greatOrbProjectRewardCombo")
-        quantity = panel.findChild(QSpinBox, "greatOrbProjectRewardQuantity")
+        reward_page = _open_reward_target(dialog, "great_orb_project")
+        reward = reward_page.findChild(QComboBox, "greatOrbProjectRewardCombo")
+        quantity = reward_page.findChild(QSpinBox, "greatOrbProjectRewardQuantity")
         progress = panel.findChild(QProgressBar, "greatOrbProjectProgress")
-        currency = _find_named_label(dialog, "greatOrbProjectCurrencyLabel")
+        currency = reward_page.findChild(QLabel, "greatOrbProjectCurrencyLabel")
         save = _find_named_button(dialog, "greatOrbProjectSaveButton")
-        buy = _find_named_button(dialog, "greatOrbProjectBuyButton")
+        buy = reward_page.findChild(QPushButton, "greatOrbProjectBuyButton")
         primary = _find_named_button(dialog, "greatOrbProjectPrimaryButton")
         leave = _find_named_button(dialog, "greatOrbProjectLeaveButton")
         self.assertIsNone(panel.findChild(QScrollArea))
@@ -12004,6 +12431,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(progress.isHidden())
         self.assertTrue(panel.findChild(QWidget, "greatOrbProjectPolicy").isHidden())
         self.assertFalse(leave.isHidden())
+        self.assertTrue(
+            reward_page.findChild(QWidget, "greatOrbProjectShop").isVisibleTo(dialog)
+        )
+        self.assertGreater(reward_page.height(), 0)
+        self.assertFalse(buy.isEnabled())
+        self.assertIn("between matches", buy.toolTip())
 
         with patch.object(
             QMessageBox,
@@ -12369,9 +12802,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         method = panel.findChild(QComboBox, "stealingCreationGatherMethodCombo")
         clay_class = panel.findChild(QComboBox, "stealingCreationClassCombo")
         recipe = panel.findChild(QComboBox, "stealingCreationRecipeCombo")
-        form = panel.findChild(QComboBox, "stealingCreationRewardFormCombo")
-        morphic = _find_named_button(dialog, "stealingCreationMorphicButton")
-        volatile = _find_named_button(dialog, "stealingCreationVolatileButton")
+        reward_page = _open_reward_target(dialog, "stealing_creation")
+        form = reward_page.findChild(QComboBox, "stealingCreationRewardFormCombo")
+        morphic = reward_page.findChild(QPushButton, "stealingCreationMorphicButton")
+        volatile = reward_page.findChild(QPushButton, "stealingCreationVolatileButton")
         active_tool = panel.findChild(QComboBox, "stealingCreationActiveToolCombo")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertEqual(status.text(), "READY")
@@ -12423,6 +12857,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Volatile clay tool"], 1)
         self.assertEqual(pd["stealing_creation"]["points"], 0)
         self.assertEqual(pd["stealing_creation"]["active_reward_tool"], "volatile")
+        tabs = _find_main_tabs(dialog)
+        tabs.setCurrentIndex(
+            next(index for index in range(tabs.count()) if tabs.tabText(index) == "Skills")
+        )
+        QApplication.processEvents()
 
         with patch.object(
             QMessageBox,
@@ -13730,6 +14169,72 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Agility cape", pd["inventory"])
         self.assertEqual(pd["inventory"].get("Pyramid top", 0), 0)
 
+    def test_all_skillcape_purchases_live_in_the_shop_target(self) -> None:
+        from ankiscape.logic.achievement_diary_logic import (
+            apply_achievement_diary_command_pure,
+        )
+
+        pd = _make_player_data()
+        pd["mining_level"] = 99
+        pd["inventory"] = {"Coins": 99_000}
+
+        def diary_command(action_id, payload):
+            updated, ok, info = apply_achievement_diary_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            on_achievement_diary_command=diary_command,
+        )
+        dialog.show()
+        _open_shop_tab(dialog)
+        QApplication.processEvents()
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        skillcapes = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "skill_masters"
+        )
+        rewards.setCurrentItem(skillcapes)
+        QApplication.processEvents()
+
+        buy = _find_named_button(dialog, "shopCapeButton_mining")
+        self.assertTrue(buy.isVisibleTo(dialog))
+        self.assertTrue(buy.isEnabled())
+
+        _open_achievements_tab(dialog)
+        cabinet_purchase_buttons = [
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.objectName().startswith("cabinetCapeBuy_")
+        ]
+        self.assertEqual(cabinet_purchase_buttons, [])
+        _open_shop_tab(dialog)
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        skillcapes = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "skill_masters"
+        )
+        rewards.setCurrentItem(skillcapes)
+        QApplication.processEvents()
+        buy = _find_named_button(dialog, "shopCapeButton_mining")
+
+        buy.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Mining cape"], 1)
+        self.assertEqual(pd["inventory"]["Mining hood"], 1)
+        self.assertEqual(pd["inventory"].get("Coins", 0), 0)
+
     def test_surefooted_aura_activates_from_the_equipment_tab(self) -> None:
         # Auras have a cooldown, so they keep a control — in their own
         # inventory inside the Equipment tab, not on the skill panel.
@@ -14205,7 +14710,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["activity_session"] = {"active_id": ""}
         tree.itemClicked.emit(item, 0)
         QApplication.processEvents()
-        buy = panel.findChild(QPushButton, "troubleBrewingBuyButton")
+        reward_page = _open_reward_target(dialog, "trouble_brewing")
+        buy = reward_page.findChild(QPushButton, "troubleBrewingBuyButton")
         self.assertTrue(buy.isEnabled())
         buy.click()
         QApplication.processEvents()
@@ -14260,11 +14766,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(panel.findChild(QLabel, "castleWarsIcon").pixmap().isNull())
         self.assertFalse(panel.findChild(QProgressBar, "castleWarsProgress").isVisible())
 
+        self.assertIsNone(panel.findChild(QWidget, "castleWarsRewardShop"))
         before_dialogs = len(self._captured)
-        panel.findChild(QPushButton, "castleWarsShopButton").click()
+        _open_shop_tab(dialog)
+        rewards = _find_named_list(dialog, "rewardShopTargetList")
+        castle_target = next(
+            rewards.item(index)
+            for index in range(rewards.count())
+            if rewards.item(index).data(Qt.ItemDataRole.UserRole).get("target_id")
+            == "castle_wars"
+        )
+        rewards.setCurrentItem(castle_target)
         QApplication.processEvents()
-        self.assertEqual(len(self._captured), before_dialogs + 1)
-        shop = self._captured[-1]
+        self.assertEqual(len(self._captured), before_dialogs)
+        shop = dialog.findChild(QWidget, "rewardShopPage_castle_wars")
+        self.assertTrue(shop.isVisibleTo(dialog))
         reward = shop.findChild(QComboBox, "castleWarsRewardCombo")
         buy = shop.findChild(QPushButton, "castleWarsBuyButton")
         self.assertEqual(reward.currentData(), "basic_body")
@@ -14274,6 +14790,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Basic decorative platebody"], 1)
         self.assertEqual(pd["castle_wars_tickets"], 12)
 
+        tabs = _find_main_tabs(dialog)
+        tabs.setCurrentIndex(
+            next(index for index in range(tabs.count()) if tabs.tabText(index) == "Skills")
+        )
+        QApplication.processEvents()
         mode = panel.findChild(QComboBox, "castleWarsModeCombo")
         duty = panel.findChild(QComboBox, "castleWarsDutyCombo")
         team = panel.findChild(QComboBox, "castleWarsTeamCombo")
@@ -14288,6 +14809,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["castle_wars"]["duty"], "defend")
         self.assertEqual(pd["castle_wars"]["team"], "zamorak")
         self.assertTrue(panel.findChild(QProgressBar, "castleWarsProgress").isVisible())
+
+        shop = _open_reward_target(dialog, "castle_wars")
+        self.assertTrue(
+            shop.findChild(QWidget, "castleWarsRewardShop").isVisibleTo(dialog)
+        )
+        self.assertGreater(shop.height(), 0)
+        self.assertFalse(shop.findChild(QPushButton, "castleWarsBuyButton").isEnabled())
+        self.assertIn(
+            "between matches",
+            shop.findChild(QPushButton, "castleWarsBuyButton").toolTip(),
+        )
+        tabs.setCurrentIndex(
+            next(index for index in range(tabs.count()) if tabs.tabText(index) == "Skills")
+        )
+        QApplication.processEvents()
+
         ballista = panel.findChild(QPushButton, "castleWarsBallistaButton")
         chinchompa = panel.findChild(QPushButton, "castleWarsChinchompaButton")
         self.assertTrue(ballista.isEnabled())
@@ -14352,13 +14889,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(panel.findChild(QLabel, "pestControlIcon").pixmap().isNull())
         self.assertFalse(panel.findChild(QProgressBar, "pestControlProgress").isVisible())
 
-        buy = panel.findChild(QPushButton, "pestControlBuySealButton")
+        reward_page = _open_reward_target(dialog, "pest_control")
+        buy = reward_page.findChild(QPushButton, "pestControlBuySealButton")
+        self.assertTrue(buy.isVisibleTo(dialog))
         self.assertTrue(buy.isEnabled())
         buy.click()
         QApplication.processEvents()
         self.assertEqual(pd["inventory"]["Void seal (8)"], 1)
         self.assertEqual(pd["pest_control_commendations"], 160)
-        deflector = panel.findChild(
+        deflector = reward_page.findChild(
             QPushButton, "pestControlBuyDeflectorButton"
         )
         self.assertTrue(deflector.isEnabled())
@@ -14367,6 +14906,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Void knight deflector"], 1)
         self.assertEqual(pd["pest_control_commendations"], 10)
 
+        tree = self._open_activities(dialog)
+        tree.setCurrentItem(item)
+        tree.itemActivated.emit(item, 0)
+        QApplication.processEvents()
         mode = panel.findChild(QComboBox, "pestControlModeCombo")
         lander = panel.findChild(QComboBox, "pestControlLanderCombo")
         duty = panel.findChild(QComboBox, "pestControlDutyCombo")
@@ -14558,8 +15101,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         progress = panel.findChild(QProgressBar, "soulWarsProgress")
         self.assertFalse(progress.isVisible())
 
-        reward = panel.findChild(QComboBox, "soulWarsRewardCombo")
-        buy = panel.findChild(QPushButton, "soulWarsBuyCharmsButton")
+        reward_page = _open_reward_target(dialog, "soul_wars")
+        reward = reward_page.findChild(QComboBox, "soulWarsRewardCombo")
+        buy = reward_page.findChild(QPushButton, "soulWarsBuyCharmsButton")
         self.assertEqual(reward.currentData(), "Gold charm")
         self.assertTrue(buy.isEnabled())
         buy.click()
@@ -14567,6 +15111,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(command_calls[-1][0], "buy_charms")
         self.assertGreater(pd["inventory"]["Gold charm"], 0)
         self.assertEqual(pd["soul_wars_zeal"], 26)
+        tabs = _find_main_tabs(dialog)
+        tabs.setCurrentIndex(
+            next(index for index in range(tabs.count()) if tabs.tabText(index) == "Skills")
+        )
+        QApplication.processEvents()
 
         mode = panel.findChild(QComboBox, "soulWarsModeCombo")
         team = panel.findChild(QComboBox, "soulWarsTeamCombo")
@@ -15302,7 +15851,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertLessEqual(panel.sizeHint().height(), 560)
         dialog.close()
 
-    def test_mage_training_arena_detail_fits_and_purchases_the_saved_goal(self) -> None:
+    def test_mage_training_arena_shop_buys_selected_reward_and_plan_goal_stays_live(self) -> None:
         from ankiscape.logic.mage_training_arena_logic import (
             apply_mage_training_arena_command_pure,
             default_mage_training_arena_state_pure,
@@ -15312,7 +15861,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["magic_level"] = 99
         pd["mage_training_arena"] = default_mage_training_arena_state_pure()
         pd["mage_training_arena"]["reward_goal"] = "cosmic_rune"
-        pd["mage_training_arena"]["wallets"]["enchantment"] = 5
+        for room_id in pd["mage_training_arena"]["wallets"]:
+            pd["mage_training_arena"]["wallets"][room_id] = 10_000
         command_calls = []
 
         def arena_command(action_id, payload):
@@ -15352,14 +15902,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(visible.width(), panel.width())
         self.assertEqual(visible.height(), panel.height())
         self.assertEqual(panel.width(), panel.parentWidget().width())
-        purchase = panel.findChild(QPushButton, "mageTrainingArenaPurchaseButton")
+        reward_page = _open_reward_target(dialog, "mage_training_arena")
+        purchase = reward_page.findChild(
+            QPushButton, "mageTrainingArenaPurchaseButton"
+        )
 
-        goal = panel.findChild(QComboBox, "mageTrainingArenaGoalCombo")
-        goal.setCurrentIndex(goal.findData("bones_to_peaches"))
+        reward = reward_page.findChild(QComboBox, "mageTrainingArenaRewardCombo")
+        reward.setCurrentIndex(reward.findData("bones_to_peaches"))
         purchase.click()
         QApplication.processEvents()
-        self.assertEqual(command_calls[-1], ("purchase", {"reward_id": "cosmic_rune"}))
-        self.assertEqual(pd["inventory"]["Cosmic rune"], 1)
+        self.assertEqual(command_calls[-1], ("purchase", {"reward_id": "bones_to_peaches"}))
+        self.assertTrue(pd["mage_training_arena"]["completed"])
+        self.assertEqual(pd["mage_training_arena"]["reward_goal"], "cosmic_rune")
+
+        tree = self._open_activities(dialog)
+        tree.setCurrentItem(item)
+        tree.itemActivated.emit(item, 0)
+        QApplication.processEvents()
+        goal = panel.findChild(QComboBox, "mageTrainingArenaGoalCombo")
+        save = panel.findChild(QPushButton, "mageTrainingArenaSaveButton")
+        self.assertTrue(goal.isVisibleTo(dialog))
+        self.assertTrue(save.isVisibleTo(dialog))
+        goal.setCurrentIndex(goal.findData("bones_to_peaches"))
+        save.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "set_policy")
+        self.assertEqual(command_calls[-1][1]["reward_goal"], "bones_to_peaches")
+        self.assertEqual(pd["mage_training_arena"]["reward_goal"], "bones_to_peaches")
         dialog.close()
 
     def test_barbarian_assault_tutorial_shop_plan_and_active_state_are_live(self) -> None:
@@ -15414,13 +15983,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertTrue(pd["barbarian_assault_tutorial_complete"])
 
-        buy = panel.findChild(QPushButton, "barbarianAssaultBuyBootsButton")
+        reward_page = _open_reward_target(dialog, "barbarian_assault")
+        buy = reward_page.findChild(QPushButton, "barbarianAssaultBuyBootsButton")
+        self.assertTrue(buy.isVisibleTo(dialog))
         self.assertTrue(buy.isEnabled())
         buy.click()
         QApplication.processEvents()
         self.assertEqual(pd["inventory"]["Runner boots"], 1)
         self.assertEqual(set(pd["barbarian_assault_points"].values()), {0})
 
+        tree = self._open_activities(dialog)
+        tree.setCurrentItem(item)
+        tree.itemActivated.emit(item, 0)
+        QApplication.processEvents()
         mode = panel.findChild(QComboBox, "barbarianAssaultModeCombo")
         role = panel.findChild(QComboBox, "barbarianAssaultRoleCombo")
         mode.setCurrentIndex(mode.findData("advanced"))

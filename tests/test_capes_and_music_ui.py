@@ -97,33 +97,21 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
     def _labels(self, page):
         return [label.text() for label in page.findChildren(QLabel)]
 
-    def test_a_cape_the_player_cannot_afford_has_a_disabled_button_and_a_reason(self):
-        player = default_player_data(ORE_DATA)
-        player["mining_level"] = SKILLCAPE_LEVEL
-        player["inventory"] = {"Coins": 0}
-        page, _ctx = self._build(player, _command(player))
-
-        button = self._named(page, "cabinetCapeBuy_mining")
-        self.assertIsNotNone(button)
-        self.assertFalse(button.isEnabled())
-        self.assertIn("99,000 coins needed", " ".join(self._labels(page)))
-
-    def test_buying_a_cape_from_the_cabinet_moves_the_real_save(self):
+    def test_capes_are_display_only_in_the_cabinet(self):
         player = default_player_data(ORE_DATA)
         player["mining_level"] = SKILLCAPE_LEVEL
         player["inventory"] = {"Coins": SKILLCAPE_PRICE}
         page, _ctx = self._build(player, _command(player))
 
-        button = self._named(page, "cabinetCapeBuy_mining")
-        self.assertTrue(button.isEnabled())
-        button.click()
-        for _ in range(3):
-            QApplication.instance().processEvents()
-
-        self.assertEqual(player["inventory"]["Mining cape"], 1)
-        self.assertEqual(player["inventory"]["Mining hood"], 1)
-        # The panel re-rendered from the changed save, so the row is now Owned.
-        self.assertFalse(self._named(page, "cabinetCapeBuy_mining").isEnabled())
+        purchase_buttons = [
+            button
+            for button in page.findChildren(QPushButton)
+            if button.objectName().startswith("cabinetCapeBuy_")
+        ]
+        self.assertEqual(purchase_buttons, [])
+        labels = " ".join(self._labels(page))
+        self.assertIn("Mining cape", labels)
+        self.assertIn("99,000 coins", labels)
 
     def test_the_keepsake_line_names_the_first_99(self):
         player = default_player_data(ORE_DATA)

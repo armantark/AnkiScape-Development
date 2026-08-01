@@ -13,6 +13,7 @@ try:
     from aqt.qt import (  # type: ignore
         QComboBox,
         QFrame,
+        QGridLayout,
         QHBoxLayout,
         QLabel,
         QMessageBox,
@@ -95,16 +96,31 @@ if HAS_QT:
             policy_layout.addWidget(self.save_button)
             layout.addWidget(policy)
 
-            reward = QWidget(self)
-            reward_layout = QHBoxLayout(reward)
-            reward_layout.setContentsMargins(0, 0, 0, 0)
-            self.reward_combo = QComboBox(reward)
+            reward_policy = QWidget(self)
+            reward_policy_layout = QHBoxLayout(reward_policy)
+            reward_policy_layout.setContentsMargins(0, 0, 0, 0)
+            self.reward_combo = QComboBox(reward_policy)
             self.reward_combo.setObjectName("trollInvasionRewardSkillCombo")
-            self.redeem_button = QPushButton("Read reward book", reward)
+            reward_policy_layout.addWidget(self.reward_combo, 1)
+            layout.addWidget(reward_policy)
+
+            reward_shop = QWidget(self)
+            reward_shop.setObjectName("trollInvasionRewardShop")
+            reward_shop_layout = QGridLayout(reward_shop)
+            reward_shop_layout.setContentsMargins(0, 0, 0, 0)
+            reward_shop_layout.setHorizontalSpacing(6)
+            reward_shop_layout.setVerticalSpacing(4)
+            self.reward_wallet = QLabel(reward_shop)
+            self.reward_wallet.setObjectName("trollInvasionRewardWallet")
+            self.shop_reward_combo = QComboBox(reward_shop)
+            self.shop_reward_combo.setObjectName("trollInvasionShopRewardSkillCombo")
+            self.redeem_button = QPushButton("Read reward book", reward_shop)
             self.redeem_button.setObjectName("trollInvasionRedeemButton")
-            reward_layout.addWidget(self.reward_combo, 1)
-            reward_layout.addWidget(self.redeem_button)
-            layout.addWidget(reward)
+            reward_shop_layout.addWidget(self.reward_wallet, 0, 0, 1, 2)
+            reward_shop_layout.addWidget(self.shop_reward_combo, 1, 0)
+            reward_shop_layout.addWidget(self.redeem_button, 1, 1)
+            layout.addWidget(reward_shop)
+            reward_shop.hide()
 
             actions = QWidget(self)
             actions_layout = QHBoxLayout(actions)
@@ -143,7 +159,7 @@ if HAS_QT:
             self._run("set_policy", {"mode": self.mode_combo.currentData(), "difficulty": self.difficulty_combo.currentData(), "reward_skill": self.reward_combo.currentData()})
 
         def _redeem(self) -> None:
-            self._run("redeem_book", {"skill_id": self.reward_combo.currentData()})
+            self._run("redeem_book", {"skill_id": self.shop_reward_combo.currentData()})
 
         def _enter_or_select(self) -> None:
             if not self._view["active"]:
@@ -169,10 +185,15 @@ if HAS_QT:
             view = troll_invasion_view_pure(self._player_data)
             self._view = view
             enabled = self._on_command is not None
+            selected_shop_skill = str(
+                self.shop_reward_combo.currentData()
+                or view["troll_invasion_policy"]["reward_skill"]
+            )
             for combo, rows, selected in (
                 (self.mode_combo, view["mode_options"], view["selected_mode"]),
                 (self.difficulty_combo, view["difficulty_options"], view["selected_difficulty"]),
                 (self.reward_combo, view["reward_skill_options"], view["troll_invasion_policy"]["reward_skill"]),
+                (self.shop_reward_combo, view["reward_skill_options"], selected_shop_skill),
             ):
                 blocked = combo.blockSignals(True)
                 combo.clear()
@@ -194,7 +215,13 @@ if HAS_QT:
             self.save_button.setEnabled(enabled and bool(view["policy_controls_enabled"]))
             self.reward_combo.setVisible(bool(view["reward_visible"]))
             self.reward_combo.setEnabled(enabled and bool(view["reward_enabled"]))
-            self.redeem_button.setVisible(bool(view["reward_visible"]))
+            book_count = int(view["reward_book_count"])
+            self.reward_wallet.setText(
+                f"{book_count} reward book{'s' if book_count != 1 else ''}"
+            )
+            self.shop_reward_combo.setEnabled(
+                enabled and bool(view["reward_enabled"])
+            )
             self.redeem_button.setEnabled(enabled and bool(view["reward_enabled"]))
             self.primary_button.setText(str(view["primary_label"]))
             self.primary_button.setEnabled(enabled and bool(view["primary_enabled"]))
