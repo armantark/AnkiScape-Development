@@ -2,10 +2,11 @@
 
 Darkan's achievement classes and rev-727 cache enum 3483 own task identity,
 tier membership, names, descriptions and ordinary requirements. Pinned
-pre-cutoff wiki revisions are corroboration only. Tasks without an honest
-AnkiScape predicate are omitted rather than emitted as inert rows.
+pre-cutoff wiki revisions are corroboration only. Named tasks without an
+honest AnkiScape predicate are latent rows: visible, incomplete, and
+excluded from automatic completion until their predicate ships.
 
-Tasks kept: 326."""
+Named task rows: 422; designed cutoff denominator: 534."""
 
 from __future__ import annotations
 
@@ -49,6 +50,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 0,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_yoink',
@@ -58,6 +60,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 1,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_preaching_to_the_infected',
@@ -67,6 +70,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 3,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_gone_fishing',
@@ -76,6 +80,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 5,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_boot_camp',
@@ -85,6 +90,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 6,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_a_cat_is_for_life',
@@ -94,6 +100,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 7,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_creator_and_destroyer',
@@ -103,6 +110,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 8,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_red_revolution',
@@ -112,6 +120,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 9,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_breaking_and_entering',
@@ -121,6 +130,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 11,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_party_pooper',
@@ -130,6 +140,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 14,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_a_gift_from_khazard',
@@ -139,6 +150,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 13,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_easy_vial_deeds',
@@ -148,10 +160,12 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 15,
                 0,
+                False,
             ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 23 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'ardougne_medium',
@@ -168,6 +182,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 25,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_volatile_valuables',
@@ -177,6 +192,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 27,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_what_a_melon',
@@ -186,6 +202,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 28,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_arriving_in_style',
@@ -195,6 +212,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 30,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_meeting_history_again',
@@ -204,6 +222,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 32,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_fearless_fishing',
@@ -213,6 +232,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 33,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_water_logged',
@@ -222,6 +242,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 34,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_green_fingers',
@@ -231,6 +252,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 35,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_a_natural_thief',
@@ -240,6 +262,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 36,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_the_coal_train',
@@ -249,6 +272,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 37,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_are_you_chicken',
@@ -258,6 +282,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 38,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_medium_ardougne_express',
@@ -267,10 +292,12 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 50,
                 0,
+                False,
             ),
             ),
             DiaryLamp(7500, 1),
             'period tier: 16 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'ardougne_hard',
@@ -287,6 +314,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 29,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_brace_yourself',
@@ -296,6 +324,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 39,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_shadow_boxing',
@@ -305,6 +334,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 40,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_just_like_that',
@@ -314,6 +344,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 41,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_nice_view',
@@ -323,6 +354,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 42,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_ourania_mania',
@@ -332,6 +364,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 44,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_not_on_my_watch',
@@ -341,6 +374,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 45,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_it_just_croaked',
@@ -350,6 +384,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 46,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_get_your_stinking_hands_off_me',
@@ -359,6 +394,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 47,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_vine_detta',
@@ -368,6 +404,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 48,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_monkey_business',
@@ -377,6 +414,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 51,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_hard_it_s_my_newt',
@@ -386,10 +424,12 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 52,
                 0,
+                False,
             ),
             ),
             DiaryLamp(28000, 1),
             'period tier: 17 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'ardougne_elite',
@@ -406,6 +446,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 56,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_elite_abyssal_valet',
@@ -415,6 +456,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 57,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_elite_you_could_just_knock',
@@ -424,6 +466,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 58,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_elite_honestly_it_s_not_a_purse',
@@ -433,6 +476,7 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 59,
                 0,
+                False,
             ),
             DiaryTask(
                 'ardougne_elite_almost_made_in_ardougne',
@@ -442,10 +486,12 @@ DIARY_FAMILIES = (
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 60,
                 0,
+                False,
             ),
             ),
             DiaryLamp(50000, 1),
             'period tier: 5 tasks; Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
+            designed_task_count=12,
         ),
         ),
         'Doctor Orbon',
@@ -472,6 +518,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 115,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_the_good_stuff',
@@ -481,6 +528,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 116,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_family_values',
@@ -490,6 +538,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 118,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_fill_yer_bucket',
@@ -499,6 +548,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 121,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_it_s_not_wabbit_season',
@@ -508,6 +558,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 123,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_stand_and_deliver',
@@ -517,6 +568,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 124,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_making_my_mind_up',
@@ -526,6 +578,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 125,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_easy_chain_store',
@@ -535,10 +588,52 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 129,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'falador_easy_sir_mitt',
+                'Sir Mitt',
+                "Climb to the top of the White Knights' Castle.",
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                117,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'falador_easy_sniffing_out_the_mole',
+                'Sniffing Out the Mole',
+                'Enter the mole lair under Falador Park.',
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                119,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'falador_easy_chinchompa_powered',
+                'Chinchompa Powered!',
+                "Feed Ridgeley, the hairdresser's pet.",
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                120,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'falador_easy_elementary_medicine',
+                'Elementary Medicine',
+                'Heal an elemental wizard by casting an appropriate elemental spell on him.',
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                122,
+                0,
+                True,
             ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 15 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'falador_medium',
@@ -555,6 +650,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 130,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_is_it_so_hard_to_walk_round',
@@ -564,6 +660,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 131,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_climbing_the_walls',
@@ -573,6 +670,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 133,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_it_s_nothing_personal',
@@ -582,6 +680,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 134,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_ice_the_icy',
@@ -591,6 +690,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 135,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_blinded_with_science',
@@ -600,6 +700,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 136,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_they_have_families_to_feed',
@@ -609,6 +710,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 137,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_stoic_sweetcorn_guardian',
@@ -618,6 +720,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 138,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_do_they_come_in_other_colours',
@@ -627,6 +730,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 139,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_fun_for_the_whole_family',
@@ -636,6 +740,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 140,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_medium_look_spiffy_for_tiffy',
@@ -645,10 +750,22 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 141,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'falador_medium_these_aren_t_the_coins_you_re_looking_for',
+                "These Aren't the Coins You're Looking For",
+                'Travel from Port Sarim to Musa Point for free (with a little help from Charos).',
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                132,
+                0,
+                True,
             ),
             ),
             DiaryLamp(5000, 1),
             'period tier: 12 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'falador_hard',
@@ -665,6 +782,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 143,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_mass_production',
@@ -674,6 +792,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 144,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_it_spoiled_my_view',
@@ -683,6 +802,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 145,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_the_stonemasons',
@@ -692,6 +812,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 146,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_the_mogre_mash',
@@ -701,6 +822,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 148,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_why_oh_wyvern',
@@ -710,6 +832,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 149,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_banned_for_life',
@@ -719,6 +842,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 150,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_hard_a_knight_in_the_darkness',
@@ -728,10 +852,32 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 151,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'falador_hard_it_matches_my_eyes',
+                'It Matches My Eyes',
+                'Dye a cape pink using dye from Betty in Port Sarim.',
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                142,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'falador_hard_i_heard_you_like_mudskips',
+                'I Heard You Like Mudskips',
+                'Dial to the fairy ring on Mudskipper Point.',
+                (),
+                'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+                147,
+                0,
+                True,
             ),
             ),
             DiaryLamp(10000, 1),
             'period tier: 10 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'falador_elite',
@@ -748,6 +894,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 309,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_elite_you_d_best_come_a_cookin',
@@ -757,6 +904,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 310,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_elite_concentration_is_key',
@@ -766,6 +914,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 311,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_elite_i_swear_i_heard_it_scream',
@@ -775,6 +924,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 312,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_elite_i_ve_changed_my_mind',
@@ -784,6 +934,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 313,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_elite_a_string_and_a_flare',
@@ -793,6 +944,7 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 314,
                 0,
+                False,
             ),
             DiaryTask(
                 'falador_elite_altar_ed_state',
@@ -802,10 +954,12 @@ DIARY_FAMILIES = (
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 315,
                 0,
+                False,
             ),
             ),
             DiaryLamp(50000, 1),
             'period tier: 7 tasks; Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
+            designed_task_count=12,
         ),
         ),
         'Redbeard Frank',
@@ -832,6 +986,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 152,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_easy_why_won_t_you_die',
@@ -841,6 +996,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 153,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_easy_endangered_species',
@@ -850,10 +1006,82 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 161,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'fremennik_easy_king_conifer',
+                'King Conifer',
+                'Find the highest tree on the Fremennik mainland.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                154,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'fremennik_easy_assaulted_goodies',
+                'Assaulted Goodies',
+                'View the rewards in the Barbarian Assault tutorial.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                155,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'fremennik_easy_oxymoron_incarnate',
+                'Oxymoron Incarnate',
+                'Speak to Otto Godblessed about barbarian training.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                156,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'fremennik_easy_why_did_the_lobster_blush',
+                'Why Did the Lobster Blush?',
+                'Collect three seaweed from the shore north-east of Rellekka.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                157,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'fremennik_easy_hunting_the_hunter',
+                'Hunting the Hunter',
+                'Find the hunting expert on the northern ice plains.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                158,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'fremennik_easy_peer_off_the_pier',
+                'Peer Off the Pier',
+                "Catch a fish off one of Rellekka's piers.",
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                159,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'fremennik_easy_a_familiar_feeling',
+                'A Familiar Feeling',
+                "Recharge your Summoning points near Rellekka's gate.",
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                160,
+                0,
+                True,
             ),
             ),
             DiaryLamp(5000, 1),
             'period tier: 10 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'fremennik_medium',
@@ -870,6 +1098,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 162,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_cool_story_bro',
@@ -879,6 +1108,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 163,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_who_s_a_good_boy',
@@ -888,6 +1118,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 164,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_only_takes_a_little_vial',
@@ -897,6 +1128,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 165,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_you_know_you_want_it',
@@ -906,6 +1138,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 166,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_you_really_don_t_need_any_more_shoes',
@@ -915,6 +1148,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 168,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_big_game_hunter',
@@ -924,6 +1158,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 169,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_yak_attack',
@@ -933,6 +1168,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 170,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_fremmental',
@@ -942,6 +1178,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 171,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_medium_grand_theft_fish',
@@ -951,10 +1188,22 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 172,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'fremennik_medium_fairy_mountaineering',
+                'Fairy Mountaineering',
+                'Use a fairy ring to appear on a mountaintop, near the windswept tree.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                167,
+                0,
+                True,
             ),
             ),
             DiaryLamp(10000, 1),
             'period tier: 11 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'fremennik_hard',
@@ -971,6 +1220,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 173,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_dress_to_impress',
@@ -980,6 +1230,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 174,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_the_graceful_barbarian',
@@ -989,6 +1240,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 175,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_runes_on_the_moon',
@@ -998,6 +1250,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 176,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_pyre_at_will',
@@ -1007,6 +1260,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 177,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_fish_fingers',
@@ -1016,6 +1270,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 178,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_easy_as_pie',
@@ -1025,6 +1280,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 179,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_hard_a_periodic_table',
@@ -1034,10 +1290,22 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 181,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'fremennik_hard_how_to_maim_your_dragon',
+                'How to Maim Your Dragon',
+                'Kill a mithril dragon.',
+                (),
+                'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+                180,
+                0,
+                True,
             ),
             ),
             DiaryLamp(15000, 1),
             'period tier: 9 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'fremennik_elite',
@@ -1054,6 +1322,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 316,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_limber_lumber_jumper',
@@ -1063,6 +1332,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 317,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_astronomical',
@@ -1072,6 +1342,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 318,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_first_stryke',
@@ -1081,6 +1352,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 319,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_leap_of_faith',
@@ -1090,6 +1362,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 320,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_no_smoke_without_pyre',
@@ -1099,6 +1372,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 321,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_this_hasta_work',
@@ -1108,6 +1382,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 322,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_potting_with_otto',
@@ -1117,6 +1392,7 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 323,
                 0,
+                False,
             ),
             DiaryTask(
                 'fremennik_elite_axe_ll_grease',
@@ -1126,10 +1402,12 @@ DIARY_FAMILIES = (
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 417,
                 0,
+                False,
             ),
             ),
             DiaryLamp(40000, 1),
             'period tier: 9 tasks; Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
+            designed_task_count=12,
         ),
         ),
         'Council workman',
@@ -1156,6 +1434,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 183,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_easy_golden_shores',
@@ -1165,6 +1444,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 184,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_easy_show_that_you_cairn',
@@ -1174,6 +1454,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 187,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_easy_fruity_catch',
@@ -1183,6 +1464,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 188,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_easy_tzhaar_wars',
@@ -1192,10 +1474,62 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 190,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'karamja_easy_five_a_day',
+                'Five a Day',
+                'Pick 5 bananas from the plantation located east of the volcano.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                182,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'karamja_easy_put_to_port_in_port_sarim',
+                'Put to Port in Port Sarim',
+                'Travel to Port Sarim via the dock east of Musa Point.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                185,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'karamja_easy_avast_ardougne',
+                'Avast Ardougne!',
+                'Travel to Ardougne via the port near Brimhaven.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                186,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'karamja_easy_beachcomber',
+                'Beachcomber',
+                'Collect 5 seaweed from anywhere on Karamja.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                189,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'karamja_easy_it_s_a_jungle_ogre',
+                "It's a Jungle Ogre",
+                'Kill a jogre in the Pothole dungeon.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                191,
+                0,
+                True,
             ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 10 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'karamja_medium',
@@ -1212,6 +1546,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 192,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_back_cran_door',
@@ -1221,6 +1556,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 193,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_dungeons_and_dragons',
@@ -1230,6 +1566,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 194,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_horseless_carriage',
@@ -1239,6 +1576,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 195,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_they_like_me_they_really_like_me',
@@ -1248,6 +1586,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 196,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_arachnophagia',
@@ -1257,6 +1596,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 197,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_thank_you_madam',
@@ -1266,6 +1606,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 209,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_i_m_a_lumberjack_and_i_m_okay',
@@ -1275,6 +1616,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 199,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_i_sleep_all_night_and_i_work_all_day',
@@ -1284,6 +1626,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 200,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_to_catch_a_karambwan',
@@ -1293,6 +1636,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 201,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_that_s_not_a_knife',
@@ -1302,6 +1646,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 202,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_medium_falling_with_style',
@@ -1311,10 +1656,12 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 203,
                 0,
+                False,
             ),
             ),
             DiaryLamp(5000, 1),
             'period tier: 19 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'karamja_hard',
@@ -1331,6 +1678,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 212,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_at_one_with_nature',
@@ -1340,6 +1688,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 214,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_drop_it_like_it_s_hot',
@@ -1349,6 +1698,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 215,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_deadwing',
@@ -1358,6 +1708,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 216,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_quick_as_a_shot',
@@ -1367,6 +1718,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 217,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_a_palm_for_each_finger',
@@ -1376,6 +1728,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 218,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_yes_my_master',
@@ -1385,6 +1738,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 219,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_hard_can_opener',
@@ -1394,10 +1748,32 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 220,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'karamja_hard_flawless_victory',
+                'Flawless Victory',
+                'Become the champion of the Fight Pits.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                211,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'karamja_hard_i_d_be_kharazi_to_eat_this',
+                "I'd Be Kharazi to Eat This",
+                'Eat an oomlie wrap.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                213,
+                0,
+                True,
             ),
             ),
             DiaryLamp(10000, 1),
             'period tier: 10 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'karamja_elite',
@@ -1414,6 +1790,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 324,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_elite_boxing_clever',
@@ -1423,6 +1800,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 326,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_elite_it_s_a_snap',
@@ -1432,6 +1810,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 327,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_elite_crunchy_coating',
@@ -1441,6 +1820,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 328,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_elite_walkies',
@@ -1450,6 +1830,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 329,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_elite_tread_carefully',
@@ -1459,6 +1840,7 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 330,
                 0,
+                False,
             ),
             DiaryTask(
                 'karamja_elite_ten_in_a_row',
@@ -1468,10 +1850,22 @@ DIARY_FAMILIES = (
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 331,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'karamja_elite_the_power_of_lava',
+                'The Power of Lava',
+                'Equip a TzHaar fire cape while standing in TzHaar.',
+                (),
+                'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+                325,
+                0,
+                True,
             ),
             ),
             DiaryLamp(30000, 1),
             'period tier: 8 tasks; Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
+            designed_task_count=12,
         ),
         ),
         'Jackie the fruit trader',
@@ -1498,6 +1892,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 61,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_beginner_the_fruit_of_the_sea',
@@ -1507,10 +1902,112 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 79,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_doom',
+                'Doom!',
+                'Speak with the Doomsayer about the Warning System.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                62,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_shrimpin_ain_t_easy',
+                "Shrimpin' Ain't Easy",
+                'Catch some shrimp in the fishing spot to the east of Lumbridge Swamp.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                63,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_master_of_all_i_survey',
+                'Master of All I Survey',
+                'Climb to the highest point in Lumbridge.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                64,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_raise_the_roof',
+                'Raise the Roof',
+                'Raise the flag on the roof of the Lumbridge bank.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                65,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_hail_to_the_duke_baby',
+                'Hail to the Duke, Baby',
+                'Speak to Horacio, the Duke of Lumbridge.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                66,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_window_shopping',
+                'Window Shopping',
+                "Browse Lumbridge's general store.",
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                67,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_grinding_my_gears',
+                'Grinding My Gears',
+                "Grind some flour in Lumbridge's mill.",
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                68,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_sage_advice',
+                'Sage Advice',
+                'Talk to the Lumbridge Sage.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                69,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_tinkle_the_ivories',
+                'Tinkle the Ivories',
+                "Play on the organ in Lumbridge's church.",
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                70,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_beginner_passing_out',
+                'Passing Out',
+                'Ask about the toll at the Al Kharid gate.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                71,
+                0,
+                True,
             ),
             ),
             DiaryLamp(500, 1),
             'period tier: 23 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'lumbridge_easy',
@@ -1527,6 +2024,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 84,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_draaaaaiiiiiins',
@@ -1536,6 +2034,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 85,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_belter_of_a_smelter',
@@ -1545,6 +2044,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 86,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_slippery_when_wet',
@@ -1554,6 +2054,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 88,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_i_can_t_hear_dead_people',
@@ -1563,6 +2064,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 91,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_you_doity_rat',
@@ -1572,6 +2074,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 93,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_what_is_this_place',
@@ -1581,6 +2084,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 97,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_artisan_crafting',
@@ -1590,6 +2094,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 99,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_easy_iron_on',
@@ -1599,10 +2104,42 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 102,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'lumbridge_easy_come_in_here_and_say_that',
+                'Come In Here and Say That',
+                "Taunt the lesser demon at the top of the Wizards' Tower.",
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                87,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_easy_klept_old_man_ia',
+                'Klept-Old-Man-ia',
+                'Ask the Wise Old Man to check your bank for unnecessary quest-related items.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                89,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'lumbridge_easy_eye_on_the_prize',
+                'Eye on the Prize',
+                'Discover what the Wise Old Man is watching through his telescope.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                90,
+                0,
+                True,
             ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 19 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'lumbridge_medium',
@@ -1619,6 +2156,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 103,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_a_meal_fit_for_a_duke',
@@ -1628,6 +2166,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 104,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_lovely_with_a_squeeze_of_lemon',
@@ -1637,6 +2176,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 105,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_weeping_willow',
@@ -1646,6 +2186,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 106,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_always_be_prepared',
@@ -1655,6 +2196,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 107,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_steel_justice',
@@ -1664,6 +2206,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 108,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_ease_of_access',
@@ -1673,6 +2216,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 109,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_willow_the_wisp_of_smoke',
@@ -1682,6 +2226,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 110,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_hi_ho_silver',
@@ -1691,6 +2236,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 112,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_one_day_you_shall_be_a_fork',
@@ -1700,6 +2246,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 113,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_medium_made_to_order',
@@ -1709,10 +2256,22 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 114,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'lumbridge_medium_where_s_the_beef',
+                "Where's The Beef?",
+                'Get Beefy Bill to bank something for you.',
+                (),
+                'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+                111,
+                0,
+                True,
             ),
             ),
             DiaryLamp(1500, 1),
             'period tier: 12 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'lumbridge_hard',
@@ -1729,6 +2288,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 351,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_hard_building_up_strength',
@@ -1738,6 +2298,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 352,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_hard_have_your_cake_and_eat_it',
@@ -1747,6 +2308,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 353,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_hard_blast_and_hellfire',
@@ -1756,6 +2318,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 354,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_hard_gods_give_me_strength',
@@ -1765,6 +2328,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 355,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_hard_not_waving_but_drowning',
@@ -1774,6 +2338,7 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 356,
                 0,
+                False,
             ),
             DiaryTask(
                 'lumbridge_hard_are_yew_as_fired_up_as_i_am',
@@ -1783,10 +2348,12 @@ DIARY_FAMILIES = (
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 357,
                 0,
+                False,
             ),
             ),
             DiaryLamp(9000, 1),
             'period tier: 7 tasks; Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
+            designed_task_count=12,
         ),
         ),
         'Explorer Jack',
@@ -1813,6 +2380,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 944,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_it_s_only_wafer_thin',
@@ -1822,6 +2390,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 945,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_dislike_anthrope',
@@ -1831,6 +2400,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 946,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_cranius_lupus',
@@ -1840,6 +2410,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 947,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_lab_clean_up_assistant',
@@ -1849,6 +2420,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 948,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_fortified_spirit',
@@ -1858,6 +2430,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 949,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_struck_a_ghast',
@@ -1867,6 +2440,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 950,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_blooming_marvellous',
@@ -1876,6 +2450,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 951,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_only_going_forward_we_can_t_find_reverse',
@@ -1885,6 +2460,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 952,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_if_it_bleeds',
@@ -1894,6 +2470,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 953,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_easy_wurt_a_bundle',
@@ -1903,10 +2480,12 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 954,
                 0,
+                False,
             ),
             ),
             DiaryLamp(4000, 1),
             'period tier: 11 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'morytania_medium',
@@ -1923,6 +2502,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 957,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_the_yeast_they_can_do',
@@ -1932,6 +2512,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 958,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_flamtaer_will_get_you_everywhere',
@@ -1941,6 +2522,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 960,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_barking_up_the_wrong_tree',
@@ -1950,6 +2532,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 962,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_gate_spectre_ations',
@@ -1959,6 +2542,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 963,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_ready_trek',
@@ -1968,6 +2552,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 964,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_don_t_stop_me_if_i_start_to_ramble',
@@ -1977,6 +2562,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 965,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_plenty_mort_where_that_came_from',
@@ -1986,6 +2572,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 966,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_finding_your_balance',
@@ -1995,6 +2582,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 968,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_brain_bending',
@@ -2004,6 +2592,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 970,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_i_wonder_how_far_it_ghost',
@@ -2013,6 +2602,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 971,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_medium_obvious_forgery',
@@ -2022,10 +2612,12 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 972,
                 0,
+                False,
             ),
             ),
             DiaryLamp(10000, 1),
             'period tier: 20 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'morytania_hard',
@@ -2042,6 +2634,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 975,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_runecraft_carrier',
@@ -2051,6 +2644,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 985,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_shade_shattering_ka_bloom',
@@ -2060,6 +2654,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 976,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_they_ll_just_throw_it_away_again',
@@ -2069,6 +2664,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 977,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_time_salver',
@@ -2078,6 +2674,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 978,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_huge_success',
@@ -2087,6 +2684,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 979,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_just_one_more_key',
@@ -2096,6 +2694,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 981,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_raising_the_stakes',
@@ -2105,6 +2704,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 982,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_trekkin_ain_t_easy',
@@ -2114,6 +2714,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 983,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_hard_better_than_cursing_the_darkness',
@@ -2123,10 +2724,22 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 984,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'morytania_hard_i_brought_your_stuff_back',
+                'I Brought Your Stuff Back',
+                'Equip a full set of Barrows gear in the Barrows.',
+                (),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                980,
+                0,
+                True,
             ),
             ),
             DiaryLamp(20000, 1),
             'period tier: 11 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'morytania_elite',
@@ -2143,6 +2756,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 986,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_as_you_might_expect',
@@ -2152,6 +2766,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 987,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_thoroughly_a_ghast',
@@ -2161,6 +2776,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 988,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_as_good_as_renew',
@@ -2170,6 +2786,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 989,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_fremennik_export',
@@ -2179,6 +2796,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 990,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_set_it_on_fiyr',
@@ -2188,6 +2806,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 992,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_bros_before_barrows',
@@ -2197,6 +2816,7 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 993,
                 0,
+                False,
             ),
             DiaryTask(
                 'morytania_elite_on_wings_of_bling',
@@ -2206,10 +2826,22 @@ DIARY_FAMILIES = (
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 994,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'morytania_elite_not_such_a_rotten_idea',
+                'Not Such a Rotten Idea',
+                'Teleport to Burgh de Rott using a games necklace.',
+                (),
+                'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+                991,
+                0,
+                True,
             ),
             ),
             DiaryLamp(40000, 1),
             'period tier: 9 tasks; Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
+            designed_task_count=12,
         ),
         ),
         'Hiylik Myna',
@@ -2236,6 +2868,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 223,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_easy_another_string_to_your_bow',
@@ -2245,6 +2878,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 226,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_easy_bunch_of_flours',
@@ -2254,6 +2888,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 227,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_easy_sinclair_swirling',
@@ -2263,6 +2898,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 229,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_easy_grand_candle',
@@ -2272,6 +2908,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 230,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_easy_mack_rolled',
@@ -2281,10 +2918,72 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 232,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'seers_easy_reflax_actions',
+                'Reflax Actions',
+                'Pick five flax from the flax field.',
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                221,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'seers_easy_why',
+                'Why?',
+                'Walk clockwise around the big mysterious statue.',
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                222,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'seers_easy_stir_galahad',
+                'Stir, Galahad',
+                'Have Sir Galahad make you a cup of tea.',
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                224,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'seers_easy_la_morte_d_arthur',
+                "La Morte D'Arthur",
+                'Take a poison chalice to King Arthur.',
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                225,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'seers_easy_happy_hour',
+                'Happy Hour',
+                "Give five locals a glass of cider in the Forester's Arms.",
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                228,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'seers_easy_a_seer_ing_light',
+                'A Seer-ing Light',
+                "Pray at the Seers' Village altar.",
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                231,
+                0,
+                True,
             ),
             ),
             DiaryLamp(1000, 1),
             "period tier: 12 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+            designed_task_count=12,
         ),
         DiaryTier(
             'seers_medium',
@@ -2301,6 +3000,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 233,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_it_s_a_slightly_magical_stick',
@@ -2310,6 +3010,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 234,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_king_coal',
@@ -2319,6 +3020,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 235,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_mastering_the_elements',
@@ -2328,6 +3030,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 236,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_it_s_only_a_model',
@@ -2337,6 +3040,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 237,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_arch_archer',
@@ -2346,6 +3050,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 238,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_what_no_cuddly_toy',
@@ -2355,6 +3060,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 239,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_i_can_seer_my_house_from_here',
@@ -2364,6 +3070,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 240,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_familiar_fire_familiarity',
@@ -2373,6 +3080,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 241,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_all_your_bass',
@@ -2382,6 +3090,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 243,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_medium_sniper_training',
@@ -2391,10 +3100,22 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 244,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'seers_medium_at_least_it_doesn_t_need_walking',
+                "At Least It Doesn't Need Walking",
+                'Get a pet fish from Harry.',
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                242,
+                0,
+                True,
             ),
             ),
             DiaryLamp(5000, 1),
             "period tier: 12 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+            designed_task_count=12,
         ),
         DiaryTier(
             'seers_hard',
@@ -2411,6 +3132,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 246,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_the_short_of_it',
@@ -2420,6 +3142,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 247,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_prayer_of_attorney',
@@ -2429,6 +3152,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 248,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_twisted_fire_starter',
@@ -2438,6 +3162,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 250,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_alch_aholic',
@@ -2447,6 +3172,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 251,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_island_hopper',
@@ -2456,6 +3182,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 252,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_gonna_need_a_bigger_boat',
@@ -2465,6 +3192,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 253,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_gonna_need_a_bigger_range',
@@ -2474,6 +3202,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 254,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_hard_water_palaver',
@@ -2483,10 +3212,32 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 255,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'seers_hard_at_home_on_the_range',
+                'At Home on the Range',
+                'Teleport to the Ranging Guild.',
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                245,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'seers_hard_beware_of_the_dog',
+                'Beware of the Dog',
+                "Use the fairy ring in McGrubor's Wood.",
+                (),
+                "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+                249,
+                0,
+                True,
             ),
             ),
             DiaryLamp(10000, 1),
             "period tier: 11 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+            designed_task_count=12,
         ),
         DiaryTier(
             'seers_elite',
@@ -2503,6 +3254,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 332,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_elite_make_a_bolt_for_it',
@@ -2512,6 +3264,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 333,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_elite_the_long_of_it',
@@ -2521,6 +3274,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 334,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_elite_plentypotionentiary',
@@ -2530,6 +3284,7 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 335,
                 0,
+                False,
             ),
             DiaryTask(
                 'seers_elite_moon_raker',
@@ -2539,10 +3294,12 @@ DIARY_FAMILIES = (
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 336,
                 0,
+                False,
             ),
             ),
             DiaryLamp(25000, 1),
             "period tier: 5 tasks; Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
+            designed_task_count=12,
         ),
         ),
         'Seer',
@@ -2569,6 +3326,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 257,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_doing_the_ironing',
@@ -2578,6 +3336,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 258,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_jumping_off_point',
@@ -2587,6 +3346,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 261,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_read_all_about_it',
@@ -2596,6 +3356,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 263,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_pot_stop',
@@ -2605,6 +3366,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 265,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_relocation_relocation_relocation',
@@ -2614,6 +3376,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 267,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_it_belongs_in_a_museum',
@@ -2623,6 +3386,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 268,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_limey',
@@ -2632,6 +3396,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 271,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_easy_sherpa_s_delight',
@@ -2641,10 +3406,42 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 272,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'varrock_easy_strike_a_pose',
+                'Strike a Pose',
+                'Have Thessalia show you what outfits you can wear.',
+                (),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                256,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'varrock_easy_plank_you_very_much',
+                'Plank You Very Much',
+                'Make a plank at the sawmill.',
+                (),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                259,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'varrock_easy_making_learning_fun',
+                'Making Learning Fun!',
+                'Enter the second level of the Stronghold of Security.',
+                (),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                260,
+                0,
+                True,
             ),
             ),
             DiaryLamp(1000, 1),
             'period tier: 19 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'varrock_medium',
@@ -2661,6 +3458,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 277,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_with_a_ten_foot_pole',
@@ -2670,6 +3468,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 278,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_point_of_en_tree',
@@ -2679,6 +3478,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 280,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_a_lick_of_paint',
@@ -2688,6 +3488,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 282,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_for_fast_transactions',
@@ -2697,6 +3498,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 283,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_you_wouldn_t_like_me_when_i_m_angry',
@@ -2706,6 +3508,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 284,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_return_to_senntisten',
@@ -2715,6 +3518,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 285,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_promised_the_earth',
@@ -2724,6 +3528,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 286,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_royale_with_thieve',
@@ -2733,6 +3538,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 287,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_like_a_varrocket',
@@ -2742,6 +3548,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 288,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_master_scrumper',
@@ -2751,6 +3558,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 291,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_medium_engage',
@@ -2760,10 +3568,12 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 292,
                 0,
+                False,
             ),
             ),
             DiaryLamp(5000, 1),
             'period tier: 21 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'varrock_hard',
@@ -2780,6 +3590,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 296,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_but_it_won_t_warp_you_anywhere',
@@ -2789,6 +3600,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 297,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_put_your_smithing_hat_on',
@@ -2798,6 +3610,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 299,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_kudos_on_the_kudos',
@@ -2807,6 +3620,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 300,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_who_ate_all_the_pie',
@@ -2816,6 +3630,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 301,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_battle_of_the_elements',
@@ -2825,6 +3640,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 302,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_changing_rooms',
@@ -2834,6 +3650,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 304,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_keeping_tabs_on_varrock',
@@ -2843,6 +3660,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 305,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_hand_me_downs',
@@ -2852,6 +3670,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 306,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_waka_waka_waka',
@@ -2861,6 +3680,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 307,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_hard_living_on_the_edge',
@@ -2870,10 +3690,22 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 308,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'varrock_hard_lighten_up',
+                'Lighten Up',
+                'Trade furs with the fancy dress seller for a spottier cape.',
+                (),
+                'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+                298,
+                0,
+                True,
             ),
             ),
             DiaryLamp(10000, 1),
             'period tier: 13 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+            designed_task_count=12,
         ),
         DiaryTier(
             'varrock_elite',
@@ -2890,6 +3722,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 337,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_nomadness',
@@ -2899,6 +3732,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 338,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_double_jointed',
@@ -2908,6 +3742,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 339,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_it_all_adze_up',
@@ -2917,6 +3752,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 340,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_mind_your_back',
@@ -2926,6 +3762,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 341,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_red_red_pies_of_summer',
@@ -2935,6 +3772,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 342,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_splitting_headache',
@@ -2944,6 +3782,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 343,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_a_bolt_from_the_blue',
@@ -2953,6 +3792,7 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 344,
                 0,
+                False,
             ),
             DiaryTask(
                 'varrock_elite_a_ton_of_earth',
@@ -2962,10 +3802,12 @@ DIARY_FAMILIES = (
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 345,
                 0,
+                False,
             ),
             ),
             DiaryLamp(30000, 1),
             'period tier: 9 tasks; Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
+            designed_task_count=12,
         ),
         ),
         'Rat Burgiss',
@@ -2985,6 +3827,46 @@ DIARY_FAMILIES = (
             "The Order of the Talon's starter kit: teleport tablets, a set of combat potions and a steel full helm.",
             (
             DiaryTask(
+                'burthorpe_period_rendezvous',
+                'Rendezvous',
+                'Stop the trolls attacking through the tunnel!',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                531,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_bring_him_down',
+                'Bring Him Down',
+                'Defeat the troll general with Ozan.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                532,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_we_re_done_here',
+                "We're Done Here",
+                'Ozan wants to talk to you.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                533,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_fire_in_the_troll',
+                'Fire In The Troll!',
+                'Fire the cannon on the roof of Burthorpe Castle to block off the troll attack.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                535,
+                0,
+                True,
+            ),
+            DiaryTask(
                 'burthorpe_period_take_your_pick',
                 'Take Your Pick',
                 'Get a bronze pickaxe so that you can make metal armour and weapons.',
@@ -2992,6 +3874,57 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 538,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_fine_fine_axe',
+                'Fine, Fine Axe',
+                'Put the bronze pickaxe in your tool belt to save inventory space.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                539,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_are_you_in_rubble',
+                'Are You In Rubble?',
+                'Somewhere in the mine you can hear someone calling for help!',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                540,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_jack_of_some_trades',
+                'Jack Of Some Trades',
+                'Put a hammer, chisel and needle in your tool belt.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                541,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_arm_the_militia',
+                'Arm The Militia',
+                'Help Isold the militiaman get geared up for war.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                542,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_a_farmer_in_the_making',
+                'A Farmer In The Making',
+                'Put a rake, dibber and spade in your tool belt so you can plant crops.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                543,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_dibs_on_the_first_batch',
@@ -3001,6 +3934,17 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 544,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_the_circle_of_life',
+                'The Circle Of Life',
+                'Put weeds in the compost bin.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                545,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_two_in_the_bush',
@@ -3010,6 +3954,57 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 546,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_fisherman_s_friends',
+                "Fisherman's Friends",
+                'Put a fishing rod and crayfish cage in your tool belt so you can catch fish.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                547,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_feed_the_refugees',
+                'Feed The Refugees',
+                'Bring four pieces of cooked food to Sister Judith.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                548,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_a_pocket_or_two',
+                'A Pocket Or Two',
+                'Pickpocket a pompous merchant to put his money to better use.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                549,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_bank_on_it',
+                'Bank On It',
+                "Talk to a banker in Taverley's bank and deposit some stuff to save space.",
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                583,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_the_red_mist_descends',
+                'The Red Mist Descends',
+                'Get a Slayer assignment so you can learn to slay bizarre monsters.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                550,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_these_aren_t_oven_gloves',
@@ -3019,6 +4014,37 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 551,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_a_new_threat',
+                'A New Threat',
+                'Explore the enchanted cave and find out where the creatures are coming from.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                552,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_no_stone_unturned',
+                'No Stone Unturned',
+                'Search for the source of the gelatinous abominations.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                553,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_mission_complete',
+                'Mission Complete!',
+                'Speak to Ariane now that the shaman is defeated.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                554,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_all_fell_down',
@@ -3028,6 +4054,17 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 555,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_pocket_wolf',
+                'Pocket Wolf',
+                'Make a spirit wolf pouch so you can summon a creature to aid you.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                556,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_heel_boy',
@@ -3037,6 +4074,47 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 557,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_spiritual_healing',
+                'Spiritual Healing',
+                'Recharge your summoning points at an obelisk.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                940,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_like_a_house_on_fire',
+                'Like A House On Fire',
+                'Make a daring rescue from the burning house in Burthorpe.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                559,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_one_thing_after_another',
+                'One Thing After Another',
+                "Talk to the distressed mother by the lake to find out what's wrong.",
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                560,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_my_axe_is_my_buddy',
+                'My Axe Is My Buddy',
+                'Put a hatchet, knife and tinderbox in your tool belt so you can work with wood.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                561,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_on_the_straight_and_arrow',
@@ -3046,6 +4124,37 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 562,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_super_tuber',
+                'Super Tuber',
+                'Harvest potatoes from a farming patch.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                563,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_problem_officer',
+                'Problem, Officer?',
+                'Talk to Corporal Keymans about the baby troll.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                537,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_raising_the_stokes',
+                'Raising the Stokes',
+                'Add a log to a fire for additional Firemaking XP.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                1010,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_bows_are_for_violence',
@@ -3055,6 +4164,17 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 564,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_out_of_water',
+                'Out Of Water',
+                'Rescue Sophie from drowning in the lake.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                565,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_guam_fly_with_me',
@@ -3064,6 +4184,7 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 566,
                 0,
+                False,
             ),
             DiaryTask(
                 'burthorpe_period_a_fresh_batch',
@@ -3073,6 +4194,37 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 567,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_bottoms_up',
+                'Bottoms Up',
+                'Drink a dose of attack potion.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                568,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_hammer_the_anvil',
+                'Hammer The Anvil',
+                'Defeat the troll berserker with Sir Owen.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                569,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_wicked',
+                'Wicked!',
+                'Get a wicked hood to help with your Runecrafting.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                571,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_lapping_it_up',
@@ -3082,6 +4234,57 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 574,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_make_them_feel_special',
+                'Make Them Feel Special',
+                "Use a weapon's special attack in combat.",
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                576,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_arise_hero',
+                'Arise, Hero',
+                'Receive a reward for your heroic deeds.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                575,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_heimward_bound',
+                'Heimward Bound',
+                'Teleport to Daemonheim with a Ring of Kinship.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                577,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_party_on_dudes',
+                'Party On, Dudes',
+                'Form a Dungeoneering party.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                578,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_raiders_of_the_frost_dark',
+                'Raiders Of The Frost Dark',
+                'Raid the floors of Daemonheim.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                579,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_unreal_estate_man',
@@ -3091,6 +4294,17 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 580,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_room_to_manoeuvre',
+                'Room To Manoeuvre',
+                'Build a room in your house (such as a parlour).',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                581,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_about_to_drop_the_hammer',
@@ -3100,6 +4314,7 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 582,
                 0,
+                False,
             ),
             DiaryTask(
                 'burthorpe_period_mind_out_of_matter',
@@ -3109,6 +4324,27 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 570,
                 0,
+                False,
+            ),
+            DiaryTask(
+                'burthorpe_period_walking_in_the_air_altar',
+                'Walking In The Air Altar',
+                'Locate and enter the Air Altar.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                572,
+                0,
+                True,
+            ),
+            DiaryTask(
+                'burthorpe_period_there_s_no_place_like_burthorpe',
+                "There's No Place Like Burthorpe",
+                'Use your Home Teleport spell to get back to Burthorpe.',
+                (),
+                'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
+                573,
+                0,
+                True,
             ),
             DiaryTask(
                 'burthorpe_period_let_them_eat_pie',
@@ -3118,6 +4354,7 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 451,
                 0,
+                False,
             ),
             DiaryTask(
                 'burthorpe_period_druidic_ritual',
@@ -3127,6 +4364,7 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 440,
                 0,
+                False,
             ),
             DiaryTask(
                 'burthorpe_period_death_plateau',
@@ -3136,11 +4374,13 @@ DIARY_FAMILIES = (
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 441,
                 0,
+                False,
             ),
             ),
             None,
             'period pool: 55 tasks; Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
             (('Varrock teleport tablet', 5), ('Falador teleport tablet', 5), ('Attack potion (4)', 5), ('Strength potion (4)', 5), ('Defence potion (4)', 5), ('Prayer potion (4)', 5), ('Steel full helm', 1)),
+            designed_task_count=55,
         ),
         ),
         'Major Nigel Corothers',
@@ -3167,6 +4407,17 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3000,
                 100,
+                False,
+            ),
+            DiaryTask(
+                'miscellaneous_miscellaneous_conquest',
+                'Conquest',
+                'Engage in tactical combat against your fellow commander aspirants.',
+                (),
+                'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
+                3001,
+                100,
+                True,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_penguin_hunting',
@@ -3176,6 +4427,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3002,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_evil_tree',
@@ -3185,6 +4437,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3003,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_shooting_star',
@@ -3194,6 +4447,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3004,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_impetuous_impulses',
@@ -3203,6 +4457,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3005,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_vinesweeper',
@@ -3212,6 +4467,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3006,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_balthazar_s_big_top_bonanza',
@@ -3221,6 +4477,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3007,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_defeat_bork',
@@ -3230,6 +4487,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3008,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_all_fired_up',
@@ -3239,6 +4497,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3009,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_skeletal_horror',
@@ -3248,6 +4507,17 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3010,
                 100,
+                False,
+            ),
+            DiaryTask(
+                'miscellaneous_miscellaneous_champion_s_challenge',
+                "Champion's Challenge",
+                'Fight against representatives of the races of Gielinor in honourable combat.',
+                (),
+                'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
+                3011,
+                100,
+                True,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_great_orb_project',
@@ -3257,6 +4527,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3012,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_pest_control',
@@ -3266,6 +4537,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3013,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_castle_wars',
@@ -3275,6 +4547,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3014,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_court_cases',
@@ -3284,6 +4557,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3015,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_tai_bwo_wannai_cleanup',
@@ -3293,6 +4567,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3016,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fight_caves',
@@ -3302,6 +4577,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3017,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fight_pits',
@@ -3311,6 +4587,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3018,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_brimhaven_agility_arena',
@@ -3320,6 +4597,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3019,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_barbarian_assault',
@@ -3329,6 +4607,17 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3020,
                 100,
+                False,
+            ),
+            DiaryTask(
+                'miscellaneous_miscellaneous_blast_furnace',
+                'Blast Furnace',
+                'Work with other players to collectively improve your smithing output.',
+                (),
+                'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
+                3021,
+                100,
+                True,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_shades_of_mort_ton',
@@ -3338,6 +4627,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3022,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_barrows',
@@ -3347,6 +4637,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3023,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_pyramid_plunder',
@@ -3356,6 +4647,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3024,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_sorceress_garden',
@@ -3365,6 +4657,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3025,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_mage_training_arena',
@@ -3374,6 +4667,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3026,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_duel_arena',
@@ -3383,6 +4677,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3027,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fist_of_guthix',
@@ -3392,6 +4687,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3028,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_stealing_creation',
@@ -3401,6 +4697,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3029,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_soul_wars',
@@ -3410,6 +4707,7 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3030,
                 100,
+                False,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_clan_wars',
@@ -3419,6 +4717,27 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3031,
                 100,
+                False,
+            ),
+            DiaryTask(
+                'miscellaneous_miscellaneous_gnome_restaurant',
+                'Gnome Restaurant',
+                'Create tasty treats and deliver them across RuneScape.',
+                (),
+                'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
+                3032,
+                100,
+                True,
+            ),
+            DiaryTask(
+                'miscellaneous_miscellaneous_mobilising_armies',
+                'Mobilising Armies',
+                'Engage in strategic combat against your fellow commander aspirants.',
+                (),
+                'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
+                3033,
+                100,
+                True,
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_warriors_guild',
@@ -3428,11 +4747,13 @@ DIARY_FAMILIES = (
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3034,
                 100,
+                False,
             ),
             ),
             None,
             'period pool: 35 tasks; Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
             (),
+            designed_task_count=95,
         ),
         ),
         '',

@@ -50,6 +50,10 @@ def _varrock():
     return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
 
 
+def _claim_family():
+    return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
+
+
 # Shared with the pure diary tests rather than reimplemented here, because a
 # local copy that silently skipped the kinds it had never heard of is what made
 # a whole tier quietly unfinishable when a new kind arrived.
@@ -230,7 +234,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
 
     def _ready_to_claim(self):
         player = self.addon.player_data
-        tier = _varrock().tiers[0]
+        tier = _claim_family().tiers[0]
         for task in tier.tasks:
             _satisfy(player, task)
         updated = refresh_achievement_diaries_pure(player)[0]
@@ -258,7 +262,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth + 1)
         self.assertEqual(len(self.saves), 1)
-        self.assertEqual(addon.player_data["inventory"].get("Varrock armour 1"), 1)
+        self.assertEqual(addon.player_data["inventory"].get("Ardougne cloak 1"), 1)
 
         restored = addon._DIRECT_ACTION_UNDO_STACK[-1]["player_data"]
         self.assertEqual(
@@ -266,7 +270,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
             before["achievement_diaries"]["claimed_tiers"],
             "the snapshot did not capture the pre-claim ledger",
         )
-        self.assertFalse(restored["inventory"].get("Varrock armour 1"))
+        self.assertFalse(restored["inventory"].get("Ardougne cloak 1"))
 
     def test_one_undo_restores_the_item_the_lamp_and_the_ledger_together(self):
         from ankiscape.logic.achievement_diary_logic import (
@@ -290,7 +294,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
         addon.player_data.clear()
         addon.player_data.update(snapshot)
 
-        self.assertFalse(addon.player_data["inventory"].get("Varrock armour 1"))
+        self.assertFalse(addon.player_data["inventory"].get("Ardougne cloak 1"))
         self.assertEqual(
             float(addon.player_data["mining_exp"]), float(before.get("mining_exp", 0))
         )

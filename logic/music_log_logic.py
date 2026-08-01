@@ -72,20 +72,23 @@ def track_is_latent_pure(track: MusicTrack) -> bool:
     gated on content that does not exist, which is how a reward becomes an
     ornament.
 
-    Today there is exactly one: "The Task at Hand" needs 350 completed tasks and
-    the shipped diary roster is smaller than that, because three families' task
-    tables have not been harvested (design fork 3.9). It activates by itself the
-    moment the roster is complete.
+    Today there is exactly one: "The Task at Hand" needs 350 completed tasks.
+    Latent diary rows reserve the cutoff denominator but cannot complete, so the
+    track activates only when at least 350 task predicates are obtainable.
     """
 
     if track.trigger_kind != "task_count":
         return False
     from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 
-    shipped = sum(
-        len(tier.tasks) for family in ACHIEVEMENT_DIARY_CATALOG for tier in family.tiers
+    obtainable = sum(
+        1
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+        if not task.latent
     )
-    return shipped < MUSIC_UNLOCK_TASK_COUNT
+    return obtainable < MUSIC_UNLOCK_TASK_COUNT
 
 
 def track_unlocked_now_pure(player_data: Mapping[str, Any], track: MusicTrack) -> bool:

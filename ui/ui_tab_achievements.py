@@ -121,8 +121,15 @@ def build_achievements_tab(ctx) -> "QWidget":
         text_layout = QVBoxLayout(text)
         text_layout.setContentsMargins(0, 0, 0, 0)
         text_layout.setSpacing(1)
-        name = QLabel(task["name"])
-        name.setStyleSheet("font-weight: 600; color: palette(text);")
+        name = QLabel(
+            f"{task['name']} · Not yet obtainable" if task["latent"] else task["name"]
+        )
+        name.setObjectName(f"cabinetTask_{task['task_id']}")
+        name.setStyleSheet(
+            f"font-weight: 600; color: {dim_text_css(name)}; font-style: italic;"
+            if task["latent"]
+            else "font-weight: 600; color: palette(text);"
+        )
         text_layout.addWidget(name)
         detail = QLabel(task["description"])
         detail.setWordWrap(True)
@@ -199,6 +206,16 @@ def build_achievements_tab(ctx) -> "QWidget":
         reward.setWordWrap(True)
         reward.setStyleSheet(f"color: {dim_text_css(reward)};")
         block_layout.addWidget(reward)
+
+        if tier["source_gap"]:
+            source_gap = QLabel(
+                f"{tier['source_gap']} designed cutoff task"
+                f"{'s are' if tier['source_gap'] != 1 else ' is'} roster incomplete at source."
+            )
+            source_gap.setObjectName(f"cabinetSourceGap_{tier['tier_id']}")
+            source_gap.setWordWrap(True)
+            source_gap.setStyleSheet(f"color: {dim_text_css(source_gap)}; font-style: italic;")
+            block_layout.addWidget(source_gap)
 
         bar = QProgressBar()
         bar.setMaximum(max(1, tier["total"]))

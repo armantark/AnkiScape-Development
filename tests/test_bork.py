@@ -412,22 +412,22 @@ class BorkRewardTests(unittest.TestCase):
         self.assertEqual(inventory["Big bones"], 1)
         self.assertEqual(inventory["Coins"], 2000)
 
-    def test_varrock_elite_doubles_the_xp_coins_and_charms(self):
+    def test_known_varrock_elite_rows_do_not_bypass_the_twelve_task_gate(self):
         data = _with_varrock_elite(_player())
         data, ok, info = apply_bork_command_pure(
             data, "enter", equipment_data=EQUIPMENT_DATA
         )
         self.assertTrue(ok, info)
-        self.assertTrue(bork_view_pure(data)["varrock_elite"])
+        self.assertFalse(bork_view_pure(data)["varrock_elite"])
         data, ok, result = _review(
             data, [0.0, 0.999, 0.999, 0.999], burst=_burst(killed=True)
         )
         self.assertTrue(ok, result)
-        self.assertEqual(result["slayer_xp"], 500.0)
-        self.assertEqual(result["coins"], 4000)
-        self.assertEqual(data["inventory"]["Blue charm"], 10)
-        self.assertEqual(data["inventory"]["Crimson charm"], 14)
-        self.assertEqual(data["inventory"]["Green charm"], 4)
+        self.assertEqual(result["slayer_xp"], 250.0)
+        self.assertEqual(result["coins"], 2000)
+        self.assertEqual(data["inventory"]["Blue charm"], 5)
+        self.assertEqual(data["inventory"]["Crimson charm"], 7)
+        self.assertEqual(data["inventory"]["Green charm"], 2)
 
     def test_a_worn_ring_of_wealth_shifts_the_gem_and_charm_column(self):
         data = _entered()

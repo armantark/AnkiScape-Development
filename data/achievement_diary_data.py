@@ -11,9 +11,9 @@ evaluates, and so a task cannot quietly acquire a rule the logic layer does not
 own.
 
 The generated catalog takes its task identity and membership from Darkan's
-period achievement system. Regional tiers keep up to twelve source-order tasks
-with evaluable requirements; Burthorpe/Taverley and Miscellaneous keep every
-source task for which AnkiScape has an honest durable predicate.
+period achievement system. Named source rows without an evaluable requirement
+remain visible as latent tasks with no predicate. Fixed designed denominators
+also reserve source-incomplete cutoff slots without fabricating names.
 """
 
 from __future__ import annotations
@@ -98,6 +98,7 @@ class DiaryTask:
     source: str
     source_id: int
     coin_reward: int = 0
+    latent: bool = False
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,14 @@ class DiaryTier:
     # (item name, quantity) pairs handed over whole on claim, for a tier whose
     # period reward is a set of starter equipment rather than one worn item.
     reward_bundle: Tuple[Tuple[str, int], ...] = ()
+    # The fixed cutoff denominator. It can exceed the number of named rows while
+    # the pinned source roster is incomplete; zero keeps small synthetic tiers
+    # and old callers using their explicit task tuple as the denominator.
+    designed_task_count: int = 0
+
+    @property
+    def total_tasks(self) -> int:
+        return self.designed_task_count or len(self.tasks)
 
     @property
     def effort_multiplier(self) -> int:

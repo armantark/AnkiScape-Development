@@ -258,12 +258,16 @@ def task_progress_pure(
 ) -> tuple[bool, int, int]:
     """Return ``(satisfied_now, have, need)`` for a whole task.
 
+    Latent rows intentionally have no predicate. They reserve an authentic cutoff
+    task's place and can never complete until the generator emits a real condition.
     A multi-condition task reports its progress as the number of conditions met,
     because summing unrelated units would be meaningless. A single-condition
     task reports that condition's real figures, which is where staged progress
     is worth showing. Binary feats stay binary.
     """
 
+    if task.latent:
+        return False, 0, 0
     if len(task.conditions) == 1:
         have, need = condition_progress_pure(player_data, task.conditions[0])
         return have >= need, min(have, need), need
@@ -296,6 +300,10 @@ _CATALOG_TASKS = tuple(
 _TASKS_BY_ID = {task.id: (family, tier, task) for family, tier, task in _CATALOG_TASKS}
 _TIERS_BY_ID = {tier.id: (family, tier) for family, tier in _CATALOG_TIERS}
 _TASK_IDS = frozenset(_TASKS_BY_ID)
+_ACTIVE_TASK_IDS = frozenset(
+    task.id for _, _, task in _CATALOG_TASKS if not task.latent
+)
+_DESIGNED_TASK_TOTAL = sum(tier.total_tasks for _, tier in _CATALOG_TIERS)
 
 
 def _tiers():
@@ -343,7 +351,10 @@ def refresh_achievement_diaries_pure(
             known.add(task.id)
             newly.append(task.id)
     state["completed_tasks"] = completed
-    state["taskmaster"] = bool(_TASK_IDS) and _TASK_IDS.issubset(known)
+    state["taskmaster"] = (
+        len(_ACTIVE_TASK_IDS) == _DESIGNED_TASK_TOTAL
+        and _ACTIVE_TASK_IDS.issubset(known)
+    )
     data["achievement_diaries"] = state
     if newly:
         data = _award_task_coins(data, newly)
@@ -381,8 +392,8 @@ def tier_claim_state_pure(
     state = _state(player_data)
     completed = set(state["completed_tasks"])
     claimed = set(state["claimed_tiers"])
-    done = sum(1 for task in tier.tasks if task.id in completed)
-    total = len(tier.tasks)
+    done = sum(1 for task in tier.tasks if not task.latent and task.id in completed)
+    total = tier.total_tasks
     predecessor = None
     for index, candidate in enumerate(family.tiers):
         if candidate.id == tier.id and index:
@@ -409,6 +420,8 @@ def tier_claim_state_pure(
         "tier_id": tier.id,
         "done": done,
         "total": total,
+        "latent": sum(1 for task in tier.tasks if task.latent),
+        "source_gap": total - len(tier.tasks),
         "claimed": tier.id in claimed,
         "ready": bool(total) and done >= total and not blocked_by and tier.id not in claimed,
         "blocked_by": blocked_by,
@@ -647,8 +660,8 @@ def diary_totals_pure(
     state = _state(player_data)
     completed = set(state["completed_tasks"])
     return {
-        "completed": len(_TASK_IDS.intersection(completed)),
-        "total": len(_TASK_IDS),
+        "completed": len(_ACTIVE_TASK_IDS.intersection(completed)),
+        "total": _DESIGNED_TASK_TOTAL,
     }
 
 
@@ -681,7 +694,7 @@ def achievement_cabinet_view_pure(
                 continue
             rows: list[dict[str, Any]] = []
             for task in tier.tasks:
-                done = task.id in completed
+                done = not task.latent and task.id in completed
                 if completion_filter == "complete" and not done:
                     continue
                 if completion_filter == "incomplete" and done:
@@ -694,10 +707,16 @@ def achievement_cabinet_view_pure(
                         "task_id": task.id,
                         "name": task.name,
                         "description": task.description,
-                        "requirements": tuple(
-                            condition.label or condition.key for condition in task.conditions
+                        "requirements": (
+                            ("Not yet obtainable — its predicate has not shipped.",)
+                            if task.latent
+                            else tuple(
+                                condition.label or condition.key
+                                for condition in task.conditions
+                            )
                         ),
                         "completed": done,
+                        "latent": task.latent,
                         "have": need if done else have,
                         "need": need,
                         "staged": need > 1,
