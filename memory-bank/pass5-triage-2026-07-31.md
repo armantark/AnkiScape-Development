@@ -232,6 +232,13 @@ that tests the fake instead of the app.
    rsync the add-on + synthetic test profile, verify screen-recording
    permission for computer use.
 
+## Post-probe owner feedback (2026-08-01)
+
+- Bank-run control, owner verbatim: "The 'do bank run' button should be a
+  small native button, not like that" — i.e. a compact native-styled QPushButton
+  in the strip, not the current oversized/custom-styled element seen in the
+  probe screenshots.
+
 ## Skill routing (owner-approved 2026-07-31)
 
 Loop seats: `codex-implementation` (maker), `codex-review` (verifier),
