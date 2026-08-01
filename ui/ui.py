@@ -594,12 +594,17 @@ from ..logic.dnd_favourites_logic import (
 )
 from ..logic.summoning_logic import familiarisation_view_pure
 from ..logic.review_strip_logic import (
+    REVIEW_ANSWER_BAR_HEIGHT,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
+    REVIEW_STRIP_HEIGHT,
+    REVIEW_STRIP_WIDTH,
     WORLD_EVENT_OUTCOME_REVIEWS,
     activity_xp_bars_pure,
+    review_bank_run_button_view_pure,
     review_event_log_drawer_view_pure,
     review_overlay_layout_view_pure,
     review_status_badges_view_pure,
+    review_status_popover_layout_view_pure,
     world_event_rows_pure,
 )
 
@@ -625,6 +630,7 @@ _MAIN_MENU_CTX = {
     "refresh_farming": None,
     "open_activity": None,
     "show_activity": None,
+    "open_grand_exchange": None,
 }
 
 
@@ -1963,6 +1969,52 @@ if HAS_QT:
         def _close(self) -> None:
             self._on_close()
 
+    class ReviewStrip(QWidget):
+        """The fixed reviewer-chrome row immediately above Anki's answers."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("AnkiScapeReviewStrip")
+            self.setWindowFlags(Qt.WindowType.Widget)
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self.setFixedSize(REVIEW_STRIP_WIDTH, REVIEW_STRIP_HEIGHT)
+            self.root = QHBoxLayout(self)
+            self.root.setContentsMargins(8, 0, 8, 0)
+            self.root.setSpacing(6)
+            self.setStyleSheet(
+                "QWidget#AnkiScapeReviewStrip { background: transparent; }"
+            )
+            if parent is not None:
+                parent.installEventFilter(self)
+            self.hide()
+
+        def sync_children(self) -> None:
+            widgets = tuple(
+                widget
+                for widget in (
+                    _DND_BADGE,
+                    _FARMING_BADGE,
+                    _REVIEW_HUD,
+                    _BANK_RUN_BUTTON,
+                )
+                if widget is not None
+            )
+            if self.root.count() == len(widgets) and all(
+                self.root.itemAt(index).widget() is widget
+                for index, widget in enumerate(widgets)
+            ):
+                return
+            while self.root.count():
+                self.root.takeAt(0)
+            for widget in widgets:
+                widget.setParent(self)
+                self.root.addWidget(widget, 0, Qt.AlignmentFlag.AlignVCenter)
+
+        def eventFilter(self, obj, event):  # type: ignore[override]
+            if event.type() in (QEvent.Type.Resize, QEvent.Type.Move, QEvent.Type.Show):
+                _reposition_review_overlay()
+            return False
+
     class ReviewHUD(QWidget):
         """A compact overlay shown on the review screen (lower center).
         Displays current skill (icon + name), level, and progress to next level.
@@ -1980,6 +2032,8 @@ if HAS_QT:
                 pass
             self.setAutoFillBackground(False)
             self.setObjectName("AnkiScapeReviewHUD")
+            self.setProperty("ankiscapeOverlayRequested", True)
+            self.setFixedSize(340, REVIEW_STRIP_HEIGHT)
 
             # Layout
             root = QHBoxLayout(self)
@@ -2313,7 +2367,6 @@ if HAS_QT:
                         self._render_activity_xp_bars(xp_view)
                 except Exception:
                     pass
-                self.adjustSize()
                 self._reposition()
                 self.show()
                 return
@@ -2451,31 +2504,11 @@ if HAS_QT:
             except Exception:
                 pass
 
-            self.adjustSize()
             self._reposition()
             self.show()
 
         def _reposition(self) -> None:
-            try:
-                par = self.parent() if self.parent() is not None else mw
-                if par is None:
-                    return
-                pw = par.width()
-                ph = par.height()
-                self.adjustSize()
-                w = min(max(self.width(), 360), 520)
-                h = self.height()
-                x = int((pw - w) / 2)
-                # Initial fallback before the shared card-safe layout has all
-                # siblings measured; the central pass owns the final position.
-                y = int(ph - h - 72)
-                self.setFixedWidth(w)
-                self.move(x, max(8, y))
-                if _REVIEW_CONTEXT_STRIP is not None and _REVIEW_CONTEXT_STRIP.isVisible():
-                    _REVIEW_CONTEXT_STRIP._reposition()
-                _reposition_review_overlay()
-            except Exception:
-                pass
+            _reposition_review_overlay()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -2496,6 +2529,7 @@ if HAS_QT:
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
             self._projection = {}
             self._action_callback = None
+            self.setProperty("ankiscapeOverlayRequested", True)
             root = QHBoxLayout(self)
             root.setContentsMargins(10, 7, 8, 7)
             root.setSpacing(7)
@@ -2692,6 +2726,10 @@ if HAS_QT:
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self.setFixedSize(
+                82 if self.kind == "distractions" else 112,
+                48,
+            )
             self._view = {}
             self._open_target = None
             root = QHBoxLayout(self)
@@ -2727,7 +2765,8 @@ if HAS_QT:
             self.setProperty(
                 "ankiscapeOverlayRequested", bool(self._view.get("visible"))
             )
-            self.button.setText(str(self._view.get("title", "Status")))
+            title = str(self._view.get("title", "Status"))
+            self.button.setText(title.replace("&", "&&"))
             icon_path = (
                 _ACTIVITY_GROUP_ICONS.get("distractions_and_diversions")
                 if self.kind == "distractions"
@@ -2744,11 +2783,10 @@ if HAS_QT:
             self.badge.setVisible(bool(self._view.get("count_visible")))
             self.queue_badge.setText(f"Q{queued}" if queued else "")
             self.queue_badge.setVisible(bool(self._view.get("queue_visible")))
-            tooltip = str(self._view.get("tooltip", self.button.text()))
+            tooltip = str(self._view.get("tooltip", title))
             self.setToolTip(tooltip)
             self.button.setToolTip(tooltip)
             self.button.setAccessibleName(tooltip)
-            self.adjustSize()
             self.setVisible(bool(self._view.get("visible")))
             self._reposition()
             self.raise_()
@@ -2773,12 +2811,42 @@ if HAS_QT:
                 pass
             return False
 
-    class ReviewFillDrawer(QWidget):
-        """The Grand Exchange fills drawer, directly under the experience bars.
+    class ReviewBankRunButton(QPushButton):
+        """Always-present strip action backed by the runtime bank-run seam."""
 
-        Section 4.8: "I wanted it to be under the xp bar box. It should be a
-        drawer." It holds a seat only while the player has an offer on the
-        market, starts collapsed, and lists newest first.
+        def __init__(self, parent=None):
+            super().__init__("Do bank run", parent)
+            self.setObjectName("reviewBankRunButton")
+            self.setFixedSize(116, 40)
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
+            self._action_callback = None
+            self.clicked.connect(self._activate)
+            self.setStyleSheet(
+                f"QPushButton {{ color: white; background: {_HUD_BG};"
+                f" border: 1px solid {_HUD_BORDER}; border-radius: 8px;"
+                " padding: 5px 8px; font-weight: 700; }"
+                "QPushButton:hover { background: rgba(40,40,40,210); }"
+                "QPushButton:disabled { color: rgba(255,255,255,0.45); }"
+            )
+
+        def set_data(self, view: dict, action_callback=None) -> None:
+            self._action_callback = action_callback
+            self.setText(str(view.get("text", "Do bank run")))
+            self.setToolTip(str(view.get("tooltip", "")))
+            self.setEnabled(bool(view.get("enabled")) and action_callback is not None)
+            visible = bool(view.get("visible", True))
+            self.setProperty("ankiscapeOverlayRequested", visible)
+            self.setVisible(visible)
+
+        def _activate(self) -> None:
+            if self._action_callback is not None:
+                self._action_callback()
+
+    class ReviewFillDrawer(QWidget):
+        """Grand Exchange status, stacked above the Event log.
+
+        It holds a seat only while the player has an offer on the market,
+        starts collapsed, and lists newest first.
         """
 
         def __init__(self, parent=None):
@@ -2786,6 +2854,7 @@ if HAS_QT:
             self.setObjectName("AnkiScapeReviewFillDrawer")
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self._open_grand_exchange = None
             root = QVBoxLayout(self)
             root.setContentsMargins(8, 5, 8, 5)
             root.setSpacing(4)
@@ -2803,11 +2872,10 @@ if HAS_QT:
             self.rows = QListWidget(self)
             self.rows.setObjectName("reviewFillLogList")
             self.rows.setVisible(False)
-            # About four rows: the drawer opens into the gap above Anki's answer
-            # buttons and must not reach them.
+            # Keep the upward-expanding drawer compact at reviewer height.
             self.rows.setMaximumHeight(96)
-            self.rows.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-            self.rows.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            self.rows.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+            self.rows.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
             self.rows.setFrameShape(QFrame.Shape.NoFrame)
             root.addWidget(self.rows)
             self.setStyleSheet(
@@ -2819,16 +2887,22 @@ if HAS_QT:
                 " color: white; }"
             )
             self.toggle.toggled.connect(self._on_toggled)
+            self.rows.itemClicked.connect(self._activate_row)
             if parent is not None:
                 parent.installEventFilter(self)
             self.hide()
 
-        def set_data(self, view: dict) -> None:
+        def set_data(self, view: dict, open_grand_exchange=None) -> None:
             view = view or {}
+            if open_grand_exchange is not None:
+                self._open_grand_exchange = open_grand_exchange
             self.setProperty(
                 "ankiscapeOverlayRequested", bool(view.get("visible"))
             )
             if not view.get("visible"):
+                self.rows.clear()
+                self.toggle.setChecked(False)
+                self.toggle.setText(str(view.get("title", "Recent fills")))
                 self.hide()
                 _reposition_review_overlay()
                 return
@@ -2837,19 +2911,18 @@ if HAS_QT:
             entries = tuple(view.get("rows", ()))
             if not entries:
                 item = QListWidgetItem(str(view.get("empty_text", "")))
-                item.setFlags(Qt.ItemFlag.NoItemFlags)
+                item.setFlags(
+                    Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+                )
                 item.setForeground(QColor(255, 255, 255, 150))
                 self.rows.addItem(item)
             for entry in entries:
                 item = QListWidgetItem(str(entry["text"]))
-                item.setFlags(Qt.ItemFlag.NoItemFlags)
-                # The overlay is always dark, so these are the dark-theme tones
-                # from the drawer's old home in the Grand Exchange tab.
-                item.setForeground(
-                    QColor("#85c54b")
-                    if str(entry["tone"]) == "complete"
-                    else QColor("#e0b341")
+                item.setFlags(
+                    Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
                 )
+                item.setData(Qt.ItemDataRole.UserRole, str(entry.get("action", "")))
+                item.setForeground(QColor(str(entry["foreground"])))
                 self.rows.addItem(item)
             self.show()
             self._reposition()
@@ -2862,6 +2935,14 @@ if HAS_QT:
             self.rows.setVisible(bool(expanded))
             self.adjustSize()
             _reposition_review_overlay()
+
+        def _activate_row(self, item) -> None:
+            if (
+                item is not None
+                and item.data(Qt.ItemDataRole.UserRole) == "open_grand_exchange"
+                and self._open_grand_exchange is not None
+            ):
+                self._open_grand_exchange()
 
         def _reposition(self) -> None:
             _reposition_review_overlay()
@@ -2905,7 +2986,7 @@ if HAS_QT:
             self.rows.setObjectName("reviewEventLogList")
             self.rows.setMaximumHeight(150)
             self.rows.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-            self.rows.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            self.rows.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
             self.rows.setFrameShape(QFrame.Shape.NoFrame)
             root.addWidget(self.rows)
             self.show_more = QToolButton(self)
@@ -2953,17 +3034,25 @@ if HAS_QT:
             )
             self.rows.clear()
             for entry in view.get("rows", ()):
-                item = QListWidgetItem(str(entry["label"]))
+                item = QListWidgetItem("")
                 item.setFlags(Qt.ItemFlag.NoItemFlags)
-                kind = str(entry.get("kind", "activity"))
-                item.setForeground(
-                    QColor("#85c54b")
-                    if kind == "xp"
-                    else QColor("#f0c75e")
-                    if kind == "achievement"
-                    else QColor(255, 255, 255, 220)
-                )
                 self.rows.addItem(item)
+                label = QLabel(str(entry["label"]), self.rows)
+                label.setObjectName("reviewEventLogRow")
+                label.setWordWrap(True)
+                label.setTextInteractionFlags(
+                    Qt.TextInteractionFlag.TextSelectableByMouse
+                    | Qt.TextInteractionFlag.TextSelectableByKeyboard
+                )
+                label.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+                label.setStyleSheet(
+                    f"color: {entry['foreground']}; background: transparent;"
+                    " padding: 2px 3px;"
+                )
+                label.setMaximumWidth(480)
+                label.adjustSize()
+                item.setSizeHint(label.sizeHint())
+                self.rows.setItemWidget(item, label)
             self.rows.setVisible(bool(view.get("rows_visible")))
             self.show_more.setText(str(view.get("show_more_text", "")))
             self.show_more.setEnabled(bool(view.get("show_more_enabled")))
@@ -3051,6 +3140,44 @@ if HAS_QT:
             except Exception:
                 pass
 
+        def _strip_anchor(self):
+            par = self.parent() if self.parent() is not None else mw
+            anchor = _REVIEW_HUD or _REVIEW_STRIP
+            if par is None or anchor is None or not anchor.isVisible():
+                return None
+            point = anchor.mapTo(par, QPoint(0, 0))
+            x = point.x() + (anchor.width() - self.width()) // 2
+            anchor_top = point.y()
+            for widget in (
+                _EVENT_LOG_DRAWER,
+                _FILL_DRAWER,
+                _REVIEW_CONTEXT_STRIP,
+            ):
+                if widget is not None and widget.isVisible():
+                    anchor_top = min(
+                        anchor_top,
+                        widget.mapTo(par, QPoint(0, 0)).y(),
+                    )
+            y = anchor_top - self.height() - _POPUP_CLEARANCE_PX
+            return x, max(8, y), max(8, y - _POPUP_FLOAT_PX)
+
+        def reanchor_to_strip(self) -> None:
+            if not self.isVisible():
+                return
+            anchor = self._strip_anchor()
+            if anchor is None or getattr(self, "_last_strip_anchor", None) == anchor:
+                return
+            self._last_strip_anchor = anchor
+            x, y, end_y = anchor
+            if self._anim is not None:
+                self._anim.stop()
+                self._opacity.setOpacity(1.0)
+                self._float.setStartValue(QPoint(x, y))
+                self._float.setEndValue(QPoint(x, end_y))
+            self.move(x, y)
+            if self._anim is not None:
+                self._anim.start()
+
         def show_exp(self, exp):
             # Format like +25 XP, color accent via left border
             self.show_text(f"+{int(exp)} XP")
@@ -3064,42 +3191,17 @@ if HAS_QT:
             self.setText(str(text))
             self.adjustSize()
 
-            # The whole animation path stays outside the card viewport. Without
-            # a live reviewer webview, retain the old HUD-relative placement.
+            # The bubble belongs to the pinned XP box, not to card-content
+            # measurements, so it follows the strip on every reviewer size.
             par = self.parent() if self.parent() is not None else mw
-            content_rect = _review_card_content_rect(par)
-            if content_rect is not None:
-                layout = review_overlay_layout_view_pure(
-                    parent_size=(par.width(), par.height()),
-                    content_rect=content_rect,
-                    cluster_size=(self.width(), self.height() + _POPUP_FLOAT_PX),
-                )
-                if not layout.get("visible"):
-                    self.hide()
-                    return
-                x = int(layout["x"])
-                end_y = int(layout["y"])
-                y = end_y + _POPUP_FLOAT_PX
+            anchor = self._strip_anchor()
+            if anchor is None:
+                x = max(10, int((par.width() - self.width()) / 2))
+                y = max(8, par.height() - REVIEW_ANSWER_BAR_HEIGHT - self.height())
+                end_y = max(8, y - _POPUP_FLOAT_PX)
             else:
-                try:
-                    context_strip = _REVIEW_CONTEXT_STRIP
-                    hud = _REVIEW_HUD
-                    anchor_top = (
-                        context_strip.y()
-                        if context_strip and context_strip.isVisible()
-                        else hud.y()
-                        if hud and hud.isVisible()
-                        else par.height() - 96
-                    )
-                    x = int((par.width() - self.width()) / 2)
-                    y = max(
-                        8,
-                        int(anchor_top) - self.height() - _POPUP_CLEARANCE_PX,
-                    )
-                except Exception:
-                    x = max(10, int((par.width() - self.width()) / 2))
-                    y = max(8, par.height() - 96 - self.height() - _POPUP_CLEARANCE_PX)
-                end_y = y - _POPUP_FLOAT_PX
+                x, y, end_y = anchor
+            self._last_strip_anchor = (x, y, end_y)
             self.move(x, y)
 
             self.show()
@@ -3145,6 +3247,10 @@ else:
         def set_data(self, player_data: dict, skill: str) -> None:
             pass
 
+    class ReviewStrip:
+        def __init__(self, parent=None):
+            pass
+
     class ReviewContextActionStrip:
         def __init__(self, parent=None):
             pass
@@ -3157,10 +3263,16 @@ else:
         def set_data(self, view: dict, open_target=None) -> None:
             pass
 
+    class ReviewBankRunButton:
+        def __init__(self, parent=None):
+            pass
+        def set_data(self, view: dict, action_callback=None) -> None:
+            pass
+
     class ReviewFillDrawer:
         def __init__(self, parent=None):
             pass
-        def set_data(self, view: dict) -> None:
+        def set_data(self, view: dict, open_grand_exchange=None) -> None:
             pass
 
     class ReviewEventLogDrawer:
@@ -3175,7 +3287,9 @@ else:
 
 # --- Review HUD management ---
 _REVIEW_HUD = None  # type: ignore
+_REVIEW_STRIP = None  # type: ignore
 _REVIEW_CONTEXT_STRIP = None  # type: ignore
+_BANK_RUN_BUTTON = None  # type: ignore
 _DND_BADGE = None  # type: ignore
 _FARMING_BADGE = None  # type: ignore
 _STATUS_POPOVER = None  # type: ignore
@@ -3205,6 +3319,20 @@ def _overlay_requested(widget) -> bool:
         return False
     requested = widget.property("ankiscapeOverlayRequested")
     return widget.isVisible() if requested is None else bool(requested)
+
+
+def _review_answer_bar_top(parent) -> int:
+    """Top edge of Anki's live answer bar, with the legacy height as fallback."""
+
+    try:
+        answer_bar = getattr(parent, "bottomWeb", None)
+        if answer_bar is not None and answer_bar.isVisible():
+            top = answer_bar.mapTo(parent, QPoint(0, 0)).y()
+            if 0 < top <= parent.height():
+                return top
+    except Exception:
+        pass
+    return max(0, parent.height() - REVIEW_ANSWER_BAR_HEIGHT)
 
 
 def _review_card_content_rect(parent) -> tuple[int, int, int, int] | None:
@@ -3279,135 +3407,198 @@ def measure_card_content() -> None:
         web = getattr(getattr(mw, "reviewer", None), "web", None)
         if web is None:
             return
+        _sync_card_bottom_padding(
+            mw,
+            _review_overlay_reserved_height()
+            if _REVIEW_STRIP is not None and _REVIEW_STRIP.isVisible()
+            else 0,
+            force=True,
+        )
         web.evalWithCallback(_CARD_CONTENT_JS, note_card_content_bottom)
     except Exception:
         pass
 
 
-_CARD_PADDING_ACTIVE = False
+_CARD_PADDING_PX = -1
 
 
-def _sync_card_bottom_padding(parent, layout, cluster_height) -> None:
-    """Overlay-bottom docking reserves scroll room inside the card document,
-    so the cluster never permanently covers content it sits over."""
+def _review_overlay_reserved_height() -> int:
+    """Return the full visible stack rising from the fixed strip."""
 
-    global _CARD_PADDING_ACTIVE
-    wants = layout.get("dock") == "overlay-bottom"
-    if not wants and not _CARD_PADDING_ACTIVE:
+    strip = _REVIEW_STRIP
+    if strip is None or not strip.isVisible():
+        return 0
+    stack = [strip]
+    stack.extend(
+        widget
+        for widget in (_EVENT_LOG_DRAWER, _FILL_DRAWER, _REVIEW_CONTEXT_STRIP)
+        if _overlay_requested(widget) and widget.isVisible()
+    )
+    top = min(widget.y() for widget in stack)
+    return max(REVIEW_STRIP_HEIGHT, strip.y() + strip.height() - top)
+
+
+def _sync_card_bottom_padding(parent, reserved_height, *, force=False) -> None:
+    """Reserve every persistent overlay pixel in the card document."""
+
+    global _CARD_PADDING_PX
+    padding = max(0, int(reserved_height))
+    if not force and padding == _CARD_PADDING_PX:
         return
     try:
         web = getattr(getattr(parent, "reviewer", None), "web", None)
         if web is None:
             return
-        pad = f"{int(cluster_height) + 24}px" if wants else ""
-        web.eval(f"document.body.style.paddingBottom = '{pad}';")
-        _CARD_PADDING_ACTIVE = wants
+        web.eval(f"document.body.style.paddingBottom = '{padding}px';")
+        _CARD_PADDING_PX = padding
     except Exception:
         pass
 
 
 def _reposition_review_overlay() -> None:
-    """Dock the complete overlay cluster outside the card webview viewport."""
+    """Pin the strip and stack every transient panel upward from its XP box."""
 
     try:
         parent = mw
         if parent is None:
             return
+        strip = _REVIEW_STRIP
         hud = _REVIEW_HUD if _overlay_requested(_REVIEW_HUD) else None
         context = (
             _REVIEW_CONTEXT_STRIP
             if _overlay_requested(_REVIEW_CONTEXT_STRIP)
             else None
         )
-        badges = [
-            badge
-            for badge in (_DND_BADGE, _FARMING_BADGE)
-            if _overlay_requested(badge)
-        ]
         drawers = [
             drawer
-            for drawer in (_FILL_DRAWER, _EVENT_LOG_DRAWER)
+            # Event is the drawer immediately above XP; GE stacks above it.
+            for drawer in (_EVENT_LOG_DRAWER, _FILL_DRAWER)
             if _overlay_requested(drawer)
         ]
-        widgets = [widget for widget in (context, *badges, hud, *drawers) if widget]
-        if not widgets:
+        if strip is None or hud is None:
             return
-        for widget in widgets:
-            widget.adjustSize()
+        strip.sync_children()
+
+        gap = 6
+        strip_width = min(REVIEW_STRIP_WIDTH, max(1, parent.width() - 16))
+        strip.setFixedSize(strip_width, REVIEW_STRIP_HEIGHT)
+        seats = tuple(
+            widget
+            for widget in (_DND_BADGE, _FARMING_BADGE, hud, _BANK_RUN_BUTTON)
+            if widget is not None
+        )
+        nominal_widths = {
+            _DND_BADGE: 82,
+            _FARMING_BADGE: 112,
+            hud: 340,
+            _BANK_RUN_BUTTON: 116,
+        }
+        minimum_widths = {
+            _DND_BADGE: 66,
+            _FARMING_BADGE: 84,
+            _BANK_RUN_BUTTON: 88,
+        }
+        margins = strip.root.contentsMargins()
+        content_width = max(
+            1,
+            strip_width
+            - margins.left()
+            - margins.right()
+            - strip.root.spacing() * max(0, len(seats) - 1),
+        )
+        nominal_total = sum(nominal_widths[seat] for seat in seats)
+        if content_width >= nominal_total:
+            widths = {seat: nominal_widths[seat] for seat in seats}
+        else:
+            ratio = content_width / max(1, nominal_total)
+            widths = {
+                seat: max(
+                    minimum_widths.get(seat, 1),
+                    min(nominal_widths[seat], int(nominal_widths[seat] * ratio)),
+                )
+                for seat in seats
+                if seat is not hud
+            }
+            widths[hud] = max(1, content_width - sum(widths.values()))
+        for seat in seats:
+            seat.setFixedWidth(widths[seat])
+
         for drawer in drawers:
+            drawer.setMaximumHeight(16777215)
             drawer.setFixedWidth(
                 min(max(drawer.width(), 300), 520, max(1, parent.width() - 16))
             )
             drawer.adjustSize()
 
-        gap = 6
-        badges_width = sum(badge.width() for badge in badges)
-        if len(badges) > 1:
-            badges_width += gap * (len(badges) - 1)
-        main_width = badges_width
-        if hud is not None:
-            main_width += (gap if badges else 0) + hud.width()
-        main_height = max(
-            [widget.height() for widget in (*badges, hud) if widget] or [0]
-        )
-        context_height = context.height() + gap if context is not None else 0
-        drawers_height = sum(drawer.height() for drawer in drawers)
-        if drawers:
-            drawers_height += gap * len(drawers)
-        cluster_width = max(
-            [main_width]
-            + ([context.width()] if context is not None else [])
-            + [drawer.width() for drawer in drawers]
-        )
-        cluster_height = context_height + main_height + drawers_height
-        # Reserve the bottom bar's strip so a "below" dock never sits on
-        # Anki's answer buttons.
         layout = review_overlay_layout_view_pure(
-            parent_size=(parent.width(), max(0, parent.height() - 72)),
+            parent_size=(parent.width(), parent.height()),
             content_rect=_review_card_content_rect(parent),
-            cluster_size=(cluster_width, cluster_height),
+            cluster_size=(strip_width, REVIEW_STRIP_HEIGHT),
+            answer_bar_top=_review_answer_bar_top(parent),
         )
         visible = bool(layout.get("visible"))
-        _sync_card_bottom_padding(parent, layout, cluster_height)
-        for widget in widgets:
-            widget.setVisible(visible and _overlay_requested(widget))
+        strip.setVisible(visible)
+        for widget in (
+            _DND_BADGE,
+            _FARMING_BADGE,
+            _REVIEW_HUD,
+            _BANK_RUN_BUTTON,
+            context,
+            *drawers,
+        ):
+            if widget is not None:
+                widget.setVisible(visible and _overlay_requested(widget))
         if not visible:
+            _sync_card_bottom_padding(parent, 0)
             close_review_status_popover()
             return
 
         origin_x = int(layout["x"])
-        origin_y = int(layout["y"])
-        if context is not None:
-            context_width = min(cluster_width, max(context.width(), main_width))
-            context.setFixedWidth(context_width)
-            context.move(origin_x + (cluster_width - context_width) // 2, origin_y)
-        main_y = origin_y + context_height
-        main_x = origin_x + max(0, (cluster_width - main_width) // 2)
-        cursor_x = main_x
-        for badge in badges:
-            badge.move(cursor_x, main_y + max(0, (main_height - badge.height()) // 2))
-            cursor_x += badge.width() + gap
-        if hud is not None:
-            hud.move(cursor_x, main_y + max(0, (main_height - hud.height()) // 2))
-        cursor_y = main_y + main_height + gap
+        strip.move(origin_x, int(layout["y"]))
+        strip.raise_()
+
+        stack_budget = max(1, strip.y() - 8 - gap * len(drawers))
+        natural_height = sum(drawer.height() for drawer in drawers)
+        if drawers and natural_height > stack_budget:
+            height_per_drawer = max(1, stack_budget // len(drawers))
+            for drawer in drawers:
+                drawer.setMaximumHeight(height_per_drawer)
+                drawer.adjustSize()
+
+        hud_origin = hud.mapTo(parent, QPoint(0, 0))
+        cursor_y = strip.y() - gap
         for drawer in drawers:
-            drawer_x = (
-                hud.x() + (hud.width() - drawer.width()) // 2
-                if hud is not None
-                else origin_x + (cluster_width - drawer.width()) // 2
-            )
+            cursor_y -= drawer.height()
+            drawer_x = hud_origin.x() + (hud.width() - drawer.width()) // 2
             drawer_x = min(
                 max(origin_x, drawer_x),
-                origin_x + max(0, cluster_width - drawer.width()),
+                origin_x + max(0, strip.width() - drawer.width()),
             )
             drawer.move(drawer_x, cursor_y)
-            cursor_y += drawer.height() + gap
+            cursor_y -= gap
+            drawer.raise_()
+        if context is not None:
+            context.adjustSize()
+            context_width = min(
+                max(context.width(), hud.width()),
+                strip.width(),
+            )
+            context.setFixedWidth(context_width)
+            context.move(
+                origin_x + (strip.width() - context_width) // 2,
+                max(0, cursor_y - context.height()),
+            )
+            context.raise_()
+        _sync_card_bottom_padding(parent, _review_overlay_reserved_height())
         if (
             _STATUS_POPOVER is not None
             and _STATUS_POPOVER.isVisible()
             and not _position_review_status_popover()
         ):
             close_review_status_popover()
+        popup = getattr(parent, "exp_popup", None)
+        if popup is not None and hasattr(popup, "reanchor_to_strip"):
+            popup.reanchor_to_strip()
         _raise_exp_popup()
     except Exception:
         pass
@@ -3429,12 +3620,14 @@ def _cleanup_extra_huds() -> None:
             for w in QApplication.topLevelWidgets():
                 try:
                     name = getattr(w, "objectName", lambda: "")()
-                    if name in {"AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeDndBadge", "AnkiScapeFarmingBadge", "AnkiScapeReviewFillDrawer", "AnkiScapeReviewEventLogDrawer", "reviewStatusPopover"}:
+                    if name in {"AnkiScapeReviewStrip", "AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeDndBadge", "AnkiScapeFarmingBadge", "reviewBankRunButton", "AnkiScapeReviewFillDrawer", "AnkiScapeReviewEventLogDrawer", "reviewStatusPopover"}:
                         current = {
+                            "AnkiScapeReviewStrip": _REVIEW_STRIP,
                             "AnkiScapeReviewHUD": _REVIEW_HUD,
                             "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
                             "AnkiScapeDndBadge": _DND_BADGE,
                             "AnkiScapeFarmingBadge": _FARMING_BADGE,
+                            "reviewBankRunButton": _BANK_RUN_BUTTON,
                             "AnkiScapeReviewFillDrawer": _FILL_DRAWER,
                             "AnkiScapeReviewEventLogDrawer": _EVENT_LOG_DRAWER,
                             "reviewStatusPopover": _STATUS_POPOVER,
@@ -3472,8 +3665,10 @@ def _cleanup_extra_huds() -> None:
                     except Exception:
                         pass
             for name, current in (
+                ("AnkiScapeReviewStrip", _REVIEW_STRIP),
                 ("AnkiScapeDndBadge", _DND_BADGE),
                 ("AnkiScapeFarmingBadge", _FARMING_BADGE),
+                ("reviewBankRunButton", _BANK_RUN_BUTTON),
                 ("AnkiScapeReviewFillDrawer", _FILL_DRAWER),
                 ("AnkiScapeReviewEventLogDrawer", _EVENT_LOG_DRAWER),
             ):
@@ -3487,29 +3682,33 @@ def _cleanup_extra_huds() -> None:
     except Exception:
         pass
 
+
+def ensure_review_strip() -> None:
+    """Create the fixed row and its four stable left-to-right seats."""
+
+    global _REVIEW_STRIP, _REVIEW_HUD, _DND_BADGE, _FARMING_BADGE
+    global _BANK_RUN_BUTTON
+    if not HAS_QT or mw is None:
+        return
+    _cleanup_extra_huds()
+    if _REVIEW_STRIP is None:
+        _REVIEW_STRIP = ReviewStrip(mw)
+    if _DND_BADGE is None:
+        _DND_BADGE = ReviewStatusBadge("distractions", _REVIEW_STRIP)
+    if _FARMING_BADGE is None:
+        _FARMING_BADGE = ReviewStatusBadge("farming", _REVIEW_STRIP)
+    if _REVIEW_HUD is None:
+        _REVIEW_HUD = ReviewHUD(_REVIEW_STRIP)
+    if _BANK_RUN_BUTTON is None:
+        _BANK_RUN_BUTTON = ReviewBankRunButton(_REVIEW_STRIP)
+    _REVIEW_STRIP.sync_children()
+
 def ensure_review_hud() -> None:
-    """Create the Review HUD if missing and attach to mw."""
-    global _REVIEW_HUD
+    """Create the Review HUD inside the fixed strip."""
     try:
         if not HAS_QT:
             return
-        # Proactively clean up any leftover HUD windows from previous runs
-        _cleanup_extra_huds()
-        if _REVIEW_HUD is None:
-            parent = mw
-            if parent is None:
-                return
-            _REVIEW_HUD = ReviewHUD(parent)
-            try:
-                # Ensure correct parenting in case older instances detached
-                _REVIEW_HUD.setParent(parent)
-            except Exception:
-                pass
-        # ensure on top and visible (content set by update call)
-        try:
-            _REVIEW_HUD.raise_()
-        except Exception:
-            pass
+        ensure_review_strip()
         _raise_exp_popup()
     except Exception:
         pass
@@ -3575,16 +3774,9 @@ def hide_review_context_action_strip() -> None:
 
 
 def ensure_review_status_badge() -> None:
-    global _DND_BADGE, _FARMING_BADGE
     if not HAS_QT:
         return
-    _cleanup_extra_huds()
-    if _DND_BADGE is None and mw is not None:
-        _DND_BADGE = ReviewStatusBadge("distractions", mw)
-        _DND_BADGE.setParent(mw)
-    if _FARMING_BADGE is None and mw is not None:
-        _FARMING_BADGE = ReviewStatusBadge("farming", mw)
-        _FARMING_BADGE.setParent(mw)
+    ensure_review_strip()
     for badge in (_DND_BADGE, _FARMING_BADGE):
         if badge is not None:
             badge.raise_()
@@ -3607,6 +3799,28 @@ def update_review_status_badge(
         _FARMING_BADGE.set_data(views["farming"], open_farm)
 
 
+def update_review_bank_run_button(
+    player_data: dict,
+    handler_key: str,
+    action_callback=None,
+    *,
+    target_id=None,
+) -> None:
+    if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
+        return
+    ensure_review_strip()
+    if _BANK_RUN_BUTTON is not None:
+        _BANK_RUN_BUTTON.set_data(
+            review_bank_run_button_view_pure(
+                player_data,
+                handler_key,
+                target_id,
+            ),
+            action_callback,
+        )
+    _reposition_review_overlay()
+
+
 def ensure_review_fill_drawer() -> None:
     global _FILL_DRAWER
     if not HAS_QT:
@@ -3620,13 +3834,16 @@ def ensure_review_fill_drawer() -> None:
         _raise_exp_popup()
 
 
-def update_review_fill_drawer(player_data: dict) -> None:
+def update_review_fill_drawer(player_data: dict, open_grand_exchange=None) -> None:
     if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
         hide_review_fill_drawer()
         return
     ensure_review_fill_drawer()
     if _FILL_DRAWER is not None:
-        _FILL_DRAWER.set_data(ge_fill_drawer_view_pure(player_data))
+        _FILL_DRAWER.set_data(
+            ge_fill_drawer_view_pure(player_data),
+            open_grand_exchange,
+        )
 
 
 def ensure_review_event_log_drawer() -> None:
@@ -3654,27 +3871,23 @@ def update_review_event_log_drawer(player_data: dict) -> None:
 def _position_review_status_popover() -> bool:
     try:
         badge = _STATUS_POPOVER_BADGE
-        if _STATUS_POPOVER is None or badge is None or mw is None:
+        strip = _REVIEW_STRIP
+        if _STATUS_POPOVER is None or badge is None or strip is None or mw is None:
             return False
         frame = _STATUS_POPOVER
         frame.adjustSize()
         frame.resize(max(360, frame.width()), min(380, max(180, frame.sizeHint().height())))
-        content_rect = _review_card_content_rect(mw)
-        if content_rect is not None:
-            layout = review_overlay_layout_view_pure(
-                parent_size=(mw.width(), mw.height()),
-                content_rect=content_rect,
-                cluster_size=(frame.width(), frame.height()),
-            )
-            if not layout.get("visible"):
-                return False
-            frame.move(int(layout["x"]), int(layout["y"]))
-            return True
-        x = min(max(8, badge.x()), max(8, mw.width() - frame.width() - 8))
-        y = badge.y() - frame.height() - 8
-        if y < 8:
-            y = min(mw.height() - frame.height() - 8, badge.y() + badge.height() + 8)
-        frame.move(x, max(8, y))
+        point = badge.mapTo(mw, QPoint(0, 0))
+        layout = review_status_popover_layout_view_pure(
+            parent_size=(mw.width(), mw.height()),
+            content_rect=_review_card_content_rect(mw),
+            anchor_rect=(point.x(), point.y(), badge.width(), badge.height()),
+            popover_size=(frame.width(), frame.height()),
+            safe_bottom=strip.y(),
+        )
+        if not layout.get("visible"):
+            return False
+        frame.move(int(layout["x"]), int(layout["y"]))
         return True
     except Exception:
         return False
@@ -3806,6 +4019,8 @@ def hide_review_fill_drawer() -> None:
     try:
         if _FILL_DRAWER is not None:
             _FILL_DRAWER.setProperty("ankiscapeOverlayRequested", False)
+            _FILL_DRAWER.rows.clear()
+            _FILL_DRAWER.toggle.setChecked(False)
             _FILL_DRAWER.hide()
     except Exception:
         pass
@@ -3826,6 +4041,12 @@ def hide_review_hud() -> None:
         if _REVIEW_HUD is not None and hasattr(_REVIEW_HUD, "hide"):
             _REVIEW_HUD.setProperty("ankiscapeOverlayRequested", False)
             _REVIEW_HUD.hide()
+    except Exception:
+        pass
+    try:
+        if _REVIEW_STRIP is not None:
+            _REVIEW_STRIP.hide()
+        _sync_card_bottom_padding(mw, 0, force=True)
     except Exception:
         pass
     hide_review_context_action_strip()
@@ -4149,6 +4370,7 @@ def show_main_menu(
     initial_skill=None,
     initial_farming_patch_id=None,
     initial_activity_id=None,
+    initial_global_tab=None,
     on_check_achievements=None,
     on_save_player_data=None,
 ):
@@ -21331,6 +21553,7 @@ def show_main_menu(
                     "refresh_farming": None,
                     "open_activity": None,
                     "show_activity": None,
+                    "open_grand_exchange": None,
                 }
             )
         )
@@ -22176,6 +22399,16 @@ def show_main_menu(
         tabs.indexOf(ge_tab),
         "Place and manage review-paced Grand Exchange offers",
     )
+
+    def _open_grand_exchange_in_dialog() -> None:
+        close_review_status_popover()
+        tabs.setCurrentWidget(ge_tab)
+        dialog.raise_()
+        dialog.activateWindow()
+
+    _MAIN_MENU_CTX["open_grand_exchange"] = _open_grand_exchange_in_dialog
+    if initial_global_tab == "Grand Exchange":
+        tabs.setCurrentWidget(ge_tab)
 
     _add_deferred_tab(
         "Quests",

@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+**2026-07-31, reviewer-strip pass 5 is fixed-pending-confirmation on
+`pass5-strip`.** The reviewer chrome is one fixed 128-pixel row pinned to the
+live top edge of Anki's answer bar: D&D, Farming, the XP box, and an
+always-visible bank-run action. Every card reserves the strip height, including
+late image growth, and open drawers add temporary scroll reserve so they do not
+cover card material. Event and Grand Exchange drawers stack upward from the XP
+box; Event rows carry actual awarded skill names and selectable wrapped text,
+while GE alone owns yellow/green status and its rows open the existing GE tab.
+Manual bank runs enter the existing combat or carried-inventory travel state
+instead of bypassing review costs. The Combat button calls the pass5-combat
+lane's exported `request_combat_bank_run_now_pure` hook; the strip does not
+rebuild its state literal. Focused pure, runtime, integration, and real
+offscreen Qt probes pass at default and 560-pixel reviewer heights; owner
+confirmation on the next playtest remains the closure gate.
+
 **2026-07-30, the catalog is closed.** The overnight run merged Dungeoneering
 phase C (kinship, staged trader, working Coal bag), Conquest, and the
 miniquest ledger with Bork and the Tarn corrections — every family in the

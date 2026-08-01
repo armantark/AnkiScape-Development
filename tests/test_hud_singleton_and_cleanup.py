@@ -46,6 +46,16 @@ class FakeHUD(FakeQWidget):
         FakeHUD.created += 1
 
 
+class FakeStrip(FakeQWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._object_name = "AnkiScapeReviewStrip"
+        self.sync_calls = 0
+
+    def sync_children(self):
+        self.sync_calls += 1
+
+
 class FakeMainWindow(FakeQWidget):
     def __init__(self):
         super().__init__(None)
@@ -86,6 +96,10 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self._bak_HAS_QT = _ui.HAS_QT
         self._bak_mw = _ui.mw
         self._bak_REVIEW_HUD = getattr(_ui, "_REVIEW_HUD", None)
+        self._bak_REVIEW_STRIP = getattr(_ui, "_REVIEW_STRIP", None)
+        self._bak_DND_BADGE = getattr(_ui, "_DND_BADGE", None)
+        self._bak_FARMING_BADGE = getattr(_ui, "_FARMING_BADGE", None)
+        self._bak_BANK_RUN_BUTTON = getattr(_ui, "_BANK_RUN_BUTTON", None)
         self._bak_ReviewHUD = getattr(_ui, "ReviewHUD", None)
         # Install fake Qt into sys.modules where ui._cleanup_extra_huds imports from
         self.fake_qt = types.ModuleType("aqt.qt")
@@ -97,6 +111,10 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         _ui.mw = self.mw
         _ui.HAS_QT = True
         _ui._REVIEW_HUD = None
+        _ui._REVIEW_STRIP = FakeStrip(self.mw)
+        _ui._DND_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
+        _ui._FARMING_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
+        _ui._BANK_RUN_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
         _ui.ReviewHUD = FakeHUD  # ensure construction doesn't require real Qt
         # Prepare stray top-level HUD and duplicate child HUD
         self.stray_top = FakeHUD(None)
@@ -108,6 +126,10 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self.ui.HAS_QT = self._bak_HAS_QT
         self.ui.mw = self._bak_mw
         self.ui._REVIEW_HUD = self._bak_REVIEW_HUD
+        self.ui._REVIEW_STRIP = self._bak_REVIEW_STRIP
+        self.ui._DND_BADGE = self._bak_DND_BADGE
+        self.ui._FARMING_BADGE = self._bak_FARMING_BADGE
+        self.ui._BANK_RUN_BUTTON = self._bak_BANK_RUN_BUTTON
         if self._bak_ReviewHUD is not None:
             self.ui.ReviewHUD = self._bak_ReviewHUD
         # Clean fake Qt
@@ -125,7 +147,12 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self.ui.ensure_review_hud()
         hud = self.ui._REVIEW_HUD
         self.assertIsNotNone(hud, "HUD should be created")
-        self.assertIs(hud.parent(), self.mw, "HUD should be parented to mw")
+        self.assertIs(
+            hud.parent(),
+            self.ui._REVIEW_STRIP,
+            "HUD should be parented to the fixed strip",
+        )
+        self.assertIs(self.ui._REVIEW_STRIP.parent(), self.mw)
         self.assertEqual(
             FakeHUD.created - baseline,
             1,
@@ -134,8 +161,11 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         # Duplicates should be cleaned
         self.assertTrue(self.stray_top._hidden and self.stray_top._deleted, "Stray top-level HUD should be removed")
         self.assertTrue(self.dup_child._hidden and self.dup_child._deleted, "Duplicate child HUD should be removed")
-        # raise_ should have been called to keep HUD on top of its parent
-        self.assertTrue(hud._raised, "HUD should be raised on ensure")
+        self.assertEqual(
+            self.ui._REVIEW_STRIP.sync_calls,
+            2,
+            "Each ensure should verify the strip's stable child order",
+        )
 
 
 if __name__ == "__main__":

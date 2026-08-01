@@ -3980,6 +3980,31 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Coal"], 29)
         self.assertEqual(player_data["carried_inventory"]["copper_ore"], {"Coal": 1})
 
+    def test_manual_request_enters_the_same_review_paced_bank_run(self):
+        player_data = {
+            "inventory": {"Coal": 3},
+            "current_ore": "copper_ore",
+            "review_bank_run_requested_target": "copper_ore",
+        }
+        ctx, calls = self._mining_ctx(player_data)
+        acted = []
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                ctx,
+                "mining",
+                lambda _ctx: acted.append(True) or True,
+            )
+        )
+
+        self.assertEqual(acted, [])
+        self.assertNotIn("review_bank_run_requested_target", player_data)
+        self.assertTrue(any("Bank run" in msg for msg in calls["activity"]))
+        self.assertTrue(
+            player_data.get("skilling_bank_run") == {}
+            or int(player_data["skilling_bank_run"]["reviews_remaining"]) > 0
+        )
+
     def test_full_run_energy_credit_waives_and_consumes_the_next_moving_trip(self):
         player_data = {
             "inventory": {"Coal": 28},
@@ -4094,6 +4119,26 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertTrue(result)
         self.assertTrue(marker["called"])
         self.assertNotIn("carried_inventory", player_data)
+
+    def test_manual_bank_run_for_an_untracked_handler_spends_the_review(self):
+        player_data = {
+            "inventory": {},
+            "review_bank_run_requested_handler": "utility",
+        }
+        marker = {"called": False}
+        ctx, calls = self._mining_ctx(player_data)
+
+        result = run_answer_with_carried_overlay(
+            ctx,
+            "utility",
+            lambda _ctx: marker.__setitem__("called", True),
+        )
+
+        self.assertTrue(result)
+        self.assertFalse(marker["called"])
+        self.assertNotIn("review_bank_run_requested_handler", player_data)
+        self.assertEqual(calls["activity"], ["Bank run — arrived at the bank"])
+        self.assertEqual(calls["saves"], 1)
 
 
 class TestProcessingPackOverlay(unittest.TestCase):

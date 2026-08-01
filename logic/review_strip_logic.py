@@ -20,6 +20,10 @@ from __future__ import annotations
 
 from typing import Any, Callable, Collection, Mapping
 
+from ..core.action_registry import (
+    review_action_display_names,
+    review_action_handler_key,
+)
 from ..core.constants import (
     BIRD_NEST_OPEN_TABLES,
     COOKING_ITEM_IMAGES,
@@ -89,6 +93,7 @@ from ..logic_pure.logic_pure import (
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
     compute_level_progress,
+    request_combat_bank_run_now_pure,
 )
 
 # A resolved Big Chinchompa keeps reporting its outcome for this many reviews.
@@ -107,6 +112,41 @@ REVIEW_EVENT_LOG_RETAINED = 2000
 # ten-row pages without discarding older emissions.
 REVIEW_EVENT_LOG_DEFAULT_LIMIT = 10
 REVIEW_EVENT_LOG_PAGE_SIZE = 10
+
+# The reviewer strip is a fixed part of the review chrome. Card content may
+# change what it says, but never its seat or the amount of document space it
+# reserves.
+REVIEW_STRIP_HEIGHT = 128
+REVIEW_STRIP_WIDTH = 684
+REVIEW_ANSWER_BAR_HEIGHT = 72
+
+# These handlers refill a target-specific carried pack. Every other registered
+# review action still gets the button and spends one review on the standard
+# bank trip, but has no pack to repopulate.
+REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS = frozenset(
+    {
+        "mining",
+        "woodcutting",
+        "fishing",
+        "hunter",
+        "cooking",
+        "crafting",
+        "fletching",
+        "firemaking",
+        "smithing",
+        "runecrafting",
+        "herblore",
+        "prayer",
+        "thieving",
+        "agility",
+        "summoning",
+    }
+)
+REVIEW_BANK_RUN_HANDLER_KEYS = frozenset(
+    handler
+    for name in review_action_display_names()
+    if (handler := review_action_handler_key(name)) is not None
+)
 
 
 def _answered_reviews_pure(player_data: Mapping[str, Any]) -> int:
@@ -182,9 +222,18 @@ def review_event_log_drawer_view_pure(
     for entry in reversed(rows[-limit:]):
         reviews_ago = max(0, now - int(entry["review"]))
         unit = "review" if reviews_ago == 1 else "reviews"
+        # Green and yellow belong to the Grand Exchange drawer alone, so the
+        # event log stays on neutral tones.
+        tone = entry["kind"] if entry["kind"] in ("xp", "achievement") else "neutral"
         visible_rows.append({
             **entry,
             "label": f"{reviews_ago} {unit} ago · {entry['text']}",
+            "tone": tone,
+            "foreground": {
+                "xp": "#d7dde8",
+                "achievement": "#8fb8ff",
+                "neutral": "#ffffff",
+            }[tone],
         })
     remaining = max(0, len(rows) - len(visible_rows))
     next_count = min(REVIEW_EVENT_LOG_PAGE_SIZE, remaining)
@@ -206,84 +255,156 @@ def review_overlay_layout_view_pure(
     parent_size: tuple[int, int],
     content_rect: tuple[int, int, int, int] | None,
     cluster_size: tuple[int, int],
+    answer_bar_top: int | None = None,
     margin: int = 8,
-    gap: int = 20,
 ) -> dict[str, Any]:
-    """Choose a card-safe dock for the complete reviewer-overlay cluster.
+    """Pin the fixed strip immediately above Anki's answer-button bar.
 
-    The card viewport owns its rectangle. The cluster first tries the space below
-    it, then either side, then above. If no outside rectangle can hold the compact
-    cluster, the pure projection hides it instead of letting UI heuristics cover
-    card material.
+    ``content_rect`` is still taken so callers keep one layout entry point, but
+    card content no longer moves the strip: a fixed document-bottom inset
+    protects both short cards and late-growing image cards instead.
     """
 
     parent_w = max(0, int(parent_size[0]))
     parent_h = max(0, int(parent_size[1]))
     cluster_w = max(0, int(cluster_size[0]))
-    cluster_h = max(0, int(cluster_size[1]))
-    if cluster_w <= 0 or cluster_h <= 0:
+    if cluster_w <= 0:
         return {"visible": False, "x": margin, "y": margin, "dock": "none"}
-    if content_rect is None:
-        return {
-            "visible": cluster_w <= parent_w - 2 * margin and cluster_h <= parent_h - 2 * margin,
-            "x": max(margin, (parent_w - cluster_w) // 2),
-            "y": max(margin, parent_h - cluster_h - 72),
-            "dock": "review-bottom",
-        }
-
-    cx, cy, cw, ch = (int(value) for value in content_rect)
-    content_left = max(0, cx)
-    content_top = max(0, cy)
-    content_right = min(parent_w, cx + max(0, cw))
-    content_bottom = min(parent_h, cy + max(0, ch))
-    candidates = (
-        (
-            "below",
-            margin,
-            content_bottom + gap,
-            parent_w - 2 * margin,
-            parent_h - content_bottom - gap - margin,
-        ),
-        (
-            "right",
-            content_right + gap,
-            margin,
-            parent_w - content_right - gap - margin,
-            parent_h - 2 * margin,
-        ),
-        (
-            "left",
-            margin,
-            margin,
-            content_left - gap - margin,
-            parent_h - 2 * margin,
-        ),
-        (
-            "above",
-            margin,
-            margin,
-            parent_w - 2 * margin,
-            content_top - gap - margin,
-        ),
+    if answer_bar_top is None:
+        answer_bar_top = parent_h - REVIEW_ANSWER_BAR_HEIGHT
+    bar_top = max(0, min(parent_h, int(answer_bar_top)))
+    visible = (
+        cluster_w <= max(0, parent_w - 2 * margin)
+        and REVIEW_STRIP_HEIGHT <= bar_top
     )
-    for dock, zx, zy, zw, zh in candidates:
-        if cluster_w <= max(0, zw) and cluster_h <= max(0, zh):
-            return {
-                "visible": True,
-                "x": zx + max(0, (zw - cluster_w) // 2),
-                "y": zy + max(0, (zh - cluster_h) // 2),
-                "dock": dock,
-            }
-    # A scrolling card fills the viewport, so no outside rectangle exists —
-    # but the bars must never vanish (2026-07-29 playtest). The cluster docks
-    # over the viewport bottom and the UI injects matching bottom padding into
-    # the card document, so every line, footnotes included, can scroll clear.
+    return {
+        "visible": visible,
+        "x": max(margin, (parent_w - cluster_w) // 2),
+        "y": max(0, bar_top - REVIEW_STRIP_HEIGHT),
+        "height": REVIEW_STRIP_HEIGHT,
+        "card_bottom_padding": REVIEW_STRIP_HEIGHT,
+        "answer_bar_top": bar_top,
+        "dock": "review-bottom",
+    }
+
+
+def review_status_popover_layout_view_pure(
+    *,
+    parent_size: tuple[int, int],
+    content_rect: tuple[int, int, int, int] | None,
+    anchor_rect: tuple[int, int, int, int],
+    popover_size: tuple[int, int],
+    safe_bottom: int,
+    margin: int = 8,
+    gap: int = 8,
+) -> dict[str, Any]:
+    """Place a badge popover only where it cannot cover card material."""
+
+    parent_w = max(0, int(parent_size[0]))
+    parent_h = max(0, int(parent_size[1]))
+    anchor_x, _, anchor_w, _ = (max(0, int(value)) for value in anchor_rect)
+    popover_w, popover_h = (max(0, int(value)) for value in popover_size)
+    bottom = max(margin, min(parent_h, int(safe_bottom)))
+    if (
+        popover_w <= 0
+        or popover_h <= 0
+        or popover_w > max(0, parent_w - 2 * margin)
+        or popover_h > max(0, bottom - margin)
+    ):
+        return {"visible": False, "x": margin, "y": margin}
+
+    content = None
+    if content_rect is not None:
+        cx, cy, cw, ch = (int(value) for value in content_rect)
+        content = (
+            max(0, cx),
+            max(0, cy),
+            min(parent_w, cx + max(0, cw)),
+            min(bottom, cy + max(0, ch)),
+        )
+
+    def covers_card(x: int, y: int) -> bool:
+        if content is None:
+            return False
+        left, top, right, card_bottom = content
+        return (
+            x < right
+            and x + popover_w > left
+            and y < card_bottom
+            and y + popover_h > top
+        )
+
+    x = min(
+        max(margin, anchor_x + (anchor_w - popover_w) // 2),
+        parent_w - popover_w - margin,
+    )
+    y = bottom - popover_h - gap
+    if y < margin or covers_card(x, y):
+        return {"visible": False, "x": margin, "y": margin}
+    return {"visible": True, "x": x, "y": y}
+
+
+def review_bank_run_button_view_pure(
+    player_data: Mapping[str, Any], handler_key: Any, target_id: Any = None
+) -> dict[str, Any]:
+    """Stable button content and availability for the fixed strip."""
+
+    handler = str(handler_key or "")
+    target = str(target_id or "")
+    requested_target = str(
+        player_data.get("review_bank_run_requested_target", "") or ""
+    )
+    requested_handler = str(
+        player_data.get("review_bank_run_requested_handler", "") or ""
+    )
+    if handler == "combat":
+        active = bool(player_data.get("combat_bank_run"))
+    elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
+        active = bool(player_data.get("skilling_bank_run")) or bool(
+            requested_target and (not target or requested_target == target)
+        )
+    else:
+        active = bool(requested_handler)
+    if active:
+        tooltip = "A bank run is already queued or in progress."
+    else:
+        tooltip = "Spend the next review on the normal bank-run route."
     return {
         "visible": True,
-        "x": max(margin, (parent_w - cluster_w) // 2),
-        "y": max(margin, parent_h - cluster_h - margin),
-        "dock": "overlay-bottom",
+        "text": "Do bank run",
+        "enabled": handler in REVIEW_BANK_RUN_HANDLER_KEYS and not active,
+        "tooltip": tooltip,
     }
+
+
+def request_review_bank_run_pure(
+    player_data: Mapping[str, Any], handler_key: Any, target_id: Any
+) -> tuple[dict[str, Any], bool]:
+    """Queue the existing review-paced bank-run path without completing it."""
+
+    handler = str(handler_key or "")
+    target = str(target_id or "")
+    if handler not in REVIEW_BANK_RUN_HANDLER_KEYS:
+        return dict(player_data), False
+    updated = dict(player_data)
+    if handler == "combat":
+        requested, ok, _reason = request_combat_bank_run_now_pure(player_data)
+        return requested, ok
+    elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
+        if (
+            not target
+            or player_data.get("skilling_bank_run")
+            or player_data.get("review_bank_run_requested_target") == target
+        ):
+            return updated, False
+        # The carried-overlay runtime converts this one thin request into its
+        # ordinary target-specific travel profile on the next successful card.
+        updated["review_bank_run_requested_target"] = target
+    else:
+        if player_data.get("review_bank_run_requested_handler"):
+            return updated, False
+        updated["review_bank_run_requested_handler"] = handler
+    return updated, True
 
 
 def _has_usable_hatchet(player_data: Mapping[str, Any]) -> bool:
