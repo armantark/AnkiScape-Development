@@ -4404,6 +4404,46 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["reason"], "combat_burst")
         self.assertFalse(player["combat_dream_thrift"])
 
+    def test_locked_dream_is_removed_from_target_overrides_and_pinned_presets(self):
+        cases = (
+            {
+                "combat_target_overrides": {
+                    "chicken": {"combat_dream_thrift": True}
+                }
+            },
+            {
+                "combat_presets": {
+                    "Dream": {"combat_dream_thrift": True}
+                },
+                "combat_target_presets": {"chicken": "Dream"},
+                "combat_active_preset": "Dream",
+            },
+        )
+
+        for overrides in cases:
+            with self.subTest(overrides=overrides):
+                player = _player(
+                    magic_level=1,
+                    quests={"dream_mentor": {"completed": False}},
+                    current_combat_target="chicken",
+                    **overrides,
+                )
+                new_data, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=1,
+                    rng=_rng([0.999999]),
+                )
+
+                self.assertTrue(ok, result)
+                self.assertEqual(result["reason"], "combat_burst")
+                self.assertFalse(new_data["combat_dream_thrift"])
+                for values in new_data["combat_target_overrides"].values():
+                    self.assertFalse(values.get("combat_dream_thrift", False))
+                for preset in new_data["combat_presets"].values():
+                    self.assertFalse(preset.get("combat_dream_thrift", False))
+
     def test_dream_does_not_interrupt_an_active_fight(self):
         player = _player(
             combat_lifepoints=50,

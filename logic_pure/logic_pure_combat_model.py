@@ -1059,7 +1059,8 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     if not isinstance(encounter, Mapping):
         encounter = {}
     dream_thrift = bool(player_data.get("combat_dream_thrift", False))
-    if dream_thrift and combat_dream_thrift_locked_reasons_pure(player_data):
+    dream_locked = bool(combat_dream_thrift_locked_reasons_pure(player_data))
+    if dream_thrift and dream_locked:
         # The old casual dial could latch Dream on an ineligible save. Combat then
         # rejected every review before resolving the live encounter, leaving both
         # the invalid toggle and half-finished fight stuck across launches.
@@ -1090,9 +1091,22 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         presets = {str(name): dict(value) for name, value in presets.items() if isinstance(name, str) and isinstance(value, Mapping)}
     if not presets:
         presets = {"Default": _combat_preset_snapshot({**defaults, **player_data})}
+    if dream_locked:
+        for preset in presets.values():
+            if bool(preset.get("combat_dream_thrift", False)):
+                preset["combat_dream_thrift"] = False
     active_preset = str(player_data.get("combat_active_preset", "Default"))
     if active_preset not in presets:
         active_preset = next(iter(presets))
+    target_overrides = {
+        str(target_id): dict(values)
+        for target_id, values in (player_data.get("combat_target_overrides", {}) or {}).items()
+        if isinstance(target_id, str) and isinstance(values, Mapping)
+    }
+    if dream_locked:
+        for values in target_overrides.values():
+            if bool(values.get("combat_dream_thrift", False)):
+                values["combat_dream_thrift"] = False
     return {
         "current_combat_target": target,
         "combat_action": (
@@ -1149,11 +1163,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_presets": presets,
         "combat_active_preset": active_preset,
         "combat_target_presets": dict(player_data.get("combat_target_presets", {}) or {}),
-        "combat_target_overrides": {
-            str(target_id): dict(values)
-            for target_id, values in (player_data.get("combat_target_overrides", {}) or {}).items()
-            if isinstance(target_id, str) and isinstance(values, Mapping)
-        },
+        "combat_target_overrides": target_overrides,
         "knight_waves": sanitize_knight_waves_state_pure(player_data.get("knight_waves")),
     }
 

@@ -4319,6 +4319,7 @@ def show_main_menu(
     on_set_farming_spell_patch=None,
     on_set_utility=None,
     on_start_activity=None,
+    on_do_bank_run_now=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
     on_set_loot_threshold=None,
@@ -8895,8 +8896,9 @@ def show_main_menu(
         star_panel_refresher["call"] = _refresh_shooting_star_panel
 
         def _select_shooting_star() -> None:
-            start = activity_start_transition.get(_ACTIVITIES_HUB_NAME)
-            if not callable(start) or not start(SHOOTING_STAR_ACTIVITY_ID):
+            if not _set_utility_selection(
+                SHOOTING_STAR_ACTIVITY_ID, activate=True
+            ):
                 return
             tree.clearSelection()
             _refresh_evil_tree_panel()
@@ -19845,13 +19847,18 @@ def show_main_menu(
             if selection_callback(activity_id) is False:
                 return False
             player_data["current_utility"] = activity_id
+            selected_surface = (
+                _utility_surface_name_for_target(activity_id)
+                if activate
+                else surface_name
+            )
             if activate or (
                 state["active"] in _UTILITY_SKILL_NAMES
                 and state["active"] != surface_name
             ):
-                state["active"] = surface_name
+                state["active"] = selected_surface
                 if not starting:
-                    on_save_skill(surface_name)
+                    on_save_skill(selected_surface)
                 _refresh_active_label()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
@@ -25506,6 +25513,13 @@ def show_main_menu(
     f_layout.addWidget(hint)
     f_layout.addWidget(link)
     f_layout.addStretch(1)
+    bank_run = QPushButton("Do bank run")
+    bank_run.setObjectName("doBankRunButton")
+    bank_run.setToolTip("Visit the bank for the active skill or activity now")
+    bank_run.setEnabled(on_do_bank_run_now is not None)
+    if on_do_bank_run_now is not None:
+        bank_run.clicked.connect(on_do_bank_run_now)
+    f_layout.addWidget(bank_run)
     close = QPushButton("Close")
     close.clicked.connect(dialog.accept)
     f_layout.addWidget(close)

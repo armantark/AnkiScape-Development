@@ -329,20 +329,31 @@ from ..data.woodcutting_data import (
 CURRENT_CONFIG_VERSION = 106
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
-    "fight_caves",
-    "phoenix_lair",
-    "skeletal_horror",
-    "bork",
-    "stealing_creation",
+    "barbarian_assault",
     "barrows",
+    "bork",
+    "castle_wars",
+    "conquest",
+    "dungeoneering",
+    "familiarisation",
+    "fight_caves",
+    "flash_powder_factory",
+    "pest_control",
+    "phoenix_lair",
     "pyramid_plunder",
+    "shades_of_mortton",
+    "skeletal_horror",
+    "soul_wars",
+    "stealing_creation",
+    "treasure_trail",
+    "trouble_brewing",
+    "tzhaar_fight_pit",
     WEREWOLF_SKULLBALL_ACTIVITY_ID,
     GNOME_BALL_ACTIVITY_ID,
     FISH_FLINGERS_ACTIVITY_ID,
     FISHING_TRAWLER_ACTIVITY_ID,
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     COURT_CASES_ACTIVITY_ID,
-    "tzhaar_fight_pit",
     DUEL_ARENA_ACTIVITY_ID,
     CLAN_WARS_ACTIVITY_ID,
     TROLL_INVASION_ACTIVITY_ID,
@@ -353,7 +364,6 @@ _SUPPORTED_ACTIVITY_SESSION_IDS = {
     DOMINION_TOWER_ACTIVITY_ID,
     CRUCIBLE_ACTIVITY_ID,
     GOBLIN_RAIDS_ACTIVITY_ID,
-    "dungeoneering",
     TEARS_OF_GUTHIX_ACTIVITY_ID,
 }
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
@@ -1575,8 +1585,7 @@ def migrate_loaded_data(
     ):
         active_session_id = ""
     if active_session_id not in _SUPPORTED_ACTIVITY_SESSION_IDS:
-        # Selection-only activities never own the exclusive session slot. Clear
-        # any legacy two-step target copied there, not just Shooting Stars.
+        # Selection-only activities never own the exclusive session slot.
         active_session_id = ""
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(

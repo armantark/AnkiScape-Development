@@ -10225,6 +10225,63 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             ui.mw = orig_mw
 
+    def test_bank_run_button_is_always_visible_and_drives_the_callback(self) -> None:
+        calls = []
+        dialog = self._open(
+            _make_player_data(),
+            current_skill="Mining",
+            on_do_bank_run_now=lambda: calls.append("bank") or True,
+        )
+        dialog.show()
+        dialog.resize(1200, 560)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        button = _find_named_button(dialog, "doBankRunButton")
+        self.assertTrue(button.isVisible())
+        self.assertEqual(button.text(), "Do bank run")
+        button.click()
+        QApplication.processEvents()
+        self.assertEqual(calls, ["bank"])
+
+    def test_shooting_star_selects_from_utilities_without_building_activities(self) -> None:
+        from ankiscape.logic.shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "mining_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "shooting_star": default_shooting_star_state_pure(),
+            }
+        )
+        active, _ = advance_shooting_star_world_clock_pure(pd)
+        pd.clear()
+        pd.update(active)
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        dialog.resize(1200, 560)
+        self._open_utility(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        select = _find_named_button(dialog, "shootingStarSelectButton")
+        select.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["current_utility"], "shooting_stars")
+        self.assertEqual(self._activity_start_calls, ["shooting_stars"])
+        self.assertEqual(select.text(), "Selected for reviews")
+        self.assertTrue(
+            any(
+                label.text() == "Training: Activities"
+                for label in dialog.findChildren(QLabel)
+            )
+        )
+
     def test_shooting_star_panel_selects_and_exchanges_without_spawn_controls(self) -> None:
         from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,

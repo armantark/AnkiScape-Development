@@ -1546,6 +1546,53 @@ class TestStoragePure(unittest.TestCase):
             ],
         )
 
+    def test_migration_preserves_legitimate_activity_session_owners(self):
+        session_ids = (
+            "barbarian_assault",
+            "castle_wars",
+            "conquest",
+            "familiarisation",
+            "flash_powder_factory",
+            "pest_control",
+            "shades_of_mortton",
+            "soul_wars",
+            "treasure_trail",
+            "trouble_brewing",
+        )
+
+        for session_id in session_ids:
+            with self.subTest(session_id=session_id):
+                saved = {
+                    "config_version": CURRENT_CONFIG_VERSION,
+                    "activity_session": {"active_id": session_id},
+                }
+                if session_id == "conquest":
+                    from ankiscape.logic.conquest_logic import enter_conquest_pure
+
+                    saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                    for level_key in (
+                        "attack_level",
+                        "strength_level",
+                        "defense_level",
+                        "constitution_level",
+                        "ranged_level",
+                        "magic_level",
+                        "prayer_level",
+                    ):
+                        saved[level_key] = 40
+                    saved, ok, reason = enter_conquest_pure(
+                        saved, {}, lambda: 0.0
+                    )
+                    self.assertTrue(ok, reason)
+                migrated = migrate_loaded_data(
+                    saved,
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
+                self.assertEqual(
+                    migrated["activity_session"], {"active_id": session_id}
+                )
+
     def test_v106_food_order_refills_monkfish_before_cooked_chicken(self):
         migrated = migrate_loaded_data(
             {
