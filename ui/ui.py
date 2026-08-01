@@ -4782,6 +4782,7 @@ def show_main_menu(
             "QListWidget::item:selected { background: rgba(66,133,244,0.35);"
             " color: palette(text); }"
         )
+        current_item = None
         for row in rows:
             item = QListWidgetItem(row.label)
             item.setData(Qt.ItemDataRole.UserRole, row.target_id)
@@ -4794,17 +4795,26 @@ def show_main_menu(
             item.setToolTip(row.tooltip)
             target_list.addItem(item)
             if row.current:
-                # setCurrentItem alone is not a visible highlight here: the
-                # legacy QStyle selection rect under alternatingRowColors +
-                # stylesheet border-radius renders as a near-white wash. Mark
-                # the row the same way the grouped tree does.
-                current_font = item.font()
-                current_font.setBold(True)
-                item.setFont(current_font)
-                item.setBackground(QBrush(QColor(76, 175, 80, 76)))
-                target_list.setCurrentItem(item)
+                current_item = item
 
         rows_by_target = {row.target_id: row for row in rows}
+
+        def _mark_current_target(item: Optional[QListWidgetItem]) -> None:
+            for index in range(target_list.count()):
+                candidate = target_list.item(index)
+                current_font = candidate.font()
+                current_font.setBold(candidate is item)
+                candidate.setFont(current_font)
+                candidate.setBackground(
+                    QBrush(QColor(76, 175, 80, 76))
+                    if candidate is item
+                    else QBrush()
+                )
+            if item is not None:
+                target_list.setCurrentItem(item)
+            target_list.clearSelection()
+
+        _mark_current_target(current_item)
 
         def _show_target_details(item: Optional[QListWidgetItem]) -> None:
             if item is None:
@@ -4820,13 +4830,13 @@ def show_main_menu(
             # items even though selection is blocked.
             if item and on_select is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
                 on_select(item.data(Qt.ItemDataRole.UserRole))
+                _mark_current_target(item)
 
         target_list.itemClicked.connect(_on_target_selected)
         target_list.itemActivated.connect(_on_target_selected)
         target_list.currentItemChanged.connect(
             lambda current, _previous: _show_target_details(current)
         )
-        target_list.clearSelection()
         _show_target_details(target_list.currentItem())
         return target_list
 

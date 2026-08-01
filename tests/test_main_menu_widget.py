@@ -6998,6 +6998,39 @@ class MainMenuWidgetTest(unittest.TestCase):
             finally:
                 dialog.deleteLater()
 
+    def test_flat_target_highlight_tracks_the_last_clicked_target(self) -> None:
+        pd = _make_player_data()
+        pd["mining_level"] = 99
+        pd["current_ore"] = "silver"
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+        target_list = next(
+            widget
+            for widget in dialog.findChildren(QListWidget)
+            if any("Silver" in widget.item(i).text() for i in range(widget.count()))
+        )
+        silver = next(
+            target_list.item(i)
+            for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "silver"
+        )
+        coal = next(
+            target_list.item(i)
+            for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "coal"
+        )
+
+        target_list.itemClicked.emit(coal)
+        QApplication.processEvents()
+
+        self.assertEqual(target_list.currentItem(), coal)
+        self.assertEqual(coal.background().color(), QColor(76, 175, 80, 76))
+        self.assertTrue(coal.font().bold())
+        self.assertNotEqual(silver.background().color(), QColor(76, 175, 80, 76))
+        self.assertFalse(silver.font().bold())
+        self.assertFalse(coal.isSelected())
+
     def test_grouped_target_tree_styles_clicked_selection_separately_from_current_target(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Bronze bar": 10}
