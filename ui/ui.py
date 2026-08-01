@@ -1507,6 +1507,18 @@ if HAS_QT:
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
 
+    class _ResponsiveGridScrollArea(QScrollArea):
+        """Notify a grid when its viewport width changes."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.on_viewport_resize = None
+
+        def resizeEvent(self, event):  # type: ignore[no-untyped-def]
+            super().resizeEvent(event)
+            if self.on_viewport_resize is not None:
+                self.on_viewport_resize()
+
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
 
@@ -4329,6 +4341,7 @@ def show_main_menu(
     on_set_carried_advanced=None,
     carried_advanced_state=False,
     get_carried_layout_cells=None,
+    get_carried_inventory_items=None,
     on_set_carried_layout_quantity=None,
     on_clear_carried_layout=None,
     carried_stackable_names=frozenset(),
@@ -4357,6 +4370,7 @@ def show_main_menu(
     on_mage_arena_action=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
+    on_attach_tool=None,
     on_equip_item=None,
     on_unequip_slot=None,
     on_discard_item=None,
@@ -4782,6 +4796,7 @@ def show_main_menu(
             "QListWidget::item:selected { background: rgba(66,133,244,0.35);"
             " color: palette(text); }"
         )
+        current_item = None
         for row in rows:
             item = QListWidgetItem(row.label)
             item.setData(Qt.ItemDataRole.UserRole, row.target_id)
@@ -4794,17 +4809,26 @@ def show_main_menu(
             item.setToolTip(row.tooltip)
             target_list.addItem(item)
             if row.current:
-                # setCurrentItem alone is not a visible highlight here: the
-                # legacy QStyle selection rect under alternatingRowColors +
-                # stylesheet border-radius renders as a near-white wash. Mark
-                # the row the same way the grouped tree does.
-                current_font = item.font()
-                current_font.setBold(True)
-                item.setFont(current_font)
-                item.setBackground(QBrush(QColor(76, 175, 80, 76)))
-                target_list.setCurrentItem(item)
+                current_item = item
 
         rows_by_target = {row.target_id: row for row in rows}
+
+        def _mark_current_target(item: Optional[QListWidgetItem]) -> None:
+            for index in range(target_list.count()):
+                candidate = target_list.item(index)
+                current_font = candidate.font()
+                current_font.setBold(candidate is item)
+                candidate.setFont(current_font)
+                candidate.setBackground(
+                    QBrush(QColor(76, 175, 80, 76))
+                    if candidate is item
+                    else QBrush()
+                )
+            if item is not None:
+                target_list.setCurrentItem(item)
+            target_list.clearSelection()
+
+        _mark_current_target(current_item)
 
         def _show_target_details(item: Optional[QListWidgetItem]) -> None:
             if item is None:
@@ -4820,13 +4844,13 @@ def show_main_menu(
             # items even though selection is blocked.
             if item and on_select is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
                 on_select(item.data(Qt.ItemDataRole.UserRole))
+                _mark_current_target(item)
 
         target_list.itemClicked.connect(_on_target_selected)
         target_list.itemActivated.connect(_on_target_selected)
         target_list.currentItemChanged.connect(
             lambda current, _previous: _show_target_details(current)
         )
-        target_list.clearSelection()
         _show_target_details(target_list.currentItem())
         return target_list
 
@@ -4875,6 +4899,7 @@ def show_main_menu(
             groups[group].append(row)
 
         selected_child = None
+        child_items: list[QTreeWidgetItem] = []
         rows_by_target = {row.target_id: row for row in rows}
         expanded_groups = expanded_groups or set()
         for group in ordered_groups:
@@ -4907,20 +4932,28 @@ def show_main_menu(
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
                 parent.addChild(child)
+                child_items.append(child)
                 if row.current:
-                    current_font = child.font(0)
-                    current_font.setBold(True)
-                    child.setFont(0, current_font)
-                    child.setBackground(
-                        0, QBrush(QColor(76, 175, 80, 76))
-                    )
                     selected_child = child
                     group_has_current = True
             parent.setExpanded(group in expanded_groups or group_has_current)
 
-        if selected_child is not None:
-            tree.setCurrentItem(selected_child)
+        def _mark_current_target(item: Optional["QTreeWidgetItem"]) -> None:
+            for candidate in child_items:
+                current_font = candidate.font(0)
+                current_font.setBold(candidate is item)
+                candidate.setFont(0, current_font)
+                candidate.setBackground(
+                    0,
+                    QBrush(QColor(76, 175, 80, 76))
+                    if candidate is item
+                    else QBrush(),
+                )
+            if item is not None:
+                tree.setCurrentItem(item)
             tree.clearSelection()
+
+        _mark_current_target(selected_child)
 
         def _on_target_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None:
@@ -4938,6 +4971,7 @@ def show_main_menu(
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
                 on_select(target_id)
+                _mark_current_target(item)
 
         def _group_id(item: "QTreeWidgetItem") -> Optional[str]:
             role = item.data(0, Qt.ItemDataRole.UserRole)
@@ -21702,9 +21736,8 @@ def show_main_menu(
                 prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
                 prompt_lbl.setStyleSheet("color: palette(text);")
                 panel_layout.addWidget(prompt_lbl)
-            # A bought hatchet/pickaxe joins the auto-resolved toolbelt on its
-            # own, so an unusable upgrade otherwise looks ignored. Name the gate
-            # on the skill that owns the tool, not only in the Bank.
+            # An attached hatchet/pickaxe can be above the current skill level.
+            # Name that use gate on the skill surface as well as in the Bank.
             gate_label = {"Woodcutting": "Hatchet", "Mining": "Pickaxe"}.get(name)
             if gate_label is not None:
                 blocked = [
@@ -23033,6 +23066,12 @@ def show_main_menu(
     bk_layout = QVBoxLayout(bank_tab)
     bk_layout.setContentsMargins(12, 12, 12, 12)
     bk_layout.setSpacing(8)
+    bank_scroll = QScrollArea()
+    bank_scroll.setObjectName("bankTabScroll")
+    bank_scroll.setWidgetResizable(True)
+    bank_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_scroll.setWidget(bank_tab)
     bank_state = {"initialized": False}
 
     # Carried inventory overlay — the 28-slot pack the review loop draws from and
@@ -23095,13 +23134,43 @@ def show_main_menu(
     # current. carried_mode_state is the single source of truth the bank context
     # menu reads to decide whether "Set carried quantity" applies.
     carried_grid_refreshers: list = []
+    carried_inventory_refreshers: list = []
     carried_switch_setters: list = []
     carried_section_refreshers: list = []
     carried_mode_state = {"advanced": bool(carried_advanced_state)}
+    carried_picker_state = {
+        "last_x": max(0, int(player_data.get("carried_picker_last_x", 0) or 0))
+    }
+    _legacy_icon_maps = (
+        ORE_IMAGES,
+        TREE_IMAGES,
+        BAR_IMAGES,
+        GEM_IMAGES,
+        CRAFTED_ITEM_IMAGES,
+        FLETCHED_ITEM_IMAGES,
+        FIREMAKING_ITEM_IMAGES,
+        FISHING_ITEM_IMAGES,
+        COOKING_ITEM_IMAGES,
+    )
+
+    def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
+        if asset_path and os.path.exists(asset_path):
+            return asset_path
+        for image_map in _legacy_icon_maps:
+            candidate = image_map.get(item_name)
+            if candidate and os.path.exists(candidate):
+                return candidate
+        return None
+
+    def _item_icon_path(item_name: str) -> Optional[str]:
+        definition = _item_def_for(item_name)
+        asset_path = definition.asset_path if definition is not None else None
+        return _bank_icon_path(item_name, asset_path)
+
     _dim_cell = dim_text_css(carried_body)
     _CARRIED_CELL_FILLED_CSS = (
         "QPushButton { border: 1px solid palette(mid); border-radius: 4px; "
-        "background: transparent; color: palette(text); font-size: 9px; padding: 2px; }"
+        "background: transparent; color: palette(text); font-size: 9px; padding: 1px; }"
         "QPushButton:hover { border: 1px solid palette(highlight); }"
     )
     _CARRIED_CELL_EMPTY_CSS = (
@@ -23110,8 +23179,73 @@ def show_main_menu(
         "QPushButton:hover { border: 1px solid palette(highlight); }"
     )
 
+    def _set_carried_cell_visual(
+        button: QPushButton,
+        item_name: Optional[str],
+        quantity: int = 0,
+        icon_path: Optional[str] = None,
+    ) -> None:
+        visual = getattr(button, "_ankiscape_carried_cell_visual", None)
+        if visual is None:
+            visual = QWidget(button)
+            visual.setAttribute(
+                Qt.WidgetAttribute.WA_TransparentForMouseEvents, True
+            )
+            visual_layout = QVBoxLayout(visual)
+            visual_layout.setContentsMargins(3, 2, 3, 2)
+            visual_layout.setSpacing(0)
+            icon_label = QLabel()
+            icon_label.setObjectName("carriedCellIcon")
+            icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            caption = QLabel()
+            caption.setObjectName("carriedCellCaption")
+            caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            caption.setWordWrap(True)
+            caption.setStyleSheet(
+                "background: transparent; color: palette(text); font-size: 9px;"
+            )
+            visual_layout.addWidget(icon_label)
+            visual_layout.addWidget(caption, 1)
+            button._ankiscape_carried_cell_visual = (  # type: ignore[attr-defined]
+                visual,
+                icon_label,
+                caption,
+            )
+        else:
+            visual, icon_label, caption = visual
+        visual.setGeometry(button.rect())
+        visual.raise_()
+        button.setText("")
+        button.setIcon(QIcon())
+        icon_label.clear()
+        if not item_name:
+            icon_label.hide()
+            caption.setWordWrap(False)
+            caption.setText("+")
+            return
+        if icon_path:
+            icon_label.show()
+            icon_label.setPixmap(
+                QPixmap(icon_path).scaled(
+                    30,
+                    30,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+            caption.setWordWrap(False)
+            caption.setText(f"×{int(quantity)}")
+            return
+        icon_label.hide()
+        caption.setWordWrap(True)
+        caption.setText(f"{item_name}\n×{int(quantity)}")
+
     def _refresh_carried_layout_grid() -> None:
         for _refresh in carried_grid_refreshers:
+            _refresh()
+
+    def _refresh_carried_inventory_views() -> None:
+        for _refresh in carried_inventory_refreshers:
             _refresh()
 
     def _refresh_carried_sections() -> None:
@@ -23119,14 +23253,16 @@ def show_main_menu(
             _refresh()
 
     def _pack_pickable_items() -> list:
-        """Distinct bank item names offered by the empty-slot picker."""
+        """Distinct positive Bank rows offered by the custom-pack picker."""
         inv = player_data.get("inventory", {}) or {}
-        names: list = []
+        items: list = []
+        seen: set[str] = set()
         for _label, rows in grouped_inventory(inv):
-            for name, _amount, _asset in rows:
-                if name and name not in names:
-                    names.append(name)
-        return names
+            for name, amount, asset_path in rows:
+                if name and int(amount or 0) > 0 and name not in seen:
+                    items.append((name, int(amount), asset_path))
+                    seen.add(name)
+        return items
 
     def _current_layout_quantity(item_name: str) -> int:
         if get_carried_layout_cells is None:
@@ -23136,6 +23272,16 @@ def show_main_menu(
             for name, count in get_carried_layout_cells()
             if name == item_name
         )
+
+    def _maximum_layout_quantity(item_name: str) -> int:
+        if item_name in carried_stackable_names:
+            return 2_147_483_647
+        if get_carried_layout_cells is None:
+            return inventory_pure.CARRIED_CAPACITY
+        cells = tuple(get_carried_layout_cells())
+        current = sum(int(count) for name, count in cells if name == item_name)
+        empty_slots = sum(1 for name, _count in cells if not name)
+        return current + empty_slots
 
     def _prompt_set_pack_quantity(item_name: str, parent=None) -> None:
         """Set one absolute custom-pack quantity, preserving its queue position."""
@@ -23164,17 +23310,85 @@ def show_main_menu(
             return
         _refresh_carried_layout_grid()
 
-    def _prompt_add_to_pack() -> None:
-        """Empty-slot click: pick a Bank item, then set its desired quantity."""
+    def _set_pack_quantity_from_picker(
+        item_name: str, quantity: int, parent=None
+    ) -> bool:
         if on_set_carried_layout_quantity is None:
+            return False
+        desired = max(0, int(quantity))
+        desired = min(desired, _maximum_layout_quantity(item_name))
+        accepted = on_set_carried_layout_quantity(item_name, desired)
+        if accepted is False:
+            QMessageBox.information(
+                parent or dialog,
+                "Carried pack full",
+                "That quantity would exceed the 28-slot carried pack.",
+            )
+            return False
+        _refresh_carried_layout_grid()
+        return True
+
+    def _add_pack_quantity(item_name: str, requested: int, parent=None) -> bool:
+        return _set_pack_quantity_from_picker(
+            item_name, _current_layout_quantity(item_name) + requested, parent
+        )
+
+    def _prompt_add_pack_x(item_name: str, _bank_amount: int, parent=None) -> None:
+        maximum_add = max(
+            1,
+            _maximum_layout_quantity(item_name) - _current_layout_quantity(item_name),
+        )
+        quantity, ok = QInputDialog.getInt(
+            parent or dialog,
+            "Add to carried pack",
+            f"{item_name} quantity:",
+            min(maximum_add, int(carried_picker_state.get("last_x") or 1)),
+            1,
+            maximum_add,
+            1,
+        )
+        if not ok:
             return
-        names = _pack_pickable_items()
-        if not names:
-            QMessageBox.information(dialog, "Carried pack", "Your bank is empty — nothing to add.")
-            return
-        choice, ok = QInputDialog.getItem(dialog, "Add to carried pack", "Item:", names, 0, False)
-        if ok and choice:
-            _prompt_set_pack_quantity(str(choice), dialog)
+        carried_picker_state["last_x"] = int(quantity)
+        player_data["carried_picker_last_x"] = int(quantity)
+        if on_save_player_data is not None:
+            on_save_player_data()
+        _add_pack_quantity(item_name, quantity, parent)
+
+    def _build_add_to_pack_menu(item_name: str, bank_amount: int, parent=None) -> QMenu:
+        can_edit = on_set_carried_layout_quantity is not None and bank_amount > 0
+        last_x = int(carried_picker_state.get("last_x") or 0)
+        rows = (
+            ("Add 1", "carriedAddOneAction", lambda: _add_pack_quantity(item_name, 1, parent), can_edit),
+            ("Add 5", "carriedAddFiveAction", lambda: _add_pack_quantity(item_name, 5, parent), can_edit),
+            ("Add 10", "carriedAddTenAction", lambda: _add_pack_quantity(item_name, 10, parent), can_edit),
+            (
+                f"Add last X ({last_x})" if last_x else "Add last X",
+                "carriedAddLastXAction",
+                lambda: _add_pack_quantity(item_name, last_x, parent),
+                can_edit and last_x > 0,
+            ),
+            ("Add X…", "carriedAddXAction", lambda: _prompt_add_pack_x(item_name, bank_amount, parent), can_edit),
+            (
+                "Add all",
+                "carriedAddAllAction",
+                lambda: _add_pack_quantity(item_name, bank_amount, parent),
+                can_edit,
+            ),
+            (
+                "Add all-but-one",
+                "carriedAddAllButOneAction",
+                lambda: _add_pack_quantity(item_name, bank_amount - 1, parent),
+                can_edit and bank_amount > 1,
+            ),
+        )
+        menu = QMenu(parent or dialog)
+        for text, object_name, handler, enabled in rows:
+            action = menu.addAction(text)
+            action.setObjectName(object_name)
+            action.setEnabled(enabled)
+            action.triggered.connect(lambda _checked=False, run=handler: run())
+        return menu
 
     def _sync_carried_switches(advanced: bool) -> None:
         carried_mode_state["advanced"] = bool(advanced)
@@ -23344,12 +23558,13 @@ def show_main_menu(
 
         carried_section_refreshers.append(_refresh_auto_view)
 
-        # --- Custom view: hand-arranged 28-slot grid + Clear layout ---
+        # --- Custom view: 28-slot plan | Bank picker ---
         custom_layout = QVBoxLayout(custom_view)
         custom_layout.setContentsMargins(0, 2, 0, 0)
         custom_layout.setSpacing(6)
 
-        _CARRIED_CELL_SIZE = 44
+        _CARRIED_CELL_WIDTH = 44
+        _CARRIED_CELL_HEIGHT = 44
         _CARRIED_CELL_SPACING = 4
         _CARRIED_GRID_COLS = 4
         _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
@@ -23366,41 +23581,89 @@ def show_main_menu(
             cell_btn = QPushButton()
             cell_btn.setObjectName(f"carriedLayoutCell{name_suffix}::{i}")
             cell_btn.setFlat(True)
-            cell_btn.setFixedSize(_CARRIED_CELL_SIZE, _CARRIED_CELL_SIZE)
+            cell_btn.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
+            _set_carried_cell_visual(cell_btn, None)
 
             def _on_cell_clicked(_checked=False, idx=i):
                 name = cell_items[idx]
                 if name:
                     _prompt_set_pack_quantity(name, cell_buttons[idx])
-                else:
-                    _prompt_add_to_pack()
 
             cell_btn.clicked.connect(_on_cell_clicked)
             grid_layout.addWidget(cell_btn, i // _CARRIED_GRID_COLS, i % _CARRIED_GRID_COLS)
             cell_buttons.append(cell_btn)
-        # A plain QWidget's default (Preferred) size policy lets a parent
-        # QVBoxLayout compress it below its sizeHint when the dialog is short on
-        # room — that would clip a 7-row grid of fixed-size buttons down to a
-        # sliver. Fixed policy + an exact sizeHint-matching size guarantees all 28
-        # cells always get their real, non-negotiable geometry.
+        # The exact fixed size keeps all seven rows real while each tab's outer
+        # scroller handles windows shorter than the complete section.
         grid_container.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         _grid_margins = grid_layout.contentsMargins()
         grid_container.setFixedSize(
-            _CARRIED_GRID_COLS * _CARRIED_CELL_SIZE + (_CARRIED_GRID_COLS - 1) * _CARRIED_CELL_SPACING
+            _CARRIED_GRID_COLS * _CARRIED_CELL_WIDTH + (_CARRIED_GRID_COLS - 1) * _CARRIED_CELL_SPACING
             + _grid_margins.left() + _grid_margins.right(),
-            _CARRIED_GRID_ROWS * _CARRIED_CELL_SIZE + (_CARRIED_GRID_ROWS - 1) * _CARRIED_CELL_SPACING
+            _CARRIED_GRID_ROWS * _CARRIED_CELL_HEIGHT + (_CARRIED_GRID_ROWS - 1) * _CARRIED_CELL_SPACING
             + _grid_margins.top() + _grid_margins.bottom(),
         )
+
+        pack_column = QWidget()
+        pack_column_layout = QVBoxLayout(pack_column)
+        pack_column_layout.setContentsMargins(0, 0, 0, 0)
+        pack_column_layout.setSpacing(2)
+        pack_label = QLabel("Pack plan")
+        pack_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        pack_column_layout.addWidget(pack_label)
+        pack_column_layout.addWidget(grid_container)
+
+        bank_picker_host = QWidget()
+        bank_picker_layout = QGridLayout(bank_picker_host)
+        bank_picker_layout.setContentsMargins(4, 4, 4, 4)
+        bank_picker_layout.setSpacing(_CARRIED_CELL_SPACING)
+        bank_picker_layout.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )
+        bank_picker_scroll = _ResponsiveGridScrollArea()
+        bank_picker_scroll.setObjectName(f"carriedBankPicker{name_suffix}")
+        bank_picker_scroll.setWidgetResizable(True)
+        bank_picker_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        bank_picker_scroll.setFixedHeight(grid_container.height())
+        bank_picker_scroll.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        minimum_bank_viewport_width = (
+            _CARRIED_CELL_WIDTH
+            + bank_picker_layout.contentsMargins().left()
+            + bank_picker_layout.contentsMargins().right()
+        )
+        bank_picker_scroll.setMinimumWidth(
+            minimum_bank_viewport_width
+            + bank_picker_scroll.verticalScrollBar().sizeHint().width()
+            + bank_picker_scroll.frameWidth() * 2
+        )
+        bank_picker_scroll.setWidget(bank_picker_host)
+
+        bank_column = QWidget()
+        bank_column.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+        )
+        bank_column_layout = QVBoxLayout(bank_column)
+        bank_column_layout.setContentsMargins(0, 0, 0, 0)
+        bank_column_layout.setSpacing(2)
+        bank_label = QLabel("Bank inventory")
+        bank_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        bank_column_layout.addWidget(bank_label)
+        bank_column_layout.addWidget(bank_picker_scroll)
+
         grid_row = QWidget()
         grid_row_layout = QHBoxLayout(grid_row)
         grid_row_layout.setContentsMargins(0, 0, 0, 0)
-        grid_row_layout.addWidget(grid_container)
-        grid_row_layout.addStretch(1)
+        grid_row_layout.setSpacing(8)
+        grid_row_layout.addWidget(pack_column)
+        grid_row_layout.addWidget(bank_column, 1)
         custom_layout.addWidget(grid_row)
 
         pack_hint = QLabel(
-            "Click an empty slot to choose an item. Click a filled slot, or "
-            "right-click a Bank item, to set its carried quantity."
+            "Click a Bank item to add one. Right-click it for 1, 5, 10, last X, "
+            "X…, all, or all-but-one. Click a filled pack slot to set its quantity."
         )
         pack_hint.setWordWrap(True)
         pack_hint.setStyleSheet(f"color: {dim_text_css(container)}; font-size: 10px;")
@@ -23424,6 +23687,28 @@ def show_main_menu(
         custom_layout.addWidget(clear_layout_row)
         section_layout.addWidget(custom_view)
 
+        current_label = QLabel("Current inventory")
+        current_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        section_layout.addWidget(current_label)
+        current_inventory_host = QWidget()
+        current_inventory_layout = QHBoxLayout(current_inventory_host)
+        current_inventory_layout.setContentsMargins(4, 4, 4, 4)
+        current_inventory_layout.setSpacing(4)
+        current_inventory_scroll = QScrollArea()
+        current_inventory_scroll.setObjectName(f"carriedCurrentInventory{name_suffix}")
+        current_inventory_scroll.setWidgetResizable(True)
+        current_inventory_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        current_inventory_margins = current_inventory_layout.contentsMargins()
+        current_inventory_scroll.setFixedHeight(
+            _CARRIED_CELL_HEIGHT
+            + current_inventory_margins.top()
+            + current_inventory_margins.bottom()
+            + current_inventory_scroll.horizontalScrollBar().sizeHint().height()
+            + current_inventory_scroll.frameWidth() * 2
+        )
+        current_inventory_scroll.setWidget(current_inventory_host)
+        section_layout.addWidget(current_inventory_scroll)
+
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
                 cells = tuple(get_carried_layout_cells())
@@ -23434,21 +23719,143 @@ def show_main_menu(
                 cell_items[idx] = item_name
                 if item_name:
                     count = int(count)
-                    cell_button.setText(f"{item_name}\n×{count}" if count > 1 else str(item_name))
+                    icon_path = _item_icon_path(str(item_name))
+                    _set_carried_cell_visual(cell_button, str(item_name), count, icon_path)
                     suffix = f" ×{count}" if count > 1 else ""
                     cell_button.setToolTip(f"{item_name}{suffix} — click to set quantity")
+                    cell_button.setAccessibleName(f"Pack plan: {item_name}{suffix}")
                     cell_button.setEnabled(on_set_carried_layout_quantity is not None)
                     cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
                 else:
-                    cell_button.setText("+")
-                    cell_button.setToolTip("Empty slot — click to add a bank item")
-                    cell_button.setEnabled(on_set_carried_layout_quantity is not None)
+                    _set_carried_cell_visual(cell_button, None)
+                    cell_button.setToolTip("Empty slot — choose an item from the Bank grid")
+                    cell_button.setAccessibleName("Empty pack-plan slot")
+                    cell_button.setEnabled(False)
                     cell_button.setStyleSheet(_CARRIED_CELL_EMPTY_CSS)
 
+        bank_picker_buttons: list[QPushButton] = []
+        bank_picker_empty_label: Optional[QLabel] = None
+        bank_picker_columns = 0
+        bank_picker_stretch_row = 0
+
+        def _bank_picker_column_count() -> int:
+            margins = bank_picker_layout.contentsMargins()
+            available = (
+                bank_picker_scroll.viewport().width()
+                - margins.left()
+                - margins.right()
+                - bank_picker_scroll.verticalScrollBar().sizeHint().width()
+            )
+            return max(
+                1,
+                (available + _CARRIED_CELL_SPACING)
+                // (_CARRIED_CELL_WIDTH + _CARRIED_CELL_SPACING),
+            )
+
+        def _relayout_bank_picker() -> None:
+            nonlocal bank_picker_columns, bank_picker_stretch_row
+            columns = _bank_picker_column_count()
+            if columns == bank_picker_columns and bank_picker_layout.count():
+                return
+            while bank_picker_layout.count():
+                bank_picker_layout.takeAt(0)
+            if bank_picker_stretch_row:
+                bank_picker_layout.setRowStretch(bank_picker_stretch_row, 0)
+            bank_picker_columns = columns
+            if bank_picker_empty_label is not None:
+                bank_picker_layout.addWidget(bank_picker_empty_label, 0, 0, 1, columns)
+                bank_picker_stretch_row = 1
+            else:
+                for index, item_button in enumerate(bank_picker_buttons):
+                    bank_picker_layout.addWidget(
+                        item_button,
+                        index // columns,
+                        index % columns,
+                    )
+                bank_picker_stretch_row = (
+                    len(bank_picker_buttons) + columns - 1
+                ) // columns
+            bank_picker_layout.setRowStretch(bank_picker_stretch_row, 1)
+            bank_picker_host.updateGeometry()
+
+        bank_picker_scroll.on_viewport_resize = _relayout_bank_picker
+
+        def _refresh_bank_picker() -> None:
+            nonlocal bank_picker_columns, bank_picker_empty_label
+            _clear_layout(bank_picker_layout)
+            bank_picker_buttons.clear()
+            bank_picker_empty_label = None
+            items = _pack_pickable_items()
+            if not items:
+                bank_picker_empty_label = QLabel("Bank empty")
+                bank_picker_empty_label.setStyleSheet(
+                    f"color: {dim_text_css(bank_picker_empty_label)};"
+                )
+            for item_name, amount, asset_path in items:
+                item_button = QPushButton()
+                item_button.setObjectName(f"carriedBankItem{name_suffix}::{item_name}")
+                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
+                icon_path = _bank_icon_path(item_name, asset_path)
+                _set_carried_cell_visual(item_button, item_name, amount, icon_path)
+                item_button.setToolTip(
+                    f"{item_name} ×{amount} — click to add 1; right-click for quantities"
+                )
+                item_button.setAccessibleName(f"Bank: {item_name} ×{amount}")
+                item_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
+                item_button.setEnabled(on_set_carried_layout_quantity is not None)
+                item_button.clicked.connect(
+                    lambda _checked=False, name=item_name, button=item_button: _add_pack_quantity(
+                        name, 1, button
+                    )
+                )
+                item_button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
+                def _open_add_menu(pos, name=item_name, quantity=amount, button=item_button):
+                    menu = _build_add_to_pack_menu(name, quantity, button)
+                    menu.exec(button.mapToGlobal(pos))
+
+                item_button.customContextMenuRequested.connect(_open_add_menu)
+                bank_picker_buttons.append(item_button)
+            bank_picker_columns = 0
+            _relayout_bank_picker()
+
+        def _refresh_current_inventory() -> None:
+            _clear_layout(current_inventory_layout)
+            items = (
+                tuple(get_carried_inventory_items())
+                if get_carried_inventory_items is not None
+                else ()
+            )
+            if not items:
+                empty = QLabel("Nothing carried for this target yet.")
+                empty.setStyleSheet(f"color: {dim_text_css(empty)};")
+                current_inventory_layout.addWidget(empty)
+            for item_name, amount in items:
+                item_button = QPushButton()
+                item_button.setObjectName(
+                    f"carriedCurrentItem{name_suffix}::{item_name}"
+                )
+                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
+                icon_path = _item_icon_path(str(item_name))
+                _set_carried_cell_visual(item_button, str(item_name), int(amount), icon_path)
+                item_button.setToolTip(f"Currently carrying {item_name} ×{int(amount)}")
+                item_button.setAccessibleName(
+                    f"Current inventory: {item_name} ×{int(amount)}"
+                )
+                item_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                item_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
+                current_inventory_layout.addWidget(item_button)
+            current_inventory_layout.addStretch(1)
+
         carried_grid_refreshers.append(_refresh_grid)
+        carried_inventory_refreshers.extend(
+            (_refresh_bank_picker, _refresh_current_inventory)
+        )
 
         _apply_mode(bool(carried_mode_state["advanced"]))
         _refresh_grid()
+        _refresh_bank_picker()
+        _refresh_current_inventory()
         _refresh_auto_view()
         return container
 
@@ -23481,6 +23888,7 @@ def show_main_menu(
         carried_summary.setText(_carried_panel_summary_text())
         _refresh_carried_sections()
         _refresh_carried_layout_grid()
+        _refresh_carried_inventory_views()
 
     bk_layout.addWidget(carried_header)
     bk_layout.addWidget(carried_body)
@@ -23499,28 +23907,7 @@ def show_main_menu(
     bank_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
     # Inventory is grouped by item-registry category (Ores, Logs, ..., Fletched,
     # Materials) so newly registered items appear cleanly without per-skill
-    # branches. Each item's icon comes from its ItemDefinition.asset_path, with a
-    # legacy image-map fallback for anything predating the manifest.
-    _legacy_icon_maps = (
-        ORE_IMAGES,
-        TREE_IMAGES,
-        BAR_IMAGES,
-        GEM_IMAGES,
-        CRAFTED_ITEM_IMAGES,
-        FLETCHED_ITEM_IMAGES,
-        FIREMAKING_ITEM_IMAGES,
-        FISHING_ITEM_IMAGES,
-        COOKING_ITEM_IMAGES,
-    )
-
-    def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
-        if asset_path and os.path.exists(asset_path):
-            return asset_path
-        for image_map in _legacy_icon_maps:
-            candidate = image_map.get(item_name)
-            if candidate and os.path.exists(candidate):
-                return candidate
-        return None
+    # branches. The carried picker and Bank list share the icon resolver above.
 
     def _make_header_item(label: str, marker: str) -> QListWidgetItem:
         header = QListWidgetItem(label)
@@ -23905,6 +24292,32 @@ def show_main_menu(
             header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
         )
 
+    def _toolbelt_attachment(item_name: str):
+        """(slot label, already attached) for a Bank tool, or None if it is not one.
+
+        The Inferno adze belongs to both families, so it reads as "Tool" and is
+        only "attached" once every family holds it.
+        """
+        toolbelt = player_data.get("toolbelt", {}) or {}
+        labels: list[str] = []
+        attached: list[bool] = []
+        for skill_id, slot_label, tool_data in (
+            ("mining", "Pickaxe", MINING_PICKAXE_DATA),
+            ("woodcutting", "Hatchet", WOODCUTTING_AXE_DATA),
+        ):
+            bound_ids = toolbelt.get(skill_id) or ()
+            for tool_id, spec in tool_data.items():
+                if spec.get("status", "implemented") != "implemented":
+                    continue
+                if str(spec.get("display_name", tool_id)) != item_name:
+                    continue
+                labels.append(slot_label)
+                attached.append(tool_id in bound_ids)
+                break
+        if not labels:
+            return None
+        return labels[0] if len(labels) == 1 else "Tool", all(attached)
+
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
 
@@ -23941,6 +24354,28 @@ def show_main_menu(
                     _refresh_equipment_views()
 
             start_trail_action.triggered.connect(_do_start_trail)
+            menu.addSeparator()
+
+        tool_attachment = _toolbelt_attachment(item_name)
+        if tool_attachment is not None:
+            slot_label, attached = tool_attachment
+            attach_action = menu.addAction(
+                f"{slot_label} attached"
+                if attached
+                else f"Attach {item_name} to toolbelt"
+            )
+            attach_action.setObjectName("attachToolbeltAction")
+            attach_action.setEnabled(not attached and on_attach_tool is not None)
+            if attached:
+                attach_action.setToolTip("This tool is already attached.")
+
+            def _do_attach(_checked: bool = False) -> None:
+                if on_attach_tool is None:
+                    return
+                if on_attach_tool(item_name):
+                    _refresh_equipment_views(refresh_visible_skill=True)
+
+            attach_action.triggered.connect(_do_attach)
             menu.addSeparator()
 
         if is_equippable_item(item_name):
@@ -24089,10 +24524,9 @@ def show_main_menu(
     bk_layout.addWidget(bank_list, 1)
 
     # Gear sits in its own pinned panel below the scrollable, striped inventory
-    # (the owner wanted it "outside the striped window"). The toolbelt is
-    # auto-resolved — best owned tool wins — so we show the active
-    # pickaxe/hatchet. Worn equipment now has its own dedicated Equipment tab,
-    # so the Bank panel is toolbelt-only.
+    # (the owner wanted it "outside the striped window"). The toolbelt changes
+    # only through the explicit Bank attach action. Worn equipment now has its
+    # own dedicated Equipment tab, so the Bank panel is toolbelt-only.
     gear_list = QListWidget()
     gear_list.setObjectName("gearList")
     gear_list.setIconSize(QSize(28, 28))
@@ -24129,13 +24563,12 @@ def show_main_menu(
             empty_tb.setFlags(Qt.ItemFlag.NoItemFlags)
             empty_tb.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
             gear_list.addItem(empty_tb)
-        # Owned upgrades the level gate still blocks. Without this the auto-resolved
-        # toolbelt looks like it ignored the purchase.
+        # Attached upgrades stay visible even while their use level is blocked.
         for slot_label, display_name, skill_label, required_level in gear["toolbelt_blocked"]:
             blocked = QListWidgetItem(f"{display_name} — needs {skill_label} {required_level}")
             blocked.setToolTip(
-                f"You own this {slot_label.lower()}, but it needs {skill_label} level "
-                f"{required_level}. It joins your toolbelt automatically at that level."
+                f"This {slot_label.lower()} is attached, but it needs {skill_label} level "
+                f"{required_level} before it becomes active."
             )
             blocked.setForeground(dim_text_color(gear_list))
             blocked.setFlags(Qt.ItemFlag.ItemIsEnabled)
@@ -24149,7 +24582,13 @@ def show_main_menu(
             gear_height += row_height if row_height > 0 else 30
         gear_list.setFixedHeight(gear_height)
 
+    gear_hint = QLabel("Right-click a Bank hatchet or pickaxe to attach it to the toolbelt.")
+    gear_hint.setObjectName("toolbeltAttachHint")
+    gear_hint.setWordWrap(True)
+    gear_hint.setStyleSheet(f"color: {dim_text_css(gear_hint)}; font-size: 10px;")
+    bk_layout.addWidget(gear_hint)
     bk_layout.addWidget(gear_list)
+    _equipment_refreshers.append(_populate_bank_gear_list)
 
     def _build_bank_tab(_ctx) -> QWidget:
         if not bank_state["initialized"]:
@@ -24158,7 +24597,7 @@ def show_main_menu(
             _populate_bank_list()
             _populate_bank_gear_list()
             bank_state["initialized"] = True
-        return bank_tab
+        return bank_scroll
 
     _add_deferred_tab(
         "Bank",
@@ -24886,6 +25325,7 @@ def show_main_menu(
     # native popup. Harmless in production.
     dialog._ankiscape_equip_menu_for = _build_bank_equip_menu  # type: ignore[attr-defined]
     dialog._ankiscape_unequip_menu_for = _build_slot_unequip_menu  # type: ignore[attr-defined]
+    dialog._ankiscape_carried_add_menu_for = _build_add_to_pack_menu  # type: ignore[attr-defined]
     dialog._ankiscape_refresh_equipment = _refresh_equipment_views  # type: ignore[attr-defined]
 
     # Now add the Stats tab (after Bank) and set its icon/tooltip

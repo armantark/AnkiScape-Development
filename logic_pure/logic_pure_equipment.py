@@ -83,33 +83,29 @@ def _toolbelt_ids(toolbelt, skill_key):
     return set()
 
 
-def best_woodcutting_axe_pure(woodcutting_level, inventory, toolbelt, axe_data):
-    """Return the best usable axe spec, considering bound tools and owned items."""
+def best_woodcutting_axe_pure(woodcutting_level, _inventory, toolbelt, axe_data):
+    """Return the best usable axe the player explicitly attached."""
     bound_ids = _toolbelt_ids(toolbelt, "woodcutting")
     best = None
     for axe_id, spec in axe_data.items():
         if spec.get("status", "implemented") != "implemented":
             continue
-        display_name = spec.get("display_name", axe_id)
-        owned = axe_id in bound_ids or inventory.get(display_name, 0) > 0
-        if not owned or woodcutting_level < spec.get("level", 1):
+        if axe_id not in bound_ids or woodcutting_level < spec.get("level", 1):
             continue
         if best is None or spec.get("ratio", 0) >= best.get("ratio", 0):
             best = spec
     return best
 
 
-def best_mining_pickaxe_pure(mining_level, inventory, toolbelt, pickaxe_data):
-    """Return the best usable pickaxe spec, considering bound tools and owned items."""
+def best_mining_pickaxe_pure(mining_level, _inventory, toolbelt, pickaxe_data):
+    """Return the best usable pickaxe the player explicitly attached."""
     bound_ids = _toolbelt_ids(toolbelt, "mining")
     best = None
     best_power = 0.0
     for pickaxe_id, spec in pickaxe_data.items():
         if spec.get("status", "implemented") != "implemented":
             continue
-        display_name = spec.get("display_name", pickaxe_id)
-        owned = pickaxe_id in bound_ids or inventory.get(display_name, 0) > 0
-        if not owned or mining_level < spec.get("level", 1):
+        if pickaxe_id not in bound_ids or mining_level < spec.get("level", 1):
             continue
         power = float(spec.get("ratio", 0))
         if "dragon" in str(spec.get("display_name", "")).lower():
@@ -118,6 +114,40 @@ def best_mining_pickaxe_pure(mining_level, inventory, toolbelt, pickaxe_data):
             best = spec
             best_power = power
     return best
+
+
+def attach_tool_to_toolbelt_pure(
+    item_name: str,
+    inventory: Mapping[str, int],
+    toolbelt: Mapping[str, list[str]],
+    pickaxe_data: Mapping[str, Mapping[str, object]],
+    axe_data: Mapping[str, Mapping[str, object]],
+) -> tuple[dict[str, int], dict[str, list[str]], bool]:
+    """Move one bank tool onto its family toolbelt through an explicit action.
+
+    A dual-purpose tool such as the Inferno adze belongs to both families, so it
+    attaches to every family that lists it rather than only the first match.
+    """
+    missing: list[tuple[str, str]] = []
+    for skill, tool_data in (("mining", pickaxe_data), ("woodcutting", axe_data)):
+        for tool_id, spec in tool_data.items():
+            if spec.get("status", "implemented") != "implemented":
+                continue
+            if str(spec.get("display_name", tool_id)) != item_name:
+                continue
+            if tool_id not in _toolbelt_ids(toolbelt, skill):
+                missing.append((skill, tool_id))
+            break
+    new_inventory = dict(inventory)
+    new_toolbelt = {skill: list(items) for skill, items in toolbelt.items()}
+    if not missing or new_inventory.get(item_name, 0) <= 0:
+        return new_inventory, new_toolbelt, False
+    new_inventory[item_name] -= 1
+    if new_inventory[item_name] <= 0:
+        new_inventory.pop(item_name, None)
+    for skill, tool_id in missing:
+        new_toolbelt.setdefault(skill, []).append(tool_id)
+    return new_inventory, new_toolbelt, True
 
 
 def _equipment_value(spec: object, key: str, default: object = None) -> object:

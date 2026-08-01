@@ -63,7 +63,9 @@ from .constants import (
     GEM_DATA,
     HERBLORE_FINISHED_OUTPUT_ITEMS,
     MINING_OUTPUT_ITEMS,
+    MINING_PICKAXE_DATA,
     RUNECRAFTING_RUNE_OUTPUT_ITEMS,
+    WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
 from ..data.quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
@@ -326,7 +328,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 105
+CURRENT_CONFIG_VERSION = 106
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -1042,6 +1044,49 @@ def _migrate_toolbelt(data: Dict[str, Any]) -> None:
     data["toolbelt"] = toolbelt
 
 
+def _migrate_bank_tools_to_manual_toolbelt(data: Dict[str, Any]) -> None:
+    inventory = data.get("inventory")
+    toolbelt = data.get("toolbelt")
+    if not isinstance(inventory, dict) or not isinstance(toolbelt, dict):
+        return
+    inventory = dict(inventory)
+    toolbelt = dict(toolbelt)
+    for skill in ("mining", "woodcutting"):
+        toolbelt[skill] = list(toolbelt.get(skill, []))
+    bindings_by_item: Dict[str, list[tuple[str, str]]] = {}
+    for skill, tool_data in (
+        ("mining", MINING_PICKAXE_DATA),
+        ("woodcutting", WOODCUTTING_AXE_DATA),
+    ):
+        for tool_id, spec in tool_data.items():
+            if spec.get("status", "implemented") != "implemented":
+                continue
+            item_name = str(spec.get("display_name", tool_id))
+            bindings_by_item.setdefault(item_name, []).append((skill, tool_id))
+
+    for item_name, bindings in bindings_by_item.items():
+        already_attached = any(
+            tool_id in toolbelt.get(skill, []) for skill, tool_id in bindings
+        )
+        try:
+            bank_count = int(inventory.get(item_name, 0) or 0)
+        except (TypeError, ValueError, OverflowError):
+            bank_count = 0
+        if not already_attached and bank_count <= 0:
+            continue
+        for skill, tool_id in bindings:
+            attached = toolbelt.setdefault(skill, [])
+            if tool_id not in attached:
+                attached.append(tool_id)
+        if not already_attached:
+            inventory[item_name] = bank_count - 1
+            if inventory[item_name] <= 0:
+                inventory.pop(item_name, None)
+
+    data["inventory"] = inventory
+    data["toolbelt"] = toolbelt
+
+
 def _migrate_equipment(data: Dict[str, Any]) -> None:
     equipment = data.get("equipment")
     clean_equipment: Dict[str, str] = {}
@@ -1231,6 +1276,8 @@ def migrate_loaded_data(
     _migrate_runecrafting_side_state(data)
     _migrate_unlocked_abilities(data)
     _migrate_toolbelt(data)
+    if loaded_config_version < 106:
+        _migrate_bank_tools_to_manual_toolbelt(data)
     _migrate_equipment(data)
     data.update(sanitize_shop_state_pure(data))
     # v51: Red sandstone's source daily allowance is translated onto the
@@ -2040,6 +2087,10 @@ def migrate_loaded_data(
                 )
                 merged.insert(cut, name)
             data["combat_auto_eat_food"] = merged
+    # v106: tool upgrades become an explicit Bank-to-toolbelt ceremony. The
+    # migration above attaches tools already owned under the old auto-resolution
+    # contract once; tools bought after this version remain in the Bank until the
+    # player explicitly attaches them.
     # These defaults are required for a new v30-shaped payload assembled outside
     # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

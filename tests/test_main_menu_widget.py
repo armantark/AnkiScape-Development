@@ -30,7 +30,8 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -1234,6 +1235,48 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_equipment_tab(self.dialog)
         _open_bank_tab(self.dialog)
         self.assertIs(self.dialog.findChild(QListWidget, "bankList"), bank_list)
+
+    def test_bank_toolbelt_attach_action_moves_mithril_hatchet_end_to_end(self) -> None:
+        from ankiscape.core.constants import MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA
+        from ankiscape.logic_pure.logic_pure import attach_tool_to_toolbelt_pure
+
+        pd = _make_player_data()
+        pd["woodcutting_level"] = 1
+        pd["inventory"]["Mithril hatchet"] = 1
+
+        def attach(item_name: str) -> bool:
+            inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+                item_name,
+                pd.get("inventory", {}),
+                pd.get("toolbelt", {}),
+                MINING_PICKAXE_DATA,
+                WOODCUTTING_AXE_DATA,
+            )
+            if attached:
+                pd["inventory"] = inventory
+                pd["toolbelt"] = toolbelt
+            return attached
+
+        dialog = self._open(pd, on_attach_tool=attach)
+        _open_bank_tab(dialog)
+        menu = dialog._ankiscape_equip_menu_for("Mithril hatchet")
+        action = next(
+            candidate
+            for candidate in menu.actions()
+            if candidate.objectName() == "attachToolbeltAction"
+        )
+        self.assertEqual(action.text(), "Attach Mithril hatchet to toolbelt")
+        self.assertTrue(action.isEnabled())
+
+        action.trigger()
+        QApplication.processEvents()
+
+        self.assertNotIn("Mithril hatchet", pd["inventory"])
+        self.assertIn("mithril_hatchet", pd["toolbelt"]["woodcutting"])
+        gear_list = dialog.findChild(QListWidget, "gearList")
+        self.assertTrue(
+            any("Mithril hatchet — needs Woodcutting 21" == text for text in _list_texts(gear_list))
+        )
 
     def test_global_tabs_use_unique_semantic_icons(self) -> None:
         tabs = _find_main_tabs(self.dialog)
@@ -3217,6 +3260,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         for cell in cells:
             self.assertEqual(cell.size().width(), 44)
             self.assertEqual(cell.size().height(), 44)
+        stack_caption = cells[5].findChild(QLabel, "carriedCellCaption")
+        stack_icon = cells[5].findChild(QLabel, "carriedCellIcon")
+        self.assertEqual(stack_caption.text(), "×5000")
+        self.assertIsNotNone(stack_icon.pixmap())
+        self.assertLessEqual(
+            stack_caption.mapTo(cells[5], QPoint(0, 0)).x() + stack_caption.width(),
+            cells[5].width(),
+        )
         # Row 6 (the last of 7 rows) must be positioned below row 0, not clipped
         # into the same pixels -- the concrete symptom of the compression bug.
         self.assertGreater(cells[27].geometry().y(), cells[0].geometry().y() + 200)
@@ -3245,6 +3296,348 @@ class MainMenuWidgetTest(unittest.TestCase):
         clear_btn.click()
         QApplication.processEvents()
         self.assertEqual(clear_calls, [True])
+        dialog.deleteLater()
+
+    def test_custom_pack_bank_grid_icons_quantity_menu_and_live_inventory(self) -> None:
+        from ankiscape.core.constants import ITEM_DEFINITIONS
+        from ankiscape.logic import inventory_pure
+
+        pd = _make_player_data()
+        pd["inventory"] = {"Iron ore": 20, "Bronze arrow": 11, "Coins": 100}
+        for definition in ITEM_DEFINITIONS:
+            if len(pd["inventory"]) >= 80:
+                break
+            pd["inventory"].setdefault(
+                definition.storage_key, len(pd["inventory"]) + 1
+            )
+        layout: dict[str, int] = {}
+        stackables = {"Coins"}
+        saved: list[dict] = []
+
+        def get_cells():
+            return tuple(inventory_pure.layout_to_grid_cells_pure(layout, stackables))
+
+        def set_quantity(item_name: str, quantity: int) -> bool:
+            updated, ok = inventory_pure.set_carried_layout_quantity_pure(
+                layout,
+                item_name,
+                quantity,
+                stackables,
+            )
+            if ok:
+                layout.clear()
+                layout.update(updated)
+            return ok
+
+        dialog = self._open(
+            pd,
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            get_carried_inventory_items=lambda: (
+                ("Iron ore", 2),
+                ("Uncut sapphire", 1),
+            ),
+            carried_stackable_names=stackables,
+            on_set_carried_layout_quantity=set_quantity,
+            on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_equipment_tab(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        bank_grid = dialog.findChild(QScrollArea, "carriedBankPicker")
+        self.assertIsNotNone(bank_grid)
+        pack_grid = dialog.findChild(QWidget, "carriedLayoutGrid")
+        self.assertGreater(
+            bank_grid.mapTo(dialog, QPoint(0, 0)).x(),
+            pack_grid.mapTo(dialog, QPoint(0, 0)).x() + pack_grid.width(),
+        )
+        combat_panel = dialog.findChild(QWidget, "equipmentCombatSetupPanel")
+        equipment_scroll = combat_panel.parentWidget()
+        while equipment_scroll is not None and not isinstance(equipment_scroll, QScrollArea):
+            equipment_scroll = equipment_scroll.parentWidget()
+        self.assertIsNotNone(equipment_scroll)
+        self.assertEqual(equipment_scroll.horizontalScrollBar().maximum(), 0)
+
+        def primary_bank_buttons() -> list[QPushButton]:
+            return [
+                button
+                for button in bank_grid.findChildren(QPushButton)
+                if button.objectName().startswith("carriedBankItem::")
+            ]
+
+        self.assertGreaterEqual(len(primary_bank_buttons()), 80)
+
+        def assert_bank_grid_fits() -> tuple[int, int]:
+            viewport = bank_grid.viewport()
+            bank_buttons = primary_bank_buttons()
+            viewport_left = viewport.mapToGlobal(QPoint(0, 0)).x()
+            column_positions = {
+                button.mapToGlobal(QPoint(0, 0)).x() - viewport_left
+                for button in bank_buttons
+            }
+            for button in bank_buttons:
+                left = button.mapToGlobal(QPoint(0, 0)).x() - viewport_left
+                self.assertGreaterEqual(left, 0, button.objectName())
+                self.assertLessEqual(
+                    left + button.width(),
+                    viewport.width(),
+                    button.objectName(),
+                )
+            self.assertEqual(bank_grid.horizontalScrollBar().maximum(), 0)
+            return bank_grid.width(), len(column_positions)
+
+        width_at_900, columns_at_900 = assert_bank_grid_fits()
+        self.assertGreater(columns_at_900, 2)
+        dialog.resize(1200, 800)
+        for _ in range(6):
+            QApplication.processEvents()
+        width_at_1200, columns_at_1200 = assert_bank_grid_fits()
+        self.assertGreater(width_at_1200, width_at_900)
+        self.assertGreater(columns_at_1200, columns_at_900)
+
+        _open_bank_tab(dialog)
+        dialog.resize(720, 540)
+        carried_header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        if not carried_header.isChecked():
+            carried_header.click()
+        for _ in range(6):
+            QApplication.processEvents()
+        bank_tab_scroll = dialog.findChild(QScrollArea, "bankTabScroll")
+        self.assertIsNotNone(bank_tab_scroll)
+        self.assertGreater(bank_tab_scroll.verticalScrollBar().maximum(), 0)
+        self.assertEqual(bank_tab_scroll.horizontalScrollBar().maximum(), 0)
+
+        bank_pack_grid = dialog.findChild(QWidget, "carriedLayoutGridBank")
+        bank_tab_grid = dialog.findChild(QScrollArea, "carriedBankPickerBank")
+        bank_current_inventory = dialog.findChild(
+            QScrollArea, "carriedCurrentInventoryBank"
+        )
+        self.assertEqual(bank_pack_grid.height(), bank_pack_grid.sizeHint().height())
+        self.assertEqual(bank_tab_grid.height(), bank_pack_grid.height())
+        self.assertEqual(bank_current_inventory.height(), 72)
+
+        def assert_reachable_in_bank_tab(widget: QWidget) -> None:
+            bank_tab_scroll.ensureWidgetVisible(widget, 0, 0)
+            for _ in range(4):
+                QApplication.processEvents()
+            top = widget.mapTo(bank_tab_scroll.viewport(), QPoint(0, 0)).y()
+            visible_height = max(
+                0,
+                min(bank_tab_scroll.viewport().height(), top + widget.height())
+                - max(0, top),
+            )
+            self.assertEqual(visible_height, widget.height(), widget.objectName())
+
+        assert_reachable_in_bank_tab(bank_pack_grid)
+        assert_reachable_in_bank_tab(bank_tab_grid)
+        assert_reachable_in_bank_tab(bank_current_inventory)
+
+        bank_tab_buttons = [
+            button
+            for button in bank_tab_grid.findChildren(QPushButton)
+            if button.objectName().startswith("carriedBankItemBank::")
+        ]
+        bank_tab_viewport = bank_tab_grid.viewport()
+        bank_tab_viewport_left = bank_tab_viewport.mapToGlobal(QPoint(0, 0)).x()
+        bank_tab_columns = {
+            button.mapToGlobal(QPoint(0, 0)).x() - bank_tab_viewport_left
+            for button in bank_tab_buttons
+        }
+        self.assertGreater(len(bank_tab_columns), 2)
+        for button in bank_tab_buttons:
+            left = button.mapToGlobal(QPoint(0, 0)).x() - bank_tab_viewport_left
+            self.assertGreaterEqual(left, 0, button.objectName())
+            self.assertLessEqual(
+                left + button.width(), bank_tab_viewport.width(), button.objectName()
+            )
+        self.assertEqual(bank_tab_grid.horizontalScrollBar().maximum(), 0)
+
+        _open_equipment_tab(dialog)
+        dialog.resize(760, 560)
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(equipment_scroll.horizontalScrollBar().maximum(), 0)
+        assert_bank_grid_fits()
+
+        iron_button = dialog.findChild(QPushButton, "carriedBankItem::Iron ore")
+        self.assertIsNotNone(iron_button)
+        iron_icon = iron_button.findChild(QLabel, "carriedCellIcon")
+        iron_count = iron_button.findChild(QLabel, "carriedCellCaption")
+        self.assertIsNotNone(iron_icon.pixmap())
+        self.assertEqual(iron_count.text(), "×20")
+        self.assertLessEqual(
+            iron_count.mapTo(iron_button, QPoint(0, 0)).x() + iron_count.width(),
+            iron_button.width(),
+        )
+        bronze_arrow = dialog.findChild(QPushButton, "carriedBankItem::Bronze arrow")
+        self.assertEqual(
+            bronze_arrow.findChild(QLabel, "carriedCellCaption").text(),
+            "Bronze arrow\n×11",
+        )
+        iron_button.click()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], 1)
+        first_pack_cell = dialog.findChild(QPushButton, "carriedLayoutCell::0")
+        self.assertIsNotNone(
+            first_pack_cell.findChild(QLabel, "carriedCellIcon").pixmap()
+        )
+        self.assertEqual(
+            first_pack_cell.findChild(QLabel, "carriedCellCaption").text(), "×1"
+        )
+        self.assertIn("Iron ore", first_pack_cell.toolTip())
+
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
+        self.assertEqual(
+            [action.text() for action in menu.actions()],
+            [
+                "Add 1",
+                "Add 5",
+                "Add 10",
+                "Add last X",
+                "Add X…",
+                "Add all",
+                "Add all-but-one",
+            ],
+        )
+        add_five = next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddFiveAction"
+        )
+        add_five.trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], 6)
+
+        original_get_int = self._ui.QInputDialog.getInt
+        self._ui.QInputDialog.getInt = lambda *a, **k: (7, True)
+        try:
+            add_x = next(
+                action
+                for action in menu.actions()
+                if action.objectName() == "carriedAddXAction"
+            )
+            add_x.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QInputDialog.getInt = original_get_int
+        self.assertEqual(layout["Iron ore"], 13)
+        refreshed_menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
+        self.assertEqual(refreshed_menu.actions()[3].text(), "Add last X (7)")
+        self.assertEqual(pd["carried_picker_last_x"], 7)
+        self.assertEqual(saved[-1]["carried_picker_last_x"], 7)
+
+        layout["Coins"] = 25
+        coins_menu = dialog._ankiscape_carried_add_menu_for("Coins", 100)
+        next(
+            action
+            for action in coins_menu.actions()
+            if action.objectName() == "carriedAddAllButOneAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Coins"], 124)
+        next(
+            action
+            for action in coins_menu.actions()
+            if action.objectName() == "carriedAddAllAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Coins"], 224)
+
+        current_loot = dialog.findChild(
+            QPushButton,
+            "carriedCurrentItem::Uncut sapphire",
+        )
+        current_inventory = dialog.findChild(QScrollArea, "carriedCurrentInventory")
+        self.assertIsNotNone(current_loot)
+        self.assertIn("Uncut sapphire ×1", current_loot.toolTip())
+        self.assertTrue(current_loot.isEnabled())
+        self.assertTrue(current_inventory.isVisibleTo(dialog))
+        dialog.findChild(QPushButton, "carriedModeAuto").click()
+        QApplication.processEvents()
+        self.assertTrue(current_inventory.isVisibleTo(dialog))
+        self.assertTrue(current_loot.isVisibleTo(dialog))
+
+        reopened = self._open(
+            pd,
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            get_carried_inventory_items=lambda: (),
+            carried_stackable_names=stackables,
+            on_set_carried_layout_quantity=set_quantity,
+        )
+        reopened_menu = reopened._ankiscape_carried_add_menu_for("Iron ore", 20)
+        self.assertEqual(reopened_menu.actions()[3].text(), "Add last X (7)")
+        self.assertTrue(reopened_menu.actions()[3].isEnabled())
+        reopened.deleteLater()
+        dialog.deleteLater()
+
+    def test_custom_pack_picker_plans_beyond_bank_stock_and_fills_available_slots(self) -> None:
+        from ankiscape.logic import inventory_pure
+
+        pd = _make_player_data()
+        pd["inventory"] = {"Iron ore": 7}
+        layout: dict[str, int] = {}
+
+        def get_cells():
+            return tuple(inventory_pure.layout_to_grid_cells_pure(layout, set()))
+
+        def set_quantity(item_name: str, quantity: int) -> bool:
+            updated, ok = inventory_pure.set_carried_layout_quantity_pure(
+                layout,
+                item_name,
+                quantity,
+                set(),
+            )
+            if ok:
+                layout.clear()
+                layout.update(updated)
+            return ok
+
+        dialog = self._open(
+            pd,
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            on_set_carried_layout_quantity=set_quantity,
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_equipment_tab(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 7)
+        next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddTenAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], 10)
+
+        layout["Iron ore"] = 25
+        pd["inventory"]["Iron ore"] = 20
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 20)
+        next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddAllAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], inventory_pure.CARRIED_CAPACITY)
+
+        layout.clear()
+        pd["inventory"]["Iron ore"] = 40
+        menu = dialog._ankiscape_carried_add_menu_for("Iron ore", 40)
+        next(
+            action
+            for action in menu.actions()
+            if action.objectName() == "carriedAddAllAction"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(layout["Iron ore"], inventory_pure.CARRIED_CAPACITY)
         dialog.deleteLater()
 
     def test_combat_supply_mode_dropdown_present_and_wired(self) -> None:
@@ -6997,6 +7390,73 @@ class MainMenuWidgetTest(unittest.TestCase):
                 self.assertIn("rgba(66,133,244,0.35)", target_list.styleSheet())
             finally:
                 dialog.deleteLater()
+
+    def test_flat_target_highlight_tracks_the_last_clicked_target(self) -> None:
+        pd = _make_player_data()
+        pd["mining_level"] = 99
+        pd["current_ore"] = "silver"
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+        target_list = next(
+            widget
+            for widget in dialog.findChildren(QListWidget)
+            if any("Silver" in widget.item(i).text() for i in range(widget.count()))
+        )
+        silver = next(
+            target_list.item(i)
+            for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "silver"
+        )
+        coal = next(
+            target_list.item(i)
+            for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "coal"
+        )
+
+        target_list.itemClicked.emit(coal)
+        QApplication.processEvents()
+
+        self.assertEqual(target_list.currentItem(), coal)
+        self.assertEqual(coal.background().color(), QColor(76, 175, 80, 76))
+        self.assertTrue(coal.font().bold())
+        self.assertNotEqual(silver.background().color(), QColor(76, 175, 80, 76))
+        self.assertFalse(silver.font().bold())
+        self.assertFalse(coal.isSelected())
+
+    def test_grouped_target_highlight_tracks_a_real_last_click(self) -> None:
+        pd = _make_player_data()
+        pd["smithing_level"] = 99
+        pd["inventory"] = {"Bronze bar": 10}
+        pd["current_smith"] = "forge_bronze_dagger"
+        dialog = self._open(pd)
+        dialog.show()
+        dialog.resize(900, 560)
+        _goto_smithing(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        tree = _find_smith_tree(dialog)
+        dagger = _smith_row(tree, "forge_bronze_dagger")
+        hatchet = _smith_row(tree, "forge_bronze_hatchet")
+        tree.scrollToItem(hatchet)
+        QApplication.processEvents()
+        QTest.mouseClick(
+            tree.viewport(),
+            Qt.MouseButton.LeftButton,
+            Qt.KeyboardModifier.NoModifier,
+            tree.visualItemRect(hatchet).center(),
+        )
+        QApplication.processEvents()
+
+        self.assertEqual(self._smith_calls[-1], "forge_bronze_hatchet")
+        self.assertIs(tree.currentItem(), hatchet)
+        self.assertEqual(hatchet.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertTrue(hatchet.font(0).bold())
+        self.assertNotEqual(dagger.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertFalse(dagger.font(0).bold())
+        self.assertFalse(hatchet.isSelected())
+        dialog.deleteLater()
 
     def test_grouped_target_tree_styles_clicked_selection_separately_from_current_target(self) -> None:
         pd = _make_player_data()

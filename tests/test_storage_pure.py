@@ -103,6 +103,49 @@ def _activity_session_writer_ids():
 
 
 class TestStoragePure(unittest.TestCase):
+    def test_previous_schema_preserves_tools_previously_auto_resolved_from_bank(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION - 1,
+                "inventory": {
+                    "Rune pickaxe": 1,
+                    "Rune hatchet": 1,
+                    "Inferno adze": 1,
+                },
+                "toolbelt": {
+                    "mining": ["bronze_pickaxe"],
+                    "woodcutting": ["bronze_hatchet"],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertIn("rune_pickaxe", migrated["toolbelt"]["mining"])
+        self.assertIn("rune_hatchet", migrated["toolbelt"]["woodcutting"])
+        self.assertIn("inferno_adze", migrated["toolbelt"]["mining"])
+        self.assertIn("inferno_adze", migrated["toolbelt"]["woodcutting"])
+        self.assertEqual(migrated["inventory"]["Rune pickaxe"], 0)
+        self.assertEqual(migrated["inventory"]["Rune hatchet"], 0)
+        self.assertEqual(migrated["inventory"]["Inferno adze"], 0)
+
+    def test_current_schema_does_not_auto_attach_newly_bought_tools(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "inventory": {"Dragon pickaxe": 1},
+                "toolbelt": {
+                    "mining": ["bronze_pickaxe"],
+                    "woodcutting": ["bronze_hatchet"],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["inventory"]["Dragon pickaxe"], 1)
+        self.assertNotIn("dragon_pickaxe", migrated["toolbelt"]["mining"])
+
     def test_v85_migrates_and_repairs_treasure_trail_state(self):
         migrated = migrate_loaded_data(
             {

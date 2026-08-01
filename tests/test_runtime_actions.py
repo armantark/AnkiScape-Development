@@ -1756,7 +1756,8 @@ class TestRuntimeActions(unittest.TestCase):
     def test_woodcutting_inferno_adze_incinerates_logs_for_firemaking_xp(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Inferno adze": 1},
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["inferno_adze"]},
             "woodcutting_level": 99,
             "woodcutting_exp": 0.0,
             "firemaking_exp": 0.0,
