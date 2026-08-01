@@ -2,20 +2,21 @@
 
 ## Current Focus
 
-**2026-07-31, reviewer-strip pass 5 is fixed-pending-confirmation on
-`pass5-strip`.** The reviewer chrome is one fixed 128-pixel row pinned to the
-live top edge of Anki's answer bar: D&D, Farming, the XP box, and an
-always-visible bank-run action. Every card reserves the strip height, including
-late image growth, and open drawers add temporary scroll reserve so they do not
-cover card material. Event and Grand Exchange drawers stack upward from the XP
-box; Event rows carry actual awarded skill names and selectable wrapped text,
-while GE alone owns yellow/green status and its rows open the existing GE tab.
-Manual bank runs enter the existing combat or carried-inventory travel state
-instead of bypassing review costs. The Combat button calls the pass5-combat
-lane's exported `request_combat_bank_run_now_pure` hook; the strip does not
-rebuild its state literal. Focused pure, runtime, integration, and real
-offscreen Qt probes pass at default and 560-pixel reviewer heights; owner
-confirmation on the next playtest remains the closure gate.
+**2026-08-01, reviewer-strip pass 5 is fixed-pending-confirmation on
+`pass5-strip-smallwin`.** The reviewer chrome is one fixed 128-pixel native row
+inserted after Anki's answer bar in `mainLayout`, fully outside the card webview:
+D&D, Farming, and the XP box, with the always-visible bank-run button inside the
+XP box. Event and Grand Exchange drawers remain translucent overlays that stack
+upward over the card; `_sync_review_strip_layout()` bounds the expanded stack to
+the main window so both drawers stay reachable at reviewer height. Event rows
+carry actual awarded skill names and selectable wrapped text, while GE alone
+owns yellow/green status and its rows open the existing GE tab. Manual bank runs
+enter the existing combat or carried-inventory travel state instead of bypassing
+review costs. The Combat button calls the pass5-combat lane's exported
+`request_combat_bank_run_now_pure` hook; the strip does not rebuild its state
+literal. Focused pure, runtime, integration, and real offscreen Qt probes pass at
+default and 560-pixel reviewer heights; owner confirmation on the next playtest
+remains the closure gate.
 
 **2026-07-30, the catalog is closed.** The overnight run merged Dungeoneering
 phase C (kinship, staged trader, working Coal bag), Conquest, and the
@@ -100,8 +101,8 @@ preference. Schema 95 adds `dnd_favourites` with sanitation and migration; 93 an
 94 belong to sibling branches.
 
 Every visibility decision moved into `logic/review_strip_logic.py` and
-`ge_fill_drawer_view_pure`, and `_reposition_review_overlay()` replaced the
-separate badge-column heuristic, which the world-alert contract had asked for.
+`ge_fill_drawer_view_pure`; `_sync_review_strip_layout()` now attaches the strip
+as a native `mainLayout` row and owns the remaining overlay geometry.
 `compute_level_progress` moved from `ui/ui.py` into `logic_pure_progression` so
 the strip and the panel share one calculation. The Grand Exchange tab no longer
 carries a second copy of the drawer.

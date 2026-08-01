@@ -538,6 +538,28 @@ class ReviewStripTest(unittest.TestCase):
         self.assertFalse(event.geometry().intersects(self.bottom_web.geometry()))
         self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
 
+    def test_two_expanded_drawers_stay_reachable_at_reviewer_height(self) -> None:
+        self.parent.resize(760, 560)
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        state = self._event_log_state()
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        self.ui.update_review_event_log_drawer(state)
+        self.ui.update_review_fill_drawer(self._open_offer(state))
+        self.ui._EVENT_LOG_DRAWER.toggle.click()
+        self.ui._FILL_DRAWER.toggle.click()
+        for _ in range(6):
+            QApplication.processEvents()
+
+        event = self.ui._EVENT_LOG_DRAWER
+        ge = self.ui._FILL_DRAWER
+        answer_bar_top = self.bottom_web.mapTo(self.parent, QPoint(0, 0)).y()
+        self.assertGreaterEqual(ge.y(), 8)
+        self.assertLessEqual(ge.y() + ge.height(), event.y())
+        self.assertLessEqual(event.y() + event.height(), answer_bar_top)
+
     def test_the_rows_run_newest_first_with_the_settled_two_tones(self) -> None:
         self.ui.update_review_fill_drawer(self._open_offer(self._state()))
         for _ in range(3):

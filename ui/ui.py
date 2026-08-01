@@ -3433,6 +3433,15 @@ def _sync_review_strip_layout() -> None:
             )
             drawer.adjustSize()
             drawer.setVisible(True)
+
+        stack_budget = max(1, cursor_y - 8 - gap * max(0, len(drawers) - 1))
+        if drawers and sum(drawer.height() for drawer in drawers) > stack_budget:
+            height_per_drawer = max(1, stack_budget // len(drawers))
+            for drawer in drawers:
+                drawer.setMaximumHeight(height_per_drawer)
+                drawer.adjustSize()
+
+        for drawer in drawers:
             cursor_y -= drawer.height()
             drawer_x = hud_origin.x() + (hud.width() - drawer.width()) // 2
             drawer_x = min(
