@@ -2109,16 +2109,11 @@ if HAS_QT:
                 icon_lbl = QLabel()
                 icon_lbl.setObjectName(f"combatHudResourceIcon_{resource_id}")
                 icon_lbl.setFixedSize(18, 18)
-                icon_path = os.path.join(current_dir, "icon", icon_name)
-                if os.path.exists(icon_path):
-                    icon_lbl.setPixmap(
-                        QPixmap(icon_path).scaled(
-                            18,
-                            18,
-                            Qt.AspectRatioMode.KeepAspectRatio,
-                            Qt.TransformationMode.SmoothTransformation,
-                        )
-                    )
+                icon = _pixel_path_icon(
+                    os.path.join(current_dir, "icon", icon_name), 18
+                )
+                if icon is not None:
+                    icon_lbl.setPixmap(icon.pixmap(QSize(18, 18)))
                 value_lbl = QLabel()
                 value_lbl.setObjectName(f"combatHudResourceValue_{resource_id}")
                 value_lbl.setStyleSheet(
