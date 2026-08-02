@@ -1,20 +1,20 @@
 # Pass 6 triage — 2026-08-01
 
 Notes source: `~/Downloads/ankiscape notes.rtfd` (Pass 6 section, notes finalized ~19:04 on 2026-08-01).
-Status: **development is on hold** by owner directive until the Fable quota catches up.
-Implementation is owned by the owner's separate Opus 5 thread; this session stays on design.
-Nothing below has been started.
 
-Carry-over first: the wave2-completionist branch is built but unmerged — commit `34560917`
-in worktree `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/wave2-completionist`
-(miniquest gating restored at `logic/cape_logic.py:202-221`, catalog-derived test at
-`tests/test_capes_and_distinctions.py:591-610`, 3,746 green both lanes). It needs one
-independent verify (Opus seat) and the standard sequential merge gate. The cron one-shot
-that carried this was cancelled when the owner paused development.
+Status: the hold was lifted by owner instruction later on 2026-08-01 and implementation
+resumed in this session. Progress is recorded per item below.
+
+Carry-over: **closed**. The wave2-completionist branch was verified by an Opus seat, which
+rejected it because its final commit folded every catalog miniquest into the Completionist
+quest requirement — a boundary the pinned source table does not draw, which would have made
+The Hunt for Surok an enforced requirement and gated Lair of Tarn Razorlor twice. One Sol
+refix round reverted the fold and rewrote a branch trace that had misreported its own test
+numbers. The re-verify accepted, and the branch merged at `f31b886b` with both lanes green.
 
 ## A. Urgent — broken or misbehaving in current play
 
-1. **GE interface bugginess** (owner's words): "Edit remainder doesn't seem to work";
+1. **DONE, merged at `9d48a336`.** **GE interface bugginess** (owner's words): "Edit remainder doesn't seem to work";
    editing the price of an active buy slot still shows "place buy offer" and only
    inconsistently flips to "edit order"; buy/sell slots don't display the price you set;
    "clicking on an item in the list should reset to guide price on the right, seems to be
@@ -25,7 +25,11 @@ that carried this was cancelled when the owner paused development.
    skill-bar button that opens the menu is still inside the card scroll window — move it
    down into the native strip. Owner: "I think this new design overrides what I wrote
    earlier" — the pass-6 wording is now authoritative over the pass-5 strip clauses.
-3. **Anki lag after hours** (recurs every pass): dossier at
+3. **ANSWERED — see `memory-bank/pass6-traces/lag-telemetry-2026-08-01.md`.** Neither the
+   dossier fixes nor the AnkiScape hot-path findings had been applied; all five dossier
+   fixes are now in, and telemetry exists as a separate sampling probe add-on. The
+   AnkiScape hot path itself is still outstanding.
+   **Anki lag after hours** (recurs every pass): dossier at
    `memory-bank/codex-briefs/other-addons-perf-fixes-2026-07-31.md`. Owner asks (a) have
    those fixes been applied across all add-ons, and (b) can we add telemetry to identify
    the culprit add-on. Related standing memory: perf-audit-2026-07-31-reviewer-lag
