@@ -3,10 +3,12 @@
 # requires-python = ">=3.9"
 # dependencies = ["pillow>=10"]
 # ///
-"""Fetch normalized cutoff-era Daily Challenges reward art.
+"""Fetch Daily Challenges reward art and the owner-selected top-level icon.
 
-Both items were released with the Challenge System on 19 September 2012, so the
-newest revision before the EOC cutoff is period art rather than a later rework.
+The reward items were released with the Challenge System on 19 September 2012,
+so their newest revisions before the EOC cutoff are period art. The requested
+Daily Challenge icon has no pre-cutoff wiki revision; its earliest archived
+upload is pinned instead of silently taking the current image.
 """
 
 from __future__ import annotations
@@ -14,6 +16,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -28,9 +31,11 @@ from tools.fetch_assets import (  # noqa: E402
 
 
 PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
+DAILY_CHALLENGE_ICON_REVISION = "2014-04-18T11:21:12Z"
+CHALLENGE_ICON_PATH = ROOT / "icon" / "challenges_icon.png"
 
 
-def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
+def asset_manifest() -> tuple[tuple[AssetRequest, Optional[int], bool], ...]:
     provenance = ROOT / "assets_provenance.json"
     return (
         (
@@ -41,6 +46,7 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
                 provenance_path=provenance,
             ),
             48,
+            False,
         ),
         (
             AssetRequest(
@@ -50,6 +56,17 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
                 provenance_path=provenance,
             ),
             48,
+            False,
+        ),
+        (
+            AssetRequest(
+                item_name="Daily Challenge icon",
+                wiki_title="Daily Challenge icon.png",
+                output_path=CHALLENGE_ICON_PATH,
+                provenance_path=provenance,
+            ),
+            None,
+            True,
         ),
     )
 
@@ -59,18 +76,27 @@ def main() -> int:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
-    client = HttpWikiClient(
+    period_client = HttpWikiClient(
         min_interval_seconds=1.1,
         before_timestamp=PRE_EOC_CUTOFF,
     )
-    for request, size in asset_manifest():
+    challenge_icon_client = HttpWikiClient(
+        min_interval_seconds=1.1,
+        before_timestamp=DAILY_CHALLENGE_ICON_REVISION,
+    )
+    requests = asset_manifest()
+    if not args.force and not args.dry_run:
+        requests = tuple(row for row in requests if not row[0].output_path.exists())
+    for request, size, preserve_source in requests:
+        is_challenge_icon = request.output_path == CHALLENGE_ICON_PATH
         outcome = fetch_asset(
             request,
-            client,
+            challenge_icon_client if is_challenge_icon else period_client,
             size=size,
             force=args.force,
             dry_run=args.dry_run,
             sources=(RS3_WIKI,),
+            preserve_source=preserve_source,
         )
         print(f"{outcome.item_name}: {outcome.output_path}")
     return 0
