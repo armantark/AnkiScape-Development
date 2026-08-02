@@ -9820,6 +9820,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(prayer.text(), "Prayer points  12 / 70")
         self.assertEqual(summoning.text(), "Summoning points  9 / 55")
 
+    def test_equipment_tab_shows_the_current_target_under_loot(self) -> None:
+        player_data = _make_player_data()
+        player_data["current_combat_target"] = "giant_rat"
+        dialog = self._open(player_data)
+        _open_equipment_tab(dialog)
+        dialog.show()
+        dialog.resize(1000, 560)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        loot_header = dialog.findChild(QLabel, "combatLootHeader")
+        target = dialog.findChild(QLabel, "combatCurrentTargetLabel")
+        self.assertIsNotNone(loot_header)
+        self.assertIsNotNone(target)
+        self.assertEqual(target.text(), "Current target: Giant rat")
+        self.assertGreater(target.mapTo(dialog, QPoint(0, 0)).y(), loot_header.mapTo(dialog, QPoint(0, 0)).y())
+
     def test_empty_slot_text_is_dark_mode_safe_not_palette_mid(self) -> None:
         # Regression guard for the recurring "greyed text vanishes in dark mode"
         # bug: empty-slot labels must use the dim-text helper (derived from the

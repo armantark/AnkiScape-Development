@@ -599,11 +599,13 @@ from ..logic.review_strip_logic import (
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
     REVIEW_STRIP_WIDTH,
+    SIMULATED_CLOCK_TOOLTIP,
     WORLD_EVENT_OUTCOME_REVIEWS,
     activity_xp_bars_pure,
     review_bank_run_button_view_pure,
     review_event_log_drawer_view_pure,
     review_status_badges_view_pure,
+    simulated_clock_text_pure,
     world_event_rows_pure,
 )
 
@@ -2046,9 +2048,24 @@ if HAS_QT:
             root.setContentsMargins(12, 10, 12, 10)
             root.setSpacing(10)
 
+            leading = QVBoxLayout()
+            leading.setContentsMargins(0, 0, 0, 0)
+            leading.setSpacing(4)
+            self.clock_lbl = QLabel("12:00 PM")
+            self.clock_lbl.setObjectName("reviewSimulatedClock")
+            self.clock_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.clock_lbl.setToolTip(SIMULATED_CLOCK_TOOLTIP)
+            self.clock_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.58); font-size: 9px;"
+            )
+            leading.addWidget(self.clock_lbl)
             self.icon_lbl = QLabel()
             self.icon_lbl.setFixedSize(28, 28)
-            root.addWidget(self.icon_lbl, 0, Qt.AlignmentFlag.AlignVCenter)
+            leading.addWidget(
+                self.icon_lbl, 0, Qt.AlignmentFlag.AlignHCenter
+            )
+            leading.addStretch(1)
+            root.addLayout(leading)
 
             info = QVBoxLayout()
             info.setContentsMargins(0, 0, 0, 0)
@@ -2077,6 +2094,37 @@ if HAS_QT:
                 """
             )
             info.addWidget(self.progress)
+
+            self.combat_resources = QWidget()
+            self.combat_resources.setObjectName("combatHudResources")
+            resource_layout = QHBoxLayout(self.combat_resources)
+            resource_layout.setContentsMargins(0, 0, 0, 0)
+            resource_layout.setSpacing(5)
+            self.combat_resource_labels = {}
+            for resource_id, icon_name in (
+                ("lifepoints", "hitpoints_orb.png"),
+                ("prayer", "prayer_orb.png"),
+                ("summoning", "summoning_orb.png"),
+            ):
+                icon_lbl = QLabel()
+                icon_lbl.setObjectName(f"combatHudResourceIcon_{resource_id}")
+                icon_lbl.setFixedSize(18, 18)
+                icon = _pixel_path_icon(
+                    os.path.join(current_dir, "icon", icon_name), 18
+                )
+                if icon is not None:
+                    icon_lbl.setPixmap(icon.pixmap(QSize(18, 18)))
+                value_lbl = QLabel()
+                value_lbl.setObjectName(f"combatHudResourceValue_{resource_id}")
+                value_lbl.setStyleSheet(
+                    "color: rgba(255,255,255,0.85); font-size: 10px;"
+                )
+                resource_layout.addWidget(icon_lbl)
+                resource_layout.addWidget(value_lbl)
+                self.combat_resource_labels[resource_id] = value_lbl
+            resource_layout.addStretch(1)
+            self.combat_resources.setVisible(False)
+            info.addWidget(self.combat_resources)
 
             # A running activity trains real skills, and section 4.8 says those
             # bars are what the strip is for. The primary skill reuses
@@ -2221,6 +2269,7 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
+            self.clock_lbl.setText(simulated_clock_text_pure(player_data))
             combat_status = combat_status_summary_pure(player_data)
             has_hatchet = (
                 best_woodcutting_axe_pure(
@@ -2269,8 +2318,10 @@ if HAS_QT:
             # so a branch that does not want them cannot inherit them.
             self.enemy_progress.setVisible(False)
             self.chips_lbl.setVisible(False)
+            self.combat_resources.setVisible(False)
             self.second_progress.setVisible(False)
             self.progress.setTextVisible(False)
+            self.progress.setStyleSheet(self.second_progress.styleSheet())
             if skill in _UTILITY_SKILL_NAMES:
                 # Utilities have no level or XP, but an Activity trains real
                 # skills, so its bars come from activity_xp_bars_pure below.
@@ -2398,17 +2449,28 @@ if HAS_QT:
                     self.icon_lbl.clear()
                 self.title_lbl.setText(f"Combat — Lv {state['combat_level']}")
 
-                # Player health bar
+                # Player health bar and the three pre-EOC combat resources.
                 self.progress.setVisible(True)
+                self.progress.setStyleSheet(self.enemy_progress.styleSheet())
                 self.progress.setValue(state["player_pct"])
-                status_suffix = f" • {state['status']}" if state["status"] else ""
-                self.sub_lbl.setVisible(True)
-                self.sub_lbl.setText(
-                    f"You {state['player_lifepoints']}/{state['player_max_lifepoints']} LP{status_suffix}"
+                self.combat_resource_labels["lifepoints"].setText(
+                    f"{state['player_lifepoints']}/{state['player_max_lifepoints']}"
                 )
+                self.combat_resource_labels["prayer"].setText(
+                    f"{state['prayer_points']}/{state['prayer_max_points']}"
+                )
+                self.combat_resource_labels["summoning"].setText(
+                    f"{state['summoning_points']}/{state['summoning_max_points']}"
+                )
+                self.combat_resources.setVisible(True)
+                self.sub_lbl.setText("")
+                self.sub_lbl.setVisible(False)
 
                 # Enemy name + health bar
-                self.target_lbl.setText(state["enemy_name"])
+                target_text = state["enemy_name"]
+                if state["status"]:
+                    target_text += f" • {state['status']}"
+                self.target_lbl.setText(target_text)
                 self.target_lbl.setVisible(True)
                 self.enemy_progress.setVisible(True)
                 self.enemy_progress.setValue(state["enemy_pct"])
@@ -3195,8 +3257,7 @@ if HAS_QT:
                 self._anim.start()
 
         def show_exp(self, exp):
-            # Format like +25 XP, color accent via left border
-            self.show_text(f"+{int(exp)} XP")
+            self.show_text(getattr(exp, "display_text", f"+{int(exp)} XP"))
 
         def show_text(self, text: str):
             # Generic floating "ghost" indicator. Used for XP gains and, for no-XP
@@ -7416,6 +7477,7 @@ def show_main_menu(
         # "Advanced" disclosure, rendered as icon cells with a binary Keep | Drop
         # pill (neither segment lit = follow the value threshold).
         loot_header = QLabel("Loot")
+        loot_header.setObjectName("combatLootHeader")
         loot_header.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(loot_header)
 
@@ -7575,11 +7637,23 @@ def show_main_menu(
             layout.addWidget(loot_grid_container)
             _sync_keep_all()
 
+        current_target_label = QLabel(
+            f"Current target: {current_target_display_name(_COMBAT_HUB_NAME, player_data)}"
+        )
+        current_target_label.setObjectName("combatCurrentTargetLabel")
+        current_target_label.setStyleSheet(
+            "color: palette(text); font-weight: 600; padding-top: 2px;"
+        )
+        layout.addWidget(current_target_label)
+
         def _refresh_combat_setup_panel() -> None:
             mode_label.setText(f"Combat mode: {_combat_mode_text()}")
             _rebuild_style_combo()
             _refresh_combat_action()
             _refresh_borrowed_power_row()
+            current_target_label.setText(
+                f"Current target: {current_target_display_name(_COMBAT_HUB_NAME, player_data)}"
+            )
 
         _combat_setup_refreshers.append(_refresh_combat_setup_panel)
 

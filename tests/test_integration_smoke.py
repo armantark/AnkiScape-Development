@@ -188,30 +188,33 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._open_grand_exchange_sheet()
         self.assertEqual(opened[-1], {"initial_global_tab": "Grand Exchange"})
 
-    def test_aggregate_xp_event_names_every_awarded_skill(self):
-        addon = _load_addon_as_package("ankiscape_event_log_skill_names")
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+    def test_attack_and_constitution_xp_break_down_in_popup_and_event_log(self):
+        addon = _load_addon_as_package("ankiscape_event_log_skill_breakdown")
+        popup_text = []
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": True}))
+        addon.mw.exp_popup = types.SimpleNamespace(
+            show_exp=lambda amount: popup_text.append(amount.display_text)
+        )
         addon.storage_save_player_data = lambda _data, _skill: None
         addon.update_review_event_log_drawer = lambda _data: None
-        addon.current_skill = "Mining"
+        addon.current_skill = "Combat"
         addon.player_data = {
-            "mining_exp": 0.0,
-            "woodcutting_exp": 0.0,
+            "attack_exp": 0.0,
+            "constitution_exp": 0.0,
             "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
             "review_event_log": [],
         }
 
         addon._begin_review_feedback_context()
-        mining = addon._award_skill_exp("mining_exp", 10)
-        addon._show_exp(mining)
-        woodcutting = addon._award_skill_exp("woodcutting_exp", 5)
-        addon._show_exp(woodcutting)
+        attack = addon._award_skill_exp("attack_exp", 40)
+        addon._show_exp(attack)
+        constitution = addon._award_skill_exp("constitution_exp", 13.3)
+        addon._show_exp(constitution)
         addon._finish_review_feedback_context()
 
-        self.assertEqual(
-            addon.player_data["review_event_log"][-1]["text"],
-            "+15 XP · Mining, Woodcutting",
-        )
+        expected = "Attack +40 XP · Constitution +13 XP"
+        self.assertEqual(popup_text, [expected])
+        self.assertEqual(addon.player_data["review_event_log"][-1]["text"], expected)
 
     def test_xp_review_keeps_every_activity_event_without_replacing_the_xp_popup(self):
         addon = _load_addon_as_package("ankiscape_event_log_mixed_feedback")
