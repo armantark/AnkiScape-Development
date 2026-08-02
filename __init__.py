@@ -496,6 +496,12 @@ def _show_exp(exp_gained) -> None:
         pass
 
 
+def _refresh_open_carried_inventory() -> None:
+    refresh_inventory = ui._MAIN_MENU_CTX.get("refresh_carried_inventory")
+    if callable(refresh_inventory):
+        refresh_inventory()
+
+
 def _show_activity_gain(text: str) -> None:
     """Record and show a no-XP Utility or Activity result."""
     try:
@@ -1147,6 +1153,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         cadence_live_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
         prompt_near_death=_prompt_near_death,
+        refresh_carried_inventory=_refresh_open_carried_inventory,
     )
 
 
@@ -1921,6 +1928,8 @@ def _on_main_menu(
             del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
         player_data.clear()
         player_data.update(updated)
+        if info.get("coins") or info.get("items"):
+            info = {**info, "bank_run_triggered": _trigger_active_bank_run()}
         check_achievements(player_data)
         save_player_data()
         _refresh_skill_availability()
@@ -4293,34 +4302,54 @@ def on_set_combat_auto_eat_food(food_name):
     return True
 
 
-def on_do_bank_run_now():
-    """Run or request the active skill/activity's bank visit."""
+def _request_active_bank_run_state(data):
     handler_key = review_action_handler_key(current_skill)
     skill = get_skill(current_skill)
     completes_immediately = False
     if handler_key == "combat" or (skill is not None and skill.id == "slayer"):
-        new_data, ok, reason = request_combat_bank_run_now_pure(player_data)
+        new_data, ok, reason = request_combat_bank_run_now_pure(data)
     elif handler_key in runtime_actions._BANK_RUN_TARGET_KEYS:
         target_key = runtime_actions._BANK_RUN_TARGET_KEYS[handler_key]
-        target_id = (player_data.get(target_key) if target_key else None) or handler_key
+        target_id = (data.get(target_key) if target_key else None) or handler_key
         new_data, ok, reason = inventory_pure.request_carried_bank_run_now_pure(
-            player_data, target_id
+            data, target_id
         )
     elif handler_key is not None or (skill is not None and skill.implemented):
-        # Farming and any registry-backed surface without a review handler are
-        # already bank-side. Complete the visit now instead of queuing a request
-        # that no production review path can consume.
-        new_data = restore_summoning_points_pure(player_data)
+        # Registry-backed surfaces without a review handler are already bank-side.
+        new_data = restore_summoning_points_pure(data)
         ok, reason = True, ""
         completes_immediately = True
     else:
-        new_data, ok, reason = player_data, False, "No active target can make a bank run."
+        new_data, ok, reason = data, False, "No active target can make a bank run."
+    return new_data, ok, reason, completes_immediately
+
+
+def _trigger_active_bank_run() -> bool:
+    new_data, ok, _reason, completes_immediately = _request_active_bank_run_state(
+        player_data
+    )
+    if not ok:
+        return False
+    player_data.clear()
+    player_data.update(new_data)
+    if completes_immediately:
+        _show_activity_gain("Bank run — arrived and ready")
+        _refresh_open_carried_inventory()
+    return True
+
+
+def on_do_bank_run_now():
+    """Run or request the active skill/activity's bank visit."""
+    new_data, ok, reason, completes_immediately = _request_active_bank_run_state(
+        player_data
+    )
     if not ok:
         show_error_message("Cannot make a bank run", reason)
         return False
     _save_combat_state_update(new_data)
     if completes_immediately:
         _show_activity_gain("Bank run — arrived and ready")
+        _refresh_open_carried_inventory()
     return True
 
 
@@ -4917,11 +4946,13 @@ def on_answer_card(self, ease, _old):
         except Exception:
             pass
         try:
-            ge_updated, _ge_events = advance_ge_market_tick_pure(
+            ge_updated, ge_events = advance_ge_market_tick_pure(
                 player_data,
                 item_catalog=GE_ITEM_CATALOG,
             )
             player_data.update(ge_updated)
+            if ge_events.get("fills"):
+                _trigger_active_bank_run()
         except Exception:
             pass
         try:

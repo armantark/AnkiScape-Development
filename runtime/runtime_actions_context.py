@@ -37,3 +37,4 @@ class RuntimeActionContext:
     # handler has already stopped the review either way.
     prompt_near_death: Optional[Callable[[str], None]] = None
     switch_to_bankstanding: Optional[Callable[[], None]] = None
+    refresh_carried_inventory: Optional[Callable[[], None]] = None

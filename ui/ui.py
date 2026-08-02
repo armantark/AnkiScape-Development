@@ -630,6 +630,7 @@ _MAIN_MENU_CTX = {
     "open_activity": None,
     "show_activity": None,
     "open_grand_exchange": None,
+    "refresh_carried_inventory": None,
 }
 
 
@@ -7213,6 +7214,25 @@ def show_main_menu(
         dream_thrift = QCheckBox("Dream thrift")
         dream_thrift.setObjectName("combatDreamThriftCheck")
         dream_thrift.setChecked(bool(player_data.get("combat_dream_thrift", False)))
+        auto_prayer_checks = []
+
+        def _set_auto_prayer_training(checked: bool) -> None:
+            for check in auto_prayer_checks:
+                check.blockSignals(True)
+                check.setChecked(bool(checked))
+                check.blockSignals(False)
+            if on_set_combat_prayer_config is not None:
+                on_set_combat_prayer_config(
+                    "combat_auto_prayer_training", bool(checked)
+                )
+
+        casual_auto_prayer = QCheckBox("Auto-bury bones")
+        casual_auto_prayer.setObjectName("combatCasualAutoPrayerTrainingCheck")
+        casual_auto_prayer.setChecked(
+            bool(player_data.get("combat_auto_prayer_training", False))
+        )
+        casual_auto_prayer.toggled.connect(_set_auto_prayer_training)
+        auto_prayer_checks.append(casual_auto_prayer)
         dream_reasons = combat_dream_thrift_locked_reasons_pure(player_data)
         dream_thrift.setEnabled(
             on_set_combat_prayer_config is not None and not dream_reasons
@@ -7224,6 +7244,7 @@ def show_main_menu(
             dream_thrift.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_dream_thrift", bool(enabled)))
         casual_layout.addWidget(prayer_master)
         casual_layout.addWidget(dream_thrift)
+        casual_layout.addWidget(casual_auto_prayer)
         casual_layout.addStretch(1)
         layout.addWidget(casual_toggles)
 
@@ -7424,8 +7445,8 @@ def show_main_menu(
         auto_prayer = QCheckBox("Auto-bury/scatter combat drops (costs simulated ticks)")
         auto_prayer.setObjectName("combatAutoPrayerTrainingCheck")
         auto_prayer.setChecked(bool(player_data.get("combat_auto_prayer_training", False)))
-        if on_set_combat_prayer_config is not None:
-            auto_prayer.toggled.connect(lambda checked: on_set_combat_prayer_config("combat_auto_prayer_training", bool(checked)))
+        auto_prayer.toggled.connect(_set_auto_prayer_training)
+        auto_prayer_checks.append(auto_prayer)
         advanced_layout.addWidget(auto_prayer)
 
         # ---- Loot from this enemy ----
@@ -21823,6 +21844,7 @@ def show_main_menu(
                     "open_activity": None,
                     "show_activity": None,
                     "open_grand_exchange": None,
+                    "refresh_carried_inventory": None,
                 }
             )
         )
@@ -21870,14 +21892,10 @@ def show_main_menu(
     ge_balance.setStyleSheet(f"color: {dim_text_css(ge_balance)};")
     ge_collect_all = QPushButton("Collect all")
     ge_collect_all.setObjectName("geCollectAllButton")
-    ge_ironman = QCheckBox("Ironman mode")
-    ge_ironman.setObjectName("geIronmanToggle")
-    ge_ironman.setToolTip("Ironman mode disables only the Grand Exchange.")
     ge_header_layout.addWidget(ge_title)
     ge_header_layout.addWidget(ge_balance)
     ge_header_layout.addStretch(1)
     ge_header_layout.addWidget(ge_collect_all)
-    ge_header_layout.addWidget(ge_ironman)
     ge_layout.addWidget(ge_header)
 
     ge_status = QLabel("")
@@ -22309,9 +22327,6 @@ def show_main_menu(
                 ),
             )
         )
-        ge_ironman.blockSignals(True)
-        ge_ironman.setChecked(locked)
-        ge_ironman.blockSignals(False)
         ge_catalog_shell.setEnabled(not locked and callable(on_ge_action))
         ge_editor.setEnabled(not locked and callable(on_ge_action))
         slots = tuple(projection.get("slots", ()))
@@ -22617,15 +22632,6 @@ def show_main_menu(
         if order is not None:
             _run_ge_action("cancel_offer", {"order_id": int(order["id"])})
 
-    def _toggle_ge_ironman(checked=False) -> None:
-        result = _run_ge_action("set_ironman", {"enabled": bool(checked)})
-        if not result.get("ok"):
-            ge_ironman.blockSignals(True)
-            ge_ironman.setChecked(
-                bool(ge_state["projection"].get("ironman_mode"))
-            )
-            ge_ironman.blockSignals(False)
-
     def _apply_ge_offer_safety() -> None:
         _run_ge_action(
             "set_offer_safety",
@@ -22658,7 +22664,6 @@ def show_main_menu(
     ge_collect_all.clicked.connect(
         lambda _checked=False: _run_ge_action("collect_all", {})
     )
-    ge_ironman.toggled.connect(_toggle_ge_ironman)
     ge_apply_safety.clicked.connect(
         lambda _checked=False: _apply_ge_offer_safety()
     )
@@ -22680,15 +22685,36 @@ def show_main_menu(
         "Place and manage review-paced Grand Exchange offers",
     )
 
+    def _choose_ironman_on_first_ge_open() -> bool:
+        projection = ge_state["projection"]
+        if projection.get("ironman_account_type") != "unselected":
+            return True
+        answer = QMessageBox.question(
+            dialog,
+            "Choose account type",
+            "Choose Ironman mode? Ironman accounts cannot use Grand Exchange "
+            "offers. You may permanently de-iron later, but a regular account "
+            "can never become Ironman. Choose No to remain regular forever.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        result = _run_ge_action(
+            "choose_ironman",
+            {"enabled": answer == QMessageBox.StandardButton.Yes},
+        )
+        return bool(result.get("ok"))
+
     def _open_grand_exchange_in_dialog() -> None:
         close_review_status_popover()
+        if not _choose_ironman_on_first_ge_open():
+            return
         tabs.setCurrentWidget(ge_tab)
         dialog.raise_()
         dialog.activateWindow()
 
     _MAIN_MENU_CTX["open_grand_exchange"] = _open_grand_exchange_in_dialog
     if initial_global_tab == "Grand Exchange":
-        tabs.setCurrentWidget(ge_tab)
+        _open_grand_exchange_in_dialog()
 
     _add_deferred_tab(
         "Quests",
@@ -23030,6 +23056,14 @@ def show_main_menu(
     bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     bank_scroll.setWidget(bank_tab)
     bank_state = {"initialized": False}
+
+    bank_ge_button = QPushButton("Grand Exchange")
+    bank_ge_button.setObjectName("bankGrandExchangeButton")
+    bank_ge_button.setToolTip("Every bank provides Grand Exchange access.")
+    bank_ge_button.clicked.connect(
+        lambda _checked=False: _open_grand_exchange_in_dialog()
+    )
+    bk_layout.addWidget(bank_ge_button, 0, Qt.AlignmentFlag.AlignLeft)
 
     # Carried inventory overlay — the 28-slot pack the review loop draws from and
     # banks when full. Collapsible header. Casual packing is inferred (even split
@@ -23846,6 +23880,8 @@ def show_main_menu(
         _refresh_carried_sections()
         _refresh_carried_layout_grid()
         _refresh_carried_inventory_views()
+
+    _MAIN_MENU_CTX["refresh_carried_inventory"] = _refresh_carried_panel
 
     bk_layout.addWidget(carried_header)
     bk_layout.addWidget(carried_body)
@@ -25550,6 +25586,57 @@ def show_main_menu(
     review_hud_cb = QCheckBox("Enable experience HUD")
     review_hud_cb.setChecked(review_hud_enabled)
 
+    ironman_cb = QCheckBox("Ironman account")
+    ironman_cb.setObjectName("settingsIronmanToggle")
+    ironman_help = QLabel()
+    ironman_help.setObjectName("settingsIronmanHelp")
+    ironman_help.setWordWrap(True)
+    ironman_help.setStyleSheet("color: palette(mid); font-size: 11px;")
+
+    def _refresh_ironman_setting() -> None:
+        current = ge_state["projection"]
+        account_type = str(current.get("ironman_account_type", "regular"))
+        active = bool(current.get("ironman_mode", False))
+        ironman_cb.blockSignals(True)
+        ironman_cb.setChecked(active)
+        ironman_cb.setEnabled(
+            account_type == "ironman" and active and callable(on_ge_action)
+        )
+        ironman_cb.blockSignals(False)
+        if account_type == "unselected":
+            ironman_help.setText(
+                "Choose Ironman or regular when you first open the Grand Exchange."
+            )
+        elif active:
+            ironman_help.setText(
+                "Turning this off permanently makes this a regular account; "
+                "Ironman mode can never be restored."
+            )
+        else:
+            ironman_help.setText(
+                "This is a regular account. It can never become Ironman."
+            )
+
+    def _deiron_account(checked: bool) -> None:
+        if checked:
+            return
+        answer = QMessageBox.question(
+            dialog,
+            "Permanently de-iron?",
+            "This permanently converts the account to regular. Ironman mode "
+            "can never be restored. Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            _refresh_ironman_setting()
+            return
+        _run_ge_action("set_ironman", {"enabled": False})
+        _refresh_ironman_setting()
+
+    ironman_cb.toggled.connect(_deiron_account)
+    _refresh_ironman_setting()
+
     # ---- Notifications: floating XP + popups ----
     xp_cb = QCheckBox("Enable floating XP")
     xp_cb.setChecked(floating_xp_enabled)
@@ -25588,6 +25675,8 @@ def show_main_menu(
     set_layout.addWidget(xp_mult_row)
     set_layout.addWidget(xp_mult_help)
     set_layout.addWidget(review_hud_cb)
+    set_layout.addWidget(ironman_cb)
+    set_layout.addWidget(ironman_help)
     _add_divider()
     set_layout.addWidget(_section_title("Notifications"))
     set_layout.addWidget(xp_cb)
@@ -25797,6 +25886,8 @@ def show_main_menu(
         _ensure_tab_built(index)
         if tabs.tabText(index) == "Shop":
             ctx.refresh("shop")
+        elif tabs.tabText(index) == "Settings":
+            _refresh_ironman_setting()
 
     tabs.currentChanged.connect(_on_main_tab_changed)
     _on_main_tab_changed(tabs.currentIndex())

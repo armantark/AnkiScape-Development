@@ -154,14 +154,19 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon._show_exp(25)
         addon._show_activity_gain("+1 Iron ore")
+        addon._show_activity_gain("Bank run — arrived and restocked")
 
         self.assertEqual(
             [row["kind"] for row in addon.player_data["review_event_log"]],
-            ["xp", "activity"],
+            ["xp", "activity", "activity"],
         )
         self.assertEqual(
             [row["text"] for row in addon.player_data["review_event_log"]],
-            ["+25 XP · Mining", "+1 Iron ore"],
+            [
+                "+25 XP · Mining",
+                "+1 Iron ore",
+                "Bank run — arrived and restocked",
+            ],
         )
 
     def test_ge_status_navigation_focuses_or_opens_the_ge_tab(self):
@@ -5858,6 +5863,57 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_grand_exchange_collection_triggers_bank_run(self):
+        addon = _load_addon_as_package(
+            "ankiscape_grand_exchange_collection_bank_run_integration"
+        )
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.current_skill = "Utility / Activities"
+        ge_logic = sys.modules[f"{addon.__name__}.logic.grand_exchange_logic"]
+        item_spec = addon.GE_ITEM_CATALOG["Logs"]
+        initial, placed = ge_logic.place_ge_offer_pure(
+            {"inventory": {"Coins": 10_000}, "smithing_level": 1},
+            side="buy",
+            item_name="Logs",
+            quantity=1,
+            unit_price=int(item_spec["guide_price"]),
+            item_spec=item_spec,
+        )
+        self.assertTrue(placed["ok"])
+        order = initial["ge_player_orders"][0]
+        order.update(
+            remaining_quantity=0,
+            completed_quantity=1,
+            escrow_coins=0,
+            collectible_items=1,
+            status="complete",
+        )
+        addon.player_data = initial
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        bank_runs = []
+
+        def request_bank_run(data):
+            bank_runs.append(copy.deepcopy(data))
+            updated = copy.deepcopy(data)
+            updated["ge_bank_run_requested"] = True
+            return updated, True, "", False
+
+        addon._request_active_bank_run_state = request_bank_run
+        addon._on_main_menu()
+
+        result = captured["on_ge_action"](
+            "collect_offer", {"order_id": order["id"]}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 1)
+        self.assertTrue(addon.player_data["ge_bank_run_requested"])
 
     def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")

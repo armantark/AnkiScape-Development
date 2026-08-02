@@ -10,6 +10,7 @@ from ankiscape.logic.grand_exchange_logic import (
     cancel_ge_offer_pure,
     collect_all_ge_offers_pure,
     collect_ge_offer_pure,
+    choose_ironman_mode_pure,
     default_ge_state_pure,
     edit_ge_offer_pure,
     ge_frontend_projection_pure,
@@ -294,7 +295,7 @@ class GrandExchangeLogicTest(unittest.TestCase):
         )
         player, ironman = apply_ge_frontend_action_pure(
             player,
-            "set_ironman",
+            "choose_ironman",
             {"enabled": True},
             item_catalog=catalog,
         )
@@ -641,31 +642,48 @@ class GrandExchangeLogicTest(unittest.TestCase):
         self.assertEqual(collected["inventory"], {"Coins": 10_000, "Logs": 20})
         self.assertEqual(collected["ge_player_orders"], [])
 
-    def test_ironman_cannot_enable_until_every_slot_is_cleared(self):
-        player, _result = place_ge_offer_pure(
-            _player(),
-            side="sell",
-            item_name="Logs",
-            quantity=1,
-            unit_price=100,
-            item_spec=LOGS,
-        )
-        unchanged, blocked = set_ironman_mode_pure(player, True)
+    def test_regular_account_can_never_become_ironman(self):
+        regular, chosen = choose_ironman_mode_pure(_player(), False)
+        self.assertTrue(chosen["ok"])
+        self.assertEqual(regular["ironman_account_type"], "regular")
+
+        unchanged, blocked = set_ironman_mode_pure(regular, True)
         self.assertFalse(blocked["ok"])
         self.assertFalse(unchanged["ironman_mode"])
+        self.assertEqual(unchanged["ironman_account_type"], "regular")
 
-        enabled, result = set_ironman_mode_pure(_player(), True)
-        self.assertTrue(result["ok"])
-        self.assertTrue(enabled["ironman_mode"])
-        preview = preview_ge_offer_pure(
-            enabled,
+    def test_ironman_can_deiron_but_can_never_reenable(self):
+        ironman, chosen = choose_ironman_mode_pure(_player(), True)
+        self.assertTrue(chosen["ok"])
+        self.assertTrue(ironman["ironman_mode"])
+        locked = preview_ge_offer_pure(
+            ironman,
             side="buy",
             item_name="Logs",
             quantity=1,
             unit_price=100,
             item_spec=LOGS,
         )
-        self.assertEqual(preview["reason"], "ironman_mode")
+        self.assertEqual(locked["reason"], "ironman_mode")
+
+        regular, result = set_ironman_mode_pure(ironman, False)
+        self.assertTrue(result["ok"])
+        self.assertFalse(regular["ironman_mode"])
+        self.assertEqual(regular["ironman_account_type"], "regular")
+        unlocked = preview_ge_offer_pure(
+            regular,
+            side="buy",
+            item_name="Logs",
+            quantity=1,
+            unit_price=100,
+            item_spec=LOGS,
+        )
+        self.assertTrue(unlocked["ok"])
+
+        unchanged, blocked = set_ironman_mode_pure(regular, True)
+        self.assertFalse(blocked["ok"])
+        self.assertFalse(unchanged["ironman_mode"])
+        self.assertEqual(unchanged["ironman_account_type"], "regular")
 
     def test_buy_fill_preserves_escrow_and_price_improvement(self):
         player = _player()

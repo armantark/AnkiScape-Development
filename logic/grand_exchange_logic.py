@@ -70,6 +70,7 @@ def default_ge_state_pure() -> Dict[str, Any]:
     return {
         "ge_state_version": GE_STATE_VERSION,
         "ironman_mode": False,
+        "ironman_account_type": "unselected",
         "ge_settings": {
             "high_value_confirmation": DEFAULT_HIGH_VALUE_CONFIRMATION,
             "low_price_multiplier": DEFAULT_LOW_PRICE_MULTIPLIER,
@@ -310,9 +311,19 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
             if entry is not None:
                 fill_log.append(entry)
 
+    ironman_mode = bool(data.get("ironman_mode", False))
+    raw_account_type = data.get("ironman_account_type")
+    if raw_account_type in {"unselected", "ironman", "regular"}:
+        ironman_account_type = str(raw_account_type)
+    else:
+        ironman_account_type = "ironman" if ironman_mode else "regular"
+    if ironman_account_type != "ironman":
+        ironman_mode = False
+
     return {
         "ge_state_version": GE_STATE_VERSION,
-        "ironman_mode": bool(data.get("ironman_mode", False)),
+        "ironman_mode": ironman_mode,
+        "ironman_account_type": ironman_account_type,
         "ge_settings": settings,
         "ge_market_state": market,
         "ge_player_orders": orders,
@@ -1501,6 +1512,7 @@ def ge_frontend_projection_pure(
     clock = data.get("shop_market_clock")
     return {
         "ironman_mode": bool(data["ironman_mode"]),
+        "ironman_account_type": str(data["ironman_account_type"]),
         "lock_reason": ge_access_lock_reason_pure(data),
         "coins": _clean_int(data["inventory"].get("Coins"), 0),
         "settings": copy.deepcopy(data["ge_settings"]),
@@ -1580,6 +1592,11 @@ def apply_ge_frontend_action_pure(
         )
     if action_id == "collect_all":
         return collect_all_ge_offers_pure(player_data)
+    if action_id == "choose_ironman":
+        return choose_ironman_mode_pure(
+            player_data,
+            bool(payload.get("enabled", False)),
+        )
     if action_id == "set_ironman":
         return set_ironman_mode_pure(
             player_data,
@@ -1604,16 +1621,36 @@ def apply_ge_frontend_action_pure(
     }
 
 
+def choose_ironman_mode_pure(
+    player_data: Mapping[str, Any],
+    enabled: bool,
+) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    data = ensure_ge_state_pure(player_data)
+    if data["ironman_account_type"] != "unselected":
+        return data, {"ok": False, "reason": "ironman_choice_already_made"}
+    if enabled and data["ge_player_orders"]:
+        return data, {"ok": False, "reason": "offers_must_be_cleared"}
+    data["ironman_mode"] = bool(enabled)
+    data["ironman_account_type"] = "ironman" if enabled else "regular"
+    return data, {
+        "ok": True,
+        "reason": "ironman_choice_recorded",
+        "enabled": bool(enabled),
+    }
+
+
 def set_ironman_mode_pure(
     player_data: Mapping[str, Any],
     enabled: bool,
 ) -> tuple[Dict[str, Any], Dict[str, Any]]:
     data = ensure_ge_state_pure(player_data)
-    enabled = bool(enabled)
-    if enabled and data["ge_player_orders"]:
-        return data, {"ok": False, "reason": "offers_must_be_cleared"}
-    data["ironman_mode"] = enabled
-    return data, {"ok": True, "reason": "ironman_mode_updated", "enabled": enabled}
+    if enabled:
+        return data, {"ok": False, "reason": "ironman_mode_is_permanent_choice"}
+    if data["ironman_account_type"] != "ironman" or not data["ironman_mode"]:
+        return data, {"ok": False, "reason": "ironman_mode_already_disabled"}
+    data["ironman_mode"] = False
+    data["ironman_account_type"] = "regular"
+    return data, {"ok": True, "reason": "ironman_mode_updated", "enabled": False}
 
 
 def set_ge_offer_safety_pure(

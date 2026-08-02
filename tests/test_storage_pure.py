@@ -389,6 +389,7 @@ class TestStoragePure(unittest.TestCase):
             "shop_next_event_id",
             "ge_state_version",
             "ironman_mode",
+            "ironman_account_type",
             "ge_settings",
             "ge_market_state",
             "ge_player_orders",
@@ -481,6 +482,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["shop_events"], [])
         self.assertEqual(data["shop_next_event_id"], 1)
         self.assertFalse(data["ironman_mode"])
+        self.assertEqual(data["ironman_account_type"], "unselected")
         self.assertEqual(data["ge_player_orders"], [])
         self.assertEqual(data["ge_next_order_id"], 1)
         self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
@@ -588,6 +590,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["ge_next_order_id"], 5)
         self.assertEqual(migrated["ge_player_orders"][0]["escrow_coins"], 200)
+        self.assertEqual(migrated["ironman_account_type"], "regular")
 
     def test_v45_migration_adds_and_sanitizes_review_context_preferences(self):
         migrated = migrate_loaded_data(
