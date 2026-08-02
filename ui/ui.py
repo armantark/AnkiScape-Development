@@ -3313,6 +3313,7 @@ _STATUS_POPOVER = None  # type: ignore
 _STATUS_POPOVER_BADGE = None  # type: ignore
 _FILL_DRAWER = None  # type: ignore
 _EVENT_LOG_DRAWER = None  # type: ignore
+_REVIEW_WIDGET_CLEANUP_DONE = False
 
 
 def _raise_exp_popup() -> None:
@@ -3550,82 +3551,37 @@ def _sync_review_strip_layout() -> None:
 
 
 def _cleanup_extra_huds() -> None:
-    """Hide and delete any stray HUD widgets from prior versions or reloads.
-    Ensures only a single child HUD exists under mw and no top-level HUDs remain.
-    """
-    if not HAS_QT:
+    """Delete stale review widgets left behind by an add-on reload."""
+    global _REVIEW_WIDGET_CLEANUP_DONE
+    if not HAS_QT or _REVIEW_WIDGET_CLEANUP_DONE:
         return
     try:
-        try:
-            from aqt.qt import QApplication  # type: ignore
-        except Exception:
-            QApplication = None  # type: ignore
-        # Remove top-level HUDs that may have been created with ToolTip flags
-        if QApplication is not None:
-            for w in QApplication.topLevelWidgets():
-                try:
-                    name = getattr(w, "objectName", lambda: "")()
-                    if name in {"AnkiScapeReviewStrip", "AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeDndBadge", "AnkiScapeFarmingBadge", "reviewBankRunButton", "reviewMainMenuButton", "AnkiScapeReviewFillDrawer", "AnkiScapeReviewEventLogDrawer", "reviewStatusPopover"}:
-                        current = {
-                            "AnkiScapeReviewStrip": _REVIEW_STRIP,
-                            "AnkiScapeReviewHUD": _REVIEW_HUD,
-                            "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
-                            "AnkiScapeDndBadge": _DND_BADGE,
-                            "AnkiScapeFarmingBadge": _FARMING_BADGE,
-                            "reviewBankRunButton": _BANK_RUN_BUTTON,
-                            "reviewMainMenuButton": _MAIN_MENU_BUTTON,
-                            "AnkiScapeReviewFillDrawer": _FILL_DRAWER,
-                            "AnkiScapeReviewEventLogDrawer": _EVENT_LOG_DRAWER,
-                            "reviewStatusPopover": _STATUS_POPOVER,
-                        }.get(name)
-                        if current is None or w is not current:
-                            try:
-                                w.hide()
-                            except Exception:
-                                pass
-                            try:
-                                w.deleteLater()
-                            except Exception:
-                                pass
-                except Exception:
-                    pass
-        # Also remove duplicate children under mw
-        par = mw
-        if par is not None:
-            from aqt.qt import QWidget as _QW  # type: ignore
-            for child in par.findChildren(_QW, "AnkiScapeReviewHUD"):
-                if _REVIEW_HUD is None or child is not _REVIEW_HUD:
-                    try:
-                        child.hide()
-                    except Exception:
-                        pass
-                    try:
-                        child.deleteLater()
-                    except Exception:
-                        pass
-            for child in par.findChildren(_QW, "AnkiScapeReviewContextStrip"):
-                if _REVIEW_CONTEXT_STRIP is None or child is not _REVIEW_CONTEXT_STRIP:
-                    try:
-                        child.hide()
-                        child.deleteLater()
-                    except Exception:
-                        pass
-            for name, current in (
-                ("AnkiScapeReviewStrip", _REVIEW_STRIP),
-                ("AnkiScapeDndBadge", _DND_BADGE),
-                ("AnkiScapeFarmingBadge", _FARMING_BADGE),
-                ("reviewBankRunButton", _BANK_RUN_BUTTON),
-                ("reviewMainMenuButton", _MAIN_MENU_BUTTON),
-                ("AnkiScapeReviewFillDrawer", _FILL_DRAWER),
-                ("AnkiScapeReviewEventLogDrawer", _EVENT_LOG_DRAWER),
-            ):
-                for child in par.findChildren(_QW, name):
-                    if current is None or child is not current:
-                        try:
-                            child.hide()
-                            child.deleteLater()
-                        except Exception:
-                            pass
+        from aqt.qt import QApplication, QWidget as _QW  # type: ignore
+
+        current_widgets = {
+            "AnkiScapeReviewStrip": _REVIEW_STRIP,
+            "AnkiScapeReviewHUD": _REVIEW_HUD,
+            "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
+            "AnkiScapeDndBadge": _DND_BADGE,
+            "AnkiScapeFarmingBadge": _FARMING_BADGE,
+            "reviewBankRunButton": _BANK_RUN_BUTTON,
+            "reviewMainMenuButton": _MAIN_MENU_BUTTON,
+            "AnkiScapeReviewFillDrawer": _FILL_DRAWER,
+            "AnkiScapeReviewEventLogDrawer": _EVENT_LOG_DRAWER,
+            "reviewStatusPopover": _STATUS_POPOVER,
+        }
+        candidates = list(QApplication.topLevelWidgets())
+        if mw is not None:
+            candidates.extend(mw.findChildren(_QW))
+        for widget in candidates:
+            name = widget.objectName()
+            if name not in current_widgets or widget is current_widgets[name]:
+                continue
+            widget.hide()
+            widget.deleteLater()
+        # Runtime construction is guarded by direct singleton references. Only an
+        # add-on reload can leave widgets that those references do not own.
+        _REVIEW_WIDGET_CLEANUP_DONE = True
     except Exception:
         pass
 
@@ -4015,6 +3971,7 @@ def hide_review_hud() -> None:
 def show_error_message(title: str, message: str):
     """Centralized error dialog helper."""
     error_dialog = QMessageBox(mw)
+    error_dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     error_dialog.setIcon(QMessageBox.Icon.Warning)
     # Force the standard warning glyph. On macOS QMessageBox otherwise falls back
     # to the host app's icon (the Python/Anki "folder" the user saw) for the body
@@ -4038,6 +3995,7 @@ def show_error_message(title: str, message: str):
 def show_level_up_dialog(skill: str):
     """Level-up dialog with a skill icon."""
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Level Up!")
     dialog.setFixedSize(380, 200)
     layout = QVBoxLayout()
@@ -4065,6 +4023,7 @@ def show_level_up_dialog(skill: str):
 def show_achievement_dialog(achievement: str, data: dict):
     """Achievement dialog with an icon."""
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Achievement Unlocked!")
     dialog.setFixedSize(420, 240)
     layout = QVBoxLayout()
@@ -4101,6 +4060,7 @@ def show_stronghold_reward_dialog() -> Optional[str]:
     stat-identical, so the copy makes clear the pick is purely cosmetic. Returns
     the chosen boot name, or None if the player dismissed the dialog unclaimed."""
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Stronghold of Security — Cleared!")
     dialog.setMinimumWidth(440)
     layout = QVBoxLayout()
@@ -25856,6 +25816,7 @@ def show_main_menu(
             # Feedback: lightweight message box
             try:
                 msg = QMessageBox(mw)
+                msg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
                 msg.setIcon(QMessageBox.Icon.Information)
                 msg.setWindowTitle("Logs cleared")
                 msg.setText("Debug logs have been cleared." if removed_any else "No log files found to clear.")
@@ -25887,6 +25848,7 @@ def show_main_menu(
             _debug_log(f"developer_mode: tests finished rc={code}, failures={len(result.failures)}, errors={len(result.errors)}")
             # User feedback
             msg = QMessageBox(mw)
+            msg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
             msg.setIcon(QMessageBox.Icon.Information if code == 0 else QMessageBox.Icon.Warning)
             msg.setWindowTitle("Unit Tests Result")
             msg.setText("All tests passed." if code == 0 else "Some tests failed. See debug log for details.")
@@ -26053,9 +26015,16 @@ def show_main_menu(
     _debug_log("ui.show_main_menu: dialog closed")
 
 
+def _exec_selection_dialog(dialog, selected_value) -> Optional[str]:
+    selected = [None]
+    dialog.accepted.connect(lambda: selected.__setitem__(0, selected_value()))
+    return selected[0] if dialog.exec() else None
+
+
 def show_tree_selection_dialog(current_tree: str, woodcutting_level: int, TREE_DATA: dict, TREE_IMAGES: dict) -> Optional[str]:
     """Render a Tree Selection dialog and return the chosen tree name or None if cancelled."""
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Tree Selection")
     dialog.setMinimumWidth(400)
     layout = QVBoxLayout()
@@ -26113,17 +26082,16 @@ def show_tree_selection_dialog(current_tree: str, woodcutting_level: int, TREE_D
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-
-    if dialog.exec():
-        selected_button = button_group.checkedButton()
-        if selected_button:
-            return selected_button.tree_name
-    return None
+    return _exec_selection_dialog(
+        dialog,
+        lambda: getattr(button_group.checkedButton(), "tree_name", None),
+    )
 
 
 def show_ore_selection_dialog(current_ore: str, mining_level: int, ORE_DATA: dict, ORE_IMAGES: dict) -> Optional[str]:
     """Render an Ore Selection dialog and return the chosen ore name or None if cancelled."""
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Ore Selection")
     dialog.setMinimumWidth(400)
     layout = QVBoxLayout()
@@ -26181,16 +26149,15 @@ def show_ore_selection_dialog(current_ore: str, mining_level: int, ORE_DATA: dic
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-
-    if dialog.exec():
-        selected_button = button_group.checkedButton()
-        if selected_button:
-            return selected_button.ore_name
-    return None
+    return _exec_selection_dialog(
+        dialog,
+        lambda: getattr(button_group.checkedButton(), "ore_name", None),
+    )
 
 
 def show_bar_selection_dialog(current_bar: str, smithing_level: int, BAR_DATA: dict, BAR_IMAGES: dict) -> Optional[str]:
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Bar Selection")
     dialog.setMinimumWidth(400)
     layout = QVBoxLayout()
@@ -26243,16 +26210,15 @@ def show_bar_selection_dialog(current_bar: str, smithing_level: int, BAR_DATA: d
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-
-    if dialog.exec():
-        selected_button = button_group.checkedButton()
-        if selected_button:
-            return selected_button.bar_name
-    return None
+    return _exec_selection_dialog(
+        dialog,
+        lambda: getattr(button_group.checkedButton(), "bar_name", None),
+    )
 
 
 def show_craft_selection_dialog(current_craft: str, crafting_level: int, inventory: dict, CRAFTING_DATA: dict, CRAFTED_ITEM_IMAGES: dict) -> Optional[str]:
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Craft Selection")
     dialog.setMinimumWidth(400)
     dialog.setMinimumHeight(500)
@@ -26315,12 +26281,10 @@ def show_craft_selection_dialog(current_craft: str, crafting_level: int, invento
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-
-    if dialog.exec():
-        selected_button = button_group.checkedButton()
-        if selected_button:
-            return selected_button.item_name
-    return None
+    return _exec_selection_dialog(
+        dialog,
+        lambda: getattr(button_group.checkedButton(), "item_name", None),
+    )
 
 
 def show_skill_selection_dialog(current_skill: str, can_smelt_any_bar: bool) -> Optional[str]:
@@ -26328,6 +26292,7 @@ def show_skill_selection_dialog(current_skill: str, can_smelt_any_bar: bool) -> 
     Disables Smithing when no bars can be smelted (per provided boolean).
     """
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("Skill Selection")
     layout = QVBoxLayout()
 
@@ -26364,10 +26329,7 @@ def show_skill_selection_dialog(current_skill: str, can_smelt_any_bar: bool) -> 
 
     dialog.setLayout(layout)
     update_warning()
-
-    if dialog.exec():
-        return skill_combo.currentText()
-    return None
+    return _exec_selection_dialog(dialog, skill_combo.currentText)
 
 
 def show_review_popup():
@@ -26379,6 +26341,7 @@ def show_stats(player_data: dict, current_skill: str):
     """Render the Stats dialog using provided player_data and current_skill."""
     try:
         dialog = QDialog(mw)
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
         dialog.setWindowTitle("AnkiScape Stats")
         dialog.setMinimumWidth(700)
         dialog.setMinimumHeight(700)

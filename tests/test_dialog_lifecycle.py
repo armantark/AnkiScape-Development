@@ -1,0 +1,117 @@
+import os
+import sys
+import unittest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_ADDON_DIR = os.path.dirname(_THIS_DIR)
+if _ADDON_DIR not in sys.path:
+    sys.path.insert(0, _ADDON_DIR)
+
+try:
+    from aqt.qt import QApplication, QDialog, QMainWindow, QMessageBox, QTimer
+
+    HAS_AQT = True
+except Exception:  # pragma: no cover - environment without aqt installed
+    HAS_AQT = False
+
+import pkg_alias  # noqa: F401
+
+
+@unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
+class DialogLifecycleTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self) -> None:
+        from ankiscape.ui import ui
+
+        self.ui = ui
+        self.parent = QMainWindow()
+        self.parent.show()
+        self.parent.resize(900, 560)
+        for _ in range(4):
+            QApplication.processEvents()
+        self.old_mw = ui.mw
+        self.old_dialog = ui.QDialog
+        self.old_message_box = ui.QMessageBox
+        self.held = []
+        held = self.held
+
+        class CapturingDialog(QDialog):
+            def __init__(instance, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                held.append(instance)
+
+        class CapturingMessageBox(QMessageBox):
+            def __init__(instance, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                held.append(instance)
+
+        ui.mw = self.parent
+        ui.QDialog = CapturingDialog
+        ui.QMessageBox = CapturingMessageBox
+
+    def tearDown(self) -> None:
+        self.ui.mw = self.old_mw
+        self.ui.QDialog = self.old_dialog
+        self.ui.QMessageBox = self.old_message_box
+        self.parent.hide()
+        self.parent.deleteLater()
+        for _ in range(4):
+            QApplication.processEvents()
+
+    @staticmethod
+    def _close_modal() -> None:
+        modal = QApplication.activeModalWidget()
+        if modal is not None:
+            modal.close()
+
+    def _assert_deleted_on_close(self, open_dialog) -> None:
+        start = len(self.held)
+        QTimer.singleShot(0, self._close_modal)
+        open_dialog()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(len(self.held), start + 1)
+        with self.assertRaises(RuntimeError):
+            self.held[-1].objectName()
+
+    def test_selection_is_captured_before_the_dialog_is_destroyed(self):
+        QTimer.singleShot(
+            0,
+            lambda: QApplication.activeModalWidget().accept(),
+        )
+        selected = self.ui.show_skill_selection_dialog("Mining", True)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        self.assertEqual(selected, "Mining")
+        with self.assertRaises(RuntimeError):
+            self.held[-1].objectName()
+
+    def test_parented_dialogs_destroy_their_qt_objects_on_close(self):
+        cases = (
+            lambda: self.ui.show_level_up_dialog("Mining"),
+            lambda: self.ui.show_achievement_dialog(
+                "First Ore", {"description": "Mine one ore."}
+            ),
+            lambda: self.ui.show_error_message("Unavailable", "Try again."),
+            self.ui.show_stronghold_reward_dialog,
+            lambda: self.ui.show_tree_selection_dialog("", 1, {}, {}),
+            lambda: self.ui.show_ore_selection_dialog("", 1, {}, {}),
+            lambda: self.ui.show_bar_selection_dialog("", 1, {}, {}),
+            lambda: self.ui.show_craft_selection_dialog("", 1, {}, {}, {}),
+            lambda: self.ui.show_skill_selection_dialog("None", False),
+            lambda: self.ui.show_stats({}, "None"),
+        )
+        for open_dialog in cases:
+            with self.subTest(open_dialog=open_dialog):
+                self._assert_deleted_on_close(open_dialog)
+        self.assertEqual(len(self.held), len(cases))
+
+
+if __name__ == "__main__":
+    unittest.main()

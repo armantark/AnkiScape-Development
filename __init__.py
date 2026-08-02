@@ -36,7 +36,6 @@ from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 import copy
-import inspect
 import random
 import os
 import datetime
@@ -359,7 +358,7 @@ except Exception:
 _REVIEW_UNDO_STACK = []
 _URN_TELEPORT_UNDO_STACK = []
 _DIRECT_ACTION_UNDO_STACK = []
-_MAX_REVIEW_UNDO_SNAPSHOTS = 50
+_MAX_REVIEW_UNDO_SNAPSHOTS = 30
 _MAX_URN_TELEPORT_UNDO_SNAPSHOTS = 50
 _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS = 50
 _URN_TELEPORT_UNDO_OPERATION = "Teleport training urn"
@@ -1157,9 +1156,19 @@ def _runtime_action_context() -> RuntimeActionContext:
     )
 
 
-def _capture_player_data_snapshot():
+def _capture_player_data_snapshot(*, review_answer=False):
+    if review_answer:
+        before_player_data = dict(player_data)
+        # Achievement checks append in place; review handlers replace their other
+        # top-level values, so only this small list needs an independent copy.
+        if "completed_achievements" in player_data:
+            before_player_data["completed_achievements"] = copy.deepcopy(
+                player_data["completed_achievements"]
+            )
+    else:
+        before_player_data = copy.deepcopy(player_data)
     return {
-        "player_data": copy.deepcopy(player_data),
+        "player_data": before_player_data,
         "current_skill": current_skill,
         "random_state": random.getstate(),
     }
@@ -1192,13 +1201,6 @@ def _remember_review_award_snapshot(before_state) -> None:
     })
     if len(_REVIEW_UNDO_STACK) > _MAX_REVIEW_UNDO_SNAPSHOTS:
         del _REVIEW_UNDO_STACK[:-_MAX_REVIEW_UNDO_SNAPSHOTS]
-
-
-def _call_on_good_answer_with_snapshot(before_state) -> None:
-    if inspect.signature(on_good_answer).parameters:
-        on_good_answer(before_state)
-    else:
-        on_good_answer()
 
 
 def _save_player_data_if_anki_ready() -> None:
@@ -4828,7 +4830,7 @@ def _advance_world_events_after_review() -> None:
     player_data.update(goblin_updated)
 
 
-def on_good_answer(before_state=None):
+def on_good_answer(before_state=None, *, defer_commit=False):
     global current_skill, exp_awarded
     if exp_awarded:
         return
@@ -4878,8 +4880,9 @@ def on_good_answer(before_state=None):
             # The background clock and active action form one persisted review
             # transaction, including rejected handlers and safe recovery.
             _advance_world_events_after_review()
-            _save_player_data_if_anki_ready()
-            _remember_review_award_snapshot(before_state)
+            if not defer_commit:
+                _save_player_data_if_anki_ready()
+                _remember_review_award_snapshot(before_state)
 
     exp_awarded = True
 
@@ -4910,7 +4913,9 @@ def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown, _REVIEW_FEEDBACK_INITIAL_XP
     review_answered = card_turned and answer_shown
     successful_answer = ease > 1
-    before_state = _capture_player_data_snapshot() if review_answered else None
+    before_state = (
+        _capture_player_data_snapshot(review_answer=True) if review_answered else None
+    )
     context_xp = (
         _resolve_ignored_review_context_for_answer() if review_answered else 0.0
     )
@@ -4997,13 +5002,11 @@ def on_answer_card(self, ease, _old):
             _show_exp(context_xp)
             context_xp = 0.0
         _advance_world_events_after_review()
-        _save_player_data_if_anki_ready()
-        _remember_review_award_snapshot(before_state)
         exp_awarded = True
     elif successful_answer and review_answered and not exp_awarded and is_review_action(current_skill):
         _REVIEW_FEEDBACK_INITIAL_XP = context_xp
         context_xp = 0.0
-        _call_on_good_answer_with_snapshot(before_state)
+        on_good_answer(before_state, defer_commit=True)
         exp_awarded = True
     elif review_answered and before_state is not None:
         activity_state = player_data.get("agility_activity_state") or {}
@@ -5173,12 +5176,16 @@ def on_answer_card(self, ease, _old):
             _show_exp(context_xp)
             context_xp = 0.0
         _advance_world_events_after_review()
-        _save_player_data_if_anki_ready()
-        _remember_review_award_snapshot(before_state)
     if context_xp > 0:
         _show_exp(context_xp)
     card_turned = False
     answer_shown = False  # Reset for the next card
+    try:
+        result = _old(self, ease)
+    finally:
+        if review_answered and before_state is not None:
+            _save_player_data_if_anki_ready()
+            _remember_review_award_snapshot(before_state)
     try:
         update_review_status_badge(
             player_data, _open_activities_sheet, _open_farming_sheet
@@ -5189,7 +5196,7 @@ def on_answer_card(self, ease, _old):
     except Exception:
         pass
     _update_review_context_surface()
-    return _old(self, ease)
+    return result
 
 
 def on_card_did_show(card):

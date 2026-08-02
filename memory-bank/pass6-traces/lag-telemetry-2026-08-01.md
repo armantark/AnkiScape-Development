@@ -9,21 +9,41 @@ by string concatenation, its `main.py` still had no guard against building a
 second `SyncRoutine` per profile open, Review Heatmap still held a single
 `_render_cache` object, and AnkiConnect still never expired a silent client.
 
-The AnkiScape side was equally untouched. The findings in the standing
-`perf-audit-2026-07-31-reviewer-lag` memory are all still live on `main`: the
-per-answer `copy.deepcopy(player_data)`, the synchronous full-state
-`mw.col.set_config` write in `core/storage.py`, and the repeated
-`mw.findChildren()` traversals behind `_cleanup_extra_huds()` in `ui/ui.py`.
+The AnkiScape side was untouched when this trace was written. The `pass6-perf`
+work now closes its four audited costs. Review answers take a shallow top-level
+snapshot plus an independent copy of the one list mutated in place; carried-state
+writers copy their parent maps before assignment so undo can see those changes.
+Anki advances the card before the synchronous save and undo diff. The review undo
+cap matches Anki's 30-step history. Stale review widgets are removed by one
+consolidated scan per add-on load, and parented modal dialogs use
+`WA_DeleteOnClose`.
 
-All five dossier fixes are now applied. Each edited file has a `.prefix-backup`
-copy beside it, because those add-on directories are not version controlled and
-that is the only rollback that exists. The three items the dossier marks as owner
-decisions were deliberately left alone: the Review Heatmap history limit, the
-AnkiConnect poll interval, and whether AnkiWeb updates stay on. An AnkiWeb update
-to any of the three add-ons reverts its patch.
+Independent measurements used a normalized save containing 3,377 inventory keys
+and occupying 143,925 bytes. Across 50 warm successful Fletching answers, the
+pure-Python median was 11.33-11.43 ms on main and 9.17-9.23 ms on this branch,
+which is about 19% faster. This figure excludes Qt saving, which is the part that
+actually grew with the object tree and caused the reported slowdown.
 
-The AnkiScape hot path is still unfixed and is queued behind the pass-6 strip
-work, because both touch the same region of `ui/ui.py`.
+One full deepcopy of this save measured 2.02 ms, while the shallow review-undo
+snapshot measured 0.0013 ms. The guard test answers with `ease=1` and
+`current_skill="None"`, so its full-state deepcopy count fell from one to zero only
+for that scenario; it never reaches a skill handler. On successful skill answers,
+two full-state deep copies can remain: one in
+`_apply_safe_combat_recovery_after_review` at `__init__.py:4755`, reached from
+`__init__.py:4847-4848`, and one for `winter_storage_before` in
+`runtime/runtime_actions_carried.py:1057`. Both copies predate this branch rather
+than being introduced by it, and together they cost roughly 4 ms per answer.
+
+Qt traversals per refresh cycle measured 90 on main, two once at add-on load on
+this branch, and zero in steady state. Anki's real undo queue retained exactly 30
+surviving steps under Anki 25.09.4, which is why the review undo cap is 30.
+
+All five dossier fixes outside AnkiScape are also applied. Each edited file has a
+`.prefix-backup` copy beside it, because those add-on directories are not version
+controlled and that is the only rollback that exists. The three items the dossier
+marks as owner decisions were deliberately left alone: the Review Heatmap history
+limit, the AnkiConnect poll interval, and whether AnkiWeb updates stay on. An
+AnkiWeb update to any of the three add-ons reverts its patch.
 
 ## (b) Can telemetry identify the culprit add-on?
 
