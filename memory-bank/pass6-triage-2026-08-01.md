@@ -74,7 +74,15 @@ its day line, which left no seat for the cross-lineage verify that closure requi
    one combined number) — in the event log too.
 8. **DONE, merged at `142fca07`.** Ironman mode: one-way toggle in the Settings tab, not in GE. Chosen on first GE open;
    ironman can de-iron, regular accounts can never become ironman.
-9. Monster drop details: the disclosure triangle gives away too much. Show only what's
+9. **UNPARKED and started — this one is time-critical, which the original triage
+   missed.** A drop log records drops the player has actually observed, so every kill
+   that happens before the recorder exists is unrecorded permanently and cannot be
+   reconstructed. The owner plays from level 1 at normal pace, so each session without
+   it burns irreplaceable history. That makes it unlike every other B item, where
+   waiting costs nothing. Ordering follows from this: the recorder ships first and as
+   its own commit, and the disclosure, Monster Examine gate and Equipment control
+   follow, so the data starts accumulating even if the presentation is revised later.
+   Monster drop details: the disclosure triangle gives away too much. Show only what's
    obviously visible to the player plus a per-target **drop log** (observed drops only).
    Raw drop tables gate behind Monster Examine (the spell); optionally a pinned oldid wiki
    link for players who don't want to bother. "Advanced: keep or drop specific drops"
