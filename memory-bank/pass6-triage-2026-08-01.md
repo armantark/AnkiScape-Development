@@ -53,7 +53,16 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
 
 ## B. Implementation-ready — no design input needed
 
-5. Challenges top-level icon → https://runescape.wiki/w/File:Daily_Challenge_icon.png.
+Status after the 2026-08-01 session: items 5, 8, 10, 12 and 13 are merged, and item
+14's assets are harvested. Items 6, 7, 11 and 14's wiring were in progress at the end
+of the session. Items 9 and 15 are parked — see the note under item 15 — because each
+is a large enough feature to deserve its own agent rather than the tail of a budget.
+
+5. **DONE, merged at `97156230`.** The shipped icon had been harvested from
+   Active task.png rather than the file the owner named. Note its earliest archived
+   revision is from 2014, after the 2012-11-20 cutoff; the owner named the file
+   explicitly so it stands, but the date is recorded rather than hidden.
+   Challenges top-level icon → https://runescape.wiki/w/File:Daily_Challenge_icon.png.
 6. Simulated clock: small element left of (and above) the top skill bar, e.g. `12:00 PM`
    with tooltip `10 cards = 1 hour`. Owner wants minimal/uncluttered; styling suggestions
    welcome but the spec above is acceptable as-is.
@@ -76,7 +85,15 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
 14. Combat HUD: player health bar red like the enemy's; prayer points x/max and summoning
     points x/max beside it; wiki orb icons for all three (asset harvest: HP/prayer/summoning
     orbs, pre-EOC style).
-15. Skill-selector hybridization (spec mostly settled by owner): if a skill's target list
+15. **PARKED, with item 9.** Both are substantial features rather than fixes, and both
+    were reached only at the end of a session where Claude's verify budget was already
+    over. Starting either without a verify seat available would have landed unverified
+    work, which the closure discipline forbids. Item 9 additionally needs care: the
+    owner's wording folds together a disclosure change, a per-target drop log, a
+    Monster Examine gate and an Equipment-tab keep/drop control, which is four surfaces,
+    so it wants its own agent. For item 15, implement ONLY the spec below — the extra
+    elements to unify live in C/D.1 and are still with the design thread.
+    Skill-selector hybridization (spec mostly settled by owner): if a skill's target list
     is shorter than 25 rows, render flat; otherwise collapsible tree. Both variants get:
     row striping, the flat variant's row spacing, green highlight on the selected row,
     bold selected text. See D.1 for the "what else should be hybridized" answer.
