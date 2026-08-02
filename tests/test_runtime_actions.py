@@ -3968,10 +3968,13 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         # 29th answer buys the bank-run: handler is not called (Coal stays 28),
         # a bank-run toast fires, and the pack + churn reset.
         ctx, calls = self._mining_ctx(player_data)
+        inventory_refreshes = []
+        ctx.refresh_carried_inventory = lambda: inventory_refreshes.append(True)
         result = run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
         self.assertTrue(result)
         self.assertEqual(player_data["inventory"]["Coal"], 28)
         self.assertTrue(any("Bank run" in msg for msg in calls["activity"]))
+        self.assertEqual(inventory_refreshes, [True])
         self.assertNotIn("copper_ore", player_data.get("carried_inventory", {}))
         self.assertNotIn("copper_ore", player_data.get("carried_churn", {}))
 

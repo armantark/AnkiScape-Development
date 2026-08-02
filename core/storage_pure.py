@@ -329,7 +329,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 108
+CURRENT_CONFIG_VERSION = 109
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -1368,6 +1368,10 @@ def migrate_loaded_data(
     # v51: Red sandstone's source daily allowance is translated onto the
     # established 240-answer world day; no wall-clock value is persisted.
     data["red_sandstone_daily"] = red_sandstone_daily_state_pure(data)
+    if loaded_config_version < 109 and "ironman_account_type" not in data:
+        data["ironman_account_type"] = (
+            "ironman" if bool(data.get("ironman_mode", False)) else "regular"
+        )
     data.update(sanitize_ge_state_pure(data))
     data.pop("world_population_profile", None)
     private_targets = data.get("hunter_private_ground_targets")

@@ -1199,6 +1199,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             if not event.get("completed")
             else f"Bank run — {route_label} · arrived and restocked"
         )
+        if event.get("completed") and ctx.refresh_carried_inventory is not None:
+            ctx.refresh_carried_inventory()
         ctx.save_player_data()
         return True
 

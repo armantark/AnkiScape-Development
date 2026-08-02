@@ -3121,6 +3121,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
 
+    def test_bank_run_refreshes_collapsed_carried_header_quantity(self) -> None:
+        carried_items = []
+        dialog = self._open(
+            _make_player_data(),
+            get_carried_inventory_items=lambda: tuple(carried_items),
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_bank_tab(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        body = dialog.findChild(QLabel, "carriedInventorySummary").parentWidget()
+        self.assertFalse(header.isChecked())
+        self.assertFalse(body.isVisibleTo(body.parentWidget()))
+
+        carried_items[:] = [("Shark", 24)]
+        self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        self.assertEqual(header.text(), "▸  Carried inventory — Shark ×24")
+        self.assertFalse(body.isVisibleTo(body.parentWidget()))
+        dialog.deleteLater()
+
     def test_bank_carried_summary_counts_stackable_quantities_as_one_slot(self) -> None:
         player_data = _make_player_data()
         player_data["carried_inventory"] = {
@@ -3314,6 +3340,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
         layout: dict[str, int] = {}
         stackables = {"Coins"}
+        carried_items = [("Iron ore", 2), ("Uncut sapphire", 1)]
         saved: list[dict] = []
 
         def get_cells():
@@ -3335,10 +3362,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd,
             carried_advanced_state=True,
             get_carried_layout_cells=get_cells,
-            get_carried_inventory_items=lambda: (
-                ("Iron ore", 2),
-                ("Uncut sapphire", 1),
-            ),
+            get_carried_inventory_items=lambda: tuple(carried_items),
             carried_stackable_names=stackables,
             on_set_carried_layout_quantity=set_quantity,
             on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
@@ -3561,6 +3585,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         self.assertTrue(current_loot.isVisibleTo(dialog))
+
+        carried_items[:] = [("Shark", 12)]
+        self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
+        QApplication.processEvents()
+        loaded_fish = dialog.findChild(QPushButton, "carriedCurrentItem::Shark")
+        self.assertIsNotNone(loaded_fish)
+        self.assertTrue(
+            loaded_fish.findChild(QLabel, "carriedCellCaption").text().endswith("×12")
+        )
+        self.assertIn("Shark ×12", loaded_fish.toolTip())
 
         reopened = self._open(
             pd,
@@ -4224,13 +4258,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         dialog.deleteLater()
 
-    def test_grand_exchange_ironman_toggle_locks_only_offer_creation(self) -> None:
+    def test_settings_toggle_deirons_permanently_and_unlocks_ge(self) -> None:
         from ankiscape.logic.grand_exchange_logic import (
             apply_ge_frontend_action_pure,
+            choose_ironman_mode_pure,
             ge_frontend_projection_pure,
         )
 
-        player = _make_player_data()
+        starting_player = _make_player_data()
+        starting_player["ironman_account_type"] = "unselected"
+        player, chosen = choose_ironman_mode_pure(starting_player, True)
+        self.assertTrue(chosen["ok"])
         player["inventory"] = {"Coins": 1_000}
         catalog = {
             "Logs": {
@@ -4265,19 +4303,184 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_ge_action=action,
         )
         _open_ge_tab(dialog)
-
-        toggle = dialog.findChild(QCheckBox, "geIronmanToggle")
-        toggle.setChecked(True)
-        QApplication.processEvents()
-
-        self.assertEqual(calls[-1], ("set_ironman", {"enabled": True}))
-        self.assertTrue(player["ironman_mode"])
+        self.assertIsNone(dialog.findChild(QCheckBox, "geIronmanToggle"))
         self.assertFalse(dialog.findChild(QListWidget, "geItemList").isEnabled())
-        self.assertFalse(dialog.findChild(QWidget, "geOfferEditor").isEnabled())
-        self.assertTrue(toggle.isEnabled())
+
+        toggle = dialog.findChild(QCheckBox, "settingsIronmanToggle")
+        self.assertTrue(toggle.isChecked())
+        original_question = self._ui.QMessageBox.question
+        try:
+            self._ui.QMessageBox.question = (
+                lambda *a, **k: self._ui.QMessageBox.StandardButton.Yes
+            )
+            toggle.setChecked(False)
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.question = original_question
+
+        self.assertEqual(calls[-1], ("set_ironman", {"enabled": False}))
+        self.assertFalse(player["ironman_mode"])
+        self.assertEqual(player["ironman_account_type"], "regular")
+        self.assertFalse(toggle.isEnabled())
+        self.assertTrue(dialog.findChild(QListWidget, "geItemList").isEnabled())
         self.assertIn(
-            "Ironman mode",
-            dialog.findChild(QLabel, "geStatusLabel").text(),
+            "never become Ironman",
+            dialog.findChild(QLabel, "settingsIronmanHelp").text(),
+        )
+        dialog.deleteLater()
+
+    def test_first_ge_open_records_regular_choice_permanently(self) -> None:
+        from ankiscape.logic.grand_exchange_logic import (
+            apply_ge_frontend_action_pure,
+            ge_frontend_projection_pure,
+        )
+
+        player = _make_player_data()
+        player["ironman_account_type"] = "unselected"
+        catalog = {}
+        calls = []
+
+        def projection():
+            return ge_frontend_projection_pure(player, item_catalog=catalog)
+
+        def action(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            updated, info = apply_ge_frontend_action_pure(
+                player, action_id, payload, item_catalog=catalog
+            )
+            if info.get("ok"):
+                player.clear()
+                player.update(updated)
+            return {**info, "projection": projection()}
+
+        dialog = self._open(
+            player,
+            get_ge_projection=projection,
+            on_ge_action=action,
+        )
+        original_exec = self._ui.QMessageBox.exec
+        try:
+            def choose_regular(prompt):
+                prompt.button(QMessageBox.StandardButton.No).click()
+                return prompt.result()
+
+            self._ui.QMessageBox.exec = choose_regular
+            _open_ge_tab(dialog)
+        finally:
+            self._ui.QMessageBox.exec = original_exec
+
+        self.assertEqual(calls, [("choose_ironman", {"enabled": False})])
+        self.assertEqual(player["ironman_account_type"], "regular")
+        tabs = _find_main_tabs(dialog)
+        tabs.setCurrentIndex(
+            next(i for i in range(tabs.count()) if tabs.tabText(i) == "Settings")
+        )
+        QApplication.processEvents()
+        self.assertFalse(
+            dialog.findChild(QCheckBox, "settingsIronmanToggle").isEnabled()
+        )
+        self.assertIn(
+            "never become Ironman",
+            dialog.findChild(QLabel, "settingsIronmanHelp").text(),
+        )
+        dialog.deleteLater()
+
+    def test_first_ge_open_defers_without_recording_on_cancel_escape_or_close(self) -> None:
+        from ankiscape.logic.grand_exchange_logic import ge_frontend_projection_pure
+
+        for exit_route in ("button", "escape", "close"):
+            with self.subTest(exit_route=exit_route):
+                player = _make_player_data()
+                player["ironman_account_type"] = "unselected"
+                calls = []
+                prompt_count = 0
+
+                def projection():
+                    return ge_frontend_projection_pure(player, item_catalog={})
+
+                def action(action_id, payload):
+                    calls.append((action_id, dict(payload)))
+                    return {"ok": True, "projection": projection()}
+
+                dialog = self._open(
+                    player,
+                    get_ge_projection=projection,
+                    on_ge_action=action,
+                )
+                dialog.show()
+                dialog.resize(900, 560)
+                for _ in range(4):
+                    QApplication.processEvents()
+
+                original_exec = self._ui.QMessageBox.exec
+                original_question = self._ui.QMessageBox.question
+                try:
+                    def defer_choice(prompt):
+                        nonlocal prompt_count
+                        prompt_count += 1
+                        prompt.show()
+                        prompt.resize(420, 220)
+                        for _ in range(4):
+                            QApplication.processEvents()
+                        decide_later = prompt.button(QMessageBox.StandardButton.Cancel)
+                        self.assertEqual(decide_later.text(), "Decide later")
+                        self.assertIs(prompt.escapeButton(), decide_later)
+                        if exit_route == "button":
+                            decide_later.click()
+                        elif exit_route == "escape":
+                            QTest.keyClick(prompt, Qt.Key.Key_Escape)
+                        else:
+                            prompt.close()
+                        for _ in range(4):
+                            QApplication.processEvents()
+                        return prompt.result()
+
+                    self._ui.QMessageBox.exec = defer_choice
+                    self._ui.QMessageBox.question = (
+                        lambda *args, **kwargs: QMessageBox.StandardButton.No
+                    )
+                    _open_ge_tab(dialog)
+                    self.assertEqual(calls, [])
+                    self.assertEqual(player["ironman_account_type"], "unselected")
+                    self.assertNotEqual(
+                        _find_main_tabs(dialog).tabText(
+                            _find_main_tabs(dialog).currentIndex()
+                        ),
+                        "Grand Exchange",
+                    )
+                    _open_ge_tab(dialog)
+                finally:
+                    self._ui.QMessageBox.exec = original_exec
+                    self._ui.QMessageBox.question = original_question
+
+                self.assertEqual(prompt_count, 2)
+                self.assertEqual(calls, [])
+                self.assertEqual(player["ironman_account_type"], "unselected")
+                dialog.deleteLater()
+
+    def test_bank_opens_the_shared_grand_exchange(self) -> None:
+        player = _make_player_data()
+        dialog = self._open(player)
+        _open_bank_tab(dialog)
+        tabs = _find_main_tabs(dialog)
+        original_question = self._ui.QMessageBox.question
+        try:
+            self._ui.QMessageBox.question = (
+                lambda *a, **k: self._ui.QMessageBox.StandardButton.No
+            )
+            dialog.findChild(QPushButton, "bankGrandExchangeButton").click()
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.question = original_question
+
+        self.assertEqual(tabs.tabText(tabs.currentIndex()), "Grand Exchange")
+        self.assertEqual(
+            sum(
+                1
+                for index in range(tabs.count())
+                if tabs.tabText(index) == "Grand Exchange"
+            ),
+            1,
         )
         dialog.deleteLater()
 
@@ -15089,12 +15292,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         autocast = dialog.findChild(QComboBox, "combatSpellCombo")
         advanced_toggle = dialog.findChild(QToolButton, "combatAdvancedPresetToggle")
         advanced = dialog.findChild(QWidget, "combatAdvancedPresetPanel")
+        casual_auto_bury = dialog.findChild(
+            QCheckBox, "combatCasualAutoPrayerTrainingCheck"
+        )
+        advanced_auto_bury = dialog.findChild(
+            QCheckBox, "combatAutoPrayerTrainingCheck"
+        )
         self.assertTrue(casual.isVisible())
         self.assertTrue(autocast.isVisible())
+        self.assertTrue(casual_auto_bury.isVisible())
         self.assertFalse(advanced.isVisible())
+        casual_auto_bury.setChecked(True)
+        QApplication.processEvents()
+        self.assertTrue(advanced_auto_bury.isChecked())
+        self.assertEqual(
+            self._prayer_config_calls[-1],
+            ("combat_auto_prayer_training", True),
+        )
         advanced_toggle.click()
         QApplication.processEvents()
         self.assertTrue(advanced.isVisible())
+        advanced_auto_bury.setChecked(False)
+        QApplication.processEvents()
+        self.assertFalse(casual_auto_bury.isChecked())
+        self.assertEqual(
+            self._prayer_config_calls[-1],
+            ("combat_auto_prayer_training", False),
+        )
         self.assertLessEqual(advanced_toggle.geometry().bottom(), dialog.height())
         self.assertIsNotNone(dialog.findChild(QCheckBox, "combatVengeanceCheck"))
         self.assertIsNotNone(dialog.findChild(QComboBox, "combatSpellbookSwapCombo"))

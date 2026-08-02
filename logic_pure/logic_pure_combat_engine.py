@@ -2500,6 +2500,11 @@ def request_combat_bank_run_now_pure(player_data):
     data.update(sanitize_combat_state_pure(data))
     if combat_has_active_encounter_pure(data):
         return data, False, "An active fight must end before making a bank run."
+    active_run = data.get("combat_bank_run")
+    if isinstance(active_run, Mapping) and _non_negative_int(
+        active_run.get("reviews_remaining", 0), 0
+    ) > 0:
+        return data, True, ""
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     data["combat_bank_run"] = {
         "reviews_remaining": COMBAT_BANK_RUN_REVIEWS,
