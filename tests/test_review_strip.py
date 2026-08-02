@@ -14,6 +14,7 @@ import os
 import sys
 import types
 import unittest
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -29,6 +30,7 @@ try:
         QLabel,
         QListWidget,
         QPoint,
+        QMainWindow,
         QProgressBar,
         QPushButton,
         Qt,
@@ -69,9 +71,11 @@ class ReviewStripTest(unittest.TestCase):
         from ankiscape.ui import ui
 
         self.ui = ui
-        self.parent = QWidget()
-        self.parent.resize(1000, 700)
-        self.parent.mainLayout = QVBoxLayout(self.parent)
+        self.parent = QMainWindow()
+        self.central = QWidget(self.parent)
+        self.parent.setCentralWidget(self.central)
+        self.parent.form = types.SimpleNamespace(centralwidget=self.central)
+        self.parent.mainLayout = QVBoxLayout()
         self.parent.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.parent.mainLayout.setSpacing(0)
         self.card_web = QWidget(self.parent)
@@ -81,9 +85,11 @@ class ReviewStripTest(unittest.TestCase):
         self.bottom_web.setFixedHeight(72)
         self.parent.mainLayout.addWidget(self.card_web, 1)
         self.parent.mainLayout.addWidget(self.bottom_web, 0)
+        self.central.setLayout(self.parent.mainLayout)
         self.parent.bottomWeb = self.bottom_web
         self.parent.reviewer = types.SimpleNamespace(web=self.card_web)
         self.parent.show()
+        self.parent.resize(1000, 700)
         for _ in range(4):
             QApplication.processEvents()
         self.old_mw = ui.mw
@@ -93,6 +99,7 @@ class ReviewStripTest(unittest.TestCase):
         ui._REVIEW_HUD = None
         ui._REVIEW_STRIP = None
         ui._BANK_RUN_BUTTON = None
+        ui._MAIN_MENU_BUTTON = None
         ui._REVIEW_CONTEXT_STRIP = None
         ui._DND_BADGE = None
         ui._FARMING_BADGE = None
@@ -119,6 +126,7 @@ class ReviewStripTest(unittest.TestCase):
         self.ui._REVIEW_HUD = None
         self.ui._REVIEW_STRIP = None
         self.ui._BANK_RUN_BUTTON = None
+        self.ui._MAIN_MENU_BUTTON = None
         self.ui._REVIEW_CONTEXT_STRIP = None
         self.ui._STATUS_POPOVER = None
         self.ui._STATUS_POPOVER_BADGE = None
@@ -289,6 +297,7 @@ class ReviewStripTest(unittest.TestCase):
                     self.ui._DND_BADGE,
                     self.ui._FARMING_BADGE,
                     hud,
+                    self.ui._MAIN_MENU_BUTTON,
                 )
                 for left, right in zip(seats, seats[1:]):
                     self.assertLessEqual(
@@ -312,6 +321,43 @@ class ReviewStripTest(unittest.TestCase):
         self.assertEqual(bank.styleSheet(), "")
         self.assertEqual(bank.text(), "Bank run")
         self.assertEqual(bank.size(), bank.sizeHint())
+
+    def test_native_strip_owns_the_main_menu_button_and_routes_its_click(self) -> None:
+        state = self._state()
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        hud.set_data(state, "Mining")
+        with patch(
+            "ankiscape.core.injectors.open_main_menu_from_reviewer"
+        ) as open_menu:
+            self.ui.update_review_status_badge(state)
+            for _ in range(4):
+                QApplication.processEvents()
+
+            button = self.ui._MAIN_MENU_BUTTON
+            self.assertIs(button.parentWidget(), self.ui._REVIEW_STRIP)
+            self.assertFalse(button.icon().isNull())
+            self.assertEqual(button.toolTip(), "AnkiScape")
+            self.assertEqual(button.accessibleName(), "AnkiScape")
+            button.click()
+            QApplication.processEvents()
+        open_menu.assert_called_once_with(False)
+
+    def test_native_menu_button_honours_the_floating_widget_setting(self) -> None:
+        config = {"ankiscape_floating_enabled": False}
+        self.ui.get_config_bool = lambda key, default=True: config.get(key, default)
+        self.ui.ensure_review_strip()
+        QApplication.processEvents()
+
+        button = self.ui._MAIN_MENU_BUTTON
+        self.assertFalse(button.property("ankiscapeOverlayRequested"))
+        self.assertTrue(button.isHidden())
+
+        config["ankiscape_floating_enabled"] = True
+        self.ui.ensure_review_strip()
+        QApplication.processEvents()
+        self.assertTrue(button.property("ankiscapeOverlayRequested"))
+        self.assertFalse(button.isHidden())
 
     # ---- the split popovers ---------------------------------------------
 
@@ -538,6 +584,72 @@ class ReviewStripTest(unittest.TestCase):
         self.assertFalse(event.geometry().intersects(self.bottom_web.geometry()))
         self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
 
+    def test_drawer_reparents_when_bottom_web_moves_into_centralwidget(self) -> None:
+        late_window = QMainWindow()
+        late_bottom_web = QWidget(late_window)
+        late_window.bottomWeb = late_bottom_web
+        self.ui.mw = late_window
+        try:
+            self.ui.ensure_review_fill_drawer()
+            self.ui.ensure_review_event_log_drawer()
+            drawers = (self.ui._FILL_DRAWER, self.ui._EVENT_LOG_DRAWER)
+            for drawer in drawers:
+                self.assertIs(drawer.parentWidget(), late_window)
+
+            central = QWidget(late_window)
+            late_window.setCentralWidget(central)
+            late_window.mainLayout = QVBoxLayout()
+            late_window.mainLayout.addWidget(QWidget(late_window), 1)
+            late_window.mainLayout.addWidget(late_bottom_web, 0)
+            central.setLayout(late_window.mainLayout)
+            late_window.show()
+            late_window.resize(760, 560)
+            for _ in range(4):
+                QApplication.processEvents()
+
+            self.ui.ensure_review_fill_drawer()
+            self.ui.ensure_review_event_log_drawer()
+            for drawer in drawers:
+                self.assertIs(drawer.parentWidget(), central)
+        finally:
+            self.ui.mw = self.parent
+            late_window.hide()
+            late_window.deleteLater()
+
+    def test_drawer_sibling_stacking_follows_each_toggle_state(self) -> None:
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        state = self._event_log_state(2)
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_event_log_drawer(state)
+        self.ui.update_review_fill_drawer(self._open_offer(state))
+        for _ in range(4):
+            QApplication.processEvents()
+
+        for drawer in (self.ui._EVENT_LOG_DRAWER, self.ui._FILL_DRAWER):
+            with self.subTest(drawer=drawer.objectName()):
+                parent = self.bottom_web.parentWidget()
+                self.assertIs(drawer.parentWidget(), parent)
+                siblings = parent.children()
+                self.assertLess(
+                    siblings.index(drawer), siblings.index(self.bottom_web)
+                )
+                drawer.toggle.click()
+                for _ in range(3):
+                    QApplication.processEvents()
+                siblings = parent.children()
+                self.assertGreater(
+                    siblings.index(drawer), siblings.index(self.bottom_web)
+                )
+                drawer.toggle.click()
+                for _ in range(3):
+                    QApplication.processEvents()
+                siblings = parent.children()
+                self.assertLess(
+                    siblings.index(drawer), siblings.index(self.bottom_web)
+                )
+
     def test_two_expanded_drawers_stay_reachable_at_reviewer_height(self) -> None:
         self.parent.resize(760, 560)
         hud = self.ui.ReviewHUD(self.parent)
@@ -635,6 +747,20 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
         self.assertEqual(drawer.rows.count(), 20)
+
+    def test_event_log_row_density_stays_compact_for_the_default_ten(self) -> None:
+        self.parent.resize(760, 560)
+        self.ui.update_review_event_log_drawer(self._event_log_state(10))
+        for _ in range(4):
+            QApplication.processEvents()
+        drawer = self.ui._EVENT_LOG_DRAWER
+        drawer.toggle.click()
+        for _ in range(6):
+            QApplication.processEvents()
+
+        self.assertEqual(drawer.rows.count(), 10)
+        self.assertLessEqual(drawer.rows.item(0).sizeHint().height(), 18)
+        self.assertEqual(drawer.height(), 186)
 
     def test_xp_rows_are_not_coloured_like_ge_status(self) -> None:
         state = self._state()

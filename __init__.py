@@ -1610,6 +1610,7 @@ def _on_main_menu(
         # Re-inject on current screens for immediate effect
         try:
             _inject_reviewer_floating_button()
+            ui.ensure_review_strip()
         except Exception:
             pass
         try:

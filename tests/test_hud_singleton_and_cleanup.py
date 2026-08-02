@@ -12,6 +12,7 @@ class FakeQWidget:
         self._hidden = False
         self._deleted = False
         self._raised = False
+        self._properties = {}
 
     # Qt-like API surface used in ui.py
     def setParent(self, p):
@@ -29,6 +30,12 @@ class FakeQWidget:
 
     def hide(self):
         self._hidden = True
+
+    def setVisible(self, visible):
+        self._hidden = not visible
+
+    def setProperty(self, name, value):
+        self._properties[name] = value
 
     def deleteLater(self):
         self._deleted = True
@@ -100,6 +107,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self._bak_DND_BADGE = getattr(_ui, "_DND_BADGE", None)
         self._bak_FARMING_BADGE = getattr(_ui, "_FARMING_BADGE", None)
         self._bak_BANK_RUN_BUTTON = getattr(_ui, "_BANK_RUN_BUTTON", None)
+        self._bak_MAIN_MENU_BUTTON = getattr(_ui, "_MAIN_MENU_BUTTON", None)
         self._bak_ReviewHUD = getattr(_ui, "ReviewHUD", None)
         # Install fake Qt into sys.modules where ui._cleanup_extra_huds imports from
         self.fake_qt = types.ModuleType("aqt.qt")
@@ -115,6 +123,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         _ui._DND_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._FARMING_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._BANK_RUN_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
+        _ui._MAIN_MENU_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
         _ui.ReviewHUD = FakeHUD  # ensure construction doesn't require real Qt
         # Prepare stray top-level HUD and duplicate child HUD
         self.stray_top = FakeHUD(None)
@@ -130,6 +139,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self.ui._DND_BADGE = self._bak_DND_BADGE
         self.ui._FARMING_BADGE = self._bak_FARMING_BADGE
         self.ui._BANK_RUN_BUTTON = self._bak_BANK_RUN_BUTTON
+        self.ui._MAIN_MENU_BUTTON = self._bak_MAIN_MENU_BUTTON
         if self._bak_ReviewHUD is not None:
             self.ui.ReviewHUD = self._bak_ReviewHUD
         # Clean fake Qt
