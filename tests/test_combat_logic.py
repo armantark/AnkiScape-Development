@@ -41,6 +41,7 @@ from ankiscape.data.combat_data import (
     ZOMBIE_LEVEL_25_DROPS,
 )
 from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import migrate_loaded_data
 from ankiscape.data.livid_farm_data import ARCANE_CAPACITOR_CHARGED
 from ankiscape.logic_pure.logic_pure import (
     _combat_apply_pvm_death,
@@ -3786,9 +3787,21 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(result["killed"])
         self.assertEqual(new_data["combat_kill_counts"], {"cow_calf": 1})
+        self.assertEqual(
+            new_data["combat_observed_drops"]["cow_calf"],
+            {
+                "Bones": {"times_seen": 1, "quantity_seen": 1},
+                "Raw beef": {"times_seen": 1, "quantity_seen": 1},
+                "Cowhide": {"times_seen": 1, "quantity_seen": 1},
+            },
+        )
         self.assertEqual(new_data["inventory"]["Bones"], 1)
         self.assertEqual(new_data["inventory"]["Raw beef"], 1)
         self.assertEqual(new_data["inventory"]["Cowhide"], 1)
+        reloaded = migrate_loaded_data(new_data, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            reloaded["combat_observed_drops"], new_data["combat_observed_drops"]
+        )
 
     def test_combat_burst_kills_once_awards_xp_and_rolls_source_backed_drops(self):
         player = _player()
@@ -3831,6 +3844,10 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(result["killed"])
         self.assertFalse(result["died"])
         self.assertEqual(new_data["combat_kill_counts"], {"chicken": result["kills"]})
+        self.assertEqual(
+            new_data["combat_observed_drops"]["chicken"]["Bones"],
+            {"times_seen": result["kills"], "quantity_seen": result["kills"]},
+        )
         # Each defeated chicken drops one guaranteed Bones, so the aggregated
         # loot scales with the kill count.
         self.assertEqual(new_data["inventory"]["Bones"], result["kills"])
@@ -5623,6 +5640,10 @@ class CombatLogicTest(unittest.TestCase):
             {"Ice cooler": 1},
         )
         self.assertEqual(finished["combat_kill_counts"], {"desert_lizard": 1})
+        self.assertEqual(
+            finished["combat_observed_drops"]["desert_lizard"],
+            {"Bones": {"times_seen": 1, "quantity_seen": 1}},
+        )
         self.assertEqual(finished["inventory"]["Bones"], 1)
         self.assertEqual(finished["combat_encounter"], {})
         self.assertEqual(finished["combat_action"], "attack")

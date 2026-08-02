@@ -202,6 +202,7 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_ranged_weapon_spec,
     _combat_reclaim_items_to_player,
     _combat_required_rune_cost_pure,
+    _record_combat_observed_drops_pure,
     _combat_resolve_melee_slot,
     _combat_restricted_weapon_locked_reasons,
     _combat_roll_drop_table,
@@ -420,6 +421,7 @@ from .logic_pure_combat_model import (
     _combat_ranged_weapon_spec,
     _combat_reclaim_items_to_player,
     _combat_required_rune_cost_pure,
+    _record_combat_observed_drops_pure,
     _combat_resolve_melee_slot,
     _combat_roll_drops,
     _combat_selected_magic_spell,
@@ -1771,6 +1773,7 @@ def apply_combat_burst_pure(
                     kill_drops,
                     bool(data.get("combat_auto_prayer_training")),
                 )
+                _record_combat_observed_drops_pure(data, target_id, kill_drops)
                 if passive_prayer_xp > 0:
                     xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks
@@ -2145,6 +2148,7 @@ def apply_combat_burst_pure(
                     kill_drops,
                     bool(data.get("combat_auto_prayer_training")),
                 )
+                _record_combat_observed_drops_pure(data, target_id, kill_drops)
                 if passive_prayer_xp > 0:
                     xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks

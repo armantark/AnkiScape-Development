@@ -287,6 +287,11 @@ COMBAT_SPECIAL_ATTACK_MAX_ENERGY = 100
 COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS = 10
 
 
+COMBAT_OBSERVED_DROP_TARGET_LIMIT = 1024
+COMBAT_OBSERVED_DROP_ITEM_LIMIT = 256
+COMBAT_OBSERVED_DROP_COUNT_LIMIT = 2_147_483_647
+
+
 COMBAT_STAT_DRAIN_RECOVERY_TICKS = 100
 
 
@@ -600,6 +605,7 @@ def default_combat_state_pure():
         "combat_bank_run": {},
         "combat_encounter": {},
         "combat_kill_counts": {},
+        "combat_observed_drops": {},
         "combat_last_result": {},
         "combat_grave": {},
         "death_office": {},
@@ -1023,6 +1029,68 @@ def _combat_apply_wilderness_ambush(
     }
 
 
+def _sanitize_combat_observed_drops(raw_log):
+    if not isinstance(raw_log, Mapping):
+        return {}
+    cleaned = {}
+    for target_id, raw_items in raw_log.items():
+        if len(cleaned) >= COMBAT_OBSERVED_DROP_TARGET_LIMIT:
+            break
+        if not isinstance(target_id, str) or not target_id or not isinstance(raw_items, Mapping):
+            continue
+        items = {}
+        for item_name, raw_observation in raw_items.items():
+            if len(items) >= COMBAT_OBSERVED_DROP_ITEM_LIMIT:
+                break
+            if not isinstance(item_name, str) or not item_name or not isinstance(raw_observation, Mapping):
+                continue
+            times_seen = min(
+                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
+                _non_negative_int(raw_observation.get("times_seen", 0), 0),
+            )
+            quantity_seen = min(
+                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
+                _non_negative_int(raw_observation.get("quantity_seen", 0), 0),
+            )
+            if times_seen > 0 and quantity_seen > 0:
+                items[item_name] = {
+                    "times_seen": times_seen,
+                    "quantity_seen": quantity_seen,
+                }
+        if items:
+            cleaned[target_id] = items
+    return cleaned
+
+
+def _record_combat_observed_drops_pure(data, target_id, drops):
+    if not isinstance(target_id, str) or not target_id or not isinstance(drops, Mapping):
+        return
+    observed = _sanitize_combat_observed_drops(data.get("combat_observed_drops"))
+    target_drops = dict(observed.get(target_id, {}) or {})
+    for item_name, raw_quantity in drops.items():
+        if not isinstance(item_name, str) or not item_name:
+            continue
+        quantity = _non_negative_int(raw_quantity, 0)
+        if quantity <= 0:
+            continue
+        if item_name not in target_drops and len(target_drops) >= COMBAT_OBSERVED_DROP_ITEM_LIMIT:
+            continue
+        previous = target_drops.get(item_name, {}) or {}
+        target_drops[item_name] = {
+            "times_seen": min(
+                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
+                _non_negative_int(previous.get("times_seen", 0), 0) + 1,
+            ),
+            "quantity_seen": min(
+                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
+                _non_negative_int(previous.get("quantity_seen", 0), 0) + quantity,
+            ),
+        }
+    if target_drops and (target_id in observed or len(observed) < COMBAT_OBSERVED_DROP_TARGET_LIMIT):
+        observed[target_id] = target_drops
+    data["combat_observed_drops"] = observed
+
+
 def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     style_data = style_data or COMBAT_ATTACK_STYLE_DATA
@@ -1147,6 +1215,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
             for target_id, count in kill_counts.items()
             if isinstance(target_id, str)
         },
+        "combat_observed_drops": _sanitize_combat_observed_drops(
+            player_data.get("combat_observed_drops")
+        ),
         "combat_last_result": dict(player_data.get("combat_last_result", {}) or {}),
         "combat_grave": _sanitize_combat_grave_state(player_data.get("combat_grave", {}) or {}),
         "death_office": _sanitize_death_office_state(player_data.get("death_office", {}) or {}),
@@ -2675,6 +2746,7 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
             + _non_negative_int(amount, 0)
         )
     data["inventory"] = inventory
+    _record_combat_observed_drops_pure(data, target_id, kill_drops)
     kill_counts = dict(data.get("combat_kill_counts", {}) or {})
     kill_counts[target_id] = _non_negative_int(kill_counts.get(target_id, 0), 0) + 1
     data["combat_kill_counts"] = kill_counts

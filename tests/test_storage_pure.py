@@ -1084,6 +1084,55 @@ class TestStoragePure(unittest.TestCase):
             completed,
         )
 
+    def test_v110_adds_and_sanitizes_observed_drop_log_without_disturbing_save(self):
+        prior_save = {
+            "config_version": 109,
+            "attack_exp": 4321.0,
+            "inventory": {"Bronze sword": 1, "Bones": 7},
+            "equipment": {"weapon": "Bronze sword"},
+            "current_combat_target": "cow_calf",
+            "combat_kill_counts": {"cow_calf": 7},
+            "quests": {"rune_mysteries": {"completed": True}},
+            "achievement_progress": {
+                "version": 1,
+                "skills": {"combat": {"actions": {}, "outputs": {}}},
+            },
+        }
+
+        migrated = migrate_loaded_data(prior_save, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["combat_observed_drops"], {})
+        self.assertEqual(migrated["attack_exp"], 4321.0)
+        self.assertEqual(migrated["inventory"]["Bones"], 7)
+        self.assertEqual(migrated["equipment"], {"weapon": "Bronze sword"})
+        self.assertEqual(migrated["combat_kill_counts"], {"cow_calf": 7})
+        self.assertTrue(migrated["quests"]["rune_mysteries"]["completed"])
+        self.assertEqual(
+            migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS), migrated
+        )
+
+        malformed = dict(migrated)
+        malformed["combat_observed_drops"] = {
+            "cow_calf": {
+                "Bones": {"times_seen": "3", "quantity_seen": "7"},
+                "Cowhide": {"times_seen": -1, "quantity_seen": 2},
+                "": {"times_seen": 1, "quantity_seen": 1},
+                "Raw beef": "bad",
+            },
+            "bad": "not an item map",
+            123: {"Coins": {"times_seen": 1, "quantity_seen": 1}},
+        }
+        sanitized = migrate_loaded_data(malformed, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            sanitized["combat_observed_drops"],
+            {
+                "cow_calf": {
+                    "Bones": {"times_seen": 3, "quantity_seen": 7}
+                }
+            },
+        )
+
     def test_migrate_equipment_state_and_removes_owned_equipment(self):
         migrated = migrate_loaded_data(
             {
