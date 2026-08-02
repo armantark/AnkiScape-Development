@@ -41,9 +41,12 @@ from ankiscape.data.achievement_cape_data import (
     master_cape_definitions,
     skillcape_definitions,
 )
+from ankiscape.data.circus_data import CIRCUS_REWARDS
+from ankiscape.data.court_cases_data import COURT_CASE_ORDER
 from ankiscape.data.music_log_data import MUSIC_TRACKS
 from ankiscape.data.quest_data import QUESTS
 from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS
+from ankiscape.data.stronghold_player_safety_data import STRONGHOLD_LANDMARKS
 from ankiscape.logic.achievement_diary_logic import (
     achievement_cabinet_view_pure,
     apply_achievement_diary_command_pure,
@@ -69,6 +72,11 @@ from ankiscape.runtime.runtime_actions import handle_cooking_answer
 # Reuse the existing RuntimeActionContext harness rather than keeping a second
 # copy of it in step with the real one.
 from test_runtime_actions import _context
+
+
+CIRCUS_COSTUME_NAMES = tuple(
+    str(reward["display_name"]) for reward in CIRCUS_REWARDS.values()
+)
 
 
 def _player(**overrides) -> dict:
@@ -227,7 +235,11 @@ class MasterCapeTest(unittest.TestCase):
             EQUIPMENT_DATA[cape.cape].skill_requirements,
             (("dungeoneering", DUNGEONEERING_MASTER_CAPE_LEVEL),),
         )
-        self.assertEqual(EQUIPMENT_DATA[cape.cape].bonuses.prayer, 4)
+        equipment = EQUIPMENT_DATA[cape.cape]
+        self.assertEqual(equipment.bonuses.prayer, 4)
+        self.assertEqual(equipment.source_status, "items.yml equipment block")
+        self.assertIn("bonuses reused from data/cfg/items.yml", equipment.source)
+        self.assertNotIn("item-definition bonus params", equipment.source_status)
 
         player = _player(dungeoneering_level=DUNGEONEERING_MASTER_CAPE_LEVEL - 1)
         player["inventory"] = {"Coins": DUNGEONEERING_MASTER_CAPE_PRICE}
@@ -392,6 +404,9 @@ def _completionist_ready(player: dict) -> dict:
     stronghold = dict(player["stronghold_of_security"])
     stronghold["completed"] = True
     player["stronghold_of_security"] = stronghold
+    player_safety = dict(player["stronghold_player_safety"])
+    player_safety["stage"] = len(STRONGHOLD_LANDMARKS)
+    player["stronghold_player_safety"] = player_safety
     player["shattered_heart"]["replica_pairs_added"] = [
         skill.id for skill in SHATTERED_HEART_SKILLS
     ]
@@ -433,23 +448,77 @@ class CompletionistRegistryTest(unittest.TestCase):
 
     def test_shipped_feature_counters_activate_without_cape_logic_edits(self):
         player = _player()
-        rows = {
+        regular = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
+        trimmed = {
             row["id"]: row for row in cape_view_pure(player)["trimmed_completionist"]
         }
-        for row_id in ("dahmaroc_statue", "dominion_tower_top", "sunfreet"):
-            self.assertFalse(rows[row_id]["latent"], row_id)
-            self.assertFalse(rows[row_id]["met"], row_id)
+        self.assertFalse(regular["player_safety"]["latent"])
+        self.assertFalse(regular["player_safety"]["met"])
+        for row_id in (
+            "court_cases",
+            "circus_clothing",
+            "dahmaroc_statue",
+            "dominion_tower_top",
+            "sunfreet",
+        ):
+            self.assertFalse(trimmed[row_id]["latent"], row_id)
+            self.assertFalse(trimmed[row_id]["met"], row_id)
 
+        player["stronghold_player_safety"]["stage"] = len(STRONGHOLD_LANDMARKS)
+        player["court_cases_completed_ids"] = list(COURT_CASE_ORDER)
+        player["circus"]["unlocked_costumes"] = list(CIRCUS_COSTUME_NAMES)
         player["shattered_heart"]["replica_pairs_added"] = [
             skill.id for skill in SHATTERED_HEART_SKILLS
         ]
         player["dominion_tower"]["marker_stage"] = 4
         player["dominion_tower"]["specials_done"] = ["the_fire_it_burns_easy"]
-        rows = {
+        regular = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
+        trimmed = {
             row["id"]: row for row in cape_view_pure(player)["trimmed_completionist"]
         }
-        for row_id in ("dahmaroc_statue", "dominion_tower_top", "sunfreet"):
-            self.assertTrue(rows[row_id]["met"], row_id)
+        self.assertTrue(regular["player_safety"]["met"])
+        self.assertEqual(
+            (trimmed["court_cases"]["have"], trimmed["court_cases"]["need"]),
+            (len(COURT_CASE_ORDER), len(COURT_CASE_ORDER)),
+        )
+        self.assertEqual(
+            (trimmed["circus_clothing"]["have"], trimmed["circus_clothing"]["need"]),
+            (len(CIRCUS_REWARDS), len(CIRCUS_REWARDS)),
+        )
+        for row_id in (
+            "court_cases",
+            "circus_clothing",
+            "dahmaroc_statue",
+            "dominion_tower_top",
+            "sunfreet",
+        ):
+            self.assertTrue(trimmed[row_id]["met"], row_id)
+
+    def test_newly_activated_rows_gate_both_cape_purchases(self):
+        player = _completionist_ready(_player())
+        player["stronghold_player_safety"]["stage"] = len(STRONGHOLD_LANDMARKS) - 1
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["completionist"].price}
+        _same, ok, info = _buy(player, "completionist")
+        self.assertFalse(ok)
+        self.assertIn("Stronghold of Player Safety", info["reason"])
+
+        player = _completionist_ready(_player())
+        player["conquest_rating"] = 1_250
+        player["mobilising_armies_rank"] = 401
+        player["castle_wars_games_played"] = 5_000
+        player["court_cases_completed_ids"] = list(COURT_CASE_ORDER[:-1])
+        costumes = list(CIRCUS_COSTUME_NAMES)
+        player["circus"]["unlocked_costumes"] = costumes
+        player["inventory"] = {"Completionist cape": 1}
+        _same, ok, info = _buy(player, "trimmed_completionist")
+        self.assertFalse(ok)
+        self.assertIn("Complete every court case", info["reason"])
+
+        player["court_cases_completed_ids"] = list(COURT_CASE_ORDER)
+        player["circus"]["unlocked_costumes"] = costumes[:-1]
+        _same, ok, info = _buy(player, "trimmed_completionist")
+        self.assertFalse(ok)
+        self.assertIn("Obtain every piece of circus clothing", info["reason"])
 
     def test_the_live_castle_wars_counter_gates_the_authentic_trim_scale(self):
         player = _player(castle_wars_games_played=4_999)
@@ -519,8 +588,8 @@ class PrestigeCapeTest(unittest.TestCase):
         player = _wear(player, "Quest point cape")
         self.assertEqual(player["equipment"]["cape"], "Quest point cape")
 
-    def test_capers_gate_completionist_but_not_the_quest_point_cape(self):
-        """The frozen Completionist quest row includes capers; the quest cape does not."""
+    def test_catalog_miniquests_do_not_join_either_quest_count(self):
+        """The source's capers wording does not silently mean every miniquest."""
         miniquests = tuple(quest.id for quest in QUESTS if quest.miniquest)
         self.assertTrue(miniquests, "the catalog carries no miniquest rows")
 
@@ -529,7 +598,7 @@ class PrestigeCapeTest(unittest.TestCase):
             player["quests"][quest_id]["completed"] = False
 
         rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
-        self.assertFalse(rows["quests"]["met"])
+        self.assertTrue(rows["quests"]["met"])
 
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
         player, ok, info = _buy(player, "quest_point")
@@ -595,7 +664,14 @@ class PrestigeCapeTest(unittest.TestCase):
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["completionist"].price}
 
         rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
-        for row_id in ("max", "quests", "taskmaster", "music", "stronghold_security"):
+        for row_id in (
+            "max",
+            "quests",
+            "taskmaster",
+            "music",
+            "player_safety",
+            "stronghold_security",
+        ):
             self.assertTrue(rows[row_id]["met"], row_id)
         self.assertTrue(rows["fight_kiln"]["latent"])
         self.assertTrue(rows["queen_black_dragon"]["latent"])
@@ -610,6 +686,8 @@ class PrestigeCapeTest(unittest.TestCase):
         player = _completionist_ready(_player())
         player["conquest_rating"] = 1_250
         player["mobilising_armies_rank"] = 401
+        player["court_cases_completed_ids"] = list(COURT_CASE_ORDER)
+        player["circus"]["unlocked_costumes"] = list(CIRCUS_COSTUME_NAMES)
         player["castle_wars_games_played"] = 4_999
         player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["completionist"].price}
         player, ok, info = _buy(player, "completionist")

@@ -36,6 +36,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..core.skill_registry import trainable_skill_definitions
+from .circus_data import CIRCUS_REWARDS
+from .court_cases_data import COURT_CASE_ORDER
+from .stronghold_player_safety_data import STRONGHOLD_LANDMARKS
 
 
 MILESTONE_CAPE_SOURCE = (
@@ -284,7 +287,15 @@ COMPLETIONIST_REQUIREMENTS: tuple[CompletionistRequirement, ...] = (
     CompletionistRequirement("goblin_high_priests", "Goblin High Priests laid to rest", "Goblin High Priests", "completionist"),
     CompletionistRequirement("tarn_salve", "Salve amulet enchanted in Tarn's Lair", "Tarn's Lair", "completionist"),
     CompletionistRequirement("clarence", "Clarence returned to rest", "Clarence", "completionist"),
-    CompletionistRequirement("player_safety", "Stronghold of Player Safety completed", "Stronghold of Player Safety", "completionist"),
+    CompletionistRequirement(
+        "player_safety",
+        "Reached the end of the Stronghold of Player Safety",
+        "Stronghold of Player Safety",
+        "completionist",
+        "counter",
+        ("stronghold_player_safety", "stage"),
+        len(STRONGHOLD_LANDMARKS),
+    ),
     CompletionistRequirement("stronghold_security", "Stronghold of Security completed", "Stronghold of Security", "completionist", "flag", ("stronghold_of_security", "completed")),
     CompletionistRequirement("fremennik_sagas", "All five Fremennik Sagas completed at 100%", "Dungeoneering Sagas", "completionist"),
     CompletionistRequirement("thalassus", "Thalassus hunted ten times after Deadliest Catch", "Deadliest Catch", "completionist"),
@@ -309,12 +320,28 @@ COMPLETIONIST_REQUIREMENTS: tuple[CompletionistRequirement, ...] = (
     CompletionistRequirement("mobilising_armies_rank", "Reach rank 401 in Mobilising Armies", "Mobilising Armies", "trimmed", "counter", ("mobilising_armies_rank",), 401),
     CompletionistRequirement("champions", "Defeat every champion", "Champion's Challenge", "trimmed"),
     CompletionistRequirement("barbarian_assault_roles", "Reach level 5 in every Barbarian Assault role", "Barbarian Assault", "trimmed"),
-    CompletionistRequirement("court_cases", "Complete every court case", "Court Cases", "trimmed"),
+    CompletionistRequirement(
+        "court_cases",
+        "Complete every court case",
+        "Court Cases",
+        "trimmed",
+        "collection_count",
+        ("court_cases_completed_ids",),
+        len(COURT_CASE_ORDER),
+    ),
     CompletionistRequirement("chimp_ice", "Complete 25 chimp-ice deliveries", "Do No Evil", "trimmed"),
     CompletionistRequirement("barbarian_training", "Complete all Barbarian Training with Otto", "Barbarian Training", "trimmed"),
     CompletionistRequirement("ancient_cavern_notes", "Find every barbarian note in the Ancient Cavern", "Ancient Cavern", "trimmed"),
     CompletionistRequirement("artisans_workshop", "Unlock every Artisans' Workshop reward", "Artisans' Workshop", "trimmed"),
-    CompletionistRequirement("circus_clothing", "Obtain every piece of circus clothing", "Circus", "trimmed"),
+    CompletionistRequirement(
+        "circus_clothing",
+        "Obtain every piece of circus clothing",
+        "Circus",
+        "trimmed",
+        "collection_count",
+        ("circus", "unlocked_costumes"),
+        len(CIRCUS_REWARDS),
+    ),
     CompletionistRequirement(
         "dahmaroc_statue",
         "Complete the Dahmaroc statue in the player-owned house",
@@ -581,13 +608,15 @@ def cape_equipment_data_as_dict() -> "dict[str, Any]":
         )
 
     for master in master_cape_definitions():
+        # The pinned master-cape evidence proves the item id and Boost option;
+        # its equipment block deliberately reuses the sourced trimmed-cape row.
         rows[master.cape] = _cape(
             master.cape,
             master.cape_item_id,
             ((master.skill_id, master.level),),
             EquipmentBonuses(**TRIMMED_SKILLCAPE_BONUSES),
-            master.source,
-            "rev-742 cache item-definition bonus params",
+            f"{master.source}; bonuses reused from {SKILLCAPE_BONUS_SOURCE}",
+            "items.yml equipment block",
         )
 
     for prestige in PRESTIGE_CAPES:
