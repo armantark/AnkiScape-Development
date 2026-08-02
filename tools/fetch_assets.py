@@ -20,6 +20,7 @@ Two conventions worth knowing (see memory-bank/techContext.md "Asset Scraping"):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import os
@@ -192,7 +193,7 @@ class HttpWikiClient:
         )
 
     def download_bytes(self, url: str) -> bytes:
-        return self._request_bytes(url)
+        return self._request_bytes(url, accept="application/octet-stream")
 
     def _request_json(self, url: str) -> Mapping[str, object]:
         data = self._request_bytes(url)
@@ -201,11 +202,14 @@ class HttpWikiClient:
             raise AssetFetchError("MediaWiki API returned a non-object JSON payload.")
         return decoded
 
-    def _request_bytes(self, url: str) -> bytes:
+    def _request_bytes(self, url: str, accept: Optional[str] = None) -> bytes:
         last_error: Optional[BaseException] = None
         for attempt in range(self.retries + 1):
             self._respect_rate_limit()
-            request = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+            headers = {"User-Agent": self.user_agent}
+            if accept:
+                headers["Accept"] = accept
+            request = urllib.request.Request(url, headers=headers)
             try:
                 with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                     self._last_request_at = time.monotonic()
@@ -332,13 +336,18 @@ def fetch_asset(
     force: bool = False,
     dry_run: bool = False,
     sources: Sequence[WikiSource] = DEFAULT_WIKI_SOURCES,
+    preserve_source: bool = False,
 ) -> FetchOutcome:
     image_info = resolve_image_info(request.wiki_title, client, sources)
     output_path = request.output_path if request.output_path.is_absolute() else REPO_ROOT / request.output_path
     skipped_existing = output_path.exists() and not force
     if not dry_run and not skipped_existing:
-        image_bytes = client.download_bytes(image_info.image_url)
-        write_png(image_bytes, output_path, size)
+        if preserve_source:
+            image_bytes = _download_source_bytes(client, image_info)
+            write_source_png(image_bytes, output_path)
+        else:
+            image_bytes = client.download_bytes(image_info.image_url)
+            write_png(image_bytes, output_path, size)
         update_provenance(request.provenance_path, output_path, image_info)
     return FetchOutcome(
         item_name=request.item_name,
@@ -350,6 +359,52 @@ def fetch_asset(
         skipped_existing=skipped_existing,
         dry_run=dry_run,
     )
+
+
+def _source_image_url(image_url: str, cache_bust: Optional[str] = None) -> str:
+    parsed = urllib.parse.urlsplit(image_url)
+    query_params = {"source": parsed.query or "original"}
+    if cache_bust:
+        query_params["cache_bust"] = cache_bust
+    query = urllib.parse.urlencode(query_params)
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, ""))
+
+
+def _download_source_bytes(client: WikiClient, image_info: ImageInfo) -> bytes:
+    for attempt in range(3):
+        download_url = _source_image_url(
+            image_info.image_url,
+            cache_bust=f"{time.time_ns()}-{attempt}",
+        )
+        image_bytes = client.download_bytes(download_url)
+        if not image_info.sha1 or hashlib.sha1(image_bytes).hexdigest() == image_info.sha1:
+            return image_bytes
+    raise AssetFetchError(
+        f"Downloaded bytes did not match the API SHA1 for File:{image_info.file_title}."
+    )
+
+
+def write_source_png(image_bytes: bytes, output_path: Path) -> None:
+    try:
+        from PIL import Image
+    except ImportError as exc:
+        raise AssetFetchError("Pillow is required for PNG validation. Run with `uv run`.") from exc
+
+    try:
+        with Image.open(BytesIO(image_bytes)) as opened:
+            if opened.format != "PNG":
+                raise AssetFetchError(f"Expected PNG source bytes, got {opened.format or 'unknown'}.")
+            opened.verify()
+    except AssetFetchError:
+        raise
+    except Exception as exc:
+        raise AssetFetchError("Downloaded source is not a valid PNG.") from exc
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with NamedTemporaryFile("wb", delete=False, dir=str(output_path.parent), suffix=".png") as temp_file:
+        temp_name = temp_file.name
+        temp_file.write(image_bytes)
+    os.replace(temp_name, output_path)
 
 
 def write_png(image_bytes: bytes, output_path: Path, size: Optional[int]) -> None:

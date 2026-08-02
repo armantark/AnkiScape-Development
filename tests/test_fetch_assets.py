@@ -1,3 +1,4 @@
+import hashlib
 import importlib.util
 import sys
 import tempfile
@@ -68,6 +69,51 @@ class TestFetchAssets(unittest.TestCase):
             with Image.open(output_path) as output:
                 self.assertEqual(output.size, (20, 29))
                 self.assertEqual(output.getchannel("A").getbbox(), (0, 0, 20, 29))
+
+    def test_source_image_url_removes_wiki_optimization_query(self):
+        image_url = "https://runescape.wiki/images/archive/example.png?ad092"
+        self.assertEqual(
+            fetch_assets._source_image_url(image_url),
+            "https://runescape.wiki/images/archive/example.png?source=ad092",
+        )
+
+    def test_download_source_bytes_retries_optimized_response(self):
+        source_bytes = b"original source"
+        info = fetch_assets.ImageInfo(
+            source_wiki="rs3",
+            file_title="Example.png",
+            file_page_url="https://runescape.wiki/wiki/File:Example.png",
+            image_url="https://runescape.wiki/images/archive/Example.png?abc12",
+            sha1=hashlib.sha1(source_bytes).hexdigest(),
+            size=len(source_bytes),
+            mime="image/png",
+            timestamp="2012-01-01T00:00:00Z",
+            mediatype="BITMAP",
+            license_string="unknown",
+        )
+
+        class OptimizingClient:
+            def __init__(self):
+                self.responses = [b"optimized", source_bytes]
+
+            def download_bytes(self, url):
+                return self.responses.pop(0)
+
+        self.assertEqual(
+            fetch_assets._download_source_bytes(OptimizingClient(), info),
+            source_bytes,
+        )
+
+    @unittest.skipUnless(HAS_PIL, "Pillow is required for PNG validation")
+    def test_write_source_png_preserves_api_bytes_exactly(self):
+        source = Image.new("RGBA", (23, 22), (255, 0, 0, 255))
+        source_bytes = BytesIO()
+        source.save(source_bytes, format="PNG")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "source.png"
+            fetch_assets.write_source_png(source_bytes.getvalue(), output_path)
+            self.assertEqual(output_path.read_bytes(), source_bytes.getvalue())
 
     def test_historical_lookup_requests_newest_revision_before_cutoff(self):
         class RecordingClient(fetch_assets.HttpWikiClient):

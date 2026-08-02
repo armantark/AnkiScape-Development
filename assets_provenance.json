@@ -27238,16 +27238,16 @@
     "timestamp": "2018-08-06T13:43:12Z"
   },
   "icon/challenges_icon.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Active_task.png",
-    "file_title": "Active task.png",
-    "image_url": "https://runescape.wiki/images/archive/20130722185605%21Active_task.png?698d2",
+    "file_page_url": "https://runescape.wiki/wiki/File:Daily_Challenge_icon.png",
+    "file_title": "Daily Challenge icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20140618090200%21Daily_Challenge_icon.png?1d5e8",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "24ea9cfe65da239b670ae984719d2fdb360dd669",
-    "size": 21528,
+    "sha1": "5d15b3741b44eae041e077c3ab39c0ecf2ad13c2",
+    "size": 1080,
     "source_wiki": "rs3",
-    "timestamp": "2012-10-14T02:27:45Z"
+    "timestamp": "2014-04-18T11:21:12Z"
   },
   "icon/combat_icon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Combat_icon.png",
@@ -27429,6 +27429,18 @@
     "source_wiki": "rs3-period",
     "timestamp": "2012-01-21T22:40:07Z"
   },
+  "icon/hitpoints_orb.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Constitution-icon.png",
+    "file_title": "Constitution-icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20221123154112%21Constitution-icon.png?0d583",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bce09d2bb3a364e3721bd5a551ad95f50f2d71fa",
+    "size": 930,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-22T19:38:07Z"
+  },
   "icon/hunter_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Hunter_icon_highscores.png",
     "file_title": "Hunter icon highscores.png",
@@ -27488,6 +27500,18 @@
     "size": 2883,
     "source_wiki": "rs3-period",
     "timestamp": "2012-01-21T22:41:51Z"
+  },
+  "icon/prayer_orb.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer-icon.png",
+    "file_title": "Prayer-icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20221123153651%21Prayer-icon.png?0e5f2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f521eac6d9e015a48bc809878a539465f440e194",
+    "size": 1530,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-21T22:03:29Z"
   },
   "icon/quest_icon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Quest_List_tab_icon.png",
@@ -27608,6 +27632,18 @@
     "size": 2512,
     "source_wiki": "rs3-period",
     "timestamp": "2012-01-21T22:38:50Z"
+  },
+  "icon/summoning_orb.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning-icon.png",
+    "file_title": "Summoning-icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20160127040053%21Summoning-icon.png?ad092",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ac42417523506e578a60393703d3d8e010d14c83",
+    "size": 1323,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-21T22:02:26Z"
   },
   "icon/thieving_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Thieving_icon_highscores.png",
