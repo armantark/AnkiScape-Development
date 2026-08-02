@@ -448,7 +448,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.current_skill = "Mining"
 
         calls["good_answer"] = 0
-        def fake_good_answer():
+        def fake_good_answer(*_args, **_kwargs):
             calls["good_answer"] += 1
         addon.on_good_answer = fake_good_answer
 
@@ -6136,6 +6136,100 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_answer_advances_before_save_without_copying_the_full_state(self):
+        addon = _load_addon_as_package("ankiscape_answer_hot_path_integration")
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: None
+        addon._update_review_bank_run_surface = lambda: None
+        addon._update_review_context_surface = lambda: None
+        events = []
+        addon.save_player_data = lambda: events.append("save")
+        original_deepcopy = addon.copy.deepcopy
+
+        def reject_full_copy(value, *args, **kwargs):
+            if value is addon.player_data:
+                self.fail("an answer must not deep-copy the full player state")
+            return original_deepcopy(value, *args, **kwargs)
+
+        addon.copy.deepcopy = reject_full_copy
+        self.addCleanup(setattr, addon.copy, "deepcopy", original_deepcopy)
+
+        result = addon.on_answer_card(
+            _FakeReviewer(),
+            1,
+            lambda _self, _ease: events.append("advance") or "answered",
+        )
+
+        self.assertEqual(result, "answered")
+        self.assertEqual(events[:2], ["advance", "save"])
+
+    def test_carried_inventory_review_undo_restores_the_exact_save(self):
+        addon = _load_addon_as_package("ankiscape_carried_review_undo_integration")
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.level_up_check = lambda *_args: None
+        addon.check_achievements = lambda *_args: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: None
+        addon._update_review_bank_run_surface = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon.player_data["inventory"]["Logs"] = 1
+        addon.player_data["fletching_level"] = 1
+        addon.player_data["fletching_exp"] = 0.0
+        addon.player_data["current_fletch"] = "arrow_shafts"
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon._REVIEW_UNDO_STACK.clear()
+        initial = copy.deepcopy(addon.player_data)
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertTrue(addon.player_data["carried_primed_targets"])
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual(addon.player_data, initial)
+
+    def test_review_undo_stack_matches_ankis_thirty_transaction_depth(self):
+        addon = _load_addon_as_package("ankiscape_review_undo_cap_integration")
+        addon._REVIEW_UNDO_STACK.clear()
+        for value in range(32):
+            addon.player_data = {"counter": value + 1}
+            addon._remember_review_award_snapshot(
+                {
+                    "player_data": {"counter": value},
+                    "current_skill": "None",
+                    "random_state": addon.random.getstate(),
+                }
+            )
+
+        self.assertEqual(addon._MAX_REVIEW_UNDO_SNAPSHOTS, 30)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 30)
+        self.assertEqual(addon._REVIEW_UNDO_STACK[0]["values"]["counter"], 2)
 
     def test_ignored_pit_reward_resolves_on_next_answer_and_review_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_pit_context_review_integration")

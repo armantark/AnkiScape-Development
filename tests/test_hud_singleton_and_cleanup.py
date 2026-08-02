@@ -66,6 +66,7 @@ class FakeStrip(FakeQWidget):
 class FakeMainWindow(FakeQWidget):
     def __init__(self):
         super().__init__(None)
+        self.find_children_calls = 0
 
     def width(self):
         return 800
@@ -73,12 +74,13 @@ class FakeMainWindow(FakeQWidget):
     def height(self):
         return 600
 
-    # Minimal findChildren(type, name)
-    def findChildren(self, _typ, name):
+    # Minimal findChildren(type, optional name)
+    def findChildren(self, _typ, name=None):
+        self.find_children_calls += 1
         out = []
         for c in list(self._children):
             try:
-                if c.objectName() == name:
+                if name is None or c.objectName() == name:
                     out.append(c)
             except Exception:
                 pass
@@ -87,9 +89,11 @@ class FakeMainWindow(FakeQWidget):
 
 class FakeQApplication:
     top_level = []
+    top_level_calls = 0
 
     @classmethod
     def topLevelWidgets(cls):
+        cls.top_level_calls += 1
         return list(cls.top_level)
 
 
@@ -108,6 +112,10 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self._bak_FARMING_BADGE = getattr(_ui, "_FARMING_BADGE", None)
         self._bak_BANK_RUN_BUTTON = getattr(_ui, "_BANK_RUN_BUTTON", None)
         self._bak_MAIN_MENU_BUTTON = getattr(_ui, "_MAIN_MENU_BUTTON", None)
+        self._bak_REVIEW_CONTEXT_STRIP = getattr(_ui, "_REVIEW_CONTEXT_STRIP", None)
+        self._bak_FILL_DRAWER = getattr(_ui, "_FILL_DRAWER", None)
+        self._bak_EVENT_LOG_DRAWER = getattr(_ui, "_EVENT_LOG_DRAWER", None)
+        self._bak_cleanup_done = getattr(_ui, "_REVIEW_WIDGET_CLEANUP_DONE", False)
         self._bak_ReviewHUD = getattr(_ui, "ReviewHUD", None)
         # Install fake Qt into sys.modules where ui._cleanup_extra_huds imports from
         self.fake_qt = types.ModuleType("aqt.qt")
@@ -124,6 +132,10 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         _ui._FARMING_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._BANK_RUN_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._MAIN_MENU_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
+        _ui._REVIEW_CONTEXT_STRIP = FakeQWidget(self.mw)
+        _ui._FILL_DRAWER = FakeQWidget(self.mw)
+        _ui._EVENT_LOG_DRAWER = FakeQWidget(self.mw)
+        _ui._REVIEW_WIDGET_CLEANUP_DONE = False
         _ui.ReviewHUD = FakeHUD  # ensure construction doesn't require real Qt
         # Prepare stray top-level HUD and duplicate child HUD
         self.stray_top = FakeHUD(None)
@@ -140,6 +152,10 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self.ui._FARMING_BADGE = self._bak_FARMING_BADGE
         self.ui._BANK_RUN_BUTTON = self._bak_BANK_RUN_BUTTON
         self.ui._MAIN_MENU_BUTTON = self._bak_MAIN_MENU_BUTTON
+        self.ui._REVIEW_CONTEXT_STRIP = self._bak_REVIEW_CONTEXT_STRIP
+        self.ui._FILL_DRAWER = self._bak_FILL_DRAWER
+        self.ui._EVENT_LOG_DRAWER = self._bak_EVENT_LOG_DRAWER
+        self.ui._REVIEW_WIDGET_CLEANUP_DONE = self._bak_cleanup_done
         if self._bak_ReviewHUD is not None:
             self.ui.ReviewHUD = self._bak_ReviewHUD
         # Clean fake Qt
@@ -149,6 +165,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
             pass
         FakeHUD.created = 0
         FakeQApplication.top_level = []
+        FakeQApplication.top_level_calls = 0
 
     def test_ensure_review_hud_cleans_duplicates_and_singleton(self):
         # Call ensure twice; should create exactly one new HUD and clean duplicates
@@ -176,6 +193,34 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
             2,
             "Each ensure should verify the strip's stable child order",
         )
+
+    def test_surface_refreshes_do_not_rescan_the_qt_tree(self):
+        original_sync = self.ui._sync_review_drawer_stacking
+        self.ui._sync_review_drawer_stacking = lambda _drawer: None
+        self.addCleanup(
+            setattr,
+            self.ui,
+            "_sync_review_drawer_stacking",
+            original_sync,
+        )
+        self.ui.ensure_review_hud()
+
+        for _event in ("show answer", "next card"):
+            self.mw.find_children_calls = 0
+            FakeQApplication.top_level_calls = 0
+            self.ui.ensure_review_hud()
+            self.ui.ensure_review_hud()
+            self.ui.ensure_review_context_action_strip()
+            self.ui.ensure_review_context_action_strip()
+            self.ui.ensure_review_status_badge()
+            self.ui.ensure_review_status_badge()
+            self.ui.ensure_review_fill_drawer()
+            self.ui.ensure_review_event_log_drawer()
+            self.ui.ensure_review_strip()
+            traversals = (
+                self.mw.find_children_calls + FakeQApplication.top_level_calls
+            )
+            self.assertLessEqual(traversals, 2)
 
 
 if __name__ == "__main__":

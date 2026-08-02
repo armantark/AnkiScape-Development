@@ -9,21 +9,29 @@ by string concatenation, its `main.py` still had no guard against building a
 second `SyncRoutine` per profile open, Review Heatmap still held a single
 `_render_cache` object, and AnkiConnect still never expired a silent client.
 
-The AnkiScape side was equally untouched. The findings in the standing
-`perf-audit-2026-07-31-reviewer-lag` memory are all still live on `main`: the
-per-answer `copy.deepcopy(player_data)`, the synchronous full-state
-`mw.col.set_config` write in `core/storage.py`, and the repeated
-`mw.findChildren()` traversals behind `_cleanup_extra_huds()` in `ui/ui.py`.
+The AnkiScape side was untouched when this trace was written. The `pass6-perf`
+work now closes its four audited costs. Review answers take a shallow top-level
+snapshot plus an independent copy of the one list mutated in place; carried-state
+writers copy their parent maps before assignment so undo can see those changes.
+Anki advances the card before the synchronous save and undo diff. The review undo
+cap matches Anki's 30-step history. Stale review widgets are removed by one
+consolidated scan per add-on load, and parented modal dialogs use
+`WA_DeleteOnClose`.
 
-All five dossier fixes are now applied. Each edited file has a `.prefix-backup`
-copy beside it, because those add-on directories are not version controlled and
-that is the only rollback that exists. The three items the dossier marks as owner
-decisions were deliberately left alone: the Review Heatmap history limit, the
-AnkiConnect poll interval, and whether AnkiWeb updates stay on. An AnkiWeb update
-to any of the three add-ons reverts its patch.
+Measured on the same machine: a 3,377-key, 131,153-byte simulated answer fell
+from 2.544 ms to 1.267 ms before `_old`, with full-state deep copies falling from
+1 to 0. Steady-state review-surface traversals fell from 90 to 0 per Show Answer
+and per next-card event. A worst-case inventory-changing undo replay retained
+6,630,147 bytes at the old cap of 50 and 4,053,827 bytes at the new cap of 30.
+Fifteen held dialog wrappers retained fifteen live Qt objects before the fix and
+zero afterward.
 
-The AnkiScape hot path is still unfixed and is queued behind the pass-6 strip
-work, because both touch the same region of `ui/ui.py`.
+All five dossier fixes outside AnkiScape are also applied. Each edited file has a
+`.prefix-backup` copy beside it, because those add-on directories are not version
+controlled and that is the only rollback that exists. The three items the dossier
+marks as owner decisions were deliberately left alone: the Review Heatmap history
+limit, the AnkiConnect poll interval, and whether AnkiWeb updates stay on. An
+AnkiWeb update to any of the three add-ons reverts its patch.
 
 ## (b) Can telemetry identify the culprit add-on?
 

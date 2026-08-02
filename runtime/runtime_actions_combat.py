@@ -622,9 +622,8 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         # carried view (coins excluded) so it drops on a later death and, once the
         # pack fills, forces a bank run alongside supply depletion. Banking deposits it.
         elif drops:
-            carried = player_data.get("carried_inventory")
-            if not isinstance(carried, dict):
-                carried = {}
+            current_carried = player_data.get("carried_inventory")
+            carried = dict(current_carried) if isinstance(current_carried, dict) else {}
             existing = carried.get(target_id) if isinstance(carried.get(target_id), dict) else {}
             carried[target_id] = inventory_pure.carried_fold_gains_pure(existing, drops, STACKABLE_ITEM_NAMES)
             player_data["carried_inventory"] = carried

@@ -30,16 +30,15 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
    skill-bar button that opens the menu is still inside the card scroll window — move it
    down into the native strip. Owner: "I think this new design overrides what I wrote
    earlier" — the pass-6 wording is now authoritative over the pass-5 strip clauses.
-3. **ANSWERED — see `memory-bank/pass6-traces/lag-telemetry-2026-08-01.md`.** Neither the
-   dossier fixes nor the AnkiScape hot-path findings had been applied; all five dossier
-   fixes are now in, and telemetry exists as a separate sampling probe add-on. The
-   AnkiScape hot path itself is still outstanding.
+3. **DONE on `pass6-perf` — see `memory-bank/pass6-traces/lag-telemetry-2026-08-01.md`.**
+   The AnkiScape growth mechanism is closed: stale HUD cleanup now scans once per add-on
+   load, and parented dialogs destroy their Qt objects on close. Review answers no longer
+   deep-copy the full save, persistence and undo diffing run after Anki advances the card,
+   and the review undo cap matches Anki's 30-step history. Both test lanes pass with
+   performance and exact-save undo regressions pinned.
    **Anki lag after hours** (recurs every pass): dossier at
-   `memory-bank/codex-briefs/other-addons-perf-fixes-2026-07-31.md`. Owner asks (a) have
-   those fixes been applied across all add-ons, and (b) can we add telemetry to identify
-   the culprit add-on. Related standing memory: perf-audit-2026-07-31-reviewer-lag
-   (AnkiScape per-answer deepcopy/save/Qt scans, Auto Sync log growth, Heatmap revlog
-   rescans). None of it is confirmed fixed.
+   `memory-bank/codex-briefs/other-addons-perf-fixes-2026-07-31.md`. Telemetry remains useful
+   for identifying non-AnkiScape costs that grow during long sessions.
 4. **DONE, merged at `4187b3bb`.** Single-line row height halved from 34px to 17px, so the
    fixed 150px list now shows about twice as many entries. The cause was per-row label
    padding added by a pass-5 commit, not the drawer's own margins.

@@ -644,9 +644,8 @@ def _agility_carried_requirement_gaps(
 
 
 def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:
-    container = player_data.get(map_key)
-    if not isinstance(container, dict):
-        container = {}
+    existing = player_data.get(map_key)
+    container = dict(existing) if isinstance(existing, dict) else {}
     if value:
         container[target_id] = value
     else:
