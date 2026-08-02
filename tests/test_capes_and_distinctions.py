@@ -588,26 +588,21 @@ class PrestigeCapeTest(unittest.TestCase):
         player = _wear(player, "Quest point cape")
         self.assertEqual(player["equipment"]["cape"], "Quest point cape")
 
-    def test_each_catalog_miniquest_gates_completionist_but_not_quest_point_cape(self):
-        """Every flagged miniquest is a caper in the Completionist quest row."""
+    def test_catalog_miniquests_do_not_join_either_quest_count(self):
+        """The source's capers wording does not silently mean every miniquest."""
         miniquests = tuple(quest.id for quest in QUESTS if quest.miniquest)
         self.assertTrue(miniquests, "the catalog carries no miniquest rows")
 
+        player = _all_quests_done(_player())
         for quest_id in miniquests:
-            with self.subTest(quest_id=quest_id):
-                player = _all_quests_done(_player())
-                player["quests"][quest_id]["completed"] = False
+            player["quests"][quest_id]["completed"] = False
 
-                rows = {
-                    row["id"]: row for row in cape_view_pure(player)["completionist"]
-                }
-                self.assertFalse(rows["quests"]["met"])
+        rows = {row["id"]: row for row in cape_view_pure(player)["completionist"]}
+        self.assertTrue(rows["quests"]["met"])
 
-                player["inventory"] = {
-                    "Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price
-                }
-                player, ok, info = _buy(player, "quest_point")
-                self.assertTrue(ok, info)
+        player["inventory"] = {"Coins": PRESTIGE_CAPES_BY_ID["quest_point"].price}
+        player, ok, info = _buy(player, "quest_point")
+        self.assertTrue(ok, info)
 
     def test_the_max_cape_is_earned_by_99_in_every_skill(self):
         player = _player()

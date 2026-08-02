@@ -199,26 +199,18 @@ def effective_roll_level_pure(
 # ---------------------------------------------------------------------------
 
 
-def _quest_rows_complete(player_data: Mapping[str, Any], *, include_miniquests: bool) -> bool:
+def _all_quests_complete(player_data: Mapping[str, Any]) -> bool:
     from ..data.quest_data import QUESTS
 
     quests = _mapping(player_data.get("quests"))
-    pool = tuple(quest for quest in QUESTS if include_miniquests or not quest.miniquest)
+    # The frozen Completionist table lists its miniquest requirements separately,
+    # and the Quest point cape gates on quests alone, so catalog miniquests must
+    # not join either quest count. "Including capers" does not mean miniquests.
+    # Source: https://runescape.wiki/index.php?oldid=6560039&action=raw
+    pool = tuple(quest for quest in QUESTS if not quest.miniquest)
     return bool(pool) and all(
         bool(_mapping(quests.get(quest.id)).get("completed")) for quest in pool
     )
-
-
-def _all_quests_complete(player_data: Mapping[str, Any]) -> bool:
-    """Quest point cape gate; capers are not part of the quest cape."""
-
-    return _quest_rows_complete(player_data, include_miniquests=False)
-
-
-def _all_completionist_quests_complete(player_data: Mapping[str, Any]) -> bool:
-    """Completionist's frozen quest row explicitly includes capers."""
-
-    return _quest_rows_complete(player_data, include_miniquests=True)
 
 
 def latent_cutoff_skills_pure() -> tuple[str, ...]:
@@ -294,7 +286,7 @@ def _completionist_requirement_view_pure(
         have, need = _completionist_maxed_skills_pure(player_data)
         met = have == need and need > 0
     elif kind == "all_quests":
-        met = _all_completionist_quests_complete(player_data)
+        met = _all_quests_complete(player_data)
     elif kind == "taskmaster":
         from .achievement_diary_logic import diary_totals_pure
 
