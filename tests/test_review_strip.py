@@ -30,6 +30,7 @@ try:
         QLabel,
         QListWidget,
         QPoint,
+        QMainWindow,
         QProgressBar,
         QPushButton,
         Qt,
@@ -70,9 +71,11 @@ class ReviewStripTest(unittest.TestCase):
         from ankiscape.ui import ui
 
         self.ui = ui
-        self.parent = QWidget()
-        self.parent.resize(1000, 700)
-        self.parent.mainLayout = QVBoxLayout(self.parent)
+        self.parent = QMainWindow()
+        self.central = QWidget(self.parent)
+        self.parent.setCentralWidget(self.central)
+        self.parent.form = types.SimpleNamespace(centralwidget=self.central)
+        self.parent.mainLayout = QVBoxLayout()
         self.parent.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.parent.mainLayout.setSpacing(0)
         self.card_web = QWidget(self.parent)
@@ -82,9 +85,11 @@ class ReviewStripTest(unittest.TestCase):
         self.bottom_web.setFixedHeight(72)
         self.parent.mainLayout.addWidget(self.card_web, 1)
         self.parent.mainLayout.addWidget(self.bottom_web, 0)
+        self.central.setLayout(self.parent.mainLayout)
         self.parent.bottomWeb = self.bottom_web
         self.parent.reviewer = types.SimpleNamespace(web=self.card_web)
         self.parent.show()
+        self.parent.resize(1000, 700)
         for _ in range(4):
             QApplication.processEvents()
         self.old_mw = ui.mw
@@ -338,6 +343,22 @@ class ReviewStripTest(unittest.TestCase):
             QApplication.processEvents()
         open_menu.assert_called_once_with(False)
 
+    def test_native_menu_button_honours_the_floating_widget_setting(self) -> None:
+        config = {"ankiscape_floating_enabled": False}
+        self.ui.get_config_bool = lambda key, default=True: config.get(key, default)
+        self.ui.ensure_review_strip()
+        QApplication.processEvents()
+
+        button = self.ui._MAIN_MENU_BUTTON
+        self.assertFalse(button.property("ankiscapeOverlayRequested"))
+        self.assertTrue(button.isHidden())
+
+        config["ankiscape_floating_enabled"] = True
+        self.ui.ensure_review_strip()
+        QApplication.processEvents()
+        self.assertTrue(button.property("ankiscapeOverlayRequested"))
+        self.assertFalse(button.isHidden())
+
     # ---- the split popovers ---------------------------------------------
 
     def test_farming_popover_opens_crop_rows_and_the_full_farm(self) -> None:
@@ -563,6 +584,38 @@ class ReviewStripTest(unittest.TestCase):
         self.assertFalse(event.geometry().intersects(self.bottom_web.geometry()))
         self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
 
+    def test_drawer_reparents_when_bottom_web_moves_into_centralwidget(self) -> None:
+        late_window = QMainWindow()
+        late_bottom_web = QWidget(late_window)
+        late_window.bottomWeb = late_bottom_web
+        self.ui.mw = late_window
+        try:
+            self.ui.ensure_review_fill_drawer()
+            self.ui.ensure_review_event_log_drawer()
+            drawers = (self.ui._FILL_DRAWER, self.ui._EVENT_LOG_DRAWER)
+            for drawer in drawers:
+                self.assertIs(drawer.parentWidget(), late_window)
+
+            central = QWidget(late_window)
+            late_window.setCentralWidget(central)
+            late_window.mainLayout = QVBoxLayout()
+            late_window.mainLayout.addWidget(QWidget(late_window), 1)
+            late_window.mainLayout.addWidget(late_bottom_web, 0)
+            central.setLayout(late_window.mainLayout)
+            late_window.show()
+            late_window.resize(760, 560)
+            for _ in range(4):
+                QApplication.processEvents()
+
+            self.ui.ensure_review_fill_drawer()
+            self.ui.ensure_review_event_log_drawer()
+            for drawer in drawers:
+                self.assertIs(drawer.parentWidget(), central)
+        finally:
+            self.ui.mw = self.parent
+            late_window.hide()
+            late_window.deleteLater()
+
     def test_drawer_sibling_stacking_follows_each_toggle_state(self) -> None:
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
@@ -576,21 +629,23 @@ class ReviewStripTest(unittest.TestCase):
 
         for drawer in (self.ui._EVENT_LOG_DRAWER, self.ui._FILL_DRAWER):
             with self.subTest(drawer=drawer.objectName()):
-                siblings = self.parent.children()
+                parent = self.bottom_web.parentWidget()
+                self.assertIs(drawer.parentWidget(), parent)
+                siblings = parent.children()
                 self.assertLess(
                     siblings.index(drawer), siblings.index(self.bottom_web)
                 )
                 drawer.toggle.click()
                 for _ in range(3):
                     QApplication.processEvents()
-                siblings = self.parent.children()
+                siblings = parent.children()
                 self.assertGreater(
                     siblings.index(drawer), siblings.index(self.bottom_web)
                 )
                 drawer.toggle.click()
                 for _ in range(3):
                     QApplication.processEvents()
-                siblings = self.parent.children()
+                siblings = parent.children()
                 self.assertLess(
                     siblings.index(drawer), siblings.index(self.bottom_web)
                 )

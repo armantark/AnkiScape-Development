@@ -3337,13 +3337,37 @@ def _overlay_requested(widget) -> bool:
     return widget.isVisible() if requested is None else bool(requested)
 
 
+def _review_drawer_parent():
+    bottom_web = getattr(mw, "bottomWeb", None)
+    if bottom_web is not None and bottom_web.parentWidget() is not None:
+        return bottom_web.parentWidget()
+    return mw
+
+
+def _sync_review_drawer_parent(drawer):
+    parent = _review_drawer_parent()
+    if drawer is None or parent is None:
+        return parent
+    if drawer.parentWidget() is not parent:
+        was_visible = drawer.isVisible()
+        old_parent = drawer.parentWidget()
+        if old_parent is not None:
+            old_parent.removeEventFilter(drawer)
+        drawer.setParent(parent)
+        parent.installEventFilter(drawer)
+        if was_visible:
+            drawer.show()
+    return parent
+
+
 def _sync_review_drawer_stacking(drawer) -> None:
     bottom_web = getattr(mw, "bottomWeb", None)
+    parent = _sync_review_drawer_parent(drawer)
     if drawer is None:
         return
     if drawer.toggle.isChecked():
         drawer.raise_()
-    elif bottom_web is not None and drawer.parentWidget() is bottom_web.parentWidget():
+    elif bottom_web is not None and parent is bottom_web.parentWidget():
         drawer.stackUnder(bottom_web)
 
 
@@ -3384,6 +3408,8 @@ def _sync_review_strip_layout() -> None:
         hud = _REVIEW_HUD if _overlay_requested(_REVIEW_HUD) else None
         if parent is None or strip is None:
             return
+        for drawer in (_EVENT_LOG_DRAWER, _FILL_DRAWER):
+            _sync_review_drawer_parent(drawer)
         if hud is None or not _attach_review_strip(parent, strip):
             strip.hide()
             close_review_status_popover()
@@ -3486,7 +3512,13 @@ def _sync_review_strip_layout() -> None:
                 max(8, drawer_x),
                 max(8, parent.width() - drawer.width() - 8),
             )
-            drawer.move(drawer_x, cursor_y)
+            drawer_parent = drawer.parentWidget()
+            drawer_position = QPoint(drawer_x, cursor_y)
+            if drawer_parent is not parent:
+                drawer_position = drawer_parent.mapFromGlobal(
+                    parent.mapToGlobal(drawer_position)
+                )
+            drawer.move(drawer_position)
             cursor_y -= gap
             _sync_review_drawer_stacking(drawer)
 
@@ -3621,7 +3653,6 @@ def ensure_review_strip() -> None:
 
         _MAIN_MENU_BUTTON = QToolButton(_REVIEW_STRIP)
         _MAIN_MENU_BUTTON.setObjectName("reviewMainMenuButton")
-        _MAIN_MENU_BUTTON.setProperty("ankiscapeOverlayRequested", True)
         _MAIN_MENU_BUTTON.setIcon(
             QIcon(os.path.join(current_dir, "icon", "stats_icon.png"))
         )
@@ -3630,6 +3661,9 @@ def ensure_review_strip() -> None:
         _MAIN_MENU_BUTTON.setToolTip("AnkiScape")
         _MAIN_MENU_BUTTON.setAccessibleName("AnkiScape")
         _MAIN_MENU_BUTTON.clicked.connect(open_main_menu_from_reviewer)
+    menu_enabled = get_config_bool("ankiscape_floating_enabled", True)
+    _MAIN_MENU_BUTTON.setProperty("ankiscapeOverlayRequested", menu_enabled)
+    _MAIN_MENU_BUTTON.setVisible(menu_enabled)
     _REVIEW_STRIP.sync_children()
 
 def ensure_review_hud() -> None:
@@ -3757,8 +3791,7 @@ def ensure_review_fill_drawer() -> None:
         return
     _cleanup_extra_huds()
     if _FILL_DRAWER is None and mw is not None:
-        _FILL_DRAWER = ReviewFillDrawer(mw)
-        _FILL_DRAWER.setParent(mw)
+        _FILL_DRAWER = ReviewFillDrawer(_review_drawer_parent())
     if _FILL_DRAWER is not None:
         _sync_review_drawer_stacking(_FILL_DRAWER)
         _raise_exp_popup()
@@ -3782,8 +3815,7 @@ def ensure_review_event_log_drawer() -> None:
         return
     _cleanup_extra_huds()
     if _EVENT_LOG_DRAWER is None and mw is not None:
-        _EVENT_LOG_DRAWER = ReviewEventLogDrawer(mw)
-        _EVENT_LOG_DRAWER.setParent(mw)
+        _EVENT_LOG_DRAWER = ReviewEventLogDrawer(_review_drawer_parent())
     if _EVENT_LOG_DRAWER is not None:
         _sync_review_drawer_stacking(_EVENT_LOG_DRAWER)
         _raise_exp_popup()

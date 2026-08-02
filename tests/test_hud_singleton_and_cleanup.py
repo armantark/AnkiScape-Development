@@ -12,6 +12,7 @@ class FakeQWidget:
         self._hidden = False
         self._deleted = False
         self._raised = False
+        self._properties = {}
 
     # Qt-like API surface used in ui.py
     def setParent(self, p):
@@ -29,6 +30,12 @@ class FakeQWidget:
 
     def hide(self):
         self._hidden = True
+
+    def setVisible(self, visible):
+        self._hidden = not visible
+
+    def setProperty(self, name, value):
+        self._properties[name] = value
 
     def deleteLater(self):
         self._deleted = True
