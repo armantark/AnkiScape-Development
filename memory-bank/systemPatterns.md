@@ -1,22 +1,23 @@
 # System Patterns
 
-## One fixed reviewer strip, one geometry authority
+## One native reviewer strip, one geometry authority
 
-Reviewer chrome is a fixed-height row pinned to the live top edge of Anki's
-answer-button bar. Card content never selects its geometry: every new review
-document always reserves the fixed row plus every visible drawer/header above
-it, and late web-content measurements must not move the row. A badge popover
-closes when no placement avoids the measured card rectangle.
+Reviewer chrome is a fixed-height native row inserted in Anki's `mainLayout`
+immediately after `bottomWeb`, outside the card webview. Card content never
+selects or reserves its geometry. Translucent drawers may cover the card while
+open, but their upward stack shrinks to remain reachable inside the main window.
+A badge popover closes when no placement avoids the measured card rectangle.
 
-- `ReviewStrip` owns four stable left-to-right seats: separate D&D and Farming
-  badges, `ReviewHUD`, and the bank-run button. Hidden or empty content does not
-  resize or reorder those seats.
+- `ReviewStrip` owns three stable left-to-right seats: separate D&D and Farming
+  badges and `ReviewHUD`; the bank-run button sits inside the HUD. Hidden or
+  empty content does not resize or reorder those seats.
 - `logic/review_strip_logic.py` decides strip, Event-log, badge, and bank-action
   views. `logic/grand_exchange_logic.py` owns GE row visibility, text, tone, and
   action. `ui/ui.py` renders those projections without re-deriving them.
-- `_reposition_review_overlay()` is the only geometry authority. Event log is
-  immediately above the XP box, GE is above Event log, and both expand upward.
-  Floating XP anchors to the strip and is re-anchored by the same pass.
+- `_sync_review_strip_layout()` is the only geometry authority. It attaches the
+  native strip after Anki's answer bar, stacks Event log then GE upward as
+  translucent overlays, bounds that stack to the window, and re-anchors floating
+  XP in the same pass.
 - Every XP emission goes through the retained Event-log seam. Award results
   carry their skill identity, while review aggregation verifies names from the
   real experience deltas; silent awards cannot leak into a later row.

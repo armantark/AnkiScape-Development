@@ -13,7 +13,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QWidget
+    from aqt.qt import QApplication, QVBoxLayout, QWidget
 
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -47,6 +47,15 @@ class ExpPopupOverlayTest(unittest.TestCase):
         self.ui = ui
         self.parent = QWidget()
         self.parent.resize(1000, 560)
+        self.parent.mainLayout = QVBoxLayout(self.parent)
+        self.parent.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.parent.mainLayout.setSpacing(0)
+        self.card_web = QWidget(self.parent)
+        self.bottom_web = QWidget(self.parent)
+        self.bottom_web.setFixedHeight(72)
+        self.parent.mainLayout.addWidget(self.card_web, 1)
+        self.parent.mainLayout.addWidget(self.bottom_web, 0)
+        self.parent.bottomWeb = self.bottom_web
         self.parent.show()
         for _ in range(5):
             QApplication.processEvents()

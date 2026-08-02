@@ -1,8 +1,8 @@
 """Offscreen Qt cover for the always-visible reviewer strip.
 
-This replaces `test_farming_hud.py` and `test_distraction_hud.py`. Pass 4 keeps
-their badges separate, both left of the experience bars, and adds card-safe
-geometry plus the retained event-log drawer to the same offscreen surface.
+This replaces `test_farming_hud.py` and `test_distraction_hud.py`. The badges
+and XP box live in a native row below Anki's answer bar; translucent drawers
+remain upward-opening overlays over the card viewport.
 
 Offscreen rule (.claude/rules/qt-offscreen-screenshots.md): show the parent and
 pump events before trusting any geometry.
@@ -31,8 +31,8 @@ try:
         QPoint,
         QProgressBar,
         QPushButton,
-        QRect,
         Qt,
+        QVBoxLayout,
         QWidget,
     )
 
@@ -71,6 +71,18 @@ class ReviewStripTest(unittest.TestCase):
         self.ui = ui
         self.parent = QWidget()
         self.parent.resize(1000, 700)
+        self.parent.mainLayout = QVBoxLayout(self.parent)
+        self.parent.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.parent.mainLayout.setSpacing(0)
+        self.card_web = QWidget(self.parent)
+        self.card_web.setObjectName("reviewCardWeb")
+        self.bottom_web = QWidget(self.parent)
+        self.bottom_web.setObjectName("bottomWeb")
+        self.bottom_web.setFixedHeight(72)
+        self.parent.mainLayout.addWidget(self.card_web, 1)
+        self.parent.mainLayout.addWidget(self.bottom_web, 0)
+        self.parent.bottomWeb = self.bottom_web
+        self.parent.reviewer = types.SimpleNamespace(web=self.card_web)
         self.parent.show()
         for _ in range(4):
             QApplication.processEvents()
@@ -88,7 +100,6 @@ class ReviewStripTest(unittest.TestCase):
         ui._STATUS_POPOVER_BADGE = None
         ui._FILL_DRAWER = None
         ui._EVENT_LOG_DRAWER = None
-        ui._CARD_PADDING_PX = -1
 
     def tearDown(self) -> None:
         self.ui.close_review_status_popover()
@@ -168,7 +179,7 @@ class ReviewStripTest(unittest.TestCase):
         farming = self.ui._FARMING_BADGE
         self.assertIs(dnd.parentWidget(), self.ui._REVIEW_STRIP)
         self.assertIs(farming.parentWidget(), self.ui._REVIEW_STRIP)
-        self.assertTrue(
+        self.assertFalse(
             review_hud.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         )
         for badge in (dnd, farming):
@@ -249,13 +260,18 @@ class ReviewStripTest(unittest.TestCase):
         )
         QApplication.processEvents()
         bank = self.ui._BANK_RUN_BUTTON
-        self.assertLess(review_hud.x() + review_hud.width(), bank.x() + 1)
-        self.assertEqual(bank.text(), "Do bank run")
+        self.assertIs(bank.parentWidget(), review_hud)
+        self.assertEqual(bank.text(), "Bank run")
+        self.assertEqual(
+            bank.toolTip(), "Deposit inventory and restock same supplies"
+        )
+        self.assertGreater(bank.x(), review_hud.width() // 2)
+        self.assertGreater(bank.y(), review_hud.height() // 2)
         self.assertEqual(
             self.ui._REVIEW_STRIP.height(), self.ui.REVIEW_STRIP_HEIGHT
         )
 
-    def test_all_four_strip_seats_stay_ordered_and_inside_narrow_reviewers(self) -> None:
+    def test_strip_seats_and_nested_bank_button_fit_narrow_reviewers(self) -> None:
         state = self._state()
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
@@ -273,7 +289,6 @@ class ReviewStripTest(unittest.TestCase):
                     self.ui._DND_BADGE,
                     self.ui._FARMING_BADGE,
                     hud,
-                    self.ui._BANK_RUN_BUTTON,
                 )
                 for left, right in zip(seats, seats[1:]):
                     self.assertLessEqual(
@@ -283,26 +298,20 @@ class ReviewStripTest(unittest.TestCase):
                 self.assertLess(seats[-1].geometry().right(), strip.width())
                 self.assertGreater(hud.width(), 0)
 
-    def test_bank_run_button_has_an_opaque_dark_seat_on_a_light_card(self) -> None:
-        from aqt.qt import QColor
-
+    def test_bank_run_button_uses_compact_native_styling(self) -> None:
         state = self._state()
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         hud.set_data(state, "Mining")
         self.ui.update_review_status_badge(state)
         self.ui.update_review_bank_run_button(state, "mining", lambda: None)
-        self.parent.setStyleSheet("background: white;")
         for _ in range(5):
             QApplication.processEvents()
 
-        image = self.ui._BANK_RUN_BUTTON.grab().toImage()
-        dark_pixels = sum(
-            QColor(image.pixel(x, y)).lightness() < 180
-            for y in range(image.height())
-            for x in range(image.width())
-        )
-        self.assertGreater(dark_pixels, image.width() * image.height() // 2)
+        bank = self.ui._BANK_RUN_BUTTON
+        self.assertEqual(bank.styleSheet(), "")
+        self.assertEqual(bank.text(), "Bank run")
+        self.assertEqual(bank.size(), bank.sizeHint())
 
     # ---- the split popovers ---------------------------------------------
 
@@ -487,13 +496,9 @@ class ReviewStripTest(unittest.TestCase):
         self.assertTrue(drawer.isVisible())
         self.assertEqual(drawer.toggle.text(), "Recent fills (2)")
 
-    def test_drawers_expand_upward_without_moving_the_fixed_strip(
+    def test_translucent_drawers_expand_upward_without_moving_the_native_strip(
         self,
     ) -> None:
-        scripts = []
-        self.parent.reviewer = types.SimpleNamespace(
-            web=types.SimpleNamespace(eval=scripts.append)
-        )
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         state = self._event_log_state(2)
@@ -508,18 +513,12 @@ class ReviewStripTest(unittest.TestCase):
         strip = self.ui._REVIEW_STRIP
         event = self.ui._EVENT_LOG_DRAWER
         ge = self.ui._FILL_DRAWER
-        strip_y = strip.y()
-        self.assertLessEqual(event.y() + event.height(), strip.y())
+        strip_geometry = strip.geometry()
+        strip_top = strip.mapTo(self.parent, QPoint(0, 0)).y()
+        self.assertLessEqual(event.y() + event.height(), strip_top)
         self.assertLessEqual(ge.y() + ge.height(), event.y())
-        collapsed_reserved = self.ui._review_overlay_reserved_height()
-        protected_top = strip.y() + strip.height() - collapsed_reserved
-        self.assertGreater(collapsed_reserved, self.ui.REVIEW_STRIP_HEIGHT)
-        self.assertGreaterEqual(event.y(), protected_top)
-        self.assertGreaterEqual(ge.y(), protected_top)
-        self.assertEqual(
-            scripts[-1],
-            f"document.body.style.paddingBottom = '{collapsed_reserved}px';",
-        )
+        self.assertIn(self.ui._HUD_BG, event.styleSheet())
+        self.assertIn(self.ui._HUD_BG, ge.styleSheet())
 
         event.toggle.click()
         ge.toggle.click()
@@ -527,32 +526,39 @@ class ReviewStripTest(unittest.TestCase):
             QApplication.processEvents()
         self.assertTrue(event.rows.isVisible())
         self.assertTrue(ge.rows.isVisible())
-        self.assertEqual(strip.y(), strip_y)
-        self.assertLessEqual(event.y() + event.height(), strip.y())
+        self.assertEqual(strip.geometry(), strip_geometry)
+        strip_top = strip.mapTo(self.parent, QPoint(0, 0)).y()
+        self.assertLessEqual(event.y() + event.height(), strip_top)
         self.assertLessEqual(ge.y() + ge.height(), event.y())
-        self.assertGreaterEqual(ge.y(), 0)
-        reserved = self.ui._review_overlay_reserved_height()
-        self.assertGreater(reserved, self.ui.REVIEW_STRIP_HEIGHT)
-        self.assertGreaterEqual(event.y(), strip.y() + strip.height() - reserved)
-        self.assertGreaterEqual(ge.y(), strip.y() + strip.height() - reserved)
-        self.assertEqual(
-            scripts[-1],
-            f"document.body.style.paddingBottom = '{reserved}px';",
-        )
 
-        self.parent.resize(700, 360)
+        self.parent.resize(667, 602)
         for _ in range(6):
             QApplication.processEvents()
+        self.assertTrue(event.geometry().intersects(self.card_web.geometry()))
+        self.assertFalse(event.geometry().intersects(self.bottom_web.geometry()))
+        self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
+
+    def test_two_expanded_drawers_stay_reachable_at_reviewer_height(self) -> None:
+        self.parent.resize(760, 560)
+        hud = self.ui.ReviewHUD(self.parent)
+        self.ui._REVIEW_HUD = hud
+        state = self._event_log_state()
+        hud.set_data(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
+        self.ui.update_review_event_log_drawer(state)
+        self.ui.update_review_fill_drawer(self._open_offer(state))
+        self.ui._EVENT_LOG_DRAWER.toggle.click()
+        self.ui._FILL_DRAWER.toggle.click()
+        for _ in range(6):
+            QApplication.processEvents()
+
+        event = self.ui._EVENT_LOG_DRAWER
+        ge = self.ui._FILL_DRAWER
+        answer_bar_top = self.bottom_web.mapTo(self.parent, QPoint(0, 0)).y()
         self.assertGreaterEqual(ge.y(), 8)
         self.assertLessEqual(ge.y() + ge.height(), event.y())
-        self.assertLessEqual(event.y() + event.height(), strip.y())
-        reserved = self.ui._review_overlay_reserved_height()
-        self.assertGreater(reserved, self.ui.REVIEW_STRIP_HEIGHT)
-        self.assertGreaterEqual(ge.y(), strip.y() + strip.height() - reserved)
-        self.assertEqual(
-            scripts[-1],
-            f"document.body.style.paddingBottom = '{reserved}px';",
-        )
+        self.assertLessEqual(event.y() + event.height(), answer_bar_top)
 
     def test_the_rows_run_newest_first_with_the_settled_two_tones(self) -> None:
         self.ui.update_review_fill_drawer(self._open_offer(self._state()))
@@ -653,40 +659,48 @@ class ReviewStripTest(unittest.TestCase):
 
     # ---- card-safe geometry ---------------------------------------------
 
-    def test_late_image_growth_keeps_fixed_geometry_and_document_padding(self) -> None:
-        card_web = QWidget(self.parent)
-        card_web.setObjectName("reviewCardWeb")
-        card_web.setGeometry(20, 20, 960, 500)
-        card_web.show()
-        scripts = []
-        card_web.zoomFactor = lambda: 1.0
-        card_web.eval = scripts.append
-        self.parent.reviewer = types.SimpleNamespace(web=card_web)
-        state = self._event_log_state(1)
+    def test_native_strip_never_intersects_the_card_at_both_probe_geometries(self) -> None:
+        state = self._event_log_state(3)
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         hud.set_data(state, "Mining")
         self.ui.update_review_status_badge(state)
         self.ui.update_review_bank_run_button(state, "mining", lambda: None)
         self.ui.update_review_event_log_drawer(state)
-        for _ in range(6):
-            QApplication.processEvents()
 
-        strip = self.ui._REVIEW_STRIP
-        before = strip.geometry()
-        self.ui.note_card_content_bottom(180)
-        self.ui.note_card_content_bottom(2000)  # faithful late image-height jump
-        for _ in range(4):
-            QApplication.processEvents()
-        self.assertEqual(strip.geometry(), before)
-        reserved = self.ui._review_overlay_reserved_height()
-        self.assertGreater(reserved, self.ui.REVIEW_STRIP_HEIGHT)
-        self.assertEqual(
-            scripts[-1],
-            f"document.body.style.paddingBottom = '{reserved}px';",
-        )
+        for width, height in ((667, 602), (1366, 768)):
+            with self.subTest(size=(width, height)):
+                self.parent.resize(width, height)
+                for _ in range(6):
+                    QApplication.processEvents()
+                strip = self.ui._REVIEW_STRIP
+                self.assertIsNot(strip.parentWidget(), self.card_web)
+                self.assertLess(
+                    self.parent.mainLayout.indexOf(self.card_web),
+                    self.parent.mainLayout.indexOf(self.bottom_web),
+                )
+                self.assertLess(
+                    self.parent.mainLayout.indexOf(self.bottom_web),
+                    self.parent.mainLayout.indexOf(strip),
+                )
+                self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
+                self.assertLessEqual(
+                    self.card_web.geometry().bottom(),
+                    self.bottom_web.geometry().top(),
+                )
+                self.assertLessEqual(
+                    self.bottom_web.geometry().bottom(), strip.geometry().top()
+                )
 
-    def test_strip_and_popup_follow_default_and_560_point_reviewers(self) -> None:
+                before = strip.geometry()
+                self.ui._EVENT_LOG_DRAWER.toggle.setChecked(True)
+                for _ in range(6):
+                    QApplication.processEvents()
+                self.assertEqual(strip.geometry(), before)
+                self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
+                self.ui._EVENT_LOG_DRAWER.toggle.setChecked(False)
+
+    def test_floating_xp_popup_reanchors_to_the_native_strip(self) -> None:
         state = self._state()
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
@@ -699,104 +713,33 @@ class ReviewStripTest(unittest.TestCase):
         popup.show_text("+25 XP")
         for _ in range(5):
             QApplication.processEvents()
-        popup_y = popup.y()
+        first_anchor = popup._last_strip_anchor
 
-        for height in (700, 560):
-            self.parent.resize(1000, height)
-            for _ in range(5):
-                QApplication.processEvents()
-            strip = self.ui._REVIEW_STRIP
-            self.assertEqual(strip.height(), self.ui.REVIEW_STRIP_HEIGHT)
-            self.assertEqual(
-                strip.y(),
-                height
-                - self.ui.REVIEW_ANSWER_BAR_HEIGHT
-                - self.ui.REVIEW_STRIP_HEIGHT,
-            )
-            answer_rect = QRect(
-                0,
-                height - self.ui.REVIEW_ANSWER_BAR_HEIGHT,
-                self.parent.width(),
-                self.ui.REVIEW_ANSWER_BAR_HEIGHT,
-            )
-            self.assertFalse(strip.geometry().intersects(answer_rect))
-
-        self.assertLess(popup.y(), popup_y)
+        self.parent.resize(667, 602)
+        for _ in range(5):
+            QApplication.processEvents()
+        self.assertNotEqual(popup._last_strip_anchor, first_anchor)
         hud_top = hud.mapTo(self.parent, QPoint(0, 0)).y()
         self.assertLessEqual(popup.y() + popup.height(), hud_top)
         popup.hide()
         popup.deleteLater()
 
-    def test_status_popover_closes_instead_of_covering_tall_card_material(self) -> None:
-        card_web = QWidget(self.parent)
-        card_web.setGeometry(0, 0, 1000, 500)
-        card_web.show()
-        card_web.zoomFactor = lambda: 1.0
-        self.parent.reviewer = types.SimpleNamespace(web=card_web)
+    def test_native_strip_and_bank_button_stay_visible_in_a_short_window(self) -> None:
         state = self._state()
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         hud.set_data(state, "Mining")
         self.ui.update_review_status_badge(state)
         self.ui.update_review_bank_run_button(state, "mining", lambda: None)
-        self.ui._CARD_CONTENT_BOTTOM_PX = 500
-        for _ in range(5):
-            QApplication.processEvents()
-
-        self.ui._DND_BADGE.button.click()
-        for _ in range(4):
-            QApplication.processEvents()
-        self.assertIsNone(self.ui._STATUS_POPOVER)
-
-        self.ui._CARD_CONTENT_BOTTOM_PX = 150
-        self.ui._DND_BADGE.button.click()
-        for _ in range(4):
-            QApplication.processEvents()
-        self.assertIsNotNone(self.ui._STATUS_POPOVER)
-        self.assertTrue(self.ui._STATUS_POPOVER.isVisible())
-        popover = self.ui._STATUS_POPOVER.geometry()
-        content = QRect(0, 0, 1000, 150)
-        self.assertFalse(popover.intersects(content))
-
-    def test_strip_uses_the_live_answer_bar_top_when_available(self) -> None:
-        answer_bar = QWidget(self.parent)
-        answer_bar.setGeometry(0, 610, 1000, 90)
-        answer_bar.show()
-        self.parent.bottomWeb = answer_bar
-        state = self._state()
-        hud = self.ui.ReviewHUD(self.parent)
-        self.ui._REVIEW_HUD = hud
-        hud.set_data(state, "Mining")
-        self.ui.update_review_status_badge(state)
-        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
-        for _ in range(5):
-            QApplication.processEvents()
-
-        strip = self.ui._REVIEW_STRIP
-        self.assertEqual(strip.y() + strip.height(), 610)
-        self.assertFalse(strip.geometry().intersects(answer_bar.geometry()))
-
-    def test_bank_button_returns_after_a_too_short_window_is_restored(self) -> None:
-        state = self._state()
-        hud = self.ui.ReviewHUD(self.parent)
-        self.ui._REVIEW_HUD = hud
-        hud.set_data(state, "Mining")
-        self.ui.update_review_status_badge(state)
-        self.ui.update_review_bank_run_button(state, "mining", lambda: None)
-        for _ in range(4):
-            QApplication.processEvents()
-        self.assertTrue(self.ui._BANK_RUN_BUTTON.isVisible())
 
         self.parent.resize(1000, 190)
-        for _ in range(4):
-            QApplication.processEvents()
-        self.assertFalse(self.ui._REVIEW_STRIP.isVisible())
-
-        self.parent.resize(1000, 700)
-        for _ in range(4):
+        for _ in range(5):
             QApplication.processEvents()
         self.assertTrue(self.ui._REVIEW_STRIP.isVisible())
         self.assertTrue(self.ui._BANK_RUN_BUTTON.isVisible())
+        self.assertFalse(
+            self.ui._REVIEW_STRIP.geometry().intersects(self.card_web.geometry())
+        )
 
     # ---- offscreen light and dark verification --------------------------
 
@@ -868,76 +811,3 @@ class ReviewStripTest(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
-
-
-@unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
-class ReviewCardContentRectTest(unittest.TestCase):
-    """The 2026-07-29 regression: the webview widget fills the reviewer, so
-    reporting its rect as card content hid every overlay on every card."""
-
-    def _web(self, *, viewport_h=1500, measured=600, zoom=1.0):
-        from ankiscape.ui import ui as ui_module
-
-        class Point:
-            def x(self):
-                return 10
-
-            def y(self):
-                return 20
-
-        class Target:
-            def mapTo(self, _parent, _point):
-                return Point()
-
-            def width(self):
-                return 1400
-
-            def height(self):
-                return viewport_h
-
-        class Web:
-            def isVisible(self):
-                return True
-
-            def viewport(self):
-                return Target()
-
-            def zoomFactor(self):
-                return zoom
-
-        class Parent:
-            reviewer = types.SimpleNamespace(web=Web())
-
-        previous = ui_module._CARD_CONTENT_BOTTOM_PX
-        ui_module._CARD_CONTENT_BOTTOM_PX = measured
-        try:
-            return ui_module._review_card_content_rect(Parent())
-        finally:
-            ui_module._CARD_CONTENT_BOTTOM_PX = previous
-
-    def test_a_short_card_frees_the_space_below_it(self):
-        rect = self._web(viewport_h=1500, measured=600)
-        self.assertEqual(rect, (10, 20, 1400, 600))
-
-    def test_zoom_scales_the_measured_css_pixels(self):
-        rect = self._web(viewport_h=1500, measured=600, zoom=1.5)
-        self.assertEqual(rect, (10, 20, 1400, 900))
-
-    def test_a_tall_card_still_owns_the_whole_viewport(self):
-        rect = self._web(viewport_h=1500, measured=4000)
-        self.assertEqual(rect, (10, 20, 1400, 1500))
-
-    def test_no_measurement_reports_none_not_full_screen(self):
-        self.assertIsNone(self._web(measured=0))
-
-    def test_the_measurement_note_sanitizes_and_repositions(self):
-        from ankiscape.ui import ui as ui_module
-
-        previous = ui_module._CARD_CONTENT_BOTTOM_PX
-        try:
-            ui_module.note_card_content_bottom("not a number")
-            self.assertEqual(ui_module._CARD_CONTENT_BOTTOM_PX, 0)
-            ui_module.note_card_content_bottom(412.0)
-            self.assertEqual(ui_module._CARD_CONTENT_BOTTOM_PX, 412)
-        finally:
-            ui_module._CARD_CONTENT_BOTTOM_PX = previous

@@ -594,7 +594,8 @@ from ..logic.dnd_favourites_logic import (
 )
 from ..logic.summoning_logic import familiarisation_view_pure
 from ..logic.review_strip_logic import (
-    REVIEW_ANSWER_BAR_HEIGHT,
+    REVIEW_BANK_RUN_LABEL,
+    REVIEW_BANK_RUN_TOOLTIP,
     REVIEW_EVENT_LOG_DEFAULT_LIMIT,
     REVIEW_STRIP_HEIGHT,
     REVIEW_STRIP_WIDTH,
@@ -602,9 +603,7 @@ from ..logic.review_strip_logic import (
     activity_xp_bars_pure,
     review_bank_run_button_view_pure,
     review_event_log_drawer_view_pure,
-    review_overlay_layout_view_pure,
     review_status_badges_view_pure,
-    review_status_popover_layout_view_pure,
     world_event_rows_pure,
 )
 
@@ -1982,62 +1981,51 @@ if HAS_QT:
             self._on_close()
 
     class ReviewStrip(QWidget):
-        """The fixed reviewer-chrome row immediately above Anki's answers."""
+        """Native Anki layout row below the answer bar, outside the card webview."""
 
         def __init__(self, parent=None):
             super().__init__(parent)
             self.setObjectName("AnkiScapeReviewStrip")
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-            self.setFixedSize(REVIEW_STRIP_WIDTH, REVIEW_STRIP_HEIGHT)
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            self.setFixedHeight(REVIEW_STRIP_HEIGHT)
             self.root = QHBoxLayout(self)
             self.root.setContentsMargins(8, 0, 8, 0)
             self.root.setSpacing(6)
             self.setStyleSheet(
                 "QWidget#AnkiScapeReviewStrip { background: transparent; }"
             )
-            if parent is not None:
-                parent.installEventFilter(self)
             self.hide()
 
         def sync_children(self) -> None:
             widgets = tuple(
                 widget
-                for widget in (
-                    _DND_BADGE,
-                    _FARMING_BADGE,
-                    _REVIEW_HUD,
-                    _BANK_RUN_BUTTON,
-                )
+                for widget in (_DND_BADGE, _FARMING_BADGE, _REVIEW_HUD)
                 if widget is not None
             )
-            if self.root.count() == len(widgets) and all(
-                self.root.itemAt(index).widget() is widget
-                for index, widget in enumerate(widgets)
-            ):
+            current = tuple(
+                item.widget()
+                for index in range(self.root.count())
+                if (item := self.root.itemAt(index)).widget() is not None
+            )
+            if current == widgets:
                 return
             while self.root.count():
                 self.root.takeAt(0)
+            self.root.addStretch(1)
             for widget in widgets:
                 widget.setParent(self)
                 self.root.addWidget(widget, 0, Qt.AlignmentFlag.AlignVCenter)
-
-        def eventFilter(self, obj, event):  # type: ignore[override]
-            if event.type() in (QEvent.Type.Resize, QEvent.Type.Move, QEvent.Type.Show):
-                _reposition_review_overlay()
-            return False
+            self.root.addStretch(1)
 
     class ReviewHUD(QWidget):
-        """A compact overlay shown on the review screen (lower center).
-        Displays current skill (icon + name), level, and progress to next level.
-        """
+        """The compact XP box inside the native reviewer strip."""
         def __init__(self, parent=None):
             super().__init__(parent)
-            self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-            # Important: keep this as a child widget inside Anki's main window.
-            # Avoid ToolTip/Window flags that would make it a top-level, always-on-top window
-            # and leak over other macOS apps.
+            # This remains an ordinary child of the native review strip. It must
+            # accept mouse events because the Bank run button lives inside it.
             try:
                 self.setWindowFlags(Qt.WindowType.Widget)
             except Exception:
@@ -2144,6 +2132,10 @@ if HAS_QT:
             info.addWidget(self.chips_lbl)
 
             root.addLayout(info, 1)
+            self.action_column = QVBoxLayout()
+            self.action_column.setContentsMargins(0, 0, 0, 0)
+            self.action_column.addStretch(1)
+            root.addLayout(self.action_column)
 
             # Aesthetic container style
             self.setStyleSheet(
@@ -2175,6 +2167,12 @@ if HAS_QT:
                 pass
 
             self.hide()
+
+        def attach_bank_run_button(self, button) -> None:
+            button.setParent(self)
+            self.action_column.addWidget(
+                button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom
+            )
 
         def _skill_icon_path(self, skill: str) -> Optional[str]:
             # Registry-driven: resolves icon/<skill_id>_icon.png for any playable
@@ -2520,7 +2518,7 @@ if HAS_QT:
             self.show()
 
         def _reposition(self) -> None:
-            _reposition_review_overlay()
+            _sync_review_strip_layout()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -2813,7 +2811,7 @@ if HAS_QT:
             show_review_status_popover(self, self._view, self._open_target)
 
         def _reposition(self) -> None:
-            _reposition_review_overlay()
+            _sync_review_strip_layout()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -2827,24 +2825,17 @@ if HAS_QT:
         """Always-present strip action backed by the runtime bank-run seam."""
 
         def __init__(self, parent=None):
-            super().__init__("Do bank run", parent)
+            super().__init__(REVIEW_BANK_RUN_LABEL, parent)
             self.setObjectName("reviewBankRunButton")
-            self.setFixedSize(116, 40)
-            self.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.setToolTip(REVIEW_BANK_RUN_TOOLTIP)
+            self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             self._action_callback = None
             self.clicked.connect(self._activate)
-            self.setStyleSheet(
-                f"QPushButton {{ color: white; background: {_HUD_BG};"
-                f" border: 1px solid {_HUD_BORDER}; border-radius: 8px;"
-                " padding: 5px 8px; font-weight: 700; }"
-                "QPushButton:hover { background: rgba(40,40,40,210); }"
-                "QPushButton:disabled { color: rgba(255,255,255,0.45); }"
-            )
 
         def set_data(self, view: dict, action_callback=None) -> None:
             self._action_callback = action_callback
-            self.setText(str(view.get("text", "Do bank run")))
-            self.setToolTip(str(view.get("tooltip", "")))
+            self.setText(str(view.get("text", REVIEW_BANK_RUN_LABEL)))
+            self.setToolTip(str(view.get("tooltip", REVIEW_BANK_RUN_TOOLTIP)))
             self.setEnabled(bool(view.get("enabled")) and action_callback is not None)
             visible = bool(view.get("visible", True))
             self.setProperty("ankiscapeOverlayRequested", visible)
@@ -2916,7 +2907,7 @@ if HAS_QT:
                 self.toggle.setChecked(False)
                 self.toggle.setText(str(view.get("title", "Recent fills")))
                 self.hide()
-                _reposition_review_overlay()
+                _sync_review_strip_layout()
                 return
             self.toggle.setText(str(view.get("title", "Recent fills")))
             self.rows.clear()
@@ -2946,7 +2937,7 @@ if HAS_QT:
             )
             self.rows.setVisible(bool(expanded))
             self.adjustSize()
-            _reposition_review_overlay()
+            _sync_review_strip_layout()
 
         def _activate_row(self, item) -> None:
             if (
@@ -2957,7 +2948,7 @@ if HAS_QT:
                 self._open_grand_exchange()
 
         def _reposition(self) -> None:
-            _reposition_review_overlay()
+            _sync_review_strip_layout()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -3036,7 +3027,7 @@ if HAS_QT:
             )
             if not view.get("visible"):
                 self.hide()
-                _reposition_review_overlay()
+                _sync_review_strip_layout()
                 return
             self.toggle.setText(str(view["title"]))
             self.toggle.setArrowType(
@@ -3084,7 +3075,7 @@ if HAS_QT:
                 self._render()
 
         def _reposition(self) -> None:
-            _reposition_review_overlay()
+            _sync_review_strip_layout()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -3209,7 +3200,7 @@ if HAS_QT:
             anchor = self._strip_anchor()
             if anchor is None:
                 x = max(10, int((par.width() - self.width()) / 2))
-                y = max(8, par.height() - REVIEW_ANSWER_BAR_HEIGHT - self.height())
+                y = max(8, par.height() - self.height() - 8)
                 end_y = max(8, y - _POPUP_FLOAT_PX)
             else:
                 x, y, end_y = anchor
@@ -3333,200 +3324,82 @@ def _overlay_requested(widget) -> bool:
     return widget.isVisible() if requested is None else bool(requested)
 
 
-def _review_answer_bar_top(parent) -> int:
-    """Top edge of Anki's live answer bar, with the legacy height as fallback."""
+def _attach_review_strip(parent, strip) -> bool:
+    """Insert the native strip directly below Anki's bottom webview."""
 
     try:
-        answer_bar = getattr(parent, "bottomWeb", None)
-        if answer_bar is not None and answer_bar.isVisible():
-            top = answer_bar.mapTo(parent, QPoint(0, 0)).y()
-            if 0 < top <= parent.height():
-                return top
+        layout = getattr(parent, "mainLayout", None)
+        bottom_web = getattr(parent, "bottomWeb", None)
+        if layout is None or bottom_web is None:
+            return False
+        if layout.indexOf(strip) >= 0:
+            return True
+        bottom_index = layout.indexOf(bottom_web)
+        if bottom_index < 0:
+            return False
+        layout.insertWidget(bottom_index + 1, strip, 0)
+        return True
     except Exception:
-        pass
-    return max(0, parent.height() - REVIEW_ANSWER_BAR_HEIGHT)
+        return False
 
 
-def _review_card_content_rect(parent) -> tuple[int, int, int, int] | None:
-    """Map the reviewer's web viewport into the overlay parent's coordinates."""
+def _review_overlay_bottom(parent, strip) -> int:
+    """Top of Anki's answer bar, with the native strip as the fallback."""
 
-    try:
-        reviewer = getattr(parent, "reviewer", None)
-        web = getattr(reviewer, "web", None)
-        if web is None or not web.isVisible():
-            return None
-        viewport = getattr(web, "viewport", None)
-        target = viewport() if callable(viewport) else web
-        point = target.mapTo(parent, QPoint(0, 0))
-        # The webview widget fills the reviewer even when the rendered card is
-        # a few lines tall, so the widget rect alone would claim the whole
-        # window as card territory and hide every overlay everywhere — the
-        # 2026-07-29 playtest regression. The page's contentsSize cannot help
-        # either: Anki stretches the card body to 100% viewport height, so the
-        # document always measures exactly as tall as the webview. The only
-        # honest bound is the card container's rendered bounding box, measured
-        # by JS on every card show (measure_card_content below). Until a
-        # measurement arrives, report None so callers use the visible bottom
-        # fallback rather than hiding.
-        measured = int(_CARD_CONTENT_BOTTOM_PX)
-        if measured <= 0:
-            return None
-        try:
-            measured = int(measured * float(web.zoomFactor()))
-        except Exception:
-            pass
-        return (
-            point.x(),
-            point.y(),
-            target.width(),
-            min(target.height(), measured),
-        )
-    except Exception:
-        return None
+    bottom_web = getattr(parent, "bottomWeb", None)
+    if bottom_web is not None and bottom_web.isVisible():
+        return bottom_web.mapTo(parent, QPoint(0, 0)).y()
+    return strip.mapTo(parent, QPoint(0, 0)).y()
 
 
-_CARD_CONTENT_BOTTOM_PX = 0
-
-_CARD_CONTENT_JS = """
-(function () {
-    var qa = document.getElementById("qa");
-    var target = qa || document.body;
-    if (!target) { return 0; }
-    var rect = target.getBoundingClientRect();
-    return Math.max(0, Math.ceil(rect.bottom));
-})();
-"""
-
-
-def note_card_content_bottom(value) -> None:
-    """JS-measured card bottom in CSS pixels; 0 means unknown."""
-
-    global _CARD_CONTENT_BOTTOM_PX
-    try:
-        _CARD_CONTENT_BOTTOM_PX = max(0, int(value or 0))
-    except (TypeError, ValueError):
-        _CARD_CONTENT_BOTTOM_PX = 0
-    _reposition_review_overlay()
-
-
-def measure_card_content() -> None:
-    """Re-measure the rendered card on show; stale heights must never leak
-    from a tall card into the next short one, so the cache resets first."""
-
-    global _CARD_CONTENT_BOTTOM_PX
-    _CARD_CONTENT_BOTTOM_PX = 0
-    try:
-        web = getattr(getattr(mw, "reviewer", None), "web", None)
-        if web is None:
-            return
-        _sync_card_bottom_padding(
-            mw,
-            _review_overlay_reserved_height()
-            if _REVIEW_STRIP is not None and _REVIEW_STRIP.isVisible()
-            else 0,
-            force=True,
-        )
-        web.evalWithCallback(_CARD_CONTENT_JS, note_card_content_bottom)
-    except Exception:
-        pass
-
-
-_CARD_PADDING_PX = -1
-
-
-def _review_overlay_reserved_height() -> int:
-    """Return the full visible stack rising from the fixed strip."""
-
-    strip = _REVIEW_STRIP
-    if strip is None or not strip.isVisible():
-        return 0
-    stack = [strip]
-    stack.extend(
-        widget
-        for widget in (_EVENT_LOG_DRAWER, _FILL_DRAWER, _REVIEW_CONTEXT_STRIP)
-        if _overlay_requested(widget) and widget.isVisible()
-    )
-    top = min(widget.y() for widget in stack)
-    return max(REVIEW_STRIP_HEIGHT, strip.y() + strip.height() - top)
-
-
-def _sync_card_bottom_padding(parent, reserved_height, *, force=False) -> None:
-    """Reserve every persistent overlay pixel in the card document."""
-
-    global _CARD_PADDING_PX
-    padding = max(0, int(reserved_height))
-    if not force and padding == _CARD_PADDING_PX:
-        return
-    try:
-        web = getattr(getattr(parent, "reviewer", None), "web", None)
-        if web is None:
-            return
-        web.eval(f"document.body.style.paddingBottom = '{padding}px';")
-        _CARD_PADDING_PX = padding
-    except Exception:
-        pass
-
-
-def _reposition_review_overlay() -> None:
-    """Pin the strip and stack every transient panel upward from its XP box."""
+def _sync_review_strip_layout() -> None:
+    """Size the native strip and anchor translucent drawers above it."""
 
     try:
         parent = mw
-        if parent is None:
-            return
         strip = _REVIEW_STRIP
         hud = _REVIEW_HUD if _overlay_requested(_REVIEW_HUD) else None
-        context = (
-            _REVIEW_CONTEXT_STRIP
-            if _overlay_requested(_REVIEW_CONTEXT_STRIP)
-            else None
-        )
-        drawers = [
-            drawer
-            # Event is the drawer immediately above XP; GE stacks above it.
-            for drawer in (_EVENT_LOG_DRAWER, _FILL_DRAWER)
-            if _overlay_requested(drawer)
-        ]
-        if strip is None or hud is None:
+        if parent is None or strip is None:
             return
-        strip.sync_children()
+        if hud is None or not _attach_review_strip(parent, strip):
+            strip.hide()
+            close_review_status_popover()
+            for panel in (
+                _REVIEW_CONTEXT_STRIP,
+                _EVENT_LOG_DRAWER,
+                _FILL_DRAWER,
+            ):
+                if panel is not None:
+                    panel.hide()
+            return
 
-        gap = 6
-        strip_width = min(REVIEW_STRIP_WIDTH, max(1, parent.width() - 16))
-        strip.setFixedSize(strip_width, REVIEW_STRIP_HEIGHT)
+        strip.sync_children()
         seats = tuple(
             widget
-            for widget in (_DND_BADGE, _FARMING_BADGE, hud, _BANK_RUN_BUTTON)
+            for widget in (_DND_BADGE, _FARMING_BADGE, hud)
             if widget is not None
         )
-        nominal_widths = {
-            _DND_BADGE: 82,
-            _FARMING_BADGE: 112,
-            hud: 340,
-            _BANK_RUN_BUTTON: 116,
-        }
-        minimum_widths = {
-            _DND_BADGE: 66,
-            _FARMING_BADGE: 84,
-            _BANK_RUN_BUTTON: 88,
-        }
+        nominal_widths = {_DND_BADGE: 82, _FARMING_BADGE: 112, hud: 340}
+        minimum_widths = {_DND_BADGE: 66, _FARMING_BADGE: 84}
         margins = strip.root.contentsMargins()
-        content_width = max(
-            1,
-            strip_width
-            - margins.left()
-            - margins.right()
-            - strip.root.spacing() * max(0, len(seats) - 1),
+        content_width = min(
+            REVIEW_STRIP_WIDTH,
+            max(
+                1,
+                parent.width()
+                - margins.left()
+                - margins.right()
+                - strip.root.spacing() * max(0, len(seats) - 1),
+            ),
         )
         nominal_total = sum(nominal_widths[seat] for seat in seats)
         if content_width >= nominal_total:
             widths = {seat: nominal_widths[seat] for seat in seats}
         else:
-            ratio = content_width / max(1, nominal_total)
             widths = {
                 seat: max(
-                    minimum_widths.get(seat, 1),
-                    min(nominal_widths[seat], int(nominal_widths[seat] * ratio)),
+                    minimum_widths[seat],
+                    int(nominal_widths[seat] * content_width / max(1, nominal_total)),
                 )
                 for seat in seats
                 if seat is not hud
@@ -3535,79 +3408,68 @@ def _reposition_review_overlay() -> None:
         for seat in seats:
             seat.setFixedWidth(widths[seat])
 
+        strip.show()
+        for widget in (_DND_BADGE, _FARMING_BADGE, hud, _BANK_RUN_BUTTON):
+            if widget is not None:
+                widget.setVisible(_overlay_requested(widget))
+
+        layout = getattr(parent, "mainLayout", None)
+        if layout is not None:
+            layout.activate()
+
+        gap = 6
+        strip_origin = strip.mapTo(parent, QPoint(0, 0))
+        hud_origin = hud.mapTo(parent, QPoint(0, 0))
+        cursor_y = _review_overlay_bottom(parent, strip) - gap
+        drawers = [
+            drawer
+            for drawer in (_EVENT_LOG_DRAWER, _FILL_DRAWER)
+            if _overlay_requested(drawer)
+        ]
         for drawer in drawers:
             drawer.setMaximumHeight(16777215)
             drawer.setFixedWidth(
                 min(max(drawer.width(), 300), 520, max(1, parent.width() - 16))
             )
             drawer.adjustSize()
+            drawer.setVisible(True)
 
-        layout = review_overlay_layout_view_pure(
-            parent_size=(parent.width(), parent.height()),
-            content_rect=_review_card_content_rect(parent),
-            cluster_size=(strip_width, REVIEW_STRIP_HEIGHT),
-            answer_bar_top=_review_answer_bar_top(parent),
-        )
-        visible = bool(layout.get("visible"))
-        strip.setVisible(visible)
-        for widget in (
-            _DND_BADGE,
-            _FARMING_BADGE,
-            _REVIEW_HUD,
-            _BANK_RUN_BUTTON,
-            context,
-            *drawers,
-        ):
-            if widget is not None:
-                widget.setVisible(visible and _overlay_requested(widget))
-        if not visible:
-            _sync_card_bottom_padding(parent, 0)
-            close_review_status_popover()
-            return
-
-        origin_x = int(layout["x"])
-        strip.move(origin_x, int(layout["y"]))
-        strip.raise_()
-
-        stack_budget = max(1, strip.y() - 8 - gap * len(drawers))
-        natural_height = sum(drawer.height() for drawer in drawers)
-        if drawers and natural_height > stack_budget:
+        stack_budget = max(1, cursor_y - 8 - gap * max(0, len(drawers) - 1))
+        if drawers and sum(drawer.height() for drawer in drawers) > stack_budget:
             height_per_drawer = max(1, stack_budget // len(drawers))
             for drawer in drawers:
                 drawer.setMaximumHeight(height_per_drawer)
                 drawer.adjustSize()
 
-        hud_origin = hud.mapTo(parent, QPoint(0, 0))
-        cursor_y = strip.y() - gap
         for drawer in drawers:
             cursor_y -= drawer.height()
             drawer_x = hud_origin.x() + (hud.width() - drawer.width()) // 2
             drawer_x = min(
-                max(origin_x, drawer_x),
-                origin_x + max(0, strip.width() - drawer.width()),
+                max(8, drawer_x),
+                max(8, parent.width() - drawer.width() - 8),
             )
             drawer.move(drawer_x, cursor_y)
             cursor_y -= gap
             drawer.raise_()
+
+        context = (
+            _REVIEW_CONTEXT_STRIP
+            if _overlay_requested(_REVIEW_CONTEXT_STRIP)
+            else None
+        )
         if context is not None:
             context.adjustSize()
-            context_width = min(
-                max(context.width(), hud.width()),
-                strip.width(),
-            )
+            context_width = min(max(context.width(), hud.width()), strip.width())
             context.setFixedWidth(context_width)
             context.move(
-                origin_x + (strip.width() - context_width) // 2,
+                strip_origin.x() + (strip.width() - context_width) // 2,
                 max(0, cursor_y - context.height()),
             )
+            context.setVisible(True)
             context.raise_()
-        _sync_card_bottom_padding(parent, _review_overlay_reserved_height())
-        if (
-            _STATUS_POPOVER is not None
-            and _STATUS_POPOVER.isVisible()
-            and not _position_review_status_popover()
-        ):
-            close_review_status_popover()
+
+        if _STATUS_POPOVER is not None and _STATUS_POPOVER.isVisible():
+            _position_review_status_popover()
         popup = getattr(parent, "exp_popup", None)
         if popup is not None and hasattr(popup, "reanchor_to_strip"):
             popup.reanchor_to_strip()
@@ -3696,7 +3558,7 @@ def _cleanup_extra_huds() -> None:
 
 
 def ensure_review_strip() -> None:
-    """Create the fixed row and its four stable left-to-right seats."""
+    """Create and attach the native row below Anki's answer bar."""
 
     global _REVIEW_STRIP, _REVIEW_HUD, _DND_BADGE, _FARMING_BADGE
     global _BANK_RUN_BUTTON
@@ -3712,7 +3574,8 @@ def ensure_review_strip() -> None:
     if _REVIEW_HUD is None:
         _REVIEW_HUD = ReviewHUD(_REVIEW_STRIP)
     if _BANK_RUN_BUTTON is None:
-        _BANK_RUN_BUTTON = ReviewBankRunButton(_REVIEW_STRIP)
+        _BANK_RUN_BUTTON = ReviewBankRunButton(_REVIEW_HUD)
+        _REVIEW_HUD.attach_bank_run_button(_BANK_RUN_BUTTON)
     _REVIEW_STRIP.sync_children()
 
 def ensure_review_hud() -> None:
@@ -3736,6 +3599,7 @@ def update_review_hud(player_data: dict, current_skill: str) -> None:
                 if _REVIEW_HUD is not None and hasattr(_REVIEW_HUD, "hide"):
                     _REVIEW_HUD.setProperty("ankiscapeOverlayRequested", False)
                     _REVIEW_HUD.hide()
+                    _sync_review_strip_layout()
             except Exception:
                 pass
             return
@@ -3830,7 +3694,7 @@ def update_review_bank_run_button(
             ),
             action_callback,
         )
-    _reposition_review_overlay()
+    _sync_review_strip_layout()
 
 
 def ensure_review_fill_drawer() -> None:
@@ -3890,16 +3754,12 @@ def _position_review_status_popover() -> bool:
         frame.adjustSize()
         frame.resize(max(360, frame.width()), min(380, max(180, frame.sizeHint().height())))
         point = badge.mapTo(mw, QPoint(0, 0))
-        layout = review_status_popover_layout_view_pure(
-            parent_size=(mw.width(), mw.height()),
-            content_rect=_review_card_content_rect(mw),
-            anchor_rect=(point.x(), point.y(), badge.width(), badge.height()),
-            popover_size=(frame.width(), frame.height()),
-            safe_bottom=strip.y(),
+        overlay_bottom = _review_overlay_bottom(mw, strip)
+        x = min(
+            max(8, point.x() + (badge.width() - frame.width()) // 2),
+            max(8, mw.width() - frame.width() - 8),
         )
-        if not layout.get("visible"):
-            return False
-        frame.move(int(layout["x"]), int(layout["y"]))
+        frame.move(x, max(8, overlay_bottom - frame.height() - 8))
         return True
     except Exception:
         return False
@@ -4058,7 +3918,6 @@ def hide_review_hud() -> None:
     try:
         if _REVIEW_STRIP is not None:
             _REVIEW_STRIP.hide()
-        _sync_card_bottom_padding(mw, 0, force=True)
     except Exception:
         pass
     hide_review_context_action_strip()
