@@ -6159,7 +6159,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         def reject_full_copy(value, *args, **kwargs):
             if value is addon.player_data:
-                self.fail("an answer must not deep-copy the full player state")
+                self.fail("the review-undo snapshot must not deep-copy the full player state")
             return original_deepcopy(value, *args, **kwargs)
 
         addon.copy.deepcopy = reject_full_copy
@@ -6211,6 +6211,77 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
 
         self.assertTrue(addon.player_data["carried_primed_targets"])
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual(addon.player_data, initial)
+
+    def test_combat_carried_inventory_review_undo_restores_the_exact_save(self):
+        addon = _load_addon_as_package("ankiscape_combat_carried_review_undo_integration")
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.level_up_check = lambda *_args: None
+        addon.check_achievements = lambda *_args: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: None
+        addon._update_review_bank_run_surface = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon.player_data.update(
+            {
+                "attack_level": 99,
+                "strength_level": 99,
+                "defense_level": 99,
+                "constitution_level": 99,
+                "current_combat_target": "chicken",
+                "combat_attack_style": "aggressive",
+                "combat_lifepoints": 990,
+                "loot_value_threshold": 0,
+            }
+        )
+        addon.current_skill = "Combat"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon._REVIEW_UNDO_STACK.clear()
+        initial = copy.deepcopy(addon.player_data)
+
+        combat_runtime = sys.modules[
+            f"{addon.__name__}.runtime.runtime_actions_combat"
+        ]
+        original_apply_combat_burst = combat_runtime.apply_combat_burst_pure
+
+        def combat_burst_with_kept_loot(data, *_args, **_kwargs):
+            updated = dict(data)
+            inventory = dict(updated["inventory"])
+            inventory["Bones"] = int(inventory.get("Bones", 0) or 0) + 1
+            updated["inventory"] = inventory
+            return updated, True, {
+                "reason": "combat_burst",
+                "target_id": "chicken",
+                "display_name": "Chicken",
+                "drops": {"Bones": 1},
+                "xp_rewards": {},
+                "kills": 1,
+            }
+
+        combat_runtime.apply_combat_burst_pure = combat_burst_with_kept_loot
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+        finally:
+            combat_runtime.apply_combat_burst_pure = original_apply_combat_burst
+
+        self.assertTrue(addon.player_data["carried_inventory"]["chicken"])
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon.player_data, initial)
 

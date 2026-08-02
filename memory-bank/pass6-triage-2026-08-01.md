@@ -32,10 +32,15 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
    earlier" — the pass-6 wording is now authoritative over the pass-5 strip clauses.
 3. **DONE on `pass6-perf` — see `memory-bank/pass6-traces/lag-telemetry-2026-08-01.md`.**
    The AnkiScape growth mechanism is closed: stale HUD cleanup now scans once per add-on
-   load, and parented dialogs destroy their Qt objects on close. Review answers no longer
-   deep-copy the full save, persistence and undo diffing run after Anki advances the card,
-   and the review undo cap matches Anki's 30-step history. Both test lanes pass with
-   performance and exact-save undo regressions pinned.
+   load, and parented dialogs destroy their Qt objects on close. The review-undo snapshot
+   no longer deep-copies the full save, persistence and undo diffing run after Anki advances
+   the card, and the review undo cap matches Anki's 30-step history. Successful skill
+   answers can still perform two full-state deep copies: one in
+   `_apply_safe_combat_recovery_after_review` at `__init__.py:4755`, reached from
+   `__init__.py:4847-4848`, and one for `winter_storage_before` in
+   `runtime/runtime_actions_carried.py:1057`. Both copies predate this branch rather than
+   being introduced by it, and together they cost roughly 4 ms per answer. Both test lanes
+   pass with performance and exact-save undo regressions pinned.
    **Anki lag after hours** (recurs every pass): dossier at
    `memory-bank/codex-briefs/other-addons-perf-fixes-2026-07-31.md`. Telemetry remains useful
    for identifying non-AnkiScape costs that grow during long sessions.

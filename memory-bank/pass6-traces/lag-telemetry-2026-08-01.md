@@ -18,13 +18,25 @@ cap matches Anki's 30-step history. Stale review widgets are removed by one
 consolidated scan per add-on load, and parented modal dialogs use
 `WA_DeleteOnClose`.
 
-Measured on the same machine: a 3,377-key, 131,153-byte simulated answer fell
-from 2.544 ms to 1.267 ms before `_old`, with full-state deep copies falling from
-1 to 0. Steady-state review-surface traversals fell from 90 to 0 per Show Answer
-and per next-card event. A worst-case inventory-changing undo replay retained
-6,630,147 bytes at the old cap of 50 and 4,053,827 bytes at the new cap of 30.
-Fifteen held dialog wrappers retained fifteen live Qt objects before the fix and
-zero afterward.
+Independent measurements used a normalized save containing 3,377 inventory keys
+and occupying 143,925 bytes. Across 50 warm successful Fletching answers, the
+pure-Python median was 11.33-11.43 ms on main and 9.17-9.23 ms on this branch,
+which is about 19% faster. This figure excludes Qt saving, which is the part that
+actually grew with the object tree and caused the reported slowdown.
+
+One full deepcopy of this save measured 2.02 ms, while the shallow review-undo
+snapshot measured 0.0013 ms. The guard test answers with `ease=1` and
+`current_skill="None"`, so its full-state deepcopy count fell from one to zero only
+for that scenario; it never reaches a skill handler. On successful skill answers,
+two full-state deep copies can remain: one in
+`_apply_safe_combat_recovery_after_review` at `__init__.py:4755`, reached from
+`__init__.py:4847-4848`, and one for `winter_storage_before` in
+`runtime/runtime_actions_carried.py:1057`. Both copies predate this branch rather
+than being introduced by it, and together they cost roughly 4 ms per answer.
+
+Qt traversals per refresh cycle measured 90 on main, two once at add-on load on
+this branch, and zero in steady state. Anki's real undo queue retained exactly 30
+surviving steps under Anki 25.09.4, which is why the review undo cap is 30.
 
 All five dossier fixes outside AnkiScape are also applied. Each edited file has a
 `.prefix-backup` copy beside it, because those add-on directories are not version
