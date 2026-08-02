@@ -22689,15 +22689,32 @@ def show_main_menu(
         projection = ge_state["projection"]
         if projection.get("ironman_account_type") != "unselected":
             return True
-        answer = QMessageBox.question(
-            dialog,
-            "Choose account type",
+        prompt = QMessageBox(dialog)
+        prompt.setWindowTitle("Choose account type")
+        prompt.setText(
             "Choose Ironman mode? Ironman accounts cannot use Grand Exchange "
             "offers. You may permanently de-iron later, but a regular account "
-            "can never become Ironman. Choose No to remain regular forever.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
+            "can never become Ironman. Choose No to remain regular forever."
         )
+        prompt.setStandardButtons(
+            QMessageBox.StandardButton.Yes
+            | QMessageBox.StandardButton.No
+            | QMessageBox.StandardButton.Cancel
+        )
+        decide_later = prompt.button(QMessageBox.StandardButton.Cancel)
+        decide_later.setText("Decide later")
+        prompt.setDefaultButton(decide_later)
+        prompt.setEscapeButton(decide_later)
+        prompt.exec()
+        clicked = prompt.clickedButton()
+        if clicked is None:
+            return False
+        answer = prompt.standardButton(clicked)
+        if answer not in (
+            QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No,
+        ):
+            return False
         result = _run_ge_action(
             "choose_ironman",
             {"enabled": answer == QMessageBox.StandardButton.Yes},
@@ -23089,7 +23106,18 @@ def show_main_menu(
             "as you gather or process, then a bank run costs one review."
         )
 
-    carried_header = QPushButton("▸  Carried inventory")
+    def _carried_header_text(expanded: bool = False) -> str:
+        items = (
+            tuple(get_carried_inventory_items())
+            if get_carried_inventory_items is not None
+            else ()
+        )
+        summary = " · ".join(
+            f"{item_name} ×{int(amount)}" for item_name, amount in items
+        ) or "Empty"
+        return f"{'▾' if expanded else '▸'}  Carried inventory — {summary}"
+
+    carried_header = QPushButton(_carried_header_text())
     carried_header.setObjectName("carriedInventoryHeader")
     carried_header.setCheckable(True)
     carried_header.setChecked(False)
@@ -23871,11 +23899,12 @@ def show_main_menu(
 
     def _toggle_carried_body(checked: bool) -> None:
         carried_body.setVisible(bool(checked))
-        carried_header.setText(("▾  Carried inventory") if checked else ("▸  Carried inventory"))
+        carried_header.setText(_carried_header_text(bool(checked)))
 
     carried_header.toggled.connect(_toggle_carried_body)
 
     def _refresh_carried_panel() -> None:
+        carried_header.setText(_carried_header_text(carried_header.isChecked()))
         carried_summary.setText(_carried_panel_summary_text())
         _refresh_carried_sections()
         _refresh_carried_layout_grid()

@@ -3121,6 +3121,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
 
+    def test_bank_run_refreshes_collapsed_carried_header_quantity(self) -> None:
+        carried_items = []
+        dialog = self._open(
+            _make_player_data(),
+            get_carried_inventory_items=lambda: tuple(carried_items),
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_bank_tab(dialog)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        body = dialog.findChild(QLabel, "carriedInventorySummary").parentWidget()
+        self.assertFalse(header.isChecked())
+        self.assertFalse(body.isVisibleTo(body.parentWidget()))
+
+        carried_items[:] = [("Shark", 24)]
+        self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        self.assertEqual(header.text(), "▸  Carried inventory — Shark ×24")
+        self.assertFalse(body.isVisibleTo(body.parentWidget()))
+        dialog.deleteLater()
+
     def test_bank_carried_summary_counts_stackable_quantities_as_one_slot(self) -> None:
         player_data = _make_player_data()
         player_data["carried_inventory"] = {
@@ -4332,14 +4358,16 @@ class MainMenuWidgetTest(unittest.TestCase):
             get_ge_projection=projection,
             on_ge_action=action,
         )
-        original_question = self._ui.QMessageBox.question
+        original_exec = self._ui.QMessageBox.exec
         try:
-            self._ui.QMessageBox.question = (
-                lambda *a, **k: self._ui.QMessageBox.StandardButton.No
-            )
+            def choose_regular(prompt):
+                prompt.button(QMessageBox.StandardButton.No).click()
+                return prompt.result()
+
+            self._ui.QMessageBox.exec = choose_regular
             _open_ge_tab(dialog)
         finally:
-            self._ui.QMessageBox.question = original_question
+            self._ui.QMessageBox.exec = original_exec
 
         self.assertEqual(calls, [("choose_ironman", {"enabled": False})])
         self.assertEqual(player["ironman_account_type"], "regular")
@@ -4356,6 +4384,79 @@ class MainMenuWidgetTest(unittest.TestCase):
             dialog.findChild(QLabel, "settingsIronmanHelp").text(),
         )
         dialog.deleteLater()
+
+    def test_first_ge_open_defers_without_recording_on_cancel_escape_or_close(self) -> None:
+        from ankiscape.logic.grand_exchange_logic import ge_frontend_projection_pure
+
+        for exit_route in ("button", "escape", "close"):
+            with self.subTest(exit_route=exit_route):
+                player = _make_player_data()
+                player["ironman_account_type"] = "unselected"
+                calls = []
+                prompt_count = 0
+
+                def projection():
+                    return ge_frontend_projection_pure(player, item_catalog={})
+
+                def action(action_id, payload):
+                    calls.append((action_id, dict(payload)))
+                    return {"ok": True, "projection": projection()}
+
+                dialog = self._open(
+                    player,
+                    get_ge_projection=projection,
+                    on_ge_action=action,
+                )
+                dialog.show()
+                dialog.resize(900, 560)
+                for _ in range(4):
+                    QApplication.processEvents()
+
+                original_exec = self._ui.QMessageBox.exec
+                original_question = self._ui.QMessageBox.question
+                try:
+                    def defer_choice(prompt):
+                        nonlocal prompt_count
+                        prompt_count += 1
+                        prompt.show()
+                        prompt.resize(420, 220)
+                        for _ in range(4):
+                            QApplication.processEvents()
+                        decide_later = prompt.button(QMessageBox.StandardButton.Cancel)
+                        self.assertEqual(decide_later.text(), "Decide later")
+                        self.assertIs(prompt.escapeButton(), decide_later)
+                        if exit_route == "button":
+                            decide_later.click()
+                        elif exit_route == "escape":
+                            QTest.keyClick(prompt, Qt.Key.Key_Escape)
+                        else:
+                            prompt.close()
+                        for _ in range(4):
+                            QApplication.processEvents()
+                        return prompt.result()
+
+                    self._ui.QMessageBox.exec = defer_choice
+                    self._ui.QMessageBox.question = (
+                        lambda *args, **kwargs: QMessageBox.StandardButton.No
+                    )
+                    _open_ge_tab(dialog)
+                    self.assertEqual(calls, [])
+                    self.assertEqual(player["ironman_account_type"], "unselected")
+                    self.assertNotEqual(
+                        _find_main_tabs(dialog).tabText(
+                            _find_main_tabs(dialog).currentIndex()
+                        ),
+                        "Grand Exchange",
+                    )
+                    _open_ge_tab(dialog)
+                finally:
+                    self._ui.QMessageBox.exec = original_exec
+                    self._ui.QMessageBox.question = original_question
+
+                self.assertEqual(prompt_count, 2)
+                self.assertEqual(calls, [])
+                self.assertEqual(player["ironman_account_type"], "unselected")
+                dialog.deleteLater()
 
     def test_bank_opens_the_shared_grand_exchange(self) -> None:
         player = _make_player_data()
