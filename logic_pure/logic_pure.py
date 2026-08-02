@@ -554,6 +554,8 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     combat_attack_style_for_equipment_pure,
     combat_enemy_current_lifepoints_pure,
     combat_enemy_drop_item_names_pure,
+    combat_observed_drop_item_names_pure,
+    combat_observed_drops_for_target_pure,
     combat_finisher_state_pure,
     combat_dream_thrift_locked_reasons_pure,
     combat_magic_preset_locked_reasons_pure,

@@ -2158,24 +2158,40 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
         self.assertGreater(player_data["attack_exp"], 0.0)
         self.assertGreater(player_data["constitution_exp"], 0.0)
-        # Loot filter: Bones (value 1, unstackable) fall below the default
-        # threshold and are left; Raw chicken (value 60) is kept; Feathers are
-        # stackable so always kept.
-        self.assertEqual(player_data["inventory"].get("Bones", 0), 0)
+        # Every first-seen drop is picked up and starts in Keep mode, even when it
+        # falls below the coarse value threshold. The player can turn it off only
+        # after the recorder has made it available in the per-drop control.
+        self.assertEqual(player_data["inventory"]["Bones"], 1)
         self.assertEqual(player_data["inventory"]["Raw chicken"], 1)
         self.assertEqual(player_data["inventory"]["Feather"], 5)
+        self.assertEqual(
+            player_data["loot_overrides"],
+            {"Bones": "keep", "Raw chicken": "keep", "Feather": "keep"},
+        )
         # Kept loot also folds into the combat target's carried view (it competes
         # for slots and drops on death); coins would be excluded.
-        self.assertEqual(player_data["carried_inventory"]["chicken"], {"Raw chicken": 1, "Feather": 5})
+        self.assertEqual(
+            player_data["carried_inventory"]["chicken"],
+            {"Bones": 1, "Raw chicken": 1, "Feather": 5},
+        )
         telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
         self.assertEqual(telemetry["attempts"], 1)
         self.assertEqual(telemetry["successes"], 1)
-        # Telemetry records the loot actually kept (Bones were filtered out).
-        self.assertEqual(telemetry["outputs"], {"Raw chicken": 1, "Feather": 5})
+        self.assertEqual(
+            telemetry["outputs"], {"Bones": 1, "Raw chicken": 1, "Feather": 5}
+        )
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
         self.assertEqual(len(calls["xp"]), 1)
+
+        player_data["loot_overrides"]["Bones"] = "leave"
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.0, 0.999999, 0.0])
+        )
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Bones"], 1)
+        self.assertEqual(player_data["loot_overrides"]["Bones"], "leave")
 
     def test_combat_handler_credits_matching_slayer_assignment_atomically(self):
         calls = {"xp": [], "saves": 0, "errors": []}

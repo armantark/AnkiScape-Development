@@ -43,7 +43,7 @@ from collections.abc import Mapping
 from .logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_item_pack_open_pure,
-    combat_enemy_drop_item_names_pure,
+    combat_observed_drop_item_names_pure,
     can_smith_any_pure,
     smithing_inventory_with_coal_bag_pure,
     has_crafting_materials_pure,
@@ -1707,12 +1707,9 @@ def _on_main_menu(
         if review_action_handler_key(current_skill) != "combat":
             return ()
         target_id = player_data.get("current_combat_target")
-        enemy = COMBAT_ENEMY_DATA.get(target_id) if isinstance(target_id, str) else None
-        if not enemy:
-            return ()
         overrides = player_data.get("loot_overrides") or {}
         rows = []
-        for item_name in combat_enemy_drop_item_names_pure(enemy):
+        for item_name in combat_observed_drop_item_names_pure(player_data, target_id):
             rows.append({"item": item_name, "mode": overrides.get(item_name, "auto")})
         return tuple(rows)
 

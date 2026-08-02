@@ -69,6 +69,7 @@ from ankiscape.logic_pure.logic_pure import (
     combat_death_office_summary_pure,
     combat_dragonfire_protection_pure,
     combat_enemy_drop_item_names_pure,
+    combat_observed_drop_item_names_pure,
     combat_poison_damage_for_ticks_pure,
     combat_poison_immunity_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
@@ -853,6 +854,26 @@ class CombatDropItemNamesTest(unittest.TestCase):
         self.assertEqual(combat_enemy_drop_item_names_pure({}), ())
         self.assertEqual(combat_enemy_drop_item_names_pure({"drops": None}), ())
         self.assertEqual(combat_enemy_drop_item_names_pure(None), ())
+
+    def test_observed_drop_names_include_only_the_selected_targets_log(self):
+        player = {
+            "combat_observed_drops": {
+                "chicken": {
+                    "Bones": {"times_seen": 2, "quantity_seen": 2},
+                    "Feather": {"times_seen": 1, "quantity_seen": 5},
+                },
+                "cow": {
+                    "Cowhide": {"times_seen": 1, "quantity_seen": 1}
+                },
+            }
+        }
+
+        self.assertEqual(
+            combat_observed_drop_item_names_pure(player, "chicken"),
+            ("Bones", "Feather"),
+        )
+        self.assertEqual(combat_observed_drop_item_names_pure(player, "cow"), ("Cowhide",))
+        self.assertEqual(combat_observed_drop_item_names_pure(player, "giant_rat"), ())
 
 
 class CombatLogicTest(unittest.TestCase):

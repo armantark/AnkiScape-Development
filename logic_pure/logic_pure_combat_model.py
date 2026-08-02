@@ -606,6 +606,7 @@ def default_combat_state_pure():
         "combat_encounter": {},
         "combat_kill_counts": {},
         "combat_observed_drops": {},
+        "combat_examined_monsters": [],
         "combat_last_result": {},
         "combat_grave": {},
         "death_office": {},
@@ -1062,6 +1063,20 @@ def _sanitize_combat_observed_drops(raw_log):
     return cleaned
 
 
+def _sanitize_combat_examined_monsters(raw_targets, enemy_data):
+    if not isinstance(raw_targets, (list, tuple)):
+        return []
+    cleaned = []
+    for target_id in raw_targets:
+        if (
+            isinstance(target_id, str)
+            and target_id in enemy_data
+            and target_id not in cleaned
+        ):
+            cleaned.append(target_id)
+    return cleaned
+
+
 def _record_combat_observed_drops_pure(data, target_id, drops):
     if not isinstance(target_id, str) or not target_id or not isinstance(drops, Mapping):
         return
@@ -1217,6 +1232,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         },
         "combat_observed_drops": _sanitize_combat_observed_drops(
             player_data.get("combat_observed_drops")
+        ),
+        "combat_examined_monsters": _sanitize_combat_examined_monsters(
+            player_data.get("combat_examined_monsters"), enemy_data
         ),
         "combat_last_result": dict(player_data.get("combat_last_result", {}) or {}),
         "combat_grave": _sanitize_combat_grave_state(player_data.get("combat_grave", {}) or {}),
@@ -2559,6 +2577,25 @@ def _combat_slot_drop_quantity(slot, rng):
             width = high - low + 1
             return low + int(max(0.0, min(roll, 0.999999999)) * width)
     return max(1, _positive_int(slot.get("quantity", 1), 1))
+
+
+def combat_observed_drops_for_target_pure(player_data, target_id):
+    if (
+        not isinstance(player_data, Mapping)
+        or not isinstance(target_id, str)
+        or not target_id
+    ):
+        return {}
+    observed = player_data.get("combat_observed_drops", {}) or {}
+    if not isinstance(observed, Mapping):
+        return {}
+    return _sanitize_combat_observed_drops(
+        {target_id: observed.get(target_id)}
+    ).get(target_id, {})
+
+
+def combat_observed_drop_item_names_pure(player_data, target_id):
+    return tuple(combat_observed_drops_for_target_pure(player_data, target_id))
 
 
 def combat_enemy_drop_item_names_pure(enemy):

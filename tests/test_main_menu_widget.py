@@ -3203,6 +3203,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         bones_drop = dialog.findChild(QPushButton, "lootOverrideDrop::Bones")
         self.assertIsNotNone(bones_keep, "per-drop Keep segment missing")
         self.assertIsNotNone(bones_drop, "per-drop Drop segment missing")
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "lootOverrideDrop::Feather"),
+            "unobserved drops must not appear in the advanced control",
+        )
         # Clicking Drop on a saved-Keep drop switches it to Leave and fires back.
         bones_drop.click()
         QApplication.processEvents()
@@ -5422,7 +5426,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_combat_is_selectable_and_shows_simple_enemy_targets(self) -> None:
+        from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+
         pd = _make_player_data()
+        pd["combat_examined_monsters"] = list(COMBAT_ENEMY_DATA)
         pd["inventory"]["Waterskin (4)"] = 1
         pd["current_combat_target"] = "seagull"
         pd["slayer_level"] = 65

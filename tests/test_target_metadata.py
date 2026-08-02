@@ -314,6 +314,7 @@ class TargetMetadataTest(unittest.TestCase):
                     "finishers": {"Ice cooler": 2},
                     "hazards": {"Waterskin (4)": 1},
                 },
+                "combat_examined_monsters": list(COMBAT_ENEMY_DATA),
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -656,6 +657,52 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Poison: 60 LP", poison_spider_level_64.tooltip)
         self.assertIn("poison_spider_lvl_64.plugin.kts", poison_spider_level_64.tooltip)
 
+    def test_combat_drop_details_require_monster_examine_and_show_observed_log(self):
+        player = {
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "inventory": {},
+            "equipment": {},
+            "combat_supply_loadout": {},
+            "combat_observed_drops": {
+                "chicken": {
+                    "Feather": {"times_seen": 2, "quantity_seen": 9}
+                }
+            },
+        }
+
+        hidden = _row(
+            combat_target_rows(
+                player,
+                COMBAT_ENEMY_DATA,
+                {},
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+            ),
+            "chicken",
+        )
+        self.assertIn("Observed drops:\n  Feather: seen 2 times, quantity 9", hidden.tooltip)
+        self.assertNotIn("Monster Examine drop table:", hidden.tooltip)
+        self.assertNotIn("Raw chicken x1", hidden.tooltip)
+
+        examined = _row(
+            combat_target_rows(
+                {**player, "combat_examined_monsters": ["chicken"]},
+                COMBAT_ENEMY_DATA,
+                {},
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+            ),
+            "chicken",
+        )
+        self.assertIn("Monster Examine drop table:", examined.tooltip)
+        self.assertIn("Raw chicken x1", examined.tooltip)
+
     def test_goat_row_exposes_desert_gate_guaranteed_horn_and_enemy_icon(self):
         player = {
             "current_combat_target": "goat",
@@ -668,6 +715,7 @@ class TargetMetadataTest(unittest.TestCase):
             "inventory": {},
             "equipment": {},
             "combat_supply_loadout": {},
+            "combat_examined_monsters": ["goat"],
         }
         blocked_rows = combat_target_rows(
             player,
@@ -853,6 +901,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {},
                 "equipment": {},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["ogre"],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -960,6 +1009,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "equipment": {"shield": "Anti-dragon shield"},
                 "combat_auto_eat_food": ["Shark"],
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["green_dragon"],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -1013,6 +1063,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {},
                 "equipment": {"shield": "Lit bug lantern"},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["harpie_bug_swarm"],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -1035,6 +1086,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {},
                 "equipment": {},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["killerwatt"],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -1061,6 +1113,10 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {},
                 "equipment": {},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": [
+                    "sea_snake_hatchling",
+                    "sea_snake_young",
+                ],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -1091,6 +1147,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {"Spade": 1},
                 "equipment": {},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["brine_rat"],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -1136,6 +1193,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {"Slayer bell": 1, "Lit torch": 1},
                 "equipment": {},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["molanisk"],
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -1180,6 +1238,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "inventory": {},
                 "equipment": {"weapon": "Leaf-bladed spear"},
                 "combat_supply_loadout": {},
+                "combat_examined_monsters": ["turoth"],
             },
             COMBAT_ENEMY_DATA,
             {},
