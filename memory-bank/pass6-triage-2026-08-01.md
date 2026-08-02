@@ -19,7 +19,12 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
    inconsistently flips to "edit order"; buy/sell slots don't display the price you set;
    "clicking on an item in the list should reset to guide price on the right, seems to be
    persisting." Hard to tell what your listing price actually is.
-2. **Event-log z-level violates the native-strip ruling**: the log/drawer sits *above* the
+2. **DONE, merged at `4187b3bb`.** The first attempt was inert in the real application:
+   Anki reparents `bottomWeb` into the central widget while the drawers hang off the main
+   window, so they were never siblings and `stackUnder` had nothing to act on. The test
+   harness had collapsed those two parents into one widget, which is exactly why an inert
+   fix looked green. Both are corrected.
+   **Event-log z-level violates the native-strip ruling**: the log/drawer sits *above* the
    vanilla Edit/Show answer/More bar even when closed. Ruling clarified in pass 6: the
    translucent drawer may take the z-level above vanilla UI **only while open**. Also the
    skill-bar button that opens the menu is still inside the card scroll window — move it
@@ -35,7 +40,16 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
    the culprit add-on. Related standing memory: perf-audit-2026-07-31-reviewer-lag
    (AnkiScape per-answer deepcopy/save/Qt scans, Auto Sync log growth, Heatmap revlog
    rescans). None of it is confirmed fixed.
-4. **Event log whitespace regression**: "Too much white space in the event log now."
+4. **DONE, merged at `4187b3bb`.** Single-line row height halved from 34px to 17px, so the
+   fixed 150px list now shows about twice as many entries. The cause was per-row label
+   padding added by a pass-5 commit, not the drawer's own margins.
+   **Event log whitespace regression**: "Too much white space in the event log now."
+
+   Two things this work surfaced that need an owner decision, recorded here rather than
+   changed: the "Widget Position" radios under Floating Widget are now partly inert,
+   because "Under XP bar" and "Right of bar" only ever meant something relative to the
+   review HUD inside the webview, and the reviewer menu button now has a fixed seat on the
+   native strip. "Enable widget" works again and still hides the button.
 
 ## B. Implementation-ready — no design input needed
 
