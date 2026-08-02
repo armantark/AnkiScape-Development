@@ -3728,6 +3728,117 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn("Services", labels)
 
+    def _open_ge_with_active_buy_offer(self):
+        from ankiscape.logic.grand_exchange_logic import (
+            apply_ge_frontend_action_pure,
+            ge_frontend_projection_pure,
+        )
+
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 100_000}
+        catalog = {
+            "Logs": {
+                "guide_price": 200,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "logs",
+            }
+        }
+        updated, placed = apply_ge_frontend_action_pure(
+            player,
+            "place_offer",
+            {"side": "buy", "item_name": "Logs", "quantity": 7, "unit_price": 1_234},
+            item_catalog=catalog,
+        )
+        self.assertTrue(placed.get("ok"), placed)
+        player.clear()
+        player.update(updated)
+        calls = []
+
+        def projection():
+            return ge_frontend_projection_pure(player, item_catalog=catalog)
+
+        def action(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            updated_player, info = apply_ge_frontend_action_pure(
+                player,
+                action_id,
+                payload,
+                item_catalog=catalog,
+            )
+            if info.get("ok") and action_id != "preview_offer":
+                player.clear()
+                player.update(updated_player)
+            return {**info, "projection": projection()}
+
+        dialog = self._open(
+            player,
+            get_ge_projection=projection,
+            on_ge_action=action,
+        )
+        _open_ge_tab(dialog)
+        return dialog, player, calls
+
+    def test_grand_exchange_active_slot_enters_edit_mode_and_loads_order_values(self) -> None:
+        dialog, _player, _calls = self._open_ge_with_active_buy_offer()
+
+        dialog.findChild(QToolButton, "geOfferSlot1").click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            dialog.findChild(QPushButton, "geSubmitOfferButton").text(),
+            "Edit order",
+        )
+        self.assertEqual(dialog.findChild(QSpinBox, "geOfferPriceSpin").value(), 1_234)
+        self.assertEqual(dialog.findChild(QSpinBox, "geOfferQuantitySpin").value(), 7)
+
+        item_list = dialog.findChild(QListWidget, "geItemList")
+        item_list.itemClicked.emit(item_list.currentItem())
+        QApplication.processEvents()
+        self.assertEqual(
+            dialog.findChild(QPushButton, "geSubmitOfferButton").text(),
+            "Place buy offer",
+        )
+        dialog.deleteLater()
+
+    def test_grand_exchange_slot_text_includes_submitted_unit_price(self) -> None:
+        dialog, _player, _calls = self._open_ge_with_active_buy_offer()
+
+        self.assertIn(
+            "· 1,234 Coins\n",
+            dialog.findChild(QToolButton, "geOfferSlot1").text(),
+        )
+        dialog.deleteLater()
+
+    def test_grand_exchange_reclicking_current_item_resets_guide_price(self) -> None:
+        dialog, _player, _calls = self._open_ge_with_active_buy_offer()
+        item_list = dialog.findChild(QListWidget, "geItemList")
+        item_list.setCurrentRow(0)
+        QApplication.processEvents()
+        price = dialog.findChild(QSpinBox, "geOfferPriceSpin")
+        price.setValue(777)
+
+        item_list.itemClicked.emit(item_list.currentItem())
+        QApplication.processEvents()
+
+        self.assertEqual(price.value(), 200)
+        dialog.deleteLater()
+
+    def test_grand_exchange_slot_selection_dispatches_remainder_edit_in_one_click(self) -> None:
+        dialog, player, calls = self._open_ge_with_active_buy_offer()
+        dialog.findChild(QToolButton, "geOfferSlot1").click()
+        dialog.findChild(QSpinBox, "geOfferQuantitySpin").setValue(3)
+        dialog.findChild(QSpinBox, "geOfferPriceSpin").setValue(300)
+
+        dialog.findChild(QPushButton, "geSubmitOfferButton").click()
+        QApplication.processEvents()
+
+        self.assertEqual(calls[-1][0], "edit_offer")
+        self.assertEqual(player["ge_player_orders"][0]["remaining_quantity"], 3)
+        self.assertEqual(player["ge_player_orders"][0]["submitted_unit_price"], 300)
+        dialog.deleteLater()
+
     def test_grand_exchange_tab_renders_period_six_slots_and_routes_an_offer(self) -> None:
         from ankiscape.logic.grand_exchange_logic import (
             GE_SLOT_COUNT,
