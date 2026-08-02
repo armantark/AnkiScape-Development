@@ -31,19 +31,19 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
     return (
         AssetRequest(
             item_name="Hitpoints orb icon",
-            wiki_title="Constitution-icon.png",
+            wiki_title="Constitution (action bar) icon.png",
             output_path=ROOT / "icon" / "hitpoints_orb.png",
             provenance_path=provenance,
         ),
         AssetRequest(
             item_name="Prayer orb icon",
-            wiki_title="Prayer-icon.png",
+            wiki_title="Prayer icon.png",
             output_path=ROOT / "icon" / "prayer_orb.png",
             provenance_path=provenance,
         ),
         AssetRequest(
             item_name="Summoning orb icon",
-            wiki_title="Summoning-icon.png",
+            wiki_title="Summoning icon.png",
             output_path=ROOT / "icon" / "summoning_orb.png",
             provenance_path=provenance,
         ),

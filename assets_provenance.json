@@ -27430,16 +27430,16 @@
     "timestamp": "2012-01-21T22:40:07Z"
   },
   "icon/hitpoints_orb.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Constitution-icon.png",
-    "file_title": "Constitution-icon.png",
-    "image_url": "https://runescape.wiki/images/archive/20221123154112%21Constitution-icon.png?0d583",
+    "file_page_url": "https://runescape.wiki/wiki/File:Constitution_%28action_bar%29_icon.png",
+    "file_title": "Constitution (action bar) icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130722221806%21Constitution_%28action_bar%29_icon.png?d6a6c",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "bce09d2bb3a364e3721bd5a551ad95f50f2d71fa",
-    "size": 930,
+    "sha1": "9fc7b39ea4161da2e7d220099dba9ac50978b527",
+    "size": 4499,
     "source_wiki": "rs3",
-    "timestamp": "2012-01-22T19:38:07Z"
+    "timestamp": "2011-11-30T08:00:54Z"
   },
   "icon/hunter_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Hunter_icon_highscores.png",
@@ -27502,16 +27502,16 @@
     "timestamp": "2012-01-21T22:41:51Z"
   },
   "icon/prayer_orb.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Prayer-icon.png",
-    "file_title": "Prayer-icon.png",
-    "image_url": "https://runescape.wiki/images/archive/20221123153651%21Prayer-icon.png?0e5f2",
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_icon.png",
+    "file_title": "Prayer icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130722221844%21Prayer_icon.png?4b534",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f521eac6d9e015a48bc809878a539465f440e194",
-    "size": 1530,
+    "sha1": "3bf554cb48bc4f8838643c40bfdab4f43bde310b",
+    "size": 4565,
     "source_wiki": "rs3",
-    "timestamp": "2012-01-21T22:03:29Z"
+    "timestamp": "2011-11-30T08:05:13Z"
   },
   "icon/quest_icon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Quest_List_tab_icon.png",
@@ -27634,16 +27634,16 @@
     "timestamp": "2012-01-21T22:38:50Z"
   },
   "icon/summoning_orb.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Summoning-icon.png",
-    "file_title": "Summoning-icon.png",
-    "image_url": "https://runescape.wiki/images/archive/20160127040053%21Summoning-icon.png?ad092",
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_icon.png",
+    "file_title": "Summoning icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130722222136%21Summoning_icon.png?b0f1e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ac42417523506e578a60393703d3d8e010d14c83",
-    "size": 1323,
+    "sha1": "8b263f0c5b38c80968178f047841416c6cdfe9d9",
+    "size": 4833,
     "source_wiki": "rs3",
-    "timestamp": "2012-01-21T22:02:26Z"
+    "timestamp": "2011-11-30T08:09:51Z"
   },
   "icon/thieving_icon.png": {
     "file_page_url": "https://runescape.wiki/w/File:Thieving_icon_highscores.png",
