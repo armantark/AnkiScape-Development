@@ -119,6 +119,8 @@ REVIEW_STRIP_HEIGHT = 128
 REVIEW_STRIP_WIDTH = 684
 REVIEW_BANK_RUN_LABEL = "Bank run"
 REVIEW_BANK_RUN_TOOLTIP = "Deposit inventory and restock same supplies"
+SIMULATED_CLOCK_TOOLTIP = "10 cards = 1 hour"
+SIMULATED_CLOCK_START_HOUR = 12
 
 # These handlers refill a target-specific carried pack. Every other registered
 # review action still gets the button and spends one review on the standard
@@ -157,6 +159,13 @@ def _answered_reviews_pure(player_data: Mapping[str, Any]) -> int:
         return max(0, int(clock.get("answered_cards", 0) or 0))
     except (TypeError, ValueError, OverflowError):
         return 0
+
+
+def simulated_clock_text_pure(player_data: Mapping[str, Any]) -> str:
+    hour = (SIMULATED_CLOCK_START_HOUR + _answered_reviews_pure(player_data) // 10) % 24
+    suffix = "AM" if hour < 12 else "PM"
+    display_hour = hour % 12 or 12
+    return f"{display_hour}:00 {suffix}"
 
 
 def sanitize_review_event_log_pure(value: Any) -> list[dict[str, Any]]:

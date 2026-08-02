@@ -375,23 +375,45 @@ _REVIEW_FEEDBACK_FLUSHING = False
 class _NamedExperience(float):
     """A numeric XP result that carries the skills which earned it."""
 
-    def __new__(cls, amount, skill_names=()):
+    def __new__(cls, amount, skill_names=(), breakdown=()):
         value = super().__new__(cls, float(amount))
         value.skill_names = tuple(
             dict.fromkeys(str(name) for name in skill_names if name)
         )
+        totals = {}
+        for name, skill_amount in breakdown:
+            amount_value = float(skill_amount)
+            if name and amount_value > 0:
+                key = str(name)
+                totals[key] = totals.get(key, 0.0) + amount_value
+        if not totals and len(value.skill_names) == 1:
+            totals[value.skill_names[0]] = float(value)
+        value.breakdown = tuple(totals.items())
         return value
+
+    @property
+    def display_text(self) -> str:
+        if len(self.breakdown) > 1:
+            return " · ".join(
+                f"{name} +{int(amount)} XP" for name, amount in self.breakdown
+            )
+        message = f"+{int(float(self))} XP"
+        if self.skill_names:
+            message += f" · {', '.join(self.skill_names)}"
+        return message
 
     def __add__(self, other):
         return _NamedExperience(
             float(self) + float(other),
             (*self.skill_names, *getattr(other, "skill_names", ())),
+            (*self.breakdown, *getattr(other, "breakdown", ())),
         )
 
     def __radd__(self, other):
         return _NamedExperience(
             float(other) + float(self),
             (*getattr(other, "skill_names", ()), *self.skill_names),
+            (*getattr(other, "breakdown", ()), *self.breakdown),
         )
 
 def show_review_popup():
@@ -470,9 +492,9 @@ def _show_exp(exp_gained) -> None:
             return
         if not skill_names and current_skill not in {"", "None"}:
             skill_names.append(str(current_skill))
-        message = f"+{int(float(exp_gained))} XP"
-        if skill_names:
-            message += f" · {', '.join(skill_names)}"
+        if not isinstance(exp_gained, _NamedExperience):
+            exp_gained = _NamedExperience(exp_gained, skill_names)
+        message = exp_gained.display_text
         _record_review_event(
             "xp", message, persist=not _REVIEW_FEEDBACK_FLUSHING
         )
@@ -589,14 +611,18 @@ def _finish_review_feedback_context() -> None:
             xp_total = 0.0
         skill_names = list(context.get("skills", ()))
         initial_exp = context.get("initial_exp", {})
+        breakdown = []
         for skill in trainable_skill_definitions():
-            if float(player_data.get(skill.exp_key, 0) or 0) > float(
+            gained = float(player_data.get(skill.exp_key, 0) or 0) - float(
                 initial_exp.get(skill.exp_key, 0) or 0
-            ) and skill.display_name not in skill_names:
-                skill_names.append(skill.display_name)
+            )
+            if gained > 0:
+                breakdown.append((skill.display_name, gained))
+                if skill.display_name not in skill_names:
+                    skill_names.append(skill.display_name)
         activity_messages = context.get("activity", [])
         if xp_total > 0:
-            _show_exp(_NamedExperience(xp_total, skill_names))
+            _show_exp(_NamedExperience(xp_total, skill_names, breakdown))
             for message in activity_messages:
                 _record_review_event("activity", str(message), persist=False)
         elif activity_messages:

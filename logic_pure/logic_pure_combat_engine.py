@@ -2691,6 +2691,25 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = max(0, min(_non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
+    prayer_max = _positive_int(player_data.get("prayer_level", 1), 1)
+    prayer_current = min(
+        prayer_max * 10,
+        _non_negative_int(
+            player_data.get("combat_prayer_points", prayer_max * 10),
+            prayer_max * 10,
+        ),
+    ) // 10
+    summoning_max = _positive_int(player_data.get("summoning_level", 1), 1)
+    summoning_state = player_data.get("summoning_state", {}) or {}
+    summoning_current = min(
+        summoning_max,
+        _non_negative_int(
+            summoning_state.get("summoning_points_current", summoning_max)
+            if isinstance(summoning_state, Mapping)
+            else summoning_max,
+            summoning_max,
+        ),
+    )
 
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     enemy = enemy_data.get(target_id) if isinstance(target_id, str) else None
@@ -2741,6 +2760,10 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
         "player_lifepoints": current_lp,
         "player_max_lifepoints": max_lp,
         "player_pct": _pct(current_lp, max_lp),
+        "prayer_points": prayer_current,
+        "prayer_max_points": prayer_max,
+        "summoning_points": summoning_current,
+        "summoning_max_points": summoning_max,
         "enemy_name": enemy_name,
         "enemy_lifepoints": enemy_lp,
         "enemy_max_lifepoints": enemy_max_lp,

@@ -171,6 +171,10 @@ class TestCombatHudStatePure(unittest.TestCase):
             "current_combat_target": "chicken",
             "combat_lifepoints": 40,
             "constitution_level": 10,
+            "prayer_level": 50,
+            "combat_prayer_points": 310,
+            "summoning_level": 42,
+            "summoning_state": {"summoning_points_current": 17},
             "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 9},
         }
         state = combat_hud_state_pure(pd)
@@ -178,6 +182,10 @@ class TestCombatHudStatePure(unittest.TestCase):
         self.assertEqual(state["enemy_lifepoints"], 9)
         self.assertLess(state["enemy_pct"], 100)
         self.assertEqual(state["player_pct"], 40)  # 40/100
+        self.assertEqual(state["prayer_points"], 31)
+        self.assertEqual(state["prayer_max_points"], 50)
+        self.assertEqual(state["summoning_points"], 17)
+        self.assertEqual(state["summoning_max_points"], 42)
 
     def test_encounter_for_other_target_is_not_carried(self):
         pd = {
