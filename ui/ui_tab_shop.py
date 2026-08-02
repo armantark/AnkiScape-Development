@@ -1308,7 +1308,10 @@ def build_shop_tab(ctx) -> "QWidget":
     on_diary_command = getattr(ctx, "on_achievement_diary_command", None)
 
     def _add_cape_button(grid: "QGridLayout", index: int, row: dict) -> None:
-        button = QPushButton(f"{row['name']} · {row['price']:,} coins")
+        action = str(row.get("purchase_label", "Buy"))
+        price = f" · {row['price']:,} coins" if row["price"] else ""
+        prefix = f"{action} " if action != "Buy" else ""
+        button = QPushButton(f"{prefix}{row['name']}{price}")
         button.setObjectName(f"shopCapeButton_{row['cape_id']}")
         button.setEnabled(bool(row["can_buy"]) and on_diary_command is not None)
         button.setToolTip(row["reason"] or f"Buy from {row['master']}")
@@ -1405,6 +1408,7 @@ def build_shop_tab(ctx) -> "QWidget":
             for row in capes["skillcapes"]
             if row["show_in_shop"] and row["cape_id"] != "agility"
         ]
+        rows.extend(row for row in capes["master_capes"] if row["show_in_shop"])
         rows.extend(capes["distinctions"])
         for index, row in enumerate(rows, start=1):
             _add_cape_button(cape_grid, index, row)
