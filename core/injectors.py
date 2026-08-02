@@ -83,102 +83,13 @@ def should_force_pass_through(message: object) -> bool:
         return True
     return False
 
-def build_reviewer_js(position: str, icon_data_uri: str) -> str:
-    pos = position if position in ("left", "right", "center", "hud-right") else "hud-right"
-    js = r"""
+def build_reviewer_js(_position: str, _icon_data_uri: str) -> str:
+    return r"""
         (function(){
-            try{
-                var wrap = document.getElementById('ankiscape-float');
-                if (!wrap) {
-                    wrap = document.createElement('div');
-                    wrap.id = 'ankiscape-float';
-                    wrap.style.position = 'fixed';
-                    // Ensure only the button receives events
-                    wrap.style.pointerEvents = 'none';
-                    wrap.style.zIndex = '9999';
-                    document.body.appendChild(wrap);
-                }
-                wrap.style.left = '';
-                wrap.style.right = '';
-                wrap.style.transform = '';
-                // The ReviewHUD (the XP/HP bar) is centered horizontally by
-                // ui.py's ReviewHUD._reposition() and anchored 72px above the
-                // window bottom, clamped to at most 520px wide (≤260px each side
-                // of centre).
-                //   'center'    -> directly beneath the bar (16px above bottom).
-                //   'hud-right'  -> beside the bar's right edge, vertically level
-                //                   with it: 50% + 270px clears the widest HUD.
-                if ('__POS__' === 'left') { wrap.style.left = '16px'; wrap.style.bottom = '16px'; }
-                else if ('__POS__' === 'center') { wrap.style.left = '50%'; wrap.style.transform = 'translateX(-50%)'; wrap.style.bottom = '16px'; }
-                else if ('__POS__' === 'hud-right') { wrap.style.left = '50%'; wrap.style.transform = 'translateX(270px)'; wrap.style.bottom = '72px'; }
-                else { wrap.style.right = '16px'; wrap.style.bottom = '16px'; }
-
-                var btn = document.getElementById('ankiscape-btn');
-                if (!btn) {
-                    btn = document.createElement('a');
-                    btn.id = 'ankiscape-btn';
-                }
-                btn.href = '#';
-                // Re-enable pointer events on the actual button
-                btn.style.pointerEvents = 'auto';
-                btn.style.padding = '10px';
-                btn.style.border = 'none';
-                btn.style.borderRadius = '20px';
-                btn.style.background = 'transparent';
-                btn.style.boxShadow = 'none';
-                btn.style.textDecoration = 'none';
-                btn.style.outline = 'none';
-                btn.style.webkitTapHighlightColor = 'transparent';
-                btn.style.cursor = 'pointer';
-                btn.style.transition = 'background 150ms ease, box-shadow 150ms ease';
-        btn.style.display = 'inline-flex';
-        btn.style.alignItems = 'center';
-        btn.style.justifyContent = 'center';
-        btn.style.lineHeight = '0';
-        btn.style.boxSizing = 'border-box';
-        btn.style.overflow = 'hidden';
-                btn.title = 'AnkiScape';
-                var img = btn.querySelector('img');
-                if (!img) { btn.textContent = ''; img = document.createElement('img'); btn.appendChild(img); }
-                img.alt = 'AnkiScape';
-                img.style.width = '24px';
-                img.style.height = '24px';
-                img.style.display = 'block';
-                img.style.filter = 'drop-shadow(0 1px 1px rgba(0,0,0,0.25))';
-                img.style.transition = 'transform 150ms ease';
-        img.style.transformOrigin = '50% 50%';
-        img.style.willChange = 'transform';
-                img.src = '__ICON_DATA_URI__';
-                if (!btn.dataset.ankiscapeHoverBound) {
-                    btn.addEventListener('mouseenter', function(){
-            try { img.style.transform = 'scale(1.15)'; img.style.filter = 'none'; } catch(_){}
-                        btn.style.background = 'rgba(76, 175, 80, 0.15)';
-                        btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-                        try { pycmd('ankiscape_log:hover_enter_reviewer'); } catch(e){}
-                    });
-                    btn.addEventListener('mouseleave', function(){
-            try { img.style.transform = 'scale(1)'; img.style.filter = 'drop-shadow(0 1px 1px rgba(0,0,0,0.25))'; } catch(_){}
-                        btn.style.background = 'transparent';
-                        btn.style.boxShadow = 'none';
-                        try { pycmd('ankiscape_log:hover_leave_reviewer'); } catch(e){}
-                    });
-                    btn.dataset.ankiscapeHoverBound = '1';
-                }
-        if (!btn.dataset.ankiscapeBound) {
-                    btn.addEventListener('click', function(ev){
-                        ev.preventDefault();
-            try { pycmd('ankiscape_log:click_reviewer'); } catch(e){}
-                        try { pycmd('ankiscape_open_menu'); } catch(e){}
-                        return false;
-                    });
-                    btn.dataset.ankiscapeBound = '1';
-                }
-                if (btn.parentElement !== wrap) { wrap.appendChild(btn); }
-                try { pycmd('ankiscape_log:review_floating_inserted'); } catch(e){}
-            } catch(e) { try { pycmd('ankiscape_log:review_js_error'); } catch(_){} }
+            var el = document.getElementById('ankiscape-float');
+            if (el && el.parentElement) { el.parentElement.removeChild(el); }
         })();
     """
-    return js.replace("__POS__", pos).replace("__ICON_DATA_URI__", icon_data_uri or '')
 
 
 def build_overview_js(position: str, icon_data_uri: str) -> str:
@@ -451,29 +362,8 @@ def inject_reviewer_floating_button(_=None) -> None:
     if not HAS_ANKI:
         return
     try:
-        enabled = True
-        pos = "hud-right"
-        try:
-            enabled = bool(mw.col.get_config("ankiscape_floating_enabled", True))
-            pos = mw.col.get_config("ankiscape_floating_position", "hud-right")
-            if pos not in ("left", "right", "center", "hud-right"):
-                pos = "hud-right"
-        except Exception:
-            pass
-        if not enabled:
-            js_remove = r"""
-            (function(){ var el = document.getElementById('ankiscape-float'); if (el && el.parentElement){ el.parentElement.removeChild(el);} })();
-            """
-            mw.reviewer.web.eval(js_remove)
-            _debug_log("inject_reviewer_floating_button: disabled; removed")
-            return
-        try:
-            icon_uri = _get_icon_data_uri() or ''
-        except Exception:
-            icon_uri = ''
-        js = build_reviewer_js(pos, icon_uri)
-        _debug_log("inject_reviewer_floating_button: eval")
-        mw.reviewer.web.eval(js)
+        mw.reviewer.web.eval(build_reviewer_js("", ""))
+        _debug_log("inject_reviewer_floating_button: removed")
     except Exception:
         _debug_log("inject_reviewer_floating_button: failed")
 
@@ -517,73 +407,81 @@ def inject_overview_floating_button(overview=None, content=None) -> None:
         _debug_log("inject_overview_floating_button: failed")
 
 
+def open_main_menu() -> None:
+    """Open or focus the main menu through the established bridge path."""
+
+    global _MENU_OPEN_PENDING
+    try:
+        from ..ui.ui import is_main_menu_open, focus_main_menu_if_open  # type: ignore
+
+        if is_main_menu_open():
+            _debug_log("injectors.bridge: menu open; focusing")
+            try:
+                focus_main_menu_if_open()
+            except Exception:
+                pass
+            return
+        if _MENU_OPEN_PENDING:
+            return
+        _MENU_OPEN_PENDING = True
+        _debug_log("injectors.bridge: opening via package._on_main_menu")
+        try:
+            import sys
+            from aqt.qt import QTimer  # type: ignore
+        except Exception:
+            QTimer = None  # type: ignore
+
+        pkg = sys.modules.get(__package__.rpartition(".")[0])
+        if pkg is None:
+            _MENU_OPEN_PENDING = False
+            _debug_log("injectors.bridge: package module not found in sys.modules")
+            return
+        open_cb = getattr(pkg, "_on_main_menu", None)
+        if not callable(open_cb):
+            _MENU_OPEN_PENDING = False
+            _debug_log("injectors.bridge: _on_main_menu not found on package module")
+            return
+
+        def _do_open():
+            global _MENU_OPEN_PENDING
+            try:
+                open_cb()  # type: ignore[misc]
+            except Exception as e:
+                _debug_log(f"injectors.bridge: _on_main_menu raised: {e}")
+            finally:
+                _MENU_OPEN_PENDING = False
+
+        try:
+            if QTimer is not None:
+                QTimer.singleShot(0, _do_open)
+                _debug_log("injectors.bridge: scheduled _on_main_menu with QTimer")
+            else:
+                _do_open()
+                _debug_log("injectors.bridge: called _on_main_menu directly (no QTimer)")
+        except Exception as e:
+            _MENU_OPEN_PENDING = False
+            _debug_log(f"injectors.bridge: failed to dispatch open: {e}")
+    except Exception as e:
+        _MENU_OPEN_PENDING = False
+        _debug_log(f"injectors.bridge: error handling open_menu: {e}")
+
+
+def open_main_menu_from_reviewer(_checked: bool = False) -> None:
+    _debug_log("js: click_reviewer")
+    open_main_menu()
+
+
 def register_deck_browser_button() -> None:
     if not HAS_ANKI:
         return
 
     def _on_js_message(handled, message, context):  # type: ignore[no-redef]
-        global _MENU_OPEN_PENDING
         _debug_log(f"_on_js_message: {message}")
         try:
             if isinstance(message, str):
                 if message == "ankiscape_open_menu":
-                    # Handle directly here to avoid relying on separate registration order.
-                    try:
-                        from ..ui.ui import is_main_menu_open, focus_main_menu_if_open  # type: ignore
-                        if is_main_menu_open():
-                            _debug_log("injectors.bridge: menu open; focusing")
-                            try:
-                                focus_main_menu_if_open()
-                            except Exception:
-                                pass
-                        elif not _MENU_OPEN_PENDING:
-                            _MENU_OPEN_PENDING = True
-                            # Resolve the package module reliably and call its _on_main_menu on the UI thread.
-                            _debug_log("injectors.bridge: opening via package._on_main_menu")
-                            try:
-                                import sys
-                                from aqt.qt import QTimer  # type: ignore
-                            except Exception:
-                                QTimer = None  # type: ignore
-
-                            pkg = None
-                            try:
-                                pkg = sys.modules.get(__package__.rpartition(".")[0])
-                            except Exception:
-                                pkg = None
-                            if pkg is None:
-                                _debug_log("injectors.bridge: package module not found in sys.modules")
-                            else:
-                                open_cb = getattr(pkg, "_on_main_menu", None)
-                                if callable(open_cb):
-                                    def _do_open():
-                                        global _MENU_OPEN_PENDING
-                                        try:
-                                            open_cb()  # type: ignore[misc]
-                                        except Exception as e:
-                                            _debug_log(f"injectors.bridge: _on_main_menu raised: {e}")
-                                        finally:
-                                            _MENU_OPEN_PENDING = False
-
-                                    try:
-                                        if QTimer is not None:
-                                            QTimer.singleShot(0, _do_open)
-                                            _debug_log("injectors.bridge: scheduled _on_main_menu with QTimer")
-                                        else:
-                                            _do_open()
-                                            _debug_log("injectors.bridge: called _on_main_menu directly (no QTimer)")
-                                    except Exception as e:
-                                        _MENU_OPEN_PENDING = False
-                                        _debug_log(f"injectors.bridge: failed to dispatch open: {e}")
-                                else:
-                                    _MENU_OPEN_PENDING = False
-                                    _debug_log("injectors.bridge: _on_main_menu not found on package module")
-                        # We handled this custom message; signal handled
-                        return (True, message)
-                    except Exception as e:
-                        _MENU_OPEN_PENDING = False
-                        _debug_log(f"injectors.bridge: error handling open_menu: {e}")
-                        return handled
+                    open_main_menu()
+                    return (True, message)
                 if message.startswith("ankiscape_log:"):
                     _debug_log(f"js: {message[len('ankiscape_log:'):]}")
                     return (True, None)
