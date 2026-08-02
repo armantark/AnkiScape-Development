@@ -22104,7 +22104,7 @@ def show_main_menu(
         ge_side.setEnabled(not editing)
         ge_quantity_caption.setText("Remaining quantity" if editing else "Quantity")
         ge_submit.setText(
-            "Update offer"
+            "Edit order"
             if editing
             else ("Place buy offer" if side == "buy" else "Place sell offer")
         )
@@ -22245,8 +22245,10 @@ def show_main_menu(
             item_name = str(order.get("item_name", ""))
             complete = int(order.get("completed_quantity", 0) or 0)
             original = int(order.get("original_quantity", 0) or 0)
+            unit_price = int(order.get("submitted_unit_price", 0) or 0)
             button.setText(
-                f"{side} · {item_name}\n{complete:,}/{original:,} filled · {str(order.get('status', '')).title()}"
+                f"{side} · {item_name} · {unit_price:,} Coins\n"
+                f"{complete:,}/{original:,} filled · {str(order.get('status', '')).title()}"
             )
             button.setProperty("geOrderId", order_id)
             button.setChecked(order_id == ge_state.get("selected_order_id"))
@@ -22354,10 +22356,19 @@ def show_main_menu(
         row = current.data(Qt.ItemDataRole.UserRole) if current is not None else None
         if not isinstance(row, dict):
             return
-        ge_state["selected_item_name"] = str(row.get("item_name", ""))
+        item_name = str(row.get("item_name", ""))
+        guide = max(int(row.get("guide_price", 1) or 1), 1)
+        if (
+            ge_state.get("selected_item_name") == item_name
+            and ge_state.get("selected_order_id") is None
+            and ge_state.get("editing_order_id") is None
+            and ge_price.value() == guide
+            and ge_quantity.value() == 1
+        ):
+            return
+        ge_state["selected_item_name"] = item_name
         ge_state["selected_order_id"] = None
         ge_state["editing_order_id"] = None
-        guide = max(int(row.get("guide_price", 1) or 1), 1)
         ge_price.setValue(guide)
         ge_quantity.setValue(1)
         _refresh_ge(ge_state["projection"])
@@ -22381,10 +22392,13 @@ def show_main_menu(
             if isinstance(order, dict)
             else None
         )
-        ge_state["editing_order_id"] = None
         if isinstance(order, dict):
             ge_state["selected_item_name"] = str(order.get("item_name", ""))
-        _refresh_ge(ge_state["projection"])
+        if isinstance(order, dict) and str(order.get("status")) in {"open", "partial"}:
+            _begin_edit_selected_ge_offer()
+        else:
+            ge_state["editing_order_id"] = None
+            _refresh_ge(ge_state["projection"])
         if not isinstance(order, dict):
             ge_filter.search_input.setFocus()
 
@@ -22433,13 +22447,10 @@ def show_main_menu(
         row = _ge_current_item()
         if row is None:
             return
-        editing_order = _selected_ge_order()
-        if (
-            editing_order is not None
-            and editing_order.get("id") == ge_state.get("editing_order_id")
-        ):
+        editing_order_id = ge_state.get("editing_order_id")
+        if editing_order_id is not None:
             payload = {
-                "order_id": int(editing_order["id"]),
+                "order_id": int(editing_order_id),
                 "remaining_quantity": int(ge_quantity.value()),
                 "unit_price": int(ge_price.value()),
             }
@@ -22508,8 +22519,7 @@ def show_main_menu(
             ge_side.setCurrentIndex(side_index)
         ge_quantity.setValue(max(int(order.get("remaining_quantity", 1) or 1), 1))
         ge_price.setValue(max(int(order.get("submitted_unit_price", 1) or 1), 1))
-        _populate_ge_items()
-        _refresh_ge_preview()
+        _refresh_ge(ge_state["projection"])
 
     def _collect_selected_ge_offer() -> None:
         order = _selected_ge_order()
@@ -22542,6 +22552,7 @@ def show_main_menu(
 
     ge_filter.search_input.textChanged.connect(lambda _text="": _populate_ge_items())
     ge_item_list.currentItemChanged.connect(_on_ge_item_selected)
+    ge_item_list.itemClicked.connect(_on_ge_item_selected)
     ge_side.currentIndexChanged.connect(_on_ge_side_changed)
     ge_quantity.valueChanged.connect(lambda _value=1: _refresh_ge_preview())
     ge_price.valueChanged.connect(lambda _value=1: _refresh_ge_preview())
