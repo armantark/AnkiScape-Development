@@ -25886,6 +25886,9 @@ def show_main_menu(
         _ensure_tab_built(index)
         if tabs.tabText(index) == "Shop":
             ctx.refresh("shop")
+        elif tabs.tabText(index) == "Grand Exchange":
+            if not _choose_ironman_on_first_ge_open():
+                tabs.setCurrentWidget(skills_tab)
         elif tabs.tabText(index) == "Settings":
             _refresh_ironman_setting()
 

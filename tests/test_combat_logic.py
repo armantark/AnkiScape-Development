@@ -548,6 +548,20 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
             {"reviews_remaining": 2, "target_id": "chicken"},
         )
 
+    def test_repeated_bank_request_does_not_restart_active_route(self):
+        player = self._melee(
+            combat_encounter={},
+            combat_bank_run={"reviews_remaining": 1, "target_id": "chicken"},
+        )
+
+        requested, ok, reason = request_combat_bank_run_now_pure(player)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            requested["combat_bank_run"],
+            {"reviews_remaining": 1, "target_id": "chicken"},
+        )
+
     def test_switching_pack_mode_immediately_rebalances_a_stale_loadout(self):
         player = self._melee(
             inventory={"Sardine": 60, "Super strength (4)": 20},

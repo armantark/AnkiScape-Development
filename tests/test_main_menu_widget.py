@@ -4337,8 +4337,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._ui.QMessageBox.question = (
                 lambda *a, **k: self._ui.QMessageBox.StandardButton.No
             )
-            self._ui._MAIN_MENU_CTX["open_grand_exchange"]()
-            QApplication.processEvents()
+            _open_ge_tab(dialog)
         finally:
             self._ui.QMessageBox.question = original_question
 
