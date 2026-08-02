@@ -8,6 +8,6 @@ Commit `34560917` incorrectly folded every catalog miniquest into the Completion
 
 The plain test lane ran 3,746 tests in 184.336 seconds and passed with 440 skipped tests. The exact command was `/opt/homebrew/bin/python3 run_tests.py`.
 
-The offscreen Qt lane did not start because `.venv-qt/bin/python` does not exist in this worktree. The exact command was `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`, and the shell returned exit code 127 with `no such file or directory: .venv-qt/bin/python`. No offscreen Qt test count was measured.
+The offscreen Qt lane ran 3,746 tests in 458.989 seconds and passed with 2 skipped tests. The virtual environment lives in the canonical checkout rather than in each worktree, so the command was `QT_QPA_PLATFORM=offscreen "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python" run_tests.py`, run from this worktree.
 
 The shipped predicate now matches the pinned source boundary, the row label matches that predicate, and the branch retains the active Player Safety, Court Cases, and circus-clothing gates.
