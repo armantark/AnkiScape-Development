@@ -57,22 +57,22 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
 
 ## B. Implementation-ready — no design input needed
 
-Status after the 2026-08-01 session: items 5, 8, 10, 12 and 13 are merged, and item
-14's assets are harvested. Items 6, 7, 11 and 14's wiring were in progress at the end
-of the session. Items 9 and 15 are parked — see the note under item 15 — because each
-is a large enough feature to deserve its own agent rather than the tail of a budget.
+Status after the session: items 5, 6, 7, 8, 10, 11, 12, 13 and 14 are all merged.
+Items 9 and 15 are parked — see the note under item 15 — because each is a large
+enough feature to deserve its own agent, and because every non-GPT plan was over
+its day line, which left no seat for the cross-lineage verify that closure requires.
 
 5. **DONE, merged at `97156230`.** The shipped icon had been harvested from
    Active task.png rather than the file the owner named. Note its earliest archived
    revision is from 2014, after the 2012-11-20 cutoff; the owner named the file
    explicitly so it stands, but the date is recorded rather than hidden.
    Challenges top-level icon → https://runescape.wiki/w/File:Daily_Challenge_icon.png.
-6. Simulated clock: small element left of (and above) the top skill bar, e.g. `12:00 PM`
+6. **DONE, merged at `46cef9ac`.** Simulated clock: small element left of (and above) the top skill bar, e.g. `12:00 PM`
    with tooltip `10 cards = 1 hour`. Owner wants minimal/uncluttered; styling suggestions
    welcome but the spec above is acceptable as-is.
-7. Multi-skill XP drops must break down per skill (e.g. Attack + Constitution split, not
+7. **DONE, merged at `46cef9ac`.** Multi-skill XP drops must break down per skill (e.g. Attack + Constitution split, not
    one combined number) — in the event log too.
-8. Ironman mode: one-way toggle in the Settings tab, not in GE. Chosen on first GE open;
+8. **DONE, merged at `142fca07`.** Ironman mode: one-way toggle in the Settings tab, not in GE. Chosen on first GE open;
    ironman can de-iron, regular accounts can never become ironman.
 9. Monster drop details: the disclosure triangle gives away too much. Show only what's
    obviously visible to the player plus a per-target **drop log** (observed drops only).
@@ -80,13 +80,13 @@ is a large enough feature to deserve its own agent rather than the tail of a bud
    link for players who don't want to bother. "Advanced: keep or drop specific drops"
    under Equipment operates only on logged drops; novel drops are auto-picked-up until
    toggled off.
-10. Auto-bury-bones checkbox: exists in advanced; expose it on the casual surface too.
-11. Equipment tab: show the target you're currently fighting, just under the Loot section.
-12. GE collection and buy/sell fills trigger a bank run; for AnkiScape purposes all banks
+10. **DONE, merged at `142fca07`.** Auto-bury-bones checkbox: exists in advanced; expose it on the casual surface too.
+11. **DONE, merged at `46cef9ac`.** Equipment tab: show the target you're currently fighting, just under the Loot section.
+12. **DONE, merged at `142fca07`.** GE collection and buy/sell fills trigger a bank run; for AnkiScape purposes all banks
     act as the GE.
-13. Event log announces bank runs; the current-inventory panel must show what the bank run
+13. **DONE, merged at `142fca07`.** Event log announces bank runs; the current-inventory panel must show what the bank run
     loaded (owner can't tell how many fish remain).
-14. Combat HUD: player health bar red like the enemy's; prayer points x/max and summoning
+14. **DONE, merged at `46cef9ac`.** Combat HUD: player health bar red like the enemy's; prayer points x/max and summoning
     points x/max beside it; wiki orb icons for all three (asset harvest: HP/prayer/summoning
     orbs, pre-EOC style).
 15. **PARKED, with item 9.** Both are substantial features rather than fixes, and both
