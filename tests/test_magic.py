@@ -399,6 +399,29 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
                 self.assertEqual((xp, secondary, outputs), (0.0, {}, {}))
                 self.assertEqual(unchanged, player)
 
+    def test_monster_examine_records_the_examined_combat_target(self):
+        player = {
+            "magic_level": 99,
+            "current_combat_target": "chicken",
+            "quests": _quest_state("dream_mentor"),
+            "inventory": {
+                "Astral rune": 1,
+                "Cosmic rune": 1,
+                "Mind rune": 1,
+            },
+        }
+
+        updated, _xp, _secondary, _outputs, ok, _message = apply_magic_action_pure(
+            player,
+            "monster_examine",
+            MAGIC_DATA,
+            {},
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(updated["combat_examined_monsters"], ["chicken"])
+        self.assertEqual(updated["magic_last_examine"]["target_id"], "chicken")
+
     def test_source_ready_livid_spells_use_existing_skill_substrates(self):
         quests = _quest_state(
             "lunar_diplomacy",

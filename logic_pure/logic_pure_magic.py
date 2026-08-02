@@ -520,6 +520,17 @@ def apply_magic_action_pure(
         target = str(data.get("current_combat_target", ""))
         enemy = COMBAT_ENEMY_DATA.get(target, {})
         stats = enemy.get("stats", {}) if isinstance(enemy, Mapping) else {}
+        examined = [
+            examined_target_id
+            for examined_target_id in (
+                data.get("combat_examined_monsters", ()) or ()
+            )
+            if isinstance(examined_target_id, str)
+            and examined_target_id in COMBAT_ENEMY_DATA
+        ]
+        if target in COMBAT_ENEMY_DATA and target not in examined:
+            examined.append(target)
+        data["combat_examined_monsters"] = examined
         data["magic_last_examine"] = {"target_id": target, "display_name": enemy.get("display_name", target), "stats": dict(stats or {})}
 
     if spec.get("borrowed_spell_id"):

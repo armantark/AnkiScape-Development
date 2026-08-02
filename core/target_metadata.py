@@ -14,6 +14,7 @@ from ..logic_pure.logic_pure import (
     calculate_fishing_success_probability_pure,
     calculate_hunter_success_probability_pure,
     can_chop_woodcutting_target_pure,
+    combat_observed_drops_for_target_pure,
     combat_staff_covered_runes_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
@@ -1341,6 +1342,22 @@ def _combat_drop_summary(enemy: Mapping[str, object]) -> str:
     return "\n".join(parts) if parts else "No item drops"
 
 
+def _combat_observed_drop_summary(
+    player_data: Mapping[str, object], target_id: str
+) -> str:
+    lines = []
+    for item_name, observation in combat_observed_drops_for_target_pure(
+        player_data, target_id
+    ).items():
+        times_seen = observation["times_seen"]
+        quantity_seen = observation["quantity_seen"]
+        lines.append(
+            f"{item_name}: seen {times_seen} time{'s' if times_seen != 1 else ''}, "
+            f"quantity {quantity_seen}"
+        )
+    return "\n".join(lines) if lines else "No drops observed"
+
+
 def _combat_food_summary(player_data: Mapping[str, object], target_id: str) -> str:
     def _count(value: object) -> int:
         if isinstance(value, bool):
@@ -1460,6 +1477,12 @@ def combat_target_rows(
     enemy_images = combat_enemy_images or {}
     encounter_raw = player_data.get("combat_encounter", {}) or {}
     encounter_target = encounter_raw.get("target_id") if isinstance(encounter_raw, Mapping) else None
+    examined_raw = player_data.get("combat_examined_monsters", ()) or ()
+    examined_targets = (
+        {target_id for target_id in examined_raw if isinstance(target_id, str)}
+        if isinstance(examined_raw, (list, tuple))
+        else set()
+    )
 
     for target_id, enemy in combat_enemy_data.items():
         if enemy.get("encounter_only") and encounter_target != target_id:
@@ -1632,6 +1655,18 @@ def combat_target_rows(
             interaction_line = (
                 f"Encounter: {interaction_note}\n" if interaction_note else ""
             )
+            observed_drops = _combat_observed_drop_summary(player_data, target_id)
+            drop_details = (
+                "Observed drops:\n  "
+                + observed_drops.replace("\n", "\n  ")
+                + "\n"
+            )
+            if target_id in examined_targets:
+                drop_details += (
+                    "Monster Examine drop table:\n  "
+                    + _combat_drop_summary(enemy).replace("\n", "\n  ")
+                    + "\n"
+                )
             tooltip = (
                 f"{display_name} · combat level {level}\n"
                 f"State: {preview.get('state', 'Ready')} · risk: {risk_band}\n"
@@ -1653,7 +1688,7 @@ def combat_target_rows(
                 f"Food: {_combat_food_summary(player_data, target_id)}\n"
                 f"{_combat_ammo_summary(player_data, target_id, preview.get('ammo'))}"
                 f"{_combat_rune_summary(player_data, target_id, preview.get('spell'), preview.get('runes'))}"
-                f"Drops:\n  {_combat_drop_summary(enemy).replace(chr(10), chr(10) + '  ')}\n"
+                f"{drop_details}"
                 f"Source: {enemy.get('source', '')}"
             )
 

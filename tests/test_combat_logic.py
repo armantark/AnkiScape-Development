@@ -41,6 +41,7 @@ from ankiscape.data.combat_data import (
     ZOMBIE_LEVEL_25_DROPS,
 )
 from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import migrate_loaded_data
 from ankiscape.data.livid_farm_data import ARCANE_CAPACITOR_CHARGED
 from ankiscape.logic_pure.logic_pure import (
     _combat_apply_pvm_death,
@@ -68,6 +69,7 @@ from ankiscape.logic_pure.logic_pure import (
     combat_death_office_summary_pure,
     combat_dragonfire_protection_pure,
     combat_enemy_drop_item_names_pure,
+    combat_observed_drop_item_names_pure,
     combat_poison_damage_for_ticks_pure,
     combat_poison_immunity_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
@@ -852,6 +854,26 @@ class CombatDropItemNamesTest(unittest.TestCase):
         self.assertEqual(combat_enemy_drop_item_names_pure({}), ())
         self.assertEqual(combat_enemy_drop_item_names_pure({"drops": None}), ())
         self.assertEqual(combat_enemy_drop_item_names_pure(None), ())
+
+    def test_observed_drop_names_include_only_the_selected_targets_log(self):
+        player = {
+            "combat_observed_drops": {
+                "chicken": {
+                    "Bones": {"times_seen": 2, "quantity_seen": 2},
+                    "Feather": {"times_seen": 1, "quantity_seen": 5},
+                },
+                "cow": {
+                    "Cowhide": {"times_seen": 1, "quantity_seen": 1}
+                },
+            }
+        }
+
+        self.assertEqual(
+            combat_observed_drop_item_names_pure(player, "chicken"),
+            ("Bones", "Feather"),
+        )
+        self.assertEqual(combat_observed_drop_item_names_pure(player, "cow"), ("Cowhide",))
+        self.assertEqual(combat_observed_drop_item_names_pure(player, "giant_rat"), ())
 
 
 class CombatLogicTest(unittest.TestCase):
@@ -3786,9 +3808,21 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(result["killed"])
         self.assertEqual(new_data["combat_kill_counts"], {"cow_calf": 1})
+        self.assertEqual(
+            new_data["combat_observed_drops"]["cow_calf"],
+            {
+                "Bones": {"times_seen": 1, "quantity_seen": 1},
+                "Raw beef": {"times_seen": 1, "quantity_seen": 1},
+                "Cowhide": {"times_seen": 1, "quantity_seen": 1},
+            },
+        )
         self.assertEqual(new_data["inventory"]["Bones"], 1)
         self.assertEqual(new_data["inventory"]["Raw beef"], 1)
         self.assertEqual(new_data["inventory"]["Cowhide"], 1)
+        reloaded = migrate_loaded_data(new_data, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            reloaded["combat_observed_drops"], new_data["combat_observed_drops"]
+        )
 
     def test_combat_burst_kills_once_awards_xp_and_rolls_source_backed_drops(self):
         player = _player()
@@ -3831,6 +3865,10 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(result["killed"])
         self.assertFalse(result["died"])
         self.assertEqual(new_data["combat_kill_counts"], {"chicken": result["kills"]})
+        self.assertEqual(
+            new_data["combat_observed_drops"]["chicken"]["Bones"],
+            {"times_seen": result["kills"], "quantity_seen": result["kills"]},
+        )
         # Each defeated chicken drops one guaranteed Bones, so the aggregated
         # loot scales with the kill count.
         self.assertEqual(new_data["inventory"]["Bones"], result["kills"])
@@ -5623,6 +5661,10 @@ class CombatLogicTest(unittest.TestCase):
             {"Ice cooler": 1},
         )
         self.assertEqual(finished["combat_kill_counts"], {"desert_lizard": 1})
+        self.assertEqual(
+            finished["combat_observed_drops"]["desert_lizard"],
+            {"Bones": {"times_seen": 1, "quantity_seen": 1}},
+        )
         self.assertEqual(finished["inventory"]["Bones"], 1)
         self.assertEqual(finished["combat_encounter"], {})
         self.assertEqual(finished["combat_action"], "attack")

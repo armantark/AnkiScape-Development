@@ -115,6 +115,7 @@ from ..logic_pure.logic_pure import (
     can_smith_item_pure,
     can_start_quest_pure,
     cooking_target_locked_reasons_pure,
+    combat_observed_drop_item_names_pure,
     combat_target_locked_reasons_pure,
     eligible_fishing_fish_pure,
     equipment_bonus_state_pure,
@@ -468,6 +469,10 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    observed_item_names = set(
+        combat_observed_drop_item_names_pure(player_data, target_id)
+    )
+
     using_finisher = player_data.get("combat_action") == "finisher"
     if using_finisher:
         new_data, ok, result = apply_combat_finisher_pure(
@@ -578,6 +583,10 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     if drops:
         threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
         overrides = dict(player_data.get("loot_overrides") or {})
+        for item_name in drops:
+            if isinstance(item_name, str) and item_name not in observed_item_names:
+                overrides.setdefault(item_name, "keep")
+        player_data["loot_overrides"] = overrides
         if target_id in {"cyclops", "cyclossus"}:
             for item_name in (
                 guild_result.get("defenders", {}).get("drops", {})
