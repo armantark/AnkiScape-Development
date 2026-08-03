@@ -1,5 +1,14 @@
 # System Patterns
 
+## Finite room payouts persist their eligible room ledger
+
+A fixed floor payout split across rooms stores the eligible critical-room ids
+at entry, then pays each room's deterministic share when that room resolves.
+Sanitation intersects the stored ids with current eligibility and migration
+distinguishes legacy completed funding from unpaid rooms. This preserves exact
+totals across reloads without making optional rooms dilute the payout or making
+repair grant the same pool twice.
+
 ## Skill target selectors derive presentation from row metadata
 
 The shared target selector renders fewer than 25 rows as a flat `QListWidget`

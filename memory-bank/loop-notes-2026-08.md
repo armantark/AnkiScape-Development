@@ -23,3 +23,23 @@
   `3a1ea34f-0acd-467a-9cc0-bde476372763` exhausted its tool-byte budget while
   loading project memory and produced no actionable result; root independently
   reproduced the complete scope.
+
+## Iteration 2 — Dungeoneering guardian-room coin funding
+
+- Result: already implemented on `main`; stale queue and Memory Bank status
+  reconciled without duplicating product code.
+- Existing implementation: commits `6ced27e8`, `dcf41c0d`, `c5eb86c8`,
+  `6e07d1bc`, and `05016790` remove the resource-room cache and split the
+  registered 1,010-coin placeholder across eligible critical-path guardian
+  rooms. C1-C4, incomplete Druidic Ritual, Herblore below 5, and optional
+  guardians receive no funding.
+- Persistence: the eligible guardian-room ids survive reload; the migration
+  distinguishes a legacy resource-cache save from pre-drop and post-drop saves
+  so it neither loses funding nor grants it twice.
+- Verification: the same product revision passed both full 3,785-test lanes in
+  iteration 1. A fresh focused plain lane and fresh focused offscreen-Qt lane
+  each passed all 54 Dungeoneering data, logic, and placeholder-register tests.
+- Source status: the authentic guardian-room mechanism is settled; only the
+  period coin magnitude remains the registered
+  `PLACEHOLDER(dungeoneering.starter_guardian_coin_drops)` pending a decoded
+  Frozen guardian drop table.
