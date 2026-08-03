@@ -22,7 +22,6 @@ Placeholders".
 | --- | --- | --- | --- |
 | `conquest.board_size` | 20×20 bounded board | Conquest | Period map-region data, interface tile grid, or dated screenshots sufficient to count the authentic battlefield dimensions |
 | `conquest.squad_unit_cap` | 10 troops | Conquest | Pre-cutoff rules text or server setup validation proving the formal cap; the current value follows full default and guide formations |
-| `conquest.foot_soldier_cost` | 50 setup points | Conquest | A period server troop table or decoded setup script that resolves the cutoff wikitext's 50 against the release-era in-game image's 30 |
 | `conquest.starting_command_points` | 0 CP | Conquest | Period match initialization code or an interface record showing the initial balance before either side moves |
 | `conquest.passive_command_points` | 25 CP at each ordinary owner-turn start except the opening player's first turn | Conquest | Server turn-transition code or decoded client script showing the exact grant boundary |
 | `conquest.kill_command_points` | Normal kills award the defeated troop's setup cost; Bombard kills award 0 | Conquest | Server defeat code or period rules text stating the exact kill-award equation |

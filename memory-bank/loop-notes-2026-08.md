@@ -116,3 +116,26 @@
   3,796 tests in both lanes: plain declares 460 expected skips; the real Qt
   interpreter declares 3. Shell syntax, Python compilation, documentation,
   test-quality, diff, and worktree audits pass.
+
+## Iteration 6 — client-side blocked-row re-walk
+
+- Result: the Conquest Foot Soldier cost placeholder is retired. Interface
+  1015 renders squad costs from NPC param 1138, CS2 script 486 maps the Foot
+  Soldier to NPCs 12202/12205, and both rev-727 rows contain 50. The live value
+  was already conservative, so this is an evidence correction rather than a
+  gameplay change.
+- Tooling: the NPC/object definition reader now supports deterministic
+  `--params` output for exact IDs. A real-cache integration test pins both Foot
+  Soldier variants and the period cost.
+- Honest limits: no diary-lamp minimum-level table, Conquest battlefield grid,
+  or starting/passive command-point rule appeared in the decoded interface,
+  CS2, or definition data. Those server-owned values remain registered
+  placeholders rather than inferred conventions.
+- Delegation: GPT-family Workflows run
+  `f6e5b815-9ee4-43ca-8d9c-f20032ac1d79` exhausted both leaves' processed-token
+  guards. Root salvaged their bounded client leads, independently reproduced
+  every accepted claim, and did not rerun the leaves.
+- Verification: 34 focused tests pass. Full discovery passes 3,797 tests in
+  both lanes: plain declares 460 expected skips; the real Qt interpreter
+  declares 3. Documentation, test-quality, shell-syntax, diff, and worktree
+  audits pass.

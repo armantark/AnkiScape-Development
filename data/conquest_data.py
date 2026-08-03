@@ -89,8 +89,7 @@ class ConquestUnit:
 
 CONQUEST_UNITS = (
     ConquestUnit("scout", "Scout", 25, 100, 100, 6, 1),
-    # The cutoff wikitext says 50; a release-era in-game image says 30.
-    ConquestUnit("foot_soldier", "Foot Soldier", 50, 300, 100, 4, 1),  # PLACEHOLDER(conquest.foot_soldier_cost)
+    ConquestUnit("foot_soldier", "Foot Soldier", 50, 300, 100, 4, 1),
     ConquestUnit("halberdier", "Halberdier", 75, 200, 200, 4, 2),
     ConquestUnit("archer", "Archer", 100, 100, 100, 3, 6),
     ConquestUnit("mage", "Mage", 100, 100, 200, 4, 4),

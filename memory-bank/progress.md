@@ -1,5 +1,25 @@
 # Progress
 
+## Client-side blocked-row re-walk — 2026-08-03
+
+The rev-727 Conquest client resolves the Foot Soldier's 30-versus-50 setup-cost
+conflict. Interface 1015 renders troop cost from NPC param 1138, CS2 script 486
+maps the Foot Soldier to NPCs 12202/12205, and both rows carry 50. The registered
+placeholder and code marker are removed; no runtime behavior changes because
+the conservative value was already 50.
+
+`tools/query_openrs2_cache_definitions.sh` now has a deterministic `--params`
+mode for exact NPC and object IDs, backed by a real-cache regression. Diary-lamp
+minimum levels, Conquest board/command-point rules, and the previously audited
+Dominion Tower and Dungeoneering server formulas remain blocked: the client has
+no table that settles them. Evidence is in
+`source-audits/client-blocked-rewalk-2026-08-03.md`.
+
+Focused definition, placeholder-register, and Conquest coverage passes all 34
+tests. Full discovery passes all 3,797 tests in both lanes, with 460 expected
+plain skips and 3 Qt skips. Documentation, test-quality, shell-syntax, diff,
+and worktree audits also pass.
+
 ## Period-cache interface reader — 2026-08-03
 
 The source toolchain can now read index-3 interface definitions without copying
