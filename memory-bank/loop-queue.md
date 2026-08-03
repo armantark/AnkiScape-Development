@@ -15,3 +15,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
 4. [ ] Depth work.
    Start with `memory-bank/breadth-next-tranche.md`, then process registered
    placeholders and player-visible data-depth debt from `activeContext.md`.
+   - [x] Decode period-cache enums, structs, and params.
+   - [ ] Decode interface definitions.
+   - [ ] Re-walk client-side `source_blocked` rows; leave server-side gaps alone.

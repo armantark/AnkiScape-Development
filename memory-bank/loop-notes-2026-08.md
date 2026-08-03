@@ -69,3 +69,25 @@
 - Depth debt: the v108 diary revalidation migration still needs a targeted
   regression test, and the generator's local `ITEMS_YML` source path remains
   non-portable. Neither changes the live 384-row mechanic.
+
+## Iteration 4 — period-cache enum, struct, and param reader
+
+- Result: implemented the first high-leverage depth tool. One read-only wrapper
+  accepts an extracted cache or disk zip and exposes `count`, `dump`, and
+  case-insensitive `find` for enum, struct, and param definitions.
+- Evidence boundary: enum and struct decoding reuse Darkan core 2.0.5; param
+  decoding follows the rev-727 client's opcodes 1, 2, 4, and 5 and rejects an
+  unknown opcode. Output is deterministic and key-sorted. This is client data,
+  never evidence for server-side rolls, rates, timers, or rewards by itself.
+- Period coverage: count probes pass on all seven local caches. From build 652
+  through 742, enum definitions grow 3,853→6,680, structs 1,793→14,527, and
+  params 1,414→2,792. Exact rev-727 fixtures pin enum 3483 (1,096 entries),
+  struct 0, and param 0.
+- Delegation: GPT-family Workflows run
+  `3c1610ec-a7ec-4dfc-93dd-a72bb33abd6e` exhausted both leaves' processed-token
+  guards before a final response. Root reused the bounded tool evidence and did
+  not rerun the leaves.
+- Verification: the three real-cache integration tests pass. Full discovery
+  passes 3,793 tests in both lanes: plain declares 460 expected skips; the real
+  Qt interpreter declares 3. Shell syntax, Python compilation, documentation,
+  and test-quality audits also pass.

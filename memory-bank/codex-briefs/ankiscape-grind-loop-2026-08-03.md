@@ -8,7 +8,9 @@ start again. The owner is not in the loop.
 
 ## 1. The standing goal
 
-This is the owner's goal. It does not change between iterations.
+This is the owner's goal. The 2026-08-03 update below supersedes the original
+breadth-first stopping boundary now that every catalog family has reached
+mechanical breadth.
 
 > Finish implementing everything that does not require my design input. If you
 > find design gaps, record them clearly so I can pick them up in the design
@@ -35,6 +37,17 @@ This is the owner's goal. It does not change between iterations.
 >
 > If you finish the first breadth and quota remains, move to the next level of
 > breadth.
+
+### Owner update — depth phase, 2026-08-03
+
+The first breadth is complete. Continue across the settled catalog by shared
+leverage and player visibility: build reusable source/cache tooling first when
+it can retire many gaps, then recover the easiest period values, registered
+placeholders, and harder data-depth rows. Do not reopen settled designs or
+replace honest server-side unknowns with inference. Use bounded GPT-family
+Codex Workflows leaves when independent investigation or review materially
+improves speed or confidence; the root agent owns synthesis, implementation,
+testing, Memory Bank handoff, commits, and merges.
 
 ## 2. Repository facts
 
@@ -198,18 +211,20 @@ Check for each one before you merge.
 5. **An unmarked reconstruction.** The placeholder register test only sees values
    that carry a `PLACEHOLDER(...)` marker.
 
-### The verification limit of this loop
+### Verification during the GPT-family depth loop
 
 The project rule is that a verify seat must come from a different model family
 than the seat that wrote the code. One Sol pass found four defects that three
 Claude passes had missed, and lineage caused the difference.
 
-A Codex-only loop cannot satisfy that rule. Therefore:
+A GPT-family Codex loop cannot satisfy the historical cross-lineage preference.
+The owner explicitly authorized GPT-family subagents for this phase. Therefore:
 
 1. Verify by execution. Drive the real kernel and the real Qt widgets.
-2. Mark every merge in the loop notes as `single-lineage verified`.
-3. Keep a running list of those merges so an Opus or Kimi seat can sweep them
-   later.
+2. Use a separate bounded GPT leaf for review when the slice is substantial,
+   but reproduce every candidate in the root task.
+3. Mark every merge in the loop notes as `GPT-family verified` so a later
+   cross-lineage sweep can select them without blocking this loop.
 
 ### Two project rules for user-interface work
 

@@ -1,5 +1,21 @@
 # Progress
 
+## Period-cache config reader — 2026-08-03
+
+The source toolchain can now read all three previously opaque shared
+configuration families. `tools/query_openrs2_cache_configs.sh` accepts a dated
+disk zip or extracted cache and counts, dumps, or searches enums, structs, and
+params without modifying the cache. Enum and struct output uses Darkan core's
+loaders; the small param decoder follows the rev-727 deobfuscated client and
+fails on an unknown opcode instead of silently drifting.
+
+The reader passes exact rev-727 fixtures for achievement enum 3483, struct 0,
+and param 0. Count probes pass across every local build from 652 through 742.
+This closes only a client-data tooling gap; server-side rolls, rates, timers,
+and reward logic remain source-blocked when no independent source exists. Full
+discovery passes all 3,793 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips.
+
 ## Achievement Diary 384-task roster — 2026-08-03
 
 All 32 regional tiers now contain exactly 12 tasks. The generator preserves
