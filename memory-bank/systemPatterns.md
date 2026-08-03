@@ -184,6 +184,12 @@ expected file and provenance key in the asset test.
   rejects unknown param opcodes. Its output proves client configuration only;
   it never promotes a value into server-side mechanics without the ordinary
   source-verification gate.
+- OpenRS2 interface harvests go through `tools/query_openrs2_interfaces.sh`.
+  Index 3 stores one archive per interface and one file per component; stable
+  identities are `interface:component`. Search only covers client-authored
+  labels, while dumps expose layout, visibility, assets, actions, and principal
+  script hooks. None of those fields proves the server accepted an action or
+  awarded its result.
 - Owner grills are for unresolved product tradeoffs, not source transcription.
   If pinned period evidence plus settled AnkiScape architecture determines the
   behavior, decide and document it autonomously and batch routine conclusions.

@@ -182,12 +182,14 @@ A cache proves what the *client* shipped — object, NPC, and item identities,
 names, and interaction options in a given build. It cannot prove XP, rolls,
 timers, or any other server-side value. Caches corroborate; they do not supply.
 
-Three tools read them. `tools/query_openrs2_cache.sh` searches **item**
+Four tools read them. `tools/query_openrs2_cache.sh` searches **item**
 definitions; `tools/query_openrs2_cache_definitions.sh <cache> <npc|object>`
 searches **NPC and object** definitions and prints `id<TAB>name<TAB>[options]`;
 and `tools/query_openrs2_cache_configs.sh <cache> <enum|struct|param>` counts,
-dumps, or searches the corresponding client configuration definitions. All
-three accept either a zip or an extracted cache directory and never modify it.
+dumps, or searches the corresponding client configuration definitions.
+`tools/query_openrs2_interfaces.sh` counts, dumps, and searches index-3 client
+interface components. All four accept either a zip or an extracted cache
+directory and never modify it.
 The config reader is verified against all seven dated caches, including exact
 rev-727 enum, struct, and param fixtures. Cache configuration still proves only
 client-shipped data; a numeric row is not evidence of a server mechanic merely
