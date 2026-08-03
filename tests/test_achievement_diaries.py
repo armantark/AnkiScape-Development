@@ -10,7 +10,9 @@ with itself. The undo and review-dispatch layers live in
 from __future__ import annotations
 
 import copy
+import tempfile
 import unittest
+from pathlib import Path
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import (
@@ -55,7 +57,46 @@ from ankiscape.logic.shop_logic import shop_diary_transaction_counter_key_pure
 from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure, claim_rows_pure
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
-from tools.generate_achievement_diary_data import resolve_condition_key
+from tools.generate_achievement_diary_data import (
+    FAMILIES,
+    MORYTANIA_LEG_BONUSES,
+    _equipment_rows,
+    resolve_condition_key,
+)
+
+
+class GeneratorSourceInputTest(unittest.TestCase):
+    def test_equipment_rows_read_the_explicit_items_yml(self):
+        blocks = []
+        expected_ids = {}
+        source_id = 50_000
+        for family in FAMILIES.values():
+            for tier_index in range(1, 5):
+                item_name = f"{family['item']} {tier_index}"
+                if item_name in MORYTANIA_LEG_BONUSES:
+                    continue
+                expected_ids[item_name] = (source_id, tier_index)
+                blocks.append(
+                    f'- id: {source_id}\n  name: "{item_name}"\n'
+                    f"  equip_slot: 4\n  attack_stab: {tier_index}\n"
+                )
+                source_id += 1
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "items.yml"
+            source.write_text("".join(blocks), encoding="utf-8")
+            rows = _equipment_rows(source)
+
+        for item_name, (item_id, tier_index) in expected_ids.items():
+            with self.subTest(item_name=item_name):
+                block = rows.split(f"{item_name!r}: EquipmentItem(", 1)[1].split(
+                    "    ),", 1
+                )[0]
+                self.assertIn(f"source_item_id={item_id}", block)
+                self.assertIn(
+                    f"bonuses=EquipmentBonuses(attack_stab={tier_index})",
+                    block,
+                )
 
 
 def _fresh():

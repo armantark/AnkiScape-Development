@@ -1,5 +1,22 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 8 — Achievement Diary depth closure
+
+- Generator: the Diary catalog generator now requires an explicit
+  `--items-yml` source path. The hard-coded developer checkout is gone, and a
+  real rev-667 regeneration remains byte-identical.
+- Migration: the v108 regression already covered removal and re-earning. It now
+  proves an unrelated unmet completion survives, closing the selective
+  revalidation boundary without adding a duplicate test.
+- Delegation: GPT-family Workflows run
+  `c48d7907-2f2e-4e3c-a365-7ba95b3aec2a` stopped both read-only leaves when they
+  exceeded their tool-output budgets. Root independently reproduced the two
+  findings and did not rerun the leaves.
+- Verification: the focused Diary/storage lane passes 168 tests; explicit-path
+  regeneration is byte-identical. Full discovery passes 3,800 tests in both
+  lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff, and worktree audits also pass. GPT-family verified.
+
 ## Iteration 1 — pass 6 B.15 skill-selector hybridization
 
 - Result: complete and cross-lineage verified.

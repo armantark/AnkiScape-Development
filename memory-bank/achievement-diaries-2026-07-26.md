@@ -50,8 +50,14 @@ Reproduce with:
 
 ```
 python3 tools/harvest_achievement_tasks.py --out memory-bank/source-audits/achievement-diary-harvest-2026-07-26.json
-python3 tools/generate_achievement_diary_data.py memory-bank/source-audits/achievement-diary-harvest-2026-07-26.json
+python3 tools/generate_achievement_diary_data.py memory-bank/source-audits/achievement-diary-harvest-2026-07-26.json --items-yml /path/to/game-main/data/cfg/items.yml
 ```
+
+Depth closure (2026-08-03): the v108 migration regression proves that a
+superseded completion is removed, a source-ready deed is re-earned, and an
+unrelated completion is preserved. Generation requires the explicit source
+argument above instead of one developer's local path. Neither change alters the
+live 384-row mechanic.
 
 ## The translation rule, and why it is a design fork
 

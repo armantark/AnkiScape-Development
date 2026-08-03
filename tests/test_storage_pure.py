@@ -1049,6 +1049,7 @@ class TestStoragePure(unittest.TestCase):
                 "achievement_diaries": {
                     "version": 1,
                     "completed_tasks": [
+                        "ardougne_easy_the_essence_of_magic",
                         "ardougne_hard_who_wants_to_watch_the_watchtower",
                         "lumbridge_easy_artisan_crafting",
                     ],
@@ -1083,6 +1084,7 @@ class TestStoragePure(unittest.TestCase):
             "ardougne_hard_who_wants_to_watch_the_watchtower",
             completed,
         )
+        self.assertIn("ardougne_easy_the_essence_of_magic", completed)
 
     def test_v110_adds_and_sanitizes_observed_drop_log_without_disturbing_save(self):
         prior_save = {
