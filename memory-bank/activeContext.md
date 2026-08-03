@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 4 starts the depth phase with shared cache
+tooling.** `tools/query_openrs2_cache_configs.sh` reads enums, structs, and
+params from all seven dated period caches through deterministic count, dump,
+and find modes. Exact rev-727 integration fixtures pin enum 3483, struct 0, and
+param 0. The reader rejects unknown param opcodes and preserves the evidence
+boundary: configuration values are client-shipped data, not inferred server
+mechanics. Full discovery passes 3,793 tests in both lanes, with 460 expected
+plain skips and 3 Qt skips. Interface-definition decoding is the next shared
+tooling slice, followed by a client-side-only parity-ledger re-walk.
+
 **2026-08-03, grind-loop iteration 3 closes the 384-task Achievement Diary
 clause.** Every regional tier contains exactly twelve rows: authentic period
 task identities are deterministically curated across their own family, and 22

@@ -1393,9 +1393,10 @@ The coverage test that should have caught the gap was itself fixed in the same
 pass — an asset-existence test that misses a missing icon is the more important
 defect, and worth a look for other families it may still be blind to.
 
-### CS2 disassembler shipped 2026-07-25; enums, structs and interfaces still unread
+### CS2 and config readers shipped; interface definitions remain unread
 
-Labels: `IMPLEMENT` for the remaining tiers.
+Labels: `IMPLEMENT` for interface definitions, then `SOURCE AUDIT` for the
+client-side parity re-walk.
 
 The disassembler exists at `tools/OpenRs2Cs2Disassembler.java` and paid for itself
 immediately by recovering the GE price arithmetic (see
@@ -1407,19 +1408,23 @@ every build after 727, so 727 is the only build on disk that decodes symbolicall
 Cross-revision confirmation has to be structural — byte length plus constant
 offsets — which is how script 4112 was shown stable across all six pre-EOC builds.
 
-Still unread, and probably higher aggregate ledger value than the disassembler
-was: **enums, structs and their params**, then **interface definitions**. The
-original card below has the reasoning and the honest ceiling — none of this reaches
-server-side mechanics, which is most of what sits `source_blocked`.
+`tools/query_openrs2_cache_configs.sh` now counts, dumps, and searches enums,
+structs, and params from either an extracted cache or immutable disk zip. It
+reuses Darkan core's exact enum/struct loaders and implements the deobfuscated
+client's four param opcodes directly. Exact rev-727 fixtures pin enum 3483,
+struct 0, and param 0; count probes pass across builds 652, 727, 728, 729, 736,
+741, and 742. **Interface definitions** remain the next shared tooling tier.
+None of this reaches server-side mechanics, which is most of what sits
+`source_blocked`.
 
 Labels: `IMPLEMENT`, queued 2026-07-25 after the GE price-button sourcing failed.
 
 We hold seven OpenRS2 builds at `~/Library/Caches/codex/2012scape-openrs2/`,
 including rev 741 (2012-11-04), sixteen days before cutoff. We read almost none
 of it: `tools/query_openrs2_cache.sh` and its definition sibling cover item and
-object definitions only. Enums, structs and their params, interface definitions,
-and every client script are unread, which is why the +/-5% arithmetic ended as
-`provisional/darkan` with three wikis silent. See
+object definitions only. This paragraph is the historical pre-tool state:
+enums, structs and params are now readable, while interface definitions remain
+unread. See
 `source-audits/ge-offer-price-controls-2026-07-24.md`.
 
 **Why this is cheap.** The deobfuscated client at
@@ -1445,8 +1450,8 @@ oracle, and do not let it reopen items that are blocked for server-side reasons.
 
 Suggested order, highest aggregate value first:
 
-1. Extend cache search to **enums, structs and params**. Broad mechanical data
-   hides there, and it decodes with the tooling shape we already have.
+1. ~~Extend cache search to **enums, structs and params**.~~ Shipped
+   2026-08-03 as `tools/query_openrs2_cache_configs.sh`.
 2. **Interface definitions**: component ids, text, hidden flags. Cheap, and it
    makes every future UI-parity question answerable.
 3. The **CS2 disassembler**, then harvest the GE offer interface out of rev 741
