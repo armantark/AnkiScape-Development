@@ -57,8 +57,8 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
 
 ## B. Implementation-ready — no design input needed
 
-Status after the session: items 5, 6, 7, 8, 10, 11, 12, 13 and 14 are all merged.
-Items 9 and 15 are parked — see the note under item 15 — because each is a large
+Status after the session: items 5, 6, 7, 8, 9, 10, 11, 12, 13 and 14 are all merged.
+Only item 15 is parked — see the note under item 15 — because each is a large
 enough feature to deserve its own agent, and because every non-GPT plan was over
 its day line, which left no seat for the cross-lineage verify that closure requires.
 
@@ -74,8 +74,7 @@ its day line, which left no seat for the cross-lineage verify that closure requi
    one combined number) — in the event log too.
 8. **DONE, merged at `142fca07`.** Ironman mode: one-way toggle in the Settings tab, not in GE. Chosen on first GE open;
    ironman can de-iron, regular accounts can never become ironman.
-9. **UNPARKED and started — this one is time-critical, which the original triage
-   missed.** A drop log records drops the player has actually observed, so every kill
+9. **DONE, merged at `4d384d6a`. Time-critical, which the original triage missed.** A drop log records drops the player has actually observed, so every kill
    that happens before the recorder exists is unrecorded permanently and cannot be
    reconstructed. The owner plays from level 1 at normal pace, so each session without
    it burns irreplaceable history. That makes it unlike every other B item, where
@@ -97,9 +96,8 @@ its day line, which left no seat for the cross-lineage verify that closure requi
 14. **DONE, merged at `46cef9ac`.** Combat HUD: player health bar red like the enemy's; prayer points x/max and summoning
     points x/max beside it; wiki orb icons for all three (asset harvest: HP/prayer/summoning
     orbs, pre-EOC style).
-15. **PARKED, with item 9.** Both are substantial features rather than fixes, and both
-    were reached only at the end of a session where Claude's verify budget was already
-    over. Starting either without a verify seat available would have landed unverified
+15. **PARKED.** It is a substantial feature rather than a fix, and it was reached only
+    at the end of a session where Claude's verify budget was already over. Starting either without a verify seat available would have landed unverified
     work, which the closure discipline forbids. Item 9 additionally needs care: the
     owner's wording folds together a disclosure change, a per-target drop log, a
     Monster Examine gate and an Equipment-tab keep/drop control, which is four surfaces,
