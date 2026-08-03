@@ -5954,6 +5954,29 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertIn("Air rune", captured["carried_stackable_names"])
 
+    def test_combat_main_menu_loot_rows_only_include_observed_drops(self):
+        addon = _load_addon_as_package("ankiscape_combat_observed_loot_integration")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "current_combat_target": "cyclops",
+            "combat_observed_drops": {
+                "cyclops": {
+                    "Coins": {"times_seen": 1, "quantity_seen": 3},
+                },
+            },
+            "inventory": {},
+            "smithing_level": 1,
+        }
+
+        addon._on_main_menu()
+
+        row_names = {row["item"] for row in captured["loot_override_rows"]}
+        self.assertIn("Coins", row_names)
+        self.assertNotIn("Big bones", row_names)
+
     def test_agility_current_target_projects_auto_food_requirements_and_weight_in_main_menu(self):
         addon = _load_addon_as_package("ankiscape_agility_carried_target_integration")
         captured = {}
