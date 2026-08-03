@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 1 closes pass 6 B.15.** Every per-skill
+target surface now chooses its presentation from the live metadata rows: fewer
+than 25 rows render as a flat list, 25 or more grouped rows render as a
+collapsible tree, and a large row set without group metadata stays flat. Both
+renderers use alternating rows, 30-pixel item height, green current-target
+highlighting, and bold current-target text. Both full lanes pass 3,785 tests;
+the offscreen-Qt lane declares only its three expected skips. Kimi K3
+found no material defect in the bounded UI review. The next queue item is the
+Dungeoneering guardian-room coin reshape from design answer 3.25.
+
 **2026-08-01, reviewer-strip pass 5 is fixed-pending-confirmation on
 `pass5-strip-smallwin`.** The reviewer chrome is one fixed 128-pixel native row
 inserted after Anki's answer bar in `mainLayout`, fully outside the card webview:

@@ -1,5 +1,22 @@
 # Progress
 
+## Pass 6 B.15 skill-selector hybridization — 2026-08-03
+
+Per-skill target surfaces now dispatch through one row-count-aware renderer.
+Lists with fewer than 25 rows stay flat; lists with at least 25 grouped rows use
+the collapsible tree; and lists without group metadata stay flat at any size.
+Both forms retain the same selection callbacks and current-target semantics and
+now share alternating stripes, a measured 30-pixel row height, the translucent
+green current row, and bold current text.
+
+Real widget tests cover the 24/25 boundary, the large ungrouped fallback, both
+widget classes, both stripe flags, exact row height, current-row color, and font
+weight. The full plain lane passes 3,785 tests with 459 declared skips, and the
+full offscreen-Qt lane passes the same 3,785 tests with 3 skips. Kimi K3
+performed a bounded independent UI review and found no material defect; its two
+concrete low-risk notes were incorporated before closure. The other pass-6
+selector concerns remain owned by D.1 and were not reopened.
+
 ## Conquest — 2026-07-30
 
 Reached horizontal breadth level one in the `conquest/breadth-one` worktree,
