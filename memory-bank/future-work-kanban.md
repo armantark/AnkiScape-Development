@@ -1393,10 +1393,9 @@ The coverage test that should have caught the gap was itself fixed in the same
 pass — an asset-existence test that misses a missing icon is the more important
 defect, and worth a look for other families it may still be blind to.
 
-### CS2 and config readers shipped; interface definitions remain unread
+### CS2, config, and interface readers shipped
 
-Labels: `IMPLEMENT` for interface definitions, then `SOURCE AUDIT` for the
-client-side parity re-walk.
+Labels: `SOURCE AUDIT` for the client-side parity re-walk.
 
 The disassembler exists at `tools/OpenRs2Cs2Disassembler.java` and paid for itself
 immediately by recovering the GE price arithmetic (see
@@ -1413,9 +1412,12 @@ structs, and params from either an extracted cache or immutable disk zip. It
 reuses Darkan core's exact enum/struct loaders and implements the deobfuscated
 client's four param opcodes directly. Exact rev-727 fixtures pin enum 3483,
 struct 0, and param 0; count probes pass across builds 652, 727, 728, 729, 736,
-741, and 742. **Interface definitions** remain the next shared tooling tier.
-None of this reaches server-side mechanics, which is most of what sits
-`source_blocked`.
+741, and 742. `tools/query_openrs2_interfaces.sh` now wraps Darkan core's
+index-3 decoder with deterministic count, component dump, and client-label
+search modes; exact rev-727 Grand Exchange fixtures and cross-build component
+decodes are pinned. The next step is to re-walk only client-side
+`source_blocked` rows. None of this reaches server-side mechanics, which is most
+of what sits `source_blocked`.
 
 Labels: `IMPLEMENT`, queued 2026-07-25 after the GE price-button sourcing failed.
 
@@ -1423,8 +1425,7 @@ We hold seven OpenRS2 builds at `~/Library/Caches/codex/2012scape-openrs2/`,
 including rev 741 (2012-11-04), sixteen days before cutoff. We read almost none
 of it: `tools/query_openrs2_cache.sh` and its definition sibling cover item and
 object definitions only. This paragraph is the historical pre-tool state:
-enums, structs and params are now readable, while interface definitions remain
-unread. See
+enums, structs, params, and interface definitions are now readable. See
 `source-audits/ge-offer-price-controls-2026-07-24.md`.
 
 **Why this is cheap.** The deobfuscated client at

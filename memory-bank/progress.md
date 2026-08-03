@@ -1,5 +1,21 @@
 # Progress
 
+## Period-cache interface reader — 2026-08-03
+
+The source toolchain can now read index-3 interface definitions without copying
+the giant decompiled client decoder. `tools/query_openrs2_interfaces.sh` wraps
+the installed Darkan core 2.0.5 loader and counts, dumps, or searches component
+definitions from either a dated disk zip or extracted cache. Output exposes
+stable component identities, client layout and visibility state, text, assets,
+actions, and principal script hooks.
+
+Count probes and one real component decode pass across all seven local builds.
+Exact rev-727 fixtures pin the Grand Exchange heading and travel action. This
+closes a client-data tooling gap only; client script hooks and displayed values
+do not prove server behavior. The next depth pass re-walks existing
+client-side-only `source_blocked` rows. Full discovery passes all 3,796 tests in
+both lanes, with 460 expected plain skips and 3 Qt skips.
+
 ## Period-cache config reader — 2026-08-03
 
 The source toolchain can now read all three previously opaque shared

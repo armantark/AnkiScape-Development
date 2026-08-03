@@ -91,3 +91,28 @@
   passes 3,793 tests in both lanes: plain declares 460 expected skips; the real
   Qt interpreter declares 3. Shell syntax, Python compilation, documentation,
   and test-quality audits also pass.
+
+## Iteration 5 — period-cache interface-definition reader
+
+- Result: implemented the second high-leverage depth tool. One read-only
+  wrapper accepts an extracted cache or disk zip and exposes deterministic
+  `count`, `dump`, and client-label `find` modes for index-3 interfaces.
+- Decoder: the tool reuses Darkan core 2.0.5 rather than copying the giant
+  decompiled client component class. It reports stable `interface:component`
+  identities, layout and hidden state, text/assets, actions, and principal
+  client script hooks.
+- Period coverage: count probes and interface 0 component 0 decode on every
+  local cache from build 652 through 742. Rev 727 contains 1,321 interfaces and
+  65,239 components; exact fixtures pin the Grand Exchange heading and travel
+  action.
+- Evidence boundary: interface definitions establish shipped presentation and
+  client hooks only. They do not establish server validation, XP, rolls,
+  timers, drops, or rewards.
+- Delegation: GPT-family Workflows run
+  `a5aff6a3-4f4a-4821-ba59-69edabad8e3a` exhausted its tool-output budget after
+  dumping the decompiled client. Root recovered its bounded decoder evidence,
+  found the existing core loader, and did not rerun the leaf.
+- Verification: three real-cache integration tests pass. Full discovery passes
+  3,796 tests in both lanes: plain declares 460 expected skips; the real Qt
+  interpreter declares 3. Shell syntax, Python compilation, documentation,
+  test-quality, diff, and worktree audits pass.
