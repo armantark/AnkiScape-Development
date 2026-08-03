@@ -329,9 +329,6 @@ def resolve_condition_key(kind: str, key: str, expected=None) -> str:
     return ""
 
 
-ITEMS_YML = Path(
-    "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
-)
 SOURCE_SLOT_IDS = {
     0: "head", 1: "cape", 2: "neck", 3: "weapon", 4: "body", 5: "shield",
     7: "legs", 9: "hands", 10: "feet", 12: "ring", 13: "ammunition",
@@ -1039,8 +1036,8 @@ def _condition_src(condition: tuple) -> str:
     return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r}, ({inner},))"
 
 
-def _items_yml_blocks() -> dict:
-    text = ITEMS_YML.read_text(encoding="utf-8", errors="ignore")
+def _items_yml_blocks(items_yml: Path) -> dict:
+    text = items_yml.read_text(encoding="utf-8", errors="ignore")
     blocks = {}
     for block in re.split(r"\n(?=- id: )", text):
         name = re.search(r'name:\s*"([^"]+)"', block)
@@ -1050,8 +1047,8 @@ def _items_yml_blocks() -> dict:
     return blocks
 
 
-def _equipment_rows() -> str:
-    blocks = _items_yml_blocks()
+def _equipment_rows(items_yml: Path) -> str:
+    blocks = _items_yml_blocks(items_yml)
     rows = []
     for meta in FAMILIES.values():
         for tier_index in range(1, 5):
@@ -1264,7 +1261,7 @@ def _source(record: dict, family_id: str) -> str:
     )
 
 
-def build(document: dict) -> str:
+def build(document: dict, items_yml: Path) -> str:
     lines: list[str] = []
     families = document["families"]
     definitions = document["task_definitions"]
@@ -1451,20 +1448,26 @@ def build(document: dict) -> str:
         "    join through the same per-family seam Barrows and the penguin ring use.\n"
         '    """\n\n'
         "    from .equipment_data import EquipmentBonuses, EquipmentItem\n\n"
-        "    return {\n" + _equipment_rows() + "\n    }\n"
+        "    return {\n" + _equipment_rows(items_yml) + "\n    }\n"
     )
     return header + "\n".join(lines) + "\n)\n" + equipment
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("harvest", type=Path)
     parser.add_argument(
+        "--items-yml",
+        type=Path,
+        required=True,
+        help="2011Scape data/cfg/items.yml used for diary reward equipment rows",
+    )
+    parser.add_argument(
         "--out", type=Path, default=ROOT / "data" / "achievement_diary_catalog.py"
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     document = json.loads(args.harvest.read_text(encoding="utf-8"))
-    args.out.write_text(build(document), encoding="utf-8")
+    args.out.write_text(build(document, args.items_yml), encoding="utf-8")
     print(f"wrote {args.out}")
     return 0
 

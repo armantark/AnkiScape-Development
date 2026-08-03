@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 8 retires the Achievement Diary depth
+debt.** The generator now requires an explicit `--items-yml` source path rather
+than embedding one developer's checkout. A real rev-667 regeneration is
+byte-identical. The existing v108 regression already proved superseded deed
+removal and source-ready re-earning; it now also proves an unrelated completion
+survives. GPT-family Workflows run
+`c48d7907-2f2e-4e3c-a365-7ba95b3aec2a` exhausted both bounded read-only leaves
+before a final, so root independently reproduced the result. The next slice
+revalidates the six provisional Frozen Dungeoneering boss ladders against dated
+NPC definitions. Full discovery passes 3,800 tests in both lanes, with 460
+expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 7 closes exact item-definition debt.** The
 item reader now exposes exact model/recolour, bonus, stackability, and exchange
 rows. Rev-727 proves Temple Trekking token IDs blue `7776`, yellow `7774`, red

@@ -24,5 +24,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
      asset placeholders. Rev-727 fixes the Temple Trekking blue/yellow swap;
      rev-741 fixes all four Goblin Raids equipment IDs, trade rules, and bonus
      arrays. Dominion Tower's unknown reward IDs remain source-blocked.
-   - [ ] Retire the Achievement Diary's recorded depth debt: make the generator
-     input portable and add the missing v108 revalidation migration regression.
+   - [x] Retire the Achievement Diary's recorded depth debt. Generation now
+     requires an explicit portable `--items-yml` input; the v108 regression
+     proves removal, re-earning, and preservation across the migration boundary.
+   - [ ] Decode the rev-727/742 Frozen Dungeoneering boss NPC combat-level rows
+     and revalidate the six provisional ladders. Leave server-owned stat and
+     scaling formulas untouched.

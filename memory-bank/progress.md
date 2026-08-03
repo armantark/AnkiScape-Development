@@ -1,5 +1,27 @@
 # Progress
 
+## Achievement Diary depth closure — 2026-08-03
+
+`tools/generate_achievement_diary_data.py` no longer embeds a developer-local
+2011Scape path. Its CLI requires the exact `--items-yml` input and passes that
+path through the build seam; a synthetic-source regression proves the generated
+equipment rows come from that explicit file. Regeneration against the local
+rev-667 source is byte-identical to the checked-in 384-row catalog.
+
+The existing v108 migration regression already exercised a superseded deed
+being removed and source-ready output/shop deeds being re-earned. It now also
+holds an unrelated, unmet completion across migration, proving revalidation is
+selective rather than a wholesale diary reset. The focused Diary/storage lane
+passes 168 tests. Full discovery passes all 3,800 tests in both lanes, with 460
+expected plain skips and 3 Qt skips. Documentation, test-quality, diff, and
+worktree audits also pass.
+
+GPT-family Workflows run `c48d7907-2f2e-4e3c-a365-7ba95b3aec2a` exhausted both
+read-only leaves on tool-output budgets before either produced a final. Root
+used no unverified conclusion from them and independently reproduced both
+boundaries. The next depth slice revalidates Frozen Dungeoneering boss combat
+levels from dated NPC definitions.
+
 ## Exact item-definition depth — 2026-08-03
 
 `tools/query_openrs2_cache.sh --id` now prints deterministic exact item model,
