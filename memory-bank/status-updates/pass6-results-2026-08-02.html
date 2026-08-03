@@ -22,7 +22,7 @@ code,.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monosp
   border:1px solid rgba(79,140,255,.32); padding:.32rem .7rem; border-radius:999px;
 }
 h1{font-size:2rem;font-weight:700;margin:.85rem 0 .4rem;letter-spacing:-.02em}
-.sub{color:var(--text-dim);font-size:.95rem;margin:0 0 2rem;max-width:62ch}
+.sub{color:var(--text-dim);font-size:.95rem;margin:0 0 2rem;max-width:64ch}
 
 .scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:2.4rem}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.95rem 1rem}
@@ -35,7 +35,7 @@ h2::after{content:"";flex:1;height:1px;background:var(--border)}
 
 .lede{
   background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--amber);
-  border-radius:var(--radius); padding:1.1rem 1.25rem; margin-bottom:.6rem;
+  border-radius:var(--radius); padding:1.1rem 1.25rem;
 }
 .lede p{margin:0 0 .7rem} .lede p:last-child{margin:0}
 .lede strong{color:var(--amber);font-weight:600}
@@ -47,7 +47,6 @@ h2::after{content:"";flex:1;height:1px;background:var(--border)}
 .tag{font-family:"JetBrains Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .45rem;border-radius:5px;background:var(--surface-2);color:var(--text-dim)}
 .tag.done{color:var(--green);background:rgba(74,222,128,.1)}
 .tag.park{color:var(--amber);background:rgba(251,191,36,.1)}
-.tag.held{color:var(--purple);background:rgba(167,139,250,.1)}
 .item .ttl{font-weight:600;font-size:.92rem}
 .item p{margin:.3rem 0 0;font-size:.83rem;color:var(--text-dim)}
 .sha{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--accent);background:var(--surface-2);padding:.14rem .4rem;border-radius:5px}
@@ -76,8 +75,8 @@ tr:last-child td{border-bottom:none}
 
 <div class="wrap">
   <span class="badge">Results · Playtest pass 6</span>
-  <h1>Pass 6 closed, except one parked feature</h1>
-  <p class="sub">The carry-over merged, all of section A merged, and ten of eleven section-B items merged. Section C was left with the design thread as instructed. <code class="mono">main</code> sits at <span class="sha">a3659330</span>, clean.</p>
+  <h1>Pass 6 is closed, except one parked feature</h1>
+  <p class="sub">This session closed the carry-over item. It merged all of section A and ten of the eleven section B items. It left section C with the design thread, as you instructed. <code class="mono">main</code> is now at <span class="sha">a3659330</span> and the tree is clean.</p>
 
   <div class="scoreboard">
     <div class="stat ok"><div class="n">15</div><div class="l">items closed</div></div>
@@ -86,31 +85,31 @@ tr:last-child td{border-bottom:none}
     <div class="stat"><div class="n">1</div><div class="l">parked</div></div>
   </div>
 
-  <h2>The thing worth knowing</h2>
+  <h2>The most important result</h2>
   <div class="lede">
-    <p><strong>Two of the highest-value catches were code that passed its own tests while doing nothing at all.</strong></p>
-    <p>The event-log z-level fix had a purpose-written stacking test, green, and was completely inert in the real application. Anki reparents its bottom bar into the central widget while the AnkiScape drawers hang off the main window, so the two were never siblings and the call that was supposed to push the drawer down had nothing to act on. The test harness had collapsed those two parents into one widget — which is precisely why an inert fix looked correct.</p>
-    <p>The drop log had a second door into the same leak it exists to close. Reverting that fix broke no test whatsoever. It now has a guard test that was proven by mutation: with the old code restored, the test fails.</p>
-    <p>Neither was findable by reading a diff. Both took a separate seat executing against the real thing.</p>
+    <p><strong>Two of the worst defects were code that passed its own tests and did nothing.</strong></p>
+    <p>The event-log z-level fix had a test written for it, and that test was green. In the real application the fix did nothing. Anki moves its bottom bar into the central widget. The AnkiScape drawers stay on the main window. The two widgets are therefore not siblings, so the call that lowers the drawer had no effect. The test harness put both widgets under one parent. For that reason an inert fix looked correct.</p>
+    <p>The drop log had a second write path into the same data loss that the feature must prevent. A revert of that fix broke no test. It now has a guard test, and a mutation proved that test: with the old code in place, the test fails.</p>
+    <p>A read of the diff finds neither defect. Each one needed a separate seat that ran the real application.</p>
   </div>
 
   <h2>Section A — urgent</h2>
   <div class="ledger">
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Grand Exchange interface</span><span class="sha">9d48a336</span></div>
-      <p>Edit-remainder works, the submit button label tracks the slot state instead of drifting, slots show the price you actually set, and picking an item resets to guide price rather than persisting the last one.</p>
+      <p>Edit-remainder works. The submit button label follows the state of the slot. The slots show the price you set. Selection of an item resets the price to the guide price.</p>
     </div>
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Event-log z-level</span><span class="sha">4187b3bb</span></div>
-      <p>The drawer now rises above the vanilla bar only while open. The first attempt was inert; see above. The menu button also moved out of the card scroll window and onto the native strip.</p>
+      <p>The drawer goes above the vanilla bar only while it is open. The first attempt did nothing in the real application. The menu button also moved out of the card scroll window and onto the native strip.</p>
     </div>
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Reviewer lag</span><span class="sha">a3659330</span></div>
-      <p>The AnkiScape growth mechanism is closed and the five outside-add-on fixes are applied by hand. A sampling probe now attributes main-thread time per add-on in five-minute buckets, so a cost that <em>grows</em> is distinguishable from one that is merely large.</p>
+      <p>The growth mechanism inside AnkiScape is closed. The five fixes for the other add-ons are applied by hand. A new probe samples the main thread and charges the time to each add-on in five-minute buckets. You can therefore see if a cost grows, or if it is only large.</p>
     </div>
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Event-log whitespace</span><span class="sha">4187b3bb</span></div>
-      <p>Row height halved from 34px to 17px, roughly doubling visible entries in the same 150px list. The cause was per-row label padding introduced in pass 5, not the drawer's margins.</p>
+      <p>The row height is now 17px, down from 34px. The same 150px list shows about twice as many entries. The cause was label padding that a pass 5 commit added. The drawer margins were correct.</p>
     </div>
   </div>
 
@@ -118,51 +117,52 @@ tr:last-child td{border-bottom:none}
   <div class="ledger">
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Drop log, recorder first</span><span class="sha">4d384d6a</span></div>
-      <p>Reordered to first once you pointed out it loses data every session it waits: kills before the recorder exists are unrecorded permanently. Observed drops only, raw tables behind Monster Examine, keep/drop control under Equipment.</p>
+      <p>This item moved to first place. You said that it loses data in every session that it waits, and that is correct: kills before the recorder exists are lost permanently. The log records observed drops only. Raw tables need the Monster Examine spell. The keep-or-drop control is under Equipment.</p>
     </div>
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Combat HUD, clock, XP split</span><span class="sha">46cef9ac</span></div>
-      <p>Player health bar now red like the enemy's, with prayer and summoning x/max beside it and pre-EOC orb icons. Simulated clock left of the skill bar. Multi-skill XP drops break down per skill in the log too.</p>
+      <p>The player health bar is now red, like the enemy bar. Prayer and summoning points show x/max beside it. All three use pre-EOC orb icons. A simulated clock sits left of the skill bar. Multi-skill XP drops now break down per skill, in the event log too.</p>
     </div>
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Ironman, bank runs, bury bones</span><span class="sha">142fca07</span></div>
-      <p>One-way ironman toggle in Settings, not GE. All banks act as the GE and fills trigger a bank run the event log announces. The inventory panel now shows what the run loaded — the actual complaint was not being able to tell how many fish remain.</p>
+      <p>The ironman toggle is one-way and sits in Settings, not in the GE. All banks act as the GE. Fills start a bank run, and the event log announces it. The inventory panel now shows what the run loaded. Your complaint was that you cannot count the fish that remain.</p>
     </div>
     <div class="item">
       <div class="top"><span class="tag done">Merged</span><span class="ttl">Challenges icon</span><span class="sha">97156230</span></div>
-      <p>The shipped icon had been harvested from the wrong file. Replaced with the one you named — recording that its earliest archived revision is 2014, after the cutoff, rather than hiding that.</p>
+      <p>The old icon came from the wrong file. The new icon is the file that you named. Its earliest archived revision is from 2014, which is after the cutoff. This document records that date instead of a silent change.</p>
     </div>
     <div class="item" style="grid-column:1/-1;border-left:3px solid var(--amber)">
       <div class="top"><span class="tag park">Parked</span><span class="ttl">B.15 — skill-selector hybridization</span></div>
-      <p>Flat below 25 rows, collapsible tree above; both variants get row striping, the flat variant's row spacing, green highlight on the selected row, bold selected text. It is a feature rather than a fix and was reached after the verify budget was spent, so starting it would have landed unverified work. Kimi now has headroom for the verify seat.</p>
+      <p>Render the list flat below 25 rows. Use a collapsible tree above 25 rows. Both variants need row stripes, the row spacing of the flat variant, a green highlight on the selected row, and bold text on the selected row. This item is a feature, not a fix. The session reached it after the verify budget ended, and work without a verify seat lands unverified code. Kimi now has capacity for that seat.</p>
     </div>
   </div>
 
   <h2>Verify rounds</h2>
+  <p class="sub" style="margin:0 0 .8rem">Six of the eight verify rounds rejected a real defect. The table gives the cause of each rejection.</p>
   <div class="tblwrap">
   <table>
-    <tr><th>Round</th><th>Verdict</th><th>What the rejection caught</th></tr>
-    <tr><td>Completionist</td><td class="v-rej">Rejected</td><td>Folded every catalog miniquest into the quest requirement — a boundary the pinned source table does not draw. Would have enforced The Hunt for Surok and gated Lair of Tarn Razorlor twice.</td></tr>
-    <tr><td>Strip z-level</td><td class="v-rej">Rejected</td><td>Inert in the real app. The same-parent guard was always false because Anki reparents the bottom bar; the harness had collapsed the two parents.</td></tr>
-    <tr><td>Performance</td><td class="v-rej">Rejected</td><td>Aliasing in two runtime modules, plus two documentation claims that were false. Inventory was then proved structurally safe: every write rebuilds its containers.</td></tr>
-    <tr><td>Economy</td><td class="v-rej">Rejected</td><td>Escape silently recorded a permanent "regular forever" choice, and the carried-inventory summary sat inside a collapsed section — leaving the actual complaint unsolved.</td></tr>
-    <tr><td>Assets</td><td class="v-rej">Rejected</td><td>Bare skill icons shipped where orbs were specified. Caught by opening the PNGs.</td></tr>
-    <tr><td>Drop log</td><td class="v-rej">Rejected</td><td>A second write path whose reversion failed no test. Closed with a mutation-proven guard.</td></tr>
-    <tr><td>GE, event log</td><td class="v-acc">Accepted</td><td>Clean on first pass.</td></tr>
+    <tr><th>Round</th><th>Verdict</th><th>Cause of the rejection</th></tr>
+    <tr><td>Completionist</td><td class="v-rej">Rejected</td><td>The branch folded every catalog miniquest into the quest requirement. The pinned source table draws no such boundary. The result enforced The Hunt for Surok and gated Lair of Tarn Razorlor twice.</td></tr>
+    <tr><td>Strip z-level</td><td class="v-rej">Rejected</td><td>The fix did nothing in the real application. The same-parent guard was always false, because Anki moves the bottom bar. The harness put both parents into one widget.</td></tr>
+    <tr><td>Performance</td><td class="v-rej">Rejected</td><td>Two runtime modules held aliased state, and two claims in the notes were false. A later audit proved the inventory safe: every write rebuilds its containers.</td></tr>
+    <tr><td>Economy</td><td class="v-rej">Rejected</td><td>The Escape key recorded a permanent "regular forever" choice without a prompt. The carried-inventory summary sat inside a collapsed section, so your actual complaint remained open.</td></tr>
+    <tr><td>Assets</td><td class="v-rej">Rejected</td><td>The branch shipped bare skill icons where the spec asks for orbs. I found this when I opened the PNG files.</td></tr>
+    <tr><td>Drop log</td><td class="v-rej">Rejected</td><td>A second write path had no test. A revert of it broke nothing. A mutation-proven guard test now covers it.</td></tr>
+    <tr><td>GE, event log</td><td class="v-acc">Accepted</td><td>Clean on the first pass.</td></tr>
   </table>
   </div>
 
   <h2>Merge gate</h2>
   <div class="gate">
-    <div class="lane"><div class="h">Plain lane</div><div class="r">3783 passed · 183.7s</div><div class="d">457 skipped — every Qt widget test, which is why this lane alone proves nothing user-facing.</div></div>
-    <div class="lane"><div class="h">Offscreen Qt lane</div><div class="r">3783 passed · 484.2s</div><div class="d">3 skipped. This is the gating lane.</div></div>
-    <div class="lane"><div class="h">Worktrees</div><div class="r">layout safe</div><div class="d">All removed, branches deleted, audit clean.</div></div>
+    <div class="lane"><div class="h">Plain lane</div><div class="r">3783 passed · 183.7s</div><div class="d">457 tests skip. Every Qt widget test skips. This lane alone proves nothing about the user interface.</div></div>
+    <div class="lane"><div class="h">Offscreen Qt lane</div><div class="r">3783 passed · 484.2s</div><div class="d">3 tests skip. This is the lane that gates a merge.</div></div>
+    <div class="lane"><div class="h">Worktrees</div><div class="r">layout safe</div><div class="d">All worktrees removed and all branches deleted. The audit is clean.</div></div>
   </div>
 
-  <h2>Waiting on you</h2>
+  <h2>Open items for you</h2>
   <div class="decisions">
-    <div class="dec"><div class="num">1</div><div><div class="ttl">Restart Anki</div><p>You are studying now, so this is presumably done — the add-on patches and the performance probe were both inert until a restart. The probe needs a few hours of ordinary reviewing before its report says anything, then it lives under Tools.</p></div></div>
-    <div class="dec"><div class="num">2</div><div><div class="ttl">Two dead position radios</div><p>"Under XP bar" and "Right of bar" only ever meant something relative to the review HUD inside the webview, and the menu button now has a fixed seat on the native strip. Still a one-line deletion, still unauthorized.</p></div></div>
-    <div class="dec"><div class="num">3</div><div><div class="ttl">B.15, and the artifact rule</div><p>B.15 whenever you want it started. Separately: a stored memory from 2026-07-11 tells me to hold status artifacts until you actually need to intervene, which is why these stopped appearing. That memory and the standing two-artifacts rule disagree, and only you can settle which wins.</p></div></div>
+    <div class="dec"><div class="num">1</div><div><div class="ttl">The Anki restart</div><p>You study now, so the restart happened. The add-on patches and the probe were both inert before it. The probe needs some hours of normal review before its report holds data. It is under Tools.</p></div></div>
+    <div class="dec"><div class="num">2</div><div><div class="ttl">Two dead position radios</div><p>"Under XP bar" and "Right of bar" had a meaning only for the HUD inside the webview. The menu button now has a fixed seat on the native strip. The deletion is one line, and it needs your approval.</p></div></div>
+    <div class="dec"><div class="num">3</div><div><div class="ttl">B.15</div><p>Tell me when to start it. The spec above is complete, and Kimi is free for the verify seat.</p></div></div>
   </div>
 </div>
