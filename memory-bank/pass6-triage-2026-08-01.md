@@ -95,11 +95,8 @@ was reached after Claude's verify budget was spent.
 14. **DONE, merged at `46cef9ac`.** Combat HUD: player health bar red like the enemy's; prayer points x/max and summoning
     points x/max beside it; wiki orb icons for all three (asset harvest: HP/prayer/summoning
     orbs, pre-EOC style).
-15. **PARKED.** A substantial feature rather than a fix, reached after the session's
-    verify budget was spent. Starting it without a verify seat would have landed
-    unverified work, which the closure discipline forbids. Implement ONLY the spec
-    below — the further elements to unify live in C/D.1 and are still with the design
-    thread.
+15. **DONE, grind-loop iteration 1.** Implement ONLY the spec below — the further
+    elements to unify live in C/D.1 and are still with the design thread.
     Skill-selector hybridization (spec mostly settled by owner): if a skill's target list
     is shorter than 25 rows, render flat; otherwise collapsible tree. Both variants get:
     row striping, the flat variant's row spacing, green highlight on the selected row,

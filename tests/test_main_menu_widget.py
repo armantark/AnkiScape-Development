@@ -1865,34 +1865,31 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
             self.assertTrue(any(skill_list.item(i).text() == "Thieving" for i in range(skill_list.count())))
 
-            tree = dialog.findChild(QTreeWidget, "thievingTargetTree")
-            self.assertIsNotNone(tree)
+            target_list = _find_list_with_user_role(dialog, "pickpocket_man")
             self.assertEqual(
-                [tree.topLevelItem(i).text(0).split("  (")[0] for i in range(tree.topLevelItemCount())],
-                ["Pickpocketing", "Stalls", "Safes", "Blackjacking"],
-            )
-            self.assertEqual(
-                tree.currentItem().data(0, Qt.ItemDataRole.UserRole),
+                target_list.currentItem().data(Qt.ItemDataRole.UserRole),
                 "pickpocket_man",
             )
 
             locked = next(
-                item for item in _tree_items(tree)
-                if item.data(0, Qt.ItemDataRole.UserRole) == "wall_safe"
+                target_list.item(index)
+                for index in range(target_list.count())
+                if target_list.item(index).data(Qt.ItemDataRole.UserRole) == "wall_safe"
             )
-            self.assertTrue(locked.isDisabled())
+            self.assertFalse(locked.flags() & Qt.ItemFlag.ItemIsEnabled)
             before = list(self._thieving_calls)
-            tree.itemClicked.emit(locked, 0)
-            tree.itemActivated.emit(locked, 0)
+            target_list.itemClicked.emit(locked)
+            target_list.itemActivated.emit(locked)
             QApplication.processEvents()
             self.assertEqual(self._thieving_calls, before)
 
             stall = next(
-                item for item in _tree_items(tree)
-                if item.data(0, Qt.ItemDataRole.UserRole) == "vegetable_stall"
+                target_list.item(index)
+                for index in range(target_list.count())
+                if target_list.item(index).data(Qt.ItemDataRole.UserRole) == "vegetable_stall"
             )
-            self.assertFalse(stall.isDisabled())
-            tree.itemClicked.emit(stall, 0)
+            self.assertTrue(stall.flags() & Qt.ItemFlag.ItemIsEnabled)
+            target_list.itemClicked.emit(stall)
             QApplication.processEvents()
             self.assertEqual(self._thieving_calls[-1], "vegetable_stall")
 
@@ -2004,7 +2001,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             reclaimed_dialog.deleteLater()
 
-    def test_agility_panel_renders_grouped_targets_locks_icon_and_commands(self) -> None:
+    def test_agility_panel_renders_flat_targets_locks_icon_and_commands(self) -> None:
         player_data = _make_player_data()
         player_data["agility_level"] = 1
         player_data["current_agility"] = "burthorpe_course"
@@ -2015,25 +2012,31 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertEqual(_panel_title(dialog), "Agility — Lv 1")
 
             panel = dialog.findChild(QWidget, "agilitySkillPanel")
-            tree = dialog.findChild(QTreeWidget, "agilityTargetTree")
+            target_list = _find_list_with_user_role(dialog, "burthorpe_course")
             self.assertIsNotNone(panel)
-            self.assertIsNotNone(tree)
             self.assertEqual(
-                [tree.topLevelItem(i).text(0).split("  (")[0] for i in range(tree.topLevelItemCount())],
-                ["Courses", "Activities"],
+                target_list.currentItem().data(Qt.ItemDataRole.UserRole),
+                "burthorpe_course",
             )
-            self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "burthorpe_course")
 
-            locked = _tree_row(tree, "gnome_advanced")
-            self.assertTrue(locked.isDisabled())
+            locked = next(
+                target_list.item(index)
+                for index in range(target_list.count())
+                if target_list.item(index).data(Qt.ItemDataRole.UserRole) == "gnome_advanced"
+            )
+            self.assertFalse(locked.flags() & Qt.ItemFlag.ItemIsEnabled)
             before = list(self._agility_calls)
-            tree.itemClicked.emit(locked, 0)
+            target_list.itemClicked.emit(locked)
             QApplication.processEvents()
             self.assertEqual(self._agility_calls, before)
 
-            gnome = _tree_row(tree, "gnome_normal")
-            self.assertFalse(gnome.isDisabled())
-            tree.itemClicked.emit(gnome, 0)
+            gnome = next(
+                target_list.item(index)
+                for index in range(target_list.count())
+                if target_list.item(index).data(Qt.ItemDataRole.UserRole) == "gnome_normal"
+            )
+            self.assertTrue(gnome.flags() & Qt.ItemFlag.ItemIsEnabled)
+            target_list.itemClicked.emit(gnome)
             QApplication.processEvents()
             self.assertEqual(self._agility_calls[-1], "gnome_normal")
 
@@ -7746,6 +7749,87 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotEqual(silver.background().color(), QColor(76, 175, 80, 76))
         self.assertFalse(silver.font().bold())
         self.assertFalse(coal.isSelected())
+
+    def test_skill_selector_hybridizes_at_twenty_five_rows(self) -> None:
+        from ankiscape.core.target_metadata import TargetRowMetadata
+
+        def _rows(count: int, *, grouped: bool = True) -> tuple[TargetRowMetadata, ...]:
+            return tuple(
+                TargetRowMetadata(
+                    target_id=f"hybrid_{index}",
+                    label=f"Hybrid target {index}",
+                    tooltip=f"Target {index}",
+                    current=index == 0,
+                    group="other" if grouped else "",
+                    sort_key=(index,),
+                )
+                for index in range(count)
+            )
+
+        dialogs = []
+        try:
+            with patch.object(self._ui, "crafting_target_rows", return_value=_rows(24)):
+                flat_dialog = self._open(_make_player_data(), current_skill="Crafting")
+            dialogs.append(flat_dialog)
+            flat_dialog.show()
+            flat_dialog.resize(900, 560)
+
+            with patch.object(self._ui, "crafting_target_rows", return_value=_rows(25)):
+                tree_dialog = self._open(_make_player_data(), current_skill="Crafting")
+            dialogs.append(tree_dialog)
+            tree_dialog.show()
+            tree_dialog.resize(900, 560)
+
+            for _ in range(4):
+                QApplication.processEvents()
+
+            flat = _find_list_with_user_role(flat_dialog, "hybrid_0")
+            tree = _find_tree_with_user_role(tree_dialog, "hybrid_0")
+            flat_current = flat.currentItem()
+            tree_current = _tree_row(tree, "hybrid_0")
+            flat.scrollToItem(flat_current)
+            tree.scrollToItem(tree_current)
+            QApplication.processEvents()
+
+            self.assertEqual(flat.count(), 24)
+            self.assertEqual(tree.topLevelItem(0).childCount(), 25)
+            self.assertTrue(flat.alternatingRowColors())
+            self.assertTrue(tree.alternatingRowColors())
+            self.assertEqual(flat.visualItemRect(flat_current).height(), 30)
+            self.assertEqual(tree.visualItemRect(tree_current).height(), 30)
+            self.assertEqual(flat_current.background().color(), QColor(76, 175, 80, 76))
+            self.assertEqual(tree_current.background(0).color(), QColor(76, 175, 80, 76))
+            self.assertTrue(flat_current.font().bold())
+            self.assertTrue(tree_current.font(0).bold())
+        finally:
+            for dialog in dialogs:
+                dialog.deleteLater()
+
+    def test_skill_selector_keeps_large_ungrouped_rows_flat(self) -> None:
+        from ankiscape.core.target_metadata import TargetRowMetadata
+
+        rows = tuple(
+            TargetRowMetadata(
+                target_id=f"ungrouped_{index}",
+                label=f"Ungrouped target {index}",
+                tooltip="No group metadata",
+                current=index == 0,
+            )
+            for index in range(25)
+        )
+        with patch.object(self._ui, "crafting_target_rows", return_value=rows):
+            dialog = self._open(_make_player_data(), current_skill="Crafting")
+        try:
+            dialog.show()
+            dialog.resize(900, 560)
+            for _ in range(4):
+                QApplication.processEvents()
+            selector = _find_list_with_user_role(dialog, "ungrouped_0")
+            self.assertEqual(selector.count(), 25)
+            with self.assertRaises(AssertionError):
+                _find_tree_with_user_role(dialog, "ungrouped_0")
+        finally:
+            dialog.deleteLater()
 
     def test_grouped_target_highlight_tracks_a_real_last_click(self) -> None:
         pd = _make_player_data()
@@ -15243,8 +15327,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             },
         })
         dialog = self._open(pd, current_skill="Agility")
-        tree = dialog.findChild(QTreeWidget, "agilityTargetTree")
-        tree.itemClicked.emit(_tree_row(tree, "burthorpe_course"), 0)
+        target_list = _find_list_with_user_role(dialog, "burthorpe_course")
+        burthorpe = next(
+            target_list.item(index)
+            for index in range(target_list.count())
+            if target_list.item(index).data(Qt.ItemDataRole.UserRole) == "burthorpe_course"
+        )
+        target_list.itemClicked.emit(burthorpe)
         QApplication.processEvents()
 
         self.assertEqual(pd["current_agility"], "burthorpe_course")

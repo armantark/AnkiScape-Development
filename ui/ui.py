@@ -4756,12 +4756,17 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    def _build_flat_target_list(rows: tuple[TargetRowMetadata, ...], on_select=None) -> QListWidget:
+    def _build_flat_target_list(
+        rows: tuple[TargetRowMetadata, ...],
+        on_select=None,
+        confirm_select=None,
+    ) -> QListWidget:
         target_list = QListWidget()
         target_list.setIconSize(QSize(28, 28))
         target_list.setAlternatingRowColors(True)
         target_list.setStyleSheet(
-            "QListWidget::item:selected { background: rgba(66,133,244,0.35);"
+            "QListWidget::item { min-height: 28px; padding: 1px; }"
+            " QListWidget::item:selected { background: rgba(66,133,244,0.35);"
             " color: palette(text); }"
         )
         current_item = None
@@ -4811,6 +4816,9 @@ def show_main_menu(
             # Skip locked rows: Qt still emits clicks/activations for disabled
             # items even though selection is blocked.
             if item and on_select is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
+                row = rows_by_target.get(item.data(Qt.ItemDataRole.UserRole))
+                if confirm_select is not None and row is not None and not confirm_select(row):
+                    return
                 on_select(item.data(Qt.ItemDataRole.UserRole))
                 _mark_current_target(item)
 
@@ -4842,6 +4850,7 @@ def show_main_menu(
         tree = QTreeWidget()
         tree.setHeaderHidden(True)
         tree.setIconSize(QSize(28, 28))
+        tree.setAlternatingRowColors(True)
         tree.setRootIsDecorated(True)
         tree.setIndentation(14)
         tree.setUniformRowHeights(True)
@@ -4849,7 +4858,7 @@ def show_main_menu(
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 32px; padding: 5px;"
+            " QTreeWidget::item { min-height: 28px; padding: 1px;"
             " border-radius: 6px; }"
             " QTreeWidget::item:selected { border: 2px solid rgba(66,133,244,0.95);"
             " color: palette(text); }"
@@ -4965,8 +4974,35 @@ def show_main_menu(
         _show_current_target(tree.currentItem())
         return tree
 
-    def _build_ore_list() -> QListWidget:
-        return _build_flat_target_list(
+    def _build_target_selector(
+        rows: tuple[TargetRowMetadata, ...],
+        group_labels: Optional[dict] = None,
+        group_role_prefix: str = "__target_group__:",
+        on_select=None,
+        confirm_select=None,
+        group_order: Optional[list] = None,
+        expanded_groups: Optional[set] = None,
+        set_group_expanded=None,
+    ) -> QWidget:
+        if len(rows) < 25 or not any(row.group for row in rows):
+            return _build_flat_target_list(
+                rows,
+                on_select,
+                confirm_select=confirm_select,
+            )
+        return _build_grouped_target_tree(
+            rows,
+            group_labels or {},
+            group_role_prefix,
+            on_select,
+            confirm_select=confirm_select,
+            group_order=group_order,
+            expanded_groups=expanded_groups,
+            set_group_expanded=set_group_expanded,
+        )
+
+    def _build_ore_list() -> QWidget:
+        return _build_target_selector(
             mining_target_rows(
                 player_data,
                 ORE_DATA,
@@ -4976,11 +5012,11 @@ def show_main_menu(
                 DEFAULT_MINING_TARGET,
                 quest_unlock_rules=QUEST_UNLOCK_RULES,
             ),
-            on_set_ore,
+            on_select=on_set_ore,
         )
 
-    def _build_tree_list() -> QListWidget:
-        return _build_flat_target_list(
+    def _build_tree_list() -> QWidget:
+        return _build_target_selector(
             woodcutting_target_rows(
                 player_data,
                 TREE_DATA,
@@ -4989,10 +5025,10 @@ def show_main_menu(
                 DEFAULT_WOODCUTTING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            on_set_tree,
+            on_select=on_set_tree,
         )
 
-    def _build_smith_list() -> QTreeWidget:
+    def _build_smith_list() -> QWidget:
         def _set_smith_target(recipe_id: str) -> None:
             if on_set_smith is not None:
                 on_set_smith(recipe_id)
@@ -5003,7 +5039,7 @@ def show_main_menu(
 
         images = dict(BAR_IMAGES)
         images.update(_item_asset_paths())
-        return _build_grouped_target_tree(
+        return _build_target_selector(
             smithing_target_rows(
                 player_data,
                 SMITHING_DATA,
@@ -5018,8 +5054,8 @@ def show_main_menu(
             set_group_expanded=set_smith_tier_expanded,
         )
 
-    def _build_craft_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    def _build_craft_list() -> QWidget:
+        return _build_target_selector(
             crafting_target_rows(
                 player_data,
                 CRAFTING_DATA,
@@ -5033,8 +5069,8 @@ def show_main_menu(
             set_group_expanded=set_craft_family_expanded,
         )
 
-    def _build_fletch_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    def _build_fletch_list() -> QWidget:
+        return _build_target_selector(
             fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES, QUEST_UNLOCK_RULES),
             FLETCHING_GROUP_LABELS,
             "__fletching_group__:",
@@ -5042,8 +5078,8 @@ def show_main_menu(
             group_order=list(FLETCHING_GROUP_ORDER),
         )
 
-    def _build_herblore_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    def _build_herblore_list() -> QWidget:
+        return _build_target_selector(
             herblore_target_rows(player_data, HERBLORE_DATA, HERBLORE_ITEM_IMAGES, QUEST_UNLOCK_RULES),
             HERBLORE_GROUP_LABELS,
             "__herblore_group__:",
@@ -5051,8 +5087,8 @@ def show_main_menu(
             group_order=list(HERBLORE_GROUP_LABELS),
         )
 
-    def _build_summoning_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    def _build_summoning_list() -> QWidget:
+        return _build_target_selector(
             summoning_target_rows(
                 player_data,
                 SUMMONING_ACTIONS,
@@ -5130,7 +5166,7 @@ def show_main_menu(
             if selection is not None:
                 _apply_prayer_selection(*selection)
 
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
             {group: group for group in PRAYER_GROUP_ORDER},
             "__prayer_group__:",
@@ -5239,7 +5275,7 @@ def show_main_menu(
         details.setVisible(False)
         details_toggle.toggled.connect(lambda checked: (details.setVisible(checked), details_toggle.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)))
         panel_layout.addWidget(details)
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             construction_target_rows(
                 player_data, CONSTRUCTION_DATA, ROOM_DATA, SERVANT_DATA, NAIL_DATA,
                 WORKBENCH_TIERS, CONSTRUCTION_ITEM_IMAGES, DEFAULT_CONSTRUCTION_TARGET,
@@ -6224,7 +6260,7 @@ def show_main_menu(
             for item in ITEM_DEFINITIONS
             if item.tradeable and item.storage_key in SHOP_PLAYER_BUY_PRICES
         }
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             magic_target_rows(
                 player_data,
                 MAGIC_DATA,
@@ -6242,8 +6278,8 @@ def show_main_menu(
         panel_layout.addWidget(tree, 1)
         return panel
 
-    def _build_firemaking_list() -> QListWidget:
-        return _build_flat_target_list(
+    def _build_firemaking_list() -> QWidget:
+        return _build_target_selector(
             firemaking_target_rows(
                 player_data,
                 FIREMAKING_DATA,
@@ -6251,11 +6287,11 @@ def show_main_menu(
                 DEFAULT_FIREMAKING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            on_set_firemaking,
+            on_select=on_set_firemaking,
         )
 
-    def _build_fishing_list() -> QListWidget:
-        return _build_flat_target_list(
+    def _build_fishing_list() -> QWidget:
+        return _build_target_selector(
             fishing_target_rows(
                 player_data,
                 FISHING_DATA,
@@ -6263,7 +6299,7 @@ def show_main_menu(
                 DEFAULT_FISHING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            on_set_fishing,
+            on_select=on_set_fishing,
         )
 
     def _build_hunter_list() -> QWidget:
@@ -6341,7 +6377,7 @@ def show_main_menu(
             player_data["current_hunter"] = target_id
             _refresh_private_ground()
 
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             hunter_target_rows(
                 player_data,
                 HUNTER_DATA,
@@ -6380,10 +6416,10 @@ def show_main_menu(
         _refresh_private_ground()
         return panel
 
-    def _build_cooking_list() -> QTreeWidget:
+    def _build_cooking_list() -> QWidget:
         images = dict(COOKING_ITEM_IMAGES)
         images.update(_item_asset_paths())
-        return _build_grouped_target_tree(
+        return _build_target_selector(
             cooking_target_rows(
                 player_data,
                 COOKING_DATA,
@@ -6639,7 +6675,7 @@ def show_main_menu(
         reclaim_button.clicked.connect(lambda _checked=False: _run_hood_action("reclaim"))
         layout.addWidget(hood_card)
 
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             runecrafting_target_rows(
                 player_data,
                 RUNECRAFTING_DATA,
@@ -6692,7 +6728,7 @@ def show_main_menu(
                 on_set_thieving(target_id)
                 _render_panel()
 
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             thieving_target_rows(
                 player_data,
                 THIEVING_TARGETS,
@@ -6912,7 +6948,7 @@ def show_main_menu(
                 on_set_agility(target_id)
             _render_panel()
 
-        tree = _build_grouped_target_tree(
+        tree = _build_target_selector(
             agility_target_rows(
                 player_data,
                 AGILITY_TARGETS,

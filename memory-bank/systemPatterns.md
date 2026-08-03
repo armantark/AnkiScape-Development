@@ -1,5 +1,14 @@
 # System Patterns
 
+## Skill target selectors derive presentation from row metadata
+
+The shared target selector renders fewer than 25 rows as a flat `QListWidget`
+and at least 25 grouped rows as a collapsible `QTreeWidget`. A row set without
+group metadata stays flat even above the threshold. Both renderers own the same
+30-pixel item height, alternating rows, green current-target background, and
+bold current-target text; per-skill builders supply metadata and callbacks but
+do not choose the widget class.
+
 ## One native reviewer strip, one geometry authority
 
 Reviewer chrome is a fixed-height native row inserted in Anki's `mainLayout`
