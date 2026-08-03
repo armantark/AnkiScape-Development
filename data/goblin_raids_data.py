@@ -28,7 +28,8 @@ GOBLIN_RAIDS_SOURCE = (
     "Stinkears oldid=6447564 (2012-10-20T21:27:42Z); Lumpnose oldid=6550383 "
     "(2012-11-12T23:45:38Z); Raider axe oldid=6464509; Raider chainbody "
     "oldid=6464451; Raider shield oldid=6464501; Goblin cower shield "
-    "oldid=6444335 (2012-10-19T21:29:09Z)"
+    "oldid=6444335 (2012-10-19T21:29:09Z); OpenRS2 rev-741 cache item "
+    "definitions 25350-25353"
 )
 
 # The article says a notice goes out server-wide every thirty minutes with the
@@ -208,19 +209,15 @@ class RaiderSetPiece:
 
 
 RAIDER_SET = (
-    RaiderSetPiece("Raider chainbody", "body", 20_216, 1),
+    RaiderSetPiece("Raider chainbody", "body", 25_352, 1),
     # Exact: the pinned Raider axe revision states 8 Attack to wield. Neither
     # the chainbody nor the shield revision states a Defence requirement.
-    RaiderSetPiece("Raider axe", "weapon", 20_212, 8),
-    RaiderSetPiece("Raider shield", "shield", 20_214, 1),
+    RaiderSetPiece("Raider axe", "weapon", 25_351, 8),
+    RaiderSetPiece("Raider shield", "shield", 25_353, 1),
 )
 RAIDER_SET_ITEM_NAMES = tuple(piece.item_name for piece in RAIDER_SET)
 
-# PLACEHOLDER(goblin_raids.raider_set_bonuses): the combat bonuses the three
-# Raider pieces carry. The pinned item revisions give the axe's Attack
-# requirement but no bonus block for any piece, and the generated equipment table
-# has no row for them, so all three register with no bonuses.
-RAIDER_SET_SOURCE_STATUS = "pinned period reward set, bonuses unrecovered"
+RAIDER_SET_SOURCE_STATUS = "rev-741 cache item definitions"
 
 # PLACEHOLDER(goblin_raids.yodri_reward_table): what Commander Yodri hands over.
 # The article says he gives "an item from the black guard's store for every
@@ -231,7 +228,42 @@ RAIDER_SET_SOURCE_STATUS = "pinned period reward set, bonuses unrecovered"
 # the source does name.
 GOBLIN_RAIDS_YODRI_ITEMS_PER_GOBLIN = 1
 
-GOBLIN_COWER_SHIELD_ITEM_ID = 20_218
+GOBLIN_COWER_SHIELD_ITEM_ID = 25_350
+
+RAIDER_SET_BONUSES = {
+    "Raider axe": EquipmentBonuses(
+        attack_stab=-2,
+        attack_slash=18,
+        attack_crush=13,
+        defence_ranged=-1,
+        melee_strength=22,
+    ),
+    "Raider chainbody": EquipmentBonuses(
+        attack_magic=-15,
+        defence_stab=20,
+        defence_slash=29,
+        defence_crush=35,
+        defence_magic=-3,
+        defence_ranged=22,
+    ),
+    "Raider shield": EquipmentBonuses(
+        attack_magic=-6,
+        attack_ranged=-2,
+        defence_stab=14,
+        defence_slash=15,
+        defence_crush=13,
+        defence_ranged=14,
+    ),
+}
+GOBLIN_COWER_SHIELD_BONUSES = EquipmentBonuses(
+    attack_magic=-8,
+    attack_ranged=-2,
+    defence_stab=13,
+    defence_slash=15,
+    defence_crush=14,
+    defence_magic=-1,
+    defence_ranged=14,
+)
 
 
 GOBLIN_RAIDS_ASSET_MANIFEST = (
@@ -295,7 +327,7 @@ def goblin_raids_extra_items_as_dict() -> dict[str, dict[str, Any]]:
             "category": "equipment",
             "source_item_id": piece.source_item_id,
             "stackable": False,
-            "tradeable": True,
+            "tradeable": False,
             "equipment_slot": piece.slot,
             "source": GOBLIN_RAIDS_SOURCE,
         }
@@ -321,7 +353,7 @@ def goblin_raids_equipment_data_as_dict() -> dict[str, EquipmentItem]:
             required_level=piece.required_attack,
             two_handed=False,
             equipment_type="raider_set",
-            bonuses=EquipmentBonuses(),
+            bonuses=RAIDER_SET_BONUSES[piece.item_name],
             attack_speed=5 if piece.slot == "weapon" else 4,
             source_item_id=piece.source_item_id,
             source=GOBLIN_RAIDS_SOURCE,
@@ -338,7 +370,7 @@ def goblin_raids_equipment_data_as_dict() -> dict[str, EquipmentItem]:
         required_level=1,
         two_handed=False,
         equipment_type="goblin_cower_shield",
-        bonuses=EquipmentBonuses(),
+        bonuses=GOBLIN_COWER_SHIELD_BONUSES,
         attack_speed=4,
         source_item_id=GOBLIN_COWER_SHIELD_ITEM_ID,
         source=GOBLIN_RAIDS_SOURCE,

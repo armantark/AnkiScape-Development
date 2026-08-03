@@ -224,6 +224,8 @@ Every implemented parity family should leave a durable source audit containing:
 - scope and cutoff;
 - page title, oldid, and timestamp for each historical claim;
 - cache build and IDs/options used for cross-reference;
+- exact item model/recolour/bonus rows may be reproduced with
+  `tools/query_openrs2_cache.sh <cache> --id <id> [id ...]`;
 - local source paths and commits;
 - values proven, values intentionally abstracted by AnkiScape, and unresolved
   values left source-blocked;

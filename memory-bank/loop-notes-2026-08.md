@@ -139,3 +139,28 @@
   both lanes: plain declares 460 expected skips; the real Qt interpreter
   declares 3. Documentation, test-quality, shell-syntax, diff, and worktree
   audits pass.
+
+## Iteration 7 — exact item-definition depth
+
+- Tooling: `query_openrs2_cache.sh --id` now emits deterministic exact model,
+  recolour, texture, sprite-recolour, bonus, stackability, exchangeability, and
+  option fields for requested item IDs.
+- Temple Trekking: rev-727 model `14131` leaves item `7774` in its original
+  yellow/ochre colours, recolours `7775` into the red hue band, and recolours
+  `7776` into the blue band. The live blue/yellow mapping was reversed and is
+  corrected to blue `7776`, yellow `7774`, red `7775`.
+- Goblin Raids: rev-741 pins Goblin cower shield and Raider axe/chainbody/shield
+  as `25350-25353`. All four are non-exchangeable and carry nonzero combat
+  bonuses. The unrelated `202xx` identities, tradeable Raider rows, and zeroed
+  bonuses are corrected.
+- Placeholder result: `temple_trekking.token_color_item_ids` and
+  `goblin_raids.raider_set_bonuses` are retired. Dominion Tower reward IDs stay
+  source-blocked because exact-name cache searches found no identities to query.
+- Delegation: GPT-family Workflows run
+  `20dc70c5-2a6c-490f-8d35-25550d5659af` exhausted both bounded leaves before a
+  final response. Root reused only their narrow file leads, independently
+  reproduced every cache claim, and did not rerun them.
+- Verification: 152 focused cache/data/registry/equipment tests and two real
+  offscreen equipment-stat UI tests pass. Full discovery passes 3,799 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, shell-syntax, diff, and worktree audits also pass.

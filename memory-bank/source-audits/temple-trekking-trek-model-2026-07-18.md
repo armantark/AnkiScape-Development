@@ -7,6 +7,11 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 Status: **owner-settled trek shape; breadth implementation source-audited, with
 registered placeholders for unrecovered server orchestration.**
 
+Superseded on `2026-08-03` only for the token-colour item mapping: rev-727
+model recolours now pin blue `7776`, yellow `7774`, and red `7775`. See
+`item-definition-depth-2026-08-03.md`. Token scoring and reward rolls remain
+placeholders.
+
 ## Evidence position
 
 Darkan has no Temple Trekking activity controller (only quest references in

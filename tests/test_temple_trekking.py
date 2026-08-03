@@ -27,6 +27,7 @@ from ankiscape.data.temple_trekking_data import (
     TEMPLE_TREKKING_COMPANION_XP_THRESHOLDS,
     TEMPLE_TREKKING_EVENTS_BY_ID,
     TEMPLE_TREKKING_REWARDS,
+    TEMPLE_TREKKING_TOKEN_IDS,
     TEMPLE_TREKKING_TOKEN_ITEMS,
 )
 from ankiscape.logic.achievement_diary_logic import refresh_achievement_diaries_pure
@@ -169,6 +170,10 @@ class TempleTrekkingDataSourceAssetTests(unittest.TestCase):
             self.assertEqual(provenance[path]["timestamp"], timestamp)
             self.assertEqual(provenance[path]["sha1"], sha1)
             self.assertLess(timestamp, "2012-11-20T00:00:00Z")
+        self.assertEqual(
+            TEMPLE_TREKKING_TOKEN_IDS,
+            {"blue": 7776, "yellow": 7774, "red": 7775},
+        )
 
     def test_cadence_and_generated_diary_rows_use_live_counters(self):
         cadence = next(
