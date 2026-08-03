@@ -13,6 +13,13 @@ closed a rule, and preserves the block where it did not.
 Status: **complete for mechanical completion with nine named placeholder
 candidates.** No owner decision is open.
 
+Implementation status update, 2026-08-03: design answer 3.25 landed on `main`
+across `6ced27e8` through `05016790`. Critical-path guardian rooms now provide
+the starter Herblore funding instead of the retired resource-room cache. The
+mechanism is settled; only its 1,010-coin magnitude remains registered as
+`PLACEHOLDER(dungeoneering.starter_guardian_coin_drops)` pending a decoded
+Frozen guardian drop table.
+
 ## Provenance keys
 
 Darkan server root below is

@@ -1,5 +1,22 @@
 # Progress
 
+## Dungeoneering guardian-room funding reconciliation — 2026-08-03
+
+The design-answer 3.25 implementation was already on `main` but remained in the
+grind queue as parked work. Commits `6ced27e8`, `dcf41c0d`, `c5eb86c8`,
+`6e07d1bc`, and `05016790` replaced the starter Herblore resource-room coin
+cache with the authentic guardian-room mechanism. On C5+ floors, only players
+with Druidic Ritual complete and Herblore 5 receive the registered 1,010 Rusty
+coins, split across critical-path guardian rooms; optional rooms cannot dilute
+or extend the payout, and C1-C4 receive none.
+
+The room-id ledger persists the split across reloads. Its migration recognizes
+legacy cache-funded, pre-drop, and completed-drop saves so it does not lose or
+duplicate coins. The natural-floor Valerian potion chain remains reachable end
+to end. The product revision passed both 3,785-test full lanes in iteration 1;
+fresh plain and offscreen-Qt focused lanes each pass all 54 Dungeoneering data,
+logic, and placeholder-register tests. No new code or source value was needed.
+
 ## Pass 6 B.15 skill-selector hybridization — 2026-08-03
 
 Per-skill target surfaces now dispatch through one row-count-aware renderer.

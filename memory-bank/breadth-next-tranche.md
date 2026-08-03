@@ -59,8 +59,9 @@ with both layouts drawn and the recommended one implemented. See
 miniquest ledger (`f69bb751`): Hunt for Surok and The Lair of Tarn Razorlor
 are playable miniquest rows, Bork runs his daily loop, and the Dominion Tarn
 fight gates on Haunted Mine per its pinned source. Every family in the
-pre-EOC catalog is at breadth one. Remaining programme work is depth, the
-384-diary-task clause, and the parked 3.25 guardian-drop reshape.
+pre-EOC catalog is at breadth one. The 3.25 guardian-drop reshape later landed
+across `6ced27e8` through `05016790`; remaining programme work is depth and the
+384-diary-task clause.
 
 ## What every brief must carry
 

@@ -6,7 +6,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
    Implement only `memory-bank/codex-briefs/pass6-b15-handoff-2026-08-03.md`.
-2. [ ] Design answer 3.25 — guardian coin drops.
+2. [x] Design answer 3.25 — guardian coin drops.
    Remove the Dungeoneering starter Herblore coin cache and pay the registered
    guardian-room placeholder on critical-path C5+ floors.
 3. [ ] The 384-diary-task clause.

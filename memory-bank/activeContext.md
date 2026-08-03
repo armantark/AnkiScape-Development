@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 2 reconciles Dungeoneering guardian
+funding.** The queue item had already landed on `main` across commits
+`6ced27e8` through `05016790`: eligible C5+ critical-path guardian rooms split
+the registered 1,010 Rusty-coin placeholder, the retired resource-room cache is
+gone, and legacy saves neither lose nor duplicate their funding. Both full
+3,785-test lanes cover this product revision; fresh plain and offscreen-Qt
+Dungeoneering/placeholder slices each pass 54 tests. The next queue item is the
+settled 384-task Achievement Diary clause.
+
 **2026-08-03, grind-loop iteration 1 closes pass 6 B.15.** Every per-skill
 target surface now chooses its presentation from the live metadata rows: fewer
 than 25 rows render as a flat list, 25 or more grouped rows render as a
@@ -35,9 +44,7 @@ pre-EOC catalog is at breadth one. The cross-lineage discipline caught real
 defects five passes in a row; its last round generalized into the
 sixteen-activity cadence class fix bound by `SINGLE_TICK_UTILITY_IDS` and its
 drift test. The Slayer off-task lead is disproven and closed. Open:
-the parked 3.25 guardian-drop reshape (quota; brief in the quota-guard
-parked file), the 384-diary-task clause, and depth work per the tranche
-board's closing note.
+the 384-diary-task clause and depth work per the tranche board's closing note.
 
 **2026-07-30, Dungeoneering phase C complete.** Repository discovery is green
 at 3,572 tests.
@@ -50,11 +57,9 @@ them, and the sweep-overwritten navigation icons are reverted (icon/ is now
 excluded from art sweeps). Luna computer-use verified the short-card overlay
 in the real app with zero study progress.
 
-Immediate queue, in order: resume Conquest breadth one in the `conquest`
-worktree at schema 102; then the 4.14 grill consequences (minimal miniquest
-ledger with Hunt for Surok → Bork and Lair of Tarn Razorlor → Dominion class
-H; guardian coin drops replacing the 3.25 cache); then the Slayer off-task XP
-source check. GOAL-BLOCKED carries only the 384-diary-task clause. Design forks
+The former immediate queue is closed: Conquest, the minimal miniquest ledger,
+guardian coin drops, and the Slayer off-task XP check all landed. The
+384-diary-task clause is next. Design forks
 3.15/3.19/3.22/3.23/3.24/3.25/4.12 are all owner-answered as of the 2026-07-29
 grill (section 4.14).
 
