@@ -6,13 +6,14 @@ document into the checked-in catalog.
 
 Translation rule, applied uniformly and deliberately:
 
-Darkan's rev-727 cache owns the task name, description, tier membership, and
-encoded ordinary skill/quest requirements. Regional tiers retain the existing
-source-backed active selection, then fill remaining designed slots with named
-latent rows from the same pinned tier roster. Burthorpe/Taverley and
-Miscellaneous retain every named source row. A latent row has no predicate and
-can never complete; it reserves the authentic cutoff denominator until its
-runtime predicate ships.
+Darkan's rev-727 cache owns task identity, names, descriptions, original tier
+membership, and encoded ordinary skill/quest requirements. Regional families
+are curated into four twelve-row AnkiScape tiers while keeping stable source
+identity and recording any cross-tier placement. If a period family contains
+fewer than 48 deeds, explicit progression anchors derived from that family's
+sourced requirements fill the remaining one-to-three slots per tier. A latent
+row has no predicate and can never complete; it reserves its authentic deed
+until its runtime predicate ships.
 """
 
 from __future__ import annotations
@@ -284,6 +285,11 @@ def resolve_condition_key(kind: str, key: str, expected=None) -> str:
         if key not in ceilings:
             return f"derived_value {key!r} has no DIARY_DERIVED_VALUE_CEILINGS entry"
         return ""
+    if kind == "quest":
+        return "" if key in QUEST_DATA else f"quest key {key!r} names no shipped quest"
+    if kind == "skill_level":
+        get_skill = _import_attr("ankiscape.core.skill_registry", "get_skill")
+        return "" if get_skill(key) else f"skill_level key {key!r} names no skill"
     if kind != "counter":
         return ""
     parts = key.split(".")
@@ -456,6 +462,31 @@ PREFERRED_SOURCE_IDS = {
     ("morytania", "medium"): (957, 958, 960, 962, 963, 964, 965, 966, 968, 970, 971, 972, 973),
 }
 
+# Owner-approved generic progression anchors. These are deliberately plain,
+# mechanically reachable rows, not invented period deeds. Every level below is
+# copied from a real requirement in the same Darkan family roster. Their spread
+# keeps each curated tier at twelve rows without putting more than three generic
+# anchors in any tier.
+PROGRESSION_ANCHORS = {
+    ("falador", "easy"): (("strength", 37),),
+    ("falador", "medium"): (("fletching", 60),),
+    ("falador", "hard"): (("mining", 80),),
+    ("falador", "elite"): (("cooking", 93),),
+    ("fremennik", "easy"): (("strength", 35), ("agility", 35)),
+    ("fremennik", "medium"): (("crafting", 52), ("fishing", 55)),
+    ("fremennik", "hard"): (("magic", 65), ("slayer", 65)),
+    ("fremennik", "elite"): (
+        ("hunter", 55),
+        ("magic", 65),
+        ("herblore", 80),
+    ),
+    ("karamja", "elite"): (("fishing", 65),),
+    ("seers", "easy"): (("crafting", 10), ("mining", 30)),
+    ("seers", "medium"): (("fishing", 46), ("magic", 57)),
+    ("seers", "hard"): (("firemaking", 65), ("smithing", 73)),
+    ("seers", "elite"): (("magic", 83), ("firemaking", 80)),
+}
+
 # Burthorpe/Taverley pays one starter-equipment bundle for the whole set, not a
 # per-task reward and not an upgradeable worn item. Darkan's `SetReward` enum
 # covers eight areas and deliberately excludes Burthorpe for exactly that
@@ -624,6 +655,15 @@ CONDITION_OVERRIDES.update({
 # evaluable prerequisite of its own.
 CONDITION_OVERRIDES.update({
     3000: (("counter", "tears_of_guthix.visits", 1, "Complete a Tears of Guthix visit"),),
+    3001: (
+        (
+            "any_of", "", 1, "Complete a Conquest match",
+            (
+                ("counter", "conquest_games_won", 1, "Win a Conquest match"),
+                ("counter", "conquest_games_lost", 1, "Lose a Conquest match"),
+            ),
+        ),
+    ),
     3002: (("counter", "penguin_hide_and_seek.lifetime_spotted", 1, "Spy a penguin"),),
     3003: (("counter", "achievement_progress.skills.woodcutting.actions.evil_tree_fell", 1, "Fell an evil tree"),),
     3004: (("counter", "achievement_progress.skills.mining.actions.shooting_stars", 1, "Mine a shooting star"),),
@@ -650,6 +690,33 @@ CONDITION_OVERRIDES.update({
     3029: (("counter", "stealing_creation.games", 1, "Enter a Stealing Creation game"),),
     3030: (("counter", "soul_wars_games_played", 1, "Complete a Soul Wars game"),),
     3031: (("counter", "clan_wars_matches", 1, "Enter a Clan Wars match"),),
+    3032: (
+        (
+            "any_of", "", 1, "Complete a Gnome Restaurant delivery",
+            (
+                (
+                    "counter",
+                    "gnome_restaurant.deliveries.easy",
+                    1,
+                    "Complete an easy delivery",
+                ),
+                (
+                    "counter",
+                    "gnome_restaurant.deliveries.hard",
+                    1,
+                    "Complete a hard delivery",
+                ),
+            ),
+        ),
+    ),
+    3033: (
+        (
+            "counter",
+            "mobilising_armies_games_played",
+            1,
+            "Complete a Mobilising Armies game",
+        ),
+    ),
     3034: (("counter", "warriors_guild.activity_reviews.warriors_guild_attack_dummy", 1, "Train in the Warriors' Guild"),),
 })
 
@@ -1034,14 +1101,21 @@ def _task_block(
     *,
     coin_reward: int = 0,
     latent: bool = False,
+    curation_anchor: bool = False,
+    conditions_override: tuple[tuple, ...] | None = None,
+    identity_tier: str | None = None,
 ) -> str:
     if latent:
         conditions: list[tuple] = []
     else:
-        conditions = _conditions(task)
+        conditions = (
+            list(conditions_override)
+            if conditions_override is not None
+            else _conditions(task)
+        )
         if not conditions:
             return ""
-    task_id = f"{family_id}_{tier_name}_{_slug(task['name'])}"
+    task_id = f"{family_id}_{identity_tier or tier_name}_{_slug(task['name'])}"
     condition_src = ", ".join(_condition_src(condition) for condition in conditions)
     conditions_line = f"({condition_src},)" if conditions else "()"
     return (
@@ -1054,8 +1128,126 @@ def _task_block(
         f"                {int(task['id'])},\n"
         f"                {coin_reward},\n"
         f"                {latent},\n"
+        f"                {curation_anchor},\n"
         "            ),"
     )
+
+
+def _ordered_source_ids(
+    record: dict, family_id: str, tier_name: str
+) -> tuple[int, ...]:
+    source_ids = tuple(record["tiers"][tier_name])
+    preferred = PREFERRED_SOURCE_IDS.get((family_id, tier_name), ())
+    foreign = sorted(set(preferred) - set(source_ids))
+    if foreign:
+        raise SystemExit(
+            f"{family_id} {tier_name} preferred ids are outside that source tier: {foreign}"
+        )
+    return preferred + tuple(
+        source_id for source_id in source_ids if source_id not in preferred
+    )
+
+
+def _regional_roster(
+    family_id: str,
+    meta: dict,
+    record: dict,
+    definitions: dict,
+) -> dict[str, list[tuple[int, str]]]:
+    """Return exactly twelve authentic-or-anchor rows for every curated tier."""
+
+    tiers = tuple(meta["tiers"])
+    source_tier_by_id: dict[int, str] = {}
+    source_order: dict[int, int] = {}
+    ranked_by_tier: dict[str, list[int]] = {}
+    order = 0
+    for tier_name in tiers:
+        ordered = _ordered_source_ids(record, family_id, tier_name)
+        for source_id in ordered:
+            if source_id in source_tier_by_id:
+                raise SystemExit(f"duplicate source task {source_id} in {family_id}")
+            source_tier_by_id[source_id] = tier_name
+            source_order[source_id] = order
+            order += 1
+        active = [
+            source_id
+            for source_id in ordered
+            if _conditions(definitions[str(source_id)])
+        ]
+        latent = [source_id for source_id in ordered if source_id not in active]
+        ranked_by_tier[tier_name] = active + latent
+
+    sourced_skill_levels = {
+        (
+            _SKILL_TYPE_IDS.get(int(requirement.get("skill_type", 0))),
+            int(requirement.get("level", 0)),
+        )
+        for source_id in source_tier_by_id
+        for requirement in definitions[str(source_id)].get("requirements", ())
+        if requirement.get("kind") == "skill"
+    }
+    for tier_name in tiers:
+        for anchor in PROGRESSION_ANCHORS.get((family_id, tier_name), ()):
+            if anchor not in sourced_skill_levels:
+                raise SystemExit(
+                    f"{family_id} {tier_name} progression anchor {anchor} is not a "
+                    "sourced requirement in that family"
+                )
+
+    anchor_total = sum(
+        len(PROGRESSION_ANCHORS.get((family_id, tier), ())) for tier in tiers
+    )
+    if len(source_tier_by_id) + anchor_total < TASKS_PER_TIER * len(tiers):
+        raise SystemExit(f"{family_id} has too few sourced deeds and progression anchors")
+
+    selected: dict[str, list[tuple[int, str]]] = {tier: [] for tier in tiers}
+    unused: set[int] = set(source_tier_by_id)
+    for tier_name in tiers:
+        authentic_target = TASKS_PER_TIER - len(
+            PROGRESSION_ANCHORS.get((family_id, tier_name), ())
+        )
+        if authentic_target < TASKS_PER_TIER - 3:
+            raise SystemExit(f"{family_id} {tier_name} exceeds the three-anchor limit")
+        own = ranked_by_tier[tier_name][:authentic_target]
+        selected[tier_name].extend((source_id, tier_name) for source_id in own)
+        unused.difference_update(own)
+
+    tier_index = {tier: index for index, tier in enumerate(tiers)}
+    for tier_name in tiers:
+        authentic_target = TASKS_PER_TIER - len(
+            PROGRESSION_ANCHORS.get((family_id, tier_name), ())
+        )
+        while len(selected[tier_name]) < authentic_target:
+            if not unused:
+                raise SystemExit(f"{family_id} cannot fill curated tier {tier_name}")
+            source_id = min(
+                unused,
+                key=lambda candidate: (
+                    not bool(_conditions(definitions[str(candidate)])),
+                    abs(
+                        tier_index[source_tier_by_id[candidate]]
+                        - tier_index[tier_name]
+                    ),
+                    source_order[candidate],
+                ),
+            )
+            selected[tier_name].append((source_id, source_tier_by_id[source_id]))
+            unused.remove(source_id)
+
+    for tier_name in tiers:
+        selected_skill_levels = {
+            (condition[1], condition[2])
+            for source_id, _original_tier in selected[tier_name]
+            for condition in _conditions(definitions[str(source_id)])
+            if condition[0] == "skill_level"
+        }
+        for anchor in PROGRESSION_ANCHORS.get((family_id, tier_name), ()):
+            if anchor in selected_skill_levels:
+                raise SystemExit(
+                    f"{family_id} {tier_name} progression anchor {anchor} duplicates "
+                    "a selected deed requirement"
+                )
+    return selected
 
 
 def _source(record: dict, family_id: str) -> str:
@@ -1081,38 +1273,59 @@ def build(document: dict) -> str:
     for family_id, meta in FAMILIES.items():
         record = families[family_id]
         source = _source(record, family_id)
+        curated = _regional_roster(family_id, meta, record, definitions)
         tier_blocks: list[str] = []
         for index, tier_name in enumerate(meta["tiers"]):
             darkan_ids = record["tiers"][tier_name]
-            preferred = PREFERRED_SOURCE_IDS.get((family_id, tier_name), ())
-            ordered_ids = preferred + tuple(
-                source_id for source_id in darkan_ids if source_id not in preferred
-            )
             task_blocks: list[str] = []
-            active_source_ids: set[int] = set()
-            for source_id in ordered_ids:
-                block = _task_block(
-                    family_id, tier_name, definitions[str(source_id)], source
-                )
-                if not block:
-                    continue
-                task_blocks.append(block)
-                active_source_ids.add(source_id)
-                if len(task_blocks) >= TASKS_PER_TIER:
-                    break
-            for source_id in ordered_ids:
-                if len(task_blocks) >= TASKS_PER_TIER:
-                    break
-                if source_id not in active_source_ids:
-                    task_blocks.append(
-                        _task_block(
-                            family_id,
-                            tier_name,
-                            definitions[str(source_id)],
-                            source,
-                            latent=True,
-                        )
+            for source_id, original_tier in curated[tier_name]:
+                task_source = source
+                if original_tier != tier_name:
+                    task_source += (
+                        f"; original period tier {original_tier}; curated into {tier_name}"
                     )
+                conditions = _conditions(definitions[str(source_id)])
+                block = _task_block(
+                    family_id,
+                    tier_name,
+                    definitions[str(source_id)],
+                    task_source,
+                    latent=not bool(conditions),
+                    identity_tier=original_tier,
+                )
+                task_blocks.append(block)
+            for anchor_index, (skill_id, level) in enumerate(
+                PROGRESSION_ANCHORS.get((family_id, tier_name), ()), start=1
+            ):
+                display = skill_id.replace("_", " ").title()
+                anchor = {
+                    "id": 900000 + list(FAMILIES).index(family_id) * 100 + index * 10 + anchor_index,
+                    "name": f"Reach Level {level} {display}",
+                    "description": (
+                        "An AnkiScape curation anchor, not a period task identity."
+                    ),
+                }
+                anchor_source = (
+                    f"AnkiScape progression anchor derived from Darkan "
+                    f"{record.get('darkan_class', family_id)} and rev-727 cache enum 3483 "
+                    "requirement rows; not a period task identity"
+                )
+                task_blocks.append(
+                    _task_block(
+                        family_id,
+                        tier_name,
+                        anchor,
+                        anchor_source,
+                        curation_anchor=True,
+                        conditions_override=(
+                            ("skill_level", skill_id, level, f"Level {level} {display}"),
+                        ),
+                    )
+                )
+            if len(task_blocks) != TASKS_PER_TIER:
+                raise SystemExit(
+                    f"{family_id} {tier_name} generated {len(task_blocks)} tasks, expected 12"
+                )
             kept_total += len(task_blocks)
             label = tier_name.capitalize()
             reward_item = f"{meta['item']} {index + 1}"
@@ -1209,7 +1422,9 @@ def build(document: dict) -> str:
     header = (
         '"""Generated by ``tools/generate_achievement_diary_data.py``. Do not hand-edit.\n\n'
         "Darkan's achievement classes and rev-727 cache enum 3483 own task identity,\n"
-        "tier membership, names, descriptions and ordinary requirements. Pinned\n"
+        "original tier membership, names, descriptions and ordinary requirements.\n"
+        "Regional rows are curated into twelve-task AnkiScape tiers; cross-tier\n"
+        "placements and generic progression anchors are explicitly labelled. Pinned\n"
         "pre-cutoff wiki revisions are corroboration only. Named tasks without an\n"
         "honest AnkiScape predicate are latent rows: visible, incomplete, and\n"
         "excluded from automatic completion until their predicate ships.\n\n"

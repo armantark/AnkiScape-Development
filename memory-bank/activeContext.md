@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 3 closes the 384-task Achievement Diary
+clause.** Every regional tier contains exactly twelve rows: authentic period
+task identities are deterministically curated across their own family, and 22
+visibly labelled progression anchors fill only the genuine source shortfalls.
+All 422 existing task IDs remain stable. The generated catalog now contains
+384 regional tasks, 317 with live predicates and 67 honest unavailable rows.
+Focused pure/integration coverage passes 128 tests and real offscreen Qt passes
+27; deterministic regeneration is byte-identical. Full discovery passes 3,790
+tests in both lanes, with 460 expected plain skips and 3 Qt skips. Queue item 4
+now starts the registered data-depth tranche. The diary's v108 revalidation
+migration test and the generator's non-portable local item-config path remain
+recorded depth debt.
+
 **2026-08-03, grind-loop iteration 2 reconciles Dungeoneering guardian
 funding.** The queue item had already landed on `main` across commits
 `6ced27e8` through `05016790`: eligible C5+ critical-path guardian rooms split

@@ -114,9 +114,12 @@ def build_achievements_tab(ctx) -> "QWidget":
         text_layout = QVBoxLayout(text)
         text_layout.setContentsMargins(0, 0, 0, 0)
         text_layout.setSpacing(1)
-        name = QLabel(
-            f"{task['name']} · Not yet obtainable" if task["latent"] else task["name"]
+        suffix = (
+            " · Not yet obtainable"
+            if task["latent"]
+            else " · Progression anchor" if task["curation_anchor"] else ""
         )
+        name = QLabel(f"{task['name']}{suffix}")
         name.setObjectName(f"cabinetTask_{task['task_id']}")
         name.setStyleSheet(
             f"font-weight: 600; color: {dim_text_css(name)}; font-style: italic;"
@@ -197,6 +200,17 @@ def build_achievements_tab(ctx) -> "QWidget":
             source_gap.setWordWrap(True)
             source_gap.setStyleSheet(f"color: {dim_text_css(source_gap)}; font-style: italic;")
             block_layout.addWidget(source_gap)
+
+        if tier["latent"]:
+            latent_notice = QLabel(
+                f"{tier['latent']} of these tasks cannot be completed yet."
+            )
+            latent_notice.setObjectName(f"cabinetLatentNotice_{tier['tier_id']}")
+            latent_notice.setWordWrap(True)
+            latent_notice.setStyleSheet(
+                f"color: {dim_text_css(latent_notice)}; font-style: italic;"
+            )
+            block_layout.addWidget(latent_notice)
 
         bar = QProgressBar()
         bar.setMaximum(max(1, tier["total"]))
@@ -363,7 +377,7 @@ def build_achievements_tab(ctx) -> "QWidget":
             "color: #C9A227; font-weight: 700;" if view["taskmaster"] else ""
         )
         seal.setToolTip(
-            "Every regional task complete" if view["taskmaster"] else ""
+            "Every cutoff task complete" if view["taskmaster"] else ""
         )
 
         if view["taskmaster_presentation"]["show"]:

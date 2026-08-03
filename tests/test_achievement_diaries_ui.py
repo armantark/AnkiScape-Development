@@ -249,20 +249,39 @@ class AchievementCabinetUITest(unittest.TestCase):
         label = self._named(page, f"cabinetTask_{latent.id}", QLabel)
         self.assertIn("Not yet obtainable", label.text())
         labels = self._labels(page)
-        self.assertIn("Not yet obtainable — its predicate has not shipped.", labels)
+        self.assertIn("cannot be completed yet", " ".join(labels))
         self.assertNotIn("0/0", labels)
 
-    def test_source_incomplete_rosters_are_visible(self):
-        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         tier = next(
             tier
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
-            if tier.total_tasks > len(tier.tasks)
+            if latent in tier.tasks
+        )
+        notice = self._named(page, f"cabinetLatentNotice_{tier.id}", QLabel)
+        self.assertIn("cannot be completed yet", notice.text())
+
+    def test_regional_rosters_have_no_source_gap_notice(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        page, _ctx = self._build(player)
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            if family.kind != "regional":
+                continue
+            for tier in family.tiers:
+                self.assertIsNone(page.findChild(QLabel, f"cabinetSourceGap_{tier.id}"))
+
+    def test_progression_anchor_is_visibly_labelled(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        anchor = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.curation_anchor
         )
         page, _ctx = self._build(player)
-        notice = self._named(page, f"cabinetSourceGap_{tier.id}", QLabel)
-        self.assertIn("roster incomplete at source", notice.text())
+        label = self._named(page, f"cabinetTask_{anchor.id}", QLabel)
+        self.assertIn("Progression anchor", label.text())
 
     def test_pressing_claim_runs_the_command_and_re_renders(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

@@ -1,5 +1,14 @@
 # Achievement Diaries — breadth one, 2026-07-26
 
+## Roster closure supersession — 2026-08-03
+
+The owner-settled curation contract now closes every regional tier at exactly
+12 rows, 384 total. Authentic task identities may move only within their source
+family and keep their original-tier durable IDs; 22 remaining source shortfalls
+are visibly labelled progression anchors using exact same-family period skill
+requirements. The 2026-07-26 empty-tier and smaller-roster notes below describe
+the original breadth-one state, not the current catalog.
+
 Branch `families/achievement-diaries`. Both lanes green: `python3 run_tests.py`
 runs 3,087 tests with 357 skips and no failures; the offscreen Qt lane runs the
 same 3,087 with 1 skip and no failures. Baseline before this work was 3,020 and

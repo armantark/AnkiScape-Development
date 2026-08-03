@@ -490,6 +490,17 @@ class CatalogIntegrityTest(unittest.TestCase):
         self.assertTrue(family.tiers[0].tasks)
         self.assertTrue(all(task.coin_reward == 100 for task in family.tiers[0].tasks))
 
+    def test_implemented_activity_deeds_are_not_left_latent(self):
+        tasks = {
+            task.source_id: task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        }
+        for source_id in (3001, 3032, 3033):
+            self.assertFalse(tasks[source_id].latent, source_id)
+            self.assertTrue(tasks[source_id].conditions, source_id)
+
     def test_regional_tiers_have_exact_twelve_slot_designed_rosters(self):
         for family in ACHIEVEMENT_DIARY_CATALOG:
             if family.kind != "regional":
@@ -497,7 +508,59 @@ class CatalogIntegrityTest(unittest.TestCase):
             for tier in family.tiers:
                 self.assertEqual(tier.designed_task_count, 12, tier.id)
                 self.assertEqual(tier.total_tasks, 12, tier.id)
-                self.assertLessEqual(len(tier.tasks), tier.total_tasks, tier.id)
+                self.assertEqual(len(tier.tasks), tier.total_tasks, tier.id)
+
+    def test_progression_anchors_are_bounded_reachable_and_explicit(self):
+        anchors = []
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            if family.kind != "regional":
+                continue
+            for tier in family.tiers:
+                tier_anchors = [task for task in tier.tasks if task.curation_anchor]
+                self.assertLessEqual(len(tier_anchors), 3, tier.id)
+                anchors.extend(tier_anchors)
+        self.assertEqual(len(anchors), 22)
+        self.assertEqual(
+            {task.id.split("_", 1)[0] for task in anchors},
+            {"falador", "fremennik", "karamja", "seers"},
+        )
+        for task in anchors:
+            self.assertFalse(task.latent, task.id)
+            self.assertTrue(task.conditions, task.id)
+            self.assertIn("not a period task identity", task.source, task.id)
+
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            for tier in family.tiers:
+                authentic_levels = {
+                    (condition.key, condition.amount)
+                    for task in tier.tasks
+                    if not task.curation_anchor
+                    for condition in task.conditions
+                    if condition.kind == "skill_level"
+                }
+                for anchor in (task for task in tier.tasks if task.curation_anchor):
+                    condition = anchor.conditions[0]
+                    self.assertNotIn(
+                        (condition.key, condition.amount),
+                        authentic_levels,
+                        anchor.id,
+                    )
+
+    def test_cross_tier_curation_keeps_the_original_durable_identity(self):
+        marker = "original period tier "
+        moved = []
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            for tier in family.tiers:
+                for task in tier.tasks:
+                    if marker not in task.source:
+                        continue
+                    original_tier = task.source.split(marker, 1)[1].split(";", 1)[0]
+                    self.assertTrue(
+                        task.id.startswith(f"{family.id}_{original_tier}_"),
+                        task.id,
+                    )
+                    moved.append(task)
+        self.assertTrue(moved)
 
     def test_cutoff_denominators_are_the_recorded_534_tasks(self):
         totals = {
@@ -603,6 +666,8 @@ class ConditionKeyResolutionTest(unittest.TestCase):
             resolve_condition_key("ledger_action", "utility:draw_bucket_of_water"), ""
         )
         self.assertTrue(resolve_condition_key("combat_kill", "no_such_enemy"))
+        self.assertTrue(resolve_condition_key("quest", "no_such_quest"))
+        self.assertTrue(resolve_condition_key("skill_level", "sailing"))
         self.assertTrue(resolve_condition_key("shop_transaction", "buy|no_shop|no_row"))
         self.assertTrue(
             resolve_condition_key("state_equals", "no_such.path", "anything")
@@ -1601,7 +1666,13 @@ class TaskmasterTest(unittest.TestCase):
         self.assertFalse(player["achievement_diaries"]["taskmaster"])
         self.assertFalse(achievement_cabinet_view_pure(player)["taskmaster"])
         self.assertEqual(diary_totals_pure(player)["total"], 534)
-        self.assertEqual(diary_totals_pure(player)["completed"], 326)
+        obtainable = sum(
+            not task.latent
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        )
+        self.assertEqual(diary_totals_pure(player)["completed"], obtainable)
 
 
 class MigrationTest(unittest.TestCase):
