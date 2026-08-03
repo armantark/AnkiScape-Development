@@ -1,0 +1,168 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 6 — results</title>
+<style>
+:root{
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:Outfit,"Segoe UI",system-ui,-apple-system,sans-serif;
+  line-height:1.55; padding:2.2rem 1.2rem 4rem;
+}
+.wrap{max-width:1080px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.badge{
+  display:inline-block; font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--accent); background:var(--accent-glow);
+  border:1px solid rgba(79,140,255,.32); padding:.32rem .7rem; border-radius:999px;
+}
+h1{font-size:2rem;font-weight:700;margin:.85rem 0 .4rem;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.95rem;margin:0 0 2rem;max-width:62ch}
+
+.scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:2.4rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.95rem 1rem}
+.stat .n{font-size:1.7rem;font-weight:700;line-height:1;font-family:"JetBrains Mono",monospace}
+.stat .l{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-top:.4rem}
+.stat.ok .n{color:var(--green)} .stat.warn .n{color:var(--amber)} .stat.acc .n{color:var(--accent)}
+
+h2{font-size:1.05rem;font-weight:600;margin:2.6rem 0 .9rem;display:flex;align-items:center;gap:.6rem}
+h2::after{content:"";flex:1;height:1px;background:var(--border)}
+
+.lede{
+  background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--amber);
+  border-radius:var(--radius); padding:1.1rem 1.25rem; margin-bottom:.6rem;
+}
+.lede p{margin:0 0 .7rem} .lede p:last-child{margin:0}
+.lede strong{color:var(--amber);font-weight:600}
+
+.ledger{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+.item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;transition:transform .15s,box-shadow .15s}
+.item:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.item .top{display:flex;align-items:baseline;gap:.55rem;margin-bottom:.35rem;flex-wrap:wrap}
+.tag{font-family:"JetBrains Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .45rem;border-radius:5px;background:var(--surface-2);color:var(--text-dim)}
+.tag.done{color:var(--green);background:rgba(74,222,128,.1)}
+.tag.park{color:var(--amber);background:rgba(251,191,36,.1)}
+.tag.held{color:var(--purple);background:rgba(167,139,250,.1)}
+.item .ttl{font-weight:600;font-size:.92rem}
+.item p{margin:.3rem 0 0;font-size:.83rem;color:var(--text-dim)}
+.sha{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--accent);background:var(--surface-2);padding:.14rem .4rem;border-radius:5px}
+
+.tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:.83rem}
+th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:.63rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);padding:.7rem .9rem;border-bottom:1px solid var(--border);font-weight:500}
+td{padding:.7rem .9rem;border-bottom:1px solid rgba(42,48,64,.5);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.v-rej{color:var(--red);font-weight:600} .v-acc{color:var(--green);font-weight:600}
+
+.decisions{display:grid;gap:.7rem}
+.dec{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:var(--radius);padding:.9rem 1.1rem;display:flex;gap:.9rem;align-items:flex-start}
+.dec .num{font-family:"JetBrains Mono",monospace;font-size:.75rem;color:var(--purple);background:rgba(167,139,250,.12);width:1.7rem;height:1.7rem;display:grid;place-items:center;border-radius:6px;flex:0 0 auto;margin-top:.1rem}
+.dec .ttl{font-weight:600;font-size:.9rem;margin-bottom:.15rem}
+.dec p{margin:0;font-size:.83rem;color:var(--text-dim)}
+
+.gate{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.9rem}
+.lane{flex:1 1 220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+.lane .h{font-family:"JetBrains Mono",monospace;font-size:.64rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.4rem}
+.lane .r{font-family:"JetBrains Mono",monospace;font-size:.86rem;color:var(--green)}
+.lane .d{font-size:.76rem;color:var(--text-dim);margin-top:.25rem}
+
+@media(max-width:900px){.scoreboard{grid-template-columns:repeat(2,1fr)}.ledger{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <span class="badge">Results · Playtest pass 6</span>
+  <h1>Pass 6 closed, except one parked feature</h1>
+  <p class="sub">The carry-over merged, all of section A merged, and ten of eleven section-B items merged. Section C was left with the design thread as instructed. <code class="mono">main</code> sits at <span class="sha">a3659330</span>, clean.</p>
+
+  <div class="scoreboard">
+    <div class="stat ok"><div class="n">15</div><div class="l">items closed</div></div>
+    <div class="stat acc"><div class="n">3783</div><div class="l">tests, both lanes</div></div>
+    <div class="stat warn"><div class="n">6/8</div><div class="l">verifies rejected</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">parked</div></div>
+  </div>
+
+  <h2>The thing worth knowing</h2>
+  <div class="lede">
+    <p><strong>Two of the highest-value catches were code that passed its own tests while doing nothing at all.</strong></p>
+    <p>The event-log z-level fix had a purpose-written stacking test, green, and was completely inert in the real application. Anki reparents its bottom bar into the central widget while the AnkiScape drawers hang off the main window, so the two were never siblings and the call that was supposed to push the drawer down had nothing to act on. The test harness had collapsed those two parents into one widget — which is precisely why an inert fix looked correct.</p>
+    <p>The drop log had a second door into the same leak it exists to close. Reverting that fix broke no test whatsoever. It now has a guard test that was proven by mutation: with the old code restored, the test fails.</p>
+    <p>Neither was findable by reading a diff. Both took a separate seat executing against the real thing.</p>
+  </div>
+
+  <h2>Section A — urgent</h2>
+  <div class="ledger">
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Grand Exchange interface</span><span class="sha">9d48a336</span></div>
+      <p>Edit-remainder works, the submit button label tracks the slot state instead of drifting, slots show the price you actually set, and picking an item resets to guide price rather than persisting the last one.</p>
+    </div>
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Event-log z-level</span><span class="sha">4187b3bb</span></div>
+      <p>The drawer now rises above the vanilla bar only while open. The first attempt was inert; see above. The menu button also moved out of the card scroll window and onto the native strip.</p>
+    </div>
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Reviewer lag</span><span class="sha">a3659330</span></div>
+      <p>The AnkiScape growth mechanism is closed and the five outside-add-on fixes are applied by hand. A sampling probe now attributes main-thread time per add-on in five-minute buckets, so a cost that <em>grows</em> is distinguishable from one that is merely large.</p>
+    </div>
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Event-log whitespace</span><span class="sha">4187b3bb</span></div>
+      <p>Row height halved from 34px to 17px, roughly doubling visible entries in the same 150px list. The cause was per-row label padding introduced in pass 5, not the drawer's margins.</p>
+    </div>
+  </div>
+
+  <h2>Section B — implementation-ready</h2>
+  <div class="ledger">
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Drop log, recorder first</span><span class="sha">4d384d6a</span></div>
+      <p>Reordered to first once you pointed out it loses data every session it waits: kills before the recorder exists are unrecorded permanently. Observed drops only, raw tables behind Monster Examine, keep/drop control under Equipment.</p>
+    </div>
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Combat HUD, clock, XP split</span><span class="sha">46cef9ac</span></div>
+      <p>Player health bar now red like the enemy's, with prayer and summoning x/max beside it and pre-EOC orb icons. Simulated clock left of the skill bar. Multi-skill XP drops break down per skill in the log too.</p>
+    </div>
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Ironman, bank runs, bury bones</span><span class="sha">142fca07</span></div>
+      <p>One-way ironman toggle in Settings, not GE. All banks act as the GE and fills trigger a bank run the event log announces. The inventory panel now shows what the run loaded — the actual complaint was not being able to tell how many fish remain.</p>
+    </div>
+    <div class="item">
+      <div class="top"><span class="tag done">Merged</span><span class="ttl">Challenges icon</span><span class="sha">97156230</span></div>
+      <p>The shipped icon had been harvested from the wrong file. Replaced with the one you named — recording that its earliest archived revision is 2014, after the cutoff, rather than hiding that.</p>
+    </div>
+    <div class="item" style="grid-column:1/-1;border-left:3px solid var(--amber)">
+      <div class="top"><span class="tag park">Parked</span><span class="ttl">B.15 — skill-selector hybridization</span></div>
+      <p>Flat below 25 rows, collapsible tree above; both variants get row striping, the flat variant's row spacing, green highlight on the selected row, bold selected text. It is a feature rather than a fix and was reached after the verify budget was spent, so starting it would have landed unverified work. Kimi now has headroom for the verify seat.</p>
+    </div>
+  </div>
+
+  <h2>Verify rounds</h2>
+  <div class="tblwrap">
+  <table>
+    <tr><th>Round</th><th>Verdict</th><th>What the rejection caught</th></tr>
+    <tr><td>Completionist</td><td class="v-rej">Rejected</td><td>Folded every catalog miniquest into the quest requirement — a boundary the pinned source table does not draw. Would have enforced The Hunt for Surok and gated Lair of Tarn Razorlor twice.</td></tr>
+    <tr><td>Strip z-level</td><td class="v-rej">Rejected</td><td>Inert in the real app. The same-parent guard was always false because Anki reparents the bottom bar; the harness had collapsed the two parents.</td></tr>
+    <tr><td>Performance</td><td class="v-rej">Rejected</td><td>Aliasing in two runtime modules, plus two documentation claims that were false. Inventory was then proved structurally safe: every write rebuilds its containers.</td></tr>
+    <tr><td>Economy</td><td class="v-rej">Rejected</td><td>Escape silently recorded a permanent "regular forever" choice, and the carried-inventory summary sat inside a collapsed section — leaving the actual complaint unsolved.</td></tr>
+    <tr><td>Assets</td><td class="v-rej">Rejected</td><td>Bare skill icons shipped where orbs were specified. Caught by opening the PNGs.</td></tr>
+    <tr><td>Drop log</td><td class="v-rej">Rejected</td><td>A second write path whose reversion failed no test. Closed with a mutation-proven guard.</td></tr>
+    <tr><td>GE, event log</td><td class="v-acc">Accepted</td><td>Clean on first pass.</td></tr>
+  </table>
+  </div>
+
+  <h2>Merge gate</h2>
+  <div class="gate">
+    <div class="lane"><div class="h">Plain lane</div><div class="r">3783 passed · 183.7s</div><div class="d">457 skipped — every Qt widget test, which is why this lane alone proves nothing user-facing.</div></div>
+    <div class="lane"><div class="h">Offscreen Qt lane</div><div class="r">3783 passed · 484.2s</div><div class="d">3 skipped. This is the gating lane.</div></div>
+    <div class="lane"><div class="h">Worktrees</div><div class="r">layout safe</div><div class="d">All removed, branches deleted, audit clean.</div></div>
+  </div>
+
+  <h2>Waiting on you</h2>
+  <div class="decisions">
+    <div class="dec"><div class="num">1</div><div><div class="ttl">Restart Anki</div><p>You are studying now, so this is presumably done — the add-on patches and the performance probe were both inert until a restart. The probe needs a few hours of ordinary reviewing before its report says anything, then it lives under Tools.</p></div></div>
+    <div class="dec"><div class="num">2</div><div><div class="ttl">Two dead position radios</div><p>"Under XP bar" and "Right of bar" only ever meant something relative to the review HUD inside the webview, and the menu button now has a fixed seat on the native strip. Still a one-line deletion, still unauthorized.</p></div></div>
+    <div class="dec"><div class="num">3</div><div><div class="ttl">B.15, and the artifact rule</div><p>B.15 whenever you want it started. Separately: a stored memory from 2026-07-11 tells me to hold status artifacts until you actually need to intervene, which is why these stopped appearing. That memory and the standing two-artifacts rule disagree, and only you can settle which wins.</p></div></div>
+  </div>
+</div>
