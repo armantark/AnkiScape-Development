@@ -28,6 +28,7 @@ from ankiscape.core.storage_pure import (
     default_player_data,
     migrate_loaded_data,
 )
+from ankiscape.data.equipment_data import EquipmentBonuses
 from ankiscape.data.goblin_raids_data import (
     GOBLIN_COWER_SHIELD,
     GOBLIN_COWER_SHIELD_BONUS_BUDGET,
@@ -235,6 +236,62 @@ class GoblinRaidsDataTest(unittest.TestCase):
         )
         # Exact: the pinned Raider axe revision states 8 Attack.
         self.assertEqual(EQUIPMENT_DATA["Raider axe"].required_level, 8)
+
+    def test_period_cache_ids_and_bonuses_drive_all_four_equipment_rows(self):
+        expected = {
+            "Goblin cower shield": (
+                25_350,
+                EquipmentBonuses(
+                    attack_magic=-8,
+                    attack_ranged=-2,
+                    defence_stab=13,
+                    defence_slash=15,
+                    defence_crush=14,
+                    defence_magic=-1,
+                    defence_ranged=14,
+                ),
+            ),
+            "Raider axe": (
+                25_351,
+                EquipmentBonuses(
+                    attack_stab=-2,
+                    attack_slash=18,
+                    attack_crush=13,
+                    defence_ranged=-1,
+                    melee_strength=22,
+                ),
+            ),
+            "Raider chainbody": (
+                25_352,
+                EquipmentBonuses(
+                    attack_magic=-15,
+                    defence_stab=20,
+                    defence_slash=29,
+                    defence_crush=35,
+                    defence_magic=-3,
+                    defence_ranged=22,
+                ),
+            ),
+            "Raider shield": (
+                25_353,
+                EquipmentBonuses(
+                    attack_magic=-6,
+                    attack_ranged=-2,
+                    defence_stab=14,
+                    defence_slash=15,
+                    defence_crush=13,
+                    defence_ranged=14,
+                ),
+            ),
+        }
+        for item_name, (item_id, bonuses) in expected.items():
+            row = EQUIPMENT_DATA[item_name]
+            self.assertEqual(row.source_item_id, item_id)
+            self.assertEqual(row.bonuses, bonuses)
+        definitions = {row.storage_key: row for row in ITEM_DEFINITIONS}
+        for item_name in expected:
+            self.assertFalse(definitions[item_name].stackable)
+            self.assertFalse(definitions[item_name].tradeable)
 
 
 class GoblinRaidsWorldClockTest(unittest.TestCase):

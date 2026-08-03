@@ -1,5 +1,10 @@
 # Goblin Raids Horizontal Implementation Source Audit
 
+Superseded on `2026-08-03` only for Goblin Raids equipment identity and combat
+bonuses: rev-741 item definitions pin IDs `25350` through `25353` and their
+nonzero bonus arrays. See `item-definition-depth-2026-08-03.md`. The seven
+remaining registered Goblin Raids placeholders are unchanged.
+
 Date: `2026-07-26`
 
 Schema version claimed: **87**.

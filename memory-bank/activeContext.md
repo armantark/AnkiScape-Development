@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 7 closes exact item-definition debt.** The
+item reader now exposes exact model/recolour, bonus, stackability, and exchange
+rows. Rev-727 proves Temple Trekking token IDs blue `7776`, yellow `7774`, red
+`7775`, correcting the live blue/yellow swap. Rev-741 proves Goblin cower shield
+and Raider set IDs `25350-25353`, their non-exchangeable state, and nonzero
+combat bonuses, replacing unrelated `202xx` identities and zeroed stats. Two
+registered placeholders are retired; no UI or asset changed. The next slice is
+the Achievement Diary's portable generator input and v108 migration regression.
+Full discovery passes 3,799 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 6 retires the Conquest Foot Soldier cost
 placeholder.** Interface 1015, CS2 scripts 484/486, and both mapped rev-727 NPC
 rows prove that param 1138 is the displayed setup cost and equals 50. The NPC

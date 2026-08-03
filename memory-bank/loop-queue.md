@@ -20,5 +20,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk client-side `source_blocked` rows; leave server-side gaps alone.
      Rev-727 Conquest NPC params retire the Foot Soldier cost conflict at 50;
      diary lamp floors and the remaining server-owned formulas stay blocked.
-   - [ ] Decode exact item model/recolour rows and re-walk item-identity and
-     asset placeholders, starting with Temple Trekking reward-token colours.
+   - [x] Decode exact item model/recolour rows and re-walk item-identity and
+     asset placeholders. Rev-727 fixes the Temple Trekking blue/yellow swap;
+     rev-741 fixes all four Goblin Raids equipment IDs, trade rules, and bonus
+     arrays. Dominion Tower's unknown reward IDs remain source-blocked.
+   - [ ] Retire the Achievement Diary's recorded depth debt: make the generator
+     input portable and add the missing v108 revalidation migration regression.

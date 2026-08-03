@@ -1,5 +1,25 @@
 # Progress
 
+## Exact item-definition depth — 2026-08-03
+
+`tools/query_openrs2_cache.sh --id` now prints deterministic exact item model,
+recolour, texture, sprite-recolour, bonus, stackability, exchangeability, and
+option fields. Its first production pass corrected two player-facing data
+families. Temple Trekking now maps blue/yellow/red Reward tokens to exact cache
+items `7776/7774/7775`; the previous blue and yellow IDs were reversed.
+
+Goblin cower shield and the three Raider pieces now use exact rev-741 IDs
+`25350-25353`, are non-exchangeable, and project their authentic item-definition
+combat bonuses. The previous rows used unrelated `202xx` IDs and flattened all
+bonuses to zero. The Temple token-colour and Raider-bonus placeholders are
+retired. Dominion Tower reward identities remain honestly source-blocked because
+the prior near-cutoff item-name search found no matching rows.
+
+Focused cache/data/registry/equipment coverage passes 152 tests, and two real
+offscreen equipment-stat UI checks pass. Full discovery passes all 3,799 tests
+in both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+test-quality, shell-syntax, diff, and worktree audits also pass.
+
 ## Client-side blocked-row re-walk — 2026-08-03
 
 The rev-727 Conquest client resolves the Foot Soldier's 30-versus-50 setup-cost

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -lt 2 ]]; then
-  echo "usage: $0 <disk.zip|cache-dir> <item-name-term> [term ...]" >&2
+  echo "usage: $0 <disk.zip|cache-dir> <item-name-term|--id> [term|id ...]" >&2
   exit 2
 fi
 

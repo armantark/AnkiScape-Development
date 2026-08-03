@@ -175,9 +175,9 @@ TEMPLE_TREKKING_EVENT_COMBAT = {  # PLACEHOLDER(temple_trekking.event_combat_sta
     },
 }
 
-TEMPLE_TREKKING_TOKEN_IDS = {  # PLACEHOLDER(temple_trekking.token_color_item_ids): symbolic cache mapping from items 7774/7775/7776 to blue/yellow/red
-    "blue": 7774,
-    "yellow": 7776,
+TEMPLE_TREKKING_TOKEN_IDS = {
+    "blue": 7776,
+    "yellow": 7774,
     "red": 7775,
 }
 TEMPLE_TREKKING_TOKEN_ITEMS = {
