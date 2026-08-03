@@ -218,6 +218,24 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         check_achievements(player)
         self.assertIn("First Steps", player["completed_achievements"])
 
+    def test_progression_anchor_credits_through_the_live_refresh_seam(self):
+        from ankiscape.core.logic import check_achievements
+
+        anchor = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.curation_anchor
+        )
+        condition = anchor.conditions[0]
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player[f"{condition.key}_level"] = condition.amount
+
+        check_achievements(player)
+
+        self.assertIn(anchor.id, player["achievement_diaries"]["completed_tasks"])
+
 
 class DiaryUndoSeamTest(unittest.TestCase):
     """Criterion 5: undo at every mutation boundary."""

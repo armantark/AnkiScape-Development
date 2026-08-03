@@ -1,5 +1,23 @@
 # Achievement Diary: clause-by-clause completion record
 
+## Supersession — 2026-08-03
+
+The 2026-07-27 conclusion that 384 regional rows were unreachable is historical
+and no longer governs implementation. The newer owner-settled curation contract
+in `memory-bank/achievement-diary-item-grants-design.md` explicitly permits
+same-family task redistribution plus one to three generic progression anchors
+per tier. The catalog now has eight regional families × four tiers × twelve
+rows = 384.
+
+The implementation preserves each authentic task's original-tier durable ID
+and records any curated destination in its source note. Twenty-two remaining
+slots are visibly flagged `curation_anchor`; every one reuses an exact
+skill-level requirement recovered from the same family, and no tier exceeds
+three. All 422 prior catalog task IDs remain. The 67 authentic tasks whose live
+deed telemetry is still absent remain honest unavailable rows and do not receive
+invented completion predicates. This section supersedes D1 and "Why 384 is
+unreachable" below; the rest of the dated audit remains useful history.
+
 Date: 2026-07-27. Supersedes the diary sections of
 `pass3-audit-2026-07-26.md`, which measured the family before this work.
 

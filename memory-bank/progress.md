@@ -1,5 +1,26 @@
 # Progress
 
+## Achievement Diary 384-task roster — 2026-08-03
+
+All 32 regional tiers now contain exactly 12 tasks. The generator preserves
+every previous durable task ID, fills short tiers from unused authentic rows in
+the same family while retaining their original tier identity, and uses only 22
+explicitly labelled progression anchors for the remaining source shortfall.
+Each anchor reuses an exact skill-level requirement attested elsewhere in that
+family and no tier contains more than three.
+
+Generation now fails closed on unknown quest or skill keys, anchors without a
+family source level, duplicate authentic requirements, misplaced preferred
+source IDs, too many anchors, and tiers that do not total 12. Three existing
+Miscellaneous activity counters are connected to their period deeds. The
+player-facing Cabinet marks anchors and explains unavailable authentic rows at
+the tier level without exposing implementation terminology.
+
+All 422 earlier task IDs remain and 52 rows were added. Focused verification
+passes 128 pure/integration tests and 27 real offscreen-Qt tests; deterministic
+regeneration is byte-identical. Full discovery passes all 3,790 tests in both
+lanes, with 460 expected plain skips and 3 Qt skips.
+
 ## Dungeoneering guardian-room funding reconciliation — 2026-08-03
 
 The design-answer 3.25 implementation was already on `main` but remained in the

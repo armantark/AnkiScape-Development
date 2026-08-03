@@ -111,6 +111,9 @@ class DiaryTask:
     source_id: int
     coin_reward: int = 0
     latent: bool = False
+    # True only for an owner-approved generic progression row used to complete
+    # a twelve-task curated tier when the period family has fewer than 48 deeds.
+    curation_anchor: bool = False
 
 
 @dataclass(frozen=True)

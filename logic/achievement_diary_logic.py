@@ -661,7 +661,7 @@ def achievement_cabinet_view_pure(
                         "name": task.name,
                         "description": task.description,
                         "requirements": (
-                            ("Not yet obtainable — its predicate has not shipped.",)
+                            ()
                             if task.latent
                             else tuple(
                                 condition.label or condition.key
@@ -670,6 +670,7 @@ def achievement_cabinet_view_pure(
                         ),
                         "completed": done,
                         "latent": task.latent,
+                        "curation_anchor": task.curation_anchor,
                         "have": need if done else have,
                         "need": need,
                         "staged": need > 1,

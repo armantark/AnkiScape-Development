@@ -43,3 +43,29 @@
   period coin magnitude remains the registered
   `PLACEHOLDER(dungeoneering.starter_guardian_coin_drops)` pending a decoded
   Frozen guardian drop table.
+
+## Iteration 3 — 384-task Achievement Diary roster
+
+- Result: complete. All eight regional families now expose four tiers of
+  exactly twelve tasks, for 384 regional rows. The complete catalog has 474
+  rows across ten families.
+- Curation: every prior task identity remains stable. A short source tier first
+  draws from unused authentic rows in its own family, preserving each row's
+  original tier in both its durable ID and source note. The remaining 22 slots
+  use visibly labelled progression anchors whose exact skill levels already
+  occur in that family's period requirements; no tier uses more than three.
+- Reachability: 317 regional rows have live predicates. The other 67 authentic
+  rows remain visibly unavailable instead of becoming fabricated deeds. Three
+  Miscellaneous activity deeds that already have live counters now resolve
+  through those counters rather than remaining latent.
+- Integrity: generation rejects an unknown quest, unknown skill, anchor level
+  absent from the family source, duplicate authentic requirement, misplaced
+  preferred source ID, tier above three anchors, or tier other than twelve
+  rows. All 422 pre-change task IDs remain present and 52 rows were added.
+- Verification: 128 focused pure/integration tests and 27 focused real
+  offscreen-Qt tests pass. Deterministic regeneration is byte-identical. Full
+  discovery passes 3,790 tests in both lanes: plain declares 460 expected
+  skips; the real Qt interpreter declares 3.
+- Depth debt: the v108 diary revalidation migration still needs a targeted
+  regression test, and the generator's local `ITEMS_YML` source path remains
+  non-portable. Neither changes the live 384-row mechanic.

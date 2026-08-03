@@ -177,7 +177,7 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
         self.assertEqual(item.text(2), track.source)
         self.assertEqual(item.text(3), "Unlocked")
 
-    def test_collections_labels_the_task_track_latent(self):
+    def test_collections_labels_the_task_track_locked_until_350_tasks(self):
         from ankiscape.ui.ui_tab_collections import build_collections_tab
 
         ctx = _Ctx(default_player_data(ORE_DATA))
@@ -193,7 +193,7 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
             for index in range(tree.topLevelItemCount())
             if tree.topLevelItem(index).text(0) == "The Task at Hand"
         )
-        self.assertEqual(item.text(3), "Latent")
+        self.assertEqual(item.text(3), "Locked")
 
     def test_the_taskmaster_presentation_appears_once_and_the_button_clears_it(self):
         player = default_player_data(ORE_DATA)
