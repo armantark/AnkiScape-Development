@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 6 retires the Conquest Foot Soldier cost
+placeholder.** Interface 1015, CS2 scripts 484/486, and both mapped rev-727 NPC
+rows prove that param 1138 is the displayed setup cost and equals 50. The NPC
+and object definition reader now exposes deterministic `--params` output for
+exact IDs. The same client re-walk found no diary-lamp floor table and no hidden
+Conquest board or command-point initialization table, so those server-owned
+values remain honest placeholders. The next depth slice extends exact item
+definition output for model/recolour-backed identity gaps. Full discovery
+passes 3,797 tests in both lanes, with 460 expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 5 completes the period interface reader.**
 `tools/query_openrs2_interfaces.sh` wraps Darkan core's exact index-3 decoder
 and exposes deterministic count, component dump, and client-text/action search

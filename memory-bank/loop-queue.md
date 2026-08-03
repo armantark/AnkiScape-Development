@@ -17,4 +17,8 @@ Process one unblocked item per iteration. Move discovered design gaps to
    placeholders and player-visible data-depth debt from `activeContext.md`.
    - [x] Decode period-cache enums, structs, and params.
    - [x] Decode interface definitions.
-   - [ ] Re-walk client-side `source_blocked` rows; leave server-side gaps alone.
+   - [x] Re-walk client-side `source_blocked` rows; leave server-side gaps alone.
+     Rev-727 Conquest NPC params retire the Foot Soldier cost conflict at 50;
+     diary lamp floors and the remaining server-owned formulas stay blocked.
+   - [ ] Decode exact item model/recolour rows and re-walk item-identity and
+     asset placeholders, starting with Temple Trekking reward-token colours.

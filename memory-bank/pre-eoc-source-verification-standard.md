@@ -184,7 +184,8 @@ timers, or any other server-side value. Caches corroborate; they do not supply.
 
 Four tools read them. `tools/query_openrs2_cache.sh` searches **item**
 definitions; `tools/query_openrs2_cache_definitions.sh <cache> <npc|object>`
-searches **NPC and object** definitions and prints `id<TAB>name<TAB>[options]`;
+searches **NPC and object** definitions, while its `--id` and `--params` modes
+print exact rows and deterministic client parameters;
 and `tools/query_openrs2_cache_configs.sh <cache> <enum|struct|param>` counts,
 dumps, or searches the corresponding client configuration definitions.
 `tools/query_openrs2_interfaces.sh` counts, dumps, and searches index-3 client

@@ -6,6 +6,8 @@ import com.rs.cache.loaders.ObjectDefinitions;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 /** Read-only name/option search for dated OpenRS2 NPC and object definitions. */
 final class OpenRs2CacheDefinitionSearch {
@@ -15,6 +17,7 @@ final class OpenRs2CacheDefinitionSearch {
         if (args.length < 3) {
             System.err.println("usage: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> <term> [term ...]");
             System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --id <id> [id ...]");
+            System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --params <id> [id ...]");
             System.exit(2);
         }
 
@@ -31,6 +34,22 @@ final class OpenRs2CacheDefinitionSearch {
                 } else if (kind.equals("object")) {
                     ObjectDefinitions definition = ObjectDefinitions.getDefs(id);
                     System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), definition == null ? null : Arrays.toString(definition.options));
+                } else {
+                    System.err.println("entity kind must be npc or object");
+                    System.exit(2);
+                }
+            }
+            return;
+        }
+        if (args[2].equals("--params")) {
+            for (int i = 3; i < args.length; i++) {
+                int id = Integer.parseInt(args[i]);
+                if (kind.equals("npc")) {
+                    NPCDefinitions definition = NPCDefinitions.getDefs(id);
+                    System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), sortedParameters(definition == null ? null : definition.parameters));
+                } else if (kind.equals("object")) {
+                    ObjectDefinitions definition = ObjectDefinitions.getDefs(id);
+                    System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), sortedParameters(definition == null ? null : definition.parameters));
                 } else {
                     System.err.println("entity kind must be npc or object");
                     System.exit(2);
@@ -71,5 +90,9 @@ final class OpenRs2CacheDefinitionSearch {
             if (Arrays.stream(terms).noneMatch(haystack::contains)) continue;
             System.out.printf("%d\t%s\t%s%n", id, name, Arrays.toString(options));
         }
+    }
+
+    private static Map<Integer, Object> sortedParameters(Map<Integer, Object> parameters) {
+        return parameters == null ? Map.of() : new TreeMap<>(parameters);
     }
 }
