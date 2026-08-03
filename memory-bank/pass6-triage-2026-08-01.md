@@ -58,9 +58,8 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
 ## B. Implementation-ready — no design input needed
 
 Status after the session: items 5, 6, 7, 8, 9, 10, 11, 12, 13 and 14 are all merged.
-Only item 15 is parked — see the note under item 15 — because each is a large
-enough feature to deserve its own agent, and because every non-GPT plan was over
-its day line, which left no seat for the cross-lineage verify that closure requires.
+Only item 15 is parked, because it is a substantial feature rather than a fix and
+was reached after Claude's verify budget was spent.
 
 5. **DONE, merged at `97156230`.** The shipped icon had been harvested from
    Active task.png rather than the file the owner named. Note its earliest archived
@@ -96,13 +95,11 @@ its day line, which left no seat for the cross-lineage verify that closure requi
 14. **DONE, merged at `46cef9ac`.** Combat HUD: player health bar red like the enemy's; prayer points x/max and summoning
     points x/max beside it; wiki orb icons for all three (asset harvest: HP/prayer/summoning
     orbs, pre-EOC style).
-15. **PARKED.** It is a substantial feature rather than a fix, and it was reached only
-    at the end of a session where Claude's verify budget was already over. Starting either without a verify seat available would have landed unverified
-    work, which the closure discipline forbids. Item 9 additionally needs care: the
-    owner's wording folds together a disclosure change, a per-target drop log, a
-    Monster Examine gate and an Equipment-tab keep/drop control, which is four surfaces,
-    so it wants its own agent. For item 15, implement ONLY the spec below — the extra
-    elements to unify live in C/D.1 and are still with the design thread.
+15. **PARKED.** A substantial feature rather than a fix, reached after the session's
+    verify budget was spent. Starting it without a verify seat would have landed
+    unverified work, which the closure discipline forbids. Implement ONLY the spec
+    below — the further elements to unify live in C/D.1 and are still with the design
+    thread.
     Skill-selector hybridization (spec mostly settled by owner): if a skill's target list
     is shorter than 25 rows, render flat; otherwise collapsible tree. Both variants get:
     row striping, the flat variant's row spacing, green highlight on the selected row,
