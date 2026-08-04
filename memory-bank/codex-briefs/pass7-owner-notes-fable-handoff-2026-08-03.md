@@ -368,3 +368,53 @@ Append new entries. Do not edit earlier entries.
 - Fable and Kimi remained unused as directed. The parked owner-facing Fable
   brief remains the only pending Fable artifact.
 - Accepted implementation commit: `129f9a016b4b0317d44e1f3468ecb051f52b562b`.
+
+### 2026-08-03 — P3 Combat selector batch verified; two design items parked
+
+- Batch baseline: canonical `main` at
+  `37310366f44031a8a64dbc78cc07be57556a0786`; the checkout contained only this
+  batch's attributable `ui/ui.py` and `tests/test_main_menu_widget.py` changes,
+  and the worktree guard passed before native verification.
+- Reproduction: a new offscreen Qt regression opened Combat with the saved
+  `seagull` target and first failed because its current row remained outside the
+  viewport after the dialog was shown.
+- Selector fix: after the live Combat tree is mounted, a zero-delay Qt callback
+  centers its saved/current row. The callback ignores an obsolete rebuilt tree
+  and safely returns if Qt deleted the widget before the deferred call runs.
+- Durable regression coverage also pins the existing D.1 contract: 30-pixel
+  alternating rows, one transient selection, expanded current group, green and
+  bold persistent current state, no blue selection on restore, a dim locked
+  Wall beast with `Slayer level 35`, and level-ascending children in every
+  group.
+- Automated verification: the five focused selector tests passed. The complete
+  main-menu Qt module passed 381 tests in 120.885 seconds, and the review-strip
+  module passed 31 tests in 0.895 seconds. The test-quality audit found 3,777
+  tests across 173 files, zero hard issues, and 19 pre-existing clone groups.
+  `git diff --check` passed; no assets changed.
+- Native verification used the owner's regular MBP Codex connection and the
+  disposable Anki base at `/tmp/ankiscape-probe2/anki-base`. The deployment
+  hashes matched the accepted P2 source and this P3 source exactly. At a
+  1280-by-752 menu, search and keyboard navigation changed only the transient
+  selection; activation moved the persistent target. Reopening Combat centered
+  `Black bear (Lvl 19)` with green/bold current styling. `Wall beast` was dim
+  with the exact `Slayer level 35` reason. At the owner's 712-by-987 reviewer
+  size, the vanilla **Edit / Show Answer / More** bar remained unchanged and
+  card content did not overlap the add-on strip.
+- Native evidence is on the MBP under
+  `/tmp/ankiscape-pass7-p3-selector-codex-connection/`, including `report.md`
+  and the numbered selector and reviewer screenshots.
+- Codex Workflows checker run `808ee8a2-7993-4e41-adb2-144cfd002b56`
+  returned `PASS` for all four frozen acceptance requirements. Exploratory run
+  `02eefa05-e686-4fde-9e39-eb03fcd6d6d0` exhausted its processed-token budget
+  and returned no verdict. Initial checker launch
+  `0b67e05b-f792-44b5-8a25-fc372dd1465c` failed before model startup because
+  `/tmp` was not a trusted repository. Neither failed run edited files or
+  counts as acceptance evidence.
+- Equipment point-meter layout and the Big Top executing/non-executing priority
+  UI remain design-blocked. Their runtime and visual contracts require the
+  owner/Fable co-ideation recorded in
+  `memory-bank/codex-briefs/pass7-owner-fable-co-ideation-handoff-2026-08-03.md`.
+  Implementing either now would invent unsettled interaction details. This is a
+  recorded contract stop, not a request to reopen any settled Pass 7 design.
+- Fable and Kimi remained unused as directed. The parked Markdown brief is the
+  only pending external-review artifact.

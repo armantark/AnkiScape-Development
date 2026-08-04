@@ -5874,6 +5874,47 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_combat_target"], "seagull")
         dialog.deleteLater()
 
+    def test_combat_selector_scrolls_the_saved_target_into_view(self) -> None:
+        pd = _make_player_data()
+        pd["current_combat_target"] = "seagull"
+        dialog = self._open(pd, current_skill="Combat")
+        dialog.resize(900, 560)
+        dialog.show()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        self.assertIsNotNone(tree)
+        seagull = _tree_row(tree, "seagull")
+        wall_beast = _tree_row(tree, "wall_beast")
+
+        self.assertTrue(tree.alternatingRowColors())
+        self.assertEqual(
+            tree.selectionMode(), QAbstractItemView.SelectionMode.SingleSelection
+        )
+        self.assertEqual(tree.visualItemRect(seagull).height(), 30)
+        self.assertIs(tree.currentItem(), seagull)
+        self.assertTrue(seagull.parent().isExpanded())
+        self.assertEqual(seagull.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertTrue(seagull.font(0).bold())
+        self.assertFalse(seagull.isSelected())
+        self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(seagull)))
+
+        self.assertTrue(wall_beast.isDisabled())
+        self.assertIn("Locked due to:", wall_beast.toolTip(0))
+        self.assertIn("Slayer level 35", wall_beast.toolTip(0))
+
+        for group_index in range(tree.topLevelItemCount()):
+            group = tree.topLevelItem(group_index)
+            levels = []
+            for child_index in range(group.childCount()):
+                match = re.search(r"\(Lvl (\d+)\)", group.child(child_index).text(0))
+                self.assertIsNotNone(match)
+                levels.append(int(match.group(1)))
+            self.assertEqual(levels, sorted(levels), group.text(0))
+
+        dialog.deleteLater()
+
     def test_combat_finisher_action_only_enables_in_the_source_lp_window(self) -> None:
         ordinary = _make_player_data()
         ordinary["current_combat_target"] = "chicken"

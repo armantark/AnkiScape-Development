@@ -924,3 +924,13 @@ skill registry's save keys. Temporary Combat boosts and drains come from
 projected from their owning settled state. The same calculation must feed both
 the three-column cell and the selected detail block so those two surfaces
 cannot disagree.
+
+## Combat selector restore timing
+
+The Combat target tree's saved row is selected while the tree is built, but Qt
+cannot reliably scroll that row into view until the mounted widget has completed
+layout. Schedule the restore scroll for the next event-loop turn, verify that the
+callback still owns the live rebuilt tree, and tolerate deletion before the
+timer fires. A restored saved row stays green and bold; blue selection remains a
+transient keyboard or pointer state and must not change persistence until
+activation.

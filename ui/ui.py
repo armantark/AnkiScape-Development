@@ -58,6 +58,7 @@ try:
         QStackedWidget,
         QShortcut,
         QKeySequence,
+        QTimer,
         QFrame as QtFrame,
     )
     HAS_QT = True
@@ -8078,6 +8079,21 @@ def show_main_menu(
             filter_bar.set_count(len(filtered_rows), len(combat_rows))
             tree_layout.addWidget(tree)
             live_tree["widget"] = tree
+
+            def _scroll_saved_target_into_view() -> None:
+                if live_tree["widget"] is not tree:
+                    return
+                try:
+                    current = tree.currentItem()
+                    if current is not None:
+                        tree.scrollToItem(
+                            current,
+                            QAbstractItemView.ScrollHint.PositionAtCenter,
+                        )
+                except RuntimeError:
+                    return
+
+            QTimer.singleShot(0, _scroll_saved_target_into_view)
 
         filter_bar.search_input.textChanged.connect(
             lambda _text="": _render_combat_targets()

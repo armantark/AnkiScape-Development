@@ -3859,3 +3859,18 @@ flees silently when the player runs out of food.
 - Verification passed 411 focused offscreen UI tests, 214 focused pure,
   integration, and end-to-end tests, the MBP native-Anki pass, and Codex-only
   checker run `3452c9ca-5e43-4bd0-a19e-c65969a19dba`.
+
+## Pass 7 P3 Combat selector — 2026-08-03
+
+- Reopening Combat now defers one scroll until the mounted tree has laid out,
+  then centers the saved target without converting it into transient selection.
+- The regression pins the settled D.1 presentation: 30-pixel alternating rows,
+  expanded current group, green/bold saved target, exact locked-row reason, and
+  level-ascending children.
+- Verification passed five focused selector tests, the 381-test main-menu Qt
+  module, the 31-test review-strip module, native MBP Anki at a 1280-by-752 menu
+  and 712-by-987 reviewer, and independent checker run
+  `808ee8a2-7993-4e41-adb2-144cfd002b56`.
+- Equipment point-meter layout and Big Top execution-priority UI are not safe
+  to infer. They remain parked in the owner/Fable co-ideation Markdown brief
+  until quota returns; Fable and Kimi were not used.

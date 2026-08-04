@@ -4791,3 +4791,18 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Verification passed 411 focused offscreen UI tests, 214 focused non-Qt tests,
   a native MBP Anki pass, and independent checker run
   `3452c9ca-5e43-4bd0-a19e-c65969a19dba`.
+
+## Pass 7 P3 Combat selector correctness — 2026-08-03
+
+- Added the missing post-layout restore step, so a saved Combat target is
+  automatically centered when the selector opens.
+- Preserved the settled distinction between green/bold saved state and blue
+  transient keyboard selection, including activation-only persistence.
+- Added a Qt regression for in-view restore, compact hierarchy, level sorting,
+  and exact locked-target presentation.
+- Verification passed five focused selector tests, 381 main-menu Qt tests, 31
+  review-strip tests, a native MBP Anki pass, and independent checker run
+  `808ee8a2-7993-4e41-adb2-144cfd002b56`.
+- Equipment meters and Big Top queue interaction remain explicitly
+  design-blocked pending the owner/Fable co-ideation brief. No speculative UI
+  was implemented, and neither Fable nor Kimi was used.
