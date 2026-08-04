@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 9 retires the Frozen boss combat-level
+placeholder.** The NPC definition reader now exposes exact combat levels. Rev
+727 and rev 742 agree on all 144 rows across the six Frozen boss series,
+including Astea's three forms per level, and match every shipped ladder value.
+The lower-tier wiki conflicts are therefore resolved without a gameplay change.
+Boss tier selection, combat stats, lifepoints, and maximum hits remain separate
+server-owned placeholders. The next slice re-walks Daily Challenges reward XP
+through the dated config/interface readers. Full discovery passes 3,801 tests in
+both lanes, with 460 expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 8 retires the Achievement Diary depth
 debt.** The generator now requires an explicit `--items-yml` source path rather
 than embedding one developer's checkout. A real rev-667 regeneration is

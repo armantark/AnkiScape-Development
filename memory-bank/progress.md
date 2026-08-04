@@ -1,5 +1,22 @@
 # Progress
 
+## Frozen boss combat-level closure — 2026-08-03
+
+`tools/query_openrs2_cache_definitions.sh` now exposes exact NPC combat levels.
+The 144 rows covering Luminescent icefiend (`9912-9928`), Plane-freezer
+Lakhrahnaz (`9929-9947`), Gluttonous behemoth (`9948-9964`), Astea Frostweb
+(`9965-10021`, three forms per level), To'Kash (`10024-10039`), and Icy Bones
+(`10040-10057`) are identical in rev 727 and rev 742.
+
+Every decoded value matches the six shipped Frozen boss ladders, so
+`dungeoneering.boss_combat_level_ladders` is retired from the placeholder
+register without changing gameplay. The cache rows do not prove server tier
+selection, combat stats, lifepoints, or maximum hits; those placeholders remain.
+Focused cache, Dungeoneering-data, and register coverage passes 13 tests. Full
+discovery passes all 3,801 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips. Documentation, test-quality, shell-syntax, diff, and worktree
+audits also pass.
+
 ## Achievement Diary depth closure — 2026-08-03
 
 `tools/generate_achievement_diary_data.py` no longer embeds a developer-local

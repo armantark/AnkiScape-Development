@@ -1,5 +1,22 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 9 — Frozen boss combat-level closure
+
+- Tooling: the exact NPC definition reader now emits combat levels for requested
+  IDs.
+- Evidence: rev 727 and rev 742 agree on all 144 definitions in the six Frozen
+  boss series. Astea's 57 rows encode three NPC forms for each of 19 levels; the
+  other series encode one row per level.
+- Result: every live ladder was already numerically correct. The registered
+  ladder placeholder is retired; server tier selection and combat definitions
+  remain honest placeholders.
+- Coordination: the canonical Darkan/AnkiScape source ledger records the pinned
+  cache result so the Darkan restoration loop need not repeat it.
+- Verification: 13 focused cache/data/register tests plus documentation,
+  test-quality, shell-syntax, diff, and worktree audits pass. Full discovery
+  passes 3,801 tests in both lanes, with 460 expected plain skips and 3 Qt
+  skips. GPT-family verified.
+
 ## Iteration 8 — Achievement Diary depth closure
 
 - Generator: the Diary catalog generator now requires an explicit
