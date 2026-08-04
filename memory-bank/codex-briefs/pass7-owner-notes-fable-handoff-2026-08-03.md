@@ -324,3 +324,4 @@ Append new entries. Do not edit earlier entries.
   withheld a verdict until native evidence existed.
 - Fable and Kimi remained unused as directed. The parked owner-facing Fable
   brief remains the only pending Fable artifact.
+- Accepted implementation commit: `222f815210c12e7a966db28747d853f53e268ea4`.
