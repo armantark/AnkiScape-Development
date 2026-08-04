@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 17 keeps ordinary Crucible kill points
+honestly source-blocked.** Launch-update oldid `5778674` says each target slain
+awards points but gives no amount. The complete pre-cutoff Crucible article and
+talk histories add only the separate exact rule that every successful hit on
+the Supreme Champion awards one point. Darkan never awards its initialized
+point field, and rev-727 script 6288 only renders a supplied delta. The ordinary
+one-point award therefore remains a registered reachability placeholder, not a
+period claim. No owner design gap surfaced. The next slice re-walks Trophy
+bones per ordinary kill. Full discovery passes 3,803 tests in both lanes, with
+460 expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 16 keeps Crucible rank thresholds honestly
 source-blocked.** Darkan initializes `rank` and `points` but never changes them;
 its interface bridge only forwards already-computed values to rev-727 scripts

@@ -91,7 +91,9 @@ CRUCIBLE_UNRANKED_NAME = "Unranked"
 
 # PLACEHOLDER(crucible.points_per_kill): rank points for an ordinary kill. The
 # launch update says points were earned "for every target slain" without a
-# number, and rev-727 script 6288 only renders an already-computed delta.
+# number. The complete pre-cutoff article history adds only the exact one-point
+# Supreme Champion hit rule below. Darkan initializes rank and points but never
+# awards either; rev-727 script 6288 only renders an already-computed delta.
 CRUCIBLE_POINTS_PER_KILL = 1
 
 # Exact. The article states that each successful hit on the Supreme Champion

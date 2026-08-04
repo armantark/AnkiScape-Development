@@ -192,6 +192,30 @@ The existing 1/3/6/10/15/25 progression remains a registered reachability
 placeholder, not a period claim. A server promotion routine or independently
 dated complete table would retire it. No owner design gap surfaced.
 
+### Ordinary-kill rank-point depth re-walk — 2026-08-03
+
+`crucible.points_per_kill` remains source-blocked after exhausting the same
+server, client, and period-history boundary:
+
+- Launch-update oldid `5778674`, dated `2012-06-19T12:15:18Z`, says players
+  earn points "for every target slain" and extra points from the Supreme
+  Champion, but gives no ordinary-kill amount.
+- Crucible oldid `6538845`, dated `2012-11-06T11:34:47Z`, gives the one exact
+  amount that survives: every successful hit on the Supreme Champion awards
+  one rank point. The complete pre-cutoff article history adds no numeric
+  ordinary-kill award. The cutoff talk history adds none either.
+- Darkan `CrucibleController.java` initializes `points` to zero and contains no
+  award write. History commit `684c25528` adds only the display bridge;
+  `Crucible.updateRankPoints` forwards a supplied delta and current total.
+- Rev-727 script 6288 renders a supplied positive delta as added rank points or
+  clears the display for a nonpositive value. It does not calculate an award,
+  read a stored total, or identify the action that produced the delta.
+
+The existing one-point ordinary-kill award remains a disclosed reachability
+placeholder. It is not inferred from the separate champion-hit rule. A period
+server award routine or an exact ordinary-kill statement would retire it. No
+owner design gap surfaced.
+
 ## Asset provenance
 
 `tools/fetch_crucible_assets.py` installs `activityicons/crucible.png` from

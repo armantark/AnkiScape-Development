@@ -1,5 +1,20 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 17 — Crucible ordinary-kill rank points
+
+- Evidence: launch-update oldid `5778674`, the complete pre-cutoff Crucible
+  article history through oldid `6538845`, the cutoff talk history, Darkan
+  `CrucibleController.java` and history commit `684c25528`, and rev-727 script
+  6288.
+- Result: ordinary target kills demonstrably award rank points, but no source
+  exposes the amount. The one-point value remains a registered reachability
+  placeholder and is not inferred from the separate champion-hit rule. No
+  gameplay changed and no design gap surfaced.
+- Verification: 37 focused tests pass. Full discovery passes 3,803 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: Crucible Trophy bones per ordinary kill.
+
 ## Iteration 16 — Crucible rank-point thresholds
 
 - Evidence: Darkan `CrucibleController.java:28-33`,

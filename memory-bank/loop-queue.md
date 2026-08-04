@@ -51,6 +51,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the Crucible rank-point thresholds through Darkan, period
      guides, and rev-727 script 6284's caller chain. Keep the server-side
      threshold placeholder if no source exposes the six promotion boundaries.
-   - [ ] Re-walk ordinary Crucible rank points per kill through Darkan, the
+   - [x] Re-walk ordinary Crucible rank points per kill through Darkan, the
      launch update, and rev-727 script 6288's caller chain. Preserve the one-
      point placeholder unless a server award routine or exact statement survives.
+   - [ ] Re-walk Crucible Trophy bones per ordinary kill through Darkan, period
+     article and item histories, and recovered client configs. Preserve the
+     two-bone placeholder unless a server drop routine or exact statement survives.

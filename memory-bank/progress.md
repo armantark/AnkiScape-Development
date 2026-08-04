@@ -1,5 +1,22 @@
 # Progress
 
+## Crucible ordinary-kill point re-walk — 2026-08-03
+
+The ordinary-kill award remains source-blocked. Launch-update oldid `5778674`
+proves that every target slain awarded points but gives no number. The complete
+pre-cutoff article and talk histories add only the separate exact one-point
+rule for successful hits on the Supreme Champion. Darkan never mutates its
+initialized point field, while rev-727 script 6288 only renders a supplied
+delta.
+
+The source audit, code annotation, placeholder register, and shared Darkan
+ledger now capture that complete negative result. The one-point ordinary-kill
+award remains a disclosed reachability value. The focused Crucible and
+placeholder-register lane passes 37 tests. Full discovery passes all 3,803
+tests in both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+test-quality, diff-hygiene, and worktree audits pass. No gameplay changed and no
+owner design gap surfaced.
+
 ## Crucible rank-threshold re-walk — 2026-08-03
 
 The six promotion thresholds remain source-blocked. Darkan's controller
