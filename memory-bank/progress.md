@@ -1,5 +1,27 @@
 # Progress
 
+## Crucible bounty-fee scale correction — 2026-08-03
+
+The surviving period evidence proves the prior live curve was too small by
+roughly one order of magnitude. Launch-day talk oldid `5778707` reports a
+combat-60 range of 50,000 coins with rune-or-better gear to 500,000 with
+nothing risked. The immutable 24 June fee-interface image records total
+535,362, split into 486,693 risk expectation and 48,669 abandonment, while
+cutoff Crucible oldid `6538845` reports roughly 518,000 for a maxed unarmed
+player after the launch hotfix. Rev-727 interface 1298 confirms the three-part
+shape but exposes no calculation, and Darkan has no fee implementation.
+
+The disclosed reachability curve now uses a 450,000 risk baseline at combat 60,
+adds 400 per level above 60, and uses a 50,000 abandonment component. It yields
+the sourced 500,000 launch-day boundary and 531,200 at max combat, inside the
+later 518,000–535,362 observations. Both values remain registered placeholders
+because this is not the recovered server formula. A regression fixes the
+combat-60 boundary. The focused Crucible and placeholder-register lane passes
+38 tests. Full discovery passes all 3,804 tests in both lanes, with 460 expected
+plain skips and 3 Qt skips. Documentation audits 515 Markdown and 428 HTML
+files; test quality audits 3,770 tests with 0 hard issues. Diff-hygiene and
+worktree audits pass. No owner design gap surfaced.
+
 ## Crucible Trophy-bone depth re-walk — 2026-08-03
 
 The ordinary-kill amount remains source-blocked. The launch update, complete

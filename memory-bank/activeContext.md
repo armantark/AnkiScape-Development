@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 19 corrects the Crucible bounty-fee scale
+without pretending to recover the server formula.** A launch-day report gives
+50,000 coins with meaningful gear and 500,000 with nothing risked at combat 60.
+The immutable 24 June fee-interface image shows total 535,362, split into
+486,693 risk and 48,669 abandonment; the cutoff article reports roughly 518,000
+for a maxed unarmed player after the launch hotfix. The old live curve produced
+only about 29,000 at level 60 and 60,000 at max. The registered reachability
+curve now uses a 450,000 level-60 risk baseline, 400 per level above 60, and a
+50,000 abandonment component, yielding 500,000 and 531,200 at the two useful
+boundaries. No owner design gap surfaced. The next slice re-walks Crucible
+target-level offsets. Full discovery passes 3,804 tests in both lanes, with 460
+expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 18 retires the Crucible tutorial-bone
 placeholder while keeping the ordinary-kill amount source-blocked.** Cutoff
 Crucible oldid `6538845` and Trophy bones oldid `5971782` explicitly give four

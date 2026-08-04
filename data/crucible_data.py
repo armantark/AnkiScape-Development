@@ -163,15 +163,21 @@ CRUCIBLE_PVP_BOOST_CAPS = (
 # arena bank. The article assigns the (X - Y) part to the victor on a death and
 # the Z part to the opponent when a player abandons a live target.
 #
-# PLACEHOLDER(crucible.risk_expectation_per_level): the coins of risk X expects
-# per combat level. No pre-cutoff revision states the schedule, the interface
-# holds placeholders rather than constants, and the one recorded figure — 518,000
-# coins refunded to a maxed player carrying nothing — comes from a money-pouch
-# exploit report and is not a fee table.
+# PLACEHOLDER(crucible.risk_expectation_per_level): the curve behind X. A
+# launch-day level-60 report gives about 500,000 coins with no risk and 50,000
+# with meaningful gear; an exact period interface screenshot shows X=486,693
+# and Z=48,669 for an unidentified player; and the cutoff article reports about
+# 518,000 for a maxed player with no risk. None exposes the server schedule.
+# The bounded curve starts X at the recoverable 450,000 level-60 difference and
+# preserves a modest combat-level increase that lands inside the two later
+# anchors. It remains a disclosed approximation, not a recovered formula.
+CRUCIBLE_RISK_EXPECTATION_BASE = 450_000
 CRUCIBLE_RISK_EXPECTATION_PER_LEVEL = 400
-# PLACEHOLDER(crucible.abandonment_fee): the flat Z component. Stated to exist
-# and to be paid to the opponent on abandonment; never given a value.
-CRUCIBLE_ABANDONMENT_FEE = 5_000
+# PLACEHOLDER(crucible.abandonment_fee): the gear-independent Z component.
+# Period evidence bounds it at about 50,000: the level-60 report gives a 50,000
+# fee with meaningful gear and the period screenshot shows Z=48,669. The exact
+# server rounding and any combat-stat dependence remain unrecovered.
+CRUCIBLE_ABANDONMENT_FEE = 50_000
 
 
 @dataclass(frozen=True)

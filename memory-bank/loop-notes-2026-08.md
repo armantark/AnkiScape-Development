@@ -1,5 +1,24 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 19 — Crucible bounty-fee scale
+
+- Evidence: Crucible oldid `6538845`; complete cutoff talk history through
+  oldid `5909709`; launch-day report oldid `5778707`; the immutable
+  `Crucible_bounty_fee_interface.png` revision uploaded
+  `2012-06-24T20:37:44Z`; rev-727 interface 1298; Darkan history commit
+  `684c25528`.
+- Result: the old curve was an order of magnitude below every surviving period
+  observation. The registered reachability curve now anchors level 60 at
+  500,000 coins and level 138 at 531,200 coins: a 450,000 risk baseline,
+  400 per combat level above 60, and a 50,000 abandonment component. This is
+  explicitly not claimed as the unrecovered server formula. No design gap
+  surfaced.
+- Verification: 38 focused tests pass. Full discovery passes 3,804 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation
+  audits 515 Markdown and 428 HTML files; test quality audits 3,770 tests with
+  0 hard issues. Diff-hygiene and worktree audits pass.
+- Next: Crucible target-level offsets.
+
 ## Iteration 18 — Crucible Trophy-bone awards
 
 - Evidence: launch-update oldid `5778674`; the complete Crucible history through

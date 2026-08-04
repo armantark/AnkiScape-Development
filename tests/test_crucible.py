@@ -43,6 +43,7 @@ from ankiscape.data.crucible_data import (
     CRUCIBLE_POINTS_PER_CHAMPION_HIT,
     CRUCIBLE_PVP_BOOST_CAPS,
     CRUCIBLE_RANKS,
+    CRUCIBLE_RISK_EXPECTATION_BASE,
     CRUCIBLE_RISK_EXPECTATION_PER_LEVEL,
     CRUCIBLE_SUPREME_HELM,
     CRUCIBLE_SUPREME_HELM_COST,
@@ -264,7 +265,10 @@ class CrucibleEntryGateTest(unittest.TestCase):
         quote = crucible_fee_quote_pure(bare, GE_ITEM_CATALOG)
         level = player_combat_level_pure(bare)
         self.assertEqual(
-            quote["expected_risk"], level * CRUCIBLE_RISK_EXPECTATION_PER_LEVEL
+            quote["expected_risk"],
+            CRUCIBLE_RISK_EXPECTATION_BASE
+            + (level - CRUCIBLE_MINIMUM_COMBAT_LEVEL)
+            * CRUCIBLE_RISK_EXPECTATION_PER_LEVEL,
         )
         self.assertEqual(quote["abandon_component"], CRUCIBLE_ABANDONMENT_FEE)
         self.assertEqual(
@@ -276,6 +280,16 @@ class CrucibleEntryGateTest(unittest.TestCase):
         risked = crucible_fee_quote_pure(risking, GE_ITEM_CATALOG)
         self.assertGreater(risked["risked_value"], quote["risked_value"])
         self.assertLess(risked["risk_component"], quote["risk_component"])
+
+    def test_the_fee_curve_preserves_the_level_60_period_anchor(self):
+        player = _player(53, equipment={}, carried_inventory={})
+        self.assertEqual(player_combat_level_pure(player), 60)
+
+        quote = crucible_fee_quote_pure(player, GE_ITEM_CATALOG)
+
+        self.assertEqual(quote["expected_risk"], 450_000)
+        self.assertEqual(quote["abandon_component"], 50_000)
+        self.assertEqual(quote["total"], 500_000)
 
     def test_entry_is_refused_when_the_pouch_cannot_cover_the_fee(self):
         broke = _player(60, inventory={"Coins": 1})

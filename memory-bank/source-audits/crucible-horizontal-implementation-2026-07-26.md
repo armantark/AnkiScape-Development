@@ -247,6 +247,43 @@ The two-bone ordinary-kill value remains a disclosed reachability placeholder.
 article states the four-total cap and one from each tutorial. No owner design
 gap surfaced.
 
+### Bounty-fee depth re-walk — 2026-08-03
+
+The old fee abstraction was materially below every surviving period amount. It
+quoted a bare combat-level-60 player at about 29,000 coins and a maxed player at
+about 60,000, despite three independent period observations in the 500,000-coin
+range:
+
+- Crucible talk oldid `5909709`, dated `2012-07-08T17:42:36Z`, preserves a
+  launch-day `2012-06-19T12:34Z` report for combat level 60: about 50,000 coins
+  with meaningful gear and 500,000 with no risk. The complete talk history
+  traces that statement to oldid `5778707` at the same timestamp.
+- The original `Crucible bounty fee interface.png`, uploaded
+  `2012-06-24T20:37:44Z`, SHA-1
+  `fa17c698eef51283bb81784ea0605d7dc1fe4cdf`, shows the exact single quote
+  `F=535,362`, `X-Y=486,693`, and `Z=48,669`. The capture does not identify the
+  player's combat stats or when the screenshot itself was taken, so it is an
+  amount anchor rather than a schedule.
+- Cutoff Crucible oldid `6538845` reports about 518,000 coins for a maxed player
+  carrying nothing during the August money-pouch exploit. The same revision
+  says the launch hotfix cut the original fee to one tenth, so the surviving
+  500,000-ish figures must not be divided by ten again.
+
+The client and server searches still do not recover the authentic curve.
+Rev-727 interface 1298 receives rendered X, Y, Z, and F values and contains no
+fee constants; no rev-727 client script writes its numeric components. Darkan's
+Crucible reconstruction opens the interface but implements no fee calculation,
+and its history adds none.
+
+The corrected bounded placeholder therefore starts X at 450,000 coins for
+combat level 60 (the reported 500,000 no-risk total less the 50,000
+gear-independent component), then adds 400 coins per level above 60. This keeps
+the sourced combat-level dependence and yields 531,200 total at level 138,
+inside the surviving 518,000-to-535,362 observations. Z is corrected from 5,000
+to 50,000, bounded independently by the exact 48,669 screenshot component. Both
+values remain registered; neither is represented as the lost server formula.
+No owner design gap surfaced.
+
 ## Asset provenance
 
 `tools/fetch_crucible_assets.py` installs `activityicons/crucible.png` from

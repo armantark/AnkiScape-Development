@@ -57,7 +57,10 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk Crucible Trophy bones per ordinary kill through Darkan, period
      article and item histories, and recovered client configs. Preserve the
      two-bone placeholder unless a server drop routine or exact statement survives.
-   - [ ] Re-walk the Crucible risk-expectation amount per combat level through
+   - [x] Re-walk the Crucible risk-expectation amount per combat level through
      Darkan, fee-interface caller chains, period article/talk histories, and
      contemporary player reports. Preserve the registered amount unless an
      authentic fee schedule survives.
+   - [ ] Re-walk the Crucible target-level offsets through Darkan's matcher
+     history, period article/talk histories, and contemporary matchup reports.
+     Preserve the registered spread unless a server matching band survives.

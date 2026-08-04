@@ -22,6 +22,7 @@ from ..data.crucible_data import (
     CRUCIBLE_POINTS_PER_KILL,
     CRUCIBLE_PVP_BOOST_CAPS,
     CRUCIBLE_RANKS,
+    CRUCIBLE_RISK_EXPECTATION_BASE,
     CRUCIBLE_RISK_EXPECTATION_PER_LEVEL,
     CRUCIBLE_SOURCE,
     CRUCIBLE_SUPREME_HELM,
@@ -320,6 +321,12 @@ def _risked_pack(data: Mapping[str, Any]) -> dict[str, int]:
     return {str(item): _int(count) for item, count in pack.items()}
 
 
+def _crucible_expected_risk_pure(combat_level: int) -> int:
+    return CRUCIBLE_RISK_EXPECTATION_BASE + max(
+        0, combat_level - CRUCIBLE_MINIMUM_COMBAT_LEVEL
+    ) * CRUCIBLE_RISK_EXPECTATION_PER_LEVEL
+
+
 def crucible_fee_quote_pure(
     player_data: Mapping[str, Any],
     price_catalog: Mapping[str, Mapping[str, Any]] | None = None,
@@ -333,7 +340,7 @@ def crucible_fee_quote_pure(
     from .grand_exchange_logic import ge_guide_prices_pure
 
     level = player_combat_level_pure(player_data)
-    expected_risk = level * CRUCIBLE_RISK_EXPECTATION_PER_LEVEL
+    expected_risk = _crucible_expected_risk_pure(level)
     risked: dict[str, int] = {}
     equipment = player_data.get("equipment")
     if isinstance(equipment, Mapping):
@@ -801,7 +808,7 @@ def apply_crucible_review_pure(
         # The defeated player's variable fee component is paid to the victor.
         # A target's own risk expectation follows its combat level, the same
         # way the player's does.
-        won = int(target["combat_level"]) * CRUCIBLE_RISK_EXPECTATION_PER_LEVEL
+        won = _crucible_expected_risk_pure(int(target["combat_level"]))
         _adjust_stack(data, "Coins", won)
         data["crucible_fees_won"] = state["crucible_fees_won"] + won
         _replace_target(data, session)
