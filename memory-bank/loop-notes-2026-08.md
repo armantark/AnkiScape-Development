@@ -1,5 +1,24 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 10 — Daily Challenges reward-XP re-walk
+
+- Rev 741 and 742 contain identical client structs for representative combat,
+  Cooking, and Fishing challenges. The rows carry the full client-facing task
+  definition but no XP payout field.
+- Rev 742 interface 1343 is the Daily Challenges panel. Its decoded labels and
+  hooks reveal no static reward amount; the two reward item definitions prove
+  only the lamp and bag identities and actions.
+- The interface search no longer dies on the first legacy IF1 archive. It
+  reports all fifteen unsupported rev-742 interface IDs on standard error and
+  continues searching the decoded remainder, making negative evidence honest.
+- Result: `daily_challenges.reward_xp` remains registered at 100 XP per required
+  level. A period server payout routine or independently stated amount is still
+  required to replace it. No gameplay value changed.
+- Verification: 51 focused Daily Challenges, real-cache reader, and placeholder
+  tests pass. Full discovery passes 3,802 tests in both lanes, with 460 expected
+  plain skips and 3 Qt skips. Documentation, test-quality, diff, and worktree
+  audits pass.
+
 ## Iteration 9 — Frozen boss combat-level closure
 
 - Tooling: the exact NPC definition reader now emits combat levels for requested

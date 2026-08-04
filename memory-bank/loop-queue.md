@@ -30,6 +30,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Decode the rev-727/742 Frozen Dungeoneering boss NPC combat-level rows
      and revalidate the six provisional ladders. Both caches match every live
      value; server-owned stat and scaling formulas remain untouched.
-   - [ ] Re-walk the Daily Challenges reward-XP placeholder through the dated
+   - [x] Re-walk the Daily Challenges reward-XP placeholder through the dated
      config/interface readers and existing period sources. Keep it registered
      if no client table settles the server payout.
+   - [ ] Re-walk the four Skeletal Horror phase-stat placeholders through dated
+     NPC definitions and authentic Darkan combat records. Do not derive core
+     stats from combat level.

@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 10 keeps Daily Challenges reward XP
+source-blocked.** Rev 741 and 742 expose identical challenge structs with the
+real names, objectives, quantities, levels, coordinates, and item references,
+but no reward field. Rev 742 interface 1343 is the Daily Challenges panel and
+contains no static payout amount. The interface reader now reports and skips
+fifteen unsupported legacy IF1 archives during search instead of aborting, so
+the negative evidence carries its exact omissions. The registered 100-XP-per-
+level abstraction remains honest and unchanged. The next slice re-walks the
+four Skeletal Horror phase-stat placeholders without deriving stats from combat
+level. Full discovery passes 3,802 tests in both lanes, with 460 expected plain
+skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 9 retires the Frozen boss combat-level
 placeholder.** The NPC definition reader now exposes exact combat levels. Rev
 727 and rev 742 agree on all 144 rows across the six Frozen boss series,

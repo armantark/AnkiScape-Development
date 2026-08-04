@@ -1,5 +1,17 @@
 # Progress
 
+## Grind-loop iteration 10 — Daily Challenges reward XP remains source-blocked
+
+- Recovered the rev-741/742 Daily Challenge structs and rev-742 challenge
+  interface. They settle client task metadata and presentation but contain no
+  XP payout field.
+- Hardened interface search across later caches: unsupported legacy IF1
+  archives are listed and skipped instead of aborting the whole query.
+- Retained `daily_challenges.reward_xp` as a registered placeholder with the
+  exact negative-search scope and omissions. No gameplay value changed.
+- Full discovery passes 3,802 tests in both lanes, with 460 expected plain skips
+  and 3 Qt skips.
+
 ## Frozen boss combat-level closure — 2026-08-03
 
 `tools/query_openrs2_cache_definitions.sh` now exposes exact NPC combat levels.
