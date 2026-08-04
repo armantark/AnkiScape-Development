@@ -4765,3 +4765,4 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   and the Circus cash-out.
 - Verification passed 434 focused non-Qt tests, 32 offscreen Qt tests, and the
   independent Codex-only frozen-packet checker.
+- Accepted implementation commit: `d12b731a`.

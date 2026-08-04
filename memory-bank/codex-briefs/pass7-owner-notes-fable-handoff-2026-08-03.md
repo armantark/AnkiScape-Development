@@ -280,3 +280,4 @@ Append new entries. Do not edit earlier entries.
 - This was a progression/event-order batch, not a widget geometry batch. Native
   MacBook Pro review-strip evidence remains mandatory for the P1 UI batches.
 - Fable and Kimi remained unused as directed.
+- Accepted implementation commit: `d12b731a484ed3f1cc089545bdcab5dcf542f2d0`.

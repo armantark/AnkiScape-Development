@@ -3831,3 +3831,4 @@ flees silently when the player runs out of food.
 - Verification: 434 focused non-Qt tests, 32 relevant offscreen Qt tests, and
   Codex-only independent packet checker run
   `00cab046-6b0b-4af6-a25c-dc8b7ade3fd4` all pass.
+- Accepted implementation commit: `d12b731a`.
