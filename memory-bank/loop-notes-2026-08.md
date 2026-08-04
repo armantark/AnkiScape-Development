@@ -1,5 +1,18 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 14 — Tears of Guthix green-tear probability
+
+- Evidence: Darkan `TearsOfGuthix.kt:477-510` and its frozen target contract;
+  activity oldid `6579712`; cutoff talk oldid `6539293`; rev-727/742 cache
+  evidence already recorded in the source audit.
+- Result: no source exposes stream rotation or catch probability. The registered
+  `0.055` value remains, now explicitly described as a weak reachability anchor
+  rather than an authentic rate. No gameplay changed and no design gap surfaced.
+- Verification: 26 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: Daily Challenges eligible-pool assignment weights.
+
 ## Iteration 13 — Bork Ork-legion style classification
 
 - Evidence: Darkan `Bork.kt:110-111,184-205` selects melee within one tile and

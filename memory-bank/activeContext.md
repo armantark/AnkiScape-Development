@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 14 keeps the Tears of Guthix green-tear
+chance honestly source-blocked.** Darkan implements click colour and the
+one-update-per-tick guard but deliberately omits rotation; its frozen contract
+names the cadence and selector as missing. Cutoff activity oldid `6579712` gives
+only "randomly quite fast" and a 267-tear record. Cutoff talk oldid `6539293`
+adds anecdotal scores and unsupported strategy theories, not a probability.
+The rev-727/742 caches expose client identities, not scheduling. The registered
+`0.055` remains a weak reachability abstraction and is now labelled accordingly.
+No owner design gap surfaced. The next slice re-walks Daily Challenge assignment
+weights. Full discovery passes 3,802 tests in both lanes, with 460 expected
+plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 13 retires Bork's Ork-legion style
 placeholder as a classification error.** Darkan's authentic handler states the
 exact boundary: melee within one tile and ranged otherwise. AnkiScape's settled

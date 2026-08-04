@@ -1,5 +1,21 @@
 # Progress
 
+## Tears of Guthix green-tear probability re-walk — 2026-08-03
+
+The registered `0.055` chance remains source-blocked. Darkan's restored
+controller settles click colour and the one-update-per-tick boundary but has no
+stream rotation; its frozen target contract explicitly lists cadence, selector,
+collection timing, and multiplayer acceleration as unrecovered. Activity oldid
+`6579712` says only "randomly quite fast" and reports 267 tears from a capped
+300-tick run. Talk oldid `6539293` contains anecdotes and theories rather than a
+measured rate, while rev-727/742 expose only client-side identities.
+
+The code, register, and source audit now describe `0.055` as a weak
+reachability anchor rather than an authentic probability. No gameplay changed
+and no owner design gap surfaced. The focused Tears and placeholder-register
+lane passes 26 tests. Full discovery passes all 3,802 tests in both lanes, with
+460 expected plain skips and 3 Qt skips.
+
 ## Bork Ork-legion style classification closure — 2026-08-03
 
 Darkan `Bork.kt:110-111,184-205` explicitly selects melee when an Ork legion is
