@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 11 corrects the Skeletal Horror weakening
+identities without guessing core stats.** Rev 727, rev 742, Darkan's generated
+NPC list, and its four explicitly `nostats` combat definitions all map the
+forms as level 320=`9176/9177`, 260=`9178`, 180=`9179`, and 100=`9180`. The
+live sequence had shifted every identity after the first by one; it now uses
+`9176 → 9178 → 9179 → 9180`. The four Attack, Strength, Defence, and Magic
+blocks remain registered placeholders because neither client definitions nor
+the authentic server records contain those values. No owner design gap
+surfaced. The next slice re-walks the six Duel Arena cap-tier thresholds. Full
+discovery passes 3,802 tests in both lanes, with 460 expected plain skips and 3
+Qt skips.
+
 **2026-08-03, grind-loop iteration 10 keeps Daily Challenges reward XP
 source-blocked.** Rev 741 and 742 expose identical challenge structs with the
 real names, objectives, quantities, levels, coordinates, and item references,

@@ -1,5 +1,20 @@
 # Progress
 
+## Skeletal Horror phase-identity correction — 2026-08-03
+
+Rev 727 and 742 plus Darkan's generated NPC list and four combat-definition
+files agree on the exact form identities: 320=`9176/9177`, 260=`9178`,
+180=`9179`, and 100=`9180`. The live weakening rows were one identity early
+after the first phase and now use `9176 → 9178 → 9179 → 9180`.
+
+The Darkan files are explicitly marked `nostats`, and the client definitions
+contain combat level rather than the Attack, Strength, Defence, and Magic
+values required by the shared Combat kernel. Those four blocks therefore stay
+registered placeholders; no stat is inferred from combat level. The focused
+Skeletal Horror and placeholder-register lane passes 20 tests. Full discovery
+passes all 3,802 tests in both lanes, with 460 expected plain skips and 3 Qt
+skips.
+
 ## Grind-loop iteration 10 — Daily Challenges reward XP remains source-blocked
 
 - Recovered the rev-741/742 Daily Challenge structs and rev-742 challenge

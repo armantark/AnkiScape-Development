@@ -33,6 +33,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the Daily Challenges reward-XP placeholder through the dated
      config/interface readers and existing period sources. Keep it registered
      if no client table settles the server payout.
-   - [ ] Re-walk the four Skeletal Horror phase-stat placeholders through dated
+   - [x] Re-walk the four Skeletal Horror phase-stat placeholders through dated
      NPC definitions and authentic Darkan combat records. Do not derive core
      stats from combat level.
+   - [ ] Re-walk the six Duel Arena cap-tier thresholds through period pages,
+     dated item definitions, and any authentic server records. Keep the near-
+     cutoff fallback registered unless pre-cutoff evidence settles all six.

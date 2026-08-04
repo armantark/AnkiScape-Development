@@ -57,7 +57,7 @@ SKELETAL_HORROR_PHASES: tuple[dict[str, Any], ...] = (
         },
     },
     {
-        "npc_id": 9177,
+        "npc_id": 9178,
         "combat_level": 260,
         "remaining_lifepoints": 2750,
         "max_hit": 214,
@@ -71,7 +71,7 @@ SKELETAL_HORROR_PHASES: tuple[dict[str, Any], ...] = (
         },
     },
     {
-        "npc_id": 9178,
+        "npc_id": 9179,
         "combat_level": 180,
         "remaining_lifepoints": 2000,
         "max_hit": 154,
@@ -85,7 +85,7 @@ SKELETAL_HORROR_PHASES: tuple[dict[str, Any], ...] = (
         },
     },
     {
-        "npc_id": 9179,
+        "npc_id": 9180,
         "combat_level": 100,
         "remaining_lifepoints": 1250,
         "max_hit": 74,

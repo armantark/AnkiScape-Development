@@ -1,5 +1,22 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 11 — Skeletal Horror phase identities
+
+- Evidence: rev 727, rev 742, Darkan's generated NPC list, and its four
+  `nostats` combat definitions agree on the form mapping 320=`9176/9177`,
+  260=`9178`, 180=`9179`, and 100=`9180`.
+- Result: the live weakening sequence is corrected from the shifted
+  `9176 → 9177 → 9178 → 9179` to `9176 → 9178 → 9179 → 9180`.
+- Honest limit: all four core-stat blocks remain registered placeholders. The
+  client exposes combat level, and the authentic server definitions explicitly
+  omit stats; no value was derived from combat level.
+- Delegation: GPT-family Workflows run
+  `5a1447db-96b4-47f7-9b47-b52860ce2f07` exhausted its tool-output budget after
+  two calls and produced no synthesis. Root independently reproduced every
+  accepted finding and did not rerun it.
+- Verification: 20 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. GPT-family verified.
+
 ## Iteration 10 — Daily Challenges reward-XP re-walk
 
 - Rev 741 and 742 contain identical client structs for representative combat,
