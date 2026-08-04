@@ -281,3 +281,46 @@ Append new entries. Do not edit earlier entries.
   MacBook Pro review-strip evidence remains mandatory for the P1 UI batches.
 - Fable and Kimi remained unused as directed.
 - Accepted implementation commit: `d12b731a484ed3f1cc089545bdcab5dcf542f2d0`.
+
+### 2026-08-03 — P1 review-strip batch verified
+
+- Batch baseline: canonical `main` at
+  `50418d901b46dbf6d0e56c4b37e758aba469e0ec`; the checkout contained only this
+  batch's attributable files and the worktree guard passed before and after the
+  native check.
+- Reproduction: focused tests first failed for the elided 82-pixel D&D seat,
+  Shooting Stars status wider than its 177-pixel label, the ambiguous combat
+  count suffix, the per-row event widgets that could not select across entries,
+  and music tracks entering the popup list.
+- Review-strip fix: the D&D seat now reserves 118 pixels; the HUD places its
+  status chips and action in one bottom row, which gives the Activities status
+  the full upper row; **Bank run** uses its native size and stays at the lower
+  right. Combat progress starts with the complete labeled count, for example
+  `Kills: 0`, before any trailing text that may clip.
+- Event-log fix: one `QTextBrowser` owns all visible escaped and tone-colored
+  rows. Normal document selection and copy can cross any number of rows. The
+  existing 10-row lazy limit and **Show more** expansion remain.
+- Music-popup fix: music tracks and diary tasks both remain in durable event
+  history, but only diary tasks enter the popup list and call the achievement
+  dialog.
+- Automated verification: the focused offscreen Qt strip suite passed 31 tests.
+  The focused pure, integration, music, and end-to-end set passed 238 tests.
+  Narrow 667-by-602 strip geometry, the vanilla answer-bar position, and card
+  non-overlap also passed. `git diff --check` passed.
+- Native verification used the owner's MBP Codex connection and the disposable
+  Anki base at `/tmp/ankiscape-probe2/anki-base`. The owner set the normal
+  window to 712 by 987 pixels. Final captures prove the complete D&D label,
+  unchanged vanilla answer bar, strip below the bar, no card-content overlap,
+  full `Shooting Stars · awaiting an active star` status, usable **Bank run**,
+  and the complete `Kills: 0` prefix. Event-log Command+A and Command+C copied
+  two distinct rows. No music-log popup appeared naturally.
+- Native evidence is on the MBP under
+  `/tmp/ankiscape-pass7-p1-codex-connection/`: `report.md`,
+  `01-reviewer.png`, `03-activities.png`, and `04-event-log.png`.
+- Codex Workflows run `ccc097ff-3f60-4b1d-a8da-1af0ce21580f` returned `PASS`
+  for all four frozen acceptance requirements and proposed no simplification.
+  Earlier bounded investigation leaves exceeded their evidence budgets and made
+  no edits; checker run `cc93632f-aa27-4576-a985-b6074c9e076f` correctly
+  withheld a verdict until native evidence existed.
+- Fable and Kimi remained unused as directed. The parked owner-facing Fable
+  brief remains the only pending Fable artifact.

@@ -4766,3 +4766,16 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Verification passed 434 focused non-Qt tests, 32 offscreen Qt tests, and the
   independent Codex-only frozen-packet checker.
 - Accepted implementation commit: `d12b731a`.
+
+## Pass 7 P1 review-strip correctness — 2026-08-03
+
+- Made the D&D and Activities seats legible at the owner's 712-by-987 native
+  Anki window while keeping **Bank run** usable, the vanilla answer bar
+  unchanged, and card content clear of the strip.
+- Reordered combat progress to lead with a complete labeled kill count.
+- Replaced separate event-row widgets with one selectable document and retained
+  lazy expansion.
+- Removed music unlocks from the floating popup path without removing their
+  durable event history or diary task popups.
+- Verification passed 31 focused offscreen Qt tests, 238 focused non-Qt tests,
+  a native MBP Anki pass, and an independent frozen-packet checker.

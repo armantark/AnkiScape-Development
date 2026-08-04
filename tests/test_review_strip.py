@@ -33,6 +33,8 @@ try:
         QMainWindow,
         QProgressBar,
         QPushButton,
+        QTextBrowser,
+        QTextCursor,
         Qt,
         QVBoxLayout,
         QWidget,
@@ -223,6 +225,13 @@ class ReviewStripTest(unittest.TestCase):
         self.ui.update_review_status_badge(state)
         for _ in range(3):
             QApplication.processEvents()
+
+        badge = self.ui._DND_BADGE
+        self.assertLessEqual(
+            badge.button.sizeHint().width(),
+            badge.button.width(),
+            "the icon and D&D label must remain legible beside the count badge",
+        )
 
         self.assertEqual(self.ui._DND_BADGE.badge.text(), "1")
         self.assertIn("stardust", self.ui._DND_BADGE.toolTip())
@@ -457,6 +466,28 @@ class ReviewStripTest(unittest.TestCase):
             QApplication.processEvents()
         self.assertFalse(hud.progress.isVisible())
 
+    def test_activity_status_keeps_its_full_width_beside_bank_run(self) -> None:
+        state = _live_star(self._state())
+        state["current_utility"] = "shooting_stars"
+        hud = self.ui.ReviewHUD(self.parent)
+        bank_run = self.ui.ReviewBankRunButton(hud)
+        bank_run.set_data(
+            {"visible": True, "enabled": True},
+            lambda: None,
+        )
+        hud.attach_bank_run_button(bank_run)
+        hud.set_data(state, "Utility / Activities")
+        hud.show()
+        for _ in range(5):
+            QApplication.processEvents()
+
+        self.assertIn("stardust", hud.sub_lbl.text())
+        self.assertLessEqual(
+            hud.sub_lbl.fontMetrics().horizontalAdvance(hud.sub_lbl.text()),
+            hud.sub_lbl.width(),
+            "Bank run must not consume the activity-status line",
+        )
+
     def test_a_two_skill_activity_fills_both_bars_and_names_the_rest(self) -> None:
         state = self._state()
         state["current_utility"] = "pyramid_plunder"
@@ -536,6 +567,10 @@ class ReviewStripTest(unittest.TestCase):
         self.assertLess(clock_pos.x() + hud.clock_lbl.width(), progress_pos.x())
         self.assertLess(clock_pos.y(), progress_pos.y())
         self.assertLessEqual(hud.height(), 128)
+        self.assertTrue(
+            hud.chips_lbl.text().startswith("Kills: 0 · "),
+            "the progress value must remain unambiguous if the tail is clipped",
+        )
 
     # ---- the Grand Exchange drawer --------------------------------------
 
@@ -776,21 +811,23 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
         self.assertTrue(drawer.rows.isVisible())
-        self.assertEqual(drawer.rows.count(), 10)
-        self.assertEqual(drawer.rows.item(0).text(), "")
-        row_label = drawer.rows.itemWidget(drawer.rows.item(0))
-        self.assertIsInstance(row_label, QLabel)
-        self.assertEqual(row_label.text(), "0 reviews ago · event 24")
-        self.assertTrue(row_label.wordWrap())
-        self.assertTrue(
-            row_label.textInteractionFlags()
-            & Qt.TextInteractionFlag.TextSelectableByMouse
-        )
+        self.assertIsInstance(drawer.rows, QTextBrowser)
+        self.assertEqual(len(drawer._view()["rows"]), 10)
+        self.assertTrue(drawer.rows.toPlainText().startswith("0 reviews ago · event 24"))
         self.assertTrue(drawer.show_more.isVisible())
         drawer.show_more.click()
         for _ in range(4):
             QApplication.processEvents()
-        self.assertEqual(drawer.rows.count(), 20)
+        self.assertEqual(len(drawer._view()["rows"]), 20)
+
+        cursor = drawer.rows.textCursor()
+        cursor.select(QTextCursor.SelectionType.Document)
+        drawer.rows.setTextCursor(cursor)
+        drawer.rows.copy()
+        copied = QApplication.clipboard().text()
+        self.assertIn("0 reviews ago · event 24", copied)
+        self.assertIn("9 reviews ago · event 15", copied)
+        self.assertIn("19 reviews ago · event 5", copied)
 
     def test_event_log_row_density_stays_compact_for_the_default_ten(self) -> None:
         self.parent.resize(760, 560)
@@ -802,8 +839,7 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(6):
             QApplication.processEvents()
 
-        self.assertEqual(drawer.rows.count(), 10)
-        self.assertLessEqual(drawer.rows.item(0).sizeHint().height(), 18)
+        self.assertEqual(len(drawer._view()["rows"]), 10)
         self.assertEqual(drawer.height(), 186)
 
     def test_xp_rows_are_not_coloured_like_ge_status(self) -> None:
@@ -820,12 +856,9 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
 
-        label = self.ui._EVENT_LOG_DRAWER.rows.itemWidget(
-            self.ui._EVENT_LOG_DRAWER.rows.item(0)
-        )
-        style = label.styleSheet().lower()
-        self.assertNotIn("#85c54b", style)
-        self.assertNotIn("#e0b341", style)
+        html = self.ui._EVENT_LOG_DRAWER.rows.toHtml().lower()
+        self.assertNotIn("#85c54b", html)
+        self.assertNotIn("#e0b341", html)
 
     # ---- card-safe geometry ---------------------------------------------
 

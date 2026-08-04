@@ -39,6 +39,15 @@ A badge popover closes when no placement avoids the measured card rectangle.
 - Every XP emission goes through the retained Event-log seam. Award results
   carry their skill identity, while review aggregation verifies names from the
   real experience deltas; silent awards cannot leak into a later row.
+- The Event log renders its visible rows as one escaped `QTextBrowser` document,
+  not separate row widgets. This preserves cross-row text selection and copy;
+  the view model still owns the 10-row lazy limit and **Show more** expansion.
+- Review-strip progress puts the complete labeled value first. Optional detail
+  follows it and may clip, but a clipped suffix must never resemble a magnitude
+  abbreviation.
+- Durable notifications and floating popups are separate projections. Music
+  unlocks remain in history; only achievement diary tasks enter the achievement
+  popup path.
 - The strip bank action is only a runtime request seam. Combat uses the existing
   combat bank-run state, carried activities use their target-specific travel
   profile, and actions without a carried pack spend one review on the standard

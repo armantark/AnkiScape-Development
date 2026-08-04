@@ -1,5 +1,6 @@
 # ui.py - UI components and dialogs for AnkiScape
 
+import html
 import os
 import re
 from collections.abc import Mapping
@@ -2183,13 +2184,16 @@ if HAS_QT:
 
             self.chips_lbl = QLabel("")
             self.chips_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
-            info.addWidget(self.chips_lbl)
+            bottom_row = QHBoxLayout()
+            bottom_row.setContentsMargins(0, 0, 0, 0)
+            bottom_row.setSpacing(6)
+            bottom_row.addWidget(self.chips_lbl, 1)
+            self.action_column = QHBoxLayout()
+            self.action_column.setContentsMargins(0, 0, 0, 0)
+            bottom_row.addLayout(self.action_column)
+            info.addLayout(bottom_row)
 
             root.addLayout(info, 1)
-            self.action_column = QVBoxLayout()
-            self.action_column.setContentsMargins(0, 0, 0, 0)
-            self.action_column.addStretch(1)
-            root.addLayout(self.action_column)
 
             # Aesthetic container style
             self.setStyleSheet(
@@ -2224,6 +2228,7 @@ if HAS_QT:
 
         def attach_bank_run_button(self, button) -> None:
             button.setParent(self)
+            button.setFixedSize(button.sizeHint())
             self.action_column.addWidget(
                 button, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom
             )
@@ -2478,8 +2483,7 @@ if HAS_QT:
                 # Chip line: which skills this attack style trains, plus kills so far
                 trains = " • ".join(state["trained_skills"])
                 kills = state["kills_total"]
-                kill_txt = f"⚔ {kills} {'kill' if kills == 1 else 'kills'}"
-                self.chips_lbl.setText(f"Trains {trains}   {kill_txt}")
+                self.chips_lbl.setText(f"Kills: {kills} · Trains {trains}")
                 self.chips_lbl.setVisible(True)
 
                 self.adjustSize()
@@ -2805,7 +2809,7 @@ if HAS_QT:
             self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
             self.setFixedSize(
-                82 if self.kind == "distractions" else 112,
+                118 if self.kind == "distractions" else 112,
                 48,
             )
             self._view = {}
@@ -3053,12 +3057,14 @@ if HAS_QT:
                 Qt.ToolButtonStyle.ToolButtonTextBesideIcon
             )
             root.addWidget(self.toggle, 0, Qt.AlignmentFlag.AlignLeft)
-            self.rows = QListWidget(self)
+            self.rows = QTextBrowser(self)
             self.rows.setObjectName("reviewEventLogList")
             self.rows.setMaximumHeight(150)
-            self.rows.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
             self.rows.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-            self.rows.setFrameShape(QFrame.Shape.NoFrame)
+            self.rows.setFrameShape(QtFrame.Shape.NoFrame)
+            self.rows.setOpenLinks(False)
+            self.rows.setOpenExternalLinks(False)
+            self.rows.document().setDocumentMargin(0)
             root.addWidget(self.rows)
             self.show_more = QToolButton(self)
             self.show_more.setObjectName("reviewEventLogShowMore")
@@ -3069,7 +3075,7 @@ if HAS_QT:
                 f" border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
                 " QToolButton { color: white; background: transparent;"
                 " border: none; padding: 2px; font-weight: 600; }"
-                " QListWidget { background: transparent; border: none; color: white; }"
+                " QTextBrowser { background: transparent; border: none; color: white; }"
             )
             self.toggle.toggled.connect(self._on_toggled)
             self.show_more.clicked.connect(self._show_more)
@@ -3104,33 +3110,16 @@ if HAS_QT:
                 else Qt.ArrowType.RightArrow
             )
             self.rows.clear()
-            margins = self.layout().contentsMargins()
-            available_width = min(
-                480,
-                max(240, self.width() - margins.left() - margins.right()),
-            )
+            rendered_rows = []
             for entry in view.get("rows", ()):
-                item = QListWidgetItem("")
-                item.setFlags(Qt.ItemFlag.NoItemFlags)
-                self.rows.addItem(item)
-                label = QLabel(str(entry["label"]), self.rows)
-                label.setObjectName("reviewEventLogRow")
-                label.setWordWrap(True)
-                label.setTextInteractionFlags(
-                    Qt.TextInteractionFlag.TextSelectableByMouse
-                    | Qt.TextInteractionFlag.TextSelectableByKeyboard
+                rendered_rows.append(
+                    '<div style="margin:0; padding:1px 3px; color:'
+                    + str(entry["foreground"])
+                    + ';">'
+                    + html.escape(str(entry["label"]))
+                    + "</div>"
                 )
-                label.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-                label.setStyleSheet(
-                    f"color: {entry['foreground']}; background: transparent;"
-                    " padding: 1px 3px;"
-                )
-                label.setMaximumWidth(480)
-                label.adjustSize()
-                hint = label.sizeHint()
-                wrap_width = min(480, max(available_width, hint.width()))
-                item.setSizeHint(QSize(hint.width(), label.heightForWidth(wrap_width)))
-                self.rows.setItemWidget(item, label)
+            self.rows.setHtml("".join(rendered_rows))
             self.rows.setVisible(bool(view.get("rows_visible")))
             self.show_more.setText(str(view.get("show_more_text", "")))
             self.show_more.setEnabled(bool(view.get("show_more_enabled")))
@@ -3492,13 +3481,13 @@ def _sync_review_strip_layout() -> None:
             if widget is not None
         )
         nominal_widths = {
-            _DND_BADGE: 82,
+            _DND_BADGE: 118,
             _FARMING_BADGE: 112,
             hud: 340,
             _MAIN_MENU_BUTTON: 36,
         }
         minimum_widths = {
-            _DND_BADGE: 66,
+            _DND_BADGE: 110,
             _FARMING_BADGE: 84,
             _MAIN_MENU_BUTTON: 36,
         }

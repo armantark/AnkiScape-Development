@@ -113,25 +113,28 @@ def check_achievements(player_data):
         )
         for track_name in newly_tracks
     ]
+    popup_notifications = []
     for task_id in newly_tasks:
         found = diary_task_by_id_pure(task_id)
         if found is None:
             continue
         family, tier, task = found
-        notifications.append((
+        notification = (
             task.name,
             {
                 "description": task.description,
                 "difficulty": f"{family.name} — {tier.name}",
             },
-        ))
+        )
+        notifications.append(notification)
+        popup_notifications.append(notification)
     for title, data in notifications:
         description = str(data.get("description", "") or "").strip()
         message = f"{title} — {description}" if description else str(title)
         _record_review_event(player_data, "achievement", message)
     if not _popups_enabled():
         return
-    for title, data in notifications:
+    for title, data in popup_notifications:
         show_achievement_dialog(title, data)
 
 

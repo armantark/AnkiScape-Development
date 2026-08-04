@@ -3832,3 +3832,17 @@ flees silently when the player runs out of food.
   Codex-only independent packet checker run
   `00cab046-6b0b-4af6-a25c-dc8b7ade3fd4` all pass.
 - Accepted implementation commit: `d12b731a`.
+
+## Pass 7 P1 review-strip repair — 2026-08-03
+
+- The D&D seat now reserves its complete label at the owner's normal 712-by-987
+  Anki window. Activities owns a full-width status row while **Bank run** stays
+  usable at the lower right, and combat text puts `Kills: <count>` before any
+  trailing text that can clip.
+- The Event log is one selectable `QTextBrowser` document. Selection and copy
+  cross entry boundaries, while the 10-row lazy limit and **Show more** remain.
+- Music unlocks remain in durable history but no longer enter the floating
+  achievement popup path. Diary task popups are unchanged.
+- Verification passed 31 focused offscreen Qt tests, 238 focused pure,
+  integration, music, and end-to-end tests, the MBP native-Anki pass, and
+  Codex-only checker run `ccc097ff-3f60-4b1d-a8da-1af0ce21580f`.

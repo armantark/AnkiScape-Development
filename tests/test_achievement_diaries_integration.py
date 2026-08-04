@@ -236,6 +236,37 @@ class DiaryReviewDispatchTest(unittest.TestCase):
 
         self.assertIn(anchor.id, player["achievement_diaries"]["completed_tasks"])
 
+    def test_music_unlocks_enter_history_without_floating_popups(self):
+        from ankiscape.core.logic import check_achievements
+        from ankiscape.data.music_log_data import MUSIC_TRACKS
+
+        task = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if not task.latent
+        )
+        activity_track = next(
+            track for track in MUSIC_TRACKS if track.trigger_kind == "activity"
+        )
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        _satisfy(player, task)
+        player["activity_session"] = {"active_id": activity_track.trigger_key}
+
+        with (
+            patch("ankiscape.core.logic._popups_enabled", return_value=True),
+            patch("ankiscape.core.logic.show_achievement_dialog") as popup,
+        ):
+            check_achievements(player)
+
+        popup_titles = [call.args[0] for call in popup.call_args_list]
+        event_text = [row["text"] for row in player["review_event_log"]]
+        self.assertIn(task.name, popup_titles)
+        self.assertNotIn(activity_track.name, popup_titles)
+        self.assertTrue(any(task.name in text for text in event_text))
+        self.assertTrue(any(activity_track.name in text for text in event_text))
+
 
 class DiaryUndoSeamTest(unittest.TestCase):
     """Criterion 5: undo at every mutation boundary."""
