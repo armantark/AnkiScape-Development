@@ -1,5 +1,15 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 12 — Duellist's cap threshold closure
+
+- Evidence: oldid `6579418`, dated `2012-11-18T23:11:12Z`, is the pre-cutoff
+  parent of the previously cited post-cutoff cap page and already states all six
+  ranges.
+- Result: live minimums remain `0/10/100/500/2,000/5,000`, now period-pinned;
+  `duel_arena_cap_thresholds` is retired from the placeholder register.
+- Verification: 16 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. GPT-family verified.
+
 ## Iteration 11 — Skeletal Horror phase identities
 
 - Evidence: rev 727, rev 742, Darkan's generated NPC list, and its four

@@ -16,10 +16,9 @@ DUEL_ARENA_MAX_REVIEWS = 5
 
 DUEL_ARENA_SOURCE = (
     "RuneScape Wiki Duel Arena oldid=6398696 "
-    "(2012-10-14T03:38:01Z); Duellist's cap oldid=6591278 and tier pages "
-    "oldids=6591280,6591282,6591283,6591285,6591286,6591288 "
-    "(near-cutoff post-midnight fallback; thresholds remain registered as a "
-    "placeholder); Darkan DuelRules.java and DuelArenaController.java at "
+    "(2012-10-14T03:38:01Z); Duellist's cap oldid=6579418 "
+    "(2012-11-18T23:11:12Z); Darkan DuelRules.java and "
+    "DuelArenaController.java at "
     "d1d10fe9f9f9692e4a9d14d2435e2028934efe85; OpenRS2 cache rev 742"
 )
 
@@ -116,7 +115,6 @@ class DuellistsCapTier:
     asset_filename: str
 
 
-# PLACEHOLDER(duel_arena_cap_thresholds): A pre-2012-11-20 server/config source or dated page that states all six win thresholds would settle this vector.
 DUELLISTS_CAP_TIERS = (
     DuellistsCapTier(1, 0, 20795, "Duellist's cap (tier 1)", "duellists_cap_tier_1.png"),
     DuellistsCapTier(2, 10, 20796, "Duellist's cap (tier 2)", "duellists_cap_tier_2.png"),

@@ -86,15 +86,13 @@ The cache returns six item definitions, IDs `20795` through `20800`, all named
   `https://runescape.wiki/w/Duel_Arena?oldid=6398696`
   - revision timestamp: `2012-10-14T03:38:01Z`
 - Duellist's cap aggregate:
-  `https://runescape.wiki/?oldid=6591278`
-  - revision timestamp: `2012-11-20T05:33:12Z`
-- tier pages:
-  revisions `6591280`, `6591282`, `6591283`, `6591285`, `6591286`, and
-  `6591288`, all created after the strict `2012-11-20T00:00:00Z` cutoff
+  `https://runescape.wiki/?oldid=6579418`
+  - revision timestamp: `2012-11-18T23:11:12Z`
+  - parent of the previously cited post-cutoff oldid `6591278`
 
-The aggregate and tier pages are near-cutoff fallback evidence, not period-pinned
-pages. Their win thresholds therefore ship as the registered
-`duel_arena_cap_thresholds` placeholder rather than as a closed period claim.
+The pre-cutoff aggregate already carries the complete six-row win table. The
+previous audit stopped at its post-cutoff child and therefore registered a
+placeholder that was not necessary.
 
 Sourced facts harvested:
 
@@ -109,9 +107,9 @@ Sourced facts harvested:
   eleven in this family;
 - the cap is non-tradeable and obtained from Estocada; its appearance can be
   changed after reaching the next win threshold;
-- the near-cutoff fallback tier pages state `0`, `10`, `100`, `500`, `2,000`,
-  and `5,000` wins, but those values remain a registered placeholder because
-  the pages miss the strict cutoff by about five hours.
+- oldid `6579418` states the six ranges as `0-9`, `10-99`, `100-499`,
+  `500-1999`, `2000-4999`, and `5000+`, closing minimum thresholds `0`, `10`,
+  `100`, `500`, `2,000`, and `5,000`.
 
 ## Sourced facts implemented
 
@@ -166,10 +164,7 @@ item sprites only as an asset fallback. They are not mechanics evidence and
 are not described as period-dated art. Every installed path is recorded in
 `assets_provenance.json`.
 
-## Placeholder register
+## Threshold closure
 
-`duel_arena_cap_thresholds` registers the six win thresholds. The mechanic is
-complete around the fallback values, but they are not period-closed because the
-available wiki tier revisions were created about five hours after the strict
-cutoff. A pre-cutoff server/config source or dated page that states all six
-thresholds would settle it.
+`duel_arena_cap_thresholds` was retired on 2026-08-03. The shipped vector did
+not change; oldid `6579418` proves it before the strict cutoff.

@@ -1,5 +1,17 @@
 # Progress
 
+## Duellist's cap threshold closure — 2026-08-03
+
+RuneScape Wiki oldid `6579418`, dated `2012-11-18T23:11:12Z`, is the pre-cutoff
+parent of the previously cited post-cutoff cap page. It already states all six
+win ranges, proving live minimums `0`, `10`, `100`, `500`, `2,000`, and `5,000`.
+The live values did not change; `duel_arena_cap_thresholds` is retired from the
+placeholder register and the family now cites the correct period revision.
+
+The focused Duel Arena and placeholder-register lane passes 16 tests. Full
+discovery passes all 3,802 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips.
+
 ## Skeletal Horror phase-identity correction — 2026-08-03
 
 Rev 727 and 742 plus Darkan's generated NPC list and four combat-definition

@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 12 retires the Duellist's cap threshold
+placeholder.** The parent of the previously cited post-cutoff page is oldid
+`6579418`, dated `2012-11-18T23:11:12Z`, and already states the complete win
+ranges `0-9`, `10-99`, `100-499`, `500-1999`, `2000-4999`, and `5000+`. The
+live minimums were correct and remain `0/10/100/500/2,000/5,000`; only their
+evidence classification changed. No owner design gap surfaced. The next slice
+re-walks Bork's Ork legion style placeholder. Full discovery passes 3,802 tests
+in both lanes, with 460 expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 11 corrects the Skeletal Horror weakening
 identities without guessing core stats.** Rev 727, rev 742, Darkan's generated
 NPC list, and its four explicitly `nostats` combat definitions all map the

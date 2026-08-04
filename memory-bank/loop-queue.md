@@ -36,6 +36,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the four Skeletal Horror phase-stat placeholders through dated
      NPC definitions and authentic Darkan combat records. Do not derive core
      stats from combat level.
-   - [ ] Re-walk the six Duel Arena cap-tier thresholds through period pages,
+   - [x] Re-walk the six Duel Arena cap-tier thresholds through period pages,
      dated item definitions, and any authentic server records. Keep the near-
      cutoff fallback registered unless pre-cutoff evidence settles all six.
+   - [ ] Re-walk Bork's Ork legion attack-style placeholder through authentic
+     combat records and period pages. Preserve the distance abstraction unless
+     a source settles the melee/ranged switch and accuracy penalty.
