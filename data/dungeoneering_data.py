@@ -215,7 +215,8 @@ FROZEN_BOSSES_BY_ID: Mapping[str, FrozenBoss] = MappingProxyType(
     {boss.id: boss for boss in FROZEN_BOSSES}
 )
 
-# PLACEHOLDER(dungeoneering.boss_combat_level_ladders): cache NPC combat-level decoding or a source-qualified restoration that reconciles the pinned boss revisions
+# Exact rev-727 and rev-742 NPC definition series: 9912-10057, excluding the
+# two non-boss rows 10022-10023. Astea has three NPC forms at every level.
 FROZEN_BOSS_COMBAT_LEVEL_LADDERS: Mapping[str, tuple[int, ...]] = MappingProxyType(
     {
         "gluttonous_behemoth": (5, 25, 41, 63, 91, 132, 170, 199, 238, 278, 299, 334, 362, 389, 437, 476, 518),

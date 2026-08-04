@@ -226,6 +226,8 @@ Every implemented parity family should leave a durable source audit containing:
 - cache build and IDs/options used for cross-reference;
 - exact item model/recolour/bonus rows may be reproduced with
   `tools/query_openrs2_cache.sh <cache> --id <id> [id ...]`;
+- exact NPC combat levels may be reproduced with
+  `tools/query_openrs2_cache_definitions.sh <cache> npc --combat-levels <id> [id ...]`;
 - local source paths and commits;
 - values proven, values intentionally abstracted by AnkiScape, and unresolved
   values left source-blocked;

@@ -18,6 +18,7 @@ final class OpenRs2CacheDefinitionSearch {
             System.err.println("usage: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> <term> [term ...]");
             System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --id <id> [id ...]");
             System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --params <id> [id ...]");
+            System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> npc --combat-levels <id> [id ...]");
             System.exit(2);
         }
 
@@ -54,6 +55,22 @@ final class OpenRs2CacheDefinitionSearch {
                     System.err.println("entity kind must be npc or object");
                     System.exit(2);
                 }
+            }
+            return;
+        }
+        if (args[2].equals("--combat-levels")) {
+            if (!kind.equals("npc")) {
+                System.err.println("combat levels are available only for NPC definitions");
+                System.exit(2);
+            }
+            for (int i = 3; i < args.length; i++) {
+                int id = Integer.parseInt(args[i]);
+                NPCDefinitions definition = NPCDefinitions.getDefs(id);
+                System.out.printf(
+                        "%d\t%s\t%d%n",
+                        id,
+                        definition == null ? null : definition.getName(),
+                        definition == null ? -1 : definition.combatLevel);
             }
             return;
         }

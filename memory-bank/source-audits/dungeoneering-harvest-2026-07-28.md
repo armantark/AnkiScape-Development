@@ -320,15 +320,28 @@ are legacy Darkan `L4/L5`.
 | Plane-freezer Lakhrahnaz | 11 | 6-11 | 7, 17, 25, 35, 57, 76, 104, 140, 174, 203, 233, 262, 293, 329, 362, 393, 424, 455, 491 |
 | To'Kash the Bloodchiller | 17 | 9-11 | 8, 22, 49, 67, 104, 127, 159, 188, 216, 255, 292, 355, 408, 442, 477, 512 |
 
-### Darkan combat-level/stat/LP conflicts
+### Combat-level closure and remaining stat/LP conflicts
 
-The NPC id blocks are confirmed by rev 742, but the cache tool does not expose
-combat level. Darkan's dumped level ladders conflict with pinned boss pages above
-the mid tiers for To'Kash and Luminescent icefiend, and Gluttonous Behemoth's
-period wikitext records a rebalance. Plane-freezer Lakhrahnaz has a separate
-Darkan defect: it has no dispatch branch at `DungeonManager.java:951-1013`, so
-runtime always spawns fixed level-7 id 9929 instead of selecting from its
-19-variant block.
+Amended `2026-08-03`: the definition reader's `npc --combat-levels` mode now
+decodes the combat-level field directly. Rev 727 and rev 742 produce identical
+name/level rows across all six Frozen series:
+
+| boss | NPC ids | rows per ladder level |
+| --- | --- | ---: |
+| Luminescent icefiend | `9912-9928` | 1 |
+| Plane-freezer Lakhrahnaz | `9929-9947` | 1 |
+| Gluttonous behemoth | `9948-9964` | 1 |
+| Astea Frostweb | `9965-10021` | 3 |
+| To'Kash the Bloodchiller | `10024-10039` | 1 |
+| Icy Bones | `10040-10057` | 1 |
+
+The decoded values match every ladder printed above. This resolves the page
+conflicts in favour of two dated client caches plus Darkan's matching dump, and
+retires `dungeoneering.boss_combat_level_ladders`. It does not establish the
+server's tier-selection formula or any combat stat, lifepoint, or maximum-hit
+row. Plane-freezer Lakhrahnaz still has a separate Darkan defect: it has no
+dispatch branch at `DungeonManager.java:951-1013`, so runtime always spawns
+fixed level-7 id 9929 instead of selecting from its 19-variant block.
 
 Darkan also does not contain authentic fixed stat blocks for these bosses:
 
@@ -556,7 +569,6 @@ pinned period pages. The implementer should register these exact ids in
 | `dungeoneering.floor_xp_curve` | legacy Darkan `truncate((0.16f³ + 0.28f² + 76.94f + 100) × size scale × opened/max rooms)`, size scales `1/2/3.5`, room maxima `16/32/64` | active and prestige floor-XP inputs | a period server routine, decoded completion script/table, or independently source-qualified restoration of `getFloorXP` |
 | `dungeoneering.completion_modifiers` | legacy Darkan size bonus `0/0.0792/0.1583`, bonus-room cap `0.1267`, level modifier `-10%..+10%`, guide penalty `5%`, final multiplier floor `10%`; combine additively per `W14` | size, bonus-room, level-mod and guide rows on the completion screen | a period Winterface coefficient table or decoded server completion routine |
 | `dungeoneering.death_xp_penalty_curve` | exact increments unknown; the placeholder must be an additive death term bounded by `4%-70%` across at most `15` counted deaths, never Darkan's multiplicative 10%-cap-6 rule | death-respawn payout reduction | a period server routine or decoded modifier table giving the first-death value and all increments |
-| `dungeoneering.boss_combat_level_ladders` | the Darkan variant ladders printed in the boss table, explicitly provisional where To'Kash, Luminescent icefiend, and Gluttonous Behemoth conflict with period pages | tier selection for the six Frozen bosses | cache NPC combat-level decoding or a source-qualified restoration that reconciles the pinned boss revisions |
 | `dungeoneering.boss_combat_definitions` | legacy dynamic fallback: LP `25 × combat level + 1`, max hit `combat level`, generated five-stat block clamped at 120; never the `(nostats)` 5,000/50 rows | lifepoints, maximum hit, Attack, Strength, Defence, Magic, and Ranged for all Frozen tiers | authentic per-tier combat definitions or a decoded period stat table |
 | `dungeoneering.boss_level_scaling_formula` | legacy Darkan nearest tier to `1.5 × party average combat`; Lakhrahnaz's fixed-id defect must be bypassed | map player/party state to a boss tier | period server logic covering player level, complexity, and intended party size |
 | `dungeoneering.skill_door_failure` | legacy Darkan 11% failure chance and `required level × 4` true damage, both explicitly provisional | failed skill-door outcomes | period server door handlers or a dated source stating probability and LP damage |

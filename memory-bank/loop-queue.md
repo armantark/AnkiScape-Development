@@ -27,6 +27,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Retire the Achievement Diary's recorded depth debt. Generation now
      requires an explicit portable `--items-yml` input; the v108 regression
      proves removal, re-earning, and preservation across the migration boundary.
-   - [ ] Decode the rev-727/742 Frozen Dungeoneering boss NPC combat-level rows
-     and revalidate the six provisional ladders. Leave server-owned stat and
-     scaling formulas untouched.
+   - [x] Decode the rev-727/742 Frozen Dungeoneering boss NPC combat-level rows
+     and revalidate the six provisional ladders. Both caches match every live
+     value; server-owned stat and scaling formulas remain untouched.
+   - [ ] Re-walk the Daily Challenges reward-XP placeholder through the dated
+     config/interface readers and existing period sources. Keep it registered
+     if no client table settles the server payout.
