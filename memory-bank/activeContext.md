@@ -3814,3 +3814,20 @@ Adjacent bug found and not fixed (it belongs to Fight Caves): `fight_caves_logic
 zeroes `combat_auto_flee_percent` around its burst to stop the auto-flee, but the
 engine reads the boolean `combat_auto_flee`. The Fight Cave therefore still
 flees silently when the player runs out of food.
+
+## Pass 7 P0 progression repair — 2026-08-03
+
+- The exact 970-XP Magic Circus cash-out is source-correct: one successful
+  level-9 `max_xp` trick owns the 970-XP band. It is now pinned by the owner's
+  complete persisted-state reproduction and was not capped.
+- Constitution uses the ordinary period XP curve. New saves start at level 10
+  and 1,154 total XP. Schema 111 adds that missing baseline once to older saves,
+  so the owner's 353.883075 earned XP resolves to level 11.
+- Combat leaves the saved old level intact until the standard level-up gate.
+  Fractional Constitution gains remain visible, and XP log rows precede the
+  level rows they cause without a second aggregate XP row.
+- Durable source evidence:
+  `source-audits/constitution-starting-xp-curve-2026-08-03.md`.
+- Verification: 434 focused non-Qt tests, 32 relevant offscreen Qt tests, and
+  Codex-only independent packet checker run
+  `00cab046-6b0b-4af6-a25c-dc8b7ade3fd4` all pass.

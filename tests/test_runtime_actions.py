@@ -568,6 +568,23 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(calls.get("deactivated"))
         self.assertIn("utility:big_top_bonanza", player_data["action_telemetry"]["actions"])
 
+    def test_combat_level_refresh_leaves_the_old_level_for_the_level_up_gate(self):
+        from ankiscape.runtime.runtime_actions_shared import _refresh_combat_levels
+
+        player_data = {
+            "constitution_level": 10,
+            "constitution_exp": 1358.0,
+        }
+        ctx = _context(player_data)
+        observed = []
+        ctx.level_up_check = lambda skill, data: observed.append(
+            (skill, data["constitution_level"])
+        )
+
+        _refresh_combat_levels(ctx, {"constitution_exp": 0.133})
+
+        self.assertEqual(observed, [("Constitution", 10)])
+
     def test_circus_firemaking_performance_consumes_exactly_six_rolls(self):
         from ankiscape.logic.circus_logic import default_circus_state_pure
 

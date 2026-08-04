@@ -58,6 +58,8 @@ from ..logic.stealing_creation_logic import (
 from ..data.urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
 from .constants import (
     BAR_DATA,
+    CONSTITUTION_STARTING_EXP,
+    CONSTITUTION_STARTING_LEVEL,
     exp_table_for_skill,
     FISHING_OUTPUT_ITEMS,
     GEM_DATA,
@@ -329,7 +331,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 110
+CURRENT_CONFIG_VERSION = 111
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -726,8 +728,12 @@ def _default_combat_state() -> Dict[str, int]:
     for skill in planned_skill_definitions():
         if skill.category != "combat":
             continue
-        state[skill.level_key] = 10 if skill.id == "constitution" else 1
-        state[skill.exp_key] = 0
+        if skill.id == "constitution":
+            state[skill.level_key] = CONSTITUTION_STARTING_LEVEL
+            state[skill.exp_key] = CONSTITUTION_STARTING_EXP
+        else:
+            state[skill.level_key] = 1
+            state[skill.exp_key] = 0
     return state
 
 
@@ -1332,6 +1338,26 @@ def migrate_loaded_data(
     # the need to hand-add keys for each playable skill.
     for key, value in default_skill_state().items():
         data.setdefault(key, value)
+    if loaded_config_version < 111:
+        try:
+            earned_constitution_exp = float(data.get("constitution_exp", 0) or 0)
+        except (TypeError, ValueError, OverflowError):
+            earned_constitution_exp = 0.0
+        if not math.isfinite(earned_constitution_exp) or earned_constitution_exp < 0:
+            earned_constitution_exp = 0.0
+        data["constitution_exp"] = earned_constitution_exp + CONSTITUTION_STARTING_EXP
+        try:
+            constitution_level = max(
+                CONSTITUTION_STARTING_LEVEL,
+                int(data.get("constitution_level", CONSTITUTION_STARTING_LEVEL) or 0),
+            )
+        except (TypeError, ValueError, OverflowError):
+            constitution_level = CONSTITUTION_STARTING_LEVEL
+        data["constitution_level"] = calculate_new_level(
+            data["constitution_exp"],
+            constitution_level,
+            exp_table_for_skill("constitution"),
+        )
     for key, value in _default_combat_state().items():
         data.setdefault(key, value)
     for key, value in default_combat_state_pure().items():

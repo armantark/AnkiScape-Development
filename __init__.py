@@ -89,7 +89,7 @@ from .logic_pure.logic_pure import (
 )
 from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
-from .core.logic import level_up_check, check_achievements
+from .core.logic import level_up_check as _core_level_up_check, check_achievements
 from .ui.ui import (
     ExpPopup,
     show_error_message,
@@ -392,11 +392,16 @@ class _NamedExperience(float):
 
     @property
     def display_text(self) -> str:
+        def amount_text(amount) -> str:
+            value = float(amount)
+            return f"{value:.1f}" if 0 < value < 1 else str(int(value))
+
         if len(self.breakdown) > 1:
             return " · ".join(
-                f"{name} +{int(amount)} XP" for name, amount in self.breakdown
+                f"{name} +{amount_text(amount)} XP"
+                for name, amount in self.breakdown
             )
-        message = f"+{int(float(self))} XP"
+        message = f"+{amount_text(self)} XP"
         if self.skill_names:
             message += f" · {', '.join(self.skill_names)}"
         return message
@@ -479,7 +484,7 @@ def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
         pass
 
 
-def _show_exp(exp_gained) -> None:
+def _show_exp(exp_gained, *, record_event: bool = True) -> None:
     """Record one XP drop, then display it when floating feedback is enabled."""
     try:
         skill_names = list(getattr(exp_gained, "skill_names", ()))
@@ -494,9 +499,10 @@ def _show_exp(exp_gained) -> None:
         if not isinstance(exp_gained, _NamedExperience):
             exp_gained = _NamedExperience(exp_gained, skill_names)
         message = exp_gained.display_text
-        _record_review_event(
-            "xp", message, persist=not _REVIEW_FEEDBACK_FLUSHING
-        )
+        if record_event:
+            _record_review_event(
+                "xp", message, persist=not _REVIEW_FEEDBACK_FLUSHING
+            )
         # Respect user setting for floating XP (default True)
         show_xp = True
         try:
@@ -583,13 +589,47 @@ def _combine_activity_feedback(messages) -> str:
 def _begin_review_feedback_context() -> None:
     global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_INITIAL_XP
     initial_xp = _REVIEW_FEEDBACK_INITIAL_XP
+    initial_exp = _implemented_exp_keys_snapshot()
     _REVIEW_FEEDBACK_CONTEXT = {
         "xp": float(initial_xp or 0.0),
         "skills": list(getattr(initial_xp, "skill_names", ())),
-        "initial_exp": _implemented_exp_keys_snapshot(),
+        "initial_exp": initial_exp,
+        "recorded_exp": initial_exp,
         "activity": [],
     }
     _REVIEW_FEEDBACK_INITIAL_XP = 0.0
+
+
+def _record_pending_review_xp_event() -> None:
+    context = _REVIEW_FEEDBACK_CONTEXT
+    if context is None:
+        return
+    recorded_exp = context.get("recorded_exp", {})
+    breakdown = []
+    for skill in trainable_skill_definitions():
+        gained = float(player_data.get(skill.exp_key, 0) or 0) - float(
+            recorded_exp.get(skill.exp_key, 0) or 0
+        )
+        if gained > 0:
+            breakdown.append((skill.display_name, gained))
+    if not breakdown:
+        return
+    total = sum(amount for _name, amount in breakdown)
+    _record_review_event(
+        "xp",
+        _NamedExperience(
+            total,
+            (name for name, _amount in breakdown),
+            breakdown,
+        ).display_text,
+        persist=False,
+    )
+    context["recorded_exp"] = _implemented_exp_keys_snapshot()
+
+
+def level_up_check(skill, data) -> None:
+    _record_pending_review_xp_event()
+    _core_level_up_check(skill, data)
 
 
 def _finish_review_feedback_context() -> None:
@@ -600,6 +640,7 @@ def _finish_review_feedback_context() -> None:
         "initial_exp": {},
         "activity": [],
     }
+    _record_pending_review_xp_event()
     _REVIEW_FEEDBACK_CONTEXT = None
     _REVIEW_FEEDBACK_FLUSHING = True
     try:
@@ -621,7 +662,10 @@ def _finish_review_feedback_context() -> None:
                     skill_names.append(skill.display_name)
         activity_messages = context.get("activity", [])
         if xp_total > 0:
-            _show_exp(_NamedExperience(xp_total, skill_names, breakdown))
+            _show_exp(
+                _NamedExperience(xp_total, skill_names, breakdown),
+                record_event=False,
+            )
             for message in activity_messages:
                 _record_review_event("activity", str(message), persist=False)
         elif activity_messages:

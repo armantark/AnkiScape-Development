@@ -27,7 +27,6 @@ from ..core.constants import (
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_WOODCUTTING_TARGET,
     EQUIPMENT_DATA,
-    EXP_TABLE,
     FIREMAKING_DATA,
     FISHING_DATA,
     HUNTER_DATA,
@@ -104,7 +103,6 @@ from ..logic_pure.logic_pure import (
     calculate_woodcutting_success_probability_pure,
     cooking_source_roll_chance_pure,
     firemaking_source_roll_chance_pure,
-    calculate_new_level,
     can_chop_woodcutting_target_pure,
     can_craft_item_pure,
     can_attempt_quest_review_pure,
@@ -821,9 +819,4 @@ def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:
         skill = get_skill(_COMBAT_EXP_SKILLS.get(str(exp_key), ""))
         if skill is None:
             continue
-        ctx.player_data[skill.level_key] = calculate_new_level(
-            ctx.player_data.get(skill.exp_key, 0),
-            ctx.player_data.get(skill.level_key, 1),
-            EXP_TABLE,
-        )
         ctx.level_up_check(skill.display_name, ctx.player_data)

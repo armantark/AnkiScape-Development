@@ -16,6 +16,7 @@ from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
 from ankiscape.core.constants import (
     BAR_DATA,
+    CONSTITUTION_STARTING_EXP,
     CRAFTING_DATA,
     DUNGEONEERING_EXP_TABLE,
     EQUIPMENT_DATA,
@@ -421,6 +422,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["slayer_tasks_completed"], 0)
         self.assertFalse(data["slayer_combat_filter"])
         self.assertEqual(data["constitution_level"], 10)
+        self.assertEqual(data["constitution_exp"], CONSTITUTION_STARTING_EXP)
         self.assertEqual(data["current_runecrafting"], "craft_air_runes")
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
         self.assertEqual(data["hunter_success_count"], 0)
@@ -487,6 +489,29 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["ge_next_order_id"], 1)
         self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
         self.assertEqual(data["review_context_preferences"], {})
+
+    def test_v111_migration_restores_constitution_starting_xp_once(self):
+        untouched = migrate_loaded_data({"config_version": 110}, ORE_DATA)
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 110,
+                "constitution_level": 10,
+                "constitution_exp": 353.883075,
+            },
+            ORE_DATA,
+        )
+
+        self.assertEqual(untouched["constitution_exp"], CONSTITUTION_STARTING_EXP)
+        self.assertEqual(untouched["constitution_level"], 10)
+        self.assertAlmostEqual(
+            migrated["constitution_exp"],
+            CONSTITUTION_STARTING_EXP + 353.883075,
+        )
+        self.assertEqual(migrated["constitution_level"], 11)
+        self.assertEqual(
+            migrate_loaded_data(migrated, ORE_DATA)["constitution_exp"],
+            migrated["constitution_exp"],
+        )
 
     def test_migration_removes_population_dial_and_sanitizes_big_chinchompa(self):
         migrated = migrate_loaded_data(

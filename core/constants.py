@@ -2609,6 +2609,9 @@ EXP_TABLE = [
     5346332, 5902831, 6517253, 7195629, 7944614, 8771558, 9684577, 10692629, 11805606, 13034431
 ]
 
+CONSTITUTION_STARTING_LEVEL = 10
+CONSTITUTION_STARTING_EXP = EXP_TABLE[CONSTITUTION_STARTING_LEVEL - 1]
+
 # Dungeoneering continues the standard period curve through level 120.
 # Source: RuneScape Wiki Dungeoneering oldid=6579699, pinned in
 # data/dungeoneering_data.py SOURCE_REVISIONS.

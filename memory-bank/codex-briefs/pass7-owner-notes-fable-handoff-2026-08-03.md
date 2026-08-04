@@ -246,3 +246,37 @@ Append new entries. Do not edit earlier entries.
   `memory-bank/codex-briefs/pass7-owner-fable-co-ideation-handoff-2026-08-03.md`.
   It asks only about the unresolved Big Top execution queue and Equipment meter
   presentation. It does not reopen settled Pass 7 requirements.
+
+### 2026-08-03 — P0 progression batch verified
+
+- Batch baseline: canonical `main` at
+  `cbbfeaa17afb21eb7061922694d26aa607c84a54`; the checkout contained only this
+  batch's attributable files and the worktree guard passed.
+- Magic cash-out verdict: not a defect. The owner's exact level-9 `max_xp`
+  Circus state and rolls reproduce one successful trick, `970.0` Magic XP,
+  score `70`, the Giant's hand unlock, and three named failed levitation tricks.
+  The 970 value is the period source XP band. No cap or multiplier change was
+  made.
+- Constitution root cause: AnkiScape started the skill at level 10 with zero
+  total XP, then applied the standard XP curve. Pinned `Constitution` oldid
+  `6462802` and `Experience` oldid `6545135` establish level 10 at 1,154 total
+  XP and level 11 at 1,358. Schema 111 now starts new saves at level 10 plus
+  1,154 XP and adds the missing 1,154 baseline once to older saves. The owner's
+  `353.883075` earned XP becomes `1,507.883075` total and level 11.
+- Runtime correction: Combat no longer writes the calculated level before the
+  standard level-up gate sees the old level. Positive sub-one XP is rendered
+  with one decimal, so Constitution `0.399` appears as `0.4 XP` instead of
+  `0 XP`.
+- Event-order correction: each pending XP delta is written before the level-up
+  event it causes. The final aggregate popup does not write a duplicate XP row.
+- Source evidence is in
+  `memory-bank/source-audits/constitution-starting-xp-curve-2026-08-03.md`.
+- Verification: 434 targeted pure/runtime/integration tests passed in 80.682
+  seconds. The relevant offscreen Qt strip and popup set passed 32 tests in
+  1.146 seconds. Codex Workflows run
+  `00cab046-6b0b-4af6-a25c-dc8b7ade3fd4` returned `PASS` from the frozen diff
+  packet. Earlier checker runs exhausted declared evidence budgets and returned
+  no verdict; they made no edits and were not counted as acceptance evidence.
+- This was a progression/event-order batch, not a widget geometry batch. Native
+  MacBook Pro review-strip evidence remains mandatory for the P1 UI batches.
+- Fable and Kimi remained unused as directed.

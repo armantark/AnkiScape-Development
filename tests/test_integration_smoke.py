@@ -216,6 +216,60 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(popup_text, [expected])
         self.assertEqual(addon.player_data["review_event_log"][-1]["text"], expected)
 
+    def test_fractional_constitution_xp_is_not_displayed_as_zero(self):
+        addon = _load_addon_as_package("ankiscape_fractional_constitution_xp")
+
+        amount = addon._NamedExperience(
+            1.599,
+            ("Attack", "Constitution"),
+            (("Attack", 1.2), ("Constitution", 0.399)),
+        )
+
+        self.assertEqual(
+            amount.display_text,
+            "Attack +1 XP · Constitution +0.4 XP",
+        )
+
+    def test_xp_event_is_written_before_its_level_up_event(self):
+        addon = _load_addon_as_package("ankiscape_xp_before_level_up")
+        addon.mw = _DummyMW(
+            _DummyCol(
+                {
+                    "ankiscape_floating_xp_enabled": False,
+                    "ankiscape_popups_enabled": False,
+                }
+            )
+        )
+        addon.storage_save_player_data = lambda _data, _skill: None
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.current_skill = "Attack"
+        addon.player_data = {
+            "attack_level": 1,
+            "attack_exp": 82.0,
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "review_event_log": [],
+        }
+        addon._core_level_up_check = lambda skill, data: (
+            data.__setitem__("attack_level", 2),
+            addon._record_review_event(
+                "achievement",
+                f"{skill} advanced to level 2",
+                persist=False,
+            ),
+        )
+
+        addon._begin_review_feedback_context()
+        gained = addon._award_skill_exp("attack_exp", 1.0)
+        addon.level_up_check("Attack", addon.player_data)
+        addon._show_exp(gained)
+        addon._finish_review_feedback_context()
+
+        self.assertEqual(addon.player_data["attack_level"], 2)
+        self.assertEqual(
+            [row["text"] for row in addon.player_data["review_event_log"]],
+            ["+1 XP · Attack", "Attack advanced to level 2"],
+        )
+
     def test_xp_review_keeps_every_activity_event_without_replacing_the_xp_popup(self):
         addon = _load_addon_as_package("ankiscape_event_log_mixed_feedback")
         popup_calls = []

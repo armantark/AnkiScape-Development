@@ -4749,3 +4749,19 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Focused pure-view, carried-overlay runtime, integration, and offscreen Qt
   tests pass. Qt probes show widgets, process events, cover default and
   560-pixel heights, and simulate late tall image growth.
+
+## Pass 7 P0 progression correctness — 2026-08-03
+
+- Proved that the reported 970 Magic XP is one authentic Big Top source band,
+  not a cadence multiplier or display defect, and pinned the exact owner state.
+- Corrected Constitution's level-10 starting state from zero total XP to 1,154.
+  Schema 111 adds the omitted baseline once to existing saves and recalculates
+  upward without discarding earned XP.
+- Restored the standard level-up gate for Combat stats, preserved positive
+  fractional XP in event text, and placed XP events before resulting level-up
+  events without duplicate aggregate rows.
+- Added the period source audit and regressions for new saves, the owner's save,
+  migration idempotence, Combat level checks, fractional display, event order,
+  and the Circus cash-out.
+- Verification passed 434 focused non-Qt tests, 32 offscreen Qt tests, and the
+  independent Codex-only frozen-packet checker.

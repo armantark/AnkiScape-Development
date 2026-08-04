@@ -139,6 +139,34 @@ class CircusLogicTest(unittest.TestCase):
         self.assertEqual(result["outputs"], {})
         self.assertFalse(circus_view_pure(updated)["can_review"])
 
+    def test_owner_magic_cashout_is_one_source_xp_band_not_a_multiplier(self):
+        player, ok, _ = apply_circus_command_pure(
+            _player(magic_level=9),
+            "set_policy",
+            {
+                "performance_id": "magic",
+                "strategy": "max_xp",
+                "automation_mode": "casual",
+            },
+        )
+        self.assertTrue(ok)
+
+        updated, result = apply_circus_review_pure(
+            player,
+            (0.999, 0.0) + (0.999,) * 8,
+        )
+
+        self.assertEqual(result["successes"], 1)
+        self.assertEqual(result["xp"], 970.0)
+        self.assertEqual(result["score"], 70)
+        self.assertEqual(result["outputs"], {"Giant's hand": 1})
+        self.assertEqual(
+            updated["circus"]["last_result"],
+            "Magic spell casting · 1/10 tricks · 970.0 Magic XP · score 70 · "
+            "unlocked Giant's hand · Levitate rat: failed; Levitate bowl: failed; "
+            "Levitate penguin: failed",
+        )
+
     def test_each_level_band_awards_xp_only_once(self):
         player = _player()
         player, ok, _ = apply_circus_command_pure(
