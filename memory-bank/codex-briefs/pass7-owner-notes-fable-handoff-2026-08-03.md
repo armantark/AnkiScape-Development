@@ -367,4 +367,4 @@ Append new entries. Do not edit earlier entries.
   exhausted its evidence budgets, returned no verdict, and made no edits.
 - Fable and Kimi remained unused as directed. The parked owner-facing Fable
   brief remains the only pending Fable artifact.
-- Accepted implementation commit: pending.
+- Accepted implementation commit: `129f9a016b4b0317d44e1f3468ecb051f52b562b`.
