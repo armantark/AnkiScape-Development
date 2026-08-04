@@ -1,5 +1,20 @@
 # Progress
 
+## Crucible rank-threshold re-walk — 2026-08-03
+
+The six promotion thresholds remain source-blocked. Darkan's controller
+initializes `rank` and `points` but contains no award or promotion write, while
+its interface bridge only forwards those values to rev-727 scripts 6284/6288.
+The client scripts render an already-computed tier and point delta; neither
+reads state or compares a threshold. The pinned Crucible article and launch
+update say only that rank rises every few points.
+
+The source audit and placeholder register now capture that complete negative
+caller-chain result. The 1/3/6/10/15/25 ladder remains a disclosed reachability
+value. The focused Crucible and placeholder-register lane passes 37 tests. Full
+discovery passes all 3,803 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips. No gameplay changed and no owner design gap surfaced.
+
 ## Daily Challenge assignment weighting correction — 2026-08-03
 
 Cutoff Challenge System oldid `6579729` states that, with four eligible skills,

@@ -1,5 +1,18 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 16 — Crucible rank-point thresholds
+
+- Evidence: Darkan `CrucibleController.java:28-33`,
+  `Crucible.java:86-122`, history commit `684c25528`, rev-727 scripts 6284/6288,
+  Crucible oldid `6538845`, and launch-update oldid `5778674`.
+- Result: no source exposes the six promotion boundaries. The registered
+  1/3/6/10/15/25 ladder remains, with the complete negative caller chain now
+  recorded. No gameplay changed and no design gap surfaced.
+- Verification: 37 focused tests pass. Full discovery passes 3,803 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: ordinary Crucible rank points per kill.
+
 ## Iteration 15 — Daily Challenge assignment weighting
 
 - Evidence: Challenge System oldid `6579729` states one-in-four for the desired

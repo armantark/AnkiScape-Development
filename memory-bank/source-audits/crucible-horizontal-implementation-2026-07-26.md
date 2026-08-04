@@ -170,6 +170,28 @@ revisions describe, a fee interface 1298 names — and none of them invents a
 mechanic. The one exact point rule, one rank point per successful hit on the
 champion, ships as a real constant rather than a placeholder.
 
+### Rank-threshold depth re-walk — 2026-08-03
+
+`crucible.rank_point_thresholds` remains source-blocked after re-walking the
+full available caller chain:
+
+- Darkan `CrucibleController.java:28-33` initializes `rank` and `points` to
+  zero (or unranked for its reconstruction-only dangerous branch) and contains
+  no later write to either field.
+- Darkan `Crucible.java:86-122` merely forwards those values to client script
+  6284 and the overlay text. Git history first adds that display bridge in
+  `684c25528`; its parent contains no hidden promotion routine.
+- Rev-727 script 6284 maps the already-computed tier to the six rank graphics
+  and Supreme Champion state. Script 6288 renders an already-computed point
+  delta. Neither reads persistent state or compares a threshold.
+- Crucible oldid `6538845` and the launch update oldid `5778674` establish the
+  ladder and point-earning events but state only that rank rises "every few rank
+  points". No complete period table survives in the pinned source trail.
+
+The existing 1/3/6/10/15/25 progression remains a registered reachability
+placeholder, not a period claim. A server promotion routine or independently
+dated complete table would retire it. No owner design gap surfaced.
+
 ## Asset provenance
 
 `tools/fetch_crucible_assets.py` installs `activityicons/crucible.png` from

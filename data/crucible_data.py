@@ -73,8 +73,9 @@ CRUCIBLE_BONES_PER_KILL = 2
 # player between the client's tiers. Rev-727 script 6284 proves the tier list
 # exactly — it maps tiers 0..6 to the displayed "6".."1" and Supreme Champions —
 # but it receives an already-computed tier and reads no varp, so the thresholds
-# are server-side and unrecovered. The article says only that "every few rank
-# points" raised a rank.
+# are server-side and unrecovered. Darkan's controller stores `rank` and `points`
+# but never changes either; its UI bridge only forwards them to scripts 6284 and
+# 6288. The article says only that "every few rank points" raised a rank.
 CRUCIBLE_RANKS = (
     (0, "Rank 6", 1),
     (1, "Rank 5", 3),

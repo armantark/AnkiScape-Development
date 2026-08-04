@@ -48,6 +48,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the Daily Challenges eligible-pool assignment weights through
      Darkan, dated configs/interfaces, and the pinned period history. Preserve
      the uniform registered placeholder unless a server-side selector survives.
-   - [ ] Re-walk the Crucible rank-point thresholds through Darkan, period
+   - [x] Re-walk the Crucible rank-point thresholds through Darkan, period
      guides, and rev-727 script 6284's caller chain. Keep the server-side
      threshold placeholder if no source exposes the six promotion boundaries.
+   - [ ] Re-walk ordinary Crucible rank points per kill through Darkan, the
+     launch update, and rev-727 script 6288's caller chain. Preserve the one-
+     point placeholder unless a server award routine or exact statement survives.

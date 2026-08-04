@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 16 keeps Crucible rank thresholds honestly
+source-blocked.** Darkan initializes `rank` and `points` but never changes them;
+its interface bridge only forwards already-computed values to rev-727 scripts
+6284/6288. The client scripts render the tier and point delta without reading
+state or comparing thresholds. The pinned article and launch update say only
+that promotion happens every few points. The registered 1/3/6/10/15/25 ladder
+therefore remains a reachability placeholder, not a period claim. No owner
+design gap surfaced. The next slice re-walks ordinary rank points per kill.
+Full discovery passes 3,803 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 15 fixes Daily Challenge skill-selection
 bias.** Cutoff oldid `6579729` explicitly gives a 1-in-4 chance of the desired
 skill when four skills remain. The old flat draw over challenge rows violated
