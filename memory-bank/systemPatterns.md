@@ -889,6 +889,18 @@ Related: `shop_logic.shop_view_models_pure` exists because
 `ensure_shop_state_pure` deep-copies the entire save, and the browse list needs
 a view model per shop — one snapshot for the batch instead of ~270 copies.
 
+## Activities master-route and simulated-clock placement
+
+The top-level Activities entry is a navigation route, not a resume command. It
+must render the Activities master tree even when a saved or last-open activity
+exists. Explicit activity deep links and activated tree rows may open a named
+detail, and returning to the master tree must not erase the saved activity.
+
+Activities group rows stay under the Activities root, with child entries sorted
+case-insensitively by their display labels. The simulated world clock belongs in
+the main-menu status row only. It projects from answered-review state at ten
+reviews per hour and must not read or resemble a fallback to wall-clock time.
+
 ## UI Gotcha: nested hook callbacks are not removable by a fresh closure
 
 `injectors.register_deck_browser_button()` may run more than once during profile/setup flows. Its callbacks are nested functions, so recreating them and calling `hook.remove(new_callback)` does not remove the prior function object. Register these callbacks through the stable AnkiScape hook-key replacement helper; otherwise one browser message is dispatched once per surviving registration before the menu-open guard can observe the first scheduled dialog.

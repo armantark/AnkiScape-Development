@@ -2052,14 +2052,6 @@ if HAS_QT:
             leading = QVBoxLayout()
             leading.setContentsMargins(0, 0, 0, 0)
             leading.setSpacing(4)
-            self.clock_lbl = QLabel("12:00 PM")
-            self.clock_lbl.setObjectName("reviewSimulatedClock")
-            self.clock_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.clock_lbl.setToolTip(SIMULATED_CLOCK_TOOLTIP)
-            self.clock_lbl.setStyleSheet(
-                "color: rgba(255,255,255,0.58); font-size: 9px;"
-            )
-            leading.addWidget(self.clock_lbl)
             self.icon_lbl = QLabel()
             self.icon_lbl.setFixedSize(28, 28)
             leading.addWidget(
@@ -2274,7 +2266,6 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
-            self.clock_lbl.setText(simulated_clock_text_pure(player_data))
             combat_status = combat_status_summary_pure(player_data)
             has_hatchet = (
                 best_woodcutting_axe_pure(
@@ -4390,6 +4381,12 @@ def show_main_menu(
     status_layout.setSpacing(8)
     active_label = QLabel("")
     active_label.setStyleSheet("font-weight: 600; color: palette(text);")
+    world_time_label = QLabel("")
+    world_time_label.setObjectName("mainMenuSimulatedClock")
+    world_time_label.setToolTip(SIMULATED_CLOCK_TOOLTIP)
+    world_time_label.setStyleSheet(
+        f"color: {dim_text_css(world_time_label)}; font-size: 11px;"
+    )
     stop_btn = QPushButton("Stop training")
     stop_btn.setToolTip("Stop training (no skill earns progress during reviews)")
     stop_btn.setStyleSheet(
@@ -4403,6 +4400,7 @@ def show_main_menu(
     )
     status_layout.addWidget(active_label)
     status_layout.addStretch(1)
+    status_layout.addWidget(world_time_label)
     status_layout.addWidget(stop_btn)
     s_layout.addWidget(status_row)
     warn = QLabel("")
@@ -4666,6 +4664,9 @@ def show_main_menu(
 
     def _refresh_active_label() -> None:
         active = state["active"]
+        world_time_label.setText(
+            f"World time: {simulated_clock_text_pure(player_data)}"
+        )
         if active and active != "None":
             active_label.setText(f"Training: {active}")
             stop_btn.setEnabled(True)
@@ -18906,6 +18907,11 @@ def show_main_menu(
             group_rows = groups.get(group, [])
             if not group_rows or (is_activities and group == "landmarks"):
                 continue
+            if is_activities:
+                group_rows = sorted(
+                    group_rows,
+                    key=lambda row: str(row.label).casefold(),
+                )
             label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
             parent_text = f"{label}  ({len(group_rows)})"
             parent = QTreeWidgetItem([parent_text])
@@ -21518,7 +21524,7 @@ def show_main_menu(
         _debug_log(f"hub.skill_row: name={name!r} guard={guard} state_skill={state['skill']!r}")
         if guard or current is None:
             return
-        if name and name != state["skill"]:
+        if name == _ACTIVITIES_HUB_NAME or (name and name != state["skill"]):
             _select_hub_skill(name)
 
     skill_list_widget.currentItemChanged.connect(_on_skill_row)
@@ -21810,6 +21816,10 @@ def show_main_menu(
             state["details_open"] = False
         state["skill"] = name
         _render_panel()
+        if name == _ACTIVITIES_HUB_NAME:
+            show_activity = _MAIN_MENU_CTX.get("show_activity")
+            if callable(show_activity):
+                show_activity("")
 
     def _select_category(category_id: str) -> None:
         _debug_log(f"hub.select_category: {category_id!r}")
@@ -21833,6 +21843,10 @@ def show_main_menu(
         state["skill"] = first
         _render_skill_list()
         _render_panel()
+        if category_id == "activities":
+            show_activity = _MAIN_MENU_CTX.get("show_activity")
+            if callable(show_activity):
+                show_activity("")
 
     def _initial_category() -> str:
         preferred = initial_skill or state["active"]

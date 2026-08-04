@@ -524,7 +524,7 @@ class ReviewStripTest(unittest.TestCase):
         self.assertFalse(hud.second_progress.isVisible())
         self.assertFalse(hud.progress.isTextVisible())
 
-    def test_combat_hud_renders_red_resources_and_the_simulated_clock(self) -> None:
+    def test_combat_hud_renders_red_resources_without_world_time(self) -> None:
         state = self._state()
         state.update(
             {
@@ -541,7 +541,6 @@ class ReviewStripTest(unittest.TestCase):
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         hud.set_data(state, "Combat")
-        self.assertEqual(hud.clock_lbl.text(), "12:00 PM")
         state["shop_market_clock"] = {"answered_cards": 10, "market_tick": 10}
         hud.set_data(state, "Combat")
         self.parent.resize(1000, 560)
@@ -560,12 +559,7 @@ class ReviewStripTest(unittest.TestCase):
             self.assertIsNotNone(icon.pixmap())
             self.assertFalse(icon.pixmap().isNull())
 
-        self.assertEqual(hud.clock_lbl.text(), "1:00 PM")
-        self.assertEqual(hud.clock_lbl.toolTip(), "10 cards = 1 hour")
-        clock_pos = hud.clock_lbl.mapTo(hud, QPoint(0, 0))
-        progress_pos = hud.progress.mapTo(hud, QPoint(0, 0))
-        self.assertLess(clock_pos.x() + hud.clock_lbl.width(), progress_pos.x())
-        self.assertLess(clock_pos.y(), progress_pos.y())
+        self.assertIsNone(hud.findChild(QLabel, "reviewSimulatedClock"))
         self.assertLessEqual(hud.height(), 128)
         self.assertTrue(
             hud.chips_lbl.text().startswith("Kills: 0 · "),

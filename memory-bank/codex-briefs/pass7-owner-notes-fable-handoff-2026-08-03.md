@@ -325,3 +325,46 @@ Append new entries. Do not edit earlier entries.
 - Fable and Kimi remained unused as directed. The parked owner-facing Fable
   brief remains the only pending Fable artifact.
 - Accepted implementation commit: `222f815210c12e7a966db28747d853f53e268ea4`.
+
+### 2026-08-03 — P2 Activities routing and world-time batch verified
+
+- Batch baseline: canonical `main` at
+  `65af3bbdf15a14bbb7b8716b97d3ab4114d27dec`; the checkout contained only this
+  batch's attributable files and the worktree guard passed before and after the
+  native check.
+- Reproduction: five focused tests first failed because the reviewer still
+  showed the simulated clock, the main menu did not show it, Minigames was not
+  alphabetical, opening Activities restored a saved detail, and clicking the
+  top-level Activities entry from a deep-linked detail did not return to the
+  master list.
+- Routing fix: a top-level Activities selection now always renders the master
+  tree. Explicit deep links and activated activity rows still open the named
+  detail. Saved activity state is not cleared by returning to the master list.
+- List fix: Minigames and Distractions and Diversions remain group headers under
+  Activities, and each group's children now render in case-insensitive
+  alphabetical order.
+- Clock fix: simulated world time moved from the review strip to the main-menu
+  status row. It continues to use only the answered-review projection of one
+  hour per ten reviews and never reads the computer wall clock.
+- Automated verification: the complete focused offscreen UI run passed 411
+  tests in 177.711 seconds. The focused pure, integration, and end-to-end run
+  passed 214 tests in 130.024 seconds. `git diff --check` passed.
+- Native verification used the owner's MBP Codex connection and the disposable
+  Anki base at `/tmp/ankiscape-probe2/anki-base`. At the owner's 712-by-987
+  reviewer size, the strip had no world clock, the vanilla answer bar was
+  unchanged, and card content did not overlap. The main menu showed
+  `World time: 12:00 PM` for zero answered reviews while the wall clock was
+  about 7:07 PM. Clan Wars detail returned to the Activities master tree on a
+  top-level Activities click, and a later Shooting Stars row click still
+  opened the detail. Full native traversal proved 29 alphabetical Minigames
+  and 17 alphabetical Distractions and Diversions entries.
+- Native evidence is on the MBP under
+  `/tmp/ankiscape-pass7-p2-codex-connection/`, including `report.md` and 12
+  numbered screenshots.
+- Codex Workflows run `3452c9ca-5e43-4bd0-a19e-c65969a19dba` returned `PASS`
+  for all four frozen acceptance requirements and proposed no simplification.
+  Earlier read-only investigation run `14dce081-994f-4b6d-ad76-c702cb77a998`
+  exhausted its evidence budgets, returned no verdict, and made no edits.
+- Fable and Kimi remained unused as directed. The parked owner-facing Fable
+  brief remains the only pending Fable artifact.
+- Accepted implementation commit: pending.

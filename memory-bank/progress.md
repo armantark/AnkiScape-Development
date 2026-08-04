@@ -4779,3 +4779,15 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   durable event history or diary task popups.
 - Verification passed 31 focused offscreen Qt tests, 238 focused non-Qt tests,
   a native MBP Anki pass, and an independent frozen-packet checker.
+
+## Pass 7 P2 menu routing and world-time correctness — 2026-08-03
+
+- Made the top-level Activities entry a stable master-list route without
+  removing direct-link or selected-row detail navigation.
+- Kept Minigames and Distractions and Diversions under Activities and sorted
+  each group's entries alphabetically.
+- Moved simulated world time from the review XP strip to the main-menu status
+  row and retained its answered-review-only projection.
+- Verification passed 411 focused offscreen UI tests, 214 focused non-Qt tests,
+  a native MBP Anki pass, and independent checker run
+  `3452c9ca-5e43-4bd0-a19e-c65969a19dba`.

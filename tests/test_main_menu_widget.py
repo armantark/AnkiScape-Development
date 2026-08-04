@@ -10180,6 +10180,36 @@ class MainMenuWidgetTest(unittest.TestCase):
     def _open_activities(self, dialog: "QDialog") -> "QTreeWidget":
         return self._open_no_xp_surface(dialog, "Activities")
 
+    def _open_activity_detail(
+        self, dialog: "QDialog", activity_id: str
+    ) -> "QTreeWidget":
+        tree = self._open_activities(dialog)
+        row = _utility_row(tree, activity_id)
+        tree.setCurrentItem(row)
+        tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+        return tree
+
+    def test_main_menu_owns_the_simulated_world_time(self) -> None:
+        pd = _make_player_data()
+        pd["shop_market_clock"] = {"answered_cards": 10, "market_tick": 10}
+        dialog = self._open(pd)
+
+        clock = _find_named_label(dialog, "mainMenuSimulatedClock")
+        self.assertEqual(clock.text(), "World time: 1:00 PM")
+        self.assertEqual(clock.toolTip(), "10 cards = 1 hour")
+
+    def test_activity_and_dnd_entries_are_alphabetical(self) -> None:
+        tree = self._open_activities(self.dialog)
+
+        for group_id in ("minigames", "distractions_and_diversions"):
+            group = _utility_row(tree, f"__utility_group__:{group_id}")
+            labels = [
+                group.child(index).text(0)
+                for index in range(group.childCount())
+            ]
+            self.assertEqual(labels, sorted(labels, key=str.casefold), group_id)
+
     def test_soft_clay_left_crafting_and_is_now_a_utility_activity(self) -> None:
         # Open Crafting target tree and assert Soft clay is no longer a target.
         tree = _goto_crafting(self.dialog)
@@ -10906,7 +10936,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, **info}
 
         dialog = self._open(pd, on_favourite_dnd=_favourite)
-        self._open_activities(dialog)
+        self._open_activity_detail(dialog, SHOOTING_STAR_ACTIVITY_ID)
         dialog.resize(1000, 560)
         dialog.show()
         for _ in range(8):
@@ -10945,7 +10975,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_utility"] = CASTLE_WARS_ACTIVITY_ID
         dialog = self._open(pd, on_favourite_dnd=lambda _id: {"ok": True})
-        self._open_activities(dialog)
+        self._open_activity_detail(dialog, CASTLE_WARS_ACTIVITY_ID)
         dialog.resize(1000, 560)
         dialog.show()
         for _ in range(8):
@@ -10973,7 +11003,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         pd, _ = advance_big_chinchompa_world_clock_pure(pd)
         dialog = self._open(pd)
-        self._open_activities(dialog)
+        self._open_activity_detail(dialog, "big_chinchompa")
         dialog.resize(1000, 560)
         dialog.show()
         for _ in range(8):
@@ -13944,6 +13974,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         star_panel = _find_named_widget(dialog, "shootingStarPanel")
         big_panel = _find_named_widget(dialog, "bigChinchompaPanel")
         evil_panel = _find_named_widget(dialog, "evilTreePanel")
+        details_stack = _find_named_widget(dialog, "utilityActivityDetailsStack")
+        self.assertTrue(details_stack.isHidden())
+        self.assertTrue(activity_tree.isVisible())
+
+        star_row = _utility_row(activity_tree, "shooting_stars")
+        activity_tree.setCurrentItem(star_row)
+        activity_tree.itemActivated.emit(star_row, 0)
+        QApplication.processEvents()
         self.assertTrue(star_panel.isVisible())
         self.assertFalse(big_panel.isVisible())
         self.assertFalse(evil_panel.isVisible())
@@ -14137,6 +14175,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         # The open card already shows this event in full, so the strip drops it.
         self.assertTrue(strip.isHidden())
 
+        activities_button = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Activities"
+        )
+        activities_button.click()
+        QApplication.processEvents()
+        self.assertTrue(stack.isHidden())
+        self.assertTrue(
+            any(
+                not tree.isHidden()
+                for tree in dialog.findChildren(QTreeWidget)
+                if tree.objectName() == "utilityActivityTree"
+            )
+        )
+
         # No id means "show me the list", where the strip is at the top. The
         # panel is rebuilt, so every live detail stack must be hidden.
         navigate(None)
@@ -14178,7 +14232,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         dialog = self._open(pd)
-        utility_tree = self._open_activities(dialog)
+        utility_tree = self._open_activity_detail(
+            dialog, "warriors_guild_animated_armour"
+        )
         dialog.show()
         QApplication.processEvents()
 
@@ -14254,7 +14310,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ],
         }
         dialog = self._open(pd)
-        utility_tree = self._open_activities(dialog)
+        utility_tree = self._open_activity_detail(dialog, "livid_farm")
         dialog.show()
         QApplication.processEvents()
 
@@ -14302,7 +14358,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "unlocked_spells": ["borrowed_power"],
         }
         dialog = self._open(pd)
-        self._open_activities(dialog)
+        self._open_activity_detail(dialog, "livid_farm")
         dialog.show()
         QApplication.processEvents()
 
@@ -14388,7 +14444,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "unlocked_spells": ["borrowed_power"],
         }
         dialog = self._open(pd)
-        self._open_activities(dialog)
+        self._open_activity_detail(dialog, "livid_farm")
         dialog.show()
         QApplication.processEvents()
 

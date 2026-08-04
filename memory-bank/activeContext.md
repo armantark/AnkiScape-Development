@@ -3846,3 +3846,16 @@ flees silently when the player runs out of food.
 - Verification passed 31 focused offscreen Qt tests, 238 focused pure,
   integration, music, and end-to-end tests, the MBP native-Anki pass, and
   Codex-only checker run `ccc097ff-3f60-4b1d-a8da-1af0ce21580f`.
+
+## Pass 7 P2 menu routing and world time — 2026-08-03
+
+- Top-level Activities is now a stable master route. It always shows the full
+  Activities tree without clearing the saved activity, while explicit deep
+  links and activated tree rows still open named details.
+- Minigames and Distractions and Diversions remain grouped under Activities;
+  their child rows now render in case-insensitive alphabetical order.
+- Simulated world time now appears in the main-menu status row, not the review
+  strip. It remains derived only from answered reviews at ten reviews per hour.
+- Verification passed 411 focused offscreen UI tests, 214 focused pure,
+  integration, and end-to-end tests, the MBP native-Anki pass, and Codex-only
+  checker run `3452c9ca-5e43-4bd0-a19e-c65969a19dba`.
