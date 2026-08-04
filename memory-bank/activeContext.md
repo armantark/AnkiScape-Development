@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 15 fixes Daily Challenge skill-selection
+bias.** Cutoff oldid `6579729` explicitly gives a 1-in-4 chance of the desired
+skill when four skills remain. The old flat draw over challenge rows violated
+that rule by giving skills with more breadth rows proportionally more weight.
+The live selector now divides one RNG roll into equal eligible-skill intervals,
+then selects within the chosen skill. Only the unrecovered within-skill task
+weights remain registered as a placeholder. Darkan has no Challenge System;
+rev-741/742 and the cutoff talk pages expose eligibility and presentation but no
+second-stage selector. No owner design gap surfaced. The next slice re-walks
+Crucible rank-point thresholds. Full discovery passes 3,803 tests in both
+lanes, with 460 expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 14 keeps the Tears of Guthix green-tear
 chance honestly source-blocked.** Darkan implements click colour and the
 one-update-per-tick guard but deliberately omits rotation; its frozen contract

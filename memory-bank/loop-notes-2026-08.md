@@ -1,5 +1,20 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 15 — Daily Challenge assignment weighting
+
+- Evidence: Challenge System oldid `6579729` states one-in-four for the desired
+  skill when four skills remain. Cutoff talk oldids `6555739` and `6539307`,
+  Darkan, and rev-741/742 expose no within-skill selector.
+- Result: replace the biased flat row draw with equal skill intervals followed
+  by a within-skill draw, while consuming one RNG value. Rename the placeholder
+  so only the genuinely unknown within-skill task weights remain registered.
+- Regression: every eligible skill owns one equal interval even though Mining
+  and Cooking have more breadth rows. No design gap surfaced.
+- Verification: 47 focused unit/integration tests pass. Full discovery passes
+  3,803 tests in both lanes, with 460 expected plain skips and 3 Qt skips.
+  Documentation, test-quality, diff-hygiene, and worktree audits pass.
+- Next: Crucible rank-point thresholds.
+
 ## Iteration 14 — Tears of Guthix green-tear probability
 
 - Evidence: Darkan `TearsOfGuthix.kt:477-510` and its frozen target contract;

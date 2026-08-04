@@ -45,6 +45,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the Tears of Guthix green-tear chance through authentic server
      records, period captures, and the pinned source chain. Keep the derived
      rate registered if no source exposes the stream switch and catch roll.
-   - [ ] Re-walk the Daily Challenges eligible-pool assignment weights through
+   - [x] Re-walk the Daily Challenges eligible-pool assignment weights through
      Darkan, dated configs/interfaces, and the pinned period history. Preserve
      the uniform registered placeholder unless a server-side selector survives.
+   - [ ] Re-walk the Crucible rank-point thresholds through Darkan, period
+     guides, and rev-727 script 6284's caller chain. Keep the server-side
+     threshold placeholder if no source exposes the six promotion boundaries.

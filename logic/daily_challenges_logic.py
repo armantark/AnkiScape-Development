@@ -200,12 +200,26 @@ def advance_daily_challenges_day_pure(
         pool = eligible_daily_challenge_ids_pure(data)
         if not pool:
             continue
-        # The period draws from the pool the player qualifies for; the relative
-        # weights inside that pool are server behaviour no recovered source
-        # states, so the draw is uniform.
-        # PLACEHOLDER(daily_challenges.assignment_weights): Darkan's challenge
-        # assignment code would replace this with the period weighting.
-        challenge_id = pool[min(int(draw() * len(pool)), len(pool) - 1)]
+        # Cutoff oldid 6579729 states a one-in-four chance of the desired skill
+        # when four skills remain, so task-rich skills must not gain extra
+        # assignment weight. The selector uses one roll split into equal skill
+        # intervals and then equal task intervals inside the chosen skill.
+        skills = tuple(
+            dict.fromkeys(str(DAILY_CHALLENGE_DATA[row]["skill"]) for row in pool)
+        )
+        roll = draw()
+        skill_index = min(int(roll * len(skills)), len(skills) - 1)
+        skill_pool = tuple(
+            row
+            for row in pool
+            if str(DAILY_CHALLENGE_DATA[row]["skill"]) == skills[skill_index]
+        )
+        within_skill_roll = roll * len(skills) - skill_index
+        # PLACEHOLDER(daily_challenges.within_skill_assignment_weights): the
+        # period server selector would replace the uniform task distribution.
+        challenge_id = skill_pool[
+            min(int(within_skill_roll * len(skill_pool)), len(skill_pool) - 1)
+        ]
         instance = {
             "instance_id": f"{challenge_id}-{day}",
             "challenge_id": challenge_id,

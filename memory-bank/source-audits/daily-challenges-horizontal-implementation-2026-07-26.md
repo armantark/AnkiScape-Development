@@ -67,9 +67,32 @@ AnkiScape record invented that action and it is not implemented.
 ## Placeholders
 
 Two, both registered in `memory-bank/placeholder-values.md`:
-`daily_challenges.reward_xp` and `daily_challenges.assignment_weights`. Neither
-invents content: the period had reward XP and had a selection rule; only the
+`daily_challenges.reward_xp` and
+`daily_challenges.within_skill_assignment_weights`. Neither invents content:
+the period had reward XP and had a within-skill selection rule; only the
 numbers are unrecovered.
+
+### Assignment-weight depth re-walk — 2026-08-03
+
+The broad assignment placeholder was too pessimistic and caused a real bias.
+Cutoff oldid `6579729`, lines 27-37 of its wikitext, tells players with four
+unblocked skills that the desired skill has a **1 in 4** chance. That establishes
+equal selection weight by eligible skill. It rules out AnkiScape's old flat draw
+over challenge rows, where Mining's three breadth rows made Mining three times
+as likely as a skill represented by one row.
+
+Darkan has no Challenge System implementation. Rev-741/742 structs identify
+individual challenge rows and their eligibility metadata, but neither they nor
+interface 1343 expose the server selector. Cutoff talk oldid `6555739` asks
+whether the same skill can be assigned twice but supplies no distribution;
+challenge-list talk oldid `6539307` discusses level eligibility only.
+
+The live selector now gives every eligible skill one equal interval of the
+existing random draw, then chooses inside that skill. Uniform weighting among
+that skill's eligible challenge rows remains registered as
+`daily_challenges.within_skill_assignment_weights`, because no source settles
+that second-stage distribution. The implementation still consumes exactly one
+RNG value per assigned day. No design gap surfaced.
 
 ### Reward-XP depth re-walk — 2026-08-03
 

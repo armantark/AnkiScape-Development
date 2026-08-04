@@ -1,5 +1,22 @@
 # Progress
 
+## Daily Challenge assignment weighting correction — 2026-08-03
+
+Cutoff Challenge System oldid `6579729` states that, with four eligible skills,
+the desired skill has a 1-in-4 assignment chance. The old flat draw across
+challenge rows contradicted that evidence: Mining's three breadth rows made it
+three times as likely as a one-row skill.
+
+The assignment path now gives every eligible skill an equal interval of its
+single RNG draw, then selects a challenge inside that skill. Uniform weighting
+inside the chosen skill remains honestly registered as
+`daily_challenges.within_skill_assignment_weights`; Darkan has no Challenge
+System, and rev-741/742 plus the cutoff talk histories expose no task selector.
+A regression drives every skill interval and proves row-rich skills receive no
+extra top-level weight. The focused unit/integration lane passes 47 tests. Full
+discovery passes all 3,803 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips. No owner design gap surfaced.
+
 ## Tears of Guthix green-tear probability re-walk — 2026-08-03
 
 The registered `0.055` chance remains source-blocked. Darkan's restored
