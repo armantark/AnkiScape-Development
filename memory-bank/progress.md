@@ -1,5 +1,24 @@
 # Progress
 
+## Crucible Trophy-bone depth re-walk — 2026-08-03
+
+The ordinary-kill amount remains source-blocked. The launch update, complete
+pre-cutoff Crucible history, and complete 29-revision Trophy-bones history prove
+the currency route but never state the kill quantity. Rev-727/741/742 item
+definitions prove item 24444 is stackable and non-exchangeable; recovered
+scripts and interfaces expose no server award. Darkan's one-item metadata
+container is a later loot-key reconstruction and contradicts those period item
+definitions.
+
+The adjacent tutorial award is exact: cutoff Crucible oldid `6538845` and
+Trophy bones oldid `5971782` state a four-total cap and one bone from each
+tutorial. Its stale placeholder marker and register row are removed. The
+two-bone ordinary-kill reachability value remains disclosed. The focused
+Crucible and placeholder-register lane passes 37 tests. Full discovery passes
+all 3,803 tests in both lanes, with 460 expected plain skips and 3 Qt skips.
+Documentation, test-quality, diff-hygiene, and worktree audits pass. No owner
+design gap surfaced.
+
 ## Crucible ordinary-kill point re-walk — 2026-08-03
 
 The ordinary-kill award remains source-blocked. Launch-update oldid `5778674`

@@ -159,10 +159,10 @@ which taking them increased Trophy bone income is stated nowhere.
 
 ## Placeholders registered
 
-Six, all in `memory-bank/placeholder-values.md`:
+Five, all in `memory-bank/placeholder-values.md`:
 `crucible.rank_point_thresholds`, `crucible.points_per_kill`,
-`crucible.bones_per_kill`, `crucible.lesson_bone_award`,
-`crucible.risk_expectation_per_level`, `crucible.abandonment_fee`.
+`crucible.bones_per_kill`, `crucible.risk_expectation_per_level`,
+`crucible.abandonment_fee`.
 
 Every one of them is a value the period demonstrably had — a threshold the
 client's own tier list needs, a delta script 6288 renders, a currency both
@@ -215,6 +215,37 @@ The existing one-point ordinary-kill award remains a disclosed reachability
 placeholder. It is not inferred from the separate champion-hit rule. A period
 server award routine or an exact ordinary-kill statement would retire it. No
 owner design gap surfaced.
+
+### Trophy-bone depth re-walk — 2026-08-03
+
+`crucible.bones_per_kill` remains source-blocked, but the adjacent tutorial
+award is exact and no longer belongs in the placeholder register:
+
+- Launch-update oldid `5778674`, dated `2012-06-19T12:15:18Z`, says vanquished
+  players drop Trophy bones and that taking Supreme Champion weapons increases
+  their rate. It gives neither the ordinary award nor the boosted one.
+- Crucible oldid `6538845`, dated `2012-11-06T11:34:47Z`, says Trophy bones are
+  obtained from defeating enemies. Its complete pre-cutoff history adds no
+  quantity. The cutoff article does explicitly say tutorials award up to four,
+  one from each tutorial.
+- Trophy bones oldid `5971782`, dated `2012-07-22T02:00:10Z`, and its complete
+  29-revision pre-cutoff history state the reward uses and tutorial cap but no
+  ordinary-kill amount. Its item infobox identifies the bone as stackable and
+  non-tradeable.
+- Rev-727, rev-741, and rev-742 item definitions agree that item 24444 is
+  `stackable=true` and `exchangeable=false`. Rev-727 scripts contain no push of
+  item 24444 and no Trophy-bone text; interface 1297:125 labels the cost column
+  but computes no award.
+- Darkan history commit `684c25528` packages a defeated player's non-food loot
+  inside exactly one metadata-bearing item 24444. That 2023 loot-key
+  reconstruction treats the item as non-stackable, contrary to all three
+  period client definitions. It is useful death-custody evidence, not evidence
+  for the authentic currency amount.
+
+The two-bone ordinary-kill value remains a disclosed reachability placeholder.
+`CRUCIBLE_LESSON_BONE_AWARD = 1` is now recorded as exact because the cutoff
+article states the four-total cap and one from each tutorial. No owner design
+gap surfaced.
 
 ## Asset provenance
 

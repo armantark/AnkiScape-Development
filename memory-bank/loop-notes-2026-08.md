@@ -1,5 +1,21 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 18 — Crucible Trophy-bone awards
+
+- Evidence: launch-update oldid `5778674`; the complete Crucible history through
+  cutoff oldid `6538845`; Trophy bones oldid `5971782` and its complete
+  29-revision pre-cutoff history; rev-727/741/742 item 24444; rev-727 scripts
+  and interface 1297:125; Darkan history commit `684c25528`.
+- Result: ordinary kills demonstrably award Trophy bones, but no source exposes
+  the amount, so the two-bone reachability value remains registered. The four
+  tutorial awards are exactly one each, so that stale placeholder is retired.
+  Darkan's non-stackable metadata container is recorded as a later loot-key
+  reconstruction, not period amount evidence. No design gap surfaced.
+- Verification: 37 focused tests pass. Full discovery passes 3,803 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: Crucible risk-expectation amount per combat level.
+
 ## Iteration 17 — Crucible ordinary-kill rank points
 
 - Evidence: launch-update oldid `5778674`, the complete pre-cutoff Crucible

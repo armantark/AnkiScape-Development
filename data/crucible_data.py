@@ -49,24 +49,23 @@ CRUCIBLE_MINIMUM_COMBAT_LEVEL = 60
 # disabled here, so unlike the Clan Wars red portal nothing is saved.
 CRUCIBLE_PROTECT_ITEM_ALLOWED = False
 
-# Four lessons, each awarding one set of Trophy bones, are the only bone route
-# that does not require defeating a target. They are also what a player under
-# the combat gate can reach.
+# Four lessons, each awarding one Trophy bone, are the only bone route that does
+# not require defeating a target. Crucible oldid 6538845 and Trophy bones oldid
+# 5971782 both state the four-total cap and one bone from each tutorial. They are
+# also what a player under the combat gate can reach.
 CRUCIBLE_LESSONS = (
     "Fighting in the Crucible",
     "Crucible Looting",
     "Crucible Key",
     "Crucible Rewards",
 )
-# PLACEHOLDER(crucible.lesson_bone_award): the size of the "one set of Trophy
-# bones" each lesson pays. Both revisions state the four-lesson cap without ever
-# stating the set size, and no recovered enum holds it.
 CRUCIBLE_LESSON_BONE_AWARD = 1
 
 # PLACEHOLDER(crucible.bones_per_kill): Trophy bones for defeating an ordinary
-# target. The launch update says vanquished players dropped Trophy bones and the
-# item page calls them the Crucible's reward currency, but no pre-cutoff
-# revision and no recovered cache enum states the quantity.
+# target. The launch update says vanquished players dropped Trophy bones; the
+# complete pre-cutoff Crucible and item-page histories never state the amount.
+# Rev-727/741/742 item definitions prove only that item 24444 is stackable, and
+# no recovered client script or interface calculates the server-side award.
 CRUCIBLE_BONES_PER_KILL = 2
 
 # PLACEHOLDER(crucible.rank_point_thresholds): the point totals that promote a

@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 18 retires the Crucible tutorial-bone
+placeholder while keeping the ordinary-kill amount source-blocked.** Cutoff
+Crucible oldid `6538845` and Trophy bones oldid `5971782` explicitly give four
+tutorial bones total, one from each. The complete article and item histories do
+not state the kill award. Rev-727/741/742 prove item 24444 is stackable but
+contain no award calculation. Darkan's single non-stackable metadata container
+is a 2023 loot-key reconstruction that contradicts those item definitions, not
+period quantity evidence. The next slice re-walks the risk-expectation amount
+per combat level. Full discovery passes 3,803 tests in both lanes, with 460
+expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 17 keeps ordinary Crucible kill points
 honestly source-blocked.** Launch-update oldid `5778674` says each target slain
 awards points but gives no amount. The complete pre-cutoff Crucible article and
