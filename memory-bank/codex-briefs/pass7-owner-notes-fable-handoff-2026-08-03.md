@@ -215,3 +215,21 @@ Append new entries. Do not edit earlier entries.
 - Fable review: pending.
 - Implementation: pending.
 - Blockers: none known.
+
+### 2026-08-03 — owner task intake and external-review blocker
+
+- Intake baseline: canonical `main` at `f23c00deb8ff93b5a977036026c772da2e539328`;
+  checkout clean; worktree guard passed.
+- P0 root-side reproduction began from the real Circus and Combat reducers. The
+  period Circus table and its regression test both identify `970.0` as the base XP
+  for the first Magic trick, so the reported number is not by itself evidence of a
+  multiplier defect. Constitution already has runtime coverage proving ordinary
+  Combat mutates `constitution_exp`; the remaining owner report still requires a
+  persisted-state, curve, level, bar, event-order, and undo trace before verdict.
+- Codex Workflows launch was rejected by the external approval gate because the
+  bounded worker manifests would send repository and Memory Bank content to model
+  services. No worker ran and no repository content was sent by that launch.
+- Blocker: explicit owner approval for that external-model data flow is required
+  before the mandatory independent checker and the single bounded Fable review can
+  run. Root-side read-only investigation can continue, but no Pass 7 repair can
+  satisfy the section 6 acceptance gate while this blocker remains.
