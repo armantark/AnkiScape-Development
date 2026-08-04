@@ -233,3 +233,16 @@ Append new entries. Do not edit earlier entries.
   before the mandatory independent checker and the single bounded Fable review can
   run. Root-side read-only investigation can continue, but no Pass 7 repair can
   satisfy the section 6 acceptance gate while this blocker remains.
+
+### 2026-08-03 — external approval granted; Fable review parked for quota
+
+- The owner approved the Codex Workflows external-model data flow.
+- The first two Codex-only P0 investigation leaves ran but exceeded their bounded
+  tool-output budgets. No worker edited the repository. Their partial evidence must
+  be inspected before a narrower checker run.
+- The owner explicitly prohibited Fable and Kimi use until their quotas recover.
+  The required Fable product review is therefore parked, not waived.
+- The owner-facing co-ideation brief is
+  `memory-bank/codex-briefs/pass7-owner-fable-co-ideation-handoff-2026-08-03.md`.
+  It asks only about the unresolved Big Top execution queue and Equipment meter
+  presentation. It does not reopen settled Pass 7 requirements.
