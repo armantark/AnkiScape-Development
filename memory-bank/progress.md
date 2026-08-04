@@ -1,5 +1,163 @@
 # Progress
 
+## Crucible bounty-fee scale correction — 2026-08-03
+
+The surviving period evidence proves the prior live curve was too small by
+roughly one order of magnitude. Launch-day talk oldid `5778707` reports a
+combat-60 range of 50,000 coins with rune-or-better gear to 500,000 with
+nothing risked. The immutable 24 June fee-interface image records total
+535,362, split into 486,693 risk expectation and 48,669 abandonment, while
+cutoff Crucible oldid `6538845` reports roughly 518,000 for a maxed unarmed
+player after the launch hotfix. Rev-727 interface 1298 confirms the three-part
+shape but exposes no calculation, and Darkan has no fee implementation.
+
+The disclosed reachability curve now uses a 450,000 risk baseline at combat 60,
+adds 400 per level above 60, and uses a 50,000 abandonment component. It yields
+the sourced 500,000 launch-day boundary and 531,200 at max combat, inside the
+later 518,000–535,362 observations. Both values remain registered placeholders
+because this is not the recovered server formula. A regression fixes the
+combat-60 boundary. The focused Crucible and placeholder-register lane passes
+38 tests. Full discovery passes all 3,804 tests in both lanes, with 460 expected
+plain skips and 3 Qt skips. Documentation audits 515 Markdown and 428 HTML
+files; test quality audits 3,770 tests with 0 hard issues. Diff-hygiene and
+worktree audits pass. No owner design gap surfaced.
+
+## Crucible Trophy-bone depth re-walk — 2026-08-03
+
+The ordinary-kill amount remains source-blocked. The launch update, complete
+pre-cutoff Crucible history, and complete 29-revision Trophy-bones history prove
+the currency route but never state the kill quantity. Rev-727/741/742 item
+definitions prove item 24444 is stackable and non-exchangeable; recovered
+scripts and interfaces expose no server award. Darkan's one-item metadata
+container is a later loot-key reconstruction and contradicts those period item
+definitions.
+
+The adjacent tutorial award is exact: cutoff Crucible oldid `6538845` and
+Trophy bones oldid `5971782` state a four-total cap and one bone from each
+tutorial. Its stale placeholder marker and register row are removed. The
+two-bone ordinary-kill reachability value remains disclosed. The focused
+Crucible and placeholder-register lane passes 37 tests. Full discovery passes
+all 3,803 tests in both lanes, with 460 expected plain skips and 3 Qt skips.
+Documentation, test-quality, diff-hygiene, and worktree audits pass. No owner
+design gap surfaced.
+
+## Crucible ordinary-kill point re-walk — 2026-08-03
+
+The ordinary-kill award remains source-blocked. Launch-update oldid `5778674`
+proves that every target slain awarded points but gives no number. The complete
+pre-cutoff article and talk histories add only the separate exact one-point
+rule for successful hits on the Supreme Champion. Darkan never mutates its
+initialized point field, while rev-727 script 6288 only renders a supplied
+delta.
+
+The source audit, code annotation, placeholder register, and shared Darkan
+ledger now capture that complete negative result. The one-point ordinary-kill
+award remains a disclosed reachability value. The focused Crucible and
+placeholder-register lane passes 37 tests. Full discovery passes all 3,803
+tests in both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+test-quality, diff-hygiene, and worktree audits pass. No gameplay changed and no
+owner design gap surfaced.
+
+## Crucible rank-threshold re-walk — 2026-08-03
+
+The six promotion thresholds remain source-blocked. Darkan's controller
+initializes `rank` and `points` but contains no award or promotion write, while
+its interface bridge only forwards those values to rev-727 scripts 6284/6288.
+The client scripts render an already-computed tier and point delta; neither
+reads state or compares a threshold. The pinned Crucible article and launch
+update say only that rank rises every few points.
+
+The source audit and placeholder register now capture that complete negative
+caller-chain result. The 1/3/6/10/15/25 ladder remains a disclosed reachability
+value. The focused Crucible and placeholder-register lane passes 37 tests. Full
+discovery passes all 3,803 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips. No gameplay changed and no owner design gap surfaced.
+
+## Daily Challenge assignment weighting correction — 2026-08-03
+
+Cutoff Challenge System oldid `6579729` states that, with four eligible skills,
+the desired skill has a 1-in-4 assignment chance. The old flat draw across
+challenge rows contradicted that evidence: Mining's three breadth rows made it
+three times as likely as a one-row skill.
+
+The assignment path now gives every eligible skill an equal interval of its
+single RNG draw, then selects a challenge inside that skill. Uniform weighting
+inside the chosen skill remains honestly registered as
+`daily_challenges.within_skill_assignment_weights`; Darkan has no Challenge
+System, and rev-741/742 plus the cutoff talk histories expose no task selector.
+A regression drives every skill interval and proves row-rich skills receive no
+extra top-level weight. The focused unit/integration lane passes 47 tests. Full
+discovery passes all 3,803 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips. No owner design gap surfaced.
+
+## Tears of Guthix green-tear probability re-walk — 2026-08-03
+
+The registered `0.055` chance remains source-blocked. Darkan's restored
+controller settles click colour and the one-update-per-tick boundary but has no
+stream rotation; its frozen target contract explicitly lists cadence, selector,
+collection timing, and multiplayer acceleration as unrecovered. Activity oldid
+`6579712` says only "randomly quite fast" and reports 267 tears from a capped
+300-tick run. Talk oldid `6539293` contains anecdotes and theories rather than a
+measured rate, while rev-727/742 expose only client-side identities.
+
+The code, register, and source audit now describe `0.055` as a weak
+reachability anchor rather than an authentic probability. No gameplay changed
+and no owner design gap surfaced. The focused Tears and placeholder-register
+lane passes 26 tests. Full discovery passes all 3,802 tests in both lanes, with
+460 expected plain skips and 3 Qt skips.
+
+## Bork Ork-legion style classification closure — 2026-08-03
+
+Darkan `Bork.kt:110-111,184-205` explicitly selects melee when an Ork legion is
+within one tile of its target and ranged otherwise. The shipped always-melee
+pressure remains correct for AnkiScape's settled stand-near, homogeneous-front
+translation. It is now documented as a distance-collapse abstraction instead
+of an unrecovered period value, and `bork.ork_legion_attack_style` is retired
+from the placeholder register. No ranged accuracy penalty was added.
+
+The focused Bork and placeholder-register lane passes 28 tests. Full discovery
+passes all 3,802 tests in both lanes, with 460 expected plain skips and 3 Qt
+skips.
+
+## Duellist's cap threshold closure — 2026-08-03
+
+RuneScape Wiki oldid `6579418`, dated `2012-11-18T23:11:12Z`, is the pre-cutoff
+parent of the previously cited post-cutoff cap page. It already states all six
+win ranges, proving live minimums `0`, `10`, `100`, `500`, `2,000`, and `5,000`.
+The live values did not change; `duel_arena_cap_thresholds` is retired from the
+placeholder register and the family now cites the correct period revision.
+
+The focused Duel Arena and placeholder-register lane passes 16 tests. Full
+discovery passes all 3,802 tests in both lanes, with 460 expected plain skips
+and 3 Qt skips.
+
+## Skeletal Horror phase-identity correction — 2026-08-03
+
+Rev 727 and 742 plus Darkan's generated NPC list and four combat-definition
+files agree on the exact form identities: 320=`9176/9177`, 260=`9178`,
+180=`9179`, and 100=`9180`. The live weakening rows were one identity early
+after the first phase and now use `9176 → 9178 → 9179 → 9180`.
+
+The Darkan files are explicitly marked `nostats`, and the client definitions
+contain combat level rather than the Attack, Strength, Defence, and Magic
+values required by the shared Combat kernel. Those four blocks therefore stay
+registered placeholders; no stat is inferred from combat level. The focused
+Skeletal Horror and placeholder-register lane passes 20 tests. Full discovery
+passes all 3,802 tests in both lanes, with 460 expected plain skips and 3 Qt
+skips.
+
+## Grind-loop iteration 10 — Daily Challenges reward XP remains source-blocked
+
+- Recovered the rev-741/742 Daily Challenge structs and rev-742 challenge
+  interface. They settle client task metadata and presentation but contain no
+  XP payout field.
+- Hardened interface search across later caches: unsupported legacy IF1
+  archives are listed and skipped instead of aborting the whole query.
+- Retained `daily_challenges.reward_xp` as a registered placeholder with the
+  exact negative-search scope and omissions. No gameplay value changed.
+- Full discovery passes 3,802 tests in both lanes, with 460 expected plain skips
+  and 3 Qt skips.
+
 ## Frozen boss combat-level closure — 2026-08-03
 
 `tools/query_openrs2_cache_definitions.sh` now exposes exact NPC combat levels.

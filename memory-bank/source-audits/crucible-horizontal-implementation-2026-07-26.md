@@ -159,16 +159,130 @@ which taking them increased Trophy bone income is stated nowhere.
 
 ## Placeholders registered
 
-Six, all in `memory-bank/placeholder-values.md`:
+Five, all in `memory-bank/placeholder-values.md`:
 `crucible.rank_point_thresholds`, `crucible.points_per_kill`,
-`crucible.bones_per_kill`, `crucible.lesson_bone_award`,
-`crucible.risk_expectation_per_level`, `crucible.abandonment_fee`.
+`crucible.bones_per_kill`, `crucible.risk_expectation_per_level`,
+`crucible.abandonment_fee`.
 
 Every one of them is a value the period demonstrably had — a threshold the
 client's own tier list needs, a delta script 6288 renders, a currency both
 revisions describe, a fee interface 1298 names — and none of them invents a
 mechanic. The one exact point rule, one rank point per successful hit on the
 champion, ships as a real constant rather than a placeholder.
+
+### Rank-threshold depth re-walk — 2026-08-03
+
+`crucible.rank_point_thresholds` remains source-blocked after re-walking the
+full available caller chain:
+
+- Darkan `CrucibleController.java:28-33` initializes `rank` and `points` to
+  zero (or unranked for its reconstruction-only dangerous branch) and contains
+  no later write to either field.
+- Darkan `Crucible.java:86-122` merely forwards those values to client script
+  6284 and the overlay text. Git history first adds that display bridge in
+  `684c25528`; its parent contains no hidden promotion routine.
+- Rev-727 script 6284 maps the already-computed tier to the six rank graphics
+  and Supreme Champion state. Script 6288 renders an already-computed point
+  delta. Neither reads persistent state or compares a threshold.
+- Crucible oldid `6538845` and the launch update oldid `5778674` establish the
+  ladder and point-earning events but state only that rank rises "every few rank
+  points". No complete period table survives in the pinned source trail.
+
+The existing 1/3/6/10/15/25 progression remains a registered reachability
+placeholder, not a period claim. A server promotion routine or independently
+dated complete table would retire it. No owner design gap surfaced.
+
+### Ordinary-kill rank-point depth re-walk — 2026-08-03
+
+`crucible.points_per_kill` remains source-blocked after exhausting the same
+server, client, and period-history boundary:
+
+- Launch-update oldid `5778674`, dated `2012-06-19T12:15:18Z`, says players
+  earn points "for every target slain" and extra points from the Supreme
+  Champion, but gives no ordinary-kill amount.
+- Crucible oldid `6538845`, dated `2012-11-06T11:34:47Z`, gives the one exact
+  amount that survives: every successful hit on the Supreme Champion awards
+  one rank point. The complete pre-cutoff article history adds no numeric
+  ordinary-kill award. The cutoff talk history adds none either.
+- Darkan `CrucibleController.java` initializes `points` to zero and contains no
+  award write. History commit `684c25528` adds only the display bridge;
+  `Crucible.updateRankPoints` forwards a supplied delta and current total.
+- Rev-727 script 6288 renders a supplied positive delta as added rank points or
+  clears the display for a nonpositive value. It does not calculate an award,
+  read a stored total, or identify the action that produced the delta.
+
+The existing one-point ordinary-kill award remains a disclosed reachability
+placeholder. It is not inferred from the separate champion-hit rule. A period
+server award routine or an exact ordinary-kill statement would retire it. No
+owner design gap surfaced.
+
+### Trophy-bone depth re-walk — 2026-08-03
+
+`crucible.bones_per_kill` remains source-blocked, but the adjacent tutorial
+award is exact and no longer belongs in the placeholder register:
+
+- Launch-update oldid `5778674`, dated `2012-06-19T12:15:18Z`, says vanquished
+  players drop Trophy bones and that taking Supreme Champion weapons increases
+  their rate. It gives neither the ordinary award nor the boosted one.
+- Crucible oldid `6538845`, dated `2012-11-06T11:34:47Z`, says Trophy bones are
+  obtained from defeating enemies. Its complete pre-cutoff history adds no
+  quantity. The cutoff article does explicitly say tutorials award up to four,
+  one from each tutorial.
+- Trophy bones oldid `5971782`, dated `2012-07-22T02:00:10Z`, and its complete
+  29-revision pre-cutoff history state the reward uses and tutorial cap but no
+  ordinary-kill amount. Its item infobox identifies the bone as stackable and
+  non-tradeable.
+- Rev-727, rev-741, and rev-742 item definitions agree that item 24444 is
+  `stackable=true` and `exchangeable=false`. Rev-727 scripts contain no push of
+  item 24444 and no Trophy-bone text; interface 1297:125 labels the cost column
+  but computes no award.
+- Darkan history commit `684c25528` packages a defeated player's non-food loot
+  inside exactly one metadata-bearing item 24444. That 2023 loot-key
+  reconstruction treats the item as non-stackable, contrary to all three
+  period client definitions. It is useful death-custody evidence, not evidence
+  for the authentic currency amount.
+
+The two-bone ordinary-kill value remains a disclosed reachability placeholder.
+`CRUCIBLE_LESSON_BONE_AWARD = 1` is now recorded as exact because the cutoff
+article states the four-total cap and one from each tutorial. No owner design
+gap surfaced.
+
+### Bounty-fee depth re-walk — 2026-08-03
+
+The old fee abstraction was materially below every surviving period amount. It
+quoted a bare combat-level-60 player at about 29,000 coins and a maxed player at
+about 60,000, despite three independent period observations in the 500,000-coin
+range:
+
+- Crucible talk oldid `5909709`, dated `2012-07-08T17:42:36Z`, preserves a
+  launch-day `2012-06-19T12:34Z` report for combat level 60: about 50,000 coins
+  with meaningful gear and 500,000 with no risk. The complete talk history
+  traces that statement to oldid `5778707` at the same timestamp.
+- The original `Crucible bounty fee interface.png`, uploaded
+  `2012-06-24T20:37:44Z`, SHA-1
+  `fa17c698eef51283bb81784ea0605d7dc1fe4cdf`, shows the exact single quote
+  `F=535,362`, `X-Y=486,693`, and `Z=48,669`. The capture does not identify the
+  player's combat stats or when the screenshot itself was taken, so it is an
+  amount anchor rather than a schedule.
+- Cutoff Crucible oldid `6538845` reports about 518,000 coins for a maxed player
+  carrying nothing during the August money-pouch exploit. The same revision
+  says the launch hotfix cut the original fee to one tenth, so the surviving
+  500,000-ish figures must not be divided by ten again.
+
+The client and server searches still do not recover the authentic curve.
+Rev-727 interface 1298 receives rendered X, Y, Z, and F values and contains no
+fee constants; no rev-727 client script writes its numeric components. Darkan's
+Crucible reconstruction opens the interface but implements no fee calculation,
+and its history adds none.
+
+The corrected bounded placeholder therefore starts X at 450,000 coins for
+combat level 60 (the reported 500,000 no-risk total less the 50,000
+gear-independent component), then adds 400 coins per level above 60. This keeps
+the sourced combat-level dependence and yields 531,200 total at level 138,
+inside the surviving 518,000-to-535,362 observations. Z is corrected from 5,000
+to 50,000, bounded independently by the exact 48,669 screenshot component. Both
+values remain registered; neither is represented as the lost server formula.
+No owner design gap surfaced.
 
 ## Asset provenance
 

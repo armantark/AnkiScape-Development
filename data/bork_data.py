@@ -164,13 +164,11 @@ def ork_legion_enemy_pure() -> dict[str, Any]:
             "magic": 50,
         },
         "bonuses": dict(_ZERO_BONUSES),
-        # PLACEHOLDER(bork.ork_legion_attack_style): the period legion picks its
-        # style by distance — "a fast melee attack or slightly less accurate
-        # ranged attack when staying in distance from player" — and AnkiScape
-        # has no distance. Melee is the reading both remaining sources give:
-        # Darkan's `ork_legion (nostats).json` states `"attackStyle": "MELEE"`,
-        # and the pinned Hunt for Surok guide tells the player to stand near the
-        # legions and pray Protect from Melee.
+        # Darkan Bork.kt:110-111 and 184-205 settles the switch: adjacent orks
+        # use melee and distant orks use ranged. The owner-settled collapsed
+        # pressure model represents the guide's stand-near-Bork route, so every
+        # review uses the authentic adjacent branch rather than inventing
+        # distance state for this encounter.
         "attack_style": "melee",
         # `Ork legion` oldid 6269351 prints `immune to poison = Yes`.
         "poison_immune": True,

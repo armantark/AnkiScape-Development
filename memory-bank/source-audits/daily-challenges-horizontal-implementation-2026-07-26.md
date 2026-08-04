@@ -67,9 +67,64 @@ AnkiScape record invented that action and it is not implemented.
 ## Placeholders
 
 Two, both registered in `memory-bank/placeholder-values.md`:
-`daily_challenges.reward_xp` and `daily_challenges.assignment_weights`. Neither
-invents content: the period had reward XP and had a selection rule; only the
+`daily_challenges.reward_xp` and
+`daily_challenges.within_skill_assignment_weights`. Neither invents content:
+the period had reward XP and had a within-skill selection rule; only the
 numbers are unrecovered.
+
+### Assignment-weight depth re-walk — 2026-08-03
+
+The broad assignment placeholder was too pessimistic and caused a real bias.
+Cutoff oldid `6579729`, lines 27-37 of its wikitext, tells players with four
+unblocked skills that the desired skill has a **1 in 4** chance. That establishes
+equal selection weight by eligible skill. It rules out AnkiScape's old flat draw
+over challenge rows, where Mining's three breadth rows made Mining three times
+as likely as a skill represented by one row.
+
+Darkan has no Challenge System implementation. Rev-741/742 structs identify
+individual challenge rows and their eligibility metadata, but neither they nor
+interface 1343 expose the server selector. Cutoff talk oldid `6555739` asks
+whether the same skill can be assigned twice but supplies no distribution;
+challenge-list talk oldid `6539307` discusses level eligibility only.
+
+The live selector now gives every eligible skill one equal interval of the
+existing random draw, then chooses inside that skill. Uniform weighting among
+that skill's eligible challenge rows remains registered as
+`daily_challenges.within_skill_assignment_weights`, because no source settles
+that second-stage distribution. The implementation still consumes exactly one
+RNG value per assigned day. No design gap surfaced.
+
+### Reward-XP depth re-walk — 2026-08-03
+
+The reward amount remains `source_blocked`; the registered 100-XP-per-level
+placeholder is unchanged.
+
+- Rev 741 (2012-11-04) and rev 742 (2012-11-07) contain byte-identical client
+  structs for representative combat, Cooking, and Fishing challenges:
+  `11946` (`Rampage Mk I`), `11816` (`Seafood buffet!`), and `7242`
+  (`How Shellfish`). Their fields carry names, tier/category values, icon IDs,
+  objective and hint text, turn-in instructions, quantities, level gates, map
+  coordinates, and item references. None carries an XP payout.
+- Rev 742 interface `1343` is the Daily Challenges panel. Its decoded static
+  components carry the challenge list, objective, hint, reward heading, pin
+  control, days-left display, and a members-only message. Exact searches for
+  `Challenge XP Lamp`, `Challenge Mystery Bag`, `Choose a skill`,
+  `Quartermaster`, and `extra experience` found no payout amount in decoded
+  interfaces.
+- Rev 742 item definitions `25070` and `25071` confirm the non-exchangeable
+  `Challenge XP Lamp` (`Rub`) and `Challenge Mystery Bag` (`Open`) identities.
+  Rev 727 predates the 2012-09-19 Challenge System release and contains null
+  rows at those IDs.
+- The interface reader cannot decode fifteen legacy IF1 archives in rev 742:
+  `548`, `628`, `629`, `633`, `634`, `635`, `691`, `976`, `1253`, `1311`,
+  `1316`, `1358`, `1360`, `1361`, and `1368`. Searches now disclose those
+  omissions rather than aborting. A reward amount in an unsupported archive or
+  server routine therefore remains possible, but no decoded client table
+  settles it.
+
+These cache records prove client presentation and configuration only. They do
+not justify deriving a server payout from challenge level, quantity, or item
+value.
 
 ## Deliberate deferrals
 

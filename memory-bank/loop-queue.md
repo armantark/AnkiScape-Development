@@ -30,6 +30,37 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Decode the rev-727/742 Frozen Dungeoneering boss NPC combat-level rows
      and revalidate the six provisional ladders. Both caches match every live
      value; server-owned stat and scaling formulas remain untouched.
-   - [ ] Re-walk the Daily Challenges reward-XP placeholder through the dated
+   - [x] Re-walk the Daily Challenges reward-XP placeholder through the dated
      config/interface readers and existing period sources. Keep it registered
      if no client table settles the server payout.
+   - [x] Re-walk the four Skeletal Horror phase-stat placeholders through dated
+     NPC definitions and authentic Darkan combat records. Do not derive core
+     stats from combat level.
+   - [x] Re-walk the six Duel Arena cap-tier thresholds through period pages,
+     dated item definitions, and any authentic server records. Keep the near-
+     cutoff fallback registered unless pre-cutoff evidence settles all six.
+   - [x] Re-walk Bork's Ork legion attack-style placeholder through authentic
+     combat records and period pages. Preserve the distance abstraction unless
+     a source settles the melee/ranged switch and accuracy penalty.
+   - [x] Re-walk the Tears of Guthix green-tear chance through authentic server
+     records, period captures, and the pinned source chain. Keep the derived
+     rate registered if no source exposes the stream switch and catch roll.
+   - [x] Re-walk the Daily Challenges eligible-pool assignment weights through
+     Darkan, dated configs/interfaces, and the pinned period history. Preserve
+     the uniform registered placeholder unless a server-side selector survives.
+   - [x] Re-walk the Crucible rank-point thresholds through Darkan, period
+     guides, and rev-727 script 6284's caller chain. Keep the server-side
+     threshold placeholder if no source exposes the six promotion boundaries.
+   - [x] Re-walk ordinary Crucible rank points per kill through Darkan, the
+     launch update, and rev-727 script 6288's caller chain. Preserve the one-
+     point placeholder unless a server award routine or exact statement survives.
+   - [x] Re-walk Crucible Trophy bones per ordinary kill through Darkan, period
+     article and item histories, and recovered client configs. Preserve the
+     two-bone placeholder unless a server drop routine or exact statement survives.
+   - [x] Re-walk the Crucible risk-expectation amount per combat level through
+     Darkan, fee-interface caller chains, period article/talk histories, and
+     contemporary player reports. Preserve the registered amount unless an
+     authentic fee schedule survives.
+   - [ ] Re-walk the Crucible target-level offsets through Darkan's matcher
+     history, period article/talk histories, and contemporary matchup reports.
+     Preserve the registered spread unless a server matching band survives.

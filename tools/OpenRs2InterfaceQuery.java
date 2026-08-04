@@ -114,7 +114,18 @@ final class OpenRs2InterfaceQuery {
     private static void printMatches(Store store, String rawNeedle) {
         String needle = rawNeedle.toLowerCase(Locale.ROOT);
         for (int interfaceId : existingInterfaces(store)) {
-            IComponentDefinitions[] components = IComponentDefinitions.getInterface(interfaceId);
+            IComponentDefinitions[] components;
+            try {
+                components = IComponentDefinitions.getInterface(interfaceId);
+            } catch (IllegalStateException error) {
+                if (!"if1".equals(error.getMessage())) {
+                    throw error;
+                }
+                System.err.println(
+                        "skipped unsupported IF1 interface " + interfaceId
+                );
+                continue;
+            }
             for (IComponentDefinitions component : components) {
                 if (component != null && searchableText(component).toLowerCase(Locale.ROOT)
                         .contains(needle)) {

@@ -132,6 +132,7 @@ class SkeletalHorrorDataAndGatesTests(unittest.TestCase):
         self.assertEqual(
             [
                 (
+                    row["npc_id"],
                     row["combat_level"],
                     row["remaining_lifepoints"],
                     row["max_hit"],
@@ -140,10 +141,10 @@ class SkeletalHorrorDataAndGatesTests(unittest.TestCase):
                 for row in SKELETAL_HORROR_PHASES
             ],
             [
-                (320, 3500, 334, ("melee", "magic")),
-                (260, 2750, 214, ("melee", "magic")),
-                (180, 2000, 154, ("melee",)),
-                (100, 1250, 74, ("melee",)),
+                (9176, 320, 3500, 334, ("melee", "magic")),
+                (9178, 260, 2750, 214, ("melee", "magic")),
+                (9179, 180, 2000, 154, ("melee",)),
+                (9180, 100, 1250, 74, ("melee",)),
             ],
         )
         enemy = skeletal_horror_enemy_pure(2, "magic")

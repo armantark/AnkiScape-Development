@@ -47,6 +47,11 @@ client-authored names, visible text, use labels, operation labels, and option
 labels. Output includes stable `interface:component` identities, layout and
 visibility metadata, text/font, sprite/model references, actions, and the
 principal script hooks. It is deterministic for the same cache and query.
+Some later caches retain legacy IF1 archives that Darkan core 2.0.5 does not
+decode. `find` reports each skipped interface on standard error and continues,
+so a negative search has an explicit omission list instead of failing at the
+first archive. An exact `dump` of an unsupported archive still fails rather
+than pretending the record was decoded.
 
 ## Period-cache proof
 

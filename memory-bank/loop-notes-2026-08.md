@@ -1,5 +1,152 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 19 — Crucible bounty-fee scale
+
+- Evidence: Crucible oldid `6538845`; complete cutoff talk history through
+  oldid `5909709`; launch-day report oldid `5778707`; the immutable
+  `Crucible_bounty_fee_interface.png` revision uploaded
+  `2012-06-24T20:37:44Z`; rev-727 interface 1298; Darkan history commit
+  `684c25528`.
+- Result: the old curve was an order of magnitude below every surviving period
+  observation. The registered reachability curve now anchors level 60 at
+  500,000 coins and level 138 at 531,200 coins: a 450,000 risk baseline,
+  400 per combat level above 60, and a 50,000 abandonment component. This is
+  explicitly not claimed as the unrecovered server formula. No design gap
+  surfaced.
+- Verification: 38 focused tests pass. Full discovery passes 3,804 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation
+  audits 515 Markdown and 428 HTML files; test quality audits 3,770 tests with
+  0 hard issues. Diff-hygiene and worktree audits pass.
+- Next: Crucible target-level offsets.
+
+## Iteration 18 — Crucible Trophy-bone awards
+
+- Evidence: launch-update oldid `5778674`; the complete Crucible history through
+  cutoff oldid `6538845`; Trophy bones oldid `5971782` and its complete
+  29-revision pre-cutoff history; rev-727/741/742 item 24444; rev-727 scripts
+  and interface 1297:125; Darkan history commit `684c25528`.
+- Result: ordinary kills demonstrably award Trophy bones, but no source exposes
+  the amount, so the two-bone reachability value remains registered. The four
+  tutorial awards are exactly one each, so that stale placeholder is retired.
+  Darkan's non-stackable metadata container is recorded as a later loot-key
+  reconstruction, not period amount evidence. No design gap surfaced.
+- Verification: 37 focused tests pass. Full discovery passes 3,803 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: Crucible risk-expectation amount per combat level.
+
+## Iteration 17 — Crucible ordinary-kill rank points
+
+- Evidence: launch-update oldid `5778674`, the complete pre-cutoff Crucible
+  article history through oldid `6538845`, the cutoff talk history, Darkan
+  `CrucibleController.java` and history commit `684c25528`, and rev-727 script
+  6288.
+- Result: ordinary target kills demonstrably award rank points, but no source
+  exposes the amount. The one-point value remains a registered reachability
+  placeholder and is not inferred from the separate champion-hit rule. No
+  gameplay changed and no design gap surfaced.
+- Verification: 37 focused tests pass. Full discovery passes 3,803 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: Crucible Trophy bones per ordinary kill.
+
+## Iteration 16 — Crucible rank-point thresholds
+
+- Evidence: Darkan `CrucibleController.java:28-33`,
+  `Crucible.java:86-122`, history commit `684c25528`, rev-727 scripts 6284/6288,
+  Crucible oldid `6538845`, and launch-update oldid `5778674`.
+- Result: no source exposes the six promotion boundaries. The registered
+  1/3/6/10/15/25 ladder remains, with the complete negative caller chain now
+  recorded. No gameplay changed and no design gap surfaced.
+- Verification: 37 focused tests pass. Full discovery passes 3,803 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: ordinary Crucible rank points per kill.
+
+## Iteration 15 — Daily Challenge assignment weighting
+
+- Evidence: Challenge System oldid `6579729` states one-in-four for the desired
+  skill when four skills remain. Cutoff talk oldids `6555739` and `6539307`,
+  Darkan, and rev-741/742 expose no within-skill selector.
+- Result: replace the biased flat row draw with equal skill intervals followed
+  by a within-skill draw, while consuming one RNG value. Rename the placeholder
+  so only the genuinely unknown within-skill task weights remain registered.
+- Regression: every eligible skill owns one equal interval even though Mining
+  and Cooking have more breadth rows. No design gap surfaced.
+- Verification: 47 focused unit/integration tests pass. Full discovery passes
+  3,803 tests in both lanes, with 460 expected plain skips and 3 Qt skips.
+  Documentation, test-quality, diff-hygiene, and worktree audits pass.
+- Next: Crucible rank-point thresholds.
+
+## Iteration 14 — Tears of Guthix green-tear probability
+
+- Evidence: Darkan `TearsOfGuthix.kt:477-510` and its frozen target contract;
+  activity oldid `6579712`; cutoff talk oldid `6539293`; rev-727/742 cache
+  evidence already recorded in the source audit.
+- Result: no source exposes stream rotation or catch probability. The registered
+  `0.055` value remains, now explicitly described as a weak reachability anchor
+  rather than an authentic rate. No gameplay changed and no design gap surfaced.
+- Verification: 26 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
+  test-quality, diff-hygiene, and worktree audits pass.
+- Next: Daily Challenges eligible-pool assignment weights.
+
+## Iteration 13 — Bork Ork-legion style classification
+
+- Evidence: Darkan `Bork.kt:110-111,184-205` selects melee within one tile and
+  ranged otherwise.
+- Result: the settled stand-near pressure route continues to use the exact
+  adjacent melee branch. `bork.ork_legion_attack_style` is retired because this
+  is a disclosed distance-collapse abstraction, not an unknown period value.
+- Verification: 28 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. GPT-family verified.
+
+## Iteration 12 — Duellist's cap threshold closure
+
+- Evidence: oldid `6579418`, dated `2012-11-18T23:11:12Z`, is the pre-cutoff
+  parent of the previously cited post-cutoff cap page and already states all six
+  ranges.
+- Result: live minimums remain `0/10/100/500/2,000/5,000`, now period-pinned;
+  `duel_arena_cap_thresholds` is retired from the placeholder register.
+- Verification: 16 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. GPT-family verified.
+
+## Iteration 11 — Skeletal Horror phase identities
+
+- Evidence: rev 727, rev 742, Darkan's generated NPC list, and its four
+  `nostats` combat definitions agree on the form mapping 320=`9176/9177`,
+  260=`9178`, 180=`9179`, and 100=`9180`.
+- Result: the live weakening sequence is corrected from the shifted
+  `9176 → 9177 → 9178 → 9179` to `9176 → 9178 → 9179 → 9180`.
+- Honest limit: all four core-stat blocks remain registered placeholders. The
+  client exposes combat level, and the authentic server definitions explicitly
+  omit stats; no value was derived from combat level.
+- Delegation: GPT-family Workflows run
+  `5a1447db-96b4-47f7-9b47-b52860ce2f07` exhausted its tool-output budget after
+  two calls and produced no synthesis. Root independently reproduced every
+  accepted finding and did not rerun it.
+- Verification: 20 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. GPT-family verified.
+
+## Iteration 10 — Daily Challenges reward-XP re-walk
+
+- Rev 741 and 742 contain identical client structs for representative combat,
+  Cooking, and Fishing challenges. The rows carry the full client-facing task
+  definition but no XP payout field.
+- Rev 742 interface 1343 is the Daily Challenges panel. Its decoded labels and
+  hooks reveal no static reward amount; the two reward item definitions prove
+  only the lamp and bag identities and actions.
+- The interface search no longer dies on the first legacy IF1 archive. It
+  reports all fifteen unsupported rev-742 interface IDs on standard error and
+  continues searching the decoded remainder, making negative evidence honest.
+- Result: `daily_challenges.reward_xp` remains registered at 100 XP per required
+  level. A period server payout routine or independently stated amount is still
+  required to replace it. No gameplay value changed.
+- Verification: 51 focused Daily Challenges, real-cache reader, and placeholder
+  tests pass. Full discovery passes 3,802 tests in both lanes, with 460 expected
+  plain skips and 3 Qt skips. Documentation, test-quality, diff, and worktree
+  audits pass.
+
 ## Iteration 9 — Frozen boss combat-level closure
 
 - Tooling: the exact NPC definition reader now emits combat levels for requested

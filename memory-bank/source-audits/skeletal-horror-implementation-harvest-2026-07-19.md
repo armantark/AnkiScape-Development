@@ -91,6 +91,33 @@ The five boss identities and three ground-limb identities are NPC definitions;
 the three buryable limb identities are item definitions. These caches prove
 identity and client interaction only, not combat stats or transition logic.
 
+An exact combat-level query against both caches and Darkan's generated
+`developer-information/npcList.txt:9177-9181` resolves the phase mapping:
+
+| Combat form | NPC identity |
+|---:|---:|
+| `320` | `9176` and `9177` |
+| `260` | `9178` |
+| `180` | `9179` |
+| `100` | `9180` |
+
+The two level-320 identities belong to the same first combat form. AnkiScape
+retains its existing `9176` initial identity; the three weakening transitions
+must use `9178`, `9179`, and `9180`. The prior live table incorrectly treated
+`9177`, `9178`, and `9179` as the three weakened forms, shifting every identity
+after the first by one.
+
+Darkan corroboration is exact in the four files below: each `ids` array is at
+lines 2-5 and each maximum hit is at lines 14-16.
+
+- `skeletal_horror_(320) (nostats) (noanims).json`
+- `skeletal_horror_(260) (nostats) (noanims).json`
+- `skeletal_horror_(180) (nostats) (noanims).json`
+- `skeletal_horror_(100) (nostats) (noanims).json`
+
+All four live under Darkan's
+`data/npcs/combatdefs/uncategorized/skeletal_horror/` directory.
+
 Cache roots:
 
 - `/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache`
@@ -109,9 +136,11 @@ Darkan commit `bc97c449aa92f6c8b69fb77ec9aea655b9d231a9` contains four Skeletal
 Horror combat-definition files under
 `data/npcs/combatdefs/uncategorized/skeletal_horror/`, but every filename is
 explicitly marked `(nostats) (noanims)`. The rows also copy `3,500` LP,
-maximum hit `334`, and Melee across every form, contradicting the pinned phase
-maximum hits and the sourced initial Magic attack. They are leads, not
-shippable phase tables.
+and Melee across every form, contradicting the sourced initial Magic attack.
+Their maximum-hit rows do match the four pinned forms and independently map
+IDs `[9176, 9177]`, `9178`, `9179`, and `9180` to levels 320, 260, 180, and
+100. They therefore settle identity and maximum-hit corroboration, but not the
+missing core stats.
 
 `developer-information/npcListBonuses.txt` supplies one shared defence-bonus
 array for all five identities, but no Attack, Magic, Strength, or Defence
@@ -139,6 +168,9 @@ shipped rather than waiting:
 - the four phase stat blocks remain placeholders in
   `memory-bank/placeholder-values.md`, marked at the value in
   `data/skeletal_horror_data.py`;
+- rev 727, rev 742, and Darkan settle the live NPC sequence as
+  `9176 → 9178 → 9179 → 9180`; the shipped one-position offset after the first
+  form was corrected on 2026-08-03;
 - the shared bonus array and two-style selector weight were recovered from
   Darkan's rev-727 dump and combat script and retired on 2026-07-27;
 - the wish-list dependency is stood in by two explicit commands, recorded as an

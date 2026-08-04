@@ -71,9 +71,11 @@ TEARS_OF_GUTHIX_GREEN_SPOTS = 3
 # Darkan TearsOfGuthix.kt:496-510 accepts at most one collection update per
 # server tick and adds exactly one tear for a blue stream.
 TEARS_OF_GUTHIX_TEARS_PER_TICK = 1
-# PLACEHOLDER(tears_of_guthix.green_tear_chance): the authentic stream-switch
-# timing and mis-collection roll. 267 net tears from 300 ticks implies roughly
-# this share once each green tear is counted as both a miss and a subtraction.
+# PLACEHOLDER(tears_of_guthix.green_tear_chance): the authentic stream-rotation
+# cadence, selection rule, and player catch/movement policy. The cutoff page and
+# its talk revision 6539293 expose observations but no probability; Darkan's
+# restored controller deliberately leaves rotation source-blocked. The 267-tear
+# record is therefore only a weak anchor for this reachability value.
 TEARS_OF_GUTHIX_GREEN_TEAR_CHANCE = 0.055
 
 

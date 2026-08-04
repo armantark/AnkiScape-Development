@@ -35,7 +35,7 @@ slices, paying the sourced Slayer XP, coins, charms, gems and rare drops.
 | Coins 2,000–10,000, or 4,000–20,000 with the elite tasks | same revision's drop table; Darkan `Utils.random(2000, 10001)` / `(4000, 20001)` |
 | The four guaranteed-drop columns | the same revision's drop table, reproduced exactly by Darkan `Bork.guaranteedDrops` |
 | Rare drops: Starved ancient effigy 1/64, elite clue 1/32, hard clue 1/16 | Darkan `Bork.drop()`; the revision lists the same three items as Rare / Very rare with no rate |
-| Ork legion level 70, 500 LP, max hit 82, melee or ranged by distance | `Ork legion` oldid 6269351 (`2012-09-20T01:16:17Z`); Darkan `ork_legion (nostats).json`; `Bork.orkAttackStyle` |
+| Ork legion level 70, 500 LP, max hit 82, melee within one tile and ranged otherwise | `Ork legion` oldid 6269351 (`2012-09-20T01:16:17Z`); Darkan `ork_legion (nostats).json`; `Bork.kt:110-111,184-205` |
 | The legion arrives once, at 2,000 LP, 3 to 9 strong | Darkan `Bork.ORK_SUMMON_THRESHOLD_HITPOINTS`, `ORK_SUMMON_MINIMUM`, `ORK_SUMMON_MAXIMUM` and the `npcCombat` block |
 | The lair caster fires every 20 seconds for 100–250 magic, zeroed by Protect from Magic | Darkan `BorkController.process()` and `BorkController.mageDamage` |
 | The repeat visit's caster is the Dagon'hai Elite, npc 7137 | Darkan `BorkController.onBuildInstance`; npc 7136 (Surok Magis) is the miniquest-run caster |
@@ -102,12 +102,15 @@ carried a magic of 1 and a ranged stat the registered conversion does not
 produce at all, which made the register's own description untrue of the code it
 was cited for.
 
-One new register row, `bork.ork_legion_attack_style`. The period orks choose
-melee or a "slightly less accurate" ranged attack by distance, and AnkiScape has
-no distance. The encounter presses in melee, which is what Darkan's
-`"attackStyle": "MELEE"` and the guide's own stand-near-and-pray-Protect-from-
-Melee advice both give, but neither the switch distance nor the ranged accuracy
-penalty is recoverable, so the choice is registered rather than asserted.
+The 2026-08-03 depth pass retires `bork.ork_legion_attack_style`. Darkan's
+authentic handler states the exact boundary: `withinDistance(target, 1)` selects
+melee and every other position selects ranged. AnkiScape's owner-settled
+homogeneous pressure front has no distance state and represents the pinned
+guide's stand-near-Bork route, so its always-melee pressure is the exact
+adjacent branch. This is a disclosed encounter abstraction, not a missing
+period value, and therefore does not belong in the placeholder register. The
+page's qualitative claim that the ranged attack is slightly less accurate is
+outside that collapsed branch and no ranged penalty is invented.
 
 ## Recorded gaps
 

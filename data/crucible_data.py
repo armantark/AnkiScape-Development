@@ -49,32 +49,32 @@ CRUCIBLE_MINIMUM_COMBAT_LEVEL = 60
 # disabled here, so unlike the Clan Wars red portal nothing is saved.
 CRUCIBLE_PROTECT_ITEM_ALLOWED = False
 
-# Four lessons, each awarding one set of Trophy bones, are the only bone route
-# that does not require defeating a target. They are also what a player under
-# the combat gate can reach.
+# Four lessons, each awarding one Trophy bone, are the only bone route that does
+# not require defeating a target. Crucible oldid 6538845 and Trophy bones oldid
+# 5971782 both state the four-total cap and one bone from each tutorial. They are
+# also what a player under the combat gate can reach.
 CRUCIBLE_LESSONS = (
     "Fighting in the Crucible",
     "Crucible Looting",
     "Crucible Key",
     "Crucible Rewards",
 )
-# PLACEHOLDER(crucible.lesson_bone_award): the size of the "one set of Trophy
-# bones" each lesson pays. Both revisions state the four-lesson cap without ever
-# stating the set size, and no recovered enum holds it.
 CRUCIBLE_LESSON_BONE_AWARD = 1
 
 # PLACEHOLDER(crucible.bones_per_kill): Trophy bones for defeating an ordinary
-# target. The launch update says vanquished players dropped Trophy bones and the
-# item page calls them the Crucible's reward currency, but no pre-cutoff
-# revision and no recovered cache enum states the quantity.
+# target. The launch update says vanquished players dropped Trophy bones; the
+# complete pre-cutoff Crucible and item-page histories never state the amount.
+# Rev-727/741/742 item definitions prove only that item 24444 is stackable, and
+# no recovered client script or interface calculates the server-side award.
 CRUCIBLE_BONES_PER_KILL = 2
 
 # PLACEHOLDER(crucible.rank_point_thresholds): the point totals that promote a
 # player between the client's tiers. Rev-727 script 6284 proves the tier list
 # exactly — it maps tiers 0..6 to the displayed "6".."1" and Supreme Champions —
 # but it receives an already-computed tier and reads no varp, so the thresholds
-# are server-side and unrecovered. The article says only that "every few rank
-# points" raised a rank.
+# are server-side and unrecovered. Darkan's controller stores `rank` and `points`
+# but never changes either; its UI bridge only forwards them to scripts 6284 and
+# 6288. The article says only that "every few rank points" raised a rank.
 CRUCIBLE_RANKS = (
     (0, "Rank 6", 1),
     (1, "Rank 5", 3),
@@ -90,7 +90,9 @@ CRUCIBLE_UNRANKED_NAME = "Unranked"
 
 # PLACEHOLDER(crucible.points_per_kill): rank points for an ordinary kill. The
 # launch update says points were earned "for every target slain" without a
-# number, and rev-727 script 6288 only renders an already-computed delta.
+# number. The complete pre-cutoff article history adds only the exact one-point
+# Supreme Champion hit rule below. Darkan initializes rank and points but never
+# awards either; rev-727 script 6288 only renders an already-computed delta.
 CRUCIBLE_POINTS_PER_KILL = 1
 
 # Exact. The article states that each successful hit on the Supreme Champion
@@ -161,15 +163,21 @@ CRUCIBLE_PVP_BOOST_CAPS = (
 # arena bank. The article assigns the (X - Y) part to the victor on a death and
 # the Z part to the opponent when a player abandons a live target.
 #
-# PLACEHOLDER(crucible.risk_expectation_per_level): the coins of risk X expects
-# per combat level. No pre-cutoff revision states the schedule, the interface
-# holds placeholders rather than constants, and the one recorded figure — 518,000
-# coins refunded to a maxed player carrying nothing — comes from a money-pouch
-# exploit report and is not a fee table.
+# PLACEHOLDER(crucible.risk_expectation_per_level): the curve behind X. A
+# launch-day level-60 report gives about 500,000 coins with no risk and 50,000
+# with meaningful gear; an exact period interface screenshot shows X=486,693
+# and Z=48,669 for an unidentified player; and the cutoff article reports about
+# 518,000 for a maxed player with no risk. None exposes the server schedule.
+# The bounded curve starts X at the recoverable 450,000 level-60 difference and
+# preserves a modest combat-level increase that lands inside the two later
+# anchors. It remains a disclosed approximation, not a recovered formula.
+CRUCIBLE_RISK_EXPECTATION_BASE = 450_000
 CRUCIBLE_RISK_EXPECTATION_PER_LEVEL = 400
-# PLACEHOLDER(crucible.abandonment_fee): the flat Z component. Stated to exist
-# and to be paid to the opponent on abandonment; never given a value.
-CRUCIBLE_ABANDONMENT_FEE = 5_000
+# PLACEHOLDER(crucible.abandonment_fee): the gear-independent Z component.
+# Period evidence bounds it at about 50,000: the level-60 report gives a 50,000
+# fee with meaningful gear and the period screenshot shows Z=48,669. The exact
+# server rounding and any combat-stat dependence remain unrecovered.
+CRUCIBLE_ABANDONMENT_FEE = 50_000
 
 
 @dataclass(frozen=True)

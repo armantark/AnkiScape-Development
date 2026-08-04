@@ -98,6 +98,32 @@ period anchor is the reported 267 tears at 316 quest points. AnkiScape has no
 positional layer for a player to dodge a green stream with, so the green catch
 is necessarily a hidden roll here.
 
+### Depth re-walk, 2026-08-03
+
+The placeholder remains source-blocked after a fresh pass over every available
+lineage:
+
+- Darkan `TearsOfGuthix.kt:477-510` implements click classification and the
+  one-update-per-tick guard, but no stream rotation. Its frozen target contract
+  explicitly lists exact rotation cadence, random selection, collection
+  cadence, and multiplayer acceleration as unrecovered.
+- Activity oldid `6579712` (`2012-11-19T02:37:17Z`) says the streams switch
+  "randomly quite fast", always keeps three blue and three green spots, and
+  reports a 267-tear record at 316 Quest Points. None of those observations
+  identifies a switch or catch distribution.
+- Talk oldid `6539293` (`2012-11-06T19:55:46Z`), the last talk-page revision at
+  or before the project cutoff, contains anecdotal scores from 43 to 184,
+  unsupported theories about switch frequency, and the claim that population
+  affects speed. It supplies no measured rate or deterministic selector.
+- The rev-727/742 cache evidence identifies wall objects and interface state,
+  not server-side stream scheduling or movement outcomes.
+
+Therefore `0.055` is retained only as the registered reachability abstraction
+that maps the article's 267-tear record onto AnkiScape's automatic collection
+beats. It must not be described as the authentic probability. A period server
+rotation routine or a statistically adequate dated capture of switch and catch
+events would retire it. No owner design gap surfaced.
+
 AnkiScape abstractions, neither of them period claims: one answered card is six
 game ticks of cavern time (design-thread queue 3.2), and up to two weekly visits
 bank under `simulation-time-boundary-2026-07-16.md` Decision 2.

@@ -127,6 +127,27 @@ class ChallengeQueueTest(unittest.TestCase):
         high = player(woodcutting_level=15)
         self.assertIn("woodcutting_oak_logs", eligible_daily_challenge_ids_pure(high))
 
+    def test_assignment_gives_each_eligible_skill_one_equal_interval(self):
+        """The cutoff guide states one-in-four for one desired skill out of four."""
+        data = player(DAILY_CHALLENGE_REVIEW_DAY)
+        pool = eligible_daily_challenge_ids_pure(data)
+        skills = tuple(
+            dict.fromkeys(DAILY_CHALLENGE_DATA[row]["skill"] for row in pool)
+        )
+        self.assertGreater(
+            sum(DAILY_CHALLENGE_DATA[row]["skill"] == "mining" for row in pool),
+            1,
+        )
+
+        for index, skill in enumerate(skills):
+            assigned, events = advance_daily_challenges_day_pure(
+                data,
+                lambda index=index: (index + 0.5) / len(skills),
+            )
+            challenge_id = events["assigned"][0]["challenge_id"]
+            self.assertEqual(DAILY_CHALLENGE_DATA[challenge_id]["skill"], skill)
+            self.assertEqual(len(assigned["daily_challenges"]), 1)
+
     def test_only_one_task_can_be_pinned_at_a_time(self):
         data = _advance_days(player(), 2)
         first, second = (row["instance_id"] for row in data["daily_challenges"])
@@ -393,7 +414,7 @@ class RewardsThroughRealGameplayTest(unittest.TestCase):
     """Both rewards, reached only through assignment, credit and hand-in.
 
     Nothing here writes progress, credited items or a reward ledger directly. The
-    one thing these tests do choose is which challenge the day's uniform draw
+    one thing these tests do choose is which challenge the day's two-stage draw
     lands on, because a player cannot pick either.
     """
 
@@ -406,9 +427,20 @@ class RewardsThroughRealGameplayTest(unittest.TestCase):
         }
         pool = eligible_daily_challenge_ids_pure(data)
         self.assertIn(challenge_id, pool)
-        index = pool.index(challenge_id)
+        skills = tuple(
+            dict.fromkeys(DAILY_CHALLENGE_DATA[row]["skill"] for row in pool)
+        )
+        skill = DAILY_CHALLENGE_DATA[challenge_id]["skill"]
+        skill_index = skills.index(skill)
+        skill_pool = tuple(
+            row for row in pool if DAILY_CHALLENGE_DATA[row]["skill"] == skill
+        )
+        challenge_index = skill_pool.index(challenge_id)
+        roll = (
+            skill_index + (challenge_index + 0.5) / len(skill_pool)
+        ) / len(skills)
         data, events = advance_daily_challenges_day_pure(
-            data, lambda: (index + 0.5) / len(pool)
+            data, lambda: roll
         )
         self.assertEqual(
             [row["challenge_id"] for row in events["assigned"]], [challenge_id]
