@@ -418,3 +418,26 @@ Append new entries. Do not edit earlier entries.
   recorded contract stop, not a request to reopen any settled Pass 7 design.
 - Fable and Kimi remained unused as directed. The parked Markdown brief is the
   only pending external-review artifact.
+
+### 2026-08-03 — P3 selector commit and repository-lane closure
+
+- Accepted implementation and evidence commit:
+  `fb8b9ca113ab1ba370815b53b3528a2140e28a53`.
+- The full non-Qt repository lane passed 3,811 tests in 286.220 seconds with
+  464 expected skips. Its first sandboxed attempt reached the same suite but
+  produced nine OpenRS2 cache errors because macOS denied access to the existing
+  `Library/Caches` files; the authorized rerun passed all nine and is the
+  recorded result.
+- The full offscreen Qt repository lane passed 3,811 tests in 622.952 seconds
+  with three intentional skips.
+- No product asset changed in P3, so there is no new asset provenance or
+  normalization target. The full lanes still passed the repository's existing
+  asset, provenance, normalization, and reachability tests.
+- Closure documentation audit passed across 516 Markdown and 428 HTML files.
+  The test-quality audit again found 3,777 tests across 173 files with zero hard
+  issues and 19 pre-existing clone groups. The standalone reachability ledger
+  ran and reported its existing non-zero project debt: 1,498 actions, 2,230
+  reachable items, 169 orphan inputs, and 189 blocked actions. P3 changed no
+  item, action, acquisition, or asset row, so this ledger is recorded without
+  treating the pre-existing debt as a selector regression.
+- Final `git diff --check` and the worktree guard passed before the trace commit.
