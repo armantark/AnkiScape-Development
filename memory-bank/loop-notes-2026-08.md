@@ -1,5 +1,15 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 13 — Bork Ork-legion style classification
+
+- Evidence: Darkan `Bork.kt:110-111,184-205` selects melee within one tile and
+  ranged otherwise.
+- Result: the settled stand-near pressure route continues to use the exact
+  adjacent melee branch. `bork.ork_legion_attack_style` is retired because this
+  is a disclosed distance-collapse abstraction, not an unknown period value.
+- Verification: 28 focused tests pass. Full discovery passes 3,802 tests in
+  both lanes, with 460 expected plain skips and 3 Qt skips. GPT-family verified.
+
 ## Iteration 12 — Duellist's cap threshold closure
 
 - Evidence: oldid `6579418`, dated `2012-11-18T23:11:12Z`, is the pre-cutoff

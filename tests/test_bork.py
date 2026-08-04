@@ -165,8 +165,7 @@ class BorkPeriodDataTests(unittest.TestCase):
         self.assertEqual(ork["level"], 70)
         self.assertEqual(ork["stats"]["hitpoints"], 500)
         self.assertEqual(ork["max_hit"], 82)
-        # Darkan's combat definition and the period guide's stand-near advice
-        # both give melee; PLACEHOLDER(bork.ork_legion_attack_style).
+        # The collapsed stand-near route uses Darkan's exact adjacent branch.
         self.assertEqual(ork["attack_style"], "melee")
         self.assertTrue(ork["poison_immune"])
         self.assertEqual(ork["slayer_xp"], 50.0)

@@ -39,6 +39,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the six Duel Arena cap-tier thresholds through period pages,
      dated item definitions, and any authentic server records. Keep the near-
      cutoff fallback registered unless pre-cutoff evidence settles all six.
-   - [ ] Re-walk Bork's Ork legion attack-style placeholder through authentic
+   - [x] Re-walk Bork's Ork legion attack-style placeholder through authentic
      combat records and period pages. Preserve the distance abstraction unless
      a source settles the melee/ranged switch and accuracy penalty.
+   - [ ] Re-walk the Tears of Guthix green-tear chance through authentic server
+     records, period captures, and the pinned source chain. Keep the derived
+     rate registered if no source exposes the stream switch and catch roll.

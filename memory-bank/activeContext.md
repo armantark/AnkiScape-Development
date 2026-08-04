@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-03, grind-loop iteration 13 retires Bork's Ork-legion style
+placeholder as a classification error.** Darkan's authentic handler states the
+exact boundary: melee within one tile and ranged otherwise. AnkiScape's settled
+homogeneous pressure front represents the pinned stand-near-Bork route and
+therefore uses that exact adjacent melee branch. It remains a disclosed
+distance-collapse abstraction, not an unrecovered period value; no ranged
+accuracy penalty was invented. No owner design gap surfaced. The next slice
+re-walks the Tears of Guthix green-tear chance. Full discovery passes 3,802
+tests in both lanes, with 460 expected plain skips and 3 Qt skips.
+
 **2026-08-03, grind-loop iteration 12 retires the Duellist's cap threshold
 placeholder.** The parent of the previously cited post-cutoff page is oldid
 `6579418`, dated `2012-11-18T23:11:12Z`, and already states the complete win

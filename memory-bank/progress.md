@@ -1,5 +1,18 @@
 # Progress
 
+## Bork Ork-legion style classification closure — 2026-08-03
+
+Darkan `Bork.kt:110-111,184-205` explicitly selects melee when an Ork legion is
+within one tile of its target and ranged otherwise. The shipped always-melee
+pressure remains correct for AnkiScape's settled stand-near, homogeneous-front
+translation. It is now documented as a distance-collapse abstraction instead
+of an unrecovered period value, and `bork.ork_legion_attack_style` is retired
+from the placeholder register. No ranged accuracy penalty was added.
+
+The focused Bork and placeholder-register lane passes 28 tests. Full discovery
+passes all 3,802 tests in both lanes, with 460 expected plain skips and 3 Qt
+skips.
+
 ## Duellist's cap threshold closure — 2026-08-03
 
 RuneScape Wiki oldid `6579418`, dated `2012-11-18T23:11:12Z`, is the pre-cutoff
