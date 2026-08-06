@@ -725,6 +725,12 @@ _ACTIVITY_GROUP_ICONS = {
         current_dir, "icon", "dnd_icon.png"
     ),
 }
+_ACTIVITY_SELECTION_GROUPS = (
+    "minigames",
+    "distractions_and_diversions",
+)
+_ACTIVITY_SELECTION_PREFIX = "__activity_selection__:"
+
 def _set_slayer_master_chathead(label: "QLabel", asset_path: str) -> None:
     if not asset_path:
         return
@@ -750,6 +756,12 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
         _ACTIVITIES_HUB_NAME: os.path.join(
             current_dir, "icon", "activities_icon.png"
         ),
+        _UTILITY_GROUP_LABELS["minigames"]: _ACTIVITY_GROUP_ICONS[
+            "minigames"
+        ],
+        _UTILITY_GROUP_LABELS[
+            "distractions_and_diversions"
+        ]: _ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
     }
     surface_icon = surface_icons.get(display_name)
     if surface_icon and os.path.exists(surface_icon):
@@ -4480,6 +4492,7 @@ def show_main_menu(
         "skill": "",
         "active": current_skill if current_skill in _active_choices else "None",
         "details_open": False,
+        "activity_group": "",
     }
     target_details_context = {"display_row": None}
     activity_start_transition = {}
@@ -8116,6 +8129,7 @@ def show_main_menu(
 
     def _build_utility_list(surface_name: str) -> QWidget:
         is_activities = surface_name == _ACTIVITIES_HUB_NAME
+        activity_group_role = int(Qt.ItemDataRole.UserRole) + 1
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -18928,24 +18942,31 @@ def show_main_menu(
                     group_rows,
                     key=lambda row: str(row.label).casefold(),
                 )
-            label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
-            parent_text = f"{label}  ({len(group_rows)})"
-            parent = QTreeWidgetItem([parent_text])
-            parent.setData(0, Qt.ItemDataRole.UserRole, f"__utility_group__:{group}")
-            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            group_icon = _ACTIVITY_GROUP_ICONS.get(group)
-            if group_icon and os.path.exists(group_icon):
-                icon = _pixel_path_icon(group_icon, 28)
-                if icon is not None:
-                    parent.setIcon(0, icon)
-            font = parent.font(0)
-            font.setBold(True)
-            parent.setFont(0, font)
-            tree.addTopLevelItem(parent)
+            flat_activity_group = (
+                is_activities and group in _ACTIVITY_SELECTION_GROUPS
+            )
+            parent = None
+            if not flat_activity_group:
+                label = _UTILITY_GROUP_LABELS.get(
+                    group, group.replace("_", " ").title()
+                )
+                parent_text = f"{label}  ({len(group_rows)})"
+                parent = QTreeWidgetItem([parent_text])
+                parent.setData(
+                    0,
+                    Qt.ItemDataRole.UserRole,
+                    f"__utility_group__:{group}",
+                )
+                parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+                font = parent.font(0)
+                font.setBold(True)
+                parent.setFont(0, font)
+                tree.addTopLevelItem(parent)
             group_has_current = False
             for row in group_rows:
                 child = QTreeWidgetItem([row.label])
                 child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
+                child.setData(0, activity_group_role, group)
                 if row.icon_path and os.path.exists(row.icon_path):
                     icon = _pixel_path_icon(row.icon_path, 28)
                     if icon is not None:
@@ -18963,13 +18984,16 @@ def show_main_menu(
                 ):
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
-                parent.addChild(child)
+                if parent is None:
+                    tree.addTopLevelItem(child)
+                else:
+                    parent.addChild(child)
                 if row.target_id == current:
                     selected_child = child
                     group_has_current = True
-            if is_activities:
+            if is_activities and parent is not None:
                 parent.setExpanded(group not in collapsed_activity_groups)
-            else:
+            elif parent is not None:
                 parent.setExpanded(group_has_current)
 
         # Landmarks: the one-time Stronghold of Security. Injected by hand because
@@ -20376,6 +20400,41 @@ def show_main_menu(
             )
             world_events_refresher["call"]()
 
+        def _show_activity_group(group: object) -> None:
+            selected_group = str(group or "")
+            if selected_group not in _ACTIVITY_SELECTION_GROUPS:
+                selected_group = ""
+            _show_activity_detail("")
+            for index in range(tree.topLevelItemCount()):
+                item = tree.topLevelItem(index)
+                item_group = str(
+                    item.data(0, activity_group_role) or ""
+                )
+                is_selection_group = (
+                    item_group in _ACTIVITY_SELECTION_GROUPS
+                )
+                item.setHidden(
+                    item_group != selected_group
+                    if selected_group
+                    else is_selection_group
+                )
+            current_item = tree.currentItem()
+            if current_item is not None and current_item.isHidden():
+                tree.clearSelection()
+            if selected_group:
+                for index in range(tree.topLevelItemCount()):
+                    item = tree.topLevelItem(index)
+                    if (
+                        not item.isHidden()
+                        and item.data(0, Qt.ItemDataRole.UserRole) == current
+                    ):
+                        tree.setCurrentItem(item)
+                        tree.scrollToItem(
+                            item,
+                            QAbstractItemView.ScrollHint.PositionAtCenter,
+                        )
+                        break
+
         if is_activities:
             world_events_box = QtFrame()
             world_events_box.setObjectName("activityWorldEventsStrip")
@@ -20497,6 +20556,7 @@ def show_main_menu(
         container._ankiscape_refresh_reward_shops = _refresh_reward_shop_sources
         container._ankiscape_refresh_all = _refresh_all_activity_panels
         container._ankiscape_show_activity = _show_activity_detail
+        container._ankiscape_show_activity_group = _show_activity_group
 
         container_layout.addWidget(cards_stack)
         activity_controls = QWidget()
@@ -21520,17 +21580,43 @@ def show_main_menu(
         _skill_guard["on"] = True
         skill_list_widget.clear()
         cards = _cards_for(state["category"])
-        for card in cards:
-            it = QListWidgetItem(card.display_name)
-            it.setData(Qt.ItemDataRole.UserRole, card.display_name)
-            ip = _skill_icon_path(card.display_name)
+        rows = (
+            (
+                (_ACTIVITIES_HUB_NAME, _ACTIVITIES_HUB_NAME),
+                *(
+                    (
+                        _UTILITY_GROUP_LABELS[group],
+                        f"{_ACTIVITY_SELECTION_PREFIX}{group}",
+                    )
+                    for group in _ACTIVITY_SELECTION_GROUPS
+                ),
+            )
+            if state["category"] == "activities"
+            else tuple(
+                (card.display_name, card.display_name) for card in cards
+            )
+        )
+        selected_role = (
+            f"{_ACTIVITY_SELECTION_PREFIX}{state['activity_group']}"
+            if state["category"] == "activities"
+            and state["activity_group"]
+            else state["skill"]
+        )
+        for display_name, role in rows:
+            it = QListWidgetItem(display_name)
+            it.setData(Qt.ItemDataRole.UserRole, role)
+            ip = _skill_icon_path(display_name)
             if os.path.exists(ip):
                 it.setIcon(QIcon(ip))
-            if not card.implemented:
+            card = next(
+                (row for row in cards if row.display_name == display_name),
+                None,
+            )
+            if card is not None and not card.implemented:
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEnabled)
                 it.setToolTip("Planned skill — not yet playable (shown because Developer Mode is on)")
             skill_list_widget.addItem(it)
-            if card.display_name == state["skill"]:
+            if role == selected_role:
                 skill_list_widget.setCurrentItem(it)
         _skill_guard["on"] = False
 
@@ -21575,13 +21661,19 @@ def show_main_menu(
 
         is_utility = name in _UTILITY_SKILL_NAMES
         is_combat = name == _COMBAT_HUB_NAME
+        panel_name = (
+            _UTILITY_GROUP_LABELS[state["activity_group"]]
+            if name == _ACTIVITIES_HUB_NAME
+            and state["activity_group"] in _ACTIVITY_SELECTION_GROUPS
+            else name
+        )
         header = QWidget()
         hl = QHBoxLayout(header)
         hl.setContentsMargins(0, 0, 0, 0)
         hl.setSpacing(8)
         if is_utility:
             # No level/XP for Utility; keep the title bare and flag the no-XP nature.
-            title = QLabel(name)
+            title = QLabel(panel_name)
         elif is_combat:
             title = QLabel(f"{name} — Lv {player_combat_level_pure(player_data)}")
         elif card.implemented:
@@ -21814,6 +21906,13 @@ def show_main_menu(
                 _MAIN_MENU_CTX["refresh_farming"] = getattr(built_panel, "_ankiscape_refresh_farming", None)
             if name == _ACTIVITIES_HUB_NAME:
                 _MAIN_MENU_CTX["show_activity"] = getattr(built_panel, "_ankiscape_show_activity", None)
+                show_group = getattr(
+                    built_panel,
+                    "_ankiscape_show_activity_group",
+                    None,
+                )
+                if callable(show_group):
+                    show_group(state["activity_group"])
         else:
             panel_layout.addWidget(QLabel("No targets available yet."))
             panel_layout.addStretch(1)
@@ -21828,6 +21927,13 @@ def show_main_menu(
         # binding would shadow this one, silently routing hub clicks into the
         # Stats selector and leaving the hub panel stale.
         _debug_log(f"hub.select_skill: {name!r}")
+        if isinstance(name, str) and name.startswith(
+            _ACTIVITY_SELECTION_PREFIX
+        ):
+            state["activity_group"] = name[len(_ACTIVITY_SELECTION_PREFIX):]
+            name = _ACTIVITIES_HUB_NAME
+        elif name == _ACTIVITIES_HUB_NAME:
+            state["activity_group"] = ""
         if name != state["skill"]:
             state["details_open"] = False
         state["skill"] = name
@@ -21842,6 +21948,9 @@ def show_main_menu(
         if category_id != state["category"]:
             state["details_open"] = False
         state["category"] = category_id
+        if category_id == "activities":
+            state["activity_group"] = ""
+        skill_col.setFixedWidth(250 if category_id == "activities" else 190)
         _update_cat_btn_styles()
         skill_column_label.setText(
             "Selection"
@@ -21877,6 +21986,7 @@ def show_main_menu(
         farming_ui_state["focus_patch"] = patch_id
         state["details_open"] = False
         state["category"] = "gathering"
+        skill_col.setFixedWidth(190)
         _update_cat_btn_styles()
         state["skill"] = "Farming"
         _render_skill_list()
@@ -21895,20 +22005,34 @@ def show_main_menu(
     _MAIN_MENU_CTX["dialog"] = dialog
     _MAIN_MENU_CTX["warn_label"] = warn
     def _open_activity_in_dialog(activity_id=None) -> None:
+        activity_id = str(activity_id or "")
+        activity_spec = UTILITY_ACTIVITY_DATA.get(activity_id, {})
+        activity_group = str(activity_spec.get("group") or "")
+        if activity_id == EVIL_TREE_UTILITY_ID:
+            activity_group = "distractions_and_diversions"
+        if activity_group not in _ACTIVITY_SELECTION_GROUPS:
+            activity_group = ""
         state["details_open"] = False
         state["category"] = "activities"
+        skill_col.setFixedWidth(250)
+        state["activity_group"] = activity_group
         _update_cat_btn_styles()
         state["skill"] = _ACTIVITIES_HUB_NAME
         _render_skill_list()
+        selection_role = (
+            f"{_ACTIVITY_SELECTION_PREFIX}{activity_group}"
+            if activity_group
+            else _ACTIVITIES_HUB_NAME
+        )
         for index in range(skill_list_widget.count()):
             item = skill_list_widget.item(index)
-            if item.data(Qt.ItemDataRole.UserRole) == _ACTIVITIES_HUB_NAME:
+            if item.data(Qt.ItemDataRole.UserRole) == selection_role:
                 skill_list_widget.setCurrentItem(item)
                 break
         _render_panel()
         show_activity = _MAIN_MENU_CTX.get("show_activity")
         if callable(show_activity):
-            show_activity(str(activity_id or ""))
+            show_activity(activity_id)
         tabs.setCurrentWidget(skills_tab)
         dialog.raise_()
         dialog.activateWindow()

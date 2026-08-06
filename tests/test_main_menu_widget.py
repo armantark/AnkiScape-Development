@@ -10243,13 +10243,80 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_activity_and_dnd_entries_are_alphabetical(self) -> None:
         tree = self._open_activities(self.dialog)
 
-        for group_id in ("minigames", "distractions_and_diversions"):
-            group = _utility_row(tree, f"__utility_group__:{group_id}")
+        selection = _find_named_widget(self.dialog, "skillListWidget")
+        for label in ("Minigames", "Distractions and Diversions"):
+            row = next(
+                selection.item(index)
+                for index in range(selection.count())
+                if selection.item(index).text() == label
+            )
+            selection.setCurrentItem(row)
+            QApplication.processEvents()
             labels = [
-                group.child(index).text(0)
-                for index in range(group.childCount())
+                tree.topLevelItem(index).text(0)
+                for index in range(tree.topLevelItemCount())
+                if not tree.topLevelItem(index).isHidden()
             ]
-            self.assertEqual(labels, sorted(labels, key=str.casefold), group_id)
+            self.assertEqual(labels, sorted(labels, key=str.casefold), label)
+
+    def test_activity_families_are_icon_rows_in_the_selection_column(self) -> None:
+        tree = self._open_activities(self.dialog)
+        selection = _find_named_widget(self.dialog, "skillListWidget")
+        self.assertEqual(
+            [selection.item(index).text() for index in range(selection.count())],
+            ["Activities", "Minigames", "Distractions and Diversions"],
+        )
+        for index in range(selection.count()):
+            self.assertFalse(selection.item(index).icon().isNull())
+        dnd_row_width = (
+            selection.fontMetrics().horizontalAdvance(
+                "Distractions and Diversions"
+            )
+            + selection.iconSize().width()
+            + 24
+        )
+        self.assertGreaterEqual(selection.viewport().width(), dnd_row_width)
+        self.assertGreaterEqual(selection.parentWidget().maximumWidth(), 240)
+
+        visible_master_ids = {
+            tree.topLevelItem(index).data(0, Qt.ItemDataRole.UserRole)
+            for index in range(tree.topLevelItemCount())
+            if not tree.topLevelItem(index).isHidden()
+        }
+        self.assertIn("__utility_group__:warriors_guild", visible_master_ids)
+        self.assertIn("__utility_group__:landmarks", visible_master_ids)
+        self.assertNotIn("__utility_group__:minigames", visible_master_ids)
+        self.assertNotIn(
+            "__utility_group__:distractions_and_diversions",
+            visible_master_ids,
+        )
+
+        minigames = selection.item(1)
+        selection.setCurrentItem(minigames)
+        QApplication.processEvents()
+        visible_minigame_ids = {
+            tree.topLevelItem(index).data(0, Qt.ItemDataRole.UserRole)
+            for index in range(tree.topLevelItemCount())
+            if not tree.topLevelItem(index).isHidden()
+        }
+        self.assertIn("fist_of_guthix", visible_minigame_ids)
+        self.assertNotIn("__utility_group__:minigames", visible_minigame_ids)
+        self.assertNotIn("shooting_stars", visible_minigame_ids)
+
+        dnds = selection.item(2)
+        selection.setCurrentItem(dnds)
+        QApplication.processEvents()
+        visible_dnd_ids = {
+            tree.topLevelItem(index).data(0, Qt.ItemDataRole.UserRole)
+            for index in range(tree.topLevelItemCount())
+            if not tree.topLevelItem(index).isHidden()
+        }
+        self.assertIn("shooting_stars", visible_dnd_ids)
+        self.assertNotIn(
+            "__utility_group__:distractions_and_diversions",
+            visible_dnd_ids,
+        )
+        self.assertNotIn("fist_of_guthix", visible_dnd_ids)
 
     def test_soft_clay_left_crafting_and_is_now_a_utility_activity(self) -> None:
         # Open Crafting target tree and assert Soft clay is no longer a target.
@@ -10295,38 +10362,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_texts = [it.text(0) for it in _tree_items(activities_tree)]
         self.assertNotIn("Make soft clay", activity_texts)
         self.assertIn("Livid Farm", activity_texts)
-        # Group headers carry their activity count, like every other hub tree.
-        self.assertTrue(
-            any(t.startswith("Minigames  (") for t in activity_texts),
-            activity_texts,
-        )
-        self.assertTrue(
-            any(
-                t.startswith("Distractions and Diversions  (")
-                for t in activity_texts
-            ),
-            activity_texts,
-        )
-        self.assertNotIn("Activities / minigames  (2)", activity_texts)
-        minigames = _utility_row(
-            activities_tree, "__utility_group__:minigames"
-        )
-        dnds = _utility_row(
-            activities_tree,
-            "__utility_group__:distractions_and_diversions",
-        )
-        self.assertFalse(minigames.icon(0).isNull())
-        self.assertFalse(dnds.icon(0).isNull())
+        minigames = skill_list.item(1)
+        dnds = skill_list.item(2)
+        self.assertFalse(minigames.icon().isNull())
+        self.assertFalse(dnds.icon().isNull())
         self.assertNotEqual(
-            _icon_pixels(minigames.icon(0)),
-            _icon_pixels(dnds.icon(0)),
+            _icon_pixels(minigames.icon()),
+            _icon_pixels(dnds.icon()),
         )
+        skill_list.setCurrentItem(minigames)
+        QApplication.processEvents()
         self.assertEqual(
             {
-                minigames.child(index).data(
+                activities_tree.topLevelItem(index).data(
                     0, Qt.ItemDataRole.UserRole
                 )
-                for index in range(minigames.childCount())
+                for index in range(activities_tree.topLevelItemCount())
+                if not activities_tree.topLevelItem(index).isHidden()
             },
             {
                 "fist_of_guthix",
@@ -10360,10 +10412,15 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "crucible",
             },
         )
+        skill_list.setCurrentItem(dnds)
+        QApplication.processEvents()
         self.assertEqual(
             {
-                dnds.child(index).data(0, Qt.ItemDataRole.UserRole)
-                for index in range(dnds.childCount())
+                activities_tree.topLevelItem(index).data(
+                    0, Qt.ItemDataRole.UserRole
+                )
+                for index in range(activities_tree.topLevelItemCount())
+                if not activities_tree.topLevelItem(index).isHidden()
             },
             {
                 "big_chinchompa",
@@ -10893,6 +10950,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.resize(1000, 560)
         for _ in range(8):
             QApplication.processEvents()
+        selection = _find_named_widget(dialog, "skillListWidget")
+        selection.setCurrentItem(selection.item(2))
+        for _ in range(4):
+            QApplication.processEvents()
 
         captured_menus: list[QMenu] = []
         original_menu_exec = QMenu.exec
@@ -10903,6 +10964,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         def _open_row_menu(activity_id: str) -> QMenu | None:
             row = _utility_row(activity_tree, activity_id)
+            if row.isHidden():
+                return None
             activity_tree.scrollToItem(
                 row, QAbstractItemView.ScrollHint.PositionAtCenter
             )
@@ -11136,12 +11199,16 @@ class MainMenuWidgetTest(unittest.TestCase):
             for _ in range(8):
                 QApplication.processEvents()
 
+            selection = _find_named_widget(dialog, "skillListWidget")
+            selection.setCurrentItem(selection.item(1))
+            for _ in range(8):
+                QApplication.processEvents()
             top_levels = [
                 activity_tree.topLevelItem(index)
                 for index in range(activity_tree.topLevelItemCount())
             ]
-            self.assertEqual(len(top_levels), 4)
-            self.assertFalse([item for item in top_levels if item.isHidden()])
+            visible_rows = [item for item in top_levels if not item.isHidden()]
+            self.assertEqual(len(visible_rows), 29)
 
             # Scrolling, not a fixed height: the tree keeps Qt's default max
             # height and grows a scrollbar instead of the dialog.
@@ -11170,11 +11237,15 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
             )
 
+            selection.setCurrentItem(selection.item(0))
+            for _ in range(4):
+                QApplication.processEvents()
             by_group = {
                 item.data(0, Qt.ItemDataRole.UserRole): item
                 for item in top_levels
+                if not item.isHidden()
             }
-            for group in ("minigames", "distractions_and_diversions"):
+            for group in ("warriors_guild", "landmarks"):
                 header = by_group[f"__utility_group__:{group}"]
                 header.setExpanded(False)
                 QApplication.processEvents()
@@ -11182,7 +11253,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 self.assertFalse(header.isExpanded())
             self.assertEqual(
                 ui.mw.col.get_config("ankiscape_activity_collapsed_groups"),
-                ["distractions_and_diversions", "minigames"],
+                ["landmarks", "warriors_guild"],
             )
 
             dialog2 = self._open(pd)
@@ -11194,14 +11265,8 @@ class MainMenuWidgetTest(unittest.TestCase):
                     for index in range(tree2.topLevelItemCount())
                 )
             }
-            self.assertFalse(
-                expanded["__utility_group__:distractions_and_diversions"]
-            )
-            self.assertTrue(expanded["__utility_group__:warriors_guild"])
-            self.assertTrue(expanded["__utility_group__:landmarks"])
-            # Minigames holds the current activity, so the selection wins over
-            # the remembered collapse and the active row stays reachable.
-            self.assertTrue(expanded["__utility_group__:minigames"])
+            self.assertFalse(expanded["__utility_group__:warriors_guild"])
+            self.assertFalse(expanded["__utility_group__:landmarks"])
         finally:
             ui.mw = orig_mw
 
@@ -14208,6 +14273,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         navigate("big_chinchompa")
         QApplication.processEvents()
 
+        selection = _find_named_widget(dialog, "skillListWidget")
+        self.assertEqual(
+            selection.currentItem().text(),
+            "Distractions and Diversions",
+        )
         panel = _find_named_widget(dialog, "bigChinchompaPanel")
         stack = _find_named_widget(dialog, "utilityActivityDetailsStack")
         self.assertFalse(stack.isHidden())
@@ -14223,6 +14293,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         activities_button.click()
         QApplication.processEvents()
+        self.assertEqual(selection.currentItem().text(), "Activities")
         self.assertTrue(stack.isHidden())
         self.assertTrue(
             any(

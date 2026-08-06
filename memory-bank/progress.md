@@ -4942,8 +4942,12 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 
 - Made the top-level Activities entry a stable master-list route without
   removing direct-link or selected-row detail navigation.
-- Kept Minigames and Distractions and Diversions under Activities and sorted
-  each group's entries alphabetically.
+- Moved Minigames and Distractions and Diversions into their own icon rows
+  beneath Activities in the middle Selection column, matching the owner's
+  Pass 7 arrows. Activities keeps only the Warriors' Guild and Landmarks master
+  groups; the two family rows show flat alphabetical lists. The wider
+  250-pixel selector is scoped to Activities so other narrow category layouts
+  retain their 190-pixel column.
 - Moved simulated world time from the review XP strip to the main-menu status
   row and retained its answered-review-only projection.
 - Verification passed 411 focused offscreen UI tests, 214 focused non-Qt tests,

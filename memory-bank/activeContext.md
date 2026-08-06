@@ -3965,8 +3965,12 @@ flees silently when the player runs out of food.
 - Top-level Activities is now a stable master route. It always shows the full
   Activities tree without clearing the saved activity, while explicit deep
   links and activated tree rows still open named details.
-- Minigames and Distractions and Diversions remain grouped under Activities;
-  their child rows now render in case-insensitive alphabetical order.
+- Activities now owns three icon rows in the middle Selection column:
+  **Activities**, **Minigames**, and **Distractions and Diversions**. The
+  Activities row shows only the Warriors' Guild and Landmarks master groups;
+  the other two rows show 29 and 17 flat case-insensitive alphabetical entries.
+  The Activities-only 250-pixel column keeps the full D&D label visible without
+  reducing the supported narrow layouts of any other category.
 - Simulated world time now appears in the main-menu status row, not the review
   strip. It remains derived only from answered reviews at ten reviews per hour.
 - Verification passed 411 focused offscreen UI tests, 214 focused pure,
