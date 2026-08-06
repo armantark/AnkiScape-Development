@@ -493,4 +493,5 @@ Append new entries. Do not edit earlier entries.
 - Fable and Kimi remained unused as directed. The existing regular Markdown
   co-ideation handoff remains
   `memory-bank/codex-briefs/pass7-owner-fable-co-ideation-handoff-2026-08-03.md`.
-- Accepted implementation commit: pending this batch commit.
+- Accepted implementation commit:
+  `4997c7dc064816df246090a4814f49a38106d4c3`.
