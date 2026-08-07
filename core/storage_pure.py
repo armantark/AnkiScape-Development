@@ -4,6 +4,10 @@ from typing import Dict, Iterable, Optional, Any
 
 from ..logic.cadence_kernel import default_cadence_kernel_state_pure, sanitize_cadence_kernel_state_pure
 from ..logic import inventory_pure
+from ..logic.bank_layout_logic import (
+    default_bank_layout_state_pure,
+    reconcile_bank_layout_for_player_pure,
+)
 from ..data.cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
 from ..data.crafting_data import (
     DEFAULT_CRAFTING_TARGET,
@@ -331,7 +335,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 111
+CURRENT_CONFIG_VERSION = 112
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -655,6 +659,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["item_charges"] = {}
     data["unlocked_abilities"] = []
     data.update(inventory_pure.default_carried_state())
+    data["bank_layout"] = default_bank_layout_state_pure()
     data.update(default_shop_state_pure())
     data["red_sandstone_daily"] = default_red_sandstone_daily_state_pure()
     data.update(default_ge_state_pure())
@@ -1781,6 +1786,7 @@ def migrate_loaded_data(
     # pouch label); the overlay and death-drop exclude coins, so no coin store is
     # moved and no balance can be stranded.
     inventory_pure.sanitize_carried_state(data)
+    data.update(reconcile_bank_layout_for_player_pure(data))
 
     # Ensure achievements structure exists
     data.setdefault("completed_achievements", [])

@@ -341,3 +341,51 @@ proof at 1280 by 752 is deferred; offscreen Qt is not native parity.
 
 Keep the page-identity deferred map and final tab move. It changes only global
 navigation order and preserves first-show construction.
+
+## Batch 9: Bank presentation-state model
+
+### Reproduction
+
+The Bank had no saved tab, position, sort, category, or drop-mode state. It
+could not preserve one home tab per item, and it had no review-counted MRU or
+date-added values. A focused test first failed because
+`logic.bank_layout_logic` did not exist.
+
+### Change
+
+The new pure Bank layout model sits over the unchanged flat inventory. It
+stores one home tab and position for each positive item stack. New items append
+to the main tab. It also stores tab names, order, owned-item icons, the selected
+tab, Manual or computed sort mode, the auto-category setting, and Swap or
+Insert mode.
+
+The existing `shop_market_clock.answered_cards` value is the only time source.
+A new stack records that review as its date-added and MRU value. A quantity
+change updates only MRU. Reconciliation runs on load and at the shared save
+boundary, so direct actions use the current answered-review number without a
+wall-clock read.
+
+### Verification
+
+- Six focused tests pass for one-home persistence, new-item placement,
+  review-only counters, Swap, Insert, tab auto-delete and explicit delete,
+  rename, reorder, owned icons, all six sorts, invalid-state repair, and a
+  full save/reload projection.
+- `tests.test_bank_layout_logic`, `tests.test_cadence_shadow`, and
+  `tests.test_skill_and_item_registry`: 73 tests passed.
+- Python compilation and `git diff --check` passed.
+- The first complete checker workflow
+  `b4911585-22a6-4f47-bd6a-a572585146ae` found two defects: downward
+  same-tab Swap used the wrong destination after removal, and an extreme saved
+  position could place a new item before the main-tab tail. Both defects now
+  have regression tests.
+- Rechecker `04386882-c8f5-439b-b5a7-8b424d11afb7` found that a main-tab
+  owned icon was accepted but not reloaded. The sanitizer now preserves and
+  validates that icon. Narrow final rechecker
+  `e4a4b1cc-69eb-4e50-9eec-8767760901d6` returned `accept` with no findings.
+
+### Decision
+
+Keep the pure presentation model and shared-save reconciliation. The model is
+the tested base for the next Frame A Qt batch. It does not create a second item
+store or a wall-clock counter.

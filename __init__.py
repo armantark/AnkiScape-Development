@@ -231,6 +231,7 @@ from .logic.grand_exchange_logic import (
     ge_frontend_projection_pure,
 )
 from .logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+from .logic.bank_layout_logic import reconcile_bank_layout_for_player_pure
 from .logic.review_strip_logic import (
     record_review_event_pure,
     request_review_bank_run_pure,
@@ -428,6 +429,7 @@ def show_review_popup():
 
 
 def save_player_data():
+    player_data.update(reconcile_bank_layout_for_player_pure(player_data))
     storage_save_player_data(player_data, current_skill)
 
 
