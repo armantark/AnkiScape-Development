@@ -302,3 +302,42 @@ externally blocked. Offscreen and data tests do not claim native parity.
 Keep the four-row source repair and the regenerated pinned snapshot. The audit
 does not widen the product catalog beyond registered, tradeable, cache-
 exchangeable identities.
+
+## Batch 8: owner-settled top tab order
+
+### Reproduction
+
+The menu still opened in the old order: Skills, Shop, Grand Exchange, Quests,
+Bank, Equipment, Stats, Challenges, Achievements, Collections, Settings. The
+deferred builders were keyed by insertion index, so a direct tab move would
+have dispatched Shop, Quests, Achievements, or Collections into the wrong page.
+
+### Change
+
+Deferred builders are now keyed by their page widget. After every tab exists
+and before the change signal is connected, the tab bar moves the pages into the
+exact owner order:
+
+`Skills | Stats | Bank | Equipment | Shop | Grand Exchange | Challenges | Quests | Achievements | Collections | Settings`
+
+The Gameplay action-multiplier spin also has a stable object name. Its test no
+longer assumes that Qt child traversal returns it before every Grand Exchange
+spin box.
+
+### Verification
+
+- Four focused offscreen Qt tests passed for exact order, deferred initial
+  state, refresh-before-build behavior, and the named Gameplay control.
+- Full `tests.test_main_menu_widget`: 385 tests passed in 117.606 seconds.
+- Frozen-packet checker workflow `dffc9646-20cd-482b-ace1-f1f228a27a4f`
+  returned `accept` with no required action.
+
+### Native evidence
+
+The MacBook Pro Codex Connection remains externally unavailable. Native tab-bar
+proof at 1280 by 752 is deferred; offscreen Qt is not native parity.
+
+### Decision
+
+Keep the page-identity deferred map and final tab move. It changes only global
+navigation order and preserves first-show construction.

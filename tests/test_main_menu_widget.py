@@ -1307,6 +1307,25 @@ class MainMenuWidgetTest(unittest.TestCase):
             rendered[label] = _icon_pixels(icon)
         self.assertEqual(len(set(rendered.values())), len(expected))
 
+    def test_global_tabs_follow_the_owner_settled_pass8_order(self) -> None:
+        tabs = _find_main_tabs(self.dialog)
+        self.assertEqual(
+            [tabs.tabText(index) for index in range(tabs.count())],
+            [
+                "Skills",
+                "Stats",
+                "Bank",
+                "Equipment",
+                "Shop",
+                "Grand Exchange",
+                "Challenges",
+                "Quests",
+                "Achievements",
+                "Collections",
+                "Settings",
+            ],
+        )
+
     def test_contextual_help_maps_every_primary_tab_without_changing_page(self) -> None:
         expected_titles = {
             "Skills": "Skills and training",
@@ -14944,10 +14963,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertIn("Gameplay", labels)
         self.assertIn("Actions per review:", labels)
-        spins = self.dialog.findChildren(QSpinBox)
-        self.assertTrue(spins, "no action multiplier spin box found")
-        self.assertEqual(spins[0].minimum(), 1)
-        self.assertGreaterEqual(spins[0].maximum(), 1.0)
+        spin = self.dialog.findChild(QSpinBox, "settingsActionMultiplierSpin")
+        self.assertIsNotNone(spin, "no action multiplier spin box found")
+        self.assertEqual(spin.minimum(), 1)
+        self.assertGreaterEqual(spin.maximum(), 1.0)
 
     # ---- Woodcutting 2011Scape parity frontend ----------------------------
     def _open_woodcutting(self, dialog: "QDialog") -> "QListWidget":

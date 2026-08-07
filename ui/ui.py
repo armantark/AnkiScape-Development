@@ -4535,13 +4535,13 @@ def show_main_menu(
         index = tabs.addTab(page, label)
         _set_global_tab_icon(page, icon_filename)
         tabs.setTabToolTip(index, tooltip)
-        _deferred_builders[index] = builder
+        _deferred_builders[page] = builder
 
     def _ensure_tab_built(index: int) -> None:
-        builder = _deferred_builders.pop(index, None)
+        page = tabs.widget(index)
+        builder = _deferred_builders.pop(page, None)
         if builder is None:
             return
-        page = tabs.widget(index)
         page.layout().addWidget(builder(ctx))
 
     # ---- availability + active-skill helpers ----
@@ -25816,6 +25816,7 @@ def show_main_menu(
     xmr.setSpacing(8)
     xmr.addWidget(QLabel("Actions per review:"))
     xp_mult_spin = QSpinBox()
+    xp_mult_spin.setObjectName("settingsActionMultiplierSpin")
     xp_mult_spin.setRange(1, 10)
     xp_mult_spin.setSingleStep(1)
     xp_mult_spin.setSuffix("x")
@@ -26128,6 +26129,27 @@ def show_main_menu(
     tabs.addTab(settings_tab, "Settings")
     _set_global_tab_icon(settings_tab, "settings_icon.png")
     tabs.setTabToolTip(tabs.indexOf(settings_tab), "Configure widget, experience HUD, notifications, and developer tools")
+
+    desired_tab_order = (
+        "Skills",
+        "Stats",
+        "Bank",
+        "Equipment",
+        "Shop",
+        "Grand Exchange",
+        "Challenges",
+        "Quests",
+        "Achievements",
+        "Collections",
+        "Settings",
+    )
+    for target_index, label in enumerate(desired_tab_order):
+        current_index = next(
+            index
+            for index in range(tabs.count())
+            if tabs.tabText(index) == label
+        )
+        tabs.tabBar().moveTab(current_index, target_index)
 
     # Connect only now that every placeholder exists: the very first addTab
     # already emitted currentChanged(0), and the open tab must be built even if
