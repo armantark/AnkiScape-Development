@@ -119,12 +119,22 @@ reorder must keep each tab's deferred-build behavior.
 3. Off: headers disappear and each tab is one flat RS-style grid under the
    same sort selector.
 
-## 4. Skills guide contract
+## 4. Skill guide contract
 
-1. The guide fills the unused space in the Skills detail region, beside the
-   target detail area. Both stay visible. The guide scrolls on its own.
-2. A click on a target updates the target detail and also scrolls the guide
-   to that unlock's row and highlights it. The guide scrolls freely after.
+> Owner correction, 2026-08-07 (later): the guide belongs in the **Stats**
+> tab, not the Skills tab. Answers 8 and 9 in section 1 were given against
+> the wrong surface and are superseded by items 1 and 2 below. The
+> screenshot evidence is the red-outlined empty region under the selected
+> skill's stats block in the Stats tab.
+
+1. The guide fills the empty region in the Stats tab below the selected
+   skill's stats block (current/base level, total experience, experience to
+   next level, level progress). It uses the full width of that region and
+   scrolls on its own. The stats block stays unchanged above it.
+2. The Stats skill grid drives the guide: select a skill and its guide
+   renders. The guide opens scrolled to the player's current level, so the
+   next locked unlocks are visible. Guide rows are informational in the
+   first build; they have no click behavior.
 3. The first build ships the actions/targets family and the equipment family.
 4. The section structure must copy the period in-game skill guide for each
    skill ("whatever it is in-game"). Harvest each skill's period guide
@@ -183,9 +193,11 @@ reorder must keep each tab's deferred-build behavior.
 3. Bank layout: offscreen Qt geometry probes plus native MacBook Pro
    screenshots at the 1280-by-752 menu size show the full frame-A layout
    with search, quantity, actions, and the carried-pack panel intact.
-4. Skills guide: rows come only from existing registries and audits (no new
-   unlock data files); a target click highlights the matching guide row;
-   locked rows are dimmed with full names; no source or trace strings render.
+4. Skill guide: rows come only from existing registries and audits (no new
+   unlock data files); the guide renders in the Stats tab under the stats
+   block; a skill selection in the Stats grid swaps the guide and opens it
+   at the player's current level; locked rows are dimmed with full names;
+   no source or trace strings render.
 5. Collections: the left list and right grid render Music and the drop log;
    undiscovered targets show "???"; discovered items unlock per kill records;
    global and per-family totals agree with the view data; no debug strings.
@@ -197,3 +209,16 @@ reorder must keep each tab's deferred-build behavior.
    for each UI surface, per the standing Pass 7 verification rules.
 
 No unresolved conflict remains.
+
+## 8. Owner visual parameters (2026-08-07, from the playground)
+
+The owner explored `tools/playgrounds/pass8-ui-playground.html` and set these
+parameters that the contracts above left open. More can follow; each addition
+gets a dated entry here.
+
+Bank tab, within frame A:
+
+1. The item grid uses 12 columns of 54-pixel cells.
+2. The tab strip shows icons with short names, not icons alone.
+3. The right column (selected-item detail, Bank actions, 4-by-7 carried
+   pack) gets about 280 pixels of width.
