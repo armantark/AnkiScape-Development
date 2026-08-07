@@ -244,3 +244,61 @@ the larger Bank surface batch.
 
 Keep the one-condition promotion. It fixes player-use categories without
 changing the flat save model or erasing a source system's specific category.
+
+## Batch 7: Black and White Grand Exchange equipment coverage
+
+### Reproduction
+
+The live catalog already contained all 22 registered White equipment rows and
+22 registered Black equipment rows after Batch 6. A source-to-registry audit
+found four remaining ordinary Black weapons absent from both equipment data and
+the Grand Exchange: Black claws (item 3098), Black mace (1426), Black scimitar
+(1327), and Black spear (4580). The Iron scimitar sprite was the OSRS-style art
+called out in the owner's notes.
+
+Regenerating the pinned Grand Exchange harvest also reproduced a stale-snapshot
+gap: 55 registered items already had cutoff-safe price revisions and 56 had
+buy-limit rows, but the generated snapshot predated their registration.
+
+### Change
+
+The four missing Black weapons now use their exact 2011Scape equipment blocks,
+Attack-10 requirements, weapon types, tradeability, and flat item identities.
+Their sprites carry asset provenance. Iron scimitar now uses the explicitly
+historical September 2009 RuneScape sprite. The existing Grand Exchange
+generator was rerun at its fixed `2012-11-20T00:00:00Z` cutoff; no prices or
+limits were authored by hand.
+
+### Verification
+
+- `tests.test_equipment_data`, `tests.test_grand_exchange_data`, and
+  `tests.test_skill_and_item_registry`: 82 tests passed.
+- Black scimitar, mace, claws, and spear now render as equipment, retain their
+  exact source item IDs, and have a period buy limit of 100.
+- Period guide prices are 3,282 for Black scimitar, 976 for Black mace, 6,772
+  for Black claws, and 283 for Black spear. The generator now tries canonical
+  singular page aliases when a plural buy-limit title has no Exchange revision.
+- The regenerated snapshot contains 1,414 period prices and 1,728 buy limits.
+- Frozen checker workflow `1a27951e-2269-42c6-86d2-98dcf88ae673` exceeded its
+  tool-output bound before a verdict. Its partial evidence contained the full
+  diff but no finding. Repository-root replacement
+  `abb3a659-cfbd-4a15-91d4-99e7c7d0c4c8` repeated the same scope failure.
+- Frozen-packet checker workflow `dd6a469f-fbaf-4e31-89d3-90c4fc57ac8d`
+  returned `accept` with no required action. It read only the 5,112-byte
+  evidence packet. The disposable packet and Git directory were deleted after
+  the verdict.
+- Both equipment and Grand Exchange generators reproduced their committed
+  outputs byte-for-byte in disposable paths.
+
+### Native evidence
+
+The native gate reports MacBook Pro host
+`remote-control:env_e_6a684c98946c8321ba89026140dd59e4` as
+`thread_list_unavailable`. Grand Exchange and Bank-category proof remains
+externally blocked. Offscreen and data tests do not claim native parity.
+
+### Decision
+
+Keep the four-row source repair and the regenerated pinned snapshot. The audit
+does not widen the product catalog beyond registered, tradeable, cache-
+exchangeable identities.

@@ -6685,6 +6685,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-11-10T20:59:56Z"
   },
+  "combatitems/black_claws.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_claws_%282004%29.png",
+    "file_title": "Black claws (2004).png",
+    "image_url": "https://runescape.wiki/images/Black_claws_%282004%29.png?6bd04",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5bc951eae5b1458ffe4bf0e6cd3af844897dce31",
+    "size": 201,
+    "source_wiki": "rs3",
+    "timestamp": "2025-09-27T07:17:13Z"
+  },
   "combatitems/black_defender.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_defender.png",
     "file_title": "Black defender.png",
@@ -6696,6 +6708,42 @@
     "size": 398,
     "source_wiki": "rs3",
     "timestamp": "2012-11-19T22:38:41Z"
+  },
+  "combatitems/black_mace.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_mace.png",
+    "file_title": "Black mace.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013531%21Black_mace.png?6a0cd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "63cda55287ada213b05d29d9c7b657d83bd82d22",
+    "size": 372,
+    "source_wiki": "rs3",
+    "timestamp": "2012-11-19T22:38:49Z"
+  },
+  "combatitems/black_scimitar.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_scimitar.png",
+    "file_title": "Black scimitar.png",
+    "image_url": "https://runescape.wiki/images/archive/20121121201625%21Black_scimitar.png?3b664",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "86019bb3853dc2126fc243e84424ed47b33e4e13",
+    "size": 356,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-16T03:39:15Z"
+  },
+  "combatitems/black_spear.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_spear.png",
+    "file_title": "Black spear.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013722%21Black_spear.png?b5aeb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ac1112453551a1136eb7c8924bce082b42ce529d",
+    "size": 216,
+    "source_wiki": "rs3",
+    "timestamp": "2012-11-19T22:38:51Z"
   },
   "combatitems/blue_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_charm.png",
@@ -42588,16 +42636,16 @@
     "timestamp": "2012-02-01T01:19:43Z"
   },
   "smithingitems/iron_scimitar.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_scimitar.png",
-    "file_title": "Iron scimitar.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Iron_scimitar.png?d652c",
+    "file_page_url": "https://runescape.wiki/wiki/File:Iron_scimitar_%28September_2009%29.png",
+    "file_title": "Iron scimitar (September 2009).png",
+    "image_url": "https://runescape.wiki/images/Iron_scimitar_%28September_2009%29.png?c7147",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4d4078b74250dcfe5644e4a2108d338b982d7564",
-    "size": 448,
-    "source_wiki": "osrs",
-    "timestamp": "2021-08-20T14:58:21Z"
+    "sha1": "58321bde132a5c59251c5613f5f103568d09fe52",
+    "size": 1489,
+    "source_wiki": "rs3",
+    "timestamp": "2022-05-16T05:56:20Z"
   },
   "smithingitems/iron_spit.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_spit.png",

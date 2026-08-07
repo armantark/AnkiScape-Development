@@ -1925,6 +1925,27 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["White scimitar"].category, "equipment")
         self.assertEqual(by_storage_key["White scimitar"].storage_key, "White scimitar")
         self.assertEqual(by_storage_key["Iron scimitar"].category, "smithed")
+        for item_name in ("Black claws", "Black mace", "Black scimitar", "Black spear"):
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.category, "equipment")
+                self.assertEqual(definition.equipment_slot, "weapon")
+                self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES[item_name])
+                self.assertTrue(os.path.isfile(definition.asset_path))
+        provenance_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "assets_provenance.json",
+        )
+        with open(provenance_path, encoding="utf-8") as handle:
+            provenance = json.load(handle)
+        self.assertEqual(
+            provenance["smithingitems/iron_scimitar.png"]["file_title"],
+            "Iron scimitar (September 2009).png",
+        )
+        self.assertEqual(
+            provenance["combatitems/black_claws.png"]["file_title"],
+            "Black claws (2004).png",
+        )
         migrated = migrate_loaded_data(
             {"inventory": {"White scimitar": 2}},
             ORE_DATA,

@@ -21,7 +21,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 691)
+        self.assertEqual(len(EQUIPMENT_DATA), 695)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -48,6 +48,17 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(brine_sabre.weapon_type, 6)
         self.assertEqual(brine_sabre.bonuses.attack_slash, 47)
         self.assertEqual(brine_sabre.bonuses.melee_strength, 46)
+        for item_name, source_item_id, weapon_type in (
+            ("Black scimitar", 1327, 6),
+            ("Black mace", 1426, 8),
+            ("Black claws", 3098, 9),
+            ("Black spear", 4580, 14),
+        ):
+            with self.subTest(item_name=item_name):
+                item = EQUIPMENT_DATA[item_name]
+                self.assertEqual(item.source_item_id, source_item_id)
+                self.assertEqual(item.skill_requirements, (("attack", 10),))
+                self.assertEqual(item.weapon_type, weapon_type)
         self.assertEqual(EQUIPMENT_DATA["Agile top"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Acrobat hood"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Giant's hand"].slot, "weapon")
