@@ -222,3 +222,20 @@ Bank tab, within frame A:
 2. The tab strip shows icons with short names, not icons alone.
 3. The right column (selected-item detail, Bank actions, 4-by-7 carried
    pack) gets about 280 pixels of width.
+
+Collections, within the settled left-list and right-grid shape:
+
+4. The left family column gets about 244 pixels of width.
+5. The drop log presents as list rows, not an icon grid.
+6. Discovered-but-unowned entries dim to about 58 percent opacity.
+   Undiscovered entries stay concealed per section 5.
+
+Shooting Star banners:
+
+7. The banners use a neutral grey tone.
+8. The banners use an outline style: transparent fill with a colored
+   border and colored text, not a filled block.
+
+The owner also confirmed the two section 4 mappings on 2026-08-07: the
+guide opens scrolled to the player's current level, and guide rows have no
+click behavior in the first build.
