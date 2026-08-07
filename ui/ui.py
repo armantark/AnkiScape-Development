@@ -175,6 +175,7 @@ from ..logic.bank_layout_logic import (
     reorder_bank_tab_pure,
     set_bank_tab_icon_pure,
 )
+from ..logic.skill_guide_logic import skill_guide_sections_pure
 
 from ..data.pack_data import ITEM_PACK_DATA
 
@@ -23135,6 +23136,131 @@ def show_main_menu(
             )
         return current_level
 
+    def _mk_stats_skill_guide(
+        skill_name: str,
+        skill_id: str,
+        current_level: int,
+    ) -> QScrollArea:
+        scroll = QScrollArea()
+        scroll.setObjectName("statsSkillGuideScroll")
+        scroll.setFrameShape(QtFrame.Shape.NoFrame)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+
+        content = QWidget()
+        content.setObjectName("statsSkillGuideContent")
+        guide_layout = QVBoxLayout(content)
+        guide_layout.setContentsMargins(0, 4, 4, 0)
+        guide_layout.setSpacing(4)
+        sections = skill_guide_sections_pure(
+            skill_name,
+            _SKILL_TARGET_TABLES.get(skill_id),
+            EQUIPMENT_ITEM_DATA,
+        )
+        first_anchor = None
+
+        for section in sections:
+            section_title = QLabel(section.title)
+            section_title.setObjectName(
+                f"statsGuideSectionTitle::{section.section_id}"
+            )
+            section_title.setStyleSheet(
+                "font-size: 13px; font-weight: 700; color: palette(text); "
+                "padding: 6px 0 2px 0;"
+            )
+            guide_layout.addWidget(section_title)
+            divider_added = False
+            for row in section.rows:
+                locked = row.level > current_level
+                if locked and not divider_added:
+                    divider = QWidget()
+                    divider.setObjectName(
+                        f"statsGuideCurrentDivider::{section.section_id}"
+                    )
+                    divider_layout = QHBoxLayout(divider)
+                    divider_layout.setContentsMargins(0, 4, 0, 4)
+                    divider_layout.setSpacing(8)
+                    for _ in range(2):
+                        line = QtFrame()
+                        line.setFrameShape(QtFrame.Shape.HLine)
+                        line.setFrameShadow(QtFrame.Shadow.Plain)
+                        line.setStyleSheet("color: palette(mid);")
+                        divider_layout.addWidget(line, 1)
+                        if divider_layout.count() == 1:
+                            marker = QLabel(f"Current level {current_level}")
+                            marker.setObjectName(
+                                f"statsGuideCurrentDivider::{section.section_id}"
+                            )
+                            marker.setStyleSheet(
+                                f"color: {dim_text_css(marker)}; font-size: 11px;"
+                            )
+                            divider_layout.addWidget(marker)
+                    guide_layout.addWidget(divider)
+                    divider_added = True
+                    if first_anchor is None:
+                        first_anchor = divider
+
+                row_widget = QWidget()
+                row_widget.setObjectName(f"statsGuideRow::{row.row_id}")
+                row_layout = QHBoxLayout(row_widget)
+                row_layout.setContentsMargins(4, 3, 6, 3)
+                row_layout.setSpacing(8)
+
+                badge = QLabel(str(row.level))
+                badge.setObjectName(f"statsGuideLevelBadge::{row.row_id}")
+                badge.setFixedWidth(36)
+                badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                badge.setStyleSheet(
+                    "border: 1px solid palette(mid); border-radius: 4px; "
+                    "padding: 1px 4px; color: palette(text);"
+                )
+                row_layout.addWidget(badge)
+
+                icon = _pixel_item_icon(row.icon_key or "", 20)
+                if icon is not None:
+                    icon_label = QLabel()
+                    icon_label.setFixedSize(24, 24)
+                    icon_label.setPixmap(icon.pixmap(20, 20))
+                    row_layout.addWidget(icon_label)
+
+                name = QLabel(row.name)
+                name.setObjectName(f"statsGuideName::{row.row_id}")
+                name.setWordWrap(True)
+                name.setStyleSheet("color: palette(text);")
+                row_layout.addWidget(name, 1)
+
+                if locked:
+                    opacity = QGraphicsOpacityEffect(row_widget)
+                    opacity.setOpacity(0.45)
+                    row_widget.setGraphicsEffect(opacity)
+                guide_layout.addWidget(row_widget)
+
+        if not sections:
+            empty = QLabel("No guide entries for this skill yet.")
+            empty.setObjectName("statsSkillGuideEmpty")
+            empty.setStyleSheet(
+                f"color: {dim_text_css(empty)}; padding: 12px 4px;"
+            )
+            guide_layout.addWidget(empty)
+        guide_layout.addStretch(1)
+        scroll.setWidget(content)
+
+        if first_anchor is not None:
+            def _scroll_to_current_level() -> None:
+                try:
+                    if first_anchor.parent() is not None:
+                        scroll.ensureWidgetVisible(first_anchor, 0, 24)
+                except RuntimeError:
+                    return
+
+            QTimer.singleShot(0, _scroll_to_current_level)
+        return scroll
+
     # Helper to create a details panel for a specific skill
     def _mk_skill_details(skill_name: str) -> QWidget:
         block = QWidget()
@@ -23211,6 +23337,15 @@ def show_main_menu(
             metrics,
             0,
             Qt.AlignmentFlag.AlignLeft,
+        )
+        skill_id = (
+            skill_def.id
+            if skill_def is not None
+            else skill_name.lower()
+        )
+        b_layout.addWidget(
+            _mk_stats_skill_guide(skill_name, skill_id, current_level),
+            1,
         )
         return block
 
@@ -23367,8 +23502,7 @@ def show_main_menu(
                 w.deleteLater()
             child = details_layout.takeAt(0)
         # Add new details
-        details_layout.addWidget(_mk_skill_details(skill_name))
-        details_layout.addStretch(1)
+        details_layout.addWidget(_mk_skill_details(skill_name), 1)
 
     # No idClicked usage; handled per-button above
 

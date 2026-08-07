@@ -8221,6 +8221,73 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             dialog.deleteLater()
 
+    def test_stats_skill_guide_renders_registry_rows_locks_and_current_level_focus(self) -> None:
+        player_data = _make_player_data()
+        player_data["mining_level"] = 70
+        dialog = self._open(player_data, current_skill="Mining")
+        dialog.resize(1280, 752)
+        dialog.show()
+        for _ in range(6):
+            QApplication.processEvents()
+        try:
+            guide = dialog.findChild(QScrollArea, "statsSkillGuideScroll")
+            content = dialog.findChild(QWidget, "statsSkillGuideContent")
+            actions = dialog.findChild(QLabel, "statsGuideSectionTitle::actions")
+            equipment = dialog.findChild(QLabel, "statsGuideSectionTitle::equipment")
+            divider = dialog.findChild(QLabel, "statsGuideCurrentDivider::actions")
+            equipment_divider = dialog.findChild(
+                QLabel,
+                "statsGuideCurrentDivider::equipment",
+            )
+            unlocked = dialog.findChild(QWidget, "statsGuideRow::action:adamantite")
+            locked = dialog.findChild(QWidget, "statsGuideRow::action:concentrated_coal")
+            locked_equipment = dialog.findChild(
+                QWidget,
+                "statsGuideRow::equipment:Milestone cape (80)",
+            )
+            locked_name = dialog.findChild(QLabel, "statsGuideName::action:concentrated_coal")
+            locked_badge = dialog.findChild(QLabel, "statsGuideLevelBadge::action:concentrated_coal")
+
+            self.assertIsNotNone(guide)
+            self.assertIsNotNone(content)
+            self.assertEqual(actions.text(), "Actions")
+            self.assertEqual(equipment.text(), "Equipment")
+            self.assertEqual(divider.text(), "Current level 70")
+            self.assertEqual(equipment_divider.text(), "Current level 70")
+            self.assertEqual(locked_name.text(), "Concentrated coal")
+            self.assertEqual(locked_badge.text(), "77")
+            self.assertIsNone(unlocked.graphicsEffect())
+            self.assertIsNotNone(locked.graphicsEffect())
+            self.assertAlmostEqual(locked.graphicsEffect().opacity(), 0.45)
+            self.assertIsNotNone(locked_equipment.graphicsEffect())
+            self.assertAlmostEqual(
+                locked_equipment.graphicsEffect().opacity(),
+                0.45,
+            )
+            self.assertGreater(guide.verticalScrollBar().value(), 0)
+            divider_y = divider.mapTo(guide.viewport(), QPoint(0, 0)).y()
+            self.assertGreaterEqual(divider_y, 0)
+            self.assertLess(divider_y, guide.viewport().height())
+
+            rendered_text = " ".join(label.text() for label in content.findChildren(QLabel)).lower()
+            self.assertNotIn("source:", rendered_text)
+            self.assertNotIn("trace", rendered_text)
+            self.assertEqual(content.findChildren(QPushButton), [])
+            self.assertEqual(content.findChildren(QToolButton), [])
+
+            _find_stats_button(dialog, "attack").click()
+            QApplication.processEvents()
+            self.assertIsNone(dialog.findChild(QLabel, "statsGuideSectionTitle::actions"))
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideSectionTitle::equipment").text(),
+                "Equipment",
+            )
+            self.assertIsNotNone(
+                dialog.findChild(QWidget, "statsGuideRow::equipment:Bronze dagger")
+            )
+        finally:
+            dialog.deleteLater()
+
     def test_quests_tab_starts_rune_mysteries_via_quest_action(self) -> None:
         pd = _make_player_data()
         pd["quests"]["rune_mysteries"] = {"started": False, "progress": 0, "completed": False}

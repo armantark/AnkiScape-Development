@@ -457,3 +457,82 @@ external blocker. Offscreen Qt does not claim native parity.
 Keep Frame A and its keyboard organization paths. The flat inventory remains
 the only item store. The saved presentation model remains the only source of
 tab, position, sort, category, and drop-mode state.
+
+## Batch 11: Stats skill guide
+
+### Reproduction
+
+The Stats tab had only the selected-skill metrics. It did not show registry
+actions, equipment unlocks, level badges, locked rows, a current-level marker,
+or current-level scroll behavior. The first pure regression failed with
+`ModuleNotFoundError: No module named 'ankiscape.logic.skill_guide_logic'`.
+The first Qt regression failed because `statsSkillGuideScroll` did not exist.
+
+This batch started from
+`9780fecd9a5ae3f214de2547a714ca7ceabc671e`. The checkout was fully
+attributable and the worktree guard reported a safe layout before product
+edits.
+
+### Change
+
+The Stats tab now keeps its existing metrics block and uses the full region
+below it for an independent skill-guide scroll area. A Stats skill selection
+rebuilds the guide. It opens at the first locked boundary so that the next
+unlock is visible.
+
+The pure projection reads only the existing target and equipment registries.
+It produces Actions and Equipment sections, omits empty sections and target
+rows without a level, normalizes Defence to the equipment registry's defense
+identity, and does not expose source, shop, drop, or trace fields. Rows keep
+their full registry names and sort by level, name, and stable row identity.
+
+Each row puts the level badge on the left. A locked row applies 45-percent
+opacity to the complete row, including its badge, icon, and name. Each mixed
+section has a labeled current-level divider at its unlocked-to-locked boundary.
+This per-section placement is necessary because each named section restarts
+its own level ordering. Guide rows have no click controls.
+
+Read-only Opus maker workflow `8ffec6af-0810-4d72-94e4-ebd9d0abe9db`
+supplied the frontend structure and styling review. Root made all product
+edits. Opus recommended the nested scroll, full-width placement, left badges,
+safe deferred scroll, and text-color dimming. The independent checker later
+showed that the complete locked row, including its icon, had to dim together,
+so root replaced the text-only styling with a row opacity effect. No Fable or
+Kimi service was used.
+
+### Verification
+
+- Two pure guide tests passed.
+- The combined guide and registry lane passed 62 tests.
+- The focused offscreen guide test passed after the whole-row opacity repair.
+- All five Stats-filtered offscreen Qt tests passed after that repair.
+- The full offscreen `tests.test_main_menu_widget` lane passed 393 tests in
+  143.766 seconds before the final opacity-only repair.
+- Python compilation, `git diff --check`, and the worktree guard passed.
+- Registry audit workflow `60dfeebf-fc89-462f-9d74-df88034a8330` and checker
+  workflows `ac568b8d-52e5-406d-a747-d727ef1414c7` and
+  `f26cf20c-fcf1-46e2-92bb-5cafb786f15a` exceeded their declared budgets
+  before a verdict. Their partial evidence did not report a product defect.
+- Complete frozen checker `9cf6ae34-82f3-4bc7-a0aa-eaa644371963`
+  correctly found that icons were not dimmed with their locked rows. Root
+  replaced child-text dimming with a 45-percent row opacity effect. Its request
+  for one guide-wide divider did not fit independently ordered sections.
+  Narrow rechecker `0839bd3a-ccd9-4af7-800b-073ab8229fb8` accepted the
+  whole-row repair and the per-section boundary interpretation with no
+  simplification finding.
+
+### Native evidence
+
+The regular MacBook Pro Codex Connection host
+`remote-control:env_e_6a684c98946c8321ba89026140dd59e4` did not appear in
+the live thread list when the final guide was ready. The only visible standby
+task used the Tailscale SSH host, which the owner explicitly excluded. Native
+proof of the changed Stats surface, the unchanged vanilla answer bar, and
+card-content non-overlap remains externally blocked. Offscreen Qt does not
+claim native parity.
+
+### Decision
+
+Keep the registry-only guide and the per-section current-level boundaries.
+The implementation does not create a second unlock database. Native evidence
+remains open until the regular Codex Connection is available.
