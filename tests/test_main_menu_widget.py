@@ -10613,7 +10613,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(len(selected_colors), 2)
         self.assertEqual(selected_colors[0], selected_colors[1])
 
-    def test_live_theme_controls_use_palette_text_and_style_the_review_link(self) -> None:
+    def test_live_theme_controls_use_palette_text_without_an_unreleased_review_link(self) -> None:
         utility_button = next(
             button
             for button in self.dialog.findChildren(QPushButton)
@@ -10630,12 +10630,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIn("color: palette(text)", stop_button.styleSheet())
 
-        review_link = next(
-            label
-            for label in self.dialog.findChildren(QLabel)
-            if "ankiweb.net/shared/review" in label.text()
+        self.assertFalse(
+            any(
+                "ankiweb.net/shared/review" in label.text()
+                for label in self.dialog.findChildren(QLabel)
+            )
         )
-        self.assertIn('style="color:#4CAF50;', review_link.text())
+
+        tabs = _find_main_tabs(self.dialog)
+        help_button = self.dialog.findChild(QToolButton, "mainMenuHelpButton")
+        self.assertIsNotNone(help_button)
+        self.assertIsNone(tabs.cornerWidget(Qt.Corner.TopRightCorner))
+        self.assertEqual(help_button.parentWidget().objectName(), "mainMenuFooter")
 
     def test_bankstanding_describes_an_idle_no_op_without_fake_output(self) -> None:
         pd = _make_player_data()
@@ -13343,6 +13349,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._fish_flingers_calls[-1],
             ("enter_fish_flingers", {}),
         )
+        self.assertEqual(self._utility_calls[-1], "fish_flingers")
         self.assertEqual(pd["current_utility"], "fish_flingers")
         self.assertEqual(primary.text(), "Selected for reviews")
         self.assertIn("ACTIVE", currency.text())

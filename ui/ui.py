@@ -13033,7 +13033,7 @@ def show_main_menu(
                 result = _run_fish_flingers_command("enter_fish_flingers")
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
+            if not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
                 return
             _refresh_fish_flingers_panel()
 
@@ -26159,7 +26159,7 @@ def show_main_menu(
     )
     help_panel.setVisible(False)
 
-    help_button = QToolButton(tabs)
+    help_button = QToolButton(dialog)
     help_button.setObjectName("mainMenuHelpButton")
     help_button.setText("?")
     help_button.setAccessibleName("Open contextual Help Center")
@@ -26170,7 +26170,6 @@ def show_main_menu(
         " border: 1px solid palette(mid); border-radius: 12px; }"
         "QToolButton:hover { background: palette(alternate-base); }"
     )
-    tabs.setCornerWidget(help_button, Qt.Corner.TopRightCorner)
 
     def _current_help_topic_id() -> str:
         label = tabs.tabText(tabs.currentIndex())
@@ -26241,23 +26240,15 @@ def show_main_menu(
     content_layout.addWidget(help_panel)
     layout.addWidget(content, 1)
 
-    # Footer with a subtle review link
+    # Footer controls stay outside the tab strip so Help remains at the
+    # bottom-right beside the dialog action.
     footer = QWidget()
+    footer.setObjectName("mainMenuFooter")
     f_layout = QHBoxLayout(footer)
     f_layout.setContentsMargins(0, 8, 0, 0)
     f_layout.setSpacing(8)
-    hint = QLabel("Enjoying AnkiScape?")
-    link = QLabel(
-        '<a style="color:#4CAF50; text-decoration:none" '
-        'href="https://ankiweb.net/shared/review/1808450369">Leave a review</a>'
-    )
-    link.setOpenExternalLinks(True)
-    link.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
-    hint.setStyleSheet("color: #666;")
-    link.setStyleSheet("color: #4CAF50;")
-    f_layout.addWidget(hint)
-    f_layout.addWidget(link)
     f_layout.addStretch(1)
+    f_layout.addWidget(help_button)
     close = QPushButton("Close")
     close.clicked.connect(dialog.accept)
     f_layout.addWidget(close)

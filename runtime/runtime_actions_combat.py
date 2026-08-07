@@ -663,6 +663,22 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     if xp_total > 0:
         ctx.show_exp(xp_total)
 
+    food_used = result.get("food_used", ()) or ()
+    if food_used:
+        eaten: dict[str, int] = {}
+        for event in food_used:
+            if not isinstance(event, dict):
+                continue
+            item_name = str(event.get("item") or "")
+            if item_name:
+                eaten[item_name] = eaten.get(item_name, 0) + 1
+        remaining_food = (
+            (player_data.get("combat_supply_loadout") or {}).get("food") or {}
+        )
+        for item_name, amount in eaten.items():
+            left = max(0, int(remaining_food.get(item_name, 0) or 0))
+            ctx.show_activity_gain(f"Ate {amount} × {item_name} · {left} left")
+
     display_name = str(result.get("display_name") or "enemy")
     kills = int(result.get("kills", 0) or 0)
     kill_phrase = f"{kills} × {display_name}" if kills != 1 else display_name

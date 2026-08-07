@@ -873,6 +873,41 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertGreaterEqual(COMBAT_ENEMY_DATA["cow"]["level"], 2)
         self.assertEqual(player_data["daily_challenges"][0]["progress"], 2)
 
+    def test_combat_food_use_reports_eaten_quantity_and_remaining_pack(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "cow",
+            "combat_supply_loadout": {"food": {"Shrimps": 2}},
+            "completed_achievements": [],
+        }
+        result = {
+            "target_id": "cow",
+            "display_name": "Cow",
+            "kills": 0,
+            "died": False,
+            "fled": False,
+            "player_damage": 0,
+            "enemy_damage": 0,
+            "enemy_lifepoints": 10,
+            "drops": {},
+            "xp_rewards": {},
+            "food_used": (
+                {"item": "Shrimps", "healed_by": 30},
+                {"item": "Shrimps", "healed_by": 30},
+            ),
+        }
+
+        with patch.object(
+            runtime_actions_combat,
+            "apply_combat_burst_pure",
+            return_value=(dict(player_data), True, result),
+        ):
+            self.assertTrue(handle_combat_answer(_context(player_data, calls)))
+
+        self.assertIn("Ate 2 × Shrimps · 2 left", calls["activity"])
+
     def test_star_sprite_bonus_adds_one_ore_and_stacks_with_mining(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {
