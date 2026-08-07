@@ -208,3 +208,39 @@ needs native proof; offscreen Qt is not native parity.
 
 Keep the presentation-only cleanup. Source audit fields remain in the backend
 and disappear only at the player-facing tooltip boundary.
+
+## Batch 6: equippable item categories
+
+### Reproduction
+
+White scimitar was registered as `material` even though the same row had a
+weapon slot and live equipment data. The strengthened invariant found 266
+equippable rows with the same material-category defect. It produced 267
+expected failures, including the explicit White scimitar check.
+
+### Change
+
+Equipment metadata enrichment now promotes only the generic `material`
+category to `equipment`. It preserves more specific owning categories such as
+`smithed` and `tool`. Flat inventory storage keys do not change.
+
+### Verification
+
+- `tests.test_skill_and_item_registry`: 60 tests passed.
+- White scimitar is equipment; Iron scimitar remains smithed; Staff of armadyl
+  remains a non-equippable material.
+- A save-load regression keeps `inventory["White scimitar"] == 2` under the
+  unchanged storage key.
+- Frozen checker workflow `d6763c57-e5a4-4eb3-96f3-8d672dca357f` returned
+  `accept` with no findings. Its storage-key gap became the save-load check.
+
+### Native evidence
+
+The category changes affect the current Bank grouping. Native proof remains
+externally blocked with the MacBook Pro Codex Connection and will be covered by
+the larger Bank surface batch.
+
+### Decision
+
+Keep the one-condition promotion. It fixes player-use categories without
+changing the flat save model or erasing a source system's specific category.

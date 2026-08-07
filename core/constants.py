@@ -2407,6 +2407,8 @@ def _apply_equipment_metadata(extra_item_data):
     for item_name, equipment_spec in EQUIPMENT_ITEM_DATA.items():
         if item_name not in enriched:
             continue
+        if enriched[item_name].get("category", "material") == "material":
+            enriched[item_name]["category"] = "equipment"
         enriched[item_name]["equipment_slot"] = equipment_spec["slot"]
         enriched[item_name]["equipment_type"] = equipment_spec["equipment_type"]
         enriched[item_name]["equipment_required_level"] = equipment_spec["required_level"]

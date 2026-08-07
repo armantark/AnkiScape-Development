@@ -66,6 +66,7 @@ from ankiscape.core.item_registry import (
     item_storage_keys_by_category,
     missing_required_asset_paths,
 )
+from ankiscape.core.storage_pure import migrate_loaded_data
 from ankiscape.core.skill_registry import (
     ALL_SKILLS,
     CURRENT_SKILLS,
@@ -1348,7 +1349,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "H.A.M. robe": "equipment",
             "H.A.M. shirt": "equipment",
             "Impious ashes": "material",
-            "Iron javelin": "material",
+            "Iron javelin": "equipment",
             "Iron spear": "equipment",
             "Jug": "material",
             "Jug of wine": "food",
@@ -1415,7 +1416,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertIn(herb_name, by_storage_key)
             self.assertEqual(by_storage_key[herb_name].category, "material")
-        for item_name in ("Bronze javelin", "Grapes", "Knife"):
+        self.assertEqual(by_storage_key["Bronze javelin"].category, "equipment")
+        for item_name in ("Grapes", "Knife"):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "material")
         for item_name in (
@@ -1454,10 +1456,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Watermelon seed",
             "Whiteberry seed",
             "Wildblood seed",
-            "Gardening boots",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "material")
+        self.assertEqual(by_storage_key["Gardening boots"].category, "equipment")
         self.assertIn("Vial", by_storage_key)
         self.assertEqual(by_storage_key["Vial"].category, "crafted")
         for item_name in ("Rake", "Seed dibber", "Secateurs", "Watering can (8)"):
@@ -1916,9 +1918,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             with self.subTest(item_name=item_name):
                 self.assertIn(item_name, EQUIPMENT_DATA)
                 self.assertEqual(definition.equipment_slot, EQUIPMENT_DATA[item_name].slot)
+                self.assertNotEqual(definition.category, "material")
 
         self.assertEqual(by_storage_key["Staff of armadyl"].category, "material")
         self.assertIsNone(by_storage_key["Staff of armadyl"].equipment_slot)
+        self.assertEqual(by_storage_key["White scimitar"].category, "equipment")
+        self.assertEqual(by_storage_key["White scimitar"].storage_key, "White scimitar")
+        self.assertEqual(by_storage_key["Iron scimitar"].category, "smithed")
+        migrated = migrate_loaded_data(
+            {"inventory": {"White scimitar": 2}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["inventory"]["White scimitar"], 2)
 
     def test_runecrafting_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
