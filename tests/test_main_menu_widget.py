@@ -1711,24 +1711,22 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._slayer_command_calls[-1],
             ("set_combat_filter", {"enabled": True}),
         )
-        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        tree = dialog.findChild(QListWidget, "combatTargetTree")
         roles = {
-            item.data(0, Qt.ItemDataRole.UserRole)
-            for item in _tree_items(tree)
+            tree.item(index).data(Qt.ItemDataRole.UserRole)
+            for index in range(tree.count())
         }
         self.assertIn("giant_bat", roles)
         self.assertNotIn("black_bear", roles)
         giant_bat = next(
-            item
-            for item in _tree_items(tree)
-            if item.data(0, Qt.ItemDataRole.UserRole) == "giant_bat"
+            tree.item(index)
+            for index in range(tree.count())
+            if tree.item(index).data(Qt.ItemDataRole.UserRole) == "giant_bat"
         )
-        self.assertIsNotNone(giant_bat.parent())
-        self.assertTrue(giant_bat.parent().isExpanded())
         from ankiscape.core.constants import COMBAT_ENEMY_IMAGES
 
         self.assertEqual(
-            _icon_pixels(giant_bat.icon(0)),
+            _icon_pixels(giant_bat.icon()),
             _icon_pixels(
                 self._ui._pixel_path_icon(
                     COMBAT_ENEMY_IMAGES["giant_bat"],
@@ -1742,12 +1740,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         data["slayer_combat_filter"] = True
         dialog = self._open(data, current_skill="Combat")
 
-        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        tree = dialog.findChild(QListWidget, "combatTargetTree")
         self.assertIsNotNone(tree)
         empty_rows = [
-            item.text(0)
-            for item in _tree_items(tree)
-            if not item.data(0, Qt.ItemDataRole.UserRole)
+            tree.item(index).text()
+            for index in range(tree.count())
+            if not tree.item(index).data(Qt.ItemDataRole.UserRole)
         ]
         self.assertTrue(
             any(
@@ -5834,27 +5832,44 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         search.setText("cockatrice mirror")
         QApplication.processEvents()
-        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        tree = dialog.findChild(QListWidget, "combatTargetTree")
+        self.assertIsNotNone(tree)
         visible_roles = {
-            item.data(0, Qt.ItemDataRole.UserRole)
-            for item in _tree_items(tree)
+            tree.item(index).data(Qt.ItemDataRole.UserRole)
+            for index in range(tree.count())
         }
-        self.assertEqual(
-            visible_roles,
-            {"__combat_group__:Slayer", "cockatrice"},
-        )
+        self.assertEqual(visible_roles, {"cockatrice"})
         self.assertEqual(pd["current_combat_target"], "seagull")
         self.assertEqual(self._combat_calls, [])
         self.assertIsNone(tree.currentItem())
-        self.assertTrue(tree.topLevelItem(0).isExpanded())
+
+        search.setText("wall beast")
+        QApplication.processEvents()
+        tree = dialog.findChild(QListWidget, "combatTargetTree")
+        wall_beast = tree.item(0)
+        self.assertEqual(
+            wall_beast.data(Qt.ItemDataRole.UserRole),
+            "wall_beast",
+        )
+        self.assertFalse(wall_beast.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("Locked due to:", wall_beast.toolTip())
+
+        search.setText("seagull")
+        QApplication.processEvents()
+        tree = dialog.findChild(QListWidget, "combatTargetTree")
+        seagull = tree.currentItem()
+        self.assertEqual(seagull.data(Qt.ItemDataRole.UserRole), "seagull")
+        self.assertEqual(seagull.background().color(), QColor(76, 175, 80, 76))
+        self.assertTrue(seagull.font().bold())
+        self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(seagull)))
 
         search.setText("definitely-not-a-target")
         QApplication.processEvents()
-        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
-        empty = tree.topLevelItem(0)
-        self.assertEqual(empty.text(0), "No combat targets match this search.")
+        tree = dialog.findChild(QListWidget, "combatTargetTree")
+        empty = tree.item(0)
+        self.assertEqual(empty.text(), "No combat targets match this search.")
         self.assertFalse(empty.flags() & Qt.ItemFlag.ItemIsEnabled)
-        tree.itemActivated.emit(empty, 0)
+        tree.itemActivated.emit(empty)
         QApplication.processEvents()
         self.assertEqual(self._combat_calls, [])
 
@@ -5873,6 +5888,41 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(pd["current_combat_target"], "seagull")
         dialog.deleteLater()
+
+    def test_combat_selector_hybridizes_at_twenty_five_filtered_rows(self) -> None:
+        from ankiscape.core.target_metadata import TargetRowMetadata
+
+        def _rows(count: int) -> tuple[TargetRowMetadata, ...]:
+            return tuple(
+                TargetRowMetadata(
+                    target_id=f"combat_hybrid_{index}",
+                    label=f"Combat hybrid {index}",
+                    tooltip=f"Target {index}",
+                    current=index == 0,
+                    group="Other",
+                    sort_key=(index,),
+                )
+                for index in range(count)
+            )
+
+        dialogs = []
+        try:
+            with patch.object(self._ui, "combat_target_rows", return_value=_rows(24)):
+                flat_dialog = self._open(_make_player_data(), current_skill="Combat")
+            dialogs.append(flat_dialog)
+            with patch.object(self._ui, "combat_target_rows", return_value=_rows(25)):
+                tree_dialog = self._open(_make_player_data(), current_skill="Combat")
+            dialogs.append(tree_dialog)
+
+            flat = flat_dialog.findChild(QListWidget, "combatTargetTree")
+            tree = tree_dialog.findChild(QTreeWidget, "combatTargetTree")
+            self.assertIsNotNone(flat)
+            self.assertIsNotNone(tree)
+            self.assertEqual(flat.count(), 24)
+            self.assertEqual(tree.topLevelItem(0).childCount(), 25)
+        finally:
+            for dialog in dialogs:
+                dialog.deleteLater()
 
     def test_combat_selector_scrolls_the_saved_target_into_view(self) -> None:
         pd = _make_player_data()

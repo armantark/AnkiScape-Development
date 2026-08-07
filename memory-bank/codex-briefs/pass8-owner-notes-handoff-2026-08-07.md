@@ -104,3 +104,40 @@ do not add automatic-burial ticks.
 ### Decision
 
 Keep the one-line production change and its source-bound regression coverage.
+
+## Batch 3: Combat hybrid selector
+
+### Reproduction
+
+Combat bypassed the shared target-selector builder and always rendered a
+grouped tree. A focused regression expected the one-row `cockatrice mirror`
+search result to use a flat list. It failed because no flat Combat selector
+existed.
+
+### Change
+
+Combat now uses the shared hybrid rule after search and Slayer-task filtering:
+fewer than 25 grouped results render flat; 25 or more render grouped. The empty
+state uses the active widget type. The full catalog remains grouped.
+
+### Verification
+
+- Four focused offscreen Qt selector tests passed.
+- The full `tests.test_main_menu_widget` module passed 382 tests in 115.700
+  seconds before the final coverage-only additions.
+- Two final focused tests passed for the exact 24/25 boundary, flat locked
+  rows, flat saved-target highlight and scrolling, and grouped restoration.
+- Frozen checker workflow `2796209b-5f8b-48ce-bbdc-bbf4973dbfe0` returned
+  `accept` with no findings. Its two coverage gaps became the final focused
+  tests above.
+
+### Native evidence
+
+Native MacBook Pro verification is externally blocked. Host
+`remote-control:env_e_6a684c98946c8321ba89026140dd59e4` remains unavailable
+through the Codex Connection. Do not treat offscreen Qt as native parity.
+
+### Decision
+
+Keep the minimal builder substitution and type-correct empty state. Capture a
+native filtered-Combat screenshot when the Codex Connection returns.

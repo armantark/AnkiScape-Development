@@ -8059,7 +8059,7 @@ def show_main_menu(
                     row.group,
                 )
             )
-            tree = _build_grouped_target_tree(
+            tree = _build_target_selector(
                 filtered_rows,
                 {group: group for group in COMBAT_TARGET_GROUP_ORDER},
                 "__combat_group__:",
@@ -8085,10 +8085,16 @@ def show_main_menu(
                     empty_text = "No playable enemies are available for this assignment."
                 else:
                     empty_text = "No combat targets match this search."
-                empty = QTreeWidgetItem([empty_text])
-                empty.setFlags(Qt.ItemFlag.NoItemFlags)
-                empty.setForeground(0, dim_text_color(tree))
-                tree.addTopLevelItem(empty)
+                if isinstance(tree, QTreeWidget):
+                    empty = QTreeWidgetItem([empty_text])
+                    empty.setFlags(Qt.ItemFlag.NoItemFlags)
+                    empty.setForeground(0, dim_text_color(tree))
+                    tree.addTopLevelItem(empty)
+                else:
+                    empty = QListWidgetItem(empty_text)
+                    empty.setFlags(Qt.ItemFlag.NoItemFlags)
+                    empty.setForeground(dim_text_color(tree))
+                    tree.addItem(empty)
             filter_bar.set_count(len(filtered_rows), len(combat_rows))
             tree_layout.addWidget(tree)
             live_tree["widget"] = tree
