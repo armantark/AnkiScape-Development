@@ -4531,6 +4531,54 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(shell.isVisibleTo(dialog))
         self.assertIsNone(selector.currentItem())
 
+    def test_shop_stock_tooltips_show_player_requirements_without_source_metadata(self) -> None:
+        dialog = self._open(_make_player_data())
+        _open_shop_tab(dialog)
+        selector = _find_named_list(dialog, "shopSelectionList")
+        white_knight_shop = next(
+            selector.item(index)
+            for index in range(selector.count())
+            if (selector.item(index).data(Qt.ItemDataRole.UserRole) or {}).get("shop_id")
+            == "white_knight_armory"
+        )
+        selector.setCurrentItem(white_knight_shop)
+        QApplication.processEvents()
+
+        scimitar = next(
+            button
+            for button in dialog.findChildren(QToolButton)
+            if button.objectName().startswith("shopStockTile_")
+            and button.text() == "White scimitar"
+        )
+        tooltip = scimitar.toolTip()
+        self.assertIn("Equip: level 10 Attack", tooltip)
+        self.assertNotIn("Darkan Shop.java", tooltip)
+        self.assertNotIn("Darkan shop JSON", tooltip)
+        self.assertNotIn("source", tooltip.casefold())
+
+        gabooty = next(
+            selector.item(index)
+            for index in range(selector.count())
+            if (selector.item(index).data(Qt.ItemDataRole.UserRole) or {}).get("shop_id")
+            == "gabootys_tai_bwo_wannai_cooperative"
+        )
+        selector.setCurrentItem(gabooty)
+        QApplication.processEvents()
+        tribal_top = next(
+            button
+            for button in dialog.findChildren(QToolButton)
+            if button.objectName().startswith("shopStockTile_")
+            and button.text() == "Tribal top"
+        )
+        locked_tooltip = tribal_top.toolTip()
+        self.assertIn(
+            "Locked: This shop uses a currency you cannot spend.",
+            locked_tooltip,
+        )
+        self.assertNotIn("currency_not_implemented", locked_tooltip)
+        self.assertNotIn("implemented", locked_tooltip.casefold())
+        dialog.deleteLater()
+
     def test_shop_browse_splits_normal_and_reward_targets_left_to_right(self) -> None:
         pd = _make_player_data()
         dialog = self._open(pd)

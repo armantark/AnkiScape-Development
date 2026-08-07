@@ -170,3 +170,41 @@ remains inside the same direct-action undo transaction.
 
 Keep the action-ID gate. It directly expresses the settled buy, sell, and
 collection contract without coupling the Bank run to optional result fields.
+
+## Batch 5: player-facing Shop tooltips
+
+### Reproduction
+
+The White scimitar tooltip omitted its level-10 Attack equip requirement and
+printed `Darkan Shop.java ...` plus `Darkan shop JSON`. The focused Qt test
+failed on the missing requirement and captured both implementation lines.
+
+### Change
+
+Shop stock tooltips now reuse the equipment registry's requirement formatter.
+They no longer render raw source or price-source fields. Internal lock reasons
+such as `currency_not_implemented` and `unknown_item` are replaced with
+player-facing unavailable-item text. No consume requirement was invented: the
+current audited item registries do not define a separate level-to-consume
+contract.
+
+### Verification
+
+- The focused offscreen Qt test passed for White scimitar and a locked Tribal
+  top row.
+- `tests.test_shop_logic`: 44 tests passed.
+- `tests.test_shop_data`: 14 tests passed.
+- Frozen checker workflow `efb8e275-18b6-4012-94c1-42e7fd227a71` returned
+  `accept` with no findings. Its lock-reason gap became the Tribal top check.
+  Its consume-requirement gap is correctly dormant until a source-backed
+  consume-requirement registry exists.
+
+### Native evidence
+
+The MacBook Pro Codex Connection remains unavailable. The Shop tooltip still
+needs native proof; offscreen Qt is not native parity.
+
+### Decision
+
+Keep the presentation-only cleanup. Source audit fields remain in the backend
+and disappear only at the player-facing tooltip boundary.

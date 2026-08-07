@@ -48,6 +48,7 @@ from ..logic.cape_logic import cape_view_pure
 from .ui import (
     CatalogFilterBar,
     _clear_layout,
+    equipment_requirement_text,
     _item_icon_path,
     _pixel_item_icon,
     dim_text_color,
@@ -847,6 +848,11 @@ def build_shop_tab(ctx) -> "QWidget":
     def _stock_tile_text(row: dict, currency_name: str) -> str:
         return str(row.get("item_name", "Item"))
 
+    def _shop_row_lock_text(reason: str) -> str:
+        if reason == "currency_not_implemented":
+            return "This shop uses a currency you cannot spend."
+        return "This stock item is unavailable."
+
     def _shop_row_tooltip(row: dict, currency_name: str) -> str:
         parts = [str(row.get("item_name", "Item"))]
         stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
@@ -854,11 +860,10 @@ def build_shop_tab(ctx) -> "QWidget":
         parts.append(f"Buy: {_format_shop_price(row.get('buy_price'), currency_name)}")
         parts.append(f"Sell: {_format_shop_price(row.get('sell_price'), currency_name)}")
         if row.get("lock_reason"):
-            parts.append(f"Locked: {_humanize_display(row.get('lock_reason'))}")
-        if row.get("price_source"):
-            parts.append(str(row.get("price_source")))
-        if row.get("source"):
-            parts.append(str(row.get("source")))
+            parts.append(f"Locked: {_shop_row_lock_text(str(row.get('lock_reason')))}")
+        equip_requirement = equipment_requirement_text(str(row.get("item_name", "")))
+        if equip_requirement:
+            parts.append(f"Equip: {equip_requirement.removeprefix('Requires ')}")
         return "\n".join(parts)
 
     def _render_stock_grid() -> None:
