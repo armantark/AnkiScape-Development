@@ -44,7 +44,7 @@ COLLECT_SLIME_BATCH_SIZE = 28
 ECTOFUNTUS_MULTIPLIER = 4.0
 ECTOFUNTUS_TOKEN_REWARD = 5
 GILDED_ALTAR_MULTIPLIER = 3.5
-AUTO_PRAYER_TICKS_PER_ITEM = 1  # AnkiScape pacing knob: one extra game tick per drop.
+AUTO_PRAYER_TICKS_PER_ITEM = 2  # Source burial action waits two game ticks per item.
 
 
 @dataclass(frozen=True)

@@ -74,3 +74,33 @@ Keep the three changes. Automated coverage and the independent checker accept
 the frozen product diff. Native Anki accepts both changed UI surfaces. Record
 the combat-log screenshot as blocked until the MacBook Pro Codex Connection is
 available again.
+
+## Batch 2: combat auto-burial cadence
+
+### Reproduction
+
+The checked-in combat cadence used one simulated tick for each automatic bone
+or ash action. The source action in
+`bone_burying.plugin.kts` calls `wait(2)` before it removes the bone and awards
+Prayer XP. A frozen regression run produced four expected failures: the
+constant was 1, one automatic item returned 1 tick, and two automatic items
+returned 2 ticks.
+
+### Change
+
+`AUTO_PRAYER_TICKS_PER_ITEM` is now 2. Manual Prayer training still consumes
+one item per review. Bonecrusher, ectoplasmator, and prayer-urn interceptions
+do not add automatic-burial ticks.
+
+### Verification
+
+- `tests.test_prayer_passives`: 10 tests passed.
+- `tests.test_prayer`: 21 tests passed.
+- `tests.test_combat_logic`: 285 tests passed.
+- Frozen checker workflow `44a2f316-3e5e-4336-aea4-54af051e5c51`
+  returned `accept` with no findings. Its two coverage gaps were converted into
+  explicit manual-one-item and bonecrusher-zero-tick regression tests.
+
+### Decision
+
+Keep the one-line production change and its source-bound regression coverage.
