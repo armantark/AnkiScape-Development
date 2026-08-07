@@ -5875,7 +5875,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
-    def test_grand_exchange_offer_is_a_direct_undoable_action(self):
+    def test_grand_exchange_buy_and_sell_offers_are_direct_bank_run_actions(self):
         addon = _load_addon_as_package(
             "ankiscape_grand_exchange_direct_action_integration"
         )
@@ -5892,6 +5892,13 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
+        bank_runs = []
+
+        def request_bank_run(data):
+            bank_runs.append(copy.deepcopy(data))
+            return copy.deepcopy(data), True, "", False
+
+        addon._request_active_bank_run_state = request_bank_run
 
         addon._on_main_menu()
         guide_price = int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"])
@@ -5904,9 +5911,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         preview = captured["on_ge_action"]("preview_offer", payload)
         self.assertTrue(preview["ok"])
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(bank_runs, [])
 
         result = captured["on_ge_action"]("place_offer", payload)
         self.assertTrue(result["ok"])
+        self.assertTrue(result["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 1)
         self.assertEqual(
             addon.player_data["inventory"]["Coins"],
             10_000 - guide_price,
@@ -5920,6 +5930,39 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        addon.player_data["inventory"]["Logs"] = 2
+        sell_initial = copy.deepcopy(addon.player_data)
+        sell = captured["on_ge_action"](
+            "place_offer",
+            {
+                "side": "sell",
+                "item_name": "Logs",
+                "quantity": 1,
+                "unit_price": guide_price,
+            },
+        )
+        self.assertTrue(sell["ok"])
+        self.assertTrue(sell["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 2)
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, sell_initial)
+
+        settings = captured["on_ge_action"](
+            "set_offer_safety",
+            {
+                "high_value_confirmation": 1_000_000,
+                "low_price_percent": 10,
+                "high_price_multiplier": 5,
+            },
+        )
+        self.assertTrue(settings["ok"])
+        self.assertNotIn("bank_run_triggered", settings)
+        self.assertEqual(len(bank_runs), 2)
 
     def test_grand_exchange_collection_triggers_bank_run(self):
         addon = _load_addon_as_package(
@@ -5949,6 +5992,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             status="complete",
         )
         addon.player_data = initial
+        initial_snapshot = copy.deepcopy(initial)
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
@@ -5971,6 +6015,21 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(result["bank_run_triggered"])
         self.assertEqual(len(bank_runs), 1)
         self.assertTrue(addon.player_data["ge_bank_run_requested"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial_snapshot)
+
+        result = captured["on_ge_action"]("collect_all", {})
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 2)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial_snapshot)
 
     def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")

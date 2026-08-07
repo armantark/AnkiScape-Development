@@ -141,3 +141,32 @@ through the Codex Connection. Do not treat offscreen Qt as native parity.
 
 Keep the minimal builder substitution and type-correct empty state. Capture a
 native filtered-Combat screenshot when the Codex Connection returns.
+
+## Batch 4: Grand Exchange Bank-run invariant
+
+### Reproduction
+
+A successful buy offer returned no `bank_run_triggered` field. The integration
+test failed with `KeyError: 'bank_run_triggered'`. The callback requested a
+Bank run only when the pure result contained a non-zero `coins` or `items`
+field, so placing buy and sell offers bypassed the run.
+
+### Change
+
+Successful `place_offer`, `collect_offer`, and `collect_all` actions now request
+one Bank run. Preview and settings actions do not request a run. The request
+remains inside the same direct-action undo transaction.
+
+### Verification
+
+- Focused buy, sell, collect-one, and collect-all integration tests passed.
+- The full `tests.test_integration_smoke` module passed 173 tests in 63.222
+  seconds before the final coverage-only additions.
+- Frozen checker workflow `bf0733dc-2b7f-41ef-b79d-2f9a70f940eb` returned
+  `accept` with no findings. Its gaps became explicit checks for collect-all,
+  preview and settings exclusions, and exact collection undo restoration.
+
+### Decision
+
+Keep the action-ID gate. It directly expresses the settled buy, sell, and
+collection contract without coupling the Bank run to optional result fields.

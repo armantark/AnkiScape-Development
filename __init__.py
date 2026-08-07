@@ -1997,7 +1997,7 @@ def _on_main_menu(
             del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
         player_data.clear()
         player_data.update(updated)
-        if info.get("coins") or info.get("items"):
+        if action_id in {"place_offer", "collect_offer", "collect_all"}:
             info = {**info, "bank_run_triggered": _trigger_active_bank_run()}
         check_achievements(player_data)
         save_player_data()
