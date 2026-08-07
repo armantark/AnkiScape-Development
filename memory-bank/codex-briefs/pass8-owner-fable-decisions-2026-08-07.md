@@ -236,6 +236,17 @@ Shooting Star banners:
 8. The banners use an outline style: transparent fill with a colored
    border and colored text, not a filled block.
 
+Skill guide, in the Stats tab per section 4:
+
+9. Locked rows dim to about 45 percent opacity.
+10. The current-level marker is a labeled divider line between the last
+    unlocked row and the first locked row.
+11. Level badges sit on the left edge of each guide row.
+
 The owner also confirmed the two section 4 mappings on 2026-08-07: the
 guide opens scrolled to the player's current level, and guide rows have no
 click behavior in the first build.
+
+With the skill-guide entries, every Pass 8 surface now has its visual
+parameters settled: this note is the complete design packet for the
+implementation pass.
