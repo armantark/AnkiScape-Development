@@ -177,18 +177,33 @@ select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--
 .pack .cell{aspect-ratio:1/1; font-size:15px}
 .pack .cell.empty{background:#2a2c32; border-style:dashed; border-color:#3a3e47}
 
-/* ---------- Skills ---------- */
-.sk-left, .sk-guide{display:flex; flex-direction:column; min-width:0}
-.sk-targets{display:flex; flex-wrap:wrap; gap:5px; padding:var(--hpad); border-bottom:1px solid #383c45}
-.tchip{display:flex; align-items:center; gap:5px; background:#31343c; border:1px solid #40444e;
-  border-radius:4px; padding:3px 8px; cursor:pointer; font-size:calc(var(--fs) - 1px); color:#c3cad5}
-.tchip.on{background:#3a4152; border-color:var(--gold); color:#f2e7d2}
-.tchip:hover{border-color:#6b7482}
-.sk-det{padding:var(--hpad); display:flex; flex-direction:column; gap:6px}
-.sk-det .big{font-size:calc(var(--fs) + 3px); font-weight:600; color:#eef1f6; display:flex; gap:8px; align-items:center}
+/* ---------- Stats tab (skill grid + stats block + guide) ---------- */
+.st-right{flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--hpad)}
+.skgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--gap); padding:var(--hpad);
+  overflow-y:auto; align-content:start}
+.skchip{display:flex; align-items:center; gap:5px; background:#31343c; border:1px solid #40444e;
+  border-radius:4px; padding:2px 5px; cursor:pointer; min-height:var(--rowh);
+  font-size:calc(var(--fs) - 1.5px); color:#c3cad5; font-variant-numeric:tabular-nums}
+.skchip:hover{border-color:#6b7482}
+.skchip.on{background:#3a4152; border-color:var(--gold); color:#f2e7d2}
+.skchip .si{font-size:calc(var(--fs) + 2px)}
+.totline{margin-top:auto; padding:var(--pad) var(--hpad); border-top:1px solid #383c45;
+  color:#dde2e9; font-size:calc(var(--fs) + .5px)}
+.totline b{color:#f2e7d2}
+.stats-body{padding:var(--hpad); display:flex; flex-direction:column; gap:4px}
+.stats-body .lp{margin-top:4px; color:#98a0ad; font-size:calc(var(--fs) - 1px);
+  display:flex; justify-content:space-between}
 .bar{height:7px; background:#1f2127; border:1px solid #454a55; border-radius:4px; overflow:hidden}
 .bar i{display:block; height:100%; background:linear-gradient(90deg,#6ea64f,#96c96b)}
 .sk-guide-scroll{flex:1; min-height:0; overflow-y:auto; padding:var(--hpad); position:relative}
+.lvlmark{font-size:calc(var(--fs) - 2px); margin:var(--gap) 0}
+.lvlmark.divider{display:flex; align-items:center; gap:8px; color:#e8c98a}
+.lvlmark.divider i{flex:1; height:1px; background:rgba(224,163,62,.55); display:block}
+.lvlmark.band{padding:2px var(--pad); border-radius:4px; text-align:center; color:#f4e3c2;
+  background:rgba(224,163,62,.16); border:1px solid rgba(224,163,62,.42)}
+.herebadge{flex:none; background:rgba(224,163,62,.18); border:1px solid rgba(224,163,62,.5);
+  color:#f4e3c2; border-radius:999px; padding:0 7px; font-size:calc(var(--fs) - 2.5px)}
+.gempty{color:#7d8492; font-size:calc(var(--fs) - .5px); padding:var(--hpad) 0; text-align:center}
 .gsec{font-size:calc(var(--fs) - 2.5px); letter-spacing:.13em; text-transform:uppercase; color:#8d94a1;
   font-weight:600; margin:0 0 var(--pad)}
 .gsec:not(:first-child){margin-top:calc(var(--gap) * 2)}
@@ -199,9 +214,6 @@ select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--
 .guiderow .gnm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .guiderow .gem{flex:none}
 .guiderow.locked{filter:grayscale(.7)}
-.guiderow.hit-bar{border-left-color:var(--gold); background:rgba(224,163,62,.07)}
-.guiderow.hit-tint{background:rgba(90,154,217,.20)}
-.guiderow.hit-glow{background:rgba(224,163,62,.10); box-shadow:0 0 0 1px rgba(224,163,62,.45), 0 0 14px rgba(224,163,62,.30)}
 
 /* ---------- Collections ---------- */
 .cl-fam{overflow-y:auto; display:flex; flex-direction:column}
@@ -273,10 +285,11 @@ select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--
     <p class="sub">Free visual parameters only. Every settled contract in
       <code>memory-bank/codex-briefs/pass8-owner-fable-decisions-2026-08-07.md</code>
       is baked into the mock and has no control: one home tab per item, the Swap/Insert toggle,
-      headers vanishing when auto-categories are off, the "+" tab, the left family list,
-      and the persistent star banner.</p>
+      headers vanishing when auto-categories are off, the "+" tab, the skill guide living in the
+      Stats tab under the stats block, the left family list, and the persistent star banner.</p>
 
     <div class="presets">
+      <button data-preset="owner" style="grid-column:1/-1">Owner picks 2026-08-07</button>
       <button data-preset="default">Decisions default</button>
       <button data-preset="rsdense">RS classic dense</button>
       <button data-preset="airy">Airy modern</button>
@@ -357,23 +370,19 @@ select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--
       </div>
     </details>
 
-    <details class="group" id="g-skills">
-      <summary>Skills guide</summary>
+    <details class="group" id="g-stats">
+      <summary>Skill guide (Stats tab)</summary>
       <div class="body">
-        <div class="ctl">
-          <label>Guide share of width <span class="val" data-for="guideShare"></span></label>
-          <input type="range" class="rng" data-key="guideShare" min="35" max="70" step="1">
-        </div>
         <div class="ctl">
           <label>Locked row dim <span class="val" data-for="lockedDim"></span></label>
           <input type="range" class="rng" data-key="lockedDim" min="25" max="75" step="1">
         </div>
         <div class="ctl">
-          <label>Followed-click highlight</label>
-          <div class="seg" data-key="followStyle">
-            <button data-val="bar">Left bar</button>
-            <button data-val="tint">Row tint</button>
-            <button data-val="glow">Glow</button>
+          <label>Current-level marker</label>
+          <div class="seg" data-key="levelMarker">
+            <button data-val="divider">Divider line</button>
+            <button data-val="band">Tinted band</button>
+            <button data-val="badge">Boundary badge</button>
           </div>
         </div>
         <div class="ctl">
@@ -383,8 +392,9 @@ select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--
             <button data-val="right">Right</button>
           </div>
         </div>
-        <p class="note">Click a target chip in the detail panel: the guide scrolls to that row and
-          highlights it, which is the settled follows-the-click behaviour.</p>
+        <p class="note">The guide sits under the stats block at full width and opens scrolled to
+          your current level, so the next locked unlocks are on screen. Rows are informational —
+          click a skill chip on the left to swap both the stats block and the guide.</p>
       </div>
     </details>
 
@@ -459,7 +469,7 @@ select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--
     <div class="topbar">
       <div class="surftabs" id="surftabs">
         <button data-surface="bank">Bank</button>
-        <button data-surface="skills">Skills guide</button>
+        <button data-surface="stats">Stats + guide</button>
         <button data-surface="collections">Collections</button>
         <button data-surface="star">Star exit</button>
       </div>
@@ -502,10 +512,9 @@ const DEFAULTS = {
   sortMode: 'manual',
   tabLabels: 'icons',
   rightPanel: 220,
-  // skills
-  guideShare: 55,
+  // stats-tab skill guide
   lockedDim: 45,
-  followStyle: 'bar',
+  levelMarker: 'divider',
   badgePos: 'left',
   // collections
   familyWidth: 200,
@@ -527,35 +536,45 @@ const ui = {
   bankTab: 'all',
   bankSel: 'Coal',
   dragMode: 'swap',
-  skillTarget: 'Coal',
+  skill: 'Strength',
   collNode: 'graardor'
 };
 
 const NUMERIC_KEYS = new Set(['previewWidth','bankCols','bankCell','rightPanel',
-  'guideShare','lockedDim','familyWidth','unownedDim']);
+  'lockedDim','familyWidth','unownedDim']);
 
 const PRESETS = {
+  // Settled in section 8 of the decisions note. DEFAULTS stays the baseline the
+  // prompt diffs against, so this preset reads out as a short list of departures.
+  owner: {
+    bankCols:12, bankCell:54, tabLabels:'names', rightPanel:280,
+    familyWidth:244, dropPresentation:'list', unownedDim:58,
+    bannerTone:'neutral', bannerStyle:'outline'
+  },
   default: {},
   rsdense: {
     density:'compact', bankCols:10, bankCell:38, headerStyle:'rule', tabLabels:'icons',
-    rightPanel:196, sortMode:'manual', guideShare:45, lockedDim:32, followStyle:'bar',
+    rightPanel:196, sortMode:'manual', lockedDim:32, levelMarker:'divider',
     badgePos:'left', familyWidth:176, dropPresentation:'grid', undiscoveredStyle:'silhouette',
     unownedDim:32, bannerTone:'amber', bannerStyle:'filled', bannerPos:'inline'
   },
   airy: {
     density:'comfortable', bankCols:7, bankCell:54, headerStyle:'pill', tabLabels:'names',
-    rightPanel:280, sortMode:'alpha', guideShare:62, lockedDim:58, followStyle:'tint',
+    rightPanel:280, sortMode:'alpha', lockedDim:58, levelMarker:'band',
     badgePos:'right', familyWidth:244, dropPresentation:'list', undiscoveredStyle:'text',
     unownedDim:58, bannerTone:'neutral', bannerStyle:'outline', bannerPos:'above'
   },
   laptop: {
     density:'compact', previewWidth:1000, bankCols:8, bankCell:40, headerStyle:'smallcaps',
-    tabLabels:'icons', rightPanel:190, sortMode:'mru', guideShare:50, lockedDim:45,
-    followStyle:'bar', badgePos:'left', familyWidth:168, dropPresentation:'grid',
+    tabLabels:'icons', rightPanel:190, sortMode:'mru', lockedDim:45,
+    levelMarker:'badge', badgePos:'left', familyWidth:168, dropPresentation:'grid',
     undiscoveredStyle:'silhouette', unownedDim:45, bannerTone:'amber', bannerStyle:'filled',
     bannerPos:'inline'
   }
 };
+
+// First load shows the owner's settled picks, not the bare decisions defaults.
+Object.assign(state, PRESETS.owner);
 
 /* =======================================================================
    FIXTURE DATA
@@ -613,29 +632,98 @@ const BANK_TABS = [
 const PACK = ['\u{26CF}\u{FE0F}','\u{1F357}','\u{1F357}','\u{1F48D}','\u{26AB}','\u{26AB}',
   '\u{26AB}','\u{1F534}','\u{1F534}','\u{1F9EA}','\u{1FA99}','\u{1F5E1}\u{FE0F}'];
 
-// ---- Skills (Mining) ----
-const PLAYER_MINING = 42;
-const GUIDE = [
-  { sec:'Actions and targets', rows:[
-    ['Copper ore',1,'\u{1F7EB}'], ['Tin ore',1,'\u{26AA}'], ['Clay',1,'\u{1F9F1}'],
-    ['Iron ore',15,'\u{1F534}'], ['Silver ore',20,'\u{1F948}'], ['Coal',30,'\u{26AB}'],
-    ['Gold ore',40,'\u{1F947}'], ['Gem rock',40,'\u{1F48E}'], ['Mithril ore',55,'\u{1F535}'],
-    ['Adamantite ore',70,'\u{1F7E2}'], ['Runite ore',85,'\u{1F7E3}'], ['Amethyst',92,'\u{1F52E}']
-  ]},
-  { sec:'Equipment', rows:[
-    ['Bronze pickaxe',1,'\u{26CF}\u{FE0F}'], ['Iron pickaxe',1,'\u{26CF}\u{FE0F}'],
-    ['Steel pickaxe',6,'\u{26CF}\u{FE0F}'], ['Black pickaxe',11,'\u{26CF}\u{FE0F}'],
-    ['Mithril pickaxe',21,'\u{26CF}\u{FE0F}'], ['Adamant pickaxe',31,'\u{26CF}\u{FE0F}'],
-    ['Rune pickaxe',41,'\u{26CF}\u{FE0F}'], ['Dragon pickaxe',61,'\u{26CF}\u{FE0F}']
-  ]}
+// ---- Stats tab: skills, then the per-skill guide ladder ----
+// [name, icon, current level, base level]
+const SKILLS = [
+  ['Attack','\u{2694}\u{FE0F}',61,61], ['Strength','\u{1F4AA}',64,62], ['Defence','\u{1F6E1}\u{FE0F}',58,58],
+  ['Ranged','\u{1F3F9}',55,55], ['Prayer','\u{1F64F}',43,43], ['Magic','\u{1F52E}',59,59],
+  ['Runecrafting','\u{1F300}',31,31], ['Construction','\u{1F3E0}',27,27], ['Hitpoints','\u{2764}\u{FE0F}',62,62],
+  ['Agility','\u{1F938}',41,41], ['Herblore','\u{1F9EA}',38,38], ['Thieving','\u{1F575}\u{FE0F}',45,45],
+  ['Crafting','\u{1F9F5}',47,47], ['Fletching','\u{1FAB6}',52,52], ['Slayer','\u{1F480}',44,44],
+  ['Hunter','\u{1F985}',36,36], ['Mining','\u{26CF}\u{FE0F}',44,42], ['Smithing','\u{1F528}',49,49],
+  ['Fishing','\u{1F3A3}',53,53], ['Cooking','\u{1F373}',57,57], ['Firemaking','\u{1F525}',50,50],
+  ['Woodcutting','\u{1FA93}',58,58], ['Farming','\u{1F331}',39,39], ['Summoning','\u{1F409}',33,33],
+  ['Dungeoneering','\u{1F5DD}\u{FE0F}',35,35]
 ];
-const SKILL_TARGETS = [
-  ['Copper ore','\u{1F7EB}'], ['Iron ore','\u{1F534}'], ['Coal','\u{26AB}'],
-  ['Gold ore','\u{1F947}'], ['Mithril ore','\u{1F535}'], ['Runite ore','\u{1F7E3}'],
-  ['Rune pickaxe','\u{26CF}\u{FE0F}'], ['Dragon pickaxe','\u{26CF}\u{FE0F}']
-];
-const TARGET_LVL = {};
-GUIDE.forEach(function (s) { s.rows.forEach(function (r) { TARGET_LVL[r[0]] = r[1]; }); });
+
+// Guides exist only where sourced sections exist; the rest show the empty state,
+// which matches "omit a section when no sourced registry data exists".
+const GUIDES = {
+  Strength: [
+    { sec:'Actions and targets', rows:[
+      ['Man',1,'\u{1F9CD}'], ['Goblin',1,'\u{1F47A}'], ['Cow',5,'\u{1F404}'],
+      ['Giant frog',10,'\u{1F438}'], ['Hill giant',25,'\u{1F5FF}'], ['Moss giant',35,'\u{1F33F}'],
+      ['Fire giant',50,'\u{1F525}'], ['Greater demon',60,'\u{1F608}'], ['Black demon',70,'\u{1F47F}'],
+      ['Abyssal demon',85,'\u{1F577}\u{FE0F}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Bronze weapons',1,'\u{2694}\u{FE0F}'], ['Steel weapons',5,'\u{2694}\u{FE0F}'],
+      ['Mithril weapons',20,'\u{2694}\u{FE0F}'], ['Adamant weapons',30,'\u{2694}\u{FE0F}'],
+      ['Rune weapons',40,'\u{2694}\u{FE0F}'], ['Granite maul',50,'\u{1F528}'],
+      ['Dragon weapons',60,'\u{1F5E1}\u{FE0F}'], ['Barrows equipment',70,'\u{1F6E1}\u{FE0F}']
+    ]}
+  ],
+  Mining: [
+    { sec:'Actions and targets', rows:[
+      ['Copper ore',1,'\u{1F7EB}'], ['Tin ore',1,'\u{26AA}'], ['Clay',1,'\u{1F9F1}'],
+      ['Iron ore',15,'\u{1F534}'], ['Silver ore',20,'\u{1F948}'], ['Coal',30,'\u{26AB}'],
+      ['Gold ore',40,'\u{1F947}'], ['Gem rock',40,'\u{1F48E}'], ['Mithril ore',55,'\u{1F535}'],
+      ['Adamantite ore',70,'\u{1F7E2}'], ['Runite ore',85,'\u{1F7E3}'], ['Amethyst',92,'\u{1F52E}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Bronze pickaxe',1,'\u{26CF}\u{FE0F}'], ['Iron pickaxe',1,'\u{26CF}\u{FE0F}'],
+      ['Steel pickaxe',6,'\u{26CF}\u{FE0F}'], ['Black pickaxe',11,'\u{26CF}\u{FE0F}'],
+      ['Mithril pickaxe',21,'\u{26CF}\u{FE0F}'], ['Adamant pickaxe',31,'\u{26CF}\u{FE0F}'],
+      ['Rune pickaxe',41,'\u{26CF}\u{FE0F}'], ['Dragon pickaxe',61,'\u{26CF}\u{FE0F}']
+    ]}
+  ],
+  Woodcutting: [
+    { sec:'Actions and targets', rows:[
+      ['Tree',1,'\u{1F333}'], ['Achey tree',1,'\u{1F334}'], ['Oak',15,'\u{1F7EB}'],
+      ['Willow',30,'\u{1F33F}'], ['Teak',35,'\u{1F334}'], ['Maple',45,'\u{1F341}'],
+      ['Mahogany',50,'\u{1FAB5}'], ['Yew',60,'\u{1F332}'], ['Magic',75,'\u{2728}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Bronze hatchet',1,'\u{1FA93}'], ['Steel hatchet',6,'\u{1FA93}'],
+      ['Mithril hatchet',21,'\u{1FA93}'], ['Adamant hatchet',31,'\u{1FA93}'],
+      ['Rune hatchet',41,'\u{1FA93}'], ['Dragon hatchet',61,'\u{1FA93}']
+    ]}
+  ],
+  Fishing: [
+    { sec:'Actions and targets', rows:[
+      ['Shrimps',1,'\u{1F990}'], ['Sardine',5,'\u{1F41F}'], ['Herring',10,'\u{1F420}'],
+      ['Anchovies',15,'\u{1F41F}'], ['Trout',20,'\u{1F41F}'], ['Salmon',30,'\u{1F363}'],
+      ['Tuna',35,'\u{1F41F}'], ['Lobster',40,'\u{1F99E}'], ['Swordfish',50,'\u{1F5E1}\u{FE0F}'],
+      ['Monkfish',62,'\u{1F421}'], ['Shark',76,'\u{1F988}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Small fishing net',1,'\u{1F578}\u{FE0F}'], ['Fishing rod',1,'\u{1F3A3}'],
+      ['Fly fishing rod',20,'\u{1FAB6}'], ['Harpoon',35,'\u{1F531}'], ['Lobster pot',40,'\u{1F9FA}']
+    ]}
+  ],
+  Cooking: [
+    { sec:'Actions and targets', rows:[
+      ['Shrimps',1,'\u{1F990}'], ['Bread',1,'\u{1F35E}'], ['Trout',15,'\u{1F41F}'],
+      ['Salmon',25,'\u{1F363}'], ['Tuna',30,'\u{1F41F}'], ['Lobster',40,'\u{1F99E}'],
+      ['Swordfish',45,'\u{1F5E1}\u{FE0F}'], ['Monkfish',62,'\u{1F421}'], ['Shark',80,'\u{1F988}']
+    ]},
+    { sec:'Utensils and ranges', rows:[
+      ['Fire',1,'\u{1F525}'], ['Range',1,'\u{1F373}'], ['Pot',1,'\u{1F372}'], ['Cake tin',40,'\u{1F370}']
+    ]}
+  ],
+  Smithing: [
+    { sec:'Bars and smelting', rows:[
+      ['Bronze bar',1,'\u{1F529}'], ['Iron bar',15,'\u{1F529}'], ['Silver bar',20,'\u{1F948}'],
+      ['Steel bar',30,'\u{1F529}'], ['Gold bar',40,'\u{1F947}'], ['Mithril bar',50,'\u{1F535}'],
+      ['Adamant bar',70,'\u{1F7E2}'], ['Rune bar',85,'\u{1F7E3}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Hammer',1,'\u{1F528}'], ['Bronze items',1,'\u{2694}\u{FE0F}'], ['Iron items',15,'\u{2694}\u{FE0F}'],
+      ['Steel items',30,'\u{2694}\u{FE0F}'], ['Mithril items',50,'\u{2694}\u{FE0F}'],
+      ['Adamant items',70,'\u{2694}\u{FE0F}'], ['Rune items',85,'\u{2694}\u{FE0F}']
+    ]}
+  ]
+};
 
 // ---- Collections ----
 // st: 2 = owned, 1 = discovered but unowned, 0 = undiscovered
@@ -837,68 +925,109 @@ function packCells() {
 }
 
 /* =======================================================================
-   SURFACE 2 — SKILLS GUIDE
+   SURFACE 2 — STATS TAB (skill grid + stats block + full-width guide)
    ======================================================================= */
-function renderSkills() {
-  const t = ui.skillTarget;
-  const lvl = TARGET_LVL[t] || 1;
-  const unlocked = lvl <= PLAYER_MINING;
+function xpForLevel(l) {
+  let t = 0;
+  for (let i = 1; i < l; i++) t += Math.floor(i + 300 * Math.pow(2, i / 7));
+  return Math.floor(t / 4);
+}
 
-  const chips = SKILL_TARGETS.map(function (r) {
-    return '<div class="tchip' + (r[0] === t ? ' on' : '') + '" data-act="skillTarget" ' +
-      'data-name="' + r[0] + '">' + r[1] + ' ' + r[0] + '</div>';
+function skillRow(name) {
+  for (let i = 0; i < SKILLS.length; i++) if (SKILLS[i][0] === name) return SKILLS[i];
+  return SKILLS[1];
+}
+
+function renderStats() {
+  const sk = skillRow(ui.skill);
+  const cur = sk[2], base = sk[3];
+  const idx = SKILLS.indexOf(sk);
+  const floorXp = xpForLevel(base);
+  const nextXp = xpForLevel(base + 1);
+  const frac = ((idx * 17) % 80 + 5) / 100;
+  const total = Math.round(floorXp + (nextXp - floorXp) * frac);
+  const toNext = nextXp - total;
+  const pct = Math.round(frac * 100);
+
+  let totalLevel = 0;
+  SKILLS.forEach(function (s) { totalLevel += s[3]; });
+
+  const chips = SKILLS.map(function (s) {
+    return '<div class="skchip' + (s[0] === ui.skill ? ' on' : '') + '" data-act="skill" ' +
+      'data-name="' + s[0] + '" title="' + s[0] + '"><span class="si">' + s[1] + '</span>' +
+      '<span>' + s[2] + '/' + s[3] + '</span></div>';
   }).join('');
 
-  const detail =
-    '<div class="panel sk-left" style="flex:' + (100 - state.guideShare) + ' 1 0;min-width:0">' +
-      '<div class="panel-h"><b>Mining</b><span>level 42 · 118,340 xp · 12,660 to 43</span></div>' +
-      '<div class="sk-targets">' + chips + '</div>' +
-      '<div class="sk-det">' +
-        '<div class="big">' + (iconOf(t)) + ' ' + t + '</div>' +
-        '<div class="det-row"><span>Level required</span><b>' + lvl +
-          (unlocked ? '' : ' — locked') + '</b></div>' +
-        '<div class="det-row"><span>Experience</span><b>' + (lvl * 8 + 17) + ' xp per action</b></div>' +
-        '<div class="det-row"><span>Success chance</span><b>' +
-          Math.max(12, Math.min(96, 100 - (lvl - PLAYER_MINING) * 3)) + '%</b></div>' +
-        '<div class="det-row"><span>Respawn</span><b>' + (2 + (lvl % 5)) + ' reviews</b></div>' +
-        '<div class="bar"><i style="width:' +
-          Math.max(8, Math.min(100, 100 - (lvl - PLAYER_MINING) * 3)) + '%"></i></div>' +
-        '<div class="det-acts"><button class="mk-btn pri">Start mining</button>' +
-          '<button class="mk-btn">Add to Challenges</button></div>' +
+  const left =
+    '<div class="panel" style="width:330px;flex:none;display:flex;flex-direction:column;min-height:0">' +
+      '<div class="panel-h"><b>Skills</b></div>' +
+      '<div class="skgrid">' + chips + '</div>' +
+      '<div class="totline">Total level: <b>' + totalLevel.toLocaleString('en-US') + '</b></div>' +
+    '</div>';
+
+  const stats =
+    '<div class="panel" style="flex:none">' +
+      '<div class="panel-h"><span style="font-size:15px">' + sk[1] + '</span>' +
+        '<b>' + sk[0] + ' Stats</b></div>' +
+      '<div class="stats-body">' +
+        '<div class="det-row"><span>Current Level</span><b>' + cur +
+          (cur !== base ? ' (boosted)' : '') + '</b></div>' +
+        '<div class="det-row"><span>Base Level</span><b>' + base + '</b></div>' +
+        '<div class="det-row"><span>Total Experience</span><b>' +
+          total.toLocaleString('en-US') + '</b></div>' +
+        '<div class="det-row"><span>Experience to Next Level</span><b>' +
+          toNext.toLocaleString('en-US') + '</b></div>' +
+        '<div class="lp"><span>Level Progress</span><span>' + pct + '% to ' + (base + 1) + '</span></div>' +
+        '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
       '</div>' +
     '</div>';
 
-  let rows = '';
-  GUIDE.forEach(function (sec) {
-    rows += '<div class="gsec">' + sec.sec + '</div>';
-    sec.rows.forEach(function (r) {
-      const locked = r[1] > PLAYER_MINING;
-      const hit = r[0] === t ? ' hit-' + state.followStyle : '';
-      const badge = '<span class="lvl">' + r[1] + '</span>';
+  const guide =
+    '<div class="panel" style="flex:1;display:flex;flex-direction:column;min-height:0">' +
+      '<div class="panel-h"><b>' + sk[0] + ' skill guide</b>' +
+        '<span style="margin-left:auto">' + base + '/99</span></div>' +
+      '<div class="sk-guide-scroll" id="guideScroll">' + guideRows(sk[0], base) + '</div>' +
+    '</div>';
+
+  return mkTitleBar('Stats') + mkTopTabs('Stats') +
+    '<div class="mk-body">' + left +
+    '<div class="st-right">' + stats + guide + '</div></div>';
+}
+
+function guideRows(skill, base) {
+  const secs = GUIDES[skill];
+  if (!secs) {
+    return '<div class="gempty">No sourced guide sections for ' + skill +
+      ' yet.<br>The harvest fills these in; the guide never invents rows.</div>';
+  }
+  const marker = '<div class="lvlmark ' + state.levelMarker + '" data-marker="1">' +
+    (state.levelMarker === 'divider'
+      ? '<i></i><span>Level ' + base + ' — you are here</span><i></i>'
+      : 'Level ' + base + ' — you are here') + '</div>';
+
+  let html = '';
+  secs.forEach(function (sec) {
+    html += '<div class="gsec">' + sec.sec + '</div>';
+    let firstLocked = -1;
+    for (let i = 0; i < sec.rows.length; i++) {
+      if (sec.rows[i][1] > base) { firstLocked = i; break; }
+    }
+    const showMark = firstLocked > 0;   // needs unlocked rows above and locked below
+    sec.rows.forEach(function (r, i) {
+      if (showMark && i === firstLocked && state.levelMarker !== 'badge') html += marker;
+      const locked = r[1] > base;
+      const lvlBadge = '<span class="lvl">' + r[1] + '</span>';
       const nm = '<span class="gnm">' + r[0] + '</span>';
       const em = '<span class="gem">' + r[2] + '</span>';
-      const inner = state.badgePos === 'left' ? badge + em + nm : em + nm + badge;
-      rows += '<div class="guiderow' + (locked ? ' locked' : '') + hit + '" data-guide="' + r[0] + '"' +
+      const here = (showMark && state.levelMarker === 'badge' && i === firstLocked - 1)
+        ? '<span class="herebadge">you are here · ' + base + '</span>' : '';
+      const mark = here ? ' data-marker="1"' : '';
+      const inner = state.badgePos === 'left' ? lvlBadge + em + nm + here : em + nm + here + lvlBadge;
+      html += '<div class="guiderow' + (locked ? ' locked' : '') + '"' + mark +
         (locked ? ' style="opacity:' + (state.lockedDim / 100) + '"' : '') + '>' + inner + '</div>';
     });
   });
-
-  const guide =
-    '<div class="panel sk-guide" style="flex:' + state.guideShare + ' 1 0;min-width:0">' +
-      '<div class="panel-h"><b>Mining skill guide</b>' +
-        '<span style="margin-left:auto">' + PLAYER_MINING + '/99</span></div>' +
-      '<div class="sk-guide-scroll" id="guideScroll">' + rows + '</div>' +
-    '</div>';
-
-  return mkTitleBar('Skills') + mkTopTabs('Skills') +
-    '<div class="mk-body">' + detail + guide + '</div>';
-}
-
-function iconOf(name) {
-  for (let i = 0; i < SKILL_TARGETS.length; i++) {
-    if (SKILL_TARGETS[i][0] === name) return SKILL_TARGETS[i][1];
-  }
-  return '⛏️';
+  return html;
 }
 
 /* =======================================================================
@@ -1066,8 +1195,8 @@ function renderStar() {
 /* =======================================================================
    RENDER PIPELINE
    ======================================================================= */
-const RENDERERS = { bank:renderBank, skills:renderSkills, collections:renderCollections, star:renderStar };
-const SURFACE_H = { bank:640, skills:640, collections:640, star:400 };
+const RENDERERS = { bank:renderBank, stats:renderStats, collections:renderCollections, star:renderStar };
+const SURFACE_H = { bank:640, stats:640, collections:640, star:400 };
 
 const mock = document.getElementById('mock');
 const scalebox = document.getElementById('scalebox');
@@ -1079,7 +1208,7 @@ function renderPreview() {
   mock.className = 'mock ' + state.density;
   mock.innerHTML = RENDERERS[ui.surface]();
   fit();
-  if (ui.surface === 'skills') scrollGuideTo(ui.skillTarget);
+  if (ui.surface === 'stats') scrollGuideToCurrentLevel();
 }
 
 function fit() {
@@ -1095,12 +1224,13 @@ function fit() {
   scaleLabel.textContent = w + ' × ' + h + ' mock · ' + Math.round(s * 100) + '% scale';
 }
 
-function scrollGuideTo(name) {
+// The guide opens at the player's current level so the next locked unlocks sit on screen.
+function scrollGuideToCurrentLevel() {
   const scroller = document.getElementById('guideScroll');
   if (!scroller) return;
-  const row = scroller.querySelector('[data-guide="' + name + '"]');
-  if (!row) return;
-  scroller.scrollTop = Math.max(0, row.offsetTop - (scroller.clientHeight / 2) + (row.offsetHeight / 2));
+  const mark = scroller.querySelector('[data-marker="1"]');
+  if (!mark) { scroller.scrollTop = 0; return; }
+  scroller.scrollTop = Math.max(0, mark.offsetTop - (scroller.clientHeight * 0.38));
 }
 
 function updateAll() { renderPreview(); updatePrompt(); }
@@ -1110,7 +1240,11 @@ function updateAll() { renderPreview(); updatePrompt(); }
    ======================================================================= */
 const HEADER_LABEL = { rule:'a thin rule beside the label', smallcaps:'small-caps label text with no rule',
   pill:'a pill chip' };
-const FOLLOW_LABEL = { bar:'a left accent bar', tint:'a full-row tint', glow:'a soft glow' };
+const MARKER_LABEL = {
+  divider:'a labelled divider line drawn between the last unlocked row and the first locked one',
+  band:'a tinted full-width band between the last unlocked row and the first locked one',
+  badge:'a "you are here" badge on the last unlocked row'
+};
 const TONE_LABEL = { amber:'amber', neutral:'neutral grey', red:'red' };
 
 function bankPrompt() {
@@ -1140,18 +1274,14 @@ function bankPrompt() {
   return p;
 }
 
-function skillsPrompt() {
+function statsPrompt() {
   const p = [];
-  if (state.guideShare !== DEFAULTS.guideShare) {
-    p.push('split the detail region so the guide panel takes about ' + state.guideShare +
-      '% of the width and the target detail takes the rest');
-  }
   if (state.lockedDim !== DEFAULTS.lockedDim) {
     p.push('render locked rows at about ' + state.lockedDim +
       '% opacity, still showing the full name and level');
   }
-  if (state.followStyle !== DEFAULTS.followStyle) {
-    p.push('mark the row the guide scrolled to with ' + FOLLOW_LABEL[state.followStyle]);
+  if (state.levelMarker !== DEFAULTS.levelMarker) {
+    p.push('mark the player’s current level on the ladder with ' + MARKER_LABEL[state.levelMarker]);
   }
   if (state.badgePos !== DEFAULTS.badgePos) {
     p.push('put the level badge on the ' + state.badgePos + ' end of each guide row');
@@ -1223,10 +1353,13 @@ function updatePrompt() {
       'search/sort/auto-categories/Swap-Insert above it, selected-item detail and carried pack on ' +
       'the right): ' + joinSentences(b));
   }
-  const s = skillsPrompt();
+  const s = statsPrompt();
   if (s.length) {
-    blocks.push('Skills guide (side-by-side with the target detail, guide follows a target click): ' +
-      joinSentences(s));
+    blocks.push('Skill guide (it renders in the Stats tab, at full width directly under the ' +
+      'per-skill stats block rather than beside it, with its own scroll; it opens scrolled to the ' +
+      'player’s current level so the next locked unlocks are visible; selecting a skill chip in the ' +
+      'left grid swaps both the stats block and the guide, and guide rows are informational with no ' +
+      'click behaviour): ' + joinSentences(s));
   }
   const c = collPrompt();
   if (c.length) {
@@ -1247,10 +1380,11 @@ function updatePrompt() {
     promptOut.textContent = intro + '\n\nEvery parameter is at the default the decisions note ' +
       'implies, so build the Pass 8 surfaces exactly as written: an 8-column bank grid at 44px ' +
       'cells with auto-categories on, thin-rule category headers, Manual sort, icon-only tabs and ' +
-      'a 220px right column; a Skills guide taking about 55% of the detail region with locked rows ' +
-      'at 45% opacity, level badges on the left and a left accent bar on the followed row; a 200px ' +
-      'Collections family column with an icon grid, "???" for undiscovered entries and 45% dim for ' +
-      'discovered-but-unowned ones; and an amber filled star banner on its own row above the review strip.';
+      'a 220px right column; the skill guide at full width under the Stats-tab stats block, with ' +
+      'locked rows at 45% opacity, level badges on the left and a labelled divider line marking the ' +
+      'player’s current level; a 200px Collections family column with an icon grid, "???" for ' +
+      'undiscovered entries and 45% dim for discovered-but-unowned ones; and an amber filled star ' +
+      'banner on its own row above the review strip.';
     return;
   }
   promptOut.textContent = intro + '\n\n' + blocks.join('\n\n');
@@ -1265,7 +1399,7 @@ function syncControls() {
     el.value = state[k];
     const out = document.querySelector('.val[data-for="' + k + '"]');
     if (out) {
-      const unit = (k === 'guideShare' || k === 'lockedDim' || k === 'unownedDim') ? '%' : 'px';
+      const unit = (k === 'lockedDim' || k === 'unownedDim') ? '%' : 'px';
       out.textContent = (k === 'bankCols') ? state[k] : state[k] + unit;
     }
   });
@@ -1310,7 +1444,7 @@ document.querySelectorAll('.seg').forEach(function (seg) {
   });
 });
 
-const GROUP_FOR = { bank:'g-bank', skills:'g-skills', collections:'g-coll', star:'g-star' };
+const GROUP_FOR = { bank:'g-bank', stats:'g-stats', collections:'g-coll', star:'g-star' };
 document.getElementById('surftabs').addEventListener('click', function (ev) {
   const btn = ev.target.closest('button');
   if (!btn) return;
@@ -1335,7 +1469,7 @@ mock.addEventListener('click', function (ev) {
   const act = t.dataset.act;
   if (act === 'selectItem') ui.bankSel = t.dataset.name;
   else if (act === 'bankTab') { ui.bankTab = t.dataset.tab; }
-  else if (act === 'skillTarget') ui.skillTarget = t.dataset.name;
+  else if (act === 'skill') ui.skill = t.dataset.name;
   else if (act === 'collNode') ui.collNode = t.dataset.node;
   else if (act === 'dragMode') ui.dragMode = (ui.dragMode === 'swap' ? 'insert' : 'swap');
   else if (act === 'autoCatBox') { state.autoCats = !state.autoCats; syncControls(); }
