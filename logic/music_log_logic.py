@@ -193,18 +193,20 @@ def music_log_view_pure(
     for track in MUSIC_TRACKS:
         done = track.id in unlocked
         latent = track_is_latent_pure(track)
+        label = track.name if done else track.hint
         if completion_filter == "unlocked" and not done:
             continue
         if completion_filter == "locked" and done:
             continue
         if completion_filter == "latent" and not latent:
             continue
-        if needle and needle not in f"{track.name} {track.hint} {track.source}".lower():
+        if needle and needle not in label.lower():
             continue
         rows.append(
             {
                 "track_id": track.id,
                 "name": track.name,
+                "label": label,
                 "hint": track.hint,
                 "source": track.source,
                 "unlocked": done,

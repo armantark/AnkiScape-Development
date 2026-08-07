@@ -536,3 +536,80 @@ claim native parity.
 Keep the registry-only guide and the per-section current-level boundaries.
 The implementation does not create a second unlock database. Native evidence
 remains open until the regular Codex Connection is available.
+
+## Batch 12: Collections family and drop log
+
+### Reproduction
+
+Collections still showed only a four-column Music table. It exposed Source and
+State columns, had no family navigation, no global total, no combat target
+children, and no player-facing drop log. A focused pure test first failed with
+`ModuleNotFoundError: No module named 'ankiscape.logic.collection_log_logic'`.
+
+This batch started from
+`5be00a73d49835737a6db0a5feb7ec15a92475e0`. The checkout was clean and the
+worktree guard reported a safe layout.
+
+### Change
+
+Collections now has a fixed 244-pixel family tree and a wider right detail
+panel. Music Log is first. Boss/monster drop log is second, with current combat
+targets nested below it. Each family and target row shows an `n/m` count. The
+header shows the global collected count. A search field filters only the
+selected family or target.
+
+The new pure view uses the current combat registry, current group order,
+durable kill counts, and durable observed-drop records. It does not add a
+catalog or save field. Empty-drop targets are omitted. Encounter-only targets
+remain hidden until their kill record proves that the player met them. Stale
+observed items outside the current target registry do not enter a denominator.
+
+Before the first target kill, every item label is `???`, and concealed item
+names cannot match search. After one kill, all registry names reveal. Observed
+items count as collected and show their historical quantity. Revealed but
+unobserved rows show `Not collected` and apply 58-percent opacity to the whole
+row, including icon, name, and detail.
+
+Music now renders an unlocked track name or a locked track's player-facing
+hint. The old Source and State columns are gone. No source path, oldid, trace,
+internal status, or debug label is rendered.
+
+Read-only Opus maker workflow `baa6b94d-6ae6-4efe-859a-1a286d7797ab`
+recommended the family tree, nested targets, one selection source, count
+placement, list-row presentation, concealed search, and encounter-only guard.
+Root made all product edits. Its suggestion to keep the old Music Source column
+followed an obsolete test and conflicted with the later Pass 8 no-source
+contract, so root removed that column and updated the regression. No Fable or
+Kimi service was used.
+
+### Verification
+
+- Sixteen combined Music and Collections pure tests passed.
+- The combined pure, migration, and observed-drop integration lane passed 19
+  tests.
+- Full `tests.test_capes_and_music_ui`: 12 tests passed in 31.795 seconds.
+- The real deferred Collections page passed its focused 1280-by-752 offscreen
+  geometry and family test.
+- Full `tests.test_main_menu_widget`: 394 tests passed in 140.933 seconds.
+- Python compilation, `git diff --check`, and the worktree guard passed.
+- Repository checker workflow `1feac71a-7fa0-4325-a95a-ce746e69086e`
+  exceeded its processed-token bound after six reads and returned no verdict.
+  Its partial artifact contained no product finding.
+- Frozen-packet rechecker `5a5c9bac-1ab8-40ec-af43-0a4596547312`
+  returned `accept` with no simplification finding. Its disposable packet and
+  Git directory were deleted after the verdict.
+
+### Native evidence
+
+The regular MacBook Pro Codex Connection host
+`remote-control:env_e_6a684c98946c8321ba89026140dd59e4` again reported
+`thread_list_unavailable` when the final Collections surface was ready. The
+Tailscale SSH path was not used. Native proof of Collections, the unchanged
+vanilla answer bar, and card-content non-overlap remains externally blocked.
+Offscreen Qt does not claim native parity.
+
+### Decision
+
+Keep the registry-backed Collections family tree and drop log. The existing
+observed-drop record remains the only historical ownership source. The current
+combat registry remains the only drop denominator.

@@ -544,6 +544,14 @@ def _open_achievements_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_collections_tab(dialog: "QDialog") -> None:
+    """Mandatory before touching deferred Collections widgets."""
+    tabs = _find_main_tabs(dialog)
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Collections")
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
 def _open_ge_tab(dialog: "QDialog") -> None:
     tabs = _find_main_tabs(dialog)
     index = next(
@@ -5504,6 +5512,38 @@ class MainMenuWidgetTest(unittest.TestCase):
         ctx.refresh("shop")
         QApplication.processEvents()
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
+
+    def test_collections_deferred_page_builds_both_settled_families(self) -> None:
+        dialog = self._open(_make_player_data())
+        dialog.resize(1280, 752)
+        dialog.show()
+
+        _open_collections_tab(dialog)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        navigation = dialog.findChild(QTreeWidget, "collectionsFamilyTree")
+        detail = dialog.findChild(QWidget, "collectionsDetailPanel")
+        self.assertIsNotNone(navigation)
+        self.assertIsNotNone(detail)
+        self.assertEqual(navigation.width(), 244)
+        self.assertGreater(detail.width(), navigation.width())
+        self.assertGreater(detail.x(), navigation.x())
+        self.assertEqual(navigation.topLevelItemCount(), 2)
+        self.assertEqual(navigation.topLevelItem(0).text(0), "Music Log")
+        self.assertEqual(
+            navigation.topLevelItem(1).text(0),
+            "Boss/monster drop log",
+        )
+        navigation.setCurrentItem(navigation.topLevelItem(1))
+        QApplication.processEvents()
+        self.assertIsNotNone(
+            dialog.findChild(QTreeWidget, "collectionsDropTargets")
+        )
+        self.assertRegex(
+            dialog.findChild(QLabel, "collectionsGlobalTotals").text(),
+            r"^Collected \d+ / \d+ overall$",
+        )
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)

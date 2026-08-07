@@ -149,7 +149,7 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
             any(label.objectName().startswith("cabinetTrack_") for label in page.findChildren(QLabel))
         )
 
-    def test_collections_exposes_name_hint_source_and_completion_for_every_track(self):
+    def test_collections_keeps_player_facing_music_text_without_source_or_state(self):
         from ankiscape.data.music_log_data import MUSIC_TRACKS
         from ankiscape.logic.music_log_logic import refresh_music_log_pure
         from ankiscape.ui.ui_tab_collections import build_collections_tab
@@ -173,11 +173,20 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
             for index in range(tree.topLevelItemCount())
             if tree.topLevelItem(index).text(0) == track.name
         )
-        self.assertEqual(item.text(1), track.hint)
-        self.assertEqual(item.text(2), track.source)
-        self.assertEqual(item.text(3), "Unlocked")
+        self.assertEqual(item.text(0), track.name)
+        rendered = " ".join(
+            tree.topLevelItem(index).text(0)
+            for index in range(tree.topLevelItemCount())
+        )
+        self.assertNotIn(track.source, rendered)
+        self.assertNotIn("oldid", rendered.lower())
+        self.assertNotIn("trace", rendered.lower())
+        self.assertNotIn("Unlocked", rendered)
+        self.assertNotIn("Locked", rendered)
+        self.assertNotIn("Latent", rendered)
 
     def test_collections_labels_the_task_track_locked_until_350_tasks(self):
+        from ankiscape.data.music_log_data import MUSIC_TRACKS
         from ankiscape.ui.ui_tab_collections import build_collections_tab
 
         ctx = _Ctx(default_player_data(ORE_DATA))
@@ -188,12 +197,115 @@ class CabinetCapeAndMusicUITest(unittest.TestCase):
             QApplication.instance().processEvents()
 
         tree = self._named(page, "collectionsMusicTracks", QTreeWidget)
+        track = next(row for row in MUSIC_TRACKS if row.name == "The Task at Hand")
         item = next(
             tree.topLevelItem(index)
             for index in range(tree.topLevelItemCount())
-            if tree.topLevelItem(index).text(0) == "The Task at Hand"
+            if tree.topLevelItem(index).text(0) == track.hint
         )
-        self.assertEqual(item.text(3), "Locked")
+        self.assertEqual(item.text(0), "by completing 350 Tasks.")
+        self.assertFalse(
+            any(
+                tree.topLevelItem(index).text(0) == "The Task at Hand"
+                for index in range(tree.topLevelItemCount())
+            )
+        )
+
+    def test_collections_drop_log_conceals_then_reveals_and_dims_rows(self):
+        from ankiscape.ui.ui_tab_collections import build_collections_tab
+
+        def build(player):
+            ctx = _Ctx(player)
+            page = build_collections_tab(ctx)
+            page.show()
+            page.resize(900, 560)
+            for _ in range(3):
+                QApplication.instance().processEvents()
+            return page
+
+        hidden_player = default_player_data(ORE_DATA)
+        hidden_page = build(hidden_player)
+        hidden_nav = self._named(hidden_page, "collectionsFamilyTree", QTreeWidget)
+        self.assertEqual(hidden_nav.width(), 244)
+        hidden_drop_family = hidden_nav.topLevelItem(1)
+        hidden_chicken = next(
+            hidden_drop_family.child(index)
+            for index in range(hidden_drop_family.childCount())
+            if hidden_drop_family.child(index).text(0) == "Chicken"
+        )
+        hidden_nav.setCurrentItem(hidden_chicken)
+        QApplication.instance().processEvents()
+        hidden_names = [
+            label.text()
+            for label in hidden_page.findChildren(QLabel)
+            if label.objectName().startswith("collectionsDropName::chicken::")
+        ]
+        self.assertEqual(hidden_names, ["???", "???", "???"])
+
+        player = default_player_data(ORE_DATA)
+        player["combat_kill_counts"] = {"chicken": 1}
+        player["combat_observed_drops"] = {
+            "chicken": {
+                "Bones": {"times_seen": 1, "quantity_seen": 1},
+            }
+        }
+        page = build(player)
+        nav = self._named(page, "collectionsFamilyTree", QTreeWidget)
+        drop_family = nav.topLevelItem(1)
+        chicken = next(
+            drop_family.child(index)
+            for index in range(drop_family.childCount())
+            if drop_family.child(index).text(0) == "Chicken"
+        )
+        nav.setCurrentItem(chicken)
+        QApplication.instance().processEvents()
+
+        names = {
+            label.text(): label.parentWidget()
+            for label in page.findChildren(QLabel)
+            if label.objectName().startswith("collectionsDropName::chicken::")
+        }
+        self.assertEqual(set(names), {"Bones", "Raw chicken", "Feather"})
+        self.assertIsNone(names["Bones"].graphicsEffect())
+        self.assertAlmostEqual(names["Feather"].graphicsEffect().opacity(), 0.58)
+        self.assertEqual(chicken.text(1), "1/3")
+        family_counts = [
+            tuple(
+                int(value)
+                for value in nav.topLevelItem(index).text(1).split("/", 1)
+            )
+            for index in range(2)
+        ]
+        self.assertEqual(
+            self._named(page, "collectionsGlobalTotals", QLabel).text(),
+            "Collected "
+            f"{sum(count[0] for count in family_counts)} / "
+            f"{sum(count[1] for count in family_counts)} overall",
+        )
+        rendered = [label.text() for label in page.findChildren(QLabel)]
+        for tree in page.findChildren(QTreeWidget):
+            pending = [
+                tree.topLevelItem(index)
+                for index in range(tree.topLevelItemCount())
+            ]
+            while pending:
+                item = pending.pop()
+                rendered.extend(
+                    item.text(column) for column in range(tree.columnCount())
+                )
+                pending.extend(
+                    item.child(index) for index in range(item.childCount())
+                )
+        surface_text = " ".join(rendered).lower()
+        for forbidden in (
+            "/users/",
+            "oldid",
+            "trace",
+            "source_status",
+            "encounter_only",
+            "target_id",
+        ):
+            self.assertNotIn(forbidden, surface_text)
 
     def test_the_taskmaster_presentation_appears_once_and_the_button_clears_it(self):
         player = default_player_data(ORE_DATA)
