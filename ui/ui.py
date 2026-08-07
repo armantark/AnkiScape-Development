@@ -59,6 +59,8 @@ try:
         QShortcut,
         QKeySequence,
         QTimer,
+        QDrag,
+        QMimeData,
         QFrame as QtFrame,
     )
     HAS_QT = True
@@ -162,6 +164,17 @@ from ..core.constants import (
 )
 
 from ..logic.grand_exchange_logic import GE_SLOT_COUNT, ge_fill_drawer_view_pure
+from ..logic.bank_layout_logic import (
+    MAIN_BANK_TAB_ID,
+    bank_sections_pure,
+    create_bank_tab_pure,
+    delete_bank_tab_pure,
+    move_bank_item_pure,
+    reconcile_bank_layout_for_player_pure,
+    rename_bank_tab_pure,
+    reorder_bank_tab_pure,
+    set_bank_tab_icon_pure,
+)
 
 from ..data.pack_data import ITEM_PACK_DATA
 
@@ -1534,6 +1547,103 @@ if HAS_QT:
             super().resizeEvent(event)
             if self.on_viewport_resize is not None:
                 self.on_viewport_resize()
+
+    class _BankDropButton(QToolButton):
+        """Keyboard-focusable Bank cell with native Qt item drag/drop."""
+
+        ITEM_MIME = "application/x-ankiscape-bank-item"
+        TAB_MIME = "application/x-ankiscape-bank-tab"
+
+        def __init__(
+            self,
+            *,
+            item_name: str = "",
+            tab_id: str = "",
+            drag_enabled: bool = False,
+            on_item_drop=None,
+            on_tab_drop=None,
+            can_item_drop=None,
+            parent=None,
+        ):
+            super().__init__(parent)
+            self.item_name = item_name
+            self.tab_id = tab_id
+            self.drag_enabled = bool(drag_enabled)
+            self.on_item_drop = on_item_drop
+            self.on_tab_drop = on_tab_drop
+            self.can_item_drop = can_item_drop
+            self._drag_start = None
+            self.setAcceptDrops(True)
+
+        def mousePressEvent(self, event):  # type: ignore[no-untyped-def]
+            if event.button() == Qt.MouseButton.LeftButton:
+                self._drag_start = event.position().toPoint()
+            super().mousePressEvent(event)
+
+        def mouseMoveEvent(self, event):  # type: ignore[no-untyped-def]
+            if not self.drag_enabled or self._drag_start is None:
+                return super().mouseMoveEvent(event)
+            if not event.buttons() & Qt.MouseButton.LeftButton:
+                return super().mouseMoveEvent(event)
+            if (event.position().toPoint() - self._drag_start).manhattanLength() < QApplication.startDragDistance():
+                return super().mouseMoveEvent(event)
+            mime = QMimeData()
+            if self.item_name:
+                mime.setData(self.ITEM_MIME, self.item_name.encode("utf-8"))
+            elif self.tab_id:
+                mime.setData(self.TAB_MIME, self.tab_id.encode("utf-8"))
+            else:
+                return super().mouseMoveEvent(event)
+            drag = QDrag(self)
+            drag.setMimeData(mime)
+            if not self.icon().isNull():
+                drag.setPixmap(self.icon().pixmap(28, 28))
+            drag.exec(Qt.DropAction.MoveAction)
+
+        def dragEnterEvent(self, event):  # type: ignore[no-untyped-def]
+            mime = event.mimeData()
+            item_allowed = False
+            if mime.hasFormat(self.ITEM_MIME) and self.on_item_drop is not None:
+                source = bytes(mime.data(self.ITEM_MIME)).decode("utf-8")
+                item_allowed = self.can_item_drop is None or bool(
+                    self.can_item_drop(source)
+                )
+            if item_allowed or (
+                mime.hasFormat(self.TAB_MIME) and self.on_tab_drop is not None
+            ):
+                event.acceptProposedAction()
+                return
+            event.ignore()
+
+        def dropEvent(self, event):  # type: ignore[no-untyped-def]
+            mime = event.mimeData()
+            if mime.hasFormat(self.ITEM_MIME) and self.on_item_drop is not None:
+                source = bytes(mime.data(self.ITEM_MIME)).decode("utf-8")
+                if self.can_item_drop is not None and not self.can_item_drop(source):
+                    event.ignore()
+                    return
+                self.on_item_drop(source)
+                event.acceptProposedAction()
+                return
+            if mime.hasFormat(self.TAB_MIME) and self.on_tab_drop is not None:
+                source = bytes(mime.data(self.TAB_MIME)).decode("utf-8")
+                self.on_tab_drop(source)
+                event.acceptProposedAction()
+                return
+            event.ignore()
+
+        def keyPressEvent(self, event):  # type: ignore[no-untyped-def]
+            opens_menu = event.key() == Qt.Key.Key_Menu or (
+                event.key() == Qt.Key.Key_F10
+                and event.modifiers() & Qt.KeyboardModifier.ShiftModifier
+            )
+            if opens_menu and self.contextMenuPolicy() == Qt.ContextMenuPolicy.CustomContextMenu:
+                self.customContextMenuRequested.emit(
+                    QPoint(self.width() // 2, self.height() // 2)
+                )
+                event.accept()
+                return
+            super().keyPressEvent(event)
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -23289,7 +23399,7 @@ def show_main_menu(
     bank_scroll.setObjectName("bankTabScroll")
     bank_scroll.setWidgetResizable(True)
     bank_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
-    bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
     bank_scroll.setWidget(bank_tab)
     bank_state = {"initialized": False}
 
@@ -23299,7 +23409,6 @@ def show_main_menu(
     bank_ge_button.clicked.connect(
         lambda _checked=False: _open_grand_exchange_in_dialog()
     )
-    bk_layout.addWidget(bank_ge_button, 0, Qt.AlignmentFlag.AlignLeft)
 
     # Carried inventory overlay — the 28-slot pack the review loop draws from and
     # banks when full. Collapsible header. Casual packing is inferred (even split
@@ -23890,6 +23999,9 @@ def show_main_menu(
         bank_label.setStyleSheet("color: palette(text); font-weight: 600;")
         bank_column_layout.addWidget(bank_label)
         bank_column_layout.addWidget(bank_picker_scroll)
+        bank_label.setVisible(primary)
+        bank_picker_scroll.setVisible(primary)
+        bank_column.setVisible(primary)
 
         grid_row = QWidget()
         grid_row_layout = QHBoxLayout(grid_row)
@@ -23900,8 +24012,12 @@ def show_main_menu(
         custom_layout.addWidget(grid_row)
 
         pack_hint = QLabel(
-            "Click a Bank item to add one. Right-click it for 1, 5, 10, last X, "
-            "X…, all, or all-but-one. Click a filled pack slot to set its quantity."
+            (
+                "Click a Bank item to add one. Right-click it for 1, 5, 10, last X, "
+                "X…, all, or all-but-one. Click a filled pack slot to set its quantity."
+            )
+            if primary
+            else "Select an item in the main Bank grid, then use Set carried quantity. Click a filled pack slot to edit it."
         )
         pack_hint.setWordWrap(True)
         pack_hint.setStyleSheet(f"color: {dim_text_css(container)}; font-size: 10px;")
@@ -24119,6 +24235,8 @@ def show_main_menu(
     def _toggle_carried_body(checked: bool) -> None:
         carried_body.setVisible(bool(checked))
         carried_header.setText(_carried_header_text(bool(checked)))
+        if checked:
+            _refresh_carried_inventory_views()
 
     carried_header.toggled.connect(_toggle_carried_body)
 
@@ -24131,24 +24249,158 @@ def show_main_menu(
 
     _MAIN_MENU_CTX["refresh_carried_inventory"] = _refresh_carried_panel
 
-    bk_layout.addWidget(carried_header)
-    bk_layout.addWidget(carried_body)
+    player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+    bank_layout_state = {"value": player_data["bank_layout"]}
+    bank_selection = {"item": ""}
+    bank_cell_buttons: dict[str, QToolButton] = {}
+    bank_tab_buttons: dict[str, QToolButton] = {}
+    bank_view_cache = {"categories": {}, "values": {}}
 
-    bank_filter_bar = CatalogFilterBar(
-        placeholder="Search Bank items or categories…",
-        search_object_name="bankSearchInput",
-        parent=bank_tab,
+    bank_controls = QWidget()
+    bank_controls.setObjectName("bankControls")
+    bank_controls_layout = QHBoxLayout(bank_controls)
+    bank_controls_layout.setContentsMargins(0, 0, 0, 0)
+    bank_controls_layout.setSpacing(8)
+    bank_search = QLineEdit()
+    bank_search.setObjectName("bankSearchInput")
+    bank_search.setPlaceholderText("Search Bank…")
+    bank_search.setClearButtonEnabled(True)
+    bank_search.setStyleSheet(
+        "QLineEdit { padding: 7px 10px; border: 1px solid palette(mid);"
+        " border-radius: 8px; color: palette(text); background: palette(base); }"
     )
-    bk_layout.addWidget(bank_filter_bar)
+    bank_controls_layout.addWidget(bank_search, 1)
+    bank_search_summary = QLabel("")
+    bank_search_summary.setObjectName("bankSearchInputSummary")
+    bank_search_summary.setStyleSheet(f"color: {dim_text_css(bank_search_summary)};")
+    bank_controls_layout.addWidget(bank_search_summary)
 
-    bank_list = QListWidget()
-    bank_list.setObjectName("bankList")
-    bank_list.setIconSize(QSize(28, 28))
-    bank_list.setAlternatingRowColors(True)
-    bank_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-    # Inventory is grouped by item-registry category (Ores, Logs, ..., Fletched,
-    # Materials) so newly registered items appear cleanly without per-skill
-    # branches. The carried picker and Bank list share the icon resolver above.
+    bank_sort = QComboBox()
+    bank_sort.setObjectName("bankSortCombo")
+    for label, mode in (
+        ("Manual", "manual"),
+        ("Most recently used", "mru"),
+        ("Date added", "date_added"),
+        ("Alphabetical", "alphabetical"),
+        ("Quantity", "quantity"),
+        ("Value", "value"),
+    ):
+        bank_sort.addItem(label, mode)
+    bank_sort.setCurrentIndex(
+        max(0, bank_sort.findData(bank_layout_state["value"]["sort_mode"]))
+    )
+    bank_controls_layout.addWidget(bank_sort)
+
+    bank_auto_categories = QCheckBox("Auto-categories")
+    bank_auto_categories.setObjectName("bankAutoCategoriesCheck")
+    bank_auto_categories.setChecked(
+        bool(bank_layout_state["value"]["auto_categories"])
+    )
+    bank_controls_layout.addWidget(bank_auto_categories)
+
+    bank_drop_group = QButtonGroup(bank_controls)
+    bank_drop_group.setExclusive(True)
+    bank_swap = QPushButton("Swap")
+    bank_swap.setObjectName("bankDropModeSwap")
+    bank_swap.setCheckable(True)
+    bank_insert = QPushButton("Insert")
+    bank_insert.setObjectName("bankDropModeInsert")
+    bank_insert.setCheckable(True)
+    bank_drop_group.addButton(bank_swap)
+    bank_drop_group.addButton(bank_insert)
+    bank_swap.setChecked(bank_layout_state["value"]["drop_mode"] == "swap")
+    bank_insert.setChecked(bank_layout_state["value"]["drop_mode"] == "insert")
+    bank_controls_layout.addWidget(bank_swap)
+    bank_controls_layout.addWidget(bank_insert)
+
+    bank_frame = QtFrame()
+    bank_frame.setObjectName("bankFrameA")
+    bank_frame.setFrameShape(QtFrame.Shape.StyledPanel)
+    bank_frame.setStyleSheet(
+        "QFrame#bankFrameA { border: 1px solid palette(mid); border-radius: 8px; }"
+    )
+    bank_frame_layout = QHBoxLayout(bank_frame)
+    bank_frame_layout.setContentsMargins(8, 8, 8, 8)
+    bank_frame_layout.setSpacing(12)
+
+    bank_left = QWidget()
+    bank_left.setObjectName("bankGridColumn")
+    bank_left.setMinimumWidth(12 * 54)
+    bank_left_layout = QVBoxLayout(bank_left)
+    bank_left_layout.setContentsMargins(0, 0, 0, 0)
+    bank_left_layout.setSpacing(6)
+    bank_left_layout.addWidget(bank_controls)
+
+    bank_tab_scroll = QScrollArea()
+    bank_tab_scroll.setObjectName("bankTabStripScroll")
+    bank_tab_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    bank_tab_scroll.setWidgetResizable(True)
+    bank_tab_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+    bank_tab_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_tab_scroll.setFixedHeight(50)
+    bank_tab_host = QWidget()
+    bank_tab_host.setObjectName("bankTabStrip")
+    bank_tab_layout = QHBoxLayout(bank_tab_host)
+    bank_tab_layout.setContentsMargins(0, 0, 0, 0)
+    bank_tab_layout.setSpacing(5)
+    bank_tab_scroll.setWidget(bank_tab_host)
+    bank_left_layout.addWidget(bank_tab_scroll)
+
+    bank_grid_scroll = QScrollArea()
+    bank_grid_scroll.setObjectName("bankGridScroll")
+    bank_grid_scroll.setWidgetResizable(True)
+    bank_grid_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    bank_grid_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_grid_host = QWidget()
+    bank_grid_host.setObjectName("bankGrid")
+    bank_grid_layout = QGridLayout(bank_grid_host)
+    bank_grid_layout.setContentsMargins(0, 0, 0, 0)
+    bank_grid_layout.setHorizontalSpacing(0)
+    bank_grid_layout.setVerticalSpacing(4)
+    for column in range(12):
+        bank_grid_layout.setColumnMinimumWidth(column, 54)
+        bank_grid_layout.setColumnStretch(column, 0)
+    bank_grid_layout.setColumnStretch(12, 1)
+    bank_grid_rows = {"count": 0}
+    bank_grid_scroll.setWidget(bank_grid_host)
+    bank_left_layout.addWidget(bank_grid_scroll, 1)
+    bank_frame_layout.addWidget(bank_left, 1)
+
+    bank_right = QWidget()
+    bank_right.setObjectName("bankRightColumn")
+    bank_right.setFixedWidth(280)
+    bank_right_layout = QVBoxLayout(bank_right)
+    bank_right_layout.setContentsMargins(0, 0, 0, 0)
+    bank_right_layout.setSpacing(8)
+
+    bank_selected_box = QtFrame()
+    bank_selected_box.setObjectName("bankSelectedDetail")
+    bank_selected_box.setFrameShape(QtFrame.Shape.StyledPanel)
+    bank_selected_layout = QVBoxLayout(bank_selected_box)
+    bank_selected_layout.setContentsMargins(10, 8, 10, 8)
+    bank_selected_layout.setSpacing(6)
+    bank_selected_title = QLabel("Select an item")
+    bank_selected_title.setObjectName("bankSelectedItem")
+    bank_selected_title.setStyleSheet("font-weight: 700; color: palette(text);")
+    bank_selected_layout.addWidget(bank_selected_title)
+    bank_selected_meta = QLabel("Choose a Bank cell to see its details and actions.")
+    bank_selected_meta.setObjectName("bankSelectedMeta")
+    bank_selected_meta.setWordWrap(True)
+    bank_selected_meta.setStyleSheet(f"color: {dim_text_css(bank_selected_meta)};")
+    bank_selected_layout.addWidget(bank_selected_meta)
+    bank_set_carried = QPushButton("Set carried quantity…")
+    bank_set_carried.setObjectName("bankSetCarriedQuantityButton")
+    bank_selected_layout.addWidget(bank_set_carried)
+    bank_actions = QPushButton("Item actions…")
+    bank_actions.setObjectName("bankItemActionsButton")
+    bank_selected_layout.addWidget(bank_actions)
+    bank_selected_layout.addWidget(bank_ge_button)
+    bank_right_layout.addWidget(bank_selected_box)
+    bank_right_layout.addWidget(carried_header)
+    bank_right_layout.addWidget(carried_body)
+    bank_right_layout.addStretch(1)
+    bank_frame_layout.addWidget(bank_right)
+    bk_layout.addWidget(bank_frame, 1)
 
     def _make_header_item(label: str, marker: str) -> QListWidgetItem:
         header = QListWidgetItem(label)
@@ -24167,7 +24419,7 @@ def show_main_menu(
 
     def _refresh_equipment_views(*, refresh_visible_skill: bool = False) -> None:
         if bank_state["initialized"]:
-            _populate_bank_list()
+            _refresh_bank_surface()
             _populate_death_office()
         for refresher in _equipment_refreshers:
             refresher()
@@ -24191,52 +24443,503 @@ def show_main_menu(
             f"Add it to the carried pack for the current {skill_name} target to enable Teleport urn."
         )
 
-    def _populate_bank_list() -> None:
+    def _refresh_bank_surface(*, rebuild_tabs: bool = True) -> None:
         _refresh_carried_panel()
-        bank_list.clear()
-        inv = player_data.get("inventory", {}) or {}
-        groups = grouped_inventory(inv)
-        total_count = sum(len(rows) for _category_label, rows in groups)
-        visible_count = 0
-        if not groups:
-            empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            bank_list.addItem(empty)
-        for category_label, rows in groups:
-            filtered_rows = tuple(
+        player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+        bank_layout_state["value"] = player_data["bank_layout"]
+        categories, values = _bank_category_and_value_maps()
+        bank_view_cache["categories"] = categories
+        bank_view_cache["values"] = values
+        state_value = bank_layout_state["value"]
+        sections = bank_sections_pure(
+            state_value,
+            player_data.get("inventory", {}) or {},
+            state_value["selected_tab"],
+            state_value["sort_mode"],
+            auto_categories=bool(state_value["auto_categories"]),
+            categories=categories,
+            values=values,
+        )
+        total_count = sum(len(section["items"]) for section in sections)
+        query_tokens = bank_search.text().strip().casefold().split()
+        filtered_sections = []
+        for section in sections:
+            rows = [
                 row
-                for row in rows
-                if bank_filter_bar.matches_text(row[0], category_label)
+                for row in section["items"]
+                if not query_tokens
+                or all(
+                    token in f"{row['name']} {section['label']}".casefold()
+                    for token in query_tokens
+                )
+            ]
+            if rows:
+                filtered_sections.append({"label": section["label"], "items": rows})
+        visible_count = sum(len(section["items"]) for section in filtered_sections)
+        bank_search_summary.setText(f"Showing {visible_count}/{total_count}")
+        _render_bank_surface(filtered_sections, bool(query_tokens), rebuild_tabs)
+
+    def _bank_category_and_value_maps() -> tuple[dict[str, str], dict[str, int]]:
+        categories = {}
+        for item_name in (player_data.get("inventory", {}) or {}):
+            definition = _item_def_for(item_name)
+            category_id = definition.category if definition is not None else ""
+            categories[item_name] = _ITEM_CATEGORY_LABELS.get(category_id, "Other")
+        values: dict[str, int] = {}
+        if callable(get_ge_projection):
+            try:
+                projection = get_ge_projection()
+                for row in projection.get("items", ()) if isinstance(projection, dict) else ():
+                    item_name = row.get("item_name")
+                    if isinstance(item_name, str):
+                        values[item_name] = max(0, int(row.get("guide_price", 0) or 0))
+            except Exception:
+                pass
+        return categories, values
+
+    def _persist_bank_layout(updated: dict, *, render: bool = True) -> None:
+        player_data["bank_layout"] = updated
+        bank_layout_state["value"] = updated
+        if on_save_player_data is not None:
+            on_save_player_data()
+        if render:
+            _refresh_bank_surface()
+
+    def _select_bank_item(item_name: str) -> None:
+        previous_item = bank_selection["item"]
+        inventory = player_data.get("inventory", {}) or {}
+        amount = max(0, int(inventory.get(item_name, 0) or 0))
+        if amount <= 0:
+            item_name = ""
+        bank_selection["item"] = item_name
+        for name in {previous_item, item_name}:
+            button = bank_cell_buttons.get(name)
+            if button is not None:
+                _style_bank_cell(button, name == item_name)
+        if not item_name:
+            bank_selected_title.setText("Select an item")
+            bank_selected_meta.setText("Choose a Bank cell to see its details and actions.")
+            bank_set_carried.setEnabled(False)
+            bank_actions.setEnabled(False)
+            return
+        categories = bank_view_cache["categories"]
+        values = bank_view_cache["values"]
+        metadata = [f"Quantity: {amount:,}", categories.get(item_name, "Other")]
+        if values.get(item_name, 0):
+            metadata.append(f"Guide value: {values[item_name]:,} Coins")
+        if is_equippable_item(item_name):
+            ok, reason = can_equip_item_pure(
+                item_name, EQUIPMENT_ITEM_DATA, player_data
             )
-            if not filtered_rows:
+            if not ok and reason:
+                metadata.append(reason)
+        bank_selected_title.setText(f"{item_name} ×{amount:,}")
+        bank_selected_meta.setText("\n".join(metadata))
+        bank_set_carried.setEnabled(on_set_carried_layout_quantity is not None)
+        bank_actions.setEnabled(True)
+
+    def _show_selected_bank_actions() -> None:
+        item_name = bank_selection["item"]
+        if not item_name:
+            return
+        menu = _build_bank_equip_menu(item_name)
+        menu.exec(bank_actions.mapToGlobal(QPoint(0, bank_actions.height())))
+
+    def _can_drop_item_on_cell(source_item: str, destination_item: str) -> bool:
+        state_value = bank_layout_state["value"]
+        if state_value["sort_mode"] != "manual":
+            return False
+        source = state_value["items"].get(source_item)
+        destination = state_value["items"].get(destination_item)
+        if not isinstance(source, dict) or not isinstance(destination, dict):
+            return False
+        if state_value["auto_categories"]:
+            categories = bank_view_cache["categories"]
+            if categories.get(source_item) != categories.get(destination_item):
+                return False
+        return True
+
+    def _drop_item_on_cell(source_item: str, destination_item: str) -> None:
+        if not _can_drop_item_on_cell(source_item, destination_item):
+            return
+        state_value = bank_layout_state["value"]
+        destination = state_value["items"][destination_item]
+        updated = move_bank_item_pure(
+            state_value,
+            source_item,
+            str(destination["tab_id"]),
+            int(destination["position"]),
+            str(state_value["drop_mode"]),
+        )
+        _persist_bank_layout(updated)
+
+    def _drop_item_on_tab(source_item: str, tab_id: str) -> None:
+        state_value = bank_layout_state["value"]
+        destination_position = sum(
+            1
+            for row in state_value["items"].values()
+            if row.get("tab_id") == tab_id
+        )
+        updated = move_bank_item_pure(
+            state_value,
+            source_item,
+            tab_id,
+            destination_position,
+            "insert",
+        )
+        updated["selected_tab"] = tab_id
+        _persist_bank_layout(updated)
+
+    def _drop_item_on_new_tab(source_item: str) -> None:
+        updated, _tab_id = create_bank_tab_pure(
+            bank_layout_state["value"], source_item
+        )
+        if _tab_id:
+            _persist_bank_layout(updated)
+
+    def _drop_tab_on_tab(source_tab_id: str, destination_tab_id: str) -> None:
+        tab_ids = [tab["id"] for tab in bank_layout_state["value"]["tabs"]]
+        if destination_tab_id not in tab_ids:
+            return
+        updated = reorder_bank_tab_pure(
+            bank_layout_state["value"],
+            source_tab_id,
+            tab_ids.index(destination_tab_id),
+        )
+        _persist_bank_layout(updated)
+
+    def _bank_item_visible_order(item_name: str) -> list[str]:
+        state_value = bank_layout_state["value"]
+        item_row = state_value["items"].get(item_name)
+        if not isinstance(item_row, dict):
+            return []
+        category = bank_view_cache["categories"].get(item_name)
+        visible_names = [
+            name
+            for name, row in state_value["items"].items()
+            if row.get("tab_id") == item_row["tab_id"]
+            and (
+                not state_value["auto_categories"]
+                or bank_view_cache["categories"].get(name) == category
+            )
+        ]
+        visible_names.sort(key=lambda name: state_value["items"][name]["position"])
+        return visible_names
+
+    def _move_bank_item_by_step(item_name: str, step: int) -> None:
+        state_value = bank_layout_state["value"]
+        if state_value["sort_mode"] != "manual":
+            return
+        item_row = state_value["items"].get(item_name)
+        if not isinstance(item_row, dict):
+            return
+        visible_names = _bank_item_visible_order(item_name)
+        source_index = visible_names.index(item_name)
+        destination_index = source_index + step
+        if destination_index < 0 or destination_index >= len(visible_names):
+            return
+        destination_name = visible_names[destination_index]
+        _persist_bank_layout(
+            move_bank_item_pure(
+                state_value,
+                item_name,
+                str(item_row["tab_id"]),
+                int(state_value["items"][destination_name]["position"]),
+                "insert",
+            )
+        )
+
+    def _build_bank_tab_menu(tab_id: str, button: QWidget) -> QMenu:
+        state_value = bank_layout_state["value"]
+        tab = next((row for row in state_value["tabs"] if row["id"] == tab_id), None)
+        menu = QMenu(button)
+        if tab is None:
+            return menu
+        if tab_id != MAIN_BANK_TAB_ID:
+            rename_action = menu.addAction("Rename…")
+
+            def _rename() -> None:
+                name, ok = QInputDialog.getText(
+                    button, "Rename Bank tab", "Short name:", text=tab["name"]
+                )
+                if ok:
+                    _persist_bank_layout(
+                        rename_bank_tab_pure(state_value, tab_id, name)
+                    )
+
+            rename_action.triggered.connect(_rename)
+        icon_action = menu.addAction("Choose icon…")
+
+        def _choose_icon() -> None:
+            owned = sorted(
+                name
+                for name, amount in (player_data.get("inventory", {}) or {}).items()
+                if int(amount or 0) > 0
+            )
+            if not owned:
+                return
+            chosen, ok = QInputDialog.getItem(
+                button, "Choose Bank tab icon", "Owned item:", owned, 0, False
+            )
+            if ok:
+                _persist_bank_layout(
+                    set_bank_tab_icon_pure(
+                        state_value, tab_id, chosen, player_data.get("inventory", {})
+                    )
+                )
+
+        icon_action.triggered.connect(_choose_icon)
+        if tab_id != MAIN_BANK_TAB_ID:
+            menu.addSeparator()
+            tab_ids = [row["id"] for row in state_value["tabs"]]
+            tab_index = tab_ids.index(tab_id)
+            move_left = menu.addAction("Move tab left")
+            move_left.setEnabled(tab_index > 1)
+            move_left.triggered.connect(
+                lambda _checked=False: _persist_bank_layout(
+                    reorder_bank_tab_pure(state_value, tab_id, tab_index - 1)
+                )
+            )
+            move_right = menu.addAction("Move tab right")
+            move_right.setEnabled(tab_index < len(tab_ids) - 1)
+            move_right.triggered.connect(
+                lambda _checked=False: _persist_bank_layout(
+                    reorder_bank_tab_pure(state_value, tab_id, tab_index + 1)
+                )
+            )
+            menu.addSeparator()
+            delete_action = menu.addAction("Delete tab")
+            delete_action.triggered.connect(
+                lambda _checked=False: _persist_bank_layout(
+                    delete_bank_tab_pure(state_value, tab_id)
+                )
+            )
+        return menu
+
+    def _show_bank_tab_menu(tab_id: str, button: QToolButton, pos) -> None:
+        _build_bank_tab_menu(tab_id, button).exec(button.mapToGlobal(pos))
+
+    def _render_bank_tabs() -> None:
+        previous_scroll = bank_tab_scroll.horizontalScrollBar().value()
+        _clear_layout(bank_tab_layout)
+        bank_tab_buttons.clear()
+        state_value = bank_layout_state["value"]
+        for tab in state_value["tabs"]:
+            tab_id = str(tab["id"])
+            item_names = [
+                name
+                for name, row in state_value["items"].items()
+                if row.get("tab_id") == tab_id
+            ]
+            item_names.sort(
+                key=lambda name: state_value["items"][name]["position"]
+            )
+            icon_item = str(tab.get("icon_item", "")) or (
+                item_names[0] if item_names else ""
+            )
+            name = str(tab.get("name", "Bank tab"))
+            short_name = name if len(name) <= 10 else f"{name[:9]}…"
+            button = _BankDropButton(
+                tab_id=tab_id,
+                drag_enabled=tab_id != MAIN_BANK_TAB_ID,
+                on_item_drop=lambda source, target=tab_id: _drop_item_on_tab(source, target),
+                on_tab_drop=lambda source, target=tab_id: _drop_tab_on_tab(source, target),
+            )
+            button.setObjectName(f"bankTab::{tab_id}")
+            button.setText(short_name)
+            button.setToolTip(name)
+            button.setAccessibleName(f"Bank tab: {name}")
+            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            button.setCheckable(True)
+            button.setChecked(state_value["selected_tab"] == tab_id)
+            button.setFixedHeight(38)
+            bank_tab_buttons[tab_id] = button
+            icon_path = _item_icon_path(icon_item) if icon_item else None
+            if icon_path:
+                button.setIcon(QIcon(icon_path))
+                button.setIconSize(QSize(24, 24))
+            button.clicked.connect(
+                lambda _checked=False, selected=tab_id: _select_bank_tab(selected)
+            )
+            button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            button.customContextMenuRequested.connect(
+                lambda point, selected=tab_id, widget=button: _show_bank_tab_menu(
+                    selected, widget, point
+                )
+            )
+            bank_tab_layout.addWidget(button)
+        plus = _BankDropButton(on_item_drop=_drop_item_on_new_tab)
+        plus.setObjectName("bankNewTabDropTarget")
+        plus.setText("+")
+        plus.setToolTip("Drag an item here to create a new tab.")
+        plus.setAccessibleName("Create Bank tab by dropping an item")
+        plus.setFixedSize(40, 38)
+        bank_tab_layout.addWidget(plus)
+        bank_tab_layout.addStretch(1)
+        bank_tab_host.setMinimumWidth(bank_tab_layout.sizeHint().width())
+        bank_tab_scroll.horizontalScrollBar().setValue(previous_scroll)
+
+    def _select_bank_tab(tab_id: str) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["selected_tab"] = tab_id
+        _persist_bank_layout(updated, render=False)
+        _refresh_bank_surface(rebuild_tabs=False)
+
+    def _style_bank_cell(button: QToolButton, selected: bool) -> None:
+        button.setStyleSheet(
+            "QToolButton { border: "
+            + ("2px solid palette(highlight);" if selected else "1px solid palette(mid);")
+            + " border-radius: 4px; background: palette(base); color: palette(text);"
+            " font-size: 9px; padding: 1px; }"
+            "QToolButton:hover { border-color: palette(highlight); }"
+        )
+
+    def _bank_quantity_text(quantity: int) -> str:
+        if quantity < 100_000:
+            return f"×{quantity:,}"
+        if quantity < 1_000_000:
+            return f"×{quantity / 1_000:.1f}K".replace(".0K", "K")
+        if quantity < 1_000_000_000:
+            return f"×{quantity / 1_000_000:.1f}M".replace(".0M", "M")
+        return f"×{quantity / 1_000_000_000:.1f}B".replace(".0B", "B")
+
+    def _render_bank_surface(
+        sections: list[dict],
+        has_query: bool,
+        rebuild_tabs: bool,
+    ) -> None:
+        previous_scroll = bank_grid_scroll.verticalScrollBar().value()
+        if rebuild_tabs:
+            _render_bank_tabs()
+        else:
+            selected_tab = bank_layout_state["value"]["selected_tab"]
+            for tab_id, button in bank_tab_buttons.items():
+                button.setChecked(tab_id == selected_tab)
+        for old_row in range(bank_grid_rows["count"] + 2):
+            bank_grid_layout.setRowStretch(old_row, 0)
+        _clear_layout(bank_grid_layout)
+        bank_cell_buttons.clear()
+        state_value = bank_layout_state["value"]
+        visible_rows = []
+        row_index = 0
+        for section in sections:
+            rows = section["items"]
+            if not rows:
                 continue
-            bank_list.addItem(_make_header_item(category_label, "__header__"))
-            for item_name, amount, asset_path in filtered_rows:
-                visible_count += 1
-                li = QListWidgetItem(f"{item_name} x{amount}")
-                icon_path = _bank_icon_path(item_name, asset_path)
+            if state_value["auto_categories"]:
+                header = QLabel(f"— {section['label']} —")
+                header.setObjectName(f"bankCategoryHeader::{section['label']}")
+                header.setStyleSheet(
+                    "font-weight: 700; color: palette(text); padding: 5px 2px 1px 2px;"
+                )
+                bank_grid_layout.addWidget(header, row_index, 0, 1, 12)
+                row_index += 1
+            for display_index, row in enumerate(rows):
+                item_name = str(row["name"])
+                button = _BankDropButton(
+                    item_name=item_name,
+                    drag_enabled=state_value["sort_mode"] == "manual",
+                    on_item_drop=lambda source, target=item_name: _drop_item_on_cell(
+                        source, target
+                    ),
+                    can_item_drop=lambda source, target=item_name: _can_drop_item_on_cell(
+                        source, target
+                    ),
+                )
+                button.setObjectName(f"bankGridItem::{item_name}")
+                button.setProperty("bankItemName", item_name)
+                button.setProperty("bankQuantity", int(row["quantity"]))
+                button.setFixedSize(54, 54)
+                button.setText(_bank_quantity_text(int(row["quantity"])))
+                button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+                button.setAccessibleName(f"{item_name}, quantity {int(row['quantity']):,}")
+                icon_path = _item_icon_path(item_name)
                 if icon_path:
-                    li.setIcon(QIcon(icon_path))
-                # The plain item name is stashed on every inventory row so the
-                # right-click handler can resolve equippability without parsing
-                # the "Name xN" label back apart.
-                li.setData(Qt.ItemDataRole.UserRole, item_name)
+                    button.setIcon(QIcon(icon_path))
+                    button.setIconSize(QSize(28, 28))
+                tooltip = f"{item_name}\nQuantity: {int(row['quantity']):,}\n{row['category']}"
+                if state_value["sort_mode"] != "manual":
+                    tooltip += "\nChoose Manual sort to drag items."
                 urn_info = full_urn_teleport_info_pure(player_data, item_name)
                 if urn_info is not None:
-                    li.setData(Qt.ItemDataRole.UserRole + 1, urn_info["urn_id"])
-                    li.setToolTip(_full_urn_tooltip(urn_info))
+                    button.setProperty("bankUrnId", str(urn_info["urn_id"]))
+                    tooltip += f"\n{_full_urn_tooltip(urn_info)}"
                 elif is_equippable_item(item_name):
-                    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
-                    li.setToolTip(equipment_full_tooltip(item_name, "" if ok else reason))
-                bank_list.addItem(li)
-        if groups and not visible_count:
-            empty = QListWidgetItem("No Bank items match your search.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            bank_list.addItem(empty)
-        bank_filter_bar.set_count(visible_count, total_count)
+                    ok, reason = can_equip_item_pure(
+                        item_name, EQUIPMENT_ITEM_DATA, player_data
+                    )
+                    tooltip += f"\n{equipment_full_tooltip(item_name, '' if ok else reason)}"
+                button.setToolTip(tooltip)
+                _style_bank_cell(button, bank_selection["item"] == item_name)
+                button.clicked.connect(
+                    lambda _checked=False, name=item_name: _select_bank_item(name)
+                )
+                button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                button.customContextMenuRequested.connect(
+                    lambda point, name=item_name, widget=button: _build_bank_equip_menu(
+                        name
+                    ).exec(widget.mapToGlobal(point))
+                )
+                bank_grid_layout.addWidget(
+                    button,
+                    row_index + display_index // 12,
+                    display_index % 12,
+                )
+                bank_cell_buttons[item_name] = button
+                visible_rows.append(row)
+            row_index += (len(rows) + 11) // 12
+        if not visible_rows:
+            empty = QLabel(
+                "No Bank items match your search."
+                if has_query
+                else "This Bank tab is empty. Drag an item here from another tab."
+            )
+            empty.setObjectName("bankGridEmpty")
+            empty.setStyleSheet(f"color: {dim_text_css(empty)}; padding: 16px;")
+            bank_grid_layout.addWidget(empty, 0, 0, 1, 12)
+        bank_grid_layout.setRowStretch(row_index + 1, 1)
+        bank_grid_rows["count"] = row_index + 1
+        if bank_selection["item"] not in {row["name"] for row in visible_rows}:
+            _select_bank_item(visible_rows[0]["name"] if visible_rows else "")
+        elif bank_selection["item"]:
+            _select_bank_item(bank_selection["item"])
+        bank_grid_scroll.verticalScrollBar().setValue(previous_scroll)
 
-    bank_filter_bar.search_input.textChanged.connect(
-        lambda _text: _populate_bank_list()
+    def _set_bank_sort(_index: int) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["sort_mode"] = str(bank_sort.currentData() or "manual")
+        _persist_bank_layout(updated)
+
+    def _set_bank_auto_categories(checked: bool) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["auto_categories"] = bool(checked)
+        _persist_bank_layout(updated)
+
+    def _set_bank_drop_mode(mode: str) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["drop_mode"] = mode
+        _persist_bank_layout(updated, render=False)
+
+    bank_search.textChanged.connect(lambda _text: _refresh_bank_surface())
+    bank_sort.currentIndexChanged.connect(_set_bank_sort)
+    bank_auto_categories.toggled.connect(_set_bank_auto_categories)
+    bank_swap.clicked.connect(lambda _checked=False: _set_bank_drop_mode("swap"))
+    bank_insert.clicked.connect(lambda _checked=False: _set_bank_drop_mode("insert"))
+    bank_set_carried.clicked.connect(
+        lambda _checked=False: _prompt_set_pack_quantity(
+            bank_selection["item"], bank_set_carried
+        )
+    )
+    bank_actions.clicked.connect(lambda _checked=False: _show_selected_bank_actions())
+    dialog._ankiscape_bank_drop_item_on_cell = _drop_item_on_cell  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_can_drop_item_on_cell = _can_drop_item_on_cell  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_drop_item_on_tab = _drop_item_on_tab  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_drop_item_on_new_tab = _drop_item_on_new_tab  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_delete_tab = lambda tab_id: _persist_bank_layout(  # type: ignore[attr-defined]
+        delete_bank_tab_pure(bank_layout_state["value"], tab_id)
+    )
+    dialog._ankiscape_bank_tab_menu_for = lambda tab_id: _build_bank_tab_menu(  # type: ignore[attr-defined]
+        tab_id, bank_frame
     )
 
     claims_box = QWidget()
@@ -24565,7 +25268,7 @@ def show_main_menu(
         Exposed as a builder (rather than only an inline exec) so the offscreen
         tests can assert action state without spawning a native popup.
         """
-        menu = QMenu(bank_list)
+        menu = QMenu(bank_frame)
         trail_view = treasure_trails_view_pure(player_data)
         clue_row = next(
             (row for row in trail_view["clue_rows"] if row["item"] == item_name),
@@ -24654,7 +25357,7 @@ def show_main_menu(
                     _refresh_equipment_views()
                     message = str(result.get("message", ""))
                     if message:
-                        QMessageBox.information(bank_list, item_name, message)
+                        QMessageBox.information(bank_frame, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
             menu.addSeparator()
@@ -24723,7 +25426,7 @@ def show_main_menu(
         if carried_mode_state["advanced"] and on_set_carried_layout_quantity is not None:
             set_layout_action = menu.addAction("Set carried quantity…")
             set_layout_action.triggered.connect(
-                lambda _checked=False, name=item_name: _prompt_set_pack_quantity(name, bank_list)
+                lambda _checked=False, name=item_name: _prompt_set_pack_quantity(name, bank_frame)
             )
             menu.addSeparator()
 
@@ -24735,7 +25438,7 @@ def show_main_menu(
             if on_discard_item is None:
                 return
             quantity, ok = QInputDialog.getInt(
-                bank_list,
+                bank_frame,
                 "Discard from Bank",
                 f"{item_name} quantity:",
                 amount,
@@ -24747,22 +25450,44 @@ def show_main_menu(
                 _refresh_equipment_views()
 
         discard_action.triggered.connect(_do_discard)
+        layout_state = bank_layout_state["value"]
+        saved_row = layout_state["items"].get(item_name)
+        if isinstance(saved_row, dict):
+            menu.addSeparator()
+            organize_menu = menu.addMenu("Organize")
+            organize_menu.setObjectName("bankOrganizeMenu")
+            manual = layout_state["sort_mode"] == "manual"
+            tab_id = str(saved_row["tab_id"])
+            visible_names = _bank_item_visible_order(item_name)
+            visible_index = visible_names.index(item_name)
+            move_earlier = organize_menu.addAction("Move earlier")
+            move_earlier.setEnabled(manual and visible_index > 0)
+            move_earlier.triggered.connect(
+                lambda _checked=False: _move_bank_item_by_step(item_name, -1)
+            )
+            move_later = organize_menu.addAction("Move later")
+            move_later.setEnabled(manual and visible_index < len(visible_names) - 1)
+            move_later.triggered.connect(
+                lambda _checked=False: _move_bank_item_by_step(item_name, 1)
+            )
+            organize_menu.addSeparator()
+            for tab in layout_state["tabs"]:
+                destination_tab_id = str(tab["id"])
+                if destination_tab_id == tab_id:
+                    continue
+                move_to = organize_menu.addAction(f"Move to {tab['name']}")
+                move_to.triggered.connect(
+                    lambda _checked=False, target=destination_tab_id: _drop_item_on_tab(
+                        item_name, target
+                    )
+                )
+            move_new = organize_menu.addAction("Move to new tab")
+            move_new.triggered.connect(
+                lambda _checked=False: _drop_item_on_new_tab(item_name)
+            )
         return menu
-
-    def _bank_context_menu(pos) -> None:
-        item = bank_list.itemAt(pos)
-        if item is None:
-            return
-        item_name = item.data(Qt.ItemDataRole.UserRole)
-        if not isinstance(item_name, str):
-            return
-        menu = _build_bank_equip_menu(item_name)
-        menu.exec(bank_list.viewport().mapToGlobal(pos))
-
-    bank_list.customContextMenuRequested.connect(_bank_context_menu)
     bk_layout.addWidget(death_office_box)
     bk_layout.addWidget(claims_box)
-    bk_layout.addWidget(bank_list, 1)
 
     # Gear sits in its own pinned panel below the scrollable, striped inventory
     # (the owner wanted it "outside the striped window"). The toolbelt changes
@@ -24835,7 +25560,7 @@ def show_main_menu(
         if not bank_state["initialized"]:
             _populate_death_office()
             _populate_claims()
-            _populate_bank_list()
+            _refresh_bank_surface()
             _populate_bank_gear_list()
             bank_state["initialized"] = True
         return bank_scroll
@@ -25056,7 +25781,7 @@ def show_main_menu(
                 dialog, "Follower action unavailable", str(result["message"])
             )
         _refresh_follower_panel()
-        _populate_bank_list()
+        _refresh_bank_surface()
         return ok
 
     def _selected_pet_instance_id() -> Optional[str]:

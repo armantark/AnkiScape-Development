@@ -389,3 +389,71 @@ wall-clock read.
 Keep the pure presentation model and shared-save reconciliation. The model is
 the tested base for the next Frame A Qt batch. It does not create a second item
 store or a wall-clock counter.
+
+## Batch 10: Bank Frame A
+
+### Reproduction
+
+The Bank still used one vertical list. It had no player-facing item tabs,
+12-column grid, Swap or Insert controls, sort selector, auto-category control,
+or selected-item column. The carried-pack editor also repeated a second Bank
+picker inside the same page.
+
+The first Frame A checker found seven defects in the initial repair. Item
+selection rebuilt all cells, keyboard users could not organize items, search
+counts did not use the selected tab, invalid category drops reported success,
+the narrow-window path was not reachable, large quantities could clip, and the
+MRU production path was not explained. The accepted repair removes the hidden
+compatibility list and uses one visible-grid view model.
+
+### Change
+
+The Bank now uses the section 8 frame parameters: 12 columns of 54-pixel item
+cells, an icon-and-short-name tab strip, and a 280-pixel right column. The right
+column contains exact selected-item data, item actions, Grand Exchange access,
+and the existing 4-by-7 carried-pack editor. The duplicate Bank picker inside
+that editor is hidden on the Bank page and stays present on Equipment.
+
+The tab strip supports item drop, drop-to-plus tab creation, tab drag reorder,
+rename, an owned-item icon picker, explicit delete, and automatic empty-tab
+delete. Item cells support Swap and Insert in Manual sort only. The computed
+sorts are read-only. Auto-category headers can be enabled or disabled. Invalid
+cross-category cell drops are rejected before Qt advertises or accepts them.
+
+Every item and tab control is keyboard-focusable. Shift-F10 and the Menu key
+open item and tab menus. Item menus provide Move earlier, Move later, Move to
+tab, and Move to new tab commands. Earlier and later use only visible category
+neighbors while auto-categories are enabled. Tab menus provide move-left and
+move-right commands. Selecting an item or tab preserves the active controls.
+
+Quantities at or above 100,000 use compact cell text. Exact values stay in the
+accessible name, tooltip, and selected-item panel. Search counts apply only to
+the selected tab. A refresh now updates selected-item quantity, value, and
+eligibility data even when the item remains visible.
+
+### Verification
+
+- Forty-two Bank-focused offscreen Qt tests passed after the final repairs.
+- Six pure Bank model tests passed.
+- Full `tests.test_main_menu_widget`: 392 tests passed in 124.453 seconds.
+- Python compilation and `git diff --check` passed.
+- Initial complete checker `d8680f23-6380-4440-b73b-90f734d640cf`
+  rejected the first implementation. Corrected complete checker
+  `000ed38a-afd7-4710-bc50-2eea335db3d5` found three remaining interaction
+  defects: stale selected details, category-unsafe keyboard steps, and rebuilt
+  tab focus. Narrow rechecker `03c60d13-4630-48c9-9e06-8b8cf5ab7d48`
+  returned `accept` with no required action after those fixes.
+
+### Native evidence
+
+The regular MacBook Pro Codex Connection was checked when the final Bank build
+was ready. Host `remote-control:env_e_6a684c98946c8321ba89026140dd59e4`
+still reports `thread_list_unavailable`. Native 1280-by-752 proof of Frame A,
+the unchanged vanilla answer bar, and card-content non-overlap remains an
+external blocker. Offscreen Qt does not claim native parity.
+
+### Decision
+
+Keep Frame A and its keyboard organization paths. The flat inventory remains
+the only item store. The saved presentation model remains the only source of
+tab, position, sort, category, and drop-mode state.

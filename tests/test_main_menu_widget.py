@@ -381,15 +381,47 @@ def _utility_row(tree: "QTreeWidget", activity_id: str) -> "QTreeWidgetItem":
     raise AssertionError(f"utility row {activity_id!r} not found")
 
 
-def _find_bank_list(dialog: "QDialog") -> "QListWidget":
-    """The bank list is the one whose rows carry category headers."""
-    bank_list = dialog.findChild(QListWidget, "bankList")
-    if bank_list is None:
+def _find_bank_grid(dialog: "QDialog") -> "QWidget":
+    bank_grid = dialog.findChild(QWidget, "bankGrid")
+    if bank_grid is None:
         _open_bank_tab(dialog)
-        bank_list = dialog.findChild(QListWidget, "bankList")
-    if bank_list is not None:
-        return bank_list
-    raise AssertionError("bank list (with category headers) not found")
+        bank_grid = dialog.findChild(QWidget, "bankGrid")
+    if bank_grid is not None:
+        return bank_grid
+    raise AssertionError("Bank item grid not found")
+
+
+def _bank_grid_buttons(dialog: "QDialog") -> list["QToolButton"]:
+    grid = _find_bank_grid(dialog)
+    return [
+        button
+        for button in grid.findChildren(QToolButton)
+        if button.objectName().startswith("bankGridItem::")
+    ]
+
+
+def _bank_grid_button(dialog: "QDialog", item_name: str) -> "QToolButton":
+    button = _find_bank_grid(dialog).findChild(
+        QToolButton, f"bankGridItem::{item_name}"
+    )
+    if button is None:
+        raise AssertionError(f"Bank grid item {item_name!r} not found")
+    return button
+
+
+def _bank_grid_texts(dialog: "QDialog") -> list[str]:
+    grid = _find_bank_grid(dialog)
+    texts = [
+        label.text().strip("— ")
+        for label in grid.findChildren(QLabel)
+        if label.objectName().startswith("bankCategoryHeader::")
+        or label.objectName() == "bankGridEmpty"
+    ]
+    texts.extend(
+        f"{button.property('bankItemName')} x{int(button.property('bankQuantity'))}"
+        for button in _bank_grid_buttons(dialog)
+    )
+    return texts
 
 
 def _find_gear_list(dialog: "QDialog") -> "QListWidget":
@@ -524,7 +556,7 @@ def _open_ge_tab(dialog: "QDialog") -> None:
 def _open_bank_tab(dialog: "QDialog") -> None:
     tabs = _find_main_tabs(dialog)
     index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Bank")
-    if tabs.currentIndex() == index and dialog.findChild(QListWidget, "bankList") is None:
+    if tabs.currentIndex() == index and dialog.findChild(QWidget, "bankGrid") is None:
         tabs.setCurrentIndex(0)
         QApplication.processEvents()
     tabs.setCurrentIndex(index)
@@ -1220,21 +1252,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(tabs.tabText(tabs.currentIndex()), "Grand Exchange")
 
     def test_bank_catalog_is_built_only_on_first_selection(self) -> None:
-        self.assertIsNone(self.dialog.findChild(QListWidget, "bankList"))
+        self.assertIsNone(self.dialog.findChild(QWidget, "bankGrid"))
         self.assertIsNone(self.dialog.findChild(QListWidget, "gearList"))
 
         _open_bank_tab(self.dialog)
 
-        bank_list = self.dialog.findChild(QListWidget, "bankList")
+        bank_grid = self.dialog.findChild(QWidget, "bankGrid")
         gear_list = self.dialog.findChild(QListWidget, "gearList")
-        self.assertIsNotNone(bank_list)
+        self.assertIsNotNone(bank_grid)
         self.assertIsNotNone(gear_list)
-        self.assertGreater(bank_list.count(), 0)
+        self.assertGreater(
+            len(_bank_grid_buttons(self.dialog))
+            + len(bank_grid.findChildren(QLabel)),
+            0,
+        )
         self.assertGreater(gear_list.count(), 0)
 
         _open_equipment_tab(self.dialog)
         _open_bank_tab(self.dialog)
-        self.assertIs(self.dialog.findChild(QListWidget, "bankList"), bank_list)
+        self.assertIs(self.dialog.findChild(QWidget, "bankGrid"), bank_grid)
 
     def test_bank_toolbelt_attach_action_moves_mithril_hatchet_end_to_end(self) -> None:
         from ankiscape.core.constants import MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA
@@ -3458,7 +3494,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         bank_tab_scroll = dialog.findChild(QScrollArea, "bankTabScroll")
         self.assertIsNotNone(bank_tab_scroll)
         self.assertGreater(bank_tab_scroll.verticalScrollBar().maximum(), 0)
-        self.assertEqual(bank_tab_scroll.horizontalScrollBar().maximum(), 0)
+        self.assertGreater(bank_tab_scroll.horizontalScrollBar().maximum(), 0)
 
         bank_pack_grid = dialog.findChild(QWidget, "carriedLayoutGridBank")
         bank_tab_grid = dialog.findChild(QScrollArea, "carriedBankPickerBank")
@@ -3466,7 +3502,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             QScrollArea, "carriedCurrentInventoryBank"
         )
         self.assertEqual(bank_pack_grid.height(), bank_pack_grid.sizeHint().height())
-        self.assertEqual(bank_tab_grid.height(), bank_pack_grid.height())
+        self.assertTrue(bank_tab_grid.isHidden())
         self.assertEqual(bank_current_inventory.height(), 72)
 
         def assert_reachable_in_bank_tab(widget: QWidget) -> None:
@@ -3482,28 +3518,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertEqual(visible_height, widget.height(), widget.objectName())
 
         assert_reachable_in_bank_tab(bank_pack_grid)
-        assert_reachable_in_bank_tab(bank_tab_grid)
         assert_reachable_in_bank_tab(bank_current_inventory)
-
-        bank_tab_buttons = [
-            button
-            for button in bank_tab_grid.findChildren(QPushButton)
-            if button.objectName().startswith("carriedBankItemBank::")
-        ]
-        bank_tab_viewport = bank_tab_grid.viewport()
-        bank_tab_viewport_left = bank_tab_viewport.mapToGlobal(QPoint(0, 0)).x()
-        bank_tab_columns = {
-            button.mapToGlobal(QPoint(0, 0)).x() - bank_tab_viewport_left
-            for button in bank_tab_buttons
-        }
-        self.assertGreater(len(bank_tab_columns), 2)
-        for button in bank_tab_buttons:
-            left = button.mapToGlobal(QPoint(0, 0)).x() - bank_tab_viewport_left
-            self.assertGreaterEqual(left, 0, button.objectName())
-            self.assertLessEqual(
-                left + button.width(), bank_tab_viewport.width(), button.objectName()
-            )
-        self.assertEqual(bank_tab_grid.horizontalScrollBar().maximum(), 0)
+        main_bank_grid = dialog.findChild(QWidget, "bankGrid")
+        self.assertGreater(
+            len(
+                [
+                    button
+                    for button in main_bank_grid.findChildren(QToolButton)
+                    if button.objectName().startswith("bankGridItem::")
+                ]
+            ),
+            2,
+        )
 
         _open_equipment_tab(dialog)
         dialog.resize(760, 560)
@@ -6488,8 +6514,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
         self.assertIn("ready", bank_run_label.text())
         _open_bank_tab(dialog)
-        bank = _find_list_with_item_prefix(dialog, "Fire rune x100")
-        self.assertTrue(any(text.startswith("Fire rune x100") for text in _list_texts(bank)))
+        self.assertIn("Fire rune x100", _bank_grid_texts(dialog))
 
         threshold_spin.setValue(60)
         QApplication.processEvents()
@@ -6498,8 +6523,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         clear_button.click()
         QApplication.processEvents()
         self.assertEqual(self._combat_unload_calls, [True])
-        bank = _find_list_with_item_prefix(dialog, "Fire rune x150")
-        self.assertTrue(any(text.startswith("Fire rune x150") for text in _list_texts(bank)))
+        self.assertIn("Fire rune x150", _bank_grid_texts(dialog))
 
     def test_agility_auto_pack_summary_replaces_combat_only_controls(self) -> None:
         from aqt.qt import QLabel, QPushButton, QComboBox
@@ -9482,7 +9506,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         claims_box = _find_named_widget(dialog, "bankClaimsBox")
         self.assertLessEqual(scroll.maximumHeight(), 160)
         self.assertLessEqual(claims_box.maximumHeight(), 210)
-        self.assertIsNot(_find_bank_list(dialog), _find_gear_list(dialog))
+        self.assertIsNot(_find_bank_grid(dialog), _find_gear_list(dialog))
 
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()
@@ -9494,17 +9518,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Bronze arrowtips": 15,
         }
         dialog = self._open(pd)
-        bank = _find_bank_list(dialog)
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         for header in ("Logs", "Bars", "Fletched", "Materials"):
             self.assertIn(header, texts, f"missing bank category header {header!r}")
         self.assertTrue(any(t.startswith("Arrow shafts x30") for t in texts))
         self.assertTrue(any(t.startswith("Feather x50") for t in texts))
         # Registered fletched item should carry an icon from its ItemDefinition.
-        arrow_row = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Arrow shafts x")
-        )
+        arrow_row = _bank_grid_button(dialog, "Arrow shafts")
         self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
 
     def test_bank_search_filters_rows_and_categories_without_mutating_state(self) -> None:
@@ -9518,13 +9538,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         }
         original_inventory = dict(pd["inventory"])
         dialog = self._open(pd)
-        bank = _find_bank_list(dialog)
+        _open_bank_tab(dialog)
         search = _find_named_line_edit(dialog, "bankSearchInput")
         summary = _find_named_label(dialog, "bankSearchInputSummary")
 
         search.setText("arrow shafts")
         QApplication.processEvents()
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         self.assertIn("Fletched", texts)
         self.assertIn("Arrow shafts x30", texts)
         self.assertNotIn("Logs", texts)
@@ -9534,24 +9554,286 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         search.setText("materials")
         QApplication.processEvents()
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         self.assertIn("Materials", texts)
         self.assertIn("Feather x50", texts)
         self.assertNotIn("Arrow shafts x30", texts)
 
         search.setText("nothing-here")
         QApplication.processEvents()
-        self.assertEqual(bank.count(), 1)
-        self.assertEqual(bank.item(0).text(), "No Bank items match your search.")
+        self.assertEqual(_bank_grid_texts(dialog), ["No Bank items match your search."])
         self.assertEqual(summary.text(), "Showing 0/5")
 
         search.clear()
         QApplication.processEvents()
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         self.assertIn("Logs x5", texts)
         self.assertIn("Arrow shafts x30", texts)
         self.assertEqual(summary.text(), "Showing 5/5")
         self.assertEqual(pd["inventory"], original_inventory)
+
+    def test_bank_frame_a_uses_twelve_54_pixel_columns_and_280_pixel_detail(self) -> None:
+        from ankiscape.core.constants import ITEM_DEFINITIONS
+
+        pd = _make_player_data()
+        item_names = [definition.storage_key for definition in ITEM_DEFINITIONS[:14]]
+        pd["inventory"] = {
+            item_name: index + 1 for index, item_name in enumerate(item_names)
+        }
+        dialog = self._open(pd)
+        _open_bank_tab(dialog)
+        dialog.resize(1280, 752)
+        dialog.show()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        frame = _find_named_widget(dialog, "bankFrameA")
+        grid = _find_named_widget(dialog, "bankGrid")
+        right = _find_named_widget(dialog, "bankRightColumn")
+        outer_scroll = dialog.findChild(QScrollArea, "bankTabScroll")
+        self.assertFalse(frame.isHidden())
+        self.assertEqual(right.width(), 280)
+        self.assertEqual(outer_scroll.horizontalScrollBar().maximum(), 0)
+        self.assertIsNotNone(dialog.findChild(QLineEdit, "bankSearchInput"))
+        self.assertIsNotNone(dialog.findChild(QComboBox, "bankSortCombo"))
+        self.assertIsNotNone(dialog.findChild(QPushButton, "bankDropModeSwap"))
+        self.assertIsNotNone(dialog.findChild(QPushButton, "bankDropModeInsert"))
+        self.assertIsNotNone(dialog.findChild(QPushButton, "carriedInventoryHeader"))
+
+        auto = dialog.findChild(QCheckBox, "bankAutoCategoriesCheck")
+        auto.setChecked(False)
+        for _ in range(3):
+            QApplication.processEvents()
+        cells = [
+            button
+            for button in grid.findChildren(QToolButton)
+            if button.objectName().startswith("bankGridItem::")
+        ]
+        self.assertEqual(len(cells), 14)
+        self.assertTrue(all(cell.size().width() == 54 for cell in cells))
+        first_row_y = min(cell.mapTo(grid, QPoint(0, 0)).y() for cell in cells)
+        first_row_x = sorted(
+            cell.mapTo(grid, QPoint(0, 0)).x()
+            for cell in cells
+            if cell.mapTo(grid, QPoint(0, 0)).y() == first_row_y
+        )
+        self.assertEqual(len(first_row_x), 12)
+        self.assertEqual(
+            [right_x - left_x for left_x, right_x in zip(first_row_x, first_row_x[1:])],
+            [54] * 11,
+        )
+        self.assertEqual(
+            grid.findChild(QLabel, "bankGridEmpty"),
+            None,
+        )
+
+    def test_bank_selection_keeps_cells_and_keyboard_focus_alive(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coal": 10, "Logs": 5}
+        dialog = self._open(pd)
+        coal = _bank_grid_button(dialog, "Coal")
+        logs = _bank_grid_button(dialog, "Logs")
+        coal.setFocus()
+        coal.click()
+        QApplication.processEvents()
+        self.assertIs(_bank_grid_button(dialog, "Coal"), coal)
+        self.assertIs(_bank_grid_button(dialog, "Logs"), logs)
+        self.assertNotEqual(coal.focusPolicy(), Qt.FocusPolicy.NoFocus)
+        self.assertIn("Coal ×10", _find_named_label(dialog, "bankSelectedItem").text())
+
+        pd["inventory"]["Coal"] = 42
+        dialog._ankiscape_refresh_equipment()
+        QApplication.processEvents()
+        self.assertIn("Coal ×42", _find_named_label(dialog, "bankSelectedItem").text())
+
+    def test_bank_cell_shift_f10_opens_its_keyboard_organization_menu(self) -> None:
+        button = self._ui._BankDropButton(item_name="Coal")
+        button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        requested: list[QPoint] = []
+        button.customContextMenuRequested.connect(requested.append)
+        QTest.keyClick(
+            button,
+            Qt.Key.Key_F10,
+            Qt.KeyboardModifier.ShiftModifier,
+        )
+        self.assertEqual(len(requested), 1)
+
+    def test_bank_large_quantity_is_compact_but_exact_in_accessible_copy(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coins": 12_345_678}
+        dialog = self._open(pd)
+        coins = _bank_grid_button(dialog, "Coins")
+        self.assertEqual(coins.text(), "×12.3M")
+        self.assertIn("12,345,678", coins.accessibleName())
+        self.assertIn("12,345,678", coins.toolTip())
+
+    def test_bank_auto_categories_and_computed_sort_control_drag_state(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Logs": 5, "Bronze bar": 2, "Feather": 50}
+        dialog = self._open(pd)
+        _open_bank_tab(dialog)
+        grid = _find_named_widget(dialog, "bankGrid")
+        self.assertGreater(
+            len(
+                [
+                    label
+                    for label in grid.findChildren(QLabel)
+                    if label.objectName().startswith("bankCategoryHeader::")
+                ]
+            ),
+            0,
+        )
+
+        auto = dialog.findChild(QCheckBox, "bankAutoCategoriesCheck")
+        auto.setChecked(False)
+        QApplication.processEvents()
+        self.assertEqual(
+            [
+                label
+                for label in grid.findChildren(QLabel)
+                if label.objectName().startswith("bankCategoryHeader::")
+            ],
+            [],
+        )
+
+        sort = dialog.findChild(QComboBox, "bankSortCombo")
+        sort.setCurrentIndex(sort.findData("alphabetical"))
+        QApplication.processEvents()
+        computed_cells = [
+            button
+            for button in grid.findChildren(QToolButton)
+            if button.objectName().startswith("bankGridItem::")
+        ]
+        self.assertTrue(computed_cells)
+        self.assertTrue(all(not button.drag_enabled for button in computed_cells))
+        sort.setCurrentIndex(sort.findData("manual"))
+        QApplication.processEvents()
+        manual_cells = [
+            button
+            for button in grid.findChildren(QToolButton)
+            if button.objectName().startswith("bankGridItem::")
+        ]
+        self.assertTrue(all(button.drag_enabled for button in manual_cells))
+
+    def test_bank_drop_guard_and_keyboard_organization_follow_sort_rules(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coal": 10, "Logs": 5, "Shrimps": 3}
+        dialog = self._open(pd)
+        _open_bank_tab(dialog)
+        self.assertFalse(dialog._ankiscape_bank_can_drop_item_on_cell("Coal", "Logs"))
+
+        categorized_organize = next(
+            action.menu()
+            for action in dialog._ankiscape_equip_menu_for("Logs").actions()
+            if action.text() == "Organize"
+        )
+        self.assertFalse(categorized_organize.actions()[0].isEnabled())
+        self.assertFalse(categorized_organize.actions()[1].isEnabled())
+
+        auto = dialog.findChild(QCheckBox, "bankAutoCategoriesCheck")
+        auto.setChecked(False)
+        QApplication.processEvents()
+        self.assertTrue(dialog._ankiscape_bank_can_drop_item_on_cell("Coal", "Logs"))
+
+        organize = next(
+            action.menu()
+            for action in dialog._ankiscape_equip_menu_for("Logs").actions()
+            if action.text() == "Organize"
+        )
+        self.assertEqual(
+            [action.text() for action in organize.actions() if not action.isSeparator()],
+            ["Move earlier", "Move later", "Move to new tab"],
+        )
+        self.assertTrue(organize.actions()[0].isEnabled())
+        organize.actions()[0].trigger()
+        QApplication.processEvents()
+        self.assertEqual(pd["bank_layout"]["items"]["Logs"]["position"], 0)
+        self.assertEqual(pd["bank_layout"]["items"]["Coal"]["position"], 1)
+
+        sort = dialog.findChild(QComboBox, "bankSortCombo")
+        sort.setCurrentIndex(sort.findData("alphabetical"))
+        QApplication.processEvents()
+        self.assertFalse(dialog._ankiscape_bank_can_drop_item_on_cell("Coal", "Logs"))
+        computed_organize = next(
+            action.menu()
+            for action in dialog._ankiscape_equip_menu_for("Logs").actions()
+            if action.text() == "Organize"
+        )
+        self.assertFalse(computed_organize.actions()[0].isEnabled())
+        self.assertFalse(computed_organize.actions()[1].isEnabled())
+
+    def test_bank_grid_drop_seams_apply_insert_swap_and_tab_lifecycle(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coal": 10, "Logs": 5, "Shrimps": 3}
+        saved: list[dict] = []
+        dialog = self._open(
+            pd,
+            on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
+        )
+        _open_bank_tab(dialog)
+
+        dialog._ankiscape_bank_drop_item_on_new_tab("Coal")
+        custom_tab = pd["bank_layout"]["selected_tab"]
+        self.assertNotEqual(custom_tab, "main")
+        main_button = dialog.findChild(QToolButton, "bankTab::main")
+        custom_button = dialog.findChild(QToolButton, f"bankTab::{custom_tab}")
+        main_button.click()
+        QApplication.processEvents()
+        self.assertIs(dialog.findChild(QToolButton, "bankTab::main"), main_button)
+        self.assertIs(dialog.findChild(QToolButton, f"bankTab::{custom_tab}"), custom_button)
+        custom_button.click()
+        QApplication.processEvents()
+        self.assertIs(dialog.findChild(QToolButton, f"bankTab::{custom_tab}"), custom_button)
+        self.assertEqual(
+            _find_named_label(dialog, "bankSearchInputSummary").text(),
+            "Showing 1/1",
+        )
+        dialog._ankiscape_bank_drop_item_on_tab("Logs", custom_tab)
+        self.assertEqual(pd["bank_layout"]["items"]["Coal"]["tab_id"], custom_tab)
+        self.assertEqual(pd["bank_layout"]["items"]["Logs"]["tab_id"], custom_tab)
+
+        dialog.findChild(QCheckBox, "bankAutoCategoriesCheck").setChecked(False)
+        dialog.findChild(QPushButton, "bankDropModeInsert").click()
+        dialog._ankiscape_bank_drop_item_on_cell("Coal", "Logs")
+        self.assertEqual(pd["bank_layout"]["items"]["Logs"]["position"], 0)
+        self.assertEqual(pd["bank_layout"]["items"]["Coal"]["position"], 1)
+
+        dialog.findChild(QPushButton, "bankDropModeSwap").click()
+        dialog._ankiscape_bank_drop_item_on_cell("Coal", "Logs")
+        self.assertEqual(pd["bank_layout"]["items"]["Coal"]["position"], 0)
+        self.assertEqual(pd["bank_layout"]["items"]["Logs"]["position"], 1)
+
+        tab_button = dialog.findChild(QToolButton, f"bankTab::{custom_tab}")
+        self.assertIsNotNone(tab_button)
+        self.assertEqual(tab_button.text(), "Tab 1")
+        self.assertFalse(tab_button.icon().isNull())
+        tab_menu = dialog._ankiscape_bank_tab_menu_for(custom_tab)
+        self.assertEqual(
+            [action.text() for action in tab_menu.actions() if not action.isSeparator()],
+            ["Rename…", "Choose icon…", "Move tab left", "Move tab right", "Delete tab"],
+        )
+
+        dialog._ankiscape_bank_drop_item_on_new_tab("Shrimps")
+        second_tab = pd["bank_layout"]["selected_tab"]
+        self.assertNotEqual(second_tab, custom_tab)
+        first_tab_menu = dialog._ankiscape_bank_tab_menu_for(custom_tab)
+        move_right = next(
+            action for action in first_tab_menu.actions() if action.text() == "Move tab right"
+        )
+        self.assertTrue(move_right.isEnabled())
+        move_right.trigger()
+        QApplication.processEvents()
+        self.assertEqual(
+            [tab["id"] for tab in pd["bank_layout"]["tabs"]],
+            ["main", second_tab, custom_tab],
+        )
+        dialog._ankiscape_bank_drop_item_on_tab("Shrimps", "main")
+        self.assertNotIn(second_tab, [tab["id"] for tab in pd["bank_layout"]["tabs"]])
+        dialog._ankiscape_bank_delete_tab(custom_tab)
+        self.assertEqual([tab["id"] for tab in pd["bank_layout"]["tabs"]], ["main"])
+        self.assertEqual(pd["bank_layout"]["items"]["Coal"]["tab_id"], "main")
+        self.assertEqual(pd["bank_layout"]["items"]["Logs"]["tab_id"], "main")
+        self.assertTrue(saved)
 
     def test_bank_groups_firemaking_logs_and_ashes_with_icons(self) -> None:
         pd = _make_player_data()
@@ -9561,16 +9843,12 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Ashes": 2,
         }
         dialog = self._open(pd)
-        bank = _find_bank_list(dialog)
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         for header in ("Logs", "Materials"):
             self.assertIn(header, texts, f"missing bank category header {header!r}")
         self.assertTrue(any(t.startswith("Arctic pine logs x3") for t in texts))
         self.assertTrue(any(t.startswith("Ashes x2") for t in texts))
-        ashes_row = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Ashes x")
-        )
+        ashes_row = _bank_grid_button(dialog, "Ashes")
         self.assertFalse(ashes_row.icon().isNull(), "Ashes row has no icon")
 
     def test_bank_groups_fish_and_bait_with_icons(self) -> None:
@@ -9581,20 +9859,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Fishing bait": 12,
         }
         dialog = self._open(pd)
-        bank = _find_bank_list(dialog)
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         for header in ("Fish", "Materials"):
             self.assertIn(header, texts, f"missing bank category header {header!r}")
         self.assertTrue(any(t.startswith("Raw crayfish x3") for t in texts))
         self.assertTrue(any(t.startswith("Fishing bait x12") for t in texts))
-        crayfish_row = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Raw crayfish x")
-        )
-        bait_row = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Fishing bait x")
-        )
+        crayfish_row = _bank_grid_button(dialog, "Raw crayfish")
+        bait_row = _bank_grid_button(dialog, "Fishing bait")
         self.assertFalse(crayfish_row.icon().isNull(), "Raw crayfish row has no icon")
         self.assertFalse(bait_row.icon().isNull(), "Fishing bait row has no icon")
 
@@ -9608,15 +9879,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Wicked hood": 1,
         }
         dialog = self._open(pd)
-        bank = _find_bank_list(dialog)
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         self.assertIn("Runecrafting", texts)
         for item_name in ("Air rune", "Air talisman", "Small pouch", "Binding necklace", "Wicked hood"):
             self.assertTrue(any(t.startswith(f"{item_name} x") for t in texts), f"{item_name} missing from bank")
-            row = next(
-                bank.item(i) for i in range(bank.count())
-                if bank.item(i).text().startswith(f"{item_name} x")
-            )
+            row = _bank_grid_button(dialog, item_name)
             self.assertFalse(row.icon().isNull(), f"{item_name} row has no icon")
 
     def test_bank_offers_drink_action_for_consumables(self) -> None:
@@ -9782,13 +10049,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_teleport_training_urn=_teleport,
             on_discard_item=lambda _item, _quantity: True,
         )
-        bank = _find_bank_list(dialog)
-        row = next(
-            bank.item(i)
-            for i in range(bank.count())
-            if bank.item(i).data(Qt.ItemDataRole.UserRole) == tier.item_full
-        )
-        self.assertEqual(row.data(Qt.ItemDataRole.UserRole + 1), tier.id)
+        row = _bank_grid_button(dialog, tier.item_full)
+        self.assertEqual(row.property("bankUrnId"), tier.id)
         self.assertIn(f"{tier.teleport_xp:g} Mining XP", row.toolTip())
         self.assertIn("Ready in the carried pack", row.toolTip())
         self.assertEqual(_panel_title(dialog), "Mining — Lv 1")
@@ -9797,7 +10059,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         actions = [action for action in menu.actions() if not action.isSeparator()]
         self.assertEqual(
             [action.text() for action in actions],
-            ["Teleport urn", "Set carried quantity…", "Discard X…"],
+            ["Teleport urn", "Set carried quantity…", "Discard X…", "Organize"],
         )
         teleport = actions[0]
         self.assertEqual(teleport.objectName(), "teleportTrainingUrnAction")
@@ -9811,10 +10073,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["mining_level"], 2)
         self.assertEqual(_panel_title(dialog), "Mining — Lv 2")
         self.assertFalse(
-            any(
-                bank.item(i).data(Qt.ItemDataRole.UserRole) == tier.item_full
-                for i in range(bank.count())
-            )
+            any(button.property("bankItemName") == tier.item_full for button in _bank_grid_buttons(dialog))
         )
         dialog.deleteLater()
 
@@ -9849,13 +10108,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         runed_menu = dialog._ankiscape_equip_menu_for(tier.item_r)
         self.assertNotIn("Teleport urn", [action.text() for action in runed_menu.actions()])
 
-        bank = _find_bank_list(dialog)
         for passive in ("Bonecrusher", "Ectoplasmator"):
-            row = next(
-                bank.item(i)
-                for i in range(bank.count())
-                if bank.item(i).data(Qt.ItemDataRole.UserRole) == passive
-            )
+            row = _bank_grid_button(dialog, passive)
             self.assertFalse(row.icon().isNull(), f"{passive} row has no icon")
             menu = dialog._ankiscape_equip_menu_for(passive)
             self.assertFalse(any(action.text().startswith("Equip") for action in menu.actions()))
@@ -9890,14 +10144,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_discard_item=_discard,
         )
         dialog = self._captured[-1]
-        bank = _find_bank_list(dialog)
-        texts = [bank.item(i).text() for i in range(bank.count())]
+        texts = _bank_grid_texts(dialog)
         self.assertIn("Food", texts)
         self.assertTrue(any(t.startswith("Shrimps x3") for t in texts))
-        shrimp_row = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Shrimps x")
-        )
+        shrimp_row = _bank_grid_button(dialog, "Shrimps")
         self.assertFalse(shrimp_row.icon().isNull(), "Shrimps row has no icon")
 
         menu = dialog._ankiscape_equip_menu_for("Shrimps")
@@ -9919,13 +10169,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["inventory"] = {"Logs": 5}
         dialog = self._open(pd)
-        bank = _find_bank_list(dialog)
+        bank = _find_bank_grid(dialog)
         gear = _find_gear_list(dialog)
         # The gear panel must be a distinct widget from the striped inventory,
         # and must not carry the alternating-row striping.
         self.assertIsNot(gear, bank, "gear shares the inventory list")
         self.assertFalse(gear.alternatingRowColors(), "gear panel is striped")
-        bank_texts = [bank.item(i).text() for i in range(bank.count())]
+        bank_texts = _bank_grid_texts(dialog)
         self.assertNotIn("Toolbelt", bank_texts, "Toolbelt leaked into inventory list")
         gear_texts = [gear.item(i).text() for i in range(gear.count())]
         self.assertIn("Toolbelt", gear_texts, "missing Toolbelt header")
@@ -10264,11 +10514,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["inventory"] = {"Rune scimitar": 1}
         dialog = self._open_with_equip(pd)
-        bank = _find_bank_list(dialog)
-        scim = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Rune scimitar")
-        )
+        scim = _bank_grid_button(dialog, "Rune scimitar")
         tip = scim.toolTip()
         self.assertIn("Requires level 40 Attack", tip)
         self.assertIn("Attack bonuses", tip)
