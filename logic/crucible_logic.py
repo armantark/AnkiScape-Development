@@ -70,6 +70,22 @@ def _empty_activity_session() -> dict[str, str]:
     return {"active_id": ""}
 
 
+def _answered_cards(player_data: Mapping[str, Any]) -> int:
+    clock = player_data.get("shop_market_clock")
+    if not isinstance(clock, Mapping):
+        return 0
+    return _int(clock.get("answered_cards"))
+
+
+def _supreme_event_active(player_data: Mapping[str, Any]) -> bool:
+    answered_cards = _answered_cards(player_data)
+    return (
+        answered_cards > 0
+        and answered_cards % CRUCIBLE_EVENT_INTERVAL_REVIEWS
+        < CRUCIBLE_EVENT_REVIEWS
+    )
+
+
 def default_crucible_state_pure() -> dict[str, Any]:
     return {
         "crucible": {},
@@ -173,13 +189,8 @@ def _sanitize_session(raw: Any) -> dict[str, Any]:
             raw.get("previous_combat_target", "")
         )[:120],
         "boosts_clamped": bool(raw.get("boosts_clamped", False)),
-        "event_reviews_remaining": _int(
-            raw.get("event_reviews_remaining"), maximum=CRUCIBLE_EVENT_REVIEWS
-        ),
+        "event_card": _int(raw.get("event_card")),
         "is_champion": bool(raw.get("is_champion", False)),
-        "next_event_review": _int(
-            raw.get("next_event_review"), CRUCIBLE_EVENT_INTERVAL_REVIEWS
-        ),
     }
 
 
@@ -608,9 +619,8 @@ def enter_crucible_pure(
         "abandon_escrow": quote["abandon_component"],
         "previous_combat_target": previous_target,
         "boosts_clamped": boosts_clamped,
-        "event_reviews_remaining": 0,
+        "event_card": 0,
         "is_champion": False,
-        "next_event_review": CRUCIBLE_EVENT_INTERVAL_REVIEWS,
     }
     data.update(state)
     _adjust_stack(data, "Coins", -quote["total"])
@@ -684,6 +694,24 @@ def apply_crucible_review_pure(
     )
     if not session or active_id != CRUCIBLE_ACTIVITY_ID:
         return data, False, {"reason": "Enter the Crucible arena before training it."}
+    data.update(state)
+    # The half-hourly event belongs to the shared answered-card world clock. It
+    # must not pause while the player trains elsewhere or restart on re-entry.
+    in_event = _supreme_event_active(data)
+    rank = crucible_rank_pure(data.get("crucible_rank_points"))
+    world_card = _answered_cards(data)
+    if in_event and session["event_card"] != world_card:
+        session["event_card"] = world_card
+        session["is_champion"] = bool(rank["top_of_ladder"])
+    elif not in_event:
+        session["event_card"] = 0
+        session["is_champion"] = False
+    is_champion = in_event and bool(session["is_champion"])
+    if is_champion:
+        data["crucible_supreme_champion"] = True
+        _record_best_tier(data, CRUCIBLE_SUPREME_TIER)
+    data["crucible"] = session
+
     if not productive:
         return data, True, {
             "advanced": False,
@@ -691,27 +719,8 @@ def apply_crucible_review_pure(
             "message": "The Crucible advances only on an eligible successful review.",
         }
 
-    data.update(state)
     session["review"] += 1
     review = session["review"]
-
-    # The Supreme Champion event runs every half hour and makes the whole arena
-    # safe for its duration. Whoever holds the top rank is named champion.
-    event_started = False
-    if session["event_reviews_remaining"] > 0:
-        session["event_reviews_remaining"] -= 1
-    elif review >= session["next_event_review"]:
-        session["event_reviews_remaining"] = CRUCIBLE_EVENT_REVIEWS
-        session["next_event_review"] = review + CRUCIBLE_EVENT_INTERVAL_REVIEWS
-        event_started = True
-        rank = crucible_rank_pure(data.get("crucible_rank_points"))
-        session["is_champion"] = bool(rank["top_of_ladder"])
-        if session["is_champion"]:
-            data["crucible_supreme_champion"] = True
-            _record_best_tier(data, CRUCIBLE_SUPREME_TIER)
-    in_event = session["event_reviews_remaining"] > 0 or event_started
-    if not in_event:
-        session["is_champion"] = False
 
     target = session["target"]
     risked_pack = _risked_pack(data) if not in_event else {}
@@ -825,13 +834,13 @@ def apply_crucible_review_pure(
     # Exact: each successful hit on the Supreme Champion is worth one rank
     # point. A review is the smallest unit at which the engine reports damage,
     # so it is the hit granularity AnkiScape has to offer.
-    if in_event and not session["is_champion"] and int(combat.get("player_damage") or 0):
+    if in_event and not is_champion and int(combat.get("player_damage") or 0):
         points_gained += CRUCIBLE_POINTS_PER_CHAMPION_HIT
     data["crucible_rank_points"] = (
         state["crucible_rank_points"] + points_gained
     )
     rank = crucible_rank_pure(data["crucible_rank_points"])
-    if not session["is_champion"]:
+    if not is_champion:
         _record_best_tier(data, int(rank["tier"]))
 
     data["crucible"] = session
@@ -841,10 +850,10 @@ def apply_crucible_review_pure(
     ]
     if bones:
         parts.append(f"+{bones} {CRUCIBLE_CURRENCY}")
-    if event_started:
+    if in_event:
         parts.append(
             "You are the Supreme Champion; the arena is safe."
-            if session["is_champion"]
+            if is_champion
             else "A Supreme Champion event has started; the arena is safe."
         )
     parts.extend(events)
@@ -858,7 +867,7 @@ def apply_crucible_review_pure(
         "points_gained": points_gained,
         "rank": rank,
         "event_active": in_event,
-        "is_champion": bool(session["is_champion"]),
+        "is_champion": is_champion,
         "events": tuple(events),
         "message": data["crucible_last_result"],
     }
@@ -960,7 +969,7 @@ def crucible_view_pure(
     if _coins(player_data) < quote["total"]:
         reasons.append(f"The bounty fee is {quote['total']} coins.")
     can_enter = not reasons and not session
-    in_event = bool(session) and int(session["event_reviews_remaining"]) > 0
+    in_event = bool(session) and _supreme_event_active(player_data)
     rank = crucible_rank_pure(state["crucible_rank_points"])
     if session:
         summary = (
@@ -986,7 +995,7 @@ def crucible_view_pure(
         "fee": quote,
         "rank": rank,
         "event_active": in_event,
-        "is_champion": bool(session and session["is_champion"]),
+        "is_champion": bool(in_event and session and session["is_champion"]),
         "dangerous": not in_event,
         "status_label": (
             "ACTIVE · SAFE EVENT"

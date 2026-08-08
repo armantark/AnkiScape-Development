@@ -60,3 +60,6 @@
 2026-08-07 23:37:00 PDT — PinchTab timed out while it opened the local Pass 8 artifact: `Client.Timeout exceeded while awaiting headers` from `http://127.0.0.1:9867/navigate`.
 2026-08-07 23:39:00 PDT — Postplan rejected the public-safe Pass 8 artifact with `Inline JavaScript requires an authenticated upload.`
 2026-08-08 00:07:52 PDT — A combined startup read of nine Memory Bank files produced `Warning: truncated output (original token count: 51390) Total output lines: 2071`; read core and task-specific records in smaller bounded groups.
+2026-08-08 00:26:49 PDT — A Crucible cadence search guessed root-level `cadence_coverage.py`, `cadence_live.py`, and `cadence_kernel.py`; `rg` returned `No such file or directory` for all three because the modules live under `logic/`.
+2026-08-08 00:27:10 PDT — A cadence-record search passed unmatched `memory-bank/*clock*` and `memory-bank/*cadence*` globs to zsh; it stopped with `zsh:1: no matches found: memory-bank/*clock*`. Use `rg --glob` or enumerate matching files first.
+2026-08-08 00:31:00 PDT — A single multi-file Iteration 21 Memory Bank patch returned `Output exceeded the available model context and was truncated`; verify the diff and split future documentation patches by file.

@@ -1,5 +1,24 @@
 # Progress
 
+## Crucible Supreme Champion world-clock correction — 2026-08-08
+
+Cutoff Crucible oldid `6538845` states the half-hour event interval, while
+launch-update oldid `5778674` separately fixes its two-and-a-half-minute shape.
+The settled 240-card world/economy day maps half an hour to exactly five
+answered cards. Rev-727 exposes no server event clock and Darkan implements no
+Supreme Champion event, so neither overrides that translation.
+
+The shipped constant was already five, but the runtime compared it with a
+visit-local productive-review counter. Events therefore paused outside the
+arena and restarted on re-entry. The live event window now reads the shared
+answered-card clock that advances before foreground dispatch. Persisted sessions
+keep the event card and champion chosen at that boundary; old private countdown
+fields sanitize away. A regression begins a visit after three world cards,
+proves the event arrives on the visit's second review, drives the real runtime,
+and proves a promotion during the event cannot retroactively select the player
+as champion. Focused Crucible/register verification passes 41 tests; both full
+lanes are pending. No owner design gap surfaced.
+
 ## Crucible target-level matching correction — 2026-08-08
 
 Cutoff Crucible oldid `6538845` preserves both the intended similar-combat

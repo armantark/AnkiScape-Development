@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 21 moves the Crucible Supreme Champion event
+onto the shared world clock.** The source-backed half-hour interval already
+mapped exactly to five answered cards, but live code counted only productive
+Crucible reviews. Training elsewhere paused the schedule and re-entry restarted
+it. The event now derives from `shop_market_clock.answered_cards`, while the
+session retains only the boundary card and frozen champion selection. Old
+countdown fields repair away naturally. The settled one-review duration remains
+unchanged. No owner design gap surfaced. The next slice re-walks Goblin Raids'
+registered active-duration window. Focused verification passes 41 tests; both
+full lanes are pending.
+
 **2026-08-08, grind-loop iteration 20 makes the Crucible's documented severe
 matchmaking failure reachable.** Cutoff oldid `6538845` says the intended
 opponent had similar combat skill but records that relatively low-combat

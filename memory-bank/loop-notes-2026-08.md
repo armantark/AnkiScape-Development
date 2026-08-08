@@ -1,5 +1,22 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 21 — Crucible Supreme Champion event clock
+
+- Evidence: Crucible oldid `6538845`; launch-update oldid `5778674`; the
+  settled 240-card world/economy day; rev-727 Crucible client surfaces; and
+  Darkan's complete Crucible history.
+- Result: the sourced half-hour interval already mapped exactly to five answered
+  cards, but live code compared it with a private productive-review counter.
+  Training elsewhere paused the schedule and re-entry restarted it. The event
+  now derives from `shop_market_clock.answered_cards`; the session keeps only
+  the event card and champion selected at that boundary, while sanitation drops
+  the obsolete countdown fields. Champion selection does not change when a hit
+  promotes the player during the event. The settled one-review duration remains
+  unchanged and no design gap surfaced.
+- Verification: 41 focused Crucible/register tests pass. Full plain and
+  offscreen-Qt discovery are pending.
+- Next: Goblin Raids active duration.
+
 ## Iteration 20 — Crucible target-level matching
 
 - Evidence: Crucible oldid `6538845`; its complete pre-cutoff article and talk

@@ -64,7 +64,10 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the Crucible target-level offsets through Darkan's matcher
      history, period article/talk histories, and contemporary matchup reports.
      Preserve the registered spread unless a server matching band survives.
-   - [ ] Re-walk the Crucible event interval through period schedules, rev-727
+   - [x] Re-walk the Crucible event interval through period schedules, rev-727
      event surfaces, and the shared review-day translation. Preserve the
      half-hour-to-five-review conversion unless a stronger project cadence row
      already settles it.
+   - [ ] Re-walk the Goblin Raids active duration through the period event
+     history and available server records. Preserve the registered 15-review
+     completion window unless a real despawn duration survives.

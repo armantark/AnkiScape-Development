@@ -70,6 +70,7 @@ from ankiscape.logic.crucible_logic import (
     set_crucible_cosmetic_pure,
     take_crucible_lesson_pure,
 )
+from ankiscape.logic.shop_logic import advance_shop_market_clock_pure
 from ankiscape.logic_pure.logic_pure import (
     combat_max_lifepoints_pure,
     player_combat_level_pure,
@@ -130,6 +131,7 @@ def _play(player, seed, *, limit=200, until=None, reenter=False):
     draws = random.Random(seed).random
     results = []
     for _ in range(limit):
+        player = advance_shop_market_clock_pure(player)
         player, ok, result = apply_crucible_review_pure(
             player,
             draws,
@@ -388,14 +390,20 @@ class CrucibleArenaTest(unittest.TestCase):
     def test_a_supreme_champion_event_arrives_on_its_own_cadence_and_is_safe(self):
         entered, ok, _ = enter_crucible_pure(_player(99), GE_ITEM_CATALOG)
         self.assertTrue(ok)
+        entered["shop_market_clock"]["answered_cards"] = (
+            CRUCIBLE_EVENT_INTERVAL_REVIEWS - 2
+        )
         played, results = _play(
             entered,
             3,
-            limit=CRUCIBLE_EVENT_INTERVAL_REVIEWS + 2,
+            limit=4,
             until=lambda _p, r: bool(r.get("event_active")),
         )
-        # The first event lands exactly on the sourced half-hour cadence.
-        self.assertEqual(len(results), CRUCIBLE_EVENT_INTERVAL_REVIEWS)
+        # Three cards elapsed outside this visit. The world event therefore
+        # arrives on review two, not after five private Crucible reviews.
+        self.assertEqual(len(results), 2)
+        self.assertEqual(played["shop_market_clock"]["answered_cards"], 5)
+        self.assertEqual(played["crucible"]["review"], 2)
         self.assertTrue(results[-1]["event_active"])
         self.assertFalse(results[-1]["is_champion"])
         self.assertFalse(crucible_view_pure(played)["dangerous"])
@@ -421,6 +429,30 @@ class CrucibleArenaTest(unittest.TestCase):
             )
         for row in missed:
             self.assertEqual(row["points_gained"], 0)
+
+    def test_champion_selection_does_not_change_after_the_event_starts(self):
+        player = _player(
+            99,
+            crucible_rank_points=CRUCIBLE_RANKS[-1][2] - 1,
+        )
+        entered, ok, _ = enter_crucible_pure(player, GE_ITEM_CATALOG)
+        self.assertTrue(ok)
+        entered["shop_market_clock"]["answered_cards"] = (
+            CRUCIBLE_EVENT_INTERVAL_REVIEWS - 1
+        )
+        entered = advance_shop_market_clock_pure(entered)
+
+        played, ok, result = apply_crucible_review_pure(
+            entered,
+            lambda: 0.0,
+            equipment_data=EQUIPMENT_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["points_gained"], 1)
+        self.assertTrue(result["rank"]["top_of_ladder"])
+        self.assertFalse(result["is_champion"])
+        self.assertFalse(crucible_view_pure(played)["is_champion"])
 
     def test_a_dangerous_death_keeps_three_items_and_pays_the_victor(self):
         """No gravestone, no Death's Office, and the risk fee is gone.
@@ -759,6 +791,10 @@ class CruciblePersistenceTest(unittest.TestCase):
         self.assertEqual(
             reloaded["activity_session"]["active_id"], CRUCIBLE_ACTIVITY_ID
         )
+        self.assertNotIn("event_reviews_remaining", reloaded["crucible"])
+        self.assertNotIn("next_event_review", reloaded["crucible"])
+        self.assertEqual(reloaded["crucible"]["event_card"], 0)
+        self.assertFalse(reloaded["crucible"]["is_champion"])
 
 
 class CrucibleCommandTest(unittest.TestCase):
@@ -816,6 +852,21 @@ class CrucibleRuntimeIntegrationTest(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertTrue(calls["activity"])
         self.assertFalse(calls["errors"])
+
+    def test_runtime_reads_the_shared_world_card_for_the_safe_event(self):
+        player, ok, _ = enter_crucible_pure(_player(99), GE_ITEM_CATALOG)
+        self.assertTrue(ok)
+        player["shop_market_clock"]["answered_cards"] = (
+            CRUCIBLE_EVENT_INTERVAL_REVIEWS
+        )
+        calls = _calls(3)
+
+        self.assertTrue(handle_crucible_answer(_context(player, calls)))
+
+        view = crucible_view_pure(player)
+        self.assertTrue(view["event_active"])
+        self.assertFalse(view["dangerous"])
+        self.assertEqual(player["crucible"]["event_card"], 5)
 
     def test_the_runtime_records_a_dangerous_death_as_a_failure_and_stands_down(self):
         player, ok, _ = enter_crucible_pure(_armoured_player(), GE_ITEM_CATALOG)

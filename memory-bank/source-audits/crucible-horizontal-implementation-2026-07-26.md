@@ -306,6 +306,30 @@ cap, so the minimum eligible player can actually encounter the documented
 maxed mismatch. The fourth-slot frequency is a disclosed reachability choice,
 not a recovered period probability. No owner design gap surfaced.
 
+### Supreme Champion event interval re-walk — 2026-08-08
+
+The interval is already exact; the live scheduler was not:
+
+- Cutoff Crucible oldid `6538845` states that the Supreme Champion event occurs
+  every half hour. Launch-update oldid `5778674` gives its separate two-and-a-
+  half-minute duration and two-minute invulnerable phase.
+- The settled world/economy clock is 240 answered cards per day, or ten per
+  source hour. Half an hour therefore maps exactly to five answered cards.
+- Rev-727 client interfaces and scripts expose presentation, not a server event
+  clock. Darkan's complete Crucible history has no Supreme Champion event or
+  event scheduler. Neither changes the period interval or the house clock
+  translation.
+
+`CRUCIBLE_EVENT_INTERVAL_REVIEWS` was correctly five, but
+`apply_crucible_review_pure()` compared it with a visit-local productive-review
+counter. Training elsewhere paused the event schedule, and leaving/re-entering
+restarted it. The runtime now derives the one-review event window from
+`shop_market_clock.answered_cards`, which the review hook advances before
+foreground dispatch. The session retains only the event card and the champion
+selected at that boundary; the obsolete remaining-review and next-event fields
+are repaired away. The owner-settled one-review event-duration abstraction is
+unchanged and no design gap surfaced.
+
 ## Asset provenance
 
 `tools/fetch_crucible_assets.py` installs `activityicons/crucible.png` from
