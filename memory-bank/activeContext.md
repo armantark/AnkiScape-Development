@@ -4016,3 +4016,8 @@ flees silently when the player runs out of food.
   exact error `thread_list_unavailable`. Tailscale was not used, and offscreen
   Qt is not claimed as native parity. The durable trace is
   `codex-briefs/pass8-owner-notes-handoff-2026-08-07.md`.
+- The owner chose to do the final Pass 8 native playtest directly. The local
+  results artifact is `status-updates/pass8-results-2026-08-07.html`. It passed
+  the artifact checker and opened in Arc. Postplan hosting is blocked by
+  `Inline JavaScript requires an authenticated upload.` because the local
+  client has no valid API key.

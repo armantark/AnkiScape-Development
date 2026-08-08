@@ -744,3 +744,21 @@ parity.
 Keep the stop, watch, and manual rejoin state machine. Keep the native strip
 banner and the settled width tiers. Native evidence remains open until the
 regular Codex Connection lists the MacBook Pro host.
+
+## Results artifact and owner playtest handoff
+
+On 2026-08-07, the owner stopped the unreliable remote native gate and chose
+to do the Pass 8 playtest directly. This transfers the last native visual
+check to the owner. It does not convert offscreen Qt evidence into native
+evidence.
+
+The results artifact is
+`memory-bank/status-updates/pass8-results-2026-08-07.html`. It contains the
+five-step native playtest, a local checklist, CSS mockups of the four main
+surfaces, and direct answers to the owner's inline Pass 8 questions. The local
+artifact passed the status-artifact checker and opened in Arc.
+
+The public-safe upload failed with the exact Postplan error `Inline JavaScript
+requires an authenticated upload.` The local Postplan client also reports
+`Missing or invalid API key.` The canonical artifact keeps its local checklist
+and copy-report behavior. No hosted URL is claimed.

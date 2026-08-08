@@ -4986,3 +4986,8 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   by `thread_list_unavailable` from the owner's regular MacBook Pro Codex
   Connection, despite the owner confirming that the computer is on. Tailscale
   is excluded, and headless evidence does not close this gate.
+- The owner now owns that final check through a direct playtest. The local
+  results artifact is `status-updates/pass8-results-2026-08-07.html`; it opened
+  in Arc and includes a saved checklist plus a copyable defect report.
+  Postplan hosting remains blocked because the local client has no valid API
+  key and rejects inline JavaScript without authentication.

@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f8cff'/%3E%3Cpath d='M13 18h38v8H13zm0 13h27v8H13zm0 13h34v8H13z' fill='%23e8ecf4'/%3E%3C/svg%3E">
+  <title>AnkiScape Pass 8 results</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --stone: #aab2c1;
+    }
+    * { box-sizing: border-box; }
+    html { color-scheme: dark; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% 0, var(--accent-glow), transparent 30rem),
+        radial-gradient(circle at 88% 16%, rgba(167, 139, 250, 0.08), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.48;
+    }
+    button, textarea { font: inherit; }
+    button { color: inherit; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 38px 22px 64px; }
+    .mono, code, .badge, .eyebrow, .metric-label, .status-pill {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-radius: 999px;
+      background: rgba(74, 222, 128, 0.08);
+      color: var(--green);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(74, 222, 128, 0.7); }
+    h1 { max-width: 780px; margin: 14px 0 8px; font-size: clamp(2rem, 5vw, 3.35rem); line-height: 1.04; letter-spacing: -0.045em; }
+    .sub { max-width: 780px; margin: 0; color: var(--text-dim); font-size: 1rem; }
+    .handoff {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin: 24px 0;
+      padding: 16px 18px;
+      border: 1px solid rgba(251, 191, 36, 0.33);
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.09), rgba(251, 191, 36, 0.025));
+    }
+    .handoff-mark { flex: 0 0 42px; height: 42px; display: grid; place-items: center; border-radius: 10px; background: rgba(251, 191, 36, 0.13); color: var(--amber); font-weight: 900; }
+    .handoff strong { display: block; color: var(--amber); }
+    .handoff p { margin: 2px 0 0; color: var(--text-dim); font-size: 0.87rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 22px 0 34px; }
+    .metric { padding: 15px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .metric-value { display: block; font-size: 1.55rem; line-height: 1; font-weight: 800; }
+    .metric-value.green { color: var(--green); }
+    .metric-value.accent { color: var(--accent); }
+    .metric-value.amber { color: var(--amber); }
+    .metric-label { display: block; margin-top: 7px; color: var(--text-dim); font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    h2 { display: flex; gap: 10px; align-items: center; margin: 34px 0 14px; font-size: 1.08rem; }
+    h2::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .eyebrow { color: var(--accent); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .surface-tabs { display: flex; gap: 7px; overflow-x: auto; padding: 2px 2px 10px; }
+    .surface-tab {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface);
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .surface-tab[aria-selected="true"] { border-color: rgba(79, 140, 255, 0.6); background: var(--accent-glow); color: var(--text); }
+    .surface-panel { display: none; grid-template-columns: minmax(0, 1fr) minmax(300px, 0.75fr); gap: 14px; }
+    .surface-panel.active { display: grid; }
+    .card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .surface-copy { padding: 20px; }
+    .surface-copy h3 { margin: 4px 0 7px; font-size: 1.12rem; }
+    .surface-copy p { margin: 0 0 12px; color: var(--text-dim); font-size: 0.88rem; }
+    .surface-copy ul { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 0.84rem; }
+    .surface-copy li { margin: 6px 0; }
+    .mock { min-height: 230px; padding: 14px; overflow: hidden; background: linear-gradient(145deg, #141922, #0f1218); }
+    .fake-tabs { display: flex; gap: 4px; overflow: hidden; margin-bottom: 9px; }
+    .fake-tab { padding: 5px 7px; border-radius: 5px; background: var(--surface-2); color: var(--text-dim); font-size: 0.55rem; white-space: nowrap; }
+    .fake-tab.on { background: rgba(79, 140, 255, 0.18); color: #b9d0ff; outline: 1px solid rgba(79, 140, 255, 0.45); }
+    .bank-frame { display: grid; grid-template-columns: 1fr 94px; gap: 8px; }
+    .bank-tools { display: flex; gap: 4px; margin-bottom: 7px; }
+    .tiny-control { flex: 1; min-height: 15px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); }
+    .item-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+    .item-cell { aspect-ratio: 1; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 5px; background: var(--surface-2); color: var(--amber); font-size: 0.57rem; }
+    .detail-stack { display: grid; gap: 6px; }
+    .detail-box { min-height: 43px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+    .guide-row, .collection-row { display: grid; align-items: center; gap: 7px; min-height: 28px; margin: 5px 0; padding: 5px 7px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); font-size: 0.62rem; }
+    .guide-row { grid-template-columns: 27px 1fr auto; }
+    .level { display: grid; place-items: center; height: 20px; border-radius: 5px; background: rgba(79, 140, 255, 0.16); color: #b9d0ff; font-weight: 800; }
+    .locked { opacity: 0.45; }
+    .divider { display: flex; align-items: center; gap: 7px; margin: 8px 0; color: var(--accent); font: 700 0.55rem "JetBrains Mono", monospace; text-transform: uppercase; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--accent); opacity: 0.45; }
+    .collection-frame { display: grid; grid-template-columns: 92px 1fr; gap: 7px; }
+    .family { padding: 7px; border: 1px solid var(--border); border-radius: 5px; color: var(--text-dim); font-size: 0.58rem; }
+    .family.on { border-color: rgba(167, 139, 250, 0.55); background: rgba(167, 139, 250, 0.1); color: var(--text); }
+    .collection-row { grid-template-columns: 20px 1fr auto; }
+    .unknown { filter: blur(2px); opacity: 0.7; }
+    .star-space { display: grid; align-content: end; min-height: 202px; }
+    .star-banner { display: grid; grid-template-columns: 1fr auto auto; gap: 7px; align-items: center; min-height: 62px; padding: 10px; border: 1px solid var(--stone); border-radius: 7px; color: var(--stone); background: transparent; }
+    .star-banner strong { display: block; color: var(--text); font-size: 0.72rem; }
+    .star-banner small { font-size: 0.56rem; }
+    .fake-button { padding: 6px 7px; border: 1px solid var(--stone); border-radius: 5px; font-size: 0.55rem; white-space: nowrap; }
+    .answer-bar { display: flex; gap: 5px; margin-top: 8px; }
+    .answer-bar span { flex: 1; height: 18px; border-radius: 4px; opacity: 0.68; }
+    .again { background: #bd4e5b; } .hard { background: #bd8b3e; } .good { background: #4c8c63; } .easy { background: #477bb8; }
+
+    .answers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+    summary { padding: 15px 17px; cursor: pointer; font-weight: 700; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; float: right; color: var(--accent); }
+    details[open] summary::after { content: "−"; }
+    details p { margin: 0; padding: 0 17px 16px; color: var(--text-dim); font-size: 0.86rem; }
+    details strong { color: var(--text); }
+
+    .playtest { display: grid; grid-template-columns: 1fr 0.72fr; gap: 14px; }
+    .checklist { padding: 18px; }
+    .progress-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 8px; }
+    .progress-head strong { font-size: 0.95rem; }
+    #progressText { color: var(--text-dim); font: 0.7rem "JetBrains Mono", monospace; }
+    .track { height: 7px; margin-bottom: 14px; overflow: hidden; border-radius: 999px; background: var(--surface-2); }
+    #progressBar { width: 0; height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width 0.2s ease; }
+    .check { display: grid; grid-template-columns: 23px 1fr; gap: 9px; padding: 11px 0; border-top: 1px solid var(--border); }
+    .check:first-of-type { border-top: 0; }
+    .check input { width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--green); }
+    .check b { display: block; font-size: 0.84rem; }
+    .check span { display: block; margin-top: 2px; color: var(--text-dim); font-size: 0.77rem; }
+    .report { padding: 18px; }
+    .report label { display: block; margin-bottom: 8px; font-size: 0.84rem; font-weight: 700; }
+    textarea { width: 100%; min-height: 180px; resize: vertical; padding: 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); }
+    .actions { display: flex; gap: 8px; margin-top: 9px; }
+    .action { flex: 1; padding: 9px 10px; border: 1px solid rgba(79, 140, 255, 0.5); border-radius: 7px; background: var(--accent-glow); cursor: pointer; }
+    .action.secondary { border-color: var(--border); background: var(--surface-2); color: var(--text-dim); }
+    .evidence { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .evidence .card { padding: 15px; }
+    .status-pill { display: inline-block; margin-bottom: 7px; color: var(--green); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .evidence strong { display: block; font-size: 0.9rem; }
+    .evidence p { margin: 4px 0 0; color: var(--text-dim); font-size: 0.76rem; }
+    .foot { margin-top: 18px; color: var(--text-dim); font-size: 0.72rem; text-align: center; }
+    @media (max-width: 860px) {
+      .metrics, .evidence { grid-template-columns: repeat(2, 1fr); }
+      .surface-panel, .playtest { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .wrap { padding: 26px 14px 48px; }
+      .metrics, .answers, .evidence { grid-template-columns: 1fr; }
+      .handoff { align-items: flex-start; }
+      .star-banner { grid-template-columns: 1fr; }
+      .fake-button { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="badge">Pass 8 · automated closure complete</span>
+    <h1>Ready for your playtest.</h1>
+    <p class="sub">All settled Pass 8 work is on main. Both repository lanes pass. Your playtest now owns the final native visual check.</p>
+
+    <section class="handoff" aria-label="Current handoff">
+      <div class="handoff-mark">▶</div>
+      <div>
+        <strong>Start with one normal review.</strong>
+        <p>Confirm that the vanilla card-state bar remains visible. Then use the five checks below.</p>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Pass 8 metrics">
+      <div class="metric"><span class="metric-value green">13</span><span class="metric-label">accepted batches</span></div>
+      <div class="metric"><span class="metric-value accent">3,857</span><span class="metric-label">tests in each lane</span></div>
+      <div class="metric"><span class="metric-value green">0</span><span class="metric-label">hard quality issues</span></div>
+      <div class="metric"><span class="metric-value amber">1</span><span class="metric-label">owner playtest gate</span></div>
+    </section>
+
+    <h2><span class="eyebrow">What changed</span> Four surfaces to notice</h2>
+    <div class="surface-tabs" role="tablist" aria-label="Pass 8 surfaces">
+      <button class="surface-tab" role="tab" aria-selected="true" data-panel="bank">Bank</button>
+      <button class="surface-tab" role="tab" aria-selected="false" data-panel="guide">Stats guide</button>
+      <button class="surface-tab" role="tab" aria-selected="false" data-panel="collections">Collections</button>
+      <button class="surface-tab" role="tab" aria-selected="false" data-panel="star">Shooting Star</button>
+    </div>
+
+    <section class="surface-panel active" id="panel-bank" role="tabpanel">
+      <div class="card surface-copy">
+        <span class="eyebrow">RS-style organization</span>
+        <h3>The Bank is a grid, not a long list.</h3>
+        <p>The flat item store did not change. The new layer saves organization only.</p>
+        <ul>
+          <li>Each item has one home tab and one saved position.</li>
+          <li>Manual order supports Swap and Insert.</li>
+          <li>Computed sorts are read-only and use review counts.</li>
+          <li>Category headers can disappear.</li>
+          <li>Keyboard organization has the same actions as drag-and-drop.</li>
+        </ul>
+      </div>
+      <div class="card mock" aria-label="Bank layout mockup">
+        <div class="bank-tools"><span class="tiny-control"></span><span class="tiny-control"></span><span class="tiny-control"></span></div>
+        <div class="fake-tabs"><span class="fake-tab on">ALL</span><span class="fake-tab">Ores</span><span class="fake-tab">Food</span><span class="fake-tab">Gear</span><span class="fake-tab">＋</span></div>
+        <div class="bank-frame"><div class="item-grid">
+          <span class="item-cell">214</span><span class="item-cell">86</span><span class="item-cell">12</span><span class="item-cell">4</span><span class="item-cell">39</span><span class="item-cell">7</span>
+          <span class="item-cell">102</span><span class="item-cell">18</span><span class="item-cell">2</span><span class="item-cell">61</span><span class="item-cell">9</span><span class="item-cell">1</span>
+          <span class="item-cell">33</span><span class="item-cell">5</span><span class="item-cell">41</span><span class="item-cell">8</span><span class="item-cell">3</span><span class="item-cell">17</span>
+        </div><div class="detail-stack"><span class="detail-box"></span><span class="detail-box"></span><span class="detail-box"></span></div></div>
+      </div>
+    </section>
+
+    <section class="surface-panel" id="panel-guide" role="tabpanel">
+      <div class="card surface-copy">
+        <span class="eyebrow">Registry-backed guide</span>
+        <h3>The guide belongs in Stats.</h3>
+        <p>Your first note said Skills. The settled correction moved it below the selected skill's Stats block.</p>
+        <ul>
+          <li>The Stats skill grid changes the guide.</li>
+          <li>The guide opens at the current-level boundary.</li>
+          <li>Actions and Equipment use existing registries.</li>
+          <li>Locked rows keep full names at 45 percent opacity.</li>
+          <li>Rows are informational and have no click action.</li>
+        </ul>
+      </div>
+      <div class="card mock" aria-label="Stats guide mockup">
+        <div class="guide-row"><span class="level">1</span><span>Mine copper ore</span><span>✓</span></div>
+        <div class="guide-row"><span class="level">6</span><span>Equip steel pickaxe</span><span>✓</span></div>
+        <div class="divider">Current level 10</div>
+        <div class="guide-row locked"><span class="level">15</span><span>Mine iron ore</span><span>Locked</span></div>
+        <div class="guide-row locked"><span class="level">20</span><span>Equip mithril pickaxe</span><span>Locked</span></div>
+      </div>
+    </section>
+
+    <section class="surface-panel" id="panel-collections" role="tabpanel">
+      <div class="card surface-copy">
+        <span class="eyebrow">Player-facing records</span>
+        <h3>Collections now has families and a drop log.</h3>
+        <p>The surface no longer exposes source paths, trace state, or implementation labels.</p>
+        <ul>
+          <li>Music Log remains first.</li>
+          <li>Boss and monster drops form the second family.</li>
+          <li>Unmet targets conceal names as “???”.</li>
+          <li>One kill reveals the target's registry names.</li>
+          <li>Global and per-family totals use recorded ownership.</li>
+        </ul>
+      </div>
+      <div class="card mock collection-frame" aria-label="Collections layout mockup">
+        <div><div class="family">Music 14/92</div><div class="family on">Drop log 3/18</div><div class="family">↳ Goblin 2/5</div><div class="family">↳ Lesser demon 1/4</div></div>
+        <div><div class="collection-row"><span>◆</span><span>Coins</span><span>214</span></div><div class="collection-row"><span>◇</span><span>Bronze spear</span><span>Not collected</span></div><div class="collection-row unknown"><span>?</span><span>???</span><span>Unknown</span></div></div>
+      </div>
+    </section>
+
+    <section class="surface-panel" id="panel-star" role="tabpanel">
+      <div class="card surface-copy">
+        <span class="eyebrow">Stop, watch, rejoin</span>
+        <h3>An inaccessible star no longer consumes reviews.</h3>
+        <p>This rule applies at join time and after a layer change.</p>
+        <ul>
+          <li>The activity stops and clears its selection.</li>
+          <li>One persistent banner offers Watch or Dismiss.</li>
+          <li>A watch belongs only to that star event.</li>
+          <li>A mineable layer offers one-click rejoin.</li>
+          <li>The watch never interrupts another selected activity.</li>
+        </ul>
+      </div>
+      <div class="card mock star-space" aria-label="Shooting Star review banner mockup">
+        <div class="star-banner"><span><strong>Star unminable at your level</strong><small>Selecting it will stop the activity and offer a watch.</small></span><span class="fake-button">Watch this star</span><span class="fake-button">Dismiss</span></div>
+        <div class="answer-bar" aria-label="Unchanged vanilla answer bar"><span class="again"></span><span class="hard"></span><span class="good"></span><span class="easy"></span></div>
+      </div>
+    </section>
+
+    <h2><span class="eyebrow">Direct answers</span> Your inline Pass 8 questions</h2>
+    <div class="answers">
+      <details open><summary>Are bones supposed to take time?</summary><p><strong>Yes.</strong> Combat auto-burial now costs two simulated game ticks for each bone or ash. Manual Prayer still uses one item for each review. The source settled the question, so no new design was necessary.</p></details>
+      <details><summary>Why did Fish Flingers need two clicks?</summary><p>It was a branch bug. The first click entered the event, but the selection call sat behind a different branch. One click now enters Fish Flingers and selects it for reviews.</p></details>
+      <details><summary>Did the vanilla state indicator depend on “red &lt; 10”?</summary><p><strong>No.</strong> The add-on panel covered Anki's blue, red, and green state indicator. The new layout keeps the add-on strip outside the vanilla answer area. Your playtest is the final native check for this repair.</p></details>
+      <details><summary>Why is the skill guide not in Skills?</summary><p>The first note named Skills. The later design session corrected the surface to Stats. The guide now fills the empty region below the selected skill's Stats block.</p></details>
+      <details><summary>Do tooltips show equip and consume requirements?</summary><p>Equipment requirements now show. The audited registries do not define a separate consume-level requirement. The interface does not invent one. A future sourced consume requirement can use the same player-facing boundary.</p></details>
+      <details><summary>What did “hybrid Combat selector” mean?</summary><p>Filtered results below 25 rows use a flat striped list. Results at 25 rows or more use the grouped tree. Both keep compact spacing and a green, bold saved target.</p></details>
+    </div>
+
+    <h2><span class="eyebrow">Do now</span> Five-step native playtest</h2>
+    <section class="playtest">
+      <div class="card checklist">
+        <div class="progress-head"><strong>Playtest progress</strong><span id="progressText">0 of 5 complete</span></div>
+        <div class="track"><div id="progressBar"></div></div>
+        <label class="check"><input type="checkbox" data-check="Navigation and shops"><span><b>1. Navigation and shops</b><span>Confirm the tab order. Check player-facing Shop tooltips and Grand Exchange Bank runs.</span></span></label>
+        <label class="check"><input type="checkbox" data-check="Bank frame"><span><b>2. Bank frame</b><span>Move one item, try Swap and Insert, change a sort, and toggle category headers.</span></span></label>
+        <label class="check"><input type="checkbox" data-check="Stats and Collections"><span><b>3. Stats and Collections</b><span>Change the Stats skill. Check guide scrolling, Music, concealed drops, and totals.</span></span></label>
+        <label class="check"><input type="checkbox" data-check="Reviewer strip"><span><b>4. Reviewer strip</b><span>Do one review. Confirm card content, the vanilla state bar, Fish Flingers, and food events.</span></span></label>
+        <label class="check"><input type="checkbox" data-check="Shooting Star"><span><b>5. Shooting Star</b><span>Trigger an inaccessible layer. Check stop, Watch, Dismiss, ready state, and one-click rejoin.</span></span></label>
+      </div>
+      <div class="card report">
+        <label for="notes">Notes or defects</label>
+        <textarea id="notes" placeholder="Record the tab, action, expected result, and actual result."></textarea>
+        <div class="actions"><button class="action" id="copyReport">Copy playtest report</button><button class="action secondary" id="resetReport">Reset</button></div>
+      </div>
+    </section>
+
+    <h2><span class="eyebrow">Evidence</span> What already passed</h2>
+    <section class="evidence">
+      <div class="card"><span class="status-pill">Passed</span><strong>Non-Qt repository lane</strong><p>3,857 tests passed. The lane had 479 expected skips.</p></div>
+      <div class="card"><span class="status-pill">Passed</span><strong>Offscreen Qt lane</strong><p>3,857 tests passed. The lane had three intentional skips.</p></div>
+      <div class="card"><span class="status-pill">Passed</span><strong>Quality and assets</strong><p>Zero hard test-quality issues. Documentation and 24 focused asset checks passed.</p></div>
+    </section>
+    <p class="foot">Opus 5 supplied bounded frontend review. Codex implemented and verified the product. Fable and Kimi were not used.</p>
+  </main>
+  <script>
+    const surfaceTabs = [...document.querySelectorAll('.surface-tab')];
+    const surfacePanels = [...document.querySelectorAll('.surface-panel')];
+    surfaceTabs.forEach((tab) => tab.addEventListener('click', () => {
+      surfaceTabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab)));
+      surfacePanels.forEach((panel) => panel.classList.toggle('active', panel.id === `panel-${tab.dataset.panel}`));
+    }));
+
+    const storageKey = 'ankiscape-pass8-playtest';
+    const checks = [...document.querySelectorAll('[data-check]')];
+    const notes = document.querySelector('#notes');
+    const progressBar = document.querySelector('#progressBar');
+    const progressText = document.querySelector('#progressText');
+
+    function savedState() {
+      try { return JSON.parse(localStorage.getItem(storageKey) || '{}'); }
+      catch (_) { return {}; }
+    }
+    function updateProgress() {
+      const done = checks.filter((item) => item.checked).length;
+      progressText.textContent = `${done} of ${checks.length} complete`;
+      progressBar.style.width = `${(done / checks.length) * 100}%`;
+    }
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify({
+        checks: Object.fromEntries(checks.map((item) => [item.dataset.check, item.checked])),
+        notes: notes.value
+      }));
+      updateProgress();
+    }
+    const initial = savedState();
+    checks.forEach((item) => {
+      item.checked = Boolean(initial.checks && initial.checks[item.dataset.check]);
+      item.addEventListener('change', save);
+    });
+    notes.value = initial.notes || '';
+    notes.addEventListener('input', save);
+    updateProgress();
+
+    document.querySelector('#copyReport').addEventListener('click', async (event) => {
+      const lines = ['# AnkiScape Pass 8 playtest', '', ...checks.map((item) => `${item.checked ? '[x]' : '[ ]'} ${item.dataset.check}`), '', '## Notes', notes.value.trim() || 'No notes.'];
+      await navigator.clipboard.writeText(lines.join('\n'));
+      const button = event.currentTarget;
+      const old = button.textContent;
+      button.textContent = 'Copied';
+      setTimeout(() => { button.textContent = old; }, 1200);
+    });
+    document.querySelector('#resetReport').addEventListener('click', () => {
+      checks.forEach((item) => { item.checked = false; });
+      notes.value = '';
+      save();
+    });
+  </script>
+</body>
+</html>

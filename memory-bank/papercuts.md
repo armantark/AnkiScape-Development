@@ -55,3 +55,7 @@
 2026-08-07 16:43:00 PDT — A focused Shooting Star integration command guessed `IntegrationSmokeTest`; unittest returned `AttributeError` because the class is `TestIntegrationSmoke`.
 2026-08-07 17:09:02 PDT — A focused Shooting Star Qt command guessed `TestReviewStrip`; unittest returned `AttributeError` because the class is `ReviewStripTest`.
 2026-08-07 17:11:32 PDT — The native-gate thread lookup first passed `limit: 100`, but `list_threads` rejects values above 50; the valid retry still reported MacBook Pro host `remote-control:env_e_6a684c98946c8321ba89026140dd59e4` as `thread_list_unavailable`.
+2026-08-07 23:29:30 PDT — The status-artifact skill references `memory-bank/status-updates/mobile-ux-fixes-2026-05-18.html`, but that file does not exist in this repository.
+2026-08-07 23:35:00 PDT — The local status-artifact visual check could not use port 8765 because `python3 -m http.server` returned `OSError: [Errno 48] Address already in use`.
+2026-08-07 23:37:00 PDT — PinchTab timed out while it opened the local Pass 8 artifact: `Client.Timeout exceeded while awaiting headers` from `http://127.0.0.1:9867/navigate`.
+2026-08-07 23:39:00 PDT — Postplan rejected the public-safe Pass 8 artifact with `Inline JavaScript requires an authenticated upload.`
