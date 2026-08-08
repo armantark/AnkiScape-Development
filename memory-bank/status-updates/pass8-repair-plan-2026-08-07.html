@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f8cff'/%3E%3Cpath d='M16 42 30 14l18 36-8-4-4-9H23l-4 9z' fill='white'/%3E%3C/svg%3E">
+  <title>AnkiScape Pass 8 repair plan</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% 0,var(--accent-glow),transparent 32%),var(--bg);color:var(--text);font-family:Outfit,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+    main{max-width:1180px;margin:auto;padding:36px 22px 56px}.badge{display:inline-block;padding:5px 9px;border:1px solid #385b9a;border-radius:999px;color:#8db5ff;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em}h1{font-size:2.1rem;margin:14px 0 8px}p{color:var(--text-dim);margin:0}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}.metric,.card,.step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}.metric{padding:14px}.metric strong{display:block;font-size:1.45rem;color:var(--text)}.metric span{font-size:.78rem;color:var(--text-dim)}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{padding:18px}.priority{font:700 10px "JetBrains Mono",monospace;letter-spacing:.08em}.safe{color:var(--green)}.source{color:var(--amber)}.design{color:var(--purple)}h2{font-size:1.05rem;margin:6px 0 9px}.card ul{padding-left:18px;margin:10px 0 0;color:var(--text-dim)}.card li{margin:6px 0}.flow{display:flex;gap:8px;align-items:center;overflow-x:auto;padding:20px 0}.node{min-width:150px;padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;text-align:center;font-size:.82rem}.arrow{color:var(--accent);font-weight:800}.steps{display:grid;gap:9px}.step{display:flex;gap:12px;padding:13px}.num{flex:0 0 28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;font:700 12px "JetBrains Mono",monospace}.step b{display:block}.step small{color:var(--text-dim)}code{font-family:"JetBrains Mono",monospace;color:#b8ceff;font-size:.78rem}.note{margin-top:20px;padding:14px 16px;border-left:3px solid var(--purple);background:rgba(167,139,250,.08);color:var(--text-dim)}@media(max-width:760px){.metrics,.grid{grid-template-columns:1fr 1fr}}@media(max-width:480px){.metrics,.grid{grid-template-columns:1fr}main{padding:24px 14px}}
+  </style>
+</head>
+<body><main>
+  <span class="badge">PRE-IMPLEMENTATION PLAN · PASS 8</span>
+  <h1>Repair what is settled. Park only real choices.</h1>
+  <p>Pass 8 contains direct defects, source questions, and five product decisions. Codex owns all code, verification, and commits.</p>
+  <section class="metrics" aria-label="Plan summary">
+    <div class="metric"><strong>18</strong><span>owner reports</span></div>
+    <div class="metric"><strong>4</strong><span>ordered repair batches</span></div>
+    <div class="metric"><strong>5</strong><span>co-ideation decisions</span></div>
+    <div class="metric"><strong>0</strong><span>Fable or Kimi calls</span></div>
+  </section>
+  <section class="grid">
+    <article class="card"><span class="priority safe">SAFE FIRST BATCH</span><h2>Small interaction and copy repairs</h2><ul><li>Enter and select Fish Flingers in one click.</li><li>Record food use and remaining food in the event log.</li><li>Move Help to the bottom-right.</li><li>Remove the pre-release AnkiWeb review prompt.</li></ul></article>
+    <article class="card"><span class="priority source">SOURCE AND STATE</span><h2>Gameplay and economy correctness</h2><ul><li>Reproduce the Combat selector glitch.</li><li>Verify the bone-burial cadence contract.</li><li>Require Bank runs for Grand Exchange actions.</li><li>Repair item coverage, categories, requirements, and iron-scimitar art.</li></ul></article>
+    <article class="card"><span class="priority safe">UI SAFETY</span><h2>Protect Anki and remove internal copy</h2><ul><li>Keep the vanilla card-state counter visible.</li><li>Remove debug, trace, source, and AI-note text from player tooltips.</li><li>Remove internal information from Collections.</li><li>Verify every changed surface in native Anki.</li></ul></article>
+    <article class="card"><span class="priority design">OWNER + FABLE</span><h2>Do not guess these interfaces</h2><ul><li>Place Shop and Grand Exchange in the top tab order.</li><li>Set Bank grid, tab, drag, and category behavior.</li><li>Set the Skills guide information hierarchy.</li><li>Set the Collections hierarchy and Shooting Star exit state.</li></ul></article>
+  </section>
+  <div class="flow" aria-label="Repair loop"><div class="node">Reproduce one report</div><div class="arrow">→</div><div class="node">Make one attributable fix</div><div class="arrow">→</div><div class="node">Run focused tests</div><div class="arrow">→</div><div class="node">Verify in native Anki</div><div class="arrow">→</div><div class="node">Commit and trace</div></div>
+  <section class="steps" aria-label="Implementation order">
+    <div class="step"><span class="num">1</span><div><b>Close the safe interaction batch.</b><small>Use focused pure and Qt tests before native Anki.</small></div></div>
+    <div class="step"><span class="num">2</span><div><b>Close source-backed gameplay and economy defects.</b><small>Keep source values separate from AnkiScape pacing.</small></div></div>
+    <div class="step"><span class="num">3</span><div><b>Close layout, asset, item, and player-copy defects.</b><small>Run provenance and reachability checks for changed assets or items.</small></div></div>
+    <div class="step"><span class="num">4</span><div><b>Implement co-ideated interfaces after the owner records decisions.</b><small>Use <code>pass8-owner-fable-co-ideation-handoff-2026-08-07.md</code>.</small></div></div>
+  </section>
+  <div class="note">Stop a blocked design item. Continue every independent safe item. Final closure requires both repository lanes, documentation and quality audits, worktree guard, and native MacBook Pro Anki evidence.</div>
+</main></body></html>

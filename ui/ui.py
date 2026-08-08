@@ -59,6 +59,8 @@ try:
         QShortcut,
         QKeySequence,
         QTimer,
+        QDrag,
+        QMimeData,
         QFrame as QtFrame,
     )
     HAS_QT = True
@@ -162,6 +164,18 @@ from ..core.constants import (
 )
 
 from ..logic.grand_exchange_logic import GE_SLOT_COUNT, ge_fill_drawer_view_pure
+from ..logic.bank_layout_logic import (
+    MAIN_BANK_TAB_ID,
+    bank_sections_pure,
+    create_bank_tab_pure,
+    delete_bank_tab_pure,
+    move_bank_item_pure,
+    reconcile_bank_layout_for_player_pure,
+    rename_bank_tab_pure,
+    reorder_bank_tab_pure,
+    set_bank_tab_icon_pure,
+)
+from ..logic.skill_guide_logic import skill_guide_sections_pure
 
 from ..data.pack_data import ITEM_PACK_DATA
 
@@ -561,7 +575,10 @@ from ..logic.agility_logic import (
     agility_status_line_pure,
     agility_target_locked_reasons_pure,
 )
-from ..core.review_context import review_context_projection_pure
+from ..core.review_context import (
+    SHOOTING_STAR_NOTICE_CONTEXT_ID,
+    review_context_projection_pure,
+)
 
 from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
 from ..logic.shop_logic import (
@@ -725,6 +742,12 @@ _ACTIVITY_GROUP_ICONS = {
         current_dir, "icon", "dnd_icon.png"
     ),
 }
+_ACTIVITY_SELECTION_GROUPS = (
+    "minigames",
+    "distractions_and_diversions",
+)
+_ACTIVITY_SELECTION_PREFIX = "__activity_selection__:"
+
 def _set_slayer_master_chathead(label: "QLabel", asset_path: str) -> None:
     if not asset_path:
         return
@@ -750,6 +773,12 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
         _ACTIVITIES_HUB_NAME: os.path.join(
             current_dir, "icon", "activities_icon.png"
         ),
+        _UTILITY_GROUP_LABELS["minigames"]: _ACTIVITY_GROUP_ICONS[
+            "minigames"
+        ],
+        _UTILITY_GROUP_LABELS[
+            "distractions_and_diversions"
+        ]: _ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
     }
     surface_icon = surface_icons.get(display_name)
     if surface_icon and os.path.exists(surface_icon):
@@ -1523,6 +1552,103 @@ if HAS_QT:
             if self.on_viewport_resize is not None:
                 self.on_viewport_resize()
 
+    class _BankDropButton(QToolButton):
+        """Keyboard-focusable Bank cell with native Qt item drag/drop."""
+
+        ITEM_MIME = "application/x-ankiscape-bank-item"
+        TAB_MIME = "application/x-ankiscape-bank-tab"
+
+        def __init__(
+            self,
+            *,
+            item_name: str = "",
+            tab_id: str = "",
+            drag_enabled: bool = False,
+            on_item_drop=None,
+            on_tab_drop=None,
+            can_item_drop=None,
+            parent=None,
+        ):
+            super().__init__(parent)
+            self.item_name = item_name
+            self.tab_id = tab_id
+            self.drag_enabled = bool(drag_enabled)
+            self.on_item_drop = on_item_drop
+            self.on_tab_drop = on_tab_drop
+            self.can_item_drop = can_item_drop
+            self._drag_start = None
+            self.setAcceptDrops(True)
+
+        def mousePressEvent(self, event):  # type: ignore[no-untyped-def]
+            if event.button() == Qt.MouseButton.LeftButton:
+                self._drag_start = event.position().toPoint()
+            super().mousePressEvent(event)
+
+        def mouseMoveEvent(self, event):  # type: ignore[no-untyped-def]
+            if not self.drag_enabled or self._drag_start is None:
+                return super().mouseMoveEvent(event)
+            if not event.buttons() & Qt.MouseButton.LeftButton:
+                return super().mouseMoveEvent(event)
+            if (event.position().toPoint() - self._drag_start).manhattanLength() < QApplication.startDragDistance():
+                return super().mouseMoveEvent(event)
+            mime = QMimeData()
+            if self.item_name:
+                mime.setData(self.ITEM_MIME, self.item_name.encode("utf-8"))
+            elif self.tab_id:
+                mime.setData(self.TAB_MIME, self.tab_id.encode("utf-8"))
+            else:
+                return super().mouseMoveEvent(event)
+            drag = QDrag(self)
+            drag.setMimeData(mime)
+            if not self.icon().isNull():
+                drag.setPixmap(self.icon().pixmap(28, 28))
+            drag.exec(Qt.DropAction.MoveAction)
+
+        def dragEnterEvent(self, event):  # type: ignore[no-untyped-def]
+            mime = event.mimeData()
+            item_allowed = False
+            if mime.hasFormat(self.ITEM_MIME) and self.on_item_drop is not None:
+                source = bytes(mime.data(self.ITEM_MIME)).decode("utf-8")
+                item_allowed = self.can_item_drop is None or bool(
+                    self.can_item_drop(source)
+                )
+            if item_allowed or (
+                mime.hasFormat(self.TAB_MIME) and self.on_tab_drop is not None
+            ):
+                event.acceptProposedAction()
+                return
+            event.ignore()
+
+        def dropEvent(self, event):  # type: ignore[no-untyped-def]
+            mime = event.mimeData()
+            if mime.hasFormat(self.ITEM_MIME) and self.on_item_drop is not None:
+                source = bytes(mime.data(self.ITEM_MIME)).decode("utf-8")
+                if self.can_item_drop is not None and not self.can_item_drop(source):
+                    event.ignore()
+                    return
+                self.on_item_drop(source)
+                event.acceptProposedAction()
+                return
+            if mime.hasFormat(self.TAB_MIME) and self.on_tab_drop is not None:
+                source = bytes(mime.data(self.TAB_MIME)).decode("utf-8")
+                self.on_tab_drop(source)
+                event.acceptProposedAction()
+                return
+            event.ignore()
+
+        def keyPressEvent(self, event):  # type: ignore[no-untyped-def]
+            opens_menu = event.key() == Qt.Key.Key_Menu or (
+                event.key() == Qt.Key.Key_F10
+                and event.modifiers() & Qt.KeyboardModifier.ShiftModifier
+            )
+            if opens_menu and self.contextMenuPolicy() == Qt.ContextMenuPolicy.CustomContextMenu:
+                self.customContextMenuRequested.emit(
+                    QPoint(self.width() // 2, self.height() // 2)
+                )
+                event.accept()
+                return
+            super().keyPressEvent(event)
+
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
 
@@ -1993,10 +2119,11 @@ if HAS_QT:
             self.setObjectName("AnkiScapeReviewStrip")
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             self.setFixedHeight(REVIEW_STRIP_HEIGHT)
             self.root = QHBoxLayout(self)
-            self.root.setContentsMargins(8, 0, 8, 0)
+            self.root.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+            self.root.setContentsMargins(6, 0, 6, 0)
             self.root.setSpacing(6)
             self.setStyleSheet(
                 "QWidget#AnkiScapeReviewStrip { background: transparent; }"
@@ -2010,6 +2137,7 @@ if HAS_QT:
                     _DND_BADGE,
                     _FARMING_BADGE,
                     _REVIEW_HUD,
+                    _SHOOTING_STAR_NOTICE_BAND,
                     _MAIN_MENU_BUTTON,
                 )
                 if widget is not None
@@ -2028,6 +2156,151 @@ if HAS_QT:
                 widget.setParent(self)
                 self.root.addWidget(widget, 0, Qt.AlignmentFlag.AlignVCenter)
             self.root.addStretch(1)
+
+    class ShootingStarNoticeBand(QtFrame):
+        """Persistent Shooting Star decision seated inside the native strip."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("shootingStarNoticeBand")
+            self.setAccessibleName("Shooting Star notice")
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self.setFixedHeight(112)
+            self.setMinimumWidth(320)
+            self.setSizePolicy(
+                QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Fixed,
+            )
+            self._action_callback = None
+
+            root = QVBoxLayout(self)
+            root.setContentsMargins(12, 9, 12, 9)
+            root.setSpacing(5)
+            self.headline = QLabel()
+            self.headline.setObjectName("shootingStarNoticeHeadline")
+            root.addWidget(self.headline)
+            self.detail = QLabel()
+            self.detail.setObjectName("shootingStarNoticeDetail")
+            self.detail.setWordWrap(True)
+            root.addWidget(self.detail, 1)
+
+            footer = QHBoxLayout()
+            footer.setContentsMargins(0, 0, 0, 0)
+            footer.setSpacing(6)
+            self.queued = QLabel()
+            self.queued.setObjectName("shootingStarNoticeQueued")
+            footer.addWidget(self.queued)
+            footer.addStretch(1)
+            self.actions = QWidget()
+            self.actions.setObjectName("shootingStarNoticeActions")
+            self.action_layout = QHBoxLayout(self.actions)
+            self.action_layout.setContentsMargins(0, 0, 0, 0)
+            self.action_layout.setSpacing(6)
+            footer.addWidget(self.actions)
+            root.addLayout(footer)
+            self.hide()
+
+        def _apply_neutral_style(self) -> None:
+            dark = self.palette().color(QPalette.ColorRole.Window).lightness() < 128
+            text = "#a9b1ba" if dark else "#5f6368"
+            border = "#6e7681" if dark else "#9aa0a6"
+            hover = "#d0d7de" if dark else "#3c4043"
+            self.setStyleSheet(
+                f"""
+                QFrame#shootingStarNoticeBand {{
+                    background: transparent;
+                    border: 1px solid {border};
+                    border-radius: 8px;
+                }}
+                QFrame#shootingStarNoticeBand QLabel {{
+                    color: {text};
+                    background: transparent;
+                    border: none;
+                }}
+                QLabel#shootingStarNoticeHeadline {{ font-weight: 700; }}
+                QLabel#shootingStarNoticeQueued {{
+                    border: 1px solid {border};
+                    border-radius: 7px;
+                    padding: 1px 5px;
+                }}
+                QWidget#shootingStarNoticeActions QPushButton {{
+                    color: {text};
+                    background: transparent;
+                    border: 1px solid {border};
+                    border-radius: 5px;
+                    padding: 3px 10px;
+                    font-weight: 600;
+                }}
+                QWidget#shootingStarNoticeActions QPushButton:hover {{
+                    color: {hover};
+                    border-color: {hover};
+                }}
+                QWidget#shootingStarNoticeActions QPushButton:pressed {{
+                    background: rgba(128, 128, 128, 0.10);
+                }}
+                """
+            )
+
+        def set_data(self, active, queued_count=0, action_callback=None) -> None:
+            self._action_callback = action_callback
+            if not isinstance(active, Mapping):
+                self.setProperty("ankiscapeOverlayRequested", False)
+                self.hide()
+                return
+            self.setProperty("ankiscapeOverlayRequested", True)
+            headline = str(active.get("label", ""))
+            detail = str(active.get("detail", ""))
+            self.headline.setText(headline)
+            self.headline.setAccessibleName(headline)
+            self.detail.setText(detail)
+            self.detail.setAccessibleName(detail)
+            self.setAccessibleDescription(" ".join((headline, detail)).strip())
+            queued = max(0, int(queued_count or 0))
+            self.queued.setText(f"+{queued}")
+            self.queued.setAccessibleName(
+                f"{queued} more notice{'s' if queued != 1 else ''}"
+            )
+            self.queued.setVisible(queued > 0)
+            while self.action_layout.count():
+                item = self.action_layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.hide()
+                    widget.deleteLater()
+            object_names = {
+                "watch": "shootingStarNoticeWatch",
+                "dismiss": "shootingStarNoticeDismiss",
+                "mine": "shootingStarNoticeMine",
+            }
+            for option in tuple(active.get("options", ())):
+                if not isinstance(option, Mapping):
+                    continue
+                option_id = str(option.get("id", ""))
+                label = str(option.get("label", option_id))
+                if not option_id:
+                    continue
+                button = QPushButton(label)
+                button.setObjectName(
+                    object_names.get(option_id, f"shootingStarNotice::{option_id}")
+                )
+                button.setAccessibleName(label)
+                button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+                button.setFixedHeight(26)
+                button.setSizePolicy(
+                    QSizePolicy.Policy.Fixed,
+                    QSizePolicy.Policy.Fixed,
+                )
+                button.setEnabled(action_callback is not None)
+                button.clicked.connect(
+                    lambda _checked=False, oid=option_id: self._activate(oid)
+                )
+                self.action_layout.addWidget(button)
+            self._apply_neutral_style()
+            self.show()
+
+        def _activate(self, option_id: str) -> None:
+            if self._action_callback is not None:
+                self._action_callback(SHOOTING_STAR_NOTICE_CONTEXT_ID, option_id)
 
     class ReviewHUD(QWidget):
         """The compact XP box inside the native reviewer strip."""
@@ -3309,6 +3582,12 @@ else:
         def __init__(self, parent=None):
             pass
 
+    class ShootingStarNoticeBand:
+        def __init__(self, parent=None):
+            pass
+        def set_data(self, active, queued_count=0, action_callback=None) -> None:
+            pass
+
     class ReviewContextActionStrip:
         def __init__(self, parent=None):
             pass
@@ -3347,6 +3626,7 @@ else:
 _REVIEW_HUD = None  # type: ignore
 _REVIEW_STRIP = None  # type: ignore
 _REVIEW_CONTEXT_STRIP = None  # type: ignore
+_SHOOTING_STAR_NOTICE_BAND = None  # type: ignore
 _BANK_RUN_BUTTON = None  # type: ignore
 _MAIN_MENU_BUTTON = None  # type: ignore
 _DND_BADGE = None  # type: ignore
@@ -3467,15 +3747,42 @@ def _sync_review_strip_layout() -> None:
             return
 
         strip.sync_children()
-        seats = tuple(
-            widget
-            for widget in (_DND_BADGE, _FARMING_BADGE, hud, _MAIN_MENU_BUTTON)
-            if widget is not None
+        notice = (
+            _SHOOTING_STAR_NOTICE_BAND
+            if _overlay_requested(_SHOOTING_STAR_NOTICE_BAND)
+            else None
         )
+        if notice is not None and parent.width() >= 962:
+            seats = tuple(
+                widget
+                for widget in (
+                    _DND_BADGE,
+                    _FARMING_BADGE,
+                    hud,
+                    notice,
+                    _MAIN_MENU_BUTTON,
+                )
+                if widget is not None
+            )
+        elif notice is not None and parent.width() > 720:
+            seats = tuple(
+                widget
+                for widget in (hud, notice, _MAIN_MENU_BUTTON)
+                if widget is not None
+            )
+        elif notice is not None:
+            seats = (notice,)
+        else:
+            seats = tuple(
+                widget
+                for widget in (_DND_BADGE, _FARMING_BADGE, hud, _MAIN_MENU_BUTTON)
+                if widget is not None
+            )
         nominal_widths = {
             _DND_BADGE: 118,
             _FARMING_BADGE: 112,
             hud: 340,
+            notice: 320,
             _MAIN_MENU_BUTTON: 36,
         }
         minimum_widths = {
@@ -3484,29 +3791,39 @@ def _sync_review_strip_layout() -> None:
             _MAIN_MENU_BUTTON: 36,
         }
         margins = strip.root.contentsMargins()
-        content_width = min(
-            REVIEW_STRIP_WIDTH,
-            max(
-                1,
-                parent.width()
-                - margins.left()
-                - margins.right()
-                - strip.root.spacing() * max(0, len(seats) - 1),
-            ),
+        available_width = max(
+            1,
+            parent.width()
+            - margins.left()
+            - margins.right()
+            - strip.root.spacing() * max(0, len(seats) - 1),
         )
-        nominal_total = sum(nominal_widths[seat] for seat in seats)
-        if content_width >= nominal_total:
-            widths = {seat: nominal_widths[seat] for seat in seats}
-        else:
+        content_width = (
+            available_width
+            if notice is not None
+            else min(REVIEW_STRIP_WIDTH, available_width)
+        )
+        if notice is not None:
             widths = {
-                seat: max(
-                    minimum_widths[seat],
-                    int(nominal_widths[seat] * content_width / max(1, nominal_total)),
-                )
+                seat: nominal_widths[seat]
                 for seat in seats
-                if seat is not hud
+                if seat is not notice
             }
-            widths[hud] = max(1, content_width - sum(widths.values()))
+            widths[notice] = max(320, content_width - sum(widths.values()))
+        else:
+            nominal_total = sum(nominal_widths[seat] for seat in seats)
+            if content_width >= nominal_total:
+                widths = {seat: nominal_widths[seat] for seat in seats}
+            else:
+                widths = {
+                    seat: max(
+                        minimum_widths[seat],
+                        int(nominal_widths[seat] * content_width / max(1, nominal_total)),
+                    )
+                    for seat in seats
+                    if seat is not hud
+                }
+                widths[hud] = max(1, content_width - sum(widths.values()))
         for seat in seats:
             seat.setFixedWidth(widths[seat])
 
@@ -3515,11 +3832,19 @@ def _sync_review_strip_layout() -> None:
             _DND_BADGE,
             _FARMING_BADGE,
             hud,
+            _SHOOTING_STAR_NOTICE_BAND,
             _BANK_RUN_BUTTON,
             _MAIN_MENU_BUTTON,
         ):
             if widget is not None:
-                widget.setVisible(_overlay_requested(widget))
+                visible_seat = (
+                    hud in seats
+                    if widget is _BANK_RUN_BUTTON
+                    else widget in seats
+                )
+                widget.setVisible(
+                    visible_seat and _overlay_requested(widget)
+                )
 
         layout = getattr(parent, "mainLayout", None)
         if layout is not None:
@@ -3527,7 +3852,8 @@ def _sync_review_strip_layout() -> None:
 
         gap = 6
         strip_origin = strip.mapTo(parent, QPoint(0, 0))
-        hud_origin = hud.mapTo(parent, QPoint(0, 0))
+        drawer_anchor = hud if hud in seats else notice
+        hud_origin = drawer_anchor.mapTo(parent, QPoint(0, 0))
         cursor_y = _review_overlay_bottom(parent, strip) - gap
         drawers = [
             drawer
@@ -3551,7 +3877,9 @@ def _sync_review_strip_layout() -> None:
 
         for drawer in drawers:
             cursor_y -= drawer.height()
-            drawer_x = hud_origin.x() + (hud.width() - drawer.width()) // 2
+            drawer_x = hud_origin.x() + (
+                drawer_anchor.width() - drawer.width()
+            ) // 2
             drawer_x = min(
                 max(8, drawer_x),
                 max(8, parent.width() - drawer.width() - 8),
@@ -3604,6 +3932,7 @@ def _cleanup_extra_huds() -> None:
             "AnkiScapeReviewStrip": _REVIEW_STRIP,
             "AnkiScapeReviewHUD": _REVIEW_HUD,
             "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
+            "shootingStarNoticeBand": _SHOOTING_STAR_NOTICE_BAND,
             "AnkiScapeDndBadge": _DND_BADGE,
             "AnkiScapeFarmingBadge": _FARMING_BADGE,
             "reviewBankRunButton": _BANK_RUN_BUTTON,
@@ -3632,6 +3961,7 @@ def ensure_review_strip() -> None:
     """Create and attach the native row below Anki's answer bar."""
 
     global _REVIEW_STRIP, _REVIEW_HUD, _DND_BADGE, _FARMING_BADGE
+    global _SHOOTING_STAR_NOTICE_BAND
     global _BANK_RUN_BUTTON, _MAIN_MENU_BUTTON
     if not HAS_QT or mw is None:
         return
@@ -3644,6 +3974,8 @@ def ensure_review_strip() -> None:
         _FARMING_BADGE = ReviewStatusBadge("farming", _REVIEW_STRIP)
     if _REVIEW_HUD is None:
         _REVIEW_HUD = ReviewHUD(_REVIEW_STRIP)
+    if _SHOOTING_STAR_NOTICE_BAND is None:
+        _SHOOTING_STAR_NOTICE_BAND = ShootingStarNoticeBand(_REVIEW_STRIP)
     if _BANK_RUN_BUTTON is None:
         _BANK_RUN_BUTTON = ReviewBankRunButton(_REVIEW_HUD)
         _REVIEW_HUD.attach_bank_run_button(_BANK_RUN_BUTTON)
@@ -3701,6 +4033,7 @@ def ensure_review_context_action_strip() -> None:
     global _REVIEW_CONTEXT_STRIP
     if not HAS_QT:
         return
+    ensure_review_strip()
     _cleanup_extra_huds()
     if _REVIEW_CONTEXT_STRIP is None and mw is not None:
         _REVIEW_CONTEXT_STRIP = ReviewContextActionStrip(mw)
@@ -3720,11 +4053,28 @@ def update_review_context_action_strip(
     if _REVIEW_CONTEXT_STRIP is None:
         return
     projection = review_context_projection_pure(player_data)
-    if projection.get("active") is None:
+    active = projection.get("active")
+    if (
+        isinstance(active, Mapping)
+        and active.get("family_id") == SHOOTING_STAR_NOTICE_CONTEXT_ID
+    ):
+        _SHOOTING_STAR_NOTICE_BAND.set_data(
+            active,
+            projection.get("queued_count", 0),
+            action_callback,
+        )
         _REVIEW_CONTEXT_STRIP.setProperty("ankiscapeOverlayRequested", False)
         _REVIEW_CONTEXT_STRIP.hide()
+        _sync_review_strip_layout()
+        return
+    _SHOOTING_STAR_NOTICE_BAND.set_data(None)
+    if active is None:
+        _REVIEW_CONTEXT_STRIP.setProperty("ankiscapeOverlayRequested", False)
+        _REVIEW_CONTEXT_STRIP.hide()
+        _sync_review_strip_layout()
         return
     _REVIEW_CONTEXT_STRIP.set_data(projection, action_callback)
+    _sync_review_strip_layout()
 
 
 def hide_review_context_action_strip() -> None:
@@ -4480,6 +4830,7 @@ def show_main_menu(
         "skill": "",
         "active": current_skill if current_skill in _active_choices else "None",
         "details_open": False,
+        "activity_group": "",
     }
     target_details_context = {"display_row": None}
     activity_start_transition = {}
@@ -4522,13 +4873,13 @@ def show_main_menu(
         index = tabs.addTab(page, label)
         _set_global_tab_icon(page, icon_filename)
         tabs.setTabToolTip(index, tooltip)
-        _deferred_builders[index] = builder
+        _deferred_builders[page] = builder
 
     def _ensure_tab_built(index: int) -> None:
-        builder = _deferred_builders.pop(index, None)
+        page = tabs.widget(index)
+        builder = _deferred_builders.pop(page, None)
         if builder is None:
             return
-        page = tabs.widget(index)
         page.layout().addWidget(builder(ctx))
 
     # ---- availability + active-skill helpers ----
@@ -8046,7 +8397,7 @@ def show_main_menu(
                     row.group,
                 )
             )
-            tree = _build_grouped_target_tree(
+            tree = _build_target_selector(
                 filtered_rows,
                 {group: group for group in COMBAT_TARGET_GROUP_ORDER},
                 "__combat_group__:",
@@ -8072,10 +8423,16 @@ def show_main_menu(
                     empty_text = "No playable enemies are available for this assignment."
                 else:
                     empty_text = "No combat targets match this search."
-                empty = QTreeWidgetItem([empty_text])
-                empty.setFlags(Qt.ItemFlag.NoItemFlags)
-                empty.setForeground(0, dim_text_color(tree))
-                tree.addTopLevelItem(empty)
+                if isinstance(tree, QTreeWidget):
+                    empty = QTreeWidgetItem([empty_text])
+                    empty.setFlags(Qt.ItemFlag.NoItemFlags)
+                    empty.setForeground(0, dim_text_color(tree))
+                    tree.addTopLevelItem(empty)
+                else:
+                    empty = QListWidgetItem(empty_text)
+                    empty.setFlags(Qt.ItemFlag.NoItemFlags)
+                    empty.setForeground(dim_text_color(tree))
+                    tree.addItem(empty)
             filter_bar.set_count(len(filtered_rows), len(combat_rows))
             tree_layout.addWidget(tree)
             live_tree["widget"] = tree
@@ -8116,6 +8473,7 @@ def show_main_menu(
 
     def _build_utility_list(surface_name: str) -> QWidget:
         is_activities = surface_name == _ACTIVITIES_HUB_NAME
+        activity_group_role = int(Qt.ItemDataRole.UserRole) + 1
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -8904,8 +9262,8 @@ def show_main_menu(
                 )
                 if view["waiting_for_layer"]:
                     star_detail.setText(
-                        f"Waiting for public miners · current layer needs "
-                        f"Mining {int(view['required_level'])}"
+                        f"Current layer needs Mining {int(view['required_level'])} · "
+                        "selecting it will stop the activity and offer a watch"
                     )
                 elif view["tag_available"]:
                     star_detail.setText(
@@ -13019,7 +13377,7 @@ def show_main_menu(
                 result = _run_fish_flingers_command("enter_fish_flingers")
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
+            if not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
                 return
             _refresh_fish_flingers_panel()
 
@@ -18928,24 +19286,31 @@ def show_main_menu(
                     group_rows,
                     key=lambda row: str(row.label).casefold(),
                 )
-            label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
-            parent_text = f"{label}  ({len(group_rows)})"
-            parent = QTreeWidgetItem([parent_text])
-            parent.setData(0, Qt.ItemDataRole.UserRole, f"__utility_group__:{group}")
-            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            group_icon = _ACTIVITY_GROUP_ICONS.get(group)
-            if group_icon and os.path.exists(group_icon):
-                icon = _pixel_path_icon(group_icon, 28)
-                if icon is not None:
-                    parent.setIcon(0, icon)
-            font = parent.font(0)
-            font.setBold(True)
-            parent.setFont(0, font)
-            tree.addTopLevelItem(parent)
+            flat_activity_group = (
+                is_activities and group in _ACTIVITY_SELECTION_GROUPS
+            )
+            parent = None
+            if not flat_activity_group:
+                label = _UTILITY_GROUP_LABELS.get(
+                    group, group.replace("_", " ").title()
+                )
+                parent_text = f"{label}  ({len(group_rows)})"
+                parent = QTreeWidgetItem([parent_text])
+                parent.setData(
+                    0,
+                    Qt.ItemDataRole.UserRole,
+                    f"__utility_group__:{group}",
+                )
+                parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+                font = parent.font(0)
+                font.setBold(True)
+                parent.setFont(0, font)
+                tree.addTopLevelItem(parent)
             group_has_current = False
             for row in group_rows:
                 child = QTreeWidgetItem([row.label])
                 child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
+                child.setData(0, activity_group_role, group)
                 if row.icon_path and os.path.exists(row.icon_path):
                     icon = _pixel_path_icon(row.icon_path, 28)
                     if icon is not None:
@@ -18963,13 +19328,16 @@ def show_main_menu(
                 ):
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
-                parent.addChild(child)
+                if parent is None:
+                    tree.addTopLevelItem(child)
+                else:
+                    parent.addChild(child)
                 if row.target_id == current:
                     selected_child = child
                     group_has_current = True
-            if is_activities:
+            if is_activities and parent is not None:
                 parent.setExpanded(group not in collapsed_activity_groups)
-            else:
+            elif parent is not None:
                 parent.setExpanded(group_has_current)
 
         # Landmarks: the one-time Stronghold of Security. Injected by hand because
@@ -20376,6 +20744,41 @@ def show_main_menu(
             )
             world_events_refresher["call"]()
 
+        def _show_activity_group(group: object) -> None:
+            selected_group = str(group or "")
+            if selected_group not in _ACTIVITY_SELECTION_GROUPS:
+                selected_group = ""
+            _show_activity_detail("")
+            for index in range(tree.topLevelItemCount()):
+                item = tree.topLevelItem(index)
+                item_group = str(
+                    item.data(0, activity_group_role) or ""
+                )
+                is_selection_group = (
+                    item_group in _ACTIVITY_SELECTION_GROUPS
+                )
+                item.setHidden(
+                    item_group != selected_group
+                    if selected_group
+                    else is_selection_group
+                )
+            current_item = tree.currentItem()
+            if current_item is not None and current_item.isHidden():
+                tree.clearSelection()
+            if selected_group:
+                for index in range(tree.topLevelItemCount()):
+                    item = tree.topLevelItem(index)
+                    if (
+                        not item.isHidden()
+                        and item.data(0, Qt.ItemDataRole.UserRole) == current
+                    ):
+                        tree.setCurrentItem(item)
+                        tree.scrollToItem(
+                            item,
+                            QAbstractItemView.ScrollHint.PositionAtCenter,
+                        )
+                        break
+
         if is_activities:
             world_events_box = QtFrame()
             world_events_box.setObjectName("activityWorldEventsStrip")
@@ -20497,6 +20900,7 @@ def show_main_menu(
         container._ankiscape_refresh_reward_shops = _refresh_reward_shop_sources
         container._ankiscape_refresh_all = _refresh_all_activity_panels
         container._ankiscape_show_activity = _show_activity_detail
+        container._ankiscape_show_activity_group = _show_activity_group
 
         container_layout.addWidget(cards_stack)
         activity_controls = QWidget()
@@ -21520,17 +21924,43 @@ def show_main_menu(
         _skill_guard["on"] = True
         skill_list_widget.clear()
         cards = _cards_for(state["category"])
-        for card in cards:
-            it = QListWidgetItem(card.display_name)
-            it.setData(Qt.ItemDataRole.UserRole, card.display_name)
-            ip = _skill_icon_path(card.display_name)
+        rows = (
+            (
+                (_ACTIVITIES_HUB_NAME, _ACTIVITIES_HUB_NAME),
+                *(
+                    (
+                        _UTILITY_GROUP_LABELS[group],
+                        f"{_ACTIVITY_SELECTION_PREFIX}{group}",
+                    )
+                    for group in _ACTIVITY_SELECTION_GROUPS
+                ),
+            )
+            if state["category"] == "activities"
+            else tuple(
+                (card.display_name, card.display_name) for card in cards
+            )
+        )
+        selected_role = (
+            f"{_ACTIVITY_SELECTION_PREFIX}{state['activity_group']}"
+            if state["category"] == "activities"
+            and state["activity_group"]
+            else state["skill"]
+        )
+        for display_name, role in rows:
+            it = QListWidgetItem(display_name)
+            it.setData(Qt.ItemDataRole.UserRole, role)
+            ip = _skill_icon_path(display_name)
             if os.path.exists(ip):
                 it.setIcon(QIcon(ip))
-            if not card.implemented:
+            card = next(
+                (row for row in cards if row.display_name == display_name),
+                None,
+            )
+            if card is not None and not card.implemented:
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEnabled)
                 it.setToolTip("Planned skill — not yet playable (shown because Developer Mode is on)")
             skill_list_widget.addItem(it)
-            if card.display_name == state["skill"]:
+            if role == selected_role:
                 skill_list_widget.setCurrentItem(it)
         _skill_guard["on"] = False
 
@@ -21575,13 +22005,19 @@ def show_main_menu(
 
         is_utility = name in _UTILITY_SKILL_NAMES
         is_combat = name == _COMBAT_HUB_NAME
+        panel_name = (
+            _UTILITY_GROUP_LABELS[state["activity_group"]]
+            if name == _ACTIVITIES_HUB_NAME
+            and state["activity_group"] in _ACTIVITY_SELECTION_GROUPS
+            else name
+        )
         header = QWidget()
         hl = QHBoxLayout(header)
         hl.setContentsMargins(0, 0, 0, 0)
         hl.setSpacing(8)
         if is_utility:
             # No level/XP for Utility; keep the title bare and flag the no-XP nature.
-            title = QLabel(name)
+            title = QLabel(panel_name)
         elif is_combat:
             title = QLabel(f"{name} — Lv {player_combat_level_pure(player_data)}")
         elif card.implemented:
@@ -21814,6 +22250,13 @@ def show_main_menu(
                 _MAIN_MENU_CTX["refresh_farming"] = getattr(built_panel, "_ankiscape_refresh_farming", None)
             if name == _ACTIVITIES_HUB_NAME:
                 _MAIN_MENU_CTX["show_activity"] = getattr(built_panel, "_ankiscape_show_activity", None)
+                show_group = getattr(
+                    built_panel,
+                    "_ankiscape_show_activity_group",
+                    None,
+                )
+                if callable(show_group):
+                    show_group(state["activity_group"])
         else:
             panel_layout.addWidget(QLabel("No targets available yet."))
             panel_layout.addStretch(1)
@@ -21828,6 +22271,13 @@ def show_main_menu(
         # binding would shadow this one, silently routing hub clicks into the
         # Stats selector and leaving the hub panel stale.
         _debug_log(f"hub.select_skill: {name!r}")
+        if isinstance(name, str) and name.startswith(
+            _ACTIVITY_SELECTION_PREFIX
+        ):
+            state["activity_group"] = name[len(_ACTIVITY_SELECTION_PREFIX):]
+            name = _ACTIVITIES_HUB_NAME
+        elif name == _ACTIVITIES_HUB_NAME:
+            state["activity_group"] = ""
         if name != state["skill"]:
             state["details_open"] = False
         state["skill"] = name
@@ -21842,6 +22292,9 @@ def show_main_menu(
         if category_id != state["category"]:
             state["details_open"] = False
         state["category"] = category_id
+        if category_id == "activities":
+            state["activity_group"] = ""
+        skill_col.setFixedWidth(250 if category_id == "activities" else 190)
         _update_cat_btn_styles()
         skill_column_label.setText(
             "Selection"
@@ -21877,6 +22330,7 @@ def show_main_menu(
         farming_ui_state["focus_patch"] = patch_id
         state["details_open"] = False
         state["category"] = "gathering"
+        skill_col.setFixedWidth(190)
         _update_cat_btn_styles()
         state["skill"] = "Farming"
         _render_skill_list()
@@ -21895,20 +22349,34 @@ def show_main_menu(
     _MAIN_MENU_CTX["dialog"] = dialog
     _MAIN_MENU_CTX["warn_label"] = warn
     def _open_activity_in_dialog(activity_id=None) -> None:
+        activity_id = str(activity_id or "")
+        activity_spec = UTILITY_ACTIVITY_DATA.get(activity_id, {})
+        activity_group = str(activity_spec.get("group") or "")
+        if activity_id == EVIL_TREE_UTILITY_ID:
+            activity_group = "distractions_and_diversions"
+        if activity_group not in _ACTIVITY_SELECTION_GROUPS:
+            activity_group = ""
         state["details_open"] = False
         state["category"] = "activities"
+        skill_col.setFixedWidth(250)
+        state["activity_group"] = activity_group
         _update_cat_btn_styles()
         state["skill"] = _ACTIVITIES_HUB_NAME
         _render_skill_list()
+        selection_role = (
+            f"{_ACTIVITY_SELECTION_PREFIX}{activity_group}"
+            if activity_group
+            else _ACTIVITIES_HUB_NAME
+        )
         for index in range(skill_list_widget.count()):
             item = skill_list_widget.item(index)
-            if item.data(Qt.ItemDataRole.UserRole) == _ACTIVITIES_HUB_NAME:
+            if item.data(Qt.ItemDataRole.UserRole) == selection_role:
                 skill_list_widget.setCurrentItem(item)
                 break
         _render_panel()
         show_activity = _MAIN_MENU_CTX.get("show_activity")
         if callable(show_activity):
-            show_activity(str(activity_id or ""))
+            show_activity(activity_id)
         tabs.setCurrentWidget(skills_tab)
         dialog.raise_()
         dialog.activateWindow()
@@ -22895,6 +23363,131 @@ def show_main_menu(
             )
         return current_level
 
+    def _mk_stats_skill_guide(
+        skill_name: str,
+        skill_id: str,
+        current_level: int,
+    ) -> QScrollArea:
+        scroll = QScrollArea()
+        scroll.setObjectName("statsSkillGuideScroll")
+        scroll.setFrameShape(QtFrame.Shape.NoFrame)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+
+        content = QWidget()
+        content.setObjectName("statsSkillGuideContent")
+        guide_layout = QVBoxLayout(content)
+        guide_layout.setContentsMargins(0, 4, 4, 0)
+        guide_layout.setSpacing(4)
+        sections = skill_guide_sections_pure(
+            skill_name,
+            _SKILL_TARGET_TABLES.get(skill_id),
+            EQUIPMENT_ITEM_DATA,
+        )
+        first_anchor = None
+
+        for section in sections:
+            section_title = QLabel(section.title)
+            section_title.setObjectName(
+                f"statsGuideSectionTitle::{section.section_id}"
+            )
+            section_title.setStyleSheet(
+                "font-size: 13px; font-weight: 700; color: palette(text); "
+                "padding: 6px 0 2px 0;"
+            )
+            guide_layout.addWidget(section_title)
+            divider_added = False
+            for row in section.rows:
+                locked = row.level > current_level
+                if locked and not divider_added:
+                    divider = QWidget()
+                    divider.setObjectName(
+                        f"statsGuideCurrentDivider::{section.section_id}"
+                    )
+                    divider_layout = QHBoxLayout(divider)
+                    divider_layout.setContentsMargins(0, 4, 0, 4)
+                    divider_layout.setSpacing(8)
+                    for _ in range(2):
+                        line = QtFrame()
+                        line.setFrameShape(QtFrame.Shape.HLine)
+                        line.setFrameShadow(QtFrame.Shadow.Plain)
+                        line.setStyleSheet("color: palette(mid);")
+                        divider_layout.addWidget(line, 1)
+                        if divider_layout.count() == 1:
+                            marker = QLabel(f"Current level {current_level}")
+                            marker.setObjectName(
+                                f"statsGuideCurrentDivider::{section.section_id}"
+                            )
+                            marker.setStyleSheet(
+                                f"color: {dim_text_css(marker)}; font-size: 11px;"
+                            )
+                            divider_layout.addWidget(marker)
+                    guide_layout.addWidget(divider)
+                    divider_added = True
+                    if first_anchor is None:
+                        first_anchor = divider
+
+                row_widget = QWidget()
+                row_widget.setObjectName(f"statsGuideRow::{row.row_id}")
+                row_layout = QHBoxLayout(row_widget)
+                row_layout.setContentsMargins(4, 3, 6, 3)
+                row_layout.setSpacing(8)
+
+                badge = QLabel(str(row.level))
+                badge.setObjectName(f"statsGuideLevelBadge::{row.row_id}")
+                badge.setFixedWidth(36)
+                badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                badge.setStyleSheet(
+                    "border: 1px solid palette(mid); border-radius: 4px; "
+                    "padding: 1px 4px; color: palette(text);"
+                )
+                row_layout.addWidget(badge)
+
+                icon = _pixel_item_icon(row.icon_key or "", 20)
+                if icon is not None:
+                    icon_label = QLabel()
+                    icon_label.setFixedSize(24, 24)
+                    icon_label.setPixmap(icon.pixmap(20, 20))
+                    row_layout.addWidget(icon_label)
+
+                name = QLabel(row.name)
+                name.setObjectName(f"statsGuideName::{row.row_id}")
+                name.setWordWrap(True)
+                name.setStyleSheet("color: palette(text);")
+                row_layout.addWidget(name, 1)
+
+                if locked:
+                    opacity = QGraphicsOpacityEffect(row_widget)
+                    opacity.setOpacity(0.45)
+                    row_widget.setGraphicsEffect(opacity)
+                guide_layout.addWidget(row_widget)
+
+        if not sections:
+            empty = QLabel("No guide entries for this skill yet.")
+            empty.setObjectName("statsSkillGuideEmpty")
+            empty.setStyleSheet(
+                f"color: {dim_text_css(empty)}; padding: 12px 4px;"
+            )
+            guide_layout.addWidget(empty)
+        guide_layout.addStretch(1)
+        scroll.setWidget(content)
+
+        if first_anchor is not None:
+            def _scroll_to_current_level() -> None:
+                try:
+                    if first_anchor.parent() is not None:
+                        scroll.ensureWidgetVisible(first_anchor, 0, 24)
+                except RuntimeError:
+                    return
+
+            QTimer.singleShot(0, _scroll_to_current_level)
+        return scroll
+
     # Helper to create a details panel for a specific skill
     def _mk_skill_details(skill_name: str) -> QWidget:
         block = QWidget()
@@ -22971,6 +23564,15 @@ def show_main_menu(
             metrics,
             0,
             Qt.AlignmentFlag.AlignLeft,
+        )
+        skill_id = (
+            skill_def.id
+            if skill_def is not None
+            else skill_name.lower()
+        )
+        b_layout.addWidget(
+            _mk_stats_skill_guide(skill_name, skill_id, current_level),
+            1,
         )
         return block
 
@@ -23127,8 +23729,7 @@ def show_main_menu(
                 w.deleteLater()
             child = details_layout.takeAt(0)
         # Add new details
-        details_layout.addWidget(_mk_skill_details(skill_name))
-        details_layout.addStretch(1)
+        details_layout.addWidget(_mk_skill_details(skill_name), 1)
 
     # No idClicked usage; handled per-button above
 
@@ -23159,7 +23760,7 @@ def show_main_menu(
     bank_scroll.setObjectName("bankTabScroll")
     bank_scroll.setWidgetResizable(True)
     bank_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
-    bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
     bank_scroll.setWidget(bank_tab)
     bank_state = {"initialized": False}
 
@@ -23169,7 +23770,6 @@ def show_main_menu(
     bank_ge_button.clicked.connect(
         lambda _checked=False: _open_grand_exchange_in_dialog()
     )
-    bk_layout.addWidget(bank_ge_button, 0, Qt.AlignmentFlag.AlignLeft)
 
     # Carried inventory overlay — the 28-slot pack the review loop draws from and
     # banks when full. Collapsible header. Casual packing is inferred (even split
@@ -23760,6 +24360,9 @@ def show_main_menu(
         bank_label.setStyleSheet("color: palette(text); font-weight: 600;")
         bank_column_layout.addWidget(bank_label)
         bank_column_layout.addWidget(bank_picker_scroll)
+        bank_label.setVisible(primary)
+        bank_picker_scroll.setVisible(primary)
+        bank_column.setVisible(primary)
 
         grid_row = QWidget()
         grid_row_layout = QHBoxLayout(grid_row)
@@ -23770,8 +24373,12 @@ def show_main_menu(
         custom_layout.addWidget(grid_row)
 
         pack_hint = QLabel(
-            "Click a Bank item to add one. Right-click it for 1, 5, 10, last X, "
-            "X…, all, or all-but-one. Click a filled pack slot to set its quantity."
+            (
+                "Click a Bank item to add one. Right-click it for 1, 5, 10, last X, "
+                "X…, all, or all-but-one. Click a filled pack slot to set its quantity."
+            )
+            if primary
+            else "Select an item in the main Bank grid, then use Set carried quantity. Click a filled pack slot to edit it."
         )
         pack_hint.setWordWrap(True)
         pack_hint.setStyleSheet(f"color: {dim_text_css(container)}; font-size: 10px;")
@@ -23989,6 +24596,8 @@ def show_main_menu(
     def _toggle_carried_body(checked: bool) -> None:
         carried_body.setVisible(bool(checked))
         carried_header.setText(_carried_header_text(bool(checked)))
+        if checked:
+            _refresh_carried_inventory_views()
 
     carried_header.toggled.connect(_toggle_carried_body)
 
@@ -24001,24 +24610,158 @@ def show_main_menu(
 
     _MAIN_MENU_CTX["refresh_carried_inventory"] = _refresh_carried_panel
 
-    bk_layout.addWidget(carried_header)
-    bk_layout.addWidget(carried_body)
+    player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+    bank_layout_state = {"value": player_data["bank_layout"]}
+    bank_selection = {"item": ""}
+    bank_cell_buttons: dict[str, QToolButton] = {}
+    bank_tab_buttons: dict[str, QToolButton] = {}
+    bank_view_cache = {"categories": {}, "values": {}}
 
-    bank_filter_bar = CatalogFilterBar(
-        placeholder="Search Bank items or categories…",
-        search_object_name="bankSearchInput",
-        parent=bank_tab,
+    bank_controls = QWidget()
+    bank_controls.setObjectName("bankControls")
+    bank_controls_layout = QHBoxLayout(bank_controls)
+    bank_controls_layout.setContentsMargins(0, 0, 0, 0)
+    bank_controls_layout.setSpacing(8)
+    bank_search = QLineEdit()
+    bank_search.setObjectName("bankSearchInput")
+    bank_search.setPlaceholderText("Search Bank…")
+    bank_search.setClearButtonEnabled(True)
+    bank_search.setStyleSheet(
+        "QLineEdit { padding: 7px 10px; border: 1px solid palette(mid);"
+        " border-radius: 8px; color: palette(text); background: palette(base); }"
     )
-    bk_layout.addWidget(bank_filter_bar)
+    bank_controls_layout.addWidget(bank_search, 1)
+    bank_search_summary = QLabel("")
+    bank_search_summary.setObjectName("bankSearchInputSummary")
+    bank_search_summary.setStyleSheet(f"color: {dim_text_css(bank_search_summary)};")
+    bank_controls_layout.addWidget(bank_search_summary)
 
-    bank_list = QListWidget()
-    bank_list.setObjectName("bankList")
-    bank_list.setIconSize(QSize(28, 28))
-    bank_list.setAlternatingRowColors(True)
-    bank_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-    # Inventory is grouped by item-registry category (Ores, Logs, ..., Fletched,
-    # Materials) so newly registered items appear cleanly without per-skill
-    # branches. The carried picker and Bank list share the icon resolver above.
+    bank_sort = QComboBox()
+    bank_sort.setObjectName("bankSortCombo")
+    for label, mode in (
+        ("Manual", "manual"),
+        ("Most recently used", "mru"),
+        ("Date added", "date_added"),
+        ("Alphabetical", "alphabetical"),
+        ("Quantity", "quantity"),
+        ("Value", "value"),
+    ):
+        bank_sort.addItem(label, mode)
+    bank_sort.setCurrentIndex(
+        max(0, bank_sort.findData(bank_layout_state["value"]["sort_mode"]))
+    )
+    bank_controls_layout.addWidget(bank_sort)
+
+    bank_auto_categories = QCheckBox("Auto-categories")
+    bank_auto_categories.setObjectName("bankAutoCategoriesCheck")
+    bank_auto_categories.setChecked(
+        bool(bank_layout_state["value"]["auto_categories"])
+    )
+    bank_controls_layout.addWidget(bank_auto_categories)
+
+    bank_drop_group = QButtonGroup(bank_controls)
+    bank_drop_group.setExclusive(True)
+    bank_swap = QPushButton("Swap")
+    bank_swap.setObjectName("bankDropModeSwap")
+    bank_swap.setCheckable(True)
+    bank_insert = QPushButton("Insert")
+    bank_insert.setObjectName("bankDropModeInsert")
+    bank_insert.setCheckable(True)
+    bank_drop_group.addButton(bank_swap)
+    bank_drop_group.addButton(bank_insert)
+    bank_swap.setChecked(bank_layout_state["value"]["drop_mode"] == "swap")
+    bank_insert.setChecked(bank_layout_state["value"]["drop_mode"] == "insert")
+    bank_controls_layout.addWidget(bank_swap)
+    bank_controls_layout.addWidget(bank_insert)
+
+    bank_frame = QtFrame()
+    bank_frame.setObjectName("bankFrameA")
+    bank_frame.setFrameShape(QtFrame.Shape.StyledPanel)
+    bank_frame.setStyleSheet(
+        "QFrame#bankFrameA { border: 1px solid palette(mid); border-radius: 8px; }"
+    )
+    bank_frame_layout = QHBoxLayout(bank_frame)
+    bank_frame_layout.setContentsMargins(8, 8, 8, 8)
+    bank_frame_layout.setSpacing(12)
+
+    bank_left = QWidget()
+    bank_left.setObjectName("bankGridColumn")
+    bank_left.setMinimumWidth(12 * 54)
+    bank_left_layout = QVBoxLayout(bank_left)
+    bank_left_layout.setContentsMargins(0, 0, 0, 0)
+    bank_left_layout.setSpacing(6)
+    bank_left_layout.addWidget(bank_controls)
+
+    bank_tab_scroll = QScrollArea()
+    bank_tab_scroll.setObjectName("bankTabStripScroll")
+    bank_tab_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    bank_tab_scroll.setWidgetResizable(True)
+    bank_tab_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+    bank_tab_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_tab_scroll.setFixedHeight(50)
+    bank_tab_host = QWidget()
+    bank_tab_host.setObjectName("bankTabStrip")
+    bank_tab_layout = QHBoxLayout(bank_tab_host)
+    bank_tab_layout.setContentsMargins(0, 0, 0, 0)
+    bank_tab_layout.setSpacing(5)
+    bank_tab_scroll.setWidget(bank_tab_host)
+    bank_left_layout.addWidget(bank_tab_scroll)
+
+    bank_grid_scroll = QScrollArea()
+    bank_grid_scroll.setObjectName("bankGridScroll")
+    bank_grid_scroll.setWidgetResizable(True)
+    bank_grid_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+    bank_grid_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    bank_grid_host = QWidget()
+    bank_grid_host.setObjectName("bankGrid")
+    bank_grid_layout = QGridLayout(bank_grid_host)
+    bank_grid_layout.setContentsMargins(0, 0, 0, 0)
+    bank_grid_layout.setHorizontalSpacing(0)
+    bank_grid_layout.setVerticalSpacing(4)
+    for column in range(12):
+        bank_grid_layout.setColumnMinimumWidth(column, 54)
+        bank_grid_layout.setColumnStretch(column, 0)
+    bank_grid_layout.setColumnStretch(12, 1)
+    bank_grid_rows = {"count": 0}
+    bank_grid_scroll.setWidget(bank_grid_host)
+    bank_left_layout.addWidget(bank_grid_scroll, 1)
+    bank_frame_layout.addWidget(bank_left, 1)
+
+    bank_right = QWidget()
+    bank_right.setObjectName("bankRightColumn")
+    bank_right.setFixedWidth(280)
+    bank_right_layout = QVBoxLayout(bank_right)
+    bank_right_layout.setContentsMargins(0, 0, 0, 0)
+    bank_right_layout.setSpacing(8)
+
+    bank_selected_box = QtFrame()
+    bank_selected_box.setObjectName("bankSelectedDetail")
+    bank_selected_box.setFrameShape(QtFrame.Shape.StyledPanel)
+    bank_selected_layout = QVBoxLayout(bank_selected_box)
+    bank_selected_layout.setContentsMargins(10, 8, 10, 8)
+    bank_selected_layout.setSpacing(6)
+    bank_selected_title = QLabel("Select an item")
+    bank_selected_title.setObjectName("bankSelectedItem")
+    bank_selected_title.setStyleSheet("font-weight: 700; color: palette(text);")
+    bank_selected_layout.addWidget(bank_selected_title)
+    bank_selected_meta = QLabel("Choose a Bank cell to see its details and actions.")
+    bank_selected_meta.setObjectName("bankSelectedMeta")
+    bank_selected_meta.setWordWrap(True)
+    bank_selected_meta.setStyleSheet(f"color: {dim_text_css(bank_selected_meta)};")
+    bank_selected_layout.addWidget(bank_selected_meta)
+    bank_set_carried = QPushButton("Set carried quantity…")
+    bank_set_carried.setObjectName("bankSetCarriedQuantityButton")
+    bank_selected_layout.addWidget(bank_set_carried)
+    bank_actions = QPushButton("Item actions…")
+    bank_actions.setObjectName("bankItemActionsButton")
+    bank_selected_layout.addWidget(bank_actions)
+    bank_selected_layout.addWidget(bank_ge_button)
+    bank_right_layout.addWidget(bank_selected_box)
+    bank_right_layout.addWidget(carried_header)
+    bank_right_layout.addWidget(carried_body)
+    bank_right_layout.addStretch(1)
+    bank_frame_layout.addWidget(bank_right)
+    bk_layout.addWidget(bank_frame, 1)
 
     def _make_header_item(label: str, marker: str) -> QListWidgetItem:
         header = QListWidgetItem(label)
@@ -24037,7 +24780,7 @@ def show_main_menu(
 
     def _refresh_equipment_views(*, refresh_visible_skill: bool = False) -> None:
         if bank_state["initialized"]:
-            _populate_bank_list()
+            _refresh_bank_surface()
             _populate_death_office()
         for refresher in _equipment_refreshers:
             refresher()
@@ -24061,52 +24804,503 @@ def show_main_menu(
             f"Add it to the carried pack for the current {skill_name} target to enable Teleport urn."
         )
 
-    def _populate_bank_list() -> None:
+    def _refresh_bank_surface(*, rebuild_tabs: bool = True) -> None:
         _refresh_carried_panel()
-        bank_list.clear()
-        inv = player_data.get("inventory", {}) or {}
-        groups = grouped_inventory(inv)
-        total_count = sum(len(rows) for _category_label, rows in groups)
-        visible_count = 0
-        if not groups:
-            empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            bank_list.addItem(empty)
-        for category_label, rows in groups:
-            filtered_rows = tuple(
+        player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+        bank_layout_state["value"] = player_data["bank_layout"]
+        categories, values = _bank_category_and_value_maps()
+        bank_view_cache["categories"] = categories
+        bank_view_cache["values"] = values
+        state_value = bank_layout_state["value"]
+        sections = bank_sections_pure(
+            state_value,
+            player_data.get("inventory", {}) or {},
+            state_value["selected_tab"],
+            state_value["sort_mode"],
+            auto_categories=bool(state_value["auto_categories"]),
+            categories=categories,
+            values=values,
+        )
+        total_count = sum(len(section["items"]) for section in sections)
+        query_tokens = bank_search.text().strip().casefold().split()
+        filtered_sections = []
+        for section in sections:
+            rows = [
                 row
-                for row in rows
-                if bank_filter_bar.matches_text(row[0], category_label)
+                for row in section["items"]
+                if not query_tokens
+                or all(
+                    token in f"{row['name']} {section['label']}".casefold()
+                    for token in query_tokens
+                )
+            ]
+            if rows:
+                filtered_sections.append({"label": section["label"], "items": rows})
+        visible_count = sum(len(section["items"]) for section in filtered_sections)
+        bank_search_summary.setText(f"Showing {visible_count}/{total_count}")
+        _render_bank_surface(filtered_sections, bool(query_tokens), rebuild_tabs)
+
+    def _bank_category_and_value_maps() -> tuple[dict[str, str], dict[str, int]]:
+        categories = {}
+        for item_name in (player_data.get("inventory", {}) or {}):
+            definition = _item_def_for(item_name)
+            category_id = definition.category if definition is not None else ""
+            categories[item_name] = _ITEM_CATEGORY_LABELS.get(category_id, "Other")
+        values: dict[str, int] = {}
+        if callable(get_ge_projection):
+            try:
+                projection = get_ge_projection()
+                for row in projection.get("items", ()) if isinstance(projection, dict) else ():
+                    item_name = row.get("item_name")
+                    if isinstance(item_name, str):
+                        values[item_name] = max(0, int(row.get("guide_price", 0) or 0))
+            except Exception:
+                pass
+        return categories, values
+
+    def _persist_bank_layout(updated: dict, *, render: bool = True) -> None:
+        player_data["bank_layout"] = updated
+        bank_layout_state["value"] = updated
+        if on_save_player_data is not None:
+            on_save_player_data()
+        if render:
+            _refresh_bank_surface()
+
+    def _select_bank_item(item_name: str) -> None:
+        previous_item = bank_selection["item"]
+        inventory = player_data.get("inventory", {}) or {}
+        amount = max(0, int(inventory.get(item_name, 0) or 0))
+        if amount <= 0:
+            item_name = ""
+        bank_selection["item"] = item_name
+        for name in {previous_item, item_name}:
+            button = bank_cell_buttons.get(name)
+            if button is not None:
+                _style_bank_cell(button, name == item_name)
+        if not item_name:
+            bank_selected_title.setText("Select an item")
+            bank_selected_meta.setText("Choose a Bank cell to see its details and actions.")
+            bank_set_carried.setEnabled(False)
+            bank_actions.setEnabled(False)
+            return
+        categories = bank_view_cache["categories"]
+        values = bank_view_cache["values"]
+        metadata = [f"Quantity: {amount:,}", categories.get(item_name, "Other")]
+        if values.get(item_name, 0):
+            metadata.append(f"Guide value: {values[item_name]:,} Coins")
+        if is_equippable_item(item_name):
+            ok, reason = can_equip_item_pure(
+                item_name, EQUIPMENT_ITEM_DATA, player_data
             )
-            if not filtered_rows:
+            if not ok and reason:
+                metadata.append(reason)
+        bank_selected_title.setText(f"{item_name} ×{amount:,}")
+        bank_selected_meta.setText("\n".join(metadata))
+        bank_set_carried.setEnabled(on_set_carried_layout_quantity is not None)
+        bank_actions.setEnabled(True)
+
+    def _show_selected_bank_actions() -> None:
+        item_name = bank_selection["item"]
+        if not item_name:
+            return
+        menu = _build_bank_equip_menu(item_name)
+        menu.exec(bank_actions.mapToGlobal(QPoint(0, bank_actions.height())))
+
+    def _can_drop_item_on_cell(source_item: str, destination_item: str) -> bool:
+        state_value = bank_layout_state["value"]
+        if state_value["sort_mode"] != "manual":
+            return False
+        source = state_value["items"].get(source_item)
+        destination = state_value["items"].get(destination_item)
+        if not isinstance(source, dict) or not isinstance(destination, dict):
+            return False
+        if state_value["auto_categories"]:
+            categories = bank_view_cache["categories"]
+            if categories.get(source_item) != categories.get(destination_item):
+                return False
+        return True
+
+    def _drop_item_on_cell(source_item: str, destination_item: str) -> None:
+        if not _can_drop_item_on_cell(source_item, destination_item):
+            return
+        state_value = bank_layout_state["value"]
+        destination = state_value["items"][destination_item]
+        updated = move_bank_item_pure(
+            state_value,
+            source_item,
+            str(destination["tab_id"]),
+            int(destination["position"]),
+            str(state_value["drop_mode"]),
+        )
+        _persist_bank_layout(updated)
+
+    def _drop_item_on_tab(source_item: str, tab_id: str) -> None:
+        state_value = bank_layout_state["value"]
+        destination_position = sum(
+            1
+            for row in state_value["items"].values()
+            if row.get("tab_id") == tab_id
+        )
+        updated = move_bank_item_pure(
+            state_value,
+            source_item,
+            tab_id,
+            destination_position,
+            "insert",
+        )
+        updated["selected_tab"] = tab_id
+        _persist_bank_layout(updated)
+
+    def _drop_item_on_new_tab(source_item: str) -> None:
+        updated, _tab_id = create_bank_tab_pure(
+            bank_layout_state["value"], source_item
+        )
+        if _tab_id:
+            _persist_bank_layout(updated)
+
+    def _drop_tab_on_tab(source_tab_id: str, destination_tab_id: str) -> None:
+        tab_ids = [tab["id"] for tab in bank_layout_state["value"]["tabs"]]
+        if destination_tab_id not in tab_ids:
+            return
+        updated = reorder_bank_tab_pure(
+            bank_layout_state["value"],
+            source_tab_id,
+            tab_ids.index(destination_tab_id),
+        )
+        _persist_bank_layout(updated)
+
+    def _bank_item_visible_order(item_name: str) -> list[str]:
+        state_value = bank_layout_state["value"]
+        item_row = state_value["items"].get(item_name)
+        if not isinstance(item_row, dict):
+            return []
+        category = bank_view_cache["categories"].get(item_name)
+        visible_names = [
+            name
+            for name, row in state_value["items"].items()
+            if row.get("tab_id") == item_row["tab_id"]
+            and (
+                not state_value["auto_categories"]
+                or bank_view_cache["categories"].get(name) == category
+            )
+        ]
+        visible_names.sort(key=lambda name: state_value["items"][name]["position"])
+        return visible_names
+
+    def _move_bank_item_by_step(item_name: str, step: int) -> None:
+        state_value = bank_layout_state["value"]
+        if state_value["sort_mode"] != "manual":
+            return
+        item_row = state_value["items"].get(item_name)
+        if not isinstance(item_row, dict):
+            return
+        visible_names = _bank_item_visible_order(item_name)
+        source_index = visible_names.index(item_name)
+        destination_index = source_index + step
+        if destination_index < 0 or destination_index >= len(visible_names):
+            return
+        destination_name = visible_names[destination_index]
+        _persist_bank_layout(
+            move_bank_item_pure(
+                state_value,
+                item_name,
+                str(item_row["tab_id"]),
+                int(state_value["items"][destination_name]["position"]),
+                "insert",
+            )
+        )
+
+    def _build_bank_tab_menu(tab_id: str, button: QWidget) -> QMenu:
+        state_value = bank_layout_state["value"]
+        tab = next((row for row in state_value["tabs"] if row["id"] == tab_id), None)
+        menu = QMenu(button)
+        if tab is None:
+            return menu
+        if tab_id != MAIN_BANK_TAB_ID:
+            rename_action = menu.addAction("Rename…")
+
+            def _rename() -> None:
+                name, ok = QInputDialog.getText(
+                    button, "Rename Bank tab", "Short name:", text=tab["name"]
+                )
+                if ok:
+                    _persist_bank_layout(
+                        rename_bank_tab_pure(state_value, tab_id, name)
+                    )
+
+            rename_action.triggered.connect(_rename)
+        icon_action = menu.addAction("Choose icon…")
+
+        def _choose_icon() -> None:
+            owned = sorted(
+                name
+                for name, amount in (player_data.get("inventory", {}) or {}).items()
+                if int(amount or 0) > 0
+            )
+            if not owned:
+                return
+            chosen, ok = QInputDialog.getItem(
+                button, "Choose Bank tab icon", "Owned item:", owned, 0, False
+            )
+            if ok:
+                _persist_bank_layout(
+                    set_bank_tab_icon_pure(
+                        state_value, tab_id, chosen, player_data.get("inventory", {})
+                    )
+                )
+
+        icon_action.triggered.connect(_choose_icon)
+        if tab_id != MAIN_BANK_TAB_ID:
+            menu.addSeparator()
+            tab_ids = [row["id"] for row in state_value["tabs"]]
+            tab_index = tab_ids.index(tab_id)
+            move_left = menu.addAction("Move tab left")
+            move_left.setEnabled(tab_index > 1)
+            move_left.triggered.connect(
+                lambda _checked=False: _persist_bank_layout(
+                    reorder_bank_tab_pure(state_value, tab_id, tab_index - 1)
+                )
+            )
+            move_right = menu.addAction("Move tab right")
+            move_right.setEnabled(tab_index < len(tab_ids) - 1)
+            move_right.triggered.connect(
+                lambda _checked=False: _persist_bank_layout(
+                    reorder_bank_tab_pure(state_value, tab_id, tab_index + 1)
+                )
+            )
+            menu.addSeparator()
+            delete_action = menu.addAction("Delete tab")
+            delete_action.triggered.connect(
+                lambda _checked=False: _persist_bank_layout(
+                    delete_bank_tab_pure(state_value, tab_id)
+                )
+            )
+        return menu
+
+    def _show_bank_tab_menu(tab_id: str, button: QToolButton, pos) -> None:
+        _build_bank_tab_menu(tab_id, button).exec(button.mapToGlobal(pos))
+
+    def _render_bank_tabs() -> None:
+        previous_scroll = bank_tab_scroll.horizontalScrollBar().value()
+        _clear_layout(bank_tab_layout)
+        bank_tab_buttons.clear()
+        state_value = bank_layout_state["value"]
+        for tab in state_value["tabs"]:
+            tab_id = str(tab["id"])
+            item_names = [
+                name
+                for name, row in state_value["items"].items()
+                if row.get("tab_id") == tab_id
+            ]
+            item_names.sort(
+                key=lambda name: state_value["items"][name]["position"]
+            )
+            icon_item = str(tab.get("icon_item", "")) or (
+                item_names[0] if item_names else ""
+            )
+            name = str(tab.get("name", "Bank tab"))
+            short_name = name if len(name) <= 10 else f"{name[:9]}…"
+            button = _BankDropButton(
+                tab_id=tab_id,
+                drag_enabled=tab_id != MAIN_BANK_TAB_ID,
+                on_item_drop=lambda source, target=tab_id: _drop_item_on_tab(source, target),
+                on_tab_drop=lambda source, target=tab_id: _drop_tab_on_tab(source, target),
+            )
+            button.setObjectName(f"bankTab::{tab_id}")
+            button.setText(short_name)
+            button.setToolTip(name)
+            button.setAccessibleName(f"Bank tab: {name}")
+            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            button.setCheckable(True)
+            button.setChecked(state_value["selected_tab"] == tab_id)
+            button.setFixedHeight(38)
+            bank_tab_buttons[tab_id] = button
+            icon_path = _item_icon_path(icon_item) if icon_item else None
+            if icon_path:
+                button.setIcon(QIcon(icon_path))
+                button.setIconSize(QSize(24, 24))
+            button.clicked.connect(
+                lambda _checked=False, selected=tab_id: _select_bank_tab(selected)
+            )
+            button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            button.customContextMenuRequested.connect(
+                lambda point, selected=tab_id, widget=button: _show_bank_tab_menu(
+                    selected, widget, point
+                )
+            )
+            bank_tab_layout.addWidget(button)
+        plus = _BankDropButton(on_item_drop=_drop_item_on_new_tab)
+        plus.setObjectName("bankNewTabDropTarget")
+        plus.setText("+")
+        plus.setToolTip("Drag an item here to create a new tab.")
+        plus.setAccessibleName("Create Bank tab by dropping an item")
+        plus.setFixedSize(40, 38)
+        bank_tab_layout.addWidget(plus)
+        bank_tab_layout.addStretch(1)
+        bank_tab_host.setMinimumWidth(bank_tab_layout.sizeHint().width())
+        bank_tab_scroll.horizontalScrollBar().setValue(previous_scroll)
+
+    def _select_bank_tab(tab_id: str) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["selected_tab"] = tab_id
+        _persist_bank_layout(updated, render=False)
+        _refresh_bank_surface(rebuild_tabs=False)
+
+    def _style_bank_cell(button: QToolButton, selected: bool) -> None:
+        button.setStyleSheet(
+            "QToolButton { border: "
+            + ("2px solid palette(highlight);" if selected else "1px solid palette(mid);")
+            + " border-radius: 4px; background: palette(base); color: palette(text);"
+            " font-size: 9px; padding: 1px; }"
+            "QToolButton:hover { border-color: palette(highlight); }"
+        )
+
+    def _bank_quantity_text(quantity: int) -> str:
+        if quantity < 100_000:
+            return f"×{quantity:,}"
+        if quantity < 1_000_000:
+            return f"×{quantity / 1_000:.1f}K".replace(".0K", "K")
+        if quantity < 1_000_000_000:
+            return f"×{quantity / 1_000_000:.1f}M".replace(".0M", "M")
+        return f"×{quantity / 1_000_000_000:.1f}B".replace(".0B", "B")
+
+    def _render_bank_surface(
+        sections: list[dict],
+        has_query: bool,
+        rebuild_tabs: bool,
+    ) -> None:
+        previous_scroll = bank_grid_scroll.verticalScrollBar().value()
+        if rebuild_tabs:
+            _render_bank_tabs()
+        else:
+            selected_tab = bank_layout_state["value"]["selected_tab"]
+            for tab_id, button in bank_tab_buttons.items():
+                button.setChecked(tab_id == selected_tab)
+        for old_row in range(bank_grid_rows["count"] + 2):
+            bank_grid_layout.setRowStretch(old_row, 0)
+        _clear_layout(bank_grid_layout)
+        bank_cell_buttons.clear()
+        state_value = bank_layout_state["value"]
+        visible_rows = []
+        row_index = 0
+        for section in sections:
+            rows = section["items"]
+            if not rows:
                 continue
-            bank_list.addItem(_make_header_item(category_label, "__header__"))
-            for item_name, amount, asset_path in filtered_rows:
-                visible_count += 1
-                li = QListWidgetItem(f"{item_name} x{amount}")
-                icon_path = _bank_icon_path(item_name, asset_path)
+            if state_value["auto_categories"]:
+                header = QLabel(f"— {section['label']} —")
+                header.setObjectName(f"bankCategoryHeader::{section['label']}")
+                header.setStyleSheet(
+                    "font-weight: 700; color: palette(text); padding: 5px 2px 1px 2px;"
+                )
+                bank_grid_layout.addWidget(header, row_index, 0, 1, 12)
+                row_index += 1
+            for display_index, row in enumerate(rows):
+                item_name = str(row["name"])
+                button = _BankDropButton(
+                    item_name=item_name,
+                    drag_enabled=state_value["sort_mode"] == "manual",
+                    on_item_drop=lambda source, target=item_name: _drop_item_on_cell(
+                        source, target
+                    ),
+                    can_item_drop=lambda source, target=item_name: _can_drop_item_on_cell(
+                        source, target
+                    ),
+                )
+                button.setObjectName(f"bankGridItem::{item_name}")
+                button.setProperty("bankItemName", item_name)
+                button.setProperty("bankQuantity", int(row["quantity"]))
+                button.setFixedSize(54, 54)
+                button.setText(_bank_quantity_text(int(row["quantity"])))
+                button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+                button.setAccessibleName(f"{item_name}, quantity {int(row['quantity']):,}")
+                icon_path = _item_icon_path(item_name)
                 if icon_path:
-                    li.setIcon(QIcon(icon_path))
-                # The plain item name is stashed on every inventory row so the
-                # right-click handler can resolve equippability without parsing
-                # the "Name xN" label back apart.
-                li.setData(Qt.ItemDataRole.UserRole, item_name)
+                    button.setIcon(QIcon(icon_path))
+                    button.setIconSize(QSize(28, 28))
+                tooltip = f"{item_name}\nQuantity: {int(row['quantity']):,}\n{row['category']}"
+                if state_value["sort_mode"] != "manual":
+                    tooltip += "\nChoose Manual sort to drag items."
                 urn_info = full_urn_teleport_info_pure(player_data, item_name)
                 if urn_info is not None:
-                    li.setData(Qt.ItemDataRole.UserRole + 1, urn_info["urn_id"])
-                    li.setToolTip(_full_urn_tooltip(urn_info))
+                    button.setProperty("bankUrnId", str(urn_info["urn_id"]))
+                    tooltip += f"\n{_full_urn_tooltip(urn_info)}"
                 elif is_equippable_item(item_name):
-                    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
-                    li.setToolTip(equipment_full_tooltip(item_name, "" if ok else reason))
-                bank_list.addItem(li)
-        if groups and not visible_count:
-            empty = QListWidgetItem("No Bank items match your search.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            bank_list.addItem(empty)
-        bank_filter_bar.set_count(visible_count, total_count)
+                    ok, reason = can_equip_item_pure(
+                        item_name, EQUIPMENT_ITEM_DATA, player_data
+                    )
+                    tooltip += f"\n{equipment_full_tooltip(item_name, '' if ok else reason)}"
+                button.setToolTip(tooltip)
+                _style_bank_cell(button, bank_selection["item"] == item_name)
+                button.clicked.connect(
+                    lambda _checked=False, name=item_name: _select_bank_item(name)
+                )
+                button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+                button.customContextMenuRequested.connect(
+                    lambda point, name=item_name, widget=button: _build_bank_equip_menu(
+                        name
+                    ).exec(widget.mapToGlobal(point))
+                )
+                bank_grid_layout.addWidget(
+                    button,
+                    row_index + display_index // 12,
+                    display_index % 12,
+                )
+                bank_cell_buttons[item_name] = button
+                visible_rows.append(row)
+            row_index += (len(rows) + 11) // 12
+        if not visible_rows:
+            empty = QLabel(
+                "No Bank items match your search."
+                if has_query
+                else "This Bank tab is empty. Drag an item here from another tab."
+            )
+            empty.setObjectName("bankGridEmpty")
+            empty.setStyleSheet(f"color: {dim_text_css(empty)}; padding: 16px;")
+            bank_grid_layout.addWidget(empty, 0, 0, 1, 12)
+        bank_grid_layout.setRowStretch(row_index + 1, 1)
+        bank_grid_rows["count"] = row_index + 1
+        if bank_selection["item"] not in {row["name"] for row in visible_rows}:
+            _select_bank_item(visible_rows[0]["name"] if visible_rows else "")
+        elif bank_selection["item"]:
+            _select_bank_item(bank_selection["item"])
+        bank_grid_scroll.verticalScrollBar().setValue(previous_scroll)
 
-    bank_filter_bar.search_input.textChanged.connect(
-        lambda _text: _populate_bank_list()
+    def _set_bank_sort(_index: int) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["sort_mode"] = str(bank_sort.currentData() or "manual")
+        _persist_bank_layout(updated)
+
+    def _set_bank_auto_categories(checked: bool) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["auto_categories"] = bool(checked)
+        _persist_bank_layout(updated)
+
+    def _set_bank_drop_mode(mode: str) -> None:
+        updated = dict(bank_layout_state["value"])
+        updated["drop_mode"] = mode
+        _persist_bank_layout(updated, render=False)
+
+    bank_search.textChanged.connect(lambda _text: _refresh_bank_surface())
+    bank_sort.currentIndexChanged.connect(_set_bank_sort)
+    bank_auto_categories.toggled.connect(_set_bank_auto_categories)
+    bank_swap.clicked.connect(lambda _checked=False: _set_bank_drop_mode("swap"))
+    bank_insert.clicked.connect(lambda _checked=False: _set_bank_drop_mode("insert"))
+    bank_set_carried.clicked.connect(
+        lambda _checked=False: _prompt_set_pack_quantity(
+            bank_selection["item"], bank_set_carried
+        )
+    )
+    bank_actions.clicked.connect(lambda _checked=False: _show_selected_bank_actions())
+    dialog._ankiscape_bank_drop_item_on_cell = _drop_item_on_cell  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_can_drop_item_on_cell = _can_drop_item_on_cell  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_drop_item_on_tab = _drop_item_on_tab  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_drop_item_on_new_tab = _drop_item_on_new_tab  # type: ignore[attr-defined]
+    dialog._ankiscape_bank_delete_tab = lambda tab_id: _persist_bank_layout(  # type: ignore[attr-defined]
+        delete_bank_tab_pure(bank_layout_state["value"], tab_id)
+    )
+    dialog._ankiscape_bank_tab_menu_for = lambda tab_id: _build_bank_tab_menu(  # type: ignore[attr-defined]
+        tab_id, bank_frame
     )
 
     claims_box = QWidget()
@@ -24435,7 +25629,7 @@ def show_main_menu(
         Exposed as a builder (rather than only an inline exec) so the offscreen
         tests can assert action state without spawning a native popup.
         """
-        menu = QMenu(bank_list)
+        menu = QMenu(bank_frame)
         trail_view = treasure_trails_view_pure(player_data)
         clue_row = next(
             (row for row in trail_view["clue_rows"] if row["item"] == item_name),
@@ -24524,7 +25718,7 @@ def show_main_menu(
                     _refresh_equipment_views()
                     message = str(result.get("message", ""))
                     if message:
-                        QMessageBox.information(bank_list, item_name, message)
+                        QMessageBox.information(bank_frame, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
             menu.addSeparator()
@@ -24593,7 +25787,7 @@ def show_main_menu(
         if carried_mode_state["advanced"] and on_set_carried_layout_quantity is not None:
             set_layout_action = menu.addAction("Set carried quantity…")
             set_layout_action.triggered.connect(
-                lambda _checked=False, name=item_name: _prompt_set_pack_quantity(name, bank_list)
+                lambda _checked=False, name=item_name: _prompt_set_pack_quantity(name, bank_frame)
             )
             menu.addSeparator()
 
@@ -24605,7 +25799,7 @@ def show_main_menu(
             if on_discard_item is None:
                 return
             quantity, ok = QInputDialog.getInt(
-                bank_list,
+                bank_frame,
                 "Discard from Bank",
                 f"{item_name} quantity:",
                 amount,
@@ -24617,22 +25811,44 @@ def show_main_menu(
                 _refresh_equipment_views()
 
         discard_action.triggered.connect(_do_discard)
+        layout_state = bank_layout_state["value"]
+        saved_row = layout_state["items"].get(item_name)
+        if isinstance(saved_row, dict):
+            menu.addSeparator()
+            organize_menu = menu.addMenu("Organize")
+            organize_menu.setObjectName("bankOrganizeMenu")
+            manual = layout_state["sort_mode"] == "manual"
+            tab_id = str(saved_row["tab_id"])
+            visible_names = _bank_item_visible_order(item_name)
+            visible_index = visible_names.index(item_name)
+            move_earlier = organize_menu.addAction("Move earlier")
+            move_earlier.setEnabled(manual and visible_index > 0)
+            move_earlier.triggered.connect(
+                lambda _checked=False: _move_bank_item_by_step(item_name, -1)
+            )
+            move_later = organize_menu.addAction("Move later")
+            move_later.setEnabled(manual and visible_index < len(visible_names) - 1)
+            move_later.triggered.connect(
+                lambda _checked=False: _move_bank_item_by_step(item_name, 1)
+            )
+            organize_menu.addSeparator()
+            for tab in layout_state["tabs"]:
+                destination_tab_id = str(tab["id"])
+                if destination_tab_id == tab_id:
+                    continue
+                move_to = organize_menu.addAction(f"Move to {tab['name']}")
+                move_to.triggered.connect(
+                    lambda _checked=False, target=destination_tab_id: _drop_item_on_tab(
+                        item_name, target
+                    )
+                )
+            move_new = organize_menu.addAction("Move to new tab")
+            move_new.triggered.connect(
+                lambda _checked=False: _drop_item_on_new_tab(item_name)
+            )
         return menu
-
-    def _bank_context_menu(pos) -> None:
-        item = bank_list.itemAt(pos)
-        if item is None:
-            return
-        item_name = item.data(Qt.ItemDataRole.UserRole)
-        if not isinstance(item_name, str):
-            return
-        menu = _build_bank_equip_menu(item_name)
-        menu.exec(bank_list.viewport().mapToGlobal(pos))
-
-    bank_list.customContextMenuRequested.connect(_bank_context_menu)
     bk_layout.addWidget(death_office_box)
     bk_layout.addWidget(claims_box)
-    bk_layout.addWidget(bank_list, 1)
 
     # Gear sits in its own pinned panel below the scrollable, striped inventory
     # (the owner wanted it "outside the striped window"). The toolbelt changes
@@ -24705,7 +25921,7 @@ def show_main_menu(
         if not bank_state["initialized"]:
             _populate_death_office()
             _populate_claims()
-            _populate_bank_list()
+            _refresh_bank_surface()
             _populate_bank_gear_list()
             bank_state["initialized"] = True
         return bank_scroll
@@ -24926,7 +26142,7 @@ def show_main_menu(
                 dialog, "Follower action unavailable", str(result["message"])
             )
         _refresh_follower_panel()
-        _populate_bank_list()
+        _refresh_bank_surface()
         return ok
 
     def _selected_pet_instance_id() -> Optional[str]:
@@ -25686,6 +26902,7 @@ def show_main_menu(
     xmr.setSpacing(8)
     xmr.addWidget(QLabel("Actions per review:"))
     xp_mult_spin = QSpinBox()
+    xp_mult_spin.setObjectName("settingsActionMultiplierSpin")
     xp_mult_spin.setRange(1, 10)
     xp_mult_spin.setSingleStep(1)
     xp_mult_spin.setSuffix("x")
@@ -25999,6 +27216,27 @@ def show_main_menu(
     _set_global_tab_icon(settings_tab, "settings_icon.png")
     tabs.setTabToolTip(tabs.indexOf(settings_tab), "Configure widget, experience HUD, notifications, and developer tools")
 
+    desired_tab_order = (
+        "Skills",
+        "Stats",
+        "Bank",
+        "Equipment",
+        "Shop",
+        "Grand Exchange",
+        "Challenges",
+        "Quests",
+        "Achievements",
+        "Collections",
+        "Settings",
+    )
+    for target_index, label in enumerate(desired_tab_order):
+        current_index = next(
+            index
+            for index in range(tabs.count())
+            if tabs.tabText(index) == label
+        )
+        tabs.tabBar().moveTab(current_index, target_index)
+
     # Connect only now that every placeholder exists: the very first addTab
     # already emitted currentChanged(0), and the open tab must be built even if
     # a future change makes it something other than Skills.
@@ -26035,7 +27273,7 @@ def show_main_menu(
     )
     help_panel.setVisible(False)
 
-    help_button = QToolButton(tabs)
+    help_button = QToolButton(dialog)
     help_button.setObjectName("mainMenuHelpButton")
     help_button.setText("?")
     help_button.setAccessibleName("Open contextual Help Center")
@@ -26046,7 +27284,6 @@ def show_main_menu(
         " border: 1px solid palette(mid); border-radius: 12px; }"
         "QToolButton:hover { background: palette(alternate-base); }"
     )
-    tabs.setCornerWidget(help_button, Qt.Corner.TopRightCorner)
 
     def _current_help_topic_id() -> str:
         label = tabs.tabText(tabs.currentIndex())
@@ -26117,23 +27354,15 @@ def show_main_menu(
     content_layout.addWidget(help_panel)
     layout.addWidget(content, 1)
 
-    # Footer with a subtle review link
+    # Footer controls stay outside the tab strip so Help remains at the
+    # bottom-right beside the dialog action.
     footer = QWidget()
+    footer.setObjectName("mainMenuFooter")
     f_layout = QHBoxLayout(footer)
     f_layout.setContentsMargins(0, 8, 0, 0)
     f_layout.setSpacing(8)
-    hint = QLabel("Enjoying AnkiScape?")
-    link = QLabel(
-        '<a style="color:#4CAF50; text-decoration:none" '
-        'href="https://ankiweb.net/shared/review/1808450369">Leave a review</a>'
-    )
-    link.setOpenExternalLinks(True)
-    link.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
-    hint.setStyleSheet("color: #666;")
-    link.setStyleSheet("color: #4CAF50;")
-    f_layout.addWidget(hint)
-    f_layout.addWidget(link)
     f_layout.addStretch(1)
+    f_layout.addWidget(help_button)
     close = QPushButton("Close")
     close.clicked.connect(dialog.accept)
     f_layout.addWidget(close)

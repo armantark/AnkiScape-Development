@@ -896,10 +896,16 @@ must render the Activities master tree even when a saved or last-open activity
 exists. Explicit activity deep links and activated tree rows may open a named
 detail, and returning to the master tree must not erase the saved activity.
 
-Activities group rows stay under the Activities root, with child entries sorted
-case-insensitively by their display labels. The simulated world clock belongs in
-the main-menu status row only. It projects from answered-review state at ten
-reviews per hour and must not read or resemble a fallback to wall-clock time.
+The Activities category has three icon rows in its middle Selection column:
+Activities, Minigames, and Distractions and Diversions. The Activities row owns
+only the Warriors' Guild and Landmarks master groups. Minigames and D&D render
+their entries as flat, case-insensitive alphabetical lists. Deep links select
+the owning middle row before opening details; returning through the top-level
+Activities row must show the master groups without clearing the saved activity.
+The 250-pixel middle-column width is Activities-only; all other categories keep
+the shared 190-pixel width. The simulated world clock belongs in the main-menu
+status row only. It projects from answered-review state at ten reviews per hour
+and must not read or resemble a fallback to wall-clock time.
 
 ## UI Gotcha: nested hook callbacks are not removable by a fresh closure
 

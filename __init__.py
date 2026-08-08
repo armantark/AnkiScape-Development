@@ -231,6 +231,7 @@ from .logic.grand_exchange_logic import (
     ge_frontend_projection_pure,
 )
 from .logic.dnd_favourites_logic import toggle_dnd_favourite_pure
+from .logic.bank_layout_logic import reconcile_bank_layout_for_player_pure
 from .logic.review_strip_logic import (
     record_review_event_pure,
     request_review_bank_run_pure,
@@ -240,6 +241,7 @@ from .logic.agility_logic import apply_agility_command_pure
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
 from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
+    SHOOTING_STAR_NOTICE_CONTEXT_ID,
     ignored_review_context_choice_pure,
 )
 from .data.phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
@@ -271,6 +273,8 @@ from .data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from .logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     apply_shooting_star_exchange_pure,
+    apply_shooting_star_join_pure,
+    apply_shooting_star_notice_action_pure,
 )
 from .logic.warriors_guild_logic import (
     enter_warriors_guild_cyclops_room_pure,
@@ -340,6 +344,27 @@ def start_activity_for_reviews(activity_id) -> bool:
     target = str(activity_id or "")
     if not target:
         return False
+    if target == SHOOTING_STAR_ACTIVITY_ID:
+        updated, joined, info = apply_shooting_star_join_pure(player_data)
+        if not joined and info.get("unminable"):
+            if not info.get("notice_created"):
+                return False
+            updated = record_review_event_pure(
+                updated,
+                "activity",
+                str(info.get("event_log_text", "Star unminable at your level")),
+            )
+            player_data.clear()
+            player_data.update(updated)
+            _deactivate_current_skill()
+            save_player_data()
+            update_review_event_log_drawer(player_data)
+            _update_review_context_surface()
+            return False
+        if not joined:
+            return False
+        player_data.clear()
+        player_data.update(updated)
     player_data["current_utility"] = target
     save_skill(_utility_surface_for_target(target), None)
     save_player_data()
@@ -428,6 +453,7 @@ def show_review_popup():
 
 
 def save_player_data():
+    player_data.update(reconcile_bank_layout_for_player_pure(player_data))
     storage_save_player_data(player_data, current_skill)
 
 
@@ -960,7 +986,7 @@ def _update_review_context_surface() -> None:
         pass
 
 
-def commit_direct_action(apply_change, *, after_apply=None):
+def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None):
     """Run one mutating menu action as a single undoable Anki operation.
 
     `apply_change` receives the live save and returns `(updated, ok)`. Returning
@@ -979,9 +1005,11 @@ def commit_direct_action(apply_change, *, after_apply=None):
 
     Returns True when the change was committed.
     """
+    global current_skill
     before = {
         "player_data": copy.deepcopy(player_data),
         "random_state": random.getstate(),
+        "current_skill": current_skill,
     }
     updated, ok = apply_change(player_data)
     if not ok:
@@ -998,6 +1026,13 @@ def commit_direct_action(apply_change, *, after_apply=None):
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
+    if selected_skill is not None:
+        current_skill = _normalize_legacy_utility_skill(selected_skill)
+        try:
+            mw.col.set_config("ankiscape_current_skill", current_skill)
+        except AttributeError:
+            pass
+        ui.update_menu_visibility(current_skill)
     if after_apply is not None:
         after_apply()
     save_player_data()
@@ -1010,6 +1045,35 @@ def commit_direct_action(apply_change, *, after_apply=None):
 
 def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     """Resolve one explicit reviewer-context choice as a direct undoable action."""
+
+    if family_id == SHOOTING_STAR_NOTICE_CONTEXT_ID:
+        def _apply_star_notice(current):
+            updated, ok, _result = apply_shooting_star_notice_action_pure(
+                current,
+                option_id,
+            )
+            return updated, ok
+
+        committed = commit_direct_action(
+            _apply_star_notice,
+            selected_skill=(
+                ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
+                if option_id == "mine"
+                else None
+            ),
+        )
+        if not committed:
+            _update_review_context_surface()
+            return False
+        try:
+            update_review_hud(player_data, current_skill)
+            update_review_status_badge(
+                player_data, _open_activities_sheet, _open_farming_sheet
+            )
+        except Exception:
+            pass
+        _update_review_context_surface()
+        return True
 
     valid = (
         family_id == PIT_REWARD_CONTEXT_ID
@@ -1353,8 +1417,15 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
 
 
 def _restore_direct_action_snapshot(snapshot) -> None:
+    global current_skill
     player_data.clear()
     player_data.update(copy.deepcopy(snapshot["player_data"]))
+    current_skill = snapshot.get("current_skill", current_skill)
+    try:
+        mw.col.set_config("ankiscape_current_skill", current_skill)
+    except (AttributeError, RuntimeError):
+        pass
+    ui.update_menu_visibility(current_skill)
     random_state = snapshot.get("random_state")
     if random_state is not None:
         random.setstate(random_state)
@@ -1997,7 +2068,7 @@ def _on_main_menu(
             del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
         player_data.clear()
         player_data.update(updated)
-        if info.get("coins") or info.get("items"):
+        if action_id in {"place_offer", "collect_offer", "collect_all"}:
             info = {**info, "bank_run_triggered": _trigger_active_bank_run()}
         check_achievements(player_data)
         save_player_data()

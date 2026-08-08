@@ -441,3 +441,57 @@ Append new entries. Do not edit earlier entries.
   item, action, acquisition, or asset row, so this ledger is recorded without
   treating the pre-existing debt as a selector regression.
 - Final `git diff --check` and the worktree guard passed before the trace commit.
+
+### 2026-08-06 — owner-corrected Activities selection placement verified
+
+- Batch baseline: canonical `main` at
+  `9ab7f0010b9805b35ee38c12c1ad165d4d09f163`; the checkout contained only
+  this batch's attributable files and the worktree guard passed before edits.
+- Reproduction: the owner's Pass 7 `Pasted Graphic 4.png` uses red arrows to
+  move Minigames and Distractions and Diversions from the right tree into the
+  middle Selection column beneath Activities. Section 3, item 9 recorded the
+  same requirement. The earlier P2 trace and core Memory Bank text incorrectly
+  preserved those families as right-tree group headers. The owner's 2026-08-05
+  correction resolves that contradiction in favor of the screenshot and queue.
+- Independent omission audit: Codex Workflows run
+  `6a57ec19-37ed-4a08-aafc-6d9dd5a4334d` exceeded its 90,000-byte evidence
+  budget after an overbroad read and returned no verdict. The frozen, tool-free
+  retry `4b5e41ba-fa30-49ce-a175-b0c59e57e459` found this icon placement to be
+  the only confirmed visual omission; every other Pass 7 note was verified or
+  remained explicitly parked for owner/Fable design work.
+- Product correction: the Activities category now has three icon rows in the
+  middle Selection column: Activities, Minigames, and Distractions and
+  Diversions. Activities shows only the Warriors' Guild and Landmarks master
+  groups. Minigames shows 29 flat alphabetical rows and D&D shows 17. Deep
+  links select the owning family before opening details. Returning through the
+  top-level Activities row shows the master groups without changing the saved
+  activity. A 250-pixel middle column is scoped to Activities; every other
+  category retains the 190-pixel width required by narrow supported layouts.
+- Automated verification: the final focused check passed three tests. The full
+  main-menu module passed 382 tests in 107.763 seconds. The full non-Qt lane
+  passed 3,815 tests in 226.850 seconds with 465 expected skips. The full
+  offscreen Qt lane passed 3,815 tests in 493.755 seconds with three skips.
+  The first non-Qt run exposed and drove removal of an import-time Qt reference.
+  The first offscreen lane completed but reported ten errors only because the
+  sandbox denied the existing OpenRS2 cache; the authorized identical rerun is
+  the recorded result. No asset or action-data row changed.
+- Native verification used the owner's regular MBP Codex Connection. The full
+  traversal at a 1280-by-752 menu proved the three icon rows, the two master
+  groups, 29 alphabetical Minigames, 17 alphabetical D&D entries, correct
+  detail routing, and saved `Shooting Stars` state after returning to the
+  master. At the owner's 712-by-987 reviewer size, the vanilla **Edit / Show
+  Answer / More** bar was unchanged and card content did not overlap the strip.
+  A bounded final correction pass on exact `ui/ui.py` SHA-256
+  `ebc8f0ecad4502647ee3e3e4e89a6f298f3b59f7d2924e178b8496258490f0ff`
+  proved the full D&D label at 1280 by 752 and repeated the unchanged reviewer
+  proof at 712 by 987. Evidence is on the MBP in
+  `/tmp/ankiscape-pass7-activities-selection-codex-connection/report.md` and
+  its numbered screenshots.
+- Final independent diff checker: tool-free Codex Workflows run
+  `96360f5c-c194-4530-bc86-cdf5f9d93476` returned `PASS` and
+  `Simplifications: NONE` from the frozen diff and evidence packet.
+- Fable and Kimi remained unused as directed. The existing regular Markdown
+  co-ideation handoff remains
+  `memory-bank/codex-briefs/pass7-owner-fable-co-ideation-handoff-2026-08-03.md`.
+- Accepted implementation commit:
+  `4997c7dc064816df246090a4814f49a38106d4c3`.

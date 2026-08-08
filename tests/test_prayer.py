@@ -105,6 +105,17 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(inventory["Bucket of slime"], 0)
         self.assertEqual(outputs, {"Bucket": 1, "Empty pot": 1, "Ecto-token": 5})
 
+    def test_manual_burial_consumes_one_bone_per_review_action(self):
+        inventory, xp, ok, outputs = apply_prayer_action_pure(
+            "bury_bones",
+            {"Bones": 3},
+            PRAYER_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(xp, 4.5)
+        self.assertEqual(inventory["Bones"], 2)
+        self.assertEqual(outputs, {})
+
     def test_prayer_preparation_batches_cap_at_nine_and_twenty_eight(self):
         ground, _xp, ok, processed = apply_utility_activity_pure(
             "grind_prayer_dragon_bones",

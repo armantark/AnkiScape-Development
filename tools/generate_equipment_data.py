@@ -684,6 +684,20 @@ def _shop_equipment_items(
     return tuple(generated)
 
 
+def _grand_exchange_equipment_items(
+    items: Mapping[int, SourceItem],
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    generated = []
+    for item_id in (1327, 1426, 3098, 4580):
+        equipment_item = _equipment_item_from_source_item(
+            items[item_id],
+            "Grand Exchange acquisition",
+        )
+        if equipment_item is not None:
+            generated.append(equipment_item)
+    return tuple(generated)
+
+
 def _drop_equipment_items(
     items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
 ) -> Tuple[GeneratedEquipmentItem, ...]:
@@ -1363,6 +1377,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_warriors_guild_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))
         + tuple(_fletching_equipment_items(items, items_by_name))
+        + tuple(_grand_exchange_equipment_items(items))
         + tuple(_shop_equipment_items(items, items_by_name))
         + tuple(_drop_equipment_items(items, items_by_name))
         + tuple(_smithing_recipe_equipment_items(items, items_by_name))

@@ -10,9 +10,13 @@ from ankiscape.data.prayer_passive_data import (
     ECTOPLASMATOR_ITEM_NAME,
     ECTOPLASMATOR_XP_BY_ENEMY_ID,
 )
+from ankiscape.data.prayer_data import AUTO_PRAYER_TICKS_PER_ITEM
 
 
 class PrayerPassiveMechanicsTest(unittest.TestCase):
+    def test_combat_auto_burial_charges_the_source_two_tick_action(self):
+        self.assertEqual(AUTO_PRAYER_TICKS_PER_ITEM, 2)
+
     def test_passive_items_are_registered_without_invented_acquisition(self):
         definitions = {item.storage_key: item for item in ITEM_DEFINITIONS}
         bonecrusher = definitions[BONECRUSHER_ITEM_NAME]
@@ -45,7 +49,7 @@ class PrayerPassiveMechanicsTest(unittest.TestCase):
             True,
         )
         self.assertEqual(prayer_xp, 8.5)
-        self.assertEqual(ticks, 1)
+        self.assertEqual(ticks, 2)
         self.assertEqual(drops, {"Long bone": 1})
         self.assertEqual(info, {"bonecrusher": 1, "ectoplasmator": 0, "urn_ashes": 0, "auto_prayer": 1})
         self.assertEqual(updated["prayer_bonecrusher_triggers"], 1)
@@ -73,6 +77,21 @@ class PrayerPassiveMechanicsTest(unittest.TestCase):
         self.assertEqual(updated["prayer_bonecrusher_triggers"], 1)
         self.assertEqual(updated["prayer_ectoplasmator_triggers"], 1)
         self.assertEqual(updated["prayer_actions_completed"], 2)
+
+    def test_bonecrusher_interception_adds_no_auto_burial_ticks(self):
+        player = {
+            "inventory": {BONECRUSHER_ITEM_NAME: 1},
+            "carried_inventory": {"cow": {BONECRUSHER_ITEM_NAME: 1}},
+        }
+        _updated, drops, prayer_xp, ticks, info = resolve_prayer_kill_effects_pure(
+            player,
+            "cow",
+            {"Bones": 1},
+            True,
+        )
+        self.assertEqual((prayer_xp, ticks, drops), (4.5, 0, {}))
+        self.assertEqual(info["bonecrusher"], 1)
+        self.assertEqual(info["auto_prayer"], 0)
 
     def test_prayer_urn_intercepts_ash_before_auto_prayer(self):
         player = {
@@ -102,7 +121,7 @@ class PrayerPassiveMechanicsTest(unittest.TestCase):
             {"Impious ashes": 1},
             True,
         )
-        self.assertEqual((prayer_xp, ticks, drops), (4.0, 1, {}))
+        self.assertEqual((prayer_xp, ticks, drops), (4.0, 2, {}))
         self.assertEqual(info["urn_ashes"], 0)
         self.assertEqual(info["auto_prayer"], 1)
         self.assertEqual(updated["prayer_actions_completed"], 1)
@@ -128,7 +147,7 @@ class PrayerPassiveMechanicsTest(unittest.TestCase):
             {"Bones": 1, "Impious ashes": 1},
             True,
         )
-        self.assertEqual((prayer_xp, ticks), (8.5, 2))
+        self.assertEqual((prayer_xp, ticks), (8.5, 4))
         self.assertEqual(drops, {})
         self.assertEqual(info, {"bonecrusher": 0, "ectoplasmator": 0, "urn_ashes": 0, "auto_prayer": 2})
         self.assertEqual(updated["prayer_bonecrusher_triggers"], 0)

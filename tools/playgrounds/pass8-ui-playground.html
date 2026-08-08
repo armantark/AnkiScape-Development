@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape — Pass 8 UI playground</title>
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#12141a; --rail:#171a21; --line:#272b34; --line2:#333844;
+  --txt:#d9dce3; --mut:#98a0ad; --dim:#6f7683;
+  --accent:#5a9ad9; --gold:#e0a33e; --green:#c8e07a;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--txt);
+  font:13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+.app{display:flex; height:100vh; overflow:hidden}
+
+/* ---------- control rail ---------- */
+.rail{width:314px; flex:none; background:var(--rail); border-right:1px solid var(--line);
+      overflow-y:auto; padding:14px 14px 40px}
+.rail h1{font-size:14px; margin:0 0 2px; letter-spacing:.2px}
+.rail .sub{color:var(--mut); font-size:11px; margin:0 0 14px; line-height:1.5}
+.rail .sub code{font-size:10.5px; color:var(--dim)}
+
+.group{border:1px solid var(--line); border-radius:8px; margin-bottom:10px; background:#1b1e26}
+.group>summary{list-style:none; cursor:pointer; padding:9px 11px; font-size:12px; font-weight:600;
+  display:flex; align-items:center; gap:7px; color:#e6e9ef}
+.group>summary::-webkit-details-marker{display:none}
+.group>summary::before{content:"▸"; color:var(--mut); font-size:10px; transition:transform .12s}
+.group[open]>summary::before{transform:rotate(90deg)}
+.group .body{padding:2px 11px 12px; border-top:1px solid var(--line)}
+.group.plain{background:#1b1e26}
+
+.ctl{margin:11px 0}
+.ctl>label{display:flex; justify-content:space-between; align-items:baseline;
+  font-size:11.5px; color:var(--mut); margin-bottom:5px; gap:8px}
+.ctl .val{font:11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--accent)}
+input[type=range]{width:100%; accent-color:var(--accent); margin:0}
+select{width:100%; background:#22262e; color:var(--txt); border:1px solid var(--line2);
+  border-radius:6px; padding:5px 7px; font-size:12px}
+.seg{display:flex; gap:4px; flex-wrap:wrap}
+.seg button{flex:1 1 auto; min-width:0; background:#22262e; color:var(--mut);
+  border:1px solid var(--line2); border-radius:6px; padding:5px 6px; font-size:11px;
+  cursor:pointer; white-space:nowrap; font-family:inherit}
+.seg button:hover{border-color:#4c5568}
+.seg button.on{background:#2c3f57; border-color:var(--accent); color:#e8f1fb}
+.chkrow{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--mut); margin:11px 0}
+.chkrow input{accent-color:var(--accent); width:14px; height:14px}
+.note{font-size:10.5px; color:var(--dim); line-height:1.5; margin-top:9px;
+  border-left:2px solid var(--line2); padding-left:8px}
+
+.presets{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:14px}
+.presets button{background:#22262e; color:var(--txt); border:1px solid var(--line2);
+  border-radius:6px; padding:7px 6px; font-size:11px; cursor:pointer; font-family:inherit}
+.presets button:hover{border-color:var(--accent); color:#fff}
+
+/* ---------- main column ---------- */
+.main{flex:1; display:flex; flex-direction:column; min-width:0}
+.topbar{display:flex; align-items:center; gap:10px; padding:10px 14px;
+  border-bottom:1px solid var(--line); background:#151821; flex:none}
+.surftabs{display:flex; gap:5px}
+.surftabs button{background:#20242c; color:var(--mut); border:1px solid var(--line2);
+  border-radius:7px; padding:6px 11px; font-size:12px; cursor:pointer; font-family:inherit}
+.surftabs button.on{background:#2c3f57; border-color:var(--accent); color:#eaf2fb}
+.topbar .spacer{flex:1}
+.topbar .wlabel{font-size:11px; color:var(--dim)}
+
+.stage{flex:1; overflow:auto; padding:16px; background:#0c0e13}
+.scalebox{position:relative}
+.mock{position:absolute; top:0; left:0; transform-origin:top left;
+  border-radius:6px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,.55)}
+
+.promptwrap{flex:none; height:206px; border-top:1px solid var(--line); background:#151821;
+  display:flex; flex-direction:column}
+.prompthdr{display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid var(--line)}
+.prompthdr b{font-size:12px; font-weight:600}
+.prompthdr span{font-size:11px; color:var(--dim)}
+.prompthdr .spacer{flex:1}
+#copyBtn{background:#2c3f57; border:1px solid var(--accent); color:#eaf2fb; border-radius:6px;
+  padding:5px 14px; font-size:12px; cursor:pointer; font-family:inherit}
+#copyBtn.done{background:#2f5340; border-color:#5fb083; color:#dff5e8}
+#promptOut{flex:1; overflow:auto; margin:0; padding:11px 14px 16px; white-space:pre-wrap;
+  font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; color:#c6ccd6}
+
+/* =========================================================
+   MOCK: shared Anki/AnkiScape dark chrome
+   ========================================================= */
+.mock{
+  --pad:6px; --gap:6px; --rowh:24px; --fs:12px; --hpad:8px;
+  background:#23252b; color:#dcdfe4;
+  font:var(--fs)/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  display:flex; flex-direction:column;
+}
+.mock.compact{--pad:4px; --gap:4px; --rowh:20px; --fs:11px; --hpad:6px}
+.mock.cozy{--pad:6px; --gap:6px; --rowh:24px; --fs:12px; --hpad:8px}
+.mock.comfortable{--pad:10px; --gap:9px; --rowh:31px; --fs:13px; --hpad:12px}
+
+.mk-title{flex:none; display:flex; align-items:center; gap:8px; padding:6px 10px;
+  background:#1a1c21; border-bottom:1px solid #34373f; font-size:11px; color:#8d94a1}
+.mk-title b{color:#d6dae1; font-weight:600; font-size:11.5px}
+.mk-tabs{flex:none; display:flex; gap:2px; padding:0 8px; background:#1e2026;
+  border-bottom:1px solid #34373f; overflow-x:auto}
+.mk-tabs div{flex:none; padding:calc(var(--pad)) 9px; font-size:calc(var(--fs) - .5px); color:#8d94a1;
+  border-bottom:2px solid transparent; white-space:nowrap}
+.mk-tabs div.on{color:#eaeef4; border-bottom-color:var(--gold)}
+.mk-body{flex:1; min-height:0; display:flex; padding:var(--hpad); gap:var(--hpad)}
+
+.panel{background:#2a2d34; border:1px solid #383c45; border-radius:5px; min-height:0}
+.panel-h{padding:var(--pad) var(--hpad); border-bottom:1px solid #383c45; font-size:calc(var(--fs) - .5px);
+  color:#aab1bd; display:flex; align-items:center; gap:6px}
+.panel-h b{color:#e3e7ed; font-weight:600}
+.mk-btn{background:#343841; border:1px solid #454a55; color:#d3d8e0; border-radius:4px;
+  padding:calc(var(--pad) - 1px) 8px; font-size:calc(var(--fs) - 1px); cursor:pointer; font-family:inherit;
+  white-space:nowrap}
+.mk-btn:hover{border-color:#5a616e}
+.mk-btn.pri{background:#2f4a6b; border-color:#43699a; color:#e7f0fa}
+.mk-inp{background:#1f2127; border:1px solid #454a55; color:#cfd4dc; border-radius:4px;
+  padding:calc(var(--pad) - 1px) 7px; font-size:calc(var(--fs) - 1px); font-family:inherit}
+.mk-sel{background:#1f2127; border:1px solid #454a55; color:#cfd4dc; border-radius:4px;
+  padding:calc(var(--pad) - 1px) 5px; font-size:calc(var(--fs) - 1px); font-family:inherit}
+.settled{outline:1px dashed rgba(224,163,62,.34); outline-offset:2px}
+
+/* ---------- Bank ---------- */
+.bk-tools{flex:none; display:flex; align-items:center; gap:6px; padding:0 0 var(--pad)}
+.bk-tools .grow{flex:1}
+.seg2{display:flex; border:1px solid #454a55; border-radius:4px; overflow:hidden; cursor:pointer}
+.seg2 span{padding:calc(var(--pad) - 1px) 8px; font-size:calc(var(--fs) - 1px); color:#8d94a1; background:#1f2127}
+.seg2 span.on{background:#3c4a5e; color:#e7f0fa}
+.bk-chk{display:flex; align-items:center; gap:5px; font-size:calc(var(--fs) - 1px); color:#aab1bd; cursor:pointer}
+.bk-chk input{accent-color:var(--gold); width:12px; height:12px; margin:0}
+
+.bk-tabstrip{flex:none; display:flex; gap:3px; padding:3px; background:#1f2127;
+  border:1px solid #383c45; border-bottom:none; border-radius:5px 5px 0 0; overflow-x:auto}
+.bk-tab{display:flex; align-items:center; gap:5px; padding:3px 8px; border-radius:4px;
+  background:#2a2d34; border:1px solid #3d414a; cursor:pointer; white-space:nowrap;
+  font-size:calc(var(--fs) - 1.5px); color:#a7aebb}
+.bk-tab .ti{font-size:calc(var(--fs) + 2px); line-height:1.1}
+.bk-tab.on{background:#3a4152; border-color:#59657d; color:#eef2f8}
+.bk-tab.plus{border-style:dashed; border-color:#5d5340; color:var(--gold); background:transparent}
+
+.bk-grid-wrap{flex:1; min-height:0; display:flex; flex-direction:column;
+  background:#26282e; border:1px solid #383c45; border-radius:0 0 5px 5px}
+.bk-scroll{flex:1; min-height:0; overflow:auto; padding:var(--hpad)}
+.bk-hint{flex:none; padding:3px var(--hpad); border-top:1px solid #383c45;
+  font-size:calc(var(--fs) - 2px); color:#7d8492; display:flex; justify-content:space-between}
+
+.cathdr{margin:0 0 var(--gap)}
+.cathdr:not(:first-child){margin-top:calc(var(--gap) * 1.8)}
+.cathdr.rule{display:flex; align-items:center; gap:8px; color:#b9c0cc; font-size:calc(var(--fs) - .5px)}
+.cathdr.rule i{flex:1; height:1px; background:#3e434d; display:block}
+.cathdr.smallcaps{font-size:calc(var(--fs) - 2.5px); letter-spacing:.13em; text-transform:uppercase;
+  color:#8d94a1; font-weight:600}
+.cathdr.pill span{display:inline-block; background:#343a46; border:1px solid #454b58; color:#cfd6e2;
+  border-radius:999px; padding:1px 10px; font-size:calc(var(--fs) - 2px)}
+
+.bk-grid{display:grid; gap:var(--gap)}
+.cell{position:relative; background:#31343c; border:1px solid #40444e; border-radius:3px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden}
+.cell:hover{border-color:#6b7482}
+.cell.sel{border-color:var(--gold); box-shadow:inset 0 0 0 1px rgba(224,163,62,.5)}
+.cell .q{position:absolute; top:0; left:2px; font-size:9px; line-height:1.25; color:var(--green);
+  text-shadow:0 1px 0 #000; pointer-events:none}
+.cell .ic{pointer-events:none}
+
+.bk-right{flex:none; display:flex; flex-direction:column; gap:var(--hpad); min-height:0}
+.det-body{padding:var(--hpad); display:flex; flex-direction:column; gap:5px}
+.det-icon{font-size:26px; text-align:center; margin-bottom:2px}
+.det-name{font-weight:600; color:#eef1f6; text-align:center; font-size:calc(var(--fs) + .5px)}
+.det-row{display:flex; justify-content:space-between; font-size:calc(var(--fs) - 1px); color:#98a0ad}
+.det-row b{color:#cdd3dc; font-weight:500}
+.det-acts{display:flex; flex-wrap:wrap; gap:4px; margin-top:4px}
+.pack{display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:var(--hpad)}
+.pack .cell{aspect-ratio:1/1; font-size:15px}
+.pack .cell.empty{background:#2a2c32; border-style:dashed; border-color:#3a3e47}
+
+/* ---------- Stats tab (skill grid + stats block + guide) ---------- */
+.st-right{flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--hpad)}
+.skgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--gap); padding:var(--hpad);
+  overflow-y:auto; align-content:start}
+.skchip{display:flex; align-items:center; gap:5px; background:#31343c; border:1px solid #40444e;
+  border-radius:4px; padding:2px 5px; cursor:pointer; min-height:var(--rowh);
+  font-size:calc(var(--fs) - 1.5px); color:#c3cad5; font-variant-numeric:tabular-nums}
+.skchip:hover{border-color:#6b7482}
+.skchip.on{background:#3a4152; border-color:var(--gold); color:#f2e7d2}
+.skchip .si{font-size:calc(var(--fs) + 2px)}
+.totline{margin-top:auto; padding:var(--pad) var(--hpad); border-top:1px solid #383c45;
+  color:#dde2e9; font-size:calc(var(--fs) + .5px)}
+.totline b{color:#f2e7d2}
+.stats-body{padding:var(--hpad); display:flex; flex-direction:column; gap:4px}
+.stats-body .lp{margin-top:4px; color:#98a0ad; font-size:calc(var(--fs) - 1px);
+  display:flex; justify-content:space-between}
+.bar{height:7px; background:#1f2127; border:1px solid #454a55; border-radius:4px; overflow:hidden}
+.bar i{display:block; height:100%; background:linear-gradient(90deg,#6ea64f,#96c96b)}
+.sk-guide-scroll{flex:1; min-height:0; overflow-y:auto; padding:var(--hpad); position:relative}
+.lvlmark{font-size:calc(var(--fs) - 2px); margin:var(--gap) 0}
+.lvlmark.divider{display:flex; align-items:center; gap:8px; color:#e8c98a}
+.lvlmark.divider i{flex:1; height:1px; background:rgba(224,163,62,.55); display:block}
+.lvlmark.band{padding:2px var(--pad); border-radius:4px; text-align:center; color:#f4e3c2;
+  background:rgba(224,163,62,.16); border:1px solid rgba(224,163,62,.42)}
+.herebadge{flex:none; background:rgba(224,163,62,.18); border:1px solid rgba(224,163,62,.5);
+  color:#f4e3c2; border-radius:999px; padding:0 7px; font-size:calc(var(--fs) - 2.5px)}
+.gempty{color:#7d8492; font-size:calc(var(--fs) - .5px); padding:var(--hpad) 0; text-align:center}
+.gsec{font-size:calc(var(--fs) - 2.5px); letter-spacing:.13em; text-transform:uppercase; color:#8d94a1;
+  font-weight:600; margin:0 0 var(--pad)}
+.gsec:not(:first-child){margin-top:calc(var(--gap) * 2)}
+.guiderow{display:flex; align-items:center; gap:8px; min-height:var(--rowh); padding:2px var(--pad);
+  border-radius:4px; border-left:3px solid transparent; margin-bottom:2px}
+.guiderow .lvl{flex:none; min-width:30px; text-align:center; background:#343a46; border:1px solid #454b58;
+  border-radius:3px; font-size:calc(var(--fs) - 2px); color:#cfd6e2; padding:0 4px}
+.guiderow .gnm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.guiderow .gem{flex:none}
+.guiderow.locked{filter:grayscale(.7)}
+
+/* ---------- Collections ---------- */
+.cl-fam{overflow-y:auto; display:flex; flex-direction:column}
+.famrow{display:flex; align-items:center; gap:7px; min-height:var(--rowh); padding:2px var(--hpad);
+  cursor:pointer; border-left:3px solid transparent; color:#c3cad5}
+.famrow:hover{background:#31343c}
+.famrow.on{background:#3a4152; border-left-color:var(--gold); color:#f1f4f9}
+.famrow.kid{padding-left:calc(var(--hpad) + 16px); font-size:calc(var(--fs) - 1px); color:#a7aebb}
+.famrow .nm{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.famrow .cnt{font-size:calc(var(--fs) - 2px); color:#8d94a1; font-variant-numeric:tabular-nums}
+.cl-right{flex:1; display:flex; flex-direction:column; min-width:0}
+.cl-tools{display:flex; gap:6px; align-items:center; padding:var(--pad) var(--hpad); border-bottom:1px solid #383c45}
+.cl-scroll{flex:1; min-height:0; overflow-y:auto; padding:var(--hpad)}
+.cl-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); gap:var(--gap)}
+.centry{background:#31343c; border:1px solid #40444e; border-radius:4px; padding:var(--pad);
+  display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center;
+  font-size:calc(var(--fs) - 2px); color:#c3cad5; min-height:66px; justify-content:center}
+.centry .ce{font-size:20px; line-height:1.1}
+.centry .cn{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
+.centry .cq{color:var(--green); font-size:calc(var(--fs) - 2.5px)}
+.centry.unk{border-style:dashed; border-color:#3a3e47; color:#5f6672; background:#2a2c32}
+.centry.sil{background:#191b1f; border-color:#2f333b}
+.centry.sil .ce{filter:brightness(0) saturate(0) invert(19%); }
+.clist{display:flex; flex-direction:column}
+.clrow{display:flex; align-items:center; gap:8px; min-height:var(--rowh); padding:2px var(--pad);
+  border-bottom:1px solid #2f333b; font-size:calc(var(--fs) - .5px); color:#c3cad5}
+.clrow .ce{width:18px; text-align:center}
+.clrow .cn{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.clrow .cq{color:var(--green); font-size:calc(var(--fs) - 2px)}
+.clrow.unk{color:#5f6672}
+.clrow.sil .ce{filter:brightness(0) saturate(0) invert(19%)}
+.tgtcard{background:#31343c; border:1px solid #40444e; border-radius:5px; padding:var(--hpad);
+  display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer}
+.tgtcard:hover{border-color:#6b7482}
+
+/* ---------- Shooting star / review strip ---------- */
+.rv{flex:1; display:flex; flex-direction:column; background:#2f3136}
+.rv-q{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  color:#e6e9ef; text-align:center; padding:16px}
+.rv-q .qt{font-size:19px}
+.rv-q .qa{font-size:14px; color:#9aa1ad}
+.rv-btns{flex:none; display:flex; gap:8px; justify-content:center; padding:8px; border-top:1px solid #3a3d44}
+.rv-btns .mk-btn{min-width:74px; text-align:center}
+.as-strip{flex:none; background:#22242a; border-top:1px solid #3a3d44; padding:var(--pad) var(--hpad);
+  display:flex; align-items:center; gap:10px}
+.as-strip .act{display:flex; align-items:center; gap:7px; min-width:0}
+.as-strip .act .ic{font-size:17px}
+.as-strip .meta{font-size:calc(var(--fs) - 1px); color:#98a0ad}
+.as-strip .meta b{color:#dde2e9; font-weight:600; display:block; font-size:var(--fs)}
+.as-xp{flex:1; min-width:60px; max-width:280px}
+.as-drop{font-size:calc(var(--fs) - 1px); color:#98a0ad; white-space:nowrap}
+.banner{display:flex; align-items:center; gap:10px; padding:calc(var(--pad) + 1px) var(--hpad);
+  border-radius:5px; font-size:calc(var(--fs) - .5px)}
+.banner .bi{font-size:16px; line-height:1}
+.banner .btx{flex:1; min-width:0}
+.banner .btx b{display:block; font-weight:600}
+.banner .btx span{color:#a9b0bb; font-size:calc(var(--fs) - 1.5px)}
+.banner .bacts{display:flex; gap:6px}
+.banner-slot{padding:0 var(--hpad) var(--pad); background:#22242a}
+.banner-slot.top{border-top:1px solid #3a3d44; padding-top:var(--pad)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= CONTROL RAIL ================= -->
+  <aside class="rail">
+    <h1>Pass 8 UI playground</h1>
+    <p class="sub">Free visual parameters only. Every settled contract in
+      <code>memory-bank/codex-briefs/pass8-owner-fable-decisions-2026-08-07.md</code>
+      is baked into the mock and has no control: one home tab per item, the Swap/Insert toggle,
+      headers vanishing when auto-categories are off, the "+" tab, the skill guide living in the
+      Stats tab under the stats block, the left family list, and the persistent star banner.</p>
+
+    <div class="presets">
+      <button data-preset="owner" style="grid-column:1/-1">Owner picks 2026-08-07</button>
+      <button data-preset="default">Decisions default</button>
+      <button data-preset="rsdense">RS classic dense</button>
+      <button data-preset="airy">Airy modern</button>
+      <button data-preset="laptop">Laptop compact</button>
+    </div>
+
+    <details class="group" open>
+      <summary>Global</summary>
+      <div class="body">
+        <div class="ctl">
+          <label>Density</label>
+          <div class="seg" data-key="density">
+            <button data-val="compact">Compact</button>
+            <button data-val="cozy">Cozy</button>
+            <button data-val="comfortable">Comfy</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Preview width</label>
+          <div class="seg" data-key="previewWidth">
+            <button data-val="1280">1280 menu</button>
+            <button data-val="1000">1000</button>
+            <button data-val="712">712 reviewer</button>
+          </div>
+        </div>
+        <p class="note">The owner's main menu runs about 1280&times;752. The reviewer strip lives
+          in a window around 712 wide, so check the star banner there.</p>
+      </div>
+    </details>
+
+    <details class="group" id="g-bank" open>
+      <summary>Bank (frame A)</summary>
+      <div class="body">
+        <div class="ctl">
+          <label>Grid columns <span class="val" data-for="bankCols"></span></label>
+          <input type="range" class="rng" data-key="bankCols" min="6" max="12" step="1">
+        </div>
+        <div class="ctl">
+          <label>Cell size <span class="val" data-for="bankCell"></span></label>
+          <input type="range" class="rng" data-key="bankCell" min="36" max="56" step="1">
+        </div>
+        <div class="chkrow">
+          <input type="checkbox" class="chk" data-key="autoCats" id="c-autocats">
+          <label for="c-autocats">Auto-categories on by default</label>
+        </div>
+        <div class="ctl">
+          <label>Category header style</label>
+          <div class="seg" data-key="headerStyle">
+            <button data-val="rule">Thin rule</button>
+            <button data-val="smallcaps">Small-caps</button>
+            <button data-val="pill">Pill</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Default sort mode</label>
+          <select class="sel" data-key="sortMode">
+            <option value="manual">Manual</option>
+            <option value="mru">Most recently used</option>
+            <option value="added">Date added</option>
+            <option value="alpha">Alphabetical</option>
+            <option value="qty">Quantity</option>
+            <option value="value">Value</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label>Tab strip labels</label>
+          <div class="seg" data-key="tabLabels">
+            <button data-val="icons">Icons only</button>
+            <button data-val="names">Icons + names</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Right panel width <span class="val" data-for="rightPanel"></span></label>
+          <input type="range" class="rng" data-key="rightPanel" min="180" max="300" step="2">
+        </div>
+        <p class="note">Click cells and tabs in the mock. The sort selector, the auto-categories
+          checkbox and the Swap/Insert toggle inside the mock are live too.</p>
+      </div>
+    </details>
+
+    <details class="group" id="g-stats">
+      <summary>Skill guide (Stats tab)</summary>
+      <div class="body">
+        <div class="ctl">
+          <label>Locked row dim <span class="val" data-for="lockedDim"></span></label>
+          <input type="range" class="rng" data-key="lockedDim" min="25" max="75" step="1">
+        </div>
+        <div class="ctl">
+          <label>Current-level marker</label>
+          <div class="seg" data-key="levelMarker">
+            <button data-val="divider">Divider line</button>
+            <button data-val="band">Tinted band</button>
+            <button data-val="badge">Boundary badge</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Level badge position</label>
+          <div class="seg" data-key="badgePos">
+            <button data-val="left">Left</button>
+            <button data-val="right">Right</button>
+          </div>
+        </div>
+        <p class="note">The guide sits under the stats block at full width and opens scrolled to
+          your current level, so the next locked unlocks are on screen. Rows are informational —
+          click a skill chip on the left to swap both the stats block and the guide.</p>
+      </div>
+    </details>
+
+    <details class="group" id="g-coll">
+      <summary>Collections</summary>
+      <div class="body">
+        <div class="ctl">
+          <label>Family column width <span class="val" data-for="familyWidth"></span></label>
+          <input type="range" class="rng" data-key="familyWidth" min="160" max="280" step="2">
+        </div>
+        <div class="ctl">
+          <label>Drop log presentation</label>
+          <div class="seg" data-key="dropPresentation">
+            <button data-val="grid">Icon grid</button>
+            <button data-val="list">List rows</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Undiscovered entry style</label>
+          <div class="seg" data-key="undiscoveredStyle">
+            <button data-val="text">"???" text</button>
+            <button data-val="silhouette">Dark silhouette</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Discovered-but-unowned dim <span class="val" data-for="unownedDim"></span></label>
+          <input type="range" class="rng" data-key="unownedDim" min="25" max="75" step="1">
+        </div>
+        <p class="note">Undiscovered entries stay concealed either way; the control only picks how
+          the concealed cell looks.</p>
+      </div>
+    </details>
+
+    <details class="group" id="g-star">
+      <summary>Shooting Star exit</summary>
+      <div class="body">
+        <div class="ctl">
+          <label>Banner tone</label>
+          <div class="seg" data-key="bannerTone">
+            <button data-val="amber">Amber</button>
+            <button data-val="neutral">Neutral</button>
+            <button data-val="red">Red</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Banner style</label>
+          <div class="seg" data-key="bannerStyle">
+            <button data-val="filled">Filled</button>
+            <button data-val="outline">Outline</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Banner position</label>
+          <div class="seg" data-key="bannerPos">
+            <button data-val="above">Above strip</button>
+            <button data-val="inline">Inline in strip</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label>Demo state (not a parameter)</label>
+          <div class="seg" data-key="starState">
+            <button data-val="unminable">Unminable</button>
+            <button data-val="mineable">Mineable again</button>
+          </div>
+        </div>
+      </div>
+    </details>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <div class="topbar">
+      <div class="surftabs" id="surftabs">
+        <button data-surface="bank">Bank</button>
+        <button data-surface="stats">Stats + guide</button>
+        <button data-surface="collections">Collections</button>
+        <button data-surface="star">Star exit</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="wlabel" id="scaleLabel"></div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="scalebox" id="scalebox">
+        <div class="mock" id="mock"></div>
+      </div>
+    </div>
+
+    <div class="promptwrap">
+      <div class="prompthdr">
+        <b>Prompt for Codex</b>
+        <span>non-default choices only</span>
+        <div class="spacer"></div>
+        <button id="copyBtn">Copy prompt</button>
+      </div>
+      <pre id="promptOut"></pre>
+    </div>
+  </main>
+</div>
+
+<script>
+"use strict";
+
+/* =======================================================================
+   STATE
+   ======================================================================= */
+const DEFAULTS = {
+  density: 'cozy',
+  previewWidth: 1280,
+  // bank
+  bankCols: 8,
+  bankCell: 44,
+  autoCats: true,
+  headerStyle: 'rule',
+  sortMode: 'manual',
+  tabLabels: 'icons',
+  rightPanel: 220,
+  // stats-tab skill guide
+  lockedDim: 45,
+  levelMarker: 'divider',
+  badgePos: 'left',
+  // collections
+  familyWidth: 200,
+  dropPresentation: 'grid',
+  undiscoveredStyle: 'text',
+  unownedDim: 45,
+  // star
+  bannerTone: 'amber',
+  bannerStyle: 'filled',
+  bannerPos: 'above',
+  starState: 'unminable'   // demo toggle, never emitted to the prompt
+};
+
+const state = Object.assign({}, DEFAULTS);
+
+// Ephemeral view state. Never reaches the prompt.
+const ui = {
+  surface: 'bank',
+  bankTab: 'all',
+  bankSel: 'Coal',
+  dragMode: 'swap',
+  skill: 'Strength',
+  collNode: 'graardor'
+};
+
+const NUMERIC_KEYS = new Set(['previewWidth','bankCols','bankCell','rightPanel',
+  'lockedDim','familyWidth','unownedDim']);
+
+const PRESETS = {
+  // Settled in section 8 of the decisions note. DEFAULTS stays the baseline the
+  // prompt diffs against, so this preset reads out as a short list of departures.
+  owner: {
+    bankCols:12, bankCell:54, tabLabels:'names', rightPanel:280,
+    familyWidth:244, dropPresentation:'list', unownedDim:58,
+    bannerTone:'neutral', bannerStyle:'outline'
+  },
+  default: {},
+  rsdense: {
+    density:'compact', bankCols:10, bankCell:38, headerStyle:'rule', tabLabels:'icons',
+    rightPanel:196, sortMode:'manual', lockedDim:32, levelMarker:'divider',
+    badgePos:'left', familyWidth:176, dropPresentation:'grid', undiscoveredStyle:'silhouette',
+    unownedDim:32, bannerTone:'amber', bannerStyle:'filled', bannerPos:'inline'
+  },
+  airy: {
+    density:'comfortable', bankCols:7, bankCell:54, headerStyle:'pill', tabLabels:'names',
+    rightPanel:280, sortMode:'alpha', lockedDim:58, levelMarker:'band',
+    badgePos:'right', familyWidth:244, dropPresentation:'list', undiscoveredStyle:'text',
+    unownedDim:58, bannerTone:'neutral', bannerStyle:'outline', bannerPos:'above'
+  },
+  laptop: {
+    density:'compact', previewWidth:1000, bankCols:8, bankCell:40, headerStyle:'smallcaps',
+    tabLabels:'icons', rightPanel:190, sortMode:'mru', lockedDim:45,
+    levelMarker:'badge', badgePos:'left', familyWidth:168, dropPresentation:'grid',
+    undiscoveredStyle:'silhouette', unownedDim:45, bannerTone:'amber', bannerStyle:'filled',
+    bannerPos:'inline'
+  }
+};
+
+// First load shows the owner's settled picks, not the bare decisions defaults.
+Object.assign(state, PRESETS.owner);
+
+/* =======================================================================
+   FIXTURE DATA
+   ======================================================================= */
+const CATS = ['Ores','Logs','Fish','Food','Gems','Equipment'];
+
+const RAW_ITEMS = [
+  ['Copper ore','\u{1F7EB}','Ores',1400,3],
+  ['Tin ore','\u{26AA}','Ores',1380,3],
+  ['Iron ore','\u{1F534}','Ores',892,28],
+  ['Coal','\u{26AB}','Ores',214,142],
+  ['Mithril ore','\u{1F535}','Ores',88,180],
+  ['Adamantite ore','\u{1F7E2}','Ores',31,1100],
+  ['Runite ore','\u{1F7E3}','Ores',4,11000],
+  ['Logs','\u{1FAB5}','Logs',2100,4],
+  ['Oak logs','\u{1F7EB}','Logs',640,28],
+  ['Willow logs','\u{1F33F}','Logs',410,12],
+  ['Maple logs','\u{1F341}','Logs',187,16],
+  ['Yew logs','\u{1F332}','Logs',96,380],
+  ['Magic logs','\u{2728}','Logs',22,1030],
+  ['Raw shrimps','\u{1F990}','Fish',320,6],
+  ['Raw trout','\u{1F41F}','Fish',240,28],
+  ['Raw lobster','\u{1F99E}','Fish',141,160],
+  ['Raw shark','\u{1F988}','Fish',37,900],
+  ['Bread','\u{1F35E}','Food',88,12],
+  ['Cooked lobster','\u{1F364}','Food',96,160],
+  ['Cooked shark','\u{1F363}','Food',24,1050],
+  ['Cake','\u{1F370}','Food',15,70],
+  ['Sapphire','\u{1F4A0}','Gems',24,900],
+  ['Emerald','\u{1F49A}','Gems',17,1400],
+  ['Ruby','\u{2764}\u{FE0F}','Gems',9,2100],
+  ['Diamond','\u{1F48E}','Gems',3,6300],
+  ['Rune scimitar','\u{2694}\u{FE0F}','Equipment',1,15000],
+  ['Amulet of glory','\u{1F4FF}','Equipment',2,11500],
+  ['Rune platebody','\u{1F6E1}\u{FE0F}','Equipment',1,38000],
+  ['Dragon dagger','\u{1F5E1}\u{FE0F}','Equipment',1,17000],
+  ['Climbing boots','\u{1F97E}','Equipment',1,12000]
+];
+
+// m = manual order, a = date-added counter, u = most-recently-used counter.
+// Deterministic spreads so every sort mode produces a visibly different order.
+const ITEMS = RAW_ITEMS.map(function (r, i) {
+  return { n:r[0], e:r[1], c:r[2], q:r[3], v:r[4],
+           m:i, a:(i * 7) % RAW_ITEMS.length, u:(i * 13) % RAW_ITEMS.length };
+});
+
+const BANK_TABS = [
+  { id:'all',  icon:'\u{1F5C3}\u{FE0F}', name:'All',  cats:CATS },
+  { id:'ores', icon:'\u{26CF}\u{FE0F}',  name:'Ores', cats:['Ores'] },
+  { id:'logs', icon:'\u{1FAB5}',         name:'Logs', cats:['Logs'] },
+  { id:'food', icon:'\u{1F357}',         name:'Food', cats:['Fish','Food'] },
+  { id:'gear', icon:'\u{2694}\u{FE0F}',  name:'Gear', cats:['Gems','Equipment'] }
+];
+
+const PACK = ['\u{26CF}\u{FE0F}','\u{1F357}','\u{1F357}','\u{1F48D}','\u{26AB}','\u{26AB}',
+  '\u{26AB}','\u{1F534}','\u{1F534}','\u{1F9EA}','\u{1FA99}','\u{1F5E1}\u{FE0F}'];
+
+// ---- Stats tab: skills, then the per-skill guide ladder ----
+// [name, icon, current level, base level]
+const SKILLS = [
+  ['Attack','\u{2694}\u{FE0F}',61,61], ['Strength','\u{1F4AA}',64,62], ['Defence','\u{1F6E1}\u{FE0F}',58,58],
+  ['Ranged','\u{1F3F9}',55,55], ['Prayer','\u{1F64F}',43,43], ['Magic','\u{1F52E}',59,59],
+  ['Runecrafting','\u{1F300}',31,31], ['Construction','\u{1F3E0}',27,27], ['Hitpoints','\u{2764}\u{FE0F}',62,62],
+  ['Agility','\u{1F938}',41,41], ['Herblore','\u{1F9EA}',38,38], ['Thieving','\u{1F575}\u{FE0F}',45,45],
+  ['Crafting','\u{1F9F5}',47,47], ['Fletching','\u{1FAB6}',52,52], ['Slayer','\u{1F480}',44,44],
+  ['Hunter','\u{1F985}',36,36], ['Mining','\u{26CF}\u{FE0F}',44,42], ['Smithing','\u{1F528}',49,49],
+  ['Fishing','\u{1F3A3}',53,53], ['Cooking','\u{1F373}',57,57], ['Firemaking','\u{1F525}',50,50],
+  ['Woodcutting','\u{1FA93}',58,58], ['Farming','\u{1F331}',39,39], ['Summoning','\u{1F409}',33,33],
+  ['Dungeoneering','\u{1F5DD}\u{FE0F}',35,35]
+];
+
+// Guides exist only where sourced sections exist; the rest show the empty state,
+// which matches "omit a section when no sourced registry data exists".
+const GUIDES = {
+  Strength: [
+    { sec:'Actions and targets', rows:[
+      ['Man',1,'\u{1F9CD}'], ['Goblin',1,'\u{1F47A}'], ['Cow',5,'\u{1F404}'],
+      ['Giant frog',10,'\u{1F438}'], ['Hill giant',25,'\u{1F5FF}'], ['Moss giant',35,'\u{1F33F}'],
+      ['Fire giant',50,'\u{1F525}'], ['Greater demon',60,'\u{1F608}'], ['Black demon',70,'\u{1F47F}'],
+      ['Abyssal demon',85,'\u{1F577}\u{FE0F}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Bronze weapons',1,'\u{2694}\u{FE0F}'], ['Steel weapons',5,'\u{2694}\u{FE0F}'],
+      ['Mithril weapons',20,'\u{2694}\u{FE0F}'], ['Adamant weapons',30,'\u{2694}\u{FE0F}'],
+      ['Rune weapons',40,'\u{2694}\u{FE0F}'], ['Granite maul',50,'\u{1F528}'],
+      ['Dragon weapons',60,'\u{1F5E1}\u{FE0F}'], ['Barrows equipment',70,'\u{1F6E1}\u{FE0F}']
+    ]}
+  ],
+  Mining: [
+    { sec:'Actions and targets', rows:[
+      ['Copper ore',1,'\u{1F7EB}'], ['Tin ore',1,'\u{26AA}'], ['Clay',1,'\u{1F9F1}'],
+      ['Iron ore',15,'\u{1F534}'], ['Silver ore',20,'\u{1F948}'], ['Coal',30,'\u{26AB}'],
+      ['Gold ore',40,'\u{1F947}'], ['Gem rock',40,'\u{1F48E}'], ['Mithril ore',55,'\u{1F535}'],
+      ['Adamantite ore',70,'\u{1F7E2}'], ['Runite ore',85,'\u{1F7E3}'], ['Amethyst',92,'\u{1F52E}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Bronze pickaxe',1,'\u{26CF}\u{FE0F}'], ['Iron pickaxe',1,'\u{26CF}\u{FE0F}'],
+      ['Steel pickaxe',6,'\u{26CF}\u{FE0F}'], ['Black pickaxe',11,'\u{26CF}\u{FE0F}'],
+      ['Mithril pickaxe',21,'\u{26CF}\u{FE0F}'], ['Adamant pickaxe',31,'\u{26CF}\u{FE0F}'],
+      ['Rune pickaxe',41,'\u{26CF}\u{FE0F}'], ['Dragon pickaxe',61,'\u{26CF}\u{FE0F}']
+    ]}
+  ],
+  Woodcutting: [
+    { sec:'Actions and targets', rows:[
+      ['Tree',1,'\u{1F333}'], ['Achey tree',1,'\u{1F334}'], ['Oak',15,'\u{1F7EB}'],
+      ['Willow',30,'\u{1F33F}'], ['Teak',35,'\u{1F334}'], ['Maple',45,'\u{1F341}'],
+      ['Mahogany',50,'\u{1FAB5}'], ['Yew',60,'\u{1F332}'], ['Magic',75,'\u{2728}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Bronze hatchet',1,'\u{1FA93}'], ['Steel hatchet',6,'\u{1FA93}'],
+      ['Mithril hatchet',21,'\u{1FA93}'], ['Adamant hatchet',31,'\u{1FA93}'],
+      ['Rune hatchet',41,'\u{1FA93}'], ['Dragon hatchet',61,'\u{1FA93}']
+    ]}
+  ],
+  Fishing: [
+    { sec:'Actions and targets', rows:[
+      ['Shrimps',1,'\u{1F990}'], ['Sardine',5,'\u{1F41F}'], ['Herring',10,'\u{1F420}'],
+      ['Anchovies',15,'\u{1F41F}'], ['Trout',20,'\u{1F41F}'], ['Salmon',30,'\u{1F363}'],
+      ['Tuna',35,'\u{1F41F}'], ['Lobster',40,'\u{1F99E}'], ['Swordfish',50,'\u{1F5E1}\u{FE0F}'],
+      ['Monkfish',62,'\u{1F421}'], ['Shark',76,'\u{1F988}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Small fishing net',1,'\u{1F578}\u{FE0F}'], ['Fishing rod',1,'\u{1F3A3}'],
+      ['Fly fishing rod',20,'\u{1FAB6}'], ['Harpoon',35,'\u{1F531}'], ['Lobster pot',40,'\u{1F9FA}']
+    ]}
+  ],
+  Cooking: [
+    { sec:'Actions and targets', rows:[
+      ['Shrimps',1,'\u{1F990}'], ['Bread',1,'\u{1F35E}'], ['Trout',15,'\u{1F41F}'],
+      ['Salmon',25,'\u{1F363}'], ['Tuna',30,'\u{1F41F}'], ['Lobster',40,'\u{1F99E}'],
+      ['Swordfish',45,'\u{1F5E1}\u{FE0F}'], ['Monkfish',62,'\u{1F421}'], ['Shark',80,'\u{1F988}']
+    ]},
+    { sec:'Utensils and ranges', rows:[
+      ['Fire',1,'\u{1F525}'], ['Range',1,'\u{1F373}'], ['Pot',1,'\u{1F372}'], ['Cake tin',40,'\u{1F370}']
+    ]}
+  ],
+  Smithing: [
+    { sec:'Bars and smelting', rows:[
+      ['Bronze bar',1,'\u{1F529}'], ['Iron bar',15,'\u{1F529}'], ['Silver bar',20,'\u{1F948}'],
+      ['Steel bar',30,'\u{1F529}'], ['Gold bar',40,'\u{1F947}'], ['Mithril bar',50,'\u{1F535}'],
+      ['Adamant bar',70,'\u{1F7E2}'], ['Rune bar',85,'\u{1F7E3}']
+    ]},
+    { sec:'Equipment', rows:[
+      ['Hammer',1,'\u{1F528}'], ['Bronze items',1,'\u{2694}\u{FE0F}'], ['Iron items',15,'\u{2694}\u{FE0F}'],
+      ['Steel items',30,'\u{2694}\u{FE0F}'], ['Mithril items',50,'\u{2694}\u{FE0F}'],
+      ['Adamant items',70,'\u{2694}\u{FE0F}'], ['Rune items',85,'\u{2694}\u{FE0F}']
+    ]}
+  ]
+};
+
+// ---- Collections ----
+// st: 2 = owned, 1 = discovered but unowned, 0 = undiscovered
+const BOSSES = [
+  { id:'graardor', name:'General Graardor', icon:'\u{1F479}', drops:[
+    ['Bandos chestplate','\u{1F6E1}\u{FE0F}',2,1], ['Bandos tassets','\u{1F456}',1,0],
+    ['Bandos boots','\u{1F97E}',2,2], ['Bandos hilt','\u{2694}\u{FE0F}',0,0],
+    ['Godsword shard 1','\u{1F5E1}\u{FE0F}',2,1], ['Godsword shard 2','\u{1F5E1}\u{FE0F}',1,0],
+    ['Godsword shard 3','\u{1F5E1}\u{FE0F}',0,0], ['Coins','\u{1FA99}',2,41],
+    ['Adamantite bar','\u{1F529}',2,6], ['Grimy snapdragon','\u{1F33F}',2,3],
+    ['Rune sword','\u{2694}\u{FE0F}',1,0], ['Shark','\u{1F988}',2,12]
+  ]},
+  { id:'kril', name:"K'ril Tsutsaroth", icon:'\u{1F608}', drops:[
+    ['Zamorakian spear','\u{1F531}',1,0], ['Steam battlestaff','\u{1FA84}',2,1],
+    ['Staff of the dead','\u{1F9D9}',0,0], ['Zamorak hilt','\u{2694}\u{FE0F}',0,0],
+    ['Godsword shard 2','\u{1F5E1}\u{FE0F}',2,1], ['Coins','\u{1FA99}',2,18],
+    ['Grimy torstol','\u{1F33F}',2,5], ['Rune platelegs','\u{1F456}',1,0]
+  ]},
+  { id:'kree', name:"Kree'arra", icon:'\u{1F985}', drops:[
+    ['Armadyl helmet','\u{1FA96}',1,0], ['Armadyl chestplate','\u{1F6E1}\u{FE0F}',0,0],
+    ['Armadyl chainskirt','\u{1F456}',0,0], ['Armadyl hilt','\u{2694}\u{FE0F}',0,0],
+    ['Godsword shard 3','\u{1F5E1}\u{FE0F}',2,1], ['Coins','\u{1FA99}',2,22],
+    ['Rune arrow','\u{1F3F9}',2,340], ['Grimy ranarr weed','\u{1F33F}',2,4]
+  ]},
+  { id:'zilyana', name:'Commander Zilyana', icon:'\u{1F607}', drops:[
+    ['Saradomin sword','\u{2694}\u{FE0F}',1,0], ['Armadyl crossbow','\u{1F3F9}',0,0],
+    ['Saradomin hilt','\u{2694}\u{FE0F}',0,0], ['Godsword shard 1','\u{1F5E1}\u{FE0F}',2,2],
+    ['Coins','\u{1FA99}',2,15], ['Shark','\u{1F988}',2,9], ['Magic logs','\u{2728}',1,0]
+  ]},
+  { id:'mole', name:'Giant Mole', icon:'\u{1F400}', drops:[
+    ['Mole claw','\u{1F43E}',2,4], ['Mole skin','\u{1F9F6}',2,7], ['Coins','\u{1FA99}',2,63],
+    ['Big bones','\u{1F9B4}',2,31], ['Grimy avantoe','\u{1F33F}',1,0], ['Iron ore','\u{1F534}',2,18]
+  ]}
+];
+
+const MUSIC = [
+  ['Scape Main',1,''], ['Harmony',1,''], ['Sea Shanty 2',1,''], ['Newbie Melody',1,''],
+  ['Book of Spells',1,''], ['Attack 1',1,''], ['Wilderness 2',0,'Deep in the northern Wilderness'],
+  ['Barbarianism',0,'Near a longhall of raiders'], ['Dead Quiet',0,'A crypt beneath a temple'],
+  ['Cave Background',1,''], ['Lasting',0,'Where the desert meets the mountains'],
+  ['Miles Away',1,''], ['Faerie',0,'Behind a ring of mushrooms']
+];
+
+/* =======================================================================
+   HELPERS
+   ======================================================================= */
+function fmtQty(n) {
+  if (n >= 1000000) return Math.floor(n / 1000000) + 'M';
+  if (n >= 10000) return Math.floor(n / 1000) + 'K';
+  return String(n);
+}
+function fmtGp(n) { return n.toLocaleString('en-US') + ' gp'; }
+
+const SORT_LABEL = { manual:'Manual', mru:'Most recently used', added:'Date added',
+  alpha:'Alphabetical', qty:'Quantity', value:'Value' };
+
+function sortItems(list) {
+  const a = list.slice();
+  const s = state.sortMode;
+  if (s === 'manual') a.sort(function (x, y) { return x.m - y.m; });
+  else if (s === 'mru') a.sort(function (x, y) { return y.u - x.u; });
+  else if (s === 'added') a.sort(function (x, y) { return y.a - x.a; });
+  else if (s === 'alpha') a.sort(function (x, y) { return x.n.localeCompare(y.n); });
+  else if (s === 'qty') a.sort(function (x, y) { return y.q - x.q; });
+  else if (s === 'value') a.sort(function (x, y) { return (y.q * y.v) - (x.q * x.v); });
+  return a;
+}
+
+function catHeader(label) {
+  const st = state.headerStyle;
+  if (st === 'rule') return '<div class="cathdr rule"><span>' + label + '</span><i></i></div>';
+  if (st === 'pill') return '<div class="cathdr pill"><span>' + label + '</span></div>';
+  return '<div class="cathdr smallcaps">' + label + '</div>';
+}
+
+function itemCell(it) {
+  const c = state.bankCell;
+  const sel = ui.bankSel === it.n ? ' sel' : '';
+  return '<div class="cell' + sel + '" data-act="selectItem" data-name="' + it.n + '" title="' +
+    it.n + ' × ' + it.q + '" style="width:' + c + 'px;height:' + c + 'px">' +
+    '<span class="q">' + fmtQty(it.q) + '</span>' +
+    '<span class="ic" style="font-size:' + Math.round(c * 0.5) + 'px">' + it.e + '</span></div>';
+}
+
+function mkTitleBar(where) {
+  return '<div class="mk-title"><b>AnkiScape</b><span>— ' + where +
+    '</span><span style="margin-left:auto">Mining 42 · 118,340 xp</span></div>';
+}
+
+function mkTopTabs(active) {
+  const tabs = ['Skills','Stats','Bank','Equipment','Shop','Grand Exchange','Challenges',
+    'Quests','Achievements','Collections','Settings'];
+  return '<div class="mk-tabs">' + tabs.map(function (t) {
+    return '<div class="' + (t === active ? 'on' : '') + '">' + t + '</div>';
+  }).join('') + '</div>';
+}
+
+/* =======================================================================
+   SURFACE 1 — BANK
+   ======================================================================= */
+function renderBank() {
+  const tab = BANK_TABS.filter(function (t) { return t.id === ui.bankTab; })[0] || BANK_TABS[0];
+  const visible = ITEMS.filter(function (i) { return tab.cats.indexOf(i.c) !== -1; });
+
+  // toolbar
+  const sortOpts = Object.keys(SORT_LABEL).map(function (k) {
+    return '<option value="' + k + '"' + (state.sortMode === k ? ' selected' : '') + '>' +
+      SORT_LABEL[k] + '</option>';
+  }).join('');
+  const tools =
+    '<div class="bk-tools">' +
+      '<input class="mk-inp grow" placeholder="Search bank…" value="">' +
+      '<select class="mk-sel" data-act="sortSel">' + sortOpts + '</select>' +
+      '<label class="bk-chk settled"><input type="checkbox" data-act="autoCatBox"' +
+        (state.autoCats ? ' checked' : '') + '> Auto-categories</label>' +
+      '<div class="seg2 settled" data-act="dragMode">' +
+        '<span class="' + (ui.dragMode === 'swap' ? 'on' : '') + '">Swap</span>' +
+        '<span class="' + (ui.dragMode === 'insert' ? 'on' : '') + '">Insert</span>' +
+      '</div>' +
+    '</div>';
+
+  // tab strip
+  const strip = '<div class="bk-tabstrip">' + BANK_TABS.map(function (t) {
+    const lbl = state.tabLabels === 'names' ? '<span>' + t.name + '</span>' : '';
+    return '<div class="bk-tab' + (t.id === ui.bankTab ? ' on' : '') + '" data-act="bankTab" ' +
+      'data-tab="' + t.id + '" title="' + t.name + '"><span class="ti">' + t.icon + '</span>' +
+      lbl + '</div>';
+  }).join('') + '<div class="bk-tab plus settled" title="Drop an item here to create a tab">' +
+    '<span class="ti">+</span></div></div>';
+
+  // grid body
+  const gridStyle = 'grid-template-columns:repeat(' + state.bankCols + ',' + state.bankCell + 'px)';
+  let body = '';
+  if (state.autoCats) {
+    CATS.forEach(function (c) {
+      const inCat = visible.filter(function (i) { return i.c === c; });
+      if (!inCat.length) return;
+      body += catHeader(c) + '<div class="bk-grid" style="' + gridStyle + '">' +
+        sortItems(inCat).map(itemCell).join('') + '</div>';
+    });
+  } else {
+    body = '<div class="bk-grid" style="' + gridStyle + '">' +
+      sortItems(visible).map(itemCell).join('') + '</div>';
+  }
+
+  const dragHint = state.sortMode === 'manual'
+    ? 'Manual sort — drag cells to reorder, drop on the "+" tab to make a tab.'
+    : SORT_LABEL[state.sortMode] + ' — computed order, read-only. Switch to Manual to drag.';
+  const grid =
+    '<div class="bk-grid-wrap"><div class="bk-scroll">' + body + '</div>' +
+    '<div class="bk-hint"><span>' + dragHint + '</span><span>' + visible.length +
+    ' items · ' + (state.autoCats ? 'categories on' : 'flat grid') + '</span></div></div>';
+
+  // right column
+  const sel = ITEMS.filter(function (i) { return i.n === ui.bankSel; })[0] || ITEMS[3];
+  const right =
+    '<div class="bk-right" style="width:' + state.rightPanel + 'px">' +
+      '<div class="panel"><div class="panel-h"><b>Selected</b></div><div class="det-body">' +
+        '<div class="det-icon">' + sel.e + '</div>' +
+        '<div class="det-name">' + sel.n + ' × ' + sel.q.toLocaleString('en-US') + '</div>' +
+        '<div class="det-row"><span>Category</span><b>' + sel.c + '</b></div>' +
+        '<div class="det-row"><span>Value each</span><b>' + fmtGp(sel.v) + '</b></div>' +
+        '<div class="det-row"><span>Stack value</span><b>' + fmtGp(sel.q * sel.v) + '</b></div>' +
+        '<div class="det-row"><span>Home tab</span><b>' + tabOf(sel) + '</b></div>' +
+        '<div class="det-acts">' +
+          '<button class="mk-btn">Withdraw 1</button>' +
+          '<button class="mk-btn">Withdraw 10</button>' +
+          '<button class="mk-btn">All</button>' +
+          '<button class="mk-btn pri">Set carried qty…</button>' +
+        '</div>' +
+      '</div></div>' +
+      '<div class="panel" style="flex:1;display:flex;flex-direction:column;min-height:0">' +
+        '<div class="panel-h"><b>Carried pack</b>' +
+          '<div class="seg2" style="margin-left:auto"><span class="on">Auto</span><span>Custom</span></div>' +
+        '</div>' +
+        '<div class="pack">' + packCells() + '</div>' +
+      '</div>' +
+    '</div>';
+
+  return mkTitleBar('Bank') + mkTopTabs('Bank') +
+    '<div class="mk-body"><div style="flex:1;min-width:0;display:flex;flex-direction:column">' +
+    tools + strip + grid + '</div>' + right + '</div>';
+}
+
+function tabOf(item) {
+  for (let i = 1; i < BANK_TABS.length; i++) {
+    if (BANK_TABS[i].cats.indexOf(item.c) !== -1) return BANK_TABS[i].name;
+  }
+  return 'Main';
+}
+
+function packCells() {
+  let out = '';
+  for (let i = 0; i < 28; i++) {
+    if (i < PACK.length) out += '<div class="cell"><span class="ic">' + PACK[i] + '</span></div>';
+    else out += '<div class="cell empty"></div>';
+  }
+  return out;
+}
+
+/* =======================================================================
+   SURFACE 2 — STATS TAB (skill grid + stats block + full-width guide)
+   ======================================================================= */
+function xpForLevel(l) {
+  let t = 0;
+  for (let i = 1; i < l; i++) t += Math.floor(i + 300 * Math.pow(2, i / 7));
+  return Math.floor(t / 4);
+}
+
+function skillRow(name) {
+  for (let i = 0; i < SKILLS.length; i++) if (SKILLS[i][0] === name) return SKILLS[i];
+  return SKILLS[1];
+}
+
+function renderStats() {
+  const sk = skillRow(ui.skill);
+  const cur = sk[2], base = sk[3];
+  const idx = SKILLS.indexOf(sk);
+  const floorXp = xpForLevel(base);
+  const nextXp = xpForLevel(base + 1);
+  const frac = ((idx * 17) % 80 + 5) / 100;
+  const total = Math.round(floorXp + (nextXp - floorXp) * frac);
+  const toNext = nextXp - total;
+  const pct = Math.round(frac * 100);
+
+  let totalLevel = 0;
+  SKILLS.forEach(function (s) { totalLevel += s[3]; });
+
+  const chips = SKILLS.map(function (s) {
+    return '<div class="skchip' + (s[0] === ui.skill ? ' on' : '') + '" data-act="skill" ' +
+      'data-name="' + s[0] + '" title="' + s[0] + '"><span class="si">' + s[1] + '</span>' +
+      '<span>' + s[2] + '/' + s[3] + '</span></div>';
+  }).join('');
+
+  const left =
+    '<div class="panel" style="width:330px;flex:none;display:flex;flex-direction:column;min-height:0">' +
+      '<div class="panel-h"><b>Skills</b></div>' +
+      '<div class="skgrid">' + chips + '</div>' +
+      '<div class="totline">Total level: <b>' + totalLevel.toLocaleString('en-US') + '</b></div>' +
+    '</div>';
+
+  const stats =
+    '<div class="panel" style="flex:none">' +
+      '<div class="panel-h"><span style="font-size:15px">' + sk[1] + '</span>' +
+        '<b>' + sk[0] + ' Stats</b></div>' +
+      '<div class="stats-body">' +
+        '<div class="det-row"><span>Current Level</span><b>' + cur +
+          (cur !== base ? ' (boosted)' : '') + '</b></div>' +
+        '<div class="det-row"><span>Base Level</span><b>' + base + '</b></div>' +
+        '<div class="det-row"><span>Total Experience</span><b>' +
+          total.toLocaleString('en-US') + '</b></div>' +
+        '<div class="det-row"><span>Experience to Next Level</span><b>' +
+          toNext.toLocaleString('en-US') + '</b></div>' +
+        '<div class="lp"><span>Level Progress</span><span>' + pct + '% to ' + (base + 1) + '</span></div>' +
+        '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+      '</div>' +
+    '</div>';
+
+  const guide =
+    '<div class="panel" style="flex:1;display:flex;flex-direction:column;min-height:0">' +
+      '<div class="panel-h"><b>' + sk[0] + ' skill guide</b>' +
+        '<span style="margin-left:auto">' + base + '/99</span></div>' +
+      '<div class="sk-guide-scroll" id="guideScroll">' + guideRows(sk[0], base) + '</div>' +
+    '</div>';
+
+  return mkTitleBar('Stats') + mkTopTabs('Stats') +
+    '<div class="mk-body">' + left +
+    '<div class="st-right">' + stats + guide + '</div></div>';
+}
+
+function guideRows(skill, base) {
+  const secs = GUIDES[skill];
+  if (!secs) {
+    return '<div class="gempty">No sourced guide sections for ' + skill +
+      ' yet.<br>The harvest fills these in; the guide never invents rows.</div>';
+  }
+  const marker = '<div class="lvlmark ' + state.levelMarker + '" data-marker="1">' +
+    (state.levelMarker === 'divider'
+      ? '<i></i><span>Level ' + base + ' — you are here</span><i></i>'
+      : 'Level ' + base + ' — you are here') + '</div>';
+
+  let html = '';
+  secs.forEach(function (sec) {
+    html += '<div class="gsec">' + sec.sec + '</div>';
+    let firstLocked = -1;
+    for (let i = 0; i < sec.rows.length; i++) {
+      if (sec.rows[i][1] > base) { firstLocked = i; break; }
+    }
+    const showMark = firstLocked > 0;   // needs unlocked rows above and locked below
+    sec.rows.forEach(function (r, i) {
+      if (showMark && i === firstLocked && state.levelMarker !== 'badge') html += marker;
+      const locked = r[1] > base;
+      const lvlBadge = '<span class="lvl">' + r[1] + '</span>';
+      const nm = '<span class="gnm">' + r[0] + '</span>';
+      const em = '<span class="gem">' + r[2] + '</span>';
+      const here = (showMark && state.levelMarker === 'badge' && i === firstLocked - 1)
+        ? '<span class="herebadge">you are here · ' + base + '</span>' : '';
+      const mark = here ? ' data-marker="1"' : '';
+      const inner = state.badgePos === 'left' ? lvlBadge + em + nm + here : em + nm + here + lvlBadge;
+      html += '<div class="guiderow' + (locked ? ' locked' : '') + '"' + mark +
+        (locked ? ' style="opacity:' + (state.lockedDim / 100) + '"' : '') + '>' + inner + '</div>';
+    });
+  });
+  return html;
+}
+
+/* =======================================================================
+   SURFACE 3 — COLLECTIONS
+   ======================================================================= */
+function bossCounts(b) {
+  const owned = b.drops.filter(function (d) { return d[2] === 2; }).length;
+  return { n:owned, m:b.drops.length };
+}
+
+function renderCollections() {
+  const musicN = MUSIC.filter(function (m) { return m[1] === 1; }).length;
+  let dropN = 0, dropM = 0;
+  BOSSES.forEach(function (b) { const c = bossCounts(b); dropN += c.n; dropM += c.m; });
+
+  let fam = '';
+  fam += famRow('music', '\u{1F3B5}', 'Music Log', musicN + '/' + MUSIC.length, false);
+  fam += famRow('droplog', '\u{1F480}', 'Boss drop log', dropN + '/' + dropM, false);
+  BOSSES.forEach(function (b) {
+    const c = bossCounts(b);
+    fam += famRow(b.id, b.icon, b.name, c.n + '/' + c.m, true);
+  });
+
+  const left = '<div class="panel cl-fam" style="width:' + state.familyWidth + 'px;flex:none">' +
+    '<div class="panel-h"><b>Families</b></div>' + fam + '</div>';
+
+  let title = '', bodyHtml = '';
+  if (ui.collNode === 'music') {
+    title = 'Music Log';
+    bodyHtml = renderMusic();
+  } else if (ui.collNode === 'droplog') {
+    title = 'Boss drop log';
+    bodyHtml = '<div class="cl-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">' +
+      BOSSES.map(function (b) {
+        const c = bossCounts(b);
+        return '<div class="tgtcard" data-act="collNode" data-node="' + b.id + '">' +
+          '<div style="font-size:24px">' + b.icon + '</div><div>' + b.name + '</div>' +
+          '<div class="cq" style="color:#98a0ad">' + c.n + '/' + c.m + '</div></div>';
+      }).join('') + '</div>';
+  } else {
+    const b = BOSSES.filter(function (x) { return x.id === ui.collNode; })[0] || BOSSES[0];
+    const c = bossCounts(b);
+    title = b.icon + ' ' + b.name + ' — ' + c.n + '/' + c.m;
+    bodyHtml = state.dropPresentation === 'grid' ? dropGrid(b) : dropList(b);
+  }
+
+  const right = '<div class="panel cl-right">' +
+    '<div class="panel-h"><b>' + title + '</b>' +
+      '<span style="margin-left:auto">Collected ' + (musicN + dropN) + ' / ' +
+      (MUSIC.length + dropM) + ' overall</span></div>' +
+    '<div class="cl-tools"><input class="mk-inp" style="flex:1" placeholder="Search this family…">' +
+      '<button class="mk-btn">Only missing</button></div>' +
+    '<div class="cl-scroll">' + bodyHtml + '</div></div>';
+
+  return mkTitleBar('Collections') + mkTopTabs('Collections') +
+    '<div class="mk-body">' + left + right + '</div>';
+}
+
+function famRow(id, icon, name, cnt, kid) {
+  return '<div class="famrow' + (kid ? ' kid' : '') + (ui.collNode === id ? ' on' : '') +
+    '" data-act="collNode" data-node="' + id + '"><span>' + icon + '</span>' +
+    '<span class="nm">' + name + '</span><span class="cnt">' + cnt + '</span></div>';
+}
+
+function dropGrid(b) {
+  return '<div class="cl-grid">' + b.drops.map(function (d) {
+    const st = d[2];
+    if (st === 0) {
+      if (state.undiscoveredStyle === 'silhouette') {
+        return '<div class="centry sil"><span class="ce">' + d[1] + '</span><span class="cn">&nbsp;</span></div>';
+      }
+      return '<div class="centry unk"><span class="ce">?</span><span class="cn">???</span></div>';
+    }
+    if (st === 1) {
+      return '<div class="centry" style="opacity:' + (state.unownedDim / 100) + '">' +
+        '<span class="ce">' + d[1] + '</span><span class="cn">' + d[0] + '</span>' +
+        '<span class="cq">not owned</span></div>';
+    }
+    return '<div class="centry"><span class="ce">' + d[1] + '</span>' +
+      '<span class="cn">' + d[0] + '</span><span class="cq">×' + d[3] + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function dropList(b) {
+  return '<div class="clist">' + b.drops.map(function (d) {
+    const st = d[2];
+    if (st === 0) {
+      if (state.undiscoveredStyle === 'silhouette') {
+        return '<div class="clrow sil"><span class="ce">' + d[1] + '</span>' +
+          '<span class="cn" style="color:#5f6672">Undiscovered</span></div>';
+      }
+      return '<div class="clrow unk"><span class="ce">?</span><span class="cn">???</span></div>';
+    }
+    if (st === 1) {
+      return '<div class="clrow" style="opacity:' + (state.unownedDim / 100) + '">' +
+        '<span class="ce">' + d[1] + '</span><span class="cn">' + d[0] + '</span>' +
+        '<span class="cq">not owned</span></div>';
+    }
+    return '<div class="clrow"><span class="ce">' + d[1] + '</span>' +
+      '<span class="cn">' + d[0] + '</span><span class="cq">×' + d[3] + '</span></div>';
+  }).join('') + '</div>';
+}
+
+function renderMusic() {
+  const rows = MUSIC.map(function (m) {
+    if (m[1] === 1) {
+      return '<div class="clrow"><span class="ce">\u{1F3B5}</span><span class="cn">' + m[0] +
+        '</span><span class="cq">unlocked</span></div>';
+    }
+    return '<div class="clrow" style="opacity:' + (state.unownedDim / 100) + '">' +
+      '<span class="ce">\u{1F3B6}</span><span class="cn">' + m[2] + '</span></div>';
+  }).join('');
+  return '<div class="clist">' + rows + '</div>';
+}
+
+/* =======================================================================
+   SURFACE 4 — SHOOTING STAR EXIT
+   ======================================================================= */
+const TONES = {
+  amber:   { line:'#d9a441', bg:'rgba(217,164,65,.16)', txt:'#f4e3c2' },
+  neutral: { line:'#7f8899', bg:'rgba(127,136,153,.16)', txt:'#dde2e9' },
+  red:     { line:'#d2564f', bg:'rgba(210,86,79,.16)',  txt:'#f7d9d7' }
+};
+
+function starBanner() {
+  const t = TONES[state.bannerTone];
+  const filled = state.bannerStyle === 'filled';
+  const style = 'border:1px solid ' + t.line + ';color:' + t.txt +
+    ';background:' + (filled ? t.bg : 'transparent');
+  const mineable = state.starState === 'mineable';
+  const head = mineable ? 'Star layer is mineable again' : 'Star unminable at your level';
+  const sub = mineable
+    ? 'Layer 5 needs 30 Mining. Rejoin whenever you like — nothing auto-switched.'
+    : 'Layer 4 needs 50 Mining. The activity stopped and your selection cleared.';
+  const acts = mineable
+    ? '<button class="mk-btn pri">Mine star</button><button class="mk-btn">Dismiss</button>'
+    : '<button class="mk-btn pri">Watch this star</button><button class="mk-btn">Dismiss</button>';
+  return '<div class="banner settled" style="' + style + '">' +
+    '<span class="bi">⭐</span><span class="btx"><b>' + head + '</b><span>' + sub +
+    '</span></span><span class="bacts">' + acts + '</span></div>';
+}
+
+function renderStar() {
+  const inline = state.bannerPos === 'inline';
+  const strip =
+    '<div class="as-strip">' +
+      '<span class="act"><span class="ic">⛏️</span><span class="meta">' +
+        '<b>Mining — no activity selected</b>Pick an activity to resume earning xp</span></span>' +
+      (inline ? '' : '<span class="as-xp"><span class="bar"><i style="width:62%"></i></span></span>' +
+        '<span class="as-drop">Last: Coal ×2 · +70 xp</span>') +
+      (inline ? '<span style="flex:1;min-width:0">' + starBanner() + '</span>' : '') +
+    '</div>';
+  const above = inline ? '' : '<div class="banner-slot top">' + starBanner() + '</div>';
+
+  return '<div class="rv">' +
+      '<div class="rv-q"><div class="qt">What is the capital of Kandarin?</div>' +
+        '<div class="qa">— tap to reveal —</div></div>' +
+      '<div class="rv-btns">' +
+        '<button class="mk-btn">Again</button><button class="mk-btn">Hard</button>' +
+        '<button class="mk-btn">Good</button><button class="mk-btn">Easy</button></div>' +
+      above + strip +
+    '</div>';
+}
+
+/* =======================================================================
+   RENDER PIPELINE
+   ======================================================================= */
+const RENDERERS = { bank:renderBank, stats:renderStats, collections:renderCollections, star:renderStar };
+const SURFACE_H = { bank:640, stats:640, collections:640, star:400 };
+
+const mock = document.getElementById('mock');
+const scalebox = document.getElementById('scalebox');
+const stage = document.getElementById('stage');
+const scaleLabel = document.getElementById('scaleLabel');
+const promptOut = document.getElementById('promptOut');
+
+function renderPreview() {
+  mock.className = 'mock ' + state.density;
+  mock.innerHTML = RENDERERS[ui.surface]();
+  fit();
+  if (ui.surface === 'stats') scrollGuideToCurrentLevel();
+}
+
+function fit() {
+  const w = parseInt(state.previewWidth, 10);
+  const h = SURFACE_H[ui.surface];
+  mock.style.width = w + 'px';
+  mock.style.height = h + 'px';
+  const avail = Math.max(240, stage.clientWidth - 32);
+  const s = Math.min(1, avail / w);
+  mock.style.transform = 'scale(' + s + ')';
+  scalebox.style.width = (w * s) + 'px';
+  scalebox.style.height = (h * s) + 'px';
+  scaleLabel.textContent = w + ' × ' + h + ' mock · ' + Math.round(s * 100) + '% scale';
+}
+
+// The guide opens at the player's current level so the next locked unlocks sit on screen.
+function scrollGuideToCurrentLevel() {
+  const scroller = document.getElementById('guideScroll');
+  if (!scroller) return;
+  const mark = scroller.querySelector('[data-marker="1"]');
+  if (!mark) { scroller.scrollTop = 0; return; }
+  scroller.scrollTop = Math.max(0, mark.offsetTop - (scroller.clientHeight * 0.38));
+}
+
+function updateAll() { renderPreview(); updatePrompt(); }
+
+/* =======================================================================
+   PROMPT
+   ======================================================================= */
+const HEADER_LABEL = { rule:'a thin rule beside the label', smallcaps:'small-caps label text with no rule',
+  pill:'a pill chip' };
+const MARKER_LABEL = {
+  divider:'a labelled divider line drawn between the last unlocked row and the first locked one',
+  band:'a tinted full-width band between the last unlocked row and the first locked one',
+  badge:'a "you are here" badge on the last unlocked row'
+};
+const TONE_LABEL = { amber:'amber', neutral:'neutral grey', red:'red' };
+
+function bankPrompt() {
+  const p = [];
+  if (state.bankCols !== DEFAULTS.bankCols || state.bankCell !== DEFAULTS.bankCell) {
+    p.push('lay the item grid out at ' + state.bankCols + ' columns of ' + state.bankCell +
+      'px cells (default was ' + DEFAULTS.bankCols + ' × ' + DEFAULTS.bankCell + 'px)');
+  }
+  if (state.autoCats !== DEFAULTS.autoCats) {
+    p.push('ship the auto-categories checkbox unchecked by default, so a fresh bank opens as one ' +
+      'flat RS-style grid per tab with no category headers');
+  }
+  if (state.headerStyle !== DEFAULTS.headerStyle && state.autoCats) {
+    p.push('draw each category header as ' + HEADER_LABEL[state.headerStyle]);
+  }
+  if (state.sortMode !== DEFAULTS.sortMode) {
+    p.push('default the sort selector to "' + SORT_LABEL[state.sortMode] +
+      '" instead of Manual, keeping Manual as the only mode that permits drag reorder');
+  }
+  if (state.tabLabels !== DEFAULTS.tabLabels) {
+    p.push('show the tab strip with icons and short names rather than icons alone');
+  }
+  if (state.rightPanel !== DEFAULTS.rightPanel) {
+    p.push('give the right column (selected-item detail, bank actions, 4×7 carried pack) ' +
+      'about ' + state.rightPanel + 'px of width');
+  }
+  return p;
+}
+
+function statsPrompt() {
+  const p = [];
+  if (state.lockedDim !== DEFAULTS.lockedDim) {
+    p.push('render locked rows at about ' + state.lockedDim +
+      '% opacity, still showing the full name and level');
+  }
+  if (state.levelMarker !== DEFAULTS.levelMarker) {
+    p.push('mark the player’s current level on the ladder with ' + MARKER_LABEL[state.levelMarker]);
+  }
+  if (state.badgePos !== DEFAULTS.badgePos) {
+    p.push('put the level badge on the ' + state.badgePos + ' end of each guide row');
+  }
+  return p;
+}
+
+function collPrompt() {
+  const p = [];
+  if (state.familyWidth !== DEFAULTS.familyWidth) {
+    p.push('set the left family column to about ' + state.familyWidth + 'px');
+  }
+  if (state.dropPresentation !== DEFAULTS.dropPresentation) {
+    p.push('present the drop log as list rows rather than an icon grid');
+  }
+  if (state.undiscoveredStyle !== DEFAULTS.undiscoveredStyle) {
+    p.push('draw an undiscovered entry as a dark silhouette cell instead of "???" text; ' +
+      'the entry stays concealed until the player has killed the target once either way');
+  }
+  if (state.unownedDim !== DEFAULTS.unownedDim) {
+    p.push('dim discovered-but-unowned entries to about ' + state.unownedDim + '% opacity');
+  }
+  return p;
+}
+
+function starPrompt() {
+  const p = [];
+  if (state.bannerTone !== DEFAULTS.bannerTone) {
+    p.push('use a ' + TONE_LABEL[state.bannerTone] + ' tone for the banner');
+  }
+  if (state.bannerStyle !== DEFAULTS.bannerStyle) {
+    p.push('style it as an outline (transparent fill, coloured border and text) rather than a filled block');
+  }
+  if (state.bannerPos !== DEFAULTS.bannerPos) {
+    p.push('place the banner inline inside the review strip rather than on its own row above it, ' +
+      'which matters most at the ~712px reviewer width');
+  }
+  return p;
+}
+
+function globalPrompt() {
+  const p = [];
+  if (state.density !== DEFAULTS.density) {
+    p.push(state.density === 'compact'
+      ? 'tighten paddings and row heights to a compact density across these surfaces'
+      : 'loosen paddings and row heights to a comfortable density across these surfaces');
+  }
+  if (state.previewWidth !== DEFAULTS.previewWidth) {
+    p.push('note that these numbers were judged at a ' + state.previewWidth + 'px preview width' +
+      (state.previewWidth === 712 ? ' (the reviewer strip), so check them again at the 1280px menu size'
+                                  : ', not the full 1280px menu size'));
+  }
+  return p;
+}
+
+function joinSentences(list) {
+  if (list.length === 1) return list[0] + '.';
+  return list.slice(0, -1).join(', ') + ', and ' + list[list.length - 1] + '.';
+}
+
+function updatePrompt() {
+  const blocks = [];
+  const g = globalPrompt();
+  if (g.length) blocks.push('Global: ' + joinSentences(g));
+
+  const b = bankPrompt();
+  if (b.length) {
+    blocks.push('Bank tab (owner-selected frame A: tab strip across the top of the grid, ' +
+      'search/sort/auto-categories/Swap-Insert above it, selected-item detail and carried pack on ' +
+      'the right): ' + joinSentences(b));
+  }
+  const s = statsPrompt();
+  if (s.length) {
+    blocks.push('Skill guide (it renders in the Stats tab, at full width directly under the ' +
+      'per-skill stats block rather than beside it, with its own scroll; it opens scrolled to the ' +
+      'player’s current level so the next locked unlocks are visible; selecting a skill chip in the ' +
+      'left grid swaps both the stats block and the guide, and guide rows are informational with no ' +
+      'click behaviour): ' + joinSentences(s));
+  }
+  const c = collPrompt();
+  if (c.length) {
+    blocks.push('Collections (left family list with nested drop-log targets, right grid): ' +
+      joinSentences(c));
+  }
+  const st = starPrompt();
+  if (st.length) {
+    blocks.push('Shooting Star exit (persistent review-strip banner, "Watch this star" / ' +
+      '"Dismiss", then a one-click "Mine star" rejoin banner): ' + joinSentences(st));
+  }
+
+  const intro = 'These are visual choices for the Pass 8 UI work. Every settled contract in ' +
+    'memory-bank/codex-briefs/pass8-owner-fable-decisions-2026-08-07.md still applies unchanged; ' +
+    'the notes below only set parameters that note left open.';
+
+  if (!blocks.length) {
+    promptOut.textContent = intro + '\n\nEvery parameter is at the default the decisions note ' +
+      'implies, so build the Pass 8 surfaces exactly as written: an 8-column bank grid at 44px ' +
+      'cells with auto-categories on, thin-rule category headers, Manual sort, icon-only tabs and ' +
+      'a 220px right column; the skill guide at full width under the Stats-tab stats block, with ' +
+      'locked rows at 45% opacity, level badges on the left and a labelled divider line marking the ' +
+      'player’s current level; a 200px Collections family column with an icon grid, "???" for ' +
+      'undiscovered entries and 45% dim for discovered-but-unowned ones; and an amber filled star ' +
+      'banner on its own row above the review strip.';
+    return;
+  }
+  promptOut.textContent = intro + '\n\n' + blocks.join('\n\n');
+}
+
+/* =======================================================================
+   CONTROL WIRING
+   ======================================================================= */
+function syncControls() {
+  document.querySelectorAll('.rng').forEach(function (el) {
+    const k = el.dataset.key;
+    el.value = state[k];
+    const out = document.querySelector('.val[data-for="' + k + '"]');
+    if (out) {
+      const unit = (k === 'lockedDim' || k === 'unownedDim') ? '%' : 'px';
+      out.textContent = (k === 'bankCols') ? state[k] : state[k] + unit;
+    }
+  });
+  document.querySelectorAll('.sel').forEach(function (el) { el.value = state[el.dataset.key]; });
+  document.querySelectorAll('.chk').forEach(function (el) { el.checked = !!state[el.dataset.key]; });
+  document.querySelectorAll('.seg').forEach(function (seg) {
+    const k = seg.dataset.key;
+    seg.querySelectorAll('button').forEach(function (btn) {
+      btn.classList.toggle('on', String(state[k]) === btn.dataset.val);
+    });
+  });
+  document.querySelectorAll('#surftabs button').forEach(function (btn) {
+    btn.classList.toggle('on', btn.dataset.surface === ui.surface);
+  });
+}
+
+document.querySelectorAll('.rng').forEach(function (el) {
+  el.addEventListener('input', function () {
+    state[el.dataset.key] = parseInt(el.value, 10);
+    syncControls(); updateAll();
+  });
+});
+document.querySelectorAll('.sel').forEach(function (el) {
+  el.addEventListener('change', function () {
+    state[el.dataset.key] = el.value;
+    syncControls(); updateAll();
+  });
+});
+document.querySelectorAll('.chk').forEach(function (el) {
+  el.addEventListener('change', function () {
+    state[el.dataset.key] = el.checked;
+    syncControls(); updateAll();
+  });
+});
+document.querySelectorAll('.seg').forEach(function (seg) {
+  seg.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('button');
+    if (!btn) return;
+    const k = seg.dataset.key;
+    state[k] = NUMERIC_KEYS.has(k) ? parseInt(btn.dataset.val, 10) : btn.dataset.val;
+    syncControls(); updateAll();
+  });
+});
+
+const GROUP_FOR = { bank:'g-bank', stats:'g-stats', collections:'g-coll', star:'g-star' };
+document.getElementById('surftabs').addEventListener('click', function (ev) {
+  const btn = ev.target.closest('button');
+  if (!btn) return;
+  ui.surface = btn.dataset.surface;
+  Object.keys(GROUP_FOR).forEach(function (k) {
+    document.getElementById(GROUP_FOR[k]).open = (k === ui.surface);
+  });
+  syncControls(); updateAll();
+});
+
+document.querySelectorAll('.presets button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    Object.assign(state, DEFAULTS, PRESETS[btn.dataset.preset] || {});
+    syncControls(); updateAll();
+  });
+});
+
+/* mock interactions ---------------------------------------------------- */
+mock.addEventListener('click', function (ev) {
+  const t = ev.target.closest('[data-act]');
+  if (!t) return;
+  const act = t.dataset.act;
+  if (act === 'selectItem') ui.bankSel = t.dataset.name;
+  else if (act === 'bankTab') { ui.bankTab = t.dataset.tab; }
+  else if (act === 'skill') ui.skill = t.dataset.name;
+  else if (act === 'collNode') ui.collNode = t.dataset.node;
+  else if (act === 'dragMode') ui.dragMode = (ui.dragMode === 'swap' ? 'insert' : 'swap');
+  else if (act === 'autoCatBox') { state.autoCats = !state.autoCats; syncControls(); }
+  else return;
+  updateAll();
+});
+mock.addEventListener('change', function (ev) {
+  const t = ev.target.closest('[data-act="sortSel"]');
+  if (!t) return;
+  state.sortMode = t.value;
+  syncControls(); updateAll();
+});
+
+/* copy ----------------------------------------------------------------- */
+const copyBtn = document.getElementById('copyBtn');
+copyBtn.addEventListener('click', function () {
+  const text = promptOut.textContent;
+  const done = function () {
+    copyBtn.textContent = 'Copied!';
+    copyBtn.classList.add('done');
+    setTimeout(function () { copyBtn.textContent = 'Copy prompt'; copyBtn.classList.remove('done'); }, 1400);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { legacyCopy(text, done); });
+  } else {
+    legacyCopy(text, done);
+  }
+});
+function legacyCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { copyBtn.textContent = 'Copy failed'; }
+  document.body.removeChild(ta);
+}
+
+window.addEventListener('resize', fit);
+
+syncControls();
+updateAll();
+</script>
+</body>
+</html>

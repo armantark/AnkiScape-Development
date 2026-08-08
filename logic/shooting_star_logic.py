@@ -24,7 +24,7 @@ from .world_population_logic import (
 )
 
 
-SHOOTING_STAR_STATE_VERSION = 1
+SHOOTING_STAR_STATE_VERSION = 2
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
@@ -82,6 +82,8 @@ def default_shooting_star_state_pure() -> dict[str, Any]:
         "ore_bonus_ticks_remaining": 0,
         "last_result": "",
         "event_log": [],
+        "notice": {},
+        "watched_event_id": "",
     }
 
 
@@ -150,6 +152,27 @@ def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
     defaults = default_shooting_star_state_pure()
     source = raw if isinstance(raw, Mapping) else {}
     event_log = source.get("event_log")
+    raw_notice = source.get("notice")
+    notice: dict[str, Any] = {}
+    if isinstance(raw_notice, Mapping):
+        kind = str(raw_notice.get("kind", ""))
+        event_id = str(raw_notice.get("event_id", ""))[:80]
+        if kind in {"unminable", "ready"} and event_id:
+            notice = {
+                "kind": kind,
+                "event_id": event_id,
+                "current_size": min(
+                    9,
+                    _int(raw_notice.get("current_size"), minimum=0),
+                ),
+                "required_level": min(
+                    90,
+                    _int(raw_notice.get("required_level"), minimum=0),
+                ),
+                "sprite_available": bool(
+                    raw_notice.get("sprite_available", False)
+                ),
+            }
     return {
         **defaults,
         "active_event": _sanitize_event(source.get("active_event")),
@@ -169,6 +192,10 @@ def sanitize_shooting_star_state_pure(raw: Any) -> dict[str, Any]:
             if isinstance(event_log, list)
             else []
         ),
+        "notice": notice,
+        "watched_event_id": str(
+            source.get("watched_event_id", "") or ""
+        )[:80],
     }
 
 
@@ -296,6 +323,43 @@ def _apply_crowd_target(
     event["crowd_dust_removed"] = current_removed + removed
 
 
+def _refresh_watched_star_notice(
+    state: dict[str, Any],
+    *,
+    mining_level: int,
+) -> None:
+    watched_event_id = str(state.get("watched_event_id", "") or "")
+    if not watched_event_id:
+        return
+    event = state.get("active_event")
+    if not isinstance(event, Mapping) or str(event.get("event_id", "")) != watched_event_id:
+        notice = state.get("notice")
+        if (
+            isinstance(notice, Mapping)
+            and notice.get("kind") == "ready"
+            and str(notice.get("event_id", "")) == watched_event_id
+        ):
+            state["notice"] = {}
+        state["watched_event_id"] = ""
+        return
+    sprite_available = bool(event.get("sprite_released", False))
+    current_size = 0 if sprite_available else _int(event.get("current_size"))
+    required_level = (
+        SHOOTING_STAR_LAYERS_BY_SIZE[current_size].mining_level
+        if current_size in SHOOTING_STAR_LAYERS_BY_SIZE
+        else 0
+    )
+    if not sprite_available and mining_level < required_level:
+        return
+    state["notice"] = {
+        "kind": "ready",
+        "event_id": watched_event_id,
+        "current_size": current_size,
+        "required_level": required_level,
+        "sprite_available": sprite_available,
+    }
+
+
 def _resolve_event(
     state: dict[str, Any],
     *,
@@ -378,6 +442,11 @@ def advance_shooting_star_world_clock_pure(
         )[-20:]
         events.append({"kind": "spawned", **event})
 
+    _refresh_watched_star_notice(
+        state,
+        mining_level=_int(data.get("mining_level"), 1, minimum=1),
+    )
+
     data["shooting_star"] = sanitize_shooting_star_state_pure(state)
     return data, tuple(events)
 
@@ -388,6 +457,71 @@ def shooting_star_event_mineable_pure(
     data = ensure_shooting_star_state_pure(player_data)
     event = data["shooting_star"]["active_event"]
     return bool(event and not event.get("sprite_released"))
+
+
+def _stop_for_unminable_layer(
+    data: dict[str, Any],
+    state: dict[str, Any],
+    event: dict[str, Any],
+    *,
+    current_size: int,
+    tag_xp: float = 0.0,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    layer = SHOOTING_STAR_LAYERS_BY_SIZE[current_size]
+    existing_notice = state.get("notice")
+    notice_created = not (
+        isinstance(existing_notice, Mapping)
+        and existing_notice.get("kind") == "unminable"
+        and str(existing_notice.get("event_id", ""))
+        == str(event.get("event_id", ""))
+    )
+    state["active_event"] = event
+    state["notice"] = {
+        "kind": "unminable",
+        "event_id": str(event.get("event_id", "")),
+        "current_size": current_size,
+        "required_level": layer.mining_level,
+        "sprite_available": False,
+    }
+    state["watched_event_id"] = ""
+    state["last_result"] = "Star unminable at your level"
+    data["current_utility"] = "bankstanding"
+    data["shooting_star"] = sanitize_shooting_star_state_pure(state)
+    return data, {
+        "unminable": True,
+        "tag_xp": tag_xp,
+        "mining_xp": tag_xp,
+        "current_size": current_size,
+        "required_level": layer.mining_level,
+        "notice_created": notice_created,
+        "event_log_text": (
+            "Star unminable at your level · "
+            f"Size {current_size} needs Mining {layer.mining_level}"
+        ),
+    }
+
+
+def apply_shooting_star_join_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    data = ensure_shooting_star_state_pure(player_data)
+    state = dict(data["shooting_star"])
+    event = dict(state.get("active_event") or {})
+    if not event or event.get("sprite_released"):
+        return data, False, {"reason": "No mineable Shooting Star is active."}
+    current_size = _int(event.get("current_size"))
+    layer = SHOOTING_STAR_LAYERS_BY_SIZE[current_size]
+    mining_level = _int(data.get("mining_level"), 1, minimum=1)
+    if mining_level < layer.mining_level:
+        stopped, info = _stop_for_unminable_layer(
+            data,
+            state,
+            event,
+            current_size=current_size,
+        )
+        return stopped, False, info
+    data["current_utility"] = "shooting_stars"
+    return data, True, {"joined": True}
 
 
 def _pick_gem(
@@ -422,6 +556,8 @@ def apply_shooting_star_review_pure(
         return data, False, {"reason": "No mineable Shooting Star is active."}
 
     mining_level = _int(data.get("mining_level"), 1, minimum=1)
+    current_size = _int(event.get("current_size"))
+    layer = SHOOTING_STAR_LAYERS_BY_SIZE[current_size]
     tag_xp = 0.0
     first_attempt = not bool(event.get("player_attempted", False))
     if first_attempt:
@@ -432,6 +568,16 @@ def apply_shooting_star_review_pure(
         ):
             event["tag_awarded"] = True
             tag_xp = float(75 * mining_level)
+
+    if mining_level < layer.mining_level:
+        stopped, info = _stop_for_unminable_layer(
+            data,
+            state,
+            event,
+            current_size=current_size,
+            tag_xp=tag_xp,
+        )
+        return stopped, True, info
 
     if not has_usable_pickaxe:
         state["active_event"] = event
@@ -444,23 +590,6 @@ def apply_shooting_star_review_pure(
                 "current_size": _int(event.get("current_size")),
             }
         return data, False, {"reason": "A usable pickaxe is required."}
-
-    current_size = _int(event.get("current_size"))
-    layer = SHOOTING_STAR_LAYERS_BY_SIZE[current_size]
-    if mining_level < layer.mining_level:
-        state["active_event"] = event
-        state["last_result"] = (
-            f"Waiting for the public miners to expose size "
-            f"{mining_level // 10 or 1}."
-        )
-        data["shooting_star"] = sanitize_shooting_star_state_pure(state)
-        return data, True, {
-            "waiting": True,
-            "tag_xp": tag_xp,
-            "mining_xp": tag_xp,
-            "current_size": current_size,
-            "required_level": layer.mining_level,
-        }
 
     removed = _remove_dust(
         event,
@@ -499,7 +628,6 @@ def apply_shooting_star_review_pure(
     data["shooting_star"] = sanitize_shooting_star_state_pure(state)
     mining_xp = layer.xp_per_dust + tag_xp
     return data, True, {
-        "waiting": False,
         "tag_xp": tag_xp,
         "dust_xp": layer.xp_per_dust,
         "mining_xp": mining_xp,
@@ -513,6 +641,87 @@ def apply_shooting_star_review_pure(
         "layer_remaining": _int(event.get("layer_remaining")),
         "sprite_released": bool(event.get("sprite_released", False)),
     }
+
+
+def shooting_star_notice_view_pure(
+    player_data: Mapping[str, Any],
+) -> dict[str, Any]:
+    data = ensure_shooting_star_state_pure(player_data)
+    notice = data["shooting_star"]["notice"]
+    if not notice:
+        return {"visible": False, "kind": "", "actions": ()}
+    kind = str(notice.get("kind", ""))
+    current_size = _int(notice.get("current_size"))
+    required_level = _int(notice.get("required_level"))
+    if kind == "unminable":
+        return {
+            "visible": True,
+            "kind": kind,
+            "label": "Star unminable at your level",
+            "detail": (
+                f"Size {current_size} needs Mining {required_level}. "
+                "Activity stopped and selection cleared."
+            ),
+            "actions": (
+                {"id": "watch", "label": "Watch this star"},
+                {"id": "dismiss", "label": "Dismiss"},
+            ),
+            "event_id": str(notice.get("event_id", "")),
+        }
+    sprite_available = bool(notice.get("sprite_available", False))
+    return {
+        "visible": True,
+        "kind": kind,
+        "label": (
+            "Star sprite available"
+            if sprite_available
+            else "Star ready to mine"
+        ),
+        "detail": (
+            "Rejoin whenever you like. Nothing auto-switched."
+            if sprite_available
+            else f"Size {current_size} needs Mining {required_level}. "
+            "Rejoin whenever you like."
+        ),
+        "actions": ({"id": "mine", "label": "Mine star"},),
+        "event_id": str(notice.get("event_id", "")),
+    }
+
+
+def apply_shooting_star_notice_action_pure(
+    player_data: Mapping[str, Any],
+    action_id: str,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    data = ensure_shooting_star_state_pure(player_data)
+    state = dict(data["shooting_star"])
+    notice = dict(state.get("notice") or {})
+    action = str(action_id or "")
+    if action == "dismiss" and notice:
+        state["notice"] = {}
+        state["watched_event_id"] = ""
+        data["shooting_star"] = sanitize_shooting_star_state_pure(state)
+        return data, True, {"dismissed": True}
+    if action == "watch" and notice.get("kind") == "unminable":
+        state["watched_event_id"] = str(notice.get("event_id", ""))
+        state["notice"] = {}
+        data["shooting_star"] = sanitize_shooting_star_state_pure(state)
+        return data, True, {"watching": True}
+    if action == "mine" and notice.get("kind") == "ready":
+        event = state.get("active_event")
+        if (
+            not isinstance(event, Mapping)
+            or str(event.get("event_id", "")) != str(notice.get("event_id", ""))
+        ):
+            return data, False, {"reason": "That Shooting Star is no longer active."}
+        state["notice"] = {}
+        state["watched_event_id"] = ""
+        data["current_utility"] = "shooting_stars"
+        data["shooting_star"] = sanitize_shooting_star_state_pure(state)
+        return data, True, {
+            "rejoin": True,
+            "sprite_available": bool(event.get("sprite_released", False)),
+        }
+    return data, False, {"reason": "That Shooting Star action is unavailable."}
 
 
 def apply_shooting_star_exchange_pure(

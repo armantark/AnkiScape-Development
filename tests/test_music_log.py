@@ -217,6 +217,20 @@ class MusicViewTest(unittest.TestCase):
         row = next(row for row in searched["tracks"] if row["name"] == quest_track.name)
         self.assertEqual(row["status"], "Unlocked")
         self.assertEqual(row["source"], quest_track.source)
+        self.assertEqual(row["label"], quest_track.name)
+
+        locked_track = next(
+            track for track in MUSIC_TRACKS if track.id not in player["music_log"]["unlocked_tracks"]
+        )
+        self.assertEqual(
+            music_log_view_pure(player, search=locked_track.name)["tracks"],
+            (),
+        )
+        locked_search = music_log_view_pure(player, search=locked_track.hint)
+        locked_row = next(
+            row for row in locked_search["tracks"] if row["track_id"] == locked_track.id
+        )
+        self.assertEqual(locked_row["label"], locked_track.hint)
 
         latent = music_log_view_pure(player, completion_filter="latent")
         self.assertTrue(latent["tracks"])

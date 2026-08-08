@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.grand_exchange_data import GE_ITEM_CATALOG, build_ge_item_catalog_pure
@@ -13,6 +14,7 @@ from tools.generate_ge_period_data import (
     _normalized_name,
     _parse_fields,
     _period_name_candidates,
+    _price_row,
 )
 
 
@@ -44,7 +46,6 @@ class GrandExchangeDataTest(unittest.TestCase):
             "|Limit=25000\n"
             "}}"
         )
-
         self.assertEqual(
             fields,
             {
@@ -53,6 +54,37 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "price": "494",
                 "limit": "25000",
             },
+        )
+
+    def test_harvester_tries_singular_exchange_page_after_plural_title(self):
+        revision = {
+            "title": "Exchange:Black claw",
+            "revid": 6_586_107,
+            "timestamp": "2012-11-19T13:11:15Z",
+            "content": (
+                "{{ExchangeItem\n"
+                "|Item=Black claws\n"
+                "|ItemId=3098\n"
+                "|Price=6,772\n"
+                "|Limit=100\n"
+                "}}"
+            ),
+        }
+        with patch(
+            "tools.generate_ge_period_data._fetch_cutoff_revision",
+            side_effect=(None, revision),
+        ) as fetch_revision:
+            item_name, row = _price_row(
+                "Black claws",
+                ("Black claws", "Black claw"),
+            )
+
+        self.assertEqual(item_name, "Black claws")
+        self.assertEqual(row["price"], 6_772)
+        self.assertEqual(row["page_limit"], 100)
+        self.assertEqual(
+            [call.args[0] for call in fetch_revision.call_args_list],
+            ["Exchange:Black claws", "Exchange:Black claw"],
         )
 
     def test_catalog_intersects_registered_tradeable_and_cache_exchangeable_items(self):
@@ -120,11 +152,26 @@ class GrandExchangeDataTest(unittest.TestCase):
             6_457_777,
         )
 
+    def test_black_and_white_equipment_families_reach_the_live_catalog(self):
+        for item_name, source_item_id, guide_price in (
+            ("Black scimitar", 1327, 3_282),
+            ("Black mace", 1426, 976),
+            ("Black claws", 3098, 6_772),
+            ("Black spear", 4580, 283),
+            ("White scimitar", 6611, 1_846),
+        ):
+            with self.subTest(item_name=item_name):
+                row = GE_ITEM_CATALOG[item_name]
+                self.assertEqual(row["source_item_id"], source_item_id)
+                self.assertEqual(row["category"], "equipment")
+                self.assertEqual(row["guide_price"], guide_price)
+                self.assertEqual(row["buy_limit"], 100)
+
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_354)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_672)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_414)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_728)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -162,90 +209,25 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertEqual(
             blocked,
             {
-                # The pinned buy-limit table lists all seven gnome cocktails but
-                # no gnome baked dish, no sliced or diced fruit, and none of the
-                # Gnome Restaurant's own reward items. Their tradeability comes
-                # from their own item revisions; the limit stays unresolved.
-                "Cheese+tom batta",
-                "Chocchip crunchies",
-                "Chocolate bomb",
-                "Fruit batta",
-                "Gnome goggles",
-                "Gnome scarf",
-                "Grand seed pod",
-                "Lemon chunks",
-                "Lemon slices",
-                "Lime chunks",
-                "Lime slices",
-                "Mint cake",
-                "Orange chunks",
-                "Orange slices",
-                "Pineapple chunks",
-                "Spicy crunchies",
-                "Tangled toads\' legs",
-                "Toad batta",
-                "Toad crunchies",
-                "Veg ball",
-                "Vegetable batta",
-                "Worm batta",
-                "Worm crunchies",
-                "Worm hole",
-                # 2011Scape items.yml marks item 6305 tradeable, but the pinned
-                # period buy-limit table has no Skewer stick row.
-                "Skewer stick",
-                # The Arena wand revisions establish tradeability, but the
-                # pinned period buy-limit table has no row for any of the four.
-                "Apprentice wand",
-                "Arctic pyre logs",
-                "Beginner wand",
                 "Black warlock",
                 "Cape",
-                "Elemental talisman",
-                "Eucalyptus pyre logs",
                 "Feather headdress",
-                "Fine cloth",
                 "Flowers",
                 "Fremennik cloak",
                 "Fremennik shirt",
-                # The period Enchanted key article says the god mjolnirs can be
-                # bought on the Grand Exchange, so they are tradeable, but the
-                # pinned buy-limit table (oldid 6457777) has no row for them.
-                # They sell like every other unresolved identity and stay
-                # unbuyable until one turns up.
-                "Guthix mjolnir",
-                "Loar remains",
-                "Magic pyre logs",
-                "Mahogany pyre logs",
-                "Master wand",
-                "Maple pyre logs",
-                "Oak pyre logs",
-                "Olive oil (1)",
-                "Olive oil (2)",
-                "Olive oil (4)",
                 "Pirate bandana",
                 "Pirate leggings",
                 "Priest gown",
-                "Pyre logs",
                 "Robe top",
                 "Ruby harvest",
-                "Sacred oil (1)",
-                "Sacred oil (2)",
-                "Sacred oil (3)",
-                "Sacred oil (4)",
-                "Saradomin mjolnir",
                 "Snowy knight",
                 "Stripy pirate shirt",
-                "Teacher wand",
-                "Teak pyre logs",
                 "Tribal top",
                 "Villager armband",
                 "Villager hat",
                 "Villager robe",
                 "Villager sandals",
-                "Willow pyre logs",
                 "Woven top",
-                "Yew pyre logs",
-                "Zamorak mjolnir",
             },
         )
 

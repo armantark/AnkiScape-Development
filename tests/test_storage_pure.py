@@ -431,6 +431,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["big_chinchompa"]["competence_points"], 0)
         self.assertEqual(data["shooting_star"]["active_event"], {})
         self.assertEqual(data["shooting_star"]["last_exchange_day"], -1)
+        self.assertEqual(data["shooting_star"]["notice"], {})
+        self.assertEqual(data["shooting_star"]["watched_event_id"], "")
         self.assertFalse(data["fist_of_guthix"]["tutorial_complete"])
         self.assertEqual(data["fist_of_guthix"]["rating"], 1_000)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
@@ -564,6 +566,32 @@ class TestStoragePure(unittest.TestCase):
             migrated["shooting_star"]["ore_bonus_ticks_remaining"], 0
         )
         self.assertEqual(migrated["shooting_star"]["active_event"], {})
+
+    def test_migration_preserves_a_bounded_shooting_star_notice_and_watch(self):
+        migrated = migrate_loaded_data(
+            {
+                "shooting_star": {
+                    "notice": {
+                        "kind": "unminable",
+                        "event_id": "shooting-star-20",
+                        "current_size": 9,
+                        "required_level": 90,
+                    },
+                    "watched_event_id": "shooting-star-20",
+                }
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(
+            migrated["shooting_star"]["notice"]["kind"],
+            "unminable",
+        )
+        self.assertEqual(
+            migrated["shooting_star"]["watched_event_id"],
+            "shooting-star-20",
+        )
 
     def test_migration_sanitizes_fist_of_guthix_state(self):
         migrated = migrate_loaded_data(

@@ -23,7 +23,7 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Mapping
+from typing import Mapping, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -180,8 +180,19 @@ def _buy_limit_table() -> tuple[dict[str, int], dict[str, str], dict[str, object
     return limits, titles, revision
 
 
-def _price_row(item_name: str, exchange_title: str) -> tuple[str, dict[str, object] | None]:
-    revision = _fetch_cutoff_revision(f"Exchange:{exchange_title}")
+def _price_row(
+    item_name: str,
+    exchange_titles: Sequence[str],
+) -> tuple[str, dict[str, object] | None]:
+    revision = next(
+        (
+            candidate
+            for exchange_title in exchange_titles
+            if (candidate := _fetch_cutoff_revision(f"Exchange:{exchange_title}"))
+            is not None
+        ),
+        None,
+    )
     if revision is None:
         return item_name, None
     fields = _parse_fields(str(revision["content"]))
@@ -218,7 +229,9 @@ def harvest() -> dict[str, object]:
         )
         normalized = _normalized_name(matched_name)
         exchange_title = title_by_normalized.get(normalized, item_name)
-        exchange_titles[item_name] = exchange_title
+        exchange_titles[item_name] = tuple(
+            dict.fromkeys((exchange_title, *_period_name_candidates(item_name)))
+        )
         limit = limit_by_normalized.get(normalized)
         if limit is not None:
             buy_limits[item_name] = limit

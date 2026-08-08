@@ -6,9 +6,11 @@ import copy
 from typing import Any, Mapping, Optional
 
 from ..data.phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
+from ..logic.shooting_star_logic import shooting_star_notice_view_pure
 
 
 PIT_REWARD_CONTEXT_ID = "pit_reward"
+SHOOTING_STAR_NOTICE_CONTEXT_ID = "shooting_star_notice"
 PIT_REWARD_OPTIONS = (
     {"id": "take_xp", "label": "Take XP"},
     {"id": "gamble", "label": "Gamble"},
@@ -76,6 +78,17 @@ def review_context_projection_pure(player_data: Mapping[str, Any]) -> dict[str, 
     activities = player_data.get("agility_activity_state")
     reward = activities.get("pit_reward") if isinstance(activities, Mapping) else None
     rows: list[dict[str, Any]] = []
+    star_notice = shooting_star_notice_view_pure(player_data)
+    if star_notice.get("visible"):
+        rows.append(
+            {
+                "family_id": SHOOTING_STAR_NOTICE_CONTEXT_ID,
+                "label": str(star_notice.get("label", "")),
+                "detail": str(star_notice.get("detail", "")),
+                "options": tuple(star_notice.get("actions", ())),
+                "presentation": "neutral_outline",
+            }
+        )
     if isinstance(reward, Mapping):
         try:
             xp = float(reward.get("xp", 0.0) or 0.0)

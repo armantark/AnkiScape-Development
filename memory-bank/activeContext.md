@@ -3965,8 +3965,12 @@ flees silently when the player runs out of food.
 - Top-level Activities is now a stable master route. It always shows the full
   Activities tree without clearing the saved activity, while explicit deep
   links and activated tree rows still open named details.
-- Minigames and Distractions and Diversions remain grouped under Activities;
-  their child rows now render in case-insensitive alphabetical order.
+- Activities now owns three icon rows in the middle Selection column:
+  **Activities**, **Minigames**, and **Distractions and Diversions**. The
+  Activities row shows only the Warriors' Guild and Landmarks master groups;
+  the other two rows show 29 and 17 flat case-insensitive alphabetical entries.
+  The Activities-only 250-pixel column keeps the full D&D label visible without
+  reducing the supported narrow layouts of any other category.
 - Simulated world time now appears in the main-menu status row, not the review
   strip. It remains derived only from answered reviews at ten reviews per hour.
 - Verification passed 411 focused offscreen UI tests, 214 focused pure,
@@ -3987,3 +3991,33 @@ flees silently when the player runs out of food.
 - Equipment point-meter layout and Big Top execution-priority UI are not safe
   to infer. They remain parked in the owner/Fable co-ideation Markdown brief
   until quota returns; Fable and Kimi were not used.
+
+## Pass 8 implementation — 2026-08-07
+
+- The settled Pass 8 packet is implemented on canonical `main`: exact top-tab
+  order; Bank presentation metadata and the RS-style tabbed frame; the
+  registry-backed Stats skill guide; the Music and boss/monster Collections
+  family; and the Shooting Star stop, watch, and one-click rejoin flow.
+- Root made every product edit. Read-only Opus 5 workflows supplied bounded
+  frontend layout decisions and maker-checker review. Fable and Kimi were not
+  used.
+- The final Shooting Star batch is commit `08597813`. Its persistent notice
+  lives inside the existing 128-pixel review strip, keeps the vanilla answer
+  bar outside the add-on surface, and preserves the first-finder XP tag even
+  when an inaccessible layer stops the activity.
+- Both full repository lanes pass 3,857 tests. The non-Qt lane has 479 expected
+  skips; the offscreen Qt lane has three intentional skips. Documentation has
+  zero errors, test quality has zero hard issues, and 24 focused asset tests
+  pass. Reachability remains at the established 1,498 actions, 2,230 reachable
+  items, 169 orphan inputs, and 189 blocked actions.
+- Native acceptance remains externally blocked. The owner confirmed that the
+  MacBook Pro is on, but the regular Codex Connection host
+  `remote-control:env_e_6a684c98946c8321ba89026140dd59e4` still returns the
+  exact error `thread_list_unavailable`. Tailscale was not used, and offscreen
+  Qt is not claimed as native parity. The durable trace is
+  `codex-briefs/pass8-owner-notes-handoff-2026-08-07.md`.
+- The owner chose to do the final Pass 8 native playtest directly. The local
+  results artifact is `status-updates/pass8-results-2026-08-07.html`. It passed
+  the artifact checker and opened in Arc. Postplan hosting is blocked by
+  `Inline JavaScript requires an authenticated upload.` because the local
+  client has no valid API key.

@@ -8,10 +8,13 @@ from ankiscape.data.shooting_star_data import (
 )
 from ankiscape.logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
+    apply_shooting_star_join_pure,
+    apply_shooting_star_notice_action_pure,
     apply_shooting_star_exchange_pure,
     apply_shooting_star_review_pure,
     default_shooting_star_state_pure,
     ensure_shooting_star_state_pure,
+    shooting_star_notice_view_pure,
     shooting_star_view_pure,
 )
 
@@ -31,6 +34,25 @@ def _player(*, answered=20, mining_level=99):
 
 
 class TestShootingStarLogic(unittest.TestCase):
+    def test_join_refuses_a_too_large_star_and_clears_selection(self):
+        player, _ = advance_shooting_star_world_clock_pure(
+            _player(mining_level=10)
+        )
+        player["shooting_star"]["active_event"].update(
+            {"starting_size": 9, "current_size": 9, "layer_remaining": 15}
+        )
+        player["current_utility"] = "shooting_stars"
+
+        stopped, ok, info = apply_shooting_star_join_pure(player)
+
+        self.assertFalse(ok)
+        self.assertTrue(info["unminable"])
+        self.assertEqual(stopped["current_utility"], "bankstanding")
+        self.assertEqual(
+            shooting_star_notice_view_pure(stopped)["label"],
+            "Star unminable at your level",
+        )
+
     def test_review_clock_spawns_a_period_layer_and_reports_next_star(self):
         waiting = _player(answered=19)
         waiting, events = advance_shooting_star_world_clock_pure(waiting)
@@ -107,7 +129,7 @@ class TestShootingStarLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("pickaxe", result["reason"])
 
-    def test_casual_waits_through_inaccessible_layers(self):
+    def test_inaccessible_layer_stops_instead_of_waiting(self):
         player, _ = advance_shooting_star_world_clock_pure(
             _player(mining_level=10)
         )
@@ -117,14 +139,153 @@ class TestShootingStarLogic(unittest.TestCase):
         event["layer_remaining"] = 15
         player["shooting_star"]["active_event"] = event
 
-        waited, ok, result = apply_shooting_star_review_pure(
+        stopped, ok, result = apply_shooting_star_review_pure(
             player,
             has_usable_pickaxe=True,
         )
         self.assertTrue(ok)
-        self.assertTrue(result["waiting"])
+        self.assertTrue(result["unminable"])
         self.assertEqual(result["required_level"], 90)
-        self.assertEqual(waited["inventory"].get("Stardust", 0), 0)
+        self.assertEqual(stopped["inventory"].get("Stardust", 0), 0)
+        self.assertEqual(stopped["current_utility"], "bankstanding")
+        self.assertEqual(
+            shooting_star_notice_view_pure(stopped)["kind"],
+            "unminable",
+        )
+
+    def test_inaccessible_first_attempt_keeps_the_first_finder_tag(self):
+        player, _ = advance_shooting_star_world_clock_pure(
+            _player(mining_level=10)
+        )
+        event = player["shooting_star"]["active_event"]
+        event.update(
+            {
+                "current_size": 9,
+                "starting_size": 9,
+                "layer_remaining": 15,
+                "player_attempted": False,
+                "tag_candidate": True,
+                "crowd_dust_removed": 0,
+            }
+        )
+        player["shooting_star"]["active_event"] = event
+
+        stopped, ok, result = apply_shooting_star_review_pure(
+            player,
+            has_usable_pickaxe=True,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["tag_xp"], 750.0)
+        self.assertEqual(result["mining_xp"], 750.0)
+        self.assertTrue(
+            stopped["shooting_star"]["active_event"]["player_attempted"]
+        )
+        self.assertTrue(stopped["shooting_star"]["active_event"]["tag_awarded"])
+
+    def test_watched_star_raises_ready_notice_without_rejoining(self):
+        player, _ = advance_shooting_star_world_clock_pure(
+            _player(mining_level=10)
+        )
+        event = player["shooting_star"]["active_event"]
+        event.update({"current_size": 2, "starting_size": 2, "layer_remaining": 5})
+        player["shooting_star"]["active_event"] = event
+        player["current_utility"] = "shooting_stars"
+        player["activity_session"] = {"active_id": "shooting_stars"}
+        stopped, ok, _result = apply_shooting_star_review_pure(
+            player,
+            has_usable_pickaxe=True,
+        )
+        self.assertTrue(ok)
+        stopped["current_utility"] = "evil_tree"
+
+        watched, ok, info = apply_shooting_star_notice_action_pure(
+            stopped,
+            "watch",
+        )
+        self.assertTrue(ok)
+        self.assertTrue(info["watching"])
+        self.assertFalse(shooting_star_notice_view_pure(watched)["visible"])
+
+        watched["shooting_star"]["active_event"].update(
+            {"current_size": 1, "layer_remaining": 10}
+        )
+        ready, _events = advance_shooting_star_world_clock_pure(watched)
+        notice = shooting_star_notice_view_pure(ready)
+        self.assertEqual(notice["kind"], "ready")
+        self.assertEqual(notice["actions"], ({"id": "mine", "label": "Mine star"},))
+        self.assertEqual(ready["current_utility"], "evil_tree")
+
+        dismissed, ok, _info = apply_shooting_star_notice_action_pure(
+            ready,
+            "dismiss",
+        )
+        self.assertTrue(ok)
+        self.assertFalse(shooting_star_notice_view_pure(dismissed)["visible"])
+        self.assertEqual(dismissed["shooting_star"]["watched_event_id"], "")
+
+    def test_watched_star_sprite_raises_the_same_manual_rejoin_action(self):
+        player, _ = advance_shooting_star_world_clock_pure(
+            _player(mining_level=10)
+        )
+        event = player["shooting_star"]["active_event"]
+        event.update({"current_size": 2, "starting_size": 2, "layer_remaining": 5})
+        player["shooting_star"]["active_event"] = event
+        player["current_utility"] = "shooting_stars"
+        stopped, ok, _result = apply_shooting_star_review_pure(
+            player,
+            has_usable_pickaxe=True,
+        )
+        self.assertTrue(ok)
+        watched, ok, _info = apply_shooting_star_notice_action_pure(
+            stopped,
+            "watch",
+        )
+        self.assertTrue(ok)
+        watched["shooting_star"]["active_event"].update(
+            {
+                "current_size": 0,
+                "layer_remaining": 0,
+                "sprite_released": True,
+                "sprite_expires_card": 22,
+            }
+        )
+
+        ready, _events = advance_shooting_star_world_clock_pure(watched)
+        notice = shooting_star_notice_view_pure(ready)
+
+        self.assertEqual(notice["label"], "Star sprite available")
+        self.assertEqual(notice["actions"], ({"id": "mine", "label": "Mine star"},))
+
+    def test_ready_notice_clears_when_the_watched_star_expires(self):
+        player, _ = advance_shooting_star_world_clock_pure(
+            _player(answered=20, mining_level=10)
+        )
+        event = player["shooting_star"]["active_event"]
+        event.update({"current_size": 2, "starting_size": 2, "layer_remaining": 5})
+        player["shooting_star"]["active_event"] = event
+        player["current_utility"] = "shooting_stars"
+        stopped, ok, _result = apply_shooting_star_review_pure(
+            player,
+            has_usable_pickaxe=True,
+        )
+        self.assertTrue(ok)
+        watched, ok, _info = apply_shooting_star_notice_action_pure(
+            stopped,
+            "watch",
+        )
+        self.assertTrue(ok)
+        watched["shooting_star"]["active_event"].update(
+            {"current_size": 1, "layer_remaining": 10}
+        )
+        ready, _events = advance_shooting_star_world_clock_pure(watched)
+        self.assertTrue(shooting_star_notice_view_pure(ready)["visible"])
+
+        ready["shop_market_clock"]["answered_cards"] = 40
+        expired, _events = advance_shooting_star_world_clock_pure(ready)
+
+        self.assertFalse(shooting_star_notice_view_pure(expired)["visible"])
+        self.assertEqual(expired["shooting_star"]["watched_event_id"], "")
 
     def test_dust_cap_does_not_stop_layer_xp_or_depletion(self):
         player, _ = advance_shooting_star_world_clock_pure(_player())
