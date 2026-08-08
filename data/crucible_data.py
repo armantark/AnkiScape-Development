@@ -126,12 +126,13 @@ CRUCIBLE_EVENT_REVIEWS = 1
 # fixed fraction cannot lose to the player at any level, which is exactly how an
 # earlier family shipped a match no one could win or lose.
 #
-# PLACEHOLDER(crucible.target_level_offsets): the actual spread the period matcher
-# used. The article says "equivalent or similar combat skill" and its criticism
-# section says the matching could pair a low-combat player against a maxed one,
-# but no revision states the range, and the rev-727 interfaces hold no matching
-# table. These four offsets reproduce the described shape and nothing more.
-CRUCIBLE_TARGET_LEVEL_OFFSETS = (-8, 0, 8, 20)
+# PLACEHOLDER(crucible.target_level_offsets): the actual spread and frequency the
+# period matcher used. The article says "equivalent or similar combat skill"
+# and its criticism section says the matching could pair a low-combat player
+# against a maxed one, but no revision states the range, and the rev-727
+# interfaces hold no matching table. Three offsets keep ordinary rivals nearby;
+# +78 makes the documented level-60-to-138 failure reachable before clamping.
+CRUCIBLE_TARGET_LEVEL_OFFSETS = (-8, 0, 8, 78)
 
 # An AnkiScape abstraction, not a period value: the period game had no answered
 # card, so nothing can state how much combat one review is worth. Six ticks is the

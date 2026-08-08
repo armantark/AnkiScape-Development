@@ -1,5 +1,28 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 20 — Crucible target-level matching
+
+- Evidence: Crucible oldid `6538845`; its complete pre-cutoff article and talk
+  histories; rev-727 interfaces and scripts; and Darkan's complete Crucible
+  history from `53122a021` onward.
+- Result: the exact server matching band and its frequencies remain
+  source-blocked. The old registered `-8/0/+8/+20` cycle could not reproduce
+  the period criticism it cited: a minimum-eligible combat-60 entrant could
+  reach only level 80, never a maxed level-138 opponent. The fourth offset is
+  now `+78`, clamped to the real 3–138 combat range. The first three targets
+  remain near-level, while the documented severe mismatch is reachable. Its
+  one-in-four cycle position is explicitly a reachability abstraction, not a
+  period frequency. No design gap surfaced.
+- Verification: 39 focused Crucible/register tests pass. Full discovery runs
+  3,858 tests in both lanes: plain has 3,379 ordinary passes and 479 expected
+  skips; offscreen Qt has 3,855 ordinary passes and 3 expected skips. Test
+  quality audits 3,824 methods across 176 files with 0 hard issues. A bounded
+  GPT-family no-tools checker (`8b16c106-cd75-4e23-a51b-37e0d1792af3`)
+  independently agreed that no numeric period band survives; root reproduced
+  the reachable-boundary defect. Documentation, diff-hygiene, and worktree
+  audits pass. This merge is GPT-family verified.
+- Next: Crucible event interval.
+
 ## Iteration 19 — Crucible bounty-fee scale
 
 - Evidence: Crucible oldid `6538845`; complete cutoff talk history through

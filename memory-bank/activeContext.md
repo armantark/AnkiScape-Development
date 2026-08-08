@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 20 makes the Crucible's documented severe
+matchmaking failure reachable.** Cutoff oldid `6538845` says the intended
+opponent had similar combat skill but records that relatively low-combat
+players could be matched against maxed players. The complete article/talk
+histories, rev-727 client surfaces, and Darkan's complete Crucible history do
+not expose a numeric band or frequency. The old registered `-8/0/+8/+20`
+cycle could not reproduce its own cited failure: combat 60 topped out at 80.
+The fourth offset is now `+78`, clamped to 3–138, while the first three targets
+remain near-level. Its fourth-slot frequency remains a disclosed reachability
+abstraction. No owner design gap surfaced. The next slice re-walks the Crucible
+event interval. Focused verification passes 39 tests. Full discovery runs 3,858
+tests in both lanes, with 479 expected plain skips and 3 expected Qt skips.
+Test quality audits 3,824 methods with 0 hard issues.
+
 **2026-08-03, grind-loop iteration 19 corrects the Crucible bounty-fee scale
 without pretending to recover the server formula.** A launch-day report gives
 50,000 coins with meaningful gear and 500,000 with nothing risked at combat 60.

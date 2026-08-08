@@ -1,5 +1,26 @@
 # Progress
 
+## Crucible target-level matching correction — 2026-08-08
+
+Cutoff Crucible oldid `6538845` preserves both the intended similar-combat
+match and the observed failure that a relatively low-combat player could face
+a maxed opponent. Its complete pre-cutoff article and talk histories contain no
+numeric pair or range. Rev-727 has no matching table or target selector, and
+Darkan's complete Crucible history never assigns a target or computes a combat
+band. The exact spread and frequency therefore remain source-blocked.
+
+The old registered `-8/0/+8/+20` cycle could not reproduce that attested
+failure: the combat-60 entry gate topped out at level 80. The corrected cycle
+keeps three ordinary near-level opponents and uses `+78`, clamped to 3–138, so
+the same combat-60 player can reach level 138. The fourth-slot frequency is a
+disclosed AnkiScape reachability choice, not a period claim. A regression drives
+the real target constructor and proves the ordinary and severe boundaries.
+Focused Crucible/register verification passes 39 tests. Full discovery runs
+3,858 tests in both lanes, with 479 expected plain skips and 3 expected Qt
+skips. Test quality audits 3,824 methods across 176 files with 0 hard issues;
+documentation, diff-hygiene, and worktree audits pass. No owner design gap
+surfaced.
+
 ## Crucible bounty-fee scale correction — 2026-08-03
 
 The surviving period evidence proves the prior live curve was too small by

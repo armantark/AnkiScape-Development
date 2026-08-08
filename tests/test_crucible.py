@@ -48,6 +48,7 @@ from ankiscape.data.crucible_data import (
     CRUCIBLE_SUPREME_HELM,
     CRUCIBLE_SUPREME_HELM_COST,
     CRUCIBLE_SUPREME_TIER,
+    CRUCIBLE_TARGET_LEVEL_OFFSETS,
     CRUCIBLE_TAUNTS,
     CRUCIBLE_TITLES,
     CRUCIBLE_UNLOCKS,
@@ -64,6 +65,7 @@ from ankiscape.logic.crucible_logic import (
     default_crucible_state_pure,
     enter_crucible_pure,
     leave_crucible_pure,
+    _new_target,
     sanitize_crucible_state_pure,
     set_crucible_cosmetic_pure,
     take_crucible_lesson_pure,
@@ -222,6 +224,20 @@ class CrucibleDataTest(unittest.TestCase):
                 ("magic", 5, 0.0),
             ),
         )
+
+    def test_the_low_gate_can_reach_the_documented_maxed_mismatch(self):
+        player = _player(53)
+        self.assertEqual(player_combat_level_pure(player), 60)
+
+        ordinary = [
+            _new_target(player, 1, target_number)["combat_level"]
+            for target_number in range(1, 4)
+        ]
+        severe = _new_target(player, 1, 4)["combat_level"]
+
+        self.assertEqual(CRUCIBLE_TARGET_LEVEL_OFFSETS[:3], (-8, 0, 8))
+        self.assertEqual(ordinary, [52, 60, 68])
+        self.assertEqual(severe, 138)
 
     def test_the_rank_ladder_is_the_clients_own_tier_list(self):
         self.assertEqual([row[0] for row in CRUCIBLE_RANKS], [0, 1, 2, 3, 4, 5])

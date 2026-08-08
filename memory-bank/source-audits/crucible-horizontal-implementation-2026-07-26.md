@@ -284,6 +284,28 @@ to 50,000, bounded independently by the exact 48,669 screenshot component. Both
 values remain registered; neither is represented as the lost server formula.
 No owner design gap surfaced.
 
+### Target-level matching depth re-walk — 2026-08-03
+
+The exact matching band and its frequencies remain source-blocked:
+
+- Cutoff Crucible oldid `6538845` says the intended match was another player
+  with similar combat skill, then records the observed failure: relatively low
+  combat players could fight maxed players.
+- The complete pre-cutoff article history repeats the same qualitative rule and
+  criticism. The cutoff talk history adds only that match selection was flawed;
+  neither history preserves an exact combat-level pair or range.
+- Rev-727 interfaces and scripts contain no matching table or target selector.
+- Darkan's complete Crucible history from `53122a021` onward adds participant
+  sets and, later, an unused `BH_TARGETS` map. No revision assigns a Crucible
+  target or computes a combat-level band.
+
+The old placeholder cycle `-8/0/+8/+20` could not reproduce the sourced failure:
+a level-60 entrant topped out at level 80. The corrected cycle keeps three
+ordinary near-level opponents and uses `+78`, clamped to the real 138 combat
+cap, so the minimum eligible player can actually encounter the documented
+maxed mismatch. The fourth-slot frequency is a disclosed reachability choice,
+not a recovered period probability. No owner design gap surfaced.
+
 ## Asset provenance
 
 `tools/fetch_crucible_assets.py` installs `activityicons/crucible.png` from

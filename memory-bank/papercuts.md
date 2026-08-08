@@ -59,3 +59,4 @@
 2026-08-07 23:35:00 PDT — The local status-artifact visual check could not use port 8765 because `python3 -m http.server` returned `OSError: [Errno 48] Address already in use`.
 2026-08-07 23:37:00 PDT — PinchTab timed out while it opened the local Pass 8 artifact: `Client.Timeout exceeded while awaiting headers` from `http://127.0.0.1:9867/navigate`.
 2026-08-07 23:39:00 PDT — Postplan rejected the public-safe Pass 8 artifact with `Inline JavaScript requires an authenticated upload.`
+2026-08-08 00:07:52 PDT — A combined startup read of nine Memory Bank files produced `Warning: truncated output (original token count: 51390) Total output lines: 2071`; read core and task-specific records in smaller bounded groups.
