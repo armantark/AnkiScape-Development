@@ -613,3 +613,114 @@ Offscreen Qt does not claim native parity.
 Keep the registry-backed Collections family tree and drop log. The existing
 observed-drop record remains the only historical ownership source. The current
 combat registry remains the only drop denominator.
+
+## Batch 13: Shooting Star exit, watch, and rejoin
+
+### Reproduction
+
+This batch started from
+`5bbb48be137490be65f32748598a0044b71b94e8`. The checkout was clean and the
+worktree guard reported a safe layout.
+
+The old Casual path kept an inaccessible star selected. It consumed reviews
+while public miners exposed a lower layer. The join path also accepted a star
+that the player could not mine. New focused tests first failed on both paths.
+
+### Change
+
+Every inaccessible Shooting Star layer now stops the activity. The code clears
+the selected review action and writes one retained event row. The review strip
+shows the persistent `Star unminable at your level` banner. Its actions are
+`Watch this star` and `Dismiss`.
+
+The watch belongs to one event ID. A mineable layer or Star sprite changes the
+banner to a ready state with `Mine star`. The code does not change another
+selected activity. The direct action selects Shooting Stars and Activities in
+one undoable operation. An expired watched event now clears its stale ready
+banner.
+
+The native banner is 112 pixels high inside the existing 128-pixel strip. It
+uses a transparent fill, a grey outline, and grey text. At 962 pixels or more,
+the strip keeps badges, the heads-up display (HUD), the banner, and the menu
+button. At 721 through 961 pixels, it keeps the HUD, banner, and menu button.
+At 720 pixels or less, it shows the banner only. The vanilla answer bar stays
+outside the add-on strip.
+
+The first-finder tag still gives `75 * Mining level` experience on the first
+review attempt. This also applies when that attempt stops at an inaccessible
+layer. The stop does not show an activity popup. The answer transaction owns
+the stop, event row, banner state, selection change, experience, and undo.
+
+### Opus review
+
+Read-only Opus maker workflow `3194c561-50d7-46c9-a161-3e5f4e1e0aee`
+rejected the old floating context overlay. It selected a native strip child.
+Layout workflow `bbeed54f-29b2-4422-9751-2907007dd22f` selected the three width
+tiers. Root made all product edits.
+
+The first broad Opus maker workflow
+`f1bfa085-2e86-4651-8ca6-5ee06c286b2a` exceeded its declared budgets. It did
+not return a verdict. Sol checker workflow
+`560c04f8-a5d5-4293-8df2-af90443cd572` also exceeded its processed-token
+budget before a verdict.
+
+Frozen Opus checker workflow `e0768157-c964-46ac-a3c4-9d5c809bf991` returned
+a valid `FAIL` packet. Root kept the valid findings:
+
+- Preserve the existing first-finder tag on the stop path.
+- Clear stale ready state when the watched event ends.
+- Hide old action buttons before Qt defers their deletion.
+- Keep the ready and sprite layouts under geometry tests.
+- Split the direct-undo configuration restore from menu refresh.
+- Change `stop reviews` to `stop the activity` in the player copy.
+
+Root rejected three checker findings from code and contract evidence. The star
+banner stays first because the owner requires an unmissable notice. The `+N`
+chip tells the player that other choices remain queued. `on_answer_card`
+already refreshes the context and event surfaces after the answer transaction.
+Shooting Stars does not own `activity_session`, so rejoin does not expand that
+persisted allowlist.
+
+Tool-free Opus rechecker `a64923a3-8981-4821-8d92-ad989914fa9b` returned
+`ACCEPT`. It found no remaining contract or correctness defect. It also found
+no supported simplification.
+
+No Fable or Kimi service was used. The open state questions were answered by a
+focused read and durable tests. This batch did not need a disposable probe.
+
+### Verification
+
+- The focused state, runtime, storage, context, and integration lane passed 233
+  tests in 2.306 seconds.
+- The complete `tests.test_review_strip` module passed 32 tests in 1.276
+  seconds before the final session-state simplification. The identical final
+  lane passed in 1.315 seconds.
+- The complete `tests.test_main_menu_widget` module passed 394 tests in
+  135.571 seconds before the final copy-only main-menu change.
+- Three focused Shooting Star main-menu tests passed in 2.846 seconds after
+  that copy change.
+- The earlier broad pure, runtime, storage, and direct-action lane passed 252
+  tests in 10.353 seconds.
+- Python compilation and `git diff --check` passed.
+- The worktree guard reported a safe layout.
+- No product asset changed.
+- Shooting Star code does not read the wall clock.
+
+### Native evidence
+
+The regular MacBook Pro Codex Connection host
+`remote-control:env_e_6a684c98946c8321ba89026140dd59e4` reported
+`thread_list_unavailable` at the native gate. The owner confirmed that the
+MacBook Pro was on and sent a new message from the standby task. The valid
+50-task lookup still returned the same external error. Codex did not use the
+Tailscale path.
+
+Native proof of the banner, the unchanged vanilla answer bar, and card-content
+non-overlap remains externally blocked. Offscreen Qt does not claim native
+parity.
+
+### Decision
+
+Keep the stop, watch, and manual rejoin state machine. Keep the native strip
+banner and the settled width tiers. Native evidence remains open until the
+regular Codex Connection lists the MacBook Pro host.

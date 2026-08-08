@@ -2613,6 +2613,69 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon.player_data, initial)
 
+    def test_shooting_star_unminable_review_exit_and_banner_undo_together(self):
+        addon = _load_addon_as_package("ankiscape_star_unminable_undo")
+        from ankiscape_star_unminable_undo.logic.shooting_star_logic import (
+            default_shooting_star_state_pure,
+        )
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        refreshed = {"context": 0, "events": 0}
+        addon.update_review_context_action_strip = lambda *_args: refreshed.__setitem__(
+            "context", refreshed["context"] + 1
+        )
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: refreshed.__setitem__(
+            "events", refreshed["events"] + 1
+        )
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        state = default_shooting_star_state_pure()
+        state["active_event"] = {
+            "event_id": "shooting-star-20",
+            "slot_card": 20,
+            "location": "Falador east mine",
+            "starting_size": 9,
+            "current_size": 9,
+            "layer_remaining": 15,
+        }
+        initial = {
+            "current_utility": "shooting_stars",
+            "inventory": {},
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "mining_level": 10,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+            "shop_market_clock": {"answered_cards": 20, "market_tick": 20},
+            "shooting_star": state,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(
+            addon.player_data["shooting_star"]["notice"]["kind"],
+            "unminable",
+        )
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+        self.assertEqual(refreshed, {"context": 1, "events": 1})
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon.current_skill, "Activities")
+
     def test_material_exhaustion_falls_back_once_then_bankstands(self):
         addon = _load_addon_as_package(
             "ankiscape_material_fallback_bankstanding_integration"
@@ -3470,8 +3533,23 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_activity_start_transition_selects_target_and_surface_together(self):
         addon = _load_addon_as_package("ankiscape_activity_start_transition")
+        from ankiscape_activity_start_transition.logic.shooting_star_logic import (
+            default_shooting_star_state_pure,
+        )
         calls = {"save": 0, "hud": []}
-        addon.player_data = {}
+        star_state = default_shooting_star_state_pure()
+        star_state["active_event"] = {
+            "event_id": "shooting-star-20",
+            "slot_card": 20,
+            "location": "Falador east mine",
+            "starting_size": 1,
+            "current_size": 1,
+            "layer_remaining": 1_200,
+        }
+        addon.player_data = {
+            "mining_level": 10,
+            "shooting_star": star_state,
+        }
         addon.current_skill = "Mining"
         addon.save_player_data = lambda: calls.__setitem__(
             "save", calls["save"] + 1
@@ -3486,6 +3564,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.current_skill, "Activities")
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["hud"], [("shooting_stars", "Activities")])
+
+    def test_activity_start_refuses_unminable_star_and_raises_persistent_notice(self):
+        addon = _load_addon_as_package("ankiscape_activity_start_unminable")
+        from ankiscape_activity_start_unminable.logic.shooting_star_logic import (
+            default_shooting_star_state_pure,
+        )
+
+        state = default_shooting_star_state_pure()
+        state["active_event"] = {
+            "event_id": "shooting-star-20",
+            "slot_card": 20,
+            "location": "Falador east mine",
+            "starting_size": 9,
+            "current_size": 9,
+            "layer_remaining": 15,
+        }
+        calls = {"save": 0, "event_drawer": 0}
+        addon.player_data = {
+            "current_utility": "shooting_stars",
+            "mining_level": 10,
+            "shooting_star": state,
+            "shop_market_clock": {"answered_cards": 20},
+        }
+        addon.current_skill = "Activities"
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.update_review_event_log_drawer = lambda _data: calls.__setitem__(
+            "event_drawer", calls["event_drawer"] + 1
+        )
+        addon._update_review_context_surface = lambda: None
+
+        self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
+        self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(calls, {"save": 1, "event_drawer": 1})
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(
+            addon.player_data["shooting_star"]["notice"]["kind"],
+            "unminable",
+        )
 
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
@@ -6289,6 +6410,61 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon.random.getstate(), before_rng)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_shooting_star_ready_banner_rejoins_in_one_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_star_notice_direct_integration")
+        from ankiscape_star_notice_direct_integration.logic.shooting_star_logic import (
+            default_shooting_star_state_pure,
+        )
+
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        state = default_shooting_star_state_pure()
+        state["active_event"] = {
+            "event_id": "shooting-star-20",
+            "slot_card": 20,
+            "location": "Falador east mine",
+            "starting_size": 1,
+            "current_size": 1,
+            "layer_remaining": 1_200,
+        }
+        state["watched_event_id"] = "shooting-star-20"
+        state["notice"] = {
+            "kind": "ready",
+            "event_id": "shooting-star-20",
+            "current_size": 1,
+            "required_level": 10,
+            "sprite_available": False,
+        }
+        initial = {
+            "current_utility": "bankstanding",
+            "mining_level": 10,
+            "shooting_star": state,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Woodcutting"
+
+        self.assertTrue(
+            addon.resolve_review_context_action("shooting_star_notice", "mine")
+        )
+
+        self.assertEqual(addon.player_data["current_utility"], "shooting_stars")
+        self.assertEqual(addon.current_skill, "Activities")
+        self.assertEqual(addon.player_data["shooting_star"]["notice"], {})
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon.current_skill, "Woodcutting")
+        self.assertEqual(col.get_config("ankiscape_current_skill"), "Woodcutting")
 
     def test_explicit_phoenix_egg_choice_is_directly_undoable(self):
         addon = _load_addon_as_package("ankiscape_phoenix_context_direct_integration")

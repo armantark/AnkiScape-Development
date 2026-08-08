@@ -344,6 +344,7 @@ from ..logic.shooting_star_logic import (
     apply_shooting_star_review_pure,
     shooting_star_event_mineable_pure,
 )
+from ..logic.review_strip_logic import record_review_event_pure
 from ..data.fist_of_guthix_data import FIST_OF_GUTHIX_ACTIVITY_ID
 from ..logic.fist_of_guthix_logic import (
     apply_fist_of_guthix_review_pure,
@@ -820,6 +821,35 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    if result.get("unminable"):
+        if result.get("notice_created"):
+            updated = record_review_event_pure(
+                updated,
+                "activity",
+                str(result.get("event_log_text", "Star unminable at your level")),
+            )
+        ctx.player_data.clear()
+        ctx.player_data.update(updated)
+        mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
+        _record_action(
+            ctx,
+            "mining",
+            SHOOTING_STAR_ACTIVITY_ID,
+            False,
+            expected_success_chance=1.0,
+            failure_kind="unminable_layer",
+            primary_xp=mining_xp,
+        )
+        if mining_xp > 0:
+            gained = ctx.award_skill_exp("mining_exp", mining_xp)
+            ctx.level_up_check("Mining", ctx.player_data)
+            ctx.check_achievements(ctx.player_data)
+            ctx.show_exp(gained)
+        ctx.deactivate_current_skill()
+        ctx.save_player_data()
+        ctx.refresh_skill_availability()
+        return True
+
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
@@ -830,26 +860,15 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
     gem = str(result.get("gem", "") or "")
     if gem:
         outputs[gem] = outputs.get(gem, 0) + 1
-    if result.get("waiting"):
-        _record_action(
-            ctx,
-            "mining",
-            SHOOTING_STAR_ACTIVITY_ID,
-            False,
-            expected_success_chance=1.0,
-            failure_kind="waiting_for_layer",
-            primary_xp=mining_xp,
-        )
-    else:
-        _record_action(
-            ctx,
-            "mining",
-            SHOOTING_STAR_ACTIVITY_ID,
-            True,
-            expected_success_chance=1.0,
-            output_items=outputs,
-            primary_xp=mining_xp,
-        )
+    _record_action(
+        ctx,
+        "mining",
+        SHOOTING_STAR_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        output_items=outputs,
+        primary_xp=mining_xp,
+    )
     gained = ctx.award_skill_exp("mining_exp", mining_xp)
     ctx.level_up_check("Mining", ctx.player_data)
     ctx.check_achievements(ctx.player_data)
@@ -858,13 +877,7 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
     if gained > 0:
         ctx.show_exp(gained)
 
-    if result.get("waiting"):
-        ctx.show_activity_gain(
-            f"Size {int(result.get('current_size', 0))} requires "
-            f"level {int(result.get('required_level', 0))} · "
-            "waiting for public miners to expose a lower layer"
-        )
-    elif result.get("tag_only"):
+    if result.get("tag_only"):
         ctx.show_activity_gain(
             f"First-finder tag · +{mining_xp:,.6g} Mining XP · "
             "bring a pickaxe to mine stardust"

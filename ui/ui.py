@@ -575,7 +575,10 @@ from ..logic.agility_logic import (
     agility_status_line_pure,
     agility_target_locked_reasons_pure,
 )
-from ..core.review_context import review_context_projection_pure
+from ..core.review_context import (
+    SHOOTING_STAR_NOTICE_CONTEXT_ID,
+    review_context_projection_pure,
+)
 
 from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
 from ..logic.shop_logic import (
@@ -2116,10 +2119,11 @@ if HAS_QT:
             self.setObjectName("AnkiScapeReviewStrip")
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             self.setFixedHeight(REVIEW_STRIP_HEIGHT)
             self.root = QHBoxLayout(self)
-            self.root.setContentsMargins(8, 0, 8, 0)
+            self.root.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+            self.root.setContentsMargins(6, 0, 6, 0)
             self.root.setSpacing(6)
             self.setStyleSheet(
                 "QWidget#AnkiScapeReviewStrip { background: transparent; }"
@@ -2133,6 +2137,7 @@ if HAS_QT:
                     _DND_BADGE,
                     _FARMING_BADGE,
                     _REVIEW_HUD,
+                    _SHOOTING_STAR_NOTICE_BAND,
                     _MAIN_MENU_BUTTON,
                 )
                 if widget is not None
@@ -2151,6 +2156,151 @@ if HAS_QT:
                 widget.setParent(self)
                 self.root.addWidget(widget, 0, Qt.AlignmentFlag.AlignVCenter)
             self.root.addStretch(1)
+
+    class ShootingStarNoticeBand(QtFrame):
+        """Persistent Shooting Star decision seated inside the native strip."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("shootingStarNoticeBand")
+            self.setAccessibleName("Shooting Star notice")
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self.setFixedHeight(112)
+            self.setMinimumWidth(320)
+            self.setSizePolicy(
+                QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Fixed,
+            )
+            self._action_callback = None
+
+            root = QVBoxLayout(self)
+            root.setContentsMargins(12, 9, 12, 9)
+            root.setSpacing(5)
+            self.headline = QLabel()
+            self.headline.setObjectName("shootingStarNoticeHeadline")
+            root.addWidget(self.headline)
+            self.detail = QLabel()
+            self.detail.setObjectName("shootingStarNoticeDetail")
+            self.detail.setWordWrap(True)
+            root.addWidget(self.detail, 1)
+
+            footer = QHBoxLayout()
+            footer.setContentsMargins(0, 0, 0, 0)
+            footer.setSpacing(6)
+            self.queued = QLabel()
+            self.queued.setObjectName("shootingStarNoticeQueued")
+            footer.addWidget(self.queued)
+            footer.addStretch(1)
+            self.actions = QWidget()
+            self.actions.setObjectName("shootingStarNoticeActions")
+            self.action_layout = QHBoxLayout(self.actions)
+            self.action_layout.setContentsMargins(0, 0, 0, 0)
+            self.action_layout.setSpacing(6)
+            footer.addWidget(self.actions)
+            root.addLayout(footer)
+            self.hide()
+
+        def _apply_neutral_style(self) -> None:
+            dark = self.palette().color(QPalette.ColorRole.Window).lightness() < 128
+            text = "#a9b1ba" if dark else "#5f6368"
+            border = "#6e7681" if dark else "#9aa0a6"
+            hover = "#d0d7de" if dark else "#3c4043"
+            self.setStyleSheet(
+                f"""
+                QFrame#shootingStarNoticeBand {{
+                    background: transparent;
+                    border: 1px solid {border};
+                    border-radius: 8px;
+                }}
+                QFrame#shootingStarNoticeBand QLabel {{
+                    color: {text};
+                    background: transparent;
+                    border: none;
+                }}
+                QLabel#shootingStarNoticeHeadline {{ font-weight: 700; }}
+                QLabel#shootingStarNoticeQueued {{
+                    border: 1px solid {border};
+                    border-radius: 7px;
+                    padding: 1px 5px;
+                }}
+                QWidget#shootingStarNoticeActions QPushButton {{
+                    color: {text};
+                    background: transparent;
+                    border: 1px solid {border};
+                    border-radius: 5px;
+                    padding: 3px 10px;
+                    font-weight: 600;
+                }}
+                QWidget#shootingStarNoticeActions QPushButton:hover {{
+                    color: {hover};
+                    border-color: {hover};
+                }}
+                QWidget#shootingStarNoticeActions QPushButton:pressed {{
+                    background: rgba(128, 128, 128, 0.10);
+                }}
+                """
+            )
+
+        def set_data(self, active, queued_count=0, action_callback=None) -> None:
+            self._action_callback = action_callback
+            if not isinstance(active, Mapping):
+                self.setProperty("ankiscapeOverlayRequested", False)
+                self.hide()
+                return
+            self.setProperty("ankiscapeOverlayRequested", True)
+            headline = str(active.get("label", ""))
+            detail = str(active.get("detail", ""))
+            self.headline.setText(headline)
+            self.headline.setAccessibleName(headline)
+            self.detail.setText(detail)
+            self.detail.setAccessibleName(detail)
+            self.setAccessibleDescription(" ".join((headline, detail)).strip())
+            queued = max(0, int(queued_count or 0))
+            self.queued.setText(f"+{queued}")
+            self.queued.setAccessibleName(
+                f"{queued} more notice{'s' if queued != 1 else ''}"
+            )
+            self.queued.setVisible(queued > 0)
+            while self.action_layout.count():
+                item = self.action_layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.hide()
+                    widget.deleteLater()
+            object_names = {
+                "watch": "shootingStarNoticeWatch",
+                "dismiss": "shootingStarNoticeDismiss",
+                "mine": "shootingStarNoticeMine",
+            }
+            for option in tuple(active.get("options", ())):
+                if not isinstance(option, Mapping):
+                    continue
+                option_id = str(option.get("id", ""))
+                label = str(option.get("label", option_id))
+                if not option_id:
+                    continue
+                button = QPushButton(label)
+                button.setObjectName(
+                    object_names.get(option_id, f"shootingStarNotice::{option_id}")
+                )
+                button.setAccessibleName(label)
+                button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+                button.setFixedHeight(26)
+                button.setSizePolicy(
+                    QSizePolicy.Policy.Fixed,
+                    QSizePolicy.Policy.Fixed,
+                )
+                button.setEnabled(action_callback is not None)
+                button.clicked.connect(
+                    lambda _checked=False, oid=option_id: self._activate(oid)
+                )
+                self.action_layout.addWidget(button)
+            self._apply_neutral_style()
+            self.show()
+
+        def _activate(self, option_id: str) -> None:
+            if self._action_callback is not None:
+                self._action_callback(SHOOTING_STAR_NOTICE_CONTEXT_ID, option_id)
 
     class ReviewHUD(QWidget):
         """The compact XP box inside the native reviewer strip."""
@@ -3432,6 +3582,12 @@ else:
         def __init__(self, parent=None):
             pass
 
+    class ShootingStarNoticeBand:
+        def __init__(self, parent=None):
+            pass
+        def set_data(self, active, queued_count=0, action_callback=None) -> None:
+            pass
+
     class ReviewContextActionStrip:
         def __init__(self, parent=None):
             pass
@@ -3470,6 +3626,7 @@ else:
 _REVIEW_HUD = None  # type: ignore
 _REVIEW_STRIP = None  # type: ignore
 _REVIEW_CONTEXT_STRIP = None  # type: ignore
+_SHOOTING_STAR_NOTICE_BAND = None  # type: ignore
 _BANK_RUN_BUTTON = None  # type: ignore
 _MAIN_MENU_BUTTON = None  # type: ignore
 _DND_BADGE = None  # type: ignore
@@ -3590,15 +3747,42 @@ def _sync_review_strip_layout() -> None:
             return
 
         strip.sync_children()
-        seats = tuple(
-            widget
-            for widget in (_DND_BADGE, _FARMING_BADGE, hud, _MAIN_MENU_BUTTON)
-            if widget is not None
+        notice = (
+            _SHOOTING_STAR_NOTICE_BAND
+            if _overlay_requested(_SHOOTING_STAR_NOTICE_BAND)
+            else None
         )
+        if notice is not None and parent.width() >= 962:
+            seats = tuple(
+                widget
+                for widget in (
+                    _DND_BADGE,
+                    _FARMING_BADGE,
+                    hud,
+                    notice,
+                    _MAIN_MENU_BUTTON,
+                )
+                if widget is not None
+            )
+        elif notice is not None and parent.width() > 720:
+            seats = tuple(
+                widget
+                for widget in (hud, notice, _MAIN_MENU_BUTTON)
+                if widget is not None
+            )
+        elif notice is not None:
+            seats = (notice,)
+        else:
+            seats = tuple(
+                widget
+                for widget in (_DND_BADGE, _FARMING_BADGE, hud, _MAIN_MENU_BUTTON)
+                if widget is not None
+            )
         nominal_widths = {
             _DND_BADGE: 118,
             _FARMING_BADGE: 112,
             hud: 340,
+            notice: 320,
             _MAIN_MENU_BUTTON: 36,
         }
         minimum_widths = {
@@ -3607,29 +3791,39 @@ def _sync_review_strip_layout() -> None:
             _MAIN_MENU_BUTTON: 36,
         }
         margins = strip.root.contentsMargins()
-        content_width = min(
-            REVIEW_STRIP_WIDTH,
-            max(
-                1,
-                parent.width()
-                - margins.left()
-                - margins.right()
-                - strip.root.spacing() * max(0, len(seats) - 1),
-            ),
+        available_width = max(
+            1,
+            parent.width()
+            - margins.left()
+            - margins.right()
+            - strip.root.spacing() * max(0, len(seats) - 1),
         )
-        nominal_total = sum(nominal_widths[seat] for seat in seats)
-        if content_width >= nominal_total:
-            widths = {seat: nominal_widths[seat] for seat in seats}
-        else:
+        content_width = (
+            available_width
+            if notice is not None
+            else min(REVIEW_STRIP_WIDTH, available_width)
+        )
+        if notice is not None:
             widths = {
-                seat: max(
-                    minimum_widths[seat],
-                    int(nominal_widths[seat] * content_width / max(1, nominal_total)),
-                )
+                seat: nominal_widths[seat]
                 for seat in seats
-                if seat is not hud
+                if seat is not notice
             }
-            widths[hud] = max(1, content_width - sum(widths.values()))
+            widths[notice] = max(320, content_width - sum(widths.values()))
+        else:
+            nominal_total = sum(nominal_widths[seat] for seat in seats)
+            if content_width >= nominal_total:
+                widths = {seat: nominal_widths[seat] for seat in seats}
+            else:
+                widths = {
+                    seat: max(
+                        minimum_widths[seat],
+                        int(nominal_widths[seat] * content_width / max(1, nominal_total)),
+                    )
+                    for seat in seats
+                    if seat is not hud
+                }
+                widths[hud] = max(1, content_width - sum(widths.values()))
         for seat in seats:
             seat.setFixedWidth(widths[seat])
 
@@ -3638,11 +3832,19 @@ def _sync_review_strip_layout() -> None:
             _DND_BADGE,
             _FARMING_BADGE,
             hud,
+            _SHOOTING_STAR_NOTICE_BAND,
             _BANK_RUN_BUTTON,
             _MAIN_MENU_BUTTON,
         ):
             if widget is not None:
-                widget.setVisible(_overlay_requested(widget))
+                visible_seat = (
+                    hud in seats
+                    if widget is _BANK_RUN_BUTTON
+                    else widget in seats
+                )
+                widget.setVisible(
+                    visible_seat and _overlay_requested(widget)
+                )
 
         layout = getattr(parent, "mainLayout", None)
         if layout is not None:
@@ -3650,7 +3852,8 @@ def _sync_review_strip_layout() -> None:
 
         gap = 6
         strip_origin = strip.mapTo(parent, QPoint(0, 0))
-        hud_origin = hud.mapTo(parent, QPoint(0, 0))
+        drawer_anchor = hud if hud in seats else notice
+        hud_origin = drawer_anchor.mapTo(parent, QPoint(0, 0))
         cursor_y = _review_overlay_bottom(parent, strip) - gap
         drawers = [
             drawer
@@ -3674,7 +3877,9 @@ def _sync_review_strip_layout() -> None:
 
         for drawer in drawers:
             cursor_y -= drawer.height()
-            drawer_x = hud_origin.x() + (hud.width() - drawer.width()) // 2
+            drawer_x = hud_origin.x() + (
+                drawer_anchor.width() - drawer.width()
+            ) // 2
             drawer_x = min(
                 max(8, drawer_x),
                 max(8, parent.width() - drawer.width() - 8),
@@ -3727,6 +3932,7 @@ def _cleanup_extra_huds() -> None:
             "AnkiScapeReviewStrip": _REVIEW_STRIP,
             "AnkiScapeReviewHUD": _REVIEW_HUD,
             "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
+            "shootingStarNoticeBand": _SHOOTING_STAR_NOTICE_BAND,
             "AnkiScapeDndBadge": _DND_BADGE,
             "AnkiScapeFarmingBadge": _FARMING_BADGE,
             "reviewBankRunButton": _BANK_RUN_BUTTON,
@@ -3755,6 +3961,7 @@ def ensure_review_strip() -> None:
     """Create and attach the native row below Anki's answer bar."""
 
     global _REVIEW_STRIP, _REVIEW_HUD, _DND_BADGE, _FARMING_BADGE
+    global _SHOOTING_STAR_NOTICE_BAND
     global _BANK_RUN_BUTTON, _MAIN_MENU_BUTTON
     if not HAS_QT or mw is None:
         return
@@ -3767,6 +3974,8 @@ def ensure_review_strip() -> None:
         _FARMING_BADGE = ReviewStatusBadge("farming", _REVIEW_STRIP)
     if _REVIEW_HUD is None:
         _REVIEW_HUD = ReviewHUD(_REVIEW_STRIP)
+    if _SHOOTING_STAR_NOTICE_BAND is None:
+        _SHOOTING_STAR_NOTICE_BAND = ShootingStarNoticeBand(_REVIEW_STRIP)
     if _BANK_RUN_BUTTON is None:
         _BANK_RUN_BUTTON = ReviewBankRunButton(_REVIEW_HUD)
         _REVIEW_HUD.attach_bank_run_button(_BANK_RUN_BUTTON)
@@ -3824,6 +4033,7 @@ def ensure_review_context_action_strip() -> None:
     global _REVIEW_CONTEXT_STRIP
     if not HAS_QT:
         return
+    ensure_review_strip()
     _cleanup_extra_huds()
     if _REVIEW_CONTEXT_STRIP is None and mw is not None:
         _REVIEW_CONTEXT_STRIP = ReviewContextActionStrip(mw)
@@ -3843,11 +4053,28 @@ def update_review_context_action_strip(
     if _REVIEW_CONTEXT_STRIP is None:
         return
     projection = review_context_projection_pure(player_data)
-    if projection.get("active") is None:
+    active = projection.get("active")
+    if (
+        isinstance(active, Mapping)
+        and active.get("family_id") == SHOOTING_STAR_NOTICE_CONTEXT_ID
+    ):
+        _SHOOTING_STAR_NOTICE_BAND.set_data(
+            active,
+            projection.get("queued_count", 0),
+            action_callback,
+        )
         _REVIEW_CONTEXT_STRIP.setProperty("ankiscapeOverlayRequested", False)
         _REVIEW_CONTEXT_STRIP.hide()
+        _sync_review_strip_layout()
+        return
+    _SHOOTING_STAR_NOTICE_BAND.set_data(None)
+    if active is None:
+        _REVIEW_CONTEXT_STRIP.setProperty("ankiscapeOverlayRequested", False)
+        _REVIEW_CONTEXT_STRIP.hide()
+        _sync_review_strip_layout()
         return
     _REVIEW_CONTEXT_STRIP.set_data(projection, action_callback)
+    _sync_review_strip_layout()
 
 
 def hide_review_context_action_strip() -> None:
@@ -9035,8 +9262,8 @@ def show_main_menu(
                 )
                 if view["waiting_for_layer"]:
                     star_detail.setText(
-                        f"Waiting for public miners · current layer needs "
-                        f"Mining {int(view['required_level'])}"
+                        f"Current layer needs Mining {int(view['required_level'])} · "
+                        "selecting it will stop the activity and offer a watch"
                     )
                 elif view["tag_available"]:
                     star_detail.setText(

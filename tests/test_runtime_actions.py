@@ -746,6 +746,48 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["successes"], 1)
         self.assertEqual(telemetry["outputs"]["Stardust"], 1)
 
+    def test_shooting_star_runtime_exits_unminable_layer_without_popup(self):
+        from ankiscape.logic.shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "shooting_stars",
+            "inventory": {},
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "shop_market_clock": {"answered_cards": 20},
+            "mining_level": 10,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+            "shooting_star": default_shooting_star_state_pure(),
+        }
+        player_data, _ = advance_shooting_star_world_clock_pure(player_data)
+        player_data["shooting_star"]["active_event"].update(
+            {
+                "starting_size": 9,
+                "current_size": 9,
+                "layer_remaining": 15,
+                "tag_candidate": True,
+                "crowd_dust_removed": 0,
+            }
+        )
+
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["current_utility"], "bankstanding")
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["activity"], [])
+        self.assertEqual(calls["xp"], [750.0])
+        self.assertEqual(player_data["mining_exp"], 750.0)
+        self.assertEqual(len(player_data["review_event_log"]), 1)
+        self.assertIn(
+            "Star unminable at your level",
+            player_data["review_event_log"][0]["text"],
+        )
+
     def test_treasure_trail_routes_a_step_and_its_terminal_casket_through_utility(self):
         from ankiscape.logic.treasure_trails_logic import read_clue_scroll_pure
 

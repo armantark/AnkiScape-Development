@@ -103,6 +103,7 @@ class ReviewStripTest(unittest.TestCase):
         ui._BANK_RUN_BUTTON = None
         ui._MAIN_MENU_BUTTON = None
         ui._REVIEW_CONTEXT_STRIP = None
+        ui._SHOOTING_STAR_NOTICE_BAND = None
         ui._DND_BADGE = None
         ui._FARMING_BADGE = None
         ui._STATUS_POPOVER = None
@@ -130,6 +131,7 @@ class ReviewStripTest(unittest.TestCase):
         self.ui._BANK_RUN_BUTTON = None
         self.ui._MAIN_MENU_BUTTON = None
         self.ui._REVIEW_CONTEXT_STRIP = None
+        self.ui._SHOOTING_STAR_NOTICE_BAND = None
         self.ui._STATUS_POPOVER = None
         self.ui._STATUS_POPOVER_BADGE = None
         self.ui.mw = self.old_mw
@@ -176,6 +178,122 @@ class ReviewStripTest(unittest.TestCase):
         return state
 
     # ---- the badges ------------------------------------------------------
+
+    def test_shooting_star_notice_stays_inside_the_native_strip_at_all_width_tiers(self) -> None:
+        state = self._state()
+        state["shooting_star"]["notice"] = {
+            "kind": "unminable",
+            "event_id": "shooting-star-20",
+            "current_size": 5,
+            "required_level": 50,
+            "sprite_available": False,
+        }
+        calls = []
+        self.ui.update_review_hud(state, "Mining")
+        self.ui.update_review_status_badge(state)
+        for _ in range(4):
+            QApplication.processEvents()
+        bottom_before = self.bottom_web.geometry()
+
+        self.ui.update_review_context_action_strip(
+            state,
+            lambda family_id, option_id: calls.append((family_id, option_id)),
+        )
+        for _ in range(4):
+            QApplication.processEvents()
+
+        strip = self.ui._REVIEW_STRIP
+        band = self.ui._SHOOTING_STAR_NOTICE_BAND
+        self.assertEqual(strip.height(), 128)
+        self.assertTrue(band.isVisibleTo(strip))
+        self.assertTrue(strip.rect().contains(band.geometry()))
+        self.assertFalse(strip.geometry().intersects(self.card_web.geometry()))
+        self.assertEqual(self.bottom_web.geometry(), bottom_before)
+        self.assertIn("background: transparent", band.styleSheet())
+        self.assertNotIn("color: palette(mid)", band.styleSheet().lower())
+        self.assertEqual(
+            [
+                button.text()
+                for button in band.findChildren(QPushButton)
+                if button.isVisibleTo(band)
+            ],
+            ["Watch this star", "Dismiss"],
+        )
+        band.findChild(QPushButton, "shootingStarNoticeWatch").click()
+        self.assertEqual(calls, [("shooting_star_notice", "watch")])
+
+        for sprite_available, expected_headline in (
+            (False, "Star ready to mine"),
+            (True, "Star sprite available"),
+        ):
+            state["shooting_star"]["notice"] = {
+                "kind": "ready",
+                "event_id": "shooting-star-20",
+                "current_size": 0 if sprite_available else 1,
+                "required_level": 0 if sprite_available else 10,
+                "sprite_available": sprite_available,
+            }
+            self.ui.update_review_context_action_strip(state, None)
+            for _ in range(3):
+                QApplication.processEvents()
+            with self.subTest(sprite_available=sprite_available):
+                self.assertEqual(band.headline.text(), expected_headline)
+                self.assertTrue(strip.rect().contains(band.geometry()))
+                self.assertEqual(
+                    [
+                        button.text()
+                        for button in band.findChildren(QPushButton)
+                        if button.isVisibleTo(band)
+                    ],
+                    ["Mine star"],
+                )
+
+        state["shooting_star"]["notice"] = {
+            "kind": "unminable",
+            "event_id": "shooting-star-20",
+            "current_size": 5,
+            "required_level": 50,
+            "sprite_available": False,
+        }
+        self.ui.update_review_context_action_strip(state, None)
+
+        for width, badges_visible, hud_visible in (
+            (1000, True, True),
+            (900, False, True),
+            (680, False, False),
+        ):
+            for _ in range(2):
+                self.parent.resize(width, 700)
+                self.ui._sync_review_strip_layout()
+                for _ in range(4):
+                    QApplication.processEvents()
+            with self.subTest(width=width):
+                self.assertEqual(strip.height(), 128)
+                self.assertTrue(strip.rect().contains(band.geometry()))
+                self.assertGreaterEqual(band.width(), 320)
+                self.assertEqual(self.ui._REVIEW_HUD.isVisibleTo(strip), hud_visible)
+                self.assertEqual(self.ui._DND_BADGE.isVisibleTo(strip), badges_visible)
+                self.assertEqual(self.ui._FARMING_BADGE.isVisibleTo(strip), badges_visible)
+                visible = [
+                    widget
+                    for widget in (
+                        self.ui._DND_BADGE,
+                        self.ui._FARMING_BADGE,
+                        self.ui._REVIEW_HUD,
+                        band,
+                        self.ui._MAIN_MENU_BUTTON,
+                    )
+                    if widget.isVisibleTo(strip)
+                ]
+                for index, left in enumerate(visible):
+                    for right in visible[index + 1 :]:
+                        self.assertFalse(left.geometry().intersects(right.geometry()))
+
+        state["shooting_star"]["notice"] = {}
+        self.ui.update_review_context_action_strip(state, None)
+        for _ in range(3):
+            QApplication.processEvents()
+        self.assertFalse(band.isVisibleTo(strip))
 
     def test_two_clickable_badges_are_siblings_of_the_mouse_transparent_hud(self) -> None:
         review_hud = self.ui.ReviewHUD(self.parent)
