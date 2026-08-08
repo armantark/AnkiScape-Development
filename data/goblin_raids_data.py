@@ -34,15 +34,17 @@ GOBLIN_RAIDS_SOURCE = (
 
 # The article says a notice goes out server-wide every thirty minutes with the
 # latest incursion's location. The house review clock runs 240 answered cards to
-# the game day, the same scale Evil Tree and Shooting Star use, so a half-hourly
-# announcement is one every five answered cards.
+# the game day, so the settled Evil Tree-style discovery opportunity opens every
+# five answered cards. This is the notice cadence, not a recovered server spawn
+# timer.
 GOBLIN_RAIDS_SPAWN_REVIEWS = 5
 
 # PLACEHOLDER(goblin_raids.raid_active_reviews): how long a raid stays up. The
 # announcement cadence is stated; the raid's own duration, its despawn timer and
-# what happens when nobody clears it are all unstated. Fifteen reviews is three
-# announcement intervals, which is long enough for the sourced raider-then-leader
-# sequence to actually be completed.
+# what happens when nobody clears it are all unstated. The complete pre-cutoff
+# article/talk history, rev-741/742 client interfaces and current Darkan tree add
+# no server timer. Fifteen reviews is three announcement intervals, which is long
+# enough for the sourced raider-then-leader sequence to actually be completed.
 GOBLIN_RAIDS_ACTIVE_REVIEWS = 15
 
 # PLACEHOLDER(goblin_raids.raider_count): how many Goblin Raiders a raid fields.

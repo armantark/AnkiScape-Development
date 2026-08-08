@@ -1,5 +1,28 @@
 # Progress
 
+## Goblin Raids active-window re-walk and lifecycle correction — 2026-08-08
+
+The period half-hour figure is a notice cadence, not a raid duration. Release
+oldid `6434891` and cutoff article oldid `6545250` state only that the latest
+incursion is announced every half hour; revision `6452732` explicitly corrects
+the claim that the activity itself starts on that interval. The complete
+pre-cutoff article/talk histories, rev-741/742 interface `583:87`, and Darkan
+contain no server despawn. The later approximately-30-minute Yodri sentence
+first appears in 2017 revision `20647497`, so it cannot retire the placeholder.
+The 15-review completion window remains registered.
+
+The re-walk exposed a player-visible lifecycle bug: after Hollowtoof died and
+Yodri arrived, the cleared raid remained active and could be joined again for
+duplicate rewards. Hollowtoof's death now closes the active raid. Its Yodri
+claim persists across sanitation and can coexist with a later announced raid;
+claiming old spoils leaves that new raid untouched. Verification passes 113
+focused Goblin Raids, notification-strip, placeholder-register and
+direct-action-undo tests; all 3,861 plain tests with 479 intentional skips; and
+all 3,861 real offscreen-Qt tests with 3 intentional skips. Documentation audits
+520 Markdown and 431 HTML files; test-quality audits 3,827 tests across 176
+files with zero hard issues; diff-whitespace and worktree-layout audits pass. No
+owner design gap surfaced.
+
 ## Crucible Supreme Champion world-clock correction — 2026-08-08
 
 Cutoff Crucible oldid `6538845` states the half-hour event interval, while

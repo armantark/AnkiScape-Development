@@ -68,6 +68,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
      event surfaces, and the shared review-day translation. Preserve the
      half-hour-to-five-review conversion unless a stronger project cadence row
      already settles it.
-   - [ ] Re-walk the Goblin Raids active duration through the period event
+   - [x] Re-walk the Goblin Raids active duration through the period event
      history and available server records. Preserve the registered 15-review
      completion window unless a real despawn duration survives.
+   - [ ] Re-walk the Goblin Raids ordinary-raider count through period images,
+     NPC spawn records, cache maps and any surviving server implementation.
+     Preserve five unless an authentic fixed or scaling count survives.

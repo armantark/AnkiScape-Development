@@ -63,3 +63,6 @@
 2026-08-08 00:26:49 PDT — A Crucible cadence search guessed root-level `cadence_coverage.py`, `cadence_live.py`, and `cadence_kernel.py`; `rg` returned `No such file or directory` for all three because the modules live under `logic/`.
 2026-08-08 00:27:10 PDT — A cadence-record search passed unmatched `memory-bank/*clock*` and `memory-bank/*cadence*` globs to zsh; it stopped with `zsh:1: no matches found: memory-bank/*clock*`. Use `rg --glob` or enumerate matching files first.
 2026-08-08 00:31:00 PDT — A single multi-file Iteration 21 Memory Bank patch returned `Output exceeded the available model context and was truncated`; verify the diff and split future documentation patches by file.
+2026-08-08 08:52:34 PDT — The first Goblin Raids search included nonexistent root path `runtime_actions.py`; `rg` reported `No such file or directory (os error 2)` because the module lives under `logic/`.
+2026-08-08 08:52:34 PDT — A Goblin Raids evidence command used unmatched `memory-bank/*goblin*`; zsh stopped with `zsh:1: no matches found: memory-bank/*goblin*`. Enumerate with `rg --files` before passing paths.
+2026-08-08 08:56:52 PDT — A broad Goblin Raids contract search returned `Warning: truncated output (original token count: 14721) Total output lines: 398`; narrow subsequent searches to the owning contract and source audit.

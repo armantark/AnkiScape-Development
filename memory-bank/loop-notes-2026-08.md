@@ -1,5 +1,27 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 22 — Goblin Raids active duration and cleared-raid lifecycle
+
+- Evidence: release oldid `6434891`; Goblin Raids oldids `6545250` and
+  `6452732`; the complete pre-cutoff article/talk histories; rev-741/742
+  interface `583:87`; Darkan's current tree; and rejected post-cutoff revision
+  `20647497`.
+- Result: the exact active duration remains `source_blocked`. Revision
+  `6452732` explicitly distinguishes the half-hourly notice from the activity's
+  start, while no period/server source states a despawn. The registered
+  15-review completion window therefore remains. A concrete adjacent defect is
+  fixed: killing Hollowtoof now ends the active raid instead of leaving the same
+  cleared encounter repeatedly joinable. Yodri's pending spoils survive that
+  transition and claiming them cannot erase a later announced raid.
+- Verification: 113 focused Goblin Raids, notification-strip,
+  placeholder-register and direct-action-undo tests pass. Plain discovery
+  passes all 3,861 tests with 479 intentional skips (3,382 ordinary passes);
+  real offscreen-Qt discovery passes all 3,861 tests with 3 intentional skips
+  (3,858 ordinary passes). Documentation audits 520 Markdown and 431 HTML
+  files; test-quality audits 3,827 tests across 176 files with zero hard issues;
+  diff-whitespace and worktree-layout audits pass.
+- Next: Goblin Raids ordinary-raider count.
+
 ## Iteration 21 — Crucible Supreme Champion event clock
 
 - Evidence: Crucible oldid `6538845`; launch-update oldid `5778674`; the

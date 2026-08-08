@@ -447,6 +447,11 @@ class GoblinRaidStagesTest(unittest.TestCase):
         self.assertEqual(next_raider_set_piece_pure(self.cleared), "Raider axe")
 
     def test_yodri_pays_out_per_goblin_in_the_sites_own_material(self):
+        self.assertEqual(self.cleared["goblin_raids"]["active_raid"], {})
+        persisted = sanitize_goblin_raids_state_pure(
+            self.cleared["goblin_raids"]
+        )
+        self.assertEqual(persisted["session"]["stage"], "spoils")
         session = self.cleared["goblin_raids"]["session"]
         pending = dict(session["spoils"])
         killed = int(session["goblins_killed"])
@@ -460,8 +465,32 @@ class GoblinRaidStagesTest(unittest.TestCase):
             self.assertGreaterEqual(claimed["inventory"].get(item, 0), count)
         self.assertEqual(claimed["goblin_raids"]["raids_cleared"], 1)
         self.assertEqual(claimed["goblin_raids"]["session"], {})
+        self.assertEqual(claimed["goblin_raids"]["active_raid"], {})
         self.assertEqual(claimed["activity_session"]["active_id"], "")
         self.assertEqual(claimed["current_combat_target"], "chicken")
+        _same_raid, ok, info = join_goblin_raid_pure(
+            claimed, GOBLIN_RAIDS_RAID_MODE
+        )
+        self.assertFalse(ok)
+        self.assertIn("No raid has been announced", info["reason"])
+
+    def test_claiming_old_spoils_preserves_a_later_announced_raid(self):
+        player = self.cleared
+        player["shop_market_clock"] = {
+            "answered_cards": player["goblin_raids"]["next_spawn_card"]
+        }
+        player, events = advance_goblin_raids_world_clock_pure(
+            player, site_roll=0.9
+        )
+        self.assertEqual([row["kind"] for row in events], ["announced"])
+        raid_id = player["goblin_raids"]["active_raid"]["raid_id"]
+
+        claimed, ok, info = claim_goblin_raid_spoils_pure(player)
+
+        self.assertTrue(ok, info)
+        self.assertEqual(
+            claimed["goblin_raids"]["active_raid"]["raid_id"], raid_id
+        )
 
     def test_spoils_cannot_be_claimed_before_yodri_arrives(self):
         early, ok, _ = join_goblin_raid_pure(_with_raid(), GOBLIN_RAIDS_RAID_MODE)
@@ -483,8 +512,6 @@ class GoblinRaidStagesTest(unittest.TestCase):
                 )
                 + GOBLIN_RAIDS_SPAWN_REVIEWS
             }
-            player["goblin_raids"]["active_raid"] = {}
-            player["goblin_raids"]["next_spawn_card"] = 0
             player, _events = advance_goblin_raids_world_clock_pure(
                 player, site_roll=0.5
             )

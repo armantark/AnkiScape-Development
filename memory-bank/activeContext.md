@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 22 preserves the Goblin Raids active-window
+placeholder and fixes the cleared-raid lifecycle.** Release oldid `6434891`,
+cutoff article oldid `6545250`, revision `6452732`, the complete pre-cutoff
+article/talk histories, rev-741/742 interface `583:87`, and Darkan expose no
+despawn duration. The later approximately-30-minute claim first appears in
+2017, so the registered 15-review completion window remains. The re-walk found
+that killing Hollowtoof left the cleared raid active, allowing repeated entry
+and rewards. Hollowtoof's death now ends the active raid while Yodri's pending
+spoils persist independently and preserve any later announced raid. No owner
+design gap surfaced. Verification passes 113 focused tests, all 3,861 plain
+tests with 479 intentional skips, and all 3,861 real offscreen-Qt tests with 3
+intentional skips. Documentation, test-quality, diff-whitespace, and worktree
+audits pass. The next slice re-walks the ordinary-raider count.
+
 **2026-08-08, grind-loop iteration 21 moves the Crucible Supreme Champion event
 onto the shared world clock.** The source-backed half-hour interval already
 mapped exactly to five answered cards, but live code counted only productive

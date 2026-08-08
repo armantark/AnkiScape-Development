@@ -65,10 +65,12 @@ roster stat for this family.
 Sourced facts implemented:
 
 - A server-wide notice gives the latest incursion's location **every thirty
-  minutes**. The house review clock runs 240 answered cards to the game day, the
-  scale Evil Tree and Shooting Star already use, so the announcement is one every
-  **five answered cards**. That conversion is arithmetic on a stated period
-  figure, not a placeholder.
+  minutes**. Revision `6452732` explicitly corrects the earlier interpretation:
+  the activity does not start every half hour; its latest location is announced
+  on that cadence. The house review clock runs 240 answered cards to the game
+  day, so the notice is one every **five answered cards**. Under the settled Evil
+  Tree discovery pattern, that notice opens AnkiScape's live raid opportunity;
+  it is not a claim that the authentic server spawned a new raid every half hour.
 - Raids happen at **farms, wood-gathering sites and mines**, and the extra reward
   follows the site: **seeds, logs, ores** respectively.
 - Goblin Raiders **accumulate raided material as they shout** and drop everything
@@ -131,6 +133,45 @@ same threshold; the lower one is used so the shortcut is not harder than either
 statement. `stinkears_max_hit` exists because the engine derives a caster's
 maximum hit from melee strength, which is wrong, and Stinkears' page states no
 maximum while its same-level, same-lifepoints sibling Lumpnose states 20.
+
+## Active-duration re-walk — 2026-08-08
+
+The exact despawn duration remains `source_blocked`:
+
+- Release update oldid `6434891` (`2012-10-17T15:08:44Z`) says a chat-window
+  announcement gives the latest incursion every half hour. It gives no active
+  duration, despawn rule, or unattended outcome.
+- Article oldid `6545250` (`2012-11-09T20:21:45Z`) repeats the half-hourly
+  notice and says Yodri appears after the raid. Its complete pre-cutoff article
+  history adds no timer. Revision `6452732` (`2012-10-22T01:16:47Z`) has the
+  corrective edit comment `The activity doesn't start every half hour. It has a
+  set start time and the event is announced every 30mins of that start time`.
+  The half-hour figure therefore cannot be reused as the despawn duration.
+- Talk oldid `6450027` (`2012-10-21T19:00:55Z`) discusses only enabling the
+  announcement. It has no duration report.
+- Rev-741 and rev-742 interface `583:87` contain the exact setting label
+  `Goblin Raid Warning`, but no timer or lifecycle value. Their client
+  definitions cannot settle a server-owned despawn.
+- Darkan's current tree still contains no Goblin Raids, Hollowtoof, or Commander
+  Yodri implementation. The later wiki sentence claiming that Yodri arrives
+  after approximately thirty minutes first appears in revision `20647497`
+  (`2017-11-13T20:06:25Z`), five years after the cutoff, so it is not promoted
+  into period evidence.
+
+`goblin_raids.raid_active_reviews` therefore stays registered at 15 reviews as
+the smallest completion window for the settled five-raider-plus-Hollowtoof
+sequence. The re-walk did expose a live lifecycle defect: killing Hollowtoof
+moved the session to Yodri's spoils but left the raid active, so the same cleared
+raid could be joined and rewarded repeatedly. Hollowtoof's death now ends that
+active raid; the pending Yodri claim persists independently and does not erase a
+later announced raid. No owner design gap surfaced.
+
+Closure verification passes 113 focused Goblin Raids, notification-strip,
+placeholder-register and direct-action-undo tests; all 3,861 plain tests with
+479 intentional skips; and all 3,861 real offscreen-Qt tests with 3 intentional
+skips. Documentation audits 520 Markdown and 431 HTML files; test-quality audits
+3,827 tests across 176 files with zero hard issues; diff-whitespace and
+worktree-layout audits pass.
 
 ## Asset provenance
 

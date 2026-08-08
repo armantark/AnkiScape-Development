@@ -112,12 +112,16 @@ def _sanitize_session(raw: Any, raid: Mapping[str, Any]) -> dict[str, Any]:
     if mode not in _MODES:
         return {}
     if mode == GOBLIN_RAIDS_RAID_MODE:
-        # A raid session outlives nothing: if the raid it belongs to has
-        # withered, the session cannot be resumed.
-        if not raid or str(raw.get("raid_id", "")) != str(raid.get("raid_id", "")):
-            return {}
         stage = str(raw.get("stage", ""))
         if stage not in GOBLIN_RAIDS_STAGES:
+            return {}
+        # Combat cannot outlive its raid. Yodri's spoils are different: he
+        # arrives after the raid ends, and that pending claim survives while
+        # the world clock moves on to the next incursion.
+        if stage != "spoils" and (
+            not raid
+            or str(raw.get("raid_id", "")) != str(raid.get("raid_id", ""))
+        ):
             return {}
     else:
         stage = "raiders"
@@ -658,6 +662,7 @@ def apply_goblin_raids_review_pure(
                 _adjust_stack(data, piece, 1)
                 session["stage"] = "spoils"
                 session["encounter"] = {}
+                state["active_raid"] = {}
                 events.append(f"Hollowtoof drops the {piece}.")
         else:
             state["village_kills"] += 1
