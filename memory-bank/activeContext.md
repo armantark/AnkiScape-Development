@@ -3991,3 +3991,28 @@ flees silently when the player runs out of food.
 - Equipment point-meter layout and Big Top execution-priority UI are not safe
   to infer. They remain parked in the owner/Fable co-ideation Markdown brief
   until quota returns; Fable and Kimi were not used.
+
+## Pass 8 implementation — 2026-08-07
+
+- The settled Pass 8 packet is implemented on canonical `main`: exact top-tab
+  order; Bank presentation metadata and the RS-style tabbed frame; the
+  registry-backed Stats skill guide; the Music and boss/monster Collections
+  family; and the Shooting Star stop, watch, and one-click rejoin flow.
+- Root made every product edit. Read-only Opus 5 workflows supplied bounded
+  frontend layout decisions and maker-checker review. Fable and Kimi were not
+  used.
+- The final Shooting Star batch is commit `08597813`. Its persistent notice
+  lives inside the existing 128-pixel review strip, keeps the vanilla answer
+  bar outside the add-on surface, and preserves the first-finder XP tag even
+  when an inaccessible layer stops the activity.
+- Both full repository lanes pass 3,857 tests. The non-Qt lane has 479 expected
+  skips; the offscreen Qt lane has three intentional skips. Documentation has
+  zero errors, test quality has zero hard issues, and 24 focused asset tests
+  pass. Reachability remains at the established 1,498 actions, 2,230 reachable
+  items, 169 orphan inputs, and 189 blocked actions.
+- Native acceptance remains externally blocked. The owner confirmed that the
+  MacBook Pro is on, but the regular Codex Connection host
+  `remote-control:env_e_6a684c98946c8321ba89026140dd59e4` still returns the
+  exact error `thread_list_unavailable`. Tailscale was not used, and offscreen
+  Qt is not claimed as native parity. The durable trace is
+  `codex-briefs/pass8-owner-notes-handoff-2026-08-07.md`.

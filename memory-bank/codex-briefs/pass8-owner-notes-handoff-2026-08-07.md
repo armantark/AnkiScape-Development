@@ -706,6 +706,26 @@ focused read and durable tests. This batch did not need a disposable probe.
 - No product asset changed.
 - Shooting Star code does not read the wall clock.
 
+### Repository-lane closure
+
+- Accepted Batch 13 implementation commit:
+  `085978139437d3e8a934e261c9ecb2574f93130d`.
+- The full non-Qt repository lane passed 3,857 tests in 240.089 seconds with
+  479 expected skips.
+- The full offscreen Qt repository lane passed the same 3,857 tests in 531.925
+  seconds with three intentional skips.
+- The documentation audit passed across 520 Markdown and 430 HTML files.
+- The test-quality audit found 3,823 tests across 176 files with zero hard
+  issues and the same 19 pre-existing structural-clone groups.
+- The focused asset lane passed 24 tests. No Pass 8 asset changed.
+- The standalone reachability ledger ran and reported the unchanged Pass 7
+  baseline: 1,498 actions, 2,230 reachable items, 169 orphan inputs, and 189
+  blocked actions. Pass 8 did not add an item or acquisition route, so the
+  audit's expected non-zero exit records existing project debt rather than a
+  Pass 8 regression.
+- Final `git diff --check` and the worktree guard passed from clean canonical
+  `main` at the accepted Batch 13 commit.
+
 ### Native evidence
 
 The regular MacBook Pro Codex Connection host

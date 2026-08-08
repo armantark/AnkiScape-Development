@@ -4968,3 +4968,21 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Equipment meters and Big Top queue interaction remain explicitly
   design-blocked pending the owner/Fable co-ideation brief. No speculative UI
   was implemented, and neither Fable nor Kimi was used.
+
+## Pass 8 implementation complete; native gate open — 2026-08-07
+
+- Applied every settled owner decision in
+  `codex-briefs/pass8-owner-fable-decisions-2026-08-07.md`: top-tab order, Bank
+  metadata and frame, Stats skill guide, Collections family/drop log, and the
+  Shooting Star exit/watch/rejoin state machine.
+- Root owned all shipped code. Bounded read-only Opus 5 workflows handled
+  frontend layout and independent review. Fable and Kimi were not invoked.
+- Final accepted product commit: `08597813`.
+- Full non-Qt and offscreen Qt discovery each pass 3,857 tests. Documentation,
+  test quality, asset checks, diff checks, and worktree safety pass. The
+  reachability audit reports only its unchanged known dependency ledger.
+- The remaining acceptance step is native Anki proof of the changed surfaces,
+  the unchanged vanilla answer bar, and card-content non-overlap. It is blocked
+  by `thread_list_unavailable` from the owner's regular MacBook Pro Codex
+  Connection, despite the owner confirming that the computer is on. Tailscale
+  is excluded, and headless evidence does not close this gate.
