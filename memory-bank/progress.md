@@ -1,5 +1,26 @@
 # Progress
 
+## Goblin Raids ordinary-raider count closed at ten — 2026-08-08
+
+The former five-Raider placeholder is retired. Release oldid `6434891` and
+cutoff oldid `6545250` make Yodri's payout exactly one item per raid goblin
+slain. Tip.It's guide, last updated `2012-10-24` and preserved in Wayback
+capture `20121228205432`, says that payout scales with Raiders killed and caps
+all three site kinds at ten. The release-day `File:Goblin raid.png` screenshot
+independently shows nine ordinary Raider models while Hollowtoof waits apart,
+directly contradicting five and fitting the ten-Raider total.
+
+Darkan has no Goblin Raids implementation and the client caches cannot supply
+server NPC spawns. The modern wiki's ten-raider line was only added in 2022, so
+it corroborates rather than supplies the value. Live raids now field ten
+ordinary Raiders; a world-clock regression proves they and Hollowtoof can still
+finish inside the registered 15-review active window. Focused Goblin Raids,
+placeholder-register, direct-action-undo and notification-strip verification
+passes 114 tests. The owner ended the session before closure: the full plain
+run was interrupted and the offscreen-Qt lane was not started. Resume with both
+full lanes and the standard audits before closing this slice. No owner
+design gap surfaced.
+
 ## Goblin Raids active-window re-walk and lifecycle correction — 2026-08-08
 
 The period half-hour figure is a notice cadence, not a raid duration. Release

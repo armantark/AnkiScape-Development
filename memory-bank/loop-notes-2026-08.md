@@ -1,5 +1,26 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 23 — Goblin Raids ordinary-raider count
+
+- Evidence: release oldid `6434891`; cutoff oldid `6545250`; Tip.It Goblin
+  Raids guide last updated `2012-10-24`, Wayback capture `20121228205432`;
+  release-day `File:Goblin raid.png`; Darkan's current tree; and modern wiki
+  revision `35941310` as corroboration only.
+- Result: Yodri's exact one-item-per-kill rule plus the period Tip.It maximum of
+  ten site rewards pins ten ordinary Raiders. The release-day screenshot
+  independently shows nine ordinary models with Hollowtoof separate, so the old
+  value of five was contradicted even before the arithmetic closed ten. The
+  live count is ten and `goblin_raids.raider_count` is retired from the
+  placeholder register.
+- Verification: 114 focused Goblin Raids, placeholder-register,
+  direct-action-undo and
+  notification-strip tests pass. A world-clock regression proves the ten
+  Raiders and Hollowtoof fit the registered 15-review active window. The owner
+  ended the session before closure: the full plain run was interrupted and the
+  offscreen-Qt lane was not started. Resume with both full lanes and the
+  standard audits before closing this slice.
+- Next: Commander Yodri's site reward contents and selection rule.
+
 ## Iteration 22 — Goblin Raids active duration and cleared-raid lifecycle
 
 - Evidence: release oldid `6434891`; Goblin Raids oldids `6545250` and

@@ -70,6 +70,7 @@ from ankiscape.logic.goblin_raids_logic import (
     sanitize_goblin_raids_state_pure,
 )
 from ankiscape.logic_pure.logic_pure import player_combat_level_pure
+from ankiscape.logic.shop_logic import advance_shop_market_clock_pure
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     handle_goblin_raids_answer,
@@ -223,6 +224,7 @@ class GoblinRaidsDataTest(unittest.TestCase):
         )
         self.assertIn("Logs", GOBLIN_RAID_SITES_BY_ID["forest"].materials)
         self.assertIn("Oak logs", GOBLIN_RAID_SITES_BY_ID["forest"].materials)
+        self.assertEqual(GOBLIN_RAIDS_RAIDER_COUNT, 10)
         self.assertEqual(GOBLIN_RAIDS_VILLAGE_BOSS_KILLS, 15)
         self.assertEqual(GOBLIN_COWER_SHIELD_BONUS_RATE, 0.25)
         self.assertEqual(GOBLIN_COWER_SHIELD_BONUS_BUDGET, 1000.0)
@@ -338,6 +340,31 @@ class GoblinRaidsWorldClockTest(unittest.TestCase):
         self.assertEqual(player["goblin_raids"]["active_raid"], {})
         self.assertEqual(player["goblin_raids"]["session"], {})
         self.assertIn("over before you finished", player["goblin_raids"]["last_result"])
+
+    def test_ten_raiders_and_hollowtoof_fit_the_registered_active_window(self):
+        player, ok, info = join_goblin_raid_pure(
+            _with_raid(99), GOBLIN_RAIDS_RAID_MODE
+        )
+        self.assertTrue(ok, info)
+        draws = random.Random(2).random
+        world_events = []
+
+        for _ in range(GOBLIN_RAIDS_ACTIVE_REVIEWS):
+            player = advance_shop_market_clock_pure(player)
+            player, ok, result = apply_goblin_raids_review_pure(
+                player,
+                draws,
+                enemy_data=COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            self.assertTrue(ok, result)
+            player, events = advance_goblin_raids_world_clock_pure(player)
+            world_events.extend(row["kind"] for row in events)
+            if player["goblin_raids"]["session"].get("stage") == "spoils":
+                break
+
+        self.assertEqual(player["goblin_raids"]["session"]["stage"], "spoils")
+        self.assertNotIn("expired", world_events)
 
 
 class GoblinRaidsEntryTest(unittest.TestCase):

@@ -28,7 +28,8 @@ GOBLIN_RAIDS_SOURCE = (
     "Stinkears oldid=6447564 (2012-10-20T21:27:42Z); Lumpnose oldid=6550383 "
     "(2012-11-12T23:45:38Z); Raider axe oldid=6464509; Raider chainbody "
     "oldid=6464451; Raider shield oldid=6464501; Goblin cower shield "
-    "oldid=6444335 (2012-10-19T21:29:09Z); OpenRS2 rev-741 cache item "
+    "oldid=6444335 (2012-10-19T21:29:09Z); Tip.It Goblin Raids guide last "
+    "updated 2012-10-24, Wayback 20121228205432; OpenRS2 rev-741 cache item "
     "definitions 25350-25353"
 )
 
@@ -47,10 +48,11 @@ GOBLIN_RAIDS_SPAWN_REVIEWS = 5
 # enough for the sourced raider-then-leader sequence to actually be completed.
 GOBLIN_RAIDS_ACTIVE_REVIEWS = 15
 
-# PLACEHOLDER(goblin_raids.raider_count): how many Goblin Raiders a raid fields.
-# The sequence is sourced — every ordinary raider must die before Hollowtoof can
-# be attacked — but no revision states the count or any scaling.
-GOBLIN_RAIDS_RAIDER_COUNT = 5
+# Exact through independent period convergence. The official rule pays one
+# Yodri item per raider slain; Tip.It's 2012-10-24 guide caps the location
+# payout at ten, and the pinned release-day screenshot visibly shows nine
+# ordinary Raiders with Hollowtoof separate.
+GOBLIN_RAIDS_RAIDER_COUNT = 10
 
 # Exact: every fifteen goblins killed inside the village gates summons one of the
 # three bosses, and goblins outside the gates do not count.

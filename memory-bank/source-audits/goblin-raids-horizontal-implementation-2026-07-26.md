@@ -2,7 +2,7 @@
 
 Superseded on `2026-08-03` only for Goblin Raids equipment identity and combat
 bonuses: rev-741 item definitions pin IDs `25350` through `25353` and their
-nonzero bonus arrays. See `item-definition-depth-2026-08-03.md`. The seven
+nonzero bonus arrays. See `item-definition-depth-2026-08-03.md`. The six
 remaining registered Goblin Raids placeholders are unchanged.
 
 Date: `2026-07-26`
@@ -126,6 +126,10 @@ Eight, all in `memory-bank/placeholder-values.md`:
 `goblin_raids.cower_shield_drop_chance`, `goblin_raids.stinkears_max_hit`,
 `goblin_raids.raider_set_bonuses`.
 
+Two rows have since retired: `goblin_raids.raider_set_bonuses` through the
+rev-741 cache pass on 2026-08-03, and `goblin_raids.raider_count` through the
+period convergence below on 2026-08-08. Six Goblin Raids placeholders remain.
+
 Two are worth calling out because they are conflict resolutions rather than plain
 gaps. `intimidation_combat_level` exists because the same pinned article gives
 two different approximations, "around level 95" and "approx. level 90", for the
@@ -159,7 +163,7 @@ The exact despawn duration remains `source_blocked`:
   into period evidence.
 
 `goblin_raids.raid_active_reviews` therefore stays registered at 15 reviews as
-the smallest completion window for the settled five-raider-plus-Hollowtoof
+the smallest completion window for the settled ten-raider-plus-Hollowtoof
 sequence. The re-walk did expose a live lifecycle defect: killing Hollowtoof
 moved the session to Yodri's spoils but left the raid active, so the same cleared
 raid could be joined and rewarded repeatedly. Hollowtoof's death now ends that
@@ -172,6 +176,38 @@ placeholder-register and direct-action-undo tests; all 3,861 plain tests with
 skips. Documentation audits 520 Markdown and 431 HTML files; test-quality audits
 3,827 tests across 176 files with zero hard issues; diff-whitespace and
 worktree-layout audits pass.
+
+## Ordinary-raider count re-walk — 2026-08-08
+
+The former value of five was contradicted by convergent period evidence:
+
+- Release update oldid `6434891` and cutoff article oldid `6545250` state that
+  Commander Yodri pays one item for every raid goblin slain.
+- Tip.It's Goblin Raids guide says the location reward scales with the number
+  of Goblin Raiders killed and caps every farm, forest, and mine payout at ten.
+  The guide identifies its last update as `2012-10-24`; the immutable Wayback
+  capture is `20121228205432` at
+  `http://www.tip.it:80/runescape/pages/view/goblin_raids.htm` (retrieved HTML
+  SHA-256 `93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2`).
+  Combined with the exact one-item-per-kill rule, its maximum is ten ordinary
+  Raiders.
+- The release-day `File:Goblin raid.png` upload at
+  `2012-10-17T17:25:27Z` visibly shows nine ordinary Raider models, with
+  Hollowtoof standing separately by the fence. It independently disproves five
+  and is consistent with one additional Raider outside or occluded in the
+  frame. The original PNG has SHA-256
+  `78753d6724f834377a409c82325aab5b74bf6eca43da52fc3b25ef43a4cb08dd`;
+  the pre-cutoff optimisation upload preserves the scene.
+- Darkan still has no Goblin Raids server implementation, and NPC spawns are
+  server-owned rather than recoverable from the dated client caches. The modern
+  wiki Bosses table's ten-raider wording was added only in revision `35941310`
+  (`2022-11-10T02:08:03Z`), so it corroborates but does not supply the value.
+
+`GOBLIN_RAIDS_RAIDER_COUNT` is now exactly ten and
+`goblin_raids.raider_count` is retired from the placeholder register. A
+world-clock regression proves ten Raiders plus Hollowtoof can still complete
+inside the separately registered 15-review active window. No owner design gap
+surfaced.
 
 ## Asset provenance
 

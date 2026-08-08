@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 23 retires the Goblin Raids ordinary-count
+placeholder at ten.** The exact one-Yodri-item-per-kill rule plus Tip.It's
+2012-10-24 guide cap of ten location rewards pins ten Raiders, while the
+release-day screenshot independently shows nine ordinary models with Hollowtoof
+separate and disproves the former five. Darkan and the client caches add no
+server spawn table; the modern wiki's ten was added in 2022 and corroborates
+only. A world-clock regression proves ten Raiders plus Hollowtoof still fit the
+registered 15-review active window. No owner design gap surfaced. Focused
+verification passes 114 tests. The owner ended the session before closure, so
+the full plain run was interrupted and the offscreen-Qt lane was not started.
+Resume with both full lanes and the standard audits before closing this slice;
+then re-walk Yodri's exact site reward contents and unrecovered
+selection rule.
+
 **2026-08-08, grind-loop iteration 22 preserves the Goblin Raids active-window
 placeholder and fixes the cleared-raid lifecycle.** Release oldid `6434891`,
 cutoff article oldid `6545250`, revision `6452732`, the complete pre-cutoff

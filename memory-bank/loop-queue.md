@@ -71,6 +71,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk the Goblin Raids active duration through the period event
      history and available server records. Preserve the registered 15-review
      completion window unless a real despawn duration survives.
-   - [ ] Re-walk the Goblin Raids ordinary-raider count through period images,
+   - [x] Re-walk the Goblin Raids ordinary-raider count through period images,
      NPC spawn records, cache maps and any surviving server implementation.
      Preserve five unless an authentic fixed or scaling count survives.
+   - [ ] Re-walk Commander Yodri's site-specific reward contents and selection
+     rule through the dated Tip.It guide, period article history and surviving
+     server records. Retire exact contents without inventing hidden weights.
