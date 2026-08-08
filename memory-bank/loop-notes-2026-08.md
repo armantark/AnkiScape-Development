@@ -13,8 +13,12 @@
   the obsolete countdown fields. Champion selection does not change when a hit
   promotes the player during the event. The settled one-review duration remains
   unchanged and no design gap surfaced.
-- Verification: 41 focused Crucible/register tests pass. Full plain and
-  offscreen-Qt discovery are pending.
+- Verification: 41 focused Crucible/register tests pass. Plain discovery passes
+  all 3,860 tests with 479 intentional skips (3,381 ordinary passes); real
+  offscreen-Qt discovery passes all 3,860 tests with 3 intentional skips (3,857
+  ordinary passes). Documentation audits 520 Markdown and 431 HTML files;
+  test-quality audits 3,826 tests across 176 files with zero hard issues;
+  diff-whitespace and worktree-layout audits pass.
 - Next: Goblin Raids active duration.
 
 ## Iteration 20 — Crucible target-level matching

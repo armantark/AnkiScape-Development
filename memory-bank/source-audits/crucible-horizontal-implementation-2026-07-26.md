@@ -328,7 +328,9 @@ restarted it. The runtime now derives the one-review event window from
 foreground dispatch. The session retains only the event card and the champion
 selected at that boundary; the obsolete remaining-review and next-event fields
 are repaired away. The owner-settled one-review event-duration abstraction is
-unchanged and no design gap surfaced.
+unchanged and no design gap surfaced. Closure verification passes 41 focused
+tests, all 3,860 plain-discovery tests with 479 intentional skips, and all 3,860
+real offscreen-Qt tests with 3 intentional skips.
 
 ## Asset provenance
 

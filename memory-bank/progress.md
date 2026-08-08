@@ -16,8 +16,12 @@ keep the event card and champion chosen at that boundary; old private countdown
 fields sanitize away. A regression begins a visit after three world cards,
 proves the event arrives on the visit's second review, drives the real runtime,
 and proves a promotion during the event cannot retroactively select the player
-as champion. Focused Crucible/register verification passes 41 tests; both full
-lanes are pending. No owner design gap surfaced.
+as champion. Verification passes 41 focused Crucible/register tests, all 3,860
+plain-discovery tests with 479 intentional skips, and all 3,860 real
+offscreen-Qt tests with 3 intentional skips. Documentation audits 520 Markdown
+and 431 HTML files; test-quality audits 3,826 tests across 176 files with zero
+hard issues; diff-whitespace and worktree-layout audits pass. No owner design
+gap surfaced.
 
 ## Crucible target-level matching correction — 2026-08-08
 

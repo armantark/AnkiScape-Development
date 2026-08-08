@@ -10,8 +10,10 @@ it. The event now derives from `shop_market_clock.answered_cards`, while the
 session retains only the boundary card and frozen champion selection. Old
 countdown fields repair away naturally. The settled one-review duration remains
 unchanged. No owner design gap surfaced. The next slice re-walks Goblin Raids'
-registered active-duration window. Focused verification passes 41 tests; both
-full lanes are pending.
+registered active-duration window. Verification passes 41 focused tests, all
+3,860 plain-discovery tests with 479 intentional skips, and all 3,860 real
+offscreen-Qt tests with 3 intentional skips. Documentation, test-quality,
+diff-whitespace, and worktree-layout audits also pass.
 
 **2026-08-08, grind-loop iteration 20 makes the Crucible's documented severe
 matchmaking failure reachable.** Cutoff oldid `6538845` says the intended
