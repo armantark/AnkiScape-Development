@@ -1933,6 +1933,14 @@ def runecrafting_target_rows(
                 f"Base XP: {base_xp:g}\n"
                 f"Materials: Tiara ({inventory.get('Tiara', 0)}), {talisman} ({inventory.get(talisman, 0)})"
             )
+        elif kind == "talisman_staff":
+            talisman = str(spec.get("talisman_item"))
+            tooltip = (
+                f"Output: {output_item}\n"
+                "Permanently binds one talisman to one Runecrafting staff.\n"
+                f"Materials: Runecrafting staff ({inventory.get('Runecrafting staff', 0)}), "
+                f"{talisman} ({inventory.get(talisman, 0)})"
+            )
         else:
             input_item = str(spec.get("input_item", ""))
             tooltip = (

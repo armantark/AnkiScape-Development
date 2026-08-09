@@ -2,6 +2,30 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 34 completes Great Orb Project's talisman-
+staff family.** Runecrafting-staff oldid `6430449`, pre-EOC Air/Omni oldids
+`6080692`/`6080707`, the cutoff child identities, and rev-742 pin the exact
+10,000-token base purchase, twelve ordinary irreversible bindings, free Wizard
+Korvak Omni conversion, altar-access rules, Law exception, item IDs, and
+equipment stats. Ordinary bindings are Runecrafting review targets with real
+two-item carried-pack recipes and existing quest-gate inheritance; the free
+Omni conversion uses the atomic direct-action/undo path. Wielded staves provide
+28-slot altar capacity, Omni excludes Law, and Law keeps its zero-bonus Entrana
+row. Fourteen normalized sprites serve the existing Runecrafting and GOP
+selectors. The carried-recipe declaration also fixes the older tiara-binding
+rows, which had bypassed the pack and consumed directly from the bank. Abyss-
+eye distraction remains source-recorded but unimplemented because no Abyss
+substrate exists. Save repair recognizes equipped Omni-tiara and staff outputs,
+preventing a one-time 13,605-XP reclaim. Kimi's fresh preflight reported five-hour usage `100.0%` and
+weekly usage `33.0%`; Fable remains reserved. Full plain and real offscreen-Qt
+discovery each pass 3,903 tests, with 479 plain skips and 3 Qt skips. Docs audit
+527 Markdown/431 HTML files; test quality has zero hard issues across 3,869
+tests. Reachability is 1,511 actions, 2,270 items, 168 known orphans, and 188
+known blocked actions. Compilation, JSON, diff, deterministic asset fetching,
+UI-asset normalization, and worktree safety pass. Teleport tablets remain the
+next GOP depth slice. Durable audit:
+`memory-bank/source-audits/great-orb-project-talisman-staves-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 33 completes Great Orb Project's standard
 Runecrafter robe family.** Oldid `6327369`, cutoff talk oldid `5565562`, and
 rev-742 pin all three colours, 12 exact 1,000-token identities, equipment slots

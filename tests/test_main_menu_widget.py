@@ -7583,6 +7583,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Pure essence": 26,
             "Fire rune": 26,
             "Fire talisman": 1,
+            "Runecrafting staff": 1,
         }
         pd["equipment"] = {"head": "Earth tiara"}
         dialog = self._open(pd)
@@ -7600,17 +7601,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("__runecrafting_group__:standard", group_roles)
         self.assertIn("__runecrafting_group__:combination", group_roles)
         self.assertIn("__runecrafting_group__:tiara", group_roles)
+        self.assertIn("__runecrafting_group__:staff", group_roles)
         self.assertIn("__runecrafting_group__:hood", group_roles)
 
         air = _runecrafting_row(tree, "craft_air_runes")
         lava = _runecrafting_row(tree, "combo_lava_at_earth")
         blood = _runecrafting_row(tree, "craft_blood_runes")
+        air_staff = _runecrafting_row(tree, "bind_air_talisman_staff")
         self.assertFalse(air.isDisabled())
         self.assertFalse(lava.isDisabled())
+        self.assertFalse(air_staff.isDisabled())
         self.assertTrue(blood.isDisabled())
         self.assertFalse(air.icon(0).isNull(), "Runecrafting target row has no icon")
         self.assertIn("Output: Air rune", air.toolTip(0))
         self.assertIn("Pure essence", lava.toolTip(0))
+        self.assertFalse(air_staff.icon(0).isNull())
+        self.assertIn("Permanently binds", air_staff.toolTip(0))
+        self.assertIn("Runecrafting staff (1)", air_staff.toolTip(0))
         self.assertIn("Locked due to:", blood.toolTip(0))
 
         tree.itemClicked.emit(air, 0)
@@ -14022,7 +14029,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(currency.text(), "200 tokens")
         self.assertIn("Eight altar rounds", summary.text())
         self.assertTrue(progress.isHidden())
-        self.assertEqual(reward.count(), 30)
+        self.assertEqual(reward.count(), 32)
         self.assertEqual(reward.iconSize().width(), 24)
         self.assertEqual(reward.iconSize().height(), 24)
         for reward_id in (
@@ -14052,6 +14059,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             "master_runecrafter_body",
             "master_runecrafter_skirt",
             "master_runecrafter_boots",
+            "runecrafting_staff",
+            "omni_talisman_staff",
         ):
             reward_index = reward.findData(reward_id)
             self.assertGreaterEqual(reward_index, 0)

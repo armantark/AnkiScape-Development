@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
+from .equipment_data import EquipmentBonuses, EquipmentItem
+
 
 RUNECRAFTING_SOURCE_ROOT = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/runecrafting"
 RUNE_SOURCE_PATH = f"{RUNECRAFTING_SOURCE_ROOT}/Rune.kt"
@@ -26,6 +28,15 @@ WICKED_HOOD_CLAIM_ID = "wicked_hood"
 WICKED_HOOD_ITEM = "Wicked hood"
 BINDING_NECKLACE_ITEM = "Binding necklace"
 BINDING_NECKLACE_MAX_CHARGES = 15
+RUNECRAFTING_STAFF_ITEM = "Runecrafting staff"
+RUNECRAFTING_STAFF_ITEM_ID = 13629
+OMNI_TALISMAN_STAFF_ITEM = "Omni-talisman staff"
+OMNI_TALISMAN_STAFF_ITEM_ID = 13642
+TALISMAN_STAFF_SOURCE = (
+    "RuneScape Wiki Runecrafting staff oldid=6430449 "
+    "(2012-10-16T20:39:23Z); cutoff talisman-staff child revisions; "
+    "rev-742 item definitions"
+)
 
 
 @dataclass(frozen=True)
@@ -82,6 +93,22 @@ class TiaraBindingTarget:
     group: str = "tiara"
     kind: str = "tiara"
     level: int = 1
+
+
+@dataclass(frozen=True)
+class TalismanStaffBindingTarget:
+    id: str
+    display_name: str
+    altar_id: str
+    output_item: str
+    talisman_item: str
+    source_item_id: int
+    unlock_target_id: str
+    source: str = TALISMAN_STAFF_SOURCE
+    group: str = "staff"
+    kind: str = "talisman_staff"
+    level: int = 1
+    base_exp: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -190,6 +217,36 @@ TIARA_BINDING_TARGETS: Tuple[TiaraBindingTarget, ...] = (
 TIARA_BINDING_TARGETS_BY_ID: Dict[str, TiaraBindingTarget] = {target.id: target for target in TIARA_BINDING_TARGETS}
 
 
+TALISMAN_STAFF_BINDING_TARGETS: Tuple[TalismanStaffBindingTarget, ...] = tuple(
+    TalismanStaffBindingTarget(
+        id=f"bind_{altar_id}_talisman_staff",
+        display_name=f"Bind {altar_id} talisman staff",
+        altar_id=altar_id,
+        output_item=f"{altar_id.title()} talisman staff",
+        talisman_item=f"{altar_id.title()} talisman",
+        source_item_id=source_item_id,
+        unlock_target_id=f"craft_{altar_id}_runes",
+    )
+    for altar_id, source_item_id in (
+        ("air", 13630),
+        ("mind", 13631),
+        ("water", 13632),
+        ("earth", 13633),
+        ("fire", 13634),
+        ("body", 13635),
+        ("cosmic", 13636),
+        ("chaos", 13637),
+        ("nature", 13638),
+        ("law", 13639),
+        ("death", 13640),
+        ("blood", 13641),
+    )
+)
+TALISMAN_STAFF_BINDING_TARGETS_BY_ID: Dict[
+    str, TalismanStaffBindingTarget
+] = {target.id: target for target in TALISMAN_STAFF_BINDING_TARGETS}
+
+
 HOOD_FEED_TARGETS: Tuple[HoodFeedTarget, ...] = tuple(
     HoodFeedTarget(
         id=f"feed_{altar.id}_{kind}_to_hood",
@@ -243,22 +300,39 @@ POUCHES: Tuple[PouchDefinition, ...] = (
 POUCHES_BY_ID: Dict[str, PouchDefinition] = {pouch.id: pouch for pouch in POUCHES}
 
 
-RUNECRAFTING_TARGETS = STANDARD_RUNE_TARGETS + COMBINATION_RUNE_TARGETS + TIARA_BINDING_TARGETS + HOOD_FEED_TARGETS
+RUNECRAFTING_TARGETS = (
+    STANDARD_RUNE_TARGETS
+    + COMBINATION_RUNE_TARGETS
+    + TIARA_BINDING_TARGETS
+    + TALISMAN_STAFF_BINDING_TARGETS
+    + HOOD_FEED_TARGETS
+)
 RUNECRAFTING_TARGETS_BY_ID = {target.id: target for target in RUNECRAFTING_TARGETS}
 
 RUNECRAFTING_GROUP_LABELS: Dict[str, str] = {
     "standard": "Standard runes",
     "combination": "Combination runes",
     "tiara": "Tiara binding",
+    "staff": "Talisman staves",
     "hood": "Hood feeding",
 }
 
-_TARGET_GROUP_ORDER = ("standard", "combination", "tiara", "hood")
+_TARGET_GROUP_ORDER = ("standard", "combination", "tiara", "staff", "hood")
 
 
 def _target_as_dict(target) -> Dict[str, object]:
     data = dict(target.__dict__)
     data["base_exp"] = data.pop("base_exp", data.get("base_exp", 0.0))
+    if data.get("kind") == "tiara":
+        data["requirements"] = {
+            "Tiara": 1,
+            str(data["talisman_item"]): 1,
+        }
+    elif data.get("kind") == "talisman_staff":
+        data["requirements"] = {
+            RUNECRAFTING_STAFF_ITEM: 1,
+            str(data["talisman_item"]): 1,
+        }
     return data
 
 
@@ -270,6 +344,8 @@ def runecrafting_output_items() -> Tuple[str, ...]:
     items = [target.output_item for target in STANDARD_RUNE_TARGETS]
     items.extend(target.output_item for target in COMBINATION_RUNE_TARGETS)
     items.extend(target.output_item for target in TIARA_BINDING_TARGETS)
+    items.extend(target.output_item for target in TALISMAN_STAFF_BINDING_TARGETS)
+    items.append(OMNI_TALISMAN_STAFF_ITEM)
     return tuple(dict.fromkeys(items))
 
 
@@ -364,6 +440,12 @@ def runecrafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Elemental talisman": 5516,
         "Omni-talisman": 13649,
         "Omni-tiara": 13655,
+        RUNECRAFTING_STAFF_ITEM: RUNECRAFTING_STAFF_ITEM_ID,
+        **{
+            target.output_item: target.source_item_id
+            for target in TALISMAN_STAFF_BINDING_TARGETS
+        },
+        OMNI_TALISMAN_STAFF_ITEM: OMNI_TALISMAN_STAFF_ITEM_ID,
         "Small pouch": 5509,
         "Medium pouch": 5510,
         "Medium pouch (worn)": 5511,
@@ -377,19 +459,74 @@ def runecrafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     rune_item_names = set(runecrafting_rune_output_items())
     for name, item_id in item_ids.items():
         hood_items = {WICKED_HOOD_ITEM, "Elemental talisman", "Omni-talisman", "Omni-tiara"}
+        staff_items = {
+            RUNECRAFTING_STAFF_ITEM,
+            OMNI_TALISMAN_STAFF_ITEM,
+            *(target.output_item for target in TALISMAN_STAFF_BINDING_TARGETS),
+        }
         source = (
             "https://runescape.wiki/w/Wicked_hood?oldid=6564747"
             if name in hood_items
+            else TALISMAN_STAFF_SOURCE
+            if name in staff_items
             else ITEMS_SOURCE_PATH
         )
         add_item(
             name,
             item_id,
             source,
-            tradeable=name not in {WICKED_HOOD_ITEM, "Omni-talisman", "Omni-tiara"},
+            category="equipment" if name in staff_items - {RUNECRAFTING_STAFF_ITEM} else "runecrafting",
+            tradeable=name not in {
+                WICKED_HOOD_ITEM,
+                "Omni-talisman",
+                "Omni-tiara",
+                *staff_items,
+            },
             stackable=name in rune_item_names,
         )
     return data
+
+
+def runecrafting_equipment_data_as_dict() -> Dict[str, EquipmentItem]:
+    magic_defence_by_item = {
+        "Air talisman staff": 15,
+        "Mind talisman staff": 15,
+        "Fire talisman staff": 15,
+        "Body talisman staff": 15,
+        "Law talisman staff": 0,
+    }
+    item_ids = {
+        target.output_item: target.source_item_id
+        for target in TALISMAN_STAFF_BINDING_TARGETS
+    }
+    item_ids[OMNI_TALISMAN_STAFF_ITEM] = OMNI_TALISMAN_STAFF_ITEM_ID
+    return {
+        item: EquipmentItem(
+            item_name=item,
+            slot="weapon",
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="talisman_staff",
+            bonuses=EquipmentBonuses(
+                attack_slash=0 if item == "Law talisman staff" else -1,
+                attack_crush=0 if item == "Law talisman staff" else 7,
+                attack_magic=0 if item == "Law talisman staff" else 5,
+                defence_stab=0 if item == "Law talisman staff" else 2,
+                defence_slash=0 if item == "Law talisman staff" else 3,
+                defence_crush=0 if item == "Law talisman staff" else 1,
+                defence_magic=magic_defence_by_item.get(item, 16),
+                melee_strength=0 if item == "Law talisman staff" else 33,
+            ),
+            attack_speed=4 if item == OMNI_TALISMAN_STAFF_ITEM else 5,
+            source_item_id=item_id,
+            source=TALISMAN_STAFF_SOURCE,
+            source_status="cutoff wiki and rev-742 equipment definition",
+            skill_requirements=(),
+            weapon_type=1,
+        )
+        for item, item_id in item_ids.items()
+    }
 
 
 def runecrafting_pouches_as_dict() -> Dict[str, Dict[str, object]]:

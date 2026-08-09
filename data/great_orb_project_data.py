@@ -6,6 +6,13 @@ from dataclasses import dataclass
 from typing import Any
 
 from .equipment_data import EquipmentBonuses, EquipmentItem
+from .runecrafting_data import (
+    OMNI_TALISMAN_STAFF_ITEM,
+    OMNI_TALISMAN_STAFF_ITEM_ID,
+    RUNECRAFTING_STAFF_ITEM,
+    RUNECRAFTING_STAFF_ITEM_ID,
+    TALISMAN_STAFF_SOURCE,
+)
 
 
 GREAT_ORB_PROJECT_ACTIVITY_ID = "great_orb_project"
@@ -316,6 +323,16 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
             MASTER_RUNECRAFTER_REWARDS
         )
     },
+    "runecrafting_staff": {
+        "item": RUNECRAFTING_STAFF_ITEM,
+        "tokens": 10_000,
+        "quantity": 1,
+        "source_item_id": RUNECRAFTING_STAFF_ITEM_ID,
+        "tradeable": False,
+        "stackable": False,
+        "category": "tool",
+        "source": TALISMAN_STAFF_SOURCE,
+    },
     "omni_talisman": {
         "item": "Omni-talisman",
         "tokens": 0,
@@ -339,6 +356,18 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
         "shop_label": "Omni-tiara · Korvak",
         "button_label": "Make",
         "source": OMNI_TIARA_SOURCE,
+    },
+    "omni_talisman_staff": {
+        "item": OMNI_TALISMAN_STAFF_ITEM,
+        "tokens": 0,
+        "quantity": 1,
+        "source_item_id": OMNI_TALISMAN_STAFF_ITEM_ID,
+        "tradeable": False,
+        "stackable": False,
+        "category": "conversion",
+        "shop_label": "Omni-talisman staff · Korvak",
+        "button_label": "Make",
+        "source": TALISMAN_STAFF_SOURCE,
     },
 }
 

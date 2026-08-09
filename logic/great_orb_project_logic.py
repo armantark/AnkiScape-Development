@@ -18,6 +18,10 @@ from ..data.great_orb_project_data import (
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
 )
+from ..data.runecrafting_data import (
+    OMNI_TALISMAN_STAFF_ITEM,
+    RUNECRAFTING_STAFF_ITEM,
+)
 
 
 _MASTER_RUNECRAFTER_BONUSES = {
@@ -173,12 +177,19 @@ def sanitize_great_orb_project_player_state_pure(
     if state["active"] and active_id not in {"", GREAT_ORB_PROJECT_ACTIVITY_ID}:
         state["active"] = {}
     inventory = data.get("inventory")
+    equipment = data.get("equipment")
     hood = data.get("wicked_hood")
     if not state["omni_talisman_xp_claimed"] and (
         isinstance(inventory, Mapping)
         and (
             _int(inventory.get("Omni-talisman")) > 0
             or _int(inventory.get("Omni-tiara")) > 0
+            or _int(inventory.get(OMNI_TALISMAN_STAFF_ITEM)) > 0
+        )
+        or isinstance(equipment, Mapping)
+        and (
+            equipment.get("head") == "Omni-tiara"
+            or equipment.get("weapon") == OMNI_TALISMAN_STAFF_ITEM
         )
         or isinstance(hood, Mapping)
         and bool(hood.get("omni_fed"))
@@ -484,6 +495,12 @@ def _great_orb_reward_locked_reason_pure(
         if _int(inventory.get("Tiara")) <= 0:
             return "Requires a Tiara."
         return ""
+    if reward_id == "omni_talisman_staff":
+        if _int(inventory.get("Omni-talisman")) <= 0:
+            return "Requires an Omni-talisman."
+        if _int(inventory.get(RUNECRAFTING_STAFF_ITEM)) <= 0:
+            return f"Requires a {RUNECRAFTING_STAFF_ITEM}."
+        return ""
     cost = int(reward.get("tokens", 0) or 0)
     return (
         ""
@@ -555,6 +572,31 @@ def buy_great_orb_project_reward_pure(
         return data, True, {
             "message": data["great_orb_project_last_result"],
             "item": "Omni-tiara",
+            "quantity": 1,
+            "tokens_spent": 0,
+        }
+    if str(reward_id) == "omni_talisman_staff":
+        if _int(inventory.get("Omni-talisman")) <= 0:
+            return data, False, {"reason": "Requires an Omni-talisman."}
+        if _int(inventory.get(RUNECRAFTING_STAFF_ITEM)) <= 0:
+            return data, False, {
+                "reason": f"Requires a {RUNECRAFTING_STAFF_ITEM}."
+            }
+        inventory["Omni-talisman"] -= 1
+        inventory[RUNECRAFTING_STAFF_ITEM] -= 1
+        inventory[OMNI_TALISMAN_STAFF_ITEM] = (
+            _int(inventory.get(OMNI_TALISMAN_STAFF_ITEM)) + 1
+        )
+        data.update(sanitized)
+        data["great_orb_project"] = state
+        data["inventory"] = inventory
+        data["great_orb_project_last_result"] = (
+            "Wizard Korvak · Omni-talisman and Runecrafting staff combined "
+            "into an Omni-talisman staff"
+        )
+        return data, True, {
+            "message": data["great_orb_project_last_result"],
+            "item": OMNI_TALISMAN_STAFF_ITEM,
             "quantity": 1,
             "tokens_spent": 0,
         }

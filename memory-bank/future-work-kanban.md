@@ -1236,8 +1236,11 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   XP bonuses. All 12 green, blue, and yellow standard Runecrafter pieces now
   have exact prices, identities, equipment bonuses, GOP-only per-piece XP
   behavior, and normalized art; the unrecovered rate is a registered
-  placeholder. Exact hidden score/essence rolls and the staff and
-  teleport-tablet families remain labeled data and mechanic depth. See
+  placeholder. The 10,000-token Runecrafting staff, twelve ordinary talisman
+  bindings, free Korvak Omni conversion, altar access, Law exception, exact
+  equipment rows, carried recipes, and normalized art are also complete.
+  Exact hidden score/essence rolls and the teleport-tablet family remain
+  labeled data and mechanic depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
   essence, rune, and matching altar-teleport actions use a carried or equipped

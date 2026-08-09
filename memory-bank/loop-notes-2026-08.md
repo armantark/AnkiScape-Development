@@ -1,5 +1,39 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 34 — Great Orb Project talisman staves
+
+- Source: Runecrafting-staff oldid `6430449`, pre-EOC Air/Omni oldids
+  `6080692`/`6080707`, the cutoff child identities, and rev-742 pin the
+  10,000-token base staff, twelve ordinary bindings, free Korvak conversion,
+  altar-access rules, Law exception, item IDs, and equipment stats. No binding
+  XP is claimed because no inspected period record awards it.
+- Result: the base purchase, ordinary review bindings, direct Omni conversion,
+  quest-gate inheritance, shared equipment/Bank behavior, altar capacity,
+  review/direct undo, and fourteen normalized sprites are live. Binding now
+  declares real carried-pack recipes; this also repairs the older tiara rows'
+  direct-bank bypass. Save repair now recognizes equipped Omni-tiara/staff
+  outputs, closing a one-time 13,605-XP reclaim hole.
+- Boundary: the sourced Abyss-eye distraction remains recorded but inert
+  because AnkiScape has no Abyss substrate. Teleport tablets remain the next
+  separate depth slice. No placeholder, schema migration, wall clock, or owner
+  design decision was added.
+- Taste: the complete 394-test real Qt widget module passes. Kimi's fresh quota
+  preflight reported five-hour usage `100.0%` and weekly usage `33.0%`, so the
+  K3 call failed closed; Fable remains reserved under the owner's later rule.
+  This slice adds rows to existing selectors rather than a new UI pattern.
+- Delegation: read-only Sol-high Workflows run
+  `ccc8d0ca-9497-4dfe-bd85-8525c6fd0d85` exhausted its tool-output guard at
+  `60,675` observed bytes against `50,000` after one bounded diff and returned
+  no findings. Root used only the partial status, completed the simplification
+  review locally, and fixed the equipped-Omni reclaim hole.
+- Verification: 413 focused pure/integration tests pass. Full plain and real
+  offscreen-Qt discovery each pass 3,903 tests, with 479 plain skips and 3 Qt
+  skips. Documentation audits 527 Markdown and 431 HTML files; test quality
+  has zero hard issues across 3,869 tests in 177 files. Reachability improves
+  to 1,511 actions and 2,270 items with the known 168-orphan/188-blocked ledger
+  unchanged. Compilation, tracked JSON, diff, deterministic asset fetching,
+  UI asset normalization, and worktree safety pass.
+
 ## Iteration 33 — Great Orb Project standard Runecrafter robes
 
 - Source: robes oldid `6327369`, talk oldid `5565562`, and rev-742 pin three

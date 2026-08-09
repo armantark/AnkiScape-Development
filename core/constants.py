@@ -383,6 +383,7 @@ from ..data.runecrafting_data import (
     RUNECRAFTING_GROUP_LABELS,
     WICKED_HOOD_ITEM,
     runecrafting_access_items,
+    runecrafting_equipment_data_as_dict,
     runecrafting_extra_items_as_dict,
     runecrafting_output_items,
     runecrafting_rune_output_items,
@@ -1702,6 +1703,7 @@ EQUIPMENT_DATA = dict(EQUIPMENT_DATA)
 EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_DATA.update(great_orb_project_equipment_data_as_dict())
+EQUIPMENT_DATA.update(runecrafting_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())

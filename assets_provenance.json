@@ -34731,6 +34731,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-12-01T05:27:54Z"
   },
+  "runecraftingitems/air_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Air_talisman_staff.png",
+    "file_title": "Air talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502004205%21Air_talisman_staff.png?ad5bb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bb7953ec2eff4024961f918b374f17b151cf287f",
+    "size": 673,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T03:24:00Z"
+  },
   "runecraftingitems/air_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Air_tiara.png",
     "file_title": "Air tiara.png",
@@ -34791,6 +34803,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-11-06T04:48:39Z"
   },
+  "runecraftingitems/blood_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blood_talisman_staff.png",
+    "file_title": "Blood talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071648%21Blood_talisman_staff.png?9e148",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "51b25494a0c676054006a18984979ad2826a9e41",
+    "size": 343,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T04:24:15Z"
+  },
   "runecraftingitems/blood_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blood_tiara.png",
     "file_title": "Blood tiara.png",
@@ -34826,6 +34850,18 @@
     "size": 1468,
     "source_wiki": "rs3",
     "timestamp": "2010-03-27T14:03:36Z"
+  },
+  "runecraftingitems/body_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Body_talisman_staff.png",
+    "file_title": "Body talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720150406%21Body_talisman_staff.png?fc08f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8e61b85585a5d7db2f33ec4a484c2bbcd3236a5b",
+    "size": 341,
+    "source_wiki": "rs3",
+    "timestamp": "2009-11-25T21:46:06Z"
   },
   "runecraftingitems/body_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Body_tiara.png",
@@ -34863,6 +34899,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-27T14:03:36Z"
   },
+  "runecraftingitems/chaos_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chaos_talisman_staff.png",
+    "file_title": "Chaos talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720150829%21Chaos_talisman_staff.png?bc0e3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3f79629be24272750f363a01066781f004855bf4",
+    "size": 313,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T01:17:40Z"
+  },
   "runecraftingitems/chaos_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Chaos_tiara.png",
     "file_title": "Chaos tiara.png",
@@ -34899,6 +34947,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-27T14:03:37Z"
   },
+  "runecraftingitems/cosmic_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cosmic_talisman_staff.png",
+    "file_title": "Cosmic talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720150629%21Cosmic_talisman_staff.png?753d4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "30893ff9e59e438a66624e2272bc9f9eed02f39e",
+    "size": 287,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T14:10:43Z"
+  },
   "runecraftingitems/cosmic_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cosmic_tiara.png",
     "file_title": "Cosmic tiara.png",
@@ -34934,6 +34994,18 @@
     "size": 518,
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T21:51:48Z"
+  },
+  "runecraftingitems/death_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Death_talisman_staff.png",
+    "file_title": "Death talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071649%21Death_talisman_staff.png?67344",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "91b8f6757d1663d933f40b975a19a17da6d85074",
+    "size": 277,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T22:03:25Z"
   },
   "runecraftingitems/death_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Death_tiara.png",
@@ -34983,6 +35055,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-20T13:17:56Z"
   },
+  "runecraftingitems/earth_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Earth_talisman_staff.png",
+    "file_title": "Earth talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720145933%21Earth_talisman_staff.png?ae1c9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "90ce2ea040cba6e110a8529c9675ba180552837f",
+    "size": 330,
+    "source_wiki": "rs3",
+    "timestamp": "2009-11-25T21:46:21Z"
+  },
   "runecraftingitems/earth_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Earth_tiara.png",
     "file_title": "Earth tiara.png",
@@ -35030,6 +35114,18 @@
     "size": 555,
     "source_wiki": "rs3",
     "timestamp": "2011-11-21T02:11:17Z"
+  },
+  "runecraftingitems/fire_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fire_talisman_staff.png",
+    "file_title": "Fire talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720150209%21Fire_talisman_staff.png?57961",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1632cbe031e519061c4093e925efca2d1a7ac8c5",
+    "size": 273,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-08T03:56:53Z"
   },
   "runecraftingitems/fire_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fire_tiara.png",
@@ -35127,6 +35223,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-27T14:03:37Z"
   },
+  "runecraftingitems/law_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Law_talisman_staff.png",
+    "file_title": "Law talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720151225%21Law_talisman_staff.png?9ddb3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a1c133306bc41eb219f7deecf9c2dca62625d016",
+    "size": 314,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-25T07:36:21Z"
+  },
   "runecraftingitems/law_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Law_tiara.png",
     "file_title": "Law tiara.png",
@@ -35186,6 +35294,18 @@
     "size": 582,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T01:13:49Z"
+  },
+  "runecraftingitems/mind_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mind_talisman_staff.png",
+    "file_title": "Mind talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720145638%21Mind_talisman_staff.png?fa943",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "696376eb56501858ff5a0a9f6d50fdc628865c09",
+    "size": 371,
+    "source_wiki": "rs3",
+    "timestamp": "2009-11-25T21:52:49Z"
   },
   "runecraftingitems/mind_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Mind_tiara.png",
@@ -35247,6 +35367,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T12:05:00Z"
   },
+  "runecraftingitems/nature_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Nature_talisman_staff.png",
+    "file_title": "Nature talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720150940%21Nature_talisman_staff.png?ba9f6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3e139134c39ef3a3c15fa31019cef7e3055c8a55",
+    "size": 322,
+    "source_wiki": "rs3",
+    "timestamp": "2009-11-25T21:47:41Z"
+  },
   "runecraftingitems/nature_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Nature_tiara.png",
     "file_title": "Nature tiara.png",
@@ -35271,6 +35403,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T03:54:55Z"
   },
+  "runecraftingitems/omni_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Omni-talisman_staff.png",
+    "file_title": "Omni-talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720151416%21Omni-talisman_staff.png?091e7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "12510877017b466e1bc95b591e32ce022fadb6ef",
+    "size": 430,
+    "source_wiki": "rs3",
+    "timestamp": "2009-11-25T21:51:01Z"
+  },
   "runecraftingitems/omni_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Omni-tiara.png",
     "file_title": "Omni-tiara.png",
@@ -35282,6 +35426,18 @@
     "size": 802,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T18:37:07Z"
+  },
+  "runecraftingitems/runecrafting_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafting_staff.png",
+    "file_title": "Runecrafting staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720145254%21Runecrafting_staff.png?af6ca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "946d3707c161de6476d23db96edaa200a346542e",
+    "size": 1351,
+    "source_wiki": "rs3",
+    "timestamp": "2010-03-27T14:03:38Z"
   },
   "runecraftingitems/small_pouch.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Small_pouch.png",
@@ -35342,6 +35498,18 @@
     "size": 1223,
     "source_wiki": "rs3",
     "timestamp": "2012-10-18T22:08:41Z"
+  },
+  "runecraftingitems/water_talisman_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Water_talisman_staff.png",
+    "file_title": "Water talisman staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20130720145800%21Water_talisman_staff.png?ff710",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5356edda02de2e6d872ecca89068d51529eda3f7",
+    "size": 344,
+    "source_wiki": "rs3",
+    "timestamp": "2009-11-25T21:44:10Z"
   },
   "runecraftingitems/water_tiara.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Water_tiara.png",

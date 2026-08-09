@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import Iterable, Mapping, Optional
 
+from ..data.runecrafting_data import (
+    OMNI_TALISMAN_STAFF_ITEM,
+    RUNECRAFTING_STAFF_ITEM,
+)
 from ..logic.wicked_hood_logic import (
     apply_wicked_hood_upgrade_pure,
     wicked_hood_fed_altars_pure,
@@ -164,6 +168,10 @@ def runecrafting_altar_access_source_pure(player_data, altar_id, runecrafting_da
     talisman_item, tiara_item = _altar_access_item_names(altar_id, runecrafting_data)
     if tiara_item and equipment.get("head") == tiara_item:
         return "tiara"
+    if equipment.get("weapon") == f"{str(altar_id).title()} talisman staff":
+        return "staff"
+    if altar_id != "law" and equipment.get("weapon") == OMNI_TALISMAN_STAFF_ITEM:
+        return "staff"
     if altar_id in _fed_altars(player_data) and wicked_hood_operable_pure(player_data):
         return "hood"
     if talisman_item and inventory.get(talisman_item, 0) > 0:
@@ -173,7 +181,7 @@ def runecrafting_altar_access_source_pure(player_data, altar_id, runecrafting_da
 
 def runecrafting_standard_base_capacity_pure(player_data, target, runecrafting_data):
     source = runecrafting_altar_access_source_pure(player_data, target.get("altar_id"), runecrafting_data)
-    if source in {"tiara", "hood"}:
+    if source in {"tiara", "hood", "staff"}:
         return 28
     if source == "talisman":
         return 27
@@ -334,7 +342,7 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
         quest_unlock_locked_reasons_pure(
             player_data,
             "runecrafting",
-            target_id,
+            target.get("unlock_target_id", target_id),
             quest_unlock_rules,
         )
     )
@@ -360,6 +368,10 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
                 reasons.append(str(item_name))
     elif kind == "tiara":
         for item_name in ("Tiara", target.get("talisman_item")):
+            if item_name and inventory.get(item_name, 0) <= 0:
+                reasons.append(str(item_name))
+    elif kind == "talisman_staff":
+        for item_name in (RUNECRAFTING_STAFF_ITEM, target.get("talisman_item")):
             if item_name and inventory.get(item_name, 0) <= 0:
                 reasons.append(str(item_name))
     elif kind == "hood_feed":
@@ -489,6 +501,16 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         output_item = str(target.get("output_item"))
         inventory[output_item] = inventory.get(output_item, 0) + 1
         return data, float(target.get("base_exp", 0.0)), True, f"+1 {output_item}"
+
+    if kind == "talisman_staff":
+        talisman = str(target.get("talisman_item"))
+        inventory[RUNECRAFTING_STAFF_ITEM] = (
+            inventory.get(RUNECRAFTING_STAFF_ITEM, 0) - 1
+        )
+        inventory[talisman] = inventory.get(talisman, 0) - 1
+        output_item = str(target.get("output_item"))
+        inventory[output_item] = inventory.get(output_item, 0) + 1
+        return data, 0, True, f"+1 {output_item}"
 
     if kind == "hood_feed":
         input_item = str(target.get("input_item"))

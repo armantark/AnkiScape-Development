@@ -86,6 +86,7 @@ from ankiscape.logic_pure.logic_pure import (
     apply_hunter_action_pure,
     can_runecraft_target_pure,
     binding_necklace_charges_pure,
+    runecrafting_altar_access_source_pure,
     calculate_iron_smelting_success_probability_pure,
     claim_rows_pure,
     consume_ring_of_forging_charge_pure,
@@ -7039,6 +7040,93 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_data["inventory"]["Air rune"], 31)
         self.assertEqual(new_data["inventory"]["Small pouch"], 1)
         self.assertEqual(new_data["runecrafting_pouches"]["small"], {"degradation": 0})
+
+    def test_talisman_staff_binding_is_irreversible_and_grants_altar_access(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {
+            "started": True,
+            "progress": 6,
+            "completed": True,
+        }
+        player_data["inventory"]["Runecrafting staff"] = 1
+        player_data["inventory"]["Air talisman"] = 1
+
+        bound, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "bind_air_talisman_staff",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+
+        self.assertTrue(ok, message)
+        self.assertEqual(exp, 0)
+        self.assertEqual(bound["inventory"]["Runecrafting staff"], 0)
+        self.assertEqual(bound["inventory"]["Air talisman"], 0)
+        self.assertEqual(bound["inventory"]["Air talisman staff"], 1)
+        self.assertEqual(player_data["inventory"]["Runecrafting staff"], 1)
+        self.assertEqual(player_data["inventory"]["Air talisman"], 1)
+
+        bound["equipment"]["weapon"] = "Air talisman staff"
+        bound["inventory"]["Air talisman staff"] = 0
+        bound["inventory"]["Rune essence"] = 28
+        crafted, exp, ok, message = apply_runecrafting_action_pure(
+            bound,
+            "craft_air_runes",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+        self.assertTrue(ok, message)
+        self.assertEqual(crafted["inventory"]["Air rune"], 28)
+        self.assertEqual(exp, 140)
+
+    def test_talisman_staff_quest_inheritance_and_omni_law_exclusion(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {
+            "started": True,
+            "progress": 6,
+            "completed": True,
+        }
+        player_data["runecrafting_level"] = 99
+        player_data["inventory"].update(
+            {"Runecrafting staff": 1, "Cosmic talisman": 1}
+        )
+        self.assertFalse(
+            can_runecraft_target_pure(
+                player_data,
+                "bind_cosmic_talisman_staff",
+                RUNECRAFTING_DATA,
+                RUNECRAFTING_POUCH_DATA,
+                QUEST_UNLOCK_RULES,
+            )
+        )
+        player_data["quests"]["lost_city"] = {
+            "started": True,
+            "progress": 6,
+            "completed": True,
+        }
+        self.assertTrue(
+            can_runecraft_target_pure(
+                player_data,
+                "bind_cosmic_talisman_staff",
+                RUNECRAFTING_DATA,
+                RUNECRAFTING_POUCH_DATA,
+                QUEST_UNLOCK_RULES,
+            )
+        )
+
+        player_data["equipment"]["weapon"] = "Omni-talisman staff"
+        self.assertEqual(
+            runecrafting_altar_access_source_pure(
+                player_data, "air", RUNECRAFTING_DATA
+            ),
+            "staff",
+        )
+        self.assertEqual(
+            runecrafting_altar_access_source_pure(
+                player_data, "law", RUNECRAFTING_DATA
+            ),
+            "",
+        )
 
     def test_combination_runecrafting_uses_binding_necklace_charge_counter(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

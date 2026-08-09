@@ -1,5 +1,39 @@
 # Progress
 
+## Great Orb Project talisman staves — 2026-08-09
+
+Runecrafting-staff oldid `6430449`, pre-EOC Air/Omni oldids `6080692` and
+`6080707`, the cutoff child identities, and rev-742 pin the exact 10,000-token
+base staff, twelve ordinary irreversible bindings, free Wizard Korvak Omni
+conversion, altar-access rules, Law exception, item IDs, and equipment stats.
+No inspected period record awards binding XP, so the live binding gives zero
+without registering an invented hidden value.
+
+The family reuses the existing GOP atomic purchase/direct-undo path, the
+Runecrafting review/undo path, shared inventory/Bank/equipment registries, and
+the grouped target and reward selectors. Ordinary binding consumes one carried
+base staff plus one carried matching talisman and inherits the matching altar's
+quest gate. Wielded ordinary staves provide that altar's 28-slot capacity;
+Omni supplies every modeled ordinary altar except Law, while the dedicated Law
+staff keeps its exact zero-bonus row. Fourteen normalized sprites are registered
+with provenance. Declaring binding recipes also repairs older tiara binding,
+which had consumed directly from the bank instead of the carried pack. Save
+repair recognizes equipped Omni-tiara and staff outputs, so they cannot reopen
+Elriss's one-time 13,605-XP claim.
+
+The complete 394-test real Qt widget module and 413 focused pure/integration
+tests pass. Kimi's fresh preflight reported five-hour usage `100.0%` and weekly
+usage `33.0%`, so the requested K3 taste call failed closed; Fable remains
+reserved. Full plain and real offscreen-Qt discovery each pass 3,903 tests,
+with 479 expected plain skips and three intentional Qt skips. Documentation
+audits 527 Markdown and 431 HTML files; test quality has zero hard issues across
+3,869 tests in 177 files. Compilation, tracked JSON, diff, deterministic asset
+fetching, UI asset normalization, and worktree safety pass. Reachability rises
+to 1,511 actions and 2,270 items while the known 168-orphan/188-blocked ledger
+is unchanged. Abyss-eye distraction remains outside the live substrate;
+teleport tablets are next. See
+`memory-bank/source-audits/great-orb-project-talisman-staves-2026-08-09.md`.
+
 ## Great Orb Project standard Runecrafter robes — 2026-08-09
 
 RuneScape Wiki oldid `6327369`, cutoff talk oldid `5565562`, and OpenRS2

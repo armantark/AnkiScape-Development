@@ -98,3 +98,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete Great Orb Project's three-colour standard Runecrafter robe
      family with exact prices, identities, equipment stats, activity-only XP
      scope, labeled rate placeholder, and normalized selector art.
+   - [x] Complete Great Orb Project's talisman-staff family with the exact base
+     purchase, twelve ordinary bindings, Korvak Omni conversion, altar access,
+     Law exception, equipment stats, carried recipes, and normalized art.
+   - [ ] Complete Great Orb Project's cutoff teleport-tablet family.

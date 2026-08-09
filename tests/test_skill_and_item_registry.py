@@ -60,6 +60,11 @@ from ankiscape.core.constants import (
     WOODCUTTING_LOG_ITEMS,
 )
 from ankiscape.data.crafting_data import CRAFTING_REQUIRED_ITEM_SOURCE_IDS
+from ankiscape.data.runecrafting_data import (
+    OMNI_TALISMAN_STAFF_ITEM,
+    RUNECRAFTING_STAFF_ITEM,
+    TALISMAN_STAFF_BINDING_TARGETS,
+)
 from ankiscape.core.item_registry import (
     item_definitions_by_id,
     item_definitions_by_storage_key,
@@ -1955,7 +1960,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_runecrafting_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(RUNECRAFTING_DATA), 64)
+        self.assertEqual(len(RUNECRAFTING_DATA), 76)
         self.assertEqual(RUNECRAFTING_DATA["craft_air_runes"]["output_item"], "Air rune")
         self.assertEqual(RUNECRAFTING_DATA["combo_lava_at_earth"]["consumed_talisman"], "Fire talisman")
         self.assertEqual(RUNECRAFTING_POUCH_DATA["small"]["capacity"], 3)
@@ -1973,6 +1978,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Elemental talisman",
             "Omni-talisman",
             "Omni-tiara",
+            RUNECRAFTING_STAFF_ITEM,
+            *(target.output_item for target in TALISMAN_STAFF_BINDING_TARGETS),
+            OMNI_TALISMAN_STAFF_ITEM,
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertIn(item_name, RUNECRAFTING_ITEM_IMAGES)
@@ -1990,8 +1998,42 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Elemental talisman",
             "Omni-talisman",
             "Omni-tiara",
+            RUNECRAFTING_STAFF_ITEM,
+            *(target.output_item for target in TALISMAN_STAFF_BINDING_TARGETS),
+            OMNI_TALISMAN_STAFF_ITEM,
         ):
             self.assertFalse(by_storage_key[item_name].stackable, item_name)
+
+        self.assertEqual(
+            by_storage_key[RUNECRAFTING_STAFF_ITEM].source_item_id, 13629
+        )
+        self.assertIsNone(
+            by_storage_key[RUNECRAFTING_STAFF_ITEM].equipment_slot
+        )
+        expected = {
+            "Air talisman staff": (13630, 15, 5),
+            "Water talisman staff": (13632, 16, 5),
+            "Law talisman staff": (13639, 0, 5),
+            OMNI_TALISMAN_STAFF_ITEM: (13642, 16, 4),
+        }
+        for item_name, (item_id, magic_defence, attack_speed) in expected.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                equipment = EQUIPMENT_DATA[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.equipment_slot, "weapon")
+                self.assertFalse(definition.tradeable)
+                self.assertEqual(equipment.source_item_id, item_id)
+                self.assertEqual(equipment.bonuses.defence_magic, magic_defence)
+                self.assertEqual(equipment.attack_speed, attack_speed)
+                self.assertEqual(
+                    equipment.bonuses.attack_magic,
+                    0 if item_name == "Law talisman staff" else 5,
+                )
+                self.assertEqual(
+                    equipment.bonuses.melee_strength,
+                    0 if item_name == "Law talisman staff" else 33,
+                )
 
         self.assertEqual(by_storage_key["Air rune"].category, "runecrafting")
         self.assertEqual(by_storage_key["Binding necklace"].equipment_slot, "neck")

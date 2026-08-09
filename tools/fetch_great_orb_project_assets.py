@@ -114,6 +114,34 @@ def main() -> int:
                 ),
             )
         ),
+        *(
+            AssetRequest(
+                item_name=item_name,
+                wiki_title=f"{item_name.replace(' ', '_')}.png",
+                output_path=(
+                    ROOT
+                    / "runecraftingitems"
+                    / f"{item_name.lower().replace(' ', '_').replace('-', '_')}.png"
+                ),
+                provenance_path=ROOT / "assets_provenance.json",
+            )
+            for item_name in (
+                "Runecrafting staff",
+                "Air talisman staff",
+                "Mind talisman staff",
+                "Water talisman staff",
+                "Earth talisman staff",
+                "Fire talisman staff",
+                "Body talisman staff",
+                "Cosmic talisman staff",
+                "Chaos talisman staff",
+                "Nature talisman staff",
+                "Law talisman staff",
+                "Death talisman staff",
+                "Blood talisman staff",
+                "Omni-talisman staff",
+            )
+        ),
     )
     for request in requests:
         try:

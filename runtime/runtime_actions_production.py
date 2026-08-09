@@ -1123,6 +1123,7 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
             str(spec.get("component_rune", "")),
             str(spec.get("consumed_talisman", "")),
             str(spec.get("talisman_item", "")),
+            "Runecrafting staff",
             str(spec.get("input_item", "")),
         }
         materials_only = bool(reasons) and all(

@@ -4359,6 +4359,47 @@ class TestProcessingPackOverlay(unittest.TestCase):
         )
         self.assertEqual(calls["errors"], [])
 
+    def test_talisman_staff_binding_consumes_the_carried_recipe_not_the_bank(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Runecrafting staff": 2, "Air talisman": 2},
+            "equipment": {},
+            "quests": {
+                "rune_mysteries": {
+                    "started": True,
+                    "progress": 6,
+                    "completed": True,
+                }
+            },
+            "current_runecrafting": "bind_air_talisman_staff",
+            "runecrafting_level": 1,
+            "runecrafting_exp": 0.0,
+            "completed_achievements": [],
+            "carried_advanced_targets": {"bind_air_talisman_staff": True},
+            "carried_layout": {
+                "bind_air_talisman_staff": {
+                    "Runecrafting staff": 1,
+                    "Air talisman": 1,
+                }
+            },
+        }
+
+        result = run_answer_with_carried_overlay(
+            _context(player_data, calls, random_values=[0.0] * 64),
+            "runecrafting",
+            handle_runecrafting_answer,
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Runecrafting staff"], 1)
+        self.assertEqual(player_data["inventory"]["Air talisman"], 1)
+        self.assertEqual(player_data["inventory"]["Air talisman staff"], 1)
+        self.assertNotIn(
+            "bind_air_talisman_staff", player_data["carried_inventory"]
+        )
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["errors"], [])
+
     def test_first_engagement_primes_the_pack_for_free_and_acts(self):
         player_data = self._base_player_data(5)
         ctx, calls = self._firemaking_ctx(player_data)
