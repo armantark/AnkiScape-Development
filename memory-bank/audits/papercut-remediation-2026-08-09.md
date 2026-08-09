@@ -2,8 +2,8 @@
 
 ## Scope and accounting
 
-This audit accounts for every incident in the 2026-08-09 00:45 checkout
-snapshot of `memory-bank/papercuts.md` (snapshot lines 3-127). The incident log
+This audit accounts for every incident in the 2026-08-09 00:49 checkout
+snapshot of `memory-bank/papercuts.md` (snapshot lines 3-129). The incident log
 remains append-only evidence. A papercut is closed here when it has a durable
 guard, an existing regression oracle, or an explicit external/source boundary;
 closure does not erase the original failure.
@@ -12,7 +12,7 @@ closure does not erase the original failure.
 
 | Snapshot lines | Incidents | Resolution |
 | --- | --- | --- |
-| 3-7, 9, 14, 34-35, 62-64, 66-68, 73, 77, 79-83, 85-90, 93-99, 108, 118, 121 | Stale paths, unmatched zsh globs, broad searches, giant one-line/generated matches, and combined reads | `tools/repo_search.py` now provides bounded content and filename discovery, validates paths before invoking `rg`, caps results and line width, and excludes the known giant generated/archive surfaces by default. `memory-bank/techContext.md` records the canonical split-module and no-glob workflow. |
+| 3-7, 9, 14, 34-35, 62-64, 66-68, 73, 77, 79-83, 85-90, 93-99, 108, 118, 121, 128-129 | Stale paths, unmatched zsh globs, broad searches, giant one-line/generated matches, and combined reads | `tools/repo_search.py` now provides bounded content and filename discovery, validates paths before invoking `rg`, caps results and line width, and excludes the known giant generated/archive surfaces by default. `memory-bank/techContext.md` records the canonical split-module and no-glob workflow. |
 | 10, 27, 36, 47, 51, 55-56, 116-117 | Guessed unittest class names, all-skipped focused lanes, and high-volume per-row failure output | `run_tests.py` now discovers first and selects by case-insensitive test-ID fragment. Unknown selectors return close discovered names, `--list` is bounded, and a focused lane in which every selected test skips exits 2 with the real-Qt command. Tests that report catalog-wide invariants must aggregate offending names before one assertion. |
 | 18-19, 21, 25, 46, 48-49, 52, 54, 72, 76, 101, 103-105, 107 | Verbose suites, audits, delegated output, and partial artifacts overflowing the model channel | `run_tests.py` defaults to compact verbosity. `tools/run_logged.py` preserves complete per-command logs, exit codes, and bounded tails. Workflow partials remain authoritative evidence and are not replayed wholesale. |
 | 31, 39, 43, 45, 49, 53, 75-76, 101, 106-107, 111, 125-126 | Invalid workflow modes/budgets/schemas, incomplete frozen packets, inherited-context costs, and agents escaping read bounds | `tools/workflow_manifest_guard.py` rejects the recurring schema mistakes before launch. The technical context requires explicit new-file contents, realistic inherited-instruction budgets, frozen inputs for checkers, and preservation of typed partial artifacts. The guard cannot make a model honor a prompt; hard tool-output and processed-token budgets remain the containment boundary. |
