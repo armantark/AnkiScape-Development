@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.shades_of_mortton_data import (
+    SHADES_BRONZE_CHEST_REWARD_GROUPS,
+    SHADES_BRONZE_KEY_ROLL_MODIFIERS,
     SHADES_LOAR_PRAYER_XP,
     SHADES_PYRE_LOGS,
     SHADES_OF_MORTTON_COMBAT_TARGET_ID,
@@ -101,6 +103,36 @@ class ShadesOfMorttonSourceDataTests(unittest.TestCase):
         self.assertEqual(SHADES_PYRE_LOGS["Magic pyre logs"]["cremation_xp"], 404.5)
         self.assertEqual(SHADES_LOAR_PRAYER_XP["Pyre logs"], 25.0)
         self.assertEqual(SHADES_LOAR_PRAYER_XP["Magic pyre logs"], 35.0)
+
+    def test_complete_reconstructed_bronze_chest_catalog_is_recorded(self):
+        self.assertEqual(
+            tuple(group["slots"] for group in SHADES_BRONZE_CHEST_REWARD_GROUPS),
+            (55, 59, 10, 4),
+        )
+        self.assertEqual(
+            SHADES_BRONZE_KEY_ROLL_MODIFIERS,
+            {
+                "Bronze key red": 1.0,
+                "Bronze key brown": 0.95,
+                "Bronze key crimson": 0.9,
+            },
+        )
+        rows = [
+            row
+            for group in SHADES_BRONZE_CHEST_REWARD_GROUPS
+            for row in group["rewards"]
+        ]
+        self.assertEqual(len(rows), 23)
+        self.assertIn(("Clue scroll (easy)", 1, 1, 19005), rows)
+        self.assertIn(("Chaos rune", 12, 28, 562), rows)
+        self.assertIn(("Adamant bar", 1, 3, 2362), rows)
+        items = shades_of_mortton_extra_items_as_dict()
+        self.assertEqual(items["Black dagger (p)"]["source_item_id"], 1233)
+        self.assertEqual(items["Mithril dagger (p)"]["source_item_id"], 1225)
+        outputs = shades_of_mortton_activity_as_dict()["shades_of_mortton"][
+            "outputs"
+        ]
+        self.assertTrue({row[0] for row in rows}.issubset(outputs))
 
 
 class ShadesOfMorttonEntryAndPersistenceTests(unittest.TestCase):
@@ -356,7 +388,7 @@ class ShadesOfMorttonCremationAndChestTests(unittest.TestCase):
 
     def test_bronze_chest_is_direct_consumes_key_and_returns_representative_outputs(self):
         player = _player(inventory={"Bronze key red": 1})
-        rolls = iter((0.0, 0.999, 0.0, 0.0))
+        rolls = iter((0.0, 0.0, 0.0, 0.0, 0.0))
         player, ok, result = open_shades_bronze_chest_pure(
             player, "Bronze key red", lambda: next(rolls)
         )
@@ -364,6 +396,59 @@ class ShadesOfMorttonCremationAndChestTests(unittest.TestCase):
         self.assertNotIn("Bronze key red", player["inventory"])
         self.assertEqual(result["rewards"], {"Coins": 10, "Fine cloth": 1, "Swamp paste": 10})
         self.assertEqual(player["shades_of_mortton_chests_opened"], 1)
+
+    def test_every_reconstructed_bronze_chest_reward_is_reachable(self):
+        slots_before = 0
+        for group in sorted(
+            SHADES_BRONZE_CHEST_REWARD_GROUPS, key=lambda row: row["slots"]
+        ):
+            rows = group["rewards"]
+            category_roll = (slots_before + 0.5) / 128
+            slots_before += group["slots"]
+            for index, (item_name, minimum, maximum, _source_item_id) in enumerate(rows):
+                with self.subTest(item=item_name):
+                    rolls = [0.0, category_roll, (index + 0.5) / len(rows)]
+                    if maximum > minimum:
+                        rolls.append(0.999999)
+                    rolls.append(0.999999)
+                    roll_iter = iter(rolls)
+                    player, ok, result = open_shades_bronze_chest_pure(
+                        _player(inventory={"Bronze key red": 1}),
+                        "Bronze key red",
+                        lambda: next(roll_iter),
+                    )
+                    self.assertTrue(ok, result)
+                    self.assertEqual(result["rewards"][item_name], maximum)
+                    self.assertEqual(player["inventory"][item_name], maximum)
+                    self.assertNotIn("Swamp paste", result["rewards"])
+
+    def test_bronze_chest_does_not_award_a_second_clue_scroll(self):
+        player = _player(
+            inventory={"Bronze key red": 1, "Clue scroll (hard)": 1}
+        )
+        # The 55-slot group, final row = the reconstructed easy scroll-box reward.
+        rolls = iter((0.0, 0.2, 0.999999, 0.999999))
+        player, ok, result = open_shades_bronze_chest_pure(
+            player, "Bronze key red", lambda: next(rolls)
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["rewards"], {"Coins": 10})
+        self.assertNotIn("Clue scroll (easy)", player["inventory"])
+        self.assertIn("no extra reward", result["message"])
+
+    def test_better_colour_key_uses_the_reconstructed_roll_modifier(self):
+        def open_with(key_name):
+            # Raw 0.54 sits in the 59-slot group for red, but the crimson
+            # modifier shifts the same roll into the 55-slot group.
+            rolls = iter((0.0, 0.54, 0.0, 0.999999))
+            _player_after, ok, result = open_shades_bronze_chest_pure(
+                _player(inventory={key_name: 1}), key_name, lambda: next(rolls)
+            )
+            self.assertTrue(ok, result)
+            return result["rewards"]
+
+        self.assertIn("Steel hatchet", open_with("Bronze key red"))
+        self.assertIn("Steel med helm", open_with("Bronze key crimson"))
 
     def test_bronze_chest_requires_the_completed_quest(self):
         player = _player(quests={}, inventory={"Bronze key red": 1})

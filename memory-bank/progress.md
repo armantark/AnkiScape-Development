@@ -1,5 +1,33 @@
 # Progress
 
+## Shades of Mort'ton bronze-chest catalog — 2026-08-09
+
+RuneScape Wiki `Shades of Mort'ton (minigame)` oldid `6449451`, timestamp
+`2012-10-21T17:37:46Z`, fixes the bronze reward families, key consumption,
+better-colour quality improvement, and occasional paste. Fresh Darkan iteration
+399 pins the reconstructed 23 item identities, exact quantity ranges, four
+chance-group sizes, three currently live key modifiers, and the server's
+ascending chance-group order. Hidden probabilities, Ring of Wealth behavior,
+and paste chance remain labeled `provisional/darkan` and `source_blocked`.
+
+Every bronze reward is reachable through the existing atomic chest action.
+Variable quantities are inclusive, the central Treasure Trails filter prevents
+a second clue, and the former ghost `Steel axe` is replaced by exact cache item
+`1353`, `Steel hatchet`. The two previously absent poisoned daggers are
+registered as equipment with cache IDs `1233` and `1225`, normalized cutoff
+sprites, and exact cutoff Grand Exchange buy limits of `100`.
+
+Focused pure/integration/registry/asset verification passes 73 tests, and four
+focused real Qt checks pass on the established surfaces. Full plain and real
+offscreen-Qt discovery each pass 3,914 tests, with 480 expected plain skips and
+three intentional Qt skips. Documentation audits 529 Markdown and 431 HTML
+files; test quality has zero hard issues across 3,880 tests in 177 files.
+Reachability is 1,511 actions, 2,287 items, 168 known orphans, and 188 known
+blocked actions. Compilation, tracked JSON, diff, deterministic asset fetching,
+asset normalization, and worktree safety pass. Higher shade/key/chest tiers
+remain catalog depth. See
+`memory-bank/source-audits/shades-of-mortton-bronze-chest-catalog-2026-08-09.md`.
+
 ## Great Orb Project teleport tablets — 2026-08-09
 
 RuneScape Wiki `The Great Orb Project` oldid `6564759`, timestamp

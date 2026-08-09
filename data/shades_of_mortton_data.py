@@ -11,6 +11,10 @@ SHADES_OF_MORTTON_SOURCE = (
     "RuneScape Wiki Shades of Mort'ton (minigame) oldid=6449451 "
     "(2012-10-21T17:37:46Z); rev-742 item definitions"
 )
+SHADES_BRONZE_CHEST_SOURCE = (
+    "RuneScape Wiki Shades of Mort'ton (minigame) oldid=6449451; "
+    "Darkan shade_bronze_chest.json at 4d72f80f3e7ad56a712b4e38653f01cedaeeb289"
+)
 
 SHADES_SANCTITY_MAX_TENTHS = 1_000
 SHADES_REPAIR_MAX = 100
@@ -138,6 +142,68 @@ SHADES_BRONZE_KEYS = (
     "Bronze key brown",
     "Bronze key crimson",
 )
+SHADES_BRONZE_KEY_ROLL_MODIFIERS = {
+    key_name: 1.0 - (index * 0.05)
+    for index, key_name in enumerate(SHADES_BRONZE_KEYS)
+}
+
+# The period page fixes the bronze chest's reward families but not its hidden
+# selection probabilities. Darkan's four 128-slot groups therefore remain a
+# provisional reconstruction; their complete item identities and quantities
+# replace the former one-item-per-group breadth sample.
+SHADES_BRONZE_CHEST_REWARD_GROUPS = (
+    {
+        "slots": 55,
+        "rewards": (
+            # Rev 742 calls item 1141 "Steel helm"; AnkiScape's owning
+            # Smithing row uses its established storage name, Steel med helm.
+            ("Steel med helm", 1, 1, 1141),
+            ("Magic staff", 1, 1, 1389),
+            ("Steel spear", 1, 1, 1241),
+            ("Steel mace", 1, 1, 1424),
+            ("Steel scimitar", 1, 1, 1325),
+            ("Steel sword", 1, 1, 1281),
+            ("Steel longsword", 1, 1, 1295),
+            ("Black hatchet", 1, 1, 1361),
+            ("Black dagger", 1, 1, 1217),
+            ("Black spear", 1, 1, 4580),
+            ("Black mace", 1, 1, 1426),
+            ("Mithril dagger", 1, 1, 1209),
+            ("Silver bar", 1, 3, 2355),
+            ("Adamant bar", 1, 3, 2362),
+            # Darkan awards rev-742 Scroll box (easy) 19005. Treasure Trails'
+            # settled flattening stores the usable clue directly and enforces
+            # the period one-clue-total rule at award time.
+            ("Clue scroll (easy)", 1, 1, 19005),
+        ),
+    },
+    {
+        "slots": 59,
+        "rewards": (
+            ("Steel hatchet", 1, 1, 1353),
+            ("Black dagger (p)", 1, 1, 1233),
+            ("Mithril dagger (p)", 1, 1, 1225),
+            ("Amulet of defence", 1, 1, 1729),
+        ),
+    },
+    {
+        "slots": 10,
+        "rewards": (
+            ("Chaos rune", 12, 28, 562),
+            ("Sapphire ring", 1, 1, 1637),
+            ("Mithril bar", 1, 3, 2359),
+        ),
+    },
+    {
+        "slots": 4,
+        "rewards": (("Fine cloth", 1, 1, 3470),),
+    },
+)
+SHADES_BRONZE_CHEST_OUTPUTS = tuple(
+    reward[0]
+    for group in SHADES_BRONZE_CHEST_REWARD_GROUPS
+    for reward in group["rewards"]
+)
 
 SHADES_ITEM_IDS = {
     "Olive oil (4)": 3422,
@@ -153,6 +219,8 @@ SHADES_ITEM_IDS = {
     "Bronze key red": 3450,
     "Bronze key brown": 3451,
     "Bronze key crimson": 3452,
+    "Black dagger (p)": 1233,
+    "Mithril dagger (p)": 1225,
     "Fine cloth": 3470,
 }
 
@@ -169,7 +237,7 @@ def shades_of_mortton_activity_as_dict() -> dict[str, dict[str, Any]]:
                 "Serum 208 (4)",
                 "Loar remains",
                 *SHADES_BRONZE_KEYS,
-                "Fine cloth",
+                *SHADES_BRONZE_CHEST_OUTPUTS,
             ),
             "batch_size": 1,
             "group": "minigames",
@@ -186,15 +254,25 @@ def shades_of_mortton_extra_items_as_dict() -> dict[str, dict[str, Any]]:
         *(f"Serum 208 ({dose})" for dose in range(1, 5)),
         "Loar remains",
         *SHADES_BRONZE_KEYS,
+        "Black dagger (p)",
+        "Mithril dagger (p)",
         "Fine cloth",
         *SHADES_PYRE_LOGS,
     )
     return {
         item_name: {
-            "category": "activity_material",
+            "category": (
+                "equipment"
+                if item_name in {"Black dagger (p)", "Mithril dagger (p)"}
+                else "activity_material"
+            ),
             "stackable": False,
             "tradeable": item_name not in SHADES_BRONZE_KEYS,
-            "source": SHADES_OF_MORTTON_SOURCE,
+            "source": (
+                SHADES_BRONZE_CHEST_SOURCE
+                if item_name in {"Black dagger (p)", "Mithril dagger (p)"}
+                else SHADES_OF_MORTTON_SOURCE
+            ),
             **(
                 {"source_item_id": SHADES_ITEM_IDS[item_name]}
                 if item_name in SHADES_ITEM_IDS

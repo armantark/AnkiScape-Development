@@ -1200,6 +1200,25 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
+    def test_shades_bronze_chest_poisoned_daggers_are_registered_with_art(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        with open("assets_provenance.json", encoding="utf-8") as file_obj:
+            provenance = json.load(file_obj)
+        for item_name, source_item_id in {
+            "Black dagger (p)": 1233,
+            "Mithril dagger (p)": 1225,
+        }.items():
+            with self.subTest(item=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, source_item_id)
+                self.assertEqual(definition.category, "equipment")
+                self.assertFalse(definition.stackable)
+                self.assertTrue(definition.tradeable)
+                self.assertTrue(os.path.exists(definition.asset_path))
+                relative_path = os.path.relpath(definition.asset_path)
+                self.assertIn(relative_path, provenance)
+                self.assertLessEqual(provenance[relative_path]["timestamp"], "2012-11-20T23:59:59Z")
+
     # Every wearable a landmark hands the player, with the reward path that
     # grants it. Playtest bug: Fancy/Fighting boots existed only in the
     # generated EQUIPMENT_DATA table, and _apply_equipment_metadata enriches

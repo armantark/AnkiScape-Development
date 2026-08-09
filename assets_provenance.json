@@ -3397,6 +3397,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-10-08T11:27:45Z"
   },
+  "activityitems/shades_of_mortton_black_dagger_p.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_dagger_%28p%29.png",
+    "file_title": "Black dagger (p).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174001%21Black_dagger_%28p%29.png?d7970",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b1a31b08e07cbb1779e3f2287a6bdefe529c3cf6",
+    "size": 1344,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-20T08:15:34Z"
+  },
   "activityitems/shades_of_mortton_bronze_key_brown.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_key_brown.png",
     "file_title": "Bronze key brown.png",
@@ -3504,6 +3516,18 @@
     "size": 1224,
     "source_wiki": "rs3",
     "timestamp": "2012-10-08T11:27:30Z"
+  },
+  "activityitems/shades_of_mortton_mithril_dagger_p.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mithril_dagger_%28p%29.png",
+    "file_title": "Mithril dagger (p).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502094235%21Mithril_dagger_%28p%29.png?768b5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b943c3edae918cd2a02502f25d6600573bdbfb35",
+    "size": 1362,
+    "source_wiki": "rs3",
+    "timestamp": "2011-04-22T18:41:58Z"
   },
   "activityitems/shades_of_mortton_oak_pyre_logs.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Oak_pyre_logs.png",

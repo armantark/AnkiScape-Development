@@ -2,6 +2,25 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 36 completes Shades of Mort'ton's bronze-
+chest reward catalog.** The cutoff activity page and fresh Darkan iteration 399
+pin all 23 reconstructed reward identities and quantities, three live low-
+bronze key modifiers, exact cache IDs, and the server's ascending chance-group
+order. Hidden selection weights, Ring of Wealth behavior, and paste probability
+remain explicitly `provisional/darkan` and `source_blocked`; no probability is
+promoted to a period fact. The live direct action now reaches every reward,
+rolls inclusive quantities, enforces Treasure Trails' one-clue-total rule, and
+removes the former ghost `Steel axe` output. `Black dagger (p)` and `Mithril
+dagger (p)` are canonical equipment with normalized cutoff art and exact period
+Grand Exchange buy limits. No new UI, schema, gameplay clock, placeholder, or
+design fork was added. Full plain and real offscreen-Qt discovery each pass
+3,914 tests, with 480 plain skips and 3 Qt skips. Documentation audits 529
+Markdown/431 HTML files; test quality has zero hard issues across 3,880 tests.
+Reachability is 1,511 actions, 2,287 items, 168 known orphans, and 188 known
+blocked actions. Compilation, JSON, diff, deterministic asset fetching, asset
+normalization, and worktree safety pass. Durable audit:
+`memory-bank/source-audits/shades-of-mortton-bronze-chest-catalog-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 35 completes Great Orb Project's cutoff
 teleport-tablet family.** Oldid `6564759` and OpenRS2 rev-742 pin all 14 exact
 token prices, item IDs, stacking/trade rules, the `Break` action, exterior-

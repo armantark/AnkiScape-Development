@@ -190,7 +190,7 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
         self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_420)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_734)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_736)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -236,6 +236,10 @@ class GrandExchangeDataTest(unittest.TestCase):
                     PERIOD_GE_PRICE_PROVENANCE[item_name]["oldid"],
                     oldid,
                 )
+
+    def test_shades_bronze_chest_poisoned_daggers_have_period_buy_limits(self):
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Black dagger (p)"], 100)
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Mithril dagger (p)"], 100)
 
     def test_only_audited_unresolved_identities_remain_buy_limit_blocked(self):
         blocked = {

@@ -42,6 +42,8 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
         "Bronze key red",
         "Bronze key brown",
         "Bronze key crimson",
+        "Black dagger (p)",
+        "Mithril dagger (p)",
         "Fine cloth",
         "Pyre logs",
         "Oak pyre logs",

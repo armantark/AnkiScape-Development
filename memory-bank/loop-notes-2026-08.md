@@ -1,5 +1,34 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 36 — Shades of Mort'ton bronze-chest catalog
+
+- Source: cutoff oldid `6449451` fixes the bronze reward families and
+  better-colour quality direction. Fresh Darkan iteration 399 / commit
+  `4d72f80f3e7ad56a712b4e38653f01cedaeeb289` reconstructs all 23 identities,
+  quantities, group sizes, three live key modifiers, and the ascending server
+  group order. Hidden probabilities, Ring of Wealth behavior, and paste chance
+  remain `provisional/darkan` and `source_blocked`.
+- Result: the existing atomic chest action reaches all 23 rewards, rolls exact
+  inclusive quantities, and uses the central one-clue filter. The ghost `Steel
+  axe` is gone. Both missing poisoned daggers now have canonical equipment
+  rows, cutoff art, and exact period buy limits.
+- Boundaries: higher shade/key/chest tiers remain data depth. No UI, schema,
+  wall clock, placeholder, design fork, or quest-parity implementation was
+  added.
+- Delegation: read-only Sol-high Workflows runs
+  `a08a2db5-41e8-4d35-8558-4496ad556632` and
+  `7749376d-7e60-4493-bc15-b833ed5e0d1e` exhausted their bounded output/token
+  guards before findings. Root independently reproduced the table and server
+  ordering and completed the simplification review. This slice is GPT-family
+  verified by execution.
+- Verification: 73 focused pure/integration/registry/asset tests and four
+  focused real Qt checks pass. Full plain and real offscreen-Qt discovery each
+  pass 3,914 tests, with 480 plain skips and 3 Qt skips. Documentation audits
+  529 Markdown and 431 HTML files; test quality has zero hard issues across
+  3,880 tests in 177 files. Reachability is 1,511 actions and 2,287 items; the
+  known 168-orphan/188-blocked ledger is unchanged. Compilation, tracked JSON,
+  diff, deterministic asset fetching, normalization, and worktree safety pass.
+
 ## Iteration 35 — Great Orb Project teleport tablets
 
 - Source: Great Orb Project oldid `6564759`, timestamp

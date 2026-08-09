@@ -72,8 +72,11 @@ Labels: `SOURCE AUDIT` only for deferred rates and catalog depth.
 - Schema 80, storage repair, activity arbitration, cadence/telemetry,
   review/direct undo, registries, normalized cutoff assets, and the compact
   Activities card are integrated. No wall clock or owner design gap is involved.
-- Other shade tiers, key/chest tiers, reward rows, and unresolved GE limits are
-  catalog/data depth rather than missing mechanics.
+- The complete reconstructed bronze-chest catalog is live: all 23 reward rows,
+  exact quantities, three low-bronze key modifiers, poisoned-dagger equipment,
+  source art, and cutoff buy limits. Higher shade/key/chest tiers and their
+  source-blocked hidden probabilities remain catalog/data depth rather than
+  missing mechanics.
 - Ordinary and full real offscreen-Qt discovery each pass all 2,453 methods.
   Native Anki and Kimi K3/Fable taste approval remain deferred external gates.
 - TzHaar Fight Pit was the next shared-integration frontier and is now shipped.

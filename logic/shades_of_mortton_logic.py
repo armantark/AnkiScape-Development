@@ -9,6 +9,8 @@ from typing import Any
 from ..logic_pure.logic_pure import apply_combat_burst_pure
 from ..data.shades_of_mortton_data import (
     SHADES_ALTAR_LIGHT_CHANCE,
+    SHADES_BRONZE_CHEST_REWARD_GROUPS,
+    SHADES_BRONZE_KEY_ROLL_MODIFIERS,
     SHADES_BRONZE_KEYS,
     SHADES_CROWD_REPAIR,
     SHADES_DUTY_IDS,
@@ -31,6 +33,7 @@ from ..data.shades_of_mortton_data import (
     SHADES_OF_MORTTON_COMBAT_TARGET_ID,
     shades_of_mortton_loar_enemy_pure,
 )
+from .treasure_trails_logic import filter_clue_scroll_outputs_pure
 
 
 SHADES_OF_MORTTON_STATE_VERSION = 1
@@ -547,18 +550,35 @@ def open_shades_bronze_chest_pure(
     if not _consume(inventory, {str(key_name): 1}):
         return data, False, {"reason": f"No {key_name} is available."}
     coins = 10 + int(_roll(rng) * 261)
-    reward_roll = _roll(rng) * 128
-    if reward_roll < 55:
-        reward, quantity = "Steel med helm", 1
-    elif reward_roll < 114:
-        reward, quantity = "Steel axe", 1
-    elif reward_roll < 124:
-        reward, quantity = "Chaos rune", 12 + int(_roll(rng) * 17)
-    else:
-        reward, quantity = "Fine cloth", 1
+    reward_roll = (
+        _roll(rng)
+        * 128
+        * SHADES_BRONZE_KEY_ROLL_MODIFIERS[str(key_name)]
+    )
+    cumulative_slots = 0
+    reward_rows = SHADES_BRONZE_CHEST_REWARD_GROUPS[-1]["rewards"]
+    # Darkan's DropList sorts chance groups ascending before assigning roll
+    # intervals. Keeping that non-obvious order is what makes better-colour
+    # keys increase access to the rare Fine-cloth and rune groups.
+    for group in sorted(
+        SHADES_BRONZE_CHEST_REWARD_GROUPS, key=lambda row: int(row["slots"])
+    ):
+        cumulative_slots += int(group["slots"])
+        if reward_roll < cumulative_slots:
+            reward_rows = group["rewards"]
+            break
+    reward_row = reward_rows[int(_roll(rng) * len(reward_rows))]
+    reward = str(reward_row[0])
+    minimum, maximum = int(reward_row[1]), int(reward_row[2])
+    quantity = minimum
+    if maximum > minimum:
+        quantity += int(_roll(rng) * (maximum - minimum + 1))
     _add(inventory, "Coins", coins)
-    _add(inventory, reward, quantity)
-    rewards = {"Coins": coins, reward: quantity}
+    rewards = {"Coins": coins}
+    main_rewards = filter_clue_scroll_outputs_pure(data, {reward: quantity})
+    for item_name, amount in main_rewards.items():
+        _add(inventory, item_name, amount)
+        rewards[item_name] = amount
     # The period page says paste is occasional while Darkan's zero-rate table
     # makes it unconditional. A single disclosed breadth abstraction preserves
     # the attested optional route without claiming either conflicting behavior.
@@ -570,7 +590,12 @@ def open_shades_bronze_chest_pure(
     data["shades_of_mortton_chests_opened"] = _int(
         data.get("shades_of_mortton_chests_opened")
     ) + 1
-    data["shades_of_mortton_last_result"] = f"Opened a bronze chest · {reward} x{quantity}"
+    reward_summary = (
+        f"{reward} x{quantity}" if reward in main_rewards else "no extra reward"
+    )
+    data["shades_of_mortton_last_result"] = (
+        f"Opened a bronze chest · {reward_summary}"
+    )
     return data, True, {
         "message": data["shades_of_mortton_last_result"],
         "rewards": rewards,

@@ -104,3 +104,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete Great Orb Project's cutoff teleport-tablet family with exact
      prices, identities, stackable Break actions, period gates, route-phase
      integration, direct undo, carried-view reconciliation, and normalized art.
+   - [x] Complete Shades of Mort'ton's reconstructed bronze-chest catalog with
+     all 23 reward identities and quantities, three live key modifiers,
+     one-clue enforcement, poisoned-dagger equipment rows, and normalized art.
