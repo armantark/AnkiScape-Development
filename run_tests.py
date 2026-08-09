@@ -1,9 +1,85 @@
+import argparse
+import difflib
 import os
 import sys
 import unittest
+from collections.abc import Iterable
+
+
+def iter_tests(suite: unittest.TestSuite) -> Iterable[unittest.TestCase]:
+    for test in suite:
+        if isinstance(test, unittest.TestSuite):
+            yield from iter_tests(test)
+        else:
+            yield test
+
+
+def select_tests(
+    suite: unittest.TestSuite,
+    selectors: list[str],
+) -> tuple[unittest.TestSuite, list[str]]:
+    tests = list(iter_tests(suite))
+    if not selectors:
+        return unittest.TestSuite(tests), [test.id() for test in tests]
+
+    selected = [
+        test
+        for test in tests
+        if any(selector.casefold() in test.id().casefold() for selector in selectors)
+    ]
+    return unittest.TestSuite(selected), [test.id() for test in selected]
+
+
+def selector_suggestions(selector: str, test_ids: list[str]) -> list[str]:
+    candidates = sorted({
+        component
+        for test_id in test_ids
+        for component in (test_id, *test_id.split("."))
+    })
+    return difflib.get_close_matches(selector, candidates, n=5, cutoff=0.45)
+
+
+def test_result_exit_code(result: unittest.TestResult, *, focused: bool) -> int:
+    if not result.wasSuccessful():
+        return 1
+    if focused and result.testsRun > 0 and len(result.skipped) == result.testsRun:
+        return 2
+    return 0
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Discover AnkiScape tests and select them by verified test-id fragments.",
+    )
+    parser.add_argument(
+        "selectors",
+        nargs="*",
+        help="case-insensitive fragments matched against discovered unittest IDs",
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="list matching test IDs without running them",
+    )
+    parser.add_argument(
+        "--max-results",
+        type=int,
+        default=200,
+        help="maximum IDs printed by --list (default: 200)",
+    )
+    parser.add_argument(
+        "--verbosity",
+        type=int,
+        choices=(0, 1, 2),
+        default=1,
+        help="unittest output verbosity (default: 1; use 2 for focused diagnosis)",
+    )
+    parser.add_argument("--failfast", action="store_true")
+    args = parser.parse_args()
+
+    if args.max_results < 1:
+        parser.error("--max-results must be at least 1")
+
     # Ensure project root is importable for tests
     root = os.path.dirname(os.path.abspath(__file__))
     if root not in sys.path:
@@ -12,10 +88,39 @@ def main() -> int:
     # Discover and run tests under tests/
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir=os.path.join(root, "tests"), pattern="test_*.py")
+    all_ids = [test.id() for test in iter_tests(suite)]
+    suite, selected_ids = select_tests(suite, args.selectors)
 
-    runner = unittest.TextTestRunner(verbosity=2)
+    if args.selectors and not selected_ids:
+        print(f"No discovered unittest ID matched: {', '.join(args.selectors)}", file=sys.stderr)
+        for selector in args.selectors:
+            suggestions = selector_suggestions(selector, all_ids)
+            if suggestions:
+                print(f"Closest matches for {selector!r}: {', '.join(suggestions)}", file=sys.stderr)
+        return 2
+
+    if args.list:
+        for test_id in selected_ids[:args.max_results]:
+            print(test_id)
+        if len(selected_ids) > args.max_results:
+            print(
+                f"Refusing to print {len(selected_ids)} IDs; narrow the selector "
+                f"or raise --max-results above {args.max_results}.",
+                file=sys.stderr,
+            )
+            return 2
+        return 0
+
+    runner = unittest.TextTestRunner(verbosity=args.verbosity, failfast=args.failfast)
     result = runner.run(suite)
-    return 0 if result.wasSuccessful() else 1
+    returncode = test_result_exit_code(result, focused=bool(args.selectors))
+    if returncode == 2:
+        print(
+            "All selected tests were skipped. Use .venv-qt/bin/python with "
+            "QT_QPA_PLATFORM=offscreen for Qt tests.",
+            file=sys.stderr,
+        )
+    return returncode
 
 
 if __name__ == "__main__":

@@ -14,6 +14,9 @@ from typing import Dict, Mapping, Optional, Sequence, Tuple
 
 DEFAULT_GAME_ROOT = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
 ITEMS_YML_RELATIVE = Path("data/cfg/items.yml")
+ADDON_ROOT = Path(__file__).resolve().parents[1]
+if str(ADDON_ROOT) not in sys.path:
+    sys.path.insert(0, str(ADDON_ROOT))
 
 SlotId = str
 BonusValue = int | float | bool | str
@@ -1388,8 +1391,13 @@ def generate(game_root: Path, output_path: Path) -> None:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--game-root", type=Path, default=DEFAULT_GAME_ROOT)
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "equipment_data.py")
+    parser.add_argument(
+        "--game-root",
+        type=Path,
+        default=DEFAULT_GAME_ROOT,
+        help="external 2011Scape checkout root; reads <root>/data/cfg/items.yml",
+    )
+    parser.add_argument("--output", type=Path, default=ADDON_ROOT / "data" / "equipment_data.py")
     args = parser.parse_args(argv)
     generate(args.game_root, args.output)
     print(f"Wrote {args.output}")

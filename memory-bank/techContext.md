@@ -29,6 +29,32 @@
 - `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.
 - `python3 tools/audit_item_reachability.py --json` emits the deterministic live action/acquisition graph ledger; its focused regression test is `tests/test_item_reachability_audit.py`.
 
+### Bounded operator commands
+
+- Discover moved files without shell globs with `python3 tools/repo_search.py
+  'cadence|clock' logic memory-bank --names`. Search contents through the same
+  tool; it caps results and columns and excludes giant generated/archive files
+  unless `--include-large` is explicit.
+- Run focused tests by discovered ID fragment, not guessed class attributes:
+  `/opt/homebrew/bin/python3 run_tests.py MainMenuWidgetTest.test_name`. Use
+  `--list` to confirm matches and `--verbosity 2` only for a small diagnosis;
+  full discovery defaults to compact output.
+- Keep long test and audit output in separate logs with `python3
+  tools/run_logged.py --label <lane> -- <complete command>`. The wrapper
+  preserves the command's exit code, prints a bounded tail, and reports the
+  full temporary-log path without relying on zsh's read-only `status` name.
+- Preflight workflow JSON with `python3 tools/workflow_manifest_guard.py
+  <manifest.json>` or add `--start` to launch it. The guard rejects the
+  recurring `mode: read-only`, zero budget, relative `cwd`, and permissive
+  object-schema mistakes before provider startup. Frozen reviewers must still
+  receive explicit untracked-file contents and enough budget for inherited
+  instructions; no manifest can force a model to honor a read boundary.
+- Import `pkg_alias` before direct `ankiscape.*` probes, or set
+  `PYTHONPATH="$PWD"` for a harness outside the checkout. Run the equipment
+  generator directly or as a module; its `--game-root` is the external
+  `/Users/ArmanTarkhanian1/Downloads/game-main` checkout, and
+  `data/cfg/items.yml` is relative to that external root rather than this repo.
+
 ### Fast Qt UI loop (no Anki restart)
 - A dedicated `uv` venv at `.venv-qt` (git-ignored) has `aqt` installed, which bundles PyQt6.
 - This lets us build the *real* dialogs headlessly instead of iterating by restarting Anki.
@@ -106,7 +132,7 @@ Current Crafting backend parity data lives in `crafting_data.py`, with a detaile
 
 Current Smithing backend parity data lives in `smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 
-Current equipment backend data lives in generated `equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `smithing_data.py`, local 2011Scape `data/cfg/items.yml` equipment blocks, and `mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and scaffolds planned combat level/exp defaults so equipment gates are real `*_level` checks before combat training exists.
+Current equipment backend data lives in generated `equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and scaffolds planned combat level/exp defaults so equipment gates are real `*_level` checks before combat training exists.
 
 Feathers now enter through live NPC shop stock and Combat drops. The temporary
 `scavenge_chicken_feathers` Utility bridge documented in the dated
