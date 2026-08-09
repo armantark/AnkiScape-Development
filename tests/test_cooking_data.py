@@ -20,7 +20,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 87)
+        self.assertEqual(len(COOKING_TARGETS), 90)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -50,6 +50,40 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["cook_lava_eel"]["exp"], 30.0)
         self.assertEqual(data["cook_lava_eel"]["source"], LAVA_EEL_WIKI_SOURCE)
         self.assertTrue(data["cook_lava_eel"]["source_always_succeeds"])
+        poison = data["cook_poison_karambwan"]
+        self.assertEqual(poison["level"], 1)
+        self.assertEqual(poison["requirements"], {"Raw karambwan": 1})
+        self.assertEqual(poison["output_item"], "Poison karambwan")
+        self.assertEqual(poison["burnt_item"], "Burnt karambwan")
+        self.assertEqual(poison["exp"], 80.0)
+        self.assertEqual(poison["source_success_formula"]["minimum"], 0.5)
+        self.assertEqual(poison["source_success_formula"]["level_divisor"], 20.0)
+
+        thorough = data["cook_karambwan_thoroughly"]
+        self.assertEqual(thorough["level"], 30)
+        self.assertEqual(thorough["requirements"], {"Raw karambwan": 1})
+        self.assertEqual(thorough["output_item"], "Cooked karambwan")
+        self.assertEqual(thorough["exp"], 190.0)
+        self.assertTrue(thorough["source_always_succeeds"])
+
+        karambwanji = data["cook_karambwanji"]
+        self.assertEqual(karambwanji["level"], 1)
+        self.assertEqual(karambwanji["requirements"], {"Raw karambwanji": 1})
+        self.assertEqual(karambwanji["output_item"], "Karambwanji")
+        self.assertEqual(karambwanji["burnt_item"], "Ashes")
+        self.assertEqual(karambwanji["exp"], 10.0)
+        self.assertEqual(karambwanji["source_success_formula"]["level_divisor"], 28.0)
+        items = cooking_extra_items_as_dict()
+        self.assertEqual(items["Raw karambwan"]["item_id"], 3142)
+        self.assertTrue(items["Raw karambwan"]["tradeable"])
+        self.assertEqual(items["Cooked karambwan"]["item_id"], 3144)
+        self.assertTrue(items["Cooked karambwan"]["tradeable"])
+        self.assertEqual(items["Poison karambwan"]["item_id"], 3146)
+        self.assertFalse(items["Poison karambwan"]["tradeable"])
+        self.assertEqual(items["Burnt karambwan"]["item_id"], 3148)
+        self.assertFalse(items["Burnt karambwan"]["tradeable"])
+        self.assertEqual(items["Karambwanji"]["item_id"], 3151)
+        self.assertFalse(items["Karambwanji"]["tradeable"])
         wine = data["make_wine"]
         self.assertEqual(wine["level"], 35)
         self.assertEqual(wine["exp"], 200.0)

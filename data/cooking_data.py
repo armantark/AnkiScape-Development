@@ -59,6 +59,21 @@ LAVA_EEL_DARKAN_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "src/main/java/com/rs/game/content/skills/cooking/Cooking.java"
 )
+KARAMBWAN_WIKI_SOURCE = (
+    "RuneScape Wiki Poison karambwan oldid=6250179 "
+    "(2012-09-16T05:45:03Z); Cooked karambwan oldid=6154936 "
+    "(2012-08-28T04:16:14Z); Tai Bwo Wannai Trio oldid=6529797 "
+    "(2012-11-03T22:12:48Z)"
+)
+KARAMBWANJI_WIKI_SOURCE = (
+    "RuneScape Wiki Karambwanji oldid=5838218 "
+    "(2012-06-26T04:34:21Z); Cooking oldid=6548144 "
+    "(2012-11-11T16:17:12Z)"
+)
+KARAMBWAN_DARKAN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/cooking/Cooking.java"
+)
 TIGER_SHARK_WIKI_SOURCE = (
     "RuneScape Wiki Tiger shark oldid=6448339 "
     "(2012-10-21T04:48:57Z); Raw tiger shark oldid=5992445 "
@@ -172,6 +187,15 @@ _SPIDER_ON_STICK_BURN = (88, 432)
 # The cutoff article says it can burn at every level but gives no probability.
 # Borrow the level-93 Rocktail's 2011Scape endpoints until a period roll ships.
 _TIGER_SHARK_BURN = (1, 222)
+# PLACEHOLDER(cooking.poison_karambwan_success_curve): the period record pins
+# the level-20 no-burn threshold but not the hidden roll below it. The bounded
+# curve starts at the ordinary level-1 Cooking baseline and reaches certainty
+# at the sourced threshold.
+_POISON_KARAMBWAN_SUCCESS = {"minimum": 0.5, "level_divisor": 20.0}
+# PLACEHOLDER(cooking.karambwanji_success_curve): the cutoff master table marks
+# the no-burn level unknown. Darkan's reconstruction supplies level 28 and Ashes
+# as the failed output until a period server table or measured sample replaces it.
+_KARAMBWANJI_SUCCESS = {"minimum": 0.5, "level_divisor": 28.0}
 # PLACEHOLDER(cooking.dwarven_stout_mature_chance): the exact pre-EOC hidden
 # maturity roll is not recoverable from period primary evidence. Darkan's
 # reconstruction supplies 10% naturally and 75% with The stuff until it is.
@@ -204,6 +228,9 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_cave_eel', 'CAVE_EEL', 'Cook raw cave eel', 'eels', 'RAW_CAVE_EEL', 5001, 'Raw cave eel', 'CAVE_EEL', 5003, 'Cave eel', 'BURNT_CAVE_EEL', 5002, 'Burnt cave eel', 38, 115.0, 38, 332, output_variant='primary'),
     CookingTarget('cook_slimy_eel', 'SLIMY_EEL', 'Cook slimy eel', 'eels', 'SLIMY_EEL', 3379, 'Slimy eel', 'COOKED_SLIMY_EEL', 3381, 'Cooked slimy eel', 'BURNT_EEL', 3383, 'Burnt eel', 28, 95.0, 63, 382, output_variant='primary'),
     CookingTarget('cook_lava_eel', 'RAW_LAVA_EEL', 'Cook raw lava eel', 'eels', 'RAW_LAVA_EEL', 2148, 'Raw lava eel', 'LAVA_EEL', 2149, 'Lava eel', '', 0, '', 53, 30.0, 0, 0, output_variant='primary', source=LAVA_EEL_WIKI_SOURCE, runtime_source=LAVA_EEL_DARKAN_SOURCE, source_always_succeeds=True),
+    CookingTarget('cook_poison_karambwan', 'POISON_KARAMBWAN', 'Cook poison karambwan', 'karambwan', 'RAW_KARAMBWAN', 3142, 'Raw karambwan', 'POISON_KARAMBWAN', 3146, 'Poison karambwan', 'BURNT_KARAMBWAN', 3148, 'Burnt karambwan', 1, 80.0, 0, 0, source=KARAMBWAN_WIKI_SOURCE, runtime_source=KARAMBWAN_DARKAN_SOURCE, source_success_formula=_POISON_KARAMBWAN_SUCCESS),
+    CookingTarget('cook_karambwan_thoroughly', 'COOKED_KARAMBWAN', 'Cook karambwan thoroughly', 'karambwan', 'RAW_KARAMBWAN', 3142, 'Raw karambwan', 'COOKED_KARAMBWAN', 3144, 'Cooked karambwan', '', 0, '', 30, 190.0, 0, 0, source=KARAMBWAN_WIKI_SOURCE, runtime_source=KARAMBWAN_DARKAN_SOURCE, source_always_succeeds=True),
+    CookingTarget('cook_karambwanji', 'KARAMBWANJI', 'Cook raw karambwanji', 'karambwan', 'RAW_KARAMBWANJI', 3150, 'Raw karambwanji', 'KARAMBWANJI', 3151, 'Karambwanji', 'ASHES', 592, 'Ashes', 1, 10.0, 0, 0, source=KARAMBWANJI_WIKI_SOURCE, runtime_source=KARAMBWAN_DARKAN_SOURCE, source_success_formula=_KARAMBWANJI_SUCCESS),
     CookingTarget('cook_rainbow_fish', 'RAINBOW_FISH', 'Cook raw rainbow fish', 'fish', 'RAW_RAINBOW_FISH', 10138, 'Raw rainbow fish', 'RAINBOW_FISH', 10136, 'Rainbow fish', 'BURNT_RAINBOW_FISH', 10140, 'Burnt rainbow fish', 35, 110.0, 56, 370, output_variant='primary'),
     CookingTarget('cook_thin_snail', 'THIN_SNAIL', 'Cook thin snail', 'snails', 'THIN_SNAIL', 3363, 'Thin snail', 'THIN_SNAIL_MEAT', 3369, 'Thin snail meat', 'BURNT_SNAIL', 3375, 'Burnt snail', 12, 70.0, 93, 444, output_variant='primary'),
     CookingTarget('cook_lean_snail', 'LEAN_SNAIL', 'Cook lean snail', 'snails', 'LEAN_SNAIL', 3365, 'Lean snail', 'LEAN_SNAIL_MEAT', 3371, 'Lean snail meat', 'BURNT_SNAIL', 3375, 'Burnt snail', 17, 80.0, 93, 444, output_variant='primary'),
@@ -469,10 +496,28 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Jug of water": (1937, True),
     "Jug of wine": (1993, True),
     "Jug of bad wine": (1991, False),
+    "Raw karambwan": (3142, True),
+    "Cooked karambwan": (3144, True),
+    "Poison karambwan": (3146, False),
+    "Burnt karambwan": (3148, False),
+    "Raw karambwanji": (3150, False),
+    "Karambwanji": (3151, False),
+    "Ashes": (592, True),
 }
 
 SOURCE_NONSTACKABLE_ITEMS = frozenset(
-    {"Raw tiger shark", "Tiger shark", "Burnt tiger shark"}
+    {
+        "Raw tiger shark",
+        "Tiger shark",
+        "Burnt tiger shark",
+        "Raw karambwan",
+        "Cooked karambwan",
+        "Poison karambwan",
+        "Burnt karambwan",
+        "Raw karambwanji",
+        "Karambwanji",
+        "Ashes",
+    }
 )
 
 for _target in COOKING_TARGETS:

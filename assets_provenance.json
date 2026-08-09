@@ -15828,6 +15828,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-06-20T21:21:21Z"
   },
+  "cookingitems/burnt_karambwan.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Burnt_karambwan.png",
+    "file_title": "Burnt karambwan.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502020435%21Burnt_karambwan.png?19a84",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f33ddaf319cfe80317bf2aa014c09ba688eace5e",
+    "size": 1466,
+    "source_wiki": "rs3",
+    "timestamp": "2011-06-20T21:21:22Z"
+  },
   "cookingitems/burnt_lobster.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Burnt_lobster.png",
     "file_title": "Burnt lobster.png",
@@ -16609,6 +16621,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-08-13T06:18:04Z"
   },
+  "cookingitems/karambwanji.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Karambwanji.png",
+    "file_title": "Karambwanji.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070409%21Karambwanji.png?ebc8e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cbba03d331791fed91feb0eb8e8407b18ac5fb91",
+    "size": 596,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T07:31:36Z"
+  },
   "cookingitems/king_worm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:King_worm.png",
     "file_title": "King worm.png",
@@ -16992,6 +17016,18 @@
     "size": 549,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:07:07Z"
+  },
+  "cookingitems/poison_karambwan.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Poison_karambwan.png",
+    "file_title": "Poison karambwan.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070406%21Poison_karambwan.png?3b90b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1d224b6374efd7468fca5e5bc5174f73369aa5f7",
+    "size": 550,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T07:30:42Z"
   },
   "cookingitems/pot_of_cream.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pot_of_cream.png",

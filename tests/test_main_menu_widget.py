@@ -6968,10 +6968,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         ]
         self.assertIn("__cooking_family__:fish", family_roles)
         self.assertIn("__cooking_family__:pies", family_roles)
+        self.assertIn("__cooking_family__:karambwan", family_roles)
 
         shrimps = _cooking_row(tree, "cook_shrimps")
         shark = _cooking_row(tree, "cook_shark")
         wine = _cooking_row(tree, "make_wine")
+        poison_karambwan = _cooking_row(tree, "cook_poison_karambwan")
+        thorough_karambwan = _cooking_row(tree, "cook_karambwan_thoroughly")
+        karambwanji = _cooking_row(tree, "cook_karambwanji")
         self.assertFalse(shrimps.isDisabled())
         self.assertFalse(shrimps.icon(0).isNull(), "Cooking target row has no icon")
         self.assertIn("Success output: Shrimps x1", shrimps.toolTip(0))
@@ -6982,6 +6986,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(wine.isDisabled())
         self.assertIn("Bad output: Jug of bad wine x1, no XP", wine.toolTip(0))
         self.assertFalse(wine.icon(0).isNull())
+        for row in (poison_karambwan, thorough_karambwan, karambwanji):
+            self.assertTrue(row.isDisabled())
+            self.assertFalse(row.icon(0).isNull())
+        self.assertIn("Burn output: Burnt karambwan x1", poison_karambwan.toolTip(0))
+        self.assertIn("Cannot burn or fail", thorough_karambwan.toolTip(0))
+        self.assertIn("Burn output: Ashes x1", karambwanji.toolTip(0))
 
         tree.itemClicked.emit(shrimps, 0)
         QApplication.processEvents()
@@ -7733,7 +7743,12 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_cooking_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()
         pd["cooking_level"] = 99
-        pd["inventory"] = {"Slimy eel": 1, "Raw yak meat": 1}
+        pd["inventory"] = {
+            "Slimy eel": 1,
+            "Raw yak meat": 1,
+            "Raw karambwan": 2,
+            "Raw karambwanji": 1,
+        }
         dialog = self._open(pd)
         tree = _goto_cooking(dialog)
 
@@ -7743,6 +7758,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Priest in Peril", slimy_eel.toolTip(0))
         self.assertTrue(yak.isDisabled())
         self.assertIn("The Fremennik Isles", yak.toolTip(0))
+        self.assertTrue(_cooking_row(tree, "cook_poison_karambwan").isDisabled())
+        self.assertTrue(_cooking_row(tree, "cook_karambwan_thoroughly").isDisabled())
+        self.assertTrue(_cooking_row(tree, "cook_karambwanji").isDisabled())
 
         before = list(self._cooking_calls)
         tree.itemClicked.emit(slimy_eel, 0)
@@ -7752,10 +7770,21 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         pd["quests"]["priest_in_peril"] = {"started": True, "progress": 6, "completed": True}
         pd["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
+        pd["quests"]["tai_bwo_wannai_trio"] = {"started": True, "progress": 1, "completed": False}
+        started_dialog = self._open(pd)
+        started_tree = _goto_cooking(started_dialog)
+        self.assertFalse(_cooking_row(started_tree, "cook_poison_karambwan").isDisabled())
+        self.assertTrue(_cooking_row(started_tree, "cook_karambwan_thoroughly").isDisabled())
+        self.assertTrue(_cooking_row(started_tree, "cook_karambwanji").isDisabled())
+
+        pd["quests"]["tai_bwo_wannai_trio"] = {"started": True, "progress": 6, "completed": True}
         unlocked_dialog = self._open(pd)
         unlocked_tree = _goto_cooking(unlocked_dialog)
         self.assertFalse(_cooking_row(unlocked_tree, "cook_slimy_eel").isDisabled())
         self.assertFalse(_cooking_row(unlocked_tree, "cook_yak").isDisabled())
+        self.assertFalse(_cooking_row(unlocked_tree, "cook_poison_karambwan").isDisabled())
+        self.assertFalse(_cooking_row(unlocked_tree, "cook_karambwan_thoroughly").isDisabled())
+        self.assertFalse(_cooking_row(unlocked_tree, "cook_karambwanji").isDisabled())
 
     def test_runecrafting_is_selectable_and_shows_grouped_targets(self) -> None:
         pd = _make_player_data()

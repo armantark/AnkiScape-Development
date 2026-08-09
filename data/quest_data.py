@@ -9357,6 +9357,22 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     ),
     QuestUnlockRule(SWAN_SONG_ID, "target", "fishing", ("catch_monkfish",), "Swan Song", RAW_MONKFISH_SOURCE),
     QuestUnlockRule(TAI_BWO_WANNAI_TRIO_ID, "target", "fishing", ("catch_karambwan",), "Tai Bwo Wannai Trio", RAW_KARAMBWAN_SOURCE),
+    QuestUnlockRule(
+        TAI_BWO_WANNAI_TRIO_ID,
+        "target",
+        "cooking",
+        ("cook_karambwan_thoroughly",),
+        "Tai Bwo Wannai Trio + Tiadeche instruction",
+        "https://runescape.wiki/w/Cooked_karambwan?oldid=6154936",
+    ),
+    QuestUnlockRule(
+        TAI_BWO_WANNAI_TRIO_ID,
+        "target",
+        "cooking",
+        ("cook_karambwanji",),
+        "Tai Bwo Wannai Trio",
+        "https://runescape.wiki/w/Karambwanji?oldid=5838218",
+    ),
     QuestUnlockRule(SHILO_VILLAGE_ID, "target", "mining", ("gem_rocks",), "Shilo Village", GEM_ROCK_SOURCE),
     QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "fishing", ("catch_slimy_eel",), "Priest in Peril", PRIEST_IN_PERIL_SOURCE),
     QuestUnlockRule(
@@ -9423,6 +9439,19 @@ def _quest_target_unlock_rule(rule: QuestUnlockRule) -> TargetUnlockRule:
 TARGET_UNLOCK_RULES: Tuple[TargetUnlockRule, ...] = tuple(
     _quest_target_unlock_rule(rule) for rule in QUEST_UNLOCK_RULES
 ) + (
+    TargetUnlockRule(
+        gate_kind="target",
+        skill_id="cooking",
+        target_ids=("cook_poison_karambwan",),
+        requirements=(
+            TargetUnlockRequirement(
+                kind="quest_started",
+                reason="Start Tai Bwo Wannai Trio",
+                source="https://runescape.wiki/w/Poison_karambwan?oldid=6250179",
+                quest_id=TAI_BWO_WANNAI_TRIO_ID,
+            ),
+        ),
+    ),
     TargetUnlockRule(
         gate_kind="target",
         skill_id="firemaking",

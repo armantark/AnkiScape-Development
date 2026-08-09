@@ -4589,3 +4589,21 @@ flees silently when the player runs out of food.
   actions. Native Computer Use timed out, so no native interaction is claimed.
 - Evidence:
   `source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md`.
+
+## Karambwan Cooking runtime closure — 2026-08-09
+
+- Added separate Poison karambwan, thorough Cooked karambwan, and Karambwanji
+  targets with sourced item identities, XP, levels, outputs, and quest gates.
+- Poison cooking unlocks on Tai Bwo Wannai Trio start. Thorough cooking and
+  Karambwanji unlock on completion; the thorough target preserves Tiadeche's
+  instruction in its lock copy.
+- The unrecovered Poison karambwan and Karambwanji burn rolls are registered
+  placeholders. Thorough karambwan uses its sourced never-burn rule.
+- Added three pre-cutoff normalized sprites and reused existing Raw karambwan,
+  Raw karambwanji, Cooked karambwan, and Ashes assets.
+- Both full test lanes pass 3,982 tests. Documentation, test quality,
+  compilation, JSON, diff, asset-normalization, and worktree audits pass. The
+  reachability ledger records 1,542 actions, 2,344 reachable items, 166 orphan
+  inputs, and 186 unresolved actions.
+- Evidence:
+  `source-audits/karambwan-cooking-runtime-closure-2026-08-09.md`.

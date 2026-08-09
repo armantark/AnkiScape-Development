@@ -1479,6 +1479,61 @@ class TargetMetadataTest(unittest.TestCase):
             self.assertTrue(os.path.exists(row.icon_path or ""))
             self.assertNotIn("(Lvl", row.label)
 
+    def test_karambwan_rows_keep_method_choice_and_quest_gates_legible(self):
+        player_data = {
+            "cooking_level": 30,
+            "inventory": {"Raw karambwan": 2, "Raw karambwanji": 1},
+            "quests": {},
+            "current_cooking": "cook_poison_karambwan",
+        }
+        rows = cooking_target_rows(
+            player_data,
+            COOKING_DATA,
+            COOKING_ITEM_IMAGES,
+            DEFAULT_COOKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        poison = _row(rows, "cook_poison_karambwan")
+        thorough = _row(rows, "cook_karambwan_thoroughly")
+        karambwanji = _row(rows, "cook_karambwanji")
+        self.assertEqual(poison.group, "karambwan")
+        self.assertFalse(poison.enabled)
+        self.assertIn("Start Tai Bwo Wannai Trio", poison.tooltip)
+        self.assertFalse(thorough.enabled)
+        self.assertIn("Tiadeche", thorough.tooltip)
+        self.assertFalse(karambwanji.enabled)
+        self.assertIn("Tai Bwo Wannai Trio", karambwanji.tooltip)
+
+        player_data["quests"] = {
+            "tai_bwo_wannai_trio": {
+                "started": True,
+                "progress": 6,
+                "completed": True,
+            }
+        }
+        unlocked = cooking_target_rows(
+            player_data,
+            COOKING_DATA,
+            COOKING_ITEM_IMAGES,
+            DEFAULT_COOKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked, "cook_poison_karambwan").enabled)
+        self.assertTrue(_row(unlocked, "cook_karambwan_thoroughly").enabled)
+        self.assertTrue(_row(unlocked, "cook_karambwanji").enabled)
+        for item_name in (
+            "Raw karambwan",
+            "Poison karambwan",
+            "Burnt karambwan",
+            "Cooked karambwan",
+            "Raw karambwanji",
+            "Karambwanji",
+            "Ashes",
+        ):
+            self.assertIn(item_name, COOKING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
+
     def test_brewing_rows_explain_maturity_without_calling_ordinary_ale_a_failure(self):
         rows = cooking_target_rows(
             {

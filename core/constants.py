@@ -1505,6 +1505,8 @@ for _item_name in hunter_supply_item_names():
 COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}
 COOKING_SHARED_ITEM_IMAGES = {
+    "Ashes": os.path.join(FIREMAKING_ITEMS_FOLDER, "ashes.png"),
+    "Cooked karambwan": os.path.join(SHOP_ITEMS_FOLDER, "cooked_karambwan.png"),
     "Lava eel": os.path.join(QUEST_ITEMS_FOLDER, "lava_eel.png"),
     "Bucket of milk": os.path.join(QUEST_ITEMS_FOLDER, "bucket_of_milk.png"),
     "Jug of water": os.path.join(QUEST_ITEMS_FOLDER, "jug_of_water.png"),

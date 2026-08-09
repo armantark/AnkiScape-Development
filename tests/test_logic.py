@@ -2346,6 +2346,50 @@ class TestLogic(unittest.TestCase):
             {"Grapes": 0, "Jug of water": 0, "Jug of bad wine": 1},
         )
 
+    def test_karambwan_methods_keep_three_distinct_period_outcomes(self):
+        poison_spec = COOKING_DATA["cook_poison_karambwan"]
+        self.assertEqual(cooking_source_roll_chance_pure(1, poison_spec), 0.5)
+        self.assertEqual(cooking_source_roll_chance_pure(20, poison_spec), 1.0)
+
+        burnt, xp, processed, output, failed = apply_cooking_action_pure(
+            "cook_poison_karambwan",
+            {"Raw karambwan": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=1.0,
+        )
+        self.assertTrue(processed)
+        self.assertTrue(failed)
+        self.assertEqual(output, "Burnt karambwan")
+        self.assertEqual(xp, 0)
+        self.assertEqual(burnt, {"Raw karambwan": 0, "Burnt karambwan": 1})
+
+        cooked, xp, processed, output, failed = apply_cooking_action_pure(
+            "cook_karambwan_thoroughly",
+            {"Raw karambwan": 1},
+            COOKING_DATA,
+            cooking_level=30,
+            roll=1.0,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output, "Cooked karambwan")
+        self.assertEqual(xp, 190.0)
+        self.assertEqual(cooked, {"Raw karambwan": 0, "Cooked karambwan": 1})
+
+        tiny, xp, processed, output, failed = apply_cooking_action_pure(
+            "cook_karambwanji",
+            {"Raw karambwanji": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=0.0,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output, "Karambwanji")
+        self.assertEqual(xp, 10.0)
+        self.assertEqual(tiny, {"Raw karambwanji": 0, "Karambwanji": 1})
+
     def test_dwarven_stout_maturity_preserves_the_full_vat_on_both_outcomes(self):
         ingredients = {
             "Ale yeast": 1,

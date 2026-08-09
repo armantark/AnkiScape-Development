@@ -5687,3 +5687,19 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   compilation, JSON, diff, reachability-ledger, and worktree gates pass.
 - Evidence:
   `source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md`.
+
+## Karambwan Cooking runtime closure — 2026-08-09
+
+- Closed all three settled Karambwan Cooking methods through the shared
+  one-review Cooking runtime: poison, thorough, and Karambwanji.
+- Preserved authentic quest timing, burn outputs, success-only XP, item
+  tradeability and stackability, persistence, telemetry, and review undo.
+- Registered only the two hidden burn curves as placeholders; no period
+  content was invented and no wall-clock mechanic was added.
+- Added normalized period sprites and complete data, pure, runtime,
+  integration, metadata, and established-selector Qt coverage.
+- Both full 3,982-test lanes pass. Plain has 486 expected skips; real offscreen
+  Qt has three intentional skips. All repository closure audits pass apart
+  from the known nonzero reachability dependency ledger.
+- Evidence:
+  `source-audits/karambwan-cooking-runtime-closure-2026-08-09.md`.

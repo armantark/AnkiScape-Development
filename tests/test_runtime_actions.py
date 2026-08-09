@@ -3905,6 +3905,63 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["xp"], [30.0])
         self.assertEqual(calls["saves"], 1)
 
+    def test_poison_karambwan_burns_during_the_started_quest(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Raw karambwan": 1},
+            "cooking_level": 1,
+            "cooking_exp": 0.0,
+            "current_cooking": "cook_poison_karambwan",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+            "quests": {
+                "tai_bwo_wannai_trio": {
+                    "started": True,
+                    "progress": 1,
+                    "completed": False,
+                }
+            },
+        }
+
+        self.assertTrue(
+            handle_cooking_answer(_context(player_data, calls, random_values=[1.0]))
+        )
+        self.assertEqual(
+            player_data["inventory"],
+            {"Raw karambwan": 0, "Burnt karambwan": 1},
+        )
+        self.assertEqual(player_data["cooking_exp"], 0.0)
+        self.assertEqual(player_data["cooking_burn_count"], 1)
+        self.assertEqual(calls["xp"], [])
+
+    def test_thorough_karambwan_requires_completion_and_never_burns(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Raw karambwan": 1},
+            "cooking_level": 30,
+            "cooking_exp": 0.0,
+            "current_cooking": "cook_karambwan_thoroughly",
+            "completed_achievements": [],
+            "quests": {
+                "tai_bwo_wannai_trio": {
+                    "started": True,
+                    "progress": 6,
+                    "completed": True,
+                }
+            },
+        }
+
+        self.assertTrue(
+            handle_cooking_answer(_context(player_data, calls, random_values=[1.0]))
+        )
+        self.assertEqual(
+            player_data["inventory"],
+            {"Raw karambwan": 0, "Cooked karambwan": 1},
+        )
+        self.assertEqual(player_data["cooking_exp"], 190.0)
+        self.assertEqual(calls["xp"], [190.0])
+
     def test_wine_bad_outcome_consumes_inputs_without_xp(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
