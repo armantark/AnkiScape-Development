@@ -101,4 +101,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete Great Orb Project's talisman-staff family with the exact base
      purchase, twelve ordinary bindings, Korvak Omni conversion, altar access,
      Law exception, equipment stats, carried recipes, and normalized art.
-   - [ ] Complete Great Orb Project's cutoff teleport-tablet family.
+   - [x] Complete Great Orb Project's cutoff teleport-tablet family with exact
+     prices, identities, stackable Break actions, period gates, route-phase
+     integration, direct undo, carried-view reconciliation, and normalized art.

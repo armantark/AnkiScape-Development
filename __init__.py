@@ -140,7 +140,10 @@ from .logic.stealing_creation_logic import (
 )
 from .logic.fish_flingers_logic import apply_fish_flingers_command_pure
 from .logic.fishing_trawler_logic import apply_fishing_trawler_command_pure
-from .logic.great_orb_project_logic import apply_great_orb_project_command_pure
+from .logic.great_orb_project_logic import (
+    apply_great_orb_project_command_pure,
+    use_great_orb_project_teleport_tablet_pure,
+)
 from .logic.court_cases_logic import apply_court_cases_command_pure
 from .logic.circus_logic import apply_circus_command_pure
 from .logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
@@ -4281,6 +4284,9 @@ def _on_main_menu(
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
+        on_use_great_orb_project_teleport_tablet=(
+            on_use_great_orb_project_teleport_tablet
+        ),
         on_open_item_pack=on_open_item_pack,
         on_convert_rogue_kit=on_convert_rogue_kit,
         on_teleport_training_urn=teleport_training_urn,
@@ -4841,6 +4847,32 @@ def on_consume_item(item_name):
     except AttributeError:
         pass
     return result
+
+
+def on_use_great_orb_project_teleport_tablet(item_name):
+    """Break one GOP tablet through the shared direct-action undo seam."""
+    info = {}
+
+    def _change(data):
+        updated, ok, result = use_great_orb_project_teleport_tablet_pure(
+            data,
+            item_name,
+            EQUIPMENT_DATA,
+            QUEST_UNLOCK_RULES,
+        )
+        info.update(result)
+        return updated, ok
+
+    if not commit_direct_action(_change):
+        show_error_message(
+            "Cannot use teleport tablet",
+            str(info.get("reason", "That teleport tablet is unavailable.")),
+        )
+        return None
+    message = str(info.get("message", ""))
+    if message:
+        _show_activity_gain(message)
+    return {"ok": True, **info}
 
 
 def on_open_item_pack(item_name, open_all=False):

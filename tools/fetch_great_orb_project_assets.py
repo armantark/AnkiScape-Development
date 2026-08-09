@@ -142,6 +142,34 @@ def main() -> int:
                 "Omni-talisman staff",
             )
         ),
+        *(
+            AssetRequest(
+                item_name=item_name,
+                wiki_title=f"{item_name.replace(' ', '_')}.png",
+                output_path=(
+                    ROOT
+                    / "activityitems"
+                    / f"{item_name.lower().replace(' ', '_')}.png"
+                ),
+                provenance_path=ROOT / "assets_provenance.json",
+            )
+            for item_name in (
+                "Runecrafting guild teleport",
+                "Air altar teleport",
+                "Mind altar teleport",
+                "Water altar teleport",
+                "Earth altar teleport",
+                "Fire altar teleport",
+                "Body altar teleport",
+                "Cosmic altar teleport",
+                "Chaos altar teleport",
+                "Astral altar teleport",
+                "Nature altar teleport",
+                "Law altar teleport",
+                "Death altar teleport",
+                "Blood altar teleport",
+            )
+        ),
     )
     for request in requests:
         try:

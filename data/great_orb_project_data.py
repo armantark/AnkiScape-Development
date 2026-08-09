@@ -97,6 +97,48 @@ GREAT_ORB_PROJECT_TALISMAN_REWARDS = (
     ("law_talisman", "Law talisman", 125, 1458),
 )
 
+GREAT_ORB_PROJECT_TELEPORT_TABLET_SOURCE = (
+    "RuneScape Wiki The Great Orb Project oldid=6564759 "
+    "(2012-11-17T03:12:07Z); OpenRS2 cache rev 742 item definitions"
+)
+GREAT_ORB_PROJECT_TELEPORT_TABLETS = (
+    (
+        "runecrafting_guild_teleport",
+        "Runecrafting guild teleport",
+        15,
+        13598,
+        "",
+        False,
+    ),
+    ("air_altar_teleport", "Air altar teleport", 30, 13599, "air", False),
+    ("mind_altar_teleport", "Mind altar teleport", 32, 13600, "mind", False),
+    ("water_altar_teleport", "Water altar teleport", 34, 13601, "water", False),
+    ("earth_altar_teleport", "Earth altar teleport", 36, 13602, "earth", False),
+    ("fire_altar_teleport", "Fire altar teleport", 37, 13603, "fire", False),
+    ("body_altar_teleport", "Body altar teleport", 38, 13604, "body", False),
+    ("cosmic_altar_teleport", "Cosmic altar teleport", 39, 13605, "cosmic", True),
+    ("chaos_altar_teleport", "Chaos altar teleport", 40, 13606, "chaos", True),
+    ("astral_altar_teleport", "Astral altar teleport", 41, 13611, "astral", True),
+    ("nature_altar_teleport", "Nature altar teleport", 42, 13607, "nature", True),
+    ("law_altar_teleport", "Law altar teleport", 43, 13608, "law", True),
+    ("death_altar_teleport", "Death altar teleport", 44, 13609, "death", True),
+    ("blood_altar_teleport", "Blood altar teleport", 45, 13610, "blood", True),
+)
+GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM = {
+    item: {
+        "altar_id": altar_id,
+        "target_id": f"craft_{altar_id}_runes" if altar_id else "",
+        "destination": (
+            f"outside the {altar_id.title()} altar"
+            if altar_id
+            else "the Runecrafting Guild"
+        ),
+    }
+    for _reward_id, item, _tokens, _source_item_id, altar_id, _members in (
+        GREAT_ORB_PROJECT_TELEPORT_TABLETS
+    )
+}
+
 # PLACEHOLDER(great_orb_project.runecrafter_robe_piece_xp_rate): A period
 # server crafting routine or measured XP table would replace this uniform rate.
 STANDARD_RUNECRAFTER_PIECE_XP_RATE = 0.0025
@@ -333,6 +375,23 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
         "category": "tool",
         "source": TALISMAN_STAFF_SOURCE,
     },
+    **{
+        reward_id: {
+            "item": item,
+            "tokens": tokens,
+            "quantity": 1,
+            "source_item_id": source_item_id,
+            "tradeable": False,
+            "stackable": True,
+            "category": "teleport",
+            "altar_id": altar_id,
+            "members": members,
+            "source": GREAT_ORB_PROJECT_TELEPORT_TABLET_SOURCE,
+        }
+        for reward_id, item, tokens, source_item_id, altar_id, members in (
+            GREAT_ORB_PROJECT_TELEPORT_TABLETS
+        )
+    },
     "omni_talisman": {
         "item": "Omni-talisman",
         "tokens": 0,
@@ -374,6 +433,18 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
 
 def great_orb_project_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
+        **{
+            item: {
+                "category": "teleport",
+                "stackable": True,
+                "tradeable": False,
+                "source": GREAT_ORB_PROJECT_TELEPORT_TABLET_SOURCE,
+                "source_item_id": source_item_id,
+            }
+            for _reward_id, item, _tokens, source_item_id, _altar_id, _members in (
+                GREAT_ORB_PROJECT_TELEPORT_TABLETS
+            )
+        },
         **{
             item: {
                 "category": "equipment",

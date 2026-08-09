@@ -1964,15 +1964,15 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertAlmostEqual(player_data["crafting_exp"], 13.8)
         self.assertEqual(calls["errors"], [])
 
-    def test_wicked_hood_teleport_skips_only_the_outbound_runecrafting_phase(self):
-        from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
+    def test_runecrafting_tablet_skips_only_the_outbound_runecrafting_phase(self):
+        from ankiscape.core import constants
+        from ankiscape.logic.great_orb_project_logic import (
+            use_great_orb_project_teleport_tablet_pure,
+        )
 
         calls = {"xp": [], "saves": 0, "errors": []}
-        hood = default_wicked_hood_state_pure()
-        hood["fed_altars"] = ["air"]
-        hood["pending_altar_teleport"] = "air"
         player_data = {
-            "inventory": {"Rune essence": 56},
+            "inventory": {"Rune essence": 56, "Air altar teleport": 1},
             "equipment": {"head": "Master runecrafter hat"},
             "current_runecrafting": "craft_air_runes",
             "runecrafting_level": 1,
@@ -1981,9 +1981,16 @@ class TestRuntimeActions(unittest.TestCase):
             "carried_churn": {"craft_air_runes": 28},
             "carried_primed_targets": {"craft_air_runes": True},
             "skilling_bank_run": {},
-            "wicked_hood": hood,
             "shop_market_clock": {"answered_cards": 0},
         }
+        player_data, used, info = use_great_orb_project_teleport_tablet_pure(
+            player_data,
+            "Air altar teleport",
+            constants.EQUIPMENT_DATA,
+            constants.QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(used, info)
+        self.assertNotIn("Air altar teleport", player_data["inventory"])
         acted = []
 
         self.assertTrue(

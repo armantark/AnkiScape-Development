@@ -839,6 +839,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T04:06:27Z"
   },
+  "activityitems/air_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Air_altar_teleport.png",
+    "file_title": "Air altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072014%21Air_altar_teleport.png?f18c5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1f95bbab632505e3b8caa2544c052a333a510434",
+    "size": 463,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-17T06:45:57Z"
+  },
   "activityitems/amulet_of_magic_t.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Amulet_of_magic_%28t%29.png",
     "file_title": "Amulet of magic (t).png",
@@ -850,6 +862,18 @@
     "size": 552,
     "source_wiki": "rs3",
     "timestamp": "2010-10-05T02:08:58Z"
+  },
+  "activityitems/astral_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Astral_altar_teleport.png",
+    "file_title": "Astral altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072017%21Astral_altar_teleport.png?6c20c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "06418eaff1d7f636ff264dc8b13dbbfa1540476c",
+    "size": 484,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-17T15:35:49Z"
   },
   "activityitems/autumn_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Autumn_sq%27irk.png",
@@ -995,6 +1019,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-03-07T22:53:28Z"
   },
+  "activityitems/blood_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blood_altar_teleport.png",
+    "file_title": "Blood altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174356%21Blood_altar_teleport.png?450a4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0f8b1415254d55ffe662a727d64debbc5b37584b",
+    "size": 1467,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-28T16:12:41Z"
+  },
   "activityitems/blue_runecrafter_gloves.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_gloves_%28blue%29.png",
     "file_title": "Runecrafter gloves (blue).png",
@@ -1055,6 +1091,18 @@
     "size": 504,
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T05:33:06Z"
+  },
+  "activityitems/body_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Body_altar_teleport.png",
+    "file_title": "Body altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174346%21Body_altar_teleport.png?cec7e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "476f6c0d65b58c7aaf32105c25ecc97dff2bc51a",
+    "size": 1506,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-28T16:13:17Z"
   },
   "activityitems/casket_easy.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Casket.png",
@@ -1248,6 +1296,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T01:48:58Z"
   },
+  "activityitems/chaos_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chaos_altar_teleport.png",
+    "file_title": "Chaos altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174350%21Chaos_altar_teleport.png?739f0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "43a0b1f69c5dc60a52136bc858fb46d36e16bbc9",
+    "size": 1493,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-28T16:15:18Z"
+  },
   "activityitems/clown_hat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Clown_hat.png",
     "file_title": "Clown hat.png",
@@ -1344,6 +1404,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-09-09T05:43:30Z"
   },
+  "activityitems/cosmic_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cosmic_altar_teleport.png",
+    "file_title": "Cosmic altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174348%21Cosmic_altar_teleport.png?ebf4f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c1fe32272e5a6bd457512346ecbfafc617fc65bc",
+    "size": 523,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T13:48:20Z"
+  },
   "activityitems/cracked_phoenix_egg.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cracked_phoenix_egg.png",
     "file_title": "Cracked phoenix egg.png",
@@ -1355,6 +1427,18 @@
     "size": 1558,
     "source_wiki": "rs3",
     "timestamp": "2011-04-23T18:03:53Z"
+  },
+  "activityitems/death_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Death_altar_teleport.png",
+    "file_title": "Death altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502180847%21Death_altar_teleport.png?6bbef",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cc3748cd3c52972b2ce32f5eb78e113cfd4d61f8",
+    "size": 1457,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-15T20:23:14Z"
   },
   "activityitems/diary_ardougne_cloak_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ardougne_cloak_1.png",
@@ -1980,6 +2064,30 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-20T10:24:33Z"
   },
+  "activityitems/earth_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Earth_altar_teleport.png",
+    "file_title": "Earth altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174341%21Earth_altar_teleport.png?3364e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b33bebb9044c4dceb2e3502adf30222d99494918",
+    "size": 465,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-20T13:12:04Z"
+  },
+  "activityitems/fire_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fire_altar_teleport.png",
+    "file_title": "Fire altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174344%21Fire_altar_teleport.png?1c720",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f890b508a0c2af42538a6443720d8c79fc494d20",
+    "size": 484,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T02:05:38Z"
+  },
   "activityitems/firemakers_tabard.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Firemaker%27s_tabard.png",
     "file_title": "Firemaker's tabard.png",
@@ -2281,6 +2389,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-03-15T20:00:25Z"
   },
+  "activityitems/law_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Law_altar_teleport.png",
+    "file_title": "Law altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174354%21Law_altar_teleport.png?d25f5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bfc2b2492cac194c2dcf3a1bbeb6570a15f90c2c",
+    "size": 513,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-25T07:24:05Z"
+  },
   "activityitems/mage_training_arena_apprentice_wand.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Apprentice_wand.png",
     "file_title": "Apprentice wand.png",
@@ -2448,6 +2568,18 @@
     "size": 898,
     "source_wiki": "rs3",
     "timestamp": "2011-08-23T14:41:51Z"
+  },
+  "activityitems/mind_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mind_altar_teleport.png",
+    "file_title": "Mind altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174340%21Mind_altar_teleport.png?9afc5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e7078b561ba48e64adedd15f96018d5a629512ca",
+    "size": 1462,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-07T21:54:55Z"
   },
   "activityitems/mobilising_armies_diamond_ring_i.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Diamond_ring_%28i%29.png",
@@ -2700,6 +2832,18 @@
     "size": 547,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T09:29:57Z"
+  },
+  "activityitems/nature_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Nature_altar_teleport.png",
+    "file_title": "Nature altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174352%21Nature_altar_teleport.png?48fd7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1ef6d4c1324a1bc84b3680d1f3592ff1838caadd",
+    "size": 1439,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-07T22:01:08Z"
   },
   "activityitems/ornate_bowl.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ornate_bowl.png",
@@ -3204,6 +3348,18 @@
     "size": 490,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T04:49:50Z"
+  },
+  "activityitems/runecrafting_guild_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafting_guild_teleport.png",
+    "file_title": "Runecrafting guild teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174400%21Runecrafting_guild_teleport.png?b0011",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ac370614ad9d4b625df74db20459e4d360e94fcd",
+    "size": 519,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T00:57:17Z"
   },
   "activityitems/saradomin_mjolnir.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Saradomin_mjolnir.png",
@@ -4164,6 +4320,18 @@
     "size": 189,
     "source_wiki": "rs3",
     "timestamp": "2011-11-30T11:20:25Z"
+  },
+  "activityitems/water_altar_teleport.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Water_altar_teleport.png",
+    "file_title": "Water altar teleport.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502180837%21Water_altar_teleport.png?482c3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d321e82567fc48244bfe26b0b6b3b9dd77674cd7",
+    "size": 1431,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-15T08:03:00Z"
   },
   "activityitems/winter_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Winter_sq%27irk.png",

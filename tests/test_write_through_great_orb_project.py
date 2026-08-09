@@ -27,6 +27,7 @@ import copy
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core import constants
 from ankiscape.data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     GREAT_ORB_PROJECT_ROUNDS,
@@ -41,6 +42,7 @@ from ankiscape.logic.great_orb_project_logic import (
     great_orb_project_view_pure,
     leave_great_orb_project_pure,
     set_great_orb_project_policy_pure,
+    use_great_orb_project_teleport_tablet_pure,
 )
 
 
@@ -279,6 +281,16 @@ class GreatOrbProjectWriteThroughTest(unittest.TestCase):
                 "buy_great_orb_project_reward_pure/unknown",
                 lambda d: buy_great_orb_project_reward_pure(d, "no_such_reward"),
                 _idle_save(),
+            ),
+            (
+                "use_great_orb_project_teleport_tablet_pure",
+                lambda d: use_great_orb_project_teleport_tablet_pure(
+                    d,
+                    "Air altar teleport",
+                    constants.EQUIPMENT_DATA,
+                    constants.QUEST_UNLOCK_RULES,
+                ),
+                _idle_save(inventory={"Air altar teleport": 1}),
             ),
             (
                 "apply_great_orb_project_command_pure/unknown",

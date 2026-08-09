@@ -299,6 +299,7 @@ from ..data.great_orb_project_data import (
     GREAT_ORB_PROJECT_CRAFTING_POLICIES,
     GREAT_ORB_PROJECT_DOCTRINES,
     GREAT_ORB_PROJECT_ROUNDS,
+    GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM,
 )
 from ..logic.great_orb_project_logic import great_orb_project_view_pure
 
@@ -4673,6 +4674,7 @@ def show_main_menu(
     on_unequip_slot=None,
     on_discard_item=None,
     on_consume_item=None,
+    on_use_great_orb_project_teleport_tablet=None,
     on_open_item_pack=None,
     on_convert_rogue_kit=None,
     on_teleport_training_urn=None,
@@ -25840,6 +25842,35 @@ def show_main_menu(
                         QMessageBox.information(bank_frame, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
+            menu.addSeparator()
+
+        teleport_tablet = GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM.get(
+            item_name
+        )
+        if teleport_tablet is not None:
+            tablet_action = menu.addAction(f"Break {item_name}")
+            tablet_action.setObjectName("breakRunecraftingTeleportTabletAction")
+            tablet_action.setEnabled(
+                amount > 0
+                and on_use_great_orb_project_teleport_tablet is not None
+            )
+            tablet_action.setToolTip(
+                f"Teleport to {teleport_tablet['destination']}."
+                + (
+                    " The next matching Runecrafting route skips its outbound leg."
+                    if teleport_tablet["altar_id"]
+                    else ""
+                )
+            )
+
+            def _do_tablet(_checked: bool = False) -> None:
+                if on_use_great_orb_project_teleport_tablet is None:
+                    return
+                result = on_use_great_orb_project_teleport_tablet(item_name)
+                if result:
+                    _refresh_equipment_views(refresh_visible_skill=True)
+
+            tablet_action.triggered.connect(_do_tablet)
             menu.addSeparator()
 
         if item_name in ITEM_PACK_DATA:

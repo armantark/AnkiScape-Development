@@ -2,6 +2,28 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 35 completes Great Orb Project's cutoff
+teleport-tablet family.** Oldid `6564759` and OpenRS2 rev-742 pin all 14 exact
+token prices, item IDs, stacking/trade rules, the `Break` action, exterior-
+altar behavior, ordinary access requirement, and quest/item/Entrana gates.
+Every row is a canonical GOP purchase with normalized source art. Breaking an
+altar tablet through the Bank's direct-action/undo seam queues the existing
+Wicked-hood route effect, skipping only the next matching outbound leg; the
+Guild tablet records Guild arrival without a route waiver. Refusals preserve
+the item, tablet use never grants altar access, and consumption reconciles the
+active carried view. Law checks equipped gear plus the physical carried pack,
+not the flat Bank, and allows the exact zero-bonus Law talisman staff. No world
+map, wall clock, schema, placeholder, or design fork was added. Kimi's five-
+hour window was exhausted, Claude's quota preflight was rate limited, and
+Fable remains reserved; root inspected the complete source-sprite family and
+the established UI surfaces. Full plain and real offscreen-Qt discovery each
+pass 3,908 tests, with 480 plain skips and 3 Qt skips. Documentation audits 528
+Markdown/431 HTML files; test quality has zero hard issues across 3,874 tests.
+Reachability is 1,511 actions, 2,284 items, 168 known orphans, and 188 known
+blocked actions. Compilation, JSON, diff, deterministic asset fetching, UI-
+asset normalization, and worktree safety pass. Durable audit:
+`memory-bank/source-audits/great-orb-project-teleport-tablets-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 34 completes Great Orb Project's talisman-
 staff family.** Runecrafting-staff oldid `6430449`, pre-EOC Air/Omni oldids
 `6080692`/`6080707`, the cutoff child identities, and rev-742 pin the exact

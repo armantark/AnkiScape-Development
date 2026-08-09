@@ -11,6 +11,7 @@ from ..data.great_orb_project_data import (
     GREAT_ORB_PROJECT_CRAFTING_POLICIES,
     GREAT_ORB_PROJECT_DOCTRINES,
     GREAT_ORB_PROJECT_REWARDS,
+    GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM,
     MASTER_RUNECRAFTER_REWARDS,
     STANDARD_RUNECRAFTER_REWARDS,
     GREAT_ORB_PROJECT_ROUNDS,
@@ -22,6 +23,8 @@ from ..data.runecrafting_data import (
     OMNI_TALISMAN_STAFF_ITEM,
     RUNECRAFTING_STAFF_ITEM,
 )
+from ..logic_pure.logic_pure_quest import quest_unlock_locked_reasons_pure
+from .wicked_hood_logic import ensure_wicked_hood_state_pure
 
 
 _MASTER_RUNECRAFTER_BONUSES = {
@@ -100,6 +103,140 @@ def _non_negative_float(value: Any) -> float:
         return max(0.0, float(value))
     except (TypeError, ValueError, OverflowError):
         return 0.0
+
+
+def use_great_orb_project_teleport_tablet_pure(
+    player_data: Mapping[str, Any],
+    item_name: Any,
+    equipment_data: Mapping[str, Any],
+    quest_unlock_rules: tuple[Mapping[str, Any], ...] | list[Mapping[str, Any]],
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    """Break one GOP tablet and queue its sourced Runecrafting route effect."""
+    item = str(item_name)
+    spec = GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM.get(item)
+    if spec is None:
+        return dict(player_data), False, {
+            "reason": "That is not a Runecrafting teleport tablet."
+        }
+
+    data = ensure_wicked_hood_state_pure(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    if _int(inventory.get(item)) <= 0:
+        return data, False, {"reason": f"No {item} remains in the Bank."}
+
+    altar_id = str(spec["altar_id"])
+    target_id = str(spec["target_id"])
+    if target_id:
+        quest_reasons = quest_unlock_locked_reasons_pure(
+            data, "runecrafting", target_id, quest_unlock_rules
+        )
+        if quest_reasons:
+            return data, False, {"reason": str(quest_reasons[0])}
+        if altar_id == "astral" and _int(inventory.get("Seal of passage")) <= 0:
+            return data, False, {"reason": "Requires a Seal of passage."}
+        if altar_id == "law":
+            equipped = data.get("equipment")
+            carried = data.get("carried_inventory")
+            carried_view = (
+                carried.get(target_id, {}) if isinstance(carried, Mapping) else {}
+            )
+            present = {
+                str(value)
+                for value in (
+                    equipped.values() if isinstance(equipped, Mapping) else ()
+                )
+                if value
+            }
+            if isinstance(carried_view, Mapping):
+                present.update(
+                    str(name)
+                    for name, quantity in carried_view.items()
+                    if _int(quantity) > 0
+                )
+            prohibited = []
+            for present_item in sorted(present):
+                equipment = equipment_data.get(present_item)
+                if equipment is None or present_item == "Law talisman staff":
+                    continue
+                slot = str(
+                    equipment.get("slot", "")
+                    if isinstance(equipment, Mapping)
+                    else getattr(equipment, "slot", "")
+                )
+                bonuses = (
+                    equipment.get("bonuses")
+                    if isinstance(equipment, Mapping)
+                    else getattr(equipment, "bonuses", None)
+                )
+                bonus_values = (
+                    bonuses.values()
+                    if isinstance(bonuses, Mapping)
+                    else vars(bonuses).values()
+                    if bonuses is not None and hasattr(bonuses, "__dict__")
+                    else ()
+                )
+                if slot in {"weapon", "shield", "ammunition"} or any(
+                    float(value or 0) != 0 for value in bonus_values
+                ):
+                    prohibited.append(present_item)
+            if prohibited:
+                return data, False, {
+                    "reason": "Entrana forbids carried or equipped combat gear: "
+                    + ", ".join(prohibited)
+                    + "."
+                }
+
+        hood = data["wicked_hood"]
+        pending = str(hood.get("pending_altar_teleport", "") or "")
+        if pending:
+            return data, False, {
+                "reason": f"A teleport to the {pending.title()} altar is already queued."
+            }
+        active_run = data.get("skilling_bank_run")
+        if (
+            isinstance(active_run, Mapping)
+            and active_run.get("target_id") in (None, target_id)
+            and _int(active_run.get("reviews_remaining")) > 0
+            and active_run.get("outbound_teleport_used") is True
+        ):
+            return data, False, {
+                "reason": "This route's outbound leg has already been teleported."
+            }
+
+    inventory[item] -= 1
+    if inventory[item] <= 0:
+        inventory.pop(item, None)
+    data["inventory"] = inventory
+    if target_id:
+        carried_root = dict(data.get("carried_inventory", {}) or {})
+        carried_view = dict(carried_root.get(target_id, {}) or {})
+        remaining = _int(inventory.get(item))
+        if _int(carried_view.get(item)) > remaining:
+            if remaining > 0:
+                carried_view[item] = remaining
+            else:
+                carried_view.pop(item, None)
+            carried_root[target_id] = carried_view
+            data["carried_inventory"] = carried_root
+        data["wicked_hood"]["pending_altar_teleport"] = altar_id
+        data["current_runecrafting"] = target_id
+    destination = str(spec["destination"])
+    data["runecrafting_last_teleport"] = {
+        "item": item,
+        "altar_id": altar_id,
+        "target_id": target_id,
+        "destination": destination,
+    }
+    message = f"Broke {item}; teleported to {destination}."
+    if target_id:
+        message += " The next matching outbound route is skipped."
+    return data, True, {
+        "message": message,
+        "item": item,
+        "altar_id": altar_id,
+        "target_id": target_id,
+        "destination": destination,
+    }
 
 
 def default_great_orb_project_state_pure() -> dict[str, Any]:

@@ -283,6 +283,7 @@ _MODULE_GATES = (
             "apply_great_orb_project_review_pure",
             "leave_great_orb_project_pure",
             "buy_great_orb_project_reward_pure",
+            "use_great_orb_project_teleport_tablet_pure",
         ),
         ("tests.test_great_orb_project",),
     ),

@@ -1238,9 +1238,10 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   behavior, and normalized art; the unrecovered rate is a registered
   placeholder. The 10,000-token Runecrafting staff, twelve ordinary talisman
   bindings, free Korvak Omni conversion, altar access, Law exception, exact
-  equipment rows, carried recipes, and normalized art are also complete.
-  Exact hidden score/essence rolls and the teleport-tablet family remain
-  labeled data and mechanic depth. See
+  equipment rows, carried recipes, and normalized art are also complete. All
+  14 cutoff teleport tablets now have exact prices and identities, stackable
+  Break actions, source art, period gates, and route-phase integration. Exact
+  hidden score and essence rolls remain labeled data depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
   essence, rune, and matching altar-teleport actions use a carried or equipped

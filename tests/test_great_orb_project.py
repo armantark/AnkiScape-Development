@@ -15,6 +15,7 @@ from ankiscape.core import constants
 from ankiscape.data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     GREAT_ORB_PROJECT_TALISMAN_REWARDS,
+    GREAT_ORB_PROJECT_TELEPORT_TABLETS,
     MASTER_RUNECRAFTER_REWARDS,
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
@@ -35,6 +36,10 @@ from ankiscape.logic.great_orb_project_logic import (
     great_orb_project_view_pure,
     leave_great_orb_project_pure,
     set_great_orb_project_policy_pure,
+    use_great_orb_project_teleport_tablet_pure,
+)
+from ankiscape.logic_pure.logic_pure_runecrafting import (
+    runecrafting_locked_reasons_pure,
 )
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import (
@@ -80,6 +85,44 @@ class GreatOrbProjectDataTests(unittest.TestCase):
         self.assertIn("Omni-tiara", registered)
         self.assertIn(RUNECRAFTING_STAFF_ITEM, registered)
         self.assertIn(OMNI_TALISMAN_STAFF_ITEM, registered)
+        provenance = json.loads((ROOT / "assets_provenance.json").read_text())
+
+        expected_tablets = (
+            ("Runecrafting guild teleport", 15, 13598, False),
+            ("Air altar teleport", 30, 13599, False),
+            ("Mind altar teleport", 32, 13600, False),
+            ("Water altar teleport", 34, 13601, False),
+            ("Earth altar teleport", 36, 13602, False),
+            ("Fire altar teleport", 37, 13603, False),
+            ("Body altar teleport", 38, 13604, False),
+            ("Cosmic altar teleport", 39, 13605, True),
+            ("Chaos altar teleport", 40, 13606, True),
+            ("Astral altar teleport", 41, 13611, True),
+            ("Nature altar teleport", 42, 13607, True),
+            ("Law altar teleport", 43, 13608, True),
+            ("Death altar teleport", 44, 13609, True),
+            ("Blood altar teleport", 45, 13610, True),
+        )
+        self.assertEqual(
+            tuple(
+                (item, tokens, item_id, members)
+                for _reward_id, item, tokens, item_id, _altar_id, members in (
+                    GREAT_ORB_PROJECT_TELEPORT_TABLETS
+                )
+            ),
+            expected_tablets,
+        )
+        for item, _tokens, item_id, _members in expected_tablets:
+            self.assertIn(item, registered)
+            definition = constants.EXTRA_ITEM_DATA[item]
+            self.assertEqual(definition["source_item_id"], item_id)
+            self.assertTrue(definition["stackable"])
+            self.assertFalse(definition["tradeable"])
+            relative = f"activityitems/{item.lower().replace(' ', '_')}.png"
+            self.assertIn(relative, provenance)
+            self.assertLessEqual(
+                provenance[relative]["timestamp"], "2012-11-20T23:59:59Z"
+            )
 
         for _reward_id, item, _tokens, item_id, slot, bonus, _xp_rate in (
             STANDARD_RUNECRAFTER_REWARDS + MASTER_RUNECRAFTER_REWARDS
@@ -95,7 +138,6 @@ class GreatOrbProjectDataTests(unittest.TestCase):
             self.assertEqual(equipment.bonuses.defence_stab, bonus)
             self.assertEqual(equipment.bonuses.defence_ranged, bonus)
 
-        provenance = json.loads((ROOT / "assets_provenance.json").read_text())
         for relative in (
             "activityicons/great_orb_project.png",
             "activityitems/master_runecrafter_hat.png",
@@ -486,7 +528,7 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
     def test_view_exposes_lock_policy_shop_and_active_round(self):
         locked = great_orb_project_view_pure(_player(runecrafting_level=49))
         self.assertFalse(locked["eligible"])
-        self.assertEqual(len(locked["rewards"]), 32)
+        self.assertEqual(len(locked["rewards"]), 46)
         self.assertTrue(
             all(reward["locked_reason"] for reward in locked["rewards"])
         )
@@ -496,6 +538,144 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
         self.assertTrue(view["active"])
         self.assertEqual(view["round_number"], 1)
         self.assertEqual(view["altar"], "Air altar")
+
+    def test_tablets_purchase_and_apply_their_distinct_route_effects(self):
+        player = _player()
+        player["great_orb_project"] = {"tokens": 45}
+        purchased, ok, info = buy_great_orb_project_reward_pure(
+            player, "air_altar_teleport"
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(purchased["great_orb_project"]["tokens"], 15)
+        self.assertEqual(purchased["inventory"]["Air altar teleport"], 1)
+
+        teleported, ok, info = use_great_orb_project_teleport_tablet_pure(
+            purchased,
+            "Air altar teleport",
+            constants.EQUIPMENT_DATA,
+            constants.QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(ok, info)
+        self.assertNotIn("Air altar teleport", teleported["inventory"])
+        self.assertEqual(teleported["current_runecrafting"], "craft_air_runes")
+        self.assertEqual(
+            teleported["wicked_hood"]["pending_altar_teleport"], "air"
+        )
+        self.assertEqual(
+            teleported["runecrafting_last_teleport"]["destination"],
+            "outside the Air altar",
+        )
+        self.assertEqual(purchased["inventory"]["Air altar teleport"], 1)
+
+        guild_player = _player(
+            inventory={"Runecrafting guild teleport": 1}
+        )
+        guild, ok, info = use_great_orb_project_teleport_tablet_pure(
+            guild_player,
+            "Runecrafting guild teleport",
+            constants.EQUIPMENT_DATA,
+            constants.QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(guild["wicked_hood"]["pending_altar_teleport"], "")
+        self.assertEqual(
+            guild["runecrafting_last_teleport"]["destination"],
+            "the Runecrafting Guild",
+        )
+
+    def test_tablet_reconciles_the_carried_view_without_granting_altar_access(self):
+        player = _player(
+            inventory={"Air altar teleport": 1, "Rune essence": 1},
+            quests={"rune_mysteries": {"completed": True}},
+            carried_inventory={
+                "craft_air_runes": {"Air altar teleport": 1, "Rune essence": 1}
+            },
+        )
+        teleported, ok, info = use_great_orb_project_teleport_tablet_pure(
+            player,
+            "Air altar teleport",
+            constants.EQUIPMENT_DATA,
+            constants.QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(
+            teleported["carried_inventory"]["craft_air_runes"],
+            {"Rune essence": 1},
+        )
+        self.assertIn(
+            "altar access",
+            runecrafting_locked_reasons_pure(
+                teleported,
+                "craft_air_runes",
+                constants.RUNECRAFTING_DATA,
+                constants.RUNECRAFTING_POUCH_DATA,
+                constants.QUEST_UNLOCK_RULES,
+            ),
+        )
+
+    def test_tablet_quest_item_and_entrana_gates_preserve_the_item_on_refusal(self):
+        gated_rows = (
+            ("Cosmic altar teleport", "lost_city", None),
+            ("Astral altar teleport", "lunar_diplomacy", "Seal of passage"),
+            ("Death altar teleport", "mournings_end_part_ii", None),
+            ("Blood altar teleport", "legacy_of_seergaze", None),
+        )
+        for item, quest_id, required_item in gated_rows:
+            with self.subTest(item=item):
+                player = _player(inventory={item: 1})
+                refused, ok, _info = use_great_orb_project_teleport_tablet_pure(
+                    player,
+                    item,
+                    constants.EQUIPMENT_DATA,
+                    constants.QUEST_UNLOCK_RULES,
+                )
+                self.assertFalse(ok)
+                self.assertEqual(refused["inventory"][item], 1)
+
+                player["quests"] = {quest_id: {"completed": True}}
+                if required_item:
+                    missing, ok, info = use_great_orb_project_teleport_tablet_pure(
+                        player,
+                        item,
+                        constants.EQUIPMENT_DATA,
+                        constants.QUEST_UNLOCK_RULES,
+                    )
+                    self.assertFalse(ok)
+                    self.assertIn(required_item, info["reason"])
+                    self.assertEqual(missing["inventory"][item], 1)
+                    player["inventory"][required_item] = 1
+                used, ok, info = use_great_orb_project_teleport_tablet_pure(
+                    player,
+                    item,
+                    constants.EQUIPMENT_DATA,
+                    constants.QUEST_UNLOCK_RULES,
+                )
+                self.assertTrue(ok, info)
+                self.assertNotIn(item, used["inventory"])
+
+        law = _player(
+            inventory={"Law altar teleport": 1},
+            equipment={"weapon": "Bronze sword"},
+        )
+        refused, ok, info = use_great_orb_project_teleport_tablet_pure(
+            law,
+            "Law altar teleport",
+            constants.EQUIPMENT_DATA,
+            constants.QUEST_UNLOCK_RULES,
+        )
+        self.assertFalse(ok)
+        self.assertIn("Bronze sword", info["reason"])
+        self.assertEqual(refused["inventory"]["Law altar teleport"], 1)
+
+        law["equipment"] = {"weapon": "Law talisman staff"}
+        used, ok, info = use_great_orb_project_teleport_tablet_pure(
+            law,
+            "Law altar teleport",
+            constants.EQUIPMENT_DATA,
+            constants.QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(used["wicked_hood"]["pending_altar_teleport"], "law")
 
 
 class GreatOrbProjectStorageTests(unittest.TestCase):
@@ -709,6 +889,45 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)
         self.assertEqual(
             addon.player_data["inventory"][OMNI_TALISMAN_STAFF_ITEM], 1
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+
+    def test_altar_tablet_is_direct_and_undo_restores_the_route_queue(self):
+        addon = _load_addon_as_package("ankiscape_great_orb_tablet_direct")
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        package_constants = sys.modules[f"{addon.__name__}.core.constants"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Bankstanding"
+        initial = storage.default_player_data(
+            package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
+        )
+        initial["runecrafting_level"] = 50
+        initial["inventory"]["Air altar teleport"] = 1
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_use_great_orb_project_teleport_tablet"](
+            "Air altar teleport"
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertNotIn("Air altar teleport", addon.player_data["inventory"])
+        self.assertEqual(
+            addon.player_data["wicked_hood"]["pending_altar_teleport"], "air"
+        )
+        self.assertEqual(
+            addon.player_data["current_runecrafting"], "craft_air_runes"
         )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(

@@ -1,5 +1,37 @@
 # Progress
 
+## Great Orb Project teleport tablets — 2026-08-09
+
+RuneScape Wiki `The Great Orb Project` oldid `6564759`, timestamp
+`2012-11-17T03:12:07Z`, pins all 14 tablets, exact prices, stackable single-use
+behavior, exterior destinations, altar-access requirement, and special gates.
+OpenRS2 cache 544, revision 742, pins exact item IDs `13598` through `13611`,
+non-exchangeability, stacking, and the `Break` inventory option.
+
+All rows are live as canonical one-at-a-time Wizard Elriss purchases with
+normalized source sprites. The Bank's `Break` command uses atomic direct undo.
+Altar tablets consume one item, select the canonical Runecrafting target, and
+queue the existing Wicked-hood route seam so only the next matching outbound
+leg is skipped. The Guild tablet records arrival inside the Guild without an
+altar-route waiver. Cosmic, Astral, Death, and Blood reuse existing quest gates;
+Astral also needs a Seal of passage. Law rejects equipped or physically carried
+combat gear while allowing the exact zero-bonus Law talisman staff. The flat
+Bank is not treated as physical inventory. Tablet use never grants altar access,
+and consumption reconciles the active carried view.
+
+The complete 395-test real Qt widget module and 269 focused pure/integration/
+immutability tests pass. Kimi's five-hour quota was exhausted, Claude's
+supported quota preflight was rate limited, and Fable remains reserved; no
+guard was bypassed. Full plain and real offscreen-Qt discovery each pass 3,908
+tests, with 480 expected plain skips and three intentional Qt skips.
+Documentation audits 528 Markdown and 431 HTML files; test quality has zero
+hard issues across 3,874 tests in 177 files. Compilation, tracked JSON, diff,
+deterministic asset fetching, UI-asset normalization, and worktree safety pass.
+Reachability rises to 1,511 actions and 2,284 items while the known 168-orphan/
+188-blocked ledger is unchanged. No world-map substrate, wall clock, save
+schema, placeholder, or owner decision was added. See
+`memory-bank/source-audits/great-orb-project-teleport-tablets-2026-08-09.md`.
+
 ## Great Orb Project talisman staves — 2026-08-09
 
 Runecrafting-staff oldid `6430449`, pre-EOC Air/Omni oldids `6080692` and

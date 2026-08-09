@@ -10000,6 +10000,37 @@ class MainMenuWidgetTest(unittest.TestCase):
             row = _bank_grid_button(dialog, item_name)
             self.assertFalse(row.icon().isNull(), f"{item_name} row has no icon")
 
+    def test_bank_breaks_runecrafting_tablets_through_the_direct_action(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Air altar teleport": 2}
+        used: list[str] = []
+
+        def _use(item_name: str):
+            used.append(item_name)
+            pd["inventory"][item_name] -= 1
+            return {"ok": True}
+
+        dialog = self._open(
+            pd,
+            on_use_great_orb_project_teleport_tablet=_use,
+        )
+        row = _bank_grid_button(dialog, "Air altar teleport")
+        self.assertFalse(row.icon().isNull())
+        menu = dialog._ankiscape_equip_menu_for("Air altar teleport")
+        action = next(
+            action
+            for action in menu.actions()
+            if action.text() == "Break Air altar teleport"
+        )
+        self.assertEqual(
+            action.objectName(), "breakRunecraftingTeleportTabletAction"
+        )
+        self.assertIn("skips its outbound leg", action.toolTip())
+        action.trigger()
+        QApplication.processEvents()
+        self.assertEqual(used, ["Air altar teleport"])
+        self.assertEqual(pd["inventory"]["Air altar teleport"], 1)
+
     def test_bank_offers_drink_action_for_consumables(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Beer": 2}
@@ -14029,7 +14060,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(currency.text(), "200 tokens")
         self.assertIn("Eight altar rounds", summary.text())
         self.assertTrue(progress.isHidden())
-        self.assertEqual(reward.count(), 32)
+        self.assertEqual(reward.count(), 46)
         self.assertEqual(reward.iconSize().width(), 24)
         self.assertEqual(reward.iconSize().height(), 24)
         for reward_id in (
@@ -14060,6 +14091,20 @@ class MainMenuWidgetTest(unittest.TestCase):
             "master_runecrafter_skirt",
             "master_runecrafter_boots",
             "runecrafting_staff",
+            "runecrafting_guild_teleport",
+            "air_altar_teleport",
+            "mind_altar_teleport",
+            "water_altar_teleport",
+            "earth_altar_teleport",
+            "fire_altar_teleport",
+            "body_altar_teleport",
+            "cosmic_altar_teleport",
+            "chaos_altar_teleport",
+            "astral_altar_teleport",
+            "nature_altar_teleport",
+            "law_altar_teleport",
+            "death_altar_teleport",
+            "blood_altar_teleport",
             "omni_talisman_staff",
         ):
             reward_index = reward.findData(reward_id)

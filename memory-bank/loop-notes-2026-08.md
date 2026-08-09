@@ -1,5 +1,42 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 35 — Great Orb Project teleport tablets
+
+- Source: Great Orb Project oldid `6564759`, timestamp
+  `2012-11-17T03:12:07Z`, pins the complete 14-row shop, exact prices,
+  stackable single-use exterior teleports, ordinary altar-entry requirement,
+  and Cosmic/Astral/Law/Death/Blood gates. OpenRS2 cache 544, rev-742, pins
+  items `13598` through `13611`, non-exchangeability, stacking, and `Break`.
+- Result: all tablets are canonical one-at-a-time GOP purchases. Bank `Break`
+  consumes one through direct undo. Altar tablets queue the existing Wicked-
+  hood route seam and skip only the next matching outbound leg; the Guild
+  tablet records Guild arrival without a route waiver. Refusals preserve the
+  item, tablet use never grants altar access, and final-unit consumption now
+  reconciles the carried-pack view instead of leaving a ghost copy.
+- Boundaries: the Law restriction reads equipped gear and the active carried
+  pack because the flat Bank is storage, not physical inventory. The sourced
+  zero-bonus Law talisman staff remains allowed. Membership is period catalog
+  metadata. No world-map substrate, wall clock, schema field, placeholder, or
+  owner decision was added.
+- Taste: Kimi's fresh five-hour quota was exhausted. Claude's supported quota
+  preflight was unavailable because its endpoint was rate limited, and Fable
+  remains reserved. Neither guard was bypassed. Root inspected the 14 source
+  sprites together and exercised the existing fixed-size shop and Bank-menu
+  surfaces through the complete 395-test real Qt widget module.
+- Delegation: read-only Sol-high Workflows run
+  `f4853879-99e6-4681-bf75-9c28ea58fd00` exhausted both leaves' mandatory
+  bootstrap output budgets before findings. Root independently reproduced the
+  sources, verified the live seam, and completed the bounded simplification
+  review.
+- Verification: 269 focused pure/integration/immutability tests and all 395
+  real Qt widget tests pass. Full plain and real offscreen-Qt discovery each
+  pass 3,908 tests, with 480 plain skips and 3 Qt skips. Documentation audits
+  528 Markdown and 431 HTML files; test quality has zero hard issues across
+  3,874 tests in 177 files. Reachability improves to 1,511 actions and 2,284
+  items while the known 168-orphan/188-blocked ledger is unchanged.
+  Compilation, tracked JSON, diff, deterministic asset fetching, UI-asset
+  normalization, and worktree safety pass.
+
 ## Iteration 34 — Great Orb Project talisman staves
 
 - Source: Runecrafting-staff oldid `6430449`, pre-EOC Air/Omni oldids
