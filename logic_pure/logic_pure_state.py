@@ -336,6 +336,17 @@ def _copy_player_data_with_nested(player_data):
     copied["combat_auto_eat_food"] = list(player_data.get("combat_auto_eat_food", []) or [])
     copied["combat_supply_loadout"] = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     copied["combat_current_levels"] = dict(player_data.get("combat_current_levels", {}) or {})
+    copied["skilling_current_levels"] = dict(
+        player_data.get("skilling_current_levels", {}) or {}
+    )
+    copied["skilling_potion_targets"] = {
+        str(skill_id): dict(targets) if isinstance(targets, Mapping) else {}
+        for skill_id, targets in (
+            (player_data.get("skilling_potion_targets", {}) or {}).items()
+            if isinstance(player_data.get("skilling_potion_targets", {}), Mapping)
+            else ()
+        )
+    }
     copied["combat_status_effects"] = dict(player_data.get("combat_status_effects", {}) or {})
     copied["combat_recovery_progress"] = dict(player_data.get("combat_recovery_progress", {}) or {})
     copied["combat_bank_run"] = _sanitize_combat_bank_run(player_data.get("combat_bank_run"))

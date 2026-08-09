@@ -109,6 +109,7 @@ from ..logic_pure.logic_pure import (
     can_smith_item_pure,
     can_start_quest_pure,
     cooking_target_locked_reasons_pure,
+    crafting_target_locked_reasons_pure,
     combat_target_locked_reasons_pure,
     eligible_fishing_fish_pure,
     equipment_bonus_state_pure,
@@ -582,11 +583,11 @@ def _can_start_dungeoneering_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_crafting_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_craft", "form_pot_unfired")
-    return can_craft_item_pure(
-        ctx.player_data.get("crafting_level", 1),
-        ctx.player_data.get("inventory", {}),
+    return not crafting_target_locked_reasons_pure(
+        ctx.player_data,
         target,
         CRAFTING_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 

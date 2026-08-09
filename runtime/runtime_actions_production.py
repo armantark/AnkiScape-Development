@@ -11,6 +11,7 @@ from ..core.constants import (
     COMBAT_BURST_TICKS,
     COMBAT_ENEMY_DATA,
     COMBAT_FOOD_DATA,
+    CONSUMABLE_DATA,
     COOKING_DATA,
     CRAFTING_DATA,
     DEFAULT_COMBAT_TARGET,
@@ -56,6 +57,7 @@ from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
     apply_cooking_action_pure,
+    apply_consumable_pure,
     apply_crafting_pure,
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
@@ -111,6 +113,7 @@ from ..logic_pure.logic_pure import (
     can_smith_item_pure,
     can_start_quest_pure,
     cooking_target_locked_reasons_pure,
+    crafting_target_locked_reasons_pure,
     combat_target_locked_reasons_pure,
     eligible_fishing_fish_pure,
     equipment_bonus_state_pure,
@@ -156,6 +159,11 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_TOTAL_STEPS,
 )
 from ..core.skill_registry import get_skill
+from ..logic.skilling_boost_logic import (
+    skilling_effective_level_pure,
+    skilling_potion_item_pure,
+    skilling_potion_target_enabled_pure,
+)
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
     apply_farming_review_with_queue_pure,
@@ -441,7 +449,12 @@ def _refresh_smithing_and_crafting_availability(ctx: RuntimeActionContext) -> No
     player_data = ctx.player_data
     try:
         can_craft_any = any(
-            can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
+            not crafting_target_locked_reasons_pure(
+                player_data,
+                item_name,
+                CRAFTING_DATA,
+                QUEST_UNLOCK_RULES,
+            )
             for item_name in CRAFTING_DATA.keys()
         )
         ctx.refresh_skill_availability_partial(ctx.can_smith_any(), can_craft_any)
@@ -451,6 +464,54 @@ def _refresh_smithing_and_crafting_availability(ctx: RuntimeActionContext) -> No
     ctx.refresh_skill_availability()
 
 
+def _auto_drink_skilling_potion_if_needed(
+    ctx: RuntimeActionContext,
+    skill_id: str,
+    target_id: str,
+    required_level: int,
+) -> bool:
+    player_data = ctx.player_data
+    if skilling_effective_level_pure(player_data, skill_id) >= required_level:
+        return True
+    if not skilling_potion_target_enabled_pure(
+        player_data, skill_id, target_id
+    ):
+        return False
+    item_name = skilling_potion_item_pure(
+        player_data.get("inventory", {}) or {}, skill_id
+    )
+    if not item_name:
+        return False
+    updated, result = apply_consumable_pure(player_data, item_name)
+    if not result.get("allowed", False):
+        return False
+
+    carried = updated.get("carried_inventory", {})
+    if isinstance(carried, dict):
+        carried = {
+            str(key): dict(value) if isinstance(value, dict) else {}
+            for key, value in carried.items()
+        }
+        view = dict(carried.get(target_id, {}))
+        if int(view.get(item_name, 0) or 0) > 0:
+            view[item_name] = int(view[item_name]) - 1
+            if view[item_name] <= 0:
+                view.pop(item_name, None)
+            leaves = str(CONSUMABLE_DATA[item_name].get("leaves", ""))
+            if leaves:
+                view[leaves] = int(view.get(leaves, 0) or 0) + 1
+            carried[target_id] = view
+            updated["carried_inventory"] = carried
+
+    player_data.clear()
+    player_data.update(updated)
+    ctx.show_activity_gain(
+        f"Drank {item_name} · {skill_id.title()} is temporarily level "
+        f"{skilling_effective_level_pure(player_data, skill_id)}"
+    )
+    return skilling_effective_level_pure(player_data, skill_id) >= required_level
+
+
 def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     item = player_data.get("current_craft", "form_pot_unfired")
@@ -458,11 +519,6 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     display_name = spec.get("display_name", item) if spec else item
     if not spec:
         ctx.show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
-        return False
-
-    player_level = player_data.get("crafting_level", 1)
-    if player_level < spec["level"]:
-        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
         return False
 
     required_items = dict(spec.get("requirements", {}))
@@ -475,6 +531,14 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
             f"You need {missing} to craft {display_name}, so AnkiScape switched to "
             "Bankstanding. Choose another target when you are ready.",
         )
+        return False
+
+    _auto_drink_skilling_potion_if_needed(
+        ctx, "crafting", str(item), int(spec["level"])
+    )
+    player_level = skilling_effective_level_pure(player_data, "crafting")
+    if player_level < spec["level"]:
+        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
         return False
 
     thread_roll = min(int(ctx.random_random() * 5), 4) + 1 if spec.get("consume_thread_on_roll") else None
@@ -498,7 +562,12 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
 
     try:
         can_craft_any = any(
-            can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
+            not crafting_target_locked_reasons_pure(
+                player_data,
+                item_name,
+                CRAFTING_DATA,
+                QUEST_UNLOCK_RULES,
+            )
             for item_name in CRAFTING_DATA.keys()
         )
         ctx.refresh_skill_availability_partial(ctx.can_smith_any(), can_craft_any)
@@ -518,7 +587,6 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_fletch"] = target
     spec = FLETCHING_DATA[target]
     display_name = spec.get("display_name", target)
-    player_level = player_data.get("fletching_level", 1)
     locked_reasons = fletching_target_locked_reasons_pure(player_data, target, FLETCHING_DATA, QUEST_UNLOCK_RULES)
     unlock_locked = tuple(
         reason
@@ -532,6 +600,23 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
             f"{display_name} requires {', '.join(unlock_locked)}, so Fletching has been switched off.",
         )
         return False
+
+    if "materials" in locked_reasons:
+        missing_requirements = dict(spec.get("requirements", {}))
+        missing_requirements.update(spec.get("required_items", {}))
+        missing = missing_materials_text(missing_requirements, player_data["inventory"])
+        _switch_material_failure_to_bankstanding(ctx)
+        ctx.show_error_message(
+            "Out of materials",
+            f"You need {missing} to make {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
+        )
+        return False
+
+    _auto_drink_skilling_potion_if_needed(
+        ctx, "fletching", str(target), int(spec["level"])
+    )
+    player_level = skilling_effective_level_pure(player_data, "fletching")
 
     if player_level < spec["level"]:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")

@@ -615,6 +615,10 @@ from ..logic.dnd_favourites_logic import (
     dnd_favourite_detail_button_view_pure,
 )
 from ..logic.summoning_logic import familiarisation_view_pure
+from ..logic.skilling_boost_logic import (
+    skilling_potion_target_enabled_pure,
+)
+from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
 from ..logic.review_strip_logic import (
     REVIEW_BANK_RUN_LABEL,
     REVIEW_BANK_RUN_TOOLTIP,
@@ -4561,6 +4565,7 @@ def show_main_menu(
     on_set_craft,
     on_set_smith=None,
     on_set_fletch=None,
+    on_set_skilling_potion_target=None,
     on_set_firemaking=None,
     on_set_fishing=None,
     on_set_hunter=None,
@@ -4891,9 +4896,12 @@ def show_main_menu(
     # ---- availability + active-skill helpers ----
     def _craft_available() -> bool:
         try:
-            level = player_data.get("crafting_level", 1)
-            inv = player_data.get("inventory", {})
-            return any(can_craft_item_pure(level, inv, n, CRAFTING_DATA) for n in CRAFTING_DATA)
+            return any(
+                not crafting_target_locked_reasons_pure(
+                    player_data, target, CRAFTING_DATA, QUEST_UNLOCK_RULES
+                )
+                for target in CRAFTING_DATA
+            )
         except Exception:
             return False
 
@@ -22342,6 +22350,12 @@ def show_main_menu(
         details_scroll.viewport().setAutoFillBackground(False)
         details_scroll.setWidget(details_body)
         target_details_layout.addWidget(details_scroll)
+        details_options = QWidget()
+        details_options.setObjectName("targetDetailsOptions")
+        details_options_layout = QVBoxLayout(details_options)
+        details_options_layout.setContentsMargins(0, 4, 0, 0)
+        details_options_layout.setSpacing(4)
+        target_details_layout.addWidget(details_options)
         details_panel.setVisible(bool(state["details_open"]))
         panel_layout.addWidget(details_panel)
 
@@ -22349,6 +22363,55 @@ def show_main_menu(
             details = target_details_from_row_pure(row)
             details_title.setText(details.title)
             details_body.setText("\n".join(details.lines))
+            _clear_layout(details_options_layout)
+            skill_id = state["skill"].casefold()
+            if skill_id in {"crafting", "fletching"}:
+                potion_toggle = QCheckBox(
+                    f"Use {state['skill']} potion (+3) when needed"
+                )
+                potion_toggle.setObjectName(
+                    f"skillingPotionTargetToggle::{skill_id}::{row.target_id}"
+                )
+                potion_toggle.setChecked(
+                    skilling_potion_target_enabled_pure(
+                        player_data, skill_id, row.target_id
+                    )
+                )
+                potion_toggle.setEnabled(
+                    on_set_skilling_potion_target is not None
+                )
+                potion_toggle.setToolTip(
+                    "Drink from this target's carried pack only when its "
+                    "sourced +3 boost is required."
+                )
+                potion_toggle.setStyleSheet(
+                    "QCheckBox::indicator {"
+                    " width: 14px; height: 14px;"
+                    " border: 1px solid palette(midlight); border-radius: 3px;"
+                    " background: palette(base);"
+                    "}"
+                    "QCheckBox::indicator:checked {"
+                    " border-color: #46b96a; background: #2f8f4e;"
+                    "}"
+                )
+
+                def _set_potion_policy(enabled: bool) -> None:
+                    accepted = on_set_skilling_potion_target(
+                        skill_id, row.target_id, bool(enabled)
+                    )
+                    if accepted is False:
+                        potion_toggle.blockSignals(True)
+                        potion_toggle.setChecked(not enabled)
+                        potion_toggle.blockSignals(False)
+                        return
+                    state["details_open"] = True
+                    _render_panel()
+
+                potion_toggle.toggled.connect(_set_potion_policy)
+                details_options_layout.addWidget(potion_toggle)
+                details_options.setVisible(True)
+            else:
+                details_options.setVisible(False)
             details_toggle.setToolTip(
                 "Show the selected target's current mechanics."
                 if details.enabled

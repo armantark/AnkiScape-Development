@@ -1480,8 +1480,14 @@ for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
 HUNTER_EXTRA_ITEM_DATA = hunter_extra_items_as_dict()
 HUNTER_EXTRA_ITEM_DATA.update(big_chinchompa_extra_items_as_dict())
 HUNTER_ITEM_IMAGES = {}
+HUNTER_SHARED_ITEM_IMAGES = {
+    "Wimpy feather": os.path.join(SHOP_ITEMS_FOLDER, "wimpy_feather.png"),
+}
 for _item_name in set(hunter_item_names()) | set(HUNTER_OUTPUT_ITEMS) | set(HUNTER_EXTRA_ITEM_DATA):
-    _path = os.path.join(HUNTER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    _path = HUNTER_SHARED_ITEM_IMAGES.get(
+        _item_name,
+        os.path.join(HUNTER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"),
+    )
     if os.path.exists(_path):
         HUNTER_ITEM_IMAGES[_item_name] = _path
 for _item_name in hunter_supply_item_names():

@@ -1,5 +1,34 @@
 # Progress
 
+## Crafting and Fletching potion runtime — 2026-08-09
+
+Crafting and Fletching potions now apply their sourced exact `+3` current-level
+boost through one shared noncombat runtime. The target-local policy, temporary
+levels and 100-tick residual, carried vial/flask replacement, direct Bank
+drinking, Casual/Advanced pack rules, boosted gates, persistence, and undo are
+live. Schema 113 stores and sanitizes the shared state. The period GE generator
+now contains 1,430 prices and 1,746 buy limits, including all eight newly pinned
+exchangeable states.
+
+The closure audit found and fixed an older Hunter transcription: `Catch wimpy
+bird` awarded Stripy feathers even though cutoff oldid `5936660` lists `Wimpy
+feather` loot in quantities `5 - 10`. The deterministic row now awards the
+sourced minimum five and reuses normalized 2010 art. This restores a fresh-
+profile route through the existing Herblore recipe, Bob's decanting, Teplin's
+flask services, and every consumed dose state.
+
+Full plain and real offscreen-Qt discovery each pass 3,939 tests, with 483
+expected plain skips and three intentional Qt skips. Test quality has zero hard
+issues across 3,905 tests in 178 files. Documentation audits cover 534 Markdown
+and 431 HTML files. Reachability is 1,537 actions, 2,333 reachable items, 168
+known orphan inputs, and 188 known blocked actions. Compilation, tracked JSON,
+diff, provenance, asset normalization, and worktree safety pass. Fable's direct
+render pass produced the visible dark-mode checkbox; Kimi K3 returned `SHIP` on
+the bounded corrected transcript. Native Anki proved one real menu dispatch and
+one menu window, but the locked macOS login session prevented further visual
+navigation. See
+`memory-bank/source-audits/crafting-fletching-potion-runtime-2026-08-09.md`.
+
 ## Trouble Brewing The stuff and mature-ale brewing — 2026-08-09
 
 The cutoff Brewing and The Stuff revisions pin the full-vat sequence, optional

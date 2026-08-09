@@ -49,6 +49,7 @@ except ImportError:  # The Thieving logic module may land after this UI slice.
     _thieving_target_locked_reasons_pure = None
 
 from ..logic.agility_logic import agility_target_locked_reasons_pure
+from ..logic.skilling_boost_logic import skilling_effective_level_pure
 
 from ..logic.warriors_guild_logic import (
     sanitize_warriors_guild_state_pure,
@@ -597,7 +598,8 @@ def crafting_target_rows(
     quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
-    lvl_have = int(player_data.get("crafting_level", 1) or 1)
+    base_level = int(player_data.get("crafting_level", 1) or 1)
+    lvl_have = skilling_effective_level_pure(player_data, "crafting")
     inv = player_data.get("inventory", {})
     inventory = inv if isinstance(inv, Mapping) else {}
     current_target = player_data.get("current_craft")
@@ -622,7 +624,8 @@ def crafting_target_rows(
             quest_unlock_rules,
         )
         tooltip = (
-            f"Requires Crafting level {lvl_req}. You have {lvl_have}.\n"
+            f"Requires Crafting level {lvl_req}. You have {lvl_have}"
+            f" (base {base_level}).\n"
             f"Output: {output_item} x{output_qty}\n"
             f"Base XP: {spec.get('exp', 0):g} per action\n"
             f"Materials:\n{_indented_material_lines(requirements, inventory)}"
@@ -909,7 +912,8 @@ def fletching_target_rows(
     quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
-    lvl_have = int(player_data.get("fletching_level", 1) or 1)
+    base_level = int(player_data.get("fletching_level", 1) or 1)
+    lvl_have = skilling_effective_level_pure(player_data, "fletching")
     inv = player_data.get("inventory", {})
     inventory = inv if isinstance(inv, Mapping) else {}
     current_target = player_data.get("current_fletch")
@@ -925,7 +929,8 @@ def fletching_target_rows(
             reqs = requirements if isinstance(requirements, Mapping) else {}
         _materials_ok, mat_text = _material_lines(reqs, inventory)
         tooltip = (
-            f"Requires Fletching level {lvl_req}. You have {lvl_have}.\n"
+            f"Requires Fletching level {lvl_req}. You have {lvl_have}"
+            f" (base {base_level}).\n"
             f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
         )
         required_items = spec.get("required_items", {}) or {}

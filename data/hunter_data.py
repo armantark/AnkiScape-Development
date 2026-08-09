@@ -43,6 +43,7 @@ HUNTER_BOX_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_box_trapping_level_2
 HUNTER_NET_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_29"
 HUNTER_MAGIC_BOX_SOURCE = "https://www.2011.rs/kb/hunter_magical_imp_boxes_level_71"
 HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
+HUNTER_WIMPY_BIRD_SOURCE = "https://runescape.wiki/w/Wimpy_bird?oldid=5936660"
 
 EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/eagles_peak_members"
 ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/rocking_out_members"
@@ -261,14 +262,18 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         "bird_snaring",
         39,
         167.0,
-        _out(_BONES, ("Raw bird meat", 1), ("Stripy feather", 5)),
-        "Stripy feather",
-        source=HUNTER_LOCATION_SOURCE,
+        _out(_BONES, ("Raw bird meat", 1), ("Wimpy feather", 5)),
+        "Wimpy feather",
+        source=HUNTER_WIMPY_BIRD_SOURCE,
         source_enum="WIMPY_BIRD",
         source_npc_id=7031,
         rate1=42,
         rate99=140,
-        notes="Route is tied to Oo'glog after As a First Resort.",
+        notes=(
+            "Route is tied to Oo'glog after As a First Resort; the period page "
+            "lists 5-10 Wimpy feathers, and this deterministic row keeps the "
+            "sourced minimum."
+        ),
         sort_order=60,
     ),
     _target(
@@ -786,6 +791,7 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Orange feather": 10091,
     "Blue feather": 10089,
     "Stripy feather": 10087,
+    "Wimpy feather": 11525,
     **HUNTER_MATERIAL_ITEMS,
     **HUNTER_TOOL_ITEMS,
 }

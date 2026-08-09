@@ -4,6 +4,10 @@ from typing import Dict, Iterable, Optional, Any
 
 from ..logic.cadence_kernel import default_cadence_kernel_state_pure, sanitize_cadence_kernel_state_pure
 from ..logic import inventory_pure
+from ..logic.skilling_boost_logic import (
+    default_skilling_boost_state_pure,
+    sanitize_skilling_boost_state_pure,
+)
 from ..logic.bank_layout_logic import (
     default_bank_layout_state_pure,
     reconcile_bank_layout_for_player_pure,
@@ -335,7 +339,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 112
+CURRENT_CONFIG_VERSION = 113
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -609,6 +613,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_combat_state_pure())
     data.update(_default_hidden_support_state())
     data.update(default_target_state())
+    data.update(default_skilling_boost_state_pure())
     data["magic_charge_active"] = False
     data["magic_charge_ticks_remaining"] = 0
     data["mage_arena"] = default_mage_arena_state_pure()
@@ -2328,6 +2333,7 @@ def migrate_loaded_data(
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")
     )
+    data.update(sanitize_skilling_boost_state_pure(data))
     data["achievement_progress"] = sanitize_achievement_progress_pure(
         data.get("achievement_progress")
     )

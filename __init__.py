@@ -244,6 +244,9 @@ from .logic.review_strip_logic import (
 )
 from .logic.farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .logic.agility_logic import apply_agility_command_pure
+from .logic.skilling_boost_logic import (
+    set_skilling_potion_target_enabled_pure,
+)
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
 from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
@@ -1758,6 +1761,36 @@ def _on_main_menu(
     initial_activity_id=None,
     initial_global_tab=None,
 ):
+    def _set_skilling_potion_target(
+        skill_id: str, target_id: str, enabled: bool
+    ) -> bool:
+        table = CRAFTING_DATA if skill_id == "crafting" else (
+            FLETCHING_DATA if skill_id == "fletching" else {}
+        )
+        if target_id not in table:
+            return False
+
+        def _change(current):
+            updated, ok = set_skilling_potion_target_enabled_pure(
+                current, skill_id, target_id, enabled
+            )
+            if ok and enabled:
+                updated[
+                    "current_craft"
+                    if skill_id == "crafting"
+                    else "current_fletch"
+                ] = target_id
+            return updated, ok
+
+        committed = commit_direct_action(_change)
+        if committed:
+            _refresh_skill_availability()
+            try:
+                update_review_hud(player_data, current_skill)
+            except Exception:
+                pass
+        return committed
+
     def _set_floating_enabled(val: bool):
         try:
             mw.col.set_config("ankiscape_floating_enabled", bool(val))
@@ -4165,6 +4198,7 @@ def _on_main_menu(
         on_set_smith=lambda recipe_id: _set_value("current_smith", recipe_id),
         on_set_craft=lambda item: _set_value("current_craft", item),
         on_set_fletch=lambda target: _set_value("current_fletch", target),
+        on_set_skilling_potion_target=_set_skilling_potion_target,
         on_set_firemaking=lambda target: _set_value("current_firemaking", target),
         on_set_fishing=lambda target: _set_value("current_fishing", target),
         on_set_hunter=lambda target: _set_value("current_hunter", target),

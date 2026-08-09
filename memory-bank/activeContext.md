@@ -2,6 +2,30 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 41 completes the shared Crafting and
+Fletching potion runtime.** Game-main pins the exact `+3` current-level effect;
+rev-742 pins all vial/flask IDs and exposed a corrected Super prayer flask
+sequence; eight cutoff Exchange revisions pin the missing full-container market
+rows. Each target now has a saved `Use ... potion (+3) when needed` policy,
+boost-aware selection/gates, Casual carried-slot reservation, Advanced saved-
+layout enforcement, automatic dose replacement, direct Bank drinking, global
+100-tick restoration, persistence, and atomic undo. The implementation never
+uses wall time. A full-suite failure exposed the existing Wimpy-bird copy error:
+oldid `5936660` now supplies the sourced minimum five `Wimpy feather`s and its
+normalized 2010 icon, making the complete Fletching-potion chain reachable.
+Fable's direct render review found and closed the invisible dark-mode checkbox;
+Kimi K3 returned `SHIP` on the corrected bounded interaction transcript because
+its provider could not read local PNG paths. Full plain and real offscreen-Qt
+discovery each pass 3,939 tests, with 483 plain skips and 3 Qt skips. Test
+quality has zero hard issues across 3,905 tests in 178 files. Reachability is
+1,537 actions, 2,333 reachable items, 168 known orphan inputs, and 188 known
+blocked actions. Compilation, tracked JSON, docs, diff, provenance, asset
+normalization, and worktree safety pass. A fully restarted native Anki process
+registered one bridge and opened exactly one WindowServer-visible AnkiScape
+menu; the locked macOS login session prevented a native visual Details-card
+claim. No placeholder or owner design gap was added. Durable audit:
+`memory-bank/source-audits/crafting-fletching-potion-runtime-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 40 completes `The stuff` through mature-ale
 brewing.** Brewing oldid `6447660`, The Stuff oldid `6447071`, Honest Jimmy
 oldid `6393015`, rev-742, and Darkan's reconstructed Brewery pin the full-vat

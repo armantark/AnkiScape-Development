@@ -25057,6 +25057,102 @@
     "source_wiki": "rs3",
     "timestamp": "2010-09-24T00:40:21Z"
   },
+  "herbloreitems/crafting_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_flask_%281%29.png",
+    "file_title": "Crafting flask (1).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023902%21Crafting_flask_%281%29.png?87e0f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "102de46a910cc94f638e7e40688f80426da2fa92",
+    "size": 2341,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:24:53Z"
+  },
+  "herbloreitems/crafting_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_flask_%282%29.png",
+    "file_title": "Crafting flask (2).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023903%21Crafting_flask_%282%29.png?115dc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "534f02ffb323f7b73066cdd88763b63ff1dab105",
+    "size": 2477,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:24:54Z"
+  },
+  "herbloreitems/crafting_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_flask_%283%29.png",
+    "file_title": "Crafting flask (3).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023905%21Crafting_flask_%283%29.png?115dc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "306261872299437183dcf4a6f34582baf33a2ec3",
+    "size": 2448,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:24:54Z"
+  },
+  "herbloreitems/crafting_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_flask_%284%29.png",
+    "file_title": "Crafting flask (4).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023907%21Crafting_flask_%284%29.png?115dc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "55fe659b1a9e1d6c2bf32f7d7f7adf8360c1558e",
+    "size": 2380,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:24:54Z"
+  },
+  "herbloreitems/crafting_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_flask_%285%29.png",
+    "file_title": "Crafting flask (5).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023908%21Crafting_flask_%285%29.png?3e102",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "074fd1f46b4b3224a40417e7aaf8ecbe71768aba",
+    "size": 2234,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:24:55Z"
+  },
+  "herbloreitems/crafting_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_flask_%286%29.png",
+    "file_title": "Crafting flask (6).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023910%21Crafting_flask_%286%29.png?3e102",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "27e5d2e1443ee82cc88968ea1e08ed267ea0557f",
+    "size": 1877,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:24:55Z"
+  },
+  "herbloreitems/crafting_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_potion_%281%29.png",
+    "file_title": "Crafting potion (1).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080835%21Crafting_potion_%281%29.png?5026d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c2d3e7514da5488e0da19b64a8475431ac317260",
+    "size": 766,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-25T20:45:48Z"
+  },
+  "herbloreitems/crafting_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_potion_%282%29.png",
+    "file_title": "Crafting potion (2).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080833%21Crafting_potion_%282%29.png?0d12e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "619032794114ac96ff5f07a287abfd4725d3fc10",
+    "size": 800,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-25T20:45:43Z"
+  },
   "herbloreitems/crafting_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Crafting_potion_%283%29.png",
     "file_title": "Crafting potion (3).png",
@@ -25068,6 +25164,18 @@
     "size": 708,
     "source_wiki": "rs3",
     "timestamp": "2010-09-25T20:45:41Z"
+  },
+  "herbloreitems/crafting_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crafting_potion_%284%29.png",
+    "file_title": "Crafting potion (4).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080828%21Crafting_potion_%284%29.png?3b73d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df8095f13d8b416de3bde68e8c87bd1f4f5eee23",
+    "size": 675,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-25T20:45:40Z"
   },
   "herbloreitems/defence_flask_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%281%29.png",
@@ -25357,6 +25465,102 @@
     "source_wiki": "rs3",
     "timestamp": "2010-09-24T01:38:52Z"
   },
+  "herbloreitems/fletching_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_flask_%281%29.png",
+    "file_title": "Fletching flask (1).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034403%21Fletching_flask_%281%29.png?388cc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "025f9a68d127374ae695f9788bdea00331d79c26",
+    "size": 2353,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:29:11Z"
+  },
+  "herbloreitems/fletching_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_flask_%282%29.png",
+    "file_title": "Fletching flask (2).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034405%21Fletching_flask_%282%29.png?388cc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de16a0dd9648b4de0cf93d5000899df44492c2ff",
+    "size": 2408,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:29:11Z"
+  },
+  "herbloreitems/fletching_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_flask_%283%29.png",
+    "file_title": "Fletching flask (3).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034407%21Fletching_flask_%283%29.png?388cc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de52c068e96540826c9da6015ce4c46ef839115e",
+    "size": 2340,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:29:11Z"
+  },
+  "herbloreitems/fletching_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_flask_%284%29.png",
+    "file_title": "Fletching flask (4).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034408%21Fletching_flask_%284%29.png?28ea2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "588b2a6ebde4b1f9e664cb7d1511057965d45dce",
+    "size": 2224,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:29:12Z"
+  },
+  "herbloreitems/fletching_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_flask_%285%29.png",
+    "file_title": "Fletching flask (5).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034410%21Fletching_flask_%285%29.png?88e48",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e1b40d0ab1e14f8bf47bdc7c3fa1f43004533114",
+    "size": 2089,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:29:41Z"
+  },
+  "herbloreitems/fletching_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_flask_%286%29.png",
+    "file_title": "Fletching flask (6).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034412%21Fletching_flask_%286%29.png?85b82",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "026044c53a7044d250fb5935ea8ac8614862cde9",
+    "size": 1645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-07T22:29:42Z"
+  },
+  "herbloreitems/fletching_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_potion_%281%29.png",
+    "file_title": "Fletching potion (1).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080334%21Fletching_potion_%281%29.png?bc8bb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "23d7957f9d9d2f86b64458763d6b2583855dc798",
+    "size": 740,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-24T01:39:17Z"
+  },
+  "herbloreitems/fletching_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_potion_%282%29.png",
+    "file_title": "Fletching potion (2).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080331%21Fletching_potion_%282%29.png?da947",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df598c9b22310db10632da01b95bc41e3297f715",
+    "size": 723,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-24T01:39:14Z"
+  },
   "herbloreitems/fletching_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fletching_potion_%283%29.png",
     "file_title": "Fletching potion (3).png",
@@ -25368,6 +25572,18 @@
     "size": 609,
     "source_wiki": "rs3",
     "timestamp": "2010-09-24T01:39:12Z"
+  },
+  "herbloreitems/fletching_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fletching_potion_%284%29.png",
+    "file_title": "Fletching potion (4).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511080326%21Fletching_potion_%284%29.png?91645",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1ad578138b2bd342ac4091cfeb6e61cb4130ca19",
+    "size": 504,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-24T01:39:10Z"
   },
   "herbloreitems/guam_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Guam_potion_%28unfinished%29.png",

@@ -62,12 +62,26 @@ POTION_FAMILIES: Dict[str, Dict[str, object]] = {
                       "flask_doses": {1: 23253, 2: 23251, 3: 23249, 4: 23247, 5: 23245, 6: 23243}},
     # PotionType.kt: floor(base*0.35)+7 prayer points.
     "Super prayer": {"skills": ("prayer",), "strategy": "s_prayer", "doses": {1: 15331, 2: 15330, 3: 15329, 4: 15328},
-                     "flask_doses": {1: 23481, 2: 23479, 3: 23477, 4: 23475, 5: 23473, 6: 23471}},
+                     "flask_doses": {1: 23530, 2: 23529, 3: 23528, 4: 23527, 5: 23526, 6: 23525}},
     # Darkan Potions.kt: adjustStat(7, 0.25, false, SUMMONING), capped at the
     # base Summoning level. Vial and flask ids are the pre-EOC cache family.
     "Summoning potion": {"skills": ("summoning",), "strategy": "summoning", "doses": {1: 12146, 2: 12144, 3: 12142, 4: 12140},
                          "flask_doses": {1: 23631, 2: 23629, 3: 23627, 4: 23625, 5: 23623, 6: 23621},
                          "special_points": 15},
+    # PotionType.kt uses the exact ``r_skill`` strategy: +3 current levels.
+    # Rev-742 supplies the live dose/flask identities and Drink option.
+    "Crafting potion": {
+        "skills": ("crafting",),
+        "strategy": "flat_skill",
+        "doses": {1: 14844, 2: 14842, 3: 14840, 4: 14838},
+        "flask_doses": {1: 23469, 2: 23467, 3: 23465, 4: 23463, 5: 23461, 6: 23459},
+    },
+    "Fletching potion": {
+        "skills": ("fletching",),
+        "strategy": "flat_skill",
+        "doses": {1: 14852, 2: 14850, 3: 14848, 4: 14846},
+        "flask_doses": {1: 23481, 2: 23479, 3: 23477, 4: 23475, 5: 23473, 6: 23471},
+    },
     # PotionType.kt and Darkan Potions.kt: floor(base/4)+8 restores drained
     # combat stats, Prayer, and Summoning to (but never above) their base pools.
     "Super restore": {
@@ -185,3 +199,20 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
 
 def potion_item_names() -> Tuple[str, ...]:
     return tuple(potion_items_as_dict().keys())
+
+
+def skilling_potion_items_for_skill(skill_id: str) -> Tuple[str, ...]:
+    """Matching dose containers, fullest first, for one noncombat skill."""
+    rows = []
+    for base, spec in POTION_FAMILIES.items():
+        if spec.get("strategy") != "flat_skill" or skill_id not in spec["skills"]:
+            continue
+        rows.extend(
+            (dose, 1, potion_flask_name(base, dose))
+            for dose in spec.get("flask_doses", {})
+        )
+        rows.extend(
+            (dose, 0, potion_dose_name(base, dose))
+            for dose in spec.get("doses", {})
+        )
+    return tuple(name for _dose, _flask, name in sorted(rows, reverse=True))

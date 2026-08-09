@@ -14,6 +14,21 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Crafting and Fletching potions — shared runtime shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for later Herblore recipe/catalog depth.
+
+- Exact +3 current-level vial/flask boosts, the shared review temporary-effect
+  clock, per-target policy, carried-dose replacement, persistence, undo, Bank
+  drinking, and source-period normalized art are live for both skills.
+- Casual reserves one real carried slot only when a dose is needed. Advanced
+  never reaches into the bank and requires the potion in its saved target pack.
+- The implementation corrected a pre-existing Super prayer/Fletching flask-ID
+  collision. Hunter and Agility potion policy remains outside this settled
+  two-skill slice.
+- Durable audit:
+  `memory-bank/source-audits/crafting-fletching-potion-runtime-2026-08-09.md`.
+
 ### Conquest — horizontal mechanics shipped 2026-07-30
 
 Labels: `SOURCE AUDIT` for registered placeholder values and deferred data depth.

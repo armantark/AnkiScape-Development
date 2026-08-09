@@ -169,6 +169,12 @@ from ..data.construction_data import (
     SERVANT_DATA, WORKBENCH_TIERS,
 )
 from ..data.shop_data import SHOP_PLAYER_BUY_PRICES
+from ..data.potion_data import skilling_potion_items_for_skill
+from ..logic.skilling_boost_logic import (
+    skilling_effective_level_pure,
+    skilling_potion_item_pure,
+    skilling_potion_target_enabled_pure,
+)
 from ..data.smithing_data import DEFAULT_SMITHING_TARGET
 from ..data.urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
 from ..data.thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS
@@ -560,6 +566,34 @@ def _processing_presence_requirements_for(handler_key: str, player_data: dict[st
     return {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
 
 
+def _skilling_potion_requirement_for(
+    handler_key: str,
+    player_data: dict[str, Any],
+    target_id: str,
+    carried_inventory: dict[str, Any],
+    *,
+    advanced: bool,
+) -> dict[str, int]:
+    if handler_key not in {"crafting", "fletching"}:
+        return {}
+    table = CRAFTING_DATA if handler_key == "crafting" else FLETCHING_DATA
+    spec = table.get(target_id, {})
+    required_level = int(spec.get("level", 1) or 1)
+    if (
+        skilling_effective_level_pure(player_data, handler_key) >= required_level
+        or not skilling_potion_target_enabled_pure(
+            player_data, handler_key, target_id
+        )
+    ):
+        return {}
+    item_name = skilling_potion_item_pure(carried_inventory, handler_key)
+    if not item_name and not advanced:
+        item_name = skilling_potion_item_pure(
+            player_data.get("inventory", {}) or {}, handler_key
+        )
+    return {item_name: 1} if item_name else {}
+
+
 def _agility_target_can_damage(target_id: str) -> bool:
     target = AGILITY_TARGETS_BY_ID.get(target_id)
     if target is None:
@@ -688,6 +722,7 @@ def _repack_view_for_target(
     requirements: dict[str, int],
     capacity: int,
     casual_layout: dict[str, int] | None = None,
+    casual_requirements: dict[str, int] | None = None,
 ) -> dict[str, int]:
     """The freshly-packed carried view after a completed bank run.
 
@@ -715,13 +750,29 @@ def _repack_view_for_target(
             _OVERLAY_STACKABLE_NAMES,
         )
     if is_processing:
+        extras = inventory_pure.apply_carried_layout_pure(
+            bank,
+            casual_requirements or {},
+            inventory_pure.CARRIED_CAPACITY,
+            _OVERLAY_STACKABLE_NAMES,
+        )
+        recipe_capacity = max(
+            0,
+            inventory_pure.CARRIED_CAPACITY
+            - inventory_pure.carried_slots_used(
+                extras, _OVERLAY_STACKABLE_NAMES
+            ),
+        )
         # Pack against the real 28 slots and let the packer model the bag (which
         # holds its material in one slot). Inflating `capacity` instead would hand
         # the extra room to every material, not just the bagged one.
-        return inventory_pure.pack_processing_inputs_pure(
-            bank, requirements, inventory_pure.CARRIED_CAPACITY,
+        packed = inventory_pure.pack_processing_inputs_pure(
+            bank, requirements, recipe_capacity,
             _OVERLAY_STACKABLE_NAMES, _owned_bag_capacities(bank),
         )
+        for item_name, amount in extras.items():
+            packed[item_name] = packed.get(item_name, 0) + amount
+        return packed
     return {}
 
 
@@ -913,6 +964,17 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         _processing_presence_requirements_for(handler_key, player_data)
         if is_processing else {}
     )
+    consumable_requirements = (
+        _skilling_potion_requirement_for(
+            handler_key,
+            player_data,
+            target_id,
+            view if view else layout if advanced else {},
+            advanced=advanced,
+        )
+        if is_processing
+        else {}
+    )
 
     # First-ever engagement with a processing target seeds the pack for free —
     # you already "have inventory" the moment you arrive, same as gathering
@@ -928,6 +990,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             requirements,
             capacity,
             casual_layout,
+            consumable_requirements,
         )
         _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
         _set_carried_target_map(player_data, "carried_inventory", target_id, view)
@@ -953,6 +1016,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     # them, however, so an emptied presence slot must trigger the normal refill
     # when the bank can restore the saved layout.
     refill_requirements = dict(requirements)
+    for item_name, need in consumable_requirements.items():
+        refill_requirements[item_name] = max(
+            refill_requirements.get(item_name, 0), need
+        )
     if advanced:
         for item_name, need in presence_requirements.items():
             refill_requirements[item_name] = max(refill_requirements.get(item_name, 0), need)
@@ -1010,6 +1077,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                     requirements,
                     capacity,
                     casual_layout,
+                    consumable_requirements,
                 )
                 churn = 0
                 force = False
@@ -1147,7 +1215,14 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         event = {"active": True, "started": True, "completed": True, "reviews_remaining": 0, "waived": True}
         act = True
         new_view = _repack_view_for_target(
-            is_processing, advanced, layout, bank, requirements, capacity, casual_layout
+            is_processing,
+            advanced,
+            layout,
+            bank,
+            requirements,
+            capacity,
+            casual_layout,
+            consumable_requirements,
         )
     else:
         gate_churn = min(int(churn or 0), capacity - 1) if evil_tree_overflow and not active_run else churn
@@ -1184,7 +1259,14 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         restore_cadence_profiles_after_rejection()
         if event.get("completed"):
             new_view = _repack_view_for_target(
-                is_processing, advanced, layout, bank, requirements, capacity, casual_layout
+                is_processing,
+                advanced,
+                layout,
+                bank,
+                requirements,
+                capacity,
+                casual_layout,
+                consumable_requirements,
             )
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
@@ -1227,6 +1309,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         carried_presence_requirements = presence_requirements if advanced else {}
         for item_name, need in carried_presence_requirements.items():
             scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(new_view.get(item_name, 0) or 0))
+        scoped_potion_items = set()
+        if handler_key in {"crafting", "fletching"}:
+            for item_name in skilling_potion_items_for_skill(handler_key):
+                scoped_potion_items.add(item_name)
+                scoped_inventory.pop(item_name, None)
+        for item_name, need in consumable_requirements.items():
+            scoped_inventory[item_name] = min(
+                int(bank.get(item_name, 0) or 0),
+                int(new_view.get(item_name, 0) or 0),
+            )
         scoped_alternatives = set()
         if handler_key == "fletching":
             spec = FLETCHING_DATA.get(target_id, {})
@@ -1270,6 +1362,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         after_scoped = player_data.get("inventory", {}) or {}
         new_view = _carried_target_view(player_data, target_id)
         reconciled = dict(after_scoped)
+        for item_name in scoped_potion_items - consumable_requirements.keys():
+            if item_name in bank:
+                reconciled[item_name] = bank[item_name]
         for option in scoped_alternatives - requirements.keys():
             if option in bank:
                 reconciled[option] = bank[option]
@@ -1291,6 +1386,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             reconciled[item_name] = max(0, true_before - consumed)
             if consumed > 0:
                 new_view[item_name] = max(0, int(new_view.get(item_name, 0) or 0) - consumed)
+        for item_name, _need in consumable_requirements.items():
+            true_before = int(bank.get(item_name, 0) or 0)
+            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
+            after_amount = int(after_scoped.get(item_name, 0) or 0)
+            consumed = max(0, capped_before - after_amount)
+            reconciled[item_name] = max(0, true_before - consumed)
+            if consumed > 0:
+                new_view[item_name] = max(
+                    0, int(new_view.get(item_name, 0) or 0) - consumed
+                )
         new_view = {name: count for name, count in new_view.items() if count > 0}
         player_data["inventory"] = reconciled
         if result is not False:

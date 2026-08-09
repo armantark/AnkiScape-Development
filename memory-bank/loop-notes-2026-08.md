@@ -1,5 +1,40 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 41 — Crafting and Fletching potion runtime
+
+- Source: game-main `PotionType.kt`/`Potion.kt`, rev-742, eight cutoff Exchange
+  revisions, and Wimpy bird oldid `5936660` pin exact `+3`, item identities,
+  dose chains, market rows, and the missing Hunter ingredient route.
+- Result: target-local policies, temporary current levels, the shared review-
+  tick restoration clock, boosted gates, Casual and Advanced carried-pack
+  behavior, direct drinking, dose replacement, persistence, and undo are live
+  through one shared runtime. Schema advances to 113; no wall clock exists.
+- Adjacent repair: the old `catch_wimpy_bird` row's copied Stripy-feather output
+  is now the sourced minimum five Wimpy feathers. Exact item ID `11525` and the
+  existing normalized 2010 sprite complete the fresh-profile Fletching-potion
+  acquisition chain. The Super prayer/Fletching flask-ID collision is also
+  corrected.
+- UI and taste: the policy stays inside each target's existing Details card.
+  Fable directly reproduced and closed an invisible dark-mode indicator. Kimi
+  K3 returned `SHIP` on the corrected bounded transcript after its provider
+  could not read local PNG paths. Advanced targets remain locked until the
+  saved layout permits a matching owned dose.
+- Delegation: read-only Sol-high Workflows run
+  `03fc9963-0e4b-48d3-9060-4ec3c3035031` exceeded its 80,000-byte tool-output
+  budget at 92,129 bytes without a verdict. Root independently found and fixed
+  pre-material dose consumption, Advanced bank reach, the Hunter output/icon
+  omission, and the Advanced target-lock seam.
+- Verification: full plain and real offscreen-Qt discovery each pass 3,939
+  tests, with 483 plain skips and 3 Qt skips. Documentation audits cover 534
+  Markdown and 431 HTML files; test quality has zero hard issues across 3,905
+  tests in 178 files. Reachability is 1,537 actions and 2,333 items, with 168
+  known orphans and 188 known blocked actions. Compilation, tracked JSON, diff,
+  provenance, normalization, and worktree safety pass.
+- Native proof: a fully restarted Anki 25.09.4 process registered one bridge;
+  the real deck button dispatched one call and WindowServer listed exactly one
+  `AnkiScape Menu`. macOS was locked at `loginwindow`, so no native visual
+  Details-card claim is made.
+
 ## Iteration 40 — Trouble Brewing The stuff and mature ale
 
 - Source: Brewing oldid `6447660`, The Stuff oldid `6447071`, Honest Jimmy

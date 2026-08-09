@@ -624,6 +624,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._smith_calls: list = []
         # Same seam for the family-grouped Crafting tree (on_set_craft).
         self._craft_calls: list = []
+        self._skilling_potion_calls: list = []
         # Same seams for Utility/Activities selection and activation.
         self._utility_calls: list = []
         self._activity_start_calls: list = []
@@ -1153,6 +1154,31 @@ class MainMenuWidgetTest(unittest.TestCase):
                 True,
             )[-1],
         )
+        skilling_potion_callback = extra.pop(
+            "on_set_skilling_potion_target", None
+        )
+        if skilling_potion_callback is None:
+            def skilling_potion_callback(skill_id, target_id, enabled):
+                from ankiscape.logic.skilling_boost_logic import (
+                    set_skilling_potion_target_enabled_pure,
+                )
+
+                self._skilling_potion_calls.append(
+                    (skill_id, target_id, bool(enabled))
+                )
+                updated, ok = set_skilling_potion_target_enabled_pure(
+                    player_data, skill_id, target_id, enabled
+                )
+                if ok:
+                    if enabled:
+                        updated[
+                            "current_craft"
+                            if skill_id == "crafting"
+                            else "current_fletch"
+                        ] = target_id
+                    player_data.clear()
+                    player_data.update(updated)
+                return ok
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -1165,6 +1191,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_smith=lambda rid: self._smith_calls.append(rid),
             on_set_craft=lambda rid: self._craft_calls.append(rid),
             on_set_fletch=lambda *a: None,
+            on_set_skilling_potion_target=skilling_potion_callback,
             on_set_firemaking=lambda target: self._firemaking_calls.append(target),
             on_set_fishing=lambda target: self._fishing_calls.append(target),
             on_set_hunter=lambda target: self._hunter_calls.append(target),
@@ -11035,6 +11062,44 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemActivated.emit(locked, 0)
         QApplication.processEvents()
         self.assertEqual(self._craft_calls, before, "locked target must not be selectable")
+
+    def test_crafting_details_can_enable_target_local_potion_use(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Soft clay": 2,
+            "Ring mould": 1,
+            "Crafting potion (3)": 1,
+        }
+        pd["crafting_level"] = 1
+        pd["current_craft"] = "form_pot_unfired"
+        dialog = self._open(pd, current_skill="Crafting")
+        tree = _goto_crafting(dialog)
+        boosted = _craft_row(tree, "form_clay_ring_unfired")
+        self.assertTrue(boosted.isDisabled())
+
+        tree.itemClicked.emit(boosted, 0)
+        details = dialog.findChild(QToolButton, "targetDetailsToggle")
+        self.assertIsNotNone(details)
+        details.click()
+        QApplication.processEvents()
+        toggle = dialog.findChild(
+            QCheckBox,
+            "skillingPotionTargetToggle::crafting::form_clay_ring_unfired",
+        )
+        self.assertIsNotNone(toggle)
+        self.assertEqual(toggle.text(), "Use Crafting potion (+3) when needed")
+        toggle.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._skilling_potion_calls[-1],
+            ("crafting", "form_clay_ring_unfired", True),
+        )
+        self.assertEqual(pd["current_craft"], "form_clay_ring_unfired")
+        rebuilt = _find_craft_tree(dialog)
+        self.assertFalse(
+            _craft_row(rebuilt, "form_clay_ring_unfired").isDisabled()
+        )
 
     def test_smithing_disabled_row_click_does_not_change_target(self) -> None:
         # Same disabled-row click guard on the Smithing tree.

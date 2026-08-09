@@ -6,6 +6,8 @@ from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
 
+from ..logic.skilling_boost_logic import skilling_target_level_available_pure
+
 from .logic_pure_gathering import (  # noqa: F401  (re-export)
     _AGILITY_DOUBLE_CATCH_LEVELS,
     _hunter_outputs_from_spec,
@@ -353,9 +355,10 @@ def crafting_target_locked_reasons_pure(player_data, target, crafting_data, ques
     if not spec:
         return ("unknown target",)
     reasons = []
-    crafting_level = _positive_int(player_data.get("crafting_level", 1), 1)
     required_level = _positive_int(spec.get("level", 1), 1)
-    if crafting_level < required_level:
+    if not skilling_target_level_available_pure(
+        player_data, "crafting", str(target), required_level
+    ):
         reasons.append(f"level {required_level}")
     if not has_crafting_materials_pure(target, player_data.get("inventory", {}) or {}, crafting_data):
         reasons.append("materials")
@@ -420,9 +423,10 @@ def fletching_target_locked_reasons_pure(player_data, target, fletching_data, ta
     if not spec:
         return ("unknown target",)
     reasons = []
-    fletching_level = _positive_int(player_data.get("fletching_level", 1), 1)
     required_level = _positive_int(spec.get("level", 1), 1)
-    if fletching_level < required_level:
+    if not skilling_target_level_available_pure(
+        player_data, "fletching", str(target), required_level
+    ):
         reasons.append(f"Fletching level {required_level}")
     if not has_fletching_materials_pure(target, player_data.get("inventory", {}) or {}, fletching_data):
         reasons.append("materials")

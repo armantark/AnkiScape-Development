@@ -183,6 +183,7 @@ def render(args: argparse.Namespace) -> Path:
                 parent.setExpanded(True)
                 parent = parent.parent()
             tree.setCurrentItem(target_item)
+            tree.itemClicked.emit(target_item, 0)
             tree.scrollToItem(
                 target_item,
                 QAbstractItemView.ScrollHint.PositionAtCenter,
@@ -203,6 +204,7 @@ def render(args: argparse.Namespace) -> Path:
                 if target_row is None:
                     continue
                 item_list.setCurrentRow(target_row)
+                item_list.itemClicked.emit(item_list.item(target_row))
                 item_list.scrollToItem(
                     item_list.item(target_row),
                     QAbstractItemView.ScrollHint.PositionAtCenter,

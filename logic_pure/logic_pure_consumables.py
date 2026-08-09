@@ -3,6 +3,10 @@
 from math import comb, floor, sqrt
 
 from ..data.pack_data import ITEM_PACK_DATA
+from ..logic.skilling_boost_logic import (
+    SKILLING_POTION_BOOST,
+    apply_skilling_stat_boost_pure,
+)
 
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
@@ -418,6 +422,13 @@ def apply_consumable_pure(player_data, item_name, rng=None):
                 _positive_int(spec.get("duration_ticks", 600), 600),
             )
         for skill_id in spec.get("skills", ()):
+            if strategy == "flat_skill":
+                boosted = apply_skilling_stat_boost_pure(
+                    data, str(skill_id), SKILLING_POTION_BOOST
+                )
+                data.update(boosted)
+                boosts[str(skill_id)] = SKILLING_POTION_BOOST
+                continue
             base = _combat_base_skill_level(data, skill_id, 1)
             if skill_id == "prayer":
                 before = _non_negative_int(data.get("combat_prayer_points", base * 10), base * 10)

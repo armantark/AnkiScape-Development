@@ -251,7 +251,7 @@
       "title": "Add Runespan",
       "detail": "Released 2012 pre-EOC; defining late-pre-EOC RC method. Source nodes/points/level bands from wiki.",
       "source": "wiki:Runespan",
-      "status": "design_settled_waiting_source",
+      "status": "merged",
       "note": "Owner grill closed 2026-07-10; implement after the Darkan fidelity revamp and historical method-rate audit establish source-grade session mechanics and effective XP rates.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-runespan-and-training-time-calibration",
       "decision_summary": {
@@ -321,7 +321,7 @@
       "title": "Add Artisan's Workshop + burial armour + ceremonial swords",
       "detail": "Major 2010 Smithing progression surface absent from emulator plugin.",
       "source": "wiki:Artisan's Workshop",
-      "status": "design_settled_waiting_source",
+      "status": "implemented",
       "note": "Aksel-order scheduling settled 2026-07-18: orders surface through the reviewer contextual action row (Accept bronze order / Ignore), no modal and no backlog; ignored offers expire, an explicit prior click becomes the remembered resolution, and accepting replaces the next successful Workshop action with the bronze-sword attempt. Exact pipe timing still waits for stronger evidence or Darkan fidelity work.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#smithing-artisans-workshop-burial-armour-and-ceremonial-swords",
       "decision_summary": {
@@ -1023,11 +1023,11 @@
       "rank": 38,
       "skill": "Cross-skill",
       "root_cause": "stub",
-      "status": "design_settled_waiting_source",
+      "status": "implemented",
       "title": "Define noncombat Crafting and Fletching potion boosts",
       "detail": "game-main live-binds Crafting and Fletching potions as exact +3 current-level boosts across all four dose variants. AnkiScape has no noncombat temporary-level/decay state and its Crafting/Fletching gates read base levels; the only existing decay state is combat-scoped. Owner must define current-level persistence, decay cadence, UI, save/undo behavior, and whether boosted levels unlock review targets without touching Combat implementation. Keep both skills together because they share the same missing runtime contract.",
       "source": "game-main:content/items/potions/PotionType.kt:90-98,282-317; Potion.kt:158-178; Potions.kt:24-68; potionDrinking.plugin.kts:3-8",
-      "note": "design settled 2026-07-10 from the existing target-local Use potions contract; exact review-scale stat-restoration cadence waits for period/source reconciliation",
+      "note": "implemented 2026-08-09: exact +3 current-level boosts, the existing global 50-tick review effect clock, per-target policy, Casual carried-slot reservation, Advanced saved-layout enforcement, vial/flask dose replacement, direct Bank drinking, schema-113 persistence, review/direct undo, normalized pre-EOC art, and focused pure/runtime/Qt coverage; see memory-bank/source-audits/crafting-fletching-potion-runtime-2026-08-09.md",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#cross-skill-crafting-and-fletching-potions",
       "decision_summary": {
         "controls": "Give each Crafting and Fletching target its saved Use potions checkbox; the control authorizes consumption but never creates supplies or bypasses the target's carried layout.",

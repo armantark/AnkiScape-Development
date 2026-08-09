@@ -189,8 +189,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_422)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_738)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_430)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_746)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -212,6 +212,25 @@ class GrandExchangeDataTest(unittest.TestCase):
             PERIOD_GE_PRICE_PROVENANCE["Split log"]["oldid"],
             6_563_176,
         )
+
+    def test_crafting_and_fletching_potion_families_have_period_market_rows(self):
+        expected = {
+            "Crafting potion (1)": (1_125, 5_625_628),
+            "Crafting potion (2)": (1_414, 6_549_672),
+            "Crafting potion (4)": (1_918, 6_519_240),
+            "Crafting flask (6)": (7_208, 6_570_434),
+            "Fletching potion (1)": (39, 6_540_299),
+            "Fletching potion (2)": (43, 5_625_964),
+            "Fletching potion (4)": (42, 6_570_590),
+            "Fletching flask (6)": (3_125, 6_570_588),
+        }
+        for item_name, (price, oldid) in expected.items():
+            with self.subTest(item_name=item_name):
+                self.assertEqual(PERIOD_GE_GUIDE_PRICES[item_name], price)
+                self.assertEqual(PERIOD_GE_BUY_LIMITS[item_name], 1_000)
+                self.assertEqual(
+                    PERIOD_GE_PRICE_PROVENANCE[item_name]["oldid"], oldid
+                )
         self.assertEqual(PERIOD_GE_GUIDE_PRICES["Compost potion (4)"], 12_282)
         self.assertEqual(PERIOD_GE_BUY_LIMITS["Compost potion (4)"], 1_000)
         self.assertEqual(

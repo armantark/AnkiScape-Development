@@ -2,6 +2,8 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..logic.skilling_boost_logic import advance_skilling_temporary_levels_pure
+
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ANTIPOISON_POTION_DATA,
@@ -207,7 +209,7 @@ def advance_temporary_effects_pure(
                 0,
                 _non_negative_int(data.get(effect_key, 0), 0) - ticks,
             )
-    return data
+    return advance_skilling_temporary_levels_pure(data, ticks)
 
 
 def effective_magic_rune_cost_pure(player_data, rune_cost):
