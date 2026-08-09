@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 46 completes Karambwan Cooking.** Poison
+karambwan, thorough Cooked karambwan, and Karambwanji are separate live targets
+with sourced identities, XP, outputs, and Tai Bwo Wannai Trio gates. Poison
+cooking unlocks on quest start; thorough cooking and Karambwanji unlock on
+completion, with Tiadeche's instruction retained in the thorough lock copy. The
+two unrecovered burn rolls are registered placeholders; thorough cooking uses
+its sourced never-burn rule. Three pre-cutoff sprites were added and normalized.
+Both full test lanes pass 3,982 tests. Documentation, test quality, compilation,
+JSON, diff, asset normalization, and worktree audits pass. Reachability records
+1,542 actions, 2,344 reachable items, 166 orphan inputs, and 186 unresolved
+actions. Offscreen Qt is not claimed as native Anki proof. Durable audit:
+`memory-bank/source-audits/karambwan-cooking-runtime-closure-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 45 completes Make wine.** Pinned oldid
 `6151933` supplies the level-35 Grapes plus Jug-of-water recipe, Jug of wine or
 bad-wine result, and 200 XP only on success. Rev-742 pins all five item IDs and
@@ -4589,21 +4602,3 @@ flees silently when the player runs out of food.
   actions. Native Computer Use timed out, so no native interaction is claimed.
 - Evidence:
   `source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md`.
-
-## Karambwan Cooking runtime closure — 2026-08-09
-
-- Added separate Poison karambwan, thorough Cooked karambwan, and Karambwanji
-  targets with sourced item identities, XP, levels, outputs, and quest gates.
-- Poison cooking unlocks on Tai Bwo Wannai Trio start. Thorough cooking and
-  Karambwanji unlock on completion; the thorough target preserves Tiadeche's
-  instruction in its lock copy.
-- The unrecovered Poison karambwan and Karambwanji burn rolls are registered
-  placeholders. Thorough karambwan uses its sourced never-burn rule.
-- Added three pre-cutoff normalized sprites and reused existing Raw karambwan,
-  Raw karambwanji, Cooked karambwan, and Ashes assets.
-- Both full test lanes pass 3,982 tests. Documentation, test quality,
-  compilation, JSON, diff, asset-normalization, and worktree audits pass. The
-  reachability ledger records 1,542 actions, 2,344 reachable items, 166 orphan
-  inputs, and 186 unresolved actions.
-- Evidence:
-  `source-audits/karambwan-cooking-runtime-closure-2026-08-09.md`.

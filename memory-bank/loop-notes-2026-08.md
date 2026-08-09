@@ -998,3 +998,26 @@
   offscreen Qt passes 3,957 with 3 skips in 641.305 seconds. Documentation,
   test-quality, JSON, compilation, diff, reachability-ledger, and worktree
   audits pass. Native Anki visual proof is blocked by the locked Mac.
+
+## Iteration 46 — Karambwan Cooking
+
+- Result: Poison karambwan, thorough Cooked karambwan, and Karambwanji are live
+  as separate grouped Cooking targets. Shared runtime behavior covers materials,
+  XP, failures, telemetry, persistence, and review undo.
+- Source: Poison karambwan oldid `6250179`, Cooked karambwan oldid `6154936`,
+  Karambwanji oldid `5838218`, Cooking oldid `6548144`, Tai Bwo Wannai Trio
+  oldid `6529797`, and rev-667 item definitions pin the period rows and item
+  semantics.
+- Honest limits: the two hidden burn rolls remain registered placeholders.
+  Darkan's internally inconsistent karambwan input/level rows were rejected;
+  only its bounded Karambwanji reconstruction supports that placeholder.
+- Delegation: read-only Sol-high Workflows run
+  `e739d5bf-c053-4142-b732-e2db72351268` exceeded both leaves' declared evidence
+  budgets without returning a usable candidate. Root independently reproduced
+  all evidence and implementation behavior and did not rerun the leaves.
+- Verification: 464 focused plain tests and two focused real offscreen Qt tests
+  pass. Full plain and offscreen Qt discovery each pass 3,982 tests, with 486
+  expected plain skips and three Qt skips. Documentation, test quality,
+  compilation, JSON, diff, asset normalization, and worktree audits pass. The
+  known reachability ledger improves to 1,542 actions, 2,344 reachable items,
+  166 orphan inputs, and 186 unresolved actions.

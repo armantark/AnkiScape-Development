@@ -124,3 +124,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete Cooking gauntlets through Family Crest conversion, remembered
      enchantment and recovery, physical target-local equipment, eight dated
      no-burn thresholds, persistence, undo, UI, assets, and cadence routing.
+   - [x] Complete the three Karambwan Cooking methods with period quest gates,
+     outputs, XP, normalized assets, and registered hidden-roll placeholders.
