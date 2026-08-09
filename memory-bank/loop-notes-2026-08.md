@@ -1,5 +1,32 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 28 — Penguin Hide and Seek spawn catalog
+
+- Evidence: RuneScape Wiki `Penguin Hide and Seek/Spawn locations` oldid
+  `6566231`, timestamp `2012-11-17T15:09:05Z`.
+- Result: all 34 one-point and 33 two-point location/disguise pairs replace the
+  twelve-row breadth sample in source order. The twelve old IDs stay stable;
+  all 67 IDs are unique. A 34-week answered-card proof reaches every ordinary
+  row and every invisible-penguin location.
+- Boundary: location details remain tooltips in the settled flattened mechanic.
+  No travel, map, roaming, trapping, community sighting, or source area gate
+  becomes gameplay. No schema migration, placeholder, UI structure, or owner
+  design decision was added.
+- Verification: 715 focused plain tests and 16 isolated real offscreen-Qt
+  Penguin, undo, integration, UI, and asset paths pass. Full plain discovery
+  passes 3,871 tests with 479 expected skips; full real offscreen-Qt discovery
+  passes 3,871 with 3 intentional skips. Documentation audits 520 Markdown and
+  431 HTML files; test quality reports zero hard issues across 3,837 tests in
+  176 files. Compilation, JSON, diff, asset-normalization, reachability, and
+  worktree audits pass. Reachability remains 1,499 actions, 2,232 reachable
+  items, 169 orphan inputs, and 189 blocked actions.
+- Test-infrastructure note: one synthetic 715-test Qt module order entered an
+  unrelated modal dialog; the 16 isolated relevant paths and canonical
+  3,871-test Qt order pass, so the modal aggregate is retained only as a
+  papercut rather than a product defect.
+- Next: close Managing Miscellania's Harvesting, Fishing, and Farming resource
+  families from its literal cutoff reward table.
+
 ## Iteration 27 — Shooting Stars crash sites
 
 - Evidence: RuneScape Wiki Shooting Star oldid `6556329`, timestamp

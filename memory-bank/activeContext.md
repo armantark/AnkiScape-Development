@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 28 completes Penguin Hide and Seek's cutoff
+spawn catalog.** `Penguin Hide and Seek/Spawn locations` oldid `6566231`
+literally supplies 67 ordinary locations: 34 one-point and 33 two-point
+location/disguise pairs, plus the six already-live polar-bear wells. The twelve
+breadth IDs remain stable, all 67 live pairs match the oldid in source order,
+and an answered-card-week proof reaches every ordinary row plus every invisible
+penguin location. The settled flattened mechanic is unchanged: location detail
+is flavour, not travel, roaming, trapping, community-sighting, or area-gate
+gameplay. No schema migration, UI structure, placeholder, or owner design gap
+was required. Focused plain verification passes 715 tests; 16 isolated real
+offscreen-Qt Penguin, undo, integration, UI, and asset paths pass. Full discovery
+passes 3,871 tests in both lanes: plain records 3,392 ordinary passes and 479
+expected environment skips; real offscreen Qt records 3,868 ordinary passes and
+3 intentional skips. Documentation audits 520 Markdown and 431 HTML files; test
+quality reports zero hard issues across 3,837 tests in 176 files. Compilation,
+JSON, diff, asset-normalization, reachability, and worktree audits pass.
+Reachability remains at 1,499 actions, 2,232 reachable items, 169 orphan inputs,
+and 189 blocked actions. The next source-ready slice is Managing Miscellania's
+missing Harvesting, Fishing, and Farming resource families.
+
 **2026-08-08, grind-loop iteration 27 completes Shooting Stars' cutoff crash-site
 catalog.** RuneScape Wiki Shooting Star oldid `6556329` literally supplies all
 43 named sites across nine telescope regions. The old six-row breadth sample is

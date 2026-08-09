@@ -1,5 +1,31 @@
 # Progress
 
+## Penguin Hide and Seek spawn-catalog closure — 2026-08-08
+
+RuneScape Wiki `Penguin Hide and Seek/Spawn locations` oldid `6566231`,
+timestamp `2012-11-17T15:09:05Z`, enumerates the complete cutoff pool: 34
+one-point and 33 two-point location/disguise pairs, plus six polar-bear wells.
+The live tuples now match all 67 ordinary headings in source order. Every old
+breadth ID remains stable, so active selection and spotted-state history survive
+the data expansion.
+
+The weekly mechanic still rotates five rows from each ordinary tier. A 34-week
+answered-card proof reaches every ordinary spawn and every location used by the
+three-point invisible penguin. Location details remain tooltips under the
+settled locationless translation; no travel, roaming, trapping, community
+sighting, map coordinate, or area-access gate was invented. No migration,
+placeholder, new UI structure, or owner design gap was needed.
+
+Focused plain verification passes 715 tests. Sixteen isolated real offscreen-Qt
+Penguin, undo, integration, UI, and asset paths pass. Full discovery passes
+3,871 tests in both lanes: plain records 3,392 ordinary passes and 479 expected
+environment skips; real offscreen Qt records 3,868 ordinary passes and 3
+intentional skips. Documentation audits 520 Markdown and 431 HTML files; test
+quality reports zero hard issues across 3,837 tests in 176 files. Compilation,
+JSON, diff, asset normalization, reachability, and worktree audits pass.
+Reachability remains at 1,499 actions, 2,232 reachable items, 169 orphan inputs,
+and 189 blocked actions.
+
 ## Shooting Stars crash-site catalog closure — 2026-08-08
 
 RuneScape Wiki Shooting Star oldid `6556329`, timestamp

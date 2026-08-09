@@ -84,3 +84,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
      combat-food behavior, exact item semantics, and normalized sprites.
    - [x] Replace Shooting Stars' six-site breadth sample with all 43 cutoff
      crash sites, preserving live legacy events through exact-name repair.
+   - [x] Replace Penguin Hide and Seek's twelve-row breadth sample with all 34
+     one-point and 33 two-point cutoff location/disguise pairs.

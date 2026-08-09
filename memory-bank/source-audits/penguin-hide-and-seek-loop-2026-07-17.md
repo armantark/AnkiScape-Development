@@ -2,8 +2,8 @@
 
 Date: 2026-07-17
 
-Status: **period structure pinned; owner-settled breadth-one implementation
-complete; exhaustive roster harvest remains open data depth.**
+Status: **period structure and the complete cutoff spawn catalog are pinned;
+owner-settled implementation complete.**
 
 ## Pinned evidence
 
@@ -72,12 +72,9 @@ dropping any mechanic:
 - selection is a saved policy change, while each redemption has its own Anki
   direct-action undo entry.
 
-The compact breadth-one location corpus is deliberately six source-qualified
-rows per ordinary tier, rotated five at a time, plus the six period polar-bear
-wells. This preserves weekly roster generation and every point tier while
-deferring only catalog depth. The activity registry, save migration v56,
-cadence coverage, runtime dispatch, paginated Activities card, dark/light-safe
-period icon, and pure/integration/real-Qt coverage are live.
+The activity registry, save migration v56, cadence coverage, runtime dispatch,
+paginated Activities card, dark/light-safe period icon, and
+pure/integration/real-Qt coverage are live.
 
 Current Darkan reconstruction corroborates the ten-spy count, `Cold War`
 point upgrade, polar-bear completion gate, 50-point cap, all-points redemption,
@@ -106,9 +103,42 @@ Asset provenance:
 
 ## Remaining data depth
 
-- Transcribe the complete cutoff location and disguise pools.
-- Reconcile the remaining cutoff weekly-location dependency pages and historical
-  templates used by the article.
 - Recover a period-lineage server implementation if one survives; current
   Darkan corroboration remains reconstruction evidence and carries the base
   entry-gate conflict recorded above.
+
+## Spawn-catalog depth closure — 2026-08-08
+
+`Penguin Hide and Seek/Spawn locations` oldid `6566231`, timestamp
+`2012-11-17T15:09:05Z`, states that the cutoff pool contains 67 ordinary spawn
+locations and six polar-bear locations. Its literal tables enumerate 34
+one-point location/disguise pairs and 33 two-point pairs. The live tuples now
+match every heading in that oldid, in source order, while retaining the stable
+IDs of all twelve breadth rows so active selections and spotted-state history
+remain valid.
+
+The weekly mechanic is unchanged: five rows rotate from each ordinary tier,
+the Cold War upgrade controls their live point values, and the invisible
+penguin rotates through the complete 34-location one-point pool. A source-
+comparison check matches all 67 live pairs to the oldid and proves all IDs are
+unique; the runtime regression walks 34 answered-card weeks and proves every
+ordinary row and invisible location becomes reachable.
+
+Location detail remains player-facing flavour under the settled flattened
+model. Source area requirements, map coordinates, travel, roaming, trapping,
+and community sightings do not become gameplay gates. No schema migration,
+new UI structure, placeholder, or owner design decision is required.
+
+Source:
+
+- <https://runescape.wiki/w/Penguin_Hide_and_Seek/Spawn_locations?oldid=6566231>
+
+Focused plain verification passes 715 tests. Sixteen isolated real offscreen-Qt
+Penguin, undo, integration, UI, and asset paths pass. Full discovery passes
+3,871 tests in both lanes: plain records 3,392 ordinary passes and 479 expected
+environment skips; real offscreen Qt records 3,868 ordinary passes and 3
+intentional skips. Documentation audits 520 Markdown and 431 HTML files; the
+test-quality audit reports zero hard issues across 3,837 tests in 176 files.
+Compilation, JSON, diff, asset-normalization, reachability, and worktree audits
+pass. Reachability remains at 1,499 actions, 2,232 reachable items, 169 orphan
+inputs, and 189 blocked actions.

@@ -4,6 +4,11 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.core.constants import UTILITY_ACTIVITY_DATA
 from ankiscape.core.constants import EQUIPMENT_DATA
+from ankiscape.data.penguin_hide_and_seek_data import (
+    PENGUIN_ONE_POINT_SPAWNS,
+    PENGUIN_TWO_POINT_SPAWNS,
+    PENGUIN_WEEK_REVIEWS,
+)
 from ankiscape.logic_pure.logic_pure_equipment import equip_item_pure
 from ankiscape.logic.penguin_hide_and_seek_logic import (
     apply_penguin_command_pure,
@@ -53,6 +58,113 @@ def _context(player_data, calls):
 
 
 class PenguinHideAndSeekPureTest(unittest.TestCase):
+    def test_cutoff_spawn_catalog_is_complete_and_every_row_rotates_live(self):
+        self.assertEqual(
+            tuple((row.location, row.disguise) for row in PENGUIN_ONE_POINT_SPAWNS),
+            (
+                ("Al Kharid", "Cactus"),
+                ("Barbarian Outpost", "Bush"),
+                ("Brimhaven", "Bush"),
+                ("Burthorpe", "Rock"),
+                ("Castle Wars", "Bush"),
+                ("Central Karamja", "Bush"),
+                ("Digsite", "Rock"),
+                ("Draynor Manor", "Crate"),
+                ("Dorgesh-Kaan", "Barrel"),
+                ("Eagles' Peak", "Bush"),
+                ("East Karamja", "Bush"),
+                ("Entrana", "Barrel"),
+                ("Feldip Hills", "Rock"),
+                ("Gnome Maze", "Bush"),
+                ("Gnome Stronghold", "Bush"),
+                ("Goblin Village", "Bush"),
+                ("Ice Mountain", "Rock"),
+                ("Lighthouse", "Rock"),
+                ("Lumber Yard", "Crate"),
+                ("Lumbridge Swamp", "Toadstool"),
+                ("Mage Training Arena", "Bush"),
+                ("McGrubor's Wood", "Bush"),
+                ("Mining Camp", "Cactus"),
+                ("Mudskipper Point", "Bush"),
+                ("Musa Point", "Crate"),
+                ("North Ardougne", "Bush"),
+                ("Observatory", "Crate"),
+                ("Pollnivneach", "Cactus"),
+                ("Port Khazard", "Barrel"),
+                ("Rellekka", "Rock"),
+                ("White Wolf Mountain", "Rock"),
+                ("Witchaven", "Rock"),
+                ("Wizards' Tower", "Bush"),
+                ("Zanaris", "Toadstool"),
+            ),
+        )
+        self.assertEqual(
+            tuple((row.location, row.disguise) for row in PENGUIN_TWO_POINT_SPAWNS),
+            (
+                ("Ape Atoll", "Barrel"),
+                ("Ape Atoll", "Bush"),
+                ("Arandar", "Rock"),
+                ("Castle Wars", "Rock"),
+                ("South KBD", "Rock"),
+                ("Dragontooth Isle", "Crate"),
+                ("Elf Camp", "Toadstool"),
+                ("Feldip Hills", "Bush"),
+                ("Haunted Woods", "Bush"),
+                ("Haunted Woods", "Crate"),
+                ("Jatizso", "Bush"),
+                ("Jatizso", "Rock"),
+                ("Jiggig", "Rock"),
+                ("Keldagrim", "Rock"),
+                ("North KBD", "Rock"),
+                ("Lava Maze", "Rock"),
+                ("Lletya", "Toadstool"),
+                ("Lunar Isle", "Rock"),
+                ("Miscellania", "Bush"),
+                ("Mort Myre", "Bush"),
+                ("Mort Myre", "Rock"),
+                ("Mort Myre", "Toadstool"),
+                ("Mos Le'Harmless", "Barrel"),
+                ("Nardah", "Cactus"),
+                ("Neitiznot", "Bush"),
+                ("Neitiznot", "Rock"),
+                ("Piscatoris", "Crate"),
+                ("Port Phasmatys", "Barrel"),
+                ("Scorpion Pit", "Rock"),
+                ("Inner Sophanem", "Cactus"),
+                ("Outer Sophanem", "Cactus"),
+                ("Tyras Camp", "Toadstool"),
+                ("Wilderness Volcano", "Rock"),
+            ),
+        )
+
+        player = _player()
+        player["quests"] = {
+            "cold_war": {"completed": True},
+            "some_like_it_cold": {"completed": True},
+            "desert_treasure": {"started": True},
+        }
+        player["inventory"]["Ring of visibility"] = 1
+        player["carried_inventory"] = {
+            "penguin_hide_and_seek": {"Ring of visibility": 1}
+        }
+        seen_ordinary = set()
+        seen_invisible_locations = set()
+        for week in range(len(PENGUIN_ONE_POINT_SPAWNS)):
+            player["shop_market_clock"]["answered_cards"] = week * PENGUIN_WEEK_REVIEWS
+            roster = penguin_roster_pure(player)
+            seen_ordinary.update(row["id"] for row in roster if row["kind"] == "ordinary")
+            seen_invisible_locations.update(
+                row["location"] for row in roster if row["kind"] == "invisible"
+            )
+        self.assertEqual(
+            seen_ordinary,
+            {row.id for row in (*PENGUIN_ONE_POINT_SPAWNS, *PENGUIN_TWO_POINT_SPAWNS)},
+        )
+        self.assertEqual(
+            seen_invisible_locations,
+            {row.location for row in PENGUIN_ONE_POINT_SPAWNS},
+        )
+
     def test_weekly_roster_has_five_of_each_tier_and_rotates_without_wall_clock(self):
         player = _player()
         first = penguin_roster_pure(player)

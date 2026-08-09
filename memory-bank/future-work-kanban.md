@@ -1285,8 +1285,8 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   roster. It ships the base ten-spy loop, all three quest-shaped upgrades,
   direct roster selection, one-review spying, 50-point cap, exact coin/XP
   redemptions, persistence, both undo boundaries, cadence, normalized period
-  art, and a compact paginated card. The complete cutoff location/disguise pool
-  remains data-depth work. See
+  art, a compact paginated card, and the complete 34 one-point plus 33 two-point
+  cutoff location/disguise pools. See
   `memory-bank/source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
 - Vinesweeper is mechanic-complete as an Activities-only Farming minigame. Its
   Spade/familiar entry, flag and Ogleroot economy, bounded one-roll review
