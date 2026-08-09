@@ -5597,3 +5597,13 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   in Arc and includes a saved checklist plus a copyable defect report.
   Postplan hosting remains blocked because the local client has no valid API
   key and rejects inline JavaScript without authentication.
+## Brawling-gloves source closure — 2026-08-09
+
+- Closed the period identity and multiplier table for six skilling gloves.
+- Closed five use limits from cutoff skill pages.
+- Rejected both emulator charge tables as period truth because they conflict
+  with the cutoff pages.
+- Kept Mining's action count, glove drop rates, and acquisition route honest.
+  The source audit records these blocks without adding inert product rows.
+- Both full lanes pass 3,939 tests. Plain has 483 expected skips, and real
+  offscreen Qt has three intentional skips.

@@ -4481,3 +4481,19 @@ flees silently when the player runs out of food.
   the artifact checker and opened in Arc. Postplan hosting is blocked by
   `Inline JavaScript requires an authenticated upload.` because the local
   client has no valid API key.
+## Brawling-gloves source closure — 2026-08-09
+
+- Cutoff pages and rev-727/742 now pin the six skilling-glove identities.
+- All six give 1.5 times XP outside the Wilderness. Woodcutting, Mining,
+  Smithing, and Cooking give 4 times XP in the Wilderness. Fishing and
+  Firemaking give 5 times XP.
+- Period action limits are 732 Woodcutting logs, 1,200 Firemaking logs, about
+  434 Smithing actions, about 400 Fishing catches, and 1,109 successful cooks.
+- Mining remains source-blocked as an action count. The period page gives a
+  30-minute use window and an estimate of 350 to 800 ores. Gameplay must not
+  use wall-clock time.
+- Implementation remains dependency-blocked. The gloves are period drops from
+  Revenants and the Chaos Elemental, but neither encounter exists in AnkiScape
+  and no period source gives the drop rate.
+- Evidence:
+  `source-audits/skilling-brawling-gloves-source-closure-2026-08-09.md`.

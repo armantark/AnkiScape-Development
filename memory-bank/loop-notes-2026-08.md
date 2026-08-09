@@ -945,3 +945,26 @@
   offscreen equipment-stat UI tests pass. Full discovery passes 3,799 tests in
   both lanes, with 460 expected plain skips and 3 Qt skips. Documentation,
   test-quality, shell-syntax, diff, and worktree audits also pass.
+## Iteration 42 — skilling brawling-gloves source closure
+
+- Period closure: rev-727/742 pin all six exact item identities. Cutoff pages
+  pin 1.5 times XP outside, 4 times Wilderness XP for Woodcutting, Mining,
+  Smithing, and Cooking, and 5 times for Fishing and Firemaking.
+- Charge closure: period pages give 732 Woodcutting logs, 1,200 Firemaking
+  logs, about 434 Smithing actions, about 400 Fishing catches, and 1,109
+  successful cooks.
+- Honest block: Mining has only a 30-minute period row and an estimate of 350
+  to 800 ores. AnkiScape must use a registered review-action abstraction, not
+  wall-clock time.
+- Dependency: Revenants and the Chaos Elemental are the period acquisition
+  routes, but neither encounter exists in AnkiScape. Exact drop rates remain
+  source-blocked. No inert items or speculative combat rows were added.
+- Reconstruction conflicts: game-main and Darkan disagree with each other and
+  with the cutoff pages. Neither charge table is promoted as period truth.
+- Delegation: GPT-family Workflows run
+  `d66c60fd-e7de-4966-a12c-56e969689fad` exceeded both evidence budgets after
+  three calls. Root reproduced every accepted claim from exact oldids, cache
+  queries, and named implementation lines.
+- Verification: both full lanes pass 3,939 tests. Plain has 483 expected skips;
+  real offscreen Qt has three intentional skips. Documentation, JSON, diff,
+  test-quality, and worktree audits also pass.

@@ -117,3 +117,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete `The stuff` through the owning mature-ale brewing action.
    - [x] Close the shared Crafting/Fletching temporary-level potion substrate
      before adding further boost-dependent consumable catalog rows.
+   - [x] Harvest the shared six-skill brawling-gloves constants. The period
+     multipliers, identities, and five action limits are closed. Mining's
+     review-action count and the unobtainable Revenant/Chaos Elemental drop
+     route remain explicit implementation dependencies.
