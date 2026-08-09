@@ -1,5 +1,31 @@
 # Progress
 
+## Trouble Brewing rum teleports — 2026-08-09
+
+Honest Jimmy oldid `6393015` and rum oldid `6088748` pin red and blue rum at
+`2` Pieces of Eight, the `Drink` action, one-use consumption, and the shared
+Trouble Brewing destination. OpenRS2 rev-742 supplies exact IDs `8940` and
+`8941`, non-stackability, non-exchangeability, and their recolour distinction.
+
+Both rewards are live in the existing atomic shop and direct-undo paths.
+Drinking consumes exactly one, records the source destination, and refuses
+without mutation when missing, unknown, or inside the activity's closed
+temporary inventory. The 29-row selector and Bank action show normalized
+cutoff art and explicit destination/consumption guidance. Kimi K3 and Fable
+taste review produced the accepted 24-pixel bottle box, visible Bank-menu
+tooltips, pre-click mid-match disabled state, and unambiguous live scoreboard.
+Neither review claims native Anki appearance.
+
+Focused non-Qt checks pass 210 tests and focused real offscreen Qt passes four.
+Full plain and real offscreen-Qt discovery each pass 3,919 tests, with 481
+expected plain skips and three intentional Qt skips. Documentation audits pass
+across 531 Markdown and 431 HTML files; test quality has zero hard issues across
+3,885 tests in 177 files. Reachability is 1,511 actions, 2,315 items, 168 known
+orphans, and 188 known blocked actions. Compilation, tracked JSON, diff,
+deterministic asset fetching, normalization, and worktree safety pass. The
+5,000-Piece medium-clue service and `The stuff` remain separate depth slices.
+See `memory-bank/source-audits/trouble-brewing-rum-teleports-2026-08-09.md`.
+
 ## Trouble Brewing cosmetic reward catalog — 2026-08-09
 
 Cutoff Honest Jimmy oldid `6393015`, timestamp `2012-10-13T04:08:35Z`, pins

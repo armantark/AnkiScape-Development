@@ -72,10 +72,11 @@ class TroubleBrewingReward:
     display_name: str
     pieces_of_eight: int
     source_item_id: int
-    slot: str
+    slot: str | None = None
     two_handed: bool = False
     weapon_type: int = -1
     attack_speed: int = 4
+    teleport_destination: str = ""
 
 
 TROUBLE_BREWING_NAVAL_COLOURS = (
@@ -165,9 +166,28 @@ TROUBLE_BREWING_REWARDS = tuple(
         two_handed=True,
         weapon_type=14,
     ),
+    TroubleBrewingReward(
+        "red_rum",
+        "Red rum",
+        2,
+        8940,
+        teleport_destination="Trouble Brewing",
+    ),
+    TroubleBrewingReward(
+        "blue_rum",
+        "Blue rum",
+        2,
+        8941,
+        teleport_destination="Trouble Brewing",
+    ),
 )
 TROUBLE_BREWING_REWARDS_BY_ID = {
     reward.reward_id: reward for reward in TROUBLE_BREWING_REWARDS
+}
+TROUBLE_BREWING_RUMS_BY_ITEM = {
+    reward.display_name: reward
+    for reward in TROUBLE_BREWING_REWARDS
+    if reward.teleport_destination
 }
 
 
@@ -191,7 +211,7 @@ def trouble_brewing_activity_as_dict() -> dict[str, dict[str, Any]]:
 def trouble_brewing_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
         reward.display_name: {
-            "category": "equipment",
+            "category": "equipment" if reward.slot else "food",
             "source_item_id": reward.source_item_id,
             "stackable": False,
             "tradeable": False,
@@ -222,4 +242,5 @@ def trouble_brewing_equipment_data_as_dict() -> dict[str, EquipmentItem]:
             weapon_type=reward.weapon_type,
         )
         for reward in TROUBLE_BREWING_REWARDS
+        if reward.slot
     }

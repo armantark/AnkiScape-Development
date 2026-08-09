@@ -319,6 +319,7 @@ from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_ACTIVITY_ID,
     TROUBLE_BREWING_DUTIES,
     TROUBLE_BREWING_EVENT_REVIEWS,
+    TROUBLE_BREWING_RUMS_BY_ITEM,
 )
 from ..logic.trouble_brewing_logic import trouble_brewing_view_pure
 
@@ -4675,6 +4676,7 @@ def show_main_menu(
     on_unequip_slot=None,
     on_discard_item=None,
     on_consume_item=None,
+    on_drink_trouble_brewing_rum=None,
     on_use_great_orb_project_teleport_tablet=None,
     on_open_item_pack=None,
     on_convert_rogue_kit=None,
@@ -14822,6 +14824,7 @@ def show_main_menu(
         trouble_wallet.setStyleSheet("color: palette(text); font-weight: 600;")
         trouble_reward = QComboBox()
         trouble_reward.setObjectName("troubleBrewingRewardCombo")
+        trouble_reward.setIconSize(QSize(24, 24))
         trouble_reward.setAccessibleName("Trouble Brewing reward")
         trouble_buy = QPushButton("Buy")
         trouble_buy.setObjectName("troubleBrewingBuyButton")
@@ -14885,7 +14888,7 @@ def show_main_menu(
                     else "Automatic bottleneck duty"
                 )
                 trouble_summary.setText(
-                    f"Blue rum {packed} · Red rum {opposing} · Contribution "
+                    f"Packed {packed} · Opponent {opposing} · Contribution "
                     f"{int(session['contribution'])}\nNext: {duty_label}"
                 )
                 trouble_progress.setValue(int(session["review"]))
@@ -14940,6 +14943,13 @@ def show_main_menu(
                     )
                 else:
                     trouble_reward.addItem(label, reward["reward_id"])
+                destination = str(reward.get("teleport_destination", ""))
+                if destination:
+                    trouble_reward.setItemData(
+                        trouble_reward.count() - 1,
+                        f"One-use teleport to {destination}.",
+                        Qt.ItemDataRole.ToolTipRole,
+                    )
             reward_index = trouble_reward.findData(selected_reward)
             trouble_reward.setCurrentIndex(reward_index if reward_index >= 0 else 0)
             trouble_reward.blockSignals(False)
@@ -25764,6 +25774,7 @@ def show_main_menu(
         tests can assert action state without spawning a native popup.
         """
         menu = QMenu(bank_frame)
+        menu.setToolTipsVisible(True)
         trail_view = treasure_trails_view_pure(player_data)
         clue_row = next(
             (row for row in trail_view["clue_rows"] if row["item"] == item_name),
@@ -25855,6 +25866,32 @@ def show_main_menu(
                         QMessageBox.information(bank_frame, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
+            menu.addSeparator()
+
+        trouble_rum = TROUBLE_BREWING_RUMS_BY_ITEM.get(item_name)
+        if trouble_rum is not None:
+            rum_action = menu.addAction(f"Drink {item_name}")
+            rum_action.setObjectName("drinkTroubleBrewingRumAction")
+            rum_blocked = bool(trouble_brewing_view_pure(player_data)["active"])
+            rum_action.setEnabled(
+                amount > 0
+                and not rum_blocked
+                and on_drink_trouble_brewing_rum is not None
+            )
+            rum_action.setToolTip(
+                "Finish or leave the current Trouble Brewing game first."
+                if rum_blocked
+                else f"Teleport to {trouble_rum.teleport_destination}. Consumes one bottle."
+            )
+
+            def _do_rum(_checked: bool = False) -> None:
+                if on_drink_trouble_brewing_rum is None:
+                    return
+                result = on_drink_trouble_brewing_rum(item_name)
+                if result:
+                    _refresh_equipment_views(refresh_visible_skill=True)
+
+            rum_action.triggered.connect(_do_rum)
             menu.addSeparator()
 
         teleport_tablet = GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM.get(

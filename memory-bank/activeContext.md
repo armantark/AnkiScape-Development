@@ -2,6 +2,29 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 38 completes Trouble Brewing's two rum
+teleport rewards.** Honest Jimmy oldid `6393015` and rum oldid `6088748` pin
+the red and blue one-use drinks at `2` Pieces of Eight and their shared Trouble
+Brewing destination; rev-742 pins item IDs `8940` and `8941`, non-stackability,
+non-exchangeability, and the `Drink` action. Both rows now use the existing
+atomic purchase and direct-undo paths, and drinking consumes exactly one while
+recording the source destination. Bank use is disabled during the settled
+closed-inventory match. Normalized cutoff sprites appear in the 29-row reward
+selector and the Bank menu exposes explicit destination/consumption tooltips.
+Kimi K3 and Fable independently reviewed the new surfaces; accepted findings
+made the bottle icon box `24 × 24`, enabled menu tooltips, clarified the live
+scoreboard, and exposed the mid-match block before click. Full plain and real
+offscreen-Qt discovery each pass 3,919 tests, with 481 plain skips and 3 Qt
+skips. Documentation audits pass across 531 Markdown and 431 HTML files; test
+quality has zero hard issues across 3,885 tests in 177 files. Reachability is
+1,511 actions, 2,315 items, 168 known orphans, and 188 known blocked actions.
+Focused non-Qt checks pass 210 tests and focused real Qt passes four. Compilation,
+tracked JSON, diff, deterministic asset fetching, normalization, and worktree
+safety pass. The 5,000-Piece medium-clue service and `The stuff` remain separate
+depth slices. No schema, wall clock, placeholder, or design fork was added.
+Durable audit:
+`memory-bank/source-audits/trouble-brewing-rum-teleports-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 37 completes Trouble Brewing's 27-row
 cosmetic and flag reward catalog.** Corrected cutoff oldids `6579342` and
 `6393015` supersede stale migrated IDs that now resolve elsewhere. Honest Jimmy

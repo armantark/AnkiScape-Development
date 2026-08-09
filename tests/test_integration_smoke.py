@@ -7017,6 +7017,28 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, before_purchase)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+        addon.player_data["trouble_brewing_pieces_of_eight"] = 2
+        before_rum = copy.deepcopy(addon.player_data)
+        result = captured["on_trouble_brewing_command"](
+            "buy_reward", {"reward_id": "red_rum"}
+        )
+        self.assertTrue(result["ok"])
+        purchased_rum = copy.deepcopy(addon.player_data)
+        result = captured["on_drink_trouble_brewing_rum"]("Red rum")
+        self.assertTrue(result["ok"])
+        self.assertNotIn("Red rum", addon.player_data["inventory"])
+        self.assertEqual(result["destination"], "Trouble Brewing")
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, purchased_rum)
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, before_rum)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_castle_wars_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_castle_wars_integration")
         logic = sys.modules[f"{addon.__name__}.logic.castle_wars_logic"]

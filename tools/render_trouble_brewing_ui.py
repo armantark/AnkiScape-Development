@@ -11,9 +11,14 @@ from pathlib import Path
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from aqt.qt import QApplication  # type: ignore
+from aqt.qt import QApplication, QComboBox  # type: ignore
 
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
+from tests.test_main_menu_widget import (
+    MainMenuWidgetTest,
+    _make_player_data,
+    _open_reward_target,
+    _utility_row,
+)
 from tools.render_fishing_trawler_ui import _dark_palette
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.trouble_brewing_logic import (
@@ -77,6 +82,17 @@ def render(output_dir: Path, *, width: int = 1200, height: int = 760) -> tuple[P
         raise RuntimeError(f"Could not save {ready_path}")
     ready_card.close()
 
+    reward_card = _show_card(case, _player(), width, height)
+    reward_page = _open_reward_target(reward_card, "trouble_brewing")
+    reward_combo = reward_page.findChild(QComboBox, "troubleBrewingRewardCombo")
+    reward_combo.setCurrentIndex(reward_combo.findData("red_rum"))
+    for _ in range(8):
+        app.processEvents()
+    reward_path = output_dir / "trouble-brewing-rewards.png"
+    if not reward_card.grab().save(str(reward_path)):
+        raise RuntimeError(f"Could not save {reward_path}")
+    reward_card.close()
+
     active = _player()
     active, ok, info = apply_trouble_brewing_command_pure(
         active,
@@ -100,7 +116,7 @@ def render(output_dir: Path, *, width: int = 1200, height: int = 760) -> tuple[P
     active_card.close()
 
     case.tearDown()
-    return ready_path, active_path
+    return ready_path, reward_path, active_path
 
 
 def main() -> int:

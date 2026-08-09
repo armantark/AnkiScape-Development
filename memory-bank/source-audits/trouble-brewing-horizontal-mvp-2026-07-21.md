@@ -79,9 +79,10 @@ pack. Leaving clears the temporary race and forfeits its result.
 
 The breadth reward catalog contains Blue tricorn hat only. It proves the exact
 currency, direct purchase, bank, item-registry, asset, and equipment seams with
-an authentic zero-stat wearable. The remaining colours, outfit pieces,
-flags, rum teleport, medium clue purchase, and The stuff's mature-ale effect are
-catalog or cross-feature depth, not omitted Trouble Brewing state transitions.
+an authentic zero-stat wearable. The previously deferred colours, outfit
+pieces, flags, and both rum teleports are now complete under their superseding
+2026-08-09 audits. The medium clue purchase and The stuff's mature-ale effect
+remain cross-feature depth, not omitted Trouble Brewing state transitions.
 
 ## Live implementation
 

@@ -146,7 +146,10 @@ from .logic.great_orb_project_logic import (
 )
 from .logic.court_cases_logic import apply_court_cases_command_pure
 from .logic.circus_logic import apply_circus_command_pure
-from .logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
+from .logic.trouble_brewing_logic import (
+    apply_trouble_brewing_command_pure,
+    drink_trouble_brewing_rum_pure,
+)
 from .logic.castle_wars_logic import apply_castle_wars_command_pure
 from .logic.pest_control_logic import apply_pest_control_command_pure
 from .logic.conquest_logic import apply_conquest_command_pure
@@ -4284,6 +4287,7 @@ def _on_main_menu(
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
+        on_drink_trouble_brewing_rum=on_drink_trouble_brewing_rum,
         on_use_great_orb_project_teleport_tablet=(
             on_use_great_orb_project_teleport_tablet
         ),
@@ -4867,6 +4871,27 @@ def on_use_great_orb_project_teleport_tablet(item_name):
         show_error_message(
             "Cannot use teleport tablet",
             str(info.get("reason", "That teleport tablet is unavailable.")),
+        )
+        return None
+    message = str(info.get("message", ""))
+    if message:
+        _show_activity_gain(message)
+    return {"ok": True, **info}
+
+
+def on_drink_trouble_brewing_rum(item_name):
+    """Drink one Trouble Brewing rum through the shared direct-action seam."""
+    info = {}
+
+    def _change(data):
+        updated, ok, result = drink_trouble_brewing_rum_pure(data, item_name)
+        info.update(result)
+        return updated, ok
+
+    if not commit_direct_action(_change):
+        show_error_message(
+            "Cannot drink rum",
+            str(info.get("reason", "That Trouble Brewing rum is unavailable.")),
         )
         return None
     message = str(info.get("message", ""))

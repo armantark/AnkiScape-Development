@@ -22,6 +22,10 @@ import pkg_alias  # noqa: E402,F401  (installs the ankiscape package alias)
 from ankiscape.data.trouble_brewing_data import TROUBLE_BREWING_REWARDS  # noqa: E402
 
 PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
+_WIKI_FILE_TITLES = {
+    "Red rum": "Rum (red).png",
+    "Blue rum": "Rum (blue).png",
+}
 
 
 def _asset_filename(item_name: str) -> str:
@@ -48,7 +52,9 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int | None], ...]:
         (
             AssetRequest(
                 item_name=reward.display_name,
-                wiki_title=f"{reward.display_name}.png",
+                wiki_title=_WIKI_FILE_TITLES.get(
+                    reward.display_name, f"{reward.display_name}.png"
+                ),
                 output_path=(
                     ROOT / "activityitems" / _asset_filename(reward.display_name)
                 ),

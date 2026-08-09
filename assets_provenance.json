@@ -4273,6 +4273,18 @@
     "source_wiki": "rs3",
     "timestamp": "2008-09-15T15:03:01Z"
   },
+  "activityitems/trouble_brewing_blue_rum.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rum_%28blue%29.png",
+    "file_title": "Rum (blue).png",
+    "image_url": "https://runescape.wiki/images/archive/20140512121728%21Rum_%28blue%29.png?0e7e2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5adfc25862fbd739dd76a619fb9c3e1ce84c6f38",
+    "size": 457,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T22:16:06Z"
+  },
   "activityitems/trouble_brewing_bronze_fist_flag.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_fist_flag.png",
     "file_title": "Bronze fist flag.png",
@@ -4500,6 +4512,18 @@
     "size": 510,
     "source_wiki": "rs3",
     "timestamp": "2008-09-15T15:02:57Z"
+  },
+  "activityitems/trouble_brewing_red_rum.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rum_%28red%29.png",
+    "file_title": "Rum (red).png",
+    "image_url": "https://runescape.wiki/images/archive/20140512121731%21Rum_%28red%29.png?89b2b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "50bd0ea80e2d434f6054f58fd3754f0996116246",
+    "size": 435,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T22:16:17Z"
   },
   "activityitems/trouble_brewing_red_tricorn_hat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Red_tricorn_hat.png",

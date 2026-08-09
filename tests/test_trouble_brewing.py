@@ -13,6 +13,7 @@ from ankiscape.logic.trouble_brewing_logic import (
     apply_trouble_brewing_command_pure,
     apply_trouble_brewing_review_pure,
     buy_trouble_brewing_reward_pure,
+    drink_trouble_brewing_rum_pure,
     enter_trouble_brewing_pure,
     leave_trouble_brewing_pure,
     sanitize_trouble_brewing_state_pure,
@@ -68,6 +69,8 @@ class TroubleBrewingEntryTests(unittest.TestCase):
             ("Lucky shot flag", 400, 8969),
             ("Treasure flag", 500, 8970),
             ("Phasmatys flag", 600, 8971),
+            ("Red rum", 2, 8940),
+            ("Blue rum", 2, 8941),
         )
         self.assertEqual(
             tuple(
@@ -81,7 +84,7 @@ class TroubleBrewingEntryTests(unittest.TestCase):
             expected,
         )
         equipment = trouble_brewing_equipment_data_as_dict()
-        self.assertEqual(len(equipment), len(expected))
+        self.assertEqual(len(equipment), len(expected) - 2)
         for item in equipment.values():
             self.assertTrue(
                 all(value == 0 for value in asdict(item.bonuses).values()),
@@ -350,6 +353,36 @@ class TroubleBrewingRewardTests(unittest.TestCase):
         self.assertEqual(bought["trouble_brewing_pieces_of_eight"], 0)
         self.assertEqual(bought["inventory"]["Phasmatys flag"], 1)
         self.assertNotIn("Phasmatys flag", player["inventory"])
+
+    def test_each_coloured_rum_is_bought_drunk_consumed_and_teleports(self):
+        for reward_id, item_name in (("red_rum", "Red rum"), ("blue_rum", "Blue rum")):
+            with self.subTest(item=item_name):
+                bought, ok, info = buy_trouble_brewing_reward_pure(
+                    _player(trouble_brewing_pieces_of_eight=2), reward_id
+                )
+                self.assertTrue(ok, info)
+                self.assertEqual(bought["inventory"][item_name], 1)
+                teleported, ok, info = drink_trouble_brewing_rum_pure(
+                    bought, item_name
+                )
+                self.assertTrue(ok, info)
+                self.assertNotIn(item_name, teleported["inventory"])
+                self.assertEqual(info["destination"], "Trouble Brewing")
+                self.assertIn("teleported to Trouble Brewing", info["message"])
+
+    def test_rum_refuses_unknown_missing_and_mid_match_uses_without_mutation(self):
+        for player, item_name, reason in (
+            (_player(), "Karamja rum", "not Trouble Brewing"),
+            (_player(), "Red rum", "No Red rum"),
+            (_entered(inventory={"Blue rum": 1}), "Blue rum", "current game"),
+        ):
+            with self.subTest(reason=reason):
+                unchanged, ok, info = drink_trouble_brewing_rum_pure(
+                    player, item_name
+                )
+                self.assertFalse(ok)
+                self.assertIn(reason, info["reason"])
+                self.assertEqual(unchanged, player)
 
     def test_command_router_blocks_shopping_during_a_live_game(self):
         player = _entered(trouble_brewing_pieces_of_eight=50)

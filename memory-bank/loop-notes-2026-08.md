@@ -1,5 +1,35 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 38 — Trouble Brewing rum teleports
+
+- Source: Honest Jimmy oldid `6393015` and rum oldid `6088748` pin both
+  two-Piece, one-use, same-destination rums. Rev-742 pins IDs `8940` / `8941`,
+  non-stackability, non-exchangeability, `Drink`, and the recolour distinction.
+- Result: both rums are canonical purchases. Bank drinking consumes one through
+  direct undo, records arrival at Trouble Brewing, preserves state on refusal,
+  and is disabled while the activity's temporary inventory is live. The source
+  sprites are normalized and visible in the 29-row shop selector.
+- Taste: Kimi K3 and Fable independently reviewed the added surfaces. Accepted
+  findings enlarge the narrow bottle icon box to `24 × 24`, enable QMenu
+  tooltips, state consumption explicitly, block mid-match use before click, and
+  replace ambiguous scoreboard labels. Neither review claims native Anki
+  appearance.
+- Boundaries: exact map tile, animation, dialogue, and server handler remain
+  source-omitted and unnecessary in the locationless direct-action model. The
+  medium clue service and `The stuff` remain separate slices. No schema, wall
+  clock, placeholder, or owner decision was added.
+- Delegation: read-only Sol-high Workflows run
+  `ce441532-78d4-4051-89f6-512a922793cb` exhausted its bounded output allowance
+  at `169,954/120,000` bytes before findings. Root independently reproduced the
+  source and cache rows. This slice is GPT-family verified by execution.
+- Verification: 210 focused non-Qt checks and four focused real Qt checks pass.
+  Full plain and real offscreen-Qt discovery each pass 3,919 tests, with 481
+  plain skips and 3 Qt skips. Documentation audits pass across 531 Markdown and
+  431 HTML files; test quality has zero hard issues across 3,885 tests in 177
+  files. Reachability is 1,511 actions and 2,315 items; the known
+  168-orphan/188-blocked ledger is unchanged. Compilation, tracked JSON, diff,
+  deterministic asset fetching, normalization, and worktree safety pass.
+
 ## Iteration 37 — Trouble Brewing cosmetic reward catalog
 
 - Source: corrected cutoff oldids `6579342` / `6393015` pin the complete

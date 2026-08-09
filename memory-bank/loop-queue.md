@@ -110,7 +110,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete Trouble Brewing's 27-row naval-cosmetic and flag catalog with
      exact prices, equipment definitions, atomic purchase/undo, source art,
      selector icons, and selection-state refresh.
-   - [ ] Complete Trouble Brewing's two rum teleport rewards through the
+   - [x] Complete Trouble Brewing's two rum teleport rewards through the
      established direct-action route/undo seam.
    - [ ] Complete Honest Jimmy's 5,000-Piece medium-clue service through the
      settled Treasure Trails one-clue-total rule.

@@ -23,6 +23,7 @@ from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_PLAYER_SABOTAGE_REVIEWS,
     TROUBLE_BREWING_RECIPE,
     TROUBLE_BREWING_REWARDS_BY_ID,
+    TROUBLE_BREWING_RUMS_BY_ITEM,
 )
 
 
@@ -484,6 +485,36 @@ def buy_trouble_brewing_reward_pure(
     return data, True, {"message": data["trouble_brewing_last_result"]}
 
 
+def drink_trouble_brewing_rum_pure(
+    player_data: Mapping[str, Any], item_name: str
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    """Consume one coloured rum and apply its period teleport effect."""
+    data = dict(player_data)
+    reward = TROUBLE_BREWING_RUMS_BY_ITEM.get(str(item_name))
+    if reward is None:
+        return data, False, {"reason": "That is not Trouble Brewing rum."}
+    if sanitize_trouble_brewing_state_pure(data)["trouble_brewing"]:
+        return data, False, {"reason": "Finish or leave the current game first."}
+    inventory = dict(data.get("inventory") or {})
+    available = _int(inventory.get(reward.display_name))
+    if available <= 0:
+        return data, False, {"reason": f"No {reward.display_name} remains in the Bank."}
+    if available > 1:
+        inventory[reward.display_name] = available - 1
+    else:
+        inventory.pop(reward.display_name, None)
+    data["inventory"] = inventory
+    destination = reward.teleport_destination
+    data["trouble_brewing_last_result"] = (
+        f"Drank {reward.display_name}; teleported to {destination}."
+    )
+    return data, True, {
+        "message": data["trouble_brewing_last_result"],
+        "item": reward.display_name,
+        "destination": destination,
+    }
+
+
 def apply_trouble_brewing_command_pure(
     player_data: Mapping[str, Any],
     action_id: str,
@@ -530,6 +561,7 @@ def trouble_brewing_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "reward_id": reward.reward_id,
                 "display_name": reward.display_name,
                 "pieces_of_eight": reward.pieces_of_eight,
+                "teleport_destination": reward.teleport_destination,
             }
             for reward in TROUBLE_BREWING_REWARDS_BY_ID.values()
         ),

@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -16602,7 +16602,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         reward_combo = reward_page.findChild(
             QComboBox, "troubleBrewingRewardCombo"
         )
-        self.assertEqual(reward_combo.count(), 27)
+        self.assertEqual(reward_combo.count(), 29)
         self.assertTrue(
             all(
                 reward_combo.itemText(index).endswith(" PoE")
@@ -16615,6 +16615,12 @@ class MainMenuWidgetTest(unittest.TestCase):
                 for index in range(reward_combo.count())
             )
         )
+        self.assertEqual(reward_combo.iconSize(), QSize(24, 24))
+        red_rum_index = reward_combo.findData("red_rum")
+        self.assertEqual(
+            reward_combo.itemData(red_rum_index, Qt.ItemDataRole.ToolTipRole),
+            "One-use teleport to Trouble Brewing.",
+        )
         reward_combo.setCurrentIndex(
             reward_combo.findData("blue_tricorn_hat")
         )
@@ -16626,6 +16632,51 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(command_calls[-1][0], "buy_reward")
         self.assertEqual(pd["inventory"]["Blue tricorn hat"], 1)
         self.assertEqual(pd["trouble_brewing_pieces_of_eight"], 0)
+        dialog.close()
+
+    def test_bank_drinks_each_trouble_brewing_rum_through_its_direct_action(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"].update({"Red rum": 1, "Blue rum": 1})
+        used = []
+
+        def _drink(item_name):
+            used.append(item_name)
+            pd["inventory"].pop(item_name)
+            return {"ok": True, "destination": "Trouble Brewing"}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_drink_trouble_brewing_rum=_drink,
+        )
+        for item_name in ("Red rum", "Blue rum"):
+            menu = dialog._ankiscape_equip_menu_for(item_name)
+            action = next(
+                action
+                for action in menu.actions()
+                if action.objectName() == "drinkTroubleBrewingRumAction"
+            )
+            self.assertEqual(action.text(), f"Drink {item_name}")
+            self.assertEqual(
+                action.toolTip(),
+                "Teleport to Trouble Brewing. Consumes one bottle.",
+            )
+            self.assertTrue(action.isEnabled())
+            self.assertTrue(menu.toolTipsVisible())
+            action.trigger()
+            QApplication.processEvents()
+        self.assertEqual(used, ["Red rum", "Blue rum"])
+
+        pd["inventory"]["Red rum"] = 1
+        pd["trouble_brewing"] = {"review": 0}
+        active_menu = dialog._ankiscape_equip_menu_for("Red rum")
+        active_action = next(
+            action
+            for action in active_menu.actions()
+            if action.objectName() == "drinkTroubleBrewingRumAction"
+        )
+        self.assertFalse(active_action.isEnabled())
+        self.assertIn("Finish or leave", active_action.toolTip())
         dialog.close()
 
     def test_castle_wars_detail_shop_plan_and_siege_actions_are_live(self) -> None:

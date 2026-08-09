@@ -1202,7 +1202,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
-    def test_trouble_brewing_cosmetics_are_registered_with_source_art(self):
+    def test_trouble_brewing_rewards_are_registered_with_source_art(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         with open("assets_provenance.json", encoding="utf-8") as file_obj:
             provenance = json.load(file_obj)
@@ -1214,7 +1214,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             with self.subTest(item=reward.display_name):
                 definition = by_storage_key[reward.display_name]
                 self.assertEqual(definition.source_item_id, reward.source_item_id)
-                self.assertEqual(definition.category, "equipment")
+                self.assertEqual(
+                    definition.category,
+                    "food" if reward.teleport_destination else "equipment",
+                )
                 self.assertFalse(definition.stackable)
                 self.assertFalse(definition.tradeable)
                 self.assertEqual(
