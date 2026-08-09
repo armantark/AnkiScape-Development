@@ -3984,6 +3984,58 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [30.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_bad_wine_review_outcome_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_bad_wine_undo_integration")
+
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: self.fail(f"bad wine awarded {exp} XP")
+        addon._show_activity_gain = lambda _text: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Grapes": 1, "Jug of water": 1},
+            "cooking_level": 35,
+            "cooking_exp": 0.0,
+            "current_cooking": "make_wine",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Cooking"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.61
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(), 4, lambda _self, _ease: "answered"
+            )
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(
+            addon.player_data["inventory"],
+            {"Grapes": 0, "Jug of water": 0, "Jug of bad wine": 1},
+        )
+        self.assertEqual(addon.player_data["cooking_exp"], 0.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_cheese_wheel_slice_all_reward_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_cheese_wheel_undo_integration")
 

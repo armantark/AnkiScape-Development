@@ -2311,6 +2311,41 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(xp, 0)
         self.assertEqual(burnt, {"Raw tiger shark": 0, "Burnt tiger shark": 1})
 
+    def test_wine_resolves_success_or_bad_wine_without_a_timer(self):
+        spec = COOKING_DATA["make_wine"]
+        self.assertEqual(cooking_source_roll_chance_pure(35, spec), 0.6)
+        self.assertEqual(cooking_source_roll_chance_pure(68, spec), 1.0)
+
+        ingredients = {"Grapes": 1, "Jug of water": 1}
+        wine, xp, processed, output, failed = apply_cooking_action_pure(
+            "make_wine",
+            ingredients,
+            COOKING_DATA,
+            cooking_level=35,
+            roll=0.59,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output, "Jug of wine")
+        self.assertEqual(xp, 200.0)
+        self.assertEqual(wine, {"Grapes": 0, "Jug of water": 0, "Jug of wine": 1})
+
+        bad, xp, processed, output, failed = apply_cooking_action_pure(
+            "make_wine",
+            ingredients,
+            COOKING_DATA,
+            cooking_level=35,
+            roll=0.61,
+        )
+        self.assertTrue(processed)
+        self.assertTrue(failed)
+        self.assertEqual(output, "Jug of bad wine")
+        self.assertEqual(xp, 0.0)
+        self.assertEqual(
+            bad,
+            {"Grapes": 0, "Jug of water": 0, "Jug of bad wine": 1},
+        )
+
     def test_dwarven_stout_maturity_preserves_the_full_vat_on_both_outcomes(self):
         ingredients = {
             "Ale yeast": 1,

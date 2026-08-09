@@ -6971,6 +6971,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         shrimps = _cooking_row(tree, "cook_shrimps")
         shark = _cooking_row(tree, "cook_shark")
+        wine = _cooking_row(tree, "make_wine")
         self.assertFalse(shrimps.isDisabled())
         self.assertFalse(shrimps.icon(0).isNull(), "Cooking target row has no icon")
         self.assertIn("Success output: Shrimps x1", shrimps.toolTip(0))
@@ -6978,6 +6979,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Success chance:", shrimps.toolTip(0))
         self.assertTrue(shark.isDisabled())
         self.assertIn("Locked due to:", shark.toolTip(0))
+        self.assertTrue(wine.isDisabled())
+        self.assertIn("Bad output: Jug of bad wine x1, no XP", wine.toolTip(0))
+        self.assertFalse(wine.icon(0).isNull())
 
         tree.itemClicked.emit(shrimps, 0)
         QApplication.processEvents()

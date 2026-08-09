@@ -42,7 +42,9 @@ from ankiscape.core.constants import (  # noqa: E402
 from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,
+    DEFAULT_WIKI_SOURCES,
     HttpWikiClient,
+    OSRS_WIKI,
     fetch_asset,
     wiki_title_for_item,
 )
@@ -75,6 +77,13 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
     "Drunk dragon": "Drunk Dragon.png",
     "Blurberry special": "Blurberry Special.png",
     "Dwarven stout (m)": "Dwarven stout (m).png",
+}
+
+# This classic sprite has no wiki file revision before the gameplay cutoff.
+# Pin the oldest available OSRS upload as visual art only; its item identity and
+# mechanics remain sourced independently from period evidence.
+VISUAL_FALLBACK_CUTOFFS = {
+    "Jug of bad wine": "2019-08-14T00:00:00Z",
 }
 
 
@@ -111,7 +120,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             provenance_path=PROVENANCE,
         )
         try:
-            outcome = fetch_asset(request, client, size=size, force=args.force, dry_run=args.dry_run)
+            fallback_cutoff = VISUAL_FALLBACK_CUTOFFS.get(item_name)
+            fallback_client = (
+                HttpWikiClient(before_timestamp=fallback_cutoff)
+                if fallback_cutoff
+                else None
+            )
+            outcome = fetch_asset(
+                request,
+                fallback_client or client,
+                size=size,
+                force=args.force,
+                dry_run=args.dry_run,
+                sources=(OSRS_WIKI,) if fallback_client else DEFAULT_WIKI_SOURCES,
+            )
         except AssetFetchError as exc:
             failed += 1
             failures.append(f"{item_name}: {exc}")

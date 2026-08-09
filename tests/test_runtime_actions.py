@@ -3905,6 +3905,37 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["xp"], [30.0])
         self.assertEqual(calls["saves"], 1)
 
+    def test_wine_bad_outcome_consumes_inputs_without_xp(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Grapes": 1, "Jug of water": 1},
+            "cooking_level": 35,
+            "cooking_exp": 0.0,
+            "current_cooking": "make_wine",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_cooking_answer(
+                _context(player_data, calls, random_values=[0.61])
+            )
+        )
+
+        self.assertEqual(
+            player_data["inventory"],
+            {"Grapes": 0, "Jug of water": 0, "Jug of bad wine": 1},
+        )
+        self.assertEqual(player_data["cooking_exp"], 0.0)
+        self.assertEqual(player_data["cooking_success_count"], 0)
+        self.assertEqual(player_data["cooking_burn_count"], 0)
+        self.assertEqual(calls["xp"], [])
+        telemetry = player_data["action_telemetry"]["actions"]["cooking:make_wine"]
+        self.assertEqual(telemetry["failures"], 1)
+        self.assertEqual(telemetry["failure_kinds"], {"bad_wine": 1})
+        self.assertEqual(telemetry["outputs"], {"Jug of bad wine": 1})
+
     def test_dwarven_stout_runtime_records_both_full_vat_outcomes_as_completed(self):
         materials = {
             "Ale yeast": 2,

@@ -1,5 +1,33 @@
 # Progress
 
+## Make wine Cooking runtime closure — 2026-08-09
+
+`Make wine` is live as a standard grouped Cooking target. At level 35, one
+review consumes one Grapes and one Jug of water, immediately produces Jug of
+wine for 200 base XP or Jug of bad wine for no XP, and uses no wall-clock or
+persisted fermentation timer. The bad outcome has distinct telemetry and does
+not count as an ordinary cooking burn. Anki Undo restores the complete review
+transaction.
+
+Oldid `6151933` pins the visible recipe and outcomes. Rev-742 pins identities
+1937/1987/1995/1993/1991 and catches Jug of bad wine as non-exchangeable. The
+hidden success curve remains registered as `cooking.wine_success_curve` from
+Darkan's bounded reconstruction. The existing grouped selector displays both
+outcomes and the required materials. The only missing sprite uses the oldest
+available 2019 OSRS upload strictly as visual art; its exact revision is
+normalized, provenance-recorded, and reproducible by the Cooking asset tool.
+
+Focused checks pass 464 broad tests, 14 exact closure tests, and one real
+offscreen Qt selector test. Full plain and real offscreen-Qt discovery each
+pass 3,977 tests, with 486 expected plain skips and three intentional Qt skips.
+Documentation audits 539 Markdown and 431 HTML files; test quality finds 3,943
+methods in 180 files with zero hard issues. Reachability is 1,539 actions,
+2,342 reachable items, 167 known orphans, and 187 unresolved actions.
+Compilation, JSON, asset resolution/normalization, diff, and worktree safety
+pass. The locked Mac prevents native Anki interaction, which is not claimed.
+The parent backlog row now names only karambwan and karambwanji as open. See
+`memory-bank/source-audits/wine-cooking-runtime-closure-2026-08-09.md`.
+
 ## Crafting and Fletching potion runtime — 2026-08-09
 
 Crafting and Fletching potions now apply their sourced exact `+3` current-level

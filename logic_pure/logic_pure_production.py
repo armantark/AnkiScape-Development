@@ -577,10 +577,22 @@ def cooking_target_locked_reasons_pure(player_data, target, cooking_data, quest_
 def cooking_source_roll_chance_pure(
     cooking_level, target_spec, *, has_cooking_gauntlets=False
 ):
-    """Exact 2011Scape Cooking roll (CookingAction.kt): the shared 3-arg
-    interpolate helper (floors + 1) with success on interp > nextInt(255)."""
+    """Return the target's declared source or registered reconstruction roll.
+
+    Ordinary food uses the exact 2011Scape ``CookingAction.kt`` interpolation;
+    exceptional targets carry their own explicitly sourced or placeholder
+    formula in data.
+    """
     source_formula = target_spec.get("source_success_formula")
     if isinstance(source_formula, Mapping):
+        if "minimum" in source_formula and "level_divisor" in source_formula:
+            return min(
+                1.0,
+                max(
+                    float(source_formula["minimum"]),
+                    float(cooking_level) / float(source_formula["level_divisor"]),
+                ),
+            )
         base = float(source_formula["base"])
         level_multiplier = float(source_formula["level_multiplier"])
         level_range = float(source_formula["level_range"])
@@ -722,7 +734,16 @@ def apply_cooking_action_pure(
         new_inv[alternate_output] = new_inv.get(alternate_output, 0) + output_qty
         for byproduct, amount in (spec.get("byproducts") or {}).items():
             new_inv[byproduct] = new_inv.get(byproduct, 0) + _positive_int(amount)
-        return new_inv, spec.get("exp", 0), True, alternate_output, False
+        alternate_exp = float(spec.get("alternate_output_exp", -1.0))
+        if alternate_exp < 0.0:
+            alternate_exp = float(spec.get("exp", 0))
+        return (
+            new_inv,
+            alternate_exp,
+            True,
+            alternate_output,
+            bool(spec.get("alternate_is_failure")),
+        )
 
     burnt_item = spec.get("burnt_item")
     if isinstance(burnt_item, str) and burnt_item:

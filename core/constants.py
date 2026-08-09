@@ -1507,6 +1507,8 @@ COOKING_ITEM_IMAGES = {}
 COOKING_SHARED_ITEM_IMAGES = {
     "Lava eel": os.path.join(QUEST_ITEMS_FOLDER, "lava_eel.png"),
     "Bucket of milk": os.path.join(QUEST_ITEMS_FOLDER, "bucket_of_milk.png"),
+    "Jug of water": os.path.join(QUEST_ITEMS_FOLDER, "jug_of_water.png"),
+    "Jug of wine": os.path.join(COMBAT_ITEMS_FOLDER, "jug_of_wine.png"),
     "Raw spider on stick": os.path.join(SHOP_ITEMS_FOLDER, "spider_on_stick.png"),
     "Burnt spider": os.path.join(SHOP_ITEMS_FOLDER, "spider_on_stick.png"),
     "Skewer stick": os.path.join(SHOP_ITEMS_FOLDER, "skewer.png"),

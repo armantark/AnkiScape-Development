@@ -68,6 +68,14 @@ BREWING_SOURCE = (
     "RuneScape Wiki Brewing oldid=6447660 (2012-10-20T22:19:26Z); "
     "The Stuff oldid=6447071 (2012-10-20T15:26:18Z); OpenRS2 rev-742"
 )
+WINE_SOURCE = (
+    "RuneScape Wiki Jug of wine oldid=6151933 "
+    "(2012-08-27T16:10:12Z)"
+)
+WINE_DARKAN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/cooking/WineMaking.java"
+)
 ITEMS_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/api/cfg/Items.kt"
@@ -126,6 +134,8 @@ class CookingTarget:
     output_qty: int = 1
     alternate_output_item: str = ""
     alternate_output_qty: int = 0
+    alternate_output_exp: float = -1.0
+    alternate_is_failure: bool = False
     outcome_kind: str = ""
     # Gnome cooking assembles one dish from several ingredients in one action, the
     # way the pie and pizza prep bridges assemble theirs.
@@ -257,6 +267,9 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('mix_drunk_dragon', 'DRUNK_DRAGON', 'Mix a drunk dragon', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'DRUNK_DRAGON', 2092, 'Drunk dragon', '', 0, '', 32, 160.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Gin': 1, 'Dwellberries': 1, 'Pineapple chunks': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
     CookingTarget('mix_choc_saturday', 'CHOC_SATURDAY', 'Mix a choc saturday', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'CHOC_SATURDAY', 2074, 'Choc saturday', '', 0, '', 33, 170.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Whisky': 1, 'Chocolate bar': 1, 'Equa leaves': 1, 'Bucket of milk': 1, 'Chocolate dust': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1, 'Bucket': 1}, failure_kind='pour'),
     CookingTarget('mix_blurberry_special', 'BLURBERRY_SPECIAL', 'Mix a blurberry special', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'BLURBERRY_SPECIAL', 2064, 'Blurberry special', '', 0, '', 37, 180.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Brandy': 1, 'Gin': 1, 'Lemon': 2, 'Orange': 1, 'Lemon chunks': 1, 'Orange chunks': 1, 'Equa leaves': 1, 'Lime slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    # PLACEHOLDER(cooking.wine_success_curve): Darkan's bounded reconstruction
+    # stands in for the unrecovered period fermentation roll.
+    CookingTarget('make_wine', 'WINE', 'Make wine', 'brewing', 'GRAPES', 1987, 'Grapes', 'JUG_OF_WINE', 1993, 'Jug of wine', '', 0, '', 35, 200.0, 0, 0, source=WINE_SOURCE, runtime_source=WINE_DARKAN_SOURCE, source_success_formula={'minimum': 0.6, 'level_divisor': 68.0}, extra_requirements={'Jug of water': 1}, failure_kind='bad_wine', alternate_output_item='Jug of bad wine', alternate_output_qty=1, alternate_output_exp=0.0, alternate_is_failure=True, outcome_kind='fermentation'),
     CookingTarget('brew_dwarven_stout', 'DWARVEN_STOUT_M', 'Brew Dwarven stout', 'brewing', 'ALE_YEAST', 5767, 'Ale yeast', 'DWARVEN_STOUT_M', 5747, 'Dwarven stout (m)', '', 0, '', 19, 215.0, 0, 0, source=BREWING_SOURCE, runtime_source=BREWING_SOURCE, source_success_formula={'base': _DWARVEN_STOUT_MATURE_CHANCE, 'level_multiplier': 0.0, 'level_range': 1.0, 'cap': _DWARVEN_STOUT_MATURE_CHANCE, 'divisor': 1.0}, byproducts={'Bucket': 2}, extra_requirements={'Bucket of water': 2, 'Barley malt': 2, 'Hammerstone hops': 4, 'Beer glass': 8}, failure_kind='mature', output_qty=8, alternate_output_item='Dwarven stout', alternate_output_qty=8, outcome_kind='maturity'),
     CookingTarget('brew_dwarven_stout_with_the_stuff', 'DWARVEN_STOUT_M_STUFF', 'Brew Dwarven stout with The stuff', 'brewing', 'ALE_YEAST', 5767, 'Ale yeast', 'DWARVEN_STOUT_M', 5747, 'Dwarven stout (m)', '', 0, '', 19, 215.0, 0, 0, source=BREWING_SOURCE, runtime_source=BREWING_SOURCE, source_success_formula={'base': _DWARVEN_STOUT_STUFF_MATURE_CHANCE, 'level_multiplier': 0.0, 'level_range': 1.0, 'cap': _DWARVEN_STOUT_STUFF_MATURE_CHANCE, 'divisor': 1.0}, byproducts={'Bucket': 2}, extra_requirements={'Bucket of water': 2, 'Barley malt': 2, 'Hammerstone hops': 4, 'Beer glass': 8, 'The stuff': 1}, failure_kind='mature', output_qty=8, alternate_output_item='Dwarven stout', alternate_output_qty=8, outcome_kind='maturity'),
 )
@@ -452,6 +465,10 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Dwarven stout": (1913, True),
     "Dwarven stout (m)": (5747, True),
     "The stuff": (8988, False),
+    "Grapes": (1987, True),
+    "Jug of water": (1937, True),
+    "Jug of wine": (1993, True),
+    "Jug of bad wine": (1991, False),
 }
 
 SOURCE_NONSTACKABLE_ITEMS = frozenset(
@@ -521,7 +538,16 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             **({"output_quantity_model": target.output_quantity_model} if target.output_quantity_model else {}),
             **({"xp_per_output": target.xp_per_output} if target.xp_per_output else {}),
             **({"failure_kind": target.failure_kind} if target.failure_kind != "burn" else {}),
-            **({"alternate_output_item": target.alternate_output_item, "alternate_output_qty": target.alternate_output_qty} if target.alternate_output_item else {}),
+            **(
+                {
+                    "alternate_output_item": target.alternate_output_item,
+                    "alternate_output_qty": target.alternate_output_qty,
+                    "alternate_output_exp": target.alternate_output_exp,
+                    "alternate_is_failure": target.alternate_is_failure,
+                }
+                if target.alternate_output_item
+                else {}
+            ),
             **({"outcome_kind": target.outcome_kind} if target.outcome_kind else {}),
         }
         for target in COOKING_TARGETS

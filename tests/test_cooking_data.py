@@ -20,7 +20,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 86)
+        self.assertEqual(len(COOKING_TARGETS), 87)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -50,6 +50,20 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["cook_lava_eel"]["exp"], 30.0)
         self.assertEqual(data["cook_lava_eel"]["source"], LAVA_EEL_WIKI_SOURCE)
         self.assertTrue(data["cook_lava_eel"]["source_always_succeeds"])
+        wine = data["make_wine"]
+        self.assertEqual(wine["level"], 35)
+        self.assertEqual(wine["exp"], 200.0)
+        self.assertEqual(
+            wine["requirements"],
+            {"Grapes": 1, "Jug of water": 1},
+        )
+        self.assertEqual(wine["output_item"], "Jug of wine")
+        self.assertEqual(wine["alternate_output_item"], "Jug of bad wine")
+        self.assertTrue(wine["alternate_is_failure"])
+        self.assertEqual(wine["alternate_output_exp"], 0.0)
+        self.assertEqual(wine["failure_kind"], "bad_wine")
+        self.assertEqual(wine["source_success_formula"]["minimum"], 0.6)
+        self.assertEqual(wine["source_success_formula"]["level_divisor"], 68.0)
         self.assertEqual(data["cook_spider_on_a_stick"]["level"], 16)
         self.assertEqual(data["cook_spider_on_a_stick"]["exp"], 80.0)
         self.assertEqual(
@@ -175,6 +189,11 @@ class TestCookingData(unittest.TestCase):
         self.assertFalse(extra["Burnt spider"]["tradeable"])
         self.assertEqual(extra["Skewer stick"]["category"], "crafted")
         self.assertTrue(extra["Skewer stick"]["tradeable"])
+        self.assertEqual(extra["Grapes"]["item_id"], 1987)
+        self.assertEqual(extra["Jug of water"]["item_id"], 1937)
+        self.assertEqual(extra["Jug of wine"]["item_id"], 1993)
+        self.assertEqual(extra["Jug of bad wine"]["item_id"], 1991)
+        self.assertFalse(extra["Jug of bad wine"]["tradeable"])
         self.assertEqual(extra["Empty pot"]["category"], "crafted")
         self.assertEqual(extra["Bowl of water"]["category"], "material")
         self.assertEqual(extra["Clay"]["category"], "ore")

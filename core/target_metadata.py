@@ -689,7 +689,11 @@ def cooking_target_rows(
             quest_unlock_rules,
         )
         level_line = f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n" if has_level_requirement else "No Cooking level requirement.\n"
-        if spec.get("outcome_kind") == "maturity":
+        if spec.get("alternate_is_failure"):
+            alternate_item = str(spec.get("alternate_output_item", "Failed output"))
+            alternate_qty = int(spec.get("alternate_output_qty", 1) or 1)
+            failure_line = f"Bad output: {alternate_item} x{alternate_qty}, no XP\n"
+        elif spec.get("outcome_kind") == "maturity":
             alternate_item = str(spec.get("alternate_output_item", "Ordinary ale"))
             alternate_qty = int(spec.get("alternate_output_qty", 1) or 1)
             failure_line = f"Ordinary output: {alternate_item} x{alternate_qty}, same XP\n"

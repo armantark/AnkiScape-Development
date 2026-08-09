@@ -2,6 +2,28 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 45 completes Make wine.** Pinned oldid
+`6151933` supplies the level-35 Grapes plus Jug-of-water recipe, Jug of wine or
+bad-wine result, and 200 XP only on success. Rev-742 pins all five item IDs and
+corrected Jug of bad wine to non-exchangeable. The unrecovered hidden roll is
+registered as `cooking.wine_success_curve` from Darkan's bounded 60%-floor,
+level/68 reconstruction. One review atomically resolves the automatic
+fermentation with no wall clock or persisted unfermented state. The established
+Cooking selector, material/carried paths, telemetry, achievements, cadence,
+persistence, and review undo are reused; bad wine records a distinct no-XP
+failure without inflating the burn counter. The oldest available 2019 OSRS
+bad-wine sprite is disclosed as visual-only fallback, normalized, fully
+provenance-recorded, and reproducible through the Cooking asset tool. Full
+plain and real offscreen-Qt discovery each pass 3,977 tests, with 486 plain
+skips and 3 Qt skips. Documentation passes across 539 Markdown and 431 HTML
+files; test quality has zero hard issues across 3,943 methods in 180 files.
+Reachability is 1,539 actions, 2,342 reachable items, 167 known orphans, and
+187 unresolved actions. Compilation, JSON, deterministic asset resolution,
+normalization, diff, and worktree safety pass. The Mac is locked, so native Anki
+interaction is not claimed. Karambwan and karambwanji remain the only open
+parts of their original Cooking backlog row. Durable audit:
+`memory-bank/source-audits/wine-cooking-runtime-closure-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 43 completes Cooking gauntlets.** Family
 Crest now grants a remembered physical pair; Caleb converts plain gauntlets
 free or re-enchants Goldsmith/Chaos gauntlets for 25,000 Coins; Dimintheis
