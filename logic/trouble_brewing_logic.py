@@ -568,6 +568,7 @@ def trouble_brewing_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "pieces_of_eight": reward.pieces_of_eight,
                 "teleport_destination": reward.teleport_destination,
                 "clue_tier": reward.clue_tier,
+                "description": reward.description,
                 "blocked_reason": (
                     clue_ownership_reason_pure(player_data)
                     if reward.clue_tier

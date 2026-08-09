@@ -74,6 +74,7 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
     "Short green guy": "Short Green Guy.png",
     "Drunk dragon": "Drunk Dragon.png",
     "Blurberry special": "Blurberry Special.png",
+    "Dwarven stout (m)": "Dwarven stout (m).png",
 }
 
 
@@ -91,9 +92,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument("--dry-run", action="store_true", help="Resolve without downloading.")
+    parser.add_argument("--item", action="append", default=[], help="Fetch only this item name; repeat as needed.")
     args = parser.parse_args(argv)
 
     manifest = _manifest()
+    if args.item:
+        requested = set(args.item)
+        manifest = [row for row in manifest if row[0] in requested]
     client = HttpWikiClient(before_timestamp=PRE_EOC_CUTOFF)
     ok = skipped = failed = 0
     failures: List[str] = []

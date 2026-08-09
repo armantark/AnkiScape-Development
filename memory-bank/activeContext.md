@@ -2,6 +2,30 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 40 completes `The stuff` through mature-ale
+brewing.** Brewing oldid `6447660`, The Stuff oldid `6447071`, Honest Jimmy
+oldid `6393015`, rev-742, and Darkan's reconstructed Brewery pin the full-vat
+recipe, level `19`, `215` XP, eight-glass yield, five-Piece additive, identities,
+and ordinary/mature branches. Exact mature probabilities remain honestly
+registered as `cooking.dwarven_stout_mature_chance`: `10%` naturally and `75%`
+with The stuff. One review atomically represents the full vat without a wall
+clock. Both outcomes award the same XP and full batch; the ordinary branch is
+not reported as a burn. The existing Trouble Brewing and grouped Cooking
+surfaces own the purchase and recipe rows with cutoff art. Fable found no
+material UI issue after the expanded-group capture; Kimi K3 is honestly
+provider-blocked by an HTTP 403 billing-cycle limit, so no Kimi approval is
+claimed. Focused checks pass 491 tests and focused real Qt passes three. Full
+plain and real offscreen-Qt discovery each pass 3,927 tests, with 482 plain
+skips and 3 Qt skips. Documentation audits pass across 533 Markdown and 431
+HTML files; test quality has zero hard issues across 3,893 tests in 177 files.
+Reachability is 1,513 actions, 2,316 items, 170 known orphans, and 190 known
+blocked actions. Compilation, tracked JSON, diff, placeholder, normalization,
+and worktree safety pass. A fully quit and freshly relaunched native Anki
+process loaded exactly one menu, the updated `Select what to cook or brew`
+prompt, and the two-row Brewing group; the smoke check did not train, purchase,
+or mutate gameplay state. Durable audit:
+`memory-bank/source-audits/trouble-brewing-the-stuff-brewing-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 39 completes Honest Jimmy's 5,000-Piece
 medium-clue service.** Honest Jimmy oldid `6393015` pins the direct dialogue
 purchase and exact cost; Treasure Trails oldid `6473708` plus superseding owner

@@ -686,6 +686,14 @@ def apply_cooking_action_pure(
             base_exp = output_qty * float(spec["xp_per_output"])
         return new_inv, base_exp, True, output_item, False
 
+    alternate_output = spec.get("alternate_output_item")
+    if isinstance(alternate_output, str) and alternate_output:
+        output_qty = _positive_int(spec.get("alternate_output_qty", 1), 1)
+        new_inv[alternate_output] = new_inv.get(alternate_output, 0) + output_qty
+        for byproduct, amount in (spec.get("byproducts") or {}).items():
+            new_inv[byproduct] = new_inv.get(byproduct, 0) + _positive_int(amount)
+        return new_inv, spec.get("exp", 0), True, alternate_output, False
+
     burnt_item = spec.get("burnt_item")
     if isinstance(burnt_item, str) and burnt_item:
         new_inv[burnt_item] = new_inv.get(burnt_item, 0) + 1

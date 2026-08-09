@@ -64,6 +64,10 @@ TIGER_SHARK_WIKI_SOURCE = (
     "(2012-10-21T04:48:57Z); Raw tiger shark oldid=5992445 "
     "(2012-07-26T02:12:01Z)"
 )
+BREWING_SOURCE = (
+    "RuneScape Wiki Brewing oldid=6447660 (2012-10-20T22:19:26Z); "
+    "The Stuff oldid=6447071 (2012-10-20T15:26:18Z); OpenRS2 rev-742"
+)
 ITEMS_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/api/cfg/Items.kt"
@@ -118,6 +122,10 @@ class CookingTarget:
     output_quantity_model: str = ""
     xp_per_output: float = 0.0
     failure_kind: str = "burn"
+    output_qty: int = 1
+    alternate_output_item: str = ""
+    alternate_output_qty: int = 0
+    outcome_kind: str = ""
     # Gnome cooking assembles one dish from several ingredients in one action, the
     # way the pie and pizza prep bridges assemble theirs.
     extra_requirements: Mapping[str, int] = ()
@@ -153,6 +161,11 @@ _SPIDER_ON_STICK_BURN = (88, 432)
 # The cutoff article says it can burn at every level but gives no probability.
 # Borrow the level-93 Rocktail's 2011Scape endpoints until a period roll ships.
 _TIGER_SHARK_BURN = (1, 222)
+# PLACEHOLDER(cooking.dwarven_stout_mature_chance): the exact pre-EOC hidden
+# maturity roll is not recoverable from period primary evidence. Darkan's
+# reconstruction supplies 10% naturally and 75% with The stuff until it is.
+_DWARVEN_STOUT_MATURE_CHANCE = 0.10
+_DWARVEN_STOUT_STUFF_MATURE_CHANCE = 0.75
 
 COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_shrimps', 'SHRIMPS', 'Cook raw shrimps', 'fish', 'RAW_SHRIMPS', 317, 'Raw shrimps', 'SHRIMPS', 315, 'Shrimps', 'BURNT_SHRIMP', 7954, 'Burnt shrimp', 1, 30.0, 128, 512, output_variant='primary'),
@@ -243,6 +256,8 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('mix_drunk_dragon', 'DRUNK_DRAGON', 'Mix a drunk dragon', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'DRUNK_DRAGON', 2092, 'Drunk dragon', '', 0, '', 32, 160.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Gin': 1, 'Dwellberries': 1, 'Pineapple chunks': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
     CookingTarget('mix_choc_saturday', 'CHOC_SATURDAY', 'Mix a choc saturday', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'CHOC_SATURDAY', 2074, 'Choc saturday', '', 0, '', 33, 170.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Whisky': 1, 'Chocolate bar': 1, 'Equa leaves': 1, 'Bucket of milk': 1, 'Chocolate dust': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1, 'Bucket': 1}, failure_kind='pour'),
     CookingTarget('mix_blurberry_special', 'BLURBERRY_SPECIAL', 'Mix a blurberry special', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'BLURBERRY_SPECIAL', 2064, 'Blurberry special', '', 0, '', 37, 180.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Brandy': 1, 'Gin': 1, 'Lemon': 2, 'Orange': 1, 'Lemon chunks': 1, 'Orange chunks': 1, 'Equa leaves': 1, 'Lime slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('brew_dwarven_stout', 'DWARVEN_STOUT_M', 'Brew Dwarven stout', 'brewing', 'ALE_YEAST', 5767, 'Ale yeast', 'DWARVEN_STOUT_M', 5747, 'Dwarven stout (m)', '', 0, '', 19, 215.0, 0, 0, source=BREWING_SOURCE, runtime_source=BREWING_SOURCE, source_success_formula={'base': _DWARVEN_STOUT_MATURE_CHANCE, 'level_multiplier': 0.0, 'level_range': 1.0, 'cap': _DWARVEN_STOUT_MATURE_CHANCE, 'divisor': 1.0}, byproducts={'Bucket': 2}, extra_requirements={'Bucket of water': 2, 'Barley malt': 2, 'Hammerstone hops': 4, 'Beer glass': 8}, failure_kind='mature', output_qty=8, alternate_output_item='Dwarven stout', alternate_output_qty=8, outcome_kind='maturity'),
+    CookingTarget('brew_dwarven_stout_with_the_stuff', 'DWARVEN_STOUT_M_STUFF', 'Brew Dwarven stout with The stuff', 'brewing', 'ALE_YEAST', 5767, 'Ale yeast', 'DWARVEN_STOUT_M', 5747, 'Dwarven stout (m)', '', 0, '', 19, 215.0, 0, 0, source=BREWING_SOURCE, runtime_source=BREWING_SOURCE, source_success_formula={'base': _DWARVEN_STOUT_STUFF_MATURE_CHANCE, 'level_multiplier': 0.0, 'level_range': 1.0, 'cap': _DWARVEN_STOUT_STUFF_MATURE_CHANCE, 'divisor': 1.0}, byproducts={'Bucket': 2}, extra_requirements={'Bucket of water': 2, 'Barley malt': 2, 'Hammerstone hops': 4, 'Beer glass': 8, 'The stuff': 1}, failure_kind='mature', output_qty=8, alternate_output_item='Dwarven stout', alternate_output_qty=8, outcome_kind='maturity'),
 )
 
 COOKING_TARGETS_BY_ID: Dict[str, CookingTarget] = {target.id: target for target in COOKING_TARGETS}
@@ -429,6 +444,13 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Orange slices": (2112, True),
     "Pineapple": (2114, True),
     "Pineapple chunks": (2116, True),
+    "Ale yeast": (5767, True),
+    "Barley malt": (6008, True),
+    "Hammerstone hops": (5994, True),
+    "Beer glass": (1919, True),
+    "Dwarven stout": (1913, True),
+    "Dwarven stout (m)": (5747, True),
+    "The stuff": (8988, False),
 }
 
 SOURCE_NONSTACKABLE_ITEMS = frozenset(
@@ -458,6 +480,11 @@ _MATERIAL_CATEGORIES = {
     "Pie dish": "crafted",
     "Skewer stick": "crafted",
     "Clay": "ore",
+    "Ale yeast": "material",
+    "Barley malt": "material",
+    "Hammerstone hops": "material",
+    "Beer glass": "crafted",
+    "The stuff": "material",
 }
 
 
@@ -474,7 +501,7 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "cooked_item": target.cooked_item,
             "cooked_item_id": target.cooked_item_id,
             "output_item": target.cooked_item,
-            "output_qty": 1,
+            "output_qty": target.output_qty,
             "burnt_item": target.burnt_item,
             "burnt_item_id": target.burnt_item_id,
             "low_chance": target.low_chance,
@@ -492,13 +519,22 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             **({"output_quantity_model": target.output_quantity_model} if target.output_quantity_model else {}),
             **({"xp_per_output": target.xp_per_output} if target.xp_per_output else {}),
             **({"failure_kind": target.failure_kind} if target.failure_kind != "burn" else {}),
+            **({"alternate_output_item": target.alternate_output_item, "alternate_output_qty": target.alternate_output_qty} if target.alternate_output_item else {}),
+            **({"outcome_kind": target.outcome_kind} if target.outcome_kind else {}),
         }
         for target in COOKING_TARGETS
     }
 
 
 def cooking_output_items() -> Tuple[str, ...]:
-    return tuple(dict.fromkeys(target.cooked_item for target in COOKING_TARGETS))
+    return tuple(
+        dict.fromkeys(
+            item
+            for target in COOKING_TARGETS
+            for item in (target.cooked_item, target.alternate_output_item)
+            if item
+        )
+    )
 
 
 def cooking_burnt_items() -> Tuple[str, ...]:

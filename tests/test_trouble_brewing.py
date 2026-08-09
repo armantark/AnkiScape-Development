@@ -70,6 +70,7 @@ class TroubleBrewingEntryTests(unittest.TestCase):
             ("Lucky shot flag", 400, 8969),
             ("Treasure flag", 500, 8970),
             ("Phasmatys flag", 600, 8971),
+            ("The stuff", 5, 8988),
             ("Red rum", 2, 8940),
             ("Blue rum", 2, 8941),
             ("Clue scroll (medium)", 5_000, 2801),
@@ -86,7 +87,7 @@ class TroubleBrewingEntryTests(unittest.TestCase):
             expected,
         )
         equipment = trouble_brewing_equipment_data_as_dict()
-        self.assertEqual(len(equipment), len(expected) - 3)
+        self.assertEqual(len(equipment), len(expected) - 4)
         for item in equipment.values():
             self.assertTrue(
                 all(value == 0 for value in asdict(item.bonuses).values()),
@@ -100,6 +101,20 @@ class TroubleBrewingEntryTests(unittest.TestCase):
         self.assertTrue(equipment["Phasmatys flag"].two_handed)
         self.assertEqual(equipment["Guilded smile flag"].attack_speed, 2)
         self.assertEqual(equipment["Guilded smile flag"].weapon_type, 14)
+
+    def test_the_stuff_is_a_five_piece_nontradeable_material_reward(self):
+        from ankiscape.data.trouble_brewing_data import trouble_brewing_extra_items_as_dict
+
+        bought, ok, info = buy_trouble_brewing_reward_pure(
+            _player(trouble_brewing_pieces_of_eight=5), "the_stuff"
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(bought["trouble_brewing_pieces_of_eight"], 0)
+        self.assertEqual(bought["inventory"]["The stuff"], 1)
+        item = trouble_brewing_extra_items_as_dict()["The stuff"]
+        self.assertEqual(item["category"], "material")
+        self.assertFalse(item["stackable"])
+        self.assertFalse(item["tradeable"])
 
     def test_entry_requires_cooking_40_cabin_fever_and_free_activity_slot(self):
         for player, reason in (

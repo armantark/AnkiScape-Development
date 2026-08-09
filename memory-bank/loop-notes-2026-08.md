@@ -1,5 +1,40 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 40 — Trouble Brewing The stuff and mature ale
+
+- Source: Brewing oldid `6447660`, The Stuff oldid `6447071`, Honest Jimmy
+  oldid `6393015`, rev-742, and Darkan's reconstructed Brewery pin the recipe,
+  additive purchase, item identities, level, XP, and batch outputs.
+- Result: one five-Piece `The stuff` reward and two full-vat Dwarven stout
+  targets are live. Both branches consume complete ingredients, return two
+  buckets, award eight drinks and 215 XP, persist, and use direct undo. Ordinary
+  ale is an alternate completed outcome rather than a burn.
+- Honest limit: the exact mature roll is not period-recovered. The Darkan 10%
+  natural / 75% additive values are registered as
+  `cooking.dwarven_stout_mature_chance` until a period server routine settles
+  them. No wall-clock fermentation exists; one review represents the vat.
+- UI and art: the existing reward combo and grouped Cooking selector expose the
+  reward and recipe without a new panel. The stuff, ale yeast, and mature stout
+  use normalized cutoff sprites. Fable found no content defect after the
+  corrected expanded-group capture. Kimi K3's required independent pass is
+  provider-blocked by HTTP 403 despite a nominally available quota preflight;
+  this is recorded without claiming approval.
+- Delegation: bounded Sol-high Workflows run
+  `b25b2838-eb40-40f2-a9bb-18ed27460023` exhausted its 30,000-byte tool-output
+  limit on a 118,077-byte multi-path diff before a verdict. Root retained final
+  review, reproduction, and verification ownership.
+- Verification: 491 focused non-Qt checks and three focused real Qt checks pass.
+  Full plain and real offscreen-Qt discovery each pass 3,927 tests, with 482
+  plain skips and 3 Qt skips. Documentation audits pass across 533 Markdown and
+  431 HTML files; test quality has zero hard issues across 3,893 tests in 177
+  files. Reachability is 1,513 actions and 2,316 items, with 170 known orphans
+  and 190 known blocked actions. Compilation, tracked JSON, diff, placeholder,
+  normalization, and worktree safety pass.
+- Native proof: after fully quitting the stale Anki process and relaunching it,
+  the canonical add-on opened one menu and showed the updated Cooking prompt
+  plus the two-row Brewing group. The check did not train, purchase, or mutate
+  gameplay state.
+
 ## Iteration 39 — Trouble Brewing medium-clue service
 
 - Source: Honest Jimmy oldid `6393015` pins the direct 5,000-Piece medium-clue

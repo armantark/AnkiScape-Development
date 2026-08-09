@@ -189,8 +189,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_420)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_736)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_422)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_738)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -218,6 +218,10 @@ class GrandExchangeDataTest(unittest.TestCase):
             PERIOD_GE_PRICE_PROVENANCE["Compost potion (4)"]["oldid"],
             6_561_561,
         )
+        self.assertEqual(PERIOD_GE_GUIDE_PRICES["Ale yeast"], 31)
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Ale yeast"], 100)
+        self.assertEqual(PERIOD_GE_GUIDE_PRICES["Dwarven stout (m)"], 25_372)
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Dwarven stout (m)"], 100)
 
     def test_mage_training_arena_equipment_has_period_market_rows(self):
         expected = {

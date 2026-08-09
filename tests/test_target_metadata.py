@@ -1479,6 +1479,28 @@ class TargetMetadataTest(unittest.TestCase):
             self.assertTrue(os.path.exists(row.icon_path or ""))
             self.assertNotIn("(Lvl", row.label)
 
+    def test_brewing_rows_explain_maturity_without_calling_ordinary_ale_a_failure(self):
+        rows = cooking_target_rows(
+            {
+                "cooking_level": 19,
+                "inventory": {},
+                "current_cooking": "brew_dwarven_stout_with_the_stuff",
+            },
+            COOKING_DATA,
+            COOKING_ITEM_IMAGES,
+            DEFAULT_COOKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        row = _row(rows, "brew_dwarven_stout_with_the_stuff")
+
+        self.assertEqual(row.group, "brewing")
+        self.assertIn("Mature output: Dwarven stout (m) x8", row.tooltip)
+        self.assertIn("Ordinary output: Dwarven stout x8, same XP", row.tooltip)
+        self.assertIn("Mature chance: 75% per vat", row.tooltip)
+        self.assertIn("One review represents the full vat.", row.tooltip)
+        self.assertNotIn("Burn output", row.tooltip)
+        self.assertNotIn("no XP", row.tooltip)
+
     def test_mining_rows_preserve_current_icon_and_include_concentrated_rocks(self):
         rows = mining_target_rows(
             {

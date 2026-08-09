@@ -16602,7 +16602,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         reward_combo = reward_page.findChild(
             QComboBox, "troubleBrewingRewardCombo"
         )
-        self.assertEqual(reward_combo.count(), 30)
+        self.assertEqual(reward_combo.count(), 31)
         self.assertTrue(
             all(
                 reward_combo.itemText(index).endswith(" PoE")
@@ -16616,6 +16616,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
         )
         self.assertEqual(reward_combo.iconSize(), QSize(24, 24))
+        the_stuff_index = reward_combo.findData("the_stuff")
+        self.assertIn(
+            "greatly improves the chance of mature ale",
+            reward_combo.itemData(
+                the_stuff_index, Qt.ItemDataRole.ToolTipRole
+            ),
+        )
         red_rum_index = reward_combo.findData("red_rum")
         self.assertEqual(
             reward_combo.itemData(red_rum_index, Qt.ItemDataRole.ToolTipRole),

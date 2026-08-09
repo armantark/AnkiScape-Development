@@ -85,7 +85,7 @@ def render(output_dir: Path, *, width: int = 1200, height: int = 760) -> tuple[P
     reward_card = _show_card(case, _player(), width, height)
     reward_page = _open_reward_target(reward_card, "trouble_brewing")
     reward_combo = reward_page.findChild(QComboBox, "troubleBrewingRewardCombo")
-    reward_combo.setCurrentIndex(reward_combo.findData("medium_clue"))
+    reward_combo.setCurrentIndex(reward_combo.findData("the_stuff"))
     for _ in range(8):
         app.processEvents()
     reward_path = output_dir / "trouble-brewing-rewards.png"

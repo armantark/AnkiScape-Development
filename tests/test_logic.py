@@ -2292,6 +2292,46 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(xp, 0)
         self.assertEqual(burnt, {"Raw tiger shark": 0, "Burnt tiger shark": 1})
 
+    def test_dwarven_stout_maturity_preserves_the_full_vat_on_both_outcomes(self):
+        ingredients = {
+            "Ale yeast": 1,
+            "Bucket of water": 2,
+            "Barley malt": 2,
+            "Hammerstone hops": 4,
+            "Beer glass": 8,
+            "The stuff": 1,
+        }
+        original = dict(ingredients)
+        mature, xp, processed, output, burned = apply_cooking_action_pure(
+            "brew_dwarven_stout_with_the_stuff",
+            ingredients,
+            COOKING_DATA,
+            cooking_level=19,
+            roll=0.50,
+        )
+        self.assertEqual(ingredients, original)
+        self.assertTrue(processed)
+        self.assertFalse(burned)
+        self.assertEqual(output, "Dwarven stout (m)")
+        self.assertEqual(xp, 215.0)
+        self.assertEqual(mature["Dwarven stout (m)"], 8)
+        self.assertEqual(mature["Bucket"], 2)
+        self.assertEqual(mature["The stuff"], 0)
+
+        ordinary, xp, processed, output, burned = apply_cooking_action_pure(
+            "brew_dwarven_stout",
+            {key: value for key, value in ingredients.items() if key != "The stuff"},
+            COOKING_DATA,
+            cooking_level=19,
+            roll=0.50,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(burned)
+        self.assertEqual(output, "Dwarven stout")
+        self.assertEqual(xp, 215.0)
+        self.assertEqual(ordinary["Dwarven stout"], 8)
+        self.assertEqual(ordinary["Bucket"], 2)
+
     def test_cooking_runtime_extra_formulas_and_inventory(self):
         trout = COOKING_DATA["gut_leaping_trout"]
         salmon = COOKING_DATA["gut_leaping_salmon"]

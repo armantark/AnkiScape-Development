@@ -1217,7 +1217,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertEqual(
                     definition.category,
                     "material"
-                    if reward.clue_tier
+                    if reward.clue_tier or reward.item_category == "material"
                     else "food"
                     if reward.teleport_destination
                     else "equipment",

@@ -1,5 +1,35 @@
 # Progress
 
+## Trouble Brewing The stuff and mature-ale brewing — 2026-08-09
+
+The cutoff Brewing and The Stuff revisions pin the full-vat sequence, optional
+additive, eight-glass output, level-19 Dwarven stout recipe, four Hammerstone
+hops, and 215 Cooking XP. Honest Jimmy pins one `The stuff` at five Pieces of
+Eight; rev-742 pins every item identity and trade/stack property. Darkan
+corroborates the reconstructed item flow and supplies the registered provisional
+10%/75% mature roll where period primary evidence does not expose the formula.
+
+The reward is live through the existing atomic shop/direct-undo path. Two
+Cooking rows consume the full vat with or without `The stuff`; mature and
+ordinary outcomes each award eight drinks and 215 XP, and both return two empty
+buckets. One review represents the full vat with no wall-clock gameplay. The
+existing grouped selector and reward shop show normalized cutoff art and exact
+outcome/material guidance. Fable found no material UI issue after the corrected
+expanded-group capture. Kimi K3 remains explicitly unapproved because its
+provider returned an HTTP 403 billing-cycle limit after preflight.
+
+Focused checks pass 491 tests and focused real offscreen Qt passes three. Full
+plain and real offscreen-Qt discovery each pass 3,927 tests, with 482 expected
+plain skips and three intentional Qt skips. Documentation audits pass across
+533 Markdown and 431 HTML files; test quality has zero hard issues across 3,893
+tests in 177 files. Reachability is 1,513 actions, 2,316 reachable items, 170
+known orphan inputs, and 190 known blocked actions. Compilation, tracked JSON,
+diff, placeholder, normalization, and worktree safety pass. A fully quit and
+freshly relaunched native Anki process loaded one AnkiScape menu, the updated
+Cooking prompt, and the two-row Brewing group without mutating gameplay state.
+See
+`memory-bank/source-audits/trouble-brewing-the-stuff-brewing-2026-08-09.md`.
+
 ## Trouble Brewing medium-clue service — 2026-08-09
 
 Honest Jimmy oldid `6393015` pins one `Clue scroll (medium)` for exactly `5,000`

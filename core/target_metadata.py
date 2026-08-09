@@ -680,7 +680,11 @@ def cooking_target_rows(
             quest_unlock_rules,
         )
         level_line = f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n" if has_level_requirement else "No Cooking level requirement.\n"
-        if spec.get("source_always_succeeds"):
+        if spec.get("outcome_kind") == "maturity":
+            alternate_item = str(spec.get("alternate_output_item", "Ordinary ale"))
+            alternate_qty = int(spec.get("alternate_output_qty", 1) or 1)
+            failure_line = f"Ordinary output: {alternate_item} x{alternate_qty}, same XP\n"
+        elif spec.get("source_always_succeeds"):
             failure_line = "Cannot burn or fail.\n"
         else:
             failure_line = f"Burn output: {burnt_item} x1, no XP\n" if burnt_item else "Failure consumes the input, no XP\n"
@@ -688,14 +692,15 @@ def cooking_target_rows(
             output_line = f"Success output: {output_item} x5-35 (one Slice-all action)\n"
             xp_line = f"Base XP: {spec.get('xp_per_output', 0):g} per slice\n"
         else:
-            output_line = f"Success output: {output_item} x{int(spec.get('output_qty', 1) or 1)}\n"
-            xp_line = f"Base XP: {spec.get('exp', 0):g} on success\n"
+            outcome_label = "Mature output" if spec.get("outcome_kind") == "maturity" else "Success output"
+            output_line = f"{outcome_label}: {output_item} x{int(spec.get('output_qty', 1) or 1)}\n"
+            xp_line = f"Base XP: {spec.get('exp', 0):g} per vat\n" if spec.get("outcome_kind") == "maturity" else f"Base XP: {spec.get('exp', 0):g} on success\n"
         tooltip = (
             level_line
             + output_line
             + failure_line
             + xp_line
-            + f"Success chance: {chance:.0f}% per action\n"
+            + (f"Mature chance: {chance:.0f}% per vat\nOne review represents the full vat.\n" if spec.get("outcome_kind") == "maturity" else f"Success chance: {chance:.0f}% per action\n")
             + f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
         byproducts = spec.get("byproducts")

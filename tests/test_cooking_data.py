@@ -20,7 +20,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 84)
+        self.assertEqual(len(COOKING_TARGETS), 86)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -62,6 +62,36 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(
             data["cook_spider_on_a_stick"]["burnt_item"], "Burnt spider"
         )
+
+    def test_dwarven_stout_rows_model_one_full_vat_and_optional_stuff(self):
+        data = cooking_targets_as_dict()
+        ordinary = data["brew_dwarven_stout"]
+        boosted = data["brew_dwarven_stout_with_the_stuff"]
+
+        expected_materials = {
+            "Ale yeast": 1,
+            "Bucket of water": 2,
+            "Barley malt": 2,
+            "Hammerstone hops": 4,
+            "Beer glass": 8,
+        }
+        self.assertEqual(ordinary["requirements"], expected_materials)
+        self.assertEqual(boosted["requirements"], {**expected_materials, "The stuff": 1})
+        for row, chance in ((ordinary, 0.10), (boosted, 0.75)):
+            self.assertEqual(row["level"], 19)
+            self.assertEqual(row["exp"], 215.0)
+            self.assertEqual(row["output_item"], "Dwarven stout (m)")
+            self.assertEqual(row["output_qty"], 8)
+            self.assertEqual(row["alternate_output_item"], "Dwarven stout")
+            self.assertEqual(row["alternate_output_qty"], 8)
+            self.assertEqual(row["byproducts"], {"Bucket": 2})
+            self.assertEqual(row["source_success_formula"]["base"], chance)
+
+        items = cooking_extra_items_as_dict()
+        self.assertEqual(items["Ale yeast"]["item_id"], 5767)
+        self.assertEqual(items["Dwarven stout"]["item_id"], 1913)
+        self.assertEqual(items["Dwarven stout (m)"]["item_id"], 5747)
+        self.assertEqual(items["The stuff"]["category"], "material")
 
     def test_runtime_extra_targets_preserve_live_source_rows(self):
         data = cooking_targets_as_dict()

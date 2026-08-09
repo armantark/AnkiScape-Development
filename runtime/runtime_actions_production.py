@@ -1009,6 +1009,9 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     source_success = cooking_source_roll_chance_pure(success_level, spec)
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
     proposed_outcome_success = roll <= source_success if source_runtime_action else roll < source_success
+    if spec.get("outcome_kind") == "maturity":
+        expected_success = 1.0
+        proposed_outcome_success = True
     byproduct_roll = ctx.random_random() if spec.get("byproduct_item") and roll <= expected_success else None
     inventory_before = dict(player_data.get("inventory", {}) or {})
     new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(

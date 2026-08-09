@@ -23,6 +23,7 @@ from ankiscape.data.trouble_brewing_data import TROUBLE_BREWING_REWARDS  # noqa:
 
 PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 _WIKI_FILE_TITLES = {
+    "The stuff": "The Stuff.png",
     "Red rum": "Rum (red).png",
     "Blue rum": "Rum (blue).png",
 }

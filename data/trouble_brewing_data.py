@@ -79,6 +79,8 @@ class TroubleBrewingReward:
     attack_speed: int = 4
     teleport_destination: str = ""
     clue_tier: str = ""
+    item_category: str = "food"
+    description: str = ""
 
 
 TROUBLE_BREWING_NAVAL_COLOURS = (
@@ -169,6 +171,14 @@ TROUBLE_BREWING_REWARDS = tuple(
         weapon_type=14,
     ),
     TroubleBrewingReward(
+        "the_stuff",
+        "The stuff",
+        5,
+        8988,
+        item_category="material",
+        description="Optional brewing additive that greatly improves the chance of mature ale.",
+    ),
+    TroubleBrewingReward(
         "red_rum",
         "Red rum",
         2,
@@ -220,7 +230,7 @@ def trouble_brewing_activity_as_dict() -> dict[str, dict[str, Any]]:
 def trouble_brewing_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
         reward.display_name: {
-            "category": "equipment" if reward.slot else "food",
+            "category": "equipment" if reward.slot else reward.item_category,
             "source_item_id": reward.source_item_id,
             "stackable": False,
             "tradeable": False,

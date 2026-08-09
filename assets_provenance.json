@@ -4537,6 +4537,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T15:54:22Z"
   },
+  "activityitems/trouble_brewing_the_stuff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:The_Stuff.png",
+    "file_title": "The Stuff.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502063827%21The_Stuff.png?fe5e7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "69dd285cf80826ea7a947bd6e4ed985346401d47",
+    "size": 655,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T17:46:21Z"
+  },
   "activityitems/trouble_brewing_treasure_flag.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Treasure_flag.png",
     "file_title": "Treasure flag.png",
@@ -15418,6 +15430,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-04T03:27:44Z"
   },
+  "cookingitems/ale_yeast.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ale_yeast.png",
+    "file_title": "Ale yeast.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502004348%21Ale_yeast.png?b5df7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "da76f6262b80a1f2d1701668f97dcfe850211cdd",
+    "size": 613,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-10T00:57:52Z"
+  },
   "cookingitems/anchovies.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Anchovies.png",
     "file_title": "Anchovies.png",
@@ -16272,6 +16296,18 @@
     "size": 791,
     "source_wiki": "rs3",
     "timestamp": "2011-11-20T09:55:46Z"
+  },
+  "cookingitems/dwarven_stout_m.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dwarven_stout_%28m%29.png",
+    "file_title": "Dwarven stout (m).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070918%21Dwarven_stout_%28m%29.png?d2acd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6c5e6abc1877a3a1550366b670f022238552cd70",
+    "size": 1485,
+    "source_wiki": "rs3",
+    "timestamp": "2008-06-29T20:05:52Z"
   },
   "cookingitems/dwellberries.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dwellberries.png",

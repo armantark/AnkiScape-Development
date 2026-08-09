@@ -3825,6 +3825,59 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["xp"], [30.0])
         self.assertEqual(calls["saves"], 1)
 
+    def test_dwarven_stout_runtime_records_both_full_vat_outcomes_as_completed(self):
+        materials = {
+            "Ale yeast": 2,
+            "Bucket of water": 4,
+            "Barley malt": 4,
+            "Hammerstone hops": 8,
+            "Beer glass": 16,
+        }
+        mature_calls = {"xp": [], "saves": 0, "errors": []}
+        mature_data = {
+            "inventory": {**materials, "The stuff": 1},
+            "cooking_level": 19,
+            "cooking_exp": 0.0,
+            "current_cooking": "brew_dwarven_stout_with_the_stuff",
+            "completed_achievements": [],
+        }
+        self.assertTrue(
+            handle_cooking_answer(
+                _context(mature_data, mature_calls, random_values=[0.50])
+            )
+        )
+        self.assertEqual(mature_data["inventory"]["Dwarven stout (m)"], 8)
+        self.assertEqual(mature_data["inventory"]["Bucket"], 2)
+        self.assertEqual(mature_data["inventory"]["The stuff"], 0)
+        self.assertEqual(mature_data["cooking_exp"], 215.0)
+        self.assertEqual(mature_calls["activity"], ["+8 Dwarven stout (m) · +2 Bucket"])
+
+        ordinary_calls = {"xp": [], "saves": 0, "errors": []}
+        ordinary_data = {
+            "inventory": dict(materials),
+            "cooking_level": 19,
+            "cooking_exp": 0.0,
+            "current_cooking": "brew_dwarven_stout",
+            "completed_achievements": [],
+        }
+        self.assertTrue(
+            handle_cooking_answer(
+                _context(ordinary_data, ordinary_calls, random_values=[0.50])
+            )
+        )
+        self.assertEqual(ordinary_data["inventory"]["Dwarven stout"], 8)
+        self.assertEqual(ordinary_data["inventory"]["Bucket"], 2)
+        self.assertEqual(ordinary_data["cooking_exp"], 215.0)
+        telemetry = ordinary_data["action_telemetry"]["actions"][
+            "cooking:brew_dwarven_stout"
+        ]
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["failures"], 0)
+        self.assertEqual(telemetry["expected_successes"], 1.0)
+        self.assertEqual(
+            telemetry["outputs"], {"Dwarven stout": 8, "Bucket": 2}
+        )
+
     def test_cooking_runtime_extra_gutting_uses_source_rolls(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

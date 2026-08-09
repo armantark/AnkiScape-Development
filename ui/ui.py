@@ -725,6 +725,7 @@ _COOKING_FAMILY_LABELS = {
     "gnome_battas": "Gnome battas",
     "gnome_bowls": "Gnomebowls",
     "gnome_cocktails": "Gnome cocktails",
+    "brewing": "Brewing",
 }
 
 _UTILITY_GROUP_LABELS = {
@@ -14949,6 +14950,9 @@ def show_main_menu(
                 destination = str(reward.get("teleport_destination", ""))
                 clue_tier = str(reward.get("clue_tier", ""))
                 tooltip_parts = []
+                description = str(reward.get("description", ""))
+                if description:
+                    tooltip_parts.append(description)
                 if destination:
                     tooltip_parts.append(f"One-use teleport to {destination}.")
                 elif clue_tier:
@@ -21995,7 +21999,7 @@ def show_main_menu(
         "Firemaking": "Select Logs to Burn",
         "Fishing": "Select Fish to Catch",
         "Hunter": "Select Creature to Hunt",
-        "Cooking": "Select Food to Cook",
+        "Cooking": "Select what to cook or brew",
         "Runecrafting": "Select Runecrafting Action",
         "Herblore": "Select what to clean, mix, or brew",
         "Magic": "Select a Spell to Cast",

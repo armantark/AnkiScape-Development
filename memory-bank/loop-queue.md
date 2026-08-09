@@ -114,4 +114,4 @@ Process one unblocked item per iteration. Move discovered design gaps to
      established direct-action route/undo seam.
    - [x] Complete Honest Jimmy's 5,000-Piece medium-clue service through the
      settled Treasure Trails one-clue-total rule.
-   - [ ] Complete `The stuff` through the owning mature-ale brewing action.
+   - [x] Complete `The stuff` through the owning mature-ale brewing action.
