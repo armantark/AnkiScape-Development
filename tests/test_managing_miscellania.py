@@ -9,7 +9,14 @@ from ankiscape.logic.managing_miscellania_logic import (
     managing_miscellania_view_pure,
     sanitize_managing_miscellania_player_state_pure,
 )
-from ankiscape.core.constants import ORE_DATA
+from ankiscape.data.managing_miscellania_data import (
+    MISCELLANIA_REPRESENTATIVE_FARMING_SEED_MIX,
+    MISCELLANIA_REPRESENTATIVE_HERB_MIX,
+    MISCELLANIA_RESOURCE_BY_ID,
+    MISCELLANIA_RESOURCE_FAMILIES,
+)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.item_registry import item_definitions_by_storage_key
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 
 
@@ -30,6 +37,168 @@ def _player(*, royal: bool = False, answered_cards: int = 0):
 
 
 class ManagingMiscellaniaLogicTest(unittest.TestCase):
+    def test_cutoff_catalog_contains_all_six_resource_families(self):
+        self.assertEqual(
+            tuple(family.id for family in MISCELLANIA_RESOURCE_FAMILIES),
+            ("mining", "wood", "harvesting", "fishing", "hardwood", "farming"),
+        )
+        self.assertEqual(
+            tuple(
+                variant.id
+                for variant in MISCELLANIA_RESOURCE_BY_ID["harvesting"].variants
+            ),
+            ("flax", "herbs"),
+        )
+        self.assertEqual(
+            tuple(
+                variant.id
+                for variant in MISCELLANIA_RESOURCE_BY_ID["fishing"].variants
+            ),
+            ("raw", "cooked"),
+        )
+
+    def test_representative_range_rows_preserve_source_totals_and_bounds(self):
+        herb_mix = dict(MISCELLANIA_REPRESENTATIVE_HERB_MIX)
+        self.assertEqual(sum(herb_mix.values()), 61)
+        herb_bounds = {
+            "Grimy tarromin": (10, 17),
+            "Grimy harralander": (8, 20),
+            "Grimy ranarr": (1, 6),
+            "Grimy irit": (5, 13),
+            "Grimy avantoe": (7, 12),
+            "Grimy kwuarm": (1, 9),
+            "Grimy cadantine": (2, 5),
+            "Grimy lantadyme": (1, 5),
+            "Grimy dwarf weed": (1, 6),
+        }
+        self.assertTrue(
+            all(
+                low <= herb_mix[item] <= high
+                for item, (low, high) in herb_bounds.items()
+            )
+        )
+
+        farming = dict(MISCELLANIA_REPRESENTATIVE_FARMING_SEED_MIX)
+        farming_bounds = {
+            "Potato seed": (92, 95),
+            "Onion seed": (67, 71),
+            "Cabbage seed": (34, 35),
+            "Tomato seed": (30, 40),
+            "Sweetcorn seed": (10, 16),
+            "Strawberry seed": (2, 3),
+            "Watermelon seed": (1, 2),
+            "Barley seed": (17, 18),
+            "Hammerstone seed": (22, 35),
+            "Asgarnian seed": (15, 18),
+            "Jute seed": (18, 23),
+            "Yanillian seed": (6, 16),
+            "Krandorian seed": (5, 8),
+            "Wildblood seed": (4, 5),
+            "Marigold seed": (23, 31),
+            "Rosemary seed": (7, 12),
+            "Nasturtium seed": (10, 14),
+            "Woad seed": (2, 7),
+            "Limpwurt seed": (7, 7),
+            "Guam seed": (5, 8),
+            "Marrentill seed": (6, 8),
+            "Tarromin seed": (3, 3),
+            "Irit seed": (1, 3),
+            "Ranarr seed": (0, 2),
+            "Avantoe seed": (1, 1),
+            "Snapdragon seed": (0, 1),
+            "Torstol seed": (0, 1),
+            "Redberry seed": (15, 24),
+            "Cadavaberry seed": (11, 12),
+            "Dwellberry seed": (3, 7),
+            "Jangerberry seed": (1, 4),
+            "Poison ivy seed": (0, 1),
+            "Mushroom spore": (1, 2),
+            "Cactus seed": (0, 1),
+            "Belladonna seed": (1, 2),
+        }
+        self.assertTrue(
+            all(
+                low <= farming[item] <= high
+                for item, (low, high) in farming_bounds.items()
+            )
+        )
+        groups = (
+            (
+                (
+                    "Potato seed",
+                    "Onion seed",
+                    "Cabbage seed",
+                    "Tomato seed",
+                    "Sweetcorn seed",
+                    "Strawberry seed",
+                    "Watermelon seed",
+                ),
+                (248, 250),
+            ),
+            (
+                (
+                    "Barley seed",
+                    "Hammerstone seed",
+                    "Asgarnian seed",
+                    "Jute seed",
+                    "Yanillian seed",
+                    "Krandorian seed",
+                    "Wildblood seed",
+                ),
+                (104, 106),
+            ),
+            (
+                (
+                    "Marigold seed",
+                    "Rosemary seed",
+                    "Nasturtium seed",
+                    "Woad seed",
+                    "Limpwurt seed",
+                ),
+                (58, 62),
+            ),
+            (
+                (
+                    "Guam seed",
+                    "Marrentill seed",
+                    "Tarromin seed",
+                    "Irit seed",
+                    "Ranarr seed",
+                    "Avantoe seed",
+                    "Snapdragon seed",
+                    "Torstol seed",
+                ),
+                (19, 24),
+            ),
+            (
+                (
+                    "Redberry seed",
+                    "Cadavaberry seed",
+                    "Dwellberry seed",
+                    "Jangerberry seed",
+                    "Poison ivy seed",
+                ),
+                (38, 40),
+            ),
+            (("Mushroom spore", "Cactus seed", "Belladonna seed"), (3, 4)),
+        )
+        for items, (low, high) in groups:
+            self.assertLessEqual(low, sum(farming[item] for item in items))
+            self.assertLessEqual(sum(farming[item] for item in items), high)
+        self.assertEqual(farming["Willow seed"], 1)
+        self.assertEqual(farming["Apple tree seed"], 1)
+
+    def test_every_collection_output_has_a_canonical_item_definition(self):
+        registered = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        outputs = {
+            item
+            for family in MISCELLANIA_RESOURCE_FAMILIES
+            for variant in family.variants
+            for item, _quantity in variant.outputs_per_full_day
+        }
+        outputs.add("Bird's nest (seeds)")
+        self.assertEqual(sorted(outputs - registered.keys()), [])
+
     def test_new_state_starts_at_current_review_day_without_retroactive_production(self):
         data = _player(answered_cards=4_800)
         updated, events = advance_managing_miscellania_world_clock_pure(data)
@@ -116,6 +285,49 @@ class ManagingMiscellaniaLogicTest(unittest.TestCase):
         )
         self.assertTrue(ok)
         self.assertEqual(data["managing_miscellania"]["variants"]["hardwood"], "mixed")
+
+    def test_new_resource_rows_repair_into_existing_saves(self):
+        data = _player()
+        data["managing_miscellania"]["allocations"] = {
+            "mining": 4,
+            "wood": 3,
+            "hardwood": 2,
+        }
+        data["managing_miscellania"]["variants"] = {"hardwood": "mixed"}
+
+        state = sanitize_managing_miscellania_player_state_pure(data)[
+            "managing_miscellania"
+        ]
+
+        self.assertEqual(state["allocations"]["mining"], 4)
+        self.assertEqual(state["allocations"]["harvesting"], 0)
+        self.assertEqual(state["allocations"]["fishing"], 0)
+        self.assertEqual(state["allocations"]["farming"], 0)
+        self.assertEqual(state["variants"]["harvesting"], "flax")
+        self.assertEqual(state["variants"]["fishing"], "raw")
+        self.assertEqual(state["variants"]["hardwood"], "mixed")
+
+    def test_new_resource_variants_collect_through_the_existing_atomic_command(self):
+        data = _player()
+        data["managing_miscellania"]["production_credit"] = 1_000_000
+        data, ok, info = apply_managing_miscellania_command_pure(
+            data, "set_workers", {"family_id": "fishing", "workers": 10}
+        )
+        self.assertTrue(ok, info)
+        data, ok, info = apply_managing_miscellania_command_pure(
+            data, "set_variant", {"family_id": "fishing", "variant_id": "cooked"}
+        )
+        self.assertTrue(ok, info)
+
+        data, ok, info = apply_managing_miscellania_command_pure(data, "collect")
+
+        self.assertTrue(ok, info)
+        self.assertEqual(data["inventory"]["Tuna"], 440)
+        self.assertEqual(data["inventory"]["Swordfish"], 131)
+        self.assertEqual(data["inventory"]["Casket"], 4)
+        self.assertEqual(data["inventory"]["Uncut sapphire"], 4)
+        self.assertEqual(data["managing_miscellania"]["production_credit"], 0)
+        self.assertEqual(info["outputs"]["Tuna"], 440)
 
     def test_corrupt_allocations_and_coffer_sanitize_to_live_quest_limits(self):
         data = _player()

@@ -68,15 +68,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
         self.assertEqual(
             report["routes"]["Nasturtium seed"],
-            "Thieving:pickpocket_master_farmer",
+            "Utility:managing_miscellania",
         )
         self.assertEqual(
             report["routes"]["Redberry seed"],
-            "Thieving:pickpocket_master_farmer",
+            "Utility:managing_miscellania",
         )
         self.assertEqual(
             report["routes"]["Cadavaberry seed"],
-            "Thieving:pickpocket_master_farmer",
+            "Utility:managing_miscellania",
         )
         self.assertEqual(
             report["routes"]["Stardust"],

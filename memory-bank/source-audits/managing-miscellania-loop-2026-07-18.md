@@ -5,8 +5,9 @@ Date: `2026-07-18`
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
 Status: **owner-design loop closed; the mechanic-complete horizontal slice is
-implemented as of 2026-07-21. Remaining resource families, hidden bonus
-selectors, and additional approval chores are catalog depth.**
+implemented as of 2026-07-21, and all six cutoff resource families are live as
+of 2026-08-08. Hidden bonus selectors and additional approval chores remain
+catalog depth.**
 
 ## Pinned period evidence
 
@@ -196,8 +197,8 @@ source identity is recorded in `assets_provenance.json`.
 
 Remaining source depth:
 
-- exact herb, flax, fishing, and Farming output tables;
 - the hidden gem, seed, ring, casket, clue, and nest-type selectors;
+- Fishing assorted-extra quantities and the exact herb/Farming mix selectors;
 - additional approval chores and any recognition rolls;
 - the source storage ceiling, Fremennik-task modifiers, and flatpack coffer
   values; and

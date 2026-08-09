@@ -2,6 +2,29 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 29 completes Managing Miscellania's cutoff
+resource-family catalog.** `Managing Miscellania` oldid `6500793` supplies all
+six productive rows: Mining, Wood, Flax/Herbs, Fishing, Hardwood, and Farming.
+The live catalog now preserves every fixed quantity, item range, category
+total, player-selectable variant, and the Maple-nest equation. Five hidden
+server selectors remain explicit registered placeholders; Fishing's uncounted
+assorted extras remain omitted instead of receiving an invented quantity. Old
+saves repair the three new allocation keys at zero workers without a schema
+bump, and the existing atomic collection path returns the exact banked output
+map. The real 1000×560 dialog exposed clipping that the old geometry test missed,
+so the panel now separates `Kingdom` and `Resources`, pages workers three at a
+time, reports hidden-page assignments, and keeps full payout detail accessible
+without overflowing the card. Kimi K3 and Opus found no blocking taste defect;
+their concrete accessibility, alignment, focus, and copy findings were fixed.
+Focused plain verification passes 338 tests; focused real offscreen-Qt UI and
+asset verification passes 4 tests. Full discovery passes 3,876 tests in both
+lanes: plain records 3,397 ordinary passes and 479 expected environment skips;
+real offscreen Qt records 3,873 ordinary passes and 3 intentional skips.
+Documentation audits 521 Markdown and 431 HTML files; test quality reports zero
+hard issues across 3,842 tests in 176 files. Compilation, JSON, diff,
+asset-normalization, and worktree audits pass. Reachability improves to 1,499
+actions, 2,234 reachable items, 168 orphan inputs, and 188 blocked actions.
+
 **2026-08-08, grind-loop iteration 28 completes Penguin Hide and Seek's cutoff
 spawn catalog.** `Penguin Hide and Seek/Spawn locations` oldid `6566231`
 literally supplies 67 ordinary locations: 34 one-point and 33 two-point

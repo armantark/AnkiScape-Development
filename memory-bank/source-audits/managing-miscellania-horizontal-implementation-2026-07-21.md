@@ -4,6 +4,11 @@ Date: `2026-07-21`
 
 Status: **mechanic-complete horizontal slice implemented and verified.**
 
+Catalog supersession: the three-family data boundary below was expanded to all
+six cutoff families on 2026-08-08. The newer authority is
+`managing-miscellania-resource-depth-2026-08-08.md`; the original horizontal
+verification remains historical evidence for the unchanged mechanic kernel.
+
 Authority:
 
 - `memory-bank/source-audits/managing-miscellania-loop-2026-07-18.md`
@@ -41,6 +46,9 @@ disclosed lowest-value representative for the source's unresolved generic
 `3 gems`, and `Bird's nest (seeds)` represents nest identity while retaining
 the exact one-per-100-Maple-log quantity. Full resource-family and hidden bonus
 distribution coverage remains data depth.
+
+This boundary is historical. Harvesting, Fishing, and Farming are now live;
+only the hidden selectors and other named depth rows remain unresolved.
 
 ## Verification ledger
 

@@ -12,6 +12,7 @@ from ..data.managing_miscellania_data import (
     MISCELLANIA_CREDIT_SCALE,
     MISCELLANIA_RESOURCE_BY_ID,
     MISCELLANIA_RESOURCE_FAMILIES,
+    MISCELLANIA_REPRESENTATIVE_NEST,
     MISCELLANIA_REVIEWS_PER_DAY,
     ROYAL_TROUBLE_QUEST_ID,
 )
@@ -249,7 +250,7 @@ def miscellania_collection_outputs_pure(
                 outputs[item] = outputs.get(item, 0) + quantity
     maple_logs = outputs.get("Maple logs", 0)
     if maple_logs:
-        outputs["Bird's nest (seeds)"] = maple_logs // 100
+        outputs[MISCELLANIA_REPRESENTATIVE_NEST] = maple_logs // 100
     return outputs
 
 
@@ -407,7 +408,12 @@ def apply_managing_miscellania_command_pure(
         data["inventory"] = inventory
         state["production_credit"] = 0
         state["collections"] += 1
-        summary = ", ".join(f"{item} ×{quantity:,}" for item, quantity in outputs.items())
+        output_rows = tuple(outputs.items())
+        summary = ", ".join(
+            f"{item} ×{quantity:,}" for item, quantity in output_rows[:5]
+        )
+        if len(output_rows) > 5:
+            summary += f", and {len(output_rows) - 5} more resource lines"
         message = f"Advisor Ghrim banked {summary}."
     else:
         return data, False, {"reason": "Unknown Managing Miscellania action."}
@@ -415,7 +421,7 @@ def apply_managing_miscellania_command_pure(
     data.update(sanitized)
     data["managing_miscellania"] = state
     data["managing_miscellania_last_result"] = message
-    return data, True, {"message": message}
+    return data, True, {"message": message, "outputs": outputs if action_id == "collect" else {}}
 
 
 def managing_miscellania_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:

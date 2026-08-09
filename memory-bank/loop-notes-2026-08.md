@@ -1,5 +1,32 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 29 — Managing Miscellania resource families
+
+- Evidence: RuneScape Wiki `Managing Miscellania` oldid `6500793`, timestamp
+  `2012-10-30T06:29:55Z`.
+- Result: the live catalog now contains all six productive cutoff families:
+  Mining, Wood, Flax/Herbs, Fishing, Hardwood, and Farming. Fixed quantities,
+  item ranges, category totals, selectable variants, and the Maple-nest equation
+  are exact. Old saves repair new allocation keys at zero without a migration,
+  and atomic collection returns its exact banked output map.
+- Placeholders: five `managing_miscellania.*` rows disclose the unrecovered gem,
+  nest, herb-seed, herb-composition, and Farming-composition selectors. Every
+  representative stays inside the source's literal ranges and totals. Fishing's
+  uncounted assorted extras remain omitted rather than receiving a false count.
+- UI: real-size offscreen capture exposed vertical clipping that the old panel
+  test did not detect. `Kingdom` and `Resources` tabs plus two three-worker
+  pages fit the 1000×560 card, preserve stable columns and focus, surface hidden
+  assignments, and retain the full payout through tooltips and accessibility.
+  Kimi K3 and Opus found no blocking taste defect after their concrete findings
+  were reproduced and fixed.
+- Verification: 338 focused plain tests and 4 focused real offscreen-Qt UI and
+  asset tests pass. Full plain discovery passes 3,876 tests with 479 expected
+  skips; full real offscreen-Qt discovery passes 3,876 with 3 intentional skips.
+  Documentation audits 521 Markdown and 431 HTML files; test quality reports
+  zero hard issues across 3,842 tests in 176 files. Compilation, JSON, diff,
+  asset-normalization, and worktree audits pass. Reachability improves to 1,499
+  actions, 2,234 reachable items, 168 orphan inputs, and 188 blocked actions.
+
 ## Iteration 28 — Penguin Hide and Seek spawn catalog
 
 - Evidence: RuneScape Wiki `Penguin Hide and Seek/Spawn locations` oldid

@@ -14151,6 +14151,12 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         panel = _find_named_widget(dialog, "managingMiscellaniaPanel")
         self.assertIsNone(panel.findChild(QScrollArea))
+        pages = panel.findChild(QTabWidget, "managingMiscellaniaTabs")
+        self.assertEqual(
+            tuple(pages.tabText(index) for index in range(pages.count())),
+            ("Kingdom", "Resources"),
+        )
+        self.assertEqual(pages.currentIndex(), 0)
         self.assertFalse(
             panel.findChild(QLabel, "managingMiscellaniaIcon").pixmap().isNull()
         )
@@ -14173,6 +14179,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["managing_miscellania"]["coffer"], 800_000)
         self.assertEqual(pd["inventory"]["Coins"], 200_000)
 
+        pages.setCurrentIndex(1)
+        QApplication.processEvents()
         wood = panel.findChild(QSpinBox, "managingMiscellaniaWorkers_wood")
         _find_named_button(dialog, "managingMiscellaniaMax_wood").click()
         QApplication.processEvents()
@@ -14186,7 +14194,71 @@ class MainMenuWidgetTest(unittest.TestCase):
             _find_named_label(dialog, "managingMiscellaniaStatusChip").text(),
             "FULLY ASSIGNED",
         )
+        self.assertFalse(
+            panel.findChild(QComboBox, "managingMiscellaniaVariant_mining").isEnabled()
+        )
+        self.assertTrue(
+            panel.findChild(QComboBox, "managingMiscellaniaVariant_harvesting").isEnabled()
+        )
+        page_one_combo_x = panel.findChild(
+            QComboBox, "managingMiscellaniaVariant_harvesting"
+        ).geometry().x()
+        page_one_max_x = _find_named_button(
+            dialog, "managingMiscellaniaMax_harvesting"
+        ).geometry().x()
         self.assertIn("Maple logs ×892", preview.text())
+
+        wood.setValue(0)
+        QApplication.processEvents()
+        _find_named_widget(dialog, "managingMiscellaniaWorkersNext").click()
+        QApplication.processEvents()
+        self.assertEqual(
+            _find_named_label(dialog, "managingMiscellaniaWorkersPage").text(),
+            "2 / 2",
+        )
+        self.assertEqual(
+            panel.findChild(
+                QComboBox, "managingMiscellaniaVariant_fishing"
+            ).geometry().x(),
+            page_one_combo_x,
+        )
+        self.assertEqual(
+            _find_named_button(dialog, "managingMiscellaniaMax_fishing").geometry().x(),
+            page_one_max_x,
+        )
+        _find_named_button(dialog, "managingMiscellaniaMax_farming").click()
+        QApplication.processEvents()
+        self.assertIn("+32 more", preview.text())
+        self.assertIn("Apple tree seed ×1", preview.toolTip())
+        self.assertIn("Apple tree seed ×1", preview.accessibleDescription())
+        self.assertFalse(
+            _find_named_button(dialog, "managingMiscellaniaMax_farming").isEnabled()
+        )
+
+        _find_named_widget(dialog, "managingMiscellaniaWorkersNext").click()
+        QApplication.processEvents()
+        self.assertEqual(
+            _find_named_label(dialog, "managingMiscellaniaWorkersPage").text(),
+            "1 / 2",
+        )
+        self.assertIn(
+            "10 on other page",
+            _find_named_label(dialog, "managingMiscellaniaWorkersCount").text(),
+        )
+
+        panel = _find_named_widget(dialog, "managingMiscellaniaPanel")
+        panel.adjustSize()
+        QApplication.processEvents()
+        self.assertLessEqual(panel.height(), dialog.contentsRect().height())
+
+        _find_named_widget(dialog, "managingMiscellaniaWorkersPrevious").click()
+        QApplication.processEvents()
+        panel.findChild(QSpinBox, "managingMiscellaniaWorkers_farming").setValue(0)
+        QApplication.processEvents()
+        _find_named_widget(dialog, "managingMiscellaniaWorkersPrevious").click()
+        QApplication.processEvents()
+        _find_named_button(dialog, "managingMiscellaniaMax_wood").click()
+        QApplication.processEvents()
 
         collect = _find_named_button(dialog, "managingMiscellaniaCollectButton")
         self.assertTrue(collect.isEnabled())
@@ -14231,6 +14303,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             max(child.geometry().bottom() for child in visible_children),
             panel.contentsRect().bottom(),
         )
+        select_bottom = select.mapTo(dialog, QPoint(0, select.height())).y()
+        chooser_top = _find_named_button(
+            dialog, "activityChooseAnotherButton"
+        ).mapTo(dialog, QPoint(0, 0)).y()
+        self.assertLessEqual(select_bottom, chooser_top)
 
     def test_managing_miscellania_quest_gate_is_visible_without_hover(self) -> None:
         from ankiscape.logic.managing_miscellania_logic import default_managing_miscellania_state_pure
@@ -14255,7 +14332,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             _find_named_label(dialog, "managingMiscellaniaSummary").text(),
         )
         self.assertIn(
-            "Horizontal catalog: Mining, Maple, and Hardwood",
+            "Six cutoff resource families are available",
             _find_named_label(dialog, "managingMiscellaniaSummary").text(),
         )
         panel = _find_named_widget(dialog, "managingMiscellaniaPanel")

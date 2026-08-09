@@ -86,3 +86,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
      crash sites, preserving live legacy events through exact-name repair.
    - [x] Replace Penguin Hide and Seek's twelve-row breadth sample with all 34
      one-point and 33 two-point cutoff location/disguise pairs.
+   - [x] Complete Managing Miscellania's six cutoff resource families and keep
+     unrecovered server selectors explicit in the placeholder register.

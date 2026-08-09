@@ -1,5 +1,34 @@
 # Progress
 
+## Managing Miscellania resource-family closure — 2026-08-08
+
+RuneScape Wiki `Managing Miscellania` oldid `6500793`, timestamp
+`2012-10-30T06:29:55Z`, supplies the complete cutoff resource table. Mining,
+Wood, Flax/Herbs, Fishing, Hardwood, and Farming are now all live with their
+fixed quantities, item ranges, category totals, player-selectable variants, and
+Maple-nest equation. Existing saves add the three new allocations at zero and
+preserve the selected old variant without a schema bump. Collection remains one
+atomic command and now returns its exact output map.
+
+The unrecovered gem, nest, herb-seed, herb-composition, and Farming-composition
+selectors are registered under `managing_miscellania.*`. Every deterministic
+composition remains inside the source's exact ranges and totals. Fishing's
+assorted extras remain omitted because the source states no quantity. The real
+1000×560 card now uses `Kingdom` and `Resources` tabs plus two compact
+three-worker pages, preventing the former clipping while preserving full
+tooltip and accessibility detail. Kimi K3 and Opus found no blocking taste
+defect after the reproduced accessibility, alignment, focus, and copy findings
+were fixed.
+
+Focused plain verification passes 338 tests; focused real offscreen-Qt UI and
+asset verification passes 4 tests. Full discovery passes 3,876 tests in both
+lanes: plain records 3,397 ordinary passes and 479 expected environment skips;
+real offscreen Qt records 3,873 ordinary passes and 3 intentional skips.
+Documentation audits 521 Markdown and 431 HTML files; test quality reports zero
+hard issues across 3,842 tests in 176 files. Compilation, JSON, diff, asset
+normalization, and worktree audits pass. Reachability improves to 1,499 actions,
+2,234 reachable items, 168 orphan inputs, and 188 blocked actions.
+
 ## Penguin Hide and Seek spawn-catalog closure — 2026-08-08
 
 RuneScape Wiki `Penguin Hide and Seek/Spawn locations` oldid `6566231`,
