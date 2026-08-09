@@ -14,6 +14,7 @@ from ankiscape.logic import cadence_coverage
 from ankiscape.core import constants
 from ankiscape.data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
+    GREAT_ORB_PROJECT_TALISMAN_REWARDS,
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
 )
@@ -55,7 +56,15 @@ class GreatOrbProjectDataTests(unittest.TestCase):
         self.assertEqual(spec["surface"], "activities")
         registered = {item.display_name for item in constants.ITEM_DEFINITIONS}
         self.assertIn("Pure essence", registered)
-        self.assertIn("Air talisman", registered)
+        self.assertTrue(
+            {
+                item
+                for _reward_id, item, _tokens, _item_id in (
+                    GREAT_ORB_PROJECT_TALISMAN_REWARDS
+                )
+            }
+            <= registered
+        )
         self.assertIn("Elemental talisman", registered)
         self.assertIn("Omni-talisman", registered)
         self.assertIn("Omni-tiara", registered)
@@ -71,6 +80,23 @@ class GreatOrbProjectDataTests(unittest.TestCase):
             width, height, bit_depth, color_type = struct.unpack(">IIBB", header[16:26])
             self.assertEqual((bit_depth, color_type), (8, 6))
             self.assertLessEqual(max(width, height), 64)
+
+    def test_ordinary_talisman_catalog_has_exact_cutoff_costs_and_item_ids(self):
+        self.assertEqual(
+            GREAT_ORB_PROJECT_TALISMAN_REWARDS,
+            (
+                ("air_talisman", "Air talisman", 50, 1438),
+                ("mind_talisman", "Mind talisman", 50, 1448),
+                ("water_talisman", "Water talisman", 50, 1444),
+                ("earth_talisman", "Earth talisman", 50, 1440),
+                ("fire_talisman", "Fire talisman", 50, 1442),
+                ("body_talisman", "Body talisman", 50, 1446),
+                ("cosmic_talisman", "Cosmic talisman", 125, 1454),
+                ("chaos_talisman", "Chaos talisman", 125, 1452),
+                ("nature_talisman", "Nature talisman", 125, 1462),
+                ("law_talisman", "Law talisman", 125, 1458),
+            ),
+        )
 
     def test_cadence_ledger_names_one_round_per_review(self):
         row = next(
@@ -185,6 +211,30 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("Finish or leave", info["reason"])
 
+    def test_every_ordinary_talisman_is_a_one_at_a_time_token_purchase(self):
+        player = _player(
+            great_orb_project={
+                "tokens": 800,
+                "automation_mode": "casual",
+                "doctrine": "balanced",
+                "crafting_policy": "craft_each_round",
+                "active": {},
+            }
+        )
+        for reward_id, item, tokens, _item_id in (
+            GREAT_ORB_PROJECT_TALISMAN_REWARDS
+        ):
+            before = player["great_orb_project"]["tokens"]
+            player, ok, info = buy_great_orb_project_reward_pure(
+                player, reward_id, 99
+            )
+            self.assertTrue(ok, info)
+            self.assertEqual(player["inventory"][item], 1)
+            self.assertEqual(
+                player["great_orb_project"]["tokens"], before - tokens
+            )
+        self.assertEqual(player["great_orb_project"]["tokens"], 0)
+
     def test_elriss_claim_and_korvak_conversion_make_omni_feeds_reachable(self):
         player = _player()
         blocked, ok, info = buy_great_orb_project_reward_pure(
@@ -228,7 +278,7 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
     def test_view_exposes_lock_policy_shop_and_active_round(self):
         locked = great_orb_project_view_pure(_player(runecrafting_level=49))
         self.assertFalse(locked["eligible"])
-        self.assertEqual(len(locked["rewards"]), 5)
+        self.assertEqual(len(locked["rewards"]), 14)
         self.assertTrue(
             all(reward["locked_reason"] for reward in locked["rewards"])
         )

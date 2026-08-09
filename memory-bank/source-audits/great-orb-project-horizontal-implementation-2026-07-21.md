@@ -120,3 +120,11 @@ The two early read-only Codex Workflows reconnaissance leaves were canceled
 after failing to converge; neither produced evidence used by the
 implementation. The primary agent independently reproduced the source and
 substrate work above.
+
+## Ordinary talisman catalog continuation — 2026-08-08
+
+The manual Elriss shop now includes all ten ordinary cutoff talismans: the six
+free-to-play rows at 50 tokens and the four members-only rows at 125 tokens.
+Death and Blood remain excluded. Exact evidence, item identities, boundaries,
+and closure results live in
+`memory-bank/source-audits/great-orb-project-talisman-catalog-2026-08-08.md`.

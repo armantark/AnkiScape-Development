@@ -1,5 +1,33 @@
 # Progress
 
+## Great Orb Project ordinary-talisman catalog — 2026-08-08
+
+RuneScape Wiki `The Great Orb Project` oldid `6564759`, timestamp
+`2012-11-17T03:12:07Z`, pins every ordinary talisman except Death and Blood at
+50 tokens for free-to-play rows and 125 for members-only rows. The live Elriss
+shop now carries Air, Mind, Water, Earth, Fire, Body, Cosmic, Chaos, Nature, and
+Law talismans at those exact prices. Rev-742 and the authentic item table pin
+their exact identities, non-stackability, and exchangeability.
+
+Each talisman ignores Buy X and purchases one at a time through the existing
+atomic reward command, preserving direct-action undo. The outputs are the
+existing canonical Runecrafting items, so no parallel altar, binding, Omni,
+inventory, Bank, or discard implementation was added. The existing reward
+selector shows their already-provenanced sprites in fixed 24-pixel slots.
+
+Kimi K3 returned `NO_BLOCKER`, and root inspected the real 1200×760 dark shop
+render. Opus could not start because its supported quota preflight returned the
+same stale snapshot on three attempts; the review was not bypassed through an
+unsupported route. Focused verification passes 280 pure/integration/undo/
+registry tests and one real offscreen Qt selector test. Full discovery passes
+3,891 tests in both lanes: plain has 479 expected dependency skips and real
+offscreen Qt has 3 intentional skips. Documentation audits 524 Markdown and
+431 HTML files; test quality reports zero hard issues across 3,857 tests in 177
+files. Compilation, tracked JSON, diff, asset normalization, and worktree
+safety pass. Reachability remains at 1,499 actions, 2,240 reachable items, 168
+orphan inputs, and 188 unresolved actions. No placeholder or design gap was
+added.
+
 ## Papercut remediation closure — 2026-08-09
 
 Every recorded incident through `memory-bank/papercuts.md` snapshot line 127

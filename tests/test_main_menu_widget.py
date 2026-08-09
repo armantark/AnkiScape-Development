@@ -14022,6 +14022,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(currency.text(), "200 tokens")
         self.assertIn("Eight altar rounds", summary.text())
         self.assertTrue(progress.isHidden())
+        self.assertEqual(reward.count(), 14)
+        self.assertEqual(reward.iconSize().width(), 24)
+        self.assertEqual(reward.iconSize().height(), 24)
+        for reward_id in (
+            "air_talisman",
+            "mind_talisman",
+            "water_talisman",
+            "earth_talisman",
+            "fire_talisman",
+            "body_talisman",
+            "cosmic_talisman",
+            "chaos_talisman",
+            "nature_talisman",
+            "law_talisman",
+        ):
+            reward_index = reward.findData(reward_id)
+            self.assertGreaterEqual(reward_index, 0)
+            self.assertFalse(reward.itemIcon(reward_index).isNull())
         self.assertGreaterEqual(reward.findData("elemental_talisman"), 0)
         reward.setCurrentIndex(reward.findData("omni_talisman"))
         QApplication.processEvents()

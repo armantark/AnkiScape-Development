@@ -1228,11 +1228,12 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   orb/barrier participation, round essence, ordinary rune multipliers, double
   XP, pending and majority token settlement, early-leave forfeiture,
   Casual/Advanced policy, persistence, undo, cadence, period art, and a manual
-  Wizard Elriss shop with Pure essence Buy X. The representative reward graph
-  also provides the Elemental talisman, first and replacement Omni-talisman
-  claims, the exact one-time 13,605 Runecrafting XP, and Korvak's Omni-tiara
-  conversion. Exact hidden score/essence rolls and the full reward catalog
-  remain labeled data depth. See
+  Wizard Elriss shop with Pure essence Buy X. The shop now includes all ten
+  ordinary cutoff talismans at their exact free/member prices, plus the
+  Elemental talisman, first and replacement Omni-talisman claims, the exact
+  one-time 13,605 Runecrafting XP, and Korvak's Omni-tiara conversion. Exact
+  hidden score/essence rolls and the robe, master-robe, staff, and teleport-
+  tablet families remain labeled data and mechanic depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
   essence, rune, and matching altar-teleport actions use a carried or equipped

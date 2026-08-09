@@ -90,3 +90,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      unrecovered server selectors explicit in the placeholder register.
    - [x] Complete Mage Training Arena's 25-row cutoff reward catalog, canonical
      outputs, Infinity/Mages' book equipment rows, and normalized source art.
+   - [x] Complete Great Orb Project's ten-row ordinary talisman catalog with
+     exact free/member prices and normalized selector art. Keep robe, staff,
+     and teleport mechanics separate.

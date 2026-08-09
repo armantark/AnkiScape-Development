@@ -73,9 +73,25 @@ GREAT_ORB_PROJECT_CRAFTING_POLICIES = (
     ("save_for_nature", "Save for Nature"),
 )
 
-# This representative horizontal catalog exercises repeatable consumables and
-# existing skill inputs. The complete vertical reward catalog remains
-# data-depth work.
+# The cutoff reward article prices free-to-play talismans at 50 tokens and
+# members-only talismans at 125. Death and Blood were the two exclusions.
+GREAT_ORB_PROJECT_TALISMAN_REWARDS = (
+    ("air_talisman", "Air talisman", 50, 1438),
+    ("mind_talisman", "Mind talisman", 50, 1448),
+    ("water_talisman", "Water talisman", 50, 1444),
+    ("earth_talisman", "Earth talisman", 50, 1440),
+    ("fire_talisman", "Fire talisman", 50, 1442),
+    ("body_talisman", "Body talisman", 50, 1446),
+    ("cosmic_talisman", "Cosmic talisman", 125, 1454),
+    ("chaos_talisman", "Chaos talisman", 125, 1452),
+    ("nature_talisman", "Nature talisman", 125, 1462),
+    ("law_talisman", "Law talisman", 125, 1458),
+)
+
+
+# This catalog exercises repeatable consumables, every ordinary talisman, and
+# the two existing cross-skill claim/conversion paths. Robes, staves, and
+# teleport tablets remain separate mechanic families.
 GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
     "pure_essence": {
         "item": "Pure essence",
@@ -86,14 +102,19 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
         "stackable": False,
         "category": "resource",
     },
-    "air_talisman": {
-        "item": "Air talisman",
-        "tokens": 50,
-        "quantity": 1,
-        "source_item_id": 1438,
-        "tradeable": True,
-        "stackable": False,
-        "category": "tool",
+    **{
+        reward_id: {
+            "item": item,
+            "tokens": tokens,
+            "quantity": 1,
+            "source_item_id": source_item_id,
+            "tradeable": True,
+            "stackable": False,
+            "category": "tool",
+        }
+        for reward_id, item, tokens, source_item_id in (
+            GREAT_ORB_PROJECT_TALISMAN_REWARDS
+        )
     },
     "elemental_talisman": {
         "item": "Elemental talisman",

@@ -2,6 +2,29 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 31 completes Great Orb Project's ordinary
+talisman catalog.** Wizard Elriss now sells all ten cutoff ordinary talismans:
+the six free-to-play rows at 50 tokens and the four members-only rows at 125.
+Death and Blood remain excluded exactly as oldid `6564759` states. Rev-742 and
+the authentic item table pin every identity and trade rule. All purchases are
+one-at-a-time atomic actions through the existing reward/undo path, and the
+shared Runecrafting items retain their altar, combination-rune, tiara-binding,
+Omni-claim, inventory, and Bank behavior. The existing shop selector now uses
+fixed 24-pixel registered item art; all ten sprites already had cutoff-qualified
+provenance. Kimi K3 returned `NO_BLOCKER`; root also inspected the real
+1200×760 dark render. Opus failed closed before review on three attempts because
+the quota preflight returned a stale snapshot, so no unsupported bypass was
+used. Focused
+verification passes 280 pure/integration/undo/registry tests and one real Qt
+selector test. Full discovery passes 3,891 tests in both lanes: plain records
+479 expected environment skips and real offscreen Qt records 3 intentional
+skips. Documentation audits 524 Markdown and 431 HTML files; test quality
+reports zero hard issues across 3,857 tests in 177 files. Compilation, tracked
+JSON, diff, asset-normalization, and worktree audits pass. Reachability remains
+1,499 actions, 2,240 reachable items, 168 orphan inputs, and 188 unresolved
+actions. Robes, master robes, staves, and teleport tablets remain separate
+mechanic depth; no placeholder or design gap was added.
+
 **2026-08-09, the recorded papercut backlog is reconciled through snapshot line
 127.** Commit `ff0e4be8` adds four durable guardrails: bounded repository/file
 search, discovered-ID focused test selection with all-skipped failure, complete

@@ -1,5 +1,29 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 31 — Great Orb Project ordinary talismans
+
+- Source: Great Orb Project oldid `6564759` pins all ordinary talismans except
+  Death and Blood at 50 free-to-play or 125 members tokens; rev-742 and the
+  authentic item table pin the ten exact identities.
+- Result: all ten ordinary rows are live, one-at-a-time atomic purchases. The
+  outputs reuse the complete Runecrafting item graph and direct-action undo.
+  The existing reward selector now shows their already-provenanced art at a
+  fixed 24-pixel size.
+- Boundary: standard robes expose an unresolved in-minigame XP effect, while
+  master robes, staves, and tablets add separate mechanics. They remain depth
+  work rather than being smuggled into this catalog-only slice.
+- Taste: Kimi K3 returned `NO_BLOCKER`; root inspected the real 1200×760 dark
+  render. Opus failed closed at its stale quota preflight on three attempts and
+  was not bypassed.
+- Verification: 280 focused pure/integration/undo/registry tests and one real
+  Qt selector test pass. Full discovery passes 3,891 tests in both lanes, with
+  479 plain skips and 3 Qt skips. Documentation audits 524 Markdown and 431
+  HTML files; test quality reports zero hard issues across 3,857 tests in 177
+  files. Compilation, tracked JSON, diff, asset-normalization, and worktree
+  audits pass. Reachability is unchanged at 1,499 actions, 2,240 reachable
+  items, 168 orphan inputs, and 188 unresolved actions. No placeholder or
+  design gap surfaced.
+
 ## Iteration 30 — Mage Training Arena reward catalog
 
 - Source: Mage Training Arena oldid `6491109` supplies all 25 exact shop rows;

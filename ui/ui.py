@@ -13808,14 +13808,17 @@ def show_main_menu(
         great_orb_reward = QComboBox()
         great_orb_reward.setObjectName("greatOrbProjectRewardCombo")
         great_orb_reward.setAccessibleName("Great Orb Project reward")
+        great_orb_reward.setIconSize(QSize(24, 24))
         for reward in great_orb_project_view_pure(player_data)["rewards"]:
-            great_orb_reward.addItem(
-                str(
-                    reward.get("shop_label")
-                    or f"{reward['item']} · {int(reward['tokens'])} tokens"
-                ),
-                reward["id"],
+            reward_label = str(
+                reward.get("shop_label")
+                or f"{reward['item']} · {int(reward['tokens'])} tokens"
             )
+            reward_icon = _pixel_item_icon(str(reward["item"]), 24)
+            if reward_icon is None:
+                great_orb_reward.addItem(reward_label, reward["id"])
+            else:
+                great_orb_reward.addItem(reward_icon, reward_label, reward["id"])
         great_orb_quantity = QSpinBox()
         great_orb_quantity.setObjectName("greatOrbProjectRewardQuantity")
         great_orb_quantity.setAccessibleName("Great Orb Project reward quantity")
