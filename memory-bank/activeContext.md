@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 26 closes Fishing Trawler's Tiger shark
+depth row end to end.** Cutoff Tiger shark oldid `6448339`, Raw tiger shark
+oldid `5992445`, and rev-741 item definitions pin Fishing 95, 80 ordinary XP,
+at most one per trip, an approximate one-in-five trip frequency, Cooking 95,
+230 Cooking XP, 250 LP healing, a 100-LP overheal cap, exact item IDs
+`21520`/`21521`/`21522`, and non-stackable/non-exchangeable semantics. The
+separate rare admission can replace at most one ordinary catch without
+distorting the common selector. The raw, cooked, burnt, combat-food, registry,
+and normalized-asset paths are live. The unrecovered exact server admission
+roll remains explicitly approximate; `cooking.tiger_shark_burn_endpoints`
+registers the hidden burn curve. No owner design gap surfaced. Focused plain
+and real offscreen-Qt verification each ran 603 tests successfully. Full plain
+discovery ran 3,869 tests: 3,390 ordinary passes and 479 expected environment
+skips. Full real offscreen-Qt discovery ran the same 3,869 tests: 3,866
+ordinary passes and 3 intentional skips. Documentation audits 520 Markdown and
+431 HTML files; test quality reports zero hard issues across 3,835 tests in 176
+files. Compilation, JSON, diff, asset-normalization, reachability, and worktree
+audits pass. Reachability records 1,499 actions, 2,232 reachable items, 169
+orphan inputs, and 189 blocked actions.
+
 **2026-08-08, grind-loop iteration 25 enforces the period Raider-set level
 requirements.** Tip.It's Goblin Raids guide, last updated `2012-10-24`, states
 8 Attack for the Raider axe and 8 Defence for both Raider chainbody and Raider
@@ -3789,8 +3809,10 @@ The visual closure report is
   Dungeoneering inventory leaked into the feature.
 - Literal cutoff evidence pins oldid 6288357 plus Sea turtle oldid 6454456 and
   Manta ray oldid 6487890. The ten-event pressure values, hidden haul roll, and
-  reduced catch pool are disclosed horizontal translations; Tiger shark remains
-  data-depth `source_blocked`.
+  reduced catch pool are disclosed horizontal translations. Tiger shark was
+  data-depth `source_blocked` at this closure; grind-loop iteration 26 closes
+  its item row, Cooking chain, and combat-food behavior while retaining only
+  the hidden selector and burn curve as disclosed depth.
 - Opus reviewed both rendered states while Fable remained on owner-requested
   reserve. All reproduced findings were corrected. Kimi was not called because
   its required fresh quota snapshot lacked the rolling window.

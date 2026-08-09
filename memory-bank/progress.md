@@ -1,5 +1,31 @@
 # Progress
 
+## Fishing Trawler Tiger shark depth closure — 2026-08-08
+
+RuneScape Wiki Tiger shark oldid `6448339`, Raw tiger shark oldid `5992445`,
+and rev-741 item definitions close the whole high-level catch row: Fishing 95,
+80 ordinary XP, at most one fish per trip, an approximate one-in-five trip
+frequency, Cooking 95, 230 Cooking XP, 250 LP healing, a 100-LP overheal cap,
+item IDs `21520`/`21521`/`21522`, and non-stackable/non-exchangeable semantics.
+
+The level-95 rare admission is separate from the common-catch selector and can
+replace at most one ordinary catch. Raw tiger shark now cooks or burns into its
+exact identities, cooked Tiger shark uses the shared combat-food kernel with
+its real overheal cap, and all three normalized sprites have provenance. Raw
+and cooked art are pre-cutoff; the burnt sprite has no pre-cutoff wiki history
+and is explicitly visual-only. The exact hidden admission selector remains an
+honest approximation, and the unrecovered burn endpoints are registered under
+`cooking.tiger_shark_burn_endpoints`. No owner design gap surfaced.
+
+Focused plain and real offscreen-Qt verification each ran 603 tests
+successfully. Full plain discovery ran 3,869 tests: 3,390 ordinary passes and
+479 expected environment skips. Full real offscreen-Qt discovery ran the same
+3,869 tests: 3,866 ordinary passes and 3 intentional skips. Documentation
+audits 520 Markdown and 431 HTML files; test quality reports zero hard issues
+across 3,835 tests in 176 files. Compilation, JSON, diff, asset normalization,
+reachability, and worktree audits pass. Reachability records 1,499 actions,
+2,232 reachable items, 169 orphan inputs, and 189 blocked actions.
+
 ## Raider-set requirements enforced — 2026-08-08
 
 Tip.It's Goblin Raids guide, last updated `2012-10-24`, states the complete

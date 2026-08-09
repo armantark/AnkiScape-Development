@@ -12,7 +12,11 @@ from unittest.mock import patch
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic import cadence_coverage
 from ankiscape.core import constants
-from ankiscape.data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+from ankiscape.data.fishing_trawler_data import (
+    FISHING_TRAWLER_ACTIVITY_ID,
+    FISHING_TRAWLER_TIGER_SHARK,
+    FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE,
+)
 from ankiscape.logic.fishing_trawler_logic import (
     apply_fishing_trawler_review_pure,
     enter_fishing_trawler_pure,
@@ -43,6 +47,13 @@ def _player(**updates):
 
 
 class FishingTrawlerDataTests(unittest.TestCase):
+    def test_period_tiger_shark_row_is_registered_exactly(self):
+        self.assertEqual(FISHING_TRAWLER_TIGER_SHARK.item, "Raw tiger shark")
+        self.assertEqual(FISHING_TRAWLER_TIGER_SHARK.level, 95)
+        self.assertEqual(FISHING_TRAWLER_TIGER_SHARK.ordinary_xp, 80.0)
+        self.assertEqual(FISHING_TRAWLER_TIGER_SHARK.source_item_id, 21520)
+        self.assertEqual(FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE, 0.20)
+
     def test_activity_supplies_rewards_and_asset_are_reachable(self):
         spec = constants.UTILITY_ACTIVITY_DATA[FISHING_TRAWLER_ACTIVITY_ID]
         self.assertEqual(spec["skill_requirements"], {"fishing": 15})
@@ -54,6 +65,7 @@ class FishingTrawlerDataTests(unittest.TestCase):
             "Bailing bucket",
             "Raw sea turtle",
             "Raw manta ray",
+            "Raw tiger shark",
         ):
             self.assertIn(item, registered)
         rope = next(
@@ -61,6 +73,21 @@ class FishingTrawlerDataTests(unittest.TestCase):
         )
         self.assertFalse(rope.stackable)
         self.assertEqual(rope.source_item_id, 954)
+        tiger_items = {
+            item.display_name: item
+            for item in constants.ITEM_DEFINITIONS
+            if item.display_name in {
+                "Raw tiger shark",
+                "Tiger shark",
+                "Burnt tiger shark",
+            }
+        }
+        self.assertEqual(tiger_items["Raw tiger shark"].source_item_id, 21520)
+        self.assertEqual(tiger_items["Tiger shark"].source_item_id, 21521)
+        self.assertEqual(tiger_items["Burnt tiger shark"].source_item_id, 21522)
+        self.assertTrue(all(not item.tradeable for item in tiger_items.values()))
+        self.assertTrue(all(not item.stackable for item in tiger_items.values()))
+        self.assertTrue(all(item.asset_path for item in tiger_items.values()))
 
         provenance = json.loads((ROOT / "assets_provenance.json").read_text())
         relative = "activityicons/fishing_trawler.png"
@@ -74,6 +101,18 @@ class FishingTrawlerDataTests(unittest.TestCase):
         width, height, bit_depth, color_type = struct.unpack(">IIBB", header[16:26])
         self.assertEqual((bit_depth, color_type), (8, 6))
         self.assertLessEqual(max(width, height), 64)
+        for relative in (
+            "cookingitems/raw_tiger_shark.png",
+            "cookingitems/tiger_shark.png",
+        ):
+            self.assertLessEqual(
+                provenance[relative]["timestamp"],
+                "2012-11-20T23:59:59Z",
+            )
+        self.assertIn(
+            "visual art only",
+            provenance["cookingitems/burnt_tiger_shark.png"]["source_note"],
+        )
 
     def test_cadence_ledger_names_ten_event_pressure_handler(self):
         row = next(
@@ -88,6 +127,21 @@ class FishingTrawlerDataTests(unittest.TestCase):
 
 
 class FishingTrawlerLogicTests(unittest.TestCase):
+    def test_tiger_shark_requires_level_ninety_five_and_is_capped_at_one_per_trip(self):
+        outputs_by_level = {}
+        for level in (94, 95):
+            player, ok, info = enter_fishing_trawler_pure(
+                _player(fishing_level=level)
+            )
+            self.assertTrue(ok, info)
+            for _ in range(10):
+                player, result = apply_fishing_trawler_review_pure(player, 0.10)
+            self.assertTrue(result["terminal"])
+            outputs_by_level[level] = result["outputs"]
+
+        self.assertNotIn("Raw tiger shark", outputs_by_level[94])
+        self.assertEqual(outputs_by_level[95]["Raw tiger shark"], 1)
+
     def test_entry_requires_level_fifteen_and_reserves_configured_supplies(self):
         _blocked, ok, info = enter_fishing_trawler_pure(
             _player(fishing_level=14)

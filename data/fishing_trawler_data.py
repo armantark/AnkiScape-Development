@@ -9,7 +9,8 @@ from typing import Any, Dict
 FISHING_TRAWLER_ACTIVITY_ID = "fishing_trawler"
 FISHING_TRAWLER_SOURCE = (
     "RuneScape Wiki Fishing Trawler oldid=6288357 "
-    "(2012-09-24T04:51:16Z)"
+    "(2012-09-24T04:51:16Z); Tiger shark oldid=6448339 "
+    "(2012-10-21T04:48:57Z)"
 )
 
 # The source trip lasted twelve minutes but did not publish a discrete event
@@ -66,10 +67,10 @@ class TrawlerCatch:
     source_item_id: int
 
 
-# The period page names tuna through manta ray and says rewards are any
+# The period Trawler page names tuna through manta ray and says rewards are any
 # saltwater fish the player can catch. Anchovies provide the smallest existing
 # period-backed level-15 row needed to make the source entry gate productive.
-FISHING_TRAWLER_CATCHES = (
+FISHING_TRAWLER_COMMON_CATCHES = (
     TrawlerCatch("Raw anchovies", 15, 40.0, 321),
     TrawlerCatch("Raw tuna", 35, 80.0, 359),
     TrawlerCatch("Raw lobster", 40, 90.0, 377),
@@ -77,6 +78,16 @@ FISHING_TRAWLER_CATCHES = (
     TrawlerCatch("Raw shark", 76, 110.0, 383),
     TrawlerCatch("Raw sea turtle", 79, 38.0, 395),
     TrawlerCatch("Raw manta ray", 81, 46.0, 389),
+)
+
+FISHING_TRAWLER_TIGER_SHARK = TrawlerCatch("Raw tiger shark", 95, 80.0, 21520)
+# oldid 6448339 says players "typically" receive one every five trips. This is
+# the period article's approximate frequency, not a claim about the hidden
+# server roll; the exact selector remains data-depth work.
+FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE = 1.0 / 5.0
+FISHING_TRAWLER_CATCHES = (
+    *FISHING_TRAWLER_COMMON_CATCHES,
+    FISHING_TRAWLER_TIGER_SHARK,
 )
 
 

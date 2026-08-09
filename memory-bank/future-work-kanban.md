@@ -1256,8 +1256,10 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   public-crew offset, leak/water/net pressure, real sinking loss, direct-banked
   level-shaped haul, 40%-ordinary Fishing XP, persistence, undo, cadence,
   normalized period art, and the compact docked/at-sea card. Exact hidden
-  pressure/catch distributions and the Tiger shark row remain labeled
-  data-depth work. See
+  pressure/common-catch distributions remain labeled data-depth work. The
+  level-95 Tiger shark row, one-per-trip cap, approximate one-in-five admission,
+  Cooking chain, and combat-food behavior are now live; only its hidden exact
+  selector and registered Cooking burn endpoints remain depth. See
   `memory-bank/source-audits/fishing-trawler-horizontal-implementation-2026-07-21.md`.
 - Shooting Stars are mechanic-complete as an Activities-only communal Mining
   event with a compact period-qualified location set. Exact hidden initial-size,

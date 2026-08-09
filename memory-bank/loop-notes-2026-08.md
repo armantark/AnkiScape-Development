@@ -1,5 +1,31 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 26 — Fishing Trawler Tiger shark
+
+- Evidence: RuneScape Wiki Tiger shark oldid `6448339`, timestamp
+  `2012-10-21T04:48:57Z`; Raw tiger shark oldid `5992445`, timestamp
+  `2012-07-26T02:12:01Z`; and rev-741 item definitions for IDs
+  `21520`/`21521`/`21522`.
+- Result: the exact level-95 catch row, one-per-trip cap, Cooking chain,
+  item semantics, 250-LP heal, 100-LP overheal cap, and three normalized assets
+  are live. The rare admission is separate from the common selector and uses
+  the source's approximate one-in-five statement without claiming the hidden
+  roll. Raw and cooked sprites are pre-cutoff; the burnt sprite has no period
+  wiki file history and is marked visual-only.
+- Placeholder: `cooking.tiger_shark_burn_endpoints` borrows the adjacent
+  Rocktail curve because the cutoff page proves there is no no-burn level but
+  gives no probability. The exact admission selector also remains disclosed
+  data depth. No owner design gap surfaced.
+- Verification: focused plain and real offscreen-Qt lanes each ran 603 tests
+  successfully. Full plain discovery ran 3,869 tests: 3,390 ordinary passes
+  and 479 expected environment skips. Full real offscreen-Qt discovery ran the
+  same 3,869 tests: 3,866 ordinary passes and 3 intentional skips.
+  Documentation audits 520 Markdown and 431 HTML files; test quality reports
+  zero hard issues across 3,835 tests in 176 files. Compilation, JSON, diff,
+  asset-normalization, reachability, and worktree audits pass. Reachability
+  records 1,499 actions, 2,232 reachable items, 169 orphan inputs, and 189
+  blocked actions. This merge is GPT-family verified.
+
 ## Iteration 25 — Raider-set level requirements
 
 - Evidence: Tip.It Goblin Raids guide last updated `2012-10-24`, immutable

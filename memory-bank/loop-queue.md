@@ -79,3 +79,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      server records. Retire exact contents without inventing hidden weights.
    - [x] Pin the Raider chainbody and shield's explicit level-8 Defence
      requirements from the dated Tip.It guide and exercise the real equip gate.
+   - [x] Close Fishing Trawler's Tiger shark row from cutoff item pages and
+     rev-741 definitions, including its one-per-trip admission, Cooking chain,
+     combat-food behavior, exact item semantics, and normalized sprites.

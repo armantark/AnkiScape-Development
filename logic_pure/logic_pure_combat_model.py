@@ -2841,7 +2841,14 @@ def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
         loadout["food"] = food_loadout
         data["combat_supply_loadout"] = loadout
         healed_by = _positive_int(food.get("heal_lifepoints", 0), 0)
-        return min(max_lifepoints, current_lifepoints + healed_by), {"item": item_name, "healed_by": healed_by}
+        maximum = max_lifepoints + _positive_int(
+            food.get("max_overheal_lifepoints", 0),
+            0,
+        )
+        return min(maximum, current_lifepoints + healed_by), {
+            "item": item_name,
+            "healed_by": healed_by,
+        }
     return current_lifepoints, None
 
 

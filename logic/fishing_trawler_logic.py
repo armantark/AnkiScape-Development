@@ -8,7 +8,7 @@ from typing import Any
 from ..data.fishing_trawler_data import (
     FISHING_TRAWLER_ACTIVITY_ID,
     FISHING_TRAWLER_BAIL_AMOUNT,
-    FISHING_TRAWLER_CATCHES,
+    FISHING_TRAWLER_COMMON_CATCHES,
     FISHING_TRAWLER_CREW_WATER_OFFSET,
     FISHING_TRAWLER_DEFAULT_LAYOUT,
     FISHING_TRAWLER_DUTIES,
@@ -17,6 +17,8 @@ from ..data.fishing_trawler_data import (
     FISHING_TRAWLER_PASTE_PER_LEAK,
     FISHING_TRAWLER_PRESSURE_EVENTS,
     FISHING_TRAWLER_SINK_WATER,
+    FISHING_TRAWLER_TIGER_SHARK,
+    FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE,
 )
 
 
@@ -313,16 +315,34 @@ def _award_haul(
     data: dict[str, Any], session: Mapping[str, Any], reward_roll: Any
 ) -> tuple[dict[str, int], float]:
     level = max(1, _int(data.get("fishing_level"), 1, maximum=99))
-    eligible = tuple(catch for catch in FISHING_TRAWLER_CATCHES if level >= catch.level)
+    eligible = tuple(
+        catch for catch in FISHING_TRAWLER_COMMON_CATCHES if level >= catch.level
+    )
     if not eligible:
         return {}, 0.0
     quality = int(session["haul_quality"])
     count = max(1, min(14, 8 + quality // 5))
     roll = _roll(reward_roll)
-    top_bias = min(len(eligible) - 1, int(roll * len(eligible)))
+    tiger_shark = (
+        level >= FISHING_TRAWLER_TIGER_SHARK.level
+        and roll < FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE
+    )
+    if level >= FISHING_TRAWLER_TIGER_SHARK.level:
+        if tiger_shark:
+            selector_roll = roll / FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE
+        else:
+            selector_roll = (
+                roll - FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE
+            ) / (1.0 - FISHING_TRAWLER_TIGER_SHARK_TRIP_CHANCE)
+    else:
+        selector_roll = roll
+    top_bias = min(len(eligible) - 1, int(selector_roll * len(eligible)))
     outputs: dict[str, int] = {}
     xp = 0.0
-    for index in range(count):
+    if tiger_shark:
+        outputs[FISHING_TRAWLER_TIGER_SHARK.item] = 1
+        xp += FISHING_TRAWLER_TIGER_SHARK.ordinary_xp * 0.40
+    for index in range(count - int(tiger_shark)):
         catch = eligible[max(0, top_bias - (index % min(3, len(eligible))))]
         outputs[catch.item] = outputs.get(catch.item, 0) + 1
         xp += catch.ordinary_xp * 0.40

@@ -2256,6 +2256,41 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(lava_inv, {"Raw lava eel": 0, "Lava eel": 1})
         self.assertEqual(calculate_cooking_success_probability_pure(53, COOKING_DATA["cook_lava_eel"]), 1.0)
 
+    def test_tiger_shark_cooking_uses_the_exact_level_xp_and_item_chain(self):
+        self.assertFalse(
+            can_cook_target_pure(
+                94,
+                {"Raw tiger shark": 1},
+                "cook_tiger_shark",
+                COOKING_DATA,
+            )
+        )
+        cooked, xp, processed, output, burned = apply_cooking_action_pure(
+            "cook_tiger_shark",
+            {"Raw tiger shark": 1},
+            COOKING_DATA,
+            cooking_level=95,
+            roll=0.0,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(burned)
+        self.assertEqual(output, "Tiger shark")
+        self.assertEqual(xp, 230.0)
+        self.assertEqual(cooked, {"Raw tiger shark": 0, "Tiger shark": 1})
+
+        burnt, xp, processed, output, burned = apply_cooking_action_pure(
+            "cook_tiger_shark",
+            {"Raw tiger shark": 1},
+            COOKING_DATA,
+            cooking_level=99,
+            roll=1.0,
+        )
+        self.assertTrue(processed)
+        self.assertTrue(burned)
+        self.assertEqual(output, "Burnt tiger shark")
+        self.assertEqual(xp, 0)
+        self.assertEqual(burnt, {"Raw tiger shark": 0, "Burnt tiger shark": 1})
+
     def test_cooking_runtime_extra_formulas_and_inventory(self):
         trout = COOKING_DATA["gut_leaping_trout"]
         salmon = COOKING_DATA["gut_leaping_salmon"]

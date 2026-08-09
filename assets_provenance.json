@@ -15165,6 +15165,19 @@
     "source_wiki": "rs3",
     "timestamp": "2010-11-30T09:15:37Z"
   },
+  "cookingitems/burnt_tiger_shark.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Burnt_tiger_shark.png",
+    "file_title": "Burnt tiger shark.png",
+    "image_url": "https://runescape.wiki/images/Burnt_tiger_shark.png?f35c1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0f841c286bd757709d123e26eb3b3499a19ca0b1",
+    "size": 618,
+    "source_note": "The rev-741 client proves burnt Tiger shark item 21522, but the wiki has no pre-cutoff file revision; the current exact item sprite is visual art only and supplies no mechanic or item identity.",
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:05:36Z"
+  },
   "cookingitems/cabbage.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cabbage.png",
     "file_title": "Cabbage.png",
@@ -16281,6 +16294,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-05T02:06:13Z"
   },
+  "cookingitems/raw_tiger_shark.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Raw_tiger_shark.png",
+    "file_title": "Raw tiger shark.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502065411%21Raw_tiger_shark.png?77cf9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e96cd662864e8162dbef0d113014039319d1fc0b",
+    "size": 602,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-13T13:32:05Z"
+  },
   "cookingitems/raw_ugthanki_meat.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Raw_ugthanki_meat.png",
     "file_title": "Raw ugthanki meat.png",
@@ -16568,6 +16593,18 @@
     "size": 3268,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T18:50:54Z"
+  },
+  "cookingitems/tiger_shark.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Tiger_shark.png",
+    "file_title": "Tiger shark.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502084157%21Tiger_shark.png?c5bac",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "99ed7cad23936b3221f63aee88c8237528430a0c",
+    "size": 1488,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T23:46:06Z"
   },
   "cookingitems/toad_batta.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Toad_batta.png",

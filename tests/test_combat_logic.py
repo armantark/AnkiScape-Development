@@ -5,6 +5,7 @@ from ankiscape.data.combat_data import (
     COMBAT_ANTIPOISON_POTION_DATA,
     COMBAT_ALLOTMENT_SEED_DROP_TABLE,
     COMBAT_ENEMY_DATA,
+    COMBAT_FOOD_DATA,
     COMBAT_GEM_DROP_TABLE,
     CHAOS_DWARF_DROPS,
     COMBAT_MEGA_RARE_DROP_TABLE,
@@ -4642,6 +4643,38 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["combat_supply_loadout"]["food"], {})
         self.assertEqual(result["food_used"], ({"item": "Shrimps", "healed_by": 30},))
         self.assertGreater(new_data["combat_lifepoints"], 20)
+
+    def test_tiger_shark_auto_eat_preserves_its_exact_overheal_cap(self):
+        self.assertEqual(COMBAT_FOOD_DATA["Tiger shark"]["heal_lifepoints"], 250)
+        self.assertEqual(
+            COMBAT_FOOD_DATA["Tiger shark"]["max_overheal_lifepoints"],
+            100,
+        )
+        player = _player(
+            attack_level=1,
+            strength_level=1,
+            defense_level=1,
+            combat_supply_loadout={"food": {"Tiger shark": 1}},
+            combat_lifepoints=20,
+            combat_auto_eat_threshold_percent=90,
+            combat_auto_eat_food=["Tiger shark"],
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(new_data["combat_supply_loadout"]["food"], {})
+        self.assertEqual(
+            result["food_used"],
+            ({"item": "Tiger shark", "healed_by": 250},),
+        )
+        self.assertEqual(new_data["combat_lifepoints"], 200)
 
     def test_active_encounter_starts_bank_run_for_banked_food_when_loadout_is_empty(self):
         player = _player(

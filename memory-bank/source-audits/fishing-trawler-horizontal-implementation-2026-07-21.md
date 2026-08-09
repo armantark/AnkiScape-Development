@@ -38,6 +38,20 @@ The high-level catch XP inputs have separate cutoff evidence:
 - `Manta ray` oldid `6487890`, `2012-10-28T07:34:21Z`: level 81 and
   46 ordinary Fishing XP;
   <https://runescape.wiki/w/Manta_ray?oldid=6487890>
+- `Tiger shark` oldid `6448339`, `2012-10-21T04:48:57Z`: level 95,
+  80 ordinary Fishing XP, at most one per trip, and a contemporaneous
+  approximate frequency of one every five trips. The same row gives level 95
+  Cooking, 230 Cooking XP, 250 LP healing, up to 100 LP above maximum, and no
+  no-burn level;
+  <https://runescape.wiki/w/Tiger_shark?oldid=6448339>
+- `Raw tiger shark` oldid `5992445`, `2012-07-26T02:12:01Z`, independently
+  repeats the level-95 Fishing, 80 Fishing XP, level-95 Cooking, and 230
+  Cooking XP values;
+  <https://runescape.wiki/w/Raw_tiger_shark?oldid=5992445>
+
+Rev-741 item definitions independently pin Raw/Cooked/Burnt Tiger shark as
+`21520`/`21521`/`21522`. All three are non-stackable and non-exchangeable; the
+cooked form alone carries `Eat`.
 
 The smaller Tuna/Lobster/Swordfish/Shark ordinary rows come from the existing
 2011Scape Fishing table in `fishing_data.py`; Raw anchovies is the smallest
@@ -72,9 +86,17 @@ supplies from the bank; leaving, sinking, or docking returns every unused item.
 
 Success directly banks 8-14 level-eligible fish and returns exactly 40% of
 their ordinary Fishing XP. The haul's precise species/count distribution is a
-disclosed bounded horizontal dataset. The period Tiger shark row remains
-`source_blocked` because this pass did not recover its exact eligibility and
-ordinary-XP identity; it is data-depth work, not a missing mechanic.
+disclosed bounded horizontal dataset. Tiger shark is a separate level-95 rare
+admission, so it can replace at most one ordinary catch per trip. The live 20%
+threshold is the period article's approximate “typically one every five trips”
+statement, not a claim that the hidden server selector has been recovered.
+
+The caught fish feeds the ordinary Cooking and combat-food paths. Its exact
+level, XP, item identities, trade/stack semantics, healing, and over-heal cap
+ship unchanged. The hidden Cooking burn endpoints remain registered as
+`cooking.tiger_shark_burn_endpoints`; the adjacent level-93 Rocktail curve is
+used because the cutoff article explicitly says Tiger shark has no no-burn
+level but publishes no roll.
 
 ## Live product surface
 
@@ -82,6 +104,8 @@ ordinary-XP identity; it is data-depth work, not a missing mechanic.
   default pack, and the ten-event disclosed schedule.
 - `fishing_trawler_logic.py`: entry, pack reservation/capacity, policies,
   pressure/duties, sinking, haul/XP, persistence, leave, and view projection.
+- `cooking_data.py` and the shared combat-food reducer: the complete raw →
+  cooked/burnt chain and the exact 250 LP / 100 LP over-heal behavior.
 - `runtime_actions.py` and `__init__.py`: review dispatch, XP/telemetry,
   whole-answer undo, direct-action undo, save, refresh, and terminal stop.
 - `storage_pure.py`: schema 65 defaults, migration, sanitization, and persistent
@@ -103,11 +127,31 @@ quota probe lacked the rolling window; the guardrail was not bypassed.
 
 - No wall clock, crew actors, crew selector, background loop, manual catch
   claim, or additional review for banking exists.
-- No exact historical event count, leak distribution, catch distribution, or
-  Tiger shark row is claimed.
+- No exact historical event count, leak distribution, common-catch
+  distribution, Tiger-shark hidden selector, or Tiger-shark burn roll is
+  claimed.
 - No Dungeoneering fish were added; they remain owned by the future
   Dungeoneering session and temporary inventory.
 - No new owner-design gap surfaced.
+
+## Tiger shark depth closure — 2026-08-08
+
+Grind-loop iteration 26 closes the previously source-blocked row without
+changing the settled Trawler trip design. Level 94 can never receive the fish;
+level 95 can receive exactly one under the period-anchored rare admission. The
+same item then cooks, burns, enters the item registry with exact cache metadata,
+and works in the real combat-food loadout. Raw and cooked sprites use pre-cutoff
+wiki revisions. The burnt sprite has no pre-cutoff wiki file history; the
+current exact item sprite is recorded as visual art only and supplies no
+mechanic or identity.
+
+Focused plain and real offscreen-Qt verification each ran 603 tests
+successfully. Full plain discovery ran 3,869 tests: 3,390 ordinary passes and
+479 expected non-Qt environment skips. Full real offscreen-Qt discovery ran the
+same 3,869 tests: 3,866 ordinary passes and 3 intentional skips.
+Documentation, test-quality, compilation, JSON, diff, asset-normalization,
+reachability, and worktree audits pass. Reachability records 1,499 actions,
+2,232 reachable items, 169 orphan inputs, and 189 blocked actions.
 
 ## Verification
 

@@ -9,6 +9,7 @@ from ankiscape.data.cooking_data import (
     GUT_FISH_SOURCE_PATH,
     LAVA_EEL_WIKI_SOURCE,
     SEAWEED_COOKING_SOURCE_PATH,
+    TIGER_SHARK_WIKI_SOURCE,
     cooking_extra_items_as_dict,
     cooking_prep_activities_as_dict,
     cooking_targets_as_dict,
@@ -19,7 +20,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 83)
+        self.assertEqual(len(COOKING_TARGETS), 84)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -34,6 +35,15 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["cook_summer_pie"]["exp"], 260.0)
         self.assertEqual(data["cook_rocktail"]["level"], 93)
         self.assertEqual(data["cook_rocktail"]["exp"], 225.0)
+        self.assertEqual(data["cook_tiger_shark"]["level"], 95)
+        self.assertEqual(data["cook_tiger_shark"]["exp"], 230.0)
+        self.assertEqual(
+            data["cook_tiger_shark"]["requirements"],
+            {"Raw tiger shark": 1},
+        )
+        self.assertEqual(data["cook_tiger_shark"]["output_item"], "Tiger shark")
+        self.assertEqual(data["cook_tiger_shark"]["burnt_item"], "Burnt tiger shark")
+        self.assertEqual(data["cook_tiger_shark"]["source"], TIGER_SHARK_WIKI_SOURCE)
         self.assertEqual(data["cook_lava_eel"]["level"], 53)
         self.assertEqual(data["cook_lava_eel"]["requirements"], {"Raw lava eel": 1})
         self.assertEqual(data["cook_lava_eel"]["output_item"], "Lava eel")

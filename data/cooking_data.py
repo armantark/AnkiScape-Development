@@ -59,6 +59,11 @@ LAVA_EEL_DARKAN_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "src/main/java/com/rs/game/content/skills/cooking/Cooking.java"
 )
+TIGER_SHARK_WIKI_SOURCE = (
+    "RuneScape Wiki Tiger shark oldid=6448339 "
+    "(2012-10-21T04:48:57Z); Raw tiger shark oldid=5992445 "
+    "(2012-07-26T02:12:01Z)"
+)
 ITEMS_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/api/cfg/Items.kt"
@@ -144,6 +149,10 @@ _GNOME_BOWL_BURN = (58, 372)
 # level-16 recipe, 80 XP and level-48 no-burn point, but not the pre-EOC roll
 # endpoints. The adjacent level-15 trout row has the same one-level burn curve.
 _SPIDER_ON_STICK_BURN = (88, 432)
+# PLACEHOLDER(cooking.tiger_shark_burn_endpoints): authentic Tiger-shark burn endpoints
+# The cutoff article says it can burn at every level but gives no probability.
+# Borrow the level-93 Rocktail's 2011Scape endpoints until a period roll ships.
+_TIGER_SHARK_BURN = (1, 222)
 
 COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_shrimps', 'SHRIMPS', 'Cook raw shrimps', 'fish', 'RAW_SHRIMPS', 317, 'Raw shrimps', 'SHRIMPS', 315, 'Shrimps', 'BURNT_SHRIMP', 7954, 'Burnt shrimp', 1, 30.0, 128, 512, output_variant='primary'),
@@ -167,6 +176,7 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_manta_ray', 'MANTA_RAY', 'Cook raw manta ray', 'fish', 'RAW_MANTA_RAY', 389, 'Raw manta ray', 'MANTA_RAY', 391, 'Manta ray', 'BURNT_MANTA_RAY', 393, 'Burnt manta ray', 91, 216.3, 1, 222, output_variant='primary'),
     CookingTarget('cook_cavefish', 'CAVEFISH', 'Cook raw cavefish', 'fish', 'RAW_CAVEFISH', 15264, 'Raw cavefish', 'CAVEFISH', 15266, 'Cavefish', 'BURNT_CAVEFISH', 15268, 'Burnt cavefish', 88, 214.0, 1, 232, output_variant='primary'),
     CookingTarget('cook_rocktail', 'ROCKTAIL', 'Cook raw rocktail', 'fish', 'RAW_ROCKTAIL', 15270, 'Raw rocktail', 'ROCKTAIL', 15272, 'Rocktail', 'BURNT_ROCKTAIL', 15274, 'Burnt rocktail', 93, 225.0, 1, 222, output_variant='primary'),
+    CookingTarget('cook_tiger_shark', 'TIGER_SHARK', 'Cook raw tiger shark', 'fish', 'RAW_TIGER_SHARK', 21520, 'Raw tiger shark', 'TIGER_SHARK', 21521, 'Tiger shark', 'BURNT_TIGER_SHARK', 21522, 'Burnt tiger shark', 95, 230.0, *_TIGER_SHARK_BURN, output_variant='primary', source=TIGER_SHARK_WIKI_SOURCE, runtime_source=TIGER_SHARK_WIKI_SOURCE),
     CookingTarget('cook_cave_eel', 'CAVE_EEL', 'Cook raw cave eel', 'eels', 'RAW_CAVE_EEL', 5001, 'Raw cave eel', 'CAVE_EEL', 5003, 'Cave eel', 'BURNT_CAVE_EEL', 5002, 'Burnt cave eel', 38, 115.0, 38, 332, output_variant='primary'),
     CookingTarget('cook_slimy_eel', 'SLIMY_EEL', 'Cook slimy eel', 'eels', 'SLIMY_EEL', 3379, 'Slimy eel', 'COOKED_SLIMY_EEL', 3381, 'Cooked slimy eel', 'BURNT_EEL', 3383, 'Burnt eel', 28, 95.0, 63, 382, output_variant='primary'),
     CookingTarget('cook_lava_eel', 'RAW_LAVA_EEL', 'Cook raw lava eel', 'eels', 'RAW_LAVA_EEL', 2148, 'Raw lava eel', 'LAVA_EEL', 2149, 'Lava eel', '', 0, '', 53, 30.0, 0, 0, output_variant='primary', source=LAVA_EEL_WIKI_SOURCE, runtime_source=LAVA_EEL_DARKAN_SOURCE, source_always_succeeds=True),
@@ -378,6 +388,9 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Raw crayfish": (13435, False),
     "Crayfish": (13433, False),
     "Burnt crayfish": (13437, False),
+    "Raw tiger shark": (21520, False),
+    "Tiger shark": (21521, False),
+    "Burnt tiger shark": (21522, False),
     "Raw lava eel": (2148, False),
     "Lava eel": (2149, False),
     "Spider carcass": (6291, True),
@@ -417,6 +430,10 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Pineapple": (2114, True),
     "Pineapple chunks": (2116, True),
 }
+
+SOURCE_NONSTACKABLE_ITEMS = frozenset(
+    {"Raw tiger shark", "Tiger shark", "Burnt tiger shark"}
+)
 
 for _target in COOKING_TARGETS:
     if _target.source in (GUT_FISH_SOURCE_PATH, SEAWEED_COOKING_SOURCE_PATH):
@@ -533,5 +550,6 @@ def cooking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": ITEMS_YML_SOURCE_PATH if item_id else COOKING_PREP_BRIDGE_SOURCE,
             "item_id": item_id,
             "tradeable": False if item_name in burnt_items else bool(source_tradeable),
+            **({"stackable": False} if item_name in SOURCE_NONSTACKABLE_ITEMS else {}),
         }
     return result

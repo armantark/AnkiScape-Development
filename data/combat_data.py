@@ -4531,6 +4531,11 @@ COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Swordfish": {"heal_lifepoints": 140, "source": FOOD_SOURCE_PATH},
     "Monkfish": {"heal_lifepoints": 160, "source": FOOD_SOURCE_PATH},
     "Shark": {"heal_lifepoints": 200, "source": FOOD_SOURCE_PATH},
+    "Tiger shark": {
+        "heal_lifepoints": 250,
+        "max_overheal_lifepoints": 100,
+        "source": "RuneScape Wiki Tiger shark oldid=6448339 (2012-10-21T04:48:57Z)",
+    },
 }
 
 # Gnome dishes. Heals come from 2011Scape Food.kt, which lists the live 21xx/22xx
