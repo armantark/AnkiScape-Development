@@ -13812,7 +13812,7 @@ def show_main_menu(
         for reward in great_orb_project_view_pure(player_data)["rewards"]:
             reward_label = str(
                 reward.get("shop_label")
-                or f"{reward['item']} · {int(reward['tokens'])} tokens"
+                or f"{reward['item']} · {int(reward['tokens']):,} tokens"
             )
             reward_icon = _pixel_item_icon(str(reward["item"]), 24)
             if reward_icon is None:
@@ -13938,7 +13938,7 @@ def show_main_menu(
             great_orb_save.setEnabled(on_great_orb_project_command is not None and not active)
             great_orb_policy.setVisible(not active)
             great_orb_shop.setVisible(True)
-            great_orb_currency.setText(f"{int(view['tokens'])} tokens")
+            great_orb_currency.setText(f"{int(view['tokens']):,} tokens")
             rewards = {str(row["id"]): row for row in view["rewards"]}
             selected_reward = rewards.get(str(great_orb_reward.currentData() or ""))
             essence_bulk = great_orb_reward.currentData() == "pure_essence"
@@ -13976,7 +13976,7 @@ def show_main_menu(
                 else ""
                 if affordable
                 else locked_reason
-                or f"Requires {cost} Runecrafting Guild tokens."
+                or f"Requires {cost:,} Runecrafting Guild tokens."
             )
             selected = active and player_data.get("current_utility") == GREAT_ORB_PROJECT_ACTIVITY_ID
             great_orb_primary.setText(

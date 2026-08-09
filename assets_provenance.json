@@ -2303,6 +2303,54 @@
     "source_wiki": "rs3",
     "timestamp": "2011-07-22T23:00:44Z"
   },
+  "activityitems/master_runecrafter_body.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Master_runecrafter_robe.png",
+    "file_title": "Master runecrafter robe.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502052913%21Master_runecrafter_robe.png?d6ea6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ba97bb24fc365ed6313e802d0d6835fe6d626dae",
+    "size": 1410,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:41:48Z"
+  },
+  "activityitems/master_runecrafter_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Master_runecrafter_boots.png",
+    "file_title": "Master runecrafter boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502052910%21Master_runecrafter_boots.png?795af",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d734c40d70a7c484d36537cda7a97ce5dc110df8",
+    "size": 612,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:41:49Z"
+  },
+  "activityitems/master_runecrafter_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Master_runecrafter_hat.png",
+    "file_title": "Master runecrafter hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502052912%21Master_runecrafter_hat.png?112d3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e46adadaf59fb049d52052faa009884ac3d08ced",
+    "size": 793,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:41:50Z"
+  },
+  "activityitems/master_runecrafter_skirt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Master_runecrafter_skirt.png",
+    "file_title": "Master runecrafter skirt.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502052915%21Master_runecrafter_skirt.png?e32b6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4af73db33403c0dcd0b625ad2de25ca0a952afae",
+    "size": 898,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:41:51Z"
+  },
   "activityitems/mobilising_armies_diamond_ring_i.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Diamond_ring_%28i%29.png",
     "file_title": "Diamond ring (i).png",

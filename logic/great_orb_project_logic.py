@@ -11,11 +11,37 @@ from ..data.great_orb_project_data import (
     GREAT_ORB_PROJECT_CRAFTING_POLICIES,
     GREAT_ORB_PROJECT_DOCTRINES,
     GREAT_ORB_PROJECT_REWARDS,
+    MASTER_RUNECRAFTER_REWARDS,
     GREAT_ORB_PROJECT_ROUNDS,
     GREAT_ORB_PROJECT_TEMP_CAPACITY,
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
 )
+
+
+_MASTER_RUNECRAFTER_BONUSES = {
+    item: xp_rate
+    for _reward_id, item, _tokens, _source_item_id, _slot, _bonus, xp_rate in (
+        MASTER_RUNECRAFTER_REWARDS
+    )
+}
+_MASTER_RUNECRAFTER_ITEMS = frozenset(
+    _MASTER_RUNECRAFTER_BONUSES
+)
+
+
+def apply_master_runecrafter_xp_bonus_pure(
+    player_data: Mapping[str, Any], base_xp: Any
+) -> float:
+    """Apply the worn-piece bonus, capped at 700 bonus XP per action."""
+    xp = _non_negative_float(base_xp)
+    equipment = player_data.get("equipment")
+    worn = set(equipment.values()) if isinstance(equipment, Mapping) else set()
+    worn_pieces = _MASTER_RUNECRAFTER_ITEMS.intersection(worn)
+    rate = sum(_MASTER_RUNECRAFTER_BONUSES[item] for item in worn_pieces)
+    if worn_pieces == _MASTER_RUNECRAFTER_ITEMS:
+        rate += 0.01
+    return xp + min(xp * rate, 700.0)
 
 
 GREAT_ORB_PROJECT_STATE_VERSION = 2
@@ -313,6 +339,7 @@ def apply_great_orb_project_review_pure(
     if craft_now:
         essence_crafted = int(active["saved_essence"])
         runes, xp = _craft_essence(data, round_index, essence_crafted)
+        xp = apply_master_runecrafter_xp_bonus_pure(data, xp)
         active["saved_essence"] = 0
         active["crafted_essence"] += essence_crafted
         active["xp_earned"] = round(float(active["xp_earned"]) + xp, 1)
@@ -438,7 +465,7 @@ def _great_orb_reward_locked_reason_pure(
     return (
         ""
         if int(state.get("tokens", 0) or 0) >= cost
-        else f"Requires {cost} Runecrafting Guild tokens."
+        else f"Requires {cost:,} Runecrafting Guild tokens."
     )
 
 
@@ -515,7 +542,9 @@ def buy_great_orb_project_reward_pure(
     )
     cost = int(reward["tokens"]) * purchases
     if int(state["tokens"]) < cost:
-        return data, False, {"reason": f"Requires {cost} Runecrafting Guild tokens."}
+        return data, False, {
+            "reason": f"Requires {cost:,} Runecrafting Guild tokens."
+        }
     item = str(reward["item"])
     item_quantity = int(reward.get("quantity", 1)) * purchases
     inventory[item] = _int(inventory.get(item)) + item_quantity
@@ -524,7 +553,7 @@ def buy_great_orb_project_reward_pure(
     data["great_orb_project"] = state
     data["inventory"] = inventory
     data["great_orb_project_last_result"] = (
-        f"Wizard Elriss · {item} x{item_quantity} · {cost} tokens"
+        f"Wizard Elriss · {item} x{item_quantity} · {cost:,} tokens"
     )
     return data, True, {
         "message": data["great_orb_project_last_result"],

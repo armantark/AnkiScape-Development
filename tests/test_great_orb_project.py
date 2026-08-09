@@ -15,10 +15,12 @@ from ankiscape.core import constants
 from ankiscape.data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     GREAT_ORB_PROJECT_TALISMAN_REWARDS,
+    MASTER_RUNECRAFTER_REWARDS,
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
 )
 from ankiscape.logic.great_orb_project_logic import (
+    apply_master_runecrafter_xp_bonus_pure,
     apply_great_orb_project_review_pure,
     buy_great_orb_project_reward_pure,
     enter_great_orb_project_pure,
@@ -69,8 +71,28 @@ class GreatOrbProjectDataTests(unittest.TestCase):
         self.assertIn("Omni-talisman", registered)
         self.assertIn("Omni-tiara", registered)
 
+        for _reward_id, item, _tokens, item_id, slot, bonus, _xp_rate in (
+            MASTER_RUNECRAFTER_REWARDS
+        ):
+            self.assertIn(item, registered)
+            self.assertEqual(
+                constants.EXTRA_ITEM_DATA[item]["source_item_id"], item_id
+            )
+            equipment = constants.EQUIPMENT_DATA[item]
+            self.assertEqual(equipment.slot, slot)
+            self.assertEqual(equipment.source_item_id, item_id)
+            self.assertEqual(equipment.bonuses.attack_magic, bonus)
+            self.assertEqual(equipment.bonuses.defence_stab, bonus)
+            self.assertEqual(equipment.bonuses.defence_ranged, bonus)
+
         provenance = json.loads((ROOT / "assets_provenance.json").read_text())
-        for relative in ("activityicons/great_orb_project.png",):
+        for relative in (
+            "activityicons/great_orb_project.png",
+            "activityitems/master_runecrafter_hat.png",
+            "activityitems/master_runecrafter_body.png",
+            "activityitems/master_runecrafter_skirt.png",
+            "activityitems/master_runecrafter_boots.png",
+        ):
             self.assertIn(relative, provenance)
             self.assertLessEqual(
                 provenance[relative]["timestamp"], "2012-11-20T23:59:59Z"
@@ -235,6 +257,67 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
             )
         self.assertEqual(player["great_orb_project"]["tokens"], 0)
 
+    def test_master_runecrafter_pieces_cost_fifteen_thousand_each(self):
+        player = _player(
+            great_orb_project={
+                "tokens": 60_000,
+                "automation_mode": "casual",
+                "doctrine": "balanced",
+                "crafting_policy": "craft_each_round",
+                "active": {},
+            }
+        )
+        for reward_id, item, tokens, _item_id, _slot, _bonus, _xp_rate in (
+            MASTER_RUNECRAFTER_REWARDS
+        ):
+            before = player["great_orb_project"]["tokens"]
+            player, ok, info = buy_great_orb_project_reward_pure(
+                player, reward_id, 99
+            )
+            self.assertTrue(ok, info)
+            self.assertEqual(player["inventory"][item], 1)
+            self.assertEqual(
+                player["great_orb_project"]["tokens"], before - tokens
+            )
+        self.assertEqual(player["great_orb_project"]["tokens"], 0)
+
+    def test_master_runecrafter_bonus_uses_piece_rates_full_set_and_cap(self):
+        self.assertEqual(apply_master_runecrafter_xp_bonus_pure(_player(), 100), 100)
+        one = _player(equipment={"head": "Master runecrafter hat"})
+        self.assertAlmostEqual(apply_master_runecrafter_xp_bonus_pure(one, 100), 100.8)
+        full = _player(
+            equipment={
+                "head": "Master runecrafter hat",
+                "body": "Master runecrafter body",
+                "legs": "Master runecrafter skirt",
+                "feet": "Master runecrafter boots",
+            }
+        )
+        self.assertAlmostEqual(
+            apply_master_runecrafter_xp_bonus_pure(full, 10_000), 10_500
+        )
+        self.assertAlmostEqual(
+            apply_master_runecrafter_xp_bonus_pure(full, 20_000), 20_700
+        )
+
+    def test_master_runecrafter_bonus_is_in_pure_match_status_and_tracker(self):
+        player = _player(
+            equipment={
+                "head": "Master runecrafter hat",
+                "body": "Master runecrafter body",
+                "legs": "Master runecrafter skirt",
+                "feet": "Master runecrafter boots",
+            }
+        )
+        player, ok, info = enter_great_orb_project_pure(player)
+        self.assertTrue(ok, info)
+        player, result = apply_great_orb_project_review_pure(player, 0.99, 0.0)
+        self.assertAlmostEqual(result["xp"], 94.5)
+        self.assertAlmostEqual(
+            player["great_orb_project"]["active"]["xp_earned"], 94.5
+        )
+        self.assertIn("94.5 Runecrafting XP", result["status"])
+
     def test_elriss_claim_and_korvak_conversion_make_omni_feeds_reachable(self):
         player = _player()
         blocked, ok, info = buy_great_orb_project_reward_pure(
@@ -278,7 +361,7 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
     def test_view_exposes_lock_policy_shop_and_active_round(self):
         locked = great_orb_project_view_pure(_player(runecrafting_level=49))
         self.assertFalse(locked["eligible"])
-        self.assertEqual(len(locked["rewards"]), 14)
+        self.assertEqual(len(locked["rewards"]), 18)
         self.assertTrue(
             all(reward["locked_reason"] for reward in locked["rewards"])
         )
@@ -336,6 +419,12 @@ class GreatOrbProjectHookTests(unittest.TestCase):
             package_constants.ITEM_DEFINITIONS,
         )
         player["runecrafting_level"] = 50
+        player["equipment"] = {
+            "head": "Master runecrafter hat",
+            "body": "Master runecrafter body",
+            "legs": "Master runecrafter skirt",
+            "feet": "Master runecrafter boots",
+        }
         player, ok, _info = logic.enter_great_orb_project_pure(player)
         self.assertTrue(ok)
         addon.player_data = player
@@ -354,7 +443,7 @@ class GreatOrbProjectHookTests(unittest.TestCase):
             addon.on_good_answer(before)
         self.assertEqual(rng.call_count, 16)
         self.assertEqual(addon.player_data["great_orb_project"]["games_completed"], 1)
-        self.assertGreater(addon.player_data["runecrafting_exp"], before["runecrafting_exp"])
+        self.assertAlmostEqual(addon.player_data["runecrafting_exp"], 1_039.5)
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon.player_data, before)
@@ -395,6 +484,45 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)
         self.assertEqual(addon.player_data["inventory"]["Omni-talisman"], 1)
         self.assertEqual(addon.player_data["runecrafting_exp"], OMNI_TALISMAN_XP)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+
+    def test_master_runecrafter_purchase_is_direct_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_great_orb_master_direct")
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        package_constants = sys.modules[f"{addon.__name__}.core.constants"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon._show_quest_exp_delta = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = storage.default_player_data(
+            package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
+        )
+        initial["runecrafting_level"] = 50
+        initial["great_orb_project"]["tokens"] = 15_000
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_great_orb_project_command"](
+            "buy_great_orb_project_reward",
+            {"reward_id": "master_runecrafter_hat", "quantity": 99},
+        )
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(
+            addon.player_data["inventory"]["Master runecrafter hat"], 1
+        )
+        self.assertEqual(addon.player_data["great_orb_project"]["tokens"], 0)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")

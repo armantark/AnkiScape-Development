@@ -14022,7 +14022,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(currency.text(), "200 tokens")
         self.assertIn("Eight altar rounds", summary.text())
         self.assertTrue(progress.isHidden())
-        self.assertEqual(reward.count(), 14)
+        self.assertEqual(reward.count(), 18)
         self.assertEqual(reward.iconSize().width(), 24)
         self.assertEqual(reward.iconSize().height(), 24)
         for reward_id in (
@@ -14036,11 +14036,23 @@ class MainMenuWidgetTest(unittest.TestCase):
             "chaos_talisman",
             "nature_talisman",
             "law_talisman",
+            "master_runecrafter_hat",
+            "master_runecrafter_body",
+            "master_runecrafter_skirt",
+            "master_runecrafter_boots",
         ):
             reward_index = reward.findData(reward_id)
             self.assertGreaterEqual(reward_index, 0)
             self.assertFalse(reward.itemIcon(reward_index).isNull())
         self.assertGreaterEqual(reward.findData("elemental_talisman"), 0)
+        self.assertLess(
+            reward.findData("elemental_talisman"),
+            reward.findData("master_runecrafter_hat"),
+        )
+        self.assertIn(
+            "15,000 tokens",
+            reward.itemText(reward.findData("master_runecrafter_body")),
+        )
         reward.setCurrentIndex(reward.findData("omni_talisman"))
         QApplication.processEvents()
         self.assertEqual(buy.text(), "Claim")

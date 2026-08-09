@@ -211,6 +211,7 @@ from ..logic.fishing_trawler_logic import (
 )
 from ..data.great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID
 from ..logic.great_orb_project_logic import (
+    apply_master_runecrafter_xp_bonus_pure,
     apply_great_orb_project_review_pure,
     great_orb_project_view_pure,
 )
@@ -1158,7 +1159,8 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         expected_success_chance=1.0,
         output_items={output_item: output_count} if output_count else {},
     )
-    exp_gained = ctx.award_skill_exp("runecrafting_exp", base_exp)
+    awarded_exp = apply_master_runecrafter_xp_bonus_pure(player_data, base_exp)
+    exp_gained = ctx.award_skill_exp("runecrafting_exp", awarded_exp)
     ctx.level_up_check("Runecrafting", player_data)
     ctx.check_achievements(player_data)
     ctx.save_player_data()

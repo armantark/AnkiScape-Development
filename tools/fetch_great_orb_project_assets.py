@@ -36,6 +36,36 @@ def main() -> int:
             output_path=ROOT / "activityicons" / "great_orb_project.png",
             provenance_path=ROOT / "assets_provenance.json",
         ),
+        *(
+            AssetRequest(
+                item_name=item_name,
+                wiki_title=wiki_title,
+                output_path=ROOT / "activityitems" / filename,
+                provenance_path=ROOT / "assets_provenance.json",
+            )
+            for item_name, wiki_title, filename in (
+                (
+                    "Master runecrafter hat",
+                    "Master_runecrafter_hat.png",
+                    "master_runecrafter_hat.png",
+                ),
+                (
+                    "Master runecrafter body",
+                    "Master_runecrafter_robe.png",
+                    "master_runecrafter_body.png",
+                ),
+                (
+                    "Master runecrafter skirt",
+                    "Master_runecrafter_skirt.png",
+                    "master_runecrafter_skirt.png",
+                ),
+                (
+                    "Master runecrafter boots",
+                    "Master_runecrafter_boots.png",
+                    "master_runecrafter_boots.png",
+                ),
+            )
+        ),
     )
     for request in requests:
         outcome = fetch_asset(

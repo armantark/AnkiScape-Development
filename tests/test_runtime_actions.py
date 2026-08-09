@@ -1973,7 +1973,7 @@ class TestRuntimeActions(unittest.TestCase):
         hood["pending_altar_teleport"] = "air"
         player_data = {
             "inventory": {"Rune essence": 56},
-            "equipment": {"head": "Wicked hood"},
+            "equipment": {"head": "Master runecrafter hat"},
             "current_runecrafting": "craft_air_runes",
             "runecrafting_level": 1,
             "agility_level": 1,
@@ -2067,7 +2067,6 @@ class TestRuntimeActions(unittest.TestCase):
             "carried_advanced_targets": {"jewellery_gold_ring": True},
             "carried_layout": {"jewellery_gold_ring": {"Gold bar": 1, "Ring mould": 1}},
         }
-
         self.assertTrue(run_answer_with_carried_overlay(
             _context(player_data, calls), "crafting", handle_crafting_answer
         ))
@@ -4317,8 +4316,13 @@ class TestProcessingPackOverlay(unittest.TestCase):
     def test_runecrafting_consumes_hood_withdrawn_essence_from_the_carried_pack(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {
-            "inventory": {"Rune essence": 28},
-            "equipment": {"head": "Wicked hood"},
+            "inventory": {"Rune essence": 27, "Air talisman": 1},
+            "equipment": {
+                "head": "Master runecrafter hat",
+                "body": "Master runecrafter body",
+                "legs": "Master runecrafter skirt",
+                "feet": "Master runecrafter boots",
+            },
             "quests": {
                 "rune_mysteries": {
                     "started": True,
@@ -4331,7 +4335,9 @@ class TestProcessingPackOverlay(unittest.TestCase):
             "runecrafting_level": 1,
             "runecrafting_exp": 0.0,
             "completed_achievements": [],
-            "carried_inventory": {"craft_air_runes": {"Rune essence": 28}},
+            "carried_inventory": {
+                "craft_air_runes": {"Rune essence": 27, "Air talisman": 1}
+            },
             "carried_primed_targets": {"craft_air_runes": True},
             "carried_churn": {"craft_air_runes": 0},
             "skilling_bank_run": {},
@@ -4345,9 +4351,12 @@ class TestProcessingPackOverlay(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertEqual(player_data["inventory"]["Rune essence"], 0)
-        self.assertEqual(player_data["inventory"]["Air rune"], 56)
-        self.assertEqual(player_data["runecrafting_exp"], 140.0)
-        self.assertNotIn("craft_air_runes", player_data["carried_inventory"])
+        self.assertEqual(player_data["inventory"]["Air rune"], 54)
+        self.assertAlmostEqual(player_data["runecrafting_exp"], 141.75)
+        self.assertEqual(
+            player_data["carried_inventory"]["craft_air_runes"],
+            {"Air talisman": 1},
+        )
         self.assertEqual(calls["errors"], [])
 
     def test_first_engagement_primes_the_pack_for_free_and_acts(self):

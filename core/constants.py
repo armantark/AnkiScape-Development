@@ -310,6 +310,8 @@ from ..data.fishing_trawler_data import (
 from ..data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     great_orb_project_activity_as_dict,
+    great_orb_project_equipment_data_as_dict,
+    great_orb_project_extra_items_as_dict,
 )
 from ..data.managing_miscellania_data import (
     MANAGING_MISCELLANIA_ACTIVITY_ID,
@@ -1699,6 +1701,7 @@ for _row in GOBLIN_RAID_ENEMIES:
 EQUIPMENT_DATA = dict(EQUIPMENT_DATA)
 EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
+EQUIPMENT_DATA.update(great_orb_project_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
@@ -1858,6 +1861,7 @@ PYRAMID_PLUNDER_EXTRA_ITEM_DATA = pyramid_plunder_extra_items_as_dict()
 WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
 FISH_FLINGERS_EXTRA_ITEM_DATA = fish_flingers_extra_items_as_dict()
+GREAT_ORB_PROJECT_EXTRA_ITEM_DATA = great_orb_project_extra_items_as_dict()
 DUEL_ARENA_EXTRA_ITEM_DATA = duel_arena_extra_items_as_dict()
 CRUCIBLE_EXTRA_ITEM_DATA = crucible_extra_items_as_dict()
 GOBLIN_RAIDS_EXTRA_ITEM_DATA = goblin_raids_extra_items_as_dict()
@@ -2006,6 +2010,20 @@ for _item_name in FISH_FLINGERS_EXTRA_ITEM_DATA:
     )
     if os.path.exists(_path):
         FISH_FLINGERS_ITEM_IMAGES[_item_name] = _path
+GREAT_ORB_PROJECT_ITEM_IMAGES = {
+    _item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    for _item_name in GREAT_ORB_PROJECT_EXTRA_ITEM_DATA
+}
+GREAT_ORB_PROJECT_ITEM_IMAGES = {
+    _item_name: _path
+    for _item_name, _path in GREAT_ORB_PROJECT_ITEM_IMAGES.items()
+    if os.path.exists(_path)
+}
+UTILITY_ITEM_IMAGES.update(GREAT_ORB_PROJECT_ITEM_IMAGES)
 DUEL_ARENA_ITEM_IMAGES = {
     tier.item_name: os.path.join(current_dir, "activityitems", tier.asset_filename)
     for tier in DUELLISTS_CAP_TIERS
@@ -2306,6 +2324,7 @@ def _known_non_shop_item_names():
         FARMING_ITEM_DATA,
         THIEVING_EXTRA_ITEM_DATA,
         FISH_FLINGERS_EXTRA_ITEM_DATA,
+        GREAT_ORB_PROJECT_EXTRA_ITEM_DATA,
         DUEL_ARENA_EXTRA_ITEM_DATA,
         CRUCIBLE_EXTRA_ITEM_DATA,
         GOBLIN_RAIDS_EXTRA_ITEM_DATA,
@@ -2447,6 +2466,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **CRAFTING_REQUIRED_ITEM_DATA,
     **CRAFTING_SPECIAL_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
+    **GREAT_ORB_PROJECT_EXTRA_ITEM_DATA,
     **HERBLORE_EXTRA_ITEM_DATA,
     **PRAYER_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,

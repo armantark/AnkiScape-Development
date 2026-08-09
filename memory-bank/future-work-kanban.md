@@ -1231,9 +1231,10 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   Wizard Elriss shop with Pure essence Buy X. The shop now includes all ten
   ordinary cutoff talismans at their exact free/member prices, plus the
   Elemental talisman, first and replacement Omni-talisman claims, the exact
-  one-time 13,605 Runecrafting XP, and Korvak's Omni-tiara conversion. Exact
-  hidden score/essence rolls and the robe, master-robe, staff, and teleport-
-  tablet families remain labeled data and mechanic depth. See
+  one-time 13,605 Runecrafting XP, Korvak's Omni-tiara conversion, and all four
+  Master Runecrafter rewards with exact equipment and capped all-Runecrafting
+  XP bonuses. Exact hidden score/essence rolls and the standard-robe, staff,
+  and teleport-tablet families remain labeled data and mechanic depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
   essence, rune, and matching altar-teleport actions use a carried or equipped

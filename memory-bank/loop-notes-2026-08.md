@@ -1,5 +1,28 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 32 — Great Orb Project Master Runecrafter robes
+
+- Source: Master Runecrafter robes oldid `6514332`, its four cutoff child
+  revisions, and rev-742 pin four 15,000-token items, exact equipment stats,
+  0.8/1.6/1.2/0.4% piece rates, the extra 1% full-set bonus, and the 700-XP
+  bonus cap.
+- Result: all four purchases, equipment rows, normalized source sprites, and
+  shared XP behavior are live. Ordinary altar crafting and Great Orb Project
+  both award the same source-defined bonus; Great Orb status, telemetry,
+  persistence, and undo observe the awarded total.
+- Taste: Kimi K3's ordering, number-formatting, and status-XP findings were
+  reproduced and fixed. Root inspected the real 1200×760 dark render. Opus
+  failed closed at its supported OAuth/quota preflight and was not bypassed.
+- Delegation: Sol-high run `17f8d113-af59-44e0-a170-9acd022b70ec` exhausted its
+  90,000 processed-token guard at 121,271 before findings. Root preserved the
+  partial result and completed the bounded simplification review locally.
+- Verification: full plain and real offscreen-Qt discovery each pass 3,895
+  tests, with 479 plain skips and 3 Qt skips. Standard robes, staves, and
+  tablets remain separate depth. Documentation audits 525 Markdown and 431
+  HTML files; test quality has zero hard issues across 3,861 tests. Reachability
+  improves to 2,244 items with the known 168-orphan/188-unresolved ledger
+  unchanged. No placeholder or design gap surfaced.
+
 ## Iteration 31 — Great Orb Project ordinary talismans
 
 - Source: Great Orb Project oldid `6564759` pins all ordinary talismans except
@@ -9,9 +32,8 @@
   outputs reuse the complete Runecrafting item graph and direct-action undo.
   The existing reward selector now shows their already-provenanced art at a
   fixed 24-pixel size.
-- Boundary: standard robes expose an unresolved in-minigame XP effect, while
-  master robes, staves, and tablets add separate mechanics. They remain depth
-  work rather than being smuggled into this catalog-only slice.
+- Boundary: standard robes expose an unresolved in-minigame XP effect. Master
+  robes were closed in iteration 32; staves and tablets remain separate depth.
 - Taste: Kimi K3 returned `NO_BLOCKER`; root inspected the real 1200×760 dark
   render. Opus failed closed at its stale quota preflight on three attempts and
   was not bypassed.

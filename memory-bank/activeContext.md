@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 32 completes Great Orb Project's Master
+Runecrafter robe family.** Oldid `6514332`, four cutoff child revisions, and
+rev-742 pin the four 15,000-token rewards, exact IDs/slots/combat bonuses, the
+0.8/1.6/1.2/0.4% piece rates, the extra 1% full-set bonus, and the 700-XP bonus
+cap. The live items are one-at-a-time atomic purchases with normalized period
+sprites, shared equipment/inventory/Bank behavior, and direct undo. Their bonus
+applies consistently to ordinary altar Runecrafting and Great Orb Project;
+pure results, status, match totals, runtime XP, telemetry, and review undo agree.
+Kimi K3's three concrete ordering, number-formatting, and status-XP findings
+were reproduced and fixed, and root inspected the real 1200×760 dark render.
+Opus failed closed at the supported OAuth/quota preflight. Full plain and real
+offscreen-Qt discovery each pass 3,895 tests, with 479 plain skips and 3 Qt
+skips. Documentation audits 525 Markdown and 431 HTML files; test quality has
+zero hard issues across 3,861 tests. Reachability improves to 2,244 items while
+the known 168-orphan/188-unresolved ledger is unchanged. Compilation, JSON,
+diff, asset normalization/fetch determinism, and worktree safety pass. Standard
+robes, staves, and tablets remain depth. No placeholder or design gap was added.
+Durable audit:
+`memory-bank/source-audits/great-orb-project-master-runecrafter-robes-2026-08-09.md`.
+
 **2026-08-08, grind-loop iteration 31 completes Great Orb Project's ordinary
 talisman catalog.** Wizard Elriss now sells all ten cutoff ordinary talismans:
 the six free-to-play rows at 50 tokens and the four members-only rows at 125.
@@ -22,8 +42,9 @@ skips. Documentation audits 524 Markdown and 431 HTML files; test quality
 reports zero hard issues across 3,857 tests in 177 files. Compilation, tracked
 JSON, diff, asset-normalization, and worktree audits pass. Reachability remains
 1,499 actions, 2,240 reachable items, 168 orphan inputs, and 188 unresolved
-actions. Robes, master robes, staves, and teleport tablets remain separate
-mechanic depth; no placeholder or design gap was added.
+actions. Standard robes, staves, and teleport tablets remain separate mechanic
+depth; Master Runecrafter robes were closed in iteration 32. No placeholder or
+design gap was added.
 
 **2026-08-09, the recorded papercut backlog is reconciled through snapshot line
 127.** Commit `ff0e4be8` adds four durable guardrails: bounded repository/file

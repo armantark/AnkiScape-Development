@@ -1,5 +1,31 @@
 # Progress
 
+## Great Orb Project Master Runecrafter robes — 2026-08-09
+
+RuneScape Wiki oldid `6514332`, its four cutoff child revisions, and OpenRS2
+rev-742 pin all four 15,000-token rewards, item identities, equipment slots and
+combat bonuses, piece XP rates, full-set bonus, and the 700-XP bonus cap. The
+live family uses the shared atomic shop, direct undo, inventory, Bank,
+equipment, and asset registries.
+
+Ordinary altar Runecrafting and Great Orb Project now apply the exact worn-rate
+sum plus the full-set 1%, capped at 700 added XP per action. Great Orb Project
+computes the bonus in its pure result so UI status, match totals, telemetry,
+runtime award, persistence, and review undo agree. Four exact 2011 source
+sprites are normalized and rendered in the shared fixed 24-pixel slot.
+
+Kimi K3's three concrete ordering, number-formatting, and status-XP findings
+were reproduced and fixed; root inspected the real 1200×760 dark render. Opus
+failed closed at its supported OAuth/quota preflight. Full plain and real
+offscreen-Qt discovery each pass 3,895 tests, with 479 expected plain skips and
+3 intentional Qt skips. Documentation audits 525 Markdown and 431 HTML files;
+test quality has zero hard issues across 3,861 tests. Compilation, 26 tracked
+JSON files, diff, asset normalization/fetch determinism, and worktree safety
+pass. Reachability improves to 2,244 items while the known 168-orphan and
+188-unresolved ledger is unchanged. Standard robes, staves, and tablets remain
+separate depth. No placeholder or design gap was added. See
+`memory-bank/source-audits/great-orb-project-master-runecrafter-robes-2026-08-09.md`.
+
 ## Great Orb Project ordinary-talisman catalog — 2026-08-08
 
 RuneScape Wiki `The Great Orb Project` oldid `6564759`, timestamp
