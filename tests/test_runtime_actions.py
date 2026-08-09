@@ -1798,6 +1798,28 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertAlmostEqual(player_data["fishing_exp"], 115.5)
         self.assertEqual(calls["xp"], [115.5])
 
+    def test_cave_eel_review_consumes_bait_and_awards_period_xp(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Fishing bait": 1},
+            "fishing_level": 38,
+            "fishing_exp": 0.0,
+            "agility_level": 1,
+            "current_fishing": "catch_cave_eel",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_fishing_answer(
+                _context(player_data, calls, random_values=(0.0,))
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Fishing bait"], 0)
+        self.assertEqual(player_data["inventory"]["Raw cave eel"], 1)
+        self.assertEqual(player_data["fishing_exp"], 80.0)
+        self.assertEqual(calls["xp"], [80.0])
+
     def test_overload_handler_records_primary_output_and_four_vials(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         inputs = {

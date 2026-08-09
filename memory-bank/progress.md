@@ -5642,3 +5642,20 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   group and Chaos Elemental art. Both full test lanes pass 3,972 tests.
 - Evidence:
   `source-audits/chaos-elemental-brawling-runtime-closure-2026-08-09.md`.
+
+## Cave eel Fishing runtime closure — 2026-08-09
+
+- Promoted Cave eel from deferred provenance into the live Fishing registry at
+  its sourced level 38 with ordinary rod-and-bait behavior, Raw cave eel
+  output, and 80 Fishing XP.
+- Registered the unrecovered catch roll as a placeholder and rejected the
+  conflicting level-28 reconstruction value. Removed the now-empty deferred
+  Fishing content seam.
+- Reused the normalized Raw cave eel Cooking asset and verified the existing
+  selector, carried-pack, runtime, persistence, undo, and downstream Cooking
+  paths without adding a new UI pattern.
+- Both full test lanes pass 3,974 tests. Plain has 486 expected skips; real
+  offscreen Qt has 3 intentional skips. Documentation, test quality,
+  compilation, JSON, diff, reachability-ledger, and worktree gates pass.
+- Evidence:
+  `source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md`.

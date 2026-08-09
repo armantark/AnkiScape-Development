@@ -69,15 +69,6 @@ class FishingMethod:
     notes: str = ""
 
 
-@dataclass(frozen=True)
-class DeferredFishingContent:
-    id: str
-    display_name: str
-    status: str
-    reason: str
-    source: str
-
-
 FISHING_FISH: Tuple[FishingFish, ...] = (
     FishingFish("crayfish", "CRAYFISH", "Raw crayfish", 13435, 1, 58, 256, 10.0),
     FishingFish("shrimp", "SHRIMP", "Raw shrimps", 317, 1, 48, 256, 10.0),
@@ -141,7 +132,9 @@ FISHING_FISH: Tuple[FishingFish, ...] = (
     FishingFish("monkfish", "MONKFISH", "Raw monkfish", 7944, 62, 48, 90, 120.0),
     FishingFish("karambwanji", "KARAMBWANJI", "Raw karambwanji", 3150, 5, 100, 256, 5.0, tradeable=False),
     FishingFish("slimy_eel", "SLIMY_EEL", "Slimy eel", 3379, 38, 10, 80, 65.0),
-    FishingFish("cave_eel", "CAVE_EEL", "Raw cave eel", 5001, 28, 10, 80, 80.0),
+    # PLACEHOLDER(fishing.cave_eel_catch_roll): the unbound rev-667 row
+    # supplies 10/80 until a period server roll is recovered.
+    FishingFish("cave_eel", "CAVE_EEL", "Raw cave eel", 5001, 38, 10, 80, 80.0),
     FishingFish("lava_eel", "LAVA_EEL", "Raw lava eel", 2148, 53, 16, 96, 60.0, tradeable=False),
     FishingFish("frog_spawn", "FROG_SPAWN", "Frog spawn", 5004, 33, 16, 96, 75.0, tradeable=False),
     FishingFish("cavefish", "CAVEFISH", "Raw cavefish", 15264, 85, 5, 17, 300.0),
@@ -258,6 +251,20 @@ FISHING_METHODS: Tuple[FishingMethod, ...] = (
         source_spots=("MORTMYRE_ROD",),
     ),
     FishingMethod(
+        "catch_cave_eel",
+        "Catch cave eel",
+        "FISHING_ROD_CAVE_EEL",
+        ("cave_eel",),
+        bait_items=("Fishing bait",),
+        source_spots=("LUMBRIDGE_SWAMP_CAVES",),
+        source="https://runescape.wiki/w/Cave_eel?oldid=6357178",
+        notes=(
+            "The period page pins the ordinary rod-and-bait Lumbridge Swamp "
+            "Caves route. The catch roll uses the registered unbound-row "
+            "placeholder."
+        ),
+    ),
+    FishingMethod(
         "catch_leaping_fish",
         "Catch leaping fish",
         "BARBARIAN_ROD",
@@ -305,17 +312,6 @@ FISHING_MATERIAL_ITEM_IDS: Mapping[str, int] = {
     "Caviar": 11326,
     "Living minerals": 15263,
 }
-
-DEFERRED_FISHING_CONTENT: Tuple[DeferredFishingContent, ...] = (
-    DeferredFishingContent(
-        "cave_eel",
-        "Catch cave eel",
-        "source_unbound",
-        "Fish.CAVE_EEL has source data, but no bound FishingTool/FishingSpot pair in the rev-667 plugin.",
-        FISH_SOURCE_PATH,
-    ),
-)
-
 
 def _fish_as_dict(fish: FishingFish) -> Dict[str, object]:
     xp_rewards = [{"skill_id": "fishing", "amount": fish.base_exp}]
@@ -389,15 +385,3 @@ def fishing_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": True,
         }
     return rows
-
-
-def deferred_fishing_content_as_dict() -> Mapping[str, Dict[str, str]]:
-    return {
-        item.id: {
-            "display_name": item.display_name,
-            "status": item.status,
-            "reason": item.reason,
-            "source": item.source,
-        }
-        for item in DEFERRED_FISHING_CONTENT
-    }

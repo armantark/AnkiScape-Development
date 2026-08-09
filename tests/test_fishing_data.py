@@ -2,7 +2,6 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.fishing_data import (
-    DEFERRED_FISHING_CONTENT,
     FISHING_BAIT_SHOP_SOURCE_PATH,
     FISHING_METHODS,
     FISHING_METHODS_BY_ID,
@@ -10,7 +9,6 @@ from ankiscape.data.fishing_data import (
     FISHING_TOOL_SOURCE_PATH,
     FISHING_FISH,
     FISH_BY_ID,
-    deferred_fishing_content_as_dict,
     fishing_extra_items_as_dict,
     fishing_fish_as_dict,
     fishing_methods_as_dict,
@@ -61,7 +59,7 @@ class TestFishingData(unittest.TestCase):
                 ("monkfish", "Raw monkfish", 7944, 62, 48, 90, 120.0, None, None),
                 ("karambwanji", "Raw karambwanji", 3150, 5, 100, 256, 5.0, None, None),
                 ("slimy_eel", "Slimy eel", 3379, 38, 10, 80, 65.0, None, None),
-                ("cave_eel", "Raw cave eel", 5001, 28, 10, 80, 80.0, None, None),
+                ("cave_eel", "Raw cave eel", 5001, 38, 10, 80, 80.0, None, None),
                 ("lava_eel", "Raw lava eel", 2148, 53, 16, 96, 60.0, None, None),
                 ("frog_spawn", "Frog spawn", 5004, 33, 16, 96, 75.0, None, None),
                 ("cavefish", "Raw cavefish", 15264, 85, 5, 17, 300.0, None, None),
@@ -93,6 +91,7 @@ class TestFishingData(unittest.TestCase):
                 ("catch_monkfish", "Catch monkfish", "MONKFISH_NET", ("monkfish",), (), ("SMALL_FISHING_NET_MONKFISH",)),
                 ("catch_karambwan", "Catch karambwan", "KARAMBWAN_VESSEL", ("raw_karambwan",), (), ("KARAMBWAN",)),
                 ("catch_slimy_eel", "Catch slimy eel", "MORTMYRE_ROD", ("slimy_eel",), ("Fishing bait",), ("MORTMYRE_ROD",)),
+                ("catch_cave_eel", "Catch cave eel", "FISHING_ROD_CAVE_EEL", ("cave_eel",), ("Fishing bait",), ("LUMBRIDGE_SWAMP_CAVES",)),
                 ("catch_leaping_fish", "Catch leaping fish", "BARBARIAN_ROD", ("leaping_trout", "leaping_salmon", "leaping_sturgeon"), ("Feather", "Fishing bait", "Fish offcuts", "Roe", "Caviar"), ("BARBARIAN_ROD",)),
                 ("karambwanji_net", "Catch karambwanji", "KBWANJI_NET", ("karambwanji",), (), ()),
                 ("rainbow_fish", "Catch rainbow fish", "FLY_FISHING_ROD_RAINBOW_FISH", ("rainbow_fish",), ("Stripy feather",), ()),
@@ -128,6 +127,7 @@ class TestFishingData(unittest.TestCase):
         self.assertIn("Raw rainbow fish", fishing_output_items())
         self.assertIn("Raw karambwanji", fishing_output_items())
         self.assertIn("Raw lava eel", fishing_output_items())
+        self.assertIn("Raw cave eel", fishing_output_items())
         self.assertIn("Frog spawn", fishing_output_items())
 
         extra = fishing_extra_items_as_dict()
@@ -140,8 +140,6 @@ class TestFishingData(unittest.TestCase):
         self.assertIn("FishingTool.kt", FISHING_TOOL_SOURCE_PATH)
         self.assertIn("FishingSpot.kt", FISHING_SPOT_SOURCE_PATH)
         self.assertIn("lumbridge_fishing_supplies.plugin.kts", FISHING_BAIT_SHOP_SOURCE_PATH)
-        self.assertEqual(deferred_fishing_content_as_dict()["cave_eel"]["status"], "source_unbound")
-        self.assertEqual(len(DEFERRED_FISHING_CONTENT), 1)
         self.assertIn("cave_eel", fishing_fish_as_dict())
 
     def test_source_item_tradeability_is_preserved(self):

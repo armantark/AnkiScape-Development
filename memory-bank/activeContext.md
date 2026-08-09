@@ -4547,3 +4547,23 @@ flees silently when the player runs out of food.
   known ledger at 1,537 actions, 2,339 reachable items, 168 orphan inputs, and
   188 blocked actions. Full evidence is in
   `source-audits/chaos-elemental-brawling-runtime-closure-2026-08-09.md`.
+
+## Cave eel Fishing runtime closure — 2026-08-09
+
+- `Catch cave eel` is now a live level-38 rod-and-bait Fishing target on the
+  abstract Lumbridge Swamp Caves route. A successful catch consumes one
+  Fishing bait, produces one Raw cave eel, and awards 80 Fishing XP.
+- The exact period catch roll remains unrecovered. The existing 10/80
+  reconstruction endpoints are registered as
+  `fishing.cave_eel_catch_roll`, not presented as a sourced period value.
+- Raw cave eel reuses its normalized Cooking sprite. The obsolete deferred
+  Cave eel wrapper is removed, and the established target, carried-pack,
+  persistence, telemetry, undo, urn, outfit, brawling-glove, and Cooking-chain
+  paths remain shared.
+- Verification passes 199 focused plain tests, one real offscreen Qt selector
+  test, and both full 3,974-test lanes. Documentation, test quality,
+  compilation, JSON, diff, and worktree safety pass. Reachability improves to
+  1,538 actions, 2,341 reachable items, 167 orphan inputs, and 187 unresolved
+  actions. Native Computer Use timed out, so no native interaction is claimed.
+- Evidence:
+  `source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md`.

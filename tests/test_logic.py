@@ -2043,6 +2043,25 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(catch_inv["Raw sardine"], 1)
         self.assertEqual(inv["Fishing bait"], 1)
 
+    def test_cave_eel_uses_level_38_rod_and_bait_target(self):
+        self.assertFalse(
+            can_fish_method_pure(
+                37, {"Fishing bait": 1}, "catch_cave_eel", FISHING_DATA
+            )
+        )
+        caught, xp, ok, output, rewards = apply_fishing_action_pure(
+            "catch_cave_eel",
+            {"Fishing bait": 1},
+            FISHING_DATA,
+            fishing_level=38,
+            rolls=(0.0,),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(output, "Raw cave eel")
+        self.assertEqual(xp, 80.0)
+        self.assertEqual(rewards, ({"skill_id": "fishing", "amount": 80.0},))
+        self.assertEqual(caught, {"Fishing bait": 0, "Raw cave eel": 1})
+
     def test_fishing_mixed_outputs_respect_source_order_after_level_filter(self):
         low_level_fish = eligible_fishing_fish_pure(
             FISHING_DATA["catch_shrimp_anchovies"],

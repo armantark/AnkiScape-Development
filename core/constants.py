@@ -1474,6 +1474,7 @@ FISHING_ITEM_IMAGES = {}
 FISHING_SHARED_ITEM_IMAGES = {
     "Raw lava eel": os.path.join(QUEST_ITEMS_FOLDER, "raw_lava_eel.png"),
     "Raw rainbow fish": os.path.join(COOKING_ITEMS_FOLDER, "raw_rainbow_fish.png"),
+    "Raw cave eel": os.path.join(COOKING_ITEMS_FOLDER, "raw_cave_eel.png"),
 }
 for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
     _path = FISHING_SHARED_ITEM_IMAGES.get(

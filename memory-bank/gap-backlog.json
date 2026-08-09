@@ -533,10 +533,10 @@
       "rank": 21,
       "skill": "Fishing",
       "root_cause": "stub",
-      "status": "design_settled_waiting_source",
+      "status": "merged",
       "title": "Cave eel fishing method (no game-main binding)",
       "detail": "game-main defines Fish.CAVE_EEL but provides no FishingTool or FishingSpot binding, so a faithful port is impossible from the emulator. Authentic pre-EOC method is fishing rod + fishing bait at Lumbridge Swamp caves (same route as slimy/lava eels). Sourcing the rod+bait binding + level/XP from the wiki is a design/sourcing decision for the owner. Currently kept in DEFERRED_FISHING_CONTENT.",
-      "note": "ordinary Cave eel target settled from pinned period evidence 2026-07-10; exact catch roll waits for Darkan/high-fidelity source reconciliation",
+      "note": "implemented 2026-08-09 as the ordinary level-38 rod-and-bait Lumbridge Swamp Caves target with one bait consumed only on success, Raw cave eel, 80 XP, existing carried/persistence/undo/UI paths, and reused normalized art. The unbound rev-667 10/80 catch curve is registered as fishing.cave_eel_catch_roll until a period server table replaces it. See memory-bank/source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fishing-cave-eel",
       "decision_summary": {
         "target": "Add Catch cave eel as an ordinary level-38 Fishing target using a reusable Fishing rod and one Fishing bait per successful catch, producing Raw cave eel for 80 Fishing XP.",
