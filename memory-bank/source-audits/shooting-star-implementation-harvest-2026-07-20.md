@@ -4,9 +4,8 @@ Date: `2026-07-20`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **mechanic-complete horizontal slice implemented with a compact,
-period-qualified location set; exhaustive landing locations and hidden server
-distributions remain data-depth work.**
+Status: **mechanic-complete, with the complete 43-site cutoff landing catalog;
+hidden server distributions remain data-depth work.**
 
 ## Period evidence
 
@@ -51,6 +50,14 @@ The period page establishes that sub-200 rewards scale with the submitted dust,
 but it does not expose the server's exact rounding rule. It also does not expose
 the initial-size distribution, first-finder probability, crowd-arrival
 distribution, or exact incidental-gem probability.
+
+The same revision lists 43 named crash sites across Asgarnia; Crandor/Karamja;
+the Fremennik lands/Lunar Isle; Kandarin; the Kharidian Desert; Misthalin;
+Morytania/Mos Le'Harmless; Piscatoris/Gnome Stronghold/Tirannwn; and the
+Wilderness. Grind-loop iteration 27 replaces the six-site breadth sample with
+that literal catalog. Locations remain display flavour under the settled
+no-map/no-travel contract, so site access requirements are not reintroduced as
+false entry gates.
 
 ## Item identity
 
@@ -119,12 +126,30 @@ cadence kernel supplies RuneScape ticks, so the source duration is exactly
 clock as other timed effects and never through elapsed real time. Its 25% roll
 stacks with existing Mining extra-output effects.
 
+## Crash-site depth closure — 2026-08-08
+
+`SHOOTING_STAR_LOCATIONS` now carries all 43 names in the cutoff table, in
+source order. The six older breadth labels repair to their exact table names
+when an active event is loaded, so the data expansion cannot erase a live star.
+New events draw from the complete catalog through the existing deterministic
+selector. No UI structure, gameplay state, reward, or cadence changed.
+
+Darkan's current
+`src/main/java/com/rs/game/content/dnds/shootingstar/ShootingStars.java` at
+repository HEAD `4d72f80f3e7ad56a712b4e38653f01cedaeeb289` is corroboration only.
+Its 33-entry reconstruction is not the cutoff table and includes a different
+site set. It also cannot settle the initial-size distribution: the reconstructed
+spawn calls `Utils.random(0, 9)`, while installed Darkan core `2.0.6` implements
+that overload with an exclusive upper bound, producing `0..8`; tier zero is
+invalid and tier nine is unreachable. The exact period oldid therefore supplies
+the locations, while the hidden initial-size selector remains source-blocked.
+
 ## Deliberate data boundary and dependencies
 
-The implementation uses six unrestricted period-flavor landing locations.
-Completing every restricted location and its quest/area eligibility is deferred
-catalog depth because the owner-settled product removes map travel and scouting;
-the compact set exercises no additional mechanic less honestly.
+The full location names are present because they are easy period data. Their
+travel, telescope, map, and per-site access requirements remain intentionally
+absent under the settled product translation; they would be false mechanics in
+the current locationless app.
 
 The source's D&D token and Squeal ticket can grant an additional exchange.
 Their acquisition systems are not part of the current reachable core and are
@@ -146,6 +171,17 @@ than invented as Shooting Stars buttons.
 - `tests/test_skill_and_item_registry.py` and
   `tests/test_ui_asset_normalization.py`: navigation reachability and normalized
   visible art.
+
+Iteration 27 focused plain verification passes 892 tests. Relevant real
+offscreen-Qt verification passes a 436-test integration prefix and three direct
+Shooting Stars UI paths. Full discovery passes 3,870 tests in both lanes: plain
+records 3,391 ordinary passes and 479 expected environment skips; real
+offscreen Qt records 3,867 ordinary passes and 3 intentional skips.
+Documentation audits 520 Markdown and 431 HTML files, and the test-quality
+audit reports zero hard issues across 3,836 tests in 176 files. Compilation,
+JSON, diff, asset-normalization, reachability, and worktree audits pass.
+Reachability remains at 1,499 actions, 2,232 reachable items, 169 orphan inputs,
+and 189 blocked actions.
 
 ## Workflow note
 

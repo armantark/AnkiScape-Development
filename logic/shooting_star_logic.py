@@ -10,6 +10,7 @@ from ..data.shooting_star_data import (
     SHOOTING_STAR_POPULATION_BASE_CEILING,
     SHOOTING_STAR_INTERVAL_REVIEWS,
     SHOOTING_STAR_LAYERS_BY_SIZE,
+    SHOOTING_STAR_LEGACY_LOCATION_ALIASES,
     SHOOTING_STAR_LOCATIONS,
     SHOOTING_STAR_ORE_BONUS_TICKS,
     SHOOTING_STAR_REWARD_DAY_REVIEWS,
@@ -97,6 +98,7 @@ def _sanitize_event(raw: Any) -> dict[str, Any]:
         _int(raw.get("current_size"), starting_size),
     )
     location = str(raw.get("location", ""))
+    location = SHOOTING_STAR_LEGACY_LOCATION_ALIASES.get(location, location)
     event_id = str(raw.get("event_id", ""))
     sprite_released = bool(raw.get("sprite_released", False))
     if (

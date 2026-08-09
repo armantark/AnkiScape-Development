@@ -3,6 +3,8 @@ import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic_pure.logic_pure import advance_temporary_effects_pure
 from ankiscape.data.shooting_star_data import (
+    SHOOTING_STAR_LEGACY_LOCATION_ALIASES,
+    SHOOTING_STAR_LOCATIONS,
     SHOOTING_STAR_ORE_BONUS_TICKS,
     SHOOTING_STAR_STARDUST_CAP,
 )
@@ -34,6 +36,67 @@ def _player(*, answered=20, mining_level=99):
 
 
 class TestShootingStarLogic(unittest.TestCase):
+    def test_cutoff_crash_site_catalog_is_complete_and_legacy_names_repair(self):
+        self.assertEqual(len(SHOOTING_STAR_LOCATIONS), 43)
+        self.assertEqual(
+            SHOOTING_STAR_LOCATIONS,
+            (
+                "Crafting Guild mining site",
+                "Falador east bank",
+                "Rimmington mining site",
+                "Falador mining site",
+                "Karamja north-western mining site",
+                "Brimhaven mining site",
+                "South Crandor mining site",
+                "Karamja mining site",
+                "Shilo Village mining site",
+                "Keldagrim entrance mining site",
+                "Jatizso mine",
+                "Lunar Isle mine",
+                "Managing Miscellania mining site",
+                "Central Fremennik Isles mining site",
+                "Rellekka mining site",
+                "Legends' Guild mining site",
+                "South-east Ardougne mining site",
+                "Coal Trucks",
+                "Yanille Bank",
+                "Fight Arena mining site",
+                "Al Kharid bank",
+                "Al Kharid mining site",
+                "Duel Arena bank chest",
+                "Uzer mining site",
+                "Nardah mining site",
+                "Nardah bank",
+                "Western desert mining site",
+                "South-east Varrock mining site",
+                "Lumbridge Swamp training mining site",
+                "South-west Varrock mining site",
+                "Varrock east bank",
+                "Burgh de Rott Bank",
+                "Canifis Bank",
+                "Gnome Stronghold Bank",
+                "Lletya bank",
+                "Piscatoris mining site",
+                "Bandit camp mining site",
+                "Mage Arena bank",
+                "Pirates' Hideout mining site",
+                "North Edgeville mining site",
+                "Lava Maze runite mining site",
+                "Southern wilderness mining site",
+                "Wilderness Volcano",
+            ),
+        )
+
+        player, _events = advance_shooting_star_world_clock_pure(_player())
+        event = player["shooting_star"]["active_event"]
+        for legacy, canonical in SHOOTING_STAR_LEGACY_LOCATION_ALIASES.items():
+            player["shooting_star"]["active_event"] = {**event, "location": legacy}
+            repaired = ensure_shooting_star_state_pure(player)
+            self.assertEqual(
+                repaired["shooting_star"]["active_event"]["location"],
+                canonical,
+            )
+
     def test_join_refuses_a_too_large_star_and_clears_selection(self):
         player, _ = advance_shooting_star_world_clock_pure(
             _player(mining_level=10)

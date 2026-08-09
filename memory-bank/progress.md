@@ -1,5 +1,32 @@
 # Progress
 
+## Shooting Stars crash-site catalog closure — 2026-08-08
+
+RuneScape Wiki Shooting Star oldid `6556329`, timestamp
+`2012-11-15T09:20:35Z`, supplies the exact 43-site cutoff table. The live data
+now carries every name in source order instead of the six-site breadth sample.
+Legacy active events repair the six former labels to their exact table names,
+so loading an old save preserves the communal star. The catalog remains flavour
+only under the settled locationless design; no telescope, map, travel, or
+per-site gate was invented.
+
+Darkan's current 33-site reconstruction is not the cutoff catalog. Its hidden
+starting-tier call also cannot replace the disclosed AnkiScape abstraction:
+installed Darkan core `2.0.6` proves `Utils.random(0, 9)` is upper-exclusive,
+so that call can produce invalid tier zero and cannot produce tier nine. The
+server distribution therefore remains source-blocked without creating a new
+placeholder or design gap.
+
+Focused plain verification passes 892 tests. Relevant real offscreen-Qt
+verification passes a 436-test integration prefix and three direct Shooting
+Stars UI paths. Full discovery passes 3,870 tests in both lanes: plain records
+3,391 ordinary passes and 479 expected environment skips; real offscreen Qt
+records 3,867 ordinary passes and 3 intentional skips. Documentation audits 520
+Markdown and 431 HTML files; test quality reports zero hard issues across 3,836
+tests in 176 files. Compilation, JSON, diff, asset normalization, reachability,
+and worktree audits pass. Reachability remains at 1,499 actions, 2,232 reachable
+items, 169 orphan inputs, and 189 blocked actions.
+
 ## Fishing Trawler Tiger shark depth closure — 2026-08-08
 
 RuneScape Wiki Tiger shark oldid `6448339`, Raw tiger shark oldid `5992445`,

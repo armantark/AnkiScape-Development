@@ -66,16 +66,62 @@ SHOOTING_STAR_REWARD_MAXIMA = {
     "Coins": 50_002,
 }
 
-# A compact unrestricted subset of the period landing table. Locations are
-# flavour only; AnkiScape deliberately has no telescope, travel, or map phase.
+# The complete crash-site table in oldid 6556329. Locations are flavour only;
+# AnkiScape deliberately has no telescope, travel, or map phase.
 SHOOTING_STAR_LOCATIONS: Tuple[str, ...] = (
-    "Crafting Guild mine",
-    "Falador east mine",
-    "Rimmington mine",
-    "Varrock south-east mine",
-    "Al Kharid mine",
-    "Lumbridge Swamp mine",
+    "Crafting Guild mining site",
+    "Falador east bank",
+    "Rimmington mining site",
+    "Falador mining site",
+    "Karamja north-western mining site",
+    "Brimhaven mining site",
+    "South Crandor mining site",
+    "Karamja mining site",
+    "Shilo Village mining site",
+    "Keldagrim entrance mining site",
+    "Jatizso mine",
+    "Lunar Isle mine",
+    "Managing Miscellania mining site",
+    "Central Fremennik Isles mining site",
+    "Rellekka mining site",
+    "Legends' Guild mining site",
+    "South-east Ardougne mining site",
+    "Coal Trucks",
+    "Yanille Bank",
+    "Fight Arena mining site",
+    "Al Kharid bank",
+    "Al Kharid mining site",
+    "Duel Arena bank chest",
+    "Uzer mining site",
+    "Nardah mining site",
+    "Nardah bank",
+    "Western desert mining site",
+    "South-east Varrock mining site",
+    "Lumbridge Swamp training mining site",
+    "South-west Varrock mining site",
+    "Varrock east bank",
+    "Burgh de Rott Bank",
+    "Canifis Bank",
+    "Gnome Stronghold Bank",
+    "Lletya bank",
+    "Piscatoris mining site",
+    "Bandit camp mining site",
+    "Mage Arena bank",
+    "Pirates' Hideout mining site",
+    "North Edgeville mining site",
+    "Lava Maze runite mining site",
+    "Southern wilderness mining site",
+    "Wilderness Volcano",
 )
+
+SHOOTING_STAR_LEGACY_LOCATION_ALIASES = {
+    "Crafting Guild mine": "Crafting Guild mining site",
+    "Falador east mine": "Falador east bank",
+    "Rimmington mine": "Rimmington mining site",
+    "Varrock south-east mine": "South-east Varrock mining site",
+    "Al Kharid mine": "Al Kharid mining site",
+    "Lumbridge Swamp mine": "Lumbridge Swamp training mining site",
+}
 
 
 def shooting_star_activity_as_dict() -> Dict[str, Dict[str, object]]:

@@ -1262,9 +1262,10 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   selector and registered Cooking burn endpoints remain depth. See
   `memory-bank/source-audits/fishing-trawler-horizontal-implementation-2026-07-21.md`.
 - Shooting Stars are mechanic-complete as an Activities-only communal Mining
-  event with a compact period-qualified location set. Exact hidden initial-size,
-  first-finder, crowd, gem, and sub-200 reward-rounding distributions remain
-  data-depth work and do not block the breadth-first frontier.
+  event with the complete 43-site cutoff crash catalog and legacy active-event
+  repair. Exact hidden initial-size, first-finder, crowd, gem, and sub-200
+  reward-rounding distributions remain data-depth work and do not block the
+  breadth-first frontier.
 - Fist of Guthix is mechanic-complete as an Activities-only safe two-round
   Combat minigame. Its tutorial, random pairing, role swap, exact six-tick
   cadence, temporary supplies, charge tactics, endpoints, token/rating economy,

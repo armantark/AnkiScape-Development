@@ -82,3 +82,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Fishing Trawler's Tiger shark row from cutoff item pages and
      rev-741 definitions, including its one-per-trip admission, Cooking chain,
      combat-food behavior, exact item semantics, and normalized sprites.
+   - [x] Replace Shooting Stars' six-site breadth sample with all 43 cutoff
+     crash sites, preserving live legacy events through exact-name repair.

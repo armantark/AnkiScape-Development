@@ -1,5 +1,30 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 27 — Shooting Stars crash sites
+
+- Evidence: RuneScape Wiki Shooting Star oldid `6556329`, timestamp
+  `2012-11-15T09:20:35Z`; Darkan HEAD
+  `4d72f80f3e7ad56a712b4e38653f01cedaeeb289`; installed Darkan core `2.0.6`.
+- Result: all 43 cutoff crash-site names replace the six-site breadth sample in
+  source order. Six legacy active-event labels repair to their canonical names
+  so catalog depth cannot discard a live star. Locations remain flavour only;
+  no map, telescope, travel, or site gate was added.
+- Negative evidence: Darkan's 33-site reconstruction conflicts with the cutoff
+  table. Its `Utils.random(0, 9)` starting-tier call is upper-exclusive and
+  yields `0..8`, including an invalid zero and excluding tier nine, so the
+  hidden period tier distribution remains source-blocked.
+- Verification: focused plain verification passes 892 tests. Relevant real
+  offscreen-Qt verification passes a 436-test integration prefix and three
+  direct Shooting Stars UI paths. Full plain discovery passes 3,870 tests with
+  479 expected skips; full real offscreen-Qt discovery passes 3,870 with 3
+  intentional skips. Documentation audits 520 Markdown and 431 HTML files;
+  test quality reports zero hard issues across 3,836 tests in 176 files.
+  Compilation, JSON, diff, asset-normalization, reachability, and worktree
+  audits pass. Reachability remains 1,499 actions, 2,232 reachable items, 169
+  orphan inputs, and 189 blocked actions.
+- Next: transcribe Penguin Hide and Seek's exact 34 one-point and 33 two-point
+  cutoff spawn pools without changing its settled flattened travel model.
+
 ## Iteration 26 — Fishing Trawler Tiger shark
 
 - Evidence: RuneScape Wiki Tiger shark oldid `6448339`, timestamp

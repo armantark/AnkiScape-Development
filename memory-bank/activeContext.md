@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 27 completes Shooting Stars' cutoff crash-site
+catalog.** RuneScape Wiki Shooting Star oldid `6556329` literally supplies all
+43 named sites across nine telescope regions. The old six-row breadth sample is
+replaced in source order, and the six former labels repair to their canonical
+names when loading an active event so a data expansion cannot erase a live
+star. Locations remain display flavour under the settled no-map/no-travel
+translation. Darkan's current 33-site reconstruction conflicts with the cutoff
+table and cannot settle the hidden starting-tier distribution: its
+`Utils.random(0, 9)` call uses an exclusive upper bound and yields invalid tier
+zero while never yielding tier nine. No placeholder or owner design gap was
+added. Focused plain verification passes 892 tests; relevant real offscreen-Qt
+verification passes a 436-test integration prefix plus three direct Shooting
+Stars UI paths. Full discovery passes 3,870 tests in both lanes: plain records
+3,391 ordinary passes and 479 expected environment skips; real offscreen Qt
+records 3,867 ordinary passes and 3 intentional skips. Documentation audits 520
+Markdown and 431 HTML files; test quality reports zero hard issues across 3,836
+tests in 176 files. Compilation, JSON, diff, asset-normalization, reachability,
+and worktree audits pass. Reachability remains at 1,499 actions, 2,232 reachable
+items, 169 orphan inputs, and 189 blocked actions. The next source-ready slice
+is Penguin Hide and Seek's exact 67-spawn cutoff pool.
+
 **2026-08-08, grind-loop iteration 26 closes Fishing Trawler's Tiger shark
 depth row end to end.** Cutoff Tiger shark oldid `6448339`, Raw tiger shark
 oldid `5992445`, and rev-741 item definitions pin Fishing 95, 80 ordinary XP,
