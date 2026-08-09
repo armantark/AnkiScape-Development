@@ -69,7 +69,10 @@ from ankiscape.logic.goblin_raids_logic import (
     next_raider_set_piece_pure,
     sanitize_goblin_raids_state_pure,
 )
-from ankiscape.logic_pure.logic_pure import player_combat_level_pure
+from ankiscape.logic_pure.logic_pure import (
+    can_equip_item_pure,
+    player_combat_level_pure,
+)
 from ankiscape.logic.shop_logic import advance_shop_market_clock_pure
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
@@ -301,10 +304,42 @@ class GoblinRaidsDataTest(unittest.TestCase):
             row = EQUIPMENT_DATA[item_name]
             self.assertEqual(row.source_item_id, item_id)
             self.assertEqual(row.bonuses, bonuses)
+        self.assertEqual(
+            EQUIPMENT_DATA["Raider axe"].skill_requirements,
+            (("attack", 8),),
+        )
+        for item_name in ("Raider chainbody", "Raider shield"):
+            self.assertEqual(
+                EQUIPMENT_DATA[item_name].skill_requirements,
+                (("defense", 8),),
+            )
         definitions = {row.storage_key: row for row in ITEM_DEFINITIONS}
         for item_name in expected:
             self.assertFalse(definitions[item_name].stackable)
             self.assertFalse(definitions[item_name].tradeable)
+
+    def test_the_period_level_eight_requirements_drive_the_real_equip_gate(self):
+        attacker = _player(1, attack_level=8, defense_level=7)
+        self.assertEqual(
+            can_equip_item_pure("Raider axe", EQUIPMENT_DATA, attacker),
+            (True, ""),
+        )
+        for item_name in ("Raider chainbody", "Raider shield"):
+            self.assertEqual(
+                can_equip_item_pure(item_name, EQUIPMENT_DATA, attacker),
+                (False, "Requires level 8 Defense"),
+            )
+
+        defender = _player(1, attack_level=7, defense_level=8)
+        self.assertEqual(
+            can_equip_item_pure("Raider axe", EQUIPMENT_DATA, defender),
+            (False, "Requires level 8 Attack"),
+        )
+        for item_name in ("Raider chainbody", "Raider shield"):
+            self.assertEqual(
+                can_equip_item_pure(item_name, EQUIPMENT_DATA, defender),
+                (True, ""),
+            )
 
 
 class GoblinRaidsWorldClockTest(unittest.TestCase):

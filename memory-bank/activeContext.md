@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 25 enforces the period Raider-set level
+requirements.** Tip.It's Goblin Raids guide, last updated `2012-10-24`, states
+8 Attack for the Raider axe and 8 Defence for both Raider chainbody and Raider
+shield. The live armour rows incorrectly carried no skill requirement and were
+equippable at level 1 because the narrower wiki item revisions omitted the
+field. All three items now publish the exact requirement through the shared
+equipment gate, including the correct player-facing Attack/Defense lock reason.
+No placeholder or owner design gap remains for this value. Verification passes
+135 focused Goblin/equipment/registry tests and both full 3,865-test lanes:
+plain declares 479 expected skips and real offscreen Qt declares 3.
+Documentation audits 520 Markdown and 431 HTML files, test quality reports zero
+hard issues across 3,831 tests in 176 files, and diff/worktree audits pass.
+
 **2026-08-08, grind-loop iteration 24 pins Commander Yodri's period reward
 contents and repairs timed-out raid settlement.** Tip.It's Goblin Raids guide,
 last updated `2012-10-24` and preserved in Wayback capture `20121228205432`,

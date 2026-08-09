@@ -93,8 +93,8 @@ Sourced facts implemented:
 - Each boss has a chance to drop the **Goblin cower shield**, which grants **25%
   bonus Attack, Defence and Constitution experience up to 1,000 bonus experience
   in total**, after which it is purely cosmetic.
-- The **Raider axe requires 8 Attack**. No Defence requirement is stated for the
-  chainbody or shield.
+- The **Raider axe requires 8 Attack**. The Raider chainbody and Raider shield
+  each require **8 Defence**.
 
 Facts read and deliberately not implemented:
 
@@ -254,6 +254,24 @@ zero hard issues across 3,830 tests in 176 files; diff and worktree audits pass.
 Item reachability remains at its established dependency ledger: 1,498 actions,
 2,230 reachable items, 169 orphan inputs, and 189 blocked actions.
 
+## Raider-set requirement correction — 2026-08-08
+
+The same dated Tip.It guide contains the complete equipment requirements table:
+Raider axe requires `8 Attack`, while Raider chainbody and Raider shield each
+require `8 Defence`. The narrower wiki item revisions pinned during the initial
+implementation stated the axe requirement but omitted armour requirements; that
+absence was incorrectly treated as level 1. Tip.It's explicit period table
+settles the values without a placeholder.
+
+All three equipment rows now carry their exact `skill_requirements` tuple through
+the shared `can_equip_item_pure` gate. A level-8 attacker with 7 Defence can wear
+the axe but not either armour piece; a level-8 defender with 7 Attack gets the
+inverse result and the exact player-facing lock reason. No owner design gap
+surfaced. Closure verification passes 135 focused tests and both full 3,865-test
+lanes: plain declares 479 expected skips and real offscreen Qt declares 3.
+Documentation audits 520 Markdown and 431 HTML files; test quality reports zero
+hard issues across 3,831 tests in 176 files; diff and worktree audits pass.
+
 ## Asset provenance
 
 `tools/fetch_goblin_raids_assets.py` installs six images, all with pre-cutoff
@@ -280,7 +298,7 @@ roster row resolves to art.
 
 ## Test coverage
 
-`tests/test_goblin_raids.py`, 47 tests in nine classes: data and registration,
+`tests/test_goblin_raids.py`, 48 tests in nine classes: data and registration,
 the world clock, entry, the raid stages, the intimidation shortcut, the village
 boss loop, the cower shield bonus, failure paths, the view, persistence, the
 command router, and runtime integration. Plus one case in

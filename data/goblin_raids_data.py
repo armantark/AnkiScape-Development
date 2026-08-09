@@ -230,19 +230,20 @@ class RaiderSetPiece:
     item_name: str
     slot: str
     source_item_id: int
-    required_attack: int
+    required_skill: str
+    required_level: int
 
 
 RAIDER_SET = (
-    RaiderSetPiece("Raider chainbody", "body", 25_352, 1),
-    # Exact: the pinned Raider axe revision states 8 Attack to wield. Neither
-    # the chainbody nor the shield revision states a Defence requirement.
-    RaiderSetPiece("Raider axe", "weapon", 25_351, 8),
-    RaiderSetPiece("Raider shield", "shield", 25_353, 1),
+    RaiderSetPiece("Raider chainbody", "body", 25_352, "defense", 8),
+    RaiderSetPiece("Raider axe", "weapon", 25_351, "attack", 8),
+    RaiderSetPiece("Raider shield", "shield", 25_353, "defense", 8),
 )
 RAIDER_SET_ITEM_NAMES = tuple(piece.item_name for piece in RAIDER_SET)
 
-RAIDER_SET_SOURCE_STATUS = "rev-741 cache item definitions"
+RAIDER_SET_SOURCE_STATUS = (
+    "rev-741 cache item definitions; Tip.It 2012-10-24 level requirements"
+)
 
 # PLACEHOLDER(goblin_raids.yodri_reward_selection): Tip.It's 2012-10-24 guide
 # fixes the three site-specific item sets and the maximum total at ten, but does
@@ -371,8 +372,8 @@ def goblin_raids_equipment_data_as_dict() -> dict[str, EquipmentItem]:
         piece.item_name: EquipmentItem(
             item_name=piece.item_name,
             slot=piece.slot,
-            combat_skill="attack" if piece.slot == "weapon" else None,
-            required_level=piece.required_attack,
+            combat_skill=piece.required_skill,
+            required_level=piece.required_level,
             two_handed=False,
             equipment_type="raider_set",
             bonuses=RAIDER_SET_BONUSES[piece.item_name],
@@ -380,7 +381,7 @@ def goblin_raids_equipment_data_as_dict() -> dict[str, EquipmentItem]:
             source_item_id=piece.source_item_id,
             source=GOBLIN_RAIDS_SOURCE,
             source_status=RAIDER_SET_SOURCE_STATUS,
-            skill_requirements=(),
+            skill_requirements=((piece.required_skill, piece.required_level),),
             weapon_type=-1,
         )
         for piece in RAIDER_SET

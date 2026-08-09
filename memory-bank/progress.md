@@ -1,5 +1,18 @@
 # Progress
 
+## Raider-set requirements enforced — 2026-08-08
+
+Tip.It's Goblin Raids guide, last updated `2012-10-24`, states the complete
+Raider-set requirement table: 8 Attack for the axe and 8 Defence for both the
+chainbody and shield. The narrower wiki item revisions stated only the axe's
+requirement, so live armour had defaulted to level 1. All three items now pass
+their exact skill tuple through the shared equipment gate. Focused verification
+passes 135 tests; full plain and real offscreen-Qt discovery each pass 3,865,
+with 479 and 3 expected skips respectively. No placeholder or owner design gap
+remains for this value. Documentation audits 520 Markdown and 431 HTML files;
+test quality reports zero hard issues across 3,831 tests in 176 files; diff and
+worktree audits pass.
+
 ## Commander Yodri reward table and expiry settlement — 2026-08-08
 
 Tip.It's Goblin Raids guide, last updated `2012-10-24` and preserved in Wayback

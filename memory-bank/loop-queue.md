@@ -77,3 +77,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Re-walk Commander Yodri's site-specific reward contents and selection
      rule through the dated Tip.It guide, period article history and surviving
      server records. Retire exact contents without inventing hidden weights.
+   - [x] Pin the Raider chainbody and shield's explicit level-8 Defence
+     requirements from the dated Tip.It guide and exercise the real equip gate.

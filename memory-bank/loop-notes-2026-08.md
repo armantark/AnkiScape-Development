@@ -1,5 +1,19 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 25 — Raider-set level requirements
+
+- Evidence: Tip.It Goblin Raids guide last updated `2012-10-24`, immutable
+  Wayback capture `20121228205432`, retrieved HTML SHA-256
+  `93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2`.
+- Result: Raider axe requires 8 Attack; Raider chainbody and Raider shield each
+  require 8 Defence. The armour's prior level-1 equip path is removed and all
+  three rows now use the shared skill-requirement contract.
+- Verification: 135 focused Goblin Raids, equipment, item-registry and
+  placeholder tests pass. Full discovery passes 3,865 tests in both lanes, with
+  479 expected plain skips and 3 real offscreen-Qt skips. Documentation audits
+  520 Markdown and 431 HTML files; test quality reports zero hard issues across
+  3,831 tests in 176 files; diff and worktree audits pass.
+
 ## Iteration 24 — Commander Yodri rewards and timed-out attempts
 
 - Evidence: Tip.It Goblin Raids guide last updated `2012-10-24`, immutable
