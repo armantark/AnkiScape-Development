@@ -1,5 +1,34 @@
 # Progress
 
+## Great Orb Project standard Runecrafter robes — 2026-08-09
+
+RuneScape Wiki oldid `6327369`, cutoff talk oldid `5565562`, and OpenRS2
+rev-742 pin all three colours, 12 one-at-a-time 1,000-token purchases, exact
+item identities, equipment slots, combat bonuses, and an XP effect confined to
+Great Orb Project essence crafting. The live rate is the registered bounded
+placeholder `0.25%` per occupied standard piece, at most 1% across four slots;
+mixed colours work and ordinary altar Runecrafting remains unaffected.
+
+The family reuses the atomic reward/direct-undo, inventory, Bank, equipment,
+discard, recovery, and fixed-icon shop paths. Fractional awarded XP remains
+identical across the pure result, status, persistent match tracker, runtime
+award, telemetry, and undo. Nine sprites use immutable pre-cutoff file
+revisions. The three renamed goggles-on hat files have no surviving pre-cutoff
+revision under their current titles and are explicitly labeled visual-only
+fallbacks.
+
+Root inspected the real 1200×760 dark render. Kimi's fresh five-hour quota was
+exhausted and Opus's preflight was unavailable, so neither guard was bypassed;
+no new widget or interaction pattern was added. Full plain and real offscreen-
+Qt discovery each pass 3,897 tests, with 479 expected plain skips and three
+intentional Qt skips. Documentation audits 526 Markdown and 431 HTML files;
+test quality has zero hard issues across 3,863 tests in 177 files. Compilation,
+26 tracked JSON files, diff whitespace, deterministic asset fetching, all 284
+Activities-item crops, and worktree safety pass. Reachability improves to 2,256
+items while the known 168-orphan and 188-blocked ledger is unchanged. Talisman
+staves and teleport tablets remain separate depth. See
+`memory-bank/source-audits/great-orb-project-standard-runecrafter-robes-2026-08-09.md`.
+
 ## Great Orb Project Master Runecrafter robes — 2026-08-09
 
 RuneScape Wiki oldid `6514332`, its four cutoff child revisions, and OpenRS2

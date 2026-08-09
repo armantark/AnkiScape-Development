@@ -21,6 +21,7 @@ Placeholders".
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
 | `conquest.board_size` | 20×20 bounded board | Conquest | Period map-region data, interface tile grid, or dated screenshots sufficient to count the authentic battlefield dimensions |
+| `great_orb_project.runecrafter_robe_piece_xp_rate` | 0.25% per worn standard piece, at most 1% for four occupied standard pieces | Great Orb Project | Cutoff article oldid 6327369 confirms an XP boost only while crafting essence inside the activity, and cutoff talk oldid 5565562 says each piece adds while rejecting range and Runecrafting-level folklore. Neither gives a magnitude. A period server crafting routine or measured XP table would replace the uniform bounded rate. |
 | `conquest.squad_unit_cap` | 10 troops | Conquest | Pre-cutoff rules text or server setup validation proving the formal cap; the current value follows full default and guide formations |
 | `conquest.starting_command_points` | 0 CP | Conquest | Period match initialization code or an interface record showing the initial balance before either side moves |
 | `conquest.passive_command_points` | 25 CP at each ordinary owner-turn start except the opening player's first turn | Conquest | Server turn-transition code or decoded client script showing the exact grant boundary |

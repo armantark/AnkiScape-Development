@@ -1233,8 +1233,11 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   Elemental talisman, first and replacement Omni-talisman claims, the exact
   one-time 13,605 Runecrafting XP, Korvak's Omni-tiara conversion, and all four
   Master Runecrafter rewards with exact equipment and capped all-Runecrafting
-  XP bonuses. Exact hidden score/essence rolls and the standard-robe, staff,
-  and teleport-tablet families remain labeled data and mechanic depth. See
+  XP bonuses. All 12 green, blue, and yellow standard Runecrafter pieces now
+  have exact prices, identities, equipment bonuses, GOP-only per-piece XP
+  behavior, and normalized art; the unrecovered rate is a registered
+  placeholder. Exact hidden score/essence rolls and the staff and
+  teleport-tablet families remain labeled data and mechanic depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
   essence, rune, and matching altar-teleport actions use a carried or equipped

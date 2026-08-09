@@ -1,5 +1,32 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 33 — Great Orb Project standard Runecrafter robes
+
+- Source: robes oldid `6327369`, talk oldid `5565562`, and rev-742 pin three
+  colours, 12 exact 1,000-token identities, equipment slots/stats, and an
+  activity-only per-piece XP effect. The unrecovered magnitude is registered
+  as a bounded 0.25% per-piece placeholder, at most 1% over four slots.
+- Result: all purchases, direct undo, shared inventory/Bank/equipment behavior,
+  mixed-colour GOP-only XP, fractional match tracking, and normalized selector
+  art are live. Nine assets are cutoff-qualified; three renamed hat sprites are
+  labeled visual-only fallbacks.
+- Taste: root inspected the real 1200×760 dark render. Kimi's fresh five-hour
+  window was exhausted and Opus's preflight was unavailable; neither guard was
+  bypassed. This extends the existing selector without a new UI pattern.
+- Delegation: read-only Workflows run
+  `39cf4d5c-611c-4b9a-bb6a-f46653c1c7b2` crossed its tool-output limit by 432
+  bytes after two source reads and returned no findings. Root reproduced the
+  evidence and reviewed the complete diff. The required diff-only
+  simplification run `2bc0904b-34fc-43db-bf38-a67700d8a5a9` then left its
+  five-file boundary and failed closed at 63,810 processed tokens before
+  findings; root completed that bounded review locally with no valid deletion.
+- Verification: full plain and real offscreen-Qt discovery each pass 3,897
+  tests, with 479 plain skips and 3 Qt skips. Documentation audits 526 Markdown
+  and 431 HTML files; test quality has zero hard issues across 3,863 tests.
+  Reachability improves to 2,256 items with the known 168-orphan/188-blocked
+  ledger unchanged. Compilation, JSON, diff, asset fetch/normalization, and
+  worktree safety pass. Staves and tablets remain separate depth.
+
 ## Iteration 32 — Great Orb Project Master Runecrafter robes
 
 - Source: Master Runecrafter robes oldid `6514332`, its four cutoff child

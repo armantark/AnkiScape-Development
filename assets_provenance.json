@@ -995,6 +995,55 @@
     "source_wiki": "rs3",
     "timestamp": "2012-03-07T22:53:28Z"
   },
+  "activityitems/blue_runecrafter_gloves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_gloves_%28blue%29.png",
+    "file_title": "Runecrafter gloves (blue).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082609%21Runecrafter_gloves_%28blue%29.png?1111e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8641996a540d68e19c6b9bf7dfdd5d629f1c1222",
+    "size": 447,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-04T17:55:37Z"
+  },
+  "activityitems/blue_runecrafter_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_hat_%28blue%2C_goggles_on%29.png",
+    "file_title": "Runecrafter hat (blue, goggles on).png",
+    "image_url": "https://runescape.wiki/images/Runecrafter_hat_%28blue%2C_goggles_on%29.png?5ba4a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c87c8ca9ec59332dbf3d9d66eec1d8790c8657bd",
+    "size": 731,
+    "source_note": "The cutoff page and rev-742 cache pin this exact item, but the renamed wiki file retains no pre-cutoff revision. The current sprite is visual art only and supplies no mechanic or item identity.",
+    "source_wiki": "rs3-visual-fallback",
+    "timestamp": "2016-05-02T07:15:08Z"
+  },
+  "activityitems/blue_runecrafter_robe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_robe_%28blue%29.png",
+    "file_title": "Runecrafter robe (blue).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071517%21Runecrafter_robe_%28blue%29.png?41682",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b471e8fcc0ea5deeab1687ce0922546dedb8c07d",
+    "size": 500,
+    "source_wiki": "rs3",
+    "timestamp": "2011-02-26T08:40:04Z"
+  },
+  "activityitems/blue_runecrafter_skirt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_skirt_%28blue%29.png",
+    "file_title": "Runecrafter skirt (blue).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082614%21Runecrafter_skirt_%28blue%29.png?50fcf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0cdb1d3427905e84b5a862a295272b66c241063b",
+    "size": 476,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-05T14:50:13Z"
+  },
   "activityitems/blue_tricorn_hat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_tricorn_hat.png",
     "file_title": "Blue tricorn hat.png",
@@ -2122,6 +2171,55 @@
     "size": 792,
     "source_wiki": "rs3",
     "timestamp": "2011-11-22T04:33:42Z"
+  },
+  "activityitems/green_runecrafter_gloves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_gloves_%28green%29.png",
+    "file_title": "Runecrafter gloves (green).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071459%21Runecrafter_gloves_%28green%29.png?7eebb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "48bbe2939218de6a21957cd792357cd514f1fd82",
+    "size": 1375,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T00:55:23Z"
+  },
+  "activityitems/green_runecrafter_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_hat_%28green%2C_goggles_on%29.png",
+    "file_title": "Runecrafter hat (green, goggles on).png",
+    "image_url": "https://runescape.wiki/images/Runecrafter_hat_%28green%2C_goggles_on%29.png?13f9e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "48357ed87afb8ca01adb082cd493871872e16c80",
+    "size": 677,
+    "source_note": "The cutoff page and rev-742 cache pin this exact item, but the renamed wiki file retains no pre-cutoff revision. The current sprite is visual art only and supplies no mechanic or item identity.",
+    "source_wiki": "rs3-visual-fallback",
+    "timestamp": "2016-05-02T07:15:12Z"
+  },
+  "activityitems/green_runecrafter_robe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_robe_%28green%29.png",
+    "file_title": "Runecrafter robe (green).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071518%21Runecrafter_robe_%28green%29.png?5d71c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "22334287201f6357decaff1463deb6e042b84f4a",
+    "size": 1517,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-03T13:13:09Z"
+  },
+  "activityitems/green_runecrafter_skirt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_skirt_%28green%29.png",
+    "file_title": "Runecrafter skirt (green).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071524%21Runecrafter_skirt_%28green%29.png?8429e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bdeb4b5d340ca2dc5c8cb904edf3d6e17b5b5f80",
+    "size": 1380,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T00:57:06Z"
   },
   "activityitems/guthix_mjolnir.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Guthix_mjolnir.png",
@@ -4090,6 +4188,55 @@
     "size": 884,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:03:49Z"
+  },
+  "activityitems/yellow_runecrafter_gloves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_gloves_%28yellow%29.png",
+    "file_title": "Runecrafter gloves (yellow).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071501%21Runecrafter_gloves_%28yellow%29.png?3114e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e3e05d8af4bc9b3500afb9d36881649cf81435a9",
+    "size": 568,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-18T08:12:44Z"
+  },
+  "activityitems/yellow_runecrafter_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_hat_%28yellow%2C_goggles_on%29.png",
+    "file_title": "Runecrafter hat (yellow, goggles on).png",
+    "image_url": "https://runescape.wiki/images/Runecrafter_hat_%28yellow%2C_goggles_on%29.png?ab1fa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1e640a11e9ee9f7c3c8ae21f4e42305cdc7f6ced",
+    "size": 978,
+    "source_note": "The cutoff page and rev-742 cache pin this exact item, but the renamed wiki file retains no pre-cutoff revision. The current sprite is visual art only and supplies no mechanic or item identity.",
+    "source_wiki": "rs3-visual-fallback",
+    "timestamp": "2016-05-02T07:15:15Z"
+  },
+  "activityitems/yellow_runecrafter_robe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_robe_%28yellow%29.png",
+    "file_title": "Runecrafter robe (yellow).png",
+    "image_url": "https://runescape.wiki/images/archive/20150428221312%21Runecrafter_robe_%28yellow%29.png?5d71c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "696b0e57c4c0ee6dfa46b28cc8cb4057f483d0e0",
+    "size": 1585,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-03T13:13:09Z"
+  },
+  "activityitems/yellow_runecrafter_skirt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runecrafter_skirt_%28yellow%29.png",
+    "file_title": "Runecrafter skirt (yellow).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502071526%21Runecrafter_skirt_%28yellow%29.png?11ba2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4f18478e6d9a228f8d5e9877aa43b535f5b8f50d",
+    "size": 1549,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-03T13:13:10Z"
   },
   "activityitems/zamorak_mjolnir.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Zamorak_mjolnir.png",

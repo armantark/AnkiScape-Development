@@ -12,6 +12,7 @@ from ..data.great_orb_project_data import (
     GREAT_ORB_PROJECT_DOCTRINES,
     GREAT_ORB_PROJECT_REWARDS,
     MASTER_RUNECRAFTER_REWARDS,
+    STANDARD_RUNECRAFTER_REWARDS,
     GREAT_ORB_PROJECT_ROUNDS,
     GREAT_ORB_PROJECT_TEMP_CAPACITY,
     OMNI_TALISMAN_ACCESS_PAIRS,
@@ -28,6 +29,12 @@ _MASTER_RUNECRAFTER_BONUSES = {
 _MASTER_RUNECRAFTER_ITEMS = frozenset(
     _MASTER_RUNECRAFTER_BONUSES
 )
+_STANDARD_RUNECRAFTER_BONUSES = {
+    item: xp_rate
+    for _reward_id, item, _tokens, _source_item_id, _slot, _bonus, xp_rate in (
+        STANDARD_RUNECRAFTER_REWARDS
+    )
+}
 
 
 def apply_master_runecrafter_xp_bonus_pure(
@@ -42,6 +49,22 @@ def apply_master_runecrafter_xp_bonus_pure(
     if worn_pieces == _MASTER_RUNECRAFTER_ITEMS:
         rate += 0.01
     return xp + min(xp * rate, 700.0)
+
+
+def apply_great_orb_project_xp_bonuses_pure(
+    player_data: Mapping[str, Any], base_xp: Any
+) -> float:
+    """Apply the GOP-only standard outfit boost plus any Master bonus."""
+    xp = _non_negative_float(base_xp)
+    equipment = player_data.get("equipment")
+    worn = set(equipment.values()) if isinstance(equipment, Mapping) else set()
+    standard_rate = sum(
+        rate for item, rate in _STANDARD_RUNECRAFTER_BONUSES.items() if item in worn
+    )
+    return (
+        apply_master_runecrafter_xp_bonus_pure(player_data, xp)
+        + xp * standard_rate
+    )
 
 
 GREAT_ORB_PROJECT_STATE_VERSION = 2
@@ -339,10 +362,10 @@ def apply_great_orb_project_review_pure(
     if craft_now:
         essence_crafted = int(active["saved_essence"])
         runes, xp = _craft_essence(data, round_index, essence_crafted)
-        xp = apply_master_runecrafter_xp_bonus_pure(data, xp)
+        xp = apply_great_orb_project_xp_bonuses_pure(data, xp)
         active["saved_essence"] = 0
         active["crafted_essence"] += essence_crafted
-        active["xp_earned"] = round(float(active["xp_earned"]) + xp, 1)
+        active["xp_earned"] = float(active["xp_earned"]) + xp
 
     total_tokens = 0
     majority_bonus = 0

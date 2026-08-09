@@ -95,3 +95,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      staff, and teleport mechanics separate.
    - [x] Complete Great Orb Project's Master Runecrafter reward/equipment/XP
      family with exact piece rates, full-set bonus, bonus cap, and source art.
+   - [x] Complete Great Orb Project's three-colour standard Runecrafter robe
+     family with exact prices, identities, equipment stats, activity-only XP
+     scope, labeled rate placeholder, and normalized selector art.

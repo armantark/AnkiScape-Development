@@ -8,16 +8,50 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import sys
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.fetch_assets import AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset  # noqa: E402
+from tools.fetch_assets import (  # noqa: E402
+    AssetFetchError,
+    AssetRequest,
+    HttpWikiClient,
+    RS3_WIKI,
+    fetch_asset,
+)
 
 PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
+VISUAL_FALLBACK_ITEMS = frozenset(
+    f"{colour.title()} runecrafter hat"
+    for colour in ("green", "blue", "yellow")
+)
+
+
+def _mark_visual_fallback(request: AssetRequest) -> None:
+    with request.provenance_path.open("r", encoding="utf-8") as file_obj:
+        provenance = json.load(file_obj)
+    key = str(request.output_path.relative_to(ROOT))
+    entry = dict(provenance[key])
+    entry["source_wiki"] = "rs3-visual-fallback"
+    entry["source_note"] = (
+        "The cutoff page and rev-742 cache pin this exact item, but the renamed "
+        "wiki file retains no pre-cutoff revision. The current sprite is visual "
+        "art only and supplies no mechanic or item identity."
+    )
+    provenance[key] = entry
+    with NamedTemporaryFile(
+        "w", delete=False, dir=str(ROOT), encoding="utf-8"
+    ) as temp_file:
+        temp_name = temp_file.name
+        json.dump(provenance, temp_file, indent=2, sort_keys=True)
+        temp_file.write("\n")
+    os.replace(temp_name, request.provenance_path)
 
 
 def main() -> int:
@@ -29,6 +63,7 @@ def main() -> int:
         min_interval_seconds=1.1,
         before_timestamp=PRE_EOC_CUTOFF,
     )
+    current_client = HttpWikiClient(min_interval_seconds=1.1)
     requests = (
         AssetRequest(
             item_name="Great Orb Project",
@@ -64,18 +99,45 @@ def main() -> int:
                     "Master_runecrafter_boots.png",
                     "master_runecrafter_boots.png",
                 ),
+                *(
+                    (
+                        f"{colour.title()} runecrafter {part}",
+                        (
+                            f"Runecrafter_hat_({colour},_goggles_on).png"
+                            if part == "hat"
+                            else f"Runecrafter_{part}_({colour}).png"
+                        ),
+                        f"{colour}_runecrafter_{part}.png",
+                    )
+                    for colour in ("green", "blue", "yellow")
+                    for part in ("hat", "robe", "skirt", "gloves")
+                ),
             )
         ),
     )
     for request in requests:
-        outcome = fetch_asset(
-            request,
-            client,
-            size=64,
-            force=args.force,
-            dry_run=args.dry_run,
-            sources=(RS3_WIKI,),
-        )
+        try:
+            outcome = fetch_asset(
+                request,
+                client,
+                size=64,
+                force=args.force,
+                dry_run=args.dry_run,
+                sources=(RS3_WIKI,),
+            )
+        except AssetFetchError:
+            if request.item_name not in VISUAL_FALLBACK_ITEMS:
+                raise
+            outcome = fetch_asset(
+                request,
+                current_client,
+                size=64,
+                force=args.force,
+                dry_run=args.dry_run,
+                sources=(RS3_WIKI,),
+            )
+            if not args.dry_run:
+                _mark_visual_fallback(request)
         print(f"{outcome.item_name}: {outcome.output_path}")
     return 0
 

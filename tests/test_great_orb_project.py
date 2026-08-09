@@ -18,8 +18,11 @@ from ankiscape.data.great_orb_project_data import (
     MASTER_RUNECRAFTER_REWARDS,
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
+    STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    STANDARD_RUNECRAFTER_REWARDS,
 )
 from ankiscape.logic.great_orb_project_logic import (
+    apply_great_orb_project_xp_bonuses_pure,
     apply_master_runecrafter_xp_bonus_pure,
     apply_great_orb_project_review_pure,
     buy_great_orb_project_reward_pure,
@@ -72,7 +75,7 @@ class GreatOrbProjectDataTests(unittest.TestCase):
         self.assertIn("Omni-tiara", registered)
 
         for _reward_id, item, _tokens, item_id, slot, bonus, _xp_rate in (
-            MASTER_RUNECRAFTER_REWARDS
+            STANDARD_RUNECRAFTER_REWARDS + MASTER_RUNECRAFTER_REWARDS
         ):
             self.assertIn(item, registered)
             self.assertEqual(
@@ -100,6 +103,27 @@ class GreatOrbProjectDataTests(unittest.TestCase):
             header = (ROOT / relative).read_bytes()[:26]
             self.assertEqual(header[:8], b"\x89PNG\r\n\x1a\n")
             width, height, bit_depth, color_type = struct.unpack(">IIBB", header[16:26])
+            self.assertEqual((bit_depth, color_type), (8, 6))
+            self.assertLessEqual(max(width, height), 64)
+
+        for _reward_id, item, _tokens, _item_id, _slot, _bonus, _xp_rate in (
+            STANDARD_RUNECRAFTER_REWARDS
+        ):
+            relative = f"activityitems/{item.lower().replace(' ', '_')}.png"
+            self.assertIn(relative, provenance)
+            entry = provenance[relative]
+            if item.endswith(" hat"):
+                self.assertEqual(entry["source_wiki"], "rs3-visual-fallback")
+                self.assertIn("visual art only", entry["source_note"])
+            else:
+                self.assertLessEqual(
+                    entry["timestamp"], "2012-11-20T23:59:59Z"
+                )
+            header = (ROOT / relative).read_bytes()[:26]
+            self.assertEqual(header[:8], b"\x89PNG\r\n\x1a\n")
+            width, height, bit_depth, color_type = struct.unpack(
+                ">IIBB", header[16:26]
+            )
             self.assertEqual((bit_depth, color_type), (8, 6))
             self.assertLessEqual(max(width, height), 64)
 
@@ -281,6 +305,54 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
             )
         self.assertEqual(player["great_orb_project"]["tokens"], 0)
 
+    def test_standard_runecrafter_pieces_cost_one_thousand_each(self):
+        player = _player(
+            great_orb_project={
+                "tokens": 12_000,
+                "automation_mode": "casual",
+                "doctrine": "balanced",
+                "crafting_policy": "craft_each_round",
+                "active": {},
+            }
+        )
+        for reward_id, item, tokens, _item_id, _slot, _bonus, _xp_rate in (
+            STANDARD_RUNECRAFTER_REWARDS
+        ):
+            before = player["great_orb_project"]["tokens"]
+            player, ok, info = buy_great_orb_project_reward_pure(
+                player, reward_id, 99
+            )
+            self.assertTrue(ok, info)
+            self.assertEqual(player["inventory"][item], 1)
+            self.assertEqual(
+                player["great_orb_project"]["tokens"], before - tokens
+            )
+        self.assertEqual(player["great_orb_project"]["tokens"], 0)
+
+    def test_standard_runecrafter_bonus_is_gop_only_and_counts_mixed_colours(self):
+        mixed = _player(
+            equipment={
+                "head": "Green runecrafter hat",
+                "body": "Blue runecrafter robe",
+                "legs": "Yellow runecrafter skirt",
+                "hands": "Green runecrafter gloves",
+            }
+        )
+        self.assertEqual(STANDARD_RUNECRAFTER_PIECE_XP_RATE, 0.0025)
+        self.assertAlmostEqual(
+            apply_great_orb_project_xp_bonuses_pure(mixed, 100), 101.0
+        )
+        self.assertEqual(apply_master_runecrafter_xp_bonus_pure(mixed, 100), 100)
+
+        player, ok, info = enter_great_orb_project_pure(mixed)
+        self.assertTrue(ok, info)
+        player, result = apply_great_orb_project_review_pure(player, 0.99, 0.0)
+        self.assertAlmostEqual(result["xp"], 90.9)
+        self.assertAlmostEqual(
+            player["great_orb_project"]["active"]["xp_earned"], result["xp"]
+        )
+        self.assertIn("90.9 Runecrafting XP", result["status"])
+
     def test_master_runecrafter_bonus_uses_piece_rates_full_set_and_cap(self):
         self.assertEqual(apply_master_runecrafter_xp_bonus_pure(_player(), 100), 100)
         one = _player(equipment={"head": "Master runecrafter hat"})
@@ -361,7 +433,7 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
     def test_view_exposes_lock_policy_shop_and_active_round(self):
         locked = great_orb_project_view_pure(_player(runecrafting_level=49))
         self.assertFalse(locked["eligible"])
-        self.assertEqual(len(locked["rewards"]), 18)
+        self.assertEqual(len(locked["rewards"]), 30)
         self.assertTrue(
             all(reward["locked_reason"] for reward in locked["rewards"])
         )

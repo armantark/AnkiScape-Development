@@ -53,14 +53,9 @@ fixed 24-pixel slot. Every reused sprite has cutoff-qualified provenance in
 
 ## Boundaries
 
-- Runecrafter robes are not part of this atomic catalog slice. Their direct
-  token prices are known, but the cutoff child record describes an in-minigame
-  XP effect without a recoverable magnitude. That family remains data and
-  mechanic depth rather than being mislabeled as cosmetic.
-- Master Runecrafter robes were closed by the newer
-  `great-orb-project-master-runecrafter-robes-2026-08-09.md` record. Talisman
-  staves and teleport tablets retain explicit depth status because they add
-  binding or teleport behavior.
+- Master and standard Runecrafter robes were closed by their newer `2026-08-09`
+  records. Talisman staves and teleport tablets retain explicit depth status
+  because they add binding or teleport behavior.
 - No hidden roll, source-blocked value, placeholder, wall clock, or owner design
   decision was introduced.
 

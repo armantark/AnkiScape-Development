@@ -2,6 +2,28 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 33 completes Great Orb Project's standard
+Runecrafter robe family.** Oldid `6327369`, cutoff talk oldid `5565562`, and
+rev-742 pin all three colours, 12 exact 1,000-token identities, equipment slots
+and combat bonuses, and a per-piece XP effect confined to activity essence
+crafting. The unrecovered magnitude is registered as a bounded 0.25% per-piece
+placeholder, at most 1% across four occupied slots; mixed colours work and the
+ordinary altar path does not apply it. Atomic purchase/undo, shared inventory,
+Bank and equipment behavior, normalized selector art, persistent fractional
+match totals, status, telemetry, and runtime XP all agree. Nine sprites are
+cutoff-qualified; the three renamed goggles-on hat files are labeled visual-only
+fallbacks because their current wiki titles retain no pre-cutoff file revision.
+Root inspected the real 1200×760 dark render. Kimi's fresh five-hour quota was
+exhausted and Opus's preflight was unavailable, so neither guard was bypassed;
+this slice adds rows to the existing shop rather than a new UI pattern. Full
+plain and real offscreen-Qt discovery each pass 3,897 tests, with 479 plain
+skips and 3 Qt skips. Documentation audits 526 Markdown and 431 HTML files;
+test quality has zero hard issues across 3,863 tests. Reachability improves to
+2,256 items with the known 168-orphan/188-blocked ledger unchanged. Compilation,
+JSON, diff, asset fetch/normalization, and worktree audits pass. Staves and
+teleport tablets remain depth. Durable audit:
+`memory-bank/source-audits/great-orb-project-standard-runecrafter-robes-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 32 completes Great Orb Project's Master
 Runecrafter robe family.** Oldid `6514332`, four cutoff child revisions, and
 rev-742 pin the four 15,000-token rewards, exact IDs/slots/combat bonuses, the

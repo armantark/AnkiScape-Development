@@ -84,8 +84,9 @@ needless temporary variable. No behavioral defect remained.
 
 ## Boundaries
 
-- Standard Runecrafter robes, talisman staves, and teleport tablets remain
-  separate data/mechanic depth.
+- Standard Runecrafter robes were closed by the newer
+  `great-orb-project-standard-runecrafter-robes-2026-08-09.md` audit. Talisman
+  staves and teleport tablets remain separate data/mechanic depth.
 - No hidden roll, registered placeholder, wall clock, migration, or owner
   design decision was introduced.
 

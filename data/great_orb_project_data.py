@@ -90,6 +90,124 @@ GREAT_ORB_PROJECT_TALISMAN_REWARDS = (
     ("law_talisman", "Law talisman", 125, 1458),
 )
 
+# PLACEHOLDER(great_orb_project.runecrafter_robe_piece_xp_rate): A period
+# server crafting routine or measured XP table would replace this uniform rate.
+STANDARD_RUNECRAFTER_PIECE_XP_RATE = 0.0025
+STANDARD_RUNECRAFTER_REWARDS = (
+    (
+        "green_runecrafter_hat",
+        "Green runecrafter hat",
+        1_000,
+        13620,
+        "head",
+        3,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "green_runecrafter_robe",
+        "Green runecrafter robe",
+        1_000,
+        13619,
+        "body",
+        5,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "green_runecrafter_skirt",
+        "Green runecrafter skirt",
+        1_000,
+        13622,
+        "legs",
+        4,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "green_runecrafter_gloves",
+        "Green runecrafter gloves",
+        1_000,
+        13623,
+        "hands",
+        2,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "blue_runecrafter_hat",
+        "Blue runecrafter hat",
+        1_000,
+        13625,
+        "head",
+        3,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "blue_runecrafter_robe",
+        "Blue runecrafter robe",
+        1_000,
+        13624,
+        "body",
+        5,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "blue_runecrafter_skirt",
+        "Blue runecrafter skirt",
+        1_000,
+        13627,
+        "legs",
+        4,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "blue_runecrafter_gloves",
+        "Blue runecrafter gloves",
+        1_000,
+        13628,
+        "hands",
+        2,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "yellow_runecrafter_hat",
+        "Yellow runecrafter hat",
+        1_000,
+        13615,
+        "head",
+        3,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "yellow_runecrafter_robe",
+        "Yellow runecrafter robe",
+        1_000,
+        13614,
+        "body",
+        5,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "yellow_runecrafter_skirt",
+        "Yellow runecrafter skirt",
+        1_000,
+        13617,
+        "legs",
+        4,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+    (
+        "yellow_runecrafter_gloves",
+        "Yellow runecrafter gloves",
+        1_000,
+        13618,
+        "hands",
+        2,
+        STANDARD_RUNECRAFTER_PIECE_XP_RATE,
+    ),
+)
+STANDARD_RUNECRAFTER_SOURCE = (
+    "RuneScape Wiki Runecrafter robes oldid=6327369 "
+    "(2012-09-30T21:15:05Z); OpenRS2 cache rev 742 item definitions"
+)
+
 MASTER_RUNECRAFTER_REWARDS = (
     (
         "master_runecrafter_hat",
@@ -181,6 +299,20 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
             "category": "equipment",
         }
         for reward_id, item, tokens, source_item_id, _slot, _bonus, _xp_rate in (
+            STANDARD_RUNECRAFTER_REWARDS
+        )
+    },
+    **{
+        reward_id: {
+            "item": item,
+            "tokens": tokens,
+            "quantity": 1,
+            "source_item_id": source_item_id,
+            "tradeable": False,
+            "stackable": False,
+            "category": "equipment",
+        }
+        for reward_id, item, tokens, source_item_id, _slot, _bonus, _xp_rate in (
             MASTER_RUNECRAFTER_REWARDS
         )
     },
@@ -213,48 +345,93 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
 
 def great_orb_project_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
-        item: {
-            "category": "equipment",
-            "stackable": False,
-            "tradeable": False,
-            "source": MASTER_RUNECRAFTER_SOURCE,
-            "source_item_id": source_item_id,
-            "equipment_slot": slot,
-            "equipment_type": "master_runecrafter",
-        }
-        for _reward_id, item, _tokens, source_item_id, slot, _bonus, _xp_rate in (
-            MASTER_RUNECRAFTER_REWARDS
-        )
+        **{
+            item: {
+                "category": "equipment",
+                "stackable": False,
+                "tradeable": False,
+                "source": STANDARD_RUNECRAFTER_SOURCE,
+                "source_item_id": source_item_id,
+                "equipment_slot": slot,
+                "equipment_type": "standard_runecrafter",
+            }
+            for _reward_id, item, _tokens, source_item_id, slot, _bonus, _xp_rate in (
+                STANDARD_RUNECRAFTER_REWARDS
+            )
+        },
+        **{
+            item: {
+                "category": "equipment",
+                "stackable": False,
+                "tradeable": False,
+                "source": MASTER_RUNECRAFTER_SOURCE,
+                "source_item_id": source_item_id,
+                "equipment_slot": slot,
+                "equipment_type": "master_runecrafter",
+            }
+            for _reward_id, item, _tokens, source_item_id, slot, _bonus, _xp_rate in (
+                MASTER_RUNECRAFTER_REWARDS
+            )
+        },
     }
 
 
 def great_orb_project_equipment_data_as_dict() -> dict[str, EquipmentItem]:
     return {
-        item: EquipmentItem(
-            item_name=item,
-            slot=slot,
-            combat_skill=None,
-            required_level=1,
-            two_handed=False,
-            equipment_type="master_runecrafter",
-            bonuses=EquipmentBonuses(
-                attack_magic=bonus,
-                defence_stab=bonus,
-                defence_slash=bonus,
-                defence_crush=bonus,
-                defence_magic=bonus,
-                defence_ranged=bonus,
-            ),
-            attack_speed=4,
-            source_item_id=source_item_id,
-            source=MASTER_RUNECRAFTER_SOURCE,
-            source_status="period wiki identity and rev-742 equipment definition",
-            skill_requirements=(),
-            weapon_type=-1,
-        )
-        for _reward_id, item, _tokens, source_item_id, slot, bonus, _xp_rate in (
-            MASTER_RUNECRAFTER_REWARDS
-        )
+        **{
+            item: EquipmentItem(
+                item_name=item,
+                slot=slot,
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="standard_runecrafter",
+                bonuses=EquipmentBonuses(
+                    attack_magic=bonus,
+                    defence_stab=bonus,
+                    defence_slash=bonus,
+                    defence_crush=bonus,
+                    defence_magic=bonus,
+                    defence_ranged=bonus,
+                ),
+                attack_speed=4,
+                source_item_id=source_item_id,
+                source=STANDARD_RUNECRAFTER_SOURCE,
+                source_status="period wiki identity and rev-742 equipment definition",
+                skill_requirements=(),
+                weapon_type=-1,
+            )
+            for _reward_id, item, _tokens, source_item_id, slot, bonus, _xp_rate in (
+                STANDARD_RUNECRAFTER_REWARDS
+            )
+        },
+        **{
+            item: EquipmentItem(
+                item_name=item,
+                slot=slot,
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="master_runecrafter",
+                bonuses=EquipmentBonuses(
+                    attack_magic=bonus,
+                    defence_stab=bonus,
+                    defence_slash=bonus,
+                    defence_crush=bonus,
+                    defence_magic=bonus,
+                    defence_ranged=bonus,
+                ),
+                attack_speed=4,
+                source_item_id=source_item_id,
+                source=MASTER_RUNECRAFTER_SOURCE,
+                source_status="period wiki identity and rev-742 equipment definition",
+                skill_requirements=(),
+                weapon_type=-1,
+            )
+            for _reward_id, item, _tokens, source_item_id, slot, bonus, _xp_rate in (
+                MASTER_RUNECRAFTER_REWARDS
+            )
+        },
     }
 
 

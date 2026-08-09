@@ -14022,7 +14022,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(currency.text(), "200 tokens")
         self.assertIn("Eight altar rounds", summary.text())
         self.assertTrue(progress.isHidden())
-        self.assertEqual(reward.count(), 18)
+        self.assertEqual(reward.count(), 30)
         self.assertEqual(reward.iconSize().width(), 24)
         self.assertEqual(reward.iconSize().height(), 24)
         for reward_id in (
@@ -14036,6 +14036,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             "chaos_talisman",
             "nature_talisman",
             "law_talisman",
+            "green_runecrafter_hat",
+            "green_runecrafter_robe",
+            "green_runecrafter_skirt",
+            "green_runecrafter_gloves",
+            "blue_runecrafter_hat",
+            "blue_runecrafter_robe",
+            "blue_runecrafter_skirt",
+            "blue_runecrafter_gloves",
+            "yellow_runecrafter_hat",
+            "yellow_runecrafter_robe",
+            "yellow_runecrafter_skirt",
+            "yellow_runecrafter_gloves",
             "master_runecrafter_hat",
             "master_runecrafter_body",
             "master_runecrafter_skirt",
@@ -14047,7 +14059,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertGreaterEqual(reward.findData("elemental_talisman"), 0)
         self.assertLess(
             reward.findData("elemental_talisman"),
+            reward.findData("green_runecrafter_hat"),
+        )
+        self.assertLess(
+            reward.findData("yellow_runecrafter_gloves"),
             reward.findData("master_runecrafter_hat"),
+        )
+        self.assertIn(
+            "1,000 tokens",
+            reward.itemText(reward.findData("green_runecrafter_robe")),
         )
         self.assertIn(
             "15,000 tokens",
