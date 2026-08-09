@@ -247,6 +247,13 @@ from .logic.agility_logic import apply_agility_command_pure
 from .logic.skilling_boost_logic import (
     set_skilling_potion_target_enabled_pure,
 )
+from .logic.cooking_gauntlets_logic import (
+    apply_family_gauntlet_conversion_pure,
+    recover_family_gauntlets_pure,
+    reconcile_cooking_equipment_pure,
+    set_cooking_equipment_choice_pure,
+)
+from .data.cooking_gauntlets_data import FAMILY_GAUNTLET_ITEMS
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
 from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
@@ -1790,6 +1797,77 @@ def _on_main_menu(
             except Exception:
                 pass
         return committed
+
+    def _set_cooking_target(target_id: str) -> bool:
+        if target_id not in COOKING_DATA:
+            return False
+
+        def _change(current):
+            updated = dict(current)
+            updated["current_cooking"] = target_id
+            updated = reconcile_cooking_equipment_pure(
+                updated,
+                target_id,
+                beneficial=bool(
+                    COOKING_DATA[target_id].get("cooking_gauntlet_no_burn_level")
+                ),
+            )
+            return updated, True
+
+        committed = commit_direct_action(_change)
+        if committed:
+            _refresh_skill_availability()
+            try:
+                update_review_hud(player_data, current_skill)
+            except Exception:
+                pass
+        return committed
+
+    def _set_cooking_equipment_choice(
+        target_id: str, choice: str
+    ) -> bool:
+        if target_id not in COOKING_DATA:
+            return False
+
+        def _change(current):
+            updated, ok = set_cooking_equipment_choice_pure(
+                current, target_id, choice
+            )
+            if ok and updated.get("current_cooking") == target_id:
+                updated = reconcile_cooking_equipment_pure(
+                    updated,
+                    target_id,
+                    beneficial=bool(
+                        COOKING_DATA[target_id].get(
+                            "cooking_gauntlet_no_burn_level"
+                        )
+                    ),
+                )
+            return updated, ok
+
+        return commit_direct_action(_change)
+
+    def _apply_cooking_gauntlets_command(command: str, payload=None):
+        body = payload if isinstance(payload, dict) else {}
+        result = {"message": "That gauntlet action is unavailable."}
+
+        def _change(current):
+            nonlocal result
+            if command == "convert":
+                updated, ok, message = apply_family_gauntlet_conversion_pure(
+                    current, str(body.get("item_name", ""))
+                )
+            elif command == "recover":
+                updated, ok, message = recover_family_gauntlets_pure(current)
+            else:
+                return dict(current), False
+            result = {"message": message}
+            return updated, ok
+
+        committed = commit_direct_action(_change)
+        if committed:
+            _refresh_skill_availability()
+        return {"ok": committed, **result}
 
     def _set_floating_enabled(val: bool):
         try:
@@ -4202,7 +4280,9 @@ def _on_main_menu(
         on_set_firemaking=lambda target: _set_value("current_firemaking", target),
         on_set_fishing=lambda target: _set_value("current_fishing", target),
         on_set_hunter=lambda target: _set_value("current_hunter", target),
-        on_set_cooking=lambda target: _set_value("current_cooking", target),
+        on_set_cooking=_set_cooking_target,
+        on_set_cooking_equipment_choice=_set_cooking_equipment_choice,
+        on_cooking_gauntlets_command=_apply_cooking_gauntlets_command,
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
         on_set_thieving=lambda target: _set_value("current_thieving", target),
@@ -4772,46 +4852,72 @@ def on_equip_item(item_name):
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
-    before_equipment = dict(player_data.get("equipment", {}) or {})
-    new_inventory, new_equipment, equipped = equip_item_pure(
-        item_name,
-        player_data.get("inventory", {}) or {},
-        player_data.get("equipment", {}) or {},
-        EQUIPMENT_DATA,
-    )
+    def _apply(current):
+        before_equipment = dict(current.get("equipment", {}) or {})
+        new_inventory, new_equipment, equipped = equip_item_pure(
+            item_name,
+            current.get("inventory", {}) or {},
+            current.get("equipment", {}) or {},
+            EQUIPMENT_DATA,
+        )
+        if not equipped:
+            return dict(current), False
+        updated = dict(current)
+        updated["inventory"] = new_inventory
+        updated["equipment"] = new_equipment
+        updated.update(
+            sync_equipment_instances_pure(
+                updated, before_equipment, EQUIPMENT_CONDITION_DATA
+            )
+        )
+        return updated, True
+
+    if item_name in FAMILY_GAUNTLET_ITEMS:
+        equipped = commit_direct_action(_apply)
+    else:
+        updated, equipped = _apply(player_data)
+        if equipped:
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
     if not equipped:
         show_error_message("Cannot equip item", f"You need {item_name} in your bank to equip it.")
-        return False
-    player_data["inventory"] = new_inventory
-    player_data["equipment"] = new_equipment
-    player_data.update(
-        sync_equipment_instances_pure(
-            player_data, before_equipment, EQUIPMENT_CONDITION_DATA
-        )
-    )
-    save_player_data()
-    return True
+    return equipped
 
 
 def on_unequip_slot(slot):
-    before_equipment = dict(player_data.get("equipment", {}) or {})
-    new_inventory, new_equipment, unequipped = unequip_item_pure(
-        slot,
-        player_data.get("inventory", {}) or {},
-        player_data.get("equipment", {}) or {},
-    )
+    item_name = (player_data.get("equipment", {}) or {}).get(slot)
+
+    def _apply(current):
+        before_equipment = dict(current.get("equipment", {}) or {})
+        new_inventory, new_equipment, unequipped = unequip_item_pure(
+            slot,
+            current.get("inventory", {}) or {},
+            current.get("equipment", {}) or {},
+        )
+        if not unequipped:
+            return dict(current), False
+        updated = dict(current)
+        updated["inventory"] = new_inventory
+        updated["equipment"] = new_equipment
+        updated.update(
+            sync_equipment_instances_pure(
+                updated, before_equipment, EQUIPMENT_CONDITION_DATA
+            )
+        )
+        return updated, True
+
+    if item_name in FAMILY_GAUNTLET_ITEMS:
+        unequipped = commit_direct_action(_apply)
+    else:
+        updated, unequipped = _apply(player_data)
+        if unequipped:
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
     if not unequipped:
         show_error_message("Cannot unequip item", "That equipment slot is already empty.")
-        return False
-    player_data["inventory"] = new_inventory
-    player_data["equipment"] = new_equipment
-    player_data.update(
-        sync_equipment_instances_pure(
-            player_data, before_equipment, EQUIPMENT_CONDITION_DATA
-        )
-    )
-    save_player_data()
-    return True
+    return unequipped
 
 
 def on_discard_item(item_name, quantity):

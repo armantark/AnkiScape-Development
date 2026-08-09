@@ -1150,10 +1150,14 @@ the future Barbarian Training miniquest/activity pass.
 
 ## Cooking: Cooking Gauntlets
 
+Source supersession: `source-audits/cooking-gauntlets-runtime-closure-2026-08-09.md`
+resolves the affected-row and no-burn threshold block. The product decisions
+below remain unchanged.
+
 Backlog id: `cook-cooking-gauntlets-runtime`
 
-Decision status: product design settled; exact affected-fish membership and
-intermediate burn-rate curves remain source-blocked.
+Decision status: implemented; omitted-row intermediate burn reductions remain
+source-blocked without affecting the exact dated threshold rows.
 
 ### Period Facts and Conflict
 

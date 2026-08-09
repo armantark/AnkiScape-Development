@@ -3892,6 +3892,56 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [1.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_cooking_gauntlet_auto_equip_and_success_roll_back_with_review(self):
+        addon = _load_addon_as_package(
+            "ankiscape_cooking_gauntlets_review_undo_integration"
+        )
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Raw shark": 1, "Cooking gauntlets": 1},
+            "equipment": {"hands": "Leather gloves"},
+            "cooking_level": 94,
+            "cooking_exp": 0,
+            "current_cooking": "cook_shark",
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Cooking"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.999
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(), 4, lambda _self, _ease: "answered"
+            )
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(
+            addon.player_data["equipment"]["hands"], "Cooking gauntlets"
+        )
+        self.assertEqual(addon.player_data["inventory"]["Leather gloves"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Shark"], 1)
+        self.assertEqual(addon.player_data["cooking_exp"], 210.0)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_lava_eel_cooking_review_reward_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_lava_eel_cooking_undo_integration")
 
@@ -5481,6 +5531,91 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_family_gauntlet_conversion_is_one_direct_action_and_undoes_atomically(self):
+        addon = _load_addon_as_package(
+            "ankiscape_cooking_gauntlets_direct_action_integration"
+        )
+        gauntlets = sys.modules[
+            f"{addon.__name__}.logic.cooking_gauntlets_logic"
+        ]
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Cooking"
+        initial = {
+            "inventory": {
+                "Goldsmith gauntlets": 1,
+                "Cooking gauntlets": 0,
+                "Coins": 25_000,
+            },
+            "equipment": {},
+            "quests": {
+                "family_crest": {
+                    "started": True,
+                    "progress": 16,
+                    "completed": True,
+                }
+            },
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        def convert(current):
+            updated, ok, _message = gauntlets.apply_family_gauntlet_conversion_pure(
+                current, "Goldsmith gauntlets"
+            )
+            return updated, ok
+
+        self.assertTrue(addon.commit_direct_action(convert))
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Cooking gauntlets"], 1)
+        self.assertEqual(
+            addon.player_data["family_gauntlet_enchantment"], "cooking"
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_cooking_gauntlet_equip_and_unequip_are_direct_action_undo_safe(self):
+        addon = _load_addon_as_package(
+            "ankiscape_cooking_gauntlets_equipment_undo_integration"
+        )
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Cooking gauntlets": 1},
+            "equipment": {},
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        self.assertTrue(addon.on_equip_item("Cooking gauntlets"))
+        self.assertEqual(
+            addon.player_data["equipment"], {"hands": "Cooking gauntlets"}
+        )
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+
+        equipped = {
+            "inventory": {"Cooking gauntlets": 0},
+            "equipment": {"hands": "Cooking gauntlets"},
+        }
+        addon.player_data = copy.deepcopy(equipped)
+        self.assertTrue(addon.on_unequip_slot("hands"))
+        self.assertEqual(addon.player_data["inventory"]["Cooking gauntlets"], 1)
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, equipped)
 
     def test_bank_discard_x_removes_and_undoes_exact_degradable_instance(self):
         addon = _load_addon_as_package("ankiscape_condition_discard_integration")

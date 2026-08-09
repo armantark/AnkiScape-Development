@@ -101,6 +101,10 @@ def render(args: argparse.Namespace) -> Path:
         ] = True
     if args.target_key and args.target_id:
         player_data[args.target_key] = args.target_id
+    if args.family_gauntlet_enchantment:
+        player_data["family_gauntlet_enchantment"] = (
+            args.family_gauntlet_enchantment
+        )
     if args.claim_wicked_hood:
         player_data.setdefault("claims", {})["wicked_hood"] = {"claimed": True}
         player_data.setdefault("inventory", {})["Wicked hood"] = 1
@@ -126,7 +130,10 @@ def render(args: argparse.Namespace) -> Path:
 
     dialog = case._open(
         player_data,
+        current_skill=args.skill or "Mining",
         on_wicked_hood_command=_wicked_hood_command,
+        on_set_cooking_equipment_choice=lambda *_args: True,
+        on_cooking_gauntlets_command=lambda *_args: {"ok": True},
     )
     category = next(
         (
@@ -246,6 +253,10 @@ def main() -> int:
     parser.add_argument("--claim-wicked-hood", action="store_true")
     parser.add_argument("--equip-wicked-hood", action="store_true")
     parser.add_argument("--feed-altar", action="append", default=[])
+    parser.add_argument(
+        "--family-gauntlet-enchantment",
+        choices=("family", "cooking", "goldsmith", "chaos"),
+    )
     parser.add_argument("--width", type=int, default=900)
     parser.add_argument("--height", type=int, default=560)
     parser.add_argument("--theme", choices=("dark", "light"), default="dark")

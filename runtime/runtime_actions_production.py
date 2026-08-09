@@ -158,6 +158,10 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_STEP_NAMES,
     STRONGHOLD_TOTAL_STEPS,
 )
+from ..logic.cooking_gauntlets_logic import (
+    cooking_gauntlets_worn_pure,
+    reconcile_cooking_equipment_pure,
+)
 from ..core.skill_registry import get_skill
 from ..logic.skilling_boost_logic import (
     skilling_effective_level_pure,
@@ -1079,6 +1083,15 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    reconciled = reconcile_cooking_equipment_pure(
+        player_data,
+        target,
+        beneficial=bool(spec.get("cooking_gauntlet_no_burn_level")),
+    )
+    player_data.clear()
+    player_data.update(reconciled)
+    has_cooking_gauntlets = cooking_gauntlets_worn_pure(player_data)
+
     embedded_probability = bool(
         ctx.cadence_live_enabled
         and resolve_live_cadence_route_pure("cooking", target, player_data).mode
@@ -1086,12 +1099,24 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     )
     success_level = effective_roll_level_pure(player_data, "cooking", player_level)
     expected_success = (
-        cooking_source_roll_chance_pure(success_level, spec)
+        cooking_source_roll_chance_pure(
+            success_level,
+            spec,
+            has_cooking_gauntlets=has_cooking_gauntlets,
+        )
         if embedded_probability
-        else calculate_cooking_success_probability_pure(success_level, spec)
+        else calculate_cooking_success_probability_pure(
+            success_level,
+            spec,
+            has_cooking_gauntlets=has_cooking_gauntlets,
+        )
     )
     roll = ctx.random_random()
-    source_success = cooking_source_roll_chance_pure(success_level, spec)
+    source_success = cooking_source_roll_chance_pure(
+        success_level,
+        spec,
+        has_cooking_gauntlets=has_cooking_gauntlets,
+    )
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
     proposed_outcome_success = roll <= source_success if source_runtime_action else roll < source_success
     if spec.get("outcome_kind") == "maturity":
@@ -1109,6 +1134,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         roll,
         byproduct_roll,
         use_source_probability=embedded_probability,
+        has_cooking_gauntlets=has_cooking_gauntlets,
     )
     if not ok:
         return False

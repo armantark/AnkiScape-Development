@@ -277,6 +277,7 @@ from ..data.combat_data import (
 )
 from ..data.crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
 from ..data.equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+from ..data.cooking_gauntlets_data import cooking_gauntlets_equipment_data_as_dict
 from ..data.flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_ACTIVITY_ID,
     flash_powder_factory_activity_as_dict,
@@ -1716,6 +1717,7 @@ EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_DATA.update(great_orb_project_equipment_data_as_dict())
 EQUIPMENT_DATA.update(runecrafting_equipment_data_as_dict())
+EQUIPMENT_DATA.update(cooking_gauntlets_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())

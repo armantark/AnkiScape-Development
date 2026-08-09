@@ -50,6 +50,7 @@ except ImportError:  # The Thieving logic module may land after this UI slice.
 
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.skilling_boost_logic import skilling_effective_level_pure
+from ..logic.cooking_gauntlets_logic import cooking_gauntlets_worn_pure
 
 from ..logic.warriors_guild_logic import (
     sanitize_warriors_guild_state_pure,
@@ -665,6 +666,7 @@ def cooking_target_rows(
     inv = player_data.get("inventory", {})
     inventory = inv if isinstance(inv, Mapping) else {}
     current_target = player_data.get("current_cooking", default_target)
+    has_cooking_gauntlets = cooking_gauntlets_worn_pure(player_data)
 
     for target_id, spec in cooking_data.items():
         display_name = str(spec.get("display_name", target_id))
@@ -674,7 +676,11 @@ def cooking_target_rows(
         burnt_item = str(spec.get("burnt_item", "Burnt food"))
         reqs = spec.get("requirements", {}) or {}
         requirements = reqs if isinstance(reqs, Mapping) else {}
-        chance = calculate_cooking_success_probability_pure(lvl_have, spec) * 100.0
+        chance = calculate_cooking_success_probability_pure(
+            lvl_have,
+            spec,
+            has_cooking_gauntlets=has_cooking_gauntlets,
+        ) * 100.0
         group = str(spec.get("family", "other"))
         locked_reasons = cooking_target_locked_reasons_pure(
             player_data,
@@ -706,6 +712,12 @@ def cooking_target_rows(
             + (f"Mature chance: {chance:.0f}% per vat\nOne review represents the full vat.\n" if spec.get("outcome_kind") == "maturity" else f"Success chance: {chance:.0f}% per action\n")
             + f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
+        no_burn_level = int(spec.get("cooking_gauntlet_no_burn_level", 0) or 0)
+        if no_burn_level:
+            tooltip += (
+                f"\nCooking gauntlets: no burns from level {no_burn_level}"
+                + (" (equipped)" if has_cooking_gauntlets else "")
+            )
         byproducts = spec.get("byproducts")
         if isinstance(byproducts, Mapping) and byproducts:
             returned = ", ".join(f"{name} x{qty}" for name, qty in byproducts.items())

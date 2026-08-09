@@ -968,3 +968,33 @@
 - Verification: both full lanes pass 3,939 tests. Plain has 483 expected skips;
   real offscreen Qt has three intentional skips. Documentation, JSON, diff,
   test-quality, and worktree audits also pass.
+
+## Iteration 43 — Cooking gauntlets
+
+- Result: the Family Crest gauntlet lifecycle and Cooking modifier are complete
+  end to end. The slice includes all four physical equipment variants,
+  conversion/re-enchantment, remembered free recovery, target-local equipment
+  policy, persistence, undo, UI, assets, and cadence routing.
+- Source: final pre-EOC `Cooking/Burn level` oldid `6572206` pins Trout 50,
+  Tuna 63, Lobster 68, Swordfish 81, Monkfish 87, and
+  Shark/Cavefish/Rocktail 94. Older oldid `6556123`, rev-667 interpolation,
+  audited item definitions 775-778, and Darkan commit `4f704bd15` close the
+  lifecycle and reconciliation boundary.
+- Defect found before commit: capping every pre-threshold roll at 254/255 made
+  Trout at level 49 worse with gauntlets than without them. The accepted policy
+  preserves an already-better ordinary chance and applies exact guarantees at
+  the dated thresholds.
+- UI: Kimi K3 and Fable independently requested hiding the recovery action
+  outside a genuine loss. The accepted pass also uses compact outcome-specific
+  policy labels and one shared Bank/Equipment conversion-action builder.
+- Delegation: read-only Sol-high Workflows runs
+  `ad0d83b4-8629-4e80-b545-9cd152abfe75` and
+  `3ae0a7da-98f3-467d-81bd-df66ab711e22` exhausted their declared evidence
+  budgets without a completed finding. Root used the bounded partial evidence,
+  independently reviewed the full diff, and removed the duplicated UI builder.
+- Verification: focused pure/runtime/integration/cadence checks pass 562 tests;
+  focused Cooking-gauntlet plain and real-Qt lanes pass 16 each. Full plain
+  discovery passes 3,957 tests with 485 expected skips in 348.312 seconds; real
+  offscreen Qt passes 3,957 with 3 skips in 641.305 seconds. Documentation,
+  test-quality, JSON, compilation, diff, reachability-ledger, and worktree
+  audits pass. Native Anki visual proof is blocked by the locked Mac.

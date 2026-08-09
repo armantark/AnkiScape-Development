@@ -121,3 +121,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      multipliers, identities, and five action limits are closed. Mining's
      review-action count and the unobtainable Revenant/Chaos Elemental drop
      route remain explicit implementation dependencies.
+   - [x] Complete Cooking gauntlets through Family Crest conversion, remembered
+     enchantment and recovery, physical target-local equipment, eight dated
+     no-burn thresholds, persistence, undo, UI, assets, and cadence routing.

@@ -7028,6 +7028,88 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(farming_panel.isVisibleTo(dialog))
         dialog.deleteLater()
 
+    def test_cooking_details_expose_target_equipment_policy_and_recovery(self) -> None:
+        from ankiscape.logic.cooking_gauntlets_logic import (
+            recover_family_gauntlets_pure,
+            set_cooking_equipment_choice_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "cooking_level": 94,
+                "current_cooking": "cook_shark",
+                "family_gauntlet_enchantment": "cooking",
+                "cooking_equipment_choices": {},
+                "cooking_equipment_swap": {},
+            }
+        )
+        pd["inventory"] = {"Raw shark": 1, "Cooking gauntlets": 0}
+        pd["equipment"] = {}
+        pd["quests"]["family_crest"] = {
+            "started": True,
+            "progress": 16,
+            "completed": True,
+        }
+        policy_calls = []
+
+        def set_policy(target_id, choice):
+            policy_calls.append((target_id, choice))
+            updated, ok = set_cooking_equipment_choice_pure(
+                pd, target_id, choice
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return ok
+
+        def gauntlet_command(command, _payload):
+            self.assertEqual(command, "recover")
+            updated, ok, message = recover_family_gauntlets_pure(pd)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": message}
+
+        dialog = self._open(
+            pd,
+            current_skill="Cooking",
+            on_set_cooking_equipment_choice=set_policy,
+            on_cooking_gauntlets_command=gauntlet_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        details = dialog.findChild(QToolButton, "targetDetailsToggle")
+        details.click()
+        QApplication.processEvents()
+
+        combo = dialog.findChild(
+            QComboBox, "cookingEquipmentChoice::cook_shark"
+        )
+        self.assertIsNotNone(combo)
+        self.assertEqual(combo.currentData(), "auto")
+        self.assertIn("Casual", combo.currentText())
+        combo.setCurrentIndex(combo.findData("none"))
+        QApplication.processEvents()
+        self.assertEqual(policy_calls[-1], ("cook_shark", "none"))
+
+        recover = dialog.findChild(QPushButton, "recoverFamilyGauntletsAction")
+        self.assertIsNotNone(recover)
+        self.assertTrue(recover.isEnabled())
+        self.assertEqual(recover.text(), "Recover Cooking gauntlets")
+        recover.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Cooking gauntlets"], 1)
+        visible_recovery_buttons = [
+            button
+            for button in dialog.findChildren(
+                QPushButton, "recoverFamilyGauntletsAction"
+            )
+            if button.isVisibleTo(dialog)
+        ]
+        self.assertEqual(visible_recovery_buttons, [])
+        dialog.deleteLater()
+
     def test_flat_target_details_use_the_current_registry_row(self) -> None:
         pd = _make_player_data()
         pd["mining_level"] = 33
@@ -10336,6 +10418,67 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._ui.QInputDialog.getInt = original_get_int
         self.assertEqual(discards, [("Shrimps", 2)])
         self.assertEqual(pd["inventory"]["Shrimps"], 1)
+
+    def test_family_gauntlet_conversion_is_available_from_bank_and_equipment(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Family gauntlets": 1, "Coins": 0}
+        pd["equipment"] = {}
+        pd["quests"]["family_crest"] = {
+            "started": True,
+            "progress": 16,
+            "completed": True,
+        }
+        commands = []
+
+        def command(action, payload):
+            commands.append((action, dict(payload)))
+            return {"ok": True, "message": "Converted"}
+
+        dialog = self._open(
+            pd,
+            current_skill="Cooking",
+            on_cooking_gauntlets_command=command,
+        )
+        bank_menu = dialog._ankiscape_equip_menu_for("Family gauntlets")
+        bank_action = next(
+            action
+            for action in bank_menu.actions()
+            if action.objectName() == "convertCookingGauntletsAction"
+        )
+        self.assertEqual(bank_action.text(), "Enchant for Cooking")
+        self.assertTrue(bank_action.isEnabled())
+        bank_action.trigger()
+        QApplication.processEvents()
+        self.assertEqual(
+            commands[-1],
+            ("convert", {"item_name": "Family gauntlets"}),
+        )
+        dialog.deleteLater()
+
+        worn = _make_player_data()
+        worn["inventory"] = {"Coins": 25_000}
+        worn["equipment"] = {"hands": "Goldsmith gauntlets"}
+        worn["quests"]["family_crest"] = {
+            "started": True,
+            "progress": 16,
+            "completed": True,
+        }
+        dialog = self._open(
+            worn,
+            current_skill="Cooking",
+            on_cooking_gauntlets_command=command,
+        )
+        worn_menu = dialog._ankiscape_unequip_menu_for("hands")
+        worn_action = next(
+            action
+            for action in worn_menu.actions()
+            if action.objectName() == "convertWornCookingGauntletsAction"
+        )
+        self.assertEqual(
+            worn_action.text(), "Re-enchant for Cooking (25,000 Coins)"
+        )
+        self.assertTrue(worn_action.isEnabled())
+        dialog.deleteLater()
 
     def test_bank_gear_lives_in_separate_panel_from_striped_inventory(self) -> None:
         pd = _make_player_data()

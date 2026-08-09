@@ -618,6 +618,11 @@ from ..logic.summoning_logic import familiarisation_view_pure
 from ..logic.skilling_boost_logic import (
     skilling_potion_target_enabled_pure,
 )
+from ..logic.cooking_gauntlets_logic import (
+    cooking_equipment_choice_pure,
+    family_gauntlet_conversion_state_pure,
+    family_gauntlet_recovery_state_pure,
+)
 from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
 from ..logic.review_strip_logic import (
     REVIEW_BANK_RUN_LABEL,
@@ -4570,6 +4575,8 @@ def show_main_menu(
     on_set_fishing=None,
     on_set_hunter=None,
     on_set_cooking=None,
+    on_set_cooking_equipment_choice=None,
+    on_cooking_gauntlets_command=None,
     on_set_runecrafting=None,
     on_set_herblore=None,
     on_set_thieving=None,
@@ -22410,6 +22417,102 @@ def show_main_menu(
                 potion_toggle.toggled.connect(_set_potion_policy)
                 details_options_layout.addWidget(potion_toggle)
                 details_options.setVisible(True)
+            elif skill_id == "cooking":
+                has_options = False
+                cooking_spec = COOKING_DATA.get(row.target_id, {})
+                if cooking_spec.get("cooking_gauntlet_no_burn_level"):
+                    equipment_row = QWidget()
+                    equipment_row.setObjectName("cookingEquipmentPolicyRow")
+                    equipment_layout = QHBoxLayout(equipment_row)
+                    equipment_layout.setContentsMargins(0, 0, 0, 0)
+                    equipment_layout.setSpacing(8)
+                    equipment_label = QLabel("Gauntlets")
+                    equipment_combo = QComboBox()
+                    equipment_combo.setObjectName(
+                        f"cookingEquipmentChoice::{row.target_id}"
+                    )
+                    equipment_combo.setAccessibleName(
+                        f"Cooking equipment for {row.label}"
+                    )
+                    equipment_combo.addItem(
+                        "Casual · auto-equip to prevent burns", "auto"
+                    )
+                    equipment_combo.addItem(
+                        "Advanced · always use Cooking gauntlets", "cooking"
+                    )
+                    equipment_combo.addItem(
+                        "Advanced · leave hands slot unchanged", "none"
+                    )
+                    selected_choice = cooking_equipment_choice_pure(
+                        player_data, row.target_id
+                    )
+                    equipment_combo.setCurrentIndex(
+                        max(0, equipment_combo.findData(selected_choice))
+                    )
+                    equipment_combo.setEnabled(
+                        on_set_cooking_equipment_choice is not None
+                    )
+                    equipment_combo.setToolTip(
+                        "Casual equips owned Cooking gauntlets only where they "
+                        "prevent burns. Advanced pins this target: always wear "
+                        "them, or never change the hands slot."
+                    )
+
+                    def _set_equipment_policy(_index: int) -> None:
+                        accepted = on_set_cooking_equipment_choice(
+                            row.target_id,
+                            str(equipment_combo.currentData() or "auto"),
+                        )
+                        if accepted is False:
+                            equipment_combo.blockSignals(True)
+                            equipment_combo.setCurrentIndex(
+                                max(0, equipment_combo.findData(selected_choice))
+                            )
+                            equipment_combo.blockSignals(False)
+                            return
+                        state["details_open"] = True
+                        _render_panel()
+
+                    equipment_combo.currentIndexChanged.connect(
+                        _set_equipment_policy
+                    )
+                    equipment_layout.addWidget(equipment_label)
+                    equipment_layout.addWidget(equipment_combo, 1)
+                    details_options_layout.addWidget(equipment_row)
+                    has_options = True
+
+                recovery = family_gauntlet_recovery_state_pure(player_data)
+                if recovery["enabled"]:
+                    recover_button = QPushButton(
+                        f"Recover {recovery['item_name']}"
+                        if recovery["item_name"]
+                        else "Recover Family Crest gauntlets"
+                    )
+                    recover_button.setObjectName("recoverFamilyGauntletsAction")
+                    recover_button.setEnabled(
+                        bool(recovery["enabled"])
+                        and on_cooking_gauntlets_command is not None
+                    )
+                    recover_button.setToolTip(
+                        "Dimintheis replaces lost Family Crest gauntlets for free."
+                    )
+
+                    def _recover_gauntlets(_checked: bool = False) -> None:
+                        result = on_cooking_gauntlets_command("recover", {}) or {}
+                        if result.get("ok"):
+                            state["details_open"] = True
+                            _render_panel()
+                        else:
+                            QMessageBox.warning(
+                                details_options,
+                                "Cannot recover gauntlets",
+                                str(result.get("message", "That recovery is unavailable.")),
+                            )
+
+                    recover_button.clicked.connect(_recover_gauntlets)
+                    details_options_layout.addWidget(recover_button)
+                    has_options = True
+                details_options.setVisible(has_options)
             else:
                 details_options.setVisible(False)
             details_toggle.setToolTip(
@@ -25865,6 +25968,46 @@ def show_main_menu(
             return None
         return labels[0] if len(labels) == 1 else "Tool", all(attached)
 
+    def _add_cooking_gauntlet_conversion_action(
+        menu: "QMenu",
+        item_name: str,
+        object_name: str,
+        warning_parent: QWidget,
+    ) -> None:
+        state = family_gauntlet_conversion_state_pure(player_data, item_name)
+        if not state["visible"]:
+            return
+        cost = int(state["cost"] or 0)
+        action = menu.addAction(
+            "Enchant for Cooking"
+            if cost == 0
+            else f"Re-enchant for Cooking ({cost:,} Coins)"
+        )
+        action.setObjectName(object_name)
+        action.setEnabled(
+            bool(state["enabled"])
+            and on_cooking_gauntlets_command is not None
+        )
+        action.setToolTip(str(state["reason"]))
+
+        def _convert(_checked: bool = False) -> None:
+            if on_cooking_gauntlets_command is None:
+                return
+            result = on_cooking_gauntlets_command(
+                "convert", {"item_name": item_name}
+            ) or {}
+            if result.get("ok"):
+                _refresh_equipment_views(refresh_visible_skill=True)
+            else:
+                QMessageBox.warning(
+                    warning_parent,
+                    "Cannot enchant gauntlets",
+                    str(result.get("message", "That conversion is unavailable.")),
+                )
+
+        action.triggered.connect(_convert)
+        menu.addSeparator()
+
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
 
@@ -25925,6 +26068,13 @@ def show_main_menu(
 
             attach_action.triggered.connect(_do_attach)
             menu.addSeparator()
+
+        _add_cooking_gauntlet_conversion_action(
+            menu,
+            item_name,
+            "convertCookingGauntletsAction",
+            bank_frame,
+        )
 
         if is_equippable_item(item_name):
             ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
@@ -26914,6 +27064,12 @@ def show_main_menu(
         if not isinstance(item_name, str) or not item_name:
             return None
         menu = QMenu(equip_list)
+        _add_cooking_gauntlet_conversion_action(
+            menu,
+            item_name,
+            "convertWornCookingGauntletsAction",
+            equip_list,
+        )
         action = menu.addAction(f"Unequip {item_name}")
         action.setEnabled(on_unequip_slot is not None)
 

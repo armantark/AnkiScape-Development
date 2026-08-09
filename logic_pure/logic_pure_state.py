@@ -347,6 +347,12 @@ def _copy_player_data_with_nested(player_data):
             else ()
         )
     }
+    copied["cooking_equipment_choices"] = dict(
+        player_data.get("cooking_equipment_choices", {}) or {}
+    )
+    copied["cooking_equipment_swap"] = dict(
+        player_data.get("cooking_equipment_swap", {}) or {}
+    )
     copied["combat_status_effects"] = dict(player_data.get("combat_status_effects", {}) or {})
     copied["combat_recovery_progress"] = dict(player_data.get("combat_recovery_progress", {}) or {})
     copied["combat_bank_run"] = _sanitize_combat_bank_run(player_data.get("combat_bank_run"))

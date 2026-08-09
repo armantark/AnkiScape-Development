@@ -1454,6 +1454,8 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
         inventory = data["inventory"]
         for item_name, amount in (quest.get("rewards", {}) or {}).items():
             inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
+        if quest_id == "family_crest":
+            data["family_gauntlet_enchantment"] = "family"
         _apply_quest_xp_rewards(data, quest)
     data.setdefault("quests", {})[quest_id] = state
     return data, True, completed_now

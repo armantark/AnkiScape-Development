@@ -116,6 +116,7 @@ class CookingTarget:
     source_success_formula: Mapping[str, float] = ()
     source_always_succeeds: bool = False
     source_no_level_requirement: bool = False
+    cooking_gauntlet_no_burn_level: int = 0
     byproduct_item: str = ""
     byproduct_chance: float = 0.0
     byproducts: Mapping[str, int] = ()
@@ -174,21 +175,21 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_sardine', 'SARDINE', 'Cook raw sardine', 'fish', 'RAW_SARDINE', 327, 'Raw sardine', 'SARDINE', 325, 'Sardine', 'BURNT_FISH_369', 369, 'Burnt fish', 1, 40.0, 118, 492, output_variant='primary'),
     CookingTarget('cook_herring', 'HERRING', 'Cook raw herring', 'fish', 'RAW_HERRING', 345, 'Raw herring', 'HERRING', 347, 'Herring', 'BURNT_FISH_357', 357, 'Burnt fish', 5, 50.0, 108, 472, output_variant='primary'),
     CookingTarget('cook_mackerel', 'MACKEREL', 'Cook raw mackerel', 'fish', 'RAW_MACKEREL', 353, 'Raw mackerel', 'MACKEREL', 355, 'Mackerel', 'BURNT_FISH_357', 357, 'Burnt fish', 10, 60.0, 98, 452, output_variant='primary'),
-    CookingTarget('cook_trout', 'TROUT', 'Cook raw trout', 'fish', 'RAW_TROUT', 335, 'Raw trout', 'TROUT', 333, 'Trout', 'BURNT_FISH_343', 343, 'Burnt fish', 15, 70.0, 88, 432, output_variant='primary'),
+    CookingTarget('cook_trout', 'TROUT', 'Cook raw trout', 'fish', 'RAW_TROUT', 335, 'Raw trout', 'TROUT', 333, 'Trout', 'BURNT_FISH_343', 343, 'Burnt fish', 15, 70.0, 88, 432, output_variant='primary', cooking_gauntlet_no_burn_level=50),
     CookingTarget('cook_spider_on_a_stick', 'RAW_SPIDER_ON_STICK', 'Cook a spider on a stick', 'meat', 'RAW_SPIDER_ON_STICK', 6293, 'Raw spider on stick', 'SPIDER_ON_STICK_6297', 6297, 'Spider on stick', 'BURNT_SPIDER', 6301, 'Burnt spider', 16, 80.0, *_SPIDER_ON_STICK_BURN, output_variant='primary', source=SPIDER_COOKING_SOURCE_PATH, runtime_source=SPIDER_COOKING_SOURCE_PATH),
     CookingTarget('cook_cod', 'COD', 'Cook raw cod', 'fish', 'RAW_COD', 341, 'Raw cod', 'COD', 339, 'Cod', 'BURNT_FISH_343', 343, 'Burnt fish', 18, 75.0, 88, 432, output_variant='primary'),
     CookingTarget('cook_pike', 'PIKE', 'Cook raw pike', 'fish', 'RAW_PIKE', 349, 'Raw pike', 'PIKE', 351, 'Pike', 'BURNT_FISH_343', 343, 'Burnt fish', 20, 80.0, 78, 412, output_variant='primary'),
     CookingTarget('cook_salmon', 'SALMON', 'Cook raw salmon', 'fish', 'RAW_SALMON', 331, 'Raw salmon', 'SALMON', 329, 'Salmon', 'BURNT_FISH_343', 343, 'Burnt fish', 25, 90.0, 68, 392, output_variant='primary'),
-    CookingTarget('cook_tuna', 'TUNA', 'Cook raw tuna', 'fish', 'RAW_TUNA', 359, 'Raw tuna', 'TUNA', 361, 'Tuna', 'BURNT_FISH_367', 367, 'Burnt fish', 30, 100.0, 58, 372, output_variant='primary'),
-    CookingTarget('cook_lobster', 'LOBSTER', 'Cook raw lobster', 'fish', 'RAW_LOBSTER', 377, 'Raw lobster', 'LOBSTER', 379, 'Lobster', 'BURNT_LOBSTER', 381, 'Burnt lobster', 40, 120.0, 38, 332, output_variant='primary'),
+    CookingTarget('cook_tuna', 'TUNA', 'Cook raw tuna', 'fish', 'RAW_TUNA', 359, 'Raw tuna', 'TUNA', 361, 'Tuna', 'BURNT_FISH_367', 367, 'Burnt fish', 30, 100.0, 58, 372, output_variant='primary', cooking_gauntlet_no_burn_level=63),
+    CookingTarget('cook_lobster', 'LOBSTER', 'Cook raw lobster', 'fish', 'RAW_LOBSTER', 377, 'Raw lobster', 'LOBSTER', 379, 'Lobster', 'BURNT_LOBSTER', 381, 'Burnt lobster', 40, 120.0, 38, 332, output_variant='primary', cooking_gauntlet_no_burn_level=68),
     CookingTarget('cook_bass', 'BASS', 'Cook raw bass', 'fish', 'RAW_BASS', 363, 'Raw bass', 'BASS', 365, 'Bass', 'BURNT_FISH_367', 367, 'Burnt fish', 43, 130.0, 33, 312, output_variant='primary'),
-    CookingTarget('cook_swordfish', 'SWORDFISH', 'Cook raw swordfish', 'fish', 'RAW_SWORDFISH', 371, 'Raw swordfish', 'SWORDFISH', 373, 'Swordfish', 'BURNT_SWORDFISH', 375, 'Burnt swordfish', 45, 140.0, 18, 292, output_variant='primary'),
-    CookingTarget('cook_monkfish', 'MONKFISH', 'Cook raw monkfish', 'fish', 'RAW_MONKFISH', 7944, 'Raw monkfish', 'MONKFISH', 7946, 'Monkfish', 'BURNT_MONKFISH', 7948, 'Burnt monkfish', 62, 150.0, 13, 280, output_variant='primary'),
-    CookingTarget('cook_shark', 'SHARK', 'Cook raw shark', 'fish', 'RAW_SHARK', 383, 'Raw shark', 'SHARK', 385, 'Shark', 'BURNT_SHARK', 387, 'Burnt shark', 80, 210.0, 1, 232, output_variant='primary'),
+    CookingTarget('cook_swordfish', 'SWORDFISH', 'Cook raw swordfish', 'fish', 'RAW_SWORDFISH', 371, 'Raw swordfish', 'SWORDFISH', 373, 'Swordfish', 'BURNT_SWORDFISH', 375, 'Burnt swordfish', 45, 140.0, 18, 292, output_variant='primary', cooking_gauntlet_no_burn_level=81),
+    CookingTarget('cook_monkfish', 'MONKFISH', 'Cook raw monkfish', 'fish', 'RAW_MONKFISH', 7944, 'Raw monkfish', 'MONKFISH', 7946, 'Monkfish', 'BURNT_MONKFISH', 7948, 'Burnt monkfish', 62, 150.0, 13, 280, output_variant='primary', cooking_gauntlet_no_burn_level=87),
+    CookingTarget('cook_shark', 'SHARK', 'Cook raw shark', 'fish', 'RAW_SHARK', 383, 'Raw shark', 'SHARK', 385, 'Shark', 'BURNT_SHARK', 387, 'Burnt shark', 80, 210.0, 1, 232, output_variant='primary', cooking_gauntlet_no_burn_level=94),
     CookingTarget('cook_sea_turtle', 'SEA_TURTLE', 'Cook raw sea turtle', 'fish', 'RAW_SEA_TURTLE', 395, 'Raw sea turtle', 'SEA_TURTLE', 397, 'Sea turtle', 'BURNT_SEA_TURTLE', 399, 'Burnt sea turtle', 82, 211.3, 1, 222, output_variant='primary'),
     CookingTarget('cook_manta_ray', 'MANTA_RAY', 'Cook raw manta ray', 'fish', 'RAW_MANTA_RAY', 389, 'Raw manta ray', 'MANTA_RAY', 391, 'Manta ray', 'BURNT_MANTA_RAY', 393, 'Burnt manta ray', 91, 216.3, 1, 222, output_variant='primary'),
-    CookingTarget('cook_cavefish', 'CAVEFISH', 'Cook raw cavefish', 'fish', 'RAW_CAVEFISH', 15264, 'Raw cavefish', 'CAVEFISH', 15266, 'Cavefish', 'BURNT_CAVEFISH', 15268, 'Burnt cavefish', 88, 214.0, 1, 232, output_variant='primary'),
-    CookingTarget('cook_rocktail', 'ROCKTAIL', 'Cook raw rocktail', 'fish', 'RAW_ROCKTAIL', 15270, 'Raw rocktail', 'ROCKTAIL', 15272, 'Rocktail', 'BURNT_ROCKTAIL', 15274, 'Burnt rocktail', 93, 225.0, 1, 222, output_variant='primary'),
+    CookingTarget('cook_cavefish', 'CAVEFISH', 'Cook raw cavefish', 'fish', 'RAW_CAVEFISH', 15264, 'Raw cavefish', 'CAVEFISH', 15266, 'Cavefish', 'BURNT_CAVEFISH', 15268, 'Burnt cavefish', 88, 214.0, 1, 232, output_variant='primary', cooking_gauntlet_no_burn_level=94),
+    CookingTarget('cook_rocktail', 'ROCKTAIL', 'Cook raw rocktail', 'fish', 'RAW_ROCKTAIL', 15270, 'Raw rocktail', 'ROCKTAIL', 15272, 'Rocktail', 'BURNT_ROCKTAIL', 15274, 'Burnt rocktail', 93, 225.0, 1, 222, output_variant='primary', cooking_gauntlet_no_burn_level=94),
     CookingTarget('cook_tiger_shark', 'TIGER_SHARK', 'Cook raw tiger shark', 'fish', 'RAW_TIGER_SHARK', 21520, 'Raw tiger shark', 'TIGER_SHARK', 21521, 'Tiger shark', 'BURNT_TIGER_SHARK', 21522, 'Burnt tiger shark', 95, 230.0, *_TIGER_SHARK_BURN, output_variant='primary', source=TIGER_SHARK_WIKI_SOURCE, runtime_source=TIGER_SHARK_WIKI_SOURCE),
     CookingTarget('cook_cave_eel', 'CAVE_EEL', 'Cook raw cave eel', 'eels', 'RAW_CAVE_EEL', 5001, 'Raw cave eel', 'CAVE_EEL', 5003, 'Cave eel', 'BURNT_CAVE_EEL', 5002, 'Burnt cave eel', 38, 115.0, 38, 332, output_variant='primary'),
     CookingTarget('cook_slimy_eel', 'SLIMY_EEL', 'Cook slimy eel', 'eels', 'SLIMY_EEL', 3379, 'Slimy eel', 'COOKED_SLIMY_EEL', 3381, 'Cooked slimy eel', 'BURNT_EEL', 3383, 'Burnt eel', 28, 95.0, 63, 382, output_variant='primary'),
@@ -514,6 +515,7 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             **({"source_success_formula": dict(target.source_success_formula)} if target.source_success_formula else {}),
             **({"source_always_succeeds": True} if target.source_always_succeeds else {}),
             **({"source_no_level_requirement": True} if target.source_no_level_requirement else {}),
+            **({"cooking_gauntlet_no_burn_level": target.cooking_gauntlet_no_burn_level} if target.cooking_gauntlet_no_burn_level else {}),
             **({"byproduct_item": target.byproduct_item, "byproduct_chance": target.byproduct_chance} if target.byproduct_item else {}),
             **({"byproducts": dict(target.byproducts)} if target.byproducts else {}),
             **({"output_quantity_model": target.output_quantity_model} if target.output_quantity_model else {}),

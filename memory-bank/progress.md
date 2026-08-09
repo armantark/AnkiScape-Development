@@ -5607,3 +5607,21 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   The source audit records these blocks without adding inert product rows.
 - Both full lanes pass 3,939 tests. Plain has 483 expected skips, and real
   offscreen Qt has three intentional skips.
+
+## Cooking-gauntlets runtime closure — 2026-08-09
+
+- Added the complete Family Crest gauntlet lifecycle: physical equipment,
+  remembered enchantment, free first conversion, 25,000-Coin re-enchantment,
+  free loss recovery, persistence, and atomic direct-action undo.
+- Added target-local Casual/Advanced gear policy with safe displacement and
+  restoration. Manual hands-slot choices remain authoritative.
+- Applied the eight final dated no-burn thresholds without changing XP or ever
+  reducing the ordinary Cooking chance. Retired Shark's cadence source block.
+- Reused all four provenance-recorded normalized quest sprites. Kimi K3 and
+  Fable reviewed the new target, Bank, and worn-equipment surfaces.
+- Verification passes 3,957 tests in both full lanes. Plain has 485 expected
+  skips; real offscreen Qt has 3. Documentation, test-quality, JSON,
+  compilation, diff, reachability-ledger, and worktree gates pass. Native Anki
+  visual proof remains blocked by the locked Mac.
+- Evidence:
+  `source-audits/cooking-gauntlets-runtime-closure-2026-08-09.md`.

@@ -3615,6 +3615,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"].get("Cooking gauntlets", 0), 0)
         self.assertEqual(player_data["inventory"].get("Goldsmith gauntlets", 0), 0)
         self.assertEqual(player_data["inventory"].get("Chaos gauntlets", 0), 0)
+        self.assertEqual(player_data["family_gauntlet_enchantment"], "family")
 
     def test_temple_of_ikov_stage_gates_bow_combat_and_branch_endings(self):
         def ready_for_branch_choice():

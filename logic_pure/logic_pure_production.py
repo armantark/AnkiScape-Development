@@ -574,7 +574,9 @@ def cooking_target_locked_reasons_pure(player_data, target, cooking_data, quest_
     return tuple(dict.fromkeys(reasons))
 
 
-def cooking_source_roll_chance_pure(cooking_level, target_spec):
+def cooking_source_roll_chance_pure(
+    cooking_level, target_spec, *, has_cooking_gauntlets=False
+):
     """Exact 2011Scape Cooking roll (CookingAction.kt): the shared 3-arg
     interpolate helper (floors + 1) with success on interp > nextInt(255)."""
     source_formula = target_spec.get("source_success_formula")
@@ -586,6 +588,11 @@ def cooking_source_roll_chance_pure(cooking_level, target_spec):
         divisor = float(source_formula["divisor"])
         return min(base + level_multiplier * (float(cooking_level) - 1) / level_range, cap) / divisor
     if target_spec.get("source_always_succeeds"):
+        return 1.0
+    no_burn_level = _positive_int(
+        target_spec.get("cooking_gauntlet_no_burn_level", 0), 0
+    )
+    if has_cooking_gauntlets and no_burn_level and cooking_level >= no_burn_level:
         return 1.0
     interpolated = _scape2011_interpolate_255(
         target_spec.get("low_chance", 1),
@@ -601,10 +608,20 @@ def calculate_cooking_success_probability_pure(
     minimum=REVIEW_SUCCESS_MINIMUM,
     scale=REVIEW_SUCCESS_SCALE,
     cap=REVIEW_SUCCESS_CAP,
+    *,
+    has_cooking_gauntlets=False,
 ):
     """Translate source Cooking odds into one review-scale success probability."""
-    source_chance = cooking_source_roll_chance_pure(cooking_level, target_spec)
-    if target_spec.get("source_success_formula") or target_spec.get("source_always_succeeds"):
+    source_chance = cooking_source_roll_chance_pure(
+        cooking_level,
+        target_spec,
+        has_cooking_gauntlets=has_cooking_gauntlets,
+    )
+    if (
+        target_spec.get("source_success_formula")
+        or target_spec.get("source_always_succeeds")
+        or (has_cooking_gauntlets and source_chance >= 1.0)
+    ):
         return source_chance
     return normalize_review_success_probability_pure(source_chance, minimum, scale, cap)
 
@@ -651,6 +668,7 @@ def apply_cooking_action_pure(
     byproduct_roll=None,
     *,
     use_source_probability=False,
+    has_cooking_gauntlets=False,
 ):
     """Apply one Cooking action.
 
@@ -667,9 +685,17 @@ def apply_cooking_action_pure(
         new_inv[material] = new_inv.get(material, 0) - amount
 
     success_probability = (
-        cooking_source_roll_chance_pure(cooking_level, spec)
+        cooking_source_roll_chance_pure(
+            cooking_level,
+            spec,
+            has_cooking_gauntlets=has_cooking_gauntlets,
+        )
         if use_source_probability
-        else calculate_cooking_success_probability_pure(cooking_level, spec)
+        else calculate_cooking_success_probability_pure(
+            cooking_level,
+            spec,
+            has_cooking_gauntlets=has_cooking_gauntlets,
+        )
     )
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
     succeeded = float(roll) <= success_probability if source_runtime_action else float(roll) < success_probability

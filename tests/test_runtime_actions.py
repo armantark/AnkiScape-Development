@@ -3803,6 +3803,31 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["failure_kinds"], {"burn": 1})
         self.assertEqual(telemetry["outputs"], {"Burnt shrimp": 1})
 
+    def test_cooking_runtime_auto_equips_gauntlets_and_applies_no_burn_level(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Raw shark": 1, "Cooking gauntlets": 1},
+            "equipment": {"hands": "Leather gloves"},
+            "cooking_level": 94,
+            "cooking_exp": 0,
+            "current_cooking": "cook_shark",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_cooking_answer(
+            _context(player_data, calls, random_values=[0.999])
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["equipment"]["hands"], "Cooking gauntlets")
+        self.assertEqual(player_data["inventory"]["Leather gloves"], 1)
+        self.assertEqual(player_data["inventory"]["Shark"], 1)
+        self.assertEqual(player_data["cooking_burn_count"], 0)
+        self.assertEqual(player_data["cooking_success_count"], 1)
+        self.assertEqual(calls["xp"], [210.0])
+
     def test_lava_eel_cooking_always_succeeds_with_source_xp(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

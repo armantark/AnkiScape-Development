@@ -2,6 +2,29 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 43 completes Cooking gauntlets.** Family
+Crest now grants a remembered physical pair; Caleb converts plain gauntlets
+free or re-enchants Goldsmith/Chaos gauntlets for 25,000 Coins; Dimintheis
+restores the remembered lost enchantment free. All four variants are real
+hands equipment with audited period bonuses. Casual and Advanced target policy
+reconcile the physical pair without overwriting manual gear, and every
+conversion, recovery, policy, equip, review outcome, and inventory change uses
+the established atomic undo paths. Cooking uses the eight exact no-burn rows
+from final pre-EOC oldid `6572206`; below each threshold the ordinary rev-667
+curve is preserved, including Trout's already-better level-49 result. Shark now
+uses the live cadence embedded-probability route. Kimi K3 and Fable both
+reviewed the new UI; their accepted pass hides recovery outside a real loss,
+clarifies the three policy outcomes, and keeps both Bank and worn-item actions
+compact. Full plain discovery passes 3,957 tests with 485 expected skips in
+348.312 seconds; real offscreen Qt passes the same 3,957 with 3 skips in 641.305
+seconds. Documentation passes across 536 Markdown and 431 HTML files; test
+quality has zero hard issues across 3,923 tests in 179 files. Reachability
+remains 1,537 actions, 2,333 reachable items, 168 known orphan inputs, and 188
+known blocked actions. JSON, compilation, diff, and worktree safety pass.
+Native Anki visual acceptance remains externally blocked by the locked Mac;
+offscreen Qt is not claimed as native proof. Durable audit:
+`memory-bank/source-audits/cooking-gauntlets-runtime-closure-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 41 completes the shared Crafting and
 Fletching potion runtime.** Game-main pins the exact `+3` current-level effect;
 rev-742 pins all vial/flask IDs and exposed a corrected Super prayer flask

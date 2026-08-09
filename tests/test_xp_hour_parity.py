@@ -164,7 +164,12 @@ class LiveXpHourParityTest(unittest.TestCase):
 
     def test_embedded_routes_attempt_once_without_a_second_residual_gate(self):
         expected = {
-            "Cooking": {"cook_tuna", "cook_lobster", "cook_monkfish"},
+            "Cooking": {
+                "cook_tuna",
+                "cook_lobster",
+                "cook_monkfish",
+                "cook_shark",
+            },
             "Firemaking": {"magic_logs"},
         }
         for skill_name, expected_actions in expected.items():

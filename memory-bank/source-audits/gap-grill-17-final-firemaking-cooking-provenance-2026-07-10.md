@@ -2,6 +2,10 @@
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
+Supersession: the Cooking-gauntlet numerical block below was resolved on
+2026-08-09 by `cooking-gauntlets-runtime-closure-2026-08-09.md`, using the later
+oldid 6572206 and the reconciled Darkan burn policy. Firemaking remains unchanged.
+
 ## Pinned period evidence
 
 - `Barbarian Training` oldid 6476330, 2012-10-26: level-35 Otto unlock;

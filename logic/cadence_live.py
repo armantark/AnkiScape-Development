@@ -189,16 +189,6 @@ def resolve_live_cadence_route_pure(
                     for value in resolved.get("source_includes", ())
                 ),
             )
-        if (skill_id, target_id) == ("cooking", "cook_shark"):
-            return CadenceRouteDeclaration(
-                **common,
-                mode=SOURCE_BLOCKED,
-                source_status=SOURCE_BLOCKED,
-                source_row=str(resolved.get("source_key", profile_id)),
-                source_reason="the exact row includes cooking gauntlets, whose burn-stop modifier is not implemented",
-                includes=tuple(str(value) for value in resolved.get("source_includes", ())),
-                condition="authentic cooking-gauntlet behavior",
-            )
         if skill_id in _EMBEDDED_SKILLS:
             return CadenceRouteDeclaration(
                 **common,

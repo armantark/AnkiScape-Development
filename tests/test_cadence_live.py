@@ -206,14 +206,14 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         self.assertNotIn("urns", iron.includes)
         self.assertIn("lower_source_endpoint", iron.source_reason)
 
-    def test_modifier_incompatible_routes_remain_source_blocked(self):
+    def test_only_unimplemented_modifier_routes_remain_source_blocked(self):
         kept_iron = resolve_live_cadence_route_pure("mining", "iron", {})
         shark = resolve_live_cadence_route_pure("cooking", "cook_shark", {})
         alchemy_without_staff = resolve_live_cadence_route_pure(
             "magic", "high_alchemy", {}
         )
         self.assertEqual(kept_iron.mode, "source_blocked")
-        self.assertEqual(shark.mode, "source_blocked")
+        self.assertEqual(shark.mode, "embedded_probability")
         self.assertEqual(alchemy_without_staff.mode, "source_blocked")
 
     def test_runtime_xp_incompatible_source_rows_remain_blocked(self):
