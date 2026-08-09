@@ -62,6 +62,13 @@ def _float(value: Any, default: float = 0.0) -> float:
     return max(0.0, parsed)
 
 
+def _raiders_killed(session: Mapping[str, Any]) -> int:
+    return min(
+        GOBLIN_RAIDS_RAIDER_COUNT,
+        _int(session.get("goblins_killed")),
+    )
+
+
 def _roll(value: Any) -> float:
     try:
         parsed = float(value)
@@ -246,11 +253,22 @@ def advance_goblin_raids_world_clock_pure(
                 and session["mode"] == GOBLIN_RAIDS_RAID_MODE
                 and session["raid_id"] == raid["raid_id"]
             ):
-                state["session"] = {}
-                state["last_result"] = (
-                    "The raid was over before you finished it; the goblins "
-                    "made off with their spoils."
-                )
+                if _raiders_killed(session):
+                    session = dict(session)
+                    _stop_session_combat(data, session)
+                    session["stage"] = "spoils"
+                    state["session"] = session
+                    state["last_result"] = (
+                        "The surviving goblins teleport away. Commander Yodri "
+                        "will still reward the Raiders you defeated."
+                    )
+                else:
+                    _finish(
+                        data,
+                        state,
+                        "The raid was over before you finished; no Raiders "
+                        "fell and the goblins made off with their spoils.",
+                    )
             state["active_raid"] = {}
             state["next_spawn_card"] = answered + GOBLIN_RAIDS_SPAWN_REVIEWS
             events.append({"kind": "expired", "raid_id": raid["raid_id"]})
@@ -330,20 +348,30 @@ def _enemy_row(target_id: str, enemy_data: Mapping[str, Any]) -> dict[str, Any]:
     return {target_id: dict(enemy_data[target_id])}
 
 
-def _finish(data: dict[str, Any], state: dict[str, Any], message: str) -> None:
-    session = state["session"]
-    data["activity_session"] = _empty_activity_session()
+def _stop_session_combat(
+    data: dict[str, Any],
+    session: dict[str, Any],
+) -> None:
+    target = str(session.get("target_id", ""))
     data["combat_encounter"] = {}
     data["current_combat_target"] = str(
         session.get("previous_combat_target", "")
     )
     for key in ("carried_inventory", "carried_churn"):
         raw = data.get(key)
-        target = str(session.get("target_id", ""))
         if isinstance(raw, Mapping) and target and target in raw:
             copied = copy.deepcopy(dict(raw))
             copied.pop(target, None)
             data[key] = copied
+    session["target_id"] = ""
+    session["enemy_lifepoints"] = 0
+    session["encounter"] = {}
+
+
+def _finish(data: dict[str, Any], state: dict[str, Any], message: str) -> None:
+    session = state["session"]
+    data["activity_session"] = _empty_activity_session()
+    _stop_session_combat(data, session)
     state["session"] = {}
     state["last_result"] = message
 
@@ -486,7 +514,7 @@ def intimidate_hollowtoof_pure(
 def claim_goblin_raid_spoils_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    """Commander Yodri pays out once the raid's goblins are dead."""
+    """Commander Yodri pays the site's sourced table after the raid ends."""
     data = copy.deepcopy(dict(player_data))
     state = sanitize_goblin_raids_state_pure(data.get("goblin_raids"))
     session = state["session"]
@@ -494,21 +522,25 @@ def claim_goblin_raid_spoils_pure(
         return data, False, {"reason": "Join a goblin raid first."}
     if session["stage"] != "spoils":
         return data, False, {
-            "reason": "Commander Yodri arrives once the raid's goblins are dead."
+            "reason": "Commander Yodri arrives when the raid ends."
         }
     site = GOBLIN_RAID_SITES_BY_ID[session["site_id"]]
     awarded = dict(session["spoils"])
-    # Sourced: an item for every goblin the player slew, plus an extra suited to
-    # where the raid was. Both are paid in the site's own stated material kind.
-    per_goblin = int(session["goblins_killed"]) * GOBLIN_RAIDS_YODRI_ITEMS_PER_GOBLIN
-    for index in range(per_goblin):
-        item = site.materials[index % len(site.materials)]
+    # Sourced: up to ten items from the site's exact reward table, one for each
+    # ordinary Raider killed. The guide gives no within-table weights, so the
+    # registered selection abstraction cycles deterministically.
+    raiders_killed = _raiders_killed(session)
+    reward_count = raiders_killed * GOBLIN_RAIDS_YODRI_ITEMS_PER_GOBLIN
+    for index in range(reward_count):
+        item = site.yodri_rewards[index % len(site.yodri_rewards)]
         awarded[item] = awarded.get(item, 0) + 1
     for item, count in awarded.items():
         _adjust_stack(data, item, count)
-    state["raids_cleared"] += 1
+    raid_cleared = int(session["goblins_killed"]) > raiders_killed
+    if raid_cleared:
+        state["raids_cleared"] += 1
     message = (
-        f"Commander Yodri thanks you for {session['goblins_killed']} goblins "
+        f"Commander Yodri thanks you for defeating {raiders_killed} Raiders "
         f"and hands over "
         + ", ".join(f"{count} × {item}" for item, count in sorted(awarded.items()))
         + f" from {site.display_name}."
@@ -518,7 +550,8 @@ def claim_goblin_raid_spoils_pure(
     return data, True, {
         "message": message,
         "rewards": awarded,
-        "goblins_killed": per_goblin,
+        "raiders_killed": raiders_killed,
+        "raid_cleared": raid_cleared,
     }
 
 
@@ -660,8 +693,8 @@ def apply_goblin_raids_review_pure(
             else:
                 piece = next_raider_set_piece_pure(data)
                 _adjust_stack(data, piece, 1)
+                _stop_session_combat(data, session)
                 session["stage"] = "spoils"
-                session["encounter"] = {}
                 state["active_raid"] = {}
                 events.append(f"Hollowtoof drops the {piece}.")
         else:

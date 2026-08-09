@@ -1,5 +1,32 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 24 — Commander Yodri rewards and timed-out attempts
+
+- Evidence: Tip.It Goblin Raids guide last updated `2012-10-24`, immutable
+  Wayback capture `20121228205432`, retrieved HTML SHA-256
+  `93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2`;
+  release oldid `6434891`; cutoff oldid `6545250`; Darkan's current tree.
+- Result: Yodri's exact potential sets are Potato/Marigold/Barley seeds,
+  Logs/Oak logs, and Clay/Copper/Tin for farm, forest and mine raids. The payout
+  is capped at one item for each of the ten ordinary Raiders; Hollowtoof no
+  longer creates an eleventh item. A timed-out raid keeps the proportional
+  payout for Raiders already killed, but does not count as cleared; a zero-kill
+  timeout releases the activity and combat state instead of leaving stale live
+  selection.
+- Placeholder: the old table placeholder is retired. Only the unrecovered
+  within-table selection distribution remains as deterministic round-robin in
+  `goblin_raids.yodri_reward_selection`.
+- Delegation: bounded read-only simplification run
+  `3f86e88b-ae44-4329-a7d1-4cff91fd64ff` exhausted its 30,000 processed-token
+  guard at 61,036 after three tool calls and returned no candidate. Root reused
+  the preserved diff evidence, performed the deletion pass, and did not rerun.
+- Verification: 116 focused tests pass. Full discovery passes 3,864 tests in
+  both lanes, with 479 expected plain skips and 3 real offscreen-Qt skips.
+  Documentation audits 520 Markdown and 431 HTML files; test quality reports
+  zero hard issues across 3,830 tests in 176 files; diff and worktree audits
+  pass. Reachability reports its unchanged known ledger: 1,498 actions, 2,230
+  reachable items, 169 orphan inputs and 189 blocked actions.
+
 ## Iteration 23 — Goblin Raids ordinary-raider count
 
 - Evidence: release oldid `6434891`; cutoff oldid `6545250`; Tip.It Goblin

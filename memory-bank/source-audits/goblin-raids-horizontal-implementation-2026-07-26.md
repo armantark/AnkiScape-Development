@@ -83,8 +83,9 @@ Sourced facts implemented:
   article itself flags as possibly unintended. Both behaviours ship.
 - A sufficiently high-level player may **talk to Hollowtoof before the raiders
   die and receive the whole set**.
-- **Commander Yodri** arrives once the raid's goblins are dead and gives an item
-  "for every goblin slain" plus a location-appropriate extra.
+- **Commander Yodri** arrives after the raid, including a timed-out attempt. His
+  payout scales with ordinary Raiders killed to a maximum of ten and uses the
+  exact farm, forest, or mine item set recovered below.
 - **Every fifteen goblins killed inside the village gates summons one of three
   bosses**, and goblins outside the gates do not count. Brokeface is melee,
   Stinkears magic, Lumpnose ranged; all three are level 5 with 120 lifepoints,
@@ -126,9 +127,13 @@ Eight, all in `memory-bank/placeholder-values.md`:
 `goblin_raids.cower_shield_drop_chance`, `goblin_raids.stinkears_max_hit`,
 `goblin_raids.raider_set_bonuses`.
 
-Two rows have since retired: `goblin_raids.raider_set_bonuses` through the
-rev-741 cache pass on 2026-08-03, and `goblin_raids.raider_count` through the
-period convergence below on 2026-08-08. Six Goblin Raids placeholders remain.
+Three rows have since retired: `goblin_raids.raider_set_bonuses` through the
+rev-741 cache pass on 2026-08-03, `goblin_raids.raider_count` through the period
+convergence below on 2026-08-08, and `goblin_raids.yodri_reward_table` through
+the dated Tip.It table. The last is replaced by the narrower
+`goblin_raids.yodri_reward_selection` placeholder because the authentic item
+sets survive but their within-table distribution does not. Six Goblin Raids
+placeholders remain.
 
 Two are worth calling out because they are conflict resolutions rather than plain
 gaps. `intimidation_combat_level` exists because the same pinned article gives
@@ -211,6 +216,44 @@ surfaced. Closure verification passes 114 focused tests and both full 3,862-test
 lanes: plain declares 479 expected skips and the real offscreen-Qt interpreter
 declares 3. Documentation, test-quality, diff, and worktree audits pass.
 
+## Commander Yodri reward re-walk — 2026-08-08
+
+Tip.It's Goblin Raids guide, last updated `2012-10-24`, supplies the missing
+period reward table. The immutable Wayback capture is `20121228205432` at
+`http://www.tip.it:80/runescape/pages/view/goblin_raids.htm`; the retrieved HTML
+has SHA-256
+`93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2`.
+Its reward section states that the amount is based on ordinary Goblin Raiders
+killed, that resources arrive in stackable form, and that every site's total is
+at most ten. It lists these exact potential sets:
+
+- farm: Potato seeds, Marigold seeds, Barley seeds;
+- forest: Logs, Oak logs;
+- mine: Clay, Copper ore, Tin ore.
+
+The guide does not state weights, independent rolls, or any other selection
+distribution within those sets. The exact contents therefore replace the old
+table placeholder, while deterministic round-robin stays explicitly registered
+as `goblin_raids.yodri_reward_selection`; this makes every period item reachable
+without inventing hidden weights.
+
+The same dated guide states that if the player takes too long, the goblins
+teleport away as the Black Guard arrives and the player can still claim a reward
+for the attempt. Live expiry previously erased the session outright, left the
+activity/combat selection stale, and made that reward impossible. It now keeps a
+proportional Yodri claim whenever at least one ordinary Raider fell, does not
+count the attempt as a cleared raid unless Hollowtoof was also defeated, and
+cleanly releases activity/combat state when no Raider fell. Full clears now pay
+for ten ordinary Raiders rather than treating Hollowtoof as an eleventh payout.
+No owner design gap surfaced.
+
+Closure verification passes 116 focused tests and both full 3,864-test lanes:
+plain declares 479 expected skips and the real offscreen-Qt interpreter declares
+3. Documentation audits 520 Markdown and 431 HTML files; test quality reports
+zero hard issues across 3,830 tests in 176 files; diff and worktree audits pass.
+Item reachability remains at its established dependency ledger: 1,498 actions,
+2,230 reachable items, 169 orphan inputs, and 189 blocked actions.
+
 ## Asset provenance
 
 `tools/fetch_goblin_raids_assets.py` installs six images, all with pre-cutoff
@@ -237,7 +280,7 @@ roster row resolves to art.
 
 ## Test coverage
 
-`tests/test_goblin_raids.py`, 42 tests in nine classes: data and registration,
+`tests/test_goblin_raids.py`, 47 tests in nine classes: data and registration,
 the world clock, entry, the raid stages, the intimidation shortcut, the village
 boss loop, the cower shield bonus, failure paths, the view, persistence, the
 command router, and runtime integration. Plus one case in

@@ -1,5 +1,28 @@
 # Progress
 
+## Commander Yodri reward table and expiry settlement — 2026-08-08
+
+Tip.It's Goblin Raids guide, last updated `2012-10-24` and preserved in Wayback
+capture `20121228205432`, pins the location tables omitted from the live data:
+farms pay Potato, Marigold and Barley seeds; forests pay Logs and Oak logs;
+mines pay Clay, Copper ore and Tin ore. The guide caps the total at ten based on
+ordinary Raiders killed and says a timed-out attempt can still receive a reward.
+
+Yodri now selects from those exact sets and pays at most one item for each of the
+ten ordinary Raiders. Hollowtoof no longer creates an eleventh item. If a raid
+expires after progress, the proportional payout remains claimable without
+incrementing `raids_cleared`; if no Raider fell, expiry cleanly releases the
+activity and combat state. The exact selection distribution remains
+source-blocked, so deterministic round-robin is registered under the narrower
+`goblin_raids.yodri_reward_selection` placeholder. No owner design gap surfaced.
+
+Verification passes 116 focused tests. Full discovery passes 3,864 tests in both
+lanes, with 479 expected plain skips and 3 real offscreen-Qt skips.
+Documentation audits 520 Markdown and 431 HTML files; test quality reports zero
+hard issues across 3,830 tests in 176 files; diff and worktree audits pass. Item
+reachability retains the known 1,498-action, 2,230-reachable, 169-orphan,
+189-blocked dependency ledger.
+
 ## Goblin Raids ordinary-raider count closed at ten — 2026-08-08
 
 The former five-Raider placeholder is retired. Release oldid `6434891` and

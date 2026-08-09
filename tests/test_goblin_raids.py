@@ -224,6 +224,17 @@ class GoblinRaidsDataTest(unittest.TestCase):
         )
         self.assertIn("Logs", GOBLIN_RAID_SITES_BY_ID["forest"].materials)
         self.assertIn("Oak logs", GOBLIN_RAID_SITES_BY_ID["forest"].materials)
+        self.assertEqual(
+            {
+                site.id: site.yodri_rewards
+                for site in GOBLIN_RAID_SITES
+            },
+            {
+                "farm": ("Potato seed", "Marigold seed", "Barley seed"),
+                "forest": ("Logs", "Oak logs"),
+                "mine": ("Clay", "Copper ore", "Tin ore"),
+            },
+        )
         self.assertEqual(GOBLIN_RAIDS_RAIDER_COUNT, 10)
         self.assertEqual(GOBLIN_RAIDS_VILLAGE_BOSS_KILLS, 15)
         self.assertEqual(GOBLIN_COWER_SHIELD_BONUS_RATE, 0.25)
@@ -339,7 +350,68 @@ class GoblinRaidsWorldClockTest(unittest.TestCase):
         self.assertEqual([row["kind"] for row in events], ["expired"])
         self.assertEqual(player["goblin_raids"]["active_raid"], {})
         self.assertEqual(player["goblin_raids"]["session"], {})
+        self.assertEqual(player["activity_session"]["active_id"], "")
+        self.assertEqual(player["current_combat_target"], "chicken")
         self.assertIn("over before you finished", player["goblin_raids"]["last_result"])
+
+    def test_an_expired_attempt_keeps_yodris_partial_raider_payout(self):
+        player, ok, info = join_goblin_raid_pure(
+            _with_raid(99, site_roll=0.9), GOBLIN_RAIDS_RAID_MODE
+        )
+        self.assertTrue(ok, info)
+        player, _results = _play(
+            player,
+            2,
+            until=lambda current, _result: (
+                current["goblin_raids"]["session"]["raiders_remaining"] == 9
+            ),
+        )
+        player["shop_market_clock"] = {
+            "answered_cards": (
+                GOBLIN_RAIDS_SPAWN_REVIEWS + GOBLIN_RAIDS_ACTIVE_REVIEWS
+            )
+        }
+
+        expired, events = advance_goblin_raids_world_clock_pure(player)
+
+        self.assertEqual([row["kind"] for row in events], ["expired"])
+        self.assertEqual(expired["goblin_raids"]["active_raid"], {})
+        self.assertEqual(expired["goblin_raids"]["session"]["stage"], "spoils")
+        claimed, ok, info = claim_goblin_raid_spoils_pure(expired)
+        self.assertTrue(ok, info)
+        self.assertEqual(info["raiders_killed"], 1)
+        self.assertEqual(
+            sum(info["rewards"].values()),
+            sum(player["goblin_raids"]["session"]["spoils"].values()) + 1,
+        )
+        self.assertFalse(info["raid_cleared"])
+        self.assertEqual(claimed["goblin_raids"]["raids_cleared"], 0)
+
+    def test_expiry_after_all_raiders_does_not_credit_hollowtoofs_clear(self):
+        player, ok, info = join_goblin_raid_pure(
+            _with_raid(99, site_roll=0.5), GOBLIN_RAIDS_RAID_MODE
+        )
+        self.assertTrue(ok, info)
+        player, _results = _play(
+            player,
+            2,
+            until=lambda current, _result: (
+                current["goblin_raids"]["session"]["stage"] == "leader"
+            ),
+        )
+        player["shop_market_clock"] = {
+            "answered_cards": (
+                GOBLIN_RAIDS_SPAWN_REVIEWS + GOBLIN_RAIDS_ACTIVE_REVIEWS
+            )
+        }
+        expired, _events = advance_goblin_raids_world_clock_pure(player)
+
+        claimed, ok, info = claim_goblin_raid_spoils_pure(expired)
+
+        self.assertTrue(ok, info)
+        self.assertEqual(info["raiders_killed"], GOBLIN_RAIDS_RAIDER_COUNT)
+        self.assertFalse(info["raid_cleared"])
+        self.assertEqual(claimed["goblin_raids"]["raids_cleared"], 0)
 
     def test_ten_raiders_and_hollowtoof_fit_the_registered_active_window(self):
         player, ok, info = join_goblin_raid_pure(
@@ -473,7 +545,7 @@ class GoblinRaidStagesTest(unittest.TestCase):
         self.assertIsNone(self.cleared["inventory"].get("Raider axe"))
         self.assertEqual(next_raider_set_piece_pure(self.cleared), "Raider axe")
 
-    def test_yodri_pays_out_per_goblin_in_the_sites_own_material(self):
+    def test_yodri_pays_out_per_raider_from_the_exact_site_table(self):
         self.assertEqual(self.cleared["goblin_raids"]["active_raid"], {})
         persisted = sanitize_goblin_raids_state_pure(
             self.cleared["goblin_raids"]
@@ -481,13 +553,24 @@ class GoblinRaidStagesTest(unittest.TestCase):
         self.assertEqual(persisted["session"]["stage"], "spoils")
         session = self.cleared["goblin_raids"]["session"]
         pending = dict(session["spoils"])
-        killed = int(session["goblins_killed"])
+        raiders_killed = GOBLIN_RAIDS_RAIDER_COUNT - int(
+            session["raiders_remaining"]
+        )
         site = GOBLIN_RAID_SITES_BY_ID[session["site_id"]]
         claimed, ok, info = claim_goblin_raid_spoils_pure(self.cleared)
         self.assertTrue(ok, info)
-        self.assertEqual(sum(info["rewards"].values()), sum(pending.values()) + killed)
-        for item in info["rewards"]:
-            self.assertIn(item, site.materials)
+        self.assertEqual(info["raiders_killed"], raiders_killed)
+        self.assertEqual(
+            sum(info["rewards"].values()),
+            sum(pending.values()) + raiders_killed,
+        )
+        yodri_rewards = {
+            item: count - pending.get(item, 0)
+            for item, count in info["rewards"].items()
+            if count > pending.get(item, 0)
+        }
+        self.assertEqual(sum(yodri_rewards.values()), raiders_killed)
+        self.assertTrue(set(yodri_rewards).issubset(site.yodri_rewards))
         for item, count in info["rewards"].items():
             self.assertGreaterEqual(claimed["inventory"].get(item, 0), count)
         self.assertEqual(claimed["goblin_raids"]["raids_cleared"], 1)

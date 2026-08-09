@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 24 pins Commander Yodri's period reward
+contents and repairs timed-out raid settlement.** Tip.It's Goblin Raids guide,
+last updated `2012-10-24` and preserved in Wayback capture `20121228205432`,
+fixes the three potential reward sets: Potato/Marigold/Barley seeds at farms,
+Logs/Oak logs at forests, and Clay/Copper/Tin at mines. It caps the payout at
+ten based on ordinary Raiders killed and says a timed-out attempt remains
+claimable. The live payout no longer counts Hollowtoof as an eleventh Raider;
+partial attempts preserve Yodri's proportional payout without incrementing
+`raids_cleared`; zero-kill expiry now releases the activity and combat state.
+The hidden within-table distribution remains registered as deterministic
+round-robin under `goblin_raids.yodri_reward_selection`. No owner design gap
+surfaced. Verification passes 116 focused tests and both full 3,864-test lanes:
+plain declares 479 expected skips and real offscreen Qt declares 3.
+Documentation audits 520 Markdown and 431 HTML files, test quality reports zero
+hard issues across 3,830 tests in 176 files, and diff/worktree audits pass. Item
+reachability remains at its established dependency ledger: 1,498 actions, 2,230
+reachable items, 169 orphan inputs, and 189 blocked actions.
+
 **2026-08-08, grind-loop iteration 23 retires the Goblin Raids ordinary-count
 placeholder at ten.** The exact one-Yodri-item-per-kill rule plus Tip.It's
 2012-10-24 guide cap of ten location rewards pins ten Raiders, while the

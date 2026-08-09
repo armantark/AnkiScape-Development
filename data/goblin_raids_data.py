@@ -87,7 +87,10 @@ class GoblinRaidSite:
     display_name: str
     # Exact: farms give seeds, forests give logs, mines give ores.
     spoil_kind: str
+    # Materials Raiders hoard while stripping the site.
     materials: tuple[str, ...]
+    # Exact potential Black Guard payout table from Tip.It's 2012-10-24 guide.
+    yodri_rewards: tuple[str, ...]
 
 
 # The three site kinds the article names. It shows a potato field in its own
@@ -99,9 +102,27 @@ class GoblinRaidSite:
 # logs and one oak log"; the seed and ore rows use the most basic period item of
 # the stated kind because no revision lists them.
 GOBLIN_RAID_SITES = (
-    GoblinRaidSite("farm", "a farm", "seeds", ("Potato seed",)),
-    GoblinRaidSite("forest", "a woodcutting site", "logs", ("Logs", "Oak logs")),
-    GoblinRaidSite("mine", "a mine", "ores", ("Copper ore", "Tin ore")),
+    GoblinRaidSite(
+        "farm",
+        "a farm",
+        "seeds",
+        ("Potato seed",),
+        ("Potato seed", "Marigold seed", "Barley seed"),
+    ),
+    GoblinRaidSite(
+        "forest",
+        "a woodcutting site",
+        "logs",
+        ("Logs", "Oak logs"),
+        ("Logs", "Oak logs"),
+    ),
+    GoblinRaidSite(
+        "mine",
+        "a mine",
+        "ores",
+        ("Copper ore", "Tin ore"),
+        ("Clay", "Copper ore", "Tin ore"),
+    ),
 )
 GOBLIN_RAID_SITES_BY_ID = {site.id: site for site in GOBLIN_RAID_SITES}
 GOBLIN_RAID_SITE_IDS = tuple(site.id for site in GOBLIN_RAID_SITES)
@@ -223,13 +244,10 @@ RAIDER_SET_ITEM_NAMES = tuple(piece.item_name for piece in RAIDER_SET)
 
 RAIDER_SET_SOURCE_STATUS = "rev-741 cache item definitions"
 
-# PLACEHOLDER(goblin_raids.yodri_reward_table): what Commander Yodri hands over.
-# The article says he gives "an item from the black guard's store for every
-# goblin slain" plus a location-appropriate extra, and his own page calls it a
-# small reward suiting the raid's place and the goblins killed. Neither states
-# the store's contents. The per-goblin unit is sourced; the item is not, so the
-# reward pays the raid site's own stated material kind, which is the one thing
-# the source does name.
+# PLACEHOLDER(goblin_raids.yodri_reward_selection): Tip.It's 2012-10-24 guide
+# fixes the three site-specific item sets and the maximum total at ten, but does
+# not expose the within-table selection distribution. Deterministic round-robin
+# avoids inventing hidden random weights while exercising every authentic item.
 GOBLIN_RAIDS_YODRI_ITEMS_PER_GOBLIN = 1
 
 GOBLIN_COWER_SHIELD_ITEM_ID = 25_350
