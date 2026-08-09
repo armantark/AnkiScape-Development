@@ -15,10 +15,11 @@
 - Verification: 114 focused Goblin Raids, placeholder-register,
   direct-action-undo and
   notification-strip tests pass. A world-clock regression proves the ten
-  Raiders and Hollowtoof fit the registered 15-review active window. The owner
-  ended the session before closure: the full plain run was interrupted and the
-  offscreen-Qt lane was not started. Resume with both full lanes and the
-  standard audits before closing this slice.
+  Raiders and Hollowtoof fit the registered 15-review active window. Full
+  discovery passes 3,862 tests in both lanes, with 479 expected plain skips and
+  3 real offscreen-Qt skips. Documentation audits 520 Markdown and 431 HTML
+  files; test quality reports zero hard issues across 3,828 tests in 176 files;
+  diff and worktree audits pass.
 - Next: Commander Yodri's site reward contents and selection rule.
 
 ## Iteration 22 — Goblin Raids active duration and cleared-raid lifecycle

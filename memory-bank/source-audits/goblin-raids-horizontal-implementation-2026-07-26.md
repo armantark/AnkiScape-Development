@@ -207,7 +207,9 @@ The former value of five was contradicted by convergent period evidence:
 `goblin_raids.raider_count` is retired from the placeholder register. A
 world-clock regression proves ten Raiders plus Hollowtoof can still complete
 inside the separately registered 15-review active window. No owner design gap
-surfaced.
+surfaced. Closure verification passes 114 focused tests and both full 3,862-test
+lanes: plain declares 479 expected skips and the real offscreen-Qt interpreter
+declares 3. Documentation, test-quality, diff, and worktree audits pass.
 
 ## Asset provenance
 

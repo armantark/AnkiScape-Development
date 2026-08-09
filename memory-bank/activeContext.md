@@ -10,10 +10,11 @@ separate and disproves the former five. Darkan and the client caches add no
 server spawn table; the modern wiki's ten was added in 2022 and corroborates
 only. A world-clock regression proves ten Raiders plus Hollowtoof still fit the
 registered 15-review active window. No owner design gap surfaced. Focused
-verification passes 114 tests. The owner ended the session before closure, so
-the full plain run was interrupted and the offscreen-Qt lane was not started.
-Resume with both full lanes and the standard audits before closing this slice;
-then re-walk Yodri's exact site reward contents and unrecovered
+verification passes 114 tests. Full discovery passes 3,862 tests in both lanes:
+plain declares 479 expected skips and the real offscreen-Qt interpreter declares
+3. Documentation audits 520 Markdown and 431 HTML files, test quality reports
+zero hard issues across 3,828 tests in 176 files, and diff/worktree audits pass.
+The next slice re-walks Yodri's exact site reward contents and unrecovered
 selection rule.
 
 **2026-08-08, grind-loop iteration 22 preserves the Goblin Raids active-window

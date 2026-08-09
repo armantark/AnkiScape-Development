@@ -16,10 +16,10 @@ it corroborates rather than supplies the value. Live raids now field ten
 ordinary Raiders; a world-clock regression proves they and Hollowtoof can still
 finish inside the registered 15-review active window. Focused Goblin Raids,
 placeholder-register, direct-action-undo and notification-strip verification
-passes 114 tests. The owner ended the session before closure: the full plain
-run was interrupted and the offscreen-Qt lane was not started. Resume with both
-full lanes and the standard audits before closing this slice. No owner
-design gap surfaced.
+passes 114 tests. Full discovery passes 3,862 tests in both lanes, with 479
+expected plain skips and 3 real offscreen-Qt skips. Documentation audits 520
+Markdown and 431 HTML files; test quality reports zero hard issues across 3,828
+tests in 176 files; diff and worktree audits pass. No owner design gap surfaced.
 
 ## Goblin Raids active-window re-walk and lifecycle correction — 2026-08-08
 
