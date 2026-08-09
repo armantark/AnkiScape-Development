@@ -7110,6 +7110,71 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(visible_recovery_buttons, [])
         dialog.deleteLater()
 
+    def test_brawling_wilderness_toggle_coexists_with_cooking_policy(self) -> None:
+        from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
+        from ankiscape.logic.brawling_gloves_logic import (
+            set_brawling_wilderness_target_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "cooking_level": 94,
+                "current_cooking": "cook_shark",
+                "cooking_equipment_choices": {},
+                "cooking_equipment_swap": {},
+                "brawling_wilderness_targets": {},
+            }
+        )
+        item_name = BRAWLING_GLOVE_DATA["cooking"]["item_name"]
+        pd["inventory"] = {"Raw shark": 1}
+        pd["equipment"] = {"hands": item_name}
+        calls = []
+
+        def set_wilderness(skill_id, target_id, enabled):
+            calls.append((skill_id, target_id, enabled))
+            updated = set_brawling_wilderness_target_pure(
+                pd, skill_id, target_id, enabled
+            )
+            pd.clear()
+            pd.update(updated)
+            return True
+
+        dialog = self._open(
+            pd,
+            current_skill="Cooking",
+            on_set_brawling_wilderness_target=set_wilderness,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        details = dialog.findChild(QToolButton, "targetDetailsToggle")
+        details.click()
+        QApplication.processEvents()
+
+        self.assertIsNotNone(
+            dialog.findChild(QComboBox, "cookingEquipmentChoice::cook_shark")
+        )
+        charge = dialog.findChild(
+            QLabel, "brawlingGloveState::cooking::cook_shark"
+        )
+        toggle = dialog.findChild(
+            QCheckBox, "brawlingWildernessTargetToggle::cooking::cook_shark"
+        )
+        self.assertIsNotNone(charge)
+        self.assertIn("1,109 actions remaining (of 1,109)", charge.text())
+        self.assertIsNotNone(toggle)
+        self.assertIn("1%", toggle.toolTip())
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            toggle.click()
+            QApplication.processEvents()
+        self.assertEqual(calls[-1], ("cooking", "cook_shark", True))
+        dialog.deleteLater()
+
     def test_flat_target_details_use_the_current_registry_row(self) -> None:
         pd = _make_player_data()
         pd["mining_level"] = 33

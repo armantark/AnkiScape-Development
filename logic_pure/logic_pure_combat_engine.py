@@ -6,6 +6,7 @@ from ..logic.equipment_instance_logic import (
     advance_equipped_condition_pure,
     discharge_equipped_on_unsafe_death_pure,
     sanitize_equipment_instance_state_pure,
+    sync_equipment_instances_pure,
 )
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 
@@ -176,6 +177,7 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_enemy_bonuses,
     _combat_enemy_max_hit_old_hp,
     _combat_enemy_protection_class,
+    _combat_select_enemy_attack_pure,
     _combat_environmental_hazard_spec,
     _combat_equipped_item_count,
     _combat_equipped_weapon_name,
@@ -1509,6 +1511,7 @@ def apply_combat_burst_pure(
     status_expired = []
     unprotected_attacks = 0
     stat_drains = {}
+    enemy_specials = []
     automatic_finishers = 0
     enemy_healing = 0
     vampyre_bites = 0
@@ -1806,6 +1809,115 @@ def apply_combat_burst_pure(
             retaliation_stopped = True
         if tick >= next_enemy_attack and enemy_lp > 0 and not retaliation_stopped:
             next_enemy_attack += enemy_attack_speed
+            attack_spec = _combat_select_enemy_attack_pure(enemy, rng)
+            attack_kind = str(attack_spec.get("kind", "attack"))
+            if attack_kind == "teleport":
+                delay = _non_negative_int(
+                    attack_spec.get("player_delay_ticks", 0), 0
+                )
+                next_player_attack += delay
+                enemy_specials.append({"kind": "teleport", "delay_ticks": delay})
+                break
+            if attack_kind == "unequip":
+                before_equipment = dict(data.get("equipment", {}) or {})
+                slot_order = ("weapon",) + tuple(
+                    sorted(slot for slot in before_equipment if slot != "weapon")
+                )
+                removed_item = ""
+                removed_slot = ""
+                for slot in slot_order:
+                    item_name = before_equipment.get(slot)
+                    if not isinstance(item_name, str) or not item_name:
+                        continue
+                    removed_item = item_name
+                    removed_slot = slot
+                    break
+                if removed_item:
+                    equipment = dict(before_equipment)
+                    equipment.pop(removed_slot, None)
+                    inventory = dict(data.get("inventory", {}) or {})
+                    inventory[removed_item] = int(inventory.get(removed_item, 0) or 0) + 1
+                    carried = dict(data.get("carried_inventory", {}) or {})
+                    carried_view = dict(carried.get(target_id, {}) or {})
+                    carried_view[removed_item] = (
+                        int(carried_view.get(removed_item, 0) or 0) + 1
+                    )
+                    carried[target_id] = carried_view
+                    data["equipment"] = equipment
+                    data["inventory"] = inventory
+                    data["carried_inventory"] = carried
+                    data = sync_equipment_instances_pure(
+                        data, before_equipment, EQUIPMENT_CONDITION_DATA
+                    )
+                enemy_specials.append(
+                    {
+                        "kind": "unequip",
+                        "item": removed_item,
+                        "slot": removed_slot,
+                    }
+                )
+                break
+
+            attack_enemy = enemy
+            selected_style = attack_spec.get("style")
+            if selected_style in {"melee", "ranged", "magic", "magic_melee"}:
+                attack_enemy = dict(enemy)
+                attack_enemy["attack_style"] = selected_style
+                attack_enemy.pop("attack_style_by_player_class", None)
+            enemy_style = _combat_enemy_attack_style(attack_enemy, combat_class)
+            enemy_class = _combat_enemy_attack_class(attack_enemy, combat_class)
+            magic_melee = enemy_style == "magic_melee"
+            enemy_attack_stat = (
+                "attack"
+                if magic_melee
+                else {"magic": "magic", "ranged": "ranged"}.get(
+                    enemy_class, "attack"
+                )
+            )
+            enemy_attack_bonus = (
+                _combat_attack_bonus_from_totals(
+                    enemy_totals, "melee", style_type="stab"
+                )
+                if magic_melee
+                else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
+            )
+            enemy_attack_roll = (
+                _positive_int(
+                    attack_enemy.get("stats", {}).get(enemy_attack_stat, 1), 1
+                )
+                + 8
+            ) * enemy_attack_factor * (enemy_attack_bonus + 64)
+            if weakening_active:
+                enemy_attack_roll *= max(
+                    0.0,
+                    float(
+                        weakening_equipment.get("enemy_accuracy_multiplier", 1.0)
+                    ),
+                )
+            player_defence_roll = (
+                _combat_effective_player_defence_level(data, style_id)
+                * float(prayer_effects.get("defence", 1.0))
+                * (_combat_defence_bonus_from_totals(player_totals, enemy_class) + 64)
+            )
+            enemy_accuracy = _combat_accuracy(
+                enemy_attack_roll, player_defence_roll
+            )
+            enemy_max_hit = _combat_enemy_max_hit_old_hp(
+                attack_enemy,
+                _positive_int(
+                    attack_enemy.get("stats", {}).get("strength", 1), 1
+                )
+                + 8,
+                _equipment_bonus_value(enemy_totals, "melee_strength"),
+                enemy_totals,
+            )
+            if weakening_active:
+                enemy_max_hit *= max(
+                    0.0,
+                    float(
+                        weakening_equipment.get("enemy_damage_multiplier", 1.0)
+                    ),
+                )
             _combat_advance_dragonfire_effects(
                 data, tick - dragonfire_effect_tick
             )
@@ -1970,7 +2082,7 @@ def apply_combat_burst_pure(
                 )
             ):
                 protection_class = _combat_enemy_protection_class(
-                    enemy, combat_class
+                    attack_enemy, combat_class
                 )
                 protection_key = {
                     "magic": "protect_magic",
@@ -2359,6 +2471,7 @@ def apply_combat_burst_pure(
         "status_expired": tuple(dict.fromkeys(status_expired)),
         "unprotected_attacks": unprotected_attacks,
         "stat_drains": dict(stat_drains),
+        "enemy_specials": tuple(enemy_specials),
         "finisher_ready": bool(
             finisher is not None
             and 0

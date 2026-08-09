@@ -392,6 +392,7 @@ from ..logic.livid_farm_logic import (
 from .runtime_actions_shared import (  # noqa: F401  (re-export)
     _COMBAT_EXP_SKILLS,
     _admit_live_cadence,
+    _apply_brawling_actions,
     _apply_farming_queue_result,
     _award_action_xp_rewards,
     _charge_urn_for_action,
@@ -1028,6 +1029,9 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
+    base_exp, _glove_events, _risk_events = _apply_brawling_actions(
+        ctx, "firemaking", target, (base_exp,)
+    )
     _record_action(
         ctx,
         "firemaking",
@@ -1168,6 +1172,9 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         if int(amount) - int(inventory_before.get(item_name, 0) or 0) > 0
     }
     tracked_output_items = output_items if spec.get("byproducts") else None
+    base_exp, _glove_events, _risk_events = _apply_brawling_actions(
+        ctx, "cooking", target, (base_exp,)
+    )
     _record_action(
         ctx,
         "cooking",
@@ -1479,6 +1486,9 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     _charge_urn_for_action(ctx, "smithing", target, spec, base_exp, output_item)
+    base_exp, _glove_events, _risk_events = _apply_brawling_actions(
+        ctx, "smithing", target, (base_exp,)
+    )
     _record_action(
         ctx,
         "smithing",

@@ -157,6 +157,12 @@ from ..core.skill_registry import get_skill
 from ..logic.daily_challenges_logic import credit_daily_challenge_progress_pure
 from ..data.shattered_heart_data import SHATTERED_HEART_ELIGIBLE_SKILLS
 from ..logic.shattered_heart_logic import apply_shattered_heart_skilling_hook_pure
+from ..logic.brawling_gloves_logic import (
+    BRAWLING_WILDERNESS_AMBUSH_CHANCE,
+    apply_brawling_gloves_xp_pure,
+    apply_brawling_wilderness_risk_pure,
+    brawling_wilderness_enabled_pure,
+)
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
     apply_farming_review_with_queue_pure,
@@ -448,6 +454,72 @@ def _combined_success_probability(probabilities: Any) -> float:
             chance = 0.0
         dry_probability *= 1.0 - max(0.0, min(chance, 1.0))
     return max(0.0, min(1.0 - dry_probability, 1.0))
+
+
+def _apply_brawling_actions(
+    ctx: RuntimeActionContext,
+    skill_id: str,
+    target_id: str,
+    base_xp_actions: Any,
+) -> tuple[float, tuple[dict[str, Any], ...], tuple[dict[str, Any], ...]]:
+    """Apply one glove charge and one Wilderness roll per XP action."""
+    total_xp = 0.0
+    glove_events = []
+    risk_events = []
+    wilderness = brawling_wilderness_enabled_pure(
+        ctx.player_data, skill_id, target_id
+    )
+    for raw_xp in base_xp_actions:
+        updated, action_xp, glove_event = apply_brawling_gloves_xp_pure(
+            ctx.player_data, skill_id, target_id, raw_xp
+        )
+        ctx.player_data.clear()
+        ctx.player_data.update(updated)
+        total_xp += action_xp
+        if glove_event.get("applied"):
+            glove_events.append(glove_event)
+        if not wilderness:
+            continue
+        trigger_roll = ctx.random_random()
+        damage_roll = (
+            ctx.random_random()
+            if trigger_roll < BRAWLING_WILDERNESS_AMBUSH_CHANCE
+            else 0.0
+        )
+        updated, risk_event = apply_brawling_wilderness_risk_pure(
+            ctx.player_data,
+            skill_id,
+            target_id,
+            trigger_roll,
+            damage_roll,
+        )
+        ctx.player_data.clear()
+        ctx.player_data.update(updated)
+        if risk_event.get("triggered"):
+            risk_events.append(risk_event)
+        if risk_event.get("died"):
+            ctx.deactivate_current_skill()
+            break
+
+    if glove_events:
+        final = glove_events[-1]
+        status = (
+            f"{final['multiplier']:g}× Brawling gloves · "
+            f"{final['remaining_actions']:,} actions left"
+        )
+        if final.get("disintegrated"):
+            status = f"{final['multiplier']:g}× Brawling gloves · disintegrated"
+        ctx.show_activity_gain(status)
+    if risk_events:
+        final_risk = risk_events[-1]
+        status = f"Wilderness PKer ambush · {final_risk['damage']} LP"
+        food = final_risk.get("food_used")
+        if isinstance(food, dict) and food.get("item"):
+            status += f" · ate {food['item']}"
+        if final_risk.get("died"):
+            status += " · grave created"
+        ctx.show_activity_gain(status)
+    return total_xp, tuple(glove_events), tuple(risk_events)
 
 
 def _record_action(

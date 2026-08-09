@@ -254,6 +254,7 @@ from .logic.cooking_gauntlets_logic import (
     set_cooking_equipment_choice_pure,
 )
 from .data.cooking_gauntlets_data import FAMILY_GAUNTLET_ITEMS
+from .logic.brawling_gloves_logic import set_brawling_wilderness_target_pure
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
 from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
@@ -1844,6 +1845,17 @@ def _on_main_menu(
                     ),
                 )
             return updated, ok
+
+        return commit_direct_action(_change)
+
+    def _set_brawling_wilderness_target(
+        skill_id: str, target_id: str, enabled: bool
+    ) -> bool:
+        def _change(current):
+            updated = set_brawling_wilderness_target_pure(
+                current, skill_id, target_id, enabled
+            )
+            return updated, updated != current
 
         return commit_direct_action(_change)
 
@@ -4283,6 +4295,7 @@ def _on_main_menu(
         on_set_cooking=_set_cooking_target,
         on_set_cooking_equipment_choice=_set_cooking_equipment_choice,
         on_cooking_gauntlets_command=_apply_cooking_gauntlets_command,
+        on_set_brawling_wilderness_target=_set_brawling_wilderness_target,
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
         on_set_thieving=lambda target: _set_value("current_thieving", target),

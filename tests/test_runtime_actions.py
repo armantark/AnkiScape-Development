@@ -5,6 +5,8 @@ from unittest.mock import patch
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
+from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
+from ankiscape.logic.brawling_gloves_logic import brawling_glove_state_pure
 from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
@@ -80,6 +82,37 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_mining_review_applies_one_brawling_charge_and_multiplier(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(
+            {
+                "current_ore": "copper",
+                "mining_level": 99,
+                "mining_exp": 0.0,
+            }
+        )
+        item_name = BRAWLING_GLOVE_DATA["mining"]["item_name"]
+        player_data["equipment"]["hands"] = item_name
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        self.assertTrue(
+            handle_mining_answer(
+                _context(player_data, calls, random_values=(0.0,) * 12)
+            )
+        )
+
+        self.assertEqual(player_data["mining_exp"], 26.25)
+        self.assertEqual(calls["xp"], [26.25])
+        self.assertEqual(
+            brawling_glove_state_pure(player_data, "mining")[
+                "remaining_actions"
+            ],
+            BRAWLING_GLOVE_DATA["mining"]["max_actions"] - 1,
+        )
+        self.assertTrue(
+            any("1.5× Brawling gloves" in text for text in calls["activity"])
+        )
+
     def test_tzhaar_fight_pit_routes_review_and_terminal_state_through_utility(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

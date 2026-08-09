@@ -12,6 +12,10 @@ from ..logic.cooking_gauntlets_logic import (
     default_cooking_gauntlets_state_pure,
     sanitize_cooking_gauntlets_state_pure,
 )
+from ..logic.brawling_gloves_logic import (
+    default_brawling_gloves_state_pure,
+    sanitize_brawling_gloves_state_pure,
+)
 from ..logic.bank_layout_logic import (
     default_bank_layout_state_pure,
     reconcile_bank_layout_for_player_pure,
@@ -343,7 +347,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 114
+CURRENT_CONFIG_VERSION = 115
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -641,6 +645,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
     data.update(default_cooking_gauntlets_state_pure())
+    data.update(default_brawling_gloves_state_pure())
     data["hunter_success_count"] = 0
     data["thieving_attempt_count"] = 0
     data["thieving_success_count"] = 0
@@ -1803,6 +1808,7 @@ def migrate_loaded_data(
     data.setdefault("cooking_success_count", 0)
     data.setdefault("cooking_burn_count", 0)
     data.update(sanitize_cooking_gauntlets_state_pure(data))
+    data.update(sanitize_brawling_gloves_state_pure(data))
     data.setdefault("hunter_success_count", 0)
     data["action_telemetry"] = sanitize_action_telemetry_pure(data.get("action_telemetry"))
     data["stronghold_of_security"] = sanitize_stronghold_state_pure(data.get("stronghold_of_security"))

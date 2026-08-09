@@ -35,6 +35,7 @@ DEFAULT_DIRS = (
     "activityitems",
     "agilityitems",
     "bars",
+    "brawlingitems",
     "combatenemies",
     "combatitems",
     "constructionitems",

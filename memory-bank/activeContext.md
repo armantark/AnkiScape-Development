@@ -4520,3 +4520,30 @@ flees silently when the player runs out of food.
   and no period source gives the drop rate.
 - Evidence:
   `source-audits/skilling-brawling-gloves-source-closure-2026-08-09.md`.
+
+## Chaos Elemental and brawling-gloves runtime closure — 2026-08-09
+
+- The six settled skilling pairs are now obtainable through a period Chaos
+  Elemental encounter and work end to end for Woodcutting, Firemaking, Mining,
+  Smithing, Fishing, and Cooking.
+- Each non-stackable copy has independent charges. Matching XP actions consume
+  one charge and use the sourced 1.5-times outside or 4/5-times Wilderness
+  multiplier; depleted gloves disintegrate.
+- Target Details owns a saved, default-off Wilderness policy. The enabled path
+  reuses target-local carried packs, food, one-percent PKer risk, 250-LP damage,
+  death, grave, training stop, persistence, and undo.
+- Mining's 575-action count, Chaos Elemental's special weights, and each
+  supported glove drop rate are registered placeholders. No wall clock enters
+  gameplay, and no unsupported glove family was invented.
+- Kimi K3 and Fable accepted the compact final UI after two copy improvements.
+  Native Anki loaded the current checkout and showed `Wilderness bosses (1)`
+  with Chaos Elemental art; macOS rejected coordinate activation of the custom
+  Cooking row with `Accessibility error: AXError.notImplemented`, so toggle
+  interaction is verified by real offscreen Qt rather than claimed natively.
+- Verification passes 370 focused plain tests, 2 focused real Qt tests, and
+  both full 3,972-test lanes. Plain has 486 expected skips; real offscreen Qt
+  has 3 intentional skips. Documentation, test quality, compilation, JSON,
+  diff, asset normalization, and worktree safety pass. Reachability keeps its
+  known ledger at 1,537 actions, 2,339 reachable items, 168 orphan inputs, and
+  188 blocked actions. Full evidence is in
+  `source-audits/chaos-elemental-brawling-runtime-closure-2026-08-09.md`.

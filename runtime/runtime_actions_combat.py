@@ -679,6 +679,21 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             left = max(0, int(remaining_food.get(item_name, 0) or 0))
             ctx.show_activity_gain(f"Ate {amount} × {item_name} · {left} left")
 
+    for special in result.get("enemy_specials", ()) or ():
+        if not isinstance(special, dict):
+            continue
+        if special.get("kind") == "teleport":
+            ctx.show_activity_gain(
+                "Chaos Elemental teleported you · next attack delayed"
+            )
+        elif special.get("kind") == "unequip":
+            item_name = str(special.get("item") or "")
+            ctx.show_activity_gain(
+                f"Chaos Elemental removed {item_name}"
+                if item_name
+                else "Chaos Elemental tried to remove your equipment"
+            )
+
     display_name = str(result.get("display_name") or "enemy")
     kills = int(result.get("kills", 0) or 0)
     kill_phrase = f"{kills} × {display_name}" if kills != 1 else display_name

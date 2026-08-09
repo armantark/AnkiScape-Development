@@ -97,6 +97,7 @@ TITLE_OVERRIDES = {
     "dagannoth_level_92": ("Dagannoth melee.png",),
     "elf_warrior": ("Elf warrior (Iorwerth ranger) (2010).png",),
     "elf_warrior_level_108": ("Elf warrior (Iorwerth warrior) (2010).png",),
+    "chaos_elemental": ("Chaos Elemental.png",),
 }
 
 POST_MIGRATION_HISTORICAL_TARGETS = frozenset(

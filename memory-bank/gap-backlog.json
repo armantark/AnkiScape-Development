@@ -1042,11 +1042,11 @@
       "rank": 39,
       "skill": "Cross-skill",
       "root_cause": "stub",
-      "status": "design_settled_waiting_source",
+      "status": "merged",
       "title": "Define skilling brawling-gloves charges and location bonuses",
       "detail": "game-main live-binds charged, location-sensitive XP multipliers for Mining, Smithing, Woodcutting, Fishing, Cooking, and Firemaking, with per-skill charge caps and glove disintegration. AnkiScape has no faithful Wilderness/location semantics or skilling equipment-charge lifecycle. Owner must define location mapping, acquisition/equipment behavior, charge persistence, multiplier application, UI, and undo without expanding Combat or Prayer. Treat this as one shared runtime design to avoid redundant per-skill implementations.",
       "source": "game-main:content/items/armor/BrawlingGloves.kt:6-21; plugins/api/ext/PlayerExt.kt:1877-1913; live skill call sites",
-      "note": "source harvest closed 2026-08-09: cutoff pages and rev-727/742 pin all six identities, 1.5x outside, 4x Wilderness except 5x Fishing/Firemaking, and five period action limits. Mining needs a registered review-action abstraction because its period row is time-based; glove drop rates remain source_blocked, and no Revenant or Chaos Elemental encounter makes the items obtainable. See memory-bank/source-audits/skilling-brawling-gloves-source-closure-2026-08-09.md",
+      "note": "implemented 2026-08-09 through the Chaos Elemental acquisition route: six physical per-copy charged gloves, saved target-local Wilderness policy, sourced multipliers and five action limits, registered 575-action Mining abstraction, shared carried-pack/food/death/grave risk, persistence, undo, UI, normalized assets, and full verification. Chaos special weights and each supported glove drop rate remain registered placeholders. See memory-bank/source-audits/chaos-elemental-brawling-runtime-closure-2026-08-09.md",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#cross-skill-brawling-gloves-and-wilderness-variants",
       "decision_summary": {
         "wilderness_control": "Every source-supported skilling target gets a saved Train in Wilderness checkbox; checked means the action uses the Wilderness variant without creating a map or persistent location.",

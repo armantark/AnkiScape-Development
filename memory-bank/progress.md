@@ -5625,3 +5625,20 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   visual proof remains blocked by the locked Mac.
 - Evidence:
   `source-audits/cooking-gauntlets-runtime-closure-2026-08-09.md`.
+
+## Chaos Elemental and brawling-gloves runtime closure — 2026-08-09
+
+- Added an obtainable Chaos Elemental encounter with three combat styles,
+  teleport delay, equipment removal into the carried pack, and six supported
+  brawling-glove drops.
+- Added physical per-copy charged equipment and sourced XP multipliers for
+  Woodcutting, Firemaking, Mining, Smithing, Fishing, and Cooking.
+- Added saved target-local Wilderness training with shared PKer risk, food,
+  death, grave, persistence, UI, assets, and undo.
+- Registered the three unrecovered period values in code and
+  `placeholder-values.md`; no wall-clock gameplay or unsupported glove family
+  was added.
+- Kimi K3 and Fable accepted the final UI. Native Anki rendered the new Combat
+  group and Chaos Elemental art. Both full test lanes pass 3,972 tests.
+- Evidence:
+  `source-audits/chaos-elemental-brawling-runtime-closure-2026-08-09.md`.

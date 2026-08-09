@@ -278,6 +278,10 @@ from ..data.combat_data import (
 from ..data.crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
 from ..data.equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
 from ..data.cooking_gauntlets_data import cooking_gauntlets_equipment_data_as_dict
+from ..data.brawling_gloves_data import (
+    brawling_gloves_equipment_data_as_dict,
+    brawling_gloves_extra_items_as_dict,
+)
 from ..data.flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_ACTIVITY_ID,
     flash_powder_factory_activity_as_dict,
@@ -485,6 +489,7 @@ HERBLORE_ITEMS_FOLDER = os.path.join(current_dir, "herbloreitems")
 QUEST_ITEMS_FOLDER = os.path.join(current_dir, "questitems")
 COMBAT_ITEMS_FOLDER = os.path.join(current_dir, "combatitems")
 COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
+BRAWLING_ITEMS_FOLDER = os.path.join(current_dir, "brawlingitems")
 SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
 PRAYER_ITEMS_FOLDER = os.path.join(current_dir, "prayeritems")
 MAGIC_ITEMS_FOLDER = os.path.join(current_dir, "magicitems")
@@ -1718,6 +1723,7 @@ EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_DATA.update(great_orb_project_equipment_data_as_dict())
 EQUIPMENT_DATA.update(runecrafting_equipment_data_as_dict())
 EQUIPMENT_DATA.update(cooking_gauntlets_equipment_data_as_dict())
+EQUIPMENT_DATA.update(brawling_gloves_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
@@ -1736,6 +1742,12 @@ EQUIPMENT_DATA.update(milestone_cape_equipment_data_as_dict())
 EQUIPMENT_DATA.update(cape_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
+BRAWLING_GLOVES_EXTRA_ITEM_DATA = brawling_gloves_extra_items_as_dict()
+BRAWLING_GLOVE_ITEM_IMAGES = {}
+for _item_name in BRAWLING_GLOVES_EXTRA_ITEM_DATA:
+    _path = os.path.join(BRAWLING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        BRAWLING_GLOVE_ITEM_IMAGES[_item_name] = _path
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
 CIRCUS_EXTRA_ITEM_DATA = circus_extra_items_as_dict()
 TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
@@ -2494,6 +2506,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **HERBLORE_EXTRA_ITEM_DATA,
     **PRAYER_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
+    **BRAWLING_GLOVES_EXTRA_ITEM_DATA,
     **FIST_OF_GUTHIX_EXTRA_ITEM_DATA,
     **COURT_CASES_EXTRA_ITEM_DATA,
     **CIRCUS_EXTRA_ITEM_DATA,
@@ -2556,6 +2569,7 @@ EXTRA_ITEM_IMAGES = {
     **UTILITY_ITEM_IMAGES,
     **QUEST_ITEM_IMAGES,
     **COMBAT_ITEM_IMAGES,
+    **BRAWLING_GLOVE_ITEM_IMAGES,
     **COURT_CASES_ITEM_IMAGES,
     **CIRCUS_ITEM_IMAGES,
     **TROUBLE_BREWING_ITEM_IMAGES,

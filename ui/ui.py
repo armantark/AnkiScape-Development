@@ -623,6 +623,11 @@ from ..logic.cooking_gauntlets_logic import (
     family_gauntlet_conversion_state_pure,
     family_gauntlet_recovery_state_pure,
 )
+from ..data.brawling_gloves_data import BRAWLING_GLOVE_DATA
+from ..logic.brawling_gloves_logic import (
+    brawling_glove_state_pure,
+    brawling_wilderness_enabled_pure,
+)
 from ..logic_pure.logic_pure import crafting_target_locked_reasons_pure
 from ..logic.review_strip_logic import (
     REVIEW_BANK_RUN_LABEL,
@@ -4577,6 +4582,7 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_cooking_equipment_choice=None,
     on_cooking_gauntlets_command=None,
+    on_set_brawling_wilderness_target=None,
     on_set_runecrafting=None,
     on_set_herblore=None,
     on_set_thieving=None,
@@ -22372,6 +22378,7 @@ def show_main_menu(
             details_body.setText("\n".join(details.lines))
             _clear_layout(details_options_layout)
             skill_id = state["skill"].casefold()
+            has_options = False
             if skill_id in {"crafting", "fletching"}:
                 potion_toggle = QCheckBox(
                     f"Use {state['skill']} potion (+3) when needed"
@@ -22416,9 +22423,8 @@ def show_main_menu(
 
                 potion_toggle.toggled.connect(_set_potion_policy)
                 details_options_layout.addWidget(potion_toggle)
-                details_options.setVisible(True)
-            elif skill_id == "cooking":
-                has_options = False
+                has_options = True
+            if skill_id == "cooking":
                 cooking_spec = COOKING_DATA.get(row.target_id, {})
                 if cooking_spec.get("cooking_gauntlet_no_burn_level"):
                     equipment_row = QWidget()
@@ -22512,9 +22518,81 @@ def show_main_menu(
                     recover_button.clicked.connect(_recover_gauntlets)
                     details_options_layout.addWidget(recover_button)
                     has_options = True
-                details_options.setVisible(has_options)
-            else:
-                details_options.setVisible(False)
+            if skill_id in BRAWLING_GLOVE_DATA:
+                glove_spec = BRAWLING_GLOVE_DATA[skill_id]
+                glove_state = brawling_glove_state_pure(player_data, skill_id)
+                charge_label = QLabel()
+                charge_label.setObjectName(
+                    f"brawlingGloveState::{skill_id}::{row.target_id}"
+                )
+                charge_label.setWordWrap(True)
+                if glove_state.get("active"):
+                    charge_label.setText(
+                        f"{glove_spec['item_name']}: "
+                        f"{int(glove_state['remaining_actions']):,} actions "
+                        f"remaining (of {int(glove_state['max_actions']):,})"
+                    )
+                else:
+                    charge_label.setText(
+                        f"{glove_spec['item_name']}: not equipped"
+                    )
+                details_options_layout.addWidget(charge_label)
+
+                wilderness_toggle = QCheckBox("Train in Wilderness")
+                wilderness_toggle.setObjectName(
+                    f"brawlingWildernessTargetToggle::{skill_id}::{row.target_id}"
+                )
+                wilderness_toggle.setChecked(
+                    brawling_wilderness_enabled_pure(
+                        player_data, skill_id, row.target_id
+                    )
+                )
+                wilderness_toggle.setEnabled(
+                    on_set_brawling_wilderness_target is not None
+                )
+                wilderness_toggle.setToolTip(
+                    "Uses this target's carried pack and rolls the shared 1% "
+                    "Wilderness PKer risk after every XP action. Matching "
+                    f"gloves grant {glove_spec['wilderness_multiplier']:g}× XP "
+                    f"instead of {glove_spec['outside_multiplier']:g}×."
+                )
+
+                def _set_wilderness_policy(enabled: bool) -> None:
+                    if enabled:
+                        answer = QMessageBox.question(
+                            details_options,
+                            "Train in Wilderness?",
+                            f"Matching {glove_spec['item_name']} grant "
+                            f"{glove_spec['wilderness_multiplier']:g}× XP in "
+                            "the Wilderness. This target will use its carried "
+                            "pack and roll a "
+                            "1% PKer ambush after every XP action. Ambushes can "
+                            "hit up to 250 LP and death moves risked items to a "
+                            "grave. Continue?",
+                            QMessageBox.StandardButton.Yes
+                            | QMessageBox.StandardButton.No,
+                            QMessageBox.StandardButton.No,
+                        )
+                        if answer != QMessageBox.StandardButton.Yes:
+                            wilderness_toggle.blockSignals(True)
+                            wilderness_toggle.setChecked(False)
+                            wilderness_toggle.blockSignals(False)
+                            return
+                    accepted = on_set_brawling_wilderness_target(
+                        skill_id, row.target_id, bool(enabled)
+                    )
+                    if accepted is False:
+                        wilderness_toggle.blockSignals(True)
+                        wilderness_toggle.setChecked(not enabled)
+                        wilderness_toggle.blockSignals(False)
+                        return
+                    state["details_open"] = True
+                    _render_panel()
+
+                wilderness_toggle.toggled.connect(_set_wilderness_policy)
+                details_options_layout.addWidget(wilderness_toggle)
+                has_options = True
+            details_options.setVisible(has_options)
             details_toggle.setToolTip(
                 "Show the selected target's current mechanics."
                 if details.enabled
@@ -27020,6 +27098,19 @@ def show_main_menu(
                 tooltip = equipment_full_tooltip(item_name)
                 if item_name == BINDING_NECKLACE_ITEM:
                     tooltip += f"\nCharges remaining: {binding_necklace_charges_pure(player_data)}"
+                for skill_id, glove_spec in BRAWLING_GLOVE_DATA.items():
+                    if glove_spec["item_name"] != item_name:
+                        continue
+                    glove_state = brawling_glove_state_pure(
+                        player_data, skill_id
+                    )
+                    if glove_state.get("active"):
+                        tooltip += (
+                            "\nActions remaining: "
+                            f"{int(glove_state['remaining_actions']):,}/"
+                            f"{int(glove_state['max_actions']):,}"
+                        )
+                    break
                 li.setToolTip(tooltip)
                 li.setData(Qt.ItemDataRole.UserRole, slot_id)
                 li.setData(Qt.ItemDataRole.UserRole + 1, item_name)

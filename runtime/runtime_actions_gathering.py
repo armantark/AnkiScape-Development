@@ -393,6 +393,7 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
     _admit_live_cadence,
     _apply_farming_queue_result,
     _award_action_xp_rewards,
+    _apply_brawling_actions,
     _charge_urn_for_action,
     _combat_review_ticks,
     _combined_success_probability,
@@ -529,6 +530,15 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
 
     player_data["inventory"] = new_inv
     _charge_urn_for_action(ctx, "fishing", target, spec, base_exp, _output_item)
+    base_exp, _glove_events, _risk_events = _apply_brawling_actions(
+        ctx, "fishing", target, (base_exp,)
+    )
+    xp_rewards = tuple(
+        {**reward, "amount": base_exp}
+        if str(reward.get("skill_id", "")) == "fishing"
+        else reward
+        for reward in xp_rewards
+    )
     _record_action(
         ctx,
         "fishing",
@@ -857,6 +867,12 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             achievement_outputs[source_output] = (
                 achievement_outputs.get(source_output, 0) + incinerated_count
             )
+        total_base_exp, _glove_events, _risk_events = _apply_brawling_actions(
+            ctx,
+            "woodcutting",
+            tree,
+            tuple(action_exp for _output, _nest, action_exp in action_outputs),
+        )
         _record_action(
             ctx,
             "woodcutting",
@@ -988,6 +1004,9 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
             player_data["red_sandstone_daily"] = daily_state
         player_data["inventory"] = new_inv
         _charge_urn_for_action(ctx, "mining", ore, ore_spec, base_exp, output_item)
+        base_exp, _glove_events, _risk_events = _apply_brawling_actions(
+            ctx, "mining", ore, (base_exp,)
+        )
         output_items: dict[str, int] = {}
         primary_outputs: dict[str, int] = {}
         for item_name in (output_item, extra_output, ore_bonus_output):

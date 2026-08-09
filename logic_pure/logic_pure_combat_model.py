@@ -1634,6 +1634,30 @@ def _combat_enemy_protection_class(enemy, player_combat_class=None):
     return _combat_enemy_attack_class(enemy, player_combat_class)
 
 
+def _combat_select_enemy_attack_pure(enemy, rng):
+    """Select one generic weighted enemy attack row, or its ordinary attack."""
+    table = enemy.get("attack_table") if isinstance(enemy, Mapping) else None
+    if not isinstance(table, (list, tuple)):
+        return {"kind": "attack"}
+    rows = [
+        dict(row)
+        for row in table
+        if isinstance(row, Mapping) and _positive_int(row.get("weight", 0), 0) > 0
+    ]
+    total = sum(_positive_int(row.get("weight", 0), 0) for row in rows)
+    if not rows or total <= 0:
+        return {"kind": "attack"}
+    try:
+        cursor = max(0.0, min(float(rng()), 0.999999999999)) * total
+    except (TypeError, ValueError, OverflowError):
+        cursor = 0.0
+    for row in rows:
+        cursor -= _positive_int(row.get("weight", 0), 0)
+        if cursor < 0:
+            return row
+    return rows[-1]
+
+
 def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus, enemy_totals=None):
     configured_lp_hit = _positive_int(enemy.get("max_hit", 0), 0) if isinstance(enemy, Mapping) else 0
     if configured_lp_hit > 0:

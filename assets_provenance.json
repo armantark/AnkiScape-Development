@@ -5318,6 +5318,78 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T05:44:47Z"
   },
+  "brawlingitems/brawling_gloves_cooking.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brawling_gloves_%28Cooking%29.png",
+    "file_title": "Brawling gloves (Cooking).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174326%21Brawling_gloves_%28Cooking%29.png?a21c3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d2d176f1947f3d683220debf8b77230abb9ad561",
+    "size": 267,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-24T05:06:43Z"
+  },
+  "brawlingitems/brawling_gloves_fishing.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brawling_gloves_%28Fishing%29.png",
+    "file_title": "Brawling gloves (Fishing).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174419%21Brawling_gloves_%28Fishing%29.png?2b220",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3b3b1bcae3ef5f1f2a1a7c3aed27d08361fd3d12",
+    "size": 344,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-24T05:08:00Z"
+  },
+  "brawlingitems/brawling_gloves_fm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brawling_gloves_%28Firemaking%29.png",
+    "file_title": "Brawling gloves (Firemaking).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174410%21Brawling_gloves_%28Firemaking%29.png?1ef00",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "253ecf424cb2ae6d5a1176e6a8bb9cfe01c23ad0",
+    "size": 321,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-24T05:07:09Z"
+  },
+  "brawlingitems/brawling_gloves_mining.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brawling_gloves_%28Mining%29.png",
+    "file_title": "Brawling gloves (Mining).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174303%21Brawling_gloves_%28Mining%29.png?c4bb9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f7a838d3bf2c729e0f14da86693e7f9d09fe4ba5",
+    "size": 268,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-24T05:08:51Z"
+  },
+  "brawlingitems/brawling_gloves_smithing.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brawling_gloves_%28Smithing%29.png",
+    "file_title": "Brawling gloves (Smithing).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174328%21Brawling_gloves_%28Smithing%29.png?b9ad0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d6c70831e468846bb41597e92c4492be0c80d29c",
+    "size": 255,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-24T05:09:54Z"
+  },
+  "brawlingitems/brawling_gloves_wc.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Brawling_gloves_%28Woodcutting%29.png",
+    "file_title": "Brawling gloves (Woodcutting).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502175320%21Brawling_gloves_%28Woodcutting%29.png?36202",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b8770be7a2a18bc404317d44c6d954667e1d2a84",
+    "size": 330,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-24T05:11:00Z"
+  },
   "combatenemies/aberrant_spectre.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Aberrant_spectre.png",
     "file_title": "Aberrant spectre.png",
@@ -5581,6 +5653,18 @@
     "size": 28765,
     "source_wiki": "osrs",
     "timestamp": "2019-01-29T06:25:54Z"
+  },
+  "combatenemies/chaos_elemental.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chaos_Elemental.png",
+    "file_title": "Chaos Elemental.png",
+    "image_url": "https://runescape.wiki/images/archive/20130414185053%21Chaos_Elemental.png?3c51d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fc887ba70662c2715005cd20c39a2538376d1a1c",
+    "size": 303056,
+    "source_wiki": "rs3",
+    "timestamp": "2012-06-05T20:12:51Z"
   },
   "combatenemies/chicken.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Chicken.png",
