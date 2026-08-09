@@ -40,7 +40,7 @@ from ankiscape.logic.mage_training_arena_logic import (
     sanitize_mage_training_arena_state_pure,
     set_mage_training_arena_policy_pure,
 )
-from ankiscape.logic_pure.logic_pure import equip_item_pure
+from ankiscape.logic_pure.logic_pure import can_equip_item_pure, equip_item_pure
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
 
 
@@ -50,6 +50,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def _player(level: int = 99):
     data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
     data["magic_level"] = level
+    data["defense_level"] = level
     data["constitution_level"] = level
     data["combat_lifepoints"] = max(100, level * 10)
     for item in (
@@ -182,6 +183,12 @@ class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
             "Apprentice wand",
             "Teacher wand",
             "Master wand",
+            "Mages' book",
+            "Infinity gloves",
+            "Infinity hat",
+            "Infinity top",
+            "Infinity bottoms",
+            "Infinity boots",
         ):
             self.assertIn(item, EXTRA_ITEM_DATA)
             self.assertIn(item, EQUIPMENT_DATA)
@@ -190,6 +197,16 @@ class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
             self.assertTrue(Path(EXTRA_ITEM_IMAGES[wand]).is_file())
         self.assertEqual(EQUIPMENT_DATA["Master wand"].bonuses.attack_magic, 20)
         self.assertEqual(EQUIPMENT_DATA["Master wand"].bonuses.magic_damage, 10)
+        self.assertEqual(EQUIPMENT_DATA["Mages' book"].source_item_id, 6889)
+        self.assertEqual(EQUIPMENT_DATA["Mages' book"].slot, "shield")
+        self.assertEqual(EQUIPMENT_DATA["Mages' book"].bonuses.attack_magic, 15)
+        self.assertEqual(EQUIPMENT_DATA["Mages' book"].bonuses.defence_magic, 15)
+        self.assertEqual(
+            EQUIPMENT_DATA["Infinity top"].skill_requirements,
+            (("defense", 50), ("magic", 25)),
+        )
+        self.assertEqual(EQUIPMENT_DATA["Infinity top"].bonuses.attack_magic, 22)
+        self.assertEqual(EQUIPMENT_DATA["Infinity top"].bonuses.defence_magic, 22)
 
         provenance = json.loads((ROOT / "assets_provenance.json").read_text(encoding="utf-8"))
         row = provenance["activityicons/mage_training_arena.png"]
@@ -198,20 +215,75 @@ class MageTrainingArenaDataAndEntryTests(unittest.TestCase):
         for wand in ("beginner", "apprentice", "teacher", "master"):
             asset = provenance[f"activityitems/mage_training_arena_{wand}_wand.png"]
             self.assertLess(asset["timestamp"], "2012-11-20T00:00:00Z")
+        for item in (
+            "Mages' book",
+            "Infinity gloves",
+            "Infinity hat",
+            "Infinity top",
+            "Infinity bottoms",
+            "Infinity boots",
+        ):
+            self.assertTrue(Path(EXTRA_ITEM_IMAGES[item]).is_file())
+            slug = item.lower().replace(" ", "_").replace("'", "")
+            asset = provenance[f"activityitems/mage_training_arena_{slug}.png"]
+            self.assertLess(asset["timestamp"], "2012-11-20T00:00:00Z")
 
     def test_reward_prices_match_the_pinned_period_shop_table(self):
         self.assertEqual(
             {reward.id: reward.costs for reward in MAGE_TRAINING_ARENA_REWARDS},
             {
+                "infinity_gloves": (175, 225, 1_500, 175),
+                "infinity_hat": (350, 400, 3_000, 350),
+                "infinity_top": (400, 450, 4_000, 400),
+                "infinity_bottoms": (450, 500, 5_000, 450),
+                "infinity_boots": (120, 120, 1_200, 120),
                 "battlestaff": (1, 2, 20, 2),
                 "beginner_wand": (30, 30, 300, 30),
                 "apprentice_wand": (60, 60, 600, 60),
                 "teacher_wand": (150, 200, 1_500, 150),
                 "master_wand": (240, 240, 2_400, 240),
+                "mages_book": (500, 550, 6_000, 500),
                 "bones_to_peaches": (200, 300, 2_000, 200),
+                "mist_rune": (1, 1, 15, 1),
+                "dust_rune": (1, 1, 15, 1),
+                "mud_rune": (1, 1, 15, 1),
+                "smoke_rune": (1, 1, 15, 1),
+                "steam_rune": (1, 1, 15, 1),
+                "lava_rune": (1, 1, 15, 1),
                 "cosmic_rune": (0, 0, 5, 0),
+                "chaos_rune": (0, 1, 5, 1),
+                "nature_rune": (0, 1, 0, 1),
+                "death_rune": (2, 1, 20, 1),
+                "law_rune": (2, 0, 0, 0),
+                "soul_rune": (2, 2, 25, 2),
+                "blood_rune": (2, 2, 25, 2),
             },
         )
+        definitions = {item.storage_key for item in ITEM_DEFINITIONS}
+        self.assertTrue(
+            all(
+                not reward.output_item or reward.output_item in definitions
+                for reward in MAGE_TRAINING_ARENA_REWARDS
+            )
+        )
+
+    def test_cutoff_magic_equipment_requirements_use_the_shared_gate(self):
+        player = _player()
+        player["defense_level"] = 49
+        player["magic_level"] = 99
+        allowed, reason = can_equip_item_pure("Infinity top", EQUIPMENT_DATA, player)
+        self.assertFalse(allowed)
+        self.assertEqual(reason, "Requires level 50 Defense")
+
+        player["defense_level"] = 50
+        player["magic_level"] = 59
+        allowed, reason = can_equip_item_pure("Mages' book", EQUIPMENT_DATA, player)
+        self.assertFalse(allowed)
+        self.assertEqual(reason, "Requires level 60 Magic")
+
+        player["magic_level"] = 60
+        allowed, reason = can_equip_item_pure("Mages' book", EQUIPMENT_DATA, player)
+        self.assertTrue(allowed, reason)
 
     def test_cadence_coverage_names_all_four_activity_owned_room_profiles(self):
         row = next(
@@ -381,13 +453,38 @@ class MageTrainingArenaRoomMechanicsTests(unittest.TestCase):
 
 
 class MageTrainingArenaRewardAndPolicyTests(unittest.TestCase):
-    def test_every_breadth_reward_is_earned_through_play_and_wearables_equip(self):
-        observed = {}
-        observed_reviews = {}
+    def test_every_cutoff_reward_purchases_atomically_and_wearables_equip(self):
         for reward in MAGE_TRAINING_ARENA_REWARDS:
             with self.subTest(reward=reward.id):
                 data = _player()
-                bought = _buy_reward_through_play(data, reward.id, observed_reviews)
+                data["mage_training_arena"]["wallets"] = reward.cost_map()
+                if reward.required_item:
+                    data["inventory"][reward.required_item] = 1
+                before_output = (
+                    data["inventory"].get(reward.output_item, 0)
+                    if reward.output_item
+                    else 0
+                )
+                bought, ok, info = purchase_mage_training_arena_reward_pure(
+                    data,
+                    reward.id,
+                )
+                self.assertTrue(ok, info)
+                self.assertEqual(
+                    bought["mage_training_arena"]["wallets"],
+                    {room_id: 0 for room_id in MAGE_TRAINING_ARENA_ROOM_IDS},
+                )
+                self.assertEqual(
+                    bought["mage_training_arena"]["purchases"][reward.id],
+                    1,
+                )
+                if reward.required_item:
+                    self.assertEqual(bought["inventory"][reward.required_item], 0)
+                if reward.output_item:
+                    self.assertEqual(
+                        bought["inventory"][reward.output_item],
+                        before_output + reward.output_count,
+                    )
                 if reward.unlock:
                     self.assertTrue(bought["mage_training_arena"]["completed"])
                 if reward.output_item in EQUIPMENT_DATA:
@@ -406,10 +503,16 @@ class MageTrainingArenaRewardAndPolicyTests(unittest.TestCase):
                         inventory[reward.output_item],
                         bought["inventory"][reward.output_item] - 1,
                     )
-                observed[reward.id] = bought["mage_training_arena"]["purchases"][
-                    reward.id
-                ]
-        self.assertEqual(observed, {reward.id: 1 for reward in MAGE_TRAINING_ARENA_REWARDS})
+
+    def test_battlestaff_price_is_earned_through_all_four_rooms(self):
+        observed_reviews = {}
+        bought = _buy_reward_through_play(
+            _player(),
+            "battlestaff",
+            observed_reviews,
+        )
+        self.assertEqual(bought["mage_training_arena"]["purchases"]["battlestaff"], 1)
+        self.assertEqual(bought["inventory"]["Battlestaff"], 1)
         self.assertEqual(set(observed_reviews), set(MAGE_TRAINING_ARENA_ROOM_IDS))
         self.assertTrue(all(count > 0 for count in observed_reviews.values()))
 

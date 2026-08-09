@@ -19,6 +19,13 @@ and the Alchemist casts/free-cast averages registered in
 explicit design-thread fork `3.12`; exhaustive reward rows remain the requested
 later catalog pass.
 
+Catalog update `2026-08-08`: the later pass is complete. All 25 cutoff reward
+rows, exact four-wallet prices, canonical outputs, Infinity/Mages' book
+equipment identities, shared requirements, and normalized source sprites are
+live. See `mage-training-arena-reward-catalog-2026-08-08.md`. This supersedes
+only the representative-shop deferral; the hidden room-rate and roll status in
+this audit is unchanged.
+
 ## Authority and scope
 
 The owner-settled behavior remains

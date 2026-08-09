@@ -88,3 +88,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
      one-point and 33 two-point cutoff location/disguise pairs.
    - [x] Complete Managing Miscellania's six cutoff resource families and keep
      unrecovered server selectors explicit in the placeholder register.
+   - [x] Complete Mage Training Arena's 25-row cutoff reward catalog, canonical
+     outputs, Infinity/Mages' book equipment rows, and normalized source art.

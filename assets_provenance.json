@@ -2207,6 +2207,78 @@
     "source_wiki": "rs3",
     "timestamp": "2011-07-22T22:53:40Z"
   },
+  "activityitems/mage_training_arena_infinity_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_boots.png",
+    "file_title": "Infinity boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044610%21Infinity_boots.png?15c15",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "332944b569334adf402474efd24276e1963afeaf",
+    "size": 1516,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-07T02:27:43Z"
+  },
+  "activityitems/mage_training_arena_infinity_bottoms.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_bottoms.png",
+    "file_title": "Infinity bottoms.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044612%21Infinity_bottoms.png?96cc6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "609a0f404a24d90e69bffcd617c07e834a317d6f",
+    "size": 1512,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-19T21:32:48Z"
+  },
+  "activityitems/mage_training_arena_infinity_gloves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_gloves.png",
+    "file_title": "Infinity gloves.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044639%21Infinity_gloves.png?513ca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c22942434008b802192a74c818b1d08132b6f71c",
+    "size": 648,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-08T13:24:25Z"
+  },
+  "activityitems/mage_training_arena_infinity_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_hat.png",
+    "file_title": "Infinity hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044642%21Infinity_hat.png?8be83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3945e963de05b129d378e1777e8aef37c05fbb3b",
+    "size": 1567,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-25T01:12:22Z"
+  },
+  "activityitems/mage_training_arena_infinity_top.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Infinity_top.png",
+    "file_title": "Infinity top.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502044651%21Infinity_top.png?e4324",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e312cd1cea5ed93e98e99e4315ca4702c6b008d6",
+    "size": 1767,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-25T01:12:23Z"
+  },
+  "activityitems/mage_training_arena_mages_book.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mages%27_book.png",
+    "file_title": "Mages' book.png",
+    "image_url": "https://runescape.wiki/images/archive/20140907094846%21Mages%27_book.png?7a601",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3a0c087fb61dfc55b32170f612bc0a5e6f64e8ad",
+    "size": 867,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-10T00:59:43Z"
+  },
   "activityitems/mage_training_arena_master_wand.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Master_wand.png",
     "file_title": "Master wand.png",

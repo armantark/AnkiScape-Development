@@ -1,4 +1,4 @@
-"""Period-pinned Mage Training Arena rooms and representative reward shop."""
+"""Period-pinned Mage Training Arena rooms and reward shop."""
 
 from __future__ import annotations
 
@@ -63,10 +63,32 @@ class MageTrainingArenaReward:
         return dict(zip(MAGE_TRAINING_ARENA_ROOM_IDS, self.costs))
 
 
-# Breadth-one keeps the rows that exercise ordinary items, the complete wand
-# upgrade chain, a spell unlock, and a repeatable rune purchase. The exact
-# four-column prices are from oldid 6491109.
+# Exact source order and four-column prices from oldid 6491109.
 MAGE_TRAINING_ARENA_REWARDS = (
+    MageTrainingArenaReward(
+        "infinity_gloves",
+        "Infinity gloves",
+        (175, 225, 1_500, 175),
+        "Infinity gloves",
+    ),
+    MageTrainingArenaReward(
+        "infinity_hat", "Infinity hat", (350, 400, 3_000, 350), "Infinity hat"
+    ),
+    MageTrainingArenaReward(
+        "infinity_top", "Infinity top", (400, 450, 4_000, 400), "Infinity top"
+    ),
+    MageTrainingArenaReward(
+        "infinity_bottoms",
+        "Infinity bottoms",
+        (450, 500, 5_000, 450),
+        "Infinity bottoms",
+    ),
+    MageTrainingArenaReward(
+        "infinity_boots",
+        "Infinity boots",
+        (120, 120, 1_200, 120),
+        "Infinity boots",
+    ),
     MageTrainingArenaReward("battlestaff", "Battlestaff", (1, 2, 20, 2), "Battlestaff"),
     MageTrainingArenaReward("beginner_wand", "Beginner wand", (30, 30, 300, 30), "Beginner wand"),
     MageTrainingArenaReward(
@@ -91,12 +113,27 @@ MAGE_TRAINING_ARENA_REWARDS = (
         required_item="Teacher wand",
     ),
     MageTrainingArenaReward(
+        "mages_book", "Mages' book", (500, 550, 6_000, 500), "Mages' book"
+    ),
+    MageTrainingArenaReward(
         "bones_to_peaches",
         "Bones to Peaches",
         (200, 300, 2_000, 200),
         unlock="bones_to_peaches",
     ),
+    MageTrainingArenaReward("mist_rune", "Mist rune", (1, 1, 15, 1), "Mist rune"),
+    MageTrainingArenaReward("dust_rune", "Dust rune", (1, 1, 15, 1), "Dust rune"),
+    MageTrainingArenaReward("mud_rune", "Mud rune", (1, 1, 15, 1), "Mud rune"),
+    MageTrainingArenaReward("smoke_rune", "Smoke rune", (1, 1, 15, 1), "Smoke rune"),
+    MageTrainingArenaReward("steam_rune", "Steam rune", (1, 1, 15, 1), "Steam rune"),
+    MageTrainingArenaReward("lava_rune", "Lava rune", (1, 1, 15, 1), "Lava rune"),
     MageTrainingArenaReward("cosmic_rune", "Cosmic rune", (0, 0, 5, 0), "Cosmic rune"),
+    MageTrainingArenaReward("chaos_rune", "Chaos rune", (0, 1, 5, 1), "Chaos rune"),
+    MageTrainingArenaReward("nature_rune", "Nature rune", (0, 1, 0, 1), "Nature rune"),
+    MageTrainingArenaReward("death_rune", "Death rune", (2, 1, 20, 1), "Death rune"),
+    MageTrainingArenaReward("law_rune", "Law rune", (2, 0, 0, 0), "Law rune"),
+    MageTrainingArenaReward("soul_rune", "Soul rune", (2, 2, 25, 2), "Soul rune"),
+    MageTrainingArenaReward("blood_rune", "Blood rune", (2, 2, 25, 2), "Blood rune"),
 )
 MAGE_TRAINING_ARENA_REWARDS_BY_ID = {
     reward.id: reward for reward in MAGE_TRAINING_ARENA_REWARDS
@@ -136,11 +173,67 @@ MAGE_TRAINING_ARENA_ALCHEMY_CASTS_PER_POINT = 5  # PLACEHOLDER(mage_training_are
 MAGE_TRAINING_ARENA_ALCHEMY_NATURE_RUNES_PER_POINT = 3  # PLACEHOLDER(mage_training_arena.free_alchemy_frequency): authentic free-cast frequency within one 100-coin deposit
 
 _MAGE_TRAINING_ARENA_EQUIPMENT_ROWS = (
-    ("Progress hat", 6885, "head", 1, 0, 0),
-    ("Beginner wand", 6908, "weapon", 45, 5, 0),
-    ("Apprentice wand", 6910, "weapon", 50, 10, 0),
-    ("Teacher wand", 6912, "weapon", 55, 15, 0),
-    ("Master wand", 6914, "weapon", 60, 20, 10),
+    ("Progress hat", 6885, "head", 1, "progress_hat", 0, 0, 0, ()),
+    ("Mages' book", 6889, "shield", 1, "magic_book", 15, 15, 0, (("magic", 60),)),
+    (
+        "Infinity gloves",
+        6922,
+        "hands",
+        1,
+        "infinity_robes",
+        5,
+        5,
+        0,
+        (("defense", 50), ("magic", 25)),
+    ),
+    (
+        "Infinity hat",
+        6918,
+        "head",
+        1,
+        "infinity_robes",
+        6,
+        6,
+        0,
+        (("defense", 50), ("magic", 25)),
+    ),
+    (
+        "Infinity top",
+        6916,
+        "body",
+        1,
+        "infinity_robes",
+        22,
+        22,
+        0,
+        (("defense", 50), ("magic", 25)),
+    ),
+    (
+        "Infinity bottoms",
+        6924,
+        "legs",
+        1,
+        "infinity_robes",
+        17,
+        17,
+        0,
+        (("defense", 50), ("magic", 25)),
+    ),
+    (
+        "Infinity boots",
+        6920,
+        "feet",
+        1,
+        "infinity_robes",
+        5,
+        5,
+        0,
+        (("defense", 50), ("magic", 25)),
+    ),
+    ("Beginner wand", 6908, "weapon", 45, "wand", 5, 0, 0, (("magic", 45),)),
+    ("Apprentice wand", 6910, "weapon", 50, "wand", 10, 0, 0, (("magic", 50),)),
+    ("Teacher wand", 6912, "weapon", 55, "wand", 15, 0, 0, (("magic", 55),)),
+    ("Master wand", 6914, "weapon", 60, "wand", 20, 0, 10, (("magic", 60),)),
 )
 
 MAGE_TRAINING_ARENA_ASSET_MANIFEST = (
@@ -155,7 +248,7 @@ MAGE_TRAINING_ARENA_ASSET_MANIFEST = (
             "item_name": item_name,
             "wiki_title": f"{item_name}.png",
             "output_path": "activityitems/mage_training_arena_"
-            + item_name.lower().replace(" ", "_")
+            + item_name.lower().replace(" ", "_").replace("'", "")
             + ".png",
             "size": 64,
         }
@@ -164,6 +257,12 @@ MAGE_TRAINING_ARENA_ASSET_MANIFEST = (
             "Apprentice wand",
             "Teacher wand",
             "Master wand",
+            "Mages' book",
+            "Infinity gloves",
+            "Infinity hat",
+            "Infinity top",
+            "Infinity bottoms",
+            "Infinity boots",
         )
     ),
 )
@@ -197,7 +296,7 @@ def mage_training_arena_extra_items_as_dict() -> dict[str, dict[str, Any]]:
             "equipment_slot": slot,
             "source": MAGE_TRAINING_ARENA_SOURCE,
         }
-        for item_name, item_id, slot, _level, _attack, _damage in _MAGE_TRAINING_ARENA_EQUIPMENT_ROWS
+        for item_name, item_id, slot, _level, _kind, _attack, _defence, _damage, _requirements in _MAGE_TRAINING_ARENA_EQUIPMENT_ROWS
     }
 
 
@@ -209,19 +308,28 @@ def mage_training_arena_equipment_data_as_dict() -> dict[str, EquipmentItem]:
             combat_skill="magic" if slot == "weapon" else None,
             required_level=required_level,
             two_handed=False,
-            equipment_type="wand" if slot == "weapon" else "progress_hat",
+            equipment_type=equipment_type,
             bonuses=EquipmentBonuses(
                 attack_magic=magic_attack,
+                defence_magic=magic_defence,
                 magic_damage=magic_damage,
             ),
             attack_speed=4,
             source_item_id=item_id,
             source=MAGE_TRAINING_ARENA_SOURCE,
             source_status="pinned pre-cutoff item revision",
-            skill_requirements=(
-                (("magic", required_level),) if slot == "weapon" else ()
-            ),
+            skill_requirements=skill_requirements,
             weapon_type=18 if slot == "weapon" else -1,
         )
-        for item_name, item_id, slot, required_level, magic_attack, magic_damage in _MAGE_TRAINING_ARENA_EQUIPMENT_ROWS
+        for (
+            item_name,
+            item_id,
+            slot,
+            required_level,
+            equipment_type,
+            magic_attack,
+            magic_defence,
+            magic_damage,
+            skill_requirements,
+        ) in _MAGE_TRAINING_ARENA_EQUIPMENT_ROWS
     }

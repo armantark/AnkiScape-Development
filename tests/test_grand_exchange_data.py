@@ -1,4 +1,7 @@
+import subprocess
+import sys
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
@@ -18,6 +21,9 @@ from tools.generate_ge_period_data import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 def _item(name, *, tradeable=True):
     return ItemDefinition(
         id=f"material_{name.lower().replace(' ', '_')}",
@@ -32,6 +38,19 @@ def _item(name, *, tradeable=True):
 
 
 class GrandExchangeDataTest(unittest.TestCase):
+    def test_harvester_supports_documented_direct_invocation(self):
+        completed = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "generate_ge_period_data.py")],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("usage: generate_ge_period_data.py <output-py>", completed.stderr)
+        self.assertNotIn("ModuleNotFoundError", completed.stderr)
+
     def test_harvester_normalizes_period_fraction_and_registry_aliases(self):
         self.assertEqual(_normalized_name("½ anchovy pizza"), "1/2 anchovy pizza")
         self.assertIn("Adamant arrow", _period_name_candidates("Adamant arrows"))
@@ -170,8 +189,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_414)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_728)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_420)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_734)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -199,6 +218,24 @@ class GrandExchangeDataTest(unittest.TestCase):
             PERIOD_GE_PRICE_PROVENANCE["Compost potion (4)"]["oldid"],
             6_561_561,
         )
+
+    def test_mage_training_arena_equipment_has_period_market_rows(self):
+        expected = {
+            "Infinity boots": (677_237, 10, 6_549_641),
+            "Infinity bottoms": (4_248_199, 10, 6_519_647),
+            "Infinity gloves": (1_753_011, 10, 6_562_407),
+            "Infinity hat": (2_551_706, 10, 6_570_751),
+            "Infinity top": (3_234_233, 10, 6_562_411),
+            "Mages' book": (3_115_395, 10, 6_562_622),
+        }
+        for item_name, (price, limit, oldid) in expected.items():
+            with self.subTest(item_name=item_name):
+                self.assertEqual(PERIOD_GE_GUIDE_PRICES[item_name], price)
+                self.assertEqual(PERIOD_GE_BUY_LIMITS[item_name], limit)
+                self.assertEqual(
+                    PERIOD_GE_PRICE_PROVENANCE[item_name]["oldid"],
+                    oldid,
+                )
 
     def test_only_audited_unresolved_identities_remain_buy_limit_blocked(self):
         blocked = {

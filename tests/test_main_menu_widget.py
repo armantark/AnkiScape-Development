@@ -17692,6 +17692,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
         reward = reward_page.findChild(QComboBox, "mageTrainingArenaRewardCombo")
+        self.assertEqual(reward.count(), 25)
+        self.assertEqual(
+            (reward.iconSize().width(), reward.iconSize().height()),
+            (24, 24),
+        )
+        for reward_id in (
+            "infinity_gloves",
+            "mages_book",
+            "bones_to_peaches",
+            "mist_rune",
+            "blood_rune",
+        ):
+            index = reward.findData(reward_id)
+            self.assertGreaterEqual(index, 0)
+            self.assertFalse(reward.itemIcon(index).isNull())
         reward.setCurrentIndex(reward.findData("bones_to_peaches"))
         purchase.click()
         QApplication.processEvents()
@@ -17705,6 +17720,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         goal = panel.findChild(QComboBox, "mageTrainingArenaGoalCombo")
         save = panel.findChild(QPushButton, "mageTrainingArenaSaveButton")
+        self.assertEqual(goal.count(), 25)
+        self.assertEqual(
+            (goal.iconSize().width(), goal.iconSize().height()),
+            (24, 24),
+        )
+        self.assertFalse(goal.itemIcon(goal.findData("infinity_top")).isNull())
+        self.assertFalse(goal.itemIcon(goal.findData("bones_to_peaches")).isNull())
         self.assertTrue(goal.isVisibleTo(dialog))
         self.assertTrue(save.isVisibleTo(dialog))
         goal.setCurrentIndex(goal.findData("bones_to_peaches"))

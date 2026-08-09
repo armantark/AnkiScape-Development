@@ -9,6 +9,12 @@ goal-driven routing, checkpoint switching, Arena-wide approach, and Graveyard
 death boundary are settled; final source/cadence rates remain implementation
 work.**
 
+Implementation note `2026-08-08`: the complete 25-row reward catalog is live
+with exact prices, canonical outputs, equipment integration, source sprites,
+and direct-purchase coverage. See
+`mage-training-arena-reward-catalog-2026-08-08.md`. The mechanic contract below
+is unchanged.
+
 ## Pinned period evidence
 
 `Mage Training Arena`, oldid `6491109`

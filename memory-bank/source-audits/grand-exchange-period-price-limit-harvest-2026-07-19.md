@@ -149,3 +149,13 @@ full/broken identities: `10` each except Karil's crossbow and Karil's crossbow
 Torag's hammers retains the cache-value fallback. The generated catalog now has
 `1,342` direct period prices and `1,660` period buy limits for `1,679`
 registered items, while the explicit nineteen-row unresolved set is unchanged.
+
+## Registered-item continuation — 2026-08-08
+
+The Mage Training Arena catalog registered Infinity boots, bottoms, gloves,
+hat, top, and Mages' book. Regeneration recovered a four-hour limit of `10` for
+all six and their exact nearest-pre-cutoff Exchange prices. The generated map
+now has `1,420` direct period prices and `1,734` period buy limits for `1,753`
+registered exchangeable items. The original nineteen-row unresolved identity
+set remains unchanged. Exact oldids and prices are recorded in
+`mage-training-arena-reward-catalog-2026-08-08.md`.

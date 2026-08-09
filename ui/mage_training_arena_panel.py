@@ -5,7 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from ..core.constants import UTILITY_ACTIVITY_DATA
+from ..core.constants import (
+    EXTRA_ITEM_IMAGES,
+    MAGIC_SPELL_IMAGES,
+    UTILITY_ACTIVITY_DATA,
+)
 from ..data.mage_training_arena_data import (
     MAGE_TRAINING_ARENA_ACTIVITY_ID,
     MAGE_TRAINING_ARENA_APPROACHES,
@@ -20,10 +24,12 @@ try:
         QFrame,
         QGridLayout,
         QHBoxLayout,
+        QIcon,
         QLabel,
         QMessageBox,
         QPixmap,
         QPushButton,
+        QSize,
         Qt,
         QVBoxLayout,
         QWidget,
@@ -109,6 +115,7 @@ if HAS_QT:
             self.goal_combo = QComboBox(plan)
             self.goal_combo.setObjectName("mageTrainingArenaGoalCombo")
             self.goal_combo.setAccessibleName("Mage Training Arena reward goal")
+            self.goal_combo.setIconSize(QSize(24, 24))
             self.room_combo = QComboBox(plan)
             self.room_combo.setObjectName("mageTrainingArenaRoomCombo")
             self.room_combo.setAccessibleName("Mage Training Arena room policy")
@@ -117,8 +124,7 @@ if HAS_QT:
             self.approach_combo.setAccessibleName("Mage Training Arena approach")
             self.save_button = QPushButton("Save plan", plan)
             self.save_button.setObjectName("mageTrainingArenaSaveButton")
-            for reward in MAGE_TRAINING_ARENA_REWARDS:
-                self.goal_combo.addItem(reward.display_name, reward.id)
+            self._add_reward_rows(self.goal_combo)
             for room_id, label in MAGE_TRAINING_ARENA_ROOM_POLICIES:
                 self.room_combo.addItem(label, room_id)
             for approach_id, label in MAGE_TRAINING_ARENA_APPROACHES:
@@ -145,8 +151,8 @@ if HAS_QT:
             self.reward_combo = QComboBox(reward_shop)
             self.reward_combo.setObjectName("mageTrainingArenaRewardCombo")
             self.reward_combo.setAccessibleName("Mage Training Arena reward to purchase")
-            for reward in MAGE_TRAINING_ARENA_REWARDS:
-                self.reward_combo.addItem(reward.display_name, reward.id)
+            self.reward_combo.setIconSize(QSize(24, 24))
+            self._add_reward_rows(self.reward_combo)
             self.purchase_button = QPushButton("Purchase", reward_shop)
             self.purchase_button.setObjectName("mageTrainingArenaPurchaseButton")
             reward_shop_layout.addWidget(self.shop_wallets, 0, 0, 1, 2)
@@ -182,6 +188,19 @@ if HAS_QT:
             self.purchase_button.clicked.connect(lambda _checked=False: self._purchase())
             self.leave_button.clicked.connect(lambda _checked=False: self._confirm_leave())
             self.refresh()
+
+        @staticmethod
+        def _add_reward_rows(combo: QComboBox) -> None:
+            for reward in MAGE_TRAINING_ARENA_REWARDS:
+                icon_path = EXTRA_ITEM_IMAGES.get(
+                    reward.output_item,
+                    "",
+                ) or MAGIC_SPELL_IMAGES.get(reward.unlock, "")
+                combo.addItem(
+                    QIcon(icon_path) if icon_path else QIcon(),
+                    reward.display_name,
+                    reward.id,
+                )
 
         def set_player_data(self, player_data: Mapping[str, Any]) -> None:
             self._player_data = player_data

@@ -1,5 +1,35 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 30 — Mage Training Arena reward catalog
+
+- Source: Mage Training Arena oldid `6491109` supplies all 25 exact shop rows;
+  rev-742 pins the new item/rune identities; authentic game-main definitions
+  pin modeled equipment bonuses and skill requirements.
+- Result: the complete cutoff catalog, canonical outputs, wand chain,
+  Infinity/Mages' book equipment, source sprites, atomic purchases, existing
+  persistence/undo, and both icon-bearing selectors are live. One end-to-end
+  Battlestaff proof exercises all four room loops without repeating thousands
+  of redundant reviews for data-only rows.
+- Adjacent GE repair: registering six exchangeable outputs exposed the
+  fail-closed buy-limit oracle. Regeneration recovered exact November 2012
+  prices and a four-hour limit of ten for all six, and the generator now works
+  through its documented direct command.
+- Taste: Kimi K3 found no blocking issue and recommended item icons. Opus found
+  the sole iconless Bones to Peaches row looked like a heading; its existing
+  spell icon closes the defect. The final 1200×760 dark render has no truncation.
+- Delegation: read-only Sol-high simplification runs
+  `d8d86421-3316-4a95-821c-034416da54e3` and
+  `f9634099-4ef5-476f-91cd-b8a9a90d2393` exhausted measured tool-output guards
+  before producing findings. Root performed the narrow deletion review and did
+  not rerun them.
+- Verification: 133 focused pure/integration tests and 3 focused real-Qt tests
+  pass. Full discovery passes 3,889 tests in both lanes, with 479 plain skips
+  and 3 Qt skips. Documentation audits 523 Markdown and 431 HTML files; test
+  quality reports zero hard issues across 3,855 tests in 177 files. Compilation,
+  JSON, diff, asset normalization, and worktree audits pass. Reachability is
+  1,499 actions, 2,240 reachable items, 168 orphan inputs, and 188 unresolved
+  actions. No design gap or new placeholder surfaced.
+
 ## Iteration 29 — Managing Miscellania resource families
 
 - Evidence: RuneScape Wiki `Managing Miscellania` oldid `6500793`, timestamp

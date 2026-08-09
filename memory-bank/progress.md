@@ -1,5 +1,34 @@
 # Progress
 
+## Mage Training Arena reward-catalog closure — 2026-08-08
+
+RuneScape Wiki `Mage Training Arena` oldid `6491109`, timestamp
+`2012-10-28T20:51:43Z`, supplies the complete 25-row reward table. Every exact
+four-wallet price is live in source order. The reward router, room mechanics,
+caps, persistence, and undo are unchanged; each row now has an atomic purchase
+proof, and Battlestaff retains one bounded all-four-room end-to-end proof.
+
+Rev-742 pins the Infinity set, Mages' book, and rune identities. Authentic
+game-main equipment definitions pin the six new equipment rows' modeled Magic
+bonuses and equip requirements. Six pre-cutoff sprites are normalized. Both
+existing Goal and Reward selectors use fixed 24-pixel icons; Bones to Peaches
+uses its existing spell art. Kimi K3 and Opus taste passes are closed with no
+remaining blocker.
+
+The six exchangeable equipment outputs now have exact nearest-pre-cutoff GE
+prices and a four-hour buy limit of ten. This also repaired the period GE
+generator's documented direct-invocation path instead of weakening the
+fail-closed buy-limit oracle.
+
+Focused verification passes 133 pure/integration tests and 3 real offscreen Qt
+tests. Full discovery passes 3,889 tests in both lanes: plain has 479 expected
+environment skips and real offscreen Qt has 3 intentional skips. Documentation
+audits 523 Markdown and 431 HTML files; test quality reports zero hard issues
+across 3,855 tests in 177 files. Compilation, JSON, diff, asset normalization,
+and worktree audits pass. Reachability records 1,499 actions, 2,240 reachable
+items, 168 orphan inputs, and 188 unresolved actions. No placeholder or design
+gap was added.
+
 ## Managing Miscellania resource-family closure — 2026-08-08
 
 RuneScape Wiki `Managing Miscellania` oldid `6500793`, timestamp

@@ -2,6 +2,28 @@
 
 ## Current Focus
 
+**2026-08-08, grind-loop iteration 30 completes Mage Training Arena's cutoff
+reward catalog.** The live shop now has all 25 oldid `6491109` rows in exact
+source order with exact four-wallet costs, canonical items or unlocks, the
+period wand chain, and atomic direct purchases. Rev-742 pins the Infinity-set,
+Mages' book, and rune identities; authentic game-main definitions pin the six
+new equipment rows' modeled Magic bonuses and shared skill requirements. Six
+pre-cutoff sprites are normalized, and both existing selectors use fixed
+24-pixel item/spell icons. Kimi K3 found no blocking taste issue; Opus's one
+concrete finding, that iconless Bones to Peaches looked like a heading, is
+fixed with its existing spell icon. Registering the exchangeable equipment
+also exposed a GE closure defect: the cutoff harvester now supplies exact
+November 2012 prices and a limit of ten for all six rows, and its documented
+direct invocation is repaired. Focused verification passes 133 pure/integration
+tests and 3 real offscreen Qt tests. Full discovery passes 3,889 tests in both
+lanes: plain records 479 expected environment skips and real offscreen Qt
+records 3 intentional skips. Documentation audits 523 Markdown and 431 HTML
+files; test quality reports zero hard issues across 3,855 tests in 177 files.
+Compilation, JSON, diff, asset-normalization, and worktree audits pass.
+Reachability improves to 2,240 reachable items while holding at 1,499 actions,
+168 orphan inputs, and 188 unresolved actions. Hidden Arena rates and rolls
+remain their existing registered data-depth work; no design gap was added.
+
 **2026-08-08, grind-loop iteration 29 completes Managing Miscellania's cutoff
 resource-family catalog.** `Managing Miscellania` oldid `6500793` supplies all
 six productive rows: Mining, Wood, Flax/Herbs, Fishing, Hardwood, and Farming.
