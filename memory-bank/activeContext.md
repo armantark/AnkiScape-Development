@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+**2026-08-09, the recorded papercut backlog is reconciled through snapshot line
+127.** Commit `ff0e4be8` adds four durable guardrails: bounded repository/file
+search, discovered-ID focused test selection with all-skipped failure, complete
+per-command logs with bounded tails, and Codex Workflows manifest preflight.
+Direct equipment-generator invocation is repaired and its external 2011Scape
+source root is explicit. The remediation audit classifies every incident as
+fixed, already protected by a regression, operator/runtime constrained,
+source-blocked, or concurrent-feature-owned; it preserves the original ledger
+instead of deleting evidence. A frozen no-tools Sol-high simplification pass
+completed and all four valid findings were applied. Full discovery passes 3,889
+tests in both lanes: plain records 479 expected environment skips and real
+offscreen Qt records 3 intentional skips. Documentation, test-quality,
+compilation, and worktree audits pass. The shared status-artifact skill's dead
+example path is removed; its optional Python validator remains unavailable
+without PyYAML, so frontmatter was verified with Ruby's standard YAML parser.
+
 **2026-08-08, grind-loop iteration 30 completes Mage Training Arena's cutoff
 reward catalog.** The live shop now has all 25 oldid `6491109` rows in exact
 source order with exact four-wallet costs, canonical items or unlocks, the

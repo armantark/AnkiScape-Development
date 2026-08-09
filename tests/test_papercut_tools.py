@@ -157,19 +157,6 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertIn("external 2011Scape checkout root", completed.stdout)
 
-    def test_ge_generator_reaches_its_usage_gate_when_invoked_directly(self):
-        completed = subprocess.run(
-            [sys.executable, str(ROOT / "tools" / "generate_ge_period_data.py")],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-
-        self.assertNotEqual(completed.returncode, 0)
-        self.assertIn("usage: generate_ge_period_data.py <output-py>", completed.stderr)
-        self.assertNotIn("ModuleNotFoundError", completed.stderr)
-
     def test_focused_runner_does_not_report_an_all_skipped_lane_as_proof(self):
         result = unittest.TestResult()
         result.testsRun = 1

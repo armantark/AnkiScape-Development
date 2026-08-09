@@ -1,5 +1,31 @@
 # Progress
 
+## Papercut remediation closure — 2026-08-09
+
+Every recorded incident through `memory-bank/papercuts.md` snapshot line 127
+is accounted for in `memory-bank/audits/papercut-remediation-2026-08-09.md`.
+The original incident log stays append-only. `tools/repo_search.py` prevents
+unmatched-glob, stale-path, giant-generated-file, and unbounded-result repeats.
+`run_tests.py` selects discovered test IDs, suggests close names, uses compact
+full-suite output, and rejects focused lanes where every target skipped.
+`tools/run_logged.py` retains complete output and exact exit status while
+printing only a bounded tail. `tools/workflow_manifest_guard.py` rejects the
+repeated invalid mode, zero budget, relative working directory, and permissive
+object-schema mistakes before launch.
+
+Direct `tools/generate_equipment_data.py` execution now installs the package
+root before `pkg_alias`, and its external 2011Scape source root is explicit.
+The shared status-artifact skill no longer references a nonexistent project
+example. A frozen no-tools Sol-high simplification pass completed; all four
+valid findings were applied. The duplicate GE direct-invocation test left by
+the concurrent feature pass was removed because
+`tests/test_grand_exchange_data.py` owns the same behavior.
+
+Focused papercut and generator tests pass. Full discovery passes 3,889 tests in
+both lanes: plain has 479 expected environment skips and real offscreen Qt has
+3 intentional skips. Documentation audits 523 Markdown and 431 HTML files.
+Test quality, compilation, and worktree safety pass.
+
 ## Mage Training Arena reward-catalog closure — 2026-08-08
 
 RuneScape Wiki `Mage Training Arena` oldid `6491109`, timestamp

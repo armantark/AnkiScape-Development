@@ -2,8 +2,8 @@
 
 ## Scope and accounting
 
-This audit accounts for every incident in the 2026-08-09 00:25 checkout
-snapshot of `memory-bank/papercuts.md` (snapshot lines 3-121). The incident log
+This audit accounts for every incident in the 2026-08-09 00:45 checkout
+snapshot of `memory-bank/papercuts.md` (snapshot lines 3-127). The incident log
 remains append-only evidence. A papercut is closed here when it has a durable
 guard, an existing regression oracle, or an explicit external/source boundary;
 closure does not erase the original failure.
@@ -15,7 +15,7 @@ closure does not erase the original failure.
 | 3-7, 9, 14, 34-35, 62-64, 66-68, 73, 77, 79-83, 85-90, 93-99, 108, 118, 121 | Stale paths, unmatched zsh globs, broad searches, giant one-line/generated matches, and combined reads | `tools/repo_search.py` now provides bounded content and filename discovery, validates paths before invoking `rg`, caps results and line width, and excludes the known giant generated/archive surfaces by default. `memory-bank/techContext.md` records the canonical split-module and no-glob workflow. |
 | 10, 27, 36, 47, 51, 55-56, 116-117 | Guessed unittest class names, all-skipped focused lanes, and high-volume per-row failure output | `run_tests.py` now discovers first and selects by case-insensitive test-ID fragment. Unknown selectors return close discovered names, `--list` is bounded, and a focused lane in which every selected test skips exits 2 with the real-Qt command. Tests that report catalog-wide invariants must aggregate offending names before one assertion. |
 | 18-19, 21, 25, 46, 48-49, 52, 54, 72, 76, 101, 103-105, 107 | Verbose suites, audits, delegated output, and partial artifacts overflowing the model channel | `run_tests.py` defaults to compact verbosity. `tools/run_logged.py` preserves complete per-command logs, exit codes, and bounded tails. Workflow partials remain authoritative evidence and are not replayed wholesale. |
-| 31, 39, 43, 45, 49, 53, 75-76, 101, 106-107, 111 | Invalid workflow modes/budgets/schemas, incomplete frozen packets, inherited-context costs, and agents escaping read bounds | `tools/workflow_manifest_guard.py` rejects the recurring schema mistakes before launch. The technical context requires explicit new-file contents, realistic inherited-instruction budgets, frozen inputs for checkers, and preservation of typed partial artifacts. The guard cannot make a model honor a prompt; hard tool-output and processed-token budgets remain the containment boundary. |
+| 31, 39, 43, 45, 49, 53, 75-76, 101, 106-107, 111, 125-126 | Invalid workflow modes/budgets/schemas, incomplete frozen packets, inherited-context costs, and agents escaping read bounds | `tools/workflow_manifest_guard.py` rejects the recurring schema mistakes before launch. The technical context requires explicit new-file contents, realistic inherited-instruction budgets, frozen inputs for checkers, and preservation of typed partial artifacts. The guard cannot make a model honor a prompt; hard tool-output and processed-token budgets remain the containment boundary. |
 | 37, 109 | Equipment generator direct execution and external source-root ambiguity | `tools/generate_equipment_data.py` adds the add-on root before importing `pkg_alias`, supports direct `--help`/execution, and labels `--game-root` as the external 2011Scape checkout. The technical context records the absolute pinned `items.yml` path. |
 | 58 | Dead status-artifact example path | Removed the nonexistent `mobile-ux-fixes-2026-05-18.html` example from the shared `status-artifact` skill and verified its frontmatter plus absence directly. |
 | 102 | `/tmp` probes could not import `tests` | The technical context now gives the canonical `PYTHONPATH="$PWD"` and `pkg_alias` probe rules. |
@@ -42,7 +42,7 @@ closure does not erase the original failure.
 | Snapshot lines | Boundary |
 | --- | --- |
 | 8, 23 | Workflow state and Git index writes depend on the host approval/sandbox profile. The current unrestricted checkout can write both, but repo code must not bypass a denied boundary. |
-| 11, 26, 65, 74, 78, 88, 112 | Stale multi-hunk patch contexts are prevented by re-reading the local seam and applying function- or paragraph-sized patches. A generic patch wrapper would only duplicate `apply_patch` verification and weaken atomicity. |
+| 11, 26, 65, 74, 78, 88, 112, 124, 127 | Stale multi-hunk patch contexts are prevented by re-reading the local seam and applying function- or paragraph-sized patches. A generic patch wrapper would only duplicate `apply_patch` verification and weaken atomicity. |
 | 12-13, 22, 25, 40, 43, 46, 48-49, 52, 54, 76, 100-101, 107, 111 | Provider output shape, inherited instructions, and model tool choices require typed parsing, frozen packets, ordinary-context diffs, explicit untracked contents, and hard budgets. Completed reads and bounded partials must be reused rather than rerun. |
 | 24 | Commit hashes must be copied from `git rev-parse HEAD`; fabricating a suffix has no safe automated substitute. |
 | 28-30, 57 | Native host/thread availability, text-vs-JSON connector results, and the connector's maximum `limit: 50` are external API contracts. No product change can make an unavailable host appear. |
@@ -67,6 +67,11 @@ quadratic in practical runtime. That feature is changing concurrently in the
 shared checkout. This pass does not edit or stage its files; its owning thread
 must replace repeated deep-copy review loops with atomic full-wallet row checks
 and retain one review-earned end-to-end example per distinct purchase mechanic.
+Snapshot line 122 is the same direct-invocation import-order defect in the
+feature-owned GE generator; its owning thread has already moved the repository
+root insertion before `pkg_alias`. Snapshot line 123 is the expected collision
+from running full discovery between the feature's catalog and GE-row writes;
+the exact failed GE regression passes after the owner completed that seam.
 
 ## Remediation-pass friction
 
@@ -77,3 +82,20 @@ quoting error, and oversized diff-review read found during this pass. The
 workflow failures are contained by frozen packets, hard budgets, and preserved
 partials. The deterministic failures were corrected with exact reads,
 fixture-derived IDs, serialized manifests, and no-glob repository discovery.
+
+## Verification
+
+- `tests.test_papercut_tools`: 9 focused tests pass after the frozen Sol-high
+  simplification review's four valid findings were applied.
+- `tests.test_generated_skill_data`: 2 generator regressions pass, including
+  direct equipment-generator import setup.
+- Compact full non-Qt discovery: 3,889 tests run in 200.739 seconds, with 479
+  expected environment skips and no failures.
+- Real offscreen-Qt discovery: 3,889 tests run in 469.275 seconds, with 3
+  intentional skips and no failures. The canonical order did not reproduce the
+  aggregate modal or QApplication-before-QWidget failures.
+- Documentation audit: 523 Markdown and 431 HTML files pass.
+- Test-quality audit, compilation, and worktree layout pass.
+- Shared status-artifact skill: the dead example is absent and its YAML
+  frontmatter parses through Ruby's standard YAML implementation. The bundled
+  Python validator remains unavailable because PyYAML is not installed.
