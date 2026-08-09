@@ -25,6 +25,7 @@ from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_REWARDS_BY_ID,
     TROUBLE_BREWING_RUMS_BY_ITEM,
 )
+from .treasure_trails_logic import clue_ownership_reason_pure
 
 
 TROUBLE_BREWING_STATE_VERSION = 1
@@ -472,6 +473,10 @@ def buy_trouble_brewing_reward_pure(
     reward = TROUBLE_BREWING_REWARDS_BY_ID.get(str(reward_id))
     if reward is None:
         return data, False, {"reason": "Unknown Trouble Brewing reward."}
+    if reward.clue_tier:
+        blocked_reason = clue_ownership_reason_pure(data)
+        if blocked_reason:
+            return data, False, {"reason": blocked_reason}
     wallet = _int(data.get("trouble_brewing_pieces_of_eight"))
     if wallet < reward.pieces_of_eight:
         return data, False, {
@@ -562,6 +567,12 @@ def trouble_brewing_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "display_name": reward.display_name,
                 "pieces_of_eight": reward.pieces_of_eight,
                 "teleport_destination": reward.teleport_destination,
+                "clue_tier": reward.clue_tier,
+                "blocked_reason": (
+                    clue_ownership_reason_pure(player_data)
+                    if reward.clue_tier
+                    else ""
+                ),
             }
             for reward in TROUBLE_BREWING_REWARDS_BY_ID.values()
         ),

@@ -1216,7 +1216,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertEqual(definition.source_item_id, reward.source_item_id)
                 self.assertEqual(
                     definition.category,
-                    "food" if reward.teleport_destination else "equipment",
+                    "material"
+                    if reward.clue_tier
+                    else "food"
+                    if reward.teleport_destination
+                    else "equipment",
                 )
                 self.assertFalse(definition.stackable)
                 self.assertFalse(definition.tradeable)

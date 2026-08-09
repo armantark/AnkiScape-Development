@@ -63,6 +63,7 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int | None], ...]:
             48,
         )
         for reward in TROUBLE_BREWING_REWARDS
+        if not reward.clue_tier
     )
     return tuple(requests)
 

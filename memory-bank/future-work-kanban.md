@@ -1632,10 +1632,11 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Trouble Brewing now includes all seven three-piece naval colour sets, all six
-  flags, and both one-use rum teleports with exact prices, source item/equipment
-  rows, normalized art, atomic purchase, and direct undo. The medium-clue
-  service and `The stuff` remain two separate mechanic-depth slices rather than
-  inert catalog rows.
+  flags, both one-use rum teleports, and Honest Jimmy's 5,000-Piece medium-clue
+  service with exact prices, source item/equipment rows, normalized art, atomic
+  purchase, direct undo, and the central one-clue-total gate. `The stuff`
+  remains the final separate mechanic-depth slice rather than an inert catalog
+  row.
 - Soul Wars now owns the complete twelve-beat objective match, participation,
   safe-death Combat, exact Zeal, representative charm shop, persistence,
   arbitration, cadence, undo, UI, and normalized assets. Continue with the

@@ -13580,7 +13580,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Chilli potato": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHILLI_POTATO"},
     "Cabbage seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CABBAGE_SEED"},
     "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
-    "Clue scroll (medium)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_MEDIUM"},
+    "Clue scroll (medium)": {
+        "category": "material",
+        "source_item_id": 2801,
+        "stackable": False,
+        "tradeable": False,
+        "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_MEDIUM; OpenRS2 rev-742 item 2801",
+    },
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Crystal teleport seed": {

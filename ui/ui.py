@@ -14930,9 +14930,12 @@ def show_main_menu(
             trouble_reward.blockSignals(True)
             trouble_reward.clear()
             for reward in view["rewards"]:
+                price = int(reward["pieces_of_eight"])
+                blocked_reason = str(reward.get("blocked_reason", ""))
                 label = (
                     f"{reward['display_name']} · "
-                    f"{int(reward['pieces_of_eight'])} PoE"
+                    f"{price:,} PoE"
+                    + (" · clue held" if blocked_reason else "")
                 )
                 icon_path = TROUBLE_BREWING_ITEM_IMAGES.get(
                     str(reward["display_name"])
@@ -14944,10 +14947,26 @@ def show_main_menu(
                 else:
                     trouble_reward.addItem(label, reward["reward_id"])
                 destination = str(reward.get("teleport_destination", ""))
+                clue_tier = str(reward.get("clue_tier", ""))
+                tooltip_parts = []
                 if destination:
+                    tooltip_parts.append(f"One-use teleport to {destination}.")
+                elif clue_tier:
+                    tooltip_parts.append(
+                        f"Awards one {clue_tier} clue if you hold no clue scroll."
+                    )
+                if blocked_reason:
+                    tooltip_parts.append(blocked_reason)
+                shortfall = max(0, price - int(view["pieces_of_eight"]))
+                if shortfall:
+                    tooltip_parts.append(
+                        f"Need {shortfall:,} more Pieces of Eight."
+                    )
+                tooltip = "\n".join(tooltip_parts)
+                if tooltip:
                     trouble_reward.setItemData(
                         trouble_reward.count() - 1,
-                        f"One-use teleport to {destination}.",
+                        tooltip,
                         Qt.ItemDataRole.ToolTipRole,
                     )
             reward_index = trouble_reward.findData(selected_reward)
@@ -14961,12 +14980,24 @@ def show_main_menu(
                 ),
                 None,
             )
-            trouble_buy.setEnabled(
+            trouble_reward.setToolTip(
+                str(
+                    trouble_reward.itemData(
+                        trouble_reward.currentIndex(),
+                        Qt.ItemDataRole.ToolTipRole,
+                    )
+                    or ""
+                )
+            )
+            buy_enabled = (
                 on_trouble_brewing_command is not None
                 and not active
                 and reward is not None
                 and int(view["pieces_of_eight"]) >= int(reward["pieces_of_eight"])
+                and not str(reward.get("blocked_reason", ""))
             )
+            trouble_buy.setEnabled(buy_enabled)
+            trouble_buy.setToolTip("" if buy_enabled else trouble_reward.toolTip())
             syncing_trouble["active"] = False
             _fit_current_activity_detail()
 

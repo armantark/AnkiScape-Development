@@ -16602,7 +16602,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         reward_combo = reward_page.findChild(
             QComboBox, "troubleBrewingRewardCombo"
         )
-        self.assertEqual(reward_combo.count(), 29)
+        self.assertEqual(reward_combo.count(), 30)
         self.assertTrue(
             all(
                 reward_combo.itemText(index).endswith(" PoE")
@@ -16621,6 +16621,19 @@ class MainMenuWidgetTest(unittest.TestCase):
             reward_combo.itemData(red_rum_index, Qt.ItemDataRole.ToolTipRole),
             "One-use teleport to Trouble Brewing.",
         )
+        medium_clue_index = reward_combo.findData("medium_clue")
+        self.assertIn(
+            "Awards one medium clue if you hold no clue scroll.",
+            reward_combo.itemData(
+                medium_clue_index, Qt.ItemDataRole.ToolTipRole
+            ),
+        )
+        self.assertIn(
+            "Need 4,950 more Pieces of Eight.",
+            reward_combo.itemData(
+                medium_clue_index, Qt.ItemDataRole.ToolTipRole
+            ),
+        )
         reward_combo.setCurrentIndex(
             reward_combo.findData("blue_tricorn_hat")
         )
@@ -16632,6 +16645,53 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(command_calls[-1][0], "buy_reward")
         self.assertEqual(pd["inventory"]["Blue tricorn hat"], 1)
         self.assertEqual(pd["trouble_brewing_pieces_of_eight"], 0)
+        dialog.close()
+
+    def test_trouble_brewing_medium_clue_service_renders_and_blocks_a_second_clue(self) -> None:
+        from ankiscape.logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
+
+        pd = _make_player_data()
+        pd["trouble_brewing_pieces_of_eight"] = 5_000
+
+        def trouble_command(action_id, payload):
+            updated, ok, info = apply_trouble_brewing_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_trouble_brewing_command=trouble_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        reward_page = _open_reward_target(dialog, "trouble_brewing")
+        reward_combo = reward_page.findChild(
+            QComboBox, "troubleBrewingRewardCombo"
+        )
+        reward_combo.setCurrentIndex(reward_combo.findData("medium_clue"))
+        QApplication.processEvents()
+        buy = reward_page.findChild(QPushButton, "troubleBrewingBuyButton")
+        self.assertFalse(reward_combo.itemIcon(reward_combo.currentIndex()).isNull())
+        self.assertEqual(
+            reward_combo.toolTip(),
+            "Awards one medium clue if you hold no clue scroll.",
+        )
+        self.assertTrue(buy.isEnabled())
+
+        buy.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Clue scroll (medium)"], 1)
+        self.assertEqual(pd["trouble_brewing_pieces_of_eight"], 0)
+        self.assertFalse(buy.isEnabled())
+        self.assertIn("already have a clue scroll", reward_combo.toolTip())
+        self.assertIn("clue held", reward_combo.currentText())
+        self.assertIn("already have a clue scroll", buy.toolTip())
         dialog.close()
 
     def test_bank_drinks_each_trouble_brewing_rum_through_its_direct_action(self) -> None:

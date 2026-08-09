@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .equipment_data import EquipmentBonuses, EquipmentItem
+from .treasure_trails_data import CLUE_SCROLL_ITEMS
 
 
 TROUBLE_BREWING_ACTIVITY_ID = "trouble_brewing"
@@ -77,6 +78,7 @@ class TroubleBrewingReward:
     weapon_type: int = -1
     attack_speed: int = 4
     teleport_destination: str = ""
+    clue_tier: str = ""
 
 
 TROUBLE_BREWING_NAVAL_COLOURS = (
@@ -180,6 +182,13 @@ TROUBLE_BREWING_REWARDS = tuple(
         8941,
         teleport_destination="Trouble Brewing",
     ),
+    TroubleBrewingReward(
+        "medium_clue",
+        CLUE_SCROLL_ITEMS["medium"],
+        5_000,
+        2801,
+        clue_tier="medium",
+    ),
 )
 TROUBLE_BREWING_REWARDS_BY_ID = {
     reward.reward_id: reward for reward in TROUBLE_BREWING_REWARDS
@@ -218,6 +227,7 @@ def trouble_brewing_extra_items_as_dict() -> dict[str, dict[str, Any]]:
             "source": TROUBLE_BREWING_SOURCE,
         }
         for reward in TROUBLE_BREWING_REWARDS
+        if not reward.clue_tier
     }
 
 

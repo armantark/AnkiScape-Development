@@ -6,8 +6,9 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
 Status: **complete 27-row cosmetic and flag catalog implemented.** The two rum
 teleports were completed in the superseding
-`trouble-brewing-rum-teleports-2026-08-09.md` audit; medium-clue redemption and
-`The stuff` remain separate mechanic-depth slices.
+`trouble-brewing-rum-teleports-2026-08-09.md` audit, and medium-clue redemption
+was completed in `trouble-brewing-medium-clue-service-2026-08-09.md`. `The
+stuff` remains a separate mechanic-depth slice.
 
 ## Period record
 
@@ -74,8 +75,8 @@ card density clean; neither review claims native Anki appearance.
 
 - The period rums are destination teleports, not ordinary drinks; their
   implementation is verified in the superseding rum-teleport audit.
-- The medium clue is a direct shop service and must obey the settled one-clue-
-  total rule.
+- The medium clue is a direct shop service and obeys the settled one-clue-total
+  rule under its superseding service audit.
 - `The stuff` modifies mature-ale production and belongs with the brewing
   action family.
 

@@ -2,6 +2,30 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 39 completes Honest Jimmy's 5,000-Piece
+medium-clue service.** Honest Jimmy oldid `6393015` pins the direct dialogue
+purchase and exact cost; Treasure Trails oldid `6473708` plus superseding owner
+answer 4.5 pin one clue total. Rev-742 and game-main pin non-stackable,
+non-exchangeable `Read` item `2801`. The Trouble Brewing reducer now asks the
+central Treasure Trails ownership helper before charging, awards exactly one
+canonical medium clue, and uses the existing atomic direct-undo path. The pure
+view owns the blocker; the compact selector renders `5,000 PoE`, a held-clue
+marker, and explicit ownership/wallet guidance. Rev-742 proves easy, medium,
+and hard clues share exact model `3374`, so the surface reuses the normalized
+2010 hard-clue sprite rather than the existing 2019 visual fallback. Kimi K3
+and Fable both reviewed the UI and converged on the accepted disabled-state and
+number-format improvements; neither review claims native Anki appearance.
+Focused non-Qt checks pass 243 tests and focused real Qt passes four. Full plain
+and real offscreen-Qt discovery each pass 3,922 tests, with 482 plain skips and
+3 Qt skips. Documentation audits pass across 532 Markdown and 431 HTML files;
+test quality has zero hard issues across 3,888 tests in 177 files. Reachability
+remains 1,511 actions, 2,315 items, 168 known orphans, and 188 known blocked
+actions. Compilation, tracked JSON, diff, deterministic asset enumeration,
+normalization, and worktree safety pass. Medium trail content remains honest
+catalog depth; `The stuff` is the next Trouble Brewing slice. No schema, wall
+clock, placeholder, or design fork was added. Durable audit:
+`memory-bank/source-audits/trouble-brewing-medium-clue-service-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 38 completes Trouble Brewing's two rum
 teleport rewards.** Honest Jimmy oldid `6393015` and rum oldid `6088748` pin
 the red and blue one-use drinks at `2` Pieces of Eight and their shared Trouble

@@ -1,5 +1,33 @@
 # Progress
 
+## Trouble Brewing medium-clue service — 2026-08-09
+
+Honest Jimmy oldid `6393015` pins one `Clue scroll (medium)` for exactly `5,000`
+Pieces of Eight. Treasure Trails oldid `6473708` and owner answer 4.5 require
+one clue total across all tiers. Rev-742 and game-main pin canonical item `2801`
+as non-stackable, non-exchangeable, and readable.
+
+The shop service asks the central Treasure Trails ownership helper before
+charging, awards one canonical clue, and persists through Trouble Brewing's
+existing direct-action undo seam. The pure view exposes its blocker; Qt renders
+the `5,000 PoE` row, a held-clue marker, and explicit ownership or wallet
+shortfall guidance. Easy, medium, and hard clue definitions all use rev-742
+model `3374`, so the selector reuses normalized 2010 shared-model art rather
+than a post-cutoff fallback. Kimi K3 and Fable independently reviewed the new
+state; their accepted findings produced the formatted price and disabled-state
+guidance. Neither review claims native Anki appearance.
+
+Focused non-Qt checks pass 243 tests and focused real offscreen Qt passes four.
+Full plain and real offscreen-Qt discovery each pass 3,922 tests, with 482
+expected plain skips and three intentional Qt skips. Documentation audits pass
+across 532 Markdown and 431 HTML files; test quality has zero hard issues across
+3,888 tests in 177 files. Reachability remains 1,511 actions, 2,315 items, 168
+known orphans, and 188 known blocked actions. Compilation, tracked JSON, diff,
+deterministic asset enumeration, normalization, and worktree safety pass. Medium
+trail content remains catalog depth; `The stuff` is the next Trouble Brewing
+slice. See
+`memory-bank/source-audits/trouble-brewing-medium-clue-service-2026-08-09.md`.
+
 ## Trouble Brewing rum teleports — 2026-08-09
 
 Honest Jimmy oldid `6393015` and rum oldid `6088748` pin red and blue rum at

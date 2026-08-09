@@ -1,5 +1,39 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 39 — Trouble Brewing medium-clue service
+
+- Source: Honest Jimmy oldid `6393015` pins the direct 5,000-Piece medium-clue
+  purchase. Treasure Trails oldid `6473708` and superseding owner answer 4.5
+  pin one clue total. Rev-742 and game-main pin readable item `2801`, stacking,
+  trade rules, and the clue family's shared model `3374`.
+- Result: the reducer asks Treasure Trails' central ownership helper before it
+  charges, awards one canonical medium clue, and uses the existing direct undo.
+  The view exposes the blocker; Qt renders the formatted price, held-clue state,
+  and ownership/wallet guidance. Canonical Combat item metadata now carries the
+  exact ID instead of being overwritten by a second activity registration.
+- Art and taste: the surface reuses normalized 2010 hard-clue art because the
+  period client proves the exact shared model; the 2019 medium fallback does not
+  represent period evidence here. Kimi K3 and Fable converged on formatted
+  thousands and explicit disabled-state guidance. Neither review claims native
+  Anki appearance.
+- Boundaries: medium trail steps/rewards remain honest catalog depth, and the
+  Bank already explains the tier lock while preserving the clue. `The stuff`
+  remains separate. No schema, wall clock, placeholder, or owner decision was
+  added.
+- Delegation: read-only Sol-high Workflows run
+  `8fd4bb0f-b6b3-48a8-9148-9ac06549b094` exhausted its declared tool-output
+  budget at `54,375/50,000` bytes before a verdict. Its partial artifact held no
+  candidate defect; root independently reproduced the ownership seam and found
+  the duplicate-item ownership hazard. This slice is GPT-family verified by
+  execution.
+- Verification: 243 focused non-Qt checks and four focused real Qt checks pass.
+  Full plain and real offscreen-Qt discovery each pass 3,922 tests, with 482
+  plain skips and 3 Qt skips. Documentation audits pass across 532 Markdown and
+  431 HTML files; test quality has zero hard issues across 3,888 tests in 177
+  files. Reachability remains 1,511 actions and 2,315 items; the known
+  168-orphan/188-blocked ledger is unchanged. Compilation, tracked JSON, diff,
+  deterministic asset enumeration, normalization, and worktree safety pass.
+
 ## Iteration 38 — Trouble Brewing rum teleports
 
 - Source: Honest Jimmy oldid `6393015` and rum oldid `6088748` pin both

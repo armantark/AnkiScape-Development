@@ -81,8 +81,9 @@ The breadth reward catalog contains Blue tricorn hat only. It proves the exact
 currency, direct purchase, bank, item-registry, asset, and equipment seams with
 an authentic zero-stat wearable. The previously deferred colours, outfit
 pieces, flags, and both rum teleports are now complete under their superseding
-2026-08-09 audits. The medium clue purchase and The stuff's mature-ale effect
-remain cross-feature depth, not omitted Trouble Brewing state transitions.
+2026-08-09 audits. Honest Jimmy's medium clue purchase is also complete under
+its 2026-08-09 service audit. The stuff's mature-ale effect remains cross-
+feature depth, not an omitted Trouble Brewing state transition.
 
 ## Live implementation
 

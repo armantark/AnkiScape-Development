@@ -9,6 +9,7 @@ from ankiscape.data.trouble_brewing_data import (
     TROUBLE_BREWING_REWARDS,
     trouble_brewing_equipment_data_as_dict,
 )
+from ankiscape.data.treasure_trails_data import CLUE_SCROLL_ITEMS
 from ankiscape.logic.trouble_brewing_logic import (
     apply_trouble_brewing_command_pure,
     apply_trouble_brewing_review_pure,
@@ -71,6 +72,7 @@ class TroubleBrewingEntryTests(unittest.TestCase):
             ("Phasmatys flag", 600, 8971),
             ("Red rum", 2, 8940),
             ("Blue rum", 2, 8941),
+            ("Clue scroll (medium)", 5_000, 2801),
         )
         self.assertEqual(
             tuple(
@@ -84,7 +86,7 @@ class TroubleBrewingEntryTests(unittest.TestCase):
             expected,
         )
         equipment = trouble_brewing_equipment_data_as_dict()
-        self.assertEqual(len(equipment), len(expected) - 2)
+        self.assertEqual(len(equipment), len(expected) - 3)
         for item in equipment.values():
             self.assertTrue(
                 all(value == 0 for value in asdict(item.bonuses).values()),
@@ -383,6 +385,50 @@ class TroubleBrewingRewardTests(unittest.TestCase):
                 self.assertFalse(ok)
                 self.assertIn(reason, info["reason"])
                 self.assertEqual(unchanged, player)
+
+    def test_medium_clue_service_charges_once_and_obeys_one_clue_total(self):
+        bought, ok, info = buy_trouble_brewing_reward_pure(
+            _player(trouble_brewing_pieces_of_eight=5_000),
+            "medium_clue",
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(bought["inventory"][CLUE_SCROLL_ITEMS["medium"]], 1)
+        self.assertEqual(bought["trouble_brewing_pieces_of_eight"], 0)
+
+        for held_item in CLUE_SCROLL_ITEMS.values():
+            with self.subTest(held=held_item):
+                player = _player(
+                    inventory={held_item: 1},
+                    trouble_brewing_pieces_of_eight=5_000,
+                )
+                unchanged, ok, info = buy_trouble_brewing_reward_pure(
+                    player,
+                    "medium_clue",
+                )
+                self.assertFalse(ok)
+                self.assertIn("already have a clue scroll", info["reason"])
+                self.assertEqual(unchanged, player)
+
+    def test_medium_clue_view_exposes_the_central_ownership_blocker(self):
+        available = trouble_brewing_view_pure(
+            _player(trouble_brewing_pieces_of_eight=5_000)
+        )
+        available_row = next(
+            row for row in available["rewards"] if row["reward_id"] == "medium_clue"
+        )
+        self.assertEqual(available_row["clue_tier"], "medium")
+        self.assertEqual(available_row["blocked_reason"], "")
+
+        blocked = trouble_brewing_view_pure(
+            _player(
+                inventory={CLUE_SCROLL_ITEMS["hard"]: 1},
+                trouble_brewing_pieces_of_eight=5_000,
+            )
+        )
+        blocked_row = next(
+            row for row in blocked["rewards"] if row["reward_id"] == "medium_clue"
+        )
+        self.assertIn("Clue scroll (hard)", blocked_row["blocked_reason"])
 
     def test_command_router_blocks_shopping_during_a_live_game(self):
         player = _entered(trouble_brewing_pieces_of_eight=50)

@@ -69,7 +69,8 @@ corroborates both IDs, their shared name, non-tradeable state, and zero weight.
   in AnkiScape's locationless direct-action model.
 - The death-like visual sequence is not modeled; it has no separate settled
   mechanic or persistent consequence.
-- The medium-clue service and `The stuff` remain separate queue items.
+- The medium-clue service was completed under its superseding 2026-08-09 audit;
+  `The stuff` remains a separate queue item.
 
 ## Verification
 

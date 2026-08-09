@@ -1689,6 +1689,12 @@ if os.path.exists(_fungicide_spray_path):
 _fungicide_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide.png")
 if os.path.exists(_fungicide_path):
     COMBAT_ITEM_IMAGES["Fungicide"] = _fungicide_path
+_period_clue_scroll_path = os.path.join(
+    current_dir, "activityitems", "clue_scroll_hard.png"
+)
+if os.path.exists(_period_clue_scroll_path):
+    # Rev-742 easy, medium, and hard clues all use client model 3374.
+    COMBAT_ITEM_IMAGES["Clue scroll (medium)"] = _period_clue_scroll_path
 COMBAT_ENEMY_IMAGES = {}
 for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
@@ -1910,6 +1916,9 @@ TROUBLE_BREWING_ITEM_IMAGES = {
     )
     for item_name in TROUBLE_BREWING_EXTRA_ITEM_DATA
 }
+TROUBLE_BREWING_ITEM_IMAGES["Clue scroll (medium)"] = COMBAT_ITEM_IMAGES[
+    "Clue scroll (medium)"
+]
 TROUBLE_BREWING_ITEM_IMAGES = {
     item_name: path
     for item_name, path in TROUBLE_BREWING_ITEM_IMAGES.items()
