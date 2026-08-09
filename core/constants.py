@@ -1899,11 +1899,16 @@ CIRCUS_ITEM_IMAGES = {
     if os.path.exists(path)
 }
 TROUBLE_BREWING_ITEM_IMAGES = {
-    "Blue tricorn hat": os.path.join(
+    item_name: os.path.join(
         current_dir,
         "activityitems",
-        "blue_tricorn_hat.png",
-    ),
+        (
+            "blue_tricorn_hat.png"
+            if item_name == "Blue tricorn hat"
+            else f"trouble_brewing_{_asset_slug(item_name)}.png"
+        ),
+    )
+    for item_name in TROUBLE_BREWING_EXTRA_ITEM_DATA
 }
 TROUBLE_BREWING_ITEM_IMAGES = {
     item_name: path

@@ -1,5 +1,34 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 37 — Trouble Brewing cosmetic reward catalog
+
+- Source: corrected cutoff oldids `6579342` / `6393015` pin the complete
+  27-row cosmetic catalog and exact `50`–`600` Piece prices. Rev-742 and
+  game-main pin item IDs, slots, zero bonuses, flag weapon type, attack speed,
+  and two-handed state. The older migrated IDs now resolve to unrelated pages.
+- Result: all seven three-piece naval colour sets and six flags are canonical
+  atomic purchases with direct undo, Bank/equipment behavior, normalized
+  sprites, and item icons in the existing reward selector. Multi-row testing
+  found and fixed stale Buy availability after selection changes.
+- Taste: Kimi K3 and Fable independently requested a currency unit on every
+  row. The accepted `PoE` suffix stays compact; both found the remaining icon,
+  dark-mode, state-feedback, and density behavior clean. Neither review claims
+  native Anki appearance.
+- Boundaries: rums, the medium clue service, and `The stuff` remain three
+  separate source-ready mechanic slices. No schema, wall clock, placeholder,
+  or owner decision was added.
+- Delegation: Workflows run `99ac32cb-3ac4-4fa4-8119-dd36e6153213` exhausted
+  both leaves' skill-read output budgets before findings. Root independently
+  reproduced both cutoff revisions and all 27 cache/equipment rows. This slice
+  is GPT-family verified by execution.
+- Verification: 141 focused non-Qt checks and four focused real Qt checks pass.
+  Full plain and real offscreen-Qt discovery each pass 3,916 tests, with 480
+  plain skips and 3 Qt skips. Documentation audits pass across 530 Markdown and
+  431 HTML files; test quality has zero hard issues across 3,882 tests in 177
+  files. Reachability is 1,511 actions and 2,313 items; the known
+  168-orphan/188-blocked ledger is unchanged. Compilation, tracked JSON, diff,
+  deterministic asset fetching, normalization, and worktree safety pass.
+
 ## Iteration 36 — Shades of Mort'ton bronze-chest catalog
 
 - Source: cutoff oldid `6449451` fixes the bronze reward families and

@@ -2,6 +2,29 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 37 completes Trouble Brewing's 27-row
+cosmetic and flag reward catalog.** Corrected cutoff oldids `6579342` and
+`6393015` supersede stale migrated IDs that now resolve elsewhere. Honest Jimmy
+pins seven three-piece naval colour sets plus six flags in exact source order
+at `50`–`600` Pieces of Eight; rev-742 and game-main pin all item IDs, slots,
+zero bonuses, weapon types, speeds, and two-handed state. Every row uses the
+existing atomic purchase/direct-undo, Bank, and equipment paths and has a
+normalized cutoff sprite. Expanding the old one-row combo exposed and fixed a
+real stale Buy-button state when selection changed. Kimi K3 and Fable both
+requested a currency unit; the compact `PoE` suffix was accepted, and both
+otherwise found the existing card density, icons, dark-mode behavior, and
+control state clean without claiming native Anki appearance. Full plain and
+real offscreen-Qt discovery each pass 3,916 tests, with 480 plain skips and 3 Qt
+skips. Documentation audits pass across 530 Markdown and 431 HTML files; test
+quality has zero hard issues across 3,882 tests in 177 files. Reachability is
+1,511 actions, 2,313 items, 168 known orphans, and 188 known blocked actions.
+Compilation, tracked JSON, diff, deterministic asset fetching, asset
+normalization, and worktree safety pass. Rum teleports, the 5,000-Piece medium
+clue service, and `The stuff` remain
+three separate mechanic-depth slices. No schema, wall clock, placeholder, or
+design fork was added. Durable audit:
+`memory-bank/source-audits/trouble-brewing-cosmetic-catalog-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 36 completes Shades of Mort'ton's bronze-
 chest reward catalog.** The cutoff activity page and fresh Darkan iteration 399
 pin all 23 reconstructed reward identities and quantities, three live low-

@@ -16599,6 +16599,26 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(item, 0)
         QApplication.processEvents()
         reward_page = _open_reward_target(dialog, "trouble_brewing")
+        reward_combo = reward_page.findChild(
+            QComboBox, "troubleBrewingRewardCombo"
+        )
+        self.assertEqual(reward_combo.count(), 27)
+        self.assertTrue(
+            all(
+                reward_combo.itemText(index).endswith(" PoE")
+                for index in range(reward_combo.count())
+            )
+        )
+        self.assertTrue(
+            all(
+                not reward_combo.itemIcon(index).isNull()
+                for index in range(reward_combo.count())
+            )
+        )
+        reward_combo.setCurrentIndex(
+            reward_combo.findData("blue_tricorn_hat")
+        )
+        QApplication.processEvents()
         buy = reward_page.findChild(QPushButton, "troubleBrewingBuyButton")
         self.assertTrue(buy.isEnabled())
         buy.click()

@@ -156,6 +156,7 @@ from ..core.constants import (
     HERBLORE_ITEM_IMAGES,
     HERBLORE_OUTPUT_ITEMS,
     SUMMONING_ITEM_IMAGES,
+    TROUBLE_BREWING_ITEM_IMAGES,
     UTILITY_ITEM_IMAGES,
     ACHIEVEMENTS,
     EQUIPMENT_SLOTS,
@@ -14926,10 +14927,19 @@ def show_main_menu(
             trouble_reward.blockSignals(True)
             trouble_reward.clear()
             for reward in view["rewards"]:
-                trouble_reward.addItem(
-                    f"{reward['display_name']} · {int(reward['pieces_of_eight'])}",
-                    reward["reward_id"],
+                label = (
+                    f"{reward['display_name']} · "
+                    f"{int(reward['pieces_of_eight'])} PoE"
                 )
+                icon_path = TROUBLE_BREWING_ITEM_IMAGES.get(
+                    str(reward["display_name"])
+                )
+                if icon_path:
+                    trouble_reward.addItem(
+                        QIcon(icon_path), label, reward["reward_id"]
+                    )
+                else:
+                    trouble_reward.addItem(label, reward["reward_id"])
             reward_index = trouble_reward.findData(selected_reward)
             trouble_reward.setCurrentIndex(reward_index if reward_index >= 0 else 0)
             trouble_reward.blockSignals(False)
@@ -14991,6 +15001,9 @@ def show_main_menu(
         )
         trouble_leave.clicked.connect(
             lambda _checked=False: _confirm_trouble_leave()
+        )
+        trouble_reward.currentIndexChanged.connect(
+            lambda _index: _refresh_trouble_panel()
         )
         trouble_buy.clicked.connect(
             lambda _checked=False: _run_trouble_command(

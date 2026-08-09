@@ -55,6 +55,7 @@ from ankiscape.core.constants import (
     RUNECRAFTING_POUCH_DATA,
     SHOP_ITEM_IMAGES,
     SMITHING_OUTPUT_ITEMS,
+    TROUBLE_BREWING_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
@@ -65,6 +66,7 @@ from ankiscape.data.runecrafting_data import (
     RUNECRAFTING_STAFF_ITEM,
     TALISMAN_STAFF_BINDING_TARGETS,
 )
+from ankiscape.data.trouble_brewing_data import TROUBLE_BREWING_REWARDS
 from ankiscape.core.item_registry import (
     item_definitions_by_id,
     item_definitions_by_storage_key,
@@ -1199,6 +1201,33 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_trouble_brewing_cosmetics_are_registered_with_source_art(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        with open("assets_provenance.json", encoding="utf-8") as file_obj:
+            provenance = json.load(file_obj)
+        self.assertEqual(
+            set(TROUBLE_BREWING_ITEM_IMAGES),
+            {reward.display_name for reward in TROUBLE_BREWING_REWARDS},
+        )
+        for reward in TROUBLE_BREWING_REWARDS:
+            with self.subTest(item=reward.display_name):
+                definition = by_storage_key[reward.display_name]
+                self.assertEqual(definition.source_item_id, reward.source_item_id)
+                self.assertEqual(definition.category, "equipment")
+                self.assertFalse(definition.stackable)
+                self.assertFalse(definition.tradeable)
+                self.assertEqual(
+                    definition.asset_path,
+                    TROUBLE_BREWING_ITEM_IMAGES[reward.display_name],
+                )
+                self.assertTrue(os.path.exists(definition.asset_path))
+                relative_path = os.path.relpath(definition.asset_path)
+                self.assertIn(relative_path, provenance)
+                self.assertLessEqual(
+                    provenance[relative_path]["timestamp"],
+                    "2012-11-20T23:59:59Z",
+                )
 
     def test_shades_bronze_chest_poisoned_daggers_are_registered_with_art(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

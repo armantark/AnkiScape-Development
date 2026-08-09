@@ -7,9 +7,13 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 Status: **period gameplay and reward economy source-closed; horizontal
 implementation verified on 2026-07-21.**
 
+Superseded for catalog depth on `2026-08-09`: all 27 cosmetic and flag rows are
+live. See `trouble-brewing-cosmetic-catalog-2026-08-09.md`; the historical
+single-Blue-tricorn statements below describe the original breadth slice.
+
 ## Period evidence
 
-The literal wikitext of `Trouble Brewing`, oldid `6573931`, timestamp
+The literal wikitext of `Trouble Brewing`, oldid `6579342`, timestamp
 `2012-11-18T20:43:05Z`, establishes:
 
 - the `Cabin Fever` and level-40 Cooking entry gates;
@@ -29,14 +33,14 @@ The literal wikitext of `Trouble Brewing`, oldid `6573931`, timestamp
 
 Source:
 
-- <https://runescape.wiki/w/Trouble_Brewing?oldid=6573931>
+- <https://runescape.wiki/w/Trouble_Brewing?oldid=6579342>
 
-`Honest Jimmy's House of Stuff`, oldid `6399561`, timestamp
+`Honest Jimmy's House of Stuff`, oldid `6393015`, timestamp
 `2012-10-13T04:08:35Z`, independently pins the reward shop, including a
 50-Piece tricorn hat, 100-Piece shirt and slacks, flags at 200–600, The stuff
 at 5, and red/blue rum at 2:
 
-- <https://runescape.wiki/w/Honest_Jimmy%27s_House_of_Stuff?oldid=6399561>
+- <https://runescape.wiki/w/Honest_Jimmy%27s_House_of_Stuff?oldid=6393015>
 
 The dated Tip.It shop database says its prices were confirmed on `2012-05-16`
 and lists the same catalog and prices:
@@ -53,7 +57,7 @@ The owning contract in `trouble-brewing-race-model-2026-07-18.md` already
 settles a bounded duty race against a simulated opponent with two-way sabotage.
 The source does not publish an opponent production curve, sabotage frequency,
 or a discrete count of consequential decisions in twenty minutes. The
-horizontal slice therefore discloses these `provisional/oldid-6573931`
+horizontal slice therefore discloses these `provisional/oldid-6579342`
 parameters rather than claiming them as historical values:
 
 - sixteen answered-card beats per game;

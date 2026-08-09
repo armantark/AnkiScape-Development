@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -17,12 +18,22 @@ if str(ROOT) not in sys.path:
 
 from tools.fetch_assets import AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset  # noqa: E402
 
+import pkg_alias  # noqa: E402,F401  (installs the ankiscape package alias)
+from ankiscape.data.trouble_brewing_data import TROUBLE_BREWING_REWARDS  # noqa: E402
+
 PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
+
+
+def _asset_filename(item_name: str) -> str:
+    if item_name == "Blue tricorn hat":
+        return "blue_tricorn_hat.png"
+    slug = "_".join(re.findall(r"[a-z0-9]+", item_name.lower()))
+    return f"trouble_brewing_{slug}.png"
 
 
 def asset_manifest() -> tuple[tuple[AssetRequest, int | None], ...]:
     provenance = ROOT / "assets_provenance.json"
-    return (
+    requests = [
         (
             AssetRequest(
                 item_name="Trouble Brewing",
@@ -32,16 +43,22 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int | None], ...]:
             ),
             64,
         ),
+    ]
+    requests.extend(
         (
             AssetRequest(
-                item_name="Blue tricorn hat",
-                wiki_title="Blue tricorn hat.png",
-                output_path=ROOT / "activityitems" / "blue_tricorn_hat.png",
+                item_name=reward.display_name,
+                wiki_title=f"{reward.display_name}.png",
+                output_path=(
+                    ROOT / "activityitems" / _asset_filename(reward.display_name)
+                ),
                 provenance_path=provenance,
             ),
-            None,
-        ),
+            48,
+        )
+        for reward in TROUBLE_BREWING_REWARDS
     )
+    return tuple(requests)
 
 
 def main() -> int:

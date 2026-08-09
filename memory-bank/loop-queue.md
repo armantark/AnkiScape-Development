@@ -107,3 +107,11 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Complete Shades of Mort'ton's reconstructed bronze-chest catalog with
      all 23 reward identities and quantities, three live key modifiers,
      one-clue enforcement, poisoned-dagger equipment rows, and normalized art.
+   - [x] Complete Trouble Brewing's 27-row naval-cosmetic and flag catalog with
+     exact prices, equipment definitions, atomic purchase/undo, source art,
+     selector icons, and selection-state refresh.
+   - [ ] Complete Trouble Brewing's two rum teleport rewards through the
+     established direct-action route/undo seam.
+   - [ ] Complete Honest Jimmy's 5,000-Piece medium-clue service through the
+     settled Treasure Trails one-clue-total rule.
+   - [ ] Complete `The stuff` through the owning mature-ale brewing action.

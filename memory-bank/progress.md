@@ -1,5 +1,34 @@
 # Progress
 
+## Trouble Brewing cosmetic reward catalog — 2026-08-09
+
+Cutoff Honest Jimmy oldid `6393015`, timestamp `2012-10-13T04:08:35Z`, pins
+seven Blue/Green/Red/Brown/Black/Purple/Grey naval sets and six flags in exact
+source order at `50`–`600` Pieces of Eight. OpenRS2 rev-742 supplies identities
+`8952`–`8971` and `8991`–`8997`; the authentic game-main equipment blocks pin
+body/head/legs/weapon slots, zero bonuses, flag weapon type, attack speeds, and
+Phasmatys's two-handed state. Correct oldids `6579342`/`6393015` replace stale
+migrated references `6573931`/`6399561` for this family.
+
+All 27 rewards now use the existing atomic purchase/direct-undo, item, Bank,
+and equipment paths. Every selector row has a normalized cutoff sprite and an
+explicit compact `PoE` unit. A real Qt interaction regression proves selection
+changes recompute Buy availability; this fixes a dormant one-row-era UI bug.
+Kimi K3 and Fable independently found the missing currency unit and otherwise
+approved the bounded existing-card change. Neither review is a native Anki
+appearance claim.
+
+Focused pure/integration/write-through/equipment/registry checks pass 141
+tests, and four focused real Qt checks pass. Full plain and real offscreen-Qt
+discovery each pass 3,916 tests, with 480 expected plain skips and three
+intentional Qt skips. Documentation audits pass across 530 Markdown and 431
+HTML files; test quality has zero hard issues across 3,882 tests in 177 files.
+Reachability is 1,511 actions, 2,313 items, 168 known orphans, and 188 known
+blocked actions. Compilation, tracked JSON, diff, deterministic asset fetching,
+asset normalization, and worktree safety pass. Rum teleports, the 5,000-Piece
+medium clue service, and `The stuff` remain separate mechanic-depth slices. See
+`memory-bank/source-audits/trouble-brewing-cosmetic-catalog-2026-08-09.md`.
+
 ## Shades of Mort'ton bronze-chest catalog — 2026-08-09
 
 RuneScape Wiki `Shades of Mort'ton (minigame)` oldid `6449451`, timestamp

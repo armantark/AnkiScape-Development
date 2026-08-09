@@ -10,9 +10,9 @@ from .equipment_data import EquipmentBonuses, EquipmentItem
 
 TROUBLE_BREWING_ACTIVITY_ID = "trouble_brewing"
 TROUBLE_BREWING_SOURCE = (
-    "RuneScape Wiki Trouble Brewing oldid=6573931 "
+    "RuneScape Wiki Trouble Brewing oldid=6579342 "
     "(2012-11-18T20:43:05Z); Honest Jimmy's House of Stuff "
-    "oldid=6399561 (2012-10-13T04:08:35Z); OpenRS2 rev-742"
+    "oldid=6393015 (2012-10-13T04:08:35Z); OpenRS2 rev-742"
 )
 
 # The source game lasted twenty minutes but publishes no discrete action count
@@ -72,19 +72,98 @@ class TroubleBrewingReward:
     display_name: str
     pieces_of_eight: int
     source_item_id: int
-    slot: str | None = None
+    slot: str
+    two_handed: bool = False
+    weapon_type: int = -1
+    attack_speed: int = 4
 
 
-# One period cosmetic is sufficient to prove currency earning, direct purchase,
-# bank reachability, and equipment use. The remaining colour sets and flags are
-# catalog depth rather than a second mechanic.
-TROUBLE_BREWING_REWARDS = (
+TROUBLE_BREWING_NAVAL_COLOURS = (
+    ("Blue", 8952, 8959, 8991),
+    ("Green", 8953, 8960, 8992),
+    ("Red", 8954, 8961, 8993),
+    ("Brown", 8955, 8962, 8994),
+    ("Black", 8956, 8963, 8995),
+    ("Purple", 8957, 8964, 8996),
+    ("Grey", 8958, 8965, 8997),
+)
+
+TROUBLE_BREWING_REWARDS = tuple(
+    reward
+    for colour, shirt_id, hat_id, slacks_id in TROUBLE_BREWING_NAVAL_COLOURS
+    for reward in (
+        TroubleBrewingReward(
+            reward_id=f"{colour.lower()}_naval_shirt",
+            display_name=f"{colour} naval shirt",
+            pieces_of_eight=100,
+            source_item_id=shirt_id,
+            slot="body",
+        ),
+        TroubleBrewingReward(
+            reward_id=f"{colour.lower()}_tricorn_hat",
+            display_name=f"{colour} tricorn hat",
+            pieces_of_eight=50,
+            source_item_id=hat_id,
+            slot="head",
+        ),
+        TroubleBrewingReward(
+            reward_id=f"{colour.lower()}_navy_slacks",
+            display_name=f"{colour} navy slacks",
+            pieces_of_eight=100,
+            source_item_id=slacks_id,
+            slot="legs",
+        ),
+    )
+) + (
     TroubleBrewingReward(
-        reward_id="blue_tricorn_hat",
-        display_name="Blue tricorn hat",
-        pieces_of_eight=50,
-        source_item_id=8959,
-        slot="head",
+        "cutthroat_flag",
+        "Cutthroat flag",
+        200,
+        8966,
+        "weapon",
+        weapon_type=14,
+    ),
+    TroubleBrewingReward(
+        "guilded_smile_flag",
+        "Guilded smile flag",
+        200,
+        8967,
+        "weapon",
+        weapon_type=14,
+        attack_speed=2,
+    ),
+    TroubleBrewingReward(
+        "bronze_fist_flag",
+        "Bronze fist flag",
+        300,
+        8968,
+        "weapon",
+        weapon_type=14,
+    ),
+    TroubleBrewingReward(
+        "lucky_shot_flag",
+        "Lucky shot flag",
+        400,
+        8969,
+        "weapon",
+        weapon_type=14,
+    ),
+    TroubleBrewingReward(
+        "treasure_flag",
+        "Treasure flag",
+        500,
+        8970,
+        "weapon",
+        weapon_type=14,
+    ),
+    TroubleBrewingReward(
+        "phasmatys_flag",
+        "Phasmatys flag",
+        600,
+        8971,
+        "weapon",
+        two_handed=True,
+        weapon_type=14,
     ),
 )
 TROUBLE_BREWING_REWARDS_BY_ID = {
@@ -110,7 +189,6 @@ def trouble_brewing_activity_as_dict() -> dict[str, dict[str, Any]]:
 
 
 def trouble_brewing_extra_items_as_dict() -> dict[str, dict[str, Any]]:
-    reward = TROUBLE_BREWING_REWARDS[0]
     return {
         reward.display_name: {
             "category": "equipment",
@@ -119,28 +197,29 @@ def trouble_brewing_extra_items_as_dict() -> dict[str, dict[str, Any]]:
             "tradeable": False,
             "source": TROUBLE_BREWING_SOURCE,
         }
+        for reward in TROUBLE_BREWING_REWARDS
     }
 
 
 def trouble_brewing_equipment_data_as_dict() -> dict[str, EquipmentItem]:
-    reward = TROUBLE_BREWING_REWARDS[0]
     return {
         reward.display_name: EquipmentItem(
             item_name=reward.display_name,
-            slot="head",
+            slot=reward.slot,
             combat_skill=None,
             required_level=1,
-            two_handed=False,
+            two_handed=reward.two_handed,
             equipment_type="trouble_brewing_reward",
             bonuses=EquipmentBonuses(),
-            attack_speed=4,
+            attack_speed=reward.attack_speed,
             source_item_id=reward.source_item_id,
             source=(
-                "2011Scape rev-667 items.yml item 8959; "
+                f"2011Scape rev-667 items.yml item {reward.source_item_id}; "
                 + TROUBLE_BREWING_SOURCE
             ),
-            source_status="period item identity and zero-bonus equipment block",
+            source_status="items.yml equipment block; rev-742 identity and bonuses",
             skill_requirements=(),
-            weapon_type=-1,
+            weapon_type=reward.weapon_type,
         )
+        for reward in TROUBLE_BREWING_REWARDS
     }

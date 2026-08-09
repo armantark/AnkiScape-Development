@@ -6,6 +6,7 @@ from dataclasses import asdict
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.trouble_brewing_data import (
     TROUBLE_BREWING_EVENT_REVIEWS,
+    TROUBLE_BREWING_REWARDS,
     trouble_brewing_equipment_data_as_dict,
 )
 from ankiscape.logic.trouble_brewing_logic import (
@@ -38,11 +39,62 @@ def _entered(**overrides):
 
 
 class TroubleBrewingEntryTests(unittest.TestCase):
-    def test_representative_reward_is_an_authentic_zero_stat_head_item(self):
-        item = trouble_brewing_equipment_data_as_dict()["Blue tricorn hat"]
-        self.assertEqual(item.source_item_id, 8959)
-        self.assertEqual(item.slot, "head")
-        self.assertTrue(all(value == 0 for value in asdict(item.bonuses).values()))
+    def test_complete_cosmetic_catalog_has_authentic_zero_stat_equipment(self):
+        expected = (
+            ("Blue naval shirt", 100, 8952),
+            ("Blue tricorn hat", 50, 8959),
+            ("Blue navy slacks", 100, 8991),
+            ("Green naval shirt", 100, 8953),
+            ("Green tricorn hat", 50, 8960),
+            ("Green navy slacks", 100, 8992),
+            ("Red naval shirt", 100, 8954),
+            ("Red tricorn hat", 50, 8961),
+            ("Red navy slacks", 100, 8993),
+            ("Brown naval shirt", 100, 8955),
+            ("Brown tricorn hat", 50, 8962),
+            ("Brown navy slacks", 100, 8994),
+            ("Black naval shirt", 100, 8956),
+            ("Black tricorn hat", 50, 8963),
+            ("Black navy slacks", 100, 8995),
+            ("Purple naval shirt", 100, 8957),
+            ("Purple tricorn hat", 50, 8964),
+            ("Purple navy slacks", 100, 8996),
+            ("Grey naval shirt", 100, 8958),
+            ("Grey tricorn hat", 50, 8965),
+            ("Grey navy slacks", 100, 8997),
+            ("Cutthroat flag", 200, 8966),
+            ("Guilded smile flag", 200, 8967),
+            ("Bronze fist flag", 300, 8968),
+            ("Lucky shot flag", 400, 8969),
+            ("Treasure flag", 500, 8970),
+            ("Phasmatys flag", 600, 8971),
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    reward.display_name,
+                    reward.pieces_of_eight,
+                    reward.source_item_id,
+                )
+                for reward in TROUBLE_BREWING_REWARDS
+            ),
+            expected,
+        )
+        equipment = trouble_brewing_equipment_data_as_dict()
+        self.assertEqual(len(equipment), len(expected))
+        for item in equipment.values():
+            self.assertTrue(
+                all(value == 0 for value in asdict(item.bonuses).values()),
+                item.item_name,
+            )
+        self.assertEqual(equipment["Blue naval shirt"].slot, "body")
+        self.assertEqual(equipment["Blue tricorn hat"].slot, "head")
+        self.assertEqual(equipment["Blue navy slacks"].slot, "legs")
+        self.assertEqual(equipment["Cutthroat flag"].slot, "weapon")
+        self.assertFalse(equipment["Cutthroat flag"].two_handed)
+        self.assertTrue(equipment["Phasmatys flag"].two_handed)
+        self.assertEqual(equipment["Guilded smile flag"].attack_speed, 2)
+        self.assertEqual(equipment["Guilded smile flag"].weapon_type, 14)
 
     def test_entry_requires_cooking_40_cabin_fever_and_free_activity_slot(self):
         for player, reason in (
@@ -276,13 +328,28 @@ class TroubleBrewingRewardTests(unittest.TestCase):
         self.assertEqual(bought["trouble_brewing_pieces_of_eight"], 0)
         self.assertEqual(bought["inventory"]["Blue tricorn hat"], 1)
         view = trouble_brewing_view_pure(bought)
-        self.assertEqual(view["rewards"][0]["pieces_of_eight"], 50)
+        blue_hat = next(
+            reward
+            for reward in view["rewards"]
+            if reward["reward_id"] == "blue_tricorn_hat"
+        )
+        self.assertEqual(blue_hat["pieces_of_eight"], 50)
 
         _same, ok, info = buy_trouble_brewing_reward_pure(
             bought, "blue_tricorn_hat"
         )
         self.assertFalse(ok)
         self.assertIn("Requires 50", info["reason"])
+
+    def test_expensive_flag_uses_the_same_atomic_purchase_path(self):
+        player = _player(trouble_brewing_pieces_of_eight=600)
+        bought, ok, info = buy_trouble_brewing_reward_pure(
+            player, "phasmatys_flag"
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(bought["trouble_brewing_pieces_of_eight"], 0)
+        self.assertEqual(bought["inventory"]["Phasmatys flag"], 1)
+        self.assertNotIn("Phasmatys flag", player["inventory"])
 
     def test_command_router_blocks_shopping_during_a_live_game(self):
         player = _entered(trouble_brewing_pieces_of_eight=50)

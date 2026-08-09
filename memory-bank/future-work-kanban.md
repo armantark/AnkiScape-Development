@@ -1631,6 +1631,10 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   Pest Control, Varrock Museum, Barbarian Assault, and Soul Wars with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
+- Trouble Brewing now includes all seven three-piece naval colour sets and all
+  six flags with exact prices, source equipment rows, normalized art, and the
+  existing atomic reward path. Its rums, medium-clue service, and `The stuff`
+  remain three separate mechanic-depth slices rather than inert catalog rows.
 - Soul Wars now owns the complete twelve-beat objective match, participation,
   safe-death Combat, exact Zeal, representative charm shop, persistence,
   arbitration, cadence, undo, UI, and normalized assets. Continue with the
