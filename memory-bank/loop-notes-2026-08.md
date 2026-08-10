@@ -1269,3 +1269,25 @@
   compilation, JSON, placeholder, asset normalization, reachability, diff, and
   worktree audits pass. Reachability improves to 1,552/2,431/107/106. Native
   Anki is not claimed. GPT-family root verified.
+
+## Iteration 59 — Living rock remains acquisition
+
+- Result: the level-73 Mining target now awards 25 XP and an inclusive 5–24
+  Living-mineral bundle through the ordinary Mining review path.
+- Source: Living rock remains oldid `6556376` pins the focused row. Living Rock
+  Caverns oldid `6547876` corroborates access, level, XP, danger, and public
+  corpse custody but conflicts at 5–20 minerals. Darkan commit `3e5880517`
+  restores the custody mechanic and reconstructs the hidden `30/145` curve.
+- Placeholder: `mining.living_rock_remains_rolls` registers the executable
+  success endpoints and the uniform distribution inside the focused page's
+  range. A period routine or stronger independent table would retire it.
+- Integration: one review collapses the public-corpse wait without a wall
+  clock or Combat prerequisite. The shared Mining reducer and telemetry now
+  preserve actual primary bundle quantities. Existing single and weighted
+  outputs remain unchanged.
+- Verification: 485 focused plain checks and one real offscreen Qt selector
+  check pass. Full plain and Qt discovery each pass 4,029 tests, with 491
+  expected plain skips and three Qt skips. Documentation, test quality,
+  compilation, JSON, placeholder, asset normalization, diff, reachability, and
+  worktree checks pass. Reachability improves to 1,553/2,434/105/104. Native
+  Anki is not claimed. GPT-family root verified.

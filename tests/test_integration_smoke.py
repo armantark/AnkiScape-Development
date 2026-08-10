@@ -3038,6 +3038,50 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_living_rock_remains_bundle_persists_and_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_living_rock_remains_integration")
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {},
+            "mining_level": 73,
+            "mining_exp": 0.0,
+            "current_ore": "living_rock_remains",
+            "toolbelt": {"mining": ["rune_pickaxe"]},
+            "equipment": {},
+            "quests": {},
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Mining"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        rolls = iter((0.0, 0.0, 1.0, 0.0))
+        original_random = addon.random.random
+        addon.random.random = lambda: next(rolls, 0.5)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Living minerals"], 5)
+        self.assertEqual(addon.player_data["mining_exp"], 25.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_bonecrusher_kill_rewards_and_counters_roll_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_bonecrusher_undo_integration")
         addon.level_up_check = lambda _skill, _data: None

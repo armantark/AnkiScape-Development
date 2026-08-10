@@ -349,3 +349,5 @@
 2026-08-09 — The first focused Long-kebbit run guessed nonexistent unittest selectors `RuntimeActionsTest` and `test_hunter_targets_render_in_sourced_groups_with_actionable_locks`; query class and method definitions before composing single-test selectors.
 2026-08-09 — A dependency lookup used unmatched `requirements*.txt`, and zsh aborted before the actual Qt-runtime search; keep optional globs out of fixed argument lists.
 2026-08-09 — Final Long-kebbit staging found Markdown hard-break whitespace in the new audit only after `git add`; use a blank line instead of trailing spaces for status metadata.
+2026-08-10 00:13:58 PDT — A Codex Workflows manifest used `mode: read_only`, but build `0.1.0+codex.20260718230940` accepts only `read` or `write`; the preflight rejected the run before creating a run ID.
+2026-08-10 — Codex Workflows run `5a512efd-fdf7-4b34-a8b2-2db0fea6b939` spent its first 28,612 processed tokens reading injected skills, then exceeded the 30,000-token limit at 59,891 after one diff read and emitted no review verdict; reviewer budgets must account for the full injected project context or use a smaller isolated evidence packet.

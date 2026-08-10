@@ -14,6 +14,22 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Living rock remains acquisition — shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for the hidden success/distribution rolls and the
+5–20 versus 5–24 source conflict.
+
+- The level-73 Mining row now supplies 5–24 Living minerals, awards 25 XP, and
+  reuses the established Mining selector, carried pack, cadence, persistence,
+  Shattered Heart, telemetry, and review undo.
+- The focused cutoff remains page supplies the live range. Darkan's `30/145`
+  success reconstruction and the uniform bundle distribution are registered
+  together as `mining.living_rock_remains_rolls`.
+- The existing normalized cutoff sprite covers the selector and inventory. No
+  Combat dependency, wall-clock state, or new UI pattern was introduced.
+- Durable audit:
+  `memory-bank/source-audits/living-rock-remains-acquisition-2026-08-09.md`.
+
 ### Razor-backed kebbit tracking — shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for the hidden catch curve and remaining tracking

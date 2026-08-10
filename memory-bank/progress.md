@@ -1,5 +1,25 @@
 # Progress
 
+## Living rock remains acquisition — 2026-08-09
+
+Living rock remains now supplies the previously orphaned Living minerals
+through a level-73 Mining row. A successful review awards 25 XP and 5–24
+minerals, records the actual bundle throughout telemetry and achievement
+progress, persists it, and rolls it back with review undo. The focused cutoff
+page supplies the visible range; Darkan's hidden `30/145` success curve and the
+uniform range distribution remain registered as
+`mining.living_rock_remains_rolls`. Existing normalized period art covers the
+selector and inventory. The public-corpse delay is collapsed into one review,
+with no wall clock and no artificial Combat prerequisite. Durable evidence:
+`source-audits/living-rock-remains-acquisition-2026-08-09.md`.
+
+Reachability is now 1,553 actions / 2,434 reachable items / 105 orphan inputs /
+104 unresolved actions. Focused checks pass 485 plain tests and one real
+offscreen Qt test. Both full discovery lanes pass 4,029 tests, with 491
+expected plain skips and three Qt skips. Documentation, test-quality,
+compilation, JSON, placeholder, asset-normalization, diff, reachability, and
+worktree gates pass. Native Anki interaction is not claimed.
+
 ## Razor-backed kebbit tracking — 2026-08-09
 
 Razor-backed kebbit tracking now supplies the previously orphaned Long kebbit

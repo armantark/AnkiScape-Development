@@ -68,6 +68,7 @@ class MiningTarget:
     output_stackable: bool = True
     alternate_output_tradeable: bool = True
     alternate_output_stackable: bool = True
+    output_quantity_range: Tuple[int, int] = (1, 1)
 
 
 @dataclass(frozen=True)
@@ -229,6 +230,29 @@ MINING_TARGETS: Tuple[MiningTarget, ...] = (
     ),
     _target("mithril", "Mithril", 55, 80.0, "Mithril ore", 447, 2, 50, 200, 2),
     _target("adamantite", "Adamantite", 70, 95.0, "Adamantite ore", 449, 1, 25, 400, 3),
+    _target(
+        "living_rock_remains",
+        "Living rock remains",
+        73,
+        25.0,
+        "Living minerals",
+        15263,
+        # PLACEHOLDER(mining.living_rock_remains_rolls): Darkan's restored
+        # 30/145 success curve and the focused cutoff page's 5-24 bundle stay
+        # registered until a period routine settles both hidden rolls.
+        30,
+        145,
+        -1,
+        None,
+        source="https://runescape.wiki/w/Living_rock_remains?oldid=6556376",
+        output_quantity_range=(5, 24),
+        allows_random_gems=False,
+        notes=(
+            "One review mines an available public-cavern corpse. A self-killed "
+            "corpse is immediately available; the period delay on another "
+            "player's corpse is collapsed into the review action."
+        ),
+    ),
     _target(
         "concentrated_coal",
         "Concentrated coal",
@@ -452,6 +476,7 @@ def mining_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "alternate_output_level": target.alternate_output_level,
             "alternate_output_tradeable": target.alternate_output_tradeable,
             "alternate_output_stackable": target.alternate_output_stackable,
+            "output_quantity_range": target.output_quantity_range,
             "weighted_outputs": tuple(
                 {
                     "item": output.item,

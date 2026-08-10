@@ -770,6 +770,8 @@ def mining_target_rows(
         lvl_req = int(data.get("level", 1) or 1)
         output_item = data.get("output_item")
         weighted = data.get("weighted_outputs", ()) or ()
+        quantity_range = data.get("output_quantity_range", (1, 1))
+        variable_quantity = False
         alt_item = data.get("alternate_output_item")
         alt_level = data.get("alternate_output_level")
 
@@ -796,14 +798,24 @@ def mining_target_rows(
                 f"(becomes {alt_item} at Mining level {alt_level}+)"
             )
         elif output_item:
-            output_line = f"Output: {output_item} x1"
+            minimum_quantity, maximum_quantity = quantity_range
+            minimum_quantity = int(minimum_quantity)
+            maximum_quantity = int(maximum_quantity)
+            quantity_label = (
+                str(minimum_quantity)
+                if minimum_quantity == maximum_quantity
+                else f"{minimum_quantity}-{maximum_quantity}"
+            )
+            variable_quantity = minimum_quantity != maximum_quantity
+            output_line = f"Output: {output_item} x{quantity_label}"
         else:
             output_line = "Output: none"
 
         tooltip = (
             f"Requires Mining level {lvl_req}. You have {lvl_have}.\n"
             f"{output_line}\n"
-            f"Base XP: {data.get('exp', 0):g} per ore\n"
+            f"Base XP: {data.get('exp', 0):g} per "
+            f"{'action' if variable_quantity else 'ore'}\n"
             f"Best usable pickaxe: {best_pick_name or 'none — get a pickaxe'}"
         )
         note = data.get("notes")

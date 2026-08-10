@@ -16251,6 +16251,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Output: Coal x1", concentrated_coal.toolTip())
         self.assertIn("does not model rock depletion", concentrated_coal.toolTip())
 
+        remains = self._ore_row(ore_list, "Living rock remains ")
+        self.assertFalse(remains.icon().isNull())
+        self.assertIn("Mining level 73", remains.toolTip())
+        self.assertIn("Output: Living minerals x5-24", remains.toolTip())
+        self.assertIn("Base XP: 25 per action", remains.toolTip())
+
     def test_open_bird_nests_is_a_visible_no_xp_utility_activity(self) -> None:
         utility_tree = self._open_utility(self.dialog)
         texts = [it.text(0) for it in _tree_items(utility_tree)]

@@ -1,5 +1,6 @@
 import json
 import os
+import struct
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
@@ -1024,6 +1025,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Raw crayfish"].base_exp, 10.0)
         self.assertEqual(FISHING_DATA["catch_sardine_herring"]["requirements"], {"Fishing bait": 1})
         self.assertEqual(FISHING_DATA["catch_crayfish"]["requirements"], {})
+
+        living_minerals_path = FISHING_ITEM_IMAGES["Living minerals"]
+        with open(living_minerals_path, "rb") as handle:
+            data = handle.read(24)
+        self.assertEqual(struct.unpack(">II", data[16:24]), (24, 15))
+        with open("assets_provenance.json", encoding="utf-8") as handle:
+            provenance = json.load(handle)["fishingitems/living_minerals.png"]
+        self.assertEqual(provenance["timestamp"], "2012-10-18T21:54:58Z")
+        self.assertEqual(provenance["sha1"], "2d0cabcc9d42634dceec0f7a61992ecb6a6b55fd")
 
     def test_crafting_source_data_uses_stable_ids_and_live_targets(self):
         self.assertNotIn("Soft clay", CRAFTING_DATA)

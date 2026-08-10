@@ -1232,7 +1232,8 @@ ORE_IMAGES = {
     "Gold ore": os.path.join(ores_folder, "Gold.png"),
     "Mithril ore": os.path.join(ores_folder, "Mithril.png"),
     "Adamantite ore": os.path.join(ores_folder, "Adamantite.png"),
-    "Runite ore": os.path.join(ores_folder, "Runite.png")
+    "Runite ore": os.path.join(ores_folder, "Runite.png"),
+    "Living minerals": os.path.join(FISHING_ITEMS_FOLDER, "living_minerals.png"),
 }
 for _item_name, _filename in {
     "Pure essence": "pure_essence.png",

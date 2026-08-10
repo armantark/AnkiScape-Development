@@ -174,6 +174,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Hunter:track_razor_backed_kebbit",
         )
         self.assertEqual(
+            report["routes"]["Living minerals"],
+            "Mining:living_rock_remains",
+        )
+        self.assertEqual(
             [
                 row for row in report["orphan_inputs"]
                 if row["item"] == "Long kebbit spike"

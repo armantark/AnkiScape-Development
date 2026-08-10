@@ -113,6 +113,31 @@ class TestRuntimeActions(unittest.TestCase):
             any("1.5× Brawling gloves" in text for text in calls["activity"])
         )
 
+    def test_living_rock_remains_records_the_full_mineral_bundle(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_ore": "living_rock_remains",
+            "inventory": {},
+            "toolbelt": {"mining": ["rune_pickaxe"]},
+            "equipment": {},
+            "mining_level": 73,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_mining_answer(
+                _context(player_data, calls, random_values=(0.0, 0.5, 1.0, 0.0))
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Living minerals"], 15)
+        self.assertEqual(player_data["mining_exp"], 25.0)
+        telemetry = player_data["action_telemetry"]["actions"][
+            "mining:living_rock_remains"
+        ]
+        self.assertEqual(telemetry["outputs"], {"Living minerals": 15})
+
     def test_tzhaar_fight_pit_routes_review_and_terminal_state_through_utility(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

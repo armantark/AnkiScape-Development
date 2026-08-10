@@ -162,3 +162,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Long-kebbit-spike acquisition through the cutoff Razor-backed
      tracking row, registering only the hidden catch curve and reusing the
      established Hunter selector, carried-pack, and review-undo paths.
+   - [x] Close Living-minerals acquisition through the level-73 Living-rock-
+     remains row, with the focused cutoff bundle, registered hidden rolls,
+     accurate multi-output telemetry, selector art, persistence, and review undo.

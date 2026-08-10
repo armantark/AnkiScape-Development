@@ -1574,6 +1574,29 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(new_inv[output_item], 1)
             self.assertEqual(new_inv["Uncut sapphire"], 0)
 
+    def test_apply_mining_action_living_rock_remains_uses_sourced_bundle_range(self):
+        for roll, expected_quantity in ((0.0, 5), (0.999999, 24)):
+            new_inv, exp, ok, output_item, gem, extra = apply_mining_action_pure(
+                "living_rock_remains",
+                {"Living minerals": 0},
+                ORE_DATA,
+                73,
+                MINING_PICKAXE_DATA["rune_pickaxe"],
+                0.0,
+                roll,
+                0.0,
+                0.0,
+                INCIDENTAL_GEM_DROP_TABLE,
+                1.0,
+            )
+
+            self.assertTrue(ok)
+            self.assertEqual(exp, 25.0)
+            self.assertEqual(output_item, "Living minerals")
+            self.assertIsNone(gem)
+            self.assertIsNone(extra)
+            self.assertEqual(new_inv["Living minerals"], expected_quantity)
+
     def test_apply_mining_action_weighted_outputs_use_output_xp(self):
         new_inv, exp, ok, output_item, _gem, _extra = apply_mining_action_pure(
             "sandstone",

@@ -1580,6 +1580,7 @@ class TargetMetadataTest(unittest.TestCase):
 
         coal = _row(rows, "coal")
         concentrated_coal = _row(rows, "concentrated_coal")
+        remains = _row(rows, "living_rock_remains")
         runite = _row(rows, "runite")
 
         self.assertIsInstance(coal, TargetRowMetadata)
@@ -1594,6 +1595,10 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("level 77", concentrated_coal.tooltip)
         self.assertIn("Living Rock Caverns deposit", concentrated_coal.tooltip)
         self.assertIn("does not model rock depletion", concentrated_coal.tooltip)
+        self.assertEqual(remains.label, "Living rock remains (Lvl 73)")
+        self.assertEqual(remains.icon_path, ORE_IMAGES["Living minerals"])
+        self.assertIn("Output: Living minerals x5-24", remains.tooltip)
+        self.assertIn("Base XP: 25 per action", remains.tooltip)
         self.assertFalse(runite.enabled)
         self.assertIn("level 85", runite.tooltip)
 

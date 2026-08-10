@@ -962,9 +962,10 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         )
     )
 
+    inventory_before = dict(player_data.get("inventory", {}) or {})
     new_inv, base_exp, ok, output_item, gem, extra_output = apply_mining_action_pure(
         ore,
-        player_data.get("inventory", {}),
+        inventory_before,
         ORE_DATA,
         player_level,
         pickaxe_spec,
@@ -1014,17 +1015,20 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         )
         output_items: dict[str, int] = {}
         primary_outputs: dict[str, int] = {}
-        for item_name in (output_item, extra_output, ore_bonus_output):
-            if item_name:
-                primary_outputs[item_name] = primary_outputs.get(item_name, 0) + 1
-        for item_name in (
-            output_item,
-            gem,
-            extra_output,
-            ore_bonus_output,
-        ):
+        if output_item:
+            previous_quantity = int(inventory_before.get(output_item, 0) or 0)
+            primary_quantity = int(new_inv.get(output_item, 0) or 0) - previous_quantity
+            primary_quantity -= int(extra_output == output_item)
+            primary_quantity -= int(ore_bonus_output == output_item)
+            if primary_quantity > 0:
+                primary_outputs[output_item] = primary_quantity
+                output_items[output_item] = primary_quantity
+        for item_name in (gem, extra_output, ore_bonus_output):
             if item_name:
                 output_items[item_name] = output_items.get(item_name, 0) + 1
+        for item_name in (extra_output, ore_bonus_output):
+            if item_name:
+                primary_outputs[item_name] = primary_outputs.get(item_name, 0) + 1
         _record_action(
             ctx,
             "mining",

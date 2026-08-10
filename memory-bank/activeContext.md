@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 59 closes Living rock remains.** The
+ordinary Mining selector now exposes a level-73 target that awards 25 XP and
+5–24 Living minerals. One review collapses the period public-corpse custody
+delay without a wall clock or artificial Combat prerequisite. The hidden
+`30/145` success endpoints and uniform bundle distribution remain registered
+as `mining.living_rock_remains_rolls`; the focused cutoff page's 5–24 range is
+preferred over the cavern overview's conflicting 5–20 summary. The shared
+Mining reducer, telemetry, achievements, carried pack, cadence, Shattered
+Heart, persistence, and review undo preserve the full bundle. Existing
+normalized cutoff art covers the row. Reachability improves to 1,553 actions,
+2,434 reachable items, 105 orphan inputs, and 104 unresolved actions. Focused
+checks pass 485 plain tests and one real offscreen Qt test. Both full discovery
+lanes pass 4,029 tests; plain has 491 expected skips and Qt has three.
+Documentation, test quality, compilation, JSON, placeholder, asset
+normalization, diff, reachability, and worktree checks pass. Native Anki
+interaction is not claimed. Durable audit:
+`memory-bank/source-audits/living-rock-remains-acquisition-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 58 closes Razor-backed kebbit tracking.**
 The established grouped Hunter selector now exposes a level-49 `Tracking`
 target requiring a reusable Noose wand. One review collapses the sourced four-

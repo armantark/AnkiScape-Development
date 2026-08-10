@@ -867,7 +867,19 @@ def apply_mining_action_pure(
         output_item = alternate_output_item
 
     if output_item:
-        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+        minimum_quantity, maximum_quantity = spec.get(
+            "output_quantity_range", (1, 1)
+        )
+        minimum_quantity = max(1, int(minimum_quantity))
+        maximum_quantity = max(minimum_quantity, int(maximum_quantity))
+        quantity_roll = min(
+            max(float(r_output if r_output is not None else 0.0), 0.0),
+            0.999999999999,
+        )
+        output_quantity = minimum_quantity + int(
+            quantity_roll * (maximum_quantity - minimum_quantity + 1)
+        )
+        new_inv[output_item] = new_inv.get(output_item, 0) + output_quantity
 
     extra_output = None
     required_varrock_tier = spec.get("varrock_armour_tier")

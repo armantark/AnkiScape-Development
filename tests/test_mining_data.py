@@ -33,6 +33,7 @@ class TestMiningData(unittest.TestCase):
                 "granite",
                 "mithril",
                 "adamantite",
+                "living_rock_remains",
                 "concentrated_coal",
                 "concentrated_gold",
                 "red_sandstone",
@@ -43,6 +44,12 @@ class TestMiningData(unittest.TestCase):
         self.assertEqual(MINING_TARGETS_BY_ID["rune_essence"].alternate_output_level, 30)
         self.assertEqual(MINING_TARGETS_BY_ID["limestone"].base_exp, 26.5)
         self.assertEqual(MINING_TARGETS_BY_ID["concentrated_coal"].level, 77)
+        remains = MINING_TARGETS_BY_ID["living_rock_remains"]
+        self.assertEqual(remains.level, 73)
+        self.assertEqual(remains.base_exp, 25.0)
+        self.assertEqual(remains.output_item, "Living minerals")
+        self.assertEqual(remains.output_quantity_range, (5, 24))
+        self.assertFalse(remains.allows_random_gems)
         self.assertEqual(MINING_TARGETS_BY_ID["concentrated_coal"].respawn_time, 300)
         self.assertFalse(MINING_TARGETS_BY_ID["concentrated_coal"].allows_random_gems)
         self.assertIn("stays available", MINING_TARGETS_BY_ID["concentrated_coal"].notes)
