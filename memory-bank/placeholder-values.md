@@ -20,6 +20,8 @@ Placeholders".
 
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
+| `woodcutting.arctic_pine_rolls` | Mahogany's `8/25` source chance envelope, `8` depletion roll, and `14` respawn row | Arctic pine Woodcutting and downstream Firemaking/splitting | A period server tree definition or measured table that closes Arctic pine success, depletion, and respawn behavior. Oldid `6069429` pins level, XP, output, location, and access but not the hidden rolls. |
+| `woodcutting.eucalyptus_rolls` | Yew's `4/12` source chance envelope, `8` depletion roll, and `99` respawn row | Eucalyptus Woodcutting and downstream Firemaking | A period server tree definition or measured table that closes Eucalyptus success, depletion, and respawn behavior. Oldid `6491980` pins level, XP, output, and safe route but not the hidden rolls. |
 | `conquest.board_size` | 20×20 bounded board | Conquest | Period map-region data, interface tile grid, or dated screenshots sufficient to count the authentic battlefield dimensions |
 | `great_orb_project.runecrafter_robe_piece_xp_rate` | 0.25% per worn standard piece, at most 1% for four occupied standard pieces | Great Orb Project | Cutoff article oldid 6327369 confirms an XP boost only while crafting essence inside the activity, and cutoff talk oldid 5565562 says each piece adds while rejecting range and Runecrafting-level folklore. Neither gives a magnitude. A period server crafting routine or measured XP table would replace the uniform bounded rate. |
 | `conquest.squad_unit_cap` | 10 troops | Conquest | Pre-cutoff rules text or server setup validation proving the formal cap; the current value follows full default and guide formations |

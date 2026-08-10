@@ -3845,6 +3845,55 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [50.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_eucalyptus_review_reward_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_eucalyptus_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        initial = {
+            "inventory": {},
+            "woodcutting_level": 58,
+            "woodcutting_exp": 0.0,
+            "current_tree": "eucalyptus",
+            "toolbelt": {"woodcutting": ["rune_hatchet"]},
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Woodcutting"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Eucalyptus logs"], 1)
+        self.assertEqual(addon.player_data["woodcutting_exp"], 165.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [165.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_seaweed_cooking_review_reward_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_seaweed_cooking_undo_integration")
 

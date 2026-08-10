@@ -1640,6 +1640,43 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(ivy.current)
         self.assertIn("XP only — produces no logs.", ivy.tooltip)
 
+    def test_special_woodcutting_rows_apply_access_and_reuse_cutoff_log_art(self):
+        player = {
+            "woodcutting_level": 99,
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["rune_hatchet"]},
+            "current_tree": "eucalyptus",
+            "quests": {},
+        }
+        rows = woodcutting_target_rows(
+            player,
+            TREE_DATA,
+            TREE_IMAGES,
+            WOODCUTTING_AXE_DATA,
+            DEFAULT_WOODCUTTING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        arctic = _row(rows, "arctic_pine")
+        eucalyptus = _row(rows, "eucalyptus")
+        self.assertFalse(arctic.enabled)
+        self.assertIn("Start The Fremennik Isles", arctic.tooltip)
+        self.assertIsNotNone(arctic.icon_path)
+        self.assertTrue(eucalyptus.enabled)
+        self.assertTrue(eucalyptus.current)
+        self.assertIsNotNone(eucalyptus.icon_path)
+
+        player["quests"] = {"the_fremennik_isles": {"started": True}}
+        unlocked = woodcutting_target_rows(
+            player,
+            TREE_DATA,
+            TREE_IMAGES,
+            WOODCUTTING_AXE_DATA,
+            DEFAULT_WOODCUTTING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked, "arctic_pine").enabled)
+
     def test_fletching_rows_preserve_stable_id_material_lock_and_current_target(self):
         rows = fletching_target_rows(
             {

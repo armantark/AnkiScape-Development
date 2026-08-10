@@ -1,5 +1,32 @@
 # Progress
 
+## Special Woodcutting acquisition — 2026-08-09
+
+Arctic pine and Eucalyptus now have live gathering routes into their existing
+Firemaking chains. Arctic pine requires level 54, awards 140.2 Woodcutting XP,
+produces Arctic pine logs, and unlocks when The Fremennik Isles starts.
+Eucalyptus requires level 58, awards 165 XP, produces Eucalyptus logs, and
+uses the settled safe-route abstraction without a quest or ambient-combat gate.
+
+Oldids `6069429` and `6491980` pin both visible rows. Their hidden success,
+depletion, and respawn constants remain unrecovered, so nearest-level Mahogany
+and Yew rows are registered as explicit placeholders. Both targets reuse
+normalized cutoff log sprites. The shared runtime now enforces Woodcutting
+quest locks as well as the selector, preventing saved/direct target states from
+bypassing the Arctic route wall.
+
+Focused checks pass 416 pure/data/runtime/metadata/reachability tests, two
+loaded-add-on undo checks, and one real offscreen Qt selector check. Full plain
+discovery passes 3,992 tests with 487 expected skips; real offscreen Qt passes
+the same 3,992 with 3 skips. Documentation audits 542 Markdown and 431 HTML
+files; test quality finds 3,958 methods in 180 files with zero hard issues.
+Reachability improves to 1,546 actions, 2,350 reachable items, 162 known
+orphans, and 181 unresolved actions. Compilation, JSON, diff, asset
+normalization, and worktree safety pass. Cursed magic remains
+dependency-blocked on the absent Spirit of Summer quest substrate. Native Anki
+interaction is not claimed. See
+`memory-bank/source-audits/special-woodcutting-acquisition-2026-08-09.md`.
+
 ## Brewing input acquisition — 2026-08-09
 
 Barley malt and Ale yeast now have complete player-facing acquisition routes

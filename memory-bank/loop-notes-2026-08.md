@@ -1044,3 +1044,28 @@
   deterministic shop generation, diff, asset normalization, and worktree
   audits pass. Reachability improves to 1,544 actions, 2,347 reachable items,
   164 orphan inputs, and 184 unresolved actions. Native Anki is not claimed.
+
+## Iteration 48 — special Woodcutting acquisition
+
+- Result: Arctic pine and Eucalyptus are live gathering targets through the
+  shared Woodcutting runtime. Arctic pine uses its sourced level 54, 140.2 XP,
+  log output, and The Fremennik Isles-started gate. Eucalyptus uses its sourced
+  level 58, 165 XP, log output, and settled ungated safe route.
+- Honest limits: oldids `6069429` and `6491980` do not expose hidden success,
+  depletion, or respawn rolls. The nearest-level Mahogany and Yew rows are
+  marked and registered placeholders rather than period claims.
+- Adjacent defect: selector metadata enforced Woodcutting quest locks, but the
+  review-time handler did not. Saved or direct target states could bypass the
+  route wall. The shared handler now applies the same pure lock reasons before
+  gathering while preserving the dedicated no-hatchet error path.
+- UI/assets: the established selector displays both rows with existing
+  normalized cutoff log sprites. No new interaction pattern was added, so no
+  taste pass was required. Cursed magic stays dependency-blocked because
+  Spirit of Summer has no live quest substrate.
+- Verification: focused checks pass 416 core tests, two loaded-add-on undo
+  checks, and one real offscreen Qt check. Full plain discovery passes 3,992
+  tests with 487 expected skips; real offscreen Qt passes 3,992 with 3 skips.
+  Documentation, test quality, compilation, JSON, diff, asset normalization,
+  reachability, and worktree audits pass. Reachability improves to 1,546
+  actions, 2,350 reachable items, 162 orphan inputs, and 181 unresolved
+  actions. Native Anki is not claimed. GPT-family root verified.

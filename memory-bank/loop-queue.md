@@ -128,3 +128,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
      outputs, XP, normalized assets, and registered hidden-roll placeholders.
    - [x] Close brewing-input acquisition with level-1 zero-XP Barley malting
      and Blandebir's 25-Coin batchable Ale yeast service.
+   - [x] Close Arctic pine and Eucalyptus Woodcutting acquisition with period
+     rows, registered hidden-roll placeholders, access gates, selector art,
+     reachability, persistence, and review undo. Keep Cursed magic parked on
+     the missing Spirit of Summer quest substrate.

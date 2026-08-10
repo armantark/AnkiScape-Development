@@ -122,6 +122,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Ale yeast"],
             "Shop service:blandebir_fill_ale_yeast",
         )
+        self.assertEqual(
+            report["routes"]["Arctic pine logs"],
+            "Woodcutting:arctic_pine",
+        )
+        self.assertEqual(
+            report["routes"]["Eucalyptus logs"],
+            "Woodcutting:eucalyptus",
+        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},
@@ -178,6 +186,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Wine of zamorak",
             "Barley malt",
             "Ale yeast",
+            "Arctic pine logs",
+            "Eucalyptus logs",
         ):
             self.assertNotIn(item_name, orphan_items)
 

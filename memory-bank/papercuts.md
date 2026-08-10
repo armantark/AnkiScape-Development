@@ -300,3 +300,4 @@
 2026-08-09: Asset inspection initially prefixed the provenance keys with a nonexistent `assets/` directory; AnkiScape sprite folders such as `cookingitems/` live at the repository root.
 2026-08-09: Diff-only Workflows review `559c06c7-16ad-4839-b585-8eaa74c512b2` ignored its bounded scope to enumerate the Memory Bank and failed with `budget exhausted: processed_tokens observed 65939 with limit 60000`; its partial result contained no finding, so root did not rerun it.
 2026-08-09: A combined documentation cleanup patch put the papercut hunk under `progress.md` and failed atomically with `Failed to find expected lines`; split multi-file patches at every file marker.
+2026-08-09: A context-light RNG patch for the new Eucalyptus undo test matched the earlier Smithing failure test's identical setup and changed its oracle; anchor patches on the test method name when a large test file repeats setup blocks.

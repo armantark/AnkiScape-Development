@@ -28,6 +28,8 @@ BIRD_NEST_SOURCE_PATH = (
     "gg/rsmod/plugins/content/items/birdnests/bird_nest.plugin.kts"
 )
 SPLIT_LOG_SOURCE = "https://runescape.wiki/w/Split_log?oldid=5505475"
+ARCTIC_PINE_SOURCE = "https://runescape.wiki/w/Arctic_Pine?oldid=6069429"
+EUCALYPTUS_SOURCE = "https://runescape.wiki/w/Eucalyptus_tree?oldid=6491980"
 
 
 @dataclass(frozen=True)
@@ -88,6 +90,22 @@ WOODCUTTING_TARGETS: Tuple[WoodcuttingTarget, ...] = (
     WoodcuttingTarget("maple", "Maple", 45, 100.0, "Maple logs", 1517, 8, 59, 8, 25),
     WoodcuttingTarget("hollow", "Hollow", 45, 82.0, "Bark", 3239, 8, 44, 18, 26),
     WoodcuttingTarget("mahogany", "Mahogany", 50, 125.0, "Mahogany logs", 6332, 8, 14, 8, 25),
+    # PLACEHOLDER(woodcutting.arctic_pine_rolls): authentic Arctic-pine chop,
+    # depletion, and respawn rolls; nearest-level Mahogany keeps the mechanic
+    # ordered without claiming a recovered server table.
+    WoodcuttingTarget(
+        "arctic_pine",
+        "Arctic pine",
+        54,
+        140.2,
+        "Arctic pine logs",
+        10810,
+        8,
+        14,
+        8,
+        25,
+        source=ARCTIC_PINE_SOURCE,
+    ),
     WoodcuttingTarget(
         "split_arctic_pine_logs",
         "Split Arctic pine logs",
@@ -102,6 +120,22 @@ WOODCUTTING_TARGETS: Tuple[WoodcuttingTarget, ...] = (
         source=SPLIT_LOG_SOURCE,
         action_type="processing",
         requirements=(("Arctic pine logs", 1),),
+    ),
+    # PLACEHOLDER(woodcutting.eucalyptus_rolls): authentic Eucalyptus chop,
+    # depletion, and respawn rolls; nearest-level Yew supplies the bounded
+    # review behavior until a period server table survives.
+    WoodcuttingTarget(
+        "eucalyptus",
+        "Eucalyptus",
+        58,
+        165.0,
+        "Eucalyptus logs",
+        12581,
+        8,
+        99,
+        4,
+        12,
+        source=EUCALYPTUS_SOURCE,
     ),
     WoodcuttingTarget("yew", "Yew", 60, 175.0, "Yew logs", 1515, 8, 99, 4, 12),
     WoodcuttingTarget("ivy", "Ivy", 68, 332.5, None, None, 8, 36, 7, 11),

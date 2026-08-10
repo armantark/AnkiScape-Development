@@ -9468,7 +9468,7 @@ TARGET_UNLOCK_RULES: Tuple[TargetUnlockRule, ...] = tuple(
     TargetUnlockRule(
         gate_kind="target",
         skill_id="woodcutting",
-        target_ids=("split_arctic_pine_logs",),
+        target_ids=("arctic_pine", "split_arctic_pine_logs"),
         requirements=(
             TargetUnlockRequirement(
                 kind="quest_started",

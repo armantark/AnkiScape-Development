@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 48 closes Arctic pine and Eucalyptus
+Woodcutting acquisition.** Arctic pine is a level-54, 140.2-XP gathering
+target gated on starting The Fremennik Isles; Eucalyptus is a level-58,
+165-XP ungated safe-route target. Both produce their period log identities
+through the shared hatchet, carried-pack, telemetry, cadence, persistence, and
+review-undo paths, with existing normalized cutoff sprites. The unrecovered
+success/depletion/respawn rows are registered nearest-level placeholders, not
+period claims. Review-time Woodcutting now enforces the same quest gates as
+the selector, closing a saved-state bypass. Cursed magic remains
+dependency-blocked because Spirit of Summer has no live quest substrate. Full
+plain discovery passes 3,992 tests with 487 expected skips; real offscreen Qt
+passes 3,992 with 3 skips. Documentation, test-quality, compilation, JSON,
+diff, reachability, asset-normalization, and worktree checks pass. Reachability
+improves to 1,546 actions, 2,350 reachable items, 162 orphan inputs, and 181
+unresolved actions. Native Anki interaction is not claimed. Durable audit:
+`memory-bank/source-audits/special-woodcutting-acquisition-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 47 closes brewing-input acquisition.**
 `Malt barley` is a source-backed level-1 Cooking row that converts one Barley
 to one Barley malt on a range, cannot fail, and correctly awards and displays
@@ -3191,7 +3208,8 @@ them.
 
 ## Next Recommended Work
 
-1. Resume the canonical Kanban rather than reopening Prayer, Thieving, or Agility: take the next owner-selected missing-skill program.
+1. Continue the depth queue with the next smallest player-visible settled
+   acquisition gap; keep Cursed magic parked until Spirit of Summer exists.
 2. Close reachability roots only through authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable milestone, rerun parked hidden-server audits against that pinned source surface.
 

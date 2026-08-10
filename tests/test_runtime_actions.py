@@ -1922,6 +1922,54 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["firemaking_exp"], 25.0)
         self.assertEqual(calls["level_checks"], ["Woodcutting", "Firemaking"])
 
+    def test_arctic_pine_runtime_enforces_the_route_gate_then_awards_the_log(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["rune_hatchet"]},
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "current_tree": "arctic_pine",
+            "quests": {},
+            "completed_achievements": [],
+        }
+
+        self.assertFalse(handle_woodcutting_answer(_context(player_data, calls)))
+        self.assertTrue(calls["deactivated"])
+        self.assertIn("Start The Fremennik Isles", calls["errors"][0][1])
+        self.assertEqual(player_data["inventory"], {})
+
+        player_data["quests"] = {"the_fremennik_isles": {"started": True}}
+        calls = {"xp": [], "saves": 0, "errors": []}
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(player_data, calls, random_values=(0.0, 1.0, 0.0))
+            )
+        )
+        self.assertEqual(player_data["inventory"], {"Arctic pine logs": 1})
+        self.assertEqual(player_data["woodcutting_exp"], 140.2)
+        self.assertEqual(calls["xp"], [140.2])
+
+    def test_eucalyptus_runtime_uses_the_safe_ungated_target(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["rune_hatchet"]},
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "current_tree": "eucalyptus",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(player_data, calls, random_values=(0.0, 1.0, 0.0))
+            )
+        )
+        self.assertEqual(player_data["inventory"], {"Eucalyptus logs": 1})
+        self.assertEqual(player_data["woodcutting_exp"], 165.0)
+        self.assertEqual(calls["errors"], [])
+
     def test_fletching_handler_mutates_player_data_through_context(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

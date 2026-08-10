@@ -15919,6 +15919,22 @@ class MainMenuWidgetTest(unittest.TestCase):
             [label.text() for label in dialog.findChildren(QLabel)],
         )
 
+    def test_special_woodcutting_rows_show_icons_and_the_arctic_route_gate(self) -> None:
+        pd = _make_player_data()
+        pd["woodcutting_level"] = 99
+        pd["toolbelt"] = {"woodcutting": ["rune_hatchet"]}
+        pd["quests"].pop("the_fremennik_isles", None)
+        dialog = self._open(pd)
+        tree_list = self._open_woodcutting(dialog)
+
+        arctic = self._wc_row(tree_list, "Arctic pine ")
+        eucalyptus = self._wc_row(tree_list, "Eucalyptus ")
+        self.assertFalse(bool(arctic.flags() & Qt.ItemFlag.ItemIsEnabled))
+        self.assertIn("Start The Fremennik Isles", arctic.toolTip())
+        self.assertFalse(arctic.icon().isNull())
+        self.assertTrue(bool(eucalyptus.flags() & Qt.ItemFlag.ItemIsEnabled))
+        self.assertFalse(eucalyptus.icon().isNull())
+
     # ---- Mining 2011Scape parity frontend ---------------------------------
     def _open_mining(self, dialog: "QDialog") -> "QListWidget":
         skill_list = _find_skill_list(dialog)

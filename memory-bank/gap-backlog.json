@@ -432,8 +432,8 @@
       "title": "Add arctic pine, eucalyptus, cursed magic tree",
       "detail": "Their logs are already burnable in firemaking_data.py but no chop targets exist.",
       "source": "wiki-oldids:Arctic Pine 6069429; Eucalyptus tree 6491980; Cursed magic tree 6368505; Cursed magic logs 5742321; Spirit Realm 6394729",
-      "status": "design_settled_waiting_source",
-      "note": "owner grill closed 2026-07-10; the isolated Arctic-pine Split log processing target shipped 2026-07-20, while chopping still waits for reconciled success, depletion, respawn, and paired-tree server behavior",
+      "status": "split_scope",
+      "note": "owner grill closed 2026-07-10; Arctic pine splitting plus Arctic pine and Eucalyptus chopping are live as of 2026-08-09. Hidden chop/depletion/respawn rows use registered nearest-level placeholders. Cursed magic remains dependency-blocked because Spirit of Summer has no live quest substrate.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#woodcutting-arctic-pine-eucalyptus-and-cursed-magic",
       "decision_summary": {
         "period_targets": "Arctic pine is level 54 for 140.2 XP; eucalyptus is level 58 for 165 XP; cursed magic is Spirit of Summer-gated at level 82 for 275 XP.",

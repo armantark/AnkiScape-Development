@@ -1320,6 +1320,33 @@ class TestLogic(unittest.TestCase):
         self.assertIsNone(nest_item)
         self.assertEqual(new_inv, {})
 
+    def test_special_tree_placeholders_preserve_their_sourced_outputs_and_xp(self):
+        axe = {
+            "display_name": "Rune hatchet",
+            "level": 41,
+            "ratio": 3.5,
+            "status": "implemented",
+        }
+        for target_id, output_item, expected_xp in (
+            ("arctic_pine", "Arctic pine logs", 140.2),
+            ("eucalyptus", "Eucalyptus logs", 165.0),
+        ):
+            with self.subTest(target_id=target_id):
+                inventory, xp, ok, output, nest = apply_woodcutting_action_pure(
+                    target_id,
+                    {},
+                    TREE_DATA,
+                    99,
+                    axe,
+                    r_action=0.0,
+                    r_nest_drop=1.0,
+                )
+                self.assertTrue(ok)
+                self.assertEqual(xp, expected_xp)
+                self.assertEqual(output, output_item)
+                self.assertIsNone(nest)
+                self.assertEqual(inventory, {output_item: 1})
+
     def test_apply_woodcutting_action_inferno_adze_incinerates_logs(self):
         tree_data = {"tree": {"exp": 25.0, "output_item": "Logs", "low_chance": 64, "high_chance": 200}}
         axe = {

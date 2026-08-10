@@ -1158,6 +1158,12 @@ UTILITY_ITEM_IMAGES = {
 }
 
 TREE_IMAGES = {tree.split('.')[0]: os.path.join(trees_folder, tree) for tree in os.listdir(trees_folder) if tree.endswith('.png')}
+TREE_IMAGES.update(
+    {
+        "Arctic pine": os.path.join(FIREMAKING_ITEMS_FOLDER, "arctic_pine_logs.png"),
+        "Eucalyptus": os.path.join(FIREMAKING_ITEMS_FOLDER, "eucalyptus_logs.png"),
+    }
+)
 
 ORE_IMAGES = {
     "Rune essence": os.path.join(ores_folder, "RuneEssence.png"),

@@ -314,10 +314,12 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   `memory-bank/source-audits/herblore-shrink-me-quick-2026-07-19.md`.
 - The isolated Arctic-pine splitting sub-slice is live: level 54, one carried
   Arctic pine log to one Split log, 42.5 Woodcutting XP, quest-start gating,
-  processing-aware carried packs, and period GE/item/art identity. Arctic-pine
-  chopping remains `SOURCE AUDIT` because its success, depletion, and respawn
-  mechanics are not closed. See
-  `memory-bank/source-audits/woodcutting-split-log-implementation-2026-07-20.md`.
+  processing-aware carried packs, and period GE/item/art identity. Arctic pine
+  and Eucalyptus chopping are also live with sourced levels, XP, outputs, and
+  access rules; their hidden tree rolls use registered nearest-level
+  placeholders. Cursed magic remains dependency-blocked until Spirit of Summer
+  has a live quest substrate. See
+  `memory-bank/source-audits/special-woodcutting-acquisition-2026-08-09.md`.
 - Evil Tree is implemented as the settled review-native D&D: seven exact
   period tier gates/XP rows, five-review availability, nurture-only entry,
   three atomic Nurture/Prepare/Fell reviews, bounded period-ceiling rewards,

@@ -691,22 +691,27 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
         return False
 
-    if spec.get("action_type") == "processing":
-        locked_reasons = woodcutting_target_locked_reasons_pure(
-            player_data,
-            tree,
-            TREE_DATA,
-            WOODCUTTING_AXE_DATA,
-            QUEST_UNLOCK_RULES,
+    locked_reasons = woodcutting_target_locked_reasons_pure(
+        player_data,
+        tree,
+        TREE_DATA,
+        WOODCUTTING_AXE_DATA,
+        QUEST_UNLOCK_RULES,
+    )
+    if spec.get("action_type") != "processing":
+        locked_reasons = tuple(
+            reason for reason in locked_reasons if reason != "no usable hatchet"
         )
-        if locked_reasons:
-            ctx.deactivate_current_skill()
-            ctx.show_error_message(
-                "Woodcutting target locked",
-                f"{spec.get('display_name', tree)} requires "
-                f"{', '.join(locked_reasons)}, so Woodcutting has been switched off.",
-            )
-            return False
+    if locked_reasons:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Woodcutting target locked",
+            f"{spec.get('display_name', tree)} requires "
+            f"{', '.join(locked_reasons)}, so Woodcutting has been switched off.",
+        )
+        return False
+
+    if spec.get("action_type") == "processing":
         new_inv, base_exp, ok, output_item = (
             apply_woodcutting_processing_action_pure(
                 tree,
