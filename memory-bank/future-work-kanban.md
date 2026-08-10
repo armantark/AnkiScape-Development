@@ -14,6 +14,15 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Quest-grant reachability correction — shipped 2026-08-10
+
+- The reachability graph now recognizes registered quest-start and quest-stage
+  inventory grants, not only final quest rewards.
+- Lost City stage 4 closes the false `Dramen branch` root and activates the
+  existing `Cinnamon` route without changing quest or Utility gameplay.
+- Durable audit:
+  `memory-bank/source-audits/item-reachability-quest-grants-correction-2026-08-10.md`.
+
 ### Crystal key and chest acquisition — shipped 2026-08-10
 
 Labels: `SOURCE AUDIT` only for the hidden Ring of wealth chest modifier.

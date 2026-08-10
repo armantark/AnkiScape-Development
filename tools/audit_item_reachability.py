@@ -2,10 +2,10 @@
 """Audit whether live AnkiScape action inputs have an acquisition route.
 
 This is deliberately a reachability audit, not a claim that every route has
-full historical fidelity. It treats live shops, Combat drops, quest rewards,
-gathering outputs, and zero-input actions as source nodes, then closes over the
-current action graph. The JSON output is stable enough for tests and later
-completion-audit tooling.
+full historical fidelity. It treats live shops, Combat drops, quest-granted
+items and rewards, gathering outputs, and zero-input actions as source nodes,
+then closes over the current action graph. The JSON output is stable enough for
+tests and later completion-audit tooling.
 """
 
 from __future__ import annotations
@@ -618,6 +618,15 @@ def build_reachability_report() -> dict[str, Any]:
     for quest_id, quest in constants.QUEST_DATA.items():
         for item in _names(quest.get("rewards")) & registered_items:
             seed_sources[item].add(f"quest:{quest_id}")
+        for item in _names(quest.get("start_inventory")) & registered_items:
+            seed_sources[item].add(f"quest-start:{quest_id}")
+        for stage in quest.get("stage_requirements", ()) or ():
+            if not isinstance(stage, Mapping):
+                continue
+            for item in _names(stage.get("produced_inventory")) & registered_items:
+                seed_sources[item].add(
+                    f"quest-stage:{quest_id}:{stage.get('stage', 'unknown')}"
+                )
 
     for table in woodcutting_data.BIRD_NEST_OPEN_TABLES:
         table_spec = vars(table)

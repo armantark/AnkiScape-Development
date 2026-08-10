@@ -168,3 +168,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Crystal-key and Uncut-dragonstone acquisition through the exact
      key-half combination, measured Crystal-chest table, Ring-of-wealth
      placeholder, GE row, Utilities selector, persistence, and review undo.
+   - [x] Correct item reachability so authentic quest-start and quest-stage
+     inventory grants seed the graph; prove Lost City's Dramen branch activates
+     the existing Cinnamon route.

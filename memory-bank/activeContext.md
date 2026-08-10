@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**2026-08-10, grind-loop iteration 61 corrects quest-grant reachability.**
+The item graph now seeds registered items granted through quest
+`start_inventory` and stage `produced_inventory`, matching the live quest
+runtime instead of recognizing final rewards only. This exposes 134 existing
+quest-granted items without changing gameplay. `Dramen branch` now resolves
+through Lost City stage 4, so the existing Utility grinding action also makes
+`Cinnamon` reachable. Reachability is now 1,555 actions, 2,570 reachable
+items, 103 orphan inputs, and 102 unresolved actions. Focused reachability and
+quest-runtime checks pass 201 tests. Both full discovery lanes pass 4,036
+tests; plain has 492 expected skips and real offscreen Qt has three. No native
+Anki or visual behavior is claimed. Durable audit:
+`memory-bank/source-audits/item-reachability-quest-grants-correction-2026-08-10.md`.
+
 **2026-08-10, grind-loop iteration 60 closes the Crystal key and chest route.**
 Tooth and Loop halves now combine at Crafting level 1 for zero XP, and the
 key-gated Utilities row consumes one key for the guaranteed Uncut dragonstone

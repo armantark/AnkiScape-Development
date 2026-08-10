@@ -111,6 +111,18 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Utility:grind_black_mushroom",
         )
         self.assertEqual(
+            report["routes"]["Dramen branch"],
+            "quest-stage:lost_city:4",
+        )
+        self.assertEqual(
+            report["routes"]["Pendant of lucien"],
+            "quest-start:temple_of_ikov",
+        )
+        self.assertEqual(
+            report["routes"]["Cinnamon"],
+            "Utility:grind_dramen_branch",
+        )
+        self.assertEqual(
             report["routes"]["Unholy mould"],
             "combat:chaos_druid",
         )
@@ -227,6 +239,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Eucalyptus logs",
             "Black mushroom",
             "Black mushroom ink",
+            "Dramen branch",
+            "Cinnamon",
             "Unholy mould",
         ):
             self.assertNotIn(item_name, orphan_items)

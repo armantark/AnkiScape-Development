@@ -1,5 +1,22 @@
 # Progress
 
+## Quest-grant reachability correction — 2026-08-10
+
+The live item graph now recognizes registered quest `start_inventory` and
+stage `produced_inventory` as acquisition sources, in addition to final quest
+rewards. This corrects audit evidence only; the quest runtime, rewards, gates,
+save state, UI, and assets are unchanged.
+
+The corrected graph exposes 134 items that the existing runtime already
+grants. `Dramen branch` resolves through `quest-stage:lost_city:4`, and its
+existing Utility consumer makes `Cinnamon` reachable. Reachability is now
+1,555 actions / 2,570 reachable items / 103 orphan inputs / 102 unresolved
+actions. Focused reachability and quest-runtime coverage passes 201 tests.
+Both full discovery lanes pass 4,036 tests, with 492 expected plain skips and
+three real offscreen Qt skips. Native Anki interaction is not claimed. Durable
+evidence:
+`source-audits/item-reachability-quest-grants-correction-2026-08-10.md`.
+
 ## Crystal key and chest acquisition — 2026-08-10
 
 One Tooth half and one Loop half now combine into a Crystal key through the

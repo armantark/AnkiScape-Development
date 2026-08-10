@@ -1316,3 +1316,21 @@
   1,555/2,436/104/103. Documentation, test quality, compilation, JSON,
   placeholder, asset normalization, diff, reachability, and worktree checks
   pass. Native Anki is not claimed. GPT-family root verified.
+
+## Iteration 61 — Quest-grant reachability correction
+
+- Finding: the audit seeded final quest rewards but ignored inventory granted
+  at quest start and during individual stages, so it falsely classified
+  `Dramen branch` as a root orphan despite the live Lost City stage-4 grant.
+- Correction: registered `start_inventory` items now use
+  `quest-start:<quest_id>` routes; registered stage `produced_inventory` items
+  use `quest-stage:<quest_id>:<stage>` routes. Final reward routes are
+  unchanged.
+- Result: the graph exposes 134 authentic existing grants. `Dramen branch`
+  resolves through Lost City and `Cinnamon` through the existing Utility
+  action. Reachability improves to 1,555/2,570/103/102 without a gameplay,
+  quest, UI, asset, save, or placeholder change.
+- Verification: the regression fails before the correction. Focused
+  reachability and quest-runtime checks pass 201 tests. Both full discovery
+  lanes pass 4,036 tests, with 492 expected plain skips and three real
+  offscreen Qt skips. Native Anki is not claimed. GPT-family root verified.
