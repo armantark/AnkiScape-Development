@@ -171,7 +171,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Correct item reachability so authentic quest-start and quest-stage
      inventory grants seed the graph; prove Lost City's Dramen branch activates
      the existing Cinnamon route.
-   - [ ] Finish Ranging Guild closure after the owner lifts the quota pause.
-     Implementation, full plain discovery, and focused real Qt are green. Run
-     full offscreen Qt plus docs/test-quality/asset/diff/worktree gates, record
-     final counts, and fix only reproduced failures before selecting a new slice.
+   - [x] Finish Ranging Guild closure. Full Qt found two stale Activities
+     inventory assertions. The corrected suite passes 4,053 tests. All final
+     quality gates pass.
+5. [ ] Paused by the owner until the quota resets. Select no new slice.

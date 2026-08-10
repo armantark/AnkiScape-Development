@@ -14,16 +14,15 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
-### Ranging Guild — implementation landed; closure paused 2026-08-10
+### Ranging Guild — shipped and closed 2026-08-10
 
-Labels: `VERIFY`, `SOURCE AUDIT` only for the hidden hit-quality resolver.
+Labels: `SOURCE AUDIT` only for the hidden hit-quality resolver.
 
 - The ten-shot competition, ticket claim, complete six-row exchange, Seers
   diary hooks, persistence, undo, assets, and Activities detail panel are live.
-- Full plain discovery and focused real Qt are green. The owner paused the goal
-  before full offscreen Qt and final documentation/quality closure.
-- Resume the remaining gates before selecting another depth slice. Durable
-  audit:
+- Full plain and full real offscreen Qt discovery each pass 4,053 tests. Final
+  documentation, test-quality, asset, diff, reachability, and worktree checks
+  pass. The autonomous goal is paused before the next depth slice. Durable audit:
   `memory-bank/source-audits/ranging-guild-horizontal-mvp-2026-08-10.md`.
 
 ### Quest-grant reachability correction — shipped 2026-08-10

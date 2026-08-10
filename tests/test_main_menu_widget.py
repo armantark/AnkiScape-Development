@@ -11349,6 +11349,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "gnome_restaurant",
                 "dominion_tower",
                 "crucible",
+                "ranging_guild",
             },
         )
         skill_list.setCurrentItem(dnds)
@@ -12191,7 +12192,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 for index in range(activity_tree.topLevelItemCount())
             ]
             visible_rows = [item for item in top_levels if not item.isHidden()]
-            self.assertEqual(len(visible_rows), 29)
+            self.assertEqual(len(visible_rows), 30)
 
             # Scrolling, not a fixed height: the tree keeps Qt's default max
             # height and grows a scrollbar instead of the dialog.

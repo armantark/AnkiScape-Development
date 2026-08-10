@@ -17,11 +17,13 @@
   distinguish claim-ready state, improve band copy, keep Purchase secondary,
   and use a theme-safe claim pill. A bounded Sol simplification leaf exhausted
   its processed-token budget without a verdict; root retained deletion review.
-- Verification at pause: focused plain coverage passes 120 tests with one
+- Verification at final pause: focused plain coverage passes 120 tests with one
   expected Qt skip; focused real offscreen Qt passes 16 tests. Full plain
-  discovery passes 4,053 tests with 494 expected skips. Full offscreen Qt and
-  the final documentation/quality gates remain intentionally pending because
-  the owner paused the goal until quota resets.
+  discovery passes 4,053 tests with 494 expected skips. The first full Qt lane
+  exposed two stale Activities inventory assertions. Their direct rerun passed
+  after the test-only correction. Full offscreen Qt then passed 4,053 tests with
+  three expected skips. Documentation, test quality, compilation, JSON,
+  placeholder, asset normalization, diff, reachability, and worktree checks pass.
 - Native proof: one real AnkiScape menu opened and showed the current separated
   Activities navigation. Computer Use returned `AXError.notImplemented` on the
   non-accessible Minigames row, so the native detail panel is not claimed.

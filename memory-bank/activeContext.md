@@ -2,15 +2,16 @@
 
 ## Current Focus
 
-**2026-08-10, durable owner pause.** Canonical `main` is clean at commit
-`96a4e69752d0fd4b74f095e8da865a73b0d9ea18`, and the goal service records the
-autonomous goal as `paused`. Ranging Guild contains complete committed product
-code; only its full offscreen Qt and final quality verification remain. The two
-actual owner/Fable design questions are the Big Top execution queue and the
-Equipment point-meter layout. Use
+**2026-08-10, durable owner pause across the complete resumed interval.** The
+audit covers all 52 commits after Pass 8 through the first pause handoff, plus
+this closure. Every linked worktree is clean. The sole non-ancestor branch is
+patch-identical to work already in `main`. The full Ranging Guild Qt lane found
+and closed two stale Activities inventory assertions; the rerun passes all
+4,053 tests with three expected skips. No new owner/Fable design question arose
+between the 2026-08-08 resume and this pause. The older Pass 7 co-ideation packet
+predates this interval. Use
 `memory-bank/codex-briefs/goal-pause-handoff-2026-08-10.md` for the complete
-pause state and the exact co-ideation packet. Do not resume from this checkpoint
-until the owner gives a new instruction or reactivates the goal.
+interval inventory, proof, and resume order. The goal service remains `paused`.
 
 **2026-08-10, owner-paused after Ranging Guild implementation.** The complete
 ten-shot Ranging Guild competition and six-row ticket exchange are implemented
@@ -19,12 +20,11 @@ cadence, all score/XP bands, Hati paws, claim-once tickets, purchases, Seers
 diary conditions, persistence, direct/review undo, normalized art, and the
 compact Qt panel are covered. Full plain discovery passes 4,053 tests with 494
 expected skips; focused real offscreen Qt passes 16 tests. The full offscreen
-Qt discovery lane and documentation/quality closure gates were deliberately not
-started after the owner's quota-reset pause. Native Anki opened exactly one
-current menu and reached Activities, but Computer Use could not activate the
-non-AX Minigames row, so native Ranging Guild detail is not claimed. Resume by
-running the remaining closure gates, reconciling final counts, and committing
-only any resulting fixes; do not begin another slice first. Durable audit:
+Qt discovery lane and documentation/quality closure gates were deferred at the
+first pause, then completed during the interval audit. Native Anki opened
+exactly one current menu and reached Activities, but Computer Use could not
+activate the non-AX Minigames row. Native Ranging Guild detail is not claimed.
+The slice has no remaining repository closure gate. Durable audit:
 `memory-bank/source-audits/ranging-guild-horizontal-mvp-2026-08-10.md`.
 
 **2026-08-10, grind-loop iteration 61 corrects quest-grant reachability.**

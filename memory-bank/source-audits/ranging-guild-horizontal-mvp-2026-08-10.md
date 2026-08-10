@@ -80,9 +80,15 @@ equipment gates, all six bands and rewards, arrow consumption, ten-shot
 persistence, Hati paws, one-time claim, cadence, the Barb-bolt bridge, diary
 conditions, panel state changes, selector icons, and the actual Activities page.
 
-The owner paused the goal before the full offscreen Qt discovery lane and final
-documentation/test-quality/asset/diff/worktree closure gates. Native Anki opened
-one current AnkiScape menu and reached Activities, but Computer Use returned
-`AXError.notImplemented` on the non-AX Minigames row, so native Ranging Guild
-detail is not claimed. This record is a precise resumable checkpoint, not a
-claim that the remaining closure gates passed.
+The first full offscreen Qt lane found two stale Activities inventory assertions:
+one expected 29 Minigames, and one exact ID set omitted `ranging_guild`. Both
+passed after a test-only correction. Full offscreen Qt then passed all 4,053
+tests with three expected skips. Documentation passes across 558 Markdown and
+431 HTML files. Test quality reports 4,018 tests in 183 files with zero hard
+issues. Compilation, 26 tracked JSON files, placeholder, asset normalization,
+diff, reachability, and worktree checks pass. Reachability is now 1,556 actions,
+2,573 reachable items, 102 known orphan inputs, and 101 blocked actions.
+
+Native Anki opened one current AnkiScape menu and reached Activities, but
+Computer Use returned `AXError.notImplemented` on the non-AX Minigames row.
+Native Ranging Guild detail is therefore not claimed.

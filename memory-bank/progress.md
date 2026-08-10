@@ -1,5 +1,24 @@
 # Progress
 
+## Resumed-goal interval closure — 2026-08-10
+
+The audit covers all work after the 2026-08-08 resume. It reviewed 52 commits
+from the Crucible depth pass through the first pause handoff. The 35 grouped
+implementation, source, tooling, and acquisition slices are committed and
+mechanically complete for their recorded scope. Every linked worktree is clean.
+The only non-ancestor branch has the same stable patch ID as work already in
+`main`.
+
+Ranging Guild was the only slice with a deferred full Qt lane. Its first run
+found two stale Activities inventory assertions. The direct checks passed after
+the test-only correction, and the complete offscreen Qt lane then passed all
+4,053 tests with three expected skips. Full plain discovery had already passed
+4,053 tests with 494 expected skips. Documentation, test quality, compilation,
+tracked JSON, placeholder, asset normalization, diff, reachability, and worktree
+checks pass. The goal remains paused before a new slice. No new owner/Fable
+design question arose in the resumed interval. Complete handoff:
+`codex-briefs/goal-pause-handoff-2026-08-10.md`.
+
 ## Quest-grant reachability correction — 2026-08-10
 
 The live item graph now recognizes registered quest `start_inventory` and
