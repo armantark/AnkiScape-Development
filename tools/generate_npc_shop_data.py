@@ -45,6 +45,7 @@ DARKAN_SOURCE = "Darkan shop JSON"
 SCAPE_2011_SOURCE = "2011Scape items.yml"
 
 DEV_SHOP_IDS = {"a_test_shop"}
+IMPLEMENTED_SHOP_CURRENCY_IDS = frozenset({995, 6529})
 HIDDEN_SHOP_HINTS = (
     "stardust",
     "loyalty",
@@ -63,6 +64,21 @@ SHOP_STOCK_EXCLUDED_ITEM_IDS: dict[str, frozenset[int]] = {
 }
 SHOP_STOCK_EXCLUSION_SOURCES: dict[str, str] = {
     "papa_mambos_shop": "Papa Mambo's Shop oldid 6393083",
+}
+
+# Final pre-EOC shop tables supersede the later cache-derived price overrides
+# for these four rows. The same revisions show that the three TzHaar shops no
+# longer bought items from players after the 2009 shop update.
+SHOP_BUY_ONLY_OVERRIDES = frozenset({
+    "tzhaarhurleks_ore_and_gem_store",
+    "tzhaarhurtels_equipment_store",
+    "tzhaarmejrohs_rune_store",
+})
+SHOP_ITEM_BUY_PRICE_OVERRIDES: dict[tuple[str, int], tuple[int, str]] = {
+    ("tzhaarhurleks_ore_and_gem_store", 1623): (48, "TzHaar-Hur-Lek oldid 6438736, 2012-10-18"),
+    ("tzhaarhurleks_ore_and_gem_store", 1621): (97, "TzHaar-Hur-Lek oldid 6438736, 2012-10-18"),
+    ("tzhaarhurleks_ore_and_gem_store", 9194): (13_000, "TzHaar-Hur-Lek oldid 6438736, 2012-10-18"),
+    ("tzhaarmejrohs_rune_store", 558): (24, "TzHaar-Mej-Roh oldid 6393148, 2012-10-13"),
 }
 
 # These prices are direct shop/action literals from Darkan content files. Shop
@@ -548,7 +564,7 @@ def _currency_name(currency_id: int) -> str:
 def _visibility_for_shop(shop_id: str, currency_id: int) -> tuple[str, str]:
     if any(hint in shop_id for hint in HIDDEN_SHOP_HINTS):
         return "hidden", "activity_or_reward_system_not_implemented"
-    if currency_id != 995:
+    if currency_id not in IMPLEMENTED_SHOP_CURRENCY_IDS:
         return "visible_locked", "currency_not_implemented"
     return "visible", ""
 
@@ -749,6 +765,10 @@ def _stock_rows(
             )
         fallback_name = _safe_str(raw_item.get("_name"), f"Item {item_id}")
         buy_price, sell_price, price_policy, price_source = _price_for_row(raw_item, item_id, currency_id, price_inputs)
+        period_override = SHOP_ITEM_BUY_PRICE_OVERRIDES.get((shop_id, item_id))
+        if period_override is not None:
+            buy_price, price_source = period_override
+            price_policy = "period_shop_table_override"
         row_visibility = shop_visibility
         lock_reason = shop_lock_reason
         disposition = "live"
@@ -760,7 +780,7 @@ def _stock_rows(
             disposition = "hidden"
         elif row_visibility == "visible_locked":
             disposition = "locked"
-        elif currency_id != 995:
+        elif currency_id not in IMPLEMENTED_SHOP_CURRENCY_IDS:
             row_visibility = "visible_locked"
             lock_reason = "currency_not_implemented"
             disposition = "locked"
@@ -854,9 +874,9 @@ def build_catalog(
             "currency_id": currency_id,
             "currency_name": _currency_name(currency_id),
             "currency_item_name": _item_name(items, currency_id, _currency_name(currency_id)),
-            "currency_implemented": currency_id == 995,
+            "currency_implemented": currency_id in IMPLEMENTED_SHOP_CURRENCY_IDS,
             "general_store": bool(raw.get("generalStore", False)),
-            "buy_only": bool(raw.get("buyOnly", False)),
+            "buy_only": bool(raw.get("buyOnly", False)) or shop_id in SHOP_BUY_ONLY_OVERRIDES,
             "shared_stock_group": shop_id,
             "visibility": visibility,
             "lock_reason": lock_reason,
@@ -906,7 +926,7 @@ def build_catalog(
                 "id": currency_id,
                 "name": _currency_name(currency_id),
                 "item_name": _item_name(items, currency_id, _currency_name(currency_id)),
-                "implemented": currency_id == 995,
+                "implemented": currency_id in IMPLEMENTED_SHOP_CURRENCY_IDS,
             }
             for currency_id in currencies
         ],
@@ -947,7 +967,7 @@ def _attach_item_names(rows: Iterable[dict[str, Any]], items: dict[int, ItemMeta
             clean[key] = clean_rows
         clean["currency_name"] = _currency_name(int(clean.get("currency_id", 995)))
         clean["currency_item_name"] = _item_name(items, int(clean.get("currency_id", 995)), clean["currency_name"])
-        clean["currency_implemented"] = clean.get("currency_id", 995) == 995
+        clean["currency_implemented"] = clean.get("currency_id", 995) in IMPLEMENTED_SHOP_CURRENCY_IDS
         clean["visibility"] = "visible" if clean["currency_implemented"] else "visible_locked"
         clean["lock_reason"] = "" if clean["currency_implemented"] else "currency_not_implemented"
         clean["source"] = clean.get("source", "Darkan content source")
@@ -1251,6 +1271,93 @@ def rewrite_services_from_generated(
     return summary
 
 
+def rewrite_currency_activation_from_generated(
+    existing_path: Path,
+    output_path: Path,
+    *,
+    existing_ledger_path: Path,
+    ledger_output_path: Path,
+    summary_output_path: Path,
+) -> dict[str, Any]:
+    """Activate newly implemented currencies without refreshing source stock."""
+
+    generated = runpy.run_path(str(existing_path))
+    shops = []
+    for existing_shop in generated["SHOP_DATA"].values():
+        shop = dict(existing_shop)
+        shop["stock"] = [dict(row) for row in existing_shop.get("stock", [])]
+        if int(shop.get("currency_id", 995)) in IMPLEMENTED_SHOP_CURRENCY_IDS:
+            shop["currency_implemented"] = True
+            if shop.get("lock_reason") == "currency_not_implemented":
+                shop["visibility"] = "visible"
+                shop["lock_reason"] = ""
+            if shop["id"] in SHOP_BUY_ONLY_OVERRIDES:
+                shop["buy_only"] = True
+            for row in shop["stock"]:
+                period_override = SHOP_ITEM_BUY_PRICE_OVERRIDES.get((shop["id"], row["item_id"]))
+                if period_override is not None:
+                    row["buy_price"], row["price_source"] = period_override
+                    row["price_policy"] = "period_shop_table_override"
+                if row.get("lock_reason") == "currency_not_implemented":
+                    row["visibility"] = "visible"
+                    row["lock_reason"] = ""
+                    row["disposition"] = "live"
+        shops.append(shop)
+
+    currencies = [dict(row) for row in generated["SHOP_CURRENCIES"].values()]
+    for currency in currencies:
+        currency["implemented"] = int(currency["id"]) in IMPLEMENTED_SHOP_CURRENCY_IDS
+
+    ledger = json.loads(existing_ledger_path.read_text(encoding="utf-8"))
+    ledger_by_id = {shop["id"]: shop for shop in ledger["shops"]}
+    for shop in shops:
+        ledger_shop = ledger_by_id.get(shop["id"])
+        if ledger_shop is None or int(shop.get("currency_id", 995)) not in IMPLEMENTED_SHOP_CURRENCY_IDS:
+            continue
+        if ledger_shop.get("reason") == "currency_not_implemented":
+            ledger_shop["disposition"] = "visible"
+            ledger_shop["reason"] = ""
+        for ledger_row in ledger_shop.get("stock_rows", []):
+            period_override = SHOP_ITEM_BUY_PRICE_OVERRIDES.get((shop["id"], ledger_row["item_id"]))
+            if period_override is not None:
+                ledger_row["price_policy"] = "period_shop_table_override"
+                ledger_row["price_source"] = period_override[1]
+            if ledger_row.get("lock_reason") == "currency_not_implemented":
+                ledger_row["visibility"] = "visible"
+                ledger_row["lock_reason"] = ""
+                ledger_row["disposition"] = "live"
+
+    summary = dict(generated["SHOP_COVERAGE_SUMMARY"])
+    row_counter = Counter(row["disposition"] for shop in shops for row in shop["stock"])
+    summary.update({
+        "visible_shop_count": sum(shop["visibility"] == "visible" for shop in shops),
+        "locked_shop_count": sum(shop["visibility"] == "visible_locked" for shop in shops),
+        "hidden_shop_count": sum(shop["visibility"] == "hidden" for shop in shops),
+        "live_stock_row_count": row_counter.get("live", 0),
+        "locked_stock_row_count": row_counter.get("locked", 0),
+        "hidden_stock_row_count": row_counter.get("hidden", 0),
+        "blocked_stock_row_count": row_counter.get("blocked", 0),
+    })
+    ledger["summary"] = dict(summary)
+    catalog = {
+        "version": int(generated["SHOP_DATA_VERSION"]),
+        "shops": shops,
+        "currencies": currencies,
+        "services": [dict(row) for row in generated["SHOP_SERVICES"].values()],
+        "vendor_actions": [dict(row) for row in generated["SHOP_VENDOR_ACTIONS"].values()],
+        "summary": summary,
+        "player_sell_prices": dict(generated["SHOP_PLAYER_SELL_PRICES"]),
+        "player_buy_prices": dict(generated["SHOP_PLAYER_BUY_PRICES"]),
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    write_shop_data(catalog, output_path)
+    ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
+    ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    summary_output_path.parent.mkdir(parents=True, exist_ok=True)
+    write_summary(ledger, summary_output_path)
+    return summary
+
+
 def _extra_item_specs(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
     specs: dict[str, dict[str, Any]] = {}
 
@@ -1315,7 +1422,7 @@ def write_summary(ledger: dict[str, Any], path: Path) -> None:
         "",
         "- Coin stock rows with a source-backed custom price, Darkan cache value, or direct content literal are live.",
         "- Darkan cache prices mirror `Shop.java`: custom prices override buy price only; otherwise buy price uses ItemDefinitions.value plus coin/Tokkul enum overrides, while sell price uses ItemDefinitions.sellPrice plus sell enum overrides.",
-        "- Non-coin shops are visible but read-only until their currencies exist in AnkiScape.",
+        "- Shops whose currencies do not exist in AnkiScape are visible but read-only; Coins and Tokkul are live inventory currencies.",
         "- Reward/activity-dependent shop families are hidden from normal player search until their owning system exists.",
         "- The developer test shop is excluded and still appears in the JSON ledger with an explicit disposition.",
         "",
@@ -1354,6 +1461,11 @@ def main() -> None:
         action="store_true",
         help="rewrite service rows without refreshing the pinned shop/source snapshot",
     )
+    parser.add_argument(
+        "--currency-activation-only",
+        action="store_true",
+        help="activate generator-owned currencies without refreshing the pinned shop/source snapshot",
+    )
     args = parser.parse_args()
 
     if args.stock_exclusions_only:
@@ -1372,6 +1484,17 @@ def main() -> None:
             args.existing_shop_data,
             args.shop_data_out,
             args.items_2011,
+            existing_ledger_path=args.existing_ledger,
+            ledger_output_path=args.ledger_out,
+            summary_output_path=args.summary_out,
+        )
+        print(json.dumps(summary, sort_keys=True))
+        return
+
+    if args.currency_activation_only:
+        summary = rewrite_currency_activation_from_generated(
+            args.existing_shop_data,
+            args.shop_data_out,
             existing_ledger_path=args.existing_ledger,
             ledger_output_path=args.ledger_out,
             summary_output_path=args.summary_out,

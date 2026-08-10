@@ -29107,259 +29107,259 @@
       ]
     },
     {
-      "disposition": "locked",
+      "disposition": "visible",
       "id": "tzhaarhurleks_ore_and_gem_store",
       "name": "TzHaar-Hur-Lek's Ore and Gem Store",
-      "reason": "currency_not_implemented",
+      "reason": "",
       "source_path": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/shops/tzhaarhurleks_ore_and_gem_store.json",
       "stock_rows": [
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:0:438",
           "item_id": 438,
           "item_name": "Tin ore",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:1:436",
           "item_id": 436,
           "item_name": "Copper ore",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:2:440",
           "item_id": 440,
           "item_name": "Iron ore",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:3:1623",
           "item_id": 1623,
           "item_name": "Uncut sapphire",
-          "lock_reason": "currency_not_implemented",
-          "price_policy": "darkan_shop_cache_price",
-          "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "lock_reason": "",
+          "price_policy": "period_shop_table_override",
+          "price_source": "TzHaar-Hur-Lek oldid 6438736, 2012-10-18",
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:4:1621",
           "item_id": 1621,
           "item_name": "Uncut emerald",
-          "lock_reason": "currency_not_implemented",
-          "price_policy": "darkan_shop_cache_price",
-          "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "lock_reason": "",
+          "price_policy": "period_shop_table_override",
+          "price_source": "TzHaar-Hur-Lek oldid 6438736, 2012-10-18",
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:5:6571",
           "item_id": 6571,
           "item_name": "Uncut onyx",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurleks_ore_and_gem_store:6:9194",
           "item_id": 9194,
           "item_name": "Onyx bolt tips",
-          "lock_reason": "currency_not_implemented",
-          "price_policy": "darkan_shop_cache_price",
-          "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "lock_reason": "",
+          "price_policy": "period_shop_table_override",
+          "price_source": "TzHaar-Hur-Lek oldid 6438736, 2012-10-18",
+          "visibility": "visible"
         }
       ]
     },
     {
-      "disposition": "locked",
+      "disposition": "visible",
       "id": "tzhaarhurtels_equipment_store",
       "name": "TzHaar-Hur-Tel's Equipment Store",
-      "reason": "currency_not_implemented",
+      "reason": "",
       "source_path": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/shops/tzhaarhurtels_equipment_store.json",
       "stock_rows": [
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:0:6522",
           "item_id": 6522,
           "item_name": "Toktz-xil-ul",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:1:6523",
           "item_id": 6523,
           "item_name": "Toktz-xil-ak",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:2:6524",
           "item_id": 6524,
           "item_name": "Toktz-ket-xil",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:3:6525",
           "item_id": 6525,
           "item_name": "Toktz-xil-ek",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:4:6526",
           "item_id": 6526,
           "item_name": "Toktz-mej-tal",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:5:6527",
           "item_id": 6527,
           "item_name": "Tzhaar-ket-em",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:6:6528",
           "item_id": 6528,
           "item_name": "Tzhaar-ket-om",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarhurtels_equipment_store:7:6568",
           "item_id": 6568,
           "item_name": "Obsidian cape",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         }
       ]
     },
     {
-      "disposition": "locked",
+      "disposition": "visible",
       "id": "tzhaarmejrohs_rune_store",
       "name": "TzHaar-Mej-Roh's Rune Store",
-      "reason": "currency_not_implemented",
+      "reason": "",
       "source_path": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/shops/tzhaarmejrohs_rune_store.json",
       "stock_rows": [
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:0:554",
           "item_id": 554,
           "item_name": "Fire rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:1:555",
           "item_id": 555,
           "item_name": "Water rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:2:556",
           "item_id": 556,
           "item_name": "Air rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:3:557",
           "item_id": 557,
           "item_name": "Earth rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:4:558",
           "item_id": 558,
           "item_name": "Mind rune",
-          "lock_reason": "currency_not_implemented",
-          "price_policy": "darkan_shop_cache_price",
-          "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "lock_reason": "",
+          "price_policy": "period_shop_table_override",
+          "price_source": "TzHaar-Mej-Roh oldid 6393148, 2012-10-13",
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:5:559",
           "item_id": 559,
           "item_name": "Body rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:6:562",
           "item_id": 562,
           "item_name": "Chaos rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         },
         {
-          "disposition": "locked",
+          "disposition": "live",
           "id": "tzhaarmejrohs_rune_store:7:560",
           "item_id": 560,
           "item_name": "Death rune",
-          "lock_reason": "currency_not_implemented",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "visible_locked"
+          "visibility": "visible"
         }
       ]
     },
@@ -33205,16 +33205,16 @@
     "excluded_stock_row_count": 5,
     "hidden_shop_count": 1,
     "hidden_stock_row_count": 0,
-    "live_stock_row_count": 2698,
-    "locked_shop_count": 5,
-    "locked_stock_row_count": 60,
+    "live_stock_row_count": 2721,
+    "locked_shop_count": 2,
+    "locked_stock_row_count": 37,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
     "service_count": 83,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,
-    "visible_shop_count": 267
+    "visible_shop_count": 270
   },
   "vendor_actions": [
     {

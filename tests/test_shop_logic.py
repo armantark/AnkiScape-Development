@@ -58,6 +58,30 @@ def _specialist_without_beer():
 
 
 class TestShopLogic(unittest.TestCase):
+    def test_tzhaar_onyx_purchase_spends_tokkul_is_buy_only_and_undoes(self):
+        shop_id = "tzhaarhurleks_ore_and_gem_store"
+        row_id = f"{shop_id}:5:6571"
+        player = build_shop_fixture_player_data()
+        player["inventory"].update({"Tokkul": 2_700_000, "Uncut onyx": 0})
+
+        bought, result = apply_shop_buy_pure(player, shop_id, row_id, 1)
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["currency_item_name"], "Tokkul")
+        self.assertEqual(result["total_price"], 2_700_000)
+        self.assertEqual(bought["inventory"]["Tokkul"], 0)
+        self.assertEqual(bought["inventory"]["Uncut onyx"], 1)
+
+        unchanged, denied = apply_shop_sell_pure(bought, shop_id, "Uncut onyx", 1)
+        self.assertEqual(unchanged, bought)
+        self.assertFalse(denied["allowed"])
+        self.assertEqual(denied["reason"], "shop_buy_only")
+
+        restored, undo = rollback_shop_event_pure(bought, result["event_id"])
+        self.assertTrue(undo["allowed"])
+        self.assertEqual(restored["inventory"]["Tokkul"], 2_700_000)
+        self.assertEqual(restored["inventory"]["Uncut onyx"], 0)
+
     def test_batched_view_models_match_one_call_per_shop(self):
         """The batch shares one sanitized snapshot instead of deep-copying the
         save per shop; the rendered view models must stay identical."""

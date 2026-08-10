@@ -4702,3 +4702,22 @@ flees silently when the player runs out of food.
   488 expected skips and Qt has three. Documentation, test quality,
   compilation, JSON, asset normalization, diff, and worktree safety pass.
   Evidence: `source-audits/potato-cactus-acquisition-2026-08-09.md`.
+
+## Tokkul shops and Uncut onyx acquisition — 2026-08-09
+
+- Tokkul is now a live inventory currency in all three period TzHaar shops.
+  Existing Fight Caves, Fight Pit, and TzHaar combat routes already earn it;
+  the old non-coin lock was stale.
+- Cutoff shop tables correct four cache-derived prices and make the shops
+  player-buy only. The Ore and Gem Store now sells its one Uncut onyx for
+  exactly 2,700,000 Tokkul through the established stock, persistence,
+  review-restock, transaction-history, and atomic-undo runtime.
+- The existing onyx Crafting chain is reachable and no longer reports an
+  input-starved note. No placeholder, asset change, or new UI pattern was
+  needed; both onyx sprites and the complete Crafted family remain normalized.
+- Reachability improves to 1,549 actions, 2,413 reachable items, 117 orphan
+  inputs, and 118 blocked actions: 16 more item paths and 11 fewer blocked
+  actions. Both full 4,014-test lanes pass. Native Computer Use timed out for
+  both Anki identifiers, so no native interaction is claimed.
+- Evidence:
+  `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.

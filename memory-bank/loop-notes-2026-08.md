@@ -1151,3 +1151,23 @@
   quality, compilation, JSON, asset normalization, diff, and worktree audits
   pass. Workflows run `1951a8f4-904d-4e78-a010-7837aabb38ff` returned no usable
   result after both leaves exhausted bounded budgets; root did not retry it.
+
+## Iteration 53 — Tokkul shops and Uncut onyx acquisition
+
+- Result: Tokkul is live across the three ordinary TzHaar shops, and the Ore
+  and Gem Store's one-stock Uncut onyx closes the full existing onyx Crafting
+  graph for 2,700,000 Tokkul. Purchases reuse the established shop inventory,
+  stock, review-restock, history, persistence, and direct undo transaction.
+- Source: cutoff oldids `6570299`, `6438736`, `6393151`, and `6393148` pin the
+  item, complete stock and price tables, and player-buy-only rule. Four
+  cache-derived prices were corrected; no placeholder was introduced.
+- Boundary: the first full generator run exposed active Darkan source drift
+  (nine added and seven changed unrelated shops). Root rejected that diff and
+  added deterministic currency-only regeneration against AnkiScape's pinned
+  snapshot. Trading sticks and reward currencies remain untouched.
+- Verification: 144 focused pure checks and one focused real Qt purchase pass.
+  Full plain discovery passes 4,014 tests with 489 skips; full real offscreen
+  Qt passes 4,014 with three. Documentation, test quality, compilation, JSON,
+  deterministic regeneration, asset normalization, diff, and worktree audits
+  pass. Reachability improves from 1,549/2,397/124/129 to
+  1,549/2,413/117/118. Native Computer Use timed out and is not claimed.

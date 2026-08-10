@@ -5820,3 +5820,22 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   discovery each pass 4,009 tests. Documentation, test quality, compilation,
   JSON, asset normalization, diff, and worktree audits pass.
 - Evidence: `source-audits/potato-cactus-acquisition-2026-08-09.md`.
+
+## Tokkul shops and Uncut onyx acquisition — 2026-08-09
+
+- Activated item 6529 as the existing Tokkul inventory currency for the three
+  TzHaar shops, preserving the pinned 274-shop AnkiScape snapshot rather than
+  absorbing unrelated changes from the active Darkan checkout.
+- Pinned all 23 cutoff stock rows, corrected four cache-price conflicts, and
+  enforced the period player-buy-only rule. A 2,700,000-Tokkul purchase now
+  closes Uncut onyx, cutting, jewellery, and downstream item paths through the
+  shared shop and Crafting runtimes.
+- Added generator, catalog, transaction, undo, buy-only, reachability, and real
+  Qt purchase coverage. Deterministic currency-only regeneration prevents
+  future source-checkout drift from contaminating a focused catalog update.
+- Reachability is now 1,549 actions / 2,413 reachable items / 117 orphan inputs
+  / 118 blocked actions. Full plain and real offscreen Qt discovery each pass
+  4,014 tests. Documentation, test quality, compilation, JSON, asset,
+  deterministic-generation, diff, and worktree gates pass.
+- Evidence:
+  `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.

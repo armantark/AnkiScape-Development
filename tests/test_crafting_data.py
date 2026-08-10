@@ -34,6 +34,17 @@ class TestCraftingData(unittest.TestCase):
         self.assertEqual(data["cut_dragonstone"]["requirements"], {"Uncut dragonstone": 1})
         self.assertEqual(data["jewellery_dragonstone_ring"]["requirements"], {"Gold bar": 1, "Dragonstone": 1})
 
+    def test_onyx_chain_no_longer_reports_a_missing_acquisition_route(self):
+        data = crafting_recipes_as_dict()
+        for recipe_id in (
+            "cut_onyx",
+            "jewellery_onyx_ring",
+            "jewellery_onyx_necklace",
+            "jewellery_onyx_bracelet",
+            "jewellery_onyx_amulet",
+        ):
+            self.assertEqual(data[recipe_id]["notes"], "")
+
     def test_every_recipe_has_output_and_source(self):
         for recipe in CRAFTING_RECIPES:
             self.assertTrue(recipe.output_item, recipe.id)

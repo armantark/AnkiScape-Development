@@ -1730,7 +1730,7 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
 - Maintain `tools/audit_item_reachability.py`; the current run finds 1,549
-  actions, 2,397 reachable items, and 124 orphan inputs (66 root, 58 cascade)
+  actions, 2,413 reachable items, and 117 orphan inputs
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;
@@ -1763,6 +1763,13 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   Reachability is now 1,549 actions, 2,397 reachable items, 124 orphan inputs,
   and 129 blocked actions. See
   `source-audits/potato-cactus-acquisition-2026-08-09.md`.
+- **Closed 2026-08-09:** Tokkul is now a live inventory currency across the
+  three cutoff TzHaar shops. All 23 stock rows use their period tables, the
+  shops are player-buy only, and one Uncut onyx costs exactly 2,700,000 Tokkul.
+  This activates 16 downstream item paths and 11 actions without a placeholder
+  or new UI pattern. Reachability is now 1,549 actions, 2,413 reachable items,
+  117 orphan inputs, and 118 blocked actions. See
+  `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.
 - **Closed 2026-07-20:** the period player-grown Willow route now exposes
   post-health-check branches every five era-minutes to a six-branch cap,
   accepts either Secateurs variant, awards zero pruning XP, and preserves Chop

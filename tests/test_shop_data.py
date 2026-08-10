@@ -84,7 +84,6 @@ class TestShopData(unittest.TestCase):
                 if row["disposition"] == "live":
                     self.assertIsInstance(row["buy_price"], int)
                     self.assertIsInstance(row["sell_price"], int)
-                    self.assertEqual(shop["currency_id"], 995)
                     self.assertTrue(shop["currency_implemented"])
 
     def test_coin_stock_uses_darkan_cache_price_policy_without_unresolved_price_locks(self):
@@ -113,16 +112,70 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(row["lock_reason"], "")
             self.assertIsInstance(row["buy_price"], int)
 
-    def test_non_coin_shops_are_visible_locked(self):
-        non_coin_shops = [shop for shop in SHOP_DATA.values() if shop["currency_id"] != 995]
-        self.assertGreaterEqual(len(non_coin_shops), 1)
-        for shop in non_coin_shops:
+    def test_unimplemented_currency_shops_are_visible_locked(self):
+        locked_currency_shops = [
+            shop
+            for shop in SHOP_DATA.values()
+            if not shop["currency_implemented"]
+        ]
+        self.assertGreaterEqual(len(locked_currency_shops), 1)
+        for shop in locked_currency_shops:
             self.assertFalse(shop["currency_implemented"])
             if shop["visibility"] == "hidden":
                 self.assertEqual(shop["lock_reason"], "activity_or_reward_system_not_implemented")
                 continue
             self.assertEqual(shop["visibility"], "visible_locked")
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
+
+    def test_tzhaar_shops_use_live_tokkul_and_cutoff_buy_tables(self):
+        expected = {
+            "tzhaarhurleks_ore_and_gem_store": {
+                438: (5, 30),
+                436: (5, 30),
+                440: (2, 25),
+                1623: (1, 48),
+                1621: (1, 97),
+                6571: (1, 2_700_000),
+                9194: (50, 13_000),
+            },
+            "tzhaarhurtels_equipment_store": {
+                6522: (10, 375),
+                6523: (10, 60_000),
+                6524: (10, 67_500),
+                6525: (10, 37_500),
+                6526: (10, 52_500),
+                6527: (10, 45_000),
+                6528: (10, 75_000),
+                6568: (10, 90_000),
+            },
+            "tzhaarmejrohs_rune_store": {
+                554: (1000, 26),
+                555: (1000, 26),
+                556: (1000, 26),
+                557: (1000, 26),
+                558: (1000, 24),
+                559: (1000, 24),
+                562: (300, 210),
+                560: (100, 465),
+            },
+        }
+
+        for shop_id, expected_rows in expected.items():
+            with self.subTest(shop_id=shop_id):
+                shop = SHOP_DATA[shop_id]
+                self.assertEqual(shop["currency_id"], 6529)
+                self.assertEqual(shop["currency_item_name"], "Tokkul")
+                self.assertTrue(shop["currency_implemented"])
+                self.assertTrue(shop["buy_only"])
+                self.assertEqual(shop["visibility"], "visible")
+                self.assertEqual(
+                    {
+                        row["item_id"]: (row["default_quantity"], row["buy_price"])
+                        for row in shop["stock"]
+                    },
+                    expected_rows,
+                )
+                self.assertTrue(all(row["disposition"] == "live" for row in shop["stock"]))
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
         self.assertEqual(len(SHOP_SERVICES), 83)
@@ -327,6 +380,62 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(row["disposition"], "live")
         self.assertEqual(row["lock_reason"], "")
         self.assertEqual(ledger["summary"], catalog["summary"])
+
+    def test_generator_activates_tokkul_and_applies_cutoff_price_overrides(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            shops = temp / "shops"
+            shops.mkdir()
+            (shops / "tzhaarhurleks_ore_and_gem_store.json").write_text(
+                json.dumps(
+                    {
+                        "name": "TzHaar-Hur-Lek's Ore and Gem Store",
+                        "currency": 6529,
+                        "items": [
+                            {"item": {"id": 1623, "amount": 1}},
+                            {"item": {"id": 6571, "amount": 1}},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            items = temp / "items.yml"
+            items.write_text(
+                "\n".join(
+                    (
+                        '- id: 6529',
+                        '  name: "Tokkul"',
+                        '  tradeable: false',
+                        '- id: 1623',
+                        '  name: "Uncut sapphire"',
+                        '  tradeable: true',
+                        '- id: 6571',
+                        '  name: "Uncut onyx"',
+                        '  tradeable: true',
+                    )
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            catalog, _ledger = build_catalog(
+                shops,
+                items,
+                {
+                    1623: {"value": 25, "sell_price": 5, "tokkul_buy_override": 37},
+                    6571: {"value": 1_800_000, "sell_price": 360_000, "tokkul_buy_override": 2_700_000},
+                },
+            )
+
+        shop = catalog["shops"][0]
+        rows = {row["item_id"]: row for row in shop["stock"]}
+        self.assertTrue(shop["currency_implemented"])
+        self.assertTrue(shop["buy_only"])
+        self.assertEqual(shop["visibility"], "visible")
+        self.assertEqual(rows[1623]["buy_price"], 48)
+        self.assertEqual(rows[1623]["price_policy"], "period_shop_table_override")
+        self.assertEqual(rows[6571]["buy_price"], 2_700_000)
+        self.assertTrue(all(row["disposition"] == "live" for row in rows.values()))
 
     def test_focused_regeneration_keeps_runtime_and_audit_outputs_consistent(self):
         repo_root = Path(__file__).resolve().parents[1]

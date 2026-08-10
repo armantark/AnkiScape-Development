@@ -5191,6 +5191,39 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(saved[0]["inventory"], pd["inventory"])
         self.assertEqual(saved[0]["shop_events"], pd["shop_events"])
 
+    def test_shop_tzhaar_onyx_row_uses_tokkul_wallet_and_live_purchase(self) -> None:
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
+
+        pd = build_shop_frontend_fixtures()["fixture_player_data"]
+        pd["inventory"].update({"Tokkul": 2_700_000, "Uncut onyx": 0})
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+
+        search = _find_named_line_edit(dialog, "shopSearchInput")
+        search.setText("Uncut onyx")
+        QApplication.processEvents()
+        selector = _find_named_list(dialog, "shopSelectionList")
+        target = next(
+            selector.item(index)
+            for index in range(selector.count())
+            if isinstance(selector.item(index).data(Qt.ItemDataRole.UserRole), dict)
+            and selector.item(index).data(Qt.ItemDataRole.UserRole).get("shop_id")
+            == "tzhaarhurleks_ore_and_gem_store"
+            and selector.item(index).data(Qt.ItemDataRole.UserRole).get("row_id")
+            == "tzhaarhurleks_ore_and_gem_store:5:6571"
+        )
+        selector.setCurrentItem(target)
+        QApplication.processEvents()
+
+        self.assertIn("Tokkul: 2,700,000 owned", _find_named_label(dialog, "shopDetailMeta").text())
+        button = _find_named_button(dialog, "shopTransactionButton")
+        self.assertTrue(button.isEnabled(), _find_named_label(dialog, "shopPreviewLabel").text())
+        button.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Tokkul"], 0)
+        self.assertEqual(pd["inventory"]["Uncut onyx"], 1)
+
     def test_shop_general_store_sell_creates_temporary_stock(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 

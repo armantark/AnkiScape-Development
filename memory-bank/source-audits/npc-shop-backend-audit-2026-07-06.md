@@ -13,13 +13,13 @@ Generated: 2026-07-06
 
 - Source shop files: 274
 - Runtime shops: 273
-- Visible shops: 267
-- Locked/read-only shops: 5
+- Visible shops: 270
+- Locked/read-only shops: 2
 - Hidden shops: 1
 - Stock rows: 2771
 - Period-source-excluded stock rows: 5
-- Live stock rows: 2698
-- Locked stock rows: 60
+- Live stock rows: 2721
+- Locked stock rows: 37
 - Hidden stock rows: 0
 - Blocked stock rows: 13
 - Services: 83
@@ -29,7 +29,7 @@ Generated: 2026-07-06
 
 - Coin stock rows with a source-backed custom price, Darkan cache value, or direct content literal are live.
 - Darkan cache prices mirror `Shop.java`: custom prices override buy price only; otherwise buy price uses ItemDefinitions.value plus coin/Tokkul enum overrides, while sell price uses ItemDefinitions.sellPrice plus sell enum overrides.
-- Non-coin shops are visible but read-only until their currencies exist in AnkiScape.
+- Shops whose currencies do not exist in AnkiScape are visible but read-only; Coins and Tokkul are live inventory currencies.
 - Reward/activity-dependent shop families are hidden from normal player search until their owning system exists.
 - The developer test shop is excluded and still appears in the JSON ledger with an explicit disposition.
 

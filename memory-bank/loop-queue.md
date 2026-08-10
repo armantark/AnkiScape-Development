@@ -146,3 +146,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      first-level Kalphite-Hive route, exact item identity, normalized period
      art, established Utility gathering/undo, and the existing Magic-potion
      chain.
+   - [x] Activate Tokkul across the three cutoff TzHaar shops, correct the four
+     period price conflicts, enforce player-buy-only behavior, and close Uncut
+     onyx acquisition through the established Shop and Crafting runtimes.
