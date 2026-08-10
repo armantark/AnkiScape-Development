@@ -20,6 +20,7 @@ Placeholders".
 
 | id | value | family it unblocks | what would settle it |
 | --- | --- | --- | --- |
+| `thieving.master_farmer_fellstalk_weight` | 1 slot in the existing 2,200-slot Master Farmer table | Fellstalk Farming, Prayer renewal, and downstream potion states | Master Farmer oldid `6565826` proves one Fellstalk seed at `Very Rare`, and Fellstalk seed oldid `6565142` independently proves the Master Farmer route, but neither states the hidden relative weight. A period pickpocket table or qualified cutoff sample would replace the minimal one-slot extension. |
 | `woodcutting.arctic_pine_rolls` | Mahogany's `8/25` source chance envelope, `8` depletion roll, and `14` respawn row | Arctic pine Woodcutting and downstream Firemaking/splitting | A period server tree definition or measured table that closes Arctic pine success, depletion, and respawn behavior. Oldid `6069429` pins level, XP, output, location, and access but not the hidden rolls. |
 | `woodcutting.eucalyptus_rolls` | Yew's `4/12` source chance envelope, `8` depletion roll, and `99` respawn row | Eucalyptus Woodcutting and downstream Firemaking | A period server tree definition or measured table that closes Eucalyptus success, depletion, and respawn behavior. Oldid `6491980` pins level, XP, output, and safe route but not the hidden rolls. |
 | `conquest.board_size` | 20×20 bounded board | Conquest | Period map-region data, interface tile grid, or dated screenshots sufficient to count the authentic battlefield dimensions |

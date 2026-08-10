@@ -29,6 +29,7 @@ from ankiscape.runtime.runtime_actions import (
 )
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from ankiscape.data.thieving_data import (
+    MASTER_FARMER_FELLSTALK_SOURCE,
     PICKPOCKET_TARGETS,
     STALL_TARGETS,
     THIEVING_NPC_IMAGES,
@@ -102,6 +103,40 @@ def _blackjack_state(*, fight_back=False):
 
 
 class TestThievingPureMechanics(unittest.TestCase):
+    def test_master_farmer_can_yield_one_period_fellstalk_seed(self):
+        master_farmer = PICKPOCKET_TARGETS["pickpocket_master_farmer"]
+
+        self.assertEqual(
+            sum(slots for _item, _minimum, _maximum, slots in master_farmer["loot"]),
+            master_farmer["loot_total"],
+        )
+        self.assertEqual(
+            thieving_loot_roll_pure(master_farmer, master_farmer["loot_total"] - 1),
+            {"Fellstalk seed": 1},
+        )
+        self.assertIn(MASTER_FARMER_FELLSTALK_SOURCE, master_farmer["source"])
+
+    def test_master_farmer_runtime_awards_fellstalk_seed(self):
+        player_data = {
+            "current_thieving": "pickpocket_master_farmer",
+            "thieving_level": 99,
+            "thieving_exp": 0.0,
+            "agility_level": 1,
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "inventory": {},
+            "completed_achievements": [],
+        }
+        ctx, _calls = _context(
+            player_data,
+            random_values=(0.0, 0.0, 2199.5 / 2200.0, 0.0),
+        )
+
+        self.assertTrue(handle_thieving_answer(ctx))
+        self.assertEqual(player_data["inventory"], {"Fellstalk seed": 1})
+
     def test_every_npc_target_has_its_own_portrait_asset(self):
         self.assertEqual(set(THIEVING_NPC_IMAGES), set(THIEVING_NPC_TARGET_IDS))
         for target_id, path in THIEVING_NPC_IMAGES.items():

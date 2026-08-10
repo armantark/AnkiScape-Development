@@ -25,6 +25,9 @@ MULTIPICK_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/"
     "plugins/content/skills/thieving/pickpocketing/Pickpocketing.kt:97-113"
 )
+MASTER_FARMER_FELLSTALK_SOURCE = (
+    "https://runescape.wiki/w/Master_Farmer?oldid=6565826"
+)
 
 DEFAULT_THIEVING_TARGET = "pickpocket_man"
 THIEVING_GROUP_ORDER = ("pickpocketing", "stalls", "safes", "blackjacking")
@@ -102,6 +105,9 @@ MASTER_FARMER_LOOT = (
     ("Lantadyme seed", 1, 1, 1), ("Dwarf weed seed", 1, 1, 1),
     ("Torstol seed", 1, 1, 1), ("Bittercap mushroom spore", 1, 1, 5),
     ("Belladonna seed", 1, 1, 3), ("Cactus seed", 1, 1, 1),
+    # PLACEHOLDER(thieving.master_farmer_fellstalk_weight): recover the hidden
+    # relative weight; the cutoff table proves one seed and Very Rare only.
+    ("Fellstalk seed", 1, 1, 1),
 )
 
 PICKPOCKET_TARGETS = {
@@ -112,7 +118,11 @@ PICKPOCKET_TARGETS = {
     "pickpocket_warrior": _pick("Warrior", 25, 100, 240, 26.0, (20, 20), 8, guaranteed=(("Coins", 18),), source_lines="221-234"),
     "pickpocket_rogue": _pick("Rogue", 32, 74, 240, 36.5, (20, 20), 8, total=128, loot=(("Coins",25,40,108),("Iron dagger (p)",1,1,1),("Air rune",8,8,8),("Jug of wine",1,1,6),("Lockpick",1,1,5)), source_lines="236-254"),
     "pickpocket_cave_goblin": _pick("Cave goblin", 36, 72, 240, 40.0, (10, 10), 8, total=20, loot=(("Coins",10,50,7),("Bat shish",1,1,1),("Coated frog's legs",1,1,1),("Fingers",1,1,1),("Frogburger",1,1,1),("Frogspawn gumbo",1,1,1),("Green gloop soup",1,1,1),("Bullseye lantern (unlit)",1,1,1),("Cave goblin wire",1,1,1),("Oil lantern (unlit)",1,1,1),("Swamp tar",1,1,1),("Tinderbox",1,1,1),("Unlit torch",1,1,1),("Iron ore",1,4,1)), source_lines="256-286"),
-    "pickpocket_master_farmer": _pick("Master farmer", 38, 90, 240, 43.0, (30, 30), 8, total=2199, loot=MASTER_FARMER_LOOT, source_lines="288-343"),
+    "pickpocket_master_farmer": {
+        **_pick("Master farmer", 38, 90, 240, 43.0, (30, 30), 8, total=2200, loot=MASTER_FARMER_LOOT, source_lines="288-343"),
+        "source": f"{PICKPOCKET_SOURCE}:288-343; {MASTER_FARMER_FELLSTALK_SOURCE}",
+        "source_status": "period-wiki Fellstalk route and quantity; placeholder hidden weight",
+    },
     "pickpocket_guard": _pick("Guard", 40, 50, 240, 46.8, (20, 20), 8, guaranteed=(("Coins",30),), source_lines="346-391"),
     "pickpocket_fremennik": _pick("Fremennik citizen", 45, 65, 240, 65.0, (20, 20), 8, guaranteed=(("Coins",40),), source_lines="393-412"),
     "pickpocket_desert_bandit": _pick("Desert bandit", 53, 50, 240, 79.4, (30, 30), 8, total=7, loot=(("Coins",30,30,5),("Antipoison (1)",1,1,1),("Lockpick",1,1,1)), source_lines="414-438"),

@@ -4721,3 +4721,21 @@ flees silently when the player runs out of food.
   both Anki identifiers, so no native interaction is claimed.
 - Evidence:
   `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.
+
+## Fellstalk seed acquisition — 2026-08-09
+
+- Master Farmers now supply one Fellstalk seed through the existing Thieving
+  loot, inventory, persistence, telemetry, and answer-undo path. Cutoff oldids
+  `6565142` and `6565826` independently prove the route; the latter pins
+  quantity one and `Very Rare`.
+- The hidden relative weight is not published. The minimal one-slot extension
+  to the existing 2,199-slot table is registered as
+  `thieving.master_farmer_fellstalk_weight`, not claimed as period truth.
+- The modern 2025 seed icon is replaced with the pre-cutoff
+  `2012-11-17T05:53:59Z` revision. Provenance and normalization checks pin its
+  exact SHA-1 and 31×26 tight-alpha dimensions.
+- Reachability improves to 1,549 actions / 2,421 reachable items / 112 orphan
+  inputs / 113 blocked actions. Full plain and real offscreen-Qt discovery each
+  pass 4,016 tests; plain has 489 expected skips and Qt has three.
+- Evidence:
+  `source-audits/fellstalk-seed-acquisition-2026-08-09.md`.

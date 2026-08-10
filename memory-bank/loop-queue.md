@@ -149,3 +149,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Activate Tokkul across the three cutoff TzHaar shops, correct the four
      period price conflicts, enforce player-buy-only behavior, and close Uncut
      onyx acquisition through the established Shop and Crafting runtimes.
+   - [x] Close Fellstalk-seed acquisition through the cutoff-proven Master
+     Farmer route, register only its hidden relative weight, and replace its
+     modern sprite with the normalized pre-cutoff revision.

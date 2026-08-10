@@ -1,5 +1,11 @@
 # Farming pre-EOC wiki-pin ledger — 2026-07-11
 
+> **Supersession note (2026-08-09):** the Fellstalk entry under missing
+> acquisition routes is superseded by
+> `source-audits/fellstalk-seed-acquisition-2026-08-09.md`. Cutoff Master Farmer
+> oldid `6565826` proves one Fellstalk seed at `Very Rare`; only its hidden
+> relative weight remains a registered placeholder.
+
 Cutoff: strictly before `2012-11-20T00:00:00Z`. Wiki evidence is literal `runescape.wiki` wikitext resolved by `tools/wiki_parity.py`; “GM” is `/Users/ArmanTarkhanian1/Downloads/game-main`; “DK” is Darkan commit `7e7d67b`, read only with `git show`. A modern page is mentioned only once, as a lead proving that Patch bomb belongs to a later update; it is not promoted to period proof.
 
 ## A. Resolution table

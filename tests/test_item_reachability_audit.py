@@ -95,6 +95,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Utility:managing_miscellania",
         )
         self.assertEqual(
+            report["routes"]["Fellstalk seed"],
+            "Thieving:pickpocket_master_farmer",
+        )
+        self.assertEqual(
             report["routes"]["Stardust"],
             "Activity:shooting_stars:mine",
         )

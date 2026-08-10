@@ -14,6 +14,21 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Fellstalk seed acquisition — shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for the hidden Master Farmer weight and alternate
+catalog routes.
+
+- Master Farmers now yield one Fellstalk seed through the established Thieving
+  runtime. Cutoff oldids `6565142` and `6565826` prove the route and quantity.
+- The unrecovered `Very Rare` weight is registered as a one-slot placeholder;
+  alternate monster, Evil Tree, and Managing Miscellania routes remain data
+  depth.
+- The cutoff sprite replaces a modern 2025 upload. The existing Farming and
+  Herblore graph is now reachable without a new UI pattern.
+- Durable audit:
+  `memory-bank/source-audits/fellstalk-seed-acquisition-2026-08-09.md`.
+
 ### Crafting and Fletching potions — shared runtime shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for later Herblore recipe/catalog depth.

@@ -5839,3 +5839,22 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   deterministic-generation, diff, and worktree gates pass.
 - Evidence:
   `source-audits/tokkul-shops-uncut-onyx-acquisition-2026-08-09.md`.
+
+## Fellstalk seed acquisition — 2026-08-09
+
+- Added the cutoff-proven Master Farmer route for one Fellstalk seed without a
+  new runtime or UI pattern. The existing 42-row table becomes 43 rows and
+  2,200 slots.
+- Registered the unrecovered `Very Rare` relative weight as a one-slot
+  placeholder. Evil Trees, Managing Miscellania, and monster drops remain
+  catalog depth; Vinesweeper still excludes Fellstalk.
+- Replaced the modern Fellstalk sprite with the normalized pre-cutoff upload
+  and pinned its exact timestamp and SHA-1 in behavior coverage.
+- The route recovers eight existing item states and five actions. The live graph
+  is now 1,549 actions / 2,421 reachable items / 112 orphan inputs / 113 blocked
+  actions.
+- Focused checks pass 110 tests plus two real Qt tests. Full plain and real
+  offscreen-Qt discovery each pass 4,016 tests. Documentation, test-quality,
+  compilation, JSON, asset, diff, and worktree gates pass.
+- Evidence:
+  `source-audits/fellstalk-seed-acquisition-2026-08-09.md`.

@@ -421,6 +421,13 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
             self.assertEqual(definitions[item_name].asset_path, FARMING_ITEM_IMAGES[item_name])
             self.assertTrue(Path(FARMING_ITEM_IMAGES[item_name]).exists(), item_name)
 
+        fellstalk = provenance["farmingitems/fellstalk_seed.png"]
+        self.assertEqual(fellstalk["timestamp"], "2012-11-17T05:53:59Z")
+        self.assertEqual(
+            fellstalk["sha1"],
+            "4c7b64493ad5beb0a06eb0bdd5ff4864fb323706",
+        )
+
     def test_patch_compost_and_hud_visual_manifests_are_complete(self):
         self.assertEqual(set(FARMING_PATCH_STATE_IMAGES), {"empty", "growing", "ready", "diseased", "dead", "stump"})
         self.assertEqual(set(FARMING_COMPOST_STATE_IMAGES), {"empty", "filling", "ready"})

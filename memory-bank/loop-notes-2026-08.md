@@ -1171,3 +1171,22 @@
   deterministic regeneration, asset normalization, diff, and worktree audits
   pass. Reachability improves from 1,549/2,397/124/129 to
   1,549/2,413/117/118. Native Computer Use timed out and is not claimed.
+
+## Iteration 54 — Fellstalk seed acquisition
+
+- Result: Master Farmers can now yield one Fellstalk seed through the existing
+  Thieving action. This unlocks the already-complete Farming and downstream
+  potion graph without adding another player-facing surface.
+- Source: Fellstalk seed oldid `6565142` and Master Farmer oldid `6565826`
+  independently prove the route. The Master Farmer table pins quantity one and
+  `Very Rare`; its hidden weight remains unavailable.
+- Placeholder: `thieving.master_farmer_fellstalk_weight` records the smallest
+  one-slot extension, taking the existing table from 2,199 to 2,200 slots.
+- Asset correction: the modern 2025 seed icon is replaced with the cutoff
+  `2012-11-17T05:53:59Z` revision and its exact provenance.
+- Verification: 110 focused checks and two focused real Qt tests pass. Full
+  plain and offscreen Qt discovery each pass 4,016 tests, with 489 expected
+  plain skips and three Qt skips. Documentation, test quality, compilation,
+  JSON, asset normalization, diff, and worktree audits pass. Reachability
+  improves to 1,549 actions, 2,421 reachable items, 112 orphan inputs, and 113
+  blocked actions.
