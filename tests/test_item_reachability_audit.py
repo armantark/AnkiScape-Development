@@ -111,6 +111,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Utility:grind_black_mushroom",
         )
         self.assertEqual(
+            report["routes"]["Unholy mould"],
+            "combat:chaos_druid",
+        )
+        self.assertEqual(
             report["routes"]["Stardust"],
             "Activity:shooting_stars:mine",
         )
@@ -219,6 +223,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Eucalyptus logs",
             "Black mushroom",
             "Black mushroom ink",
+            "Unholy mould",
         ):
             self.assertNotIn(item_name, orphan_items)
 

@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 57 closes Unholy-mould acquisition.** The
+existing Chaos-druid target now includes one quantity-one Unholy mould slot in
+its 128-slot ordinary table. Darkan independently reconstructs the row at
+1/128; cutoff oldids `6381798` and `6088663` pin the monster route, item use,
+and semantics. A real Combat burst feeds the existing level-17 unholy-symbol
+Crafting chain while preserving the mould as a reusable tool. The distinct
+31×27 period sprite replaces the incorrect Holy mould fallback in the registry
+and Bank. Reachability improves to 1,551 actions, 2,428 reachable items, 108
+orphan inputs, and 108 unresolved actions. Focused checks pass 71 plain tests
+and one real offscreen Qt test. Both full discovery lanes pass 4,023 tests;
+plain has 491 expected skips and Qt has three. Documentation, test quality,
+compilation, JSON, asset normalization, diff, and worktree checks pass. No
+placeholder, design gap, or new UI pattern was introduced. Durable audit:
+`memory-bank/source-audits/unholy-mould-chaos-druid-drop-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 48 closes Arctic pine and Eucalyptus
 Woodcutting acquisition.** Arctic pine is a level-54, 140.2-XP gathering
 target gated on starting The Fremennik Isles; Eucalyptus is a level-58,

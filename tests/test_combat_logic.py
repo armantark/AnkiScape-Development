@@ -2454,11 +2454,15 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(main["slots"][13], {"item": "Vial of water", "quantity": 1, "slots": 10})
         self.assertEqual(main["slots"][14], {"item": "Bronze longsword", "quantity": 1, "slots": 1})
         self.assertEqual(main["slots"][15], {"item": "Snape grass", "quantity": 1, "slots": 1})
-        self.assertIs(main["slots"][16]["table"], COMBAT_GEM_DROP_TABLE)
-        self.assertEqual(main["slots"][16]["slots"], 1)
+        self.assertEqual(main["slots"][12], {"slots": 32})
+        self.assertEqual(main["slots"][16], {"item": "Unholy mould", "quantity": 1, "slots": 1})
+        self.assertIs(main["slots"][17]["table"], COMBAT_GEM_DROP_TABLE)
+        self.assertEqual(main["slots"][17]["slots"], 1)
         self.assertIn("chaos_druid_lvl_13.plugin.kts", druid["source"])
         self.assertIn("CHAOS_DRUID_7105", druid["source"])
         self.assertIn("aggro radius 4", druid["source"])
+        self.assertIn("chaos_druid.json: item 1594 at 1/128", druid["source"])
+        self.assertIn("Chaos druid oldid 6381798", druid["source"])
 
     def test_citizen_row_matches_source_and_nested_minor_herbs(self):
         citizen = COMBAT_ENEMY_DATA["citizen"]
@@ -3770,10 +3774,15 @@ class CombatLogicTest(unittest.TestCase):
             COMBAT_ENEMY_DATA["chaos_druid"],
             _rng([127 / 128, 512 / 1024]),
         )
+        mould_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["chaos_druid"],
+            _rng([126 / 128]),
+        )
 
         self.assertEqual(bolt_drops, {"Bones": 1, "Mithril bolts": 12})
         self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
         self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
+        self.assertEqual(mould_drops, {"Bones": 1, "Unholy mould": 1})
 
     def test_scorpion_and_higher_spider_drop_rolls_use_source_tables(self):
         scorpion_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["scorpion"], _rng([0.03]))

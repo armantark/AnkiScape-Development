@@ -156,3 +156,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      service, preserving the pinned shop snapshot and atomic service undo.
    - [x] Close Black-mushroom acquisition through the cutoff Uzer/Goblin Cave
      ground source, and correct ink grinding to consume the required empty Vial.
+   - [x] Close Unholy-mould acquisition through the cutoff Chaos-druid drop,
+     preserve the mould through the existing Crafting chain, and replace the
+     incorrect Holy mould sprite fallback.

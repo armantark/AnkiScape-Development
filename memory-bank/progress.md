@@ -1,5 +1,27 @@
 # Progress
 
+## Unholy mould acquisition — 2026-08-09
+
+Chaos druids now drop one Unholy mould on the sourced 1/128 slot. The existing
+Combat target supplies the item through its normal kill, loot, carried-state,
+persistence, telemetry, and undo paths. A real reducer-chain test proves that
+the acquired mould and one Silver bar produce one Unstrung emblem for 50 XP
+without consuming the reusable mould.
+
+Cutoff oldids `6381798` and `6088663`, Darkan commit
+`9a6db4df8d12a743d0318bcd524462512e838ff3`, and OpenRS2 rev-742 item 1594
+close the route and item semantics without a placeholder. The distinct 31×27
+source-period sprite replaces the incorrect Holy mould fallback and is proven
+through the real offscreen Qt Bank. Reachability is now 1,551 actions / 2,428
+reachable items / 108 orphan inputs / 108 unresolved actions.
+
+Focused checks pass 71 plain tests and one real offscreen Qt test. Full plain
+and real offscreen Qt discovery each pass 4,023 tests, with 491 expected plain
+skips and three Qt skips. Documentation audits 552 Markdown and 431 HTML files;
+test quality reports 3,988 tests in 181 files with zero hard issues.
+Compilation, JSON, asset normalization, diff, and worktree safety pass. See
+`memory-bank/source-audits/unholy-mould-chaos-druid-drop-2026-08-09.md`.
+
 ## Special Woodcutting acquisition — 2026-08-09
 
 Arctic pine and Eucalyptus now have live gathering routes into their existing

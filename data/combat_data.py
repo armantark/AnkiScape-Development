@@ -104,6 +104,10 @@ LEATHER_DRAGON_COMBAT_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "src/main/java/com/rs/game/content/world/npcs/LeatherDragonCombat.java"
 )
+CHAOS_DRUID_DROP_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/npcs/drops/chaos_druid.json"
+)
 ITEM_ID_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt"
 )
@@ -1728,10 +1732,11 @@ CHAOS_DRUID_DROPS = {
                 {"item": "Coins", "quantity": 8, "slots": 5},
                 {"item": "Coins", "quantity": 29, "slots": 3},
                 {"item": "Coins", "quantity": 35, "slots": 1},
-                {"slots": 33},
+                {"slots": 32},
                 {"item": "Vial of water", "quantity": 1, "slots": 10},
                 {"item": "Bronze longsword", "quantity": 1, "slots": 1},
                 {"item": "Snape grass", "quantity": 1, "slots": 1},
+                {"item": "Unholy mould", "quantity": 1, "slots": 1},
                 {"table": COMBAT_GEM_DROP_TABLE, "slots": 1},
             ),
         },
@@ -5334,7 +5339,9 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": CHAOS_DRUID_DROPS,
         "source": (
             f"{CHAOS_DRUID_SOURCE_PATH}: ids Npcs.CHAOS_DRUID_2547/Npcs.CHAOS_DRUID/"
-            "Npcs.CHAOS_DRUID_7105; aggro radius 4"
+            "Npcs.CHAOS_DRUID_7105; aggro radius 4; "
+            f"{CHAOS_DRUID_DROP_SOURCE_PATH}: item 1594 at 1/128; "
+            "RuneScape Wiki Chaos druid oldid 6381798"
         ),
     },
     "citizen": {

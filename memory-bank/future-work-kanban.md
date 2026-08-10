@@ -14,6 +14,20 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Unholy mould acquisition — shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for alternate monster and Spirit-of-Scorpius routes.
+
+- Chaos druids now supply one Unholy mould on the independently reconstructed
+  1/128 slot through the established Combat runtime.
+- The existing unholy-symbol Crafting chain is reachable end to end and
+  preserves the mould as a reusable tool.
+- Rev-742 item semantics and the distinct normalized source-period sprite
+  replace the incorrect Holy mould fallback. No placeholder or new UI pattern
+  was introduced.
+- Durable audit:
+  `memory-bank/source-audits/unholy-mould-chaos-druid-drop-2026-08-09.md`.
+
 ### Black mushroom acquisition — shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for later quest-use catalog depth.

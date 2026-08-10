@@ -1226,3 +1226,22 @@
   pass. Full plain and offscreen Qt discovery each pass 4,021 tests, with 490
   expected plain skips and three Qt skips. Reachability improves to
   1,551/2,425/110/110.
+
+## Iteration 57 — Unholy mould acquisition
+
+- Result: the existing Chaos-druid target now supplies one Unholy mould on its
+  ordinary table. A real Combat burst feeds the existing
+  `silver_unstrung_emblem` reducer, which consumes one Silver bar, awards 50 XP,
+  produces one Unstrung emblem, and preserves the mould.
+- Source: Chaos druid oldid `6381798` and Unholy mould oldid `6088663` prove
+  the route, quantity, item use, and semantics. Darkan commit
+  `9a6db4df8d12a743d0318bcd524462512e838ff3` independently reconstructs item
+  1594 at 1/128; rev-742 pins its client definition. No placeholder is needed.
+- Asset repair: the distinct normalized 2011 sprite replaces the incorrect
+  Holy mould fallback. A real offscreen Qt Bank test compares its rendered
+  pixels with the registered file.
+- Verification: 71 focused plain checks and one focused real Qt check pass.
+  Full plain and offscreen Qt discovery each pass 4,023 tests, with 491 expected
+  plain skips and three Qt skips. Documentation, test-quality, compilation,
+  JSON, asset, diff, and worktree gates pass. Reachability improves to
+  1,551/2,428/108/108.

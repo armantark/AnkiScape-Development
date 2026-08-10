@@ -9993,6 +9993,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         arrow_row = _bank_grid_button(dialog, "Arrow shafts")
         self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
 
+    def test_bank_uses_the_unholy_mould_asset(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Unholy mould": 1}
+        dialog = self._open(pd)
+
+        row = _bank_grid_button(dialog, "Unholy mould")
+        expected = QIcon(
+            os.path.join(_ADDON_DIR, "crafteditems", "unholy_mould.png")
+        )
+        self.assertFalse(row.icon().isNull())
+        self.assertEqual(_icon_pixels(row.icon()), _icon_pixels(expected))
+
     def test_bank_search_filters_rows_and_categories_without_mutating_state(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {

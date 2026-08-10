@@ -1736,6 +1736,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertFalse(CRAFTING_REQUIRED_ITEM_DATA[item_name]["tradeable"])
             self.assertFalse(by_storage_key[item_name].tradeable)
 
+        self.assertEqual(
+            os.path.basename(CRAFTED_ITEM_IMAGES["Unholy mould"]),
+            "unholy_mould.png",
+        )
+        with open("assets_provenance.json", encoding="utf-8") as file_obj:
+            provenance = json.load(file_obj)
+        mould_provenance = provenance["crafteditems/unholy_mould.png"]
+        self.assertEqual(mould_provenance["timestamp"], "2011-11-30T05:37:48Z")
+        self.assertEqual(
+            mould_provenance["sha1"],
+            "6eaa27aad298f1e472a9b38f15d3d4063e9f1af5",
+        )
+
     def test_crafting_tool_registration_preserves_existing_item_identities(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, category in (

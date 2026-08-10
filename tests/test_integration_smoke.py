@@ -3104,6 +3104,62 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_chaos_druid_drop_closes_the_unholy_symbol_crafting_chain(self):
+        from ankiscape.core.constants import (
+            COMBAT_ENEMY_DATA,
+            CRAFTING_DATA,
+            EQUIPMENT_DATA,
+        )
+        from ankiscape.logic_pure.logic_pure import (
+            apply_combat_burst_pure,
+            apply_crafting_pure,
+        )
+
+        enemies = dict(COMBAT_ENEMY_DATA)
+        chaos_druid = dict(enemies["chaos_druid"])
+        chaos_druid["stats"] = dict(
+            chaos_druid["stats"], hitpoints=1, defence=1
+        )
+        enemies["chaos_druid"] = chaos_druid
+        rolls = iter((0.0, 0.999999, 126 / 128))
+        player = {
+            "inventory": {"Silver bar": 1},
+            "equipment": {},
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "current_combat_target": "chaos_druid",
+            "combat_attack_style": "aggressive",
+            "combat_auto_eat_food": [],
+        }
+
+        after_kill, combat_ok, combat_result = apply_combat_burst_pure(
+            player,
+            enemies,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=lambda: next(rolls, 0.5),
+            stop_after_first_kill=True,
+            allow_bank_run=False,
+        )
+        after_craft, crafting_xp, craft_ok = apply_crafting_pure(
+            "silver_unstrung_emblem",
+            after_kill["inventory"],
+            CRAFTING_DATA,
+        )
+
+        self.assertTrue(combat_ok)
+        self.assertEqual(
+            combat_result["drops"], {"Bones": 1, "Unholy mould": 1}
+        )
+        self.assertTrue(craft_ok)
+        self.assertEqual(crafting_xp, 50.0)
+        self.assertEqual(after_craft["Silver bar"], 0)
+        self.assertEqual(after_craft["Unholy mould"], 1)
+        self.assertEqual(after_craft["Unstrung emblem"], 1)
+
     def test_ectoplasmator_kill_rewards_and_counters_roll_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_ectoplasmator_undo_integration")
         addon.level_up_check = lambda _skill, _data: None

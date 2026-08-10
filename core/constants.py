@@ -1415,7 +1415,7 @@ for _item_name, _fallback_path in {
     "Bracelet mould": os.path.join(SHOP_ITEMS_FOLDER, "bracelet_mould.png"),
     "Amulet mould": os.path.join(SHOP_ITEMS_FOLDER, "amulet_mould.png"),
     "Tiara mould": os.path.join(SHOP_ITEMS_FOLDER, "tiara_mould.png"),
-    "Unholy mould": os.path.join(SHOP_ITEMS_FOLDER, "holy_mould.png"),
+    "Unholy mould": os.path.join(CRAFTED_ITEMS_FOLDER, "unholy_mould.png"),
     "Holy mould": os.path.join(SHOP_ITEMS_FOLDER, "holy_mould.png"),
     "Sickle mould": os.path.join(SHOP_ITEMS_FOLDER, "sickle_mould.png"),
     "Demonic sigil mould": os.path.join(SHOP_ITEMS_FOLDER, "holy_mould.png"),
