@@ -4759,3 +4759,18 @@ flees silently when the player runs out of food.
   handed to the Darkan quest lane in
   `codex-briefs/darkan-quest-handoff-emerald-lens-2026-08-09.md`.
 - Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.
+
+## Black mushroom acquisition — 2026-08-09
+
+- `Gather black mushrooms` now adds one Black mushroom per answered card through
+  the established zero-XP Utility gathering, persistence, telemetry, and review
+  undo path. Cutoff oldid `5513228` pins the Uzer and Goblin Cave ground source.
+- The existing ink action had omitted the empty Vial. Oldids `5513228` and
+  `6084503` both require it, so grinding now consumes one mushroom and one Vial
+  for one Black mushroom ink.
+- Rev-742 pins items 4620/4622 as non-stackable and non-exchangeable. Their
+  source-period 2011/2010 sprites are tightly normalized and provenance-pinned.
+- Reachability improves to 1,551 actions / 2,425 reachable items / 110 orphan
+  inputs / 110 blocked actions. No placeholder, owner decision, new UI pattern,
+  or quest implementation is introduced.
+- Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.

@@ -1109,7 +1109,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for activity_id, (source_item, source_item_id, output_item, output_item_id) in expected.items():
             activity = UTILITY_ACTIVITY_DATA[activity_id]
-            self.assertEqual(activity["requirements"], {source_item: 1})
+            expected_requirements = {source_item: 1}
+            if activity_id == "grind_black_mushroom":
+                expected_requirements["Vial"] = 1
+            self.assertEqual(activity["requirements"], expected_requirements)
             self.assertEqual(activity["source_item_id"], source_item_id)
             self.assertEqual(activity["output_item"], output_item)
             self.assertEqual(activity["output_item_id"], output_item_id)
@@ -1118,6 +1121,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(activity["group"], "grinding")
             self.assertIn(source_item, by_storage_key)
             self.assertIsNotNone(by_storage_key[output_item].asset_path)
+
+        black_mushroom = by_storage_key["Black mushroom"]
+        black_mushroom_ink = by_storage_key["Black mushroom ink"]
+        self.assertEqual(black_mushroom.source_item_id, 4620)
+        self.assertEqual(black_mushroom_ink.source_item_id, 4622)
+        self.assertFalse(black_mushroom.stackable)
+        self.assertFalse(black_mushroom.tradeable)
+        self.assertFalse(black_mushroom_ink.stackable)
+        self.assertFalse(black_mushroom_ink.tradeable)
         grinding_rows = {
             key: spec for key, spec in UTILITY_ACTIVITY_DATA.items() if spec.get("group") == "grinding"
         }

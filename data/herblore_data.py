@@ -83,6 +83,7 @@ class PestleAndMortarActivity:
     output_item_id: int
     source_enum: str
     source: str = PESTLE_AND_MORTAR_SOURCE_PATH
+    additional_requirements: Tuple[Tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -341,7 +342,20 @@ PESTLE_AND_MORTAR_ACTIVITIES: Tuple[PestleAndMortarActivity, ...] = (
     PestleAndMortarActivity('grind_cooked_karambwan', 'Grind cooked karambwan', 'Cooked karambwan', 3144, 'Karambwan paste', 3154, 'CookedKarambwan'),
     PestleAndMortarActivity('grind_poison_karambwan', 'Grind poison karambwan', 'Poison karambwan', 3146, 'Karambwan paste', 3153, 'PoisonKarambwan'),
     PestleAndMortarActivity('grind_diamond_root', 'Grind diamond root', 'Diamond root', 14703, 'Diamond root dust', 14704, 'DiamondRoot'),
-    PestleAndMortarActivity('grind_black_mushroom', 'Grind black mushroom', 'Black mushroom', 4620, 'Black mushroom ink', 4622, 'BlackMushroom'),
+    PestleAndMortarActivity(
+        'grind_black_mushroom',
+        'Grind black mushroom',
+        'Black mushroom',
+        4620,
+        'Black mushroom ink',
+        4622,
+        'BlackMushroom',
+        source=(
+            f"{PESTLE_AND_MORTAR_SOURCE_PATH}: BlackMushroom; "
+            "https://runescape.wiki/w/Black_mushroom_ink?oldid=6084503"
+        ),
+        additional_requirements=(("Vial", 1),),
+    ),
     PestleAndMortarActivity('grind_shards_of_armadyl', 'Grind shards of armadyl', 'Shards of armadyl', 21776, 'Dust of armadyl', 21774, 'ShardOfArmadyl'),
     PestleAndMortarActivity('grind_fishing_bait', 'Grind fishing bait', 'Fishing bait', 313, 'Ground fishing bait', 12129, 'FishingBait'),
     PestleAndMortarActivity('grind_seaweed', 'Grind seaweed', 'Seaweed', 401, 'Ground seaweed', 6683, 'SeaWeed'),
@@ -448,7 +462,10 @@ def pestle_and_mortar_activities_as_dict() -> Dict[str, Dict[str, object]]:
     return {
         activity.id: {
             "display_name": activity.display_name,
-            "requirements": {activity.source_item: 1},
+            "requirements": {
+                activity.source_item: 1,
+                **dict(activity.additional_requirements),
+            },
             "output_item": activity.output_item,
             "output_qty": 1,
             "batch_size": 28,
@@ -566,6 +583,8 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         if name in canonical_item_ids:
             item["item_id"] = canonical_item_ids[name]
         if name in {
+            "Black mushroom",
+            "Black mushroom ink",
             "Desert goat horn",
             "Goat horn dust",
             "Blue dragon scale",
@@ -575,6 +594,8 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "Toad's legs",
         }:
             item["stackable"] = False
+        if name in {"Black mushroom", "Black mushroom ink"}:
+            item["tradeable"] = False
         result[name] = item
     for dose, item_id in {1: 20014, 2: 20013, 3: 20012, 4: 20011}.items():
         name = f"Juju farming potion ({dose})"

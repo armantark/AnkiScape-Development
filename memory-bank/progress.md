@@ -5878,3 +5878,18 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Added a source-complete Emerald-lens handoff for the Darkan quest lane rather
   than changing Lunar Diplomacy in this slice.
 - Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.
+
+## Black mushroom acquisition — 2026-08-09
+
+- Added a one-pickup, zero-XP Utility route for the cutoff Black mushroom
+  ground source near Uzer and in the Goblin Cave.
+- Corrected `grind_black_mushroom` to require and consume one empty Vial, as
+  both cutoff item pages require. It still yields one ink and no XP.
+- Pinned rev-742 item identities and non-stackable/non-exchangeable semantics.
+  Added normalized source-period icons and exact provenance coverage.
+- The live graph is now 1,551 actions / 2,425 reachable items / 110 orphan
+  inputs / 110 blocked actions. Focused checks pass 500 pure/integration tests,
+  131 asset/registry/reachability tests, and two focused real offscreen Qt tests.
+  Full plain and offscreen Qt discovery each pass 4,021 tests, with 490 expected
+  plain skips and three Qt skips.
+- Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.

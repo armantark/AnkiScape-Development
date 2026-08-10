@@ -154,3 +154,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
      modern sprite with the normalized pre-cutoff revision.
    - [x] Close Cured-yak-hide acquisition through Thakkrad's 5-Coin stage-5
      service, preserving the pinned shop snapshot and atomic service undo.
+   - [x] Close Black-mushroom acquisition through the cutoff Uzer/Goblin Cave
+     ground source, and correct ink grinding to consume the required empty Vial.

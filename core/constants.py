@@ -624,6 +624,16 @@ UTILITY_ACTIVITY_DATA = {
             "https://runescape.wiki/w/Kalphite_Hive?oldid=6529999"
         ),
     },
+    "gather_black_mushrooms": {
+        "display_name": "Gather black mushrooms",
+        "requirements": {},
+        "output_item": "Black mushroom",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(HERBLORE_ITEMS_FOLDER, "black_mushroom.png"),
+        "group": "gathering",
+        "source": "https://runescape.wiki/w/Black_mushroom?oldid=5513228",
+    },
     "grab_desert_phoenix_feather": {
         "display_name": "Grab Desert Phoenix feather",
         "requirements": {},
@@ -1185,6 +1195,8 @@ UTILITY_ITEM_IMAGES = {
     "Blue dragon scale": os.path.join(HERBLORE_ITEMS_FOLDER, "blue_dragon_scale.png"),
     "Dragon scale dust": os.path.join(HERBLORE_ITEMS_FOLDER, "dragon_scale_dust.png"),
     "Potato cactus": os.path.join(SUMMONING_ITEMS_FOLDER, "potato_cactus.png"),
+    "Black mushroom": os.path.join(HERBLORE_ITEMS_FOLDER, "black_mushroom.png"),
+    "Black mushroom ink": os.path.join(HERBLORE_ITEMS_FOLDER, "black_mushroom_ink.png"),
     "Phoenix feather": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "desert_phoenix.png"),
     "Feather": os.path.join(FLETCHED_ITEMS_FOLDER, "feather.png"),
     "Fishing bait": os.path.join(FISHING_ITEMS_FOLDER, "fishing_bait.png"),

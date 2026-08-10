@@ -14,6 +14,20 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Black mushroom acquisition — shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for later quest-use catalog depth.
+
+- A zero-XP Utility ground pickup now supplies one Black mushroom per answered
+  card from the cutoff Uzer/Goblin Cave source.
+- The existing grinding action now consumes the source-required empty Vial
+  instead of producing ink from a mushroom alone.
+- Rev-742 item identities, non-stackable/non-exchangeable rules, cutoff sprites,
+  reachability, answer undo, and the real Qt selector are closed without a
+  placeholder or a new UI pattern.
+- Durable audit:
+  `memory-bank/source-audits/black-mushroom-acquisition-2026-08-09.md`.
+
 ### Cured yak-hide service — shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for later alternate raw-hide acquisition depth.

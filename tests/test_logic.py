@@ -642,6 +642,39 @@ class TestLogic(unittest.TestCase):
         self.assertEqual((exp, processed), (0, 3))
         self.assertEqual(new_inv, {"Potato cactus": 3})
 
+    def test_black_mushroom_pickup_gathers_one_ground_spawn_without_xp(self):
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "gather_black_mushrooms",
+            {},
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(new_inv, {"Black mushroom": 1})
+
+    def test_black_mushroom_ink_requires_and_consumes_an_empty_vial(self):
+        locked_inv, exp, ok, processed = apply_utility_activity_pure(
+            "grind_black_mushroom",
+            {"Black mushroom": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertEqual((exp, processed), (0, 0))
+        self.assertEqual(locked_inv, {"Black mushroom": 1})
+
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "grind_black_mushroom",
+            {"Black mushroom": 2, "Vial": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(
+            new_inv,
+            {"Black mushroom": 1, "Vial": 0, "Black mushroom ink": 1},
+        )
+
     def test_bankstanding_is_a_true_no_op_utility_action(self):
         inventory = {"Coins": 1_000, "Logs": 4}
 

@@ -24817,6 +24817,30 @@
     "source_wiki": "rs3",
     "timestamp": "2010-09-23T23:28:15Z"
   },
+  "herbloreitems/black_mushroom.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_mushroom.png",
+    "file_title": "Black mushroom.png",
+    "image_url": "https://runescape.wiki/images/archive/20140705232911%21Black_mushroom.png?ac522",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "04372b1c2a83176147a56fe413a061479f94069d",
+    "size": 878,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T02:55:42Z"
+  },
+  "herbloreitems/black_mushroom_ink.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_mushroom_ink.png",
+    "file_title": "Black mushroom ink.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502175404%21Black_mushroom_ink.png?b486d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f5cde78fd6a21412f11e34fc01d91db4ccb30952",
+    "size": 1428,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-25T12:56:24Z"
+  },
   "herbloreitems/blue_dragon_scale.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_dragon_scale.png",
     "file_title": "Blue dragon scale.png",

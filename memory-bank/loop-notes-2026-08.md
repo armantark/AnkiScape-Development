@@ -1209,3 +1209,20 @@
   490 expected plain skips and three Qt skips. Documentation, test quality,
   compilation, JSON, generation, asset, diff, and worktree audits pass.
   Reachability improves to 1,550/2,423/111/111.
+
+## Iteration 56 — Black mushroom acquisition
+
+- Result: one zero-XP Utility pickup now supplies one Black mushroom from the
+  cutoff Uzer/Goblin Cave ground source. The existing grinding action now
+  consumes the required empty Vial instead of creating ink from a mushroom
+  alone.
+- Source: Black mushroom oldid `5513228`, Black mushroom ink oldid `6084503`,
+  and rev-742 items 4620/4622 pin the source, recipe, identities, and
+  non-stackable/non-exchangeable rules. No placeholder is needed.
+- Assets: the cutoff 2011 mushroom and 2010 ink sprites are tightly normalized,
+  registered, and pinned by exact timestamp, SHA-1, and dimension checks.
+- Verification: 500 focused pure/integration tests, 131 focused
+  asset/registry/reachability tests, and two focused real offscreen Qt tests
+  pass. Full plain and offscreen Qt discovery each pass 4,021 tests, with 490
+  expected plain skips and three Qt skips. Reachability improves to
+  1,551/2,425/110/110.

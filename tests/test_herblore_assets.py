@@ -22,6 +22,33 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class HerbloreAssetTest(unittest.TestCase):
+    def test_black_mushroom_assets_are_cutoff_pinned_and_tightly_normalized(self):
+        expected = {
+            "black_mushroom.png": (
+                (15, 31),
+                "2011-11-18T02:55:42Z",
+                "04372b1c2a83176147a56fe413a061479f94069d",
+            ),
+            "black_mushroom_ink.png": (
+                (21, 30),
+                "2010-04-25T12:56:24Z",
+                "f5cde78fd6a21412f11e34fc01d91db4ccb30952",
+            ),
+        }
+        provenance = json.loads(
+            (ROOT / "assets_provenance.json").read_text(encoding="utf-8")
+        )
+
+        for filename, (dimensions, timestamp, sha1) in expected.items():
+            with self.subTest(filename=filename):
+                path = ROOT / "herbloreitems" / filename
+                data = path.read_bytes()
+                self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+                self.assertEqual(struct.unpack(">II", data[16:24]), dimensions)
+                record = provenance[str(path.relative_to(ROOT))]
+                self.assertEqual(record["timestamp"], timestamp)
+                self.assertEqual(record["sha1"], sha1)
+
     def test_shrink_me_quick_assets_are_normalized_to_their_visible_bounds(self):
         expected_dimensions = {
             "shrink_me_quick.png": (20, 29),
