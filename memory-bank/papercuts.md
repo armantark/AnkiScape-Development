@@ -336,3 +336,7 @@
 2026-08-09 — Two bounded test searches used unmatched zsh globs (`tests/test_source*` and `tests/test_*qt*.py`) and failed with `zsh: no matches found`; enumerate test paths with `rg --files tests` instead of passing optional globs to zsh.
 2026-08-09 — The first Fellstalk focused test selector guessed `FarmingDataTests`, but `tests.test_farming` has no such class; run the module or inspect its class declarations before using dotted selectors.
 2026-08-09 — `uv run tools/trim_icons.py --dry-run farmingitems` exited 1 with `Neither Pillow nor PyQt6 (aqt) is importable`; this repository's asset audit needs `.venv-qt/bin/python`, not the default uv environment.
+2026-08-09 — The first next-root search included generated `data/shop_data.py` and again truncated tens of thousands of tokens; every cross-family item search must exclude that generated one-line catalog explicitly.
+2026-08-09 — The first reachability JSON query guessed `.blocked_actions` and failed with `Cannot iterate over null (null)`; the stable field is `.unresolved_actions`.
+2026-08-09 — The first Thakkrad service patch copied unverified oldid guesses into source strings; `wiki_parity.py resolve` returned the real IDs `5967010` and `6225987`, so resolve every page before writing its citation even when the content command already returned a timestamp.
+2026-08-09 — The first Thakkrad focused command guessed `tests.test_generate_npc_shop_data`, which does not exist; verify service generation by rerunning `generate_npc_shop_data.py --services-only` and checking a clean generated diff instead.

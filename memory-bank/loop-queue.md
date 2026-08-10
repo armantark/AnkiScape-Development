@@ -152,3 +152,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Fellstalk-seed acquisition through the cutoff-proven Master
      Farmer route, register only its hidden relative weight, and replace its
      modern sprite with the normalized pre-cutoff revision.
+   - [x] Close Cured-yak-hide acquisition through Thakkrad's 5-Coin stage-5
+     service, preserving the pinned shop snapshot and atomic service undo.

@@ -4739,3 +4739,23 @@ flees silently when the player runs out of food.
   pass 4,016 tests; plain has 489 expected skips and Qt has three.
 - Evidence:
   `source-audits/fellstalk-seed-acquisition-2026-08-09.md`.
+
+## Cured yak-hide service — 2026-08-09
+
+- Thakkrad Sigmundson now cures one Yak-hide into one Cured yak-hide for
+  5 Coins through the existing instantaneous shop-service, history,
+  persistence, quantity-clamp, and direct-undo path.
+- A reusable numeric quest-stage gate exposes the service at progress 5 of The
+  Fremennik Isles or after completion. Earlier progress remains locked. Cutoff
+  oldids `5967010`, `6225987`, and `6540919` close the item, provider, price,
+  and access point without a placeholder.
+- The existing normalized 2010 sprite and exact rev-742 items 10818/10820 are
+  reused. This is a new data row on the established provider UI, not a new UI
+  pattern, so it does not require a taste pass.
+- Reachability improves to 1,550 actions / 2,423 reachable items / 111 orphan
+  inputs / 111 blocked actions. Full plain and real offscreen-Qt discovery each
+  pass 4,018 tests; plain has 490 expected skips and Qt has three.
+- Emerald lens was separately pinned as a Lunar Diplomacy Cabin Boy grant and
+  handed to the Darkan quest lane in
+  `codex-briefs/darkan-quest-handoff-emerald-lens-2026-08-09.md`.
+- Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.

@@ -178,7 +178,7 @@ class TestShopData(unittest.TestCase):
                 self.assertTrue(all(row["disposition"] == "live" for row in shop["stock"]))
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertEqual(len(SHOP_SERVICES), 83)
+        self.assertEqual(len(SHOP_SERVICES), 84)
         self.assertEqual(
             {
                 service_id
@@ -265,6 +265,23 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(leon["action_type"], "item_conversion")
         self.assertTrue(leon["batchable"])
         self.assertIn("oldid 6484443", leon["source"])
+        thakkrad = SHOP_SERVICES["thakkrad_cure_yak_hide"]
+        self.assertEqual(thakkrad["provider"], "Thakkrad Sigmundson")
+        self.assertEqual(thakkrad["location"], "Neitiznot")
+        self.assertEqual(thakkrad["price"], 5)
+        self.assertEqual(thakkrad["inputs"][0]["item_name"], "Yak-hide")
+        self.assertEqual(thakkrad["outputs"][0]["item_name"], "Cured yak-hide")
+        self.assertEqual(
+            thakkrad["access"],
+            {
+                "kind": "quest",
+                "quest_id": "the_fremennik_isles",
+                "stage": 5,
+                "label": "The Fremennik Isles",
+            },
+        )
+        self.assertIn("oldid 5967010", thakkrad["source"])
+        self.assertIn("oldid 6225987", thakkrad["source"])
         for pouch in SUMMONING_POUCHES:
             service = SHOP_SERVICES.get(f"bogrog_exchange_{pouch.id}")
             if pouch.bogrog_level is None or pouch.bogrog_shards is None:

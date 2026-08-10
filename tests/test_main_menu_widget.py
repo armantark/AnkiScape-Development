@@ -5312,6 +5312,67 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertEqual(source_kind, "vendor_action")
             self.assertEqual(str(SHOP_VENDOR_ACTIONS[row_id]["provider"]), provider)
 
+    def test_thakkrad_service_renders_and_cures_yak_hide(self) -> None:
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
+
+        pd = build_shop_frontend_fixtures()["fixture_player_data"]
+        pd["inventory"].update({"Coins": 10, "Yak-hide": 2})
+        pd["quests"] = {
+            "the_fremennik_isles": {
+                "started": True,
+                "progress": 5,
+                "completed": False,
+            }
+        }
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+
+        selector = _find_named_list(dialog, "shopSelectionList")
+        provider_item = next(
+            selector.item(index)
+            for index in range(selector.count())
+            if (
+                isinstance(
+                    selector.item(index).data(Qt.ItemDataRole.UserRole), dict
+                )
+                and selector.item(index).data(Qt.ItemDataRole.UserRole).get(
+                    "provider"
+                )
+                == "Thakkrad Sigmundson"
+            )
+        )
+        selector.setCurrentItem(provider_item)
+        QApplication.processEvents()
+
+        service_list = _find_named_list(dialog, "shopServiceList")
+        service_item = next(
+            service_list.item(index)
+            for index in range(service_list.count())
+            if service_list.item(index).data(Qt.ItemDataRole.UserRole).get("id")
+            == "thakkrad_cure_yak_hide"
+        )
+        service_list.setCurrentItem(service_item)
+        QApplication.processEvents()
+
+        self.assertFalse(service_item.icon().isNull())
+        self.assertIn(
+            "1 × Yak-hide + 5 Coins → 1 × Cured yak-hide",
+            service_item.text(),
+        )
+        quantity = dialog.findChild(QSpinBox, "shopServiceQuantitySpin")
+        quantity.setValue(2)
+        QApplication.processEvents()
+        preview = _find_named_label(dialog, "shopServicePreviewLabel")
+        self.assertIn("10 Coins", preview.text())
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), preview.text())
+        use_button.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Coins"], 0)
+        self.assertEqual(pd["inventory"]["Yak-hide"], 0)
+        self.assertEqual(pd["inventory"]["Cured yak-hide"], 2)
+
     def test_shop_service_and_vendor_actions_apply_and_feed_global_history(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
         from ankiscape.data.shop_data import SHOP_SERVICES, SHOP_VENDOR_ACTIONS

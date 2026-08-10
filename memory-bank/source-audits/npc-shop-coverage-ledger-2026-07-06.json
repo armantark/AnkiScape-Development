@@ -139,6 +139,45 @@
       "visibility": "visible"
     },
     {
+      "access": {
+        "kind": "quest",
+        "label": "The Fremennik Isles",
+        "quest_id": "the_fremennik_isles",
+        "stage": 5
+      },
+      "action_type": "item_conversion",
+      "batchable": true,
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Cure yak-hide",
+      "icon_item_name": "Cured yak-hide",
+      "id": "thakkrad_cure_yak_hide",
+      "inputs": [
+        {
+          "item_id": 10818,
+          "item_name": "Yak-hide",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "location": "Neitiznot",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 10820,
+          "item_name": "Cured yak-hide",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 5,
+      "provider": "Thakkrad Sigmundson",
+      "source": "RuneScape Wiki Cured yak-hide oldid 5967010, 2012-07-20; Thakkrad Sigmundson oldid 6225987, 2012-09-09",
+      "visibility": "visible"
+    },
+    {
       "action_type": "bogrog_pouch_exchange",
       "batchable": true,
       "currency_id": 995,
@@ -33210,7 +33249,7 @@
     "locked_stock_row_count": 37,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
-    "service_count": 83,
+    "service_count": 84,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,

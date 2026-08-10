@@ -5858,3 +5858,23 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   compilation, JSON, asset, diff, and worktree gates pass.
 - Evidence:
   `source-audits/fellstalk-seed-acquisition-2026-08-09.md`.
+
+## Cured yak-hide service — 2026-08-09
+
+- Added Thakkrad Sigmundson as an 84th generated shop service. Each selected
+  unit consumes one Yak-hide and 5 Coins and produces one Cured yak-hide.
+- Extended the shared shop quest gate with numeric progress checks. The source
+  service opens at The Fremennik Isles stage 5 and remains open after quest
+  completion.
+- Preserved the pinned 274-shop snapshot through deterministic
+  `--services-only` regeneration. No unrelated Darkan shop data changed.
+- Reused exact rev-742 item identities and the normalized 2010 icon. No new UI
+  pattern or placeholder was introduced.
+- The graph is now 1,550 actions / 2,423 reachable items / 111 orphan inputs /
+  111 blocked actions. Focused checks pass 65 pure/integration tests and one
+  real Qt test. Both full lanes pass 4,018 tests.
+- Documentation, test-quality, compilation, JSON, deterministic generation,
+  asset, diff, and worktree gates pass.
+- Added a source-complete Emerald-lens handoff for the Darkan quest lane rather
+  than changing Lunar Diplomacy in this slice.
+- Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.

@@ -220,6 +220,41 @@ SERVICE_ROWS: list[dict[str, Any]] = [
         "batchable": True,
         "source": "RuneScape Wiki Hunter oldid 6484443, 2012-10-27",
     },
+    {
+        "id": "thakkrad_cure_yak_hide",
+        "display_name": "Cure yak-hide",
+        "provider": "Thakkrad Sigmundson",
+        "location": "Neitiznot",
+        "currency_id": 995,
+        "price": 5,
+        "inputs": [
+            {
+                "item_id": 10818,
+                "quantity": 1,
+                "item_name": "Yak-hide",
+            }
+        ],
+        "outputs": [
+            {
+                "item_id": 10820,
+                "quantity": 1,
+                "item_name": "Cured yak-hide",
+            }
+        ],
+        "icon_item_name": "Cured yak-hide",
+        "action_type": "item_conversion",
+        "batchable": True,
+        "access": {
+            "kind": "quest",
+            "quest_id": "the_fremennik_isles",
+            "stage": 5,
+            "label": "The Fremennik Isles",
+        },
+        "source": (
+            "RuneScape Wiki Cured yak-hide oldid 5967010, 2012-07-20; "
+            "Thakkrad Sigmundson oldid 6225987, 2012-09-09"
+        ),
+    },
 ]
 
 

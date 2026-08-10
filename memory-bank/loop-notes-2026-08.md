@@ -1190,3 +1190,22 @@
   JSON, asset normalization, diff, and worktree audits pass. Reachability
   improves to 1,549 actions, 2,421 reachable items, 112 orphan inputs, and 113
   blocked actions.
+
+## Iteration 55 — Cured yak-hide service
+
+- Result: Thakkrad Sigmundson cures Yak-hide for 5 Coins each through the
+  established batchable shop-service path. Quantity clamps, persistence,
+  history, UI, and direct undo remain shared.
+- Source: Cured yak-hide oldid `5967010`, Thakkrad oldid `6225987`, and The
+  Fremennik Isles oldid `6540919` pin the conversion, price, location, and
+  stage-5 access. Rev-742 pins items 10818/10820. No placeholder is needed.
+- Boundary: `--services-only` preserves the 274-shop snapshot. The provider row
+  reuses an existing UI pattern and its normalized 2010 sprite.
+- Coordination: Emerald lens oldid `6202817`, Lunar Diplomacy oldid `6569662`,
+  and rev-742 items 9064-9066 are handed to the Darkan quest lane. AnkiScape
+  does not duplicate that quest change.
+- Verification: 65 focused pure/integration checks and one focused real Qt
+  test pass. Full plain and offscreen Qt discovery each pass 4,018 tests, with
+  490 expected plain skips and three Qt skips. Documentation, test quality,
+  compilation, JSON, generation, asset, diff, and worktree audits pass.
+  Reachability improves to 1,550/2,423/111/111.

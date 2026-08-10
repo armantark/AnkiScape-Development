@@ -99,6 +99,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Thieving:pickpocket_master_farmer",
         )
         self.assertEqual(
+            report["routes"]["Cured yak-hide"],
+            "Shop service:thakkrad_cure_yak_hide",
+        )
+        self.assertEqual(
             report["routes"]["Stardust"],
             "Activity:shooting_stars:mine",
         )

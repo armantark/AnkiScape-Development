@@ -535,6 +535,55 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(restored["inventory"]["Long kebbit bolts"], 4)
         self.assertEqual(restored["fletching_exp"], 1234.5)
 
+    def test_thakkrad_cures_only_from_the_preparation_stage_and_undoes(self):
+        player = build_shop_fixture_player_data()
+        player["inventory"].update(
+            {"Coins": 12, "Yak-hide": 3, "Cured yak-hide": 1}
+        )
+        player["quests"] = {
+            "the_fremennik_isles": {
+                "started": True,
+                "progress": 4,
+                "completed": False,
+            }
+        }
+
+        denied = preview_shop_service_pure(
+            player, "thakkrad_cure_yak_hide", 3
+        )
+        self.assertFalse(denied["allowed"])
+        self.assertEqual(
+            denied["reason"], "Requires The Fremennik Isles stage 5"
+        )
+        completed = {
+            **player,
+            "quests": {"the_fremennik_isles": {"completed": True}},
+        }
+        self.assertTrue(
+            preview_shop_service_pure(
+                completed, "thakkrad_cure_yak_hide", 1
+            )["allowed"]
+        )
+
+        player["quests"]["the_fremennik_isles"]["progress"] = 5
+        cured, result = apply_shop_service_pure(
+            player, "thakkrad_cure_yak_hide", 3
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertTrue(result["clamped"])
+        self.assertEqual(result["quantity"], 2)
+        self.assertEqual(result["total_price"], 10)
+        self.assertEqual(cured["inventory"]["Coins"], 2)
+        self.assertEqual(cured["inventory"]["Yak-hide"], 1)
+        self.assertEqual(cured["inventory"]["Cured yak-hide"], 3)
+
+        restored, undo = rollback_shop_event_pure(cured, result["event_id"])
+        self.assertTrue(undo["allowed"])
+        self.assertEqual(restored["inventory"]["Coins"], 12)
+        self.assertEqual(restored["inventory"]["Yak-hide"], 3)
+        self.assertEqual(restored["inventory"]["Cured yak-hide"], 1)
+
     def test_blandebir_fills_every_affordable_pot_and_undo_restores_inputs(self):
         player = build_shop_fixture_player_data()
         player["inventory"].update(

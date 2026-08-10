@@ -14,6 +14,20 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Cured yak-hide service — shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for later alternate raw-hide acquisition depth.
+
+- Thakkrad Sigmundson now cures Yak-hide for 5 Coins each at stage 5 of The
+  Fremennik Isles. The service reuses the existing provider UI, quantity
+  clamp, persistence, transaction history, and direct undo.
+- Exact item identities, access, price, and period art are closed. No
+  placeholder or new UI pattern was introduced.
+- The Emerald-lens root is pinned and handed to the Darkan quest lane in
+  `memory-bank/codex-briefs/darkan-quest-handoff-emerald-lens-2026-08-09.md`.
+- Durable audit:
+  `memory-bank/source-audits/cured-yak-hide-service-2026-08-09.md`.
+
 ### Fellstalk seed acquisition — shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for the hidden Master Farmer weight and alternate

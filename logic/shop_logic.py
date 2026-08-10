@@ -256,10 +256,25 @@ def shop_access_lock_reason_pure(player_data: Mapping[str, Any], shop: Mapping[s
     if kind == "quest":
         quests = player_data.get("quests", {}) or {}
         state = quests.get(str(rule.get("quest_id", "")), {}) or {}
-        if str(rule.get("stage", "completed")) == "started":
+        required_stage = rule.get("stage", "completed")
+        if str(required_stage) == "started":
             if bool(state.get("started")) or bool(state.get("completed")):
                 return None
             return f"Requires starting {label}"
+        try:
+            required_progress = int(required_stage)
+        except (TypeError, ValueError):
+            required_progress = 0
+        if required_progress > 0:
+            try:
+                progress = int(state.get("progress", 0) or 0)
+            except (TypeError, ValueError):
+                progress = 0
+            if bool(state.get("completed")) or (
+                bool(state.get("started")) and progress >= required_progress
+            ):
+                return None
+            return f"Requires {label} stage {required_progress}"
         if bool(state.get("completed")):
             return None
         return f"Requires {label}"
