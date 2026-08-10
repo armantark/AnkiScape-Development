@@ -52,6 +52,7 @@ SINGLE_TICK_UTILITY_IDS = frozenset({
     "soul_wars",
     "varrock_museum",
     "fight_caves",
+    "dagannoth_kings",
     "phoenix_lair",
     "enchanted_key",
     "managing_miscellania",
@@ -188,6 +189,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     "multiplier_behavior": (
                         "Never foreground-multiplied; one answered card remains "
                         "one six-tick Fight Cave interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
+        elif str(action_id) == "dagannoth_kings":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "dagannoth_kings",
+                    "mode": "activity_group",
+                    "source_status": "bounded_abstraction",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances exactly six live Combat ticks against "
+                        "one king, then resolves the other living kings as pressure."
+                    ),
+                    "includes": (
+                        "one engaged six-tick Combat slice",
+                        "one unengaged-roster pressure boundary",
+                        "one review-driven respawn-state transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one six-tick Dagannoth Kings room interval"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",

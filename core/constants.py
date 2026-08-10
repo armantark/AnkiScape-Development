@@ -183,6 +183,10 @@ from ..data.fight_caves_data import (
     fight_caves_activity_as_dict,
     fight_caves_extra_items_as_dict,
 )
+from ..data.dagannoth_kings_data import (
+    DAGANNOTH_KINGS_ACTIVITY_ID,
+    dagannoth_kings_activity_as_dict,
+)
 
 from ..data.phoenix_lair_data import (
     PHOENIX_LAIR_ACTIVITY_ID,
@@ -718,6 +722,7 @@ UTILITY_ACTIVITY_DATA.update(goblin_raids_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(treasure_trails_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(dagannoth_kings_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(skeletal_horror_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(bork_activity_as_dict())
@@ -958,6 +963,13 @@ if os.path.exists(_varrock_museum_icon):
 _fight_caves_icon = os.path.join(current_dir, "constructionitems", "fire_cape.png")
 if os.path.exists(_fight_caves_icon):
     UTILITY_ACTIVITY_DATA[FIGHT_CAVES_ACTIVITY_ID]["icon_path"] = _fight_caves_icon
+_dagannoth_kings_icon = os.path.join(
+    current_dir, "combatenemies", "dagannoth_rex.png"
+)
+if os.path.exists(_dagannoth_kings_icon):
+    UTILITY_ACTIVITY_DATA[DAGANNOTH_KINGS_ACTIVITY_ID]["icon_path"] = (
+        _dagannoth_kings_icon
+    )
 _phoenix_lair_icon = os.path.join(current_dir, "activityitems", "phoenix_quill.png")
 if os.path.exists(_phoenix_lair_icon):
     UTILITY_ACTIVITY_DATA[PHOENIX_LAIR_ACTIVITY_ID]["icon_path"] = _phoenix_lair_icon
@@ -1120,7 +1132,13 @@ UTILITY_ACTIVITY_GROUPS = frozenset(
     }
 )
 ACTIVITY_GROUPS = frozenset(
-    {"warriors_guild", "minigames", "distractions_and_diversions", "landmarks"}
+    {
+        "warriors_guild",
+        "minigames",
+        "distractions_and_diversions",
+        "landmarks",
+        "bosses",
+    }
 )
 for _activity_spec in UTILITY_ACTIVITY_DATA.values():
     _activity_group = str(_activity_spec.get("group", "material_processing"))

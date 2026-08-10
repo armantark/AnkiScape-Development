@@ -537,6 +537,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     _handle_court_cases_answer,
     _handle_evil_tree_answer,
     _handle_fight_caves_answer,
+    _handle_dagannoth_kings_answer,
     _handle_fish_flingers_answer,
     _handle_fishing_trawler_answer,
     _handle_fist_of_guthix_answer,

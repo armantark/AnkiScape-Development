@@ -44,6 +44,7 @@ from ankiscape.logic import court_cases_logic
 from ankiscape.logic import daily_challenges_logic
 from ankiscape.logic import equipment_instance_logic
 from ankiscape.logic import fight_caves_logic
+from ankiscape.logic import dagannoth_kings_logic
 from ankiscape.logic import fish_flingers_logic
 from ankiscape.logic import fishing_trawler_logic
 from ankiscape.logic import fist_of_guthix_logic
@@ -375,6 +376,14 @@ _MODULE_GATES = (
         fight_caves_logic,
         ("apply_fight_caves_command_pure", "apply_fight_caves_review_pure"),
         ("tests.test_fight_caves",),
+    ),
+    (
+        dagannoth_kings_logic,
+        (
+            "apply_dagannoth_kings_command_pure",
+            "apply_dagannoth_kings_review_pure",
+        ),
+        ("tests.test_dagannoth_kings",),
     ),
     (
         phoenix_lair_logic,

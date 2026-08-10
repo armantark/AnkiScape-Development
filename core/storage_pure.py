@@ -42,6 +42,10 @@ from ..logic.fight_caves_logic import (
     default_fight_caves_state_pure,
     sanitize_fight_caves_state_pure,
 )
+from ..logic.dagannoth_kings_logic import (
+    default_dagannoth_kings_state_pure,
+    sanitize_dagannoth_kings_state_pure,
+)
 from ..logic.dungeoneering_logic import (
     default_dungeoneering_state_pure,
     sanitize_dungeoneering_state_pure,
@@ -347,7 +351,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 115
+CURRENT_CONFIG_VERSION = 116
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -356,6 +360,7 @@ _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "castle_wars",
     "conquest",
     "dungeoneering",
+    "dagannoth_kings",
     "familiarisation",
     "fight_caves",
     "flash_powder_factory",
@@ -684,6 +689,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["shooting_star"] = default_shooting_star_state_pure()
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["fight_caves"] = default_fight_caves_state_pure()
+    data["dagannoth_kings"] = default_dagannoth_kings_state_pure()
     data["dungeoneering"] = default_dungeoneering_state_pure()
     data["phoenix_lair"] = default_phoenix_lair_state_pure()
     data["skeletal_horror"] = default_skeletal_horror_state_pure()
@@ -1445,6 +1451,9 @@ def migrate_loaded_data(
     data["fight_caves"] = sanitize_fight_caves_state_pure(
         data.get("fight_caves")
     )
+    data["dagannoth_kings"] = sanitize_dagannoth_kings_state_pure(
+        data.get("dagannoth_kings")
+    )
     data["dungeoneering"] = sanitize_dungeoneering_state_pure(
         data.get("dungeoneering"),
         data,
@@ -1530,7 +1539,41 @@ def migrate_loaded_data(
         if isinstance(raw_activity_session, dict)
         else ""
     )
-    if data["fight_caves"]["active"]:
+    if data["dagannoth_kings"]["active"]:
+        active_session_id = "dagannoth_kings"
+        data["fight_caves"].update(
+            {"active": False, "roster": [], "engaged_instance_id": ""}
+        )
+        data["skeletal_horror"].update(
+            {
+                "active": False,
+                "lifepoints": 0,
+                "phase_index": 0,
+                "encounter": {},
+            }
+        )
+        data["bork"] = sanitize_bork_state_pure(
+            {**data["bork"], "active": False}
+        )
+        data["phoenix_lair"].update(
+            {
+                "active": False,
+                "phase": "idle",
+                "guardian_roster": [],
+                "guardian_lifepoints": 0,
+                "guardian_max_lifepoints": 0,
+                "phoenix_lifepoints": 0,
+                "encounter": {},
+            }
+        )
+        data["stealing_creation"]["active_session"] = {}
+        data["barrows"]["active"] = False
+        data["barrows"]["suspended"] = True
+        data["pyramid_plunder"] = {}
+        data["werewolf_skullball"] = {}
+        data["gnome_ball"] = {}
+        data["fish_flingers"] = {}
+    elif data["fight_caves"]["active"]:
         active_session_id = "fight_caves"
         data["skeletal_horror"].update(
             {

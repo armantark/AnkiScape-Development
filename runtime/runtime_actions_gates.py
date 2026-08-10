@@ -337,6 +337,8 @@ from ..logic.fight_caves_logic import (
     apply_fight_caves_review_pure,
     fight_caves_view_pure,
 )
+from ..data.dagannoth_kings_data import DAGANNOTH_KINGS_ACTIVITY_ID
+from ..logic.dagannoth_kings_logic import dagannoth_kings_view_pure
 from ..logic.dungeoneering_logic import dungeoneering_view_pure
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import (
@@ -409,6 +411,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     _handle_court_cases_answer,
     _handle_evil_tree_answer,
     _handle_fight_caves_answer,
+    _handle_dagannoth_kings_answer,
     _handle_fish_flingers_answer,
     _handle_fishing_trawler_answer,
     _handle_fist_of_guthix_answer,
@@ -616,6 +619,10 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return fist_of_guthix_can_review_pure(ctx.player_data)
     if activity_key == FIGHT_CAVES_ACTIVITY_ID:
         return bool(fight_caves_view_pure(ctx.player_data).get("active", False))
+    if activity_key == DAGANNOTH_KINGS_ACTIVITY_ID:
+        return bool(
+            dagannoth_kings_view_pure(ctx.player_data).get("active", False)
+        )
     if activity_key == PHOENIX_LAIR_ACTIVITY_ID:
         return bool(phoenix_lair_view_pure(ctx.player_data).get("active", False))
     if activity_key == SKELETAL_HORROR_ACTIVITY_ID:

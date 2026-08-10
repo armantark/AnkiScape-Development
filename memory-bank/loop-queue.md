@@ -132,3 +132,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
      rows, registered hidden-roll placeholders, access gates, selector art,
      reachability, persistence, and review undo. Keep Cursed magic parked on
      the missing Spirit of Summer quest substrate.
+   - [x] Close the Dagannoth Kings room and Dragon-hatchet acquisition route
+     through a reusable persistent boss-room substrate, the three period combat
+     rows, dangerous multi-enemy pressure, Slayer integration, persistence,
+     undo, Activities UI, normalized sprites, and registered hidden values.

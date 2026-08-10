@@ -221,7 +221,13 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         )
         self.assertEqual(
             CHAELDAR_FAMILIES_BY_ID["dagannoths"].target_ids,
-            ("dagannoth", "dagannoth_level_92"),
+            (
+                "dagannoth",
+                "dagannoth_level_92",
+                "dagannoth_prime",
+                "dagannoth_supreme",
+                "dagannoth_rex",
+            ),
         )
         self.assertEqual(
             CHAELDAR_FAMILIES_BY_ID["elves"].target_ids,

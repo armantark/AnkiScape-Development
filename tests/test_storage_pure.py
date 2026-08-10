@@ -46,11 +46,19 @@ def _activity_session_writer_ids():
     project_root = Path(__file__).resolve().parents[1]
     owner_ids = set()
     unresolved = []
+    parameterized_writers = set()
     for directory in ("logic", "logic_pure"):
         for path in sorted((project_root / directory).glob("*.py")):
             source = path.read_text(encoding="utf-8")
             tree = ast.parse(source, filename=str(path))
             module = None
+            assignment_owners = {}
+            for function in (
+                node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
+            ):
+                for child in ast.walk(function):
+                    if isinstance(child, ast.Assign):
+                        assignment_owners[id(child)] = function
             for node in ast.walk(tree):
                 if not isinstance(node, ast.Assign):
                     continue
@@ -88,7 +96,29 @@ def _activity_session_writer_ids():
                         module = importlib.import_module(
                             f"ankiscape.{'.'.join(relative.parts)}"
                         )
-                    resolved = getattr(module, active_id.id)
+                    if hasattr(module, active_id.id):
+                        resolved = getattr(module, active_id.id)
+                    else:
+                        function = assignment_owners.get(id(node))
+                        parameters = (
+                            {
+                                argument.arg
+                                for argument in (
+                                    function.args.posonlyargs
+                                    + function.args.args
+                                    + function.args.kwonlyargs
+                                )
+                            }
+                            if function is not None
+                            else set()
+                        )
+                        if active_id.id not in parameters:
+                            unresolved.append(
+                                (path.name, node.lineno, active_id.id)
+                            )
+                            continue
+                        parameterized_writers.add(function.name)
+                        continue
                 else:
                     unresolved.append(
                         (
@@ -100,6 +130,35 @@ def _activity_session_writer_ids():
                     continue
                 if resolved:
                     owner_ids.add(resolved)
+
+    for directory in ("logic", "logic_pure"):
+        for path in sorted((project_root / directory).glob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            module = None
+            for node in ast.walk(tree):
+                if not (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id in parameterized_writers
+                ):
+                    continue
+                value = next(
+                    (keyword.value for keyword in node.keywords if keyword.arg == "activity_id"),
+                    None,
+                )
+                if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                    owner_ids.add(value.value)
+                elif isinstance(value, ast.Name):
+                    if module is None:
+                        relative = path.relative_to(project_root).with_suffix("")
+                        module = importlib.import_module(
+                            f"ankiscape.{'.'.join(relative.parts)}"
+                        )
+                    owner_ids.add(getattr(module, value.id))
+                else:
+                    unresolved.append(
+                        (path.name, node.lineno, ast.unparse(value) if value else "")
+                    )
     return owner_ids, unresolved
 
 

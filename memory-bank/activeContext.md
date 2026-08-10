@@ -4637,3 +4637,23 @@ flees silently when the player runs out of food.
   actions. Native Computer Use timed out, so no native interaction is claimed.
 - Evidence:
   `source-audits/cave-eel-fishing-runtime-closure-2026-08-09.md`.
+
+## Dagannoth Kings room and Dragon hatchet — 2026-08-09
+
+- Prime, Supreme, and Rex now run together through a reusable persistent
+  boss-room substrate: one engaged six-tick Combat target, pressure from every
+  other living king, Casual/Advanced target selection, dangerous death,
+  review-driven respawns, explicit Leave, persistence, migration repair, and
+  both review and direct-action undo.
+- All three kings join the Dagannoths Slayer family. The minimum live drop seam
+  contains sourced Dagannoth bones/hide plus Dragon hatchet, making the
+  Farming clear actions reachable without claiming exhaustive king loot.
+- Three hidden values remain registered: Prime/Rex attack speed, the 59-tick
+  respawn reconstruction, and the independent 1/128 Dragon-hatchet roll.
+- The paginated Activities card has normalized period NPC art, visible roster
+  state, compact policy controls, a standalone danger warning, and a 900×560
+  non-overlap regression. Kimi K3 and Opus reviewed the new surface; native
+  Anki interaction is not claimed.
+- Both full 4,004-test lanes pass. Reachability is now 1,547 actions, 2,354
+  reachable items, 159 orphan inputs, and 179 blocked actions. Evidence:
+  `source-audits/dagannoth-kings-room-2026-08-09.md`.

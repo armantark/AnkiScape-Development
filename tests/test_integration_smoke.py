@@ -8212,6 +8212,42 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_dagannoth_kings_entry_is_direct_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_dagannoth_kings_integration")
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = storage.default_player_data(
+            constants.ORE_DATA, constants.ITEM_DEFINITIONS
+        )
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_dagannoth_kings_command"]("enter", {})
+
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(addon.player_data["dagannoth_kings"]["active"])
+        self.assertEqual(
+            addon.player_data["activity_session"],
+            {"active_id": "dagannoth_kings"},
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_stronghold_chest_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_stronghold_safety_integration")
         captured = {}

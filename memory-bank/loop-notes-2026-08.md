@@ -1069,3 +1069,34 @@
   reachability, and worktree audits pass. Reachability improves to 1,546
   actions, 2,350 reachable items, 162 orphan inputs, and 181 unresolved
   actions. Native Anki is not claimed. GPT-family root verified.
+
+## Iteration 49 — Dagannoth Kings and Dragon hatchet
+
+- Result: Prime, Supreme, and Rex are live in one persistent dangerous boss
+  room under Activities. The generic boss-room substrate owns entry/resume,
+  one engaged target, pressure from every other living king, Casual/Advanced
+  targeting, six-tick Combat slices, kills, review-driven respawns, explicit
+  Leave, dangerous death, persistence, migration repair, and undo.
+- Source: cutoff oldids `6505723`, `6457675`, and `6535937` pin the three
+  level-303 combat rows, styles, lifepoints, maximum hits, Slayer XP, guaranteed
+  bones/hide, and rare Dragon hatchet. Darkan combat/drop definitions provide
+  the marked 59-tick respawn and independent 1/128 hatchet reconstructions.
+- Honest limits: Prime/Rex attack speed, exact respawn delay, and numeric
+  Dragon-hatchet rate are registered placeholders. The live drop catalog is
+  deliberately the two guaranteed items plus the acquisition seam, not a claim
+  of exhaustive king loot.
+- UI/assets: Kimi K3 and Opus supplied independent read-only taste passes. The
+  accepted card uses normalized period sprites, a visible alive/dead/engaged
+  roster, a standalone dangerous-death warning, compact policy controls, and a
+  geometry regression that prevents its action row from overlapping activity
+  pagination at 900×560. Fable stayed reserved. Native Anki is not claimed.
+- Review discipline: implementation/evidence Workflows run
+  `180cd378-15a0-49e1-9ce6-411760219e14` and diff-only run
+  `572b864b-6bb8-4a21-b39c-f4650a0b0edb` exhausted their bounded budgets without
+  final findings. Root reproduced all accepted evidence and did not rerun them.
+- Verification: 663 broad focused checks and one focused real offscreen Qt test
+  pass. Full plain and offscreen Qt discovery each pass 4,004 tests, with 488
+  expected plain skips and three Qt skips. Documentation, test quality,
+  compilation, JSON, diff, asset normalization, reachability, placeholder, and
+  worktree audits pass. Reachability improves to 1,547 actions, 2,354 reachable
+  items, 159 orphan inputs, and 179 blocked actions.

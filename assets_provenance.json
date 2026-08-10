@@ -5798,6 +5798,42 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T18:45:30Z"
   },
+  "combatenemies/dagannoth_prime.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dagannoth_Prime.png",
+    "file_title": "Dagannoth Prime.png",
+    "image_url": "https://runescape.wiki/images/archive/20140118193634%21Dagannoth_Prime.png?762e0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de31b278597597bf9f90e2ba94127eaaf9ae5cbd",
+    "size": 140850,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-09T16:42:51Z"
+  },
+  "combatenemies/dagannoth_rex.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dagannoth_Rex.png",
+    "file_title": "Dagannoth Rex.png",
+    "image_url": "https://runescape.wiki/images/archive/20140118193654%21Dagannoth_Rex.png?95dd7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e9550564db6e48b4c21c2d242fde4b4b5fbbe819",
+    "size": 120700,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-09T17:07:44Z"
+  },
+  "combatenemies/dagannoth_supreme.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dagannoth_Supreme.png",
+    "file_title": "Dagannoth Supreme.png",
+    "image_url": "https://runescape.wiki/images/archive/20130615173600%21Dagannoth_Supreme.png?6e49c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0a07c318a498579c39174656e649250c7e425af8",
+    "size": 54879,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-24T03:18:01Z"
+  },
   "combatenemies/deadly_red_spider.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Deadly_red_spider.png",
     "file_title": "Deadly red spider.png",

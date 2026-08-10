@@ -1716,6 +1716,14 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
   unengaged enemies, safe death, sealed supplies, resume, and explicit leave.
   Reuse it for the Kiln and compatible instances; do not duplicate its session
   or pressure engine inside boss-specific code.
+- **Closed 2026-08-09:** Dagannoth Kings is the first dangerous persistent
+  consumer of the reusable boss-room substrate. Prime, Supreme, and Rex share
+  one visible roster, Casual/Advanced targeting, ordinary Combat and Slayer,
+  dangerous death, review-driven respawns, persistence, undo, a paginated
+  Activities card, period sprites, and the Dragon-hatchet acquisition seam.
+  Attack speed, respawn delay, and the numeric hatchet rate remain registered
+  reconstructions; exhaustive king drop tables remain data depth. See
+  `source-audits/dagannoth-kings-room-2026-08-09.md`.
 
 ### Acquisition and item/equipment completeness
 

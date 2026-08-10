@@ -220,6 +220,8 @@ from ..logic.vinesweeper_logic import vinesweeper_view_pure
 
 from ..data.fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
 from ..logic.fight_caves_logic import fight_caves_view_pure
+from ..data.dagannoth_kings_data import DAGANNOTH_KINGS_ACTIVITY_ID
+from ..logic.dagannoth_kings_logic import dagannoth_kings_view_pure
 from ..logic.dungeoneering_logic import dungeoneering_view_pure
 from ..data.dungeoneering_data import DUNGEONEERING_ITEM_IMAGES
 
@@ -4603,6 +4605,7 @@ def show_main_menu(
     on_vinesweeper_command=None,
     on_dungeoneering_command=None,
     on_fight_caves_command=None,
+    on_dagannoth_kings_command=None,
     on_phoenix_lair_command=None,
     on_skeletal_horror_command=None,
     on_bork_command=None,
@@ -10820,6 +10823,270 @@ def show_main_menu(
         )
         _refresh_fight_caves_panel()
         cards_stack.addWidget(fight_caves_box)
+
+        dagannoth_kings_box = QtFrame()
+        dagannoth_kings_box.setObjectName("dagannothKingsPanel")
+        dagannoth_kings_box.setStyleSheet(
+            "QFrame#dagannothKingsPanel { border: 1px solid palette(mid); "
+            "border-radius: 8px; background: palette(base); }"
+        )
+        dagannoth_kings_layout = QVBoxLayout(dagannoth_kings_box)
+        dagannoth_kings_layout.setContentsMargins(10, 8, 10, 8)
+        dagannoth_kings_layout.setSpacing(6)
+
+        dagannoth_kings_top = QWidget()
+        dagannoth_kings_top_layout = QHBoxLayout(dagannoth_kings_top)
+        dagannoth_kings_top_layout.setContentsMargins(0, 0, 0, 0)
+        dagannoth_kings_top_layout.setSpacing(8)
+        dagannoth_kings_icon = QLabel()
+        dagannoth_kings_icon.setFixedSize(28, 28)
+        dagannoth_kings_icon_path = os.path.join(
+            current_dir, "combatenemies", "dagannoth_rex.png"
+        )
+        dagannoth_kings_header_icon = _pixel_path_icon(
+            dagannoth_kings_icon_path, 28
+        )
+        if dagannoth_kings_header_icon is not None:
+            dagannoth_kings_icon.setPixmap(
+                dagannoth_kings_header_icon.pixmap(QSize(28, 28))
+            )
+        dagannoth_kings_title = QLabel("Dagannoth Kings")
+        dagannoth_kings_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        dagannoth_kings_status = QLabel()
+        dagannoth_kings_status.setObjectName("dagannothKingsStatusChip")
+        dagannoth_kings_status.setStyleSheet(
+            f"color: {dim_text_css(dagannoth_kings_status)}; "
+            "font-size: 11px; font-weight: 700;"
+        )
+        dagannoth_kings_top_layout.addWidget(dagannoth_kings_icon)
+        dagannoth_kings_top_layout.addWidget(dagannoth_kings_title)
+        dagannoth_kings_top_layout.addStretch(1)
+        dagannoth_kings_top_layout.addWidget(dagannoth_kings_status)
+        dagannoth_kings_layout.addWidget(dagannoth_kings_top)
+
+        dagannoth_kings_summary = QLabel()
+        dagannoth_kings_summary.setObjectName("dagannothKingsSummary")
+        dagannoth_kings_summary.setWordWrap(True)
+        dagannoth_kings_summary.setStyleSheet("color: palette(text);")
+        dagannoth_kings_layout.addWidget(dagannoth_kings_summary)
+
+        dagannoth_kings_roster = QListWidget()
+        dagannoth_kings_roster.setObjectName("dagannothKingsRoster")
+        dagannoth_kings_roster.setAccessibleName("Dagannoth Kings room roster")
+        dagannoth_kings_roster.setSelectionMode(
+            QAbstractItemView.SelectionMode.NoSelection
+        )
+        dagannoth_kings_roster.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        dagannoth_kings_roster.setIconSize(QSize(28, 28))
+        dagannoth_kings_roster.setMaximumHeight(96)
+        dagannoth_kings_layout.addWidget(dagannoth_kings_roster)
+
+        dagannoth_kings_warning = QLabel(
+            "⚠ Dangerous death · ordinary Combat loss applies"
+        )
+        dagannoth_kings_warning.setObjectName("dagannothKingsDangerWarning")
+        dagannoth_kings_warning.setStyleSheet(
+            "color: palette(text); font-weight: 700;"
+        )
+        dagannoth_kings_layout.addWidget(dagannoth_kings_warning)
+
+        dagannoth_kings_policy_row = QWidget()
+        dagannoth_kings_policy_layout = QHBoxLayout(dagannoth_kings_policy_row)
+        dagannoth_kings_policy_layout.setContentsMargins(0, 0, 0, 0)
+        dagannoth_kings_policy_layout.setSpacing(6)
+        dagannoth_kings_mode = QComboBox()
+        dagannoth_kings_mode.setObjectName("dagannothKingsModeCombo")
+        dagannoth_kings_mode.setAccessibleName("Dagannoth Kings targeting mode")
+        dagannoth_kings_mode.addItem("Casual · threat priority", "casual")
+        dagannoth_kings_mode.addItem("Advanced · choose king", "advanced")
+        dagannoth_kings_target = QComboBox()
+        dagannoth_kings_target.setObjectName("dagannothKingsTargetCombo")
+        dagannoth_kings_target.setAccessibleName("Engaged Dagannoth King")
+        dagannoth_kings_target.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        dagannoth_kings_target.setMinimumContentsLength(18)
+        dagannoth_kings_target.setIconSize(QSize(28, 28))
+        dagannoth_kings_policy_layout.addWidget(dagannoth_kings_mode, 1)
+        dagannoth_kings_policy_layout.addWidget(dagannoth_kings_target, 1)
+        dagannoth_kings_layout.addWidget(dagannoth_kings_policy_row)
+
+        dagannoth_kings_primary = QPushButton()
+        dagannoth_kings_primary.setObjectName("dagannothKingsPrimaryButton")
+        dagannoth_kings_leave = QPushButton("Leave the room")
+        dagannoth_kings_leave.setObjectName("dagannothKingsLeaveButton")
+        dagannoth_kings_action_row = QWidget()
+        dagannoth_kings_action_layout = QHBoxLayout(dagannoth_kings_action_row)
+        dagannoth_kings_action_layout.setContentsMargins(0, 0, 0, 0)
+        dagannoth_kings_action_layout.setSpacing(6)
+        dagannoth_kings_action_layout.addWidget(dagannoth_kings_primary, 1)
+        dagannoth_kings_action_layout.addWidget(dagannoth_kings_leave)
+        dagannoth_kings_layout.addWidget(dagannoth_kings_action_row)
+        syncing_dagannoth_kings = {"active": False}
+
+        def _dagannoth_icon(enemy_id: str) -> QIcon:
+            path = os.path.join(current_dir, "combatenemies", f"{enemy_id}.png")
+            return _pixel_path_icon(path, 28) or QIcon()
+
+        def _refresh_dagannoth_kings_panel() -> None:
+            view = dagannoth_kings_view_pure(player_data)
+            syncing_dagannoth_kings["active"] = True
+            current_mode = str(view["automation_mode"])
+            mode_index = dagannoth_kings_mode.findData(current_mode)
+            if mode_index >= 0:
+                dagannoth_kings_mode.setCurrentIndex(mode_index)
+
+            dagannoth_kings_target.clear()
+            for row in view["roster_view"]:
+                if int(row["lifepoints"]) <= 0:
+                    continue
+                dagannoth_kings_target.addItem(
+                    _dagannoth_icon(str(row["enemy_id"])),
+                    str(row["display_name"]),
+                    str(row["enemy_id"]),
+                )
+            target_index = dagannoth_kings_target.findData(
+                str(view["engaged_enemy_id"])
+            )
+            if target_index >= 0:
+                dagannoth_kings_target.setCurrentIndex(target_index)
+
+            dagannoth_kings_roster.clear()
+            for row in view["roster_view"]:
+                if int(row["lifepoints"]) > 0:
+                    marker = "▶ " if row["engaged"] else ""
+                    text = (
+                        f"{marker}{row['display_name']} · {row['attack_style']} · "
+                        f"{int(row['lifepoints']):,}/{int(row['max_lifepoints']):,} LP"
+                    )
+                else:
+                    text = (
+                        f"{row['display_name']} · respawns in "
+                        f"{int(row['respawn_reviews'])} reviews"
+                    )
+                item = QListWidgetItem(
+                    _dagannoth_icon(str(row["enemy_id"])),
+                    text,
+                )
+                if int(row["lifepoints"]) <= 0:
+                    item.setForeground(dim_text_color(dagannoth_kings_roster))
+                dagannoth_kings_roster.addItem(item)
+            if not view["roster_view"]:
+                dagannoth_kings_roster.addItem(
+                    "Enter to face Prime, Supreme, and Rex together."
+                )
+
+            active = bool(view["active"])
+            selected = (
+                str(player_data.get("current_utility", ""))
+                == DAGANNOTH_KINGS_ACTIVITY_ID
+            )
+            dagannoth_kings_status.setText("ACTIVE" if active else "READY")
+            dagannoth_kings_summary.setText(
+                (
+                    f"Trip kills: {int(view['trip_kills'])} · total: "
+                    f"{int(view['total_kills'])}. "
+                )
+                + "One king is engaged; every other living king attacks as roster "
+                "pressure."
+            )
+            dagannoth_kings_summary.setToolTip(str(view["last_result"]))
+            dagannoth_kings_primary.setText(
+                "Selected for reviews"
+                if active and selected
+                else "Use for reviews"
+                if active
+                else "Enter the boss room"
+            )
+            dagannoth_kings_primary.setEnabled(
+                on_dagannoth_kings_command is not None and not (active and selected)
+            )
+            dagannoth_kings_leave.setVisible(active)
+            dagannoth_kings_leave.setEnabled(
+                on_dagannoth_kings_command is not None
+            )
+            dagannoth_kings_mode.setEnabled(
+                on_dagannoth_kings_command is not None
+            )
+            dagannoth_kings_target.setEnabled(
+                active
+                and current_mode == "advanced"
+                and on_dagannoth_kings_command is not None
+                and dagannoth_kings_target.count() > 0
+            )
+            dagannoth_kings_target.setToolTip(
+                "Choose which living king to engage."
+                if current_mode == "advanced"
+                else "Switch to Advanced mode to choose a target."
+            )
+            syncing_dagannoth_kings["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_dagannoth_kings_command(
+            action_id: str, payload: Optional[dict] = None
+        ) -> dict:
+            if on_dagannoth_kings_command is None:
+                return {"ok": False, "message": "Boss-room controls are unavailable."}
+            result = on_dagannoth_kings_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Dagannoth Kings",
+                    str(result.get("message", "That boss-room action is unavailable.")),
+                )
+            _refresh_dagannoth_kings_panel()
+            return result
+
+        def _select_dagannoth_kings_for_reviews(_checked=False) -> None:
+            if not dagannoth_kings_view_pure(player_data)["active"]:
+                if not _run_dagannoth_kings_command("enter").get("ok", False):
+                    return
+            _set_utility_selection(DAGANNOTH_KINGS_ACTIVITY_ID)
+            _refresh_dagannoth_kings_panel()
+
+        def _confirm_dagannoth_kings_leave(_checked=False) -> None:
+            view = dagannoth_kings_view_pure(player_data)
+            if not view["active"]:
+                return
+            answer = QMessageBox.question(
+                dagannoth_kings_box,
+                "Leave the Dagannoth Kings room?",
+                "Leave now? Each king returns at full health on the next trip.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_dagannoth_kings_command("leave")
+
+        dagannoth_kings_primary.clicked.connect(
+            _select_dagannoth_kings_for_reviews
+        )
+        dagannoth_kings_leave.clicked.connect(_confirm_dagannoth_kings_leave)
+        dagannoth_kings_mode.currentIndexChanged.connect(
+            lambda _index: _run_dagannoth_kings_command(
+                "set_mode",
+                {
+                    "automation_mode": str(
+                        dagannoth_kings_mode.currentData() or "casual"
+                    )
+                },
+            )
+            if not syncing_dagannoth_kings["active"]
+            else None
+        )
+        dagannoth_kings_target.currentIndexChanged.connect(
+            lambda _index: _run_dagannoth_kings_command(
+                "select_target",
+                {"enemy_id": str(dagannoth_kings_target.currentData() or "")},
+            )
+            if not syncing_dagannoth_kings["active"]
+            and str(dagannoth_kings_mode.currentData() or "casual") == "advanced"
+            and dagannoth_kings_target.currentData()
+            else None
+        )
+        _refresh_dagannoth_kings_panel()
+        cards_stack.addWidget(dagannoth_kings_box)
 
         phoenix_box = QtFrame()
         phoenix_box.setObjectName("phoenixLairPanel")
@@ -20521,6 +20788,7 @@ def show_main_menu(
             _refresh_penguin_panel()
             _refresh_vinesweeper_panel()
             _refresh_fight_caves_panel()
+            _refresh_dagannoth_kings_panel()
             _refresh_phoenix_lair_panel()
             _refresh_skeletal_horror_panel()
             _refresh_bork_panel()
@@ -20604,6 +20872,9 @@ def show_main_menu(
                 _show_activity_detail(activity_id)
                 return
             if activity_id == FIGHT_CAVES_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == DAGANNOTH_KINGS_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
             if activity_id == PHOENIX_LAIR_ACTIVITY_ID:
@@ -20749,6 +21020,10 @@ def show_main_menu(
             ),
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
+            DAGANNOTH_KINGS_ACTIVITY_ID: (
+                "Dagannoth Kings",
+                dagannoth_kings_box,
+            ),
             PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
             SKELETAL_HORROR_ACTIVITY_ID: ("Skeletal Horror", skeletal_box),
             BORK_ACTIVITY_ID: ("Bork", bork_box),
@@ -21054,6 +21329,7 @@ def show_main_menu(
                 _refresh_penguin_panel,
                 _refresh_vinesweeper_panel,
                 _refresh_fight_caves_panel,
+                _refresh_dagannoth_kings_panel,
                 _refresh_phoenix_lair_panel,
                 _refresh_skeletal_horror_panel,
                 _refresh_bork_panel,

@@ -5759,3 +5759,20 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   from the known nonzero reachability dependency ledger.
 - Evidence:
   `source-audits/karambwan-cooking-runtime-closure-2026-08-09.md`.
+
+## Dagannoth Kings runtime closure — 2026-08-09
+
+- Added a reusable persistent boss-room substrate and its first dangerous
+  consumer: Prime, Supreme, and Rex together with visible roster pressure,
+  Casual/Advanced targeting, ordinary Combat/Prayer/food/Slayer/drop handling,
+  review-driven respawns, explicit Leave, persistence, and undo.
+- Closed the minimum Dragon-hatchet acquisition route with sourced guaranteed
+  bones/hide and three clearly registered hidden-value reconstructions.
+- Added a compact paginated Activities card with three normalized period NPC
+  sprites. Kimi K3 and Opus reviewed it; a 900×560 geometry regression guards
+  the clipping defect found during rendered verification.
+- Both full 4,004-test lanes pass. Plain has 488 expected skips and real
+  offscreen Qt has three. All repository closure audits pass, and reachability
+  improves to 1,547 actions / 2,354 reachable items / 159 orphan inputs / 179
+  blocked actions. Native Anki interaction is not claimed.
+- Evidence: `source-audits/dagannoth-kings-room-2026-08-09.md`.

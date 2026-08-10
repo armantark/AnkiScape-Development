@@ -540,6 +540,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "penguin_hide_and_seek",
                 "vinesweeper",
                 "fight_caves",
+                "dagannoth_kings",
                 "flash_powder_factory",
                 "pyramid_plunder",
                 "werewolf_skullball",
