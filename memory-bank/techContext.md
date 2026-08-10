@@ -27,7 +27,7 @@
   Python is too old for the repository's type syntax.
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.
-- `python3 tools/audit_item_reachability.py --json` emits the deterministic live action/acquisition graph ledger; its focused regression test is `tests/test_item_reachability_audit.py`.
+- `python3 tools/audit_item_reachability.py --json` emits the deterministic live action/acquisition graph ledger; `--rank-roots N` ranks root acquisitions by transitive item/action gain, and the focused regression test is `tests/test_item_reachability_audit.py`.
 
 ### Bounded operator commands
 

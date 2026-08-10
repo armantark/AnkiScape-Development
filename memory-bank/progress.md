@@ -5792,3 +5792,15 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   offscreen Qt has three. Native Computer Use timed out twice, so native Anki
   interaction is not claimed.
 - Evidence: `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.
+
+## Item reachability leverage ranking — 2026-08-09
+
+- Added a deterministic one-root-at-a-time simulation to the existing
+  acquisition graph. `--rank-roots N` now shows the transitive item and action
+  gain for each candidate without inventing an acquisition route.
+- JSON output includes every newly reachable item, so BFS selection is
+  reproducible and inspectable. The first ranking selects Potato cactus at
+  +20 items/+19 actions.
+- Focused tests and both full 4,007-test lanes pass. No runtime, save, UI, or
+  content data changed.
+- Evidence: `audits/item-reachability-leverage-ranking-2026-08-09.md`.

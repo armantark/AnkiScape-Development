@@ -4671,3 +4671,15 @@ flees silently when the player runs out of food.
 - Both full 4,006-test lanes pass. Native Computer Use timed out against both
   Anki identifiers, so no native interaction is claimed. Evidence:
   `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.
+
+## Reachability leverage ranking — 2026-08-09
+
+- `tools/audit_item_reachability.py --rank-roots N` now simulates one authentic
+  root acquisition at a time and ranks its transitive item/action gain. JSON
+  output carries the exact recovered item list for reproducible BFS selection.
+- The report does not manufacture sources or period claims. It measures only
+  graph leverage; normal source qualification still owns implementation.
+- The first live ranking selects Potato cactus (+20 items/+19 actions), then
+  Wyvern bones (+12/+16), Uncut onyx (+11/+11), and Fellstalk seed (+8/+5).
+- Both full 4,007-test lanes pass. Evidence:
+  `audits/item-reachability-leverage-ranking-2026-08-09.md`.

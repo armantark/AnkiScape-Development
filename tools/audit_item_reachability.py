@@ -94,6 +94,69 @@ def _drop_names(value: Any) -> set[str]:
 
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+
+
+def _close_actions(
+    actions: Iterable[Mapping[str, Any]],
+    seed_sources: Mapping[str, set[str]],
+) -> tuple[set[str], dict[str, str], list[Mapping[str, Any]]]:
+    reachable = set(seed_sources)
+    route = {item: sorted(sources)[0] for item, sources in seed_sources.items()}
+    unresolved = list(actions)
+    changed = True
+    while changed:
+        changed = False
+        remaining: list[Mapping[str, Any]] = []
+        for action in unresolved:
+            required_ok = action["required"].issubset(reachable)
+            alternatives_ok = all(
+                bool(group & reachable) for group in action["alternatives"]
+            )
+            if required_ok and alternatives_ok:
+                for item in action["outputs"]:
+                    if item not in reachable:
+                        reachable.add(item)
+                        route[item] = action["id"]
+                        changed = True
+            else:
+                remaining.append(action)
+        unresolved = remaining
+    return reachable, route, unresolved
+
+
+def _rank_root_orphans(
+    root_orphans: Iterable[str],
+    actions: Iterable[Mapping[str, Any]],
+    seed_sources: Mapping[str, set[str]],
+    baseline_reachable: set[str],
+    baseline_unresolved_count: int,
+) -> list[dict[str, Any]]:
+    rows = []
+    for item in root_orphans:
+        candidate_sources = dict(seed_sources)
+        candidate_sources[item] = {f"candidate:{item}"}
+        reachable, _route, unresolved = _close_actions(actions, candidate_sources)
+        newly_reachable = sorted(reachable - baseline_reachable)
+        rows.append(
+            {
+                "item": item,
+                "newly_reachable_item_count": len(newly_reachable),
+                "newly_unblocked_action_count": (
+                    baseline_unresolved_count - len(unresolved)
+                ),
+                "newly_reachable_items": newly_reachable,
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            -row["newly_reachable_item_count"],
+            -row["newly_unblocked_action_count"],
+            row["item"],
+        ),
+    )
+
+
 def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import combat_data
     from ankiscape.core import constants
@@ -571,25 +634,7 @@ def build_reachability_report() -> dict[str, Any]:
         for item in outputs:
             producers[item].add(key)
 
-    reachable = set(seed_sources)
-    route: dict[str, str] = {item: sorted(sources)[0] for item, sources in seed_sources.items()}
-    unresolved = list(actions)
-    changed = True
-    while changed:
-        changed = False
-        remaining: list[dict[str, Any]] = []
-        for action in unresolved:
-            required_ok = action["required"].issubset(reachable)
-            alternatives_ok = all(bool(group & reachable) for group in action["alternatives"])
-            if required_ok and alternatives_ok:
-                for item in action["outputs"]:
-                    if item not in reachable:
-                        reachable.add(item)
-                        route[item] = action["id"]
-                        changed = True
-            else:
-                remaining.append(action)
-        unresolved = remaining
+    reachable, route, unresolved = _close_actions(actions, seed_sources)
 
     consumed = set(consumers)
     orphan_inputs = sorted(consumed - reachable)
@@ -607,6 +652,13 @@ def build_reachability_report() -> dict[str, Any]:
                 "outputs": sorted(action["outputs"]),
             }
         )
+    root_orphan_leverage = _rank_root_orphans(
+        root_orphans,
+        actions,
+        seed_sources,
+        reachable,
+        len(unresolved),
+    )
 
     return {
         "schema_version": 1,
@@ -627,6 +679,7 @@ def build_reachability_report() -> dict[str, Any]:
             }
             for item in orphan_inputs
         ],
+        "root_orphan_leverage": root_orphan_leverage,
         "unresolved_actions": sorted(unresolved_actions, key=lambda row: row["id"]),
         "routes": {item: route[item] for item in sorted(route)},
     }
@@ -635,10 +688,27 @@ def build_reachability_report() -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true", help="Emit the full machine-readable report.")
+    parser.add_argument(
+        "--rank-roots",
+        type=int,
+        metavar="N",
+        help="Print the N root acquisitions with the largest transitive item gain.",
+    )
     args = parser.parse_args()
     report = build_reachability_report()
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
+    elif args.rank_roots is not None:
+        limit = max(args.rank_roots, 0)
+        print(
+            f"{report['action_count']} actions; {report['reachable_item_count']} reachable items; "
+            f"{report['orphan_input_count']} orphan inputs; {report['unresolved_action_count']} blocked actions"
+        )
+        for row in report["root_orphan_leverage"][:limit]:
+            print(
+                f"- {row['item']}: +{row['newly_reachable_item_count']} items; "
+                f"+{row['newly_unblocked_action_count']} actions"
+            )
     else:
         print(
             f"{report['action_count']} actions; {report['reachable_item_count']} reachable items; "

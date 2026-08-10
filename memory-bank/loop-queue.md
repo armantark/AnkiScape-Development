@@ -139,3 +139,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Blue-dragon-scale acquisition through the seven-spawn ordinary
      Taverley route, exact item identities, normalized period art, shared
      Utility gathering/undo, and the existing dust and Herblore chains.
+   - [x] Add deterministic root-orphan leverage ranking to the reachability
+     audit so data-depth BFS selection uses transitive item/action gain rather
+     than intuition.

@@ -1750,6 +1750,12 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   1,548 actions, 2,377 reachable items, 137 orphan inputs, and 148 blocked
   actions. See
   `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.
+- **Tooling 2026-08-09:** use
+  `python3 tools/audit_item_reachability.py --rank-roots N` to rank the
+  remaining authentic root-acquisition candidates by simulated transitive
+  item/action recovery. The score is prioritization evidence, never period
+  source evidence. See
+  `audits/item-reachability-leverage-ranking-2026-08-09.md`.
 - **Closed 2026-07-20:** the period player-grown Willow route now exposes
   post-health-check branches every five era-minutes to a six-branch cap,
   accepts either Secateurs variant, awards zero pruning XP, and preserves Chop

@@ -1118,3 +1118,17 @@
   skips and three Qt skips. The row makes 23 more items reachable and removes
   31 blocked actions, producing a 1,548-action / 2,377-reachable / 137-orphan /
   148-blocked ledger. Native Computer Use timed out twice and is not claimed.
+
+## Iteration 51 — reachability leverage ranking
+
+- Result: `tools/audit_item_reachability.py --rank-roots N` simulates adding
+  each true root orphan independently, closes the same live action graph, and
+  ranks the transitive item/action recovery. `--json` exposes exact recovered
+  item lists; default output remains unchanged.
+- Boundary: the score proves graph leverage only. It never claims that a source
+  exists or waives period qualification. Multi-input roots may validly recover
+  one item and zero actions.
+- First ranking: Potato cactus +20/+19, Wyvern bones +12/+16, Uncut onyx
+  +11/+11, Fellstalk seed +8/+5. Potato cactus is the next source candidate.
+- Verification: two focused tests pass. Full plain discovery passes 4,007 tests
+  with 488 expected skips; full real offscreen Qt passes 4,007 with three.

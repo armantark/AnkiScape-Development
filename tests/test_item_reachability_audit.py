@@ -94,6 +94,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Stardust"],
             "Activity:shooting_stars:mine",
         )
+
         self.assertEqual(
             report["routes"]["Fist of guthix token"],
             "Activity:fist_of_guthix:match",
@@ -198,6 +199,36 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Eucalyptus logs",
         ):
             self.assertNotIn(item_name, orphan_items)
+
+    def test_root_orphan_leverage_is_transitive_and_deterministically_ranked(self):
+        report = build_reachability_report()
+        rows = report["root_orphan_leverage"]
+        root_orphans = {
+            row["item"]
+            for row in report["orphan_inputs"]
+            if row["kind"] == "root"
+        }
+
+        self.assertEqual({row["item"] for row in rows}, root_orphans)
+        self.assertEqual(
+            rows,
+            sorted(
+                rows,
+                key=lambda row: (
+                    -row["newly_reachable_item_count"],
+                    -row["newly_unblocked_action_count"],
+                    row["item"],
+                ),
+            ),
+        )
+        for row in rows:
+            with self.subTest(item=row["item"]):
+                self.assertIn(row["item"], row["newly_reachable_items"])
+                self.assertEqual(
+                    row["newly_reachable_item_count"],
+                    len(row["newly_reachable_items"]),
+                )
+                self.assertGreaterEqual(row["newly_unblocked_action_count"], 0)
 
 
 if __name__ == "__main__":
