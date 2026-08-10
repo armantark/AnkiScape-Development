@@ -511,6 +511,42 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(restored["inventory"]["Long kebbit bolts"], 4)
         self.assertEqual(restored["fletching_exp"], 1234.5)
 
+    def test_blandebir_fills_every_affordable_pot_and_undo_restores_inputs(self):
+        player = build_shop_fixture_player_data()
+        player["inventory"].update(
+            {"Coins": 60, "Empty pot": 2, "Ale yeast": 1}
+        )
+
+        locked, denial = apply_shop_service_pure(
+            player, "blandebir_fill_ale_yeast", 3
+        )
+        self.assertEqual(locked, player)
+        self.assertFalse(denial["allowed"])
+        self.assertEqual(denial["reason"], "Requires starting The Giant Dwarf")
+
+        player["quests"] = {
+            "the_giant_dwarf": {"started": True, "completed": False}
+        }
+
+        filled, result = apply_shop_service_pure(
+            player, "blandebir_fill_ale_yeast", 3
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertTrue(result["clamped"])
+        self.assertEqual(result["quantity"], 2)
+        self.assertEqual(result["total_price"], 50)
+        self.assertEqual(filled["inventory"]["Coins"], 10)
+        self.assertEqual(filled["inventory"]["Empty pot"], 0)
+        self.assertEqual(filled["inventory"]["Ale yeast"], 3)
+
+        restored, undo = rollback_shop_event_pure(filled, result["event_id"])
+        self.assertTrue(undo["allowed"])
+        self.assertEqual(restored["inventory"]["Coins"], 60)
+        self.assertEqual(restored["inventory"]["Empty pot"], 2)
+        self.assertEqual(restored["inventory"]["Ale yeast"], 1)
+        self.assertEqual(restored["quests"], player["quests"])
+
     def test_bogrog_exception_rows_use_pinned_table_levels(self):
         player = build_shop_fixture_player_data()
         player["summoning_level"] = 46

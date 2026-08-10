@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 47 closes brewing-input acquisition.**
+`Malt barley` is a source-backed level-1 Cooking row that converts one Barley
+to one Barley malt on a range, cannot fail, and correctly awards and displays
+no XP. Blandebir now fills each Empty pot with Ale yeast for exactly 25 Coins
+after the established The Giant Dwarf Keldagrim gate, through the batchable
+Shop service and direct-undo path. Both formerly orphaned inputs now have live
+routes into the existing Dwarven-stout
+brewing action. Existing normalized cutoff sprites cover all three items. Full
+plain and real offscreen-Qt discovery each pass 3,986 tests, with 486 plain
+skips and 3 Qt skips. Documentation passes across 541 Markdown and 431 HTML
+files; test quality has zero hard issues across 3,952 methods in 180 files.
+Reachability improves to 1,544 actions, 2,347 reachable items, 164 orphan
+inputs, and 184 unresolved actions. Compilation, JSON, deterministic shop
+generation, diff, asset normalization, and worktree audits pass. Native Anki
+interaction is not claimed. Durable audit:
+`memory-bank/source-audits/brewing-input-acquisition-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 46 completes Karambwan Cooking.** Poison
 karambwan, thorough Cooked karambwan, and Karambwanji are separate live targets
 with sourced identities, XP, outputs, and Tai Bwo Wannai Trio gates. Poison

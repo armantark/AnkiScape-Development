@@ -1556,6 +1556,13 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertNotIn("Burn output", row.tooltip)
         self.assertNotIn("no XP", row.tooltip)
 
+        malt = _row(rows, "malt_barley")
+        self.assertEqual(malt.group, "brewing")
+        self.assertIn("Barley malt x1", malt.tooltip)
+        self.assertIn("Cannot burn or fail", malt.tooltip)
+        self.assertIsNotNone(malt.icon_path)
+        self.assertTrue(os.path.exists(malt.icon_path or ""))
+
     def test_mining_rows_preserve_current_icon_and_include_concentrated_rocks(self):
         rows = mining_target_rows(
             {

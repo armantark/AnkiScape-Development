@@ -22,7 +22,7 @@ Generated: 2026-07-06
 - Locked stock rows: 60
 - Hidden stock rows: 0
 - Blocked stock rows: 13
-- Services: 82
+- Services: 83
 - Vendor actions: 4
 
 ## Disposition Policy

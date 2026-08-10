@@ -4036,6 +4036,51 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_barley_malt_review_reward_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_barley_malt_undo_integration")
+
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: self.fail(f"barley malt awarded {exp} XP")
+        addon._show_activity_gain = lambda _text: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Barley": 1},
+            "cooking_level": 1,
+            "cooking_exp": 0.0,
+            "current_cooking": "malt_barley",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Cooking"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(
+            addon.player_data["inventory"],
+            {"Barley": 0, "Barley malt": 1},
+        )
+        self.assertEqual(addon.player_data["cooking_exp"], 0.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_poison_karambwan_burn_rolls_back_on_review_undo(self):
         addon = _load_addon_as_package("ankiscape_poison_karambwan_undo_integration")
 

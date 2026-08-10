@@ -125,7 +125,7 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertEqual(len(SHOP_SERVICES), 82)
+        self.assertEqual(len(SHOP_SERVICES), 83)
         self.assertEqual(
             {
                 service_id
@@ -146,6 +146,23 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(bob["default_target_dose"], 4)
         self.assertEqual(bob["price"], 0)
         self.assertIn("oldid 6222086", bob["source"])
+        blandebir = SHOP_SERVICES["blandebir_fill_ale_yeast"]
+        self.assertEqual(blandebir["provider"], "Blandebir")
+        self.assertEqual(blandebir["location"], "Keldagrim")
+        self.assertEqual(blandebir["price"], 25)
+        self.assertEqual(blandebir["inputs"][0]["item_name"], "Empty pot")
+        self.assertEqual(blandebir["outputs"][0]["item_name"], "Ale yeast")
+        self.assertTrue(blandebir["batchable"])
+        self.assertEqual(
+            blandebir["access"],
+            {
+                "kind": "quest",
+                "quest_id": "the_giant_dwarf",
+                "stage": "started",
+                "label": "The Giant Dwarf",
+            },
+        )
+        self.assertIn("oldid 4227753", blandebir["source"])
         for service_id, action_type in (
             ("teplin_fill_potion_flasks", "fill_potion_flasks"),
             ("teplin_decant_flasks_to_vials", "decant_flasks_to_vials"),

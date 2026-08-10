@@ -1200,7 +1200,8 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
                 for item_name, amount in output_items.items()
             )
         )
-    ctx.show_exp(exp_gained)
+    if exp_gained:
+        ctx.show_exp(exp_gained)
     return True
 
 

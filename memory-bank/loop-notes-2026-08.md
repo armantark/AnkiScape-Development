@@ -1021,3 +1021,26 @@
   compilation, JSON, diff, asset normalization, and worktree audits pass. The
   known reachability ledger improves to 1,542 actions, 2,344 reachable items,
   166 orphan inputs, and 186 unresolved actions.
+
+## Iteration 47 — brewing input acquisition
+
+- Result: the existing brewing family is reachable end to end. One review
+  malts one Barley into one Barley malt with no failure and no XP; Blandebir's
+  batchable Shop service turns each Empty pot plus 25 Coins into Ale yeast
+  after the established The Giant Dwarf Keldagrim route wall.
+- Source: Barley malt oldid `6207311`, Barley oldid `5434668`, and Ale yeast
+  oldid `4227753` pin the complete mechanic. Darkan corroborates Empty pot
+  `1931`, Ale yeast `5767`, and the 25-Coin transaction. No placeholder was
+  needed.
+- Adjacent defect: the shared Cooking handler displayed `+0 XP` after a valid
+  zero-XP action. It now emits XP feedback only for a nonzero award, while the
+  malting regression proves inventory, telemetry, persistence, and review undo.
+- UI/assets: established Cooking and Shop rows reuse three normalized cutoff
+  sprites. No new surface or interaction pattern was introduced, so no new
+  taste pass was required.
+- Verification: focused checks pass 645 plain and two real offscreen Qt tests.
+  Full plain and offscreen Qt discovery each pass 3,986 tests, with 486 plain
+  skips and three Qt skips. Documentation, test quality, compilation, JSON,
+  deterministic shop generation, diff, asset normalization, and worktree
+  audits pass. Reachability improves to 1,544 actions, 2,347 reachable items,
+  164 orphan inputs, and 184 unresolved actions. Native Anki is not claimed.

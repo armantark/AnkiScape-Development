@@ -114,6 +114,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Sceptre of the gods"],
             "Activity:pyramid_plunder:loot",
         )
+        self.assertEqual(
+            report["routes"]["Barley malt"],
+            "Cooking:malt_barley",
+        )
+        self.assertEqual(
+            report["routes"]["Ale yeast"],
+            "Shop service:blandebir_fill_ale_yeast",
+        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},
@@ -168,6 +176,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Earth orb",
             "Fire orb",
             "Wine of zamorak",
+            "Barley malt",
+            "Ale yeast",
         ):
             self.assertNotIn(item_name, orphan_items)
 

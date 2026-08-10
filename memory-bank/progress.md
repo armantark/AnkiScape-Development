@@ -1,5 +1,34 @@
 # Progress
 
+## Brewing input acquisition — 2026-08-09
+
+Barley malt and Ale yeast now have complete player-facing acquisition routes
+into the already-live brewing family. At level 1, one Cooking review converts
+one Barley to one Barley malt on a range, with no failure and no XP. Blandebir
+fills each Empty pot for exactly 25 Coins through the existing batchable Shop
+service after the established The Giant Dwarf Keldagrim route wall. Both routes
+preserve materials, carried inventory, persistence, telemetry, and atomic undo.
+The shared Cooking runtime now suppresses the
+misleading `+0 XP` feedback event for authentic zero-XP actions.
+
+Oldids `6207311` and `5434668` pin the malt conversion and zero XP. Ale yeast
+oldid `4227753` pins Blandebir, Keldagrim, Empty pot, 25 Coins, and fill-all
+batching. Period identities are Barley `6006`, Ale yeast `5767`, and Barley
+malt `6008`; existing normalized cutoff sprites cover all three. Metarialus's
+five-Ecto-token alternative remains later catalog depth, not a mechanical
+blocker or placeholder.
+
+Focused checks pass 645 plain tests and two real offscreen Qt tests. Full plain
+discovery passes 3,986 tests in 211.266 seconds with 486 expected skips; full
+real offscreen-Qt discovery passes the same 3,986 in 515.812 seconds with three
+intentional skips. Documentation audits 541 Markdown and 431 HTML files; test
+quality finds 3,952 methods in 180 files with zero hard issues. Reachability is
+1,544 actions, 2,347 reachable items, 164 known orphans, and 184 unresolved
+actions. Compilation, JSON, deterministic shop generation, diff, asset
+normalization, and worktree safety pass. Native Anki interaction is not
+claimed. See
+`memory-bank/source-audits/brewing-input-acquisition-2026-08-09.md`.
+
 ## Make wine Cooking runtime closure — 2026-08-09
 
 `Make wine` is live as a standard grouped Cooking target. At level 35, one

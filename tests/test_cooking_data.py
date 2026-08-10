@@ -2,6 +2,7 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.cooking_data import (
+    BARLEY_MALT_SOURCE,
     COOKING_PREP_ACTIVITIES,
     COOKING_SOURCE_PATH,
     COOKING_TARGETS,
@@ -20,7 +21,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 90)
+        self.assertEqual(len(COOKING_TARGETS), 91)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -84,6 +85,18 @@ class TestCookingData(unittest.TestCase):
         self.assertFalse(items["Burnt karambwan"]["tradeable"])
         self.assertEqual(items["Karambwanji"]["item_id"], 3151)
         self.assertFalse(items["Karambwanji"]["tradeable"])
+        malt = data["malt_barley"]
+        self.assertEqual(malt["requirements"], {"Barley": 1})
+        self.assertEqual(malt["output_item"], "Barley malt")
+        self.assertEqual(malt["level"], 1)
+        self.assertEqual(malt["exp"], 0.0)
+        self.assertTrue(malt["source_always_succeeds"])
+        self.assertEqual(malt["source"], BARLEY_MALT_SOURCE)
+        self.assertEqual(items["Barley"]["item_id"], 6006)
+        self.assertFalse(items["Barley"]["stackable"])
+        self.assertEqual(items["Barley malt"]["item_id"], 6008)
+        self.assertFalse(items["Barley malt"]["stackable"])
+        self.assertFalse(items["Ale yeast"]["stackable"])
         wine = data["make_wine"]
         self.assertEqual(wine["level"], 35)
         self.assertEqual(wine["exp"], 200.0)

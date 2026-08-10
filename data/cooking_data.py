@@ -83,6 +83,11 @@ BREWING_SOURCE = (
     "RuneScape Wiki Brewing oldid=6447660 (2012-10-20T22:19:26Z); "
     "The Stuff oldid=6447071 (2012-10-20T15:26:18Z); OpenRS2 rev-742"
 )
+BARLEY_MALT_SOURCE = (
+    "RuneScape Wiki Barley malt oldid=6207311 "
+    "(2012-09-07T05:05:49Z); Barley oldid=5434668 "
+    "(2012-03-28T17:32:12Z)"
+)
 WINE_SOURCE = (
     "RuneScape Wiki Jug of wine oldid=6151933 "
     "(2012-08-27T16:10:12Z)"
@@ -294,6 +299,7 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('mix_drunk_dragon', 'DRUNK_DRAGON', 'Mix a drunk dragon', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'DRUNK_DRAGON', 2092, 'Drunk dragon', '', 0, '', 32, 160.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Gin': 1, 'Dwellberries': 1, 'Pineapple chunks': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
     CookingTarget('mix_choc_saturday', 'CHOC_SATURDAY', 'Mix a choc saturday', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'CHOC_SATURDAY', 2074, 'Choc saturday', '', 0, '', 33, 170.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Whisky': 1, 'Chocolate bar': 1, 'Equa leaves': 1, 'Bucket of milk': 1, 'Chocolate dust': 1, 'Pot of cream': 1}, byproducts={'Cocktail shaker': 1, 'Bucket': 1}, failure_kind='pour'),
     CookingTarget('mix_blurberry_special', 'BLURBERRY_SPECIAL', 'Mix a blurberry special', 'gnome_cocktails', 'COCKTAIL_GLASS', 2026, 'Cocktail glass', 'BLURBERRY_SPECIAL', 2064, 'Blurberry special', '', 0, '', 37, 180.0, 0, 0, source=GNOME_COOKING_SOURCE, runtime_source=GNOME_COOKING_SOURCE, source_always_succeeds=True, extra_requirements={'Cocktail shaker': 1, 'Vodka': 1, 'Brandy': 1, 'Gin': 1, 'Lemon': 2, 'Orange': 1, 'Lemon chunks': 1, 'Orange chunks': 1, 'Equa leaves': 1, 'Lime slices': 1}, byproducts={'Cocktail shaker': 1}, failure_kind='pour'),
+    CookingTarget('malt_barley', 'BARLEY_MALT', 'Malt barley', 'brewing', 'BARLEY', 6006, 'Barley', 'BARLEY_MALT', 6008, 'Barley malt', '', 0, '', 1, 0.0, 0, 0, source=BARLEY_MALT_SOURCE, runtime_source=BARLEY_MALT_SOURCE, source_always_succeeds=True),
     # PLACEHOLDER(cooking.wine_success_curve): Darkan's bounded reconstruction
     # stands in for the unrecovered period fermentation roll.
     CookingTarget('make_wine', 'WINE', 'Make wine', 'brewing', 'GRAPES', 1987, 'Grapes', 'JUG_OF_WINE', 1993, 'Jug of wine', '', 0, '', 35, 200.0, 0, 0, source=WINE_SOURCE, runtime_source=WINE_DARKAN_SOURCE, source_success_formula={'minimum': 0.6, 'level_divisor': 68.0}, extra_requirements={'Jug of water': 1}, failure_kind='bad_wine', alternate_output_item='Jug of bad wine', alternate_output_qty=1, alternate_output_exp=0.0, alternate_is_failure=True, outcome_kind='fermentation'),
@@ -485,6 +491,7 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Orange slices": (2112, True),
     "Pineapple": (2114, True),
     "Pineapple chunks": (2116, True),
+    "Barley": (6006, True),
     "Ale yeast": (5767, True),
     "Barley malt": (6008, True),
     "Hammerstone hops": (5994, True),
@@ -517,6 +524,9 @@ SOURCE_NONSTACKABLE_ITEMS = frozenset(
         "Raw karambwanji",
         "Karambwanji",
         "Ashes",
+        "Barley",
+        "Barley malt",
+        "Ale yeast",
     }
 )
 

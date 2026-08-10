@@ -4046,6 +4046,28 @@ class TestRuntimeActions(unittest.TestCase):
             telemetry["outputs"], {"Dwarven stout": 8, "Bucket": 2}
         )
 
+    def test_malting_barley_uses_the_shared_runtime_without_awarding_xp(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Barley": 1},
+            "cooking_level": 1,
+            "cooking_exp": 0.0,
+            "current_cooking": "malt_barley",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_cooking_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["inventory"], {"Barley": 0, "Barley malt": 1})
+        self.assertEqual(player_data["cooking_exp"], 0.0)
+        self.assertEqual(player_data["cooking_success_count"], 1)
+        self.assertEqual(player_data["cooking_burn_count"], 0)
+        self.assertEqual(calls["xp"], [])
+        telemetry = player_data["action_telemetry"]["actions"]["cooking:malt_barley"]
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["outputs"], {"Barley malt": 1})
+
     def test_cooking_runtime_extra_gutting_uses_source_rolls(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

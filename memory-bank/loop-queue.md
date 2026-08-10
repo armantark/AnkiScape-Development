@@ -126,3 +126,5 @@ Process one unblocked item per iteration. Move discovered design gaps to
      no-burn thresholds, persistence, undo, UI, assets, and cadence routing.
    - [x] Complete the three Karambwan Cooking methods with period quest gates,
      outputs, XP, normalized assets, and registered hidden-roll placeholders.
+   - [x] Close brewing-input acquisition with level-1 zero-XP Barley malting
+     and Blandebir's 25-Coin batchable Ale yeast service.

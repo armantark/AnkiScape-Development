@@ -5278,12 +5278,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         pd["quests"] = {
-            "as_a_first_resort": {"completed": True}
+            "as_a_first_resort": {"completed": True},
+            "the_giant_dwarf": {"started": True, "completed": False},
         }
         pd["summoning_level"] = 99
         pd["fletching_exp"] = 1234.5
         pd["inventory"]["Pack yak pouch"] = 3
         pd["inventory"]["Long kebbit spike"] = 2
+        pd["inventory"]["Empty pot"] = 2
         vendor_action_id = fixtures["vendor_action_transaction"]["action_id"]
         dialog = self._open(pd)
         _open_shop_tab(dialog)
@@ -5438,6 +5440,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Long kebbit spike"], 0)
         self.assertEqual(pd["inventory"]["Long kebbit bolts"], 12)
         self.assertEqual(pd["fletching_exp"], before_fletching_exp)
+
+        blandebir_item = _select_service_row("blandebir_fill_ale_yeast")
+        self.assertFalse(blandebir_item.icon().isNull())
+        self.assertNotIn("· Blandebir", blandebir_item.text())
+        self.assertIn(
+            "1 × Empty pot + 25 Coins → 1 × Ale yeast",
+            blandebir_item.text(),
+        )
+        quantity_spin = dialog.findChild(QSpinBox, "shopServiceQuantitySpin")
+        self.assertTrue(quantity_spin.isVisibleTo(dialog))
+        quantity_spin.setValue(2)
+        QApplication.processEvents()
+        preview_label = _find_named_label(dialog, "shopServicePreviewLabel")
+        self.assertIn("50 Coins", preview_label.text())
+        self.assertIn("Empty pot: 2 owned, 2 needed", preview_label.text())
+        before_coins = pd["inventory"]["Coins"]
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), preview_label.text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Coins"], before_coins - 50)
+        self.assertEqual(pd["inventory"]["Empty pot"], 0)
+        self.assertEqual(pd["inventory"]["Ale yeast"], 2)
 
         global_button = _find_named_button(dialog, "shopGlobalHistoryButton")
         global_button.click()
@@ -6973,6 +6998,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         shrimps = _cooking_row(tree, "cook_shrimps")
         shark = _cooking_row(tree, "cook_shark")
         wine = _cooking_row(tree, "make_wine")
+        malt = _cooking_row(tree, "malt_barley")
         poison_karambwan = _cooking_row(tree, "cook_poison_karambwan")
         thorough_karambwan = _cooking_row(tree, "cook_karambwan_thoroughly")
         karambwanji = _cooking_row(tree, "cook_karambwanji")
@@ -6986,6 +7012,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(wine.isDisabled())
         self.assertIn("Bad output: Jug of bad wine x1, no XP", wine.toolTip(0))
         self.assertFalse(wine.icon(0).isNull())
+        self.assertTrue(malt.isDisabled())
+        self.assertFalse(malt.icon(0).isNull())
+        self.assertIn("Cannot burn or fail", malt.toolTip(0))
         for row in (poison_karambwan, thorough_karambwan, karambwanji):
             self.assertTrue(row.isDisabled())
             self.assertFalse(row.icon(0).isNull())

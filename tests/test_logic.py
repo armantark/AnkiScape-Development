@@ -2346,6 +2346,21 @@ class TestLogic(unittest.TestCase):
             {"Grapes": 0, "Jug of water": 0, "Jug of bad wine": 1},
         )
 
+    def test_malting_barley_is_a_no_xp_range_conversion(self):
+        malted, xp, processed, output, failed = apply_cooking_action_pure(
+            "malt_barley",
+            {"Barley": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=1.0,
+        )
+
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output, "Barley malt")
+        self.assertEqual(xp, 0.0)
+        self.assertEqual(malted, {"Barley": 0, "Barley malt": 1})
+
     def test_karambwan_methods_keep_three_distinct_period_outcomes(self):
         poison_spec = COOKING_DATA["cook_poison_karambwan"]
         self.assertEqual(cooking_source_roll_chance_pure(1, poison_spec), 0.5)

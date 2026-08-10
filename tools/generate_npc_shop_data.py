@@ -87,6 +87,38 @@ MANUAL_ITEM_PRICES = {
 # belongs here rather than in Utility/Activities.
 SERVICE_ROWS: list[dict[str, Any]] = [
     {
+        "id": "blandebir_fill_ale_yeast",
+        "display_name": "Fill pots with ale yeast",
+        "provider": "Blandebir",
+        "location": "Keldagrim",
+        "currency_id": 995,
+        "price": 25,
+        "inputs": [
+            {
+                "item_id": 1931,
+                "quantity": 1,
+                "item_name": "Empty pot",
+            }
+        ],
+        "outputs": [
+            {
+                "item_id": 5767,
+                "quantity": 1,
+                "item_name": "Ale yeast",
+            }
+        ],
+        "icon_item_name": "Ale yeast",
+        "action_type": "item_conversion",
+        "batchable": True,
+        "access": {
+            "kind": "quest",
+            "quest_id": "the_giant_dwarf",
+            "stage": "started",
+            "label": "The Giant Dwarf",
+        },
+        "source": "RuneScape Wiki Ale yeast oldid 4227753, 2011-05-03",
+    },
+    {
         "id": "bob_barter_decant_four",
         "display_name": "Decant all vial potions",
         "provider": "Bob Barter (herbs)",

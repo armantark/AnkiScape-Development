@@ -2,6 +2,45 @@
   "generated_at": "2026-07-06",
   "services": [
     {
+      "access": {
+        "kind": "quest",
+        "label": "The Giant Dwarf",
+        "quest_id": "the_giant_dwarf",
+        "stage": "started"
+      },
+      "action_type": "item_conversion",
+      "batchable": true,
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Fill pots with ale yeast",
+      "icon_item_name": "Ale yeast",
+      "id": "blandebir_fill_ale_yeast",
+      "inputs": [
+        {
+          "item_id": 1931,
+          "item_name": "Empty pot",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "location": "Keldagrim",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 5767,
+          "item_name": "Ale yeast",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 25,
+      "provider": "Blandebir",
+      "source": "RuneScape Wiki Ale yeast oldid 4227753, 2011-05-03",
+      "visibility": "visible"
+    },
+    {
       "action_type": "decant_potions_to_dose",
       "currency_id": 995,
       "currency_implemented": true,
@@ -33171,7 +33210,7 @@
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
-    "service_count": 82,
+    "service_count": 83,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,

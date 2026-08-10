@@ -1506,6 +1506,8 @@ COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}
 COOKING_SHARED_ITEM_IMAGES = {
     "Ashes": os.path.join(FIREMAKING_ITEMS_FOLDER, "ashes.png"),
+    "Barley": os.path.join(SHOP_ITEMS_FOLDER, "barley.png"),
+    "Barley malt": os.path.join(FARMING_ITEMS_FOLDER, "barley_malt.png"),
     "Cooked karambwan": os.path.join(SHOP_ITEMS_FOLDER, "cooked_karambwan.png"),
     "Lava eel": os.path.join(QUEST_ITEMS_FOLDER, "lava_eel.png"),
     "Bucket of milk": os.path.join(QUEST_ITEMS_FOLDER, "bucket_of_milk.png"),

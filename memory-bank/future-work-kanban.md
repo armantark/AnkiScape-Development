@@ -1650,8 +1650,12 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   flags, both one-use rum teleports, Honest Jimmy's medium-clue service, and
   `The stuff` through a representative full-vat Dwarven stout recipe. The
   mature/ordinary outcomes, batch containers, XP, atomic purchase/action undo,
-  selector guidance, and normalized art are live. The remaining ale roster is
-  catalog depth rather than an unimplemented mechanic.
+  selector guidance, and normalized art are live. Barley malt now has its
+  authentic level-1 zero-XP range conversion, and Blandebir supplies batchable
+  Ale yeast for 25 Coins per Empty pot after the established The Giant Dwarf
+  Keldagrim gate. The remaining ale roster and
+  Metarialus's alternate five-Ecto-token yeast route are catalog depth rather
+  than unimplemented mechanics.
 - Soul Wars now owns the complete twelve-beat objective match, participation,
   safe-death Combat, exact Zeal, representative charm shop, persistence,
   arbitration, cadence, undo, UI, and normalized assets. Continue with the
