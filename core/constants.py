@@ -611,6 +611,19 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": "https://runescape.wiki/w/Blue_dragon_scale?oldid=6169064",
     },
+    "gather_potato_cacti": {
+        "display_name": "Gather potato cacti",
+        "requirements": {},
+        "output_item": "Potato cactus",
+        "output_qty": 1,
+        "batch_size": 3,
+        "icon_path": os.path.join(SUMMONING_ITEMS_FOLDER, "potato_cactus.png"),
+        "group": "gathering",
+        "source": (
+            "https://runescape.wiki/w/Potato_cactus?oldid=6543078; "
+            "https://runescape.wiki/w/Kalphite_Hive?oldid=6529999"
+        ),
+    },
     "grab_desert_phoenix_feather": {
         "display_name": "Grab Desert Phoenix feather",
         "requirements": {},
@@ -1171,6 +1184,7 @@ UTILITY_ITEM_IMAGES = {
     "Toad's legs": os.path.join(HERBLORE_ITEMS_FOLDER, "toad_s_legs.png"),
     "Blue dragon scale": os.path.join(HERBLORE_ITEMS_FOLDER, "blue_dragon_scale.png"),
     "Dragon scale dust": os.path.join(HERBLORE_ITEMS_FOLDER, "dragon_scale_dust.png"),
+    "Potato cactus": os.path.join(SUMMONING_ITEMS_FOLDER, "potato_cactus.png"),
     "Phoenix feather": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "desert_phoenix.png"),
     "Feather": os.path.join(FLETCHED_ITEMS_FOLDER, "feather.png"),
     "Fishing bait": os.path.join(FISHING_ITEMS_FOLDER, "fishing_bait.png"),

@@ -986,6 +986,25 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertEqual(os.path.basename(item.asset_path or ""), filename)
                 self.assertTrue(os.path.isfile(item.asset_path or ""))
 
+    def test_potato_cactus_acquisition_preserves_period_item_and_art(self):
+        action = UTILITY_ACTIVITY_DATA["gather_potato_cacti"]
+        self.assertEqual(action["requirements"], {})
+        self.assertEqual(action["output_item"], "Potato cactus")
+        self.assertEqual(action["batch_size"], 3)
+        self.assertEqual(action["group"], "gathering")
+        self.assertIn("oldid=6543078", action["source"])
+        self.assertIn("oldid=6529999", action["source"])
+
+        item = item_definitions_by_storage_key(ITEM_DEFINITIONS)["Potato cactus"]
+        self.assertEqual(item.source_item_id, 3138)
+        self.assertFalse(item.stackable)
+        self.assertTrue(item.tradeable)
+        self.assertEqual(
+            os.path.basename(item.asset_path or ""),
+            "potato_cactus.png",
+        )
+        self.assertTrue(os.path.isfile(item.asset_path or ""))
+
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name in (

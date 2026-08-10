@@ -507,6 +507,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Goat horn dust": 9736,
         "Blue dragon scale": 243,
         "Dragon scale dust": 241,
+        "Potato cactus": 3138,
         "Shrink-me-quick": 11204,
         "Shrunk ogleroot": 11205,
     }
@@ -515,6 +516,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Goat horn dust": "RuneScape Wiki Goat horn dust oldid=6404814",
         "Blue dragon scale": "RuneScape Wiki Blue dragon scale oldid=6169064",
         "Dragon scale dust": "RuneScape Wiki Blue dragon scale oldid=6169064",
+        "Potato cactus": "RuneScape Wiki Potato cactus oldid=6543078",
     }
     result = {}
     for name in herblore_item_names():
@@ -568,6 +570,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "Goat horn dust",
             "Blue dragon scale",
             "Dragon scale dust",
+            "Potato cactus",
             "Swamp toad",
             "Toad's legs",
         }:

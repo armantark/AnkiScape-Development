@@ -1729,8 +1729,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,438
-  actions, 2,128 reachable items, and 168 orphan inputs (76 root, 92 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,549
+  actions, 2,397 reachable items, and 124 orphan inputs (66 root, 58 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;
@@ -1756,6 +1756,13 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   item/action recovery. The score is prioritization evidence, never period
   source evidence. See
   `audits/item-reachability-leverage-ranking-2026-08-09.md`.
+- **Closed 2026-08-09:** the three ordinary first-level Kalphite-Hive Potato
+  cactus spawns now run through the established zero-XP Utility gathering
+  route. Exact item identity and normalized period art activate 20 downstream
+  item paths and 19 actions, including the complete Magic-potion chain.
+  Reachability is now 1,549 actions, 2,397 reachable items, 124 orphan inputs,
+  and 129 blocked actions. See
+  `source-audits/potato-cactus-acquisition-2026-08-09.md`.
 - **Closed 2026-07-20:** the period player-grown Willow route now exposes
   post-health-check branches every five era-minutes to a six-branch cap,
   accepts either Secateurs variant, awards zero pruning XP, and preserves Chop

@@ -1132,3 +1132,22 @@
   +11/+11, Fellstalk seed +8/+5. Potato cactus is the next source candidate.
 - Verification: two focused tests pass. Full plain discovery passes 4,007 tests
   with 488 expected skips; full real offscreen Qt passes 4,007 with three.
+
+## Iteration 52 — Potato cactus acquisition
+
+- Result: `Gather potato cacti` adds the three cutoff first-level
+  Kalphite-Hive ground spawns through the established zero-XP Utility route.
+  Persistence, telemetry, selector metadata, and answer undo remain shared.
+- Source: Potato cactus oldid `6543078` and Kalphite Hive oldid `6529999`
+  independently pin the three-spawn first-level route. Exchange oldid `6571111`
+  pins item 3138. No placeholder is needed.
+- Boundary: one-time rope setup, world travel, desert heat, poison, and hostile
+  Kalphites remain collapsed route context, matching existing source-gathering
+  rows. Quest-gated lower-floor spawns are not claimed.
+- Leverage: reachability improves from 1,548/2,377/137/148 to
+  1,549/2,397/124/129 for actions/reachable items/orphans/blocked actions.
+- Verification: five focused checks and one real offscreen Qt selector test
+  pass. Full plain and Qt discovery each pass 4,009 tests. Documentation, test
+  quality, compilation, JSON, asset normalization, diff, and worktree audits
+  pass. Workflows run `1951a8f4-904d-4e78-a010-7837aabb38ff` returned no usable
+  result after both leaves exhausted bounded budgets; root did not retry it.

@@ -4683,3 +4683,22 @@ flees silently when the player runs out of food.
   Wyvern bones (+12/+16), Uncut onyx (+11/+11), and Fellstalk seed (+8/+5).
 - Both full 4,007-test lanes pass. Evidence:
   `audits/item-reachability-leverage-ranking-2026-08-09.md`.
+
+## Potato cactus acquisition — 2026-08-09
+
+- `Gather potato cacti` now represents the three period ground spawns on the
+  ordinary first level of the Kalphite Hive. It is a zero-XP Utility gathering
+  trip through the established persistence, telemetry, and answer-undo path.
+- Cutoff oldids `6543078` and `6529999` independently pin the three-spawn
+  first-level route. Quest-gated lower floors, the one-time entrance rope,
+  desert travel, and ambient Kalphite danger remain inside the same collapsed
+  route abstraction already used by source-gathering rows.
+- Exact item identity 3138 and the existing tightly cropped 2010 sprite are
+  registered. No placeholder or new UI pattern was needed.
+- The row recovers the full existing Magic-potion chain: reachability improves
+  to 1,549 actions, 2,397 reachable items, 124 orphan inputs, and 129 blocked
+  actions, a gain of 20 item paths and 19 actions.
+- Full plain and real offscreen-Qt discovery each pass 4,009 tests; plain has
+  488 expected skips and Qt has three. Documentation, test quality,
+  compilation, JSON, asset normalization, diff, and worktree safety pass.
+  Evidence: `source-audits/potato-cactus-acquisition-2026-08-09.md`.

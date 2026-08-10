@@ -5804,3 +5804,19 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Focused tests and both full 4,007-test lanes pass. No runtime, save, UI, or
   content data changed.
 - Evidence: `audits/item-reachability-leverage-ranking-2026-08-09.md`.
+
+## Potato cactus acquisition — 2026-08-09
+
+- Added the sourced three-spawn first-level Kalphite-Hive route through the
+  established zero-XP Utility gathering substrate. The ordinary route is not
+  quest-gated; lower-floor spawns remain catalog depth.
+- Registered exact item identity 3138 and reused the normalized period Potato
+  cactus sprite already shared with Summoning. No placeholder or new
+  interaction pattern was introduced.
+- The route activates 20 existing downstream item states and 19 actions,
+  including the complete Magic-potion chain. The live graph is now 1,549
+  actions / 2,397 reachable items / 124 orphan inputs / 129 blocked actions.
+- Focused behavior and real Qt checks pass. Full plain and real offscreen-Qt
+  discovery each pass 4,009 tests. Documentation, test quality, compilation,
+  JSON, asset normalization, diff, and worktree audits pass.
+- Evidence: `source-audits/potato-cactus-acquisition-2026-08-09.md`.

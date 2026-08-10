@@ -2042,6 +2042,7 @@ class TargetMetadataTest(unittest.TestCase):
         wool = _row(rows, "gather_wool")
         swamp_toads = _row(rows, "gather_swamp_toads")
         blue_scales = _row(rows, "gather_blue_dragon_scales")
+        potato_cacti = _row(rows, "gather_potato_cacti")
         nests = _row(rows, "open_bird_nest")
 
         self.assertTrue(wool.current)
@@ -2066,6 +2067,14 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Processes up to 7", blue_scales.tooltip)
         self.assertIn("Output: Blue dragon scale x1", blue_scales.tooltip)
         self.assertIn("No materials required", blue_scales.tooltip)
+        self.assertTrue(potato_cacti.enabled)
+        self.assertEqual(
+            os.path.basename(potato_cacti.icon_path or ""),
+            "potato_cactus.png",
+        )
+        self.assertIn("Processes up to 3", potato_cacti.tooltip)
+        self.assertIn("Output: Potato cactus x1", potato_cacti.tooltip)
+        self.assertIn("No materials required", potato_cacti.tooltip)
         self.assertFalse(nests.enabled)
         self.assertIn("No XP", nests.tooltip)
         self.assertIn("Locked: cut trees until a bird nest drops.", nests.tooltip)

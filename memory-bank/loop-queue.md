@@ -142,3 +142,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Add deterministic root-orphan leverage ranking to the reachability
      audit so data-depth BFS selection uses transitive item/action gain rather
      than intuition.
+   - [x] Close Potato-cactus acquisition through the three-spawn ordinary
+     first-level Kalphite-Hive route, exact item identity, normalized period
+     art, established Utility gathering/undo, and the existing Magic-potion
+     chain.
