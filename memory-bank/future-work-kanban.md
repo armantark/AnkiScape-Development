@@ -14,6 +14,22 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Razor-backed kebbit tracking — shipped 2026-08-09
+
+Labels: `SOURCE AUDIT` only for the hidden catch curve and remaining tracking
+catalog.
+
+- The level-49 target now supplies Bones, Raw beast meat, and one Long kebbit
+  spike through the established Hunter runtime, grouped selector, persistence,
+  and review undo.
+- Cutoff oldid `6484443` pins the tool, level, XP, visible trail, and outputs.
+  The hidden curve is explicitly registered as the shared Hunter fallback.
+- Existing normalized cutoff art covers the selector and inventory. The Long
+  kebbit spike now activates both existing six-bolt transformations without a
+  new UI pattern.
+- Durable audit:
+  `memory-bank/source-audits/razor-backed-kebbit-tracking-acquisition-2026-08-09.md`.
+
 ### Unholy mould acquisition — shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for alternate monster and Spirit-of-Scorpius routes.

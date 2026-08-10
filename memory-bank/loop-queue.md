@@ -159,3 +159,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Unholy-mould acquisition through the cutoff Chaos-druid drop,
      preserve the mould through the existing Crafting chain, and replace the
      incorrect Holy mould sprite fallback.
+   - [x] Close Long-kebbit-spike acquisition through the cutoff Razor-backed
+     tracking row, registering only the hidden catch curve and reusing the
+     established Hunter selector, carried-pack, and review-undo paths.

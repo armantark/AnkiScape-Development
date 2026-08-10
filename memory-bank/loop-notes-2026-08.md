@@ -1245,3 +1245,27 @@
   plain skips and three Qt skips. Documentation, test-quality, compilation,
   JSON, asset, diff, and worktree gates pass. Reachability improves to
   1,551/2,428/108/108.
+
+## Iteration 58 — Razor-backed kebbit tracking
+
+- Result: the level-49 grouped Hunter target now requires and preserves one
+  Noose wand, collapses the four- or five-search trail into one review, awards
+  348 Hunter XP, and produces Bones, Raw beast meat, and one Long kebbit spike.
+- Source: Hunter oldid `6484443` pins the visible mechanic and outputs. Darkan
+  commit `37957d17d62d6b14d326cd719a0ae0c239c76cf9` corroborates the route and
+  tools but does not settle its hidden probability. Rev-742 pins items 10107
+  and 9986.
+- Placeholder: `hunter.razor_backed_kebbit_success_curve` uses the shared
+  `rate1=128`, `rate99=256` fallback. Its level-49 source chance is `192/255`
+  before review normalization. The earlier draft's `193/255` arithmetic was
+  corrected before closure.
+- Integration: the existing selector, Keep/Drop carried pack, cadence,
+  telemetry, Shattered Heart, persistence, and review undo own the new row.
+  Shattered Heart can replace two ordinary outputs while the chain-critical
+  Long kebbit spike remains retained.
+- Verification: six focused plain checks and one focused real offscreen Qt
+  check pass. Full plain and offscreen Qt discovery each pass 4,026 tests, with
+  491 expected plain skips and three Qt skips. Documentation, test quality,
+  compilation, JSON, placeholder, asset normalization, reachability, diff, and
+  worktree audits pass. Reachability improves to 1,552/2,431/107/106. Native
+  Anki is not claimed. GPT-family root verified.

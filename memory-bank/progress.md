@@ -1,5 +1,29 @@
 # Progress
 
+## Razor-backed kebbit tracking — 2026-08-09
+
+Razor-backed kebbit tracking now supplies the previously orphaned Long kebbit
+spike through Hunter's existing target, failure, carried-pack, cadence,
+telemetry, Shattered Heart, persistence, and review-undo paths. The target
+requires Hunter 49 and a reusable Noose wand, awards 348 XP, and collapses the
+sourced four- or five-search trail into one review transaction. Its three
+sourced outputs feed both the existing Fletching action and Leon service.
+
+Hunter oldid `6484443` pins the visible mechanic. The unrecovered hidden catch
+curve uses the registered shared Hunter fallback, which is `192/255` at level
+49 before review normalization. Rev-742 pins Long kebbit spike item `10107`
+and Raw beast meat item `9986`; existing normalized cutoff sprites are reused.
+Reachability is now 1,552 actions / 2,431 reachable items / 107 orphan inputs /
+106 unresolved actions.
+
+Focused checks pass six plain tests and one real offscreen Qt test. Full plain
+and real offscreen Qt discovery each pass 4,026 tests, with 491 expected plain
+skips and three Qt skips. Documentation audits 553 Markdown and 431 HTML files;
+test quality reports 3,991 tests in 181 files with zero hard issues.
+Compilation, JSON, placeholder, asset normalization, diff, reachability, and
+worktree safety pass. Native Anki interaction is not claimed. See
+`memory-bank/source-audits/razor-backed-kebbit-tracking-acquisition-2026-08-09.md`.
+
 ## Unholy mould acquisition — 2026-08-09
 
 Chaos druids now drop one Unholy mould on the sourced 1/128 slot. The existing

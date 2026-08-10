@@ -2164,7 +2164,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 59)
+        self.assertEqual(len(HUNTER_DATA), 60)
         self.assertEqual(
             HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
             ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),
@@ -2177,6 +2177,14 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(HUNTER_DATA["catch_baby_impling_puro_puro"]["tools"], {"Butterfly net": 1})
         self.assertEqual(HUNTER_DATA["catch_baby_impling_world"]["tools"], {})
         self.assertEqual(HUNTER_DATA["catch_wild_kebbit"]["requirements"], {"Logs": 1})
+        tracking = HUNTER_DATA["track_razor_backed_kebbit"]
+        self.assertEqual(tracking["level"], 49)
+        self.assertEqual(tracking["exp"], 348.0)
+        self.assertEqual(tracking["tools"], {"Noose wand": 1})
+        self.assertEqual(
+            tracking["outputs"],
+            {"Bones": 1, "Raw beast meat": 1, "Long kebbit spike": 1},
+        )
         self.assertEqual(HUNTER_DATA["catch_imp_magic_box"]["output_item"], "Imp-in-a-box (2)")
         self.assertEqual(HUNTER_DATA["catch_gourmet_impling_world"]["output_item"], "Gourm' impling jar")
         self.assertEqual(HUNTER_DATA["catch_essence_impling_puro_puro"]["output_item"], "Ess' impling jar")
@@ -2198,6 +2206,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Small fishing net",
             "Rope",
             "Noose wand",
+            "Raw beast meat",
+            "Long kebbit spike",
             "Teasing stick",
             "Rabbit snare",
         ):

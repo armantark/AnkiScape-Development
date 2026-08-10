@@ -2295,6 +2295,43 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(butterfly_inv["Butterfly net"], 1)
         self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
+    def test_razor_backed_kebbit_tracking_preserves_noose_wand_and_awards_chain_inputs(self):
+        target = "track_razor_backed_kebbit"
+        self.assertEqual(
+            hunter_source_roll_chance_pure(49, HUNTER_DATA[target]),
+            192 / 255,
+        )
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 49, "inventory": {}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Noose wand",),
+        )
+
+        inventory, exp, ok, output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Noose wand": 1},
+            HUNTER_DATA,
+            49,
+            0.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 348.0)
+        self.assertEqual(output_item, "Long kebbit spike")
+        self.assertEqual(
+            inventory,
+            {
+                "Noose wand": 1,
+                "Bones": 1,
+                "Raw beast meat": 1,
+                "Long kebbit spike": 1,
+            },
+        )
+
     def test_cooking_source_odds_and_scaled_probability(self):
         shrimps = COOKING_DATA["cook_shrimps"]
         shark = COOKING_DATA["cook_shark"]

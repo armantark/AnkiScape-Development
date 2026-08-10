@@ -6985,6 +6985,58 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon.player_data, initial)
 
+    def test_razor_backed_tracking_review_and_undo_use_the_real_hunter_path(self):
+        addon = _load_addon_as_package("ankiscape_razor_tracking_integration")
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.level_up_check = lambda *_args: None
+        addon.check_achievements = lambda *_args: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: None
+        addon._update_review_bank_run_surface = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon.player_data["inventory"]["Noose wand"] = 1
+        addon.player_data["hunter_level"] = 49
+        addon.player_data["hunter_exp"] = 0.0
+        addon.player_data["current_hunter"] = "track_razor_backed_kebbit"
+        addon.current_skill = "Hunter"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon._REVIEW_UNDO_STACK.clear()
+        initial = copy.deepcopy(addon.player_data)
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Noose wand"], 1)
+        # Shattered Heart may replace up to two ordinary outputs with the
+        # target's strange rocks. Long kebbit spike is third in the sourced
+        # output order, so the downstream-chain item is always retained.
+        self.assertEqual(addon.player_data["inventory"]["Long kebbit spike"], 1)
+        self.assertEqual(addon.player_data["hunter_exp"], 348.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_combat_carried_inventory_review_undo_restores_the_exact_save(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_review_undo_integration")
         from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA

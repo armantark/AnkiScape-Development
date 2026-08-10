@@ -6864,13 +6864,16 @@ class MainMenuWidgetTest(unittest.TestCase):
             for i in range(tree.topLevelItemCount())
         ]
         self.assertIn("__hunter_group__:bird_snaring", group_roles)
+        self.assertIn("__hunter_group__:tracking", group_roles)
         self.assertIn("__hunter_group__:deadfall", group_roles)
         self.assertIn("__hunter_group__:impling_world", group_roles)
         self.assertEqual(_hunter_group_node(tree, "deadfall").text(0), "Deadfall  (4)")
+        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (1)")
 
         wild = _hunter_row(tree, "catch_wild_kebbit")
         ferret = _hunter_row(tree, "catch_ferret")
         pirate = _hunter_row(tree, "catch_pirate_impling_world")
+        razor_backed = _hunter_row(tree, "track_razor_backed_kebbit")
         self.assertIs(wild, tree.currentItem())
         self.assertFalse(wild.isDisabled())
         self.assertFalse(wild.icon(0).isNull(), "Hunter target row has no icon")
@@ -6882,6 +6885,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Eagles' Peak", ferret.toolTip(0))
         self.assertTrue(pirate.isDisabled())
         self.assertIn("Rocking Out", pirate.toolTip(0))
+        self.assertTrue(razor_backed.isDisabled())
+        self.assertIn("Noose wand x1 (you have 0)", razor_backed.toolTip(0))
+        self.assertFalse(razor_backed.icon(0).isNull())
 
         before = list(self._hunter_calls)
         tree.itemClicked.emit(ferret, 0)

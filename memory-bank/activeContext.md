@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+**2026-08-09, grind-loop iteration 58 closes Razor-backed kebbit tracking.**
+The established grouped Hunter selector now exposes a level-49 `Tracking`
+target requiring a reusable Noose wand. One review collapses the sourced four-
+or five-search trail and final attack, awards 348 Hunter XP, and produces
+Bones, Raw beast meat, and one Long kebbit spike. The hidden catch curve remains
+registered as `hunter.razor_backed_kebbit_success_curve`; the shared fallback
+is `rate1=128`, `rate99=256`, which yields a `192/255` source-roll chance at
+level 49 before review normalization. Existing normalized cutoff sprites cover
+the new row. Reachability improves to 1,552 actions, 2,431 reachable items, 107
+orphan inputs, and 106 unresolved actions, activating both existing six-bolt
+transformations. Focused checks pass six plain tests and one real offscreen Qt
+test. Both full discovery lanes pass 4,026 tests; plain has 491 expected skips
+and Qt has three. Documentation, test quality, compilation, JSON, placeholder,
+asset normalization, diff, reachability, and worktree checks pass. Native Anki
+interaction is not claimed. Durable audit:
+`memory-bank/source-audits/razor-backed-kebbit-tracking-acquisition-2026-08-09.md`.
+
 **2026-08-09, grind-loop iteration 57 closes Unholy-mould acquisition.** The
 existing Chaos-druid target now includes one quantity-one Unholy mould slot in
 its 128-slot ordinary table. Darkan independently reconstructs the row at

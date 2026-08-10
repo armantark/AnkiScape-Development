@@ -37,6 +37,7 @@ HUNTER_ROPE_SHOP_SOURCE = (
     "data/items/shops/shantay_pass_shop.json"
 )
 HUNTER_BIRD_SNARING_SOURCE = "https://www.2011.rs/kb/hunter_bird_snaring_level_1"
+HUNTER_TRACKING_SOURCE = "https://runescape.wiki/w/Hunter?oldid=6484443"
 HUNTER_BUTTERFLY_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
 HUNTER_DEADFALL_SOURCE = "https://www.2011.rs/kb/hunter_deadfall_level_23"
 HUNTER_BOX_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_box_trapping_level_27"
@@ -54,6 +55,7 @@ DEFAULT_HUNTER_TARGET = "catch_crimson_swift"
 
 HUNTER_GROUP_LABELS = {
     "bird_snaring": "Bird snaring",
+    "tracking": "Tracking",
     "butterfly_netting": "Butterfly netting",
     "barehanded_butterflies": "Barehanded butterflies",
     "deadfall": "Deadfall",
@@ -68,6 +70,7 @@ HUNTER_GROUP_ORDER = tuple(HUNTER_GROUP_LABELS.keys())
 _GROUP_SORT = {group_id: index for index, group_id in enumerate(HUNTER_GROUP_ORDER)}
 HUNTER_REUSABLE_TOOLS_BY_GROUP = {
     "bird_snaring": (("Bird snare", 1),),
+    "tracking": (("Noose wand", 1),),
     "butterfly_netting": (("Butterfly net", 1),),
     "box_trapping": (("Box trap", 1),),
     "net_trapping": (("Small fishing net", 1), ("Rope", 1)),
@@ -275,6 +278,30 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "sourced minimum."
         ),
         sort_order=60,
+    ),
+    _target(
+        "track_razor_backed_kebbit",
+        "Track razor-backed kebbit",
+        "tracking",
+        49,
+        348.0,
+        _out(_BONES, ("Raw beast meat", 1), ("Long kebbit spike", 1)),
+        "Long kebbit spike",
+        source=HUNTER_TRACKING_SOURCE,
+        mechanics_source=(
+            "Hunter oldid 6484443: four or five trail searches collapse into "
+            "one review transaction"
+        ),
+        source_item_id=10107,
+        # PLACEHOLDER(hunter.razor_backed_kebbit_success_curve): a period
+        # tracking catch routine or measured table would replace this fallback.
+        rate1=128,
+        rate99=256,
+        notes=(
+            "One review represents the complete four- or five-search trail and "
+            "final attack; the hidden catch curve uses the registered Hunter fallback."
+        ),
+        sort_order=10,
     ),
     _target(
         "catch_ruby_harvest",
