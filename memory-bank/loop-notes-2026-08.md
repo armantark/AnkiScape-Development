@@ -1,5 +1,31 @@
 # AnkiScape grind-loop notes — 2026-08
 
+## Iteration 62 — Ranging Guild implementation checkpoint
+
+- Source: reused Darkan's frozen contract, canonical commit
+  `6e9bf37f85caf9c47f877d571fddc308ceffbaf4`, four cutoff wiki revisions,
+  and rev-742 item identities. No duplicate harvest was performed.
+- Result: effective level-40 entry, 200-Coin fee, ten supplied Bronze arrows,
+  one shot per review, six exact score/XP bands, Hati-paws scope, one replay-
+  safe ticket claim, six purchases, persistence, undo, Seers diary conditions,
+  normalized art, review-strip Ranged state, and Activities UI are live.
+- Honest boundary: `ranging_guild.hit_quality_resolver` remains the registered
+  frozen bounded placeholder because the period hit-quality formula is not
+  recovered. Hati-paws acquisition remains data depth.
+- Review: Kimi K3 and Fable independently reviewed the UI. Accepted changes
+  hide lobby progress, explain score-to-ticket conversion, label ticket units,
+  distinguish claim-ready state, improve band copy, keep Purchase secondary,
+  and use a theme-safe claim pill. A bounded Sol simplification leaf exhausted
+  its processed-token budget without a verdict; root retained deletion review.
+- Verification at pause: focused plain coverage passes 120 tests with one
+  expected Qt skip; focused real offscreen Qt passes 16 tests. Full plain
+  discovery passes 4,053 tests with 494 expected skips. Full offscreen Qt and
+  the final documentation/quality gates remain intentionally pending because
+  the owner paused the goal until quota resets.
+- Native proof: one real AnkiScape menu opened and showed the current separated
+  Activities navigation. Computer Use returned `AXError.notImplemented` on the
+  non-accessible Minigames row, so the native detail panel is not claimed.
+
 ## Iteration 41 — Crafting and Fletching potion runtime
 
 - Source: game-main `PotionType.kt`/`Potion.kt`, rev-742, eight cutoff Exchange

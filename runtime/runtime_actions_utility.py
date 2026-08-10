@@ -272,6 +272,8 @@ from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from ..logic.ranging_guild_logic import ranging_guild_view_pure
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import temple_trekking_view_pure
 from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
@@ -469,6 +471,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_clan_wars_answer,
     handle_troll_invasion_answer,
     handle_mage_training_arena_answer,
+    handle_ranging_guild_answer,
     handle_temple_trekking_answer,
     handle_mobilising_armies_answer,
     handle_gnome_restaurant_answer,
@@ -552,6 +555,7 @@ from .runtime_actions_activities import (
     handle_clan_wars_answer,
     handle_troll_invasion_answer,
     handle_mage_training_arena_answer,
+    handle_ranging_guild_answer,
     handle_temple_trekking_answer,
     handle_mobilising_armies_answer,
     handle_gnome_restaurant_answer,
@@ -652,6 +656,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_troll_invasion_answer(ctx)
     if activity_key == MAGE_TRAINING_ARENA_ACTIVITY_ID:
         return handle_mage_training_arena_answer(ctx)
+    if activity_key == RANGING_GUILD_ACTIVITY_ID:
+        return handle_ranging_guild_answer(ctx)
     if activity_key == TEMPLE_TREKKING_ACTIVITY_ID:
         return handle_temple_trekking_answer(ctx)
     if activity_key == MOBILISING_ARMIES_ACTIVITY_ID:

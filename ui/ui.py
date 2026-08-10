@@ -400,6 +400,9 @@ from .shattered_heart_panel import ShatteredHeartPanel
 from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
 from .mage_training_arena_panel import MageTrainingArenaPanel
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from ..logic.ranging_guild_logic import ranging_guild_view_pure
+from .ranging_guild_panel import RangingGuildPanel
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import temple_trekking_view_pure
 from .temple_trekking_panel import TempleTrekkingPanel
@@ -4633,6 +4636,7 @@ def show_main_menu(
     on_troll_invasion_command=None,
     on_shattered_heart_command=None,
     on_mage_training_arena_command=None,
+    on_ranging_guild_command=None,
     on_temple_trekking_command=None,
     on_mobilising_armies_command=None,
     on_gnome_restaurant_command=None,
@@ -17129,6 +17133,15 @@ def show_main_menu(
         )
         cards_stack.addWidget(mage_training_arena_box)
 
+        ranging_guild_box = RangingGuildPanel(
+            player_data,
+            on_command=on_ranging_guild_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(ranging_guild_box)
+
         mobilising_armies_box = MobilisingArmiesPanel(
             player_data,
             on_command=on_mobilising_armies_command,
@@ -20440,6 +20453,28 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the Arena.")),
                     )
                     return False
+            ranging_view = ranging_guild_view_pure(player_data)
+            if activity_id != RANGING_GUILD_ACTIVITY_ID and ranging_view["active"]:
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave the Ranging Guild competition?",
+                    "Switch activities and forfeit the unfinished score?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_ranging_guild_command("leave", {})
+                    if on_ranging_guild_command is not None
+                    else {"ok": False, "message": "Ranging Guild actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Ranging Guild",
+                        str((result or {}).get("message", "Could not leave the competition.")),
+                    )
+                    return False
             if activity_id != MOBILISING_ARMIES_ACTIVITY_ID:
                 mobilising_view = mobilising_armies_view_pure(player_data)
                 if mobilising_view["active"]:
@@ -20961,6 +20996,10 @@ def show_main_menu(
                 mage_training_arena_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == RANGING_GUILD_ACTIVITY_ID:
+                ranging_guild_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == MOBILISING_ARMIES_ACTIVITY_ID:
                 mobilising_armies_box.refresh()
                 _show_activity_detail(activity_id)
@@ -21074,6 +21113,10 @@ def show_main_menu(
             MAGE_TRAINING_ARENA_ACTIVITY_ID: (
                 "Mage Training Arena",
                 mage_training_arena_box,
+            ),
+            RANGING_GUILD_ACTIVITY_ID: (
+                "Ranging Guild",
+                ranging_guild_box,
             ),
             TEMPLE_TREKKING_ACTIVITY_ID: (
                 "Temple Trekking",
@@ -21313,6 +21356,7 @@ def show_main_menu(
             for panel in (
                 troll_invasion_box,
                 mage_training_arena_box,
+                ranging_guild_box,
                 mobilising_armies_box,
                 crucible_box,
             ):
@@ -21365,6 +21409,7 @@ def show_main_menu(
             for panel in (
                 troll_invasion_box,
                 mage_training_arena_box,
+                ranging_guild_box,
                 mobilising_armies_box,
                 crucible_box,
             ):

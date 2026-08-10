@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+**2026-08-10, owner-paused after Ranging Guild implementation.** The complete
+ten-shot Ranging Guild competition and six-row ticket exchange are implemented
+on the Activities surface. Entry, boosts, bow/ammunition gates, one-shot review
+cadence, all score/XP bands, Hati paws, claim-once tickets, purchases, Seers
+diary conditions, persistence, direct/review undo, normalized art, and the
+compact Qt panel are covered. Full plain discovery passes 4,053 tests with 494
+expected skips; focused real offscreen Qt passes 16 tests. The full offscreen
+Qt discovery lane and documentation/quality closure gates were deliberately not
+started after the owner's quota-reset pause. Native Anki opened exactly one
+current menu and reached Activities, but Computer Use could not activate the
+non-AX Minigames row, so native Ranging Guild detail is not claimed. Resume by
+running the remaining closure gates, reconciling final counts, and committing
+only any resulting fixes; do not begin another slice first. Durable audit:
+`memory-bank/source-audits/ranging-guild-horizontal-mvp-2026-08-10.md`.
+
 **2026-08-10, grind-loop iteration 61 corrects quest-grant reachability.**
 The item graph now seeds registered items granted through quest
 `start_inventory` and stage `produced_inventory`, matching the live quest

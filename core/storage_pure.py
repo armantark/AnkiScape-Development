@@ -278,6 +278,11 @@ from ..logic.mage_training_arena_logic import (
     default_mage_training_arena_state_pure,
     sanitize_mage_training_arena_state_pure,
 )
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from ..logic.ranging_guild_logic import (
+    default_ranging_guild_state_pure,
+    sanitize_ranging_guild_state_pure,
+)
 from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from ..logic.gnome_restaurant_logic import (
     default_gnome_restaurant_state_pure,
@@ -351,7 +356,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 116
+CURRENT_CONFIG_VERSION = 117
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -384,6 +389,7 @@ _SUPPORTED_ACTIVITY_SESSION_IDS = {
     CLAN_WARS_ACTIVITY_ID,
     TROLL_INVASION_ACTIVITY_ID,
     MAGE_TRAINING_ARENA_ACTIVITY_ID,
+    RANGING_GUILD_ACTIVITY_ID,
     GNOME_RESTAURANT_ACTIVITY_ID,
     TEMPLE_TREKKING_ACTIVITY_ID,
     MOBILISING_ARMIES_ACTIVITY_ID,
@@ -631,6 +637,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["magic_charge_ticks_remaining"] = 0
     data["mage_arena"] = default_mage_arena_state_pure()
     data["mage_training_arena"] = default_mage_training_arena_state_pure()
+    data["ranging_guild"] = default_ranging_guild_state_pure()
     data["temple_trekking"] = default_temple_trekking_state_pure()
     data.update(default_mobilising_armies_state_pure())
     data["gnome_restaurant"] = default_gnome_restaurant_state_pure()
@@ -1506,6 +1513,9 @@ def migrate_loaded_data(
     data["mage_training_arena"] = sanitize_mage_training_arena_state_pure(
         data.get("mage_training_arena")
     )
+    data["ranging_guild"] = sanitize_ranging_guild_state_pure(
+        data.get("ranging_guild")
+    )
     data["temple_trekking"] = sanitize_temple_trekking_state_pure(
         data.get("temple_trekking")
     )
@@ -1744,6 +1754,16 @@ def migrate_loaded_data(
             active_session_id = ""
     elif mage_training_arena_session["active"]:
         active_session_id = MAGE_TRAINING_ARENA_ACTIVITY_ID
+    ranging_guild_session = data["ranging_guild"]
+    if active_session_id:
+        if active_session_id != RANGING_GUILD_ACTIVITY_ID:
+            ranging_guild_session["active"] = False
+            ranging_guild_session["shots_fired"] = 0
+            ranging_guild_session["score"] = 0
+        elif not ranging_guild_session["active"]:
+            active_session_id = ""
+    elif ranging_guild_session["active"]:
+        active_session_id = RANGING_GUILD_ACTIVITY_ID
     gnome_restaurant_order = data["gnome_restaurant"]["order"]
     if active_session_id:
         if active_session_id != GNOME_RESTAURANT_ACTIVITY_ID:

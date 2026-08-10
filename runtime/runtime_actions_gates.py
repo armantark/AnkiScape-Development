@@ -263,6 +263,8 @@ from ..logic.tzhaar_fight_pit_logic import (
 )
 from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..logic.mage_training_arena_logic import mage_training_arena_can_review_pure
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from ..logic.ranging_guild_logic import ranging_guild_can_review_pure
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import temple_trekking_can_review_pure
 from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
@@ -703,6 +705,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(tzhaar_fight_pit_view_pure(ctx.player_data).get("active", False))
     if activity_key == MAGE_TRAINING_ARENA_ACTIVITY_ID:
         return mage_training_arena_can_review_pure(ctx.player_data)
+    if activity_key == RANGING_GUILD_ACTIVITY_ID:
+        return ranging_guild_can_review_pure(ctx.player_data)
     if activity_key == TEMPLE_TREKKING_ACTIVITY_ID:
         return temple_trekking_can_review_pure(ctx.player_data)
     if activity_key == MOBILISING_ARMIES_ACTIVITY_ID:

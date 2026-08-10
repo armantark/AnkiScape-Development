@@ -121,6 +121,12 @@ from ..data.mage_training_arena_data import (
     mage_training_arena_equipment_data_as_dict,
     mage_training_arena_extra_items_as_dict,
 )
+from ..data.ranging_guild_data import (
+    RANGING_GUILD_ACTIVITY_ID,
+    RANGING_GUILD_ASSET_MANIFEST,
+    ranging_guild_activity_as_dict,
+    ranging_guild_extra_items_as_dict,
+)
 from ..data.gnome_restaurant_data import (
     GNOME_RESTAURANT_ACTIVITY_ID,
     GNOME_RESTAURANT_ASSET_MANIFEST,
@@ -752,6 +758,7 @@ UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(troll_invasion_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shattered_heart_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(mage_training_arena_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(ranging_guild_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(temple_trekking_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(mobilising_armies_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(gnome_restaurant_activity_as_dict())
@@ -948,6 +955,14 @@ _mage_training_arena_icon = os.path.join(
 if os.path.exists(_mage_training_arena_icon):
     UTILITY_ACTIVITY_DATA[MAGE_TRAINING_ARENA_ACTIVITY_ID]["icon_path"] = (
         _mage_training_arena_icon
+    )
+_ranging_guild_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "ranging_guild.png",
+)
+if os.path.exists(_ranging_guild_icon):
+    UTILITY_ACTIVITY_DATA[RANGING_GUILD_ACTIVITY_ID]["icon_path"] = (
+        _ranging_guild_icon
     )
 _gnome_restaurant_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1904,6 +1919,27 @@ MAGE_TRAINING_ARENA_ITEM_IMAGES = {
     for row in MAGE_TRAINING_ARENA_ASSET_MANIFEST
     if str(row["output_path"]).startswith("activityitems/")
 }
+RANGING_GUILD_EXTRA_ITEM_DATA = ranging_guild_extra_items_as_dict()
+RANGING_GUILD_ITEM_IMAGES = {
+    str(row["item_name"]): os.path.join(current_dir, str(row["output_path"]))
+    for row in RANGING_GUILD_ASSET_MANIFEST
+    if os.path.exists(os.path.join(current_dir, str(row["output_path"])))
+}
+RANGING_GUILD_ITEM_IMAGES.update(
+    {
+        "Barb bolttips": os.path.join(current_dir, "fletcheditems", "barb_bolttips.png"),
+        "Rune arrows": os.path.join(current_dir, "fletcheditems", "rune_arrows.png"),
+        "Studded body": os.path.join(current_dir, "crafteditems", "studded_body.png"),
+        "Coif": os.path.join(current_dir, "shopitems", "coif.png"),
+        "Green d'hide body": os.path.join(current_dir, "crafteditems", "green_d_hide_body.png"),
+        "Adamant javelin": os.path.join(current_dir, "shopitems", "adamant_javelin.png"),
+    }
+)
+RANGING_GUILD_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in RANGING_GUILD_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
 MAGE_TRAINING_ARENA_ITEM_IMAGES = {
     item_name: path
     for item_name, path in MAGE_TRAINING_ARENA_ITEM_IMAGES.items()
@@ -2614,6 +2650,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **TROLL_INVASION_EXTRA_ITEM_DATA,
     **SHATTERED_HEART_EXTRA_ITEM_DATA,
     **MAGE_TRAINING_ARENA_EXTRA_ITEM_DATA,
+    **RANGING_GUILD_EXTRA_ITEM_DATA,
     **TEMPLE_TREKKING_EXTRA_ITEM_DATA,
     **MOBILISING_ARMIES_EXTRA_ITEM_DATA,
     **GNOME_RESTAURANT_EXTRA_ITEM_DATA,
@@ -2676,6 +2713,7 @@ EXTRA_ITEM_IMAGES = {
     **TROLL_INVASION_ITEM_IMAGES,
     **SHATTERED_HEART_ITEM_IMAGES,
     **MAGE_TRAINING_ARENA_ITEM_IMAGES,
+    **RANGING_GUILD_ITEM_IMAGES,
     **TEMPLE_TREKKING_ITEM_IMAGES,
     **MOBILISING_ARMIES_ITEM_IMAGES,
     **GNOME_RESTAURANT_ITEM_IMAGES,

@@ -530,6 +530,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "troll_invasion",
                 "shattered_heart",
                 "mage_training_arena",
+                "ranging_guild",
                 "temple_trekking",
                 "mobilising_armies",
                 "gnome_restaurant",

@@ -278,6 +278,8 @@ from ..logic.treasure_trails_logic import apply_treasure_trail_review_pure
 from ..logic.clan_wars_logic import apply_clan_wars_review_pure
 from ..logic.troll_invasion_logic import apply_troll_invasion_review_pure
 from ..logic.mage_training_arena_logic import apply_mage_training_arena_review_pure
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from ..logic.ranging_guild_logic import apply_ranging_guild_review_pure
 from ..data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ..logic.temple_trekking_logic import apply_temple_trekking_review_pure
 from ..data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
@@ -2571,6 +2573,48 @@ def handle_mage_training_arena_answer(
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Arena checkpoint resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_ranging_guild_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_ranging_guild_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Ranging Guild unavailable",
+            str(result.get("reason", "Enter the competition before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    ranged_xp = float(result.get("ranged_xp", 0.0) or 0.0)
+    if result.get("advanced"):
+        _record_action(
+            ctx,
+            "utility",
+            RANGING_GUILD_ACTIVITY_ID,
+            result.get("outcome_id") != "miss",
+            expected_success_chance=None,
+            failure_kind="miss" if result.get("outcome_id") == "miss" else None,
+            primary_xp=ranged_xp,
+        )
+    if ranged_xp:
+        _refresh_combat_levels(ctx, {"ranged_exp": ranged_xp})
+        ctx.show_exp(ranged_xp)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Competition shot resolved"))
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

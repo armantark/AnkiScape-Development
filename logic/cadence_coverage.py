@@ -13,6 +13,7 @@ from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from ..data.flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
 from ..data.penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
 from ..data.pyramid_plunder_data import PYRAMID_PLUNDER_ACTIVITY_ID
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
 from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
 from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
 from ..data.sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
@@ -62,6 +63,7 @@ SINGLE_TICK_UTILITY_IDS = frozenset({
     # Bork's cross-lineage finding was the case that exposed this whole
     # class: one six-tick daily encounter per answer.
     "bork",
+    RANGING_GUILD_ACTIVITY_ID,
 })
 from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
 from ..core.constants import (
@@ -1241,6 +1243,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "cadence_version": 1,
                         "overflow_policy": None,
                     },
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
+        if str(action_id) == RANGING_GUILD_ACTIVITY_ID:
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": RANGING_GUILD_ACTIVITY_ID,
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One answered card fires exactly one of the ten supplied "
+                        "arrows in the competition."
+                    ),
+                    "includes": (
+                        "one arrow consumption",
+                        "one score-band roll",
+                        "one Ranged XP award",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one competition shot"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same one-shot activity handler",
+                    "profile": None,
                     "condition": "",
                     "route_kind": "activity",
                 }

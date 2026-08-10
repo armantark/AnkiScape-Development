@@ -5884,6 +5884,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_ranging_guild_entry_is_one_direct_action_and_undoes_atomically(self):
+        addon = _load_addon_as_package(
+            "ankiscape_ranging_guild_direct_action_integration"
+        )
+        ranging = sys.modules[
+            f"{addon.__name__}.logic.ranging_guild_logic"
+        ]
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Coins": 200, "Bronze arrows": 0},
+            "equipment": {
+                "weapon": "Shortbow",
+                "ammunition": "Bronze arrows",
+            },
+            "ranged_level": 40,
+            "combat_current_levels": {},
+            "ranging_guild": ranging.default_ranging_guild_state_pure(),
+            "activity_session": {"active_id": ""},
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        def enter(current):
+            updated, ok, _info = ranging.enter_ranging_guild_pure(current)
+            return updated, ok
+
+        self.assertTrue(addon.commit_direct_action(enter))
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Bronze arrows"], 10)
+        self.assertEqual(
+            addon.player_data["activity_session"]["active_id"],
+            "ranging_guild",
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+
     def test_family_gauntlet_conversion_is_one_direct_action_and_undoes_atomically(self):
         addon = _load_addon_as_package(
             "ankiscape_cooking_gauntlets_direct_action_integration"

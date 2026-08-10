@@ -260,6 +260,8 @@ from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
 from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..logic.mage_training_arena_logic import mage_training_arena_view_pure
+from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from ..logic.ranging_guild_logic import ranging_guild_view_pure
 from ..data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
 from ..logic.gnome_restaurant_logic import (
     gnome_restaurant_can_review_pure,
@@ -563,6 +565,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_clan_wars_answer,
     handle_troll_invasion_answer,
     handle_mage_training_arena_answer,
+    handle_ranging_guild_answer,
     handle_temple_trekking_answer,
     handle_mobilising_armies_answer,
     handle_gnome_restaurant_answer,

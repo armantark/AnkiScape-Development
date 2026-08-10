@@ -174,6 +174,8 @@ from .logic.troll_invasion_logic import apply_troll_invasion_command_pure
 from .logic.shattered_heart_logic import apply_shattered_heart_command_pure
 from .data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from .logic.mage_training_arena_logic import apply_mage_training_arena_command_pure
+from .data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
+from .logic.ranging_guild_logic import apply_ranging_guild_command_pure
 from .data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from .logic.temple_trekking_logic import apply_temple_trekking_command_pure
 from .data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
@@ -3948,6 +3950,34 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_ranging_guild_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_ranging_guild_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        if not commit_direct_action(
+            _change,
+            after_apply=lambda: check_achievements(player_data),
+        ):
+            if info.get("reason"):
+                return {"ok": False, "message": str(info["reason"]), **info}
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_dominion_tower_command(action_id, payload):
         info = {}
 
@@ -4389,6 +4419,7 @@ def _on_main_menu(
         on_troll_invasion_command=_apply_troll_invasion_command,
         on_shattered_heart_command=_apply_shattered_heart_command,
         on_mage_training_arena_command=_apply_mage_training_arena_command,
+        on_ranging_guild_command=_apply_ranging_guild_command,
         on_temple_trekking_command=_apply_temple_trekking_command,
         on_mobilising_armies_command=_apply_mobilising_armies_command,
         on_gnome_restaurant_command=_apply_gnome_restaurant_command,
@@ -5508,6 +5539,16 @@ def on_answer_card(self, ease, _old):
             and runtime_actions.mage_training_arena_view_pure(player_data).get("active")
         ):
             runtime_actions.handle_mage_training_arena_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.RANGING_GUILD_ACTIVITY_ID
+            and runtime_actions.ranging_guild_view_pure(player_data).get("active")
+        ):
+            runtime_actions.handle_ranging_guild_answer(
                 _runtime_action_context(),
                 productive=False,
             )
