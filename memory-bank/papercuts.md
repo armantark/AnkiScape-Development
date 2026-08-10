@@ -351,3 +351,7 @@
 2026-08-09 — Final Long-kebbit staging found Markdown hard-break whitespace in the new audit only after `git add`; use a blank line instead of trailing spaces for status metadata.
 2026-08-10 00:13:58 PDT — A Codex Workflows manifest used `mode: read_only`, but build `0.1.0+codex.20260718230940` accepts only `read` or `write`; the preflight rejected the run before creating a run ID.
 2026-08-10 — Codex Workflows run `5a512efd-fdf7-4b34-a8b2-2db0fea6b939` spent its first 28,612 processed tokens reading injected skills, then exceeded the 30,000-token limit at 59,891 after one diff read and emitted no review verdict; reviewer budgets must account for the full injected project context or use a smaller isolated evidence packet.
+2026-08-10 — Crystal chest focused verification: direct float scaling mapped the exact `0.3969` table boundary to slot 3968; a one-nanounit guard was needed before integer truncation.
+2026-08-10 — Crystal chest Qt verification: `QTreeWidgetItem.icon()` requires a column argument, unlike `QListWidgetItem.icon()`, and the focused test selector initially used the wrong integration test class name.
+2026-08-10 — Crystal chest full verification: registering the exchangeable key exposed its missing generated GE row; the surviving oldid `6570440` supplied the exact 24,786-Coin price and 100-item limit.
+2026-08-10 — Crystal chest closure gates: `tools/audit_item_reachability.py` reports the useful graph but exits nonzero while known blocked actions remain, so chaining later audits with `&&` silently skipped them.

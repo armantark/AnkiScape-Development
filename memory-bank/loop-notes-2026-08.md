@@ -1291,3 +1291,28 @@
   compilation, JSON, placeholder, asset normalization, diff, reachability, and
   worktree checks pass. Reachability improves to 1,553/2,434/105/104. Native
   Anki is not claimed. GPT-family root verified.
+
+## Iteration 60 — Crystal key and chest acquisition
+
+- Result: Tooth and Loop halves combine into one Crystal key through the
+  established level-1 zero-XP Crafting path. One Utilities review consumes the
+  key and awards the guaranteed Uncut dragonstone plus one measured bonus row.
+- Source: Crystal key oldid `6428315`, Crystal chest oldid `6491268`, and
+  Exchange oldid `6570440` pin the combination, key consumption, twelve-row
+  table, 24,786-Coin guide price, and 100-item buy limit. Rev-742 pins the item
+  identities. Darkan corroborates the combination and chest but loses to the
+  period table where its quantities and gender output conflict.
+- Placeholder: `crystal_chest.ring_of_wealth_improvement` gives a 25% chance
+  to draw a second measured row and keep the higher period-value tier. It
+  selects only authentic rewards; a period routine or qualified sample would
+  replace the hidden modifier.
+- Integration: Ring of wealth is now real ring-slot equipment. Exact outputs
+  flow through telemetry, achievements, persistence, and review undo. The
+  Utilities selector displays the key gate, guaranteed reward, possible bonus,
+  and normalized cutoff key art.
+- Verification: 682 focused plain checks and one focused real offscreen Qt
+  check pass. Both full discovery lanes pass 4,036 tests, with 492 expected
+  plain skips and three Qt skips. Reachability improves to
+  1,555/2,436/104/103. Documentation, test quality, compilation, JSON,
+  placeholder, asset normalization, diff, reachability, and worktree checks
+  pass. Native Anki is not claimed. GPT-family root verified.

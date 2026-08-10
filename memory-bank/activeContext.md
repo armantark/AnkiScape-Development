@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+**2026-08-10, grind-loop iteration 60 closes the Crystal key and chest route.**
+Tooth and Loop halves now combine at Crafting level 1 for zero XP, and the
+key-gated Utilities row consumes one key for the guaranteed Uncut dragonstone
+plus one exact measured reward bundle. The 3,354-key cutoff table supplies all
+twelve weights and quantities. The registered
+`crystal_chest.ring_of_wealth_improvement` placeholder gives an equipped ring
+a 25% better-of-two-row selector because the period page names the benefit but
+does not expose its magnitude. The ring is now real ring-slot equipment, making
+its existing Bork benefit executable. The regenerated cutoff GE catalog pins
+the Crystal key at 24,786 Coins with a buy limit of 100. Crafting, Utilities,
+telemetry, achievements, persistence, review undo, item registry, GE, and the
+real offscreen Qt selector are integrated. Reachability improves to 1,555
+actions, 2,436 reachable items, 104 orphan inputs, and 103 unresolved actions.
+Focused checks pass 682 plain tests and one real offscreen Qt test. Both full
+discovery lanes pass 4,036 tests; plain has 492 expected skips and Qt has three.
+Documentation passes across 555 Markdown and 431 HTML files; test quality
+reports zero hard issues across 4,001 methods in 182 files. Compilation, 26
+tracked JSON files, placeholder, asset normalization, diff, reachability, and
+worktree checks pass. Native Anki interaction is not claimed. Durable audit:
+`memory-bank/source-audits/crystal-key-chest-acquisition-2026-08-10.md`.
+
 **2026-08-09, grind-loop iteration 59 closes Living rock remains.** The
 ordinary Mining selector now exposes a level-73 target that awards 25 XP and
 5–24 Living minerals. One review collapses the period public-corpse custody

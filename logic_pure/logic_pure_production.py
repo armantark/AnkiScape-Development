@@ -316,6 +316,61 @@ def _utility_outputs_from_spec(spec):
     return {}
 
 
+def crystal_chest_reward_for_roll_pure(reward_table, roll):
+    """Resolve one measured Crystal chest reward row from a normalized roll."""
+    total_weight = sum(max(int(row.weight), 0) for row in reward_table)
+    if total_weight <= 0:
+        return None
+    try:
+        normalized = float(roll)
+    except (TypeError, ValueError):
+        normalized = 0.0
+    normalized = max(0.0, min(normalized, 0.9999999999999999))
+    slot = min(int(normalized * total_weight + 1e-9), total_weight - 1)
+    cumulative = 0
+    for row in reward_table:
+        cumulative += max(int(row.weight), 0)
+        if slot < cumulative:
+            return row
+    return reward_table[-1] if reward_table else None
+
+
+def apply_crystal_chest_pure(
+    inventory,
+    reward_table,
+    reward_roll,
+    *,
+    ring_of_wealth=False,
+    wealth_trigger_roll=1.0,
+    wealth_reward_roll=0.0,
+    wealth_improvement_chance=0.0,
+):
+    """Consume one Crystal key and award the guaranteed dragonstone bundle."""
+    if inventory.get("Crystal key", 0) <= 0:
+        return inventory, False, "", {}, False
+
+    reward = crystal_chest_reward_for_roll_pure(reward_table, reward_roll)
+    if reward is None:
+        return inventory, False, "", {}, False
+
+    improved = False
+    if ring_of_wealth and float(wealth_trigger_roll) < float(wealth_improvement_chance):
+        alternate = crystal_chest_reward_for_roll_pure(reward_table, wealth_reward_roll)
+        if (
+            alternate is not None
+            and int(alternate.value_rank) > int(reward.value_rank)
+        ):
+            reward = alternate
+            improved = True
+
+    outputs = {item: int(amount) for item, amount in reward.outputs}
+    updated = dict(inventory)
+    updated["Crystal key"] = updated.get("Crystal key", 0) - 1
+    for item, amount in outputs.items():
+        updated[item] = updated.get(item, 0) + amount
+    return updated, True, str(reward.id), outputs, improved
+
+
 def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
     """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
     spec = utility_activity_data.get(activity_key)

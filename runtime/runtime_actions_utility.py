@@ -55,6 +55,7 @@ from ..logic_pure.logic_pure import (
     apply_combat_finisher_pure,
     apply_cooking_action_pure,
     apply_crafting_pure,
+    apply_crystal_chest_pure,
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
     apply_fletching_pure,
@@ -160,6 +161,11 @@ from ..logic.farming_logic import (
 from ..data.construction_data import (
     CONSTRUCTION_DATA, DEFAULT_CONSTRUCTION_TARGET, NAIL_DATA, ROOM_DATA,
     SERVANT_DATA, WORKBENCH_TIERS,
+)
+from ..data.crystal_chest_data import (
+    CRYSTAL_CHEST_ACTIVITY_ID,
+    CRYSTAL_CHEST_REWARDS,
+    CRYSTAL_CHEST_RING_IMPROVEMENT_CHANCE,
 )
 from ..data.shop_data import SHOP_PLAYER_BUY_PRICES
 from ..data.smithing_data import DEFAULT_SMITHING_TARGET
@@ -849,6 +855,55 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         ctx.save_player_data()
         ctx.refresh_skill_availability()
         ctx.show_activity_gain(f"Opened {processed} bird nest{'s' if processed != 1 else ''}")
+        return True
+
+    if activity_key == CRYSTAL_CHEST_ACTIVITY_ID:
+        equipment = player_data.get("equipment", {})
+        ring_of_wealth = (
+            isinstance(equipment, dict)
+            and "Ring of wealth" in equipment.values()
+        )
+        reward_roll = ctx.random_random()
+        wealth_trigger_roll = ctx.random_random() if ring_of_wealth else 1.0
+        wealth_reward_roll = (
+            ctx.random_random()
+            if ring_of_wealth
+            and wealth_trigger_roll < CRYSTAL_CHEST_RING_IMPROVEMENT_CHANCE
+            else 0.0
+        )
+        new_inv, ok, _reward_id, outputs, improved = apply_crystal_chest_pure(
+            player_data.get("inventory", {}),
+            CRYSTAL_CHEST_REWARDS,
+            reward_roll,
+            ring_of_wealth=ring_of_wealth,
+            wealth_trigger_roll=wealth_trigger_roll,
+            wealth_reward_roll=wealth_reward_roll,
+            wealth_improvement_chance=CRYSTAL_CHEST_RING_IMPROVEMENT_CHANCE,
+        )
+        if not ok:
+            _switch_material_failure_to_bankstanding(ctx)
+            ctx.show_error_message(
+                "Unavailable activity",
+                "Open Crystal chest is out of keys, so AnkiScape switched to Bankstanding.",
+            )
+            return False
+        player_data["inventory"] = new_inv
+        _record_action(
+            ctx,
+            "utility",
+            activity_key,
+            True,
+            expected_success_chance=1.0,
+            output_items=outputs,
+        )
+        ctx.check_achievements(player_data)
+        ctx.save_player_data()
+        ctx.refresh_skill_availability()
+        reward_text = ", ".join(
+            f"{item} x{amount}" for item, amount in outputs.items()
+        )
+        suffix = " · Ring of Wealth improved the roll" if improved else ""
+        ctx.show_activity_gain(f"Opened Crystal chest · {reward_text}{suffix}")
         return True
 
     new_inv, _exp, ok, processed = apply_utility_activity_pure(

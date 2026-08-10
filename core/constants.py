@@ -280,6 +280,12 @@ from ..data.combat_data import (
     DEFAULT_COMBAT_TARGET,
 )
 from ..data.crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
+from ..data.crystal_chest_data import (
+    CRYSTAL_CHEST_ACTIVITY_ID,
+    crystal_chest_equipment_data_as_dict,
+    crystal_chest_extra_items_as_dict,
+    crystal_chest_utility_spec,
+)
 from ..data.equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
 from ..data.cooking_gauntlets_data import cooking_gauntlets_equipment_data_as_dict
 from ..data.brawling_gloves_data import (
@@ -775,6 +781,10 @@ UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(compost_potion_activities_as_dict())
+UTILITY_ACTIVITY_DATA[CRYSTAL_CHEST_ACTIVITY_ID] = {
+    **crystal_chest_utility_spec(),
+    "icon_path": os.path.join(CRAFTED_ITEMS_FOLDER, "crystal_key.png"),
+}
 FAMILIARISATION_ACTIVITY_ID = "familiarisation"
 UTILITY_ACTIVITY_DATA[FAMILIARISATION_ACTIVITY_ID] = {
     "display_name": "Familiarisation",
@@ -1814,6 +1824,7 @@ EQUIPMENT_DATA.update(goblin_raids_equipment_data_as_dict())
 EQUIPMENT_DATA.update(diary_equipment_data_as_dict())
 EQUIPMENT_DATA.update(milestone_cape_equipment_data_as_dict())
 EQUIPMENT_DATA.update(cape_equipment_data_as_dict())
+EQUIPMENT_DATA.update(crystal_chest_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 BRAWLING_GLOVES_EXTRA_ITEM_DATA = brawling_gloves_extra_items_as_dict()
@@ -2529,6 +2540,7 @@ SHOP_ONLY_EXTRA_ITEM_DATA = {
     if item_name not in _KNOWN_NON_SHOP_ITEM_NAMES
     and slugify_item_id(_extra_item_category(spec), item_name) not in _KNOWN_NON_SHOP_ITEM_IDS
 }
+CRYSTAL_CHEST_EXTRA_ITEM_DATA = crystal_chest_extra_items_as_dict()
 
 
 def _apply_equipment_metadata(extra_item_data):
@@ -2620,6 +2632,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **DAILY_CHALLENGE_EXTRA_ITEM_DATA,
     **TREASURE_TRAILS_EXTRA_ITEM_DATA,
     **DUNGEONEERING_EXTRA_ITEM_DATA,
+    **CRYSTAL_CHEST_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })

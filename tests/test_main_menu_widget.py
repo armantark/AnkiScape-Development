@@ -16265,6 +16265,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("No XP", nest.toolTip(0))
         self.assertIn("bird nest", nest.toolTip(0).lower())
 
+    def test_crystal_chest_utility_row_is_visible_key_gated_and_selectable(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Crystal key": 1}
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+        chest = _utility_row(utility_tree, "open_crystal_chest")
+
+        self.assertFalse(chest.isDisabled())
+        self.assertFalse(chest.icon(0).isNull())
+        self.assertIn("Guaranteed: Uncut dragonstone x1", chest.toolTip(0))
+        self.assertIn("Possible bonus", chest.toolTip(0))
+        utility_tree.itemClicked.emit(chest, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls[-1], "open_crystal_chest")
+
     def test_prayer_tree_groups_methods_and_locked_rows_ignore_clicks(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {}

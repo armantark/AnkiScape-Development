@@ -165,3 +165,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close Living-minerals acquisition through the level-73 Living-rock-
      remains row, with the focused cutoff bundle, registered hidden rolls,
      accurate multi-output telemetry, selector art, persistence, and review undo.
+   - [x] Close Crystal-key and Uncut-dragonstone acquisition through the exact
+     key-half combination, measured Crystal-chest table, Ring-of-wealth
+     placeholder, GE row, Utilities selector, persistence, and review undo.

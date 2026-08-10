@@ -1875,7 +1875,13 @@ def utility_activity_rows(
                 if icon_path is None:
                     icon_path = utility_item_images.get(output_item)
                 output_qty = spec.get("output_qty", 1)
-                output_text = f"Output: {output_item} x{output_qty} per item"
+                if spec.get("random_reward_table"):
+                    output_text = (
+                        f"Guaranteed: {output_item} x{output_qty}\n"
+                        "Possible bonus: one source-table reward bundle"
+                    )
+                else:
+                    output_text = f"Output: {output_item} x{output_qty} per item"
             requirements = spec.get("requirements", {})
             reqs = requirements if isinstance(requirements, Mapping) else {}
             _, mat_text = _material_lines(reqs, inventory)

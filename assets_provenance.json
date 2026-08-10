@@ -18409,6 +18409,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T15:57:58Z"
   },
+  "crafteditems/crystal_key.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crystal_key.png",
+    "file_title": "Crystal key.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064711%21Crystal_key.png?3a725",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eea4cec836ee689429f1820bd951414cfc359e89",
+    "size": 374,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T16:26:59Z"
+  },
   "crafteditems/cured_yak_hide.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cured_yak-hide.png",
     "file_title": "Cured yak-hide.png",

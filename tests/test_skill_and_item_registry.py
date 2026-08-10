@@ -1047,7 +1047,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(CRAFTING_DATA["silver_silver_bolts_unf"]["output_qty"], 10)
         self.assertIn("cut_dragonstone", CRAFTING_DATA)
         self.assertIn("jewellery_dragonstone_ring", CRAFTING_DATA)
-        self.assertIn("input-starved", CRAFTING_DATA["cut_dragonstone"].get("notes", ""))
+        self.assertNotIn("input-starved", CRAFTING_DATA["cut_dragonstone"].get("notes", ""))
         self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["batch_size"], 28)
 
     def test_combination_and_polishing_outputs_register_as_crafted_items(self):

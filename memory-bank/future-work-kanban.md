@@ -14,6 +14,19 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Crystal key and chest acquisition — shipped 2026-08-10
+
+Labels: `SOURCE AUDIT` only for the hidden Ring of wealth chest modifier.
+
+- One Tooth half plus one Loop half now makes a Crystal key through the
+  established level-1 zero-XP Crafting path.
+- The key-gated Utilities row consumes one key and awards the guaranteed Uncut
+  dragonstone plus one row from the exact measured cutoff table.
+- Ring equipment, GE price/limit, telemetry, achievements, persistence, review
+  undo, item identities, normalized key art, and real offscreen Qt are closed.
+- Durable audit:
+  `memory-bank/source-audits/crystal-key-chest-acquisition-2026-08-10.md`.
+
 ### Living rock remains acquisition — shipped 2026-08-09
 
 Labels: `SOURCE AUDIT` only for the hidden success/distribution rolls and the

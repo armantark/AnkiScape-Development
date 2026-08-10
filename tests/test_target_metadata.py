@@ -2050,6 +2050,7 @@ class TargetMetadataTest(unittest.TestCase):
         potato_cacti = _row(rows, "gather_potato_cacti")
         black_mushrooms = _row(rows, "gather_black_mushrooms")
         nests = _row(rows, "open_bird_nest")
+        crystal_chest = _row(rows, "open_crystal_chest")
 
         self.assertTrue(wool.current)
         self.assertTrue(wool.enabled)
@@ -2092,6 +2093,21 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(nests.enabled)
         self.assertIn("No XP", nests.tooltip)
         self.assertIn("Locked: cut trees until a bird nest drops.", nests.tooltip)
+        self.assertFalse(crystal_chest.enabled)
+        self.assertIn("Guaranteed: Uncut dragonstone x1", crystal_chest.tooltip)
+        self.assertIn("Possible bonus: one source-table reward bundle", crystal_chest.tooltip)
+        self.assertIn("Crystal key x1 (you have 0)", crystal_chest.tooltip)
+
+        keyed_rows = utility_activity_rows(
+            {"inventory": {"Crystal key": 1}, "current_utility": "open_crystal_chest"},
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        keyed_chest = _row(keyed_rows, "open_crystal_chest")
+        self.assertTrue(keyed_chest.current)
+        self.assertTrue(keyed_chest.enabled)
 
         tanning = _row(rows, "tan_soft_leather")
         self.assertFalse(tanning.enabled)

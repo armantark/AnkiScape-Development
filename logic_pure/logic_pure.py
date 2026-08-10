@@ -176,6 +176,7 @@ from .logic_pure_runecrafting import (  # noqa: F401  (re-export)
 from .logic_pure_production import (  # noqa: F401  (re-export)
     _max_batches_for_requirements,
     _utility_outputs_from_spec,
+    apply_crystal_chest_pure,
     apply_cooking_action_pure,
     apply_crafting_pure,
     apply_firemaking_action_pure,
@@ -192,6 +193,7 @@ from .logic_pure_production import (  # noqa: F401  (re-export)
     can_fletch_item_pure,
     can_herblore_target_pure,
     can_perform_utility_activity_pure,
+    crystal_chest_reward_for_roll_pure,
     cheese_wheel_slice_probability_pure,
     cheese_wheel_slice_yield_pure,
     cooking_source_roll_chance_pure,

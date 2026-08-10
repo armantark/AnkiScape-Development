@@ -1,5 +1,32 @@
 # Progress
 
+## Crystal key and chest acquisition — 2026-08-10
+
+One Tooth half and one Loop half now combine into a Crystal key through the
+existing level-1 zero-XP Crafting path. The established Utilities selector then
+opens one Taverley Crystal chest per answered review, consumes the key, and
+awards one guaranteed Uncut dragonstone plus the exact measured bonus bundle.
+All outputs persist, enter telemetry and achievement progress, and roll back
+atomically through Anki answer undo.
+
+Cutoff oldids `6428315`, `6491268`, and `6570440` pin the key chain, twelve-row
+measured reward table, 24,786-Coin GE price, and 100-item buy limit. Rev-742
+pins the item identities. The Ring of wealth now equips in its real ring slot;
+its unrecovered chest modifier is registered as a 25% better-of-two-row
+placeholder that chooses only among authentic rewards. AnkiScape's flat bank
+stores noted Coal/Iron rows as ordinary item quantities, and its missing gender
+substrate uses one Rune platelegs output instead of granting both leg variants.
+
+Reachability is now 1,555 actions / 2,436 reachable items / 104 orphan inputs /
+103 unresolved actions. Focused verification passes 682 plain tests and one
+real offscreen Qt test. Full plain and real offscreen Qt discovery each pass
+4,036 tests, with 492 expected plain skips and three Qt skips. Native Anki
+interaction is not claimed. Documentation passes across 555 Markdown and 431
+HTML files; test quality reports 4,001 methods in 182 files with zero hard
+issues. Compilation, JSON, placeholder, asset normalization, diff,
+reachability, and worktree gates pass. Durable evidence:
+`source-audits/crystal-key-chest-acquisition-2026-08-10.md`.
+
 ## Living rock remains acquisition — 2026-08-09
 
 Living rock remains now supplies the previously orphaned Living minerals
