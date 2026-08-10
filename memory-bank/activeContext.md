@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-10, durable owner pause.** Canonical `main` is clean at commit
+`96a4e69752d0fd4b74f095e8da865a73b0d9ea18`, and the goal service records the
+autonomous goal as `paused`. Ranging Guild contains complete committed product
+code; only its full offscreen Qt and final quality verification remain. The two
+actual owner/Fable design questions are the Big Top execution queue and the
+Equipment point-meter layout. Use
+`memory-bank/codex-briefs/goal-pause-handoff-2026-08-10.md` for the complete
+pause state and the exact co-ideation packet. Do not resume from this checkpoint
+until the owner gives a new instruction or reactivates the goal.
+
 **2026-08-10, owner-paused after Ranging Guild implementation.** The complete
 ten-shot Ranging Guild competition and six-row ticket exchange are implemented
 on the Activities surface. Entry, boosts, bow/ammunition gates, one-shot review
