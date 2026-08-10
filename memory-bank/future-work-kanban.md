@@ -1743,6 +1743,13 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   Willow route closes Willow branch; live Thieving loot now exposes the
   Master Farmer seed routes instead of false root gaps. See the dated audits
   for method and `activeContext.md` for the live count.
+- **Closed 2026-08-09:** the seven ordinary Taverley blue-dragon-scale spawns
+  now run through the established zero-XP Utility gathering route. Exact item
+  identities and normalized period sprites activate the existing scale → dust
+  → Weapon poison/Antifire chain without a placeholder. Reachability is now
+  1,548 actions, 2,377 reachable items, 137 orphan inputs, and 148 blocked
+  actions. See
+  `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.
 - **Closed 2026-07-20:** the period player-grown Willow route now exposes
   post-health-check branches every five era-minutes to a six-branch cap,
   accepts either Secateurs variant, awards zero pruning XP, and preserves Chop

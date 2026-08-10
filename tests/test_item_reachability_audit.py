@@ -55,6 +55,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Utility:gather_swamp_toads",
         )
         self.assertEqual(
+            report["routes"]["Blue dragon scale"],
+            "Utility:gather_blue_dragon_scales",
+        )
+        self.assertEqual(
+            report["routes"]["Dragon scale dust"],
+            "Utility:grind_blue_dragon_scale",
+        )
+        self.assertEqual(
             report["routes"]["Wimpy feather"],
             "Hunter:catch_wimpy_bird",
         )

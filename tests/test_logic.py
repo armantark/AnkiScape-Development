@@ -620,6 +620,17 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(processed, 28)
                 self.assertEqual(new_inv, {output_item: 28})
 
+    def test_blue_dragon_scale_trip_gathers_the_seven_ordinary_spawns(self):
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "gather_blue_dragon_scales",
+            {},
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 7))
+        self.assertEqual(new_inv, {"Blue dragon scale": 7})
+
     def test_bankstanding_is_a_true_no_op_utility_action(self):
         inventory = {"Coins": 1_000, "Logs": 4}
 

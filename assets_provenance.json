@@ -24817,6 +24817,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-09-23T23:28:15Z"
   },
+  "herbloreitems/blue_dragon_scale.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blue_dragon_scale.png",
+    "file_title": "Blue dragon scale.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174605%21Blue_dragon_scale.png?450a4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e7316f6605d27670a299afc51b82d98d95e3097b",
+    "size": 1297,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-28T16:12:41Z"
+  },
   "herbloreitems/cadantine_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cadantine_potion_%28unfinished%29.png",
     "file_title": "Cadantine potion (unfinished).png",
@@ -25488,6 +25500,18 @@
     "size": 1471,
     "source_wiki": "rs3",
     "timestamp": "2010-07-23T21:54:03Z"
+  },
+  "herbloreitems/dragon_scale_dust.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_scale_dust.png",
+    "file_title": "Dragon scale dust.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070519%21Dragon_scale_dust.png?8c75d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "251a67fb242b749fd1a260dc0ae724eda2786d73",
+    "size": 291,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-20T06:43:43Z"
   },
   "herbloreitems/dwarf_weed_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dwarf_weed_potion_%28unfinished%29.png",

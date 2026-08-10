@@ -4657,3 +4657,17 @@ flees silently when the player runs out of food.
 - Both full 4,004-test lanes pass. Reachability is now 1,547 actions, 2,354
   reachable items, 159 orphan inputs, and 179 blocked actions. Evidence:
   `source-audits/dagannoth-kings-room-2026-08-09.md`.
+
+## Blue dragon scale acquisition — 2026-08-09
+
+- `Gather blue dragon scales` now represents the seven period ground spawns in
+  the ordinary Dusty-key section of Taverley Dungeon. It is a zero-XP Utility
+  gathering trip with no invented skill or quest gate.
+- The existing pestle-and-mortar action and Weapon poison/Antifire recipes now
+  have a reachable source. Item identities 243/241 and distinct tightly cropped
+  period sprites are registered for the scale and dust.
+- One source row closes 23 downstream item paths: reachability is now 1,548
+  actions, 2,377 reachable items, 137 orphan inputs, and 148 blocked actions.
+- Both full 4,006-test lanes pass. Native Computer Use timed out against both
+  Anki identifiers, so no native interaction is claimed. Evidence:
+  `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.

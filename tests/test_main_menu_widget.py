@@ -15741,6 +15741,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         for action_id, output_item in (
             ("gather_wool", "Wool"),
             ("gather_swamp_toads", "Swamp toad"),
+            ("gather_blue_dragon_scales", "Blue dragon scale"),
         ):
             with self.subTest(action_id=action_id):
                 row = _utility_row(utility_tree, action_id)
@@ -15754,7 +15755,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(
             self._utility_calls,
-            ["gather_wool", "gather_swamp_toads"],
+            ["gather_wool", "gather_swamp_toads", "gather_blue_dragon_scales"],
         )
 
     def test_stronghold_landmark_row_selects_activity_when_unfinished(self) -> None:

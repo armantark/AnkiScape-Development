@@ -5082,10 +5082,11 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_source_gathering_actions_roll_back_on_answer_undo(self):
         cases = (
-            ("gather_wool", "Wool"),
-            ("gather_swamp_toads", "Swamp toad"),
+            ("gather_wool", "Wool", 28),
+            ("gather_swamp_toads", "Swamp toad", 28),
+            ("gather_blue_dragon_scales", "Blue dragon scale", 7),
         )
-        for action_id, output_item in cases:
+        for action_id, output_item, output_qty in cases:
             with self.subTest(action_id=action_id):
                 addon = _load_addon_as_package(
                     f"ankiscape_{action_id}_undo_integration"
@@ -5116,7 +5117,7 @@ class TestIntegrationSmoke(unittest.TestCase):
                     lambda _self, _ease: "answered",
                 )
 
-                self.assertEqual(addon.player_data["inventory"], {output_item: 28})
+                self.assertEqual(addon.player_data["inventory"], {output_item: output_qty})
                 self.assertEqual(addon.player_data["crafting_exp"], 0)
                 self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 

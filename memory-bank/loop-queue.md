@@ -136,3 +136,6 @@ Process one unblocked item per iteration. Move discovered design gaps to
      through a reusable persistent boss-room substrate, the three period combat
      rows, dangerous multi-enemy pressure, Slayer integration, persistence,
      undo, Activities UI, normalized sprites, and registered hidden values.
+   - [x] Close Blue-dragon-scale acquisition through the seven-spawn ordinary
+     Taverley route, exact item identities, normalized period art, shared
+     Utility gathering/undo, and the existing dust and Herblore chains.

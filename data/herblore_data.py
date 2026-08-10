@@ -381,10 +381,13 @@ HERBLORE_GROUP_LABELS: Dict[str, str] = {
     "finished": "Finished potions",
 }
 
-# Item 6810 is Super prayer's distinct Wyvern-bonemeal secondary. Desert goat
-# horn is the source item for the legacy grinding action declared in constants.
-# Register both identities here even though neither is a Herblore target output.
-_HERBLORE_AUXILIARY_ITEMS = ("Wyvern bonemeal", "Desert goat horn")
+# These source ingredients feed legacy grinding actions declared in constants,
+# so register their identities even when they are not Herblore target outputs.
+_HERBLORE_AUXILIARY_ITEMS = (
+    "Wyvern bonemeal",
+    "Desert goat horn",
+    "Blue dragon scale",
+)
 
 
 def _target_as_dict(target: HerbloreTarget) -> Dict[str, object]:
@@ -502,12 +505,16 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Agility mix (2)": 11461,
         "Desert goat horn": 9735,
         "Goat horn dust": 9736,
+        "Blue dragon scale": 243,
+        "Dragon scale dust": 241,
         "Shrink-me-quick": 11204,
         "Shrunk ogleroot": 11205,
     }
     canonical_item_sources = {
         "Desert goat horn": "RuneScape Wiki Desert goat horn oldid=6555637",
         "Goat horn dust": "RuneScape Wiki Goat horn dust oldid=6404814",
+        "Blue dragon scale": "RuneScape Wiki Blue dragon scale oldid=6169064",
+        "Dragon scale dust": "RuneScape Wiki Blue dragon scale oldid=6169064",
     }
     result = {}
     for name in herblore_item_names():
@@ -559,6 +566,8 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         if name in {
             "Desert goat horn",
             "Goat horn dust",
+            "Blue dragon scale",
+            "Dragon scale dust",
             "Swamp toad",
             "Toad's legs",
         }:

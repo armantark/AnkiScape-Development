@@ -964,6 +964,28 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             by_storage_key["Toad's legs"].asset_path,
         )
 
+    def test_blue_dragon_scale_acquisition_preserves_period_items_and_art(self):
+        action = UTILITY_ACTIVITY_DATA["gather_blue_dragon_scales"]
+        self.assertEqual(action["requirements"], {})
+        self.assertEqual(action["output_item"], "Blue dragon scale")
+        self.assertEqual(action["batch_size"], 7)
+        self.assertEqual(action["group"], "gathering")
+        self.assertIn("oldid=6169064", action["source"])
+
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Blue dragon scale": (243, "blue_dragon_scale.png"),
+            "Dragon scale dust": (241, "dragon_scale_dust.png"),
+        }
+        for item_name, (item_id, filename) in expected.items():
+            with self.subTest(item_name=item_name):
+                item = by_storage_key[item_name]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertFalse(item.stackable)
+                self.assertTrue(item.tradeable)
+                self.assertEqual(os.path.basename(item.asset_path or ""), filename)
+                self.assertTrue(os.path.isfile(item.asset_path or ""))
+
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name in (

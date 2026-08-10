@@ -5776,3 +5776,19 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   improves to 1,547 actions / 2,354 reachable items / 159 orphan inputs / 179
   blocked actions. Native Anki interaction is not claimed.
 - Evidence: `source-audits/dagannoth-kings-room-2026-08-09.md`.
+
+## Blue dragon scale acquisition — 2026-08-09
+
+- Added the sourced seven-spawn Dusty-key Taverley route through the existing
+  zero-XP Utility gathering substrate, including persistence, telemetry,
+  review undo, selector metadata, and real Qt coverage.
+- Registered exact item identities and distinct normalized period art for Blue
+  dragon scale and Dragon scale dust. No placeholder or new UI pattern was
+  needed.
+- The row activates the existing dust, Weapon poison, and Antifire graph:
+  reachability improves to 1,548 actions / 2,377 reachable items / 137 orphan
+  inputs / 148 blocked actions.
+- Both full 4,006-test lanes pass. Plain has 488 expected skips and real
+  offscreen Qt has three. Native Computer Use timed out twice, so native Anki
+  interaction is not claimed.
+- Evidence: `source-audits/blue-dragon-scale-acquisition-2026-08-09.md`.

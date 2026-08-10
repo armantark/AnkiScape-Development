@@ -1100,3 +1100,21 @@
   compilation, JSON, diff, asset normalization, reachability, placeholder, and
   worktree audits pass. Reachability improves to 1,547 actions, 2,354 reachable
   items, 159 orphan inputs, and 179 blocked actions.
+
+## Iteration 50 — Blue dragon scale acquisition
+
+- Result: the ordinary Dusty-key Taverley enclosure is live as `Gather blue
+  dragon scales`, a seven-output zero-XP Utility trip through the established
+  gathering, persistence, telemetry, and answer-undo path.
+- Source: cutoff oldid `6169064` pins seven ordinary spawns, twelve optional
+  level-60 Dungeoneering spawns, no quest gate, non-stackability, tradeability,
+  and the scale-to-dust Herblore chain. The baseline needs no placeholder.
+- Assets/data: cache identities 243/241 and distinct tightly cropped period
+  sprites are registered for Blue dragon scale and Dragon scale dust. The
+  existing selector supplies the UI, so no new interaction pattern or taste
+  pass was needed.
+- Verification: 314 focused tests and one focused real offscreen Qt test pass.
+  Full plain and offscreen Qt discovery each pass 4,006 tests, with 488 plain
+  skips and three Qt skips. The row makes 23 more items reachable and removes
+  31 blocked actions, producing a 1,548-action / 2,377-reachable / 137-orphan /
+  148-blocked ledger. Native Computer Use timed out twice and is not claimed.
