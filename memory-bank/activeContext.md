@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**2026-08-11, the grimy herb family slice is closed.** The earlier commit
+`f6b44e10` preserved this slice while four tests failed. This closure commit
+fixes all four regressions. Carrion jadinkos now supply five vine-herb seeds.
+The five crops now reach their grimy, clean, and unfinished Herblore outputs.
+The plain lane passes 4,059 tests with 494 expected skips. Four offscreen Qt
+batches ran 4,059 tests. Only the two excluded `test_hud_singleton_and_cleanup`
+results did not pass, and both also fail on canonical main. All other gates
+pass. Reachability is now 1,568 actions, 2,624 reachable items, 72 orphan
+inputs, and 75 blocked actions. The merge-base `0071218b` result was
+1,556 / 2,573 / 102 / 101. Durable audit:
+`memory-bank/source-audits/grimy-herb-family-2026-08-11.md`.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is

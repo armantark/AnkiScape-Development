@@ -374,6 +374,7 @@ from ..logic.livid_farm_logic import (
 
 from .runtime_actions_production import (  # noqa: F401  (re-export)
     _refresh_smithing_and_crafting_availability,
+    _spec_output_items,
     handle_construction_answer,
     handle_cooking_answer,
     handle_crafting_answer,
@@ -625,10 +626,15 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
-    produced_outputs = {
+    inventory_delta = {
         str(item_name): int(amount) - int(inventory_before.get(item_name, 0) or 0)
         for item_name, amount in new_inv.items()
         if int(amount) > int(inventory_before.get(item_name, 0) or 0)
+    }
+    produced_outputs = {
+        item_name: inventory_delta[item_name]
+        for item_name in (*_spec_output_items(spec, _output_item), *inventory_delta)
+        if item_name in inventory_delta
     }
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,

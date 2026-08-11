@@ -370,6 +370,7 @@ def apply_vinesweeper_command_pure(
         state["paused_reason"] = ""
         state["last_result"] = "Entered Winkin's Farm. The next successful review resolves one operation."
         data["vinesweeper"] = state
+        data["current_utility"] = "vinesweeper"
         return data, True, {
             "message": state["last_result"],
             "dismissed_follower_kind": dismissed_kind,

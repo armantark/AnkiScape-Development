@@ -4542,6 +4542,9 @@ def _set_combat_target(target):
 
 
 def _set_value(key: str, value):
+    if player_data.get(key) == value:
+        return True
+
     def _change(current):
         updated = dict(current)
         updated[key] = value

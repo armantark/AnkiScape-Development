@@ -142,7 +142,7 @@ HABITAT_PIN = "Herblore Habitat oldid 6513740"
 VINE_HERB_BASE_LIVES = 3
 VINE_HERB_MIN_SAVE_SLOTS = 67
 VINE_HERB_MAX_SAVE_SLOTS = 80
-# Darkan FarmPatch.java:491-494 rolls Utils.random(128) < (6 - compostLevel).
+# Darkan FarmPatch.java:468-470 rolls Utils.random(128) < (6 - compostLevel).
 VINE_HERB_DISEASE_SLOTS = 6
 
 FARMING_SOURCE_BLOCKED: Mapping[str, str] = MappingProxyType({
@@ -380,7 +380,7 @@ def _habitat(crop_id: str, name: str, patch_type: str, level: int, plant: Option
         fixed_yield=None,
         protection=protection,
         blocked=blocked,
-        sources=(HABITAT_PIN, SEEDS_PIN, "Darkan 7e7d67b ProduceType.java:27-121, PatchType.java, and FarmPatch.java:491-494") if vine_herb else (HABITAT_PIN, SEEDS_PIN),
+        sources=(HABITAT_PIN, SEEDS_PIN, "Darkan 7e7d67b ProduceType.java:27-121, PatchType.java, and FarmPatch.java:468-470") if vine_herb else (HABITAT_PIN, SEEDS_PIN),
     )
 
 

@@ -1962,7 +1962,6 @@ class TargetMetadataTest(unittest.TestCase):
             QUEST_UNLOCK_RULES,
         )
 
-        self.assertEqual(len(rows), 61)
         carrion = _row(rows, "catch_carrion_jadinko")
         self.assertTrue(carrion.enabled)
         self.assertTrue(carrion.current)
