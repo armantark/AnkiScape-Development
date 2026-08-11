@@ -1340,6 +1340,17 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
         < required_slayer_level
     ):
         return (f"Slayer level {required_slayer_level}",)
+    skill_requirements = enemy.get("skill_requirements", {}) or {}
+    if isinstance(skill_requirements, Mapping):
+        missing_skill_requirements = tuple(
+            f"{str(skill_id).replace('_', ' ').title()} level {required_level}"
+            for skill_id, raw_required_level in skill_requirements.items()
+            if (required_level := _positive_int(raw_required_level, 0)) > 0
+            and _positive_int(player_data.get(f"{skill_id}_level", 1), 1)
+            < required_level
+        )
+        if missing_skill_requirements:
+            return missing_skill_requirements
     quest_gate = str(enemy.get("quest_gate", enemy.get("required_quest", "")) or "")
     if quest_gate:
         quests = player_data.get("quests", {}) or {}

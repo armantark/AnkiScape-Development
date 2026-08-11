@@ -28,11 +28,16 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
     def test_complete_books_and_training_tables_have_stable_unique_ids(self):
         self.assertEqual(len([row for row in COMBAT_PRAYERS_BY_ID.values() if row.book == "standard"]), 30)
         self.assertEqual(len([row for row in COMBAT_PRAYERS_BY_ID.values() if row.book == "curses"]), 20)
-        self.assertEqual(len(PRAYER_MATERIALS), 21)
-        self.assertEqual(len(PRAYER_TARGETS), 61)
+        self.assertEqual(len(PRAYER_MATERIALS), 20)
+        self.assertEqual(len(PRAYER_TARGETS), 60)
         self.assertEqual(len(PRAYER_TARGETS), len(set(PRAYER_TARGETS)))
-        self.assertNotIn("ectofuntus_ancient_bones", PRAYER_TARGETS)
-        self.assertNotIn("gilded_altar_ancient_bones", PRAYER_TARGETS)
+        self.assertNotIn("ancient_bones", {material.id for material in PRAYER_MATERIALS})
+        for target_id in (
+            "bury_ancient_bones",
+            "ectofuntus_ancient_bones",
+            "gilded_altar_ancient_bones",
+        ):
+            self.assertNotIn(target_id, PRAYER_TARGETS)
 
     def test_owned_gilded_altar_accepts_zero_one_or_two_burners_at_exact_rates(self):
         target_id = "gilded_altar_dragon_bones"
@@ -104,6 +109,37 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(inventory["Dragon bonemeal"], 0)
         self.assertEqual(inventory["Bucket of slime"], 0)
         self.assertEqual(outputs, {"Bucket": 1, "Empty pot": 1, "Ecto-token": 5})
+
+    def test_decoded_bonemeals_keep_exact_ids_and_generated_ectofuntus_contracts(self):
+        cases = (
+            ("burnt_bones", "Burnt bones", "Burnt bonemeal", 4258, 4.5),
+            ("zogre_bones", "Zogre bones", "Zogre bonemeal", 4852, 22.5),
+            ("jogre_bones", "Jogre bones", "Jogre bonemeal", 4271, 15.0),
+            ("shaikahan_bones", "Shaikahan bones", "Shaikahan bonemeal", 5615, 25.0),
+            ("fayrg_bones", "Fayrg bones", "Fayrg bonemeal", 4853, 84.0),
+            ("raurg_bones", "Raurg bones", "Raurg bonemeal", 4854, 96.0),
+            ("ourg_bones", "Ourg bones", "Ourg bonemeal", 4855, 140.0),
+            ("frost_dragon_bones", "Frost dragon bones", "Frost dragon bonemeal", 18834, 180.0),
+        )
+        item_definitions = {definition.storage_key: definition for definition in ITEM_DEFINITIONS}
+        for material_id, bone, bonemeal, item_id, base_xp in cases:
+            with self.subTest(material_id=material_id):
+                self.assertEqual(item_definitions[bonemeal].source_item_id, item_id)
+                self.assertEqual(PRAYER_DATA[f"bury_{material_id}"]["exp"], base_xp)
+                grind = UTILITY_ACTIVITY_DATA[f"grind_prayer_{material_id}"]
+                self.assertEqual(grind["requirements"], {bone: 1, "Empty pot": 1})
+                self.assertEqual(grind["output_item"], bonemeal)
+                self.assertEqual(grind["output_qty"], 1)
+                self.assertEqual(grind["batch_size"], 9)
+
+                ectofuntus = PRAYER_DATA[f"ectofuntus_{material_id}"]
+                self.assertEqual(ectofuntus["requirements"], {bonemeal: 1, "Bucket of slime": 1})
+                self.assertEqual(ectofuntus["byproducts"], {"Bucket": 1, "Empty pot": 1})
+                self.assertEqual(ectofuntus["outputs"], {"Ecto-token": 5})
+                self.assertEqual(ectofuntus["exp"], base_xp * 4.0)
+
+        self.assertEqual(item_definitions["Wyvern bonemeal"].source_item_id, 6810)
+        self.assertEqual(PRAYER_DATA["ectofuntus_wyvern_bones"]["exp"], 200.0)
 
     def test_manual_burial_consumes_one_bone_per_review_action(self):
         inventory, xp, ok, outputs = apply_prayer_action_pure(

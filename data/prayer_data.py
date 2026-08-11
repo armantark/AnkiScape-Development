@@ -60,7 +60,7 @@ class PrayerMaterial:
 _BONES = (
     ("bones", "Bones", 4.5), ("wolf_bones", "Wolf bones", 4.5),
     ("burnt_bones", "Burnt bones", 4.5), ("monkey_bones", "Monkey bones", 5.0),
-    ("bat_bones", "Bat bones", 5.3), ("zogre_bones", "Zogre bones", 12.5),
+    ("bat_bones", "Bat bones", 5.3), ("zogre_bones", "Zogre bones", 22.5),
     ("big_bones", "Big bones", 15.0), ("jogre_bones", "Jogre bones", 15.0),
     ("shaikahan_bones", "Shaikahan bones", 25.0),
     ("baby_dragon_bones", "Baby dragon bones", 30.0),
@@ -68,8 +68,19 @@ _BONES = (
     ("fayrg_bones", "Fayrg bones", 84.0), ("raurg_bones", "Raurg bones", 96.0),
     ("dagannoth_bones", "Dagannoth bones", 125.0), ("ourg_bones", "Ourg bones", 140.0),
     ("frost_dragon_bones", "Frost dragon bones", 180.0),
-    ("ancient_bones", "Ancient bones", 200.0),
 )
+BONEMEAL_ITEM_IDS = {
+    "Bonemeal": 4255,
+    "Burnt bonemeal": 4258,
+    "Zogre bonemeal": 4852,
+    "Jogre bonemeal": 4271,
+    "Shaikahan bonemeal": 5615,
+    "Wyvern bonemeal": 6810,
+    "Fayrg bonemeal": 4853,
+    "Raurg bonemeal": 4854,
+    "Ourg bonemeal": 4855,
+    "Frost dragon bonemeal": 18834,
+}
 
 
 def _bonemeal_name(item_name: str) -> str:
@@ -82,7 +93,7 @@ PRAYER_MATERIALS: Tuple[PrayerMaterial, ...] = tuple(
         item_name,
         xp,
         "bone",
-        None if material_id == "ancient_bones" else _bonemeal_name(item_name),
+        _bonemeal_name(item_name),
         f"{BONE_SOURCE}: {material_id.upper()}",
     )
     for material_id, item_name, xp in _BONES
@@ -137,15 +148,14 @@ def prayer_targets_as_dict() -> Dict[str, dict]:
                 "exp": material.xp * ECTOFUNTUS_MULTIPLIER,
                 "source": f"{material.source}; {ECTOFUNTUS_SOURCE}: 4x XP and 5 tokens/worship",
             }
-        if material.id != "ancient_bones":
-            targets[f"gilded_altar_{material.id}"] = {
-                "id": f"gilded_altar_{material.id}", "display_name": material.item_name,
-                "material_id": material.id, "material_kind": material.kind,
-                "method": "gilded_altar", "group": "Gilded altar", "level": 1,
-                "requirements": {material.item_name: 1}, "byproducts": {},
-                "base_exp": material.xp, "exp": material.xp * GILDED_ALTAR_MULTIPLIER,
-                "source": f"{material.source}; RuneScape Wiki Prayer oldid=6539264: lit gilded altar 3.5x",
-            }
+        targets[f"gilded_altar_{material.id}"] = {
+            "id": f"gilded_altar_{material.id}", "display_name": material.item_name,
+            "material_id": material.id, "material_kind": material.kind,
+            "method": "gilded_altar", "group": "Gilded altar", "level": 1,
+            "requirements": {material.item_name: 1}, "byproducts": {},
+            "base_exp": material.xp, "exp": material.xp * GILDED_ALTAR_MULTIPLIER,
+            "source": f"{material.source}; RuneScape Wiki Prayer oldid=6539264: lit gilded altar 3.5x",
+        }
     return targets
 
 
@@ -214,10 +224,9 @@ def prayer_extra_items_as_dict() -> Dict[str, dict]:
         items[material.item_name] = {"category": "material", "source": material.source, "exp": material.xp}
         if material.bonemeal_item:
             bonemeal = {"category": "material", "source": f"{material.source}; {ECTOFUNTUS_SOURCE}"}
-            if material.bonemeal_item == "Bonemeal":
-                bonemeal["item_id"] = 4255
-            elif material.bonemeal_item == "Wyvern bonemeal":
-                bonemeal["item_id"] = 6810
+            item_id = BONEMEAL_ITEM_IDS.get(material.bonemeal_item)
+            if item_id is not None:
+                bonemeal["item_id"] = item_id
             items[material.bonemeal_item] = bonemeal
     for name in ("Bucket", "Bucket of slime", "Empty pot", "Ecto-token"):
         items[name] = {"category": "material", "source": ECTOFUNTUS_SOURCE}

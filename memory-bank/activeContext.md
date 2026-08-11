@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+**2026-08-11, Ectofuntus bone-family slice closes.** Burnt, Fayrg, Frost
+dragon, Jogre, Ourg, Raurg, Shaikahan, and Zogre bones now have acquisition
+routes. All eight matching bonemeal items have Prayer routes. The slice corrects
+Zogre bones from `12.5` to `22.5` Prayer XP, which fixes a player-visible defect
+from canonical `main`. The complete plain lane passes 4,069 tests with 496
+expected skips. Reachability is now 1,559 actions, 2,590 reachable items, 86
+orphan inputs, and 85 blocked actions. The queue retains the one-way skill-button
+state defect and the Frost dragon bone ID-to-route mapping. Durable audit:
+`memory-bank/source-audits/ectofuntus-bone-family-2026-08-11.md`.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is

@@ -912,10 +912,13 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_activity_gain(f"Opened Crystal chest · {reward_text}{suffix}")
         return True
 
+    inventory = player_data.get("inventory", {})
+    weighted_outputs = spec.get("weighted_outputs")
     new_inv, _exp, ok, processed = apply_utility_activity_pure(
         activity_key,
-        player_data.get("inventory", {}),
+        inventory,
         UTILITY_ACTIVITY_DATA,
+        r_output=ctx.random_random() if weighted_outputs else None,
     )
     if not ok:
         _switch_material_failure_to_bankstanding(ctx)
@@ -926,7 +929,17 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
-    output_items = {item: amount * max(int(processed), 0) for item, amount in _spec_output_items(spec).items()}
+    if weighted_outputs:
+        output_items = {
+            item: int(amount) - int(inventory.get(item, 0) or 0)
+            for item, amount in new_inv.items()
+            if int(amount) > int(inventory.get(item, 0) or 0)
+        }
+    else:
+        output_items = {
+            item: amount * max(int(processed), 0)
+            for item, amount in _spec_output_items(spec).items()
+        }
     _record_action(ctx, "utility", activity_key, True, expected_success_chance=1.0, output_items=output_items)
     if spec.get("deactivate_after_run"):
         ctx.deactivate_current_skill()
@@ -937,6 +950,15 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     if spec.get("no_op"):
         # A no-op activity produces nothing by definition and the HUD already
         # reads "idle at the Bank", so restating it every review is pure noise.
+        return True
+    if weighted_outputs:
+        if output_items:
+            gained_text = ", ".join(
+                f"+{amount} {item}" for item, amount in output_items.items()
+            )
+            ctx.show_activity_gain(gained_text)
+        else:
+            ctx.show_activity_gain(str(display_name).replace("Loot ", "Looted ", 1))
         return True
     outputs = spec.get("outputs", {})
     if isinstance(outputs, dict) and outputs:
