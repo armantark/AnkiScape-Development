@@ -6113,7 +6113,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(banshee.text(0), "Banshee (Lvl 23)")
         self.assertIn("Missing Earmuffs", banshee.toolTip(0))
         self.assertIn("Enemy max hit: 10 LP", banshee.toolTip(0))
-        self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
+        self.assertEqual(seagull.text(0), "✓ Seagull (Lvl 2)")
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
@@ -6154,7 +6154,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree = dialog.findChild(QListWidget, "combatTargetTree")
         seagull = tree.currentItem()
         self.assertEqual(seagull.data(Qt.ItemDataRole.UserRole), "seagull")
-        self.assertEqual(seagull.background().color(), QColor(76, 175, 80, 76))
+        self.assertEqual(seagull.background().color(), QColor(76, 175, 80, 120))
+        self.assertEqual(seagull.text(), "✓ Seagull (Lvl 2)")
         self.assertTrue(seagull.font().bold())
         self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(seagull)))
 
@@ -6240,7 +6241,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(tree.visualItemRect(seagull).height(), 30)
         self.assertIs(tree.currentItem(), seagull)
         self.assertTrue(seagull.parent().isExpanded())
-        self.assertEqual(seagull.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertEqual(seagull.background(0).color(), QColor(76, 175, 80, 120))
+        self.assertEqual(seagull.text(0), "✓ Seagull (Lvl 2)")
         self.assertTrue(seagull.font(0).bold())
         self.assertFalse(seagull.isSelected())
         self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(seagull)))
@@ -6798,7 +6800,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
         self.assertTrue(crayfish_row.text().startswith("Catch crayfish"))
-        self.assertEqual(sardine_row.text(), "Catch sardine (Lvl 5)/herring (Lvl 10)")
+        self.assertEqual(sardine_row.text(), "✓ Catch sardine (Lvl 5)/herring (Lvl 10)")
         self.assertEqual(mackerel_row.text(), "Catch mackerel (Lvl 16)/cod (Lvl 23)/bass (Lvl 46)")
         self.assertEqual(cave_eel_row.text(), "Catch cave eel (Lvl 38)")
         self.assertFalse(cave_eel_row.icon().isNull())
@@ -8295,8 +8297,9 @@ class MainMenuWidgetTest(unittest.TestCase):
                     current.data(Qt.ItemDataRole.UserRole), target, skill
                 )
                 self.assertEqual(
-                    current.background().color().getRgb()[:3], (76, 175, 80), skill
+                    current.background().color(), QColor(76, 175, 80, 120), skill
                 )
+                self.assertTrue(current.text().startswith("✓ "), skill)
                 self.assertTrue(current.font().bold(), skill)
                 self.assertFalse(current.isSelected(), skill)
                 self.assertIn("QListWidget::item:selected", target_list.styleSheet())
@@ -8331,7 +8334,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
 
         self.assertEqual(target_list.currentItem(), coal)
-        self.assertEqual(coal.background().color(), QColor(76, 175, 80, 76))
+        self.assertEqual(coal.background().color(), QColor(76, 175, 80, 120))
+        self.assertTrue(coal.text().startswith("✓ "))
+        self.assertFalse(silver.text().startswith("✓ "))
         self.assertTrue(coal.font().bold())
         self.assertNotEqual(silver.background().color(), QColor(76, 175, 80, 76))
         self.assertFalse(silver.font().bold())
@@ -8384,8 +8389,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertTrue(tree.alternatingRowColors())
             self.assertEqual(flat.visualItemRect(flat_current).height(), 30)
             self.assertEqual(tree.visualItemRect(tree_current).height(), 30)
-            self.assertEqual(flat_current.background().color(), QColor(76, 175, 80, 76))
-            self.assertEqual(tree_current.background(0).color(), QColor(76, 175, 80, 76))
+            self.assertEqual(flat_current.background().color(), QColor(76, 175, 80, 120))
+            self.assertEqual(tree_current.background(0).color(), QColor(76, 175, 80, 120))
+            self.assertTrue(flat_current.text().startswith("✓ "))
+            self.assertTrue(tree_current.text(0).startswith("✓ "))
             self.assertTrue(flat_current.font().bold())
             self.assertTrue(tree_current.font(0).bold())
         finally:
@@ -8445,7 +8452,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(self._smith_calls[-1], "forge_bronze_hatchet")
         self.assertIs(tree.currentItem(), hatchet)
-        self.assertEqual(hatchet.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertEqual(hatchet.background(0).color(), QColor(76, 175, 80, 120))
+        self.assertTrue(hatchet.text(0).startswith("✓ "))
+        self.assertFalse(dagger.text(0).startswith("✓ "))
         self.assertTrue(hatchet.font(0).bold())
         self.assertNotEqual(dagger.background(0).color(), QColor(76, 175, 80, 76))
         self.assertFalse(dagger.font(0).bold())
@@ -8486,7 +8495,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             r"QTreeWidget::item:selected \{ border: 2px solid rgba\(66,133,244,0\.95\);",
         )
         self.assertNotIn("rgba(76,175,80", tree.styleSheet())
-        self.assertEqual(current.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertEqual(current.background(0).color(), QColor(76, 175, 80, 120))
 
     def test_smithing_highlights_current_target_on_open(self) -> None:
         pd = _make_player_data()
@@ -11565,8 +11574,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(current.data(0, Qt.ItemDataRole.UserRole), "jewellery_gold_ring")
         self.assertEqual(
             current.background(0).color(),
-            QColor(76, 175, 80, 76),
+            QColor(76, 175, 80, 120),
         )
+        self.assertTrue(current.text(0).startswith("✓ "))
         # The family holding the current target opens so the selection is visible.
         self.assertTrue(_craft_family_node(tree, "jewellery").isExpanded())
         # Unrelated families stay collapsed to tame the panel.
@@ -16087,7 +16097,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def _wc_row(self, tree_list: "QListWidget", prefix: str) -> "QListWidgetItem":
         return next(
             tree_list.item(i) for i in range(tree_list.count())
-            if tree_list.item(i).text().startswith(prefix)
+            if tree_list.item(i).text().removeprefix("✓ ").startswith(prefix)
         )
 
     def test_woodcutting_list_shows_friendly_names_not_stable_ids(self) -> None:
@@ -16095,7 +16105,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         texts = [tree_list.item(i).text() for i in range(tree_list.count())]
         # Friendly display names, not raw IDs like "oak"/"tree".
         self.assertTrue(any(t.startswith("Oak (Lvl 15)") for t in texts), texts)
-        self.assertTrue(any(t.startswith("Tree (Lvl 1)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("✓ Tree (Lvl 1)") for t in texts), texts)
         self.assertFalse(any(t == "oak" or t == "tree" for t in texts), texts)
 
     def test_woodcutting_ivy_marked_xp_only_no_logs(self) -> None:
@@ -16180,7 +16190,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def _ore_row(self, ore_list: "QListWidget", prefix: str) -> "QListWidgetItem":
         return next(
             ore_list.item(i) for i in range(ore_list.count())
-            if ore_list.item(i).text().startswith(prefix)
+            if ore_list.item(i).text().removeprefix("✓ ").startswith(prefix)
         )
 
     def test_mining_list_shows_friendly_names_not_stable_ids(self) -> None:
@@ -16308,9 +16318,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd, current_skill="Prayer")
         tree = next(
             tree for tree in dialog.findChildren(QTreeWidget)
-            if tree.findItems("Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)
+            if tree.findItems("✓ Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)
         )
-        row = tree.findItems("Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)[0]
+        row = tree.findItems("✓ Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)[0]
         self.assertFalse(row.isDisabled())
         tree.itemClicked.emit(row, 0)
         QApplication.processEvents()
@@ -16366,7 +16376,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree = dialog.findChild(QTreeWidget, "prayerTargetTree")
         row = _tree_row(tree, "gilded_altar_dragon_bones")
         self.assertEqual(mode.currentData(), "owned")
-        self.assertEqual(row.text(0), "Dragon bones — 180 XP")
+        self.assertEqual(row.text(0), "✓ Dragon bones — 180 XP")
         self.assertIn("Owned · 250% XP · 0/2 burners", row.toolTip(0))
         self.assertIn("none required (0 burners)", row.toolTip(0))
         self.assertFalse(row.isDisabled())
@@ -16388,7 +16398,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         row = _tree_row(tree, "gilded_altar_dragon_bones")
         self.assertEqual(mode.currentData(), "owned")
         self.assertEqual(mode.currentText(), "Owned - 350% XP (2/2 burners)")
-        self.assertEqual(row.text(0), "Dragon bones — 252 XP")
+        self.assertEqual(row.text(0), "✓ Dragon bones — 252 XP")
         self.assertIn("Clean marrentill x2", row.toolTip(0))
 
         for width, height in ((720, 540), (900, 560)):

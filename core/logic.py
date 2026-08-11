@@ -51,7 +51,7 @@ def level_up_check(skill, player_data):
                 except Exception:
                     enabled = True
                 if enabled:
-                    show_level_up_dialog(skill)
+                    show_level_up_dialog(skill, lvl - 1, lvl)
 
 from ..logic_pure.logic_pure import get_newly_completed_achievements
 from ..logic.achievement_diary_logic import (

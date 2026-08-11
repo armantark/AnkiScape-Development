@@ -71,7 +71,7 @@ If another writer changes an overlapping file, Codex must stop that batch before
 
 | Batch | Start HEAD | Result | Commit | Evidence |
 | --- | --- | --- | --- | --- |
-| Plan | `0071218b9af3773268db990b9319f4bf6ea97454` | Settled | Pending | Clean Git state; worktree guard passed; plan artifact passed its checker and opened in Arc. |
-| UI | Pending | Pending | Pending | Pending |
+| Plan | `0071218b9af3773268db990b9319f4bf6ea97454` | Settled | `8d4a823d` | Clean Git state; worktree guard passed; plan artifact passed its checker and opened in Arc. |
+| UI | `8d4a823de175baaf88811551157a5bbf0a0f6d65` | Accepted | Pending | Four focused checks reproduced the defects. Six focused checks passed after the fix. The 412-test UI lane passed. |
 | Guides | Pending | Pending | Pending | Pending |
 | Closure | Pending | Pending | Pending | Pending |

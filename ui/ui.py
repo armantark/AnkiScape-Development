@@ -4407,7 +4407,7 @@ def show_error_message(title: str, message: str):
     error_dialog.exec()
 
 
-def show_level_up_dialog(skill: str):
+def show_level_up_dialog(skill: str, old_level: int, new_level: int):
     """Level-up dialog with a skill icon."""
     dialog = QDialog(mw)
     dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
@@ -4423,9 +4423,18 @@ def show_level_up_dialog(skill: str):
         icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    msg = QLabel(f"Congratulations! You've advanced a {skill} level!")
+    msg = QLabel(f"Your {skill} level increased.")
+    msg.setObjectName("levelUpMessage")
     msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
     layout.addWidget(msg)
+
+    transition = QLabel(f"Level {old_level} → {new_level}")
+    transition.setObjectName("levelUpTransition")
+    transition.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    transition.setStyleSheet(
+        "font-size: 16px; font-weight: 700; color: palette(text);"
+    )
+    layout.addWidget(transition)
 
     ok_button = QPushButton("OK")
     ok_button.clicked.connect(dialog.accept)
@@ -5165,11 +5174,18 @@ def show_main_menu(
         def _mark_current_target(item: Optional[QListWidgetItem]) -> None:
             for index in range(target_list.count()):
                 candidate = target_list.item(index)
+                row = rows_by_target.get(
+                    candidate.data(Qt.ItemDataRole.UserRole)
+                )
+                if row is not None:
+                    candidate.setText(
+                        f"✓ {row.label}" if candidate is item else row.label
+                    )
                 current_font = candidate.font()
                 current_font.setBold(candidate is item)
                 candidate.setFont(current_font)
                 candidate.setBackground(
-                    QBrush(QColor(76, 175, 80, 76))
+                    QBrush(QColor(76, 175, 80, 120))
                     if candidate is item
                     else QBrush()
                 )
@@ -5293,12 +5309,20 @@ def show_main_menu(
 
         def _mark_current_target(item: Optional["QTreeWidgetItem"]) -> None:
             for candidate in child_items:
+                row = rows_by_target.get(
+                    candidate.data(0, Qt.ItemDataRole.UserRole)
+                )
+                if row is not None:
+                    candidate.setText(
+                        0,
+                        f"✓ {row.label}" if candidate is item else row.label,
+                    )
                 current_font = candidate.font(0)
                 current_font.setBold(candidate is item)
                 candidate.setFont(0, current_font)
                 candidate.setBackground(
                     0,
-                    QBrush(QColor(76, 175, 80, 76))
+                    QBrush(QColor(76, 175, 80, 120))
                     if candidate is item
                     else QBrush(),
                 )

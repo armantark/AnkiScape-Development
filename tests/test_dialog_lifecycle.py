@@ -94,7 +94,7 @@ class DialogLifecycleTest(unittest.TestCase):
 
     def test_parented_dialogs_destroy_their_qt_objects_on_close(self):
         cases = (
-            lambda: self.ui.show_level_up_dialog("Mining"),
+            lambda: self.ui.show_level_up_dialog("Mining", 32, 33),
             lambda: self.ui.show_achievement_dialog(
                 "First Ore", {"description": "Mine one ore."}
             ),
@@ -111,6 +111,29 @@ class DialogLifecycleTest(unittest.TestCase):
             with self.subTest(open_dialog=open_dialog):
                 self._assert_deleted_on_close(open_dialog)
         self.assertEqual(len(self.held), len(cases))
+
+    def test_level_up_dialog_names_the_exact_level_transition(self) -> None:
+        captured = {}
+
+        def _capture_and_close() -> None:
+            modal = QApplication.activeModalWidget()
+            if modal is None:
+                return
+            captured["message"] = modal.findChild(
+                self.ui.QLabel,
+                "levelUpMessage",
+            ).text()
+            captured["transition"] = modal.findChild(
+                self.ui.QLabel,
+                "levelUpTransition",
+            ).text()
+            modal.accept()
+
+        QTimer.singleShot(0, _capture_and_close)
+        self.ui.show_level_up_dialog("Attack", 8, 9)
+
+        self.assertEqual(captured["message"], "Your Attack level increased.")
+        self.assertEqual(captured["transition"], "Level 8 → 9")
 
 
 if __name__ == "__main__":
