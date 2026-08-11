@@ -74,7 +74,7 @@ If another writer changes an overlapping file, Codex must stop that batch before
 | Plan | `0071218b9af3773268db990b9319f4bf6ea97454` | Settled | `8d4a823d` | Clean Git state; worktree guard passed; plan artifact passed its checker and opened in Arc. |
 | UI | `8d4a823de175baaf88811551157a5bbf0a0f6d65` | Accepted | `93b8be46` | Four focused checks reproduced the defects. Six focused checks passed after the fix. The 412-test UI lane passed. |
 | Guides | `93b8be46772f6a75a8679baa5ff81588eeb0e96a` | Accepted | `96b0f225` | Six focused checks passed. The 413-test guide and UI lane passed. The live 25-skill audit found zero Milestone cape rows and 105 Slayer monster rows. |
-| Closure | `96b0f2252e4e1d0ecc0ec48c11ebb1056128825e` | Accepted | Pending | Both 4,058-test lanes passed. Documentation, test-quality, compilation, diff, and worktree checks passed. Native Anki proof passed. |
+| Closure | `96b0f2252e4e1d0ecc0ec48c11ebb1056128825e` | Accepted | `7ba4e5d6` | Both 4,058-test lanes passed. Documentation, test-quality, compilation, diff, and worktree checks passed. Native Anki proof passed. |
 
 ## Guide density audit
 
