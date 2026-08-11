@@ -4885,3 +4885,14 @@ flees silently when the player runs out of food.
   inputs / 110 blocked actions. No placeholder, owner decision, new UI pattern,
   or quest implementation is introduced.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
+
+## Pass 9 owner repair — 2026-08-11
+
+- Saved target rows now use an explicit `✓` prefix and a stronger green fill in both flat and grouped selectors. Blue remains the temporary Qt selection state.
+- Level-up dialogs receive the old and new level. A multi-level gain shows one exact transition for each completed level.
+- Skill guides omit Milestone capes from equipment and Crafting actions. Gameplay, crafting, and wear gates remain unchanged.
+- The Slayer Stats guide projects all 105 source-backed families from `SLAYER_FAMILIES_BY_ID`, with levels and existing enemy icons.
+- The live guide audit shows 17 non-combat skills with 13 to 529 action rows. Farming and Dungeoneering remain the only actionless non-combat guide gaps.
+- Full plain and real offscreen Qt discovery each pass 4,058 tests. Native MacBook Pro Anki proof passes for the changed surfaces and review layout.
+- Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
+- Results: <https://zvxa8ne0p5qz.postplan.dev>.

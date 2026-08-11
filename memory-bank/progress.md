@@ -6022,3 +6022,15 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   Full plain and offscreen Qt discovery each pass 4,021 tests, with 490 expected
   plain skips and three Qt skips.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
+
+## Pass 9 owner repair — 2026-08-11
+
+- Added a visible text cue and stronger fill for saved target rows across shared flat and grouped selectors.
+- Added exact old-to-new values to level-up dialogs and covered multi-level gains.
+- Removed all Milestone cape rows from guide projections without changing the cape systems.
+- Added 105 Slayer monster-family rows to the Stats guide from the current Slayer registry.
+- Audited all 25 skill guides. Farming and Dungeoneering remain the two non-combat guide gaps that need period section evidence.
+- Added focused pure, integration, lifecycle, and real Qt coverage. The guide/UI lane passes 413 tests.
+- Both full lanes pass 4,058 tests. Documentation, test quality, compilation, native Anki, diff, and worktree checks pass.
+- Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
+- Results: <https://zvxa8ne0p5qz.postplan.dev>.
