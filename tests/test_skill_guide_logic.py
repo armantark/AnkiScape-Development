@@ -13,6 +13,14 @@ class _Target:
     output_item: str
 
 
+@dataclass(frozen=True)
+class _SlayerFamily:
+    id: str
+    display_name: str
+    target_ids: tuple[str, ...]
+    required_slayer_level: int = 1
+
+
 class TestSkillGuideLogic(unittest.TestCase):
     def test_projects_registry_targets_and_equipment_without_duplicate_unlocks(self):
         targets = {
@@ -81,6 +89,79 @@ class TestSkillGuideLogic(unittest.TestCase):
         self.assertEqual(sections[0].title, "Equipment")
         self.assertEqual(sections[0].rows[0].name, "Shield")
         self.assertEqual(sections[0].rows[0].level, 35)
+
+    def test_hides_milestone_capes_without_hiding_other_rows(self):
+        targets = {
+            "weave_milestone_cape_80": {
+                "display_name": "Milestone cape (80)",
+                "level": 80,
+                "output_item": "Milestone cape (80)",
+                "source_enum": "MILESTONE_CAPES",
+            },
+            "mine_runite": {
+                "display_name": "Mine runite",
+                "level": 85,
+                "output_item": "Runite ore",
+            },
+        }
+        equipment = {
+            "Milestone cape (80)": {
+                "equipment_type": "milestone_cape",
+                "skill_requirements": (("mining", 80),),
+            },
+            "Mining cape": {
+                "equipment_type": "skillcape",
+                "skill_requirements": (("mining", 99),),
+            },
+        }
+
+        sections = skill_guide_sections_pure("Mining", targets, equipment)
+
+        self.assertEqual(
+            [(row.level, row.name) for row in sections[0].rows],
+            [(85, "Mine runite")],
+        )
+        self.assertEqual(
+            [(row.level, row.name) for row in sections[1].rows],
+            [(99, "Mining cape")],
+        )
+
+    def test_projects_slayer_families_as_level_sorted_monsters(self):
+        families = {
+            "abyssal_demons": _SlayerFamily(
+                "abyssal_demons",
+                "Abyssal demons",
+                ("abyssal_demon",),
+                85,
+            ),
+            "banshees": _SlayerFamily(
+                "banshees",
+                "Banshees",
+                ("banshee",),
+                15,
+            ),
+            "birds": _SlayerFamily("birds", "Birds", ("seagull",)),
+        }
+
+        sections = skill_guide_sections_pure(
+            "Slayer",
+            None,
+            {},
+            slayer_families=families,
+        )
+
+        self.assertEqual([section.title for section in sections], ["Monsters"])
+        self.assertEqual(
+            [
+                (row.level, row.name, row.icon_key)
+                for row in sections[0].rows
+            ],
+            [
+                (1, "Birds", "seagull"),
+                (15, "Banshees", "banshee"),
+                (85, "Abyssal demons", "abyssal_demon"),
+            ],
+        )
 
 
 if __name__ == "__main__":

@@ -24156,6 +24156,7 @@ def show_main_menu(
             skill_name,
             _SKILL_TARGET_TABLES.get(skill_id),
             EQUIPMENT_ITEM_DATA,
+            slayer_families=SLAYER_FAMILIES_BY_ID,
         )
         first_anchor = None
 
@@ -24216,9 +24217,17 @@ def show_main_menu(
                 )
                 row_layout.addWidget(badge)
 
-                icon = _pixel_item_icon(row.icon_key or "", 20)
+                icon = (
+                    _pixel_path_icon(
+                        COMBAT_ENEMY_IMAGES.get(row.icon_key or "", ""),
+                        20,
+                    )
+                    if section.section_id == "monsters"
+                    else _pixel_item_icon(row.icon_key or "", 20)
+                )
                 if icon is not None:
                     icon_label = QLabel()
+                    icon_label.setObjectName(f"statsGuideIcon::{row.row_id}")
                     icon_label.setFixedSize(24, 24)
                     icon_label.setPixmap(icon.pixmap(20, 20))
                     row_layout.addWidget(icon_label)

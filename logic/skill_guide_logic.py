@@ -69,6 +69,8 @@ def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
 
     rows = []
     for target_key, spec in target_table.items():
+        if _field(spec, "source_enum") == "MILESTONE_CAPES":
+            continue
         level = _positive_level(_field(spec, "level"))
         if level is None:
             continue
@@ -118,6 +120,8 @@ def _equipment_rows(
 ) -> tuple[SkillGuideRow, ...]:
     rows = []
     for item_name, spec in equipment_data.items():
+        if spec.get("equipment_type") == "milestone_cape":
+            continue
         levels = _requirement_levels(spec, skill_id)
         if not levels:
             continue
@@ -133,17 +137,50 @@ def _equipment_rows(
     return tuple(sorted(rows, key=lambda row: (row.level, row.name.casefold(), row.row_id)))
 
 
+def _slayer_monster_rows(slayer_families: object) -> tuple[SkillGuideRow, ...]:
+    if not isinstance(slayer_families, Mapping):
+        return ()
+
+    rows = []
+    for family_key, family in slayer_families.items():
+        family_id = str(_field(family, "id", family_key) or family_key)
+        name = str(_field(family, "display_name", family_id) or family_id)
+        level = _positive_level(_field(family, "required_slayer_level", 1))
+        target_ids = _field(family, "target_ids", ())
+        icon_key = None
+        if isinstance(target_ids, (tuple, list)) and target_ids:
+            icon_key = str(target_ids[0])
+        rows.append(
+            SkillGuideRow(
+                row_id=f"monster:{family_id}",
+                name=name,
+                level=level or 1,
+                icon_key=icon_key,
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: (row.level, row.name.casefold(), row.row_id)))
+
+
 def skill_guide_sections_pure(
     skill: str,
     target_table: object,
     equipment_data: Mapping[str, Mapping[str, object]],
+    *,
+    slayer_families: object = None,
 ) -> tuple[SkillGuideSection, ...]:
-    """Project the two settled guide families without copying source metadata."""
+    """Project settled guide families without copying source metadata."""
 
     sections = []
     action_rows = _action_rows(target_table)
     if action_rows:
         sections.append(SkillGuideSection("actions", "Actions", action_rows))
+
+    if _skill_id(skill) == "slayer":
+        monster_rows = _slayer_monster_rows(slayer_families)
+        if monster_rows:
+            sections.append(
+                SkillGuideSection("monsters", "Monsters", monster_rows)
+            )
 
     equipment_rows = _equipment_rows(_skill_id(skill), equipment_data)
     if equipment_rows:

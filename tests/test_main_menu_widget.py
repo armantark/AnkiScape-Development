@@ -8655,9 +8655,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
             unlocked = dialog.findChild(QWidget, "statsGuideRow::action:adamantite")
             locked = dialog.findChild(QWidget, "statsGuideRow::action:concentrated_coal")
-            locked_equipment = dialog.findChild(
+            milestone_cape = dialog.findChild(
                 QWidget,
                 "statsGuideRow::equipment:Milestone cape (80)",
+            )
+            locked_equipment = dialog.findChild(
+                QWidget,
+                "statsGuideRow::equipment:Mining cape",
             )
             locked_name = dialog.findChild(QLabel, "statsGuideName::action:concentrated_coal")
             locked_badge = dialog.findChild(QLabel, "statsGuideLevelBadge::action:concentrated_coal")
@@ -8678,6 +8682,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 locked_equipment.graphicsEffect().opacity(),
                 0.45,
             )
+            self.assertIsNone(milestone_cape)
             self.assertGreater(guide.verticalScrollBar().value(), 0)
             divider_y = divider.mapTo(guide.viewport(), QPoint(0, 0)).y()
             self.assertGreaterEqual(divider_y, 0)
@@ -8699,6 +8704,40 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsNotNone(
                 dialog.findChild(QWidget, "statsGuideRow::equipment:Bronze dagger")
             )
+        finally:
+            dialog.deleteLater()
+
+    def test_slayer_skill_guide_lists_every_registry_family(self) -> None:
+        dialog = self._open(_make_player_data(), current_skill="Slayer")
+        try:
+            content = dialog.findChild(QWidget, "statsSkillGuideContent")
+            monsters = dialog.findChild(
+                QLabel,
+                "statsGuideSectionTitle::monsters",
+            )
+            rows = [
+                row
+                for row in content.findChildren(QWidget)
+                if row.objectName().startswith("statsGuideRow::monster:")
+            ]
+            wall_beasts = dialog.findChild(
+                QWidget,
+                "statsGuideRow::monster:wall_beasts",
+            )
+            wall_beasts_badge = dialog.findChild(
+                QLabel,
+                "statsGuideLevelBadge::monster:wall_beasts",
+            )
+            wall_beasts_icon = dialog.findChild(
+                QLabel,
+                "statsGuideIcon::monster:wall_beasts",
+            )
+
+            self.assertEqual(monsters.text(), "Monsters")
+            self.assertEqual(len(rows), 105)
+            self.assertIsNotNone(wall_beasts)
+            self.assertEqual(wall_beasts_badge.text(), "35")
+            self.assertFalse(wall_beasts_icon.pixmap().isNull())
         finally:
             dialog.deleteLater()
 
