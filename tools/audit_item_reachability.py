@@ -53,6 +53,7 @@ def _outputs(spec: Mapping[str, Any]) -> set[str]:
             outputs |= _names(weighted.get("item") or weighted.get("output_item"))
         elif isinstance(weighted, (tuple, list)) and weighted and isinstance(weighted[0], str):
             outputs.add(weighted[0])
+    outputs |= _names(spec.get("weighted_secondary_outputs"))
     return outputs
 
 

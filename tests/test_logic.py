@@ -2318,6 +2318,51 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(butterfly_inv["Butterfly net"], 1)
         self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
+    def test_carrion_jadinko_uniformly_covers_all_five_vine_herb_seeds(self):
+        target = "catch_carrion_jadinko"
+        spec = HUNTER_DATA[target]
+        self.assertEqual(spec["level"], 78)
+        self.assertEqual(spec["exp"], 505.0)
+        self.assertEqual(spec["source_npc_id"], 13154)
+        self.assertEqual(spec["secondary_output_chance"], 30 / 256)
+
+        seed_rolls = (
+            (0.0, "Erzille seed"),
+            (0.2, "Ugune seed"),
+            (0.4, "Argway seed"),
+            (0.6, "Shengo seed"),
+            (0.8, "Samaden seed"),
+        )
+        for pick_roll, expected_seed in seed_rolls:
+            with self.subTest(seed=expected_seed):
+                inventory, exp, ok, output_item, _rewards = apply_hunter_action_pure(
+                    target,
+                    {"Marasamaw plant": 1},
+                    HUNTER_DATA,
+                    78,
+                    0.0,
+                    r_secondary_drop=0.0,
+                    r_secondary_pick=pick_roll,
+                )
+                self.assertTrue(ok)
+                self.assertEqual(exp, 505.0)
+                self.assertEqual(output_item, "Pungent vine")
+                self.assertEqual(inventory["Marasamaw plant"], 1)
+                self.assertEqual(inventory["Pungent vine"], 1)
+                self.assertEqual(inventory[expected_seed], 1)
+
+        no_seed, _exp, ok, _output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Marasamaw plant": 1},
+            HUNTER_DATA,
+            78,
+            0.0,
+            r_secondary_drop=30 / 256,
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertNotIn("Erzille seed", no_seed)
+
     def test_razor_backed_kebbit_tracking_preserves_noose_wand_and_awards_chain_inputs(self):
         target = "track_razor_backed_kebbit"
         self.assertEqual(

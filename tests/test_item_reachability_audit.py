@@ -245,6 +245,51 @@ class TestItemReachabilityAudit(unittest.TestCase):
         ):
             self.assertNotIn(item_name, orphan_items)
 
+    def test_habitat_vine_herb_chain_is_reachable(self):
+        report = build_reachability_report()
+        orphan_items = {row["item"] for row in report["orphan_inputs"]}
+        cases = (
+            ("erzille", "Erzille"),
+            ("ugune", "Ugune"),
+            ("argway", "Argway"),
+            ("shengo", "Shengo"),
+            ("samaden", "Samaden"),
+        )
+
+        for crop_id, herb_name in cases:
+            with self.subTest(herb=herb_name):
+                expected_routes = {
+                    f"{herb_name} seed": "Hunter:catch_carrion_jadinko",
+                    f"Grimy {herb_name.lower()}": f"Farming:{crop_id}",
+                    f"Clean {herb_name.lower()}": f"Herblore:clean_{crop_id}",
+                    f"{herb_name} potion (unf)": f"Herblore:unf_{crop_id}",
+                }
+                for item_name, route in expected_routes.items():
+                    self.assertEqual(report["routes"].get(item_name), route)
+                    self.assertNotIn(item_name, orphan_items)
+
+        expected_vine_routes = {
+            "Aquatic vine": "Hunter:catch_aquatic_jadinko",
+            "Draconic vine": "Hunter:catch_draconic_jadinko",
+            "Marble vine": "Hunter:catch_igneous_jadinko",
+            "Oily vine": "Hunter:catch_amphibious_jadinko",
+            "Saradomin vine": "Hunter:catch_saradomin_jadinko",
+            "Zamorak vine": "Hunter:catch_zamorak_jadinko",
+        }
+        for item_name, route in expected_vine_routes.items():
+            self.assertEqual(report["routes"].get(item_name), route)
+            self.assertNotIn(item_name, orphan_items)
+
+        unresolved_actions = {row["id"] for row in report["unresolved_actions"]}
+        self.assertTrue(
+            {
+                "Hunter:catch_carrion_jadinko",
+                *(f"Farming:{crop_id}" for crop_id, _herb_name in cases),
+                *expected_vine_routes.values(),
+            }.isdisjoint(unresolved_actions)
+        )
+        self.assertLessEqual(report["unresolved_action_count"], 85)
+
     def test_root_orphan_leverage_is_transitive_and_deterministically_ranked(self):
         report = build_reachability_report()
         rows = report["root_orphan_leverage"]

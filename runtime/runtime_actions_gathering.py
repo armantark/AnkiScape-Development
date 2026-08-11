@@ -374,7 +374,6 @@ from ..logic.livid_farm_logic import (
 
 from .runtime_actions_production import (  # noqa: F401  (re-export)
     _refresh_smithing_and_crafting_availability,
-    _spec_output_items,
     handle_construction_answer,
     handle_cooking_answer,
     handle_crafting_answer,
@@ -411,10 +410,6 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
 
 from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
-)
-
-from .runtime_actions_production import (
-    _spec_output_items,
 )
 
 from .runtime_actions_shared import (
@@ -608,6 +603,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         if ctx.cadence_forced_opportunity
         else calculate_hunter_success_probability_pure(success_level, spec)
     )
+    weighted_secondary_outputs = spec.get("weighted_secondary_outputs", ())
+    inventory_before = dict(inventory)
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
@@ -615,6 +612,12 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
+        r_secondary_drop=(
+            ctx.random_random() if weighted_secondary_outputs else None
+        ),
+        r_secondary_pick=(
+            ctx.random_random() if weighted_secondary_outputs else None
+        ),
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")
@@ -622,7 +625,11 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
-    produced_outputs = _spec_output_items(spec, _output_item)
+    produced_outputs = {
+        str(item_name): int(amount) - int(inventory_before.get(item_name, 0) or 0)
+        for item_name, amount in new_inv.items()
+        if int(amount) > int(inventory_before.get(item_name, 0) or 0)
+    }
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,

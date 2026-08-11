@@ -109,6 +109,22 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         )
         self.assertEqual(len(self.saves), 1, "a committed change must persist")
 
+    def test_hunter_target_selection_commits_and_restores_through_the_seam(self):
+        addon = self.addon
+        addon.player_data["current_hunter"] = "catch_crimson_swift"
+
+        committed = addon._set_value("current_hunter", "catch_carrion_jadinko")
+
+        self.assertTrue(committed)
+        self.assertEqual(
+            addon.player_data["current_hunter"], "catch_carrion_jadinko"
+        )
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(
+            type("Changes", (), {"operation": "AnkiScape direct action"})()
+        )
+        self.assertEqual(addon.player_data["current_hunter"], "catch_crimson_swift")
+
     def test_activity_danger_toggle_commits_and_restores_through_the_seam(self):
         from ankiscape.logic.agility_logic import apply_agility_command_pure
 

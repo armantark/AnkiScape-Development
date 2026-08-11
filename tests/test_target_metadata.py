@@ -1949,6 +1949,28 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(crimson_swift.locked_reasons, ("Bird snare",))
         self.assertIn("Bird snare x1 (you have 0)", crimson_swift.tooltip)
 
+    def test_carrion_jadinko_row_exposes_tool_and_seed_roll(self):
+        rows = hunter_target_rows(
+            {
+                "hunter_level": 78,
+                "inventory": {"Marasamaw plant": 1},
+                "current_hunter": "catch_carrion_jadinko",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        self.assertEqual(len(rows), 61)
+        carrion = _row(rows, "catch_carrion_jadinko")
+        self.assertTrue(carrion.enabled)
+        self.assertTrue(carrion.current)
+        self.assertEqual(carrion.group, "marasamaw_trapping")
+        self.assertIn("Outputs: Pungent vine x1", carrion.tooltip)
+        self.assertIn("Marasamaw plant x1 (you have 1)", carrion.tooltip)
+        self.assertIn("uniformly weighted vine-herb seed at 30/256", carrion.tooltip)
+
     def test_hunter_rows_apply_quest_unlock_rules(self):
         player_data = {
             "hunter_level": 99,

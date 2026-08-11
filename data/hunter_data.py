@@ -45,6 +45,22 @@ HUNTER_NET_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_2
 HUNTER_MAGIC_BOX_SOURCE = "https://www.2011.rs/kb/hunter_magical_imp_boxes_level_71"
 HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
 HUNTER_WIMPY_BIRD_SOURCE = "https://runescape.wiki/w/Wimpy_bird?oldid=5936660"
+HUNTER_JADINKO_SOURCE = "https://runescape.wiki/w/Jadinkos?oldid=5917881"
+HUNTER_JADINKO_DROP_SOURCE_DIR = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/npcs/drops/hunter"
+)
+
+
+def _jadinko_drop_source(jadinko: str) -> str:
+    return f"{HUNTER_JADINKO_DROP_SOURCE_DIR}/hunter_jadinko_{jadinko}.json"
+
+
+HUNTER_CARRION_DROP_SOURCE = _jadinko_drop_source("carrion")
+HUNTER_PAPA_MAMBO_SHOP_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/shops/papa_mambos_shop.json"
+)
 
 EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/eagles_peak_members"
 ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/rocking_out_members"
@@ -60,6 +76,7 @@ HUNTER_GROUP_LABELS = {
     "barehanded_butterflies": "Barehanded butterflies",
     "deadfall": "Deadfall",
     "box_trapping": "Box trapping",
+    "marasamaw_trapping": "Marasamaw trapping",
     "net_trapping": "Net trapping",
     "falconry": "Falconry",
     "magic_box": "Magic boxes",
@@ -73,6 +90,7 @@ HUNTER_REUSABLE_TOOLS_BY_GROUP = {
     "tracking": (("Noose wand", 1),),
     "butterfly_netting": (("Butterfly net", 1),),
     "box_trapping": (("Box trap", 1),),
+    "marasamaw_trapping": (("Marasamaw plant", 1),),
     "net_trapping": (("Small fishing net", 1), ("Rope", 1)),
     "impling_puro_puro": (("Butterfly net", 1),),
 }
@@ -88,6 +106,7 @@ HUNTER_SUPPLY_BUNDLE = (
     ("Small fishing net", 1),
     ("Rope", 1),
     ("Noose wand", 1),
+    ("Marasamaw plant", 1),
     ("Teasing stick", 1),
     ("Rabbit snare", 1),
     ("Impling jar", 10),
@@ -103,6 +122,8 @@ class HunterTarget:
     base_exp: float
     outputs: Tuple[Tuple[str, int], ...]
     primary_output: str
+    weighted_secondary_outputs: Tuple[Tuple[str, int], ...] = ()
+    secondary_output_chance: float = 0.0
     requirements: Tuple[Tuple[str, int], ...] = ()
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
     xp_rewards: Tuple[Tuple[str, float], ...] = ()
@@ -150,6 +171,8 @@ def _target(
     sort_order: int = 0,
     skill_requirements: Tuple[Tuple[str, int], ...] = (),
     xp_rewards: Tuple[Tuple[str, float], ...] = (),
+    weighted_secondary_outputs: Tuple[Tuple[str, int], ...] = (),
+    secondary_output_chance: float = 0.0,
 ) -> HunterTarget:
     tools = HUNTER_REUSABLE_TOOLS_BY_TARGET.get(id, HUNTER_REUSABLE_TOOLS_BY_GROUP.get(group, ()))
     return HunterTarget(
@@ -160,6 +183,8 @@ def _target(
         base_exp=base_exp,
         outputs=outputs,
         primary_output=primary_output,
+        weighted_secondary_outputs=weighted_secondary_outputs,
+        secondary_output_chance=secondary_output_chance,
         requirements=requirements,
         skill_requirements=skill_requirements,
         xp_rewards=xp_rewards,
@@ -590,6 +615,143 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=50,
     ),
     _target(
+        "catch_igneous_jadinko",
+        "Catch igneous jadinko",
+        "marasamaw_trapping",
+        74,
+        465.0,
+        _out(("Marble vine", 1)),
+        "Marble vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('igneous')}",
+        source_enum="IGNEOUS_JADINKO",
+        source_npc_id=13143,
+        source_item_id=19980,
+        rate1=25,
+        rate99=145,
+        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        sort_order=10,
+    ),
+    _target(
+        "catch_aquatic_jadinko",
+        "Catch aquatic jadinko",
+        "marasamaw_trapping",
+        76,
+        475.0,
+        _out(("Aquatic vine", 1)),
+        "Aquatic vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('aquatic')}",
+        source_enum="AQUATIC_JADINKO",
+        source_npc_id=13142,
+        source_item_id=19976,
+        rate1=15,
+        rate99=135,
+        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        sort_order=10,
+    ),
+    _target(
+        "catch_amphibious_jadinko",
+        "Catch amphibious jadinko",
+        "marasamaw_trapping",
+        77,
+        485.0,
+        _out(("Oily vine", 1)),
+        "Oily vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('amphibious')}",
+        source_enum="AMPHIBIOUS_JADINKO",
+        source_npc_id=13130,
+        source_item_id=19972,
+        rate1=15,
+        rate99=130,
+        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        sort_order=10,
+    ),
+    _target(
+        "catch_carrion_jadinko",
+        "Catch carrion jadinko",
+        "marasamaw_trapping",
+        78,
+        505.0,
+        _out(("Pungent vine", 1)),
+        "Pungent vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {HUNTER_CARRION_DROP_SOURCE}",
+        source_enum="CARRION_JADINKO",
+        source_npc_id=13154,
+        source_item_id=19974,
+        rate1=15,
+        rate99=130,
+        weighted_secondary_outputs=(
+            ("Erzille seed", 1),
+            ("Ugune seed", 1),
+            ("Argway seed", 1),
+            ("Shengo seed", 1),
+            ("Samaden seed", 1),
+        ),
+        secondary_output_chance=30 / 256,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one uniformly weighted vine-herb seed at 30/256."
+        ),
+        sort_order=10,
+    ),
+    _target(
+        "catch_draconic_jadinko",
+        "Catch draconic jadinko",
+        "marasamaw_trapping",
+        80,
+        525.0,
+        _out(("Draconic vine", 1)),
+        "Draconic vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('draconic')}",
+        source_enum="DRACONIC_JADINKO",
+        source_npc_id=13131,
+        source_item_id=19973,
+        rate1=15,
+        rate99=130,
+        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        sort_order=10,
+    ),
+    _target(
+        "catch_saradomin_jadinko",
+        "Catch Saradomin jadinko",
+        "marasamaw_trapping",
+        81,
+        600.0,
+        _out(("Saradomin vine", 1)),
+        "Saradomin vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('saradomin')}",
+        source_enum="SARADOMIN_JADINKO",
+        source_npc_id=13163,
+        source_item_id=19981,
+        rate1=15,
+        rate99=130,
+        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        sort_order=10,
+    ),
+    _target(
+        "catch_zamorak_jadinko",
+        "Catch Zamorak jadinko",
+        "marasamaw_trapping",
+        81,
+        600.0,
+        _out(("Zamorak vine", 1)),
+        "Zamorak vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('zamorak')}",
+        source_enum="ZAMORAK_JADINKO",
+        source_npc_id=13165,
+        source_item_id=19983,
+        rate1=15,
+        rate99=130,
+        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        sort_order=10,
+    ),
+    _target(
         "catch_swamp_lizard",
         "Catch swamp lizard",
         "net_trapping",
@@ -803,11 +965,30 @@ HUNTER_TOOL_ITEMS: Mapping[str, int] = {
     "Bird snare": 10006,
     "Box trap": 10008,
     "Butterfly net": 10010,
+    "Marasamaw plant": 19965,
     "Noose wand": 10150,
     "Teasing stick": 10029,
     "Rabbit snare": 10031,
     "Small fishing net": 303,
     "Rope": 954,
+}
+
+HUNTER_HABITAT_SEED_ITEMS: Mapping[str, int] = {
+    "Erzille seed": 19897,
+    "Ugune seed": 19902,
+    "Argway seed": 19907,
+    "Shengo seed": 19912,
+    "Samaden seed": 19917,
+}
+
+HUNTER_HABITAT_VINE_ITEMS: Mapping[str, Tuple[int, str]] = {
+    "Aquatic vine": (19976, "aquatic"),
+    "Draconic vine": (19973, "draconic"),
+    "Marble vine": (19980, "igneous"),
+    "Oily vine": (19972, "amphibious"),
+    "Pungent vine": (19974, "carrion"),
+    "Saradomin vine": (19981, "saradomin"),
+    "Zamorak vine": (19983, "zamorak"),
 }
 
 HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
@@ -819,6 +1000,11 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Blue feather": 10089,
     "Stripy feather": 10087,
     "Wimpy feather": 11525,
+    **{
+        item_name: item_id
+        for item_name, (item_id, _jadinko) in HUNTER_HABITAT_VINE_ITEMS.items()
+    },
+    **HUNTER_HABITAT_SEED_ITEMS,
     **HUNTER_MATERIAL_ITEMS,
     **HUNTER_TOOL_ITEMS,
 }
@@ -836,6 +1022,11 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "skill_requirements": dict(target.skill_requirements),
         "tools": dict(target.tools),
         "outputs": dict(target.outputs),
+        "weighted_secondary_outputs": tuple(
+            {"item": item_name, "weight": weight}
+            for item_name, weight in target.weighted_secondary_outputs
+        ),
+        "secondary_output_chance": target.secondary_output_chance,
         "output_item": target.primary_output,
         "output_qty": dict(target.outputs).get(target.primary_output, 1),
         "primary_output": target.primary_output,
@@ -868,6 +1059,8 @@ def hunter_output_items() -> Tuple[str, ...]:
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
             seen.setdefault(item_name, None)
+        for item_name, _weight in target.weighted_secondary_outputs:
+            seen.setdefault(item_name, None)
     return tuple(seen.keys())
 
 
@@ -875,6 +1068,8 @@ def hunter_item_names() -> Tuple[str, ...]:
     seen: Dict[str, None] = {}
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
+            seen.setdefault(item_name, None)
+        for item_name, _weight in target.weighted_secondary_outputs:
             seen.setdefault(item_name, None)
         for material, _amount in target.requirements:
             seen.setdefault(material, None)
@@ -899,12 +1094,18 @@ def hunter_supply_item_names() -> Tuple[str, ...]:
 def _hunter_extra_category(item_name: str) -> str:
     if item_name in HUNTER_TOOL_ITEMS:
         return "tool"
-    if item_name in HUNTER_MATERIAL_ITEMS:
+    if item_name in HUNTER_MATERIAL_ITEMS or item_name in HUNTER_HABITAT_SEED_ITEMS:
         return "material"
     return "hunter"
 
 
 def _hunter_extra_source(item_name: str) -> str:
+    if item_name in HUNTER_HABITAT_VINE_ITEMS:
+        return _jadinko_drop_source(HUNTER_HABITAT_VINE_ITEMS[item_name][1])
+    if item_name in HUNTER_HABITAT_SEED_ITEMS:
+        return HUNTER_CARRION_DROP_SOURCE
+    if item_name == "Marasamaw plant":
+        return HUNTER_PAPA_MAMBO_SHOP_SOURCE
     if item_name == "Impling jar":
         return HUNTER_IMPLING_JAR_SHOP_SOURCE
     if item_name == "Small fishing net":
@@ -926,6 +1127,6 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
             "tradeable": True,
-            "stackable": item_name != "Rope",
+            "stackable": item_name not in {"Marasamaw plant", "Rope"},
         }
     return rows

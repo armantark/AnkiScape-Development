@@ -3819,6 +3819,38 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
 
+    def test_hunter_handler_awards_carrion_jadinko_vine_and_selected_seed(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Marasamaw plant": 1},
+            "hunter_level": 78,
+            "hunter_exp": 0,
+            "current_hunter": "catch_carrion_jadinko",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_hunter_answer(
+            _context(player_data, calls, random_values=(0.0, 0.0, 0.99))
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Marasamaw plant"], 1)
+        self.assertEqual(player_data["inventory"]["Pungent vine"], 1)
+        self.assertEqual(player_data["inventory"]["Samaden seed"], 1)
+        telemetry = player_data["action_telemetry"]["actions"][
+            "hunter:catch_carrion_jadinko"
+        ]
+        self.assertEqual(
+            telemetry["outputs"],
+            {"Pungent vine": 1, "Samaden seed": 1},
+        )
+        self.assertEqual(player_data["hunter_exp"], 505.0)
+        self.assertEqual(player_data["hunter_success_count"], 1)
+        self.assertEqual(calls["xp"], [505.0])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+
     def test_hunter_handler_runs_the_collapsed_razor_backed_tracking_route(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

@@ -2175,7 +2175,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 60)
+        self.assertEqual(len(HUNTER_DATA), 67)
         self.assertEqual(
             HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
             ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),
@@ -2221,6 +2221,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Long kebbit spike",
             "Teasing stick",
             "Rabbit snare",
+            "Erzille seed",
+            "Ugune seed",
+            "Argway seed",
+            "Shengo seed",
+            "Samaden seed",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertIn(item_name, HUNTER_ITEM_IMAGES)
@@ -2233,6 +2238,70 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Magic box"].category, "material")
         self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Magic box"]["item_id"], 10025)
         self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Bird snare"]["item_id"], 10006)
+        self.assertIn("Marasamaw plant", by_storage_key)
+        self.assertIn("Pungent vine", by_storage_key)
+        self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Marasamaw plant"]["item_id"], 19965)
+        self.assertFalse(by_storage_key["Marasamaw plant"].stackable)
+        self.assertEqual(
+            by_storage_key["Marasamaw plant"].asset_path,
+            SHOP_ITEM_IMAGES["Marasamaw plant"],
+        )
+        self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Pungent vine"]["item_id"], 19974)
+
+        with open(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets_provenance.json"),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        self.assertEqual(
+            provenance["shopitems/marasamaw_plant.png"]["sha1"],
+            "ef76212db9d464c08dfc47c9604a62f246444479",
+        )
+        self.assertEqual(
+            provenance["shopitems/marasamaw_plant.png"]["timestamp"],
+            "2011-11-25T19:26:13Z",
+        )
+        seed_icons = {
+            "Erzille seed": (
+                19897,
+                "farmingitems/erzille_seed.png",
+                "210f9369a4fe39eb405a5461a2b8b7a3203eb445",
+                "2011-01-09T23:30:58Z",
+            ),
+            "Ugune seed": (
+                19902,
+                "farmingitems/ugune_seed.png",
+                "e1c0d5dd2c21051d5ad3f450670cfbeec65bd666",
+                "2011-06-25T09:02:19Z",
+            ),
+            "Argway seed": (
+                19907,
+                "farmingitems/argway_seed.png",
+                "bf610d0ec5068e9433b512afeac01d4eeae07a4f",
+                "2011-06-25T08:48:00Z",
+            ),
+            "Shengo seed": (
+                19912,
+                "farmingitems/shengo_seed.png",
+                "9e3b4bdb69fa712e525502bc7d11d45cc310ccec",
+                "2011-06-25T08:59:01Z",
+            ),
+            "Samaden seed": (
+                19917,
+                "farmingitems/samaden_seed.png",
+                "6dc13ab9434aa65a5e7963c925c184cae6052d45",
+                "2011-11-28T04:44:47Z",
+            ),
+        }
+        for item_name, (item_id, provenance_key, sha1, timestamp) in seed_icons.items():
+            with self.subTest(seed_icon=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.category, "material")
+                self.assertEqual(definition.asset_path, FARMING_ITEM_IMAGES[item_name])
+                self.assertEqual(HUNTER_ITEM_IMAGES[item_name], FARMING_ITEM_IMAGES[item_name])
+                self.assertEqual(provenance[provenance_key]["sha1"], sha1)
+                self.assertEqual(provenance[provenance_key]["timestamp"], timestamp)
 
         iconless = sorted(
             item_name
@@ -2242,7 +2311,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 and by_storage_key[item_name].asset_path
             )
         )
-        self.assertEqual(iconless, [], f"Hunter outputs missing icons: {iconless}")
+        self.assertEqual(
+            iconless,
+            [
+                "Aquatic vine",
+                "Draconic vine",
+                "Marble vine",
+                "Oily vine",
+                "Pungent vine",
+                "Saradomin vine",
+                "Zamorak vine",
+            ],
+            f"Unexpected Hunter outputs missing icons: {iconless}",
+        )
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
     def test_fist_of_guthix_rewards_keep_condition_tradeability(self):

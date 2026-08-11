@@ -4542,8 +4542,14 @@ def _set_combat_target(target):
 
 
 def _set_value(key: str, value):
-    player_data[key] = value
-    save_player_data()
+    def _change(current):
+        updated = dict(current)
+        updated[key] = value
+        return updated, True
+
+    committed = commit_direct_action(_change)
+    if not committed:
+        return False
     # Reflect target/activity changes on the in-review HUD immediately. For XP
     # skills the HUD shows level/progress (so the target swap is not visible
     # there), but for Utilities/Activities the HUD shows the active target name,
@@ -4553,6 +4559,7 @@ def _set_value(key: str, value):
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+    return True
 
 
 def _set_combat_prayer_config(key: str, value):

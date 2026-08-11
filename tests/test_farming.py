@@ -186,9 +186,16 @@ class TestFarmingData(unittest.TestCase):
             crop = FARMING_CROPS_BY_ID[crop_id]
             self.assertIn(blocked_field, crop.source_blocked)
             self.assertFalse(crop.runnable)
-        for crop_id in ("red_blossom", "blue_blossom", "green_blossom", "erzille", "argway", "ugune", "shengo", "samaden", "lergberry", "kalferberry"):
+        for crop_id in ("red_blossom", "blue_blossom", "green_blossom", "lergberry", "kalferberry"):
             self.assertTrue(FARMING_CROPS_BY_ID[crop_id].source_blocked)
             self.assertFalse(FARMING_CROPS_BY_ID[crop_id].runnable)
+        for crop_id in ("erzille", "argway", "ugune", "shengo", "samaden"):
+            crop = FARMING_CROPS_BY_ID[crop_id]
+            self.assertEqual(crop.source_blocked, ())
+            self.assertTrue(crop.runnable)
+            self.assertEqual((crop.stages, crop.stage_minutes), (4, 20))
+            self.assertEqual((crop.base_lives, crop.min_save_slots, crop.max_save_slots), (3, 67, 80))
+            self.assertEqual(crop.disease_slots, 6)
         self.assertEqual(
             set(FARMING_SOURCE_BLOCKED),
             {"watering_growth_multiplier", "watering_yield_effect"},
@@ -1087,8 +1094,8 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertIn("access", message)
         data["agility_level"] = 55
         skill_open, ok, message = set_farm_plan_pure(data, "habitat_vine_herb_east", "ugune")
-        self.assertFalse(ok)
-        self.assertIn("source-blocked", message)
+        self.assertTrue(ok)
+        self.assertEqual(message, "plan saved")
 
         data["farming_level"] = 86
         compound_blocked, ok, _ = set_farm_plan_pure(data, "spirit_tree_secondary", "spirit_tree")
