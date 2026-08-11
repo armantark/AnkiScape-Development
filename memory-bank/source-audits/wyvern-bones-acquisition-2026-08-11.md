@@ -33,6 +33,18 @@ The following table records each pinned value and its exact source.
 | The shield item identities are `2890`, `9731`, `18691`, `20436`, `20438`, and `11284`. | game-main `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml`, items `2890`, `9731`, `18691`, `20436`, `20438`, and `11284`; OpenRS2 rev-742 item definitions. |
 | The Falador hard task requires Slayer level `72` and one Skeletal Wyvern kill. | Darkan `FaladorTasks`; OpenRS2 rev-727 cache enum `3483`; RuneScape Wiki `Falador achievements`, oldid `6571459`, timestamp `2012-11-18T05:31:03Z`. |
 
+### Recovered Grand Exchange rows
+
+The following values are recovered period values. They are not placeholders.
+
+| Item | Guide price | Buy limit | Source oldid |
+| --- | ---: | ---: | ---: |
+| Body shield | `7,165` | `100` | `6570241` |
+| Chaos shield | `16,878` | `10` | `6561507` |
+| Cosmic shield | `2,387` | `10` | `6111509` |
+| Dragonfire shield | `3,577,833` | `10` | `6570515` |
+| Mind shield | `3,195` | `100` | `6562662` |
+
 The normalized enemy and shield sprites have durable records in
 `assets_provenance.json` under these exact keys:
 
