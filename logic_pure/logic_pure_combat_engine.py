@@ -1450,7 +1450,9 @@ def apply_combat_burst_pure(
     )
     unprotected_effect = (
         protective_equipment.get("unprotected_effect")
-        if isinstance(protective_equipment, Mapping) and not protection_active
+        if isinstance(protective_equipment, Mapping)
+        and not protection_active
+        and not protective_equipment.get("attack_kind")
         else None
     )
 
@@ -1864,6 +1866,9 @@ def apply_combat_burst_pure(
                 attack_enemy = dict(enemy)
                 attack_enemy["attack_style"] = selected_style
                 attack_enemy.pop("attack_style_by_player_class", None)
+                row_max_hit = _non_negative_int(attack_spec.get("max_hit", 0), 0)
+                if row_max_hit > 0:
+                    attack_enemy["max_hit"] = row_max_hit
             enemy_style = _combat_enemy_attack_style(attack_enemy, combat_class)
             enemy_class = _combat_enemy_attack_class(attack_enemy, combat_class)
             magic_melee = enemy_style == "magic_melee"
@@ -1945,7 +1950,61 @@ def apply_combat_burst_pure(
                     )
                 except (TypeError, ValueError):
                     dragonfire_attack = False
-            if dragonfire_attack:
+            wyvern_breath_spec = (
+                enemy.get("wyvern_breath")
+                if attack_kind == "wyvern_breath"
+                and isinstance(enemy.get("wyvern_breath"), Mapping)
+                else None
+            )
+            if wyvern_breath_spec is not None:
+                equipped_shield = str((data.get("equipment", {}) or {}).get("shield", ""))
+                if protection_active:
+                    breath_max_hit = _non_negative_int(
+                        wyvern_breath_spec.get("shielded_max_hit", 0), 0
+                    )
+                    magic_defence = max(
+                        0,
+                        _combat_effective_player_magic_level(data)
+                        - 8
+                        + _combat_defence_bonus_from_totals(player_totals, "magic"),
+                    )
+                    # PLACEHOLDER(skeletal_wyvern.magic_defence_breath_reduction): a period breath handler or qualified damage sample would replace this reduction curve.
+                    breath_max_hit = max(0, breath_max_hit - magic_defence // 64)
+                    try:
+                        breath_roll = max(
+                            0.0, min(float(rng()), 0.999999999999)
+                        )
+                    except (TypeError, ValueError):
+                        breath_roll = 0.0
+                    damage = int(breath_roll * (breath_max_hit + 1))
+                else:
+                    breath_effect = (
+                        protective_equipment.get("unprotected_effect")
+                        if isinstance(protective_equipment, Mapping)
+                        else None
+                    )
+                    damage = _combat_unprotected_damage_lifepoints(
+                        breath_effect, max_player_lp, rng
+                    )
+                    unprotected_attacks += 1
+                    breath_max_hit = _non_negative_int(
+                        ((breath_effect or {}).get("damage") or {}).get("max", 0),
+                        0,
+                    )
+                delay = _non_negative_int(
+                    wyvern_breath_spec.get("player_delay_ticks", 0), 0
+                )
+                next_player_attack += delay
+                enemy_specials.append(
+                    {
+                        "kind": "wyvern_breath",
+                        "protected": bool(protection_active),
+                        "shield_item": equipped_shield,
+                        "max_hit": breath_max_hit,
+                        "delay_ticks": delay,
+                    }
+                )
+            elif dragonfire_attack:
                 dragonfire_attacks += 1
                 dragonfire_state = combat_dragonfire_protection_pure(
                     data,

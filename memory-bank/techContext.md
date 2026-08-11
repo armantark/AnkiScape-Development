@@ -35,6 +35,11 @@
   'cadence|clock' logic memory-bank --names`. Search contents through the same
   tool; it caps results and columns and excludes giant generated/archive files
   unless `--include-large` is explicit.
+- Broad tree searches ended four agents through context exhaustion on
+  2026-08-10 and 2026-08-11. Single outputs reached `355.5 KB`, `758.3 KB`, and
+  `610.4 KB`. First use `rg --files` to list exact paths. Then search only those
+  paths through `tools/repo_search.py`.
+- Give each writer one narrow unit. Do not give one writer a complete slice.
 - Run focused tests by discovered ID fragment, not guessed class attributes:
   `/opt/homebrew/bin/python3 run_tests.py MainMenuWidgetTest.test_name`. Use
   `--list` to confirm matches and `--verbosity 2` only for a small diagnosis;

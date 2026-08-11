@@ -174,4 +174,10 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Finish Ranging Guild closure. Full Qt found two stale Activities
      inventory assertions. The corrected suite passes 4,053 tests. All final
      quality gates pass.
+   - [x] Close Wyvern-bones acquisition through the level-72 Skeletal Wyvern
+     Combat row. Preserve item IDs 6812, 6816, and 6810. Reuse the sixteen
+     existing downstream actions and register the four hidden breath values.
+   - [ ] Add the six non-gilded Prayer altar rows as separate depth work.
+     Construction models Oak, Teak, Cloth, Mahogany, Limestone, Marble, and
+     Gilded altar objects. Prayer exposes only the Gilded altar method.
 5. [ ] Paused by the owner until the quota resets. Select no new slice.

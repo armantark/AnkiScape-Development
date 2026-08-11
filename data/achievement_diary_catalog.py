@@ -989,7 +989,7 @@ DIARY_FAMILIES = (
                 'falador_hard_why_oh_wyvern',
                 'Why Oh Wyvern',
                 'Kill a skeletal wyvern in the Asgarnian Ice Dungeon.',
-                (DiaryCondition('skill_level', 'slayer', 72, 'Level 72 Slayer'),),
+                (DiaryCondition('skill_level', 'slayer', 72, 'Level 72 Slayer'), DiaryCondition('combat_kill', 'skeletal_wyvern', 1, 'Kill a skeletal wyvern'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 149,
                 0,

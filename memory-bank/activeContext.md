@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+**2026-08-11, Wyvern bones acquisition closure.** A level-72 Skeletal Wyvern
+Combat row now gives one Wyvern bones item per kill. The seed activates 12
+existing items and 16 existing actions. Reachability changes from `1556 actions;
+2573 reachable items; 102 orphan inputs; 101 blocked actions` to `1556 actions;
+2585 reachable items; 90 orphan inputs; 85 blocked actions`. The four hidden
+ice-breath values stay in the placeholder register. The six non-gilded chapel
+altars remain a separate depth candidate. Durable audit:
+`memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
+
+The owner made two direct rulings on 2026-08-10. This goal stays on the isolated
+`goal/breadth-2026-08-11` branch until the owner is ready to merge. This ruling
+replaces the goal clause that required one commit on canonical `main`. Luna does
+source harvesting at maximum effort. Sol then does a quick sanity check instead
+of a second full harvest. Sol keeps implementation work.
+
+The plain and offscreen Qt lanes each found two catalog-contract failures. The
+equipment count is `701`, but the test expects `695`. The Grand Exchange audit
+also treats five new shield identities as unexpected blocked items. All other
+closure gates pass, except the reachability audit's expected nonzero exit while
+known blocked actions remain. No Wyvern slice defect remains open.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is
