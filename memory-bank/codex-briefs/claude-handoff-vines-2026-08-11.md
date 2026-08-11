@@ -1,0 +1,124 @@
+# Claude handoff: Juju vine secondaries
+
+## Goal
+
+Resume from the closed Common jadinko and Juju hunter potion slice. Keep all source limits and registered placeholders.
+
+## Context
+
+The worktree is `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/vines-2026-08-11`.
+
+The branch is `goal/vines-2026-08-11`. The base on `main` remains commit `0071218b`.
+
+The canonical checkout is `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork`. This slice did not change that checkout.
+
+Nothing was pushed. The closure commit is the `HEAD` commit that contains this file. Run `git rev-parse HEAD` to get its exact SHA.
+
+## Shipped scope
+
+The slice adds the Common jadinko Hunter route. It uses a reusable Marasamaw plant.
+
+A success gives these results:
+
+- 350 Hunter XP.
+- One Withered vine.
+- A chance to give one vine-herb seed.
+
+The seed selector contains these items:
+
+- Erzille seed.
+- Ugune seed.
+- Argway seed.
+- Shengo seed.
+- Samaden seed.
+
+The slice also adds the Juju hunter potion recipe. Erzille potion (unf) plus Corrupt vine makes dose 3.
+
+All four Juju hunter doses are live consumables. A consumed dose gives three Hunter levels and leaves the next lower dose.
+
+The potion keeps its Habitat reagent role. Bob Barter can decant the four-dose family.
+
+Runtime telemetry records the guaranteed output and the bonus seed. Review undo uses the same output record.
+
+The normalized assets cover all four potion doses. They also cover the Marasamaw plant, Withered vine, and five seeds.
+
+## Source record
+
+Read the durable audit before a related change:
+
+`/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/vines-2026-08-11/memory-bank/source-audits/juju-vine-secondaries-2026-08-11.md`
+
+The audit records every pinned value, source conflict, placeholder, asset, and reachability result.
+
+## Registered placeholders
+
+| ID | Live value | Source needed to close it |
+| --- | --- | --- |
+| `hunter.herblore_habitat_success_curves` | Common jadinko uses `rate1=128` and `rate99=256`. | A period catch routine or a qualified measured table. |
+| `hunter.common_jadinko_seed_roll` | The seed trigger is `16/256`; the selector is uniform across five seeds. | A period drop routine or a qualified capture sample. |
+| `potions.juju_hunter_boost` | A dose gives three Hunter levels. | A period player-drink routine or an exact dated statement. |
+
+Do not remove a placeholder marker without the source named in this table.
+
+## Source conflict
+
+Darkan and Juju hunter potion oldid `6258636` refuse a player drink. OpenRS2 item definitions include a `Drink` option but no boost amount.
+
+The owner requires a drinkable potion with a Hunter boost. The live three-level value matches the exact period Hunter potion boost.
+
+Treat this value as recoverable data debt. Do not present it as a recovered Juju value.
+
+## Verification
+
+The final full plain lane passed:
+
+```text
+Ran 4057 tests in 211.908s
+OK (skipped=494)
+```
+
+The final reachability result is:
+
+```text
+1561 actions; 2574 reachable items; 105 orphan inputs; 105 blocked actions
+```
+
+The baseline at `0071218b` was:
+
+```text
+1556 actions; 2573 reachable items; 102 orphan inputs; 101 blocked actions
+```
+
+## Queue
+
+Do not change `ui/ui.py` as part of this closed slice.
+
+A later user-interface slice must fix `ui/ui.py` lines 1467-1470. The current code applies the skill button state in one direction only.
+
+Inspect the neighboring skill buttons in the same slice. Apply the fix to every matching button.
+
+A later source pass can recover `potions.juju_hunter_boost`. Use the exact source condition in the placeholder table.
+
+## Next leverage roots
+
+The next Ectofuntus pass can add these roots:
+
+- Burnt bones.
+- Fayrg bones.
+- Frost dragon bones.
+- Jogre bones.
+- Ourg bones.
+
+Each root adds two items through the Ectofuntus family.
+
+Skip Emerald lens. It belongs to the parallel Darkan quest thread.
+
+## Safety limits
+
+Work only in the selected worktree and branch. Do not change the canonical checkout.
+
+Do not push. Do not amend. Do not use a destructive Git command.
+
+Use evidence from before 2012-11-20. Use the project evidence order.
+
+Do not invent a value. Add a code marker and a matching placeholder-register row for each unrecovered value.

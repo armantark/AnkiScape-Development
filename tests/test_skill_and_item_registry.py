@@ -2175,7 +2175,38 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 60)
+        self.assertEqual(len(HUNTER_DATA), 61)
+        self.assertIn("catch_common_jadinko", HUNTER_DATA)
+        common_jadinko = HUNTER_DATA["catch_common_jadinko"]
+        self.assertEqual(common_jadinko["level"], 70)
+        self.assertEqual(common_jadinko["exp"], 350.0)
+        self.assertEqual(common_jadinko["tools"], {"Marasamaw plant": 1})
+        self.assertEqual(common_jadinko["outputs"], {"Withered vine": 1})
+        self.assertEqual(
+            common_jadinko["bonus_outputs"],
+            (
+                "Erzille seed",
+                "Ugune seed",
+                "Argway seed",
+                "Shengo seed",
+                "Samaden seed",
+            ),
+        )
+        self.assertEqual(common_jadinko["bonus_output_chance"], 16 / 256)
+        self.assertEqual(
+            {
+                dose: by_storage_key[f"Juju hunter potion ({dose})"].source_item_id
+                for dose in range(1, 5)
+            },
+            {1: 20026, 2: 20025, 3: 20024, 4: 20023},
+        )
+        self.assertTrue(by_storage_key["Marasamaw plant"].tradeable)
+        self.assertFalse(by_storage_key["Marasamaw plant"].stackable)
+        self.assertFalse(by_storage_key["Withered vine"].tradeable)
+        self.assertTrue(by_storage_key["Withered vine"].stackable)
+        for seed_name in common_jadinko["bonus_outputs"]:
+            self.assertFalse(by_storage_key[seed_name].tradeable)
+            self.assertTrue(by_storage_key[seed_name].stackable)
         self.assertEqual(
             HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
             ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),
@@ -2221,6 +2252,13 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Long kebbit spike",
             "Teasing stick",
             "Rabbit snare",
+            "Marasamaw plant",
+            "Withered vine",
+            "Erzille seed",
+            "Ugune seed",
+            "Argway seed",
+            "Shengo seed",
+            "Samaden seed",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertIn(item_name, HUNTER_ITEM_IMAGES)

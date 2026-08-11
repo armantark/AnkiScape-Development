@@ -2,6 +2,12 @@
 
 ## Current Focus
 
+**2026-08-11, Common jadinko and Juju hunter potion slice closes.** The level-70 Common jadinko route uses a reusable Marasamaw plant. It gives 350 Hunter XP, one Withered vine, and an optional vine-herb seed. The Juju hunter recipe makes dose 3. All four doses are drinkable and give a three-level Hunter boost. The boost uses registered placeholder `potions.juju_hunter_boost` because no qualified period source states a player-drink value.
+
+Full plain discovery passes 4,057 tests with 494 expected skips. Reachability is now 1,561 actions, 2,574 reachable items, 105 orphan inputs, and 105 blocked actions. The durable audit is `memory-bank/source-audits/juju-vine-secondaries-2026-08-11.md`.
+
+The queue has two items. Fix the one-way enable state at `ui/ui.py` lines 1467-1470 and on neighboring skill buttons. Recover the Juju hunter boost from a period player-drink routine or an exact dated statement.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is

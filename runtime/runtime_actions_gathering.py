@@ -608,6 +608,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         if ctx.cadence_forced_opportunity
         else calculate_hunter_success_probability_pure(success_level, spec)
     )
+    bonus_outputs = tuple(spec.get("bonus_outputs", ()) or ())
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
@@ -615,6 +616,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
+        ctx.random_random() if bonus_outputs else None,
+        ctx.random_random() if bonus_outputs else None,
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")
@@ -623,6 +626,10 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
 
     player_data["inventory"] = new_inv
     produced_outputs = _spec_output_items(spec, _output_item)
+    for bonus_item in bonus_outputs:
+        produced = int(new_inv.get(bonus_item, 0)) - int(inventory.get(bonus_item, 0))
+        if produced > 0:
+            produced_outputs[str(bonus_item)] = produced
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,

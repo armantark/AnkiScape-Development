@@ -26,6 +26,26 @@ DARKAN_POTION_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "src/main/java/com/rs/game/content/Potions.kt"
 )
+OPENRS2_JUJU_HUNTER_POTION_DOSE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/"
+    "727-2012-07-24/cache (archive sha256 "
+    "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8); "
+    "741-2012-11-04/cache (archive sha256 "
+    "61855e4c9f18e5ae25124277506c5b4d24317caf96f8e0a5cd1b06a037db7180); "
+    "742-2012-11-07/cache (archive sha256 "
+    "9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8)"
+)
+JUJU_HUNTER_POTION_DOSE_IDS: Dict[int, int] = {
+    1: 20026,
+    2: 20025,
+    3: 20024,
+    4: 20023,
+}
+JUJU_HUNTER_POTION_DOSE_SOURCE = (
+    f"{DARKAN_POTION_SOURCE_PATH}: JUJU_HUNTER_POTION; "
+    f"{OPENRS2_JUJU_HUNTER_POTION_DOSE_SOURCE}: index 19, group 78, "
+    "files 55-58 decode items 20023-20026 as doses 4-1"
+)
 
 VIAL_ITEM = ("Vial", 229)
 # Potion flasks (1)-(6) are a documented post-baseline exception (released Feb
@@ -36,8 +56,18 @@ VIAL_ITEM = ("Vial", 229)
 # vial ids above come from the 2011 source `PotionType.kt`.
 EMPTY_FLASK_ITEM = ("Potion flask", 23191)
 
-# base display name -> (affected skill ids, strategy, {dose: vial_id}, {dose: flask_id})
+# base display name -> item-state and supported-use metadata
 POTION_FAMILIES: Dict[str, Dict[str, object]] = {
+    "Juju hunter potion": {
+        "role": "habitat_reagent",
+        "drinkable": True,
+        "skills": ("hunter",),
+        # PLACEHOLDER(potions.juju_hunter_boost): an authentic period routine or
+        # source that states the player-drink Hunter boost magnitude.
+        "strategy": "flat_skill",
+        "doses": JUJU_HUNTER_POTION_DOSE_IDS,
+        "source": JUJU_HUNTER_POTION_DOSE_SOURCE,
+    },
     "Attack potion": {"skills": ("attack",), "strategy": "r", "doses": {1: 125, 2: 123, 3: 121, 4: 2428},
                       "flask_doses": {1: 23205, 2: 23203, 3: 23201, 4: 23199, 5: 23197, 6: 23195}},
     "Strength potion": {"skills": ("strength",), "strategy": "r", "doses": {1: 119, 2: 117, 3: 115, 4: 113},
@@ -165,10 +195,11 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
 
 
 def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
-    """CONSUMABLE_DATA entries: each vial and flask dose is drinkable, applies the
-    boost, and leaves the next-lower dose (an empty Vial / Potion flask at dose 1)."""
+    """Drinkable vial and flask doses, excluding reagent-only families."""
     rows: Dict[str, Dict[str, object]] = {}
     for base, spec in POTION_FAMILIES.items():
+        if not spec.get("drinkable", True):
+            continue
         source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose in spec["doses"]:  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {

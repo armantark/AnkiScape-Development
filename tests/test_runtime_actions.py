@@ -3841,6 +3841,35 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["hunter_exp"], 348.0)
         self.assertEqual(calls["xp"], [348.0])
 
+    def test_common_jadinko_bonus_seed_is_recorded_for_review_undo(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Marasamaw plant": 1},
+            "hunter_level": 70,
+            "hunter_exp": 0,
+            "current_hunter": "catch_common_jadinko",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_hunter_answer(
+                _context(player_data, calls, random_values=(0.0, 0.0, 0.4))
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Marasamaw plant"], 1)
+        self.assertEqual(player_data["inventory"]["Withered vine"], 1)
+        self.assertEqual(player_data["inventory"]["Argway seed"], 1)
+        self.assertEqual(player_data["hunter_exp"], 350.0)
+        telemetry = player_data["action_telemetry"]["actions"][
+            "hunter:catch_common_jadinko"
+        ]
+        self.assertEqual(
+            telemetry["outputs"],
+            {"Withered vine": 1, "Argway seed": 1},
+        )
+
     def test_hunter_quota_ticket_is_consumed_only_after_success(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         ticket = "Swamp lizard quota ticket"

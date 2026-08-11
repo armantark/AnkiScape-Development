@@ -254,6 +254,8 @@ def _build_combat_potion_dose_lookup():
     and the (1)-(6) flasks — a flask holds more doses, so it lasts longer per slot."""
     lookup = {}
     for base_name, spec in POTION_FAMILIES.items():
+        if not spec.get("drinkable", True):
+            continue
         skills = tuple(spec["skills"])
         strategy = str(spec["strategy"])
         for dose in spec["doses"]:

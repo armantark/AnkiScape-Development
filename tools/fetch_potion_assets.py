@@ -41,7 +41,7 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
         )
         item_names.extend(
             potion_flask_name(base, dose)
-            for dose in sorted(spec["flask_doses"])  # type: ignore[arg-type]
+            for dose in sorted(spec.get("flask_doses", {}))  # type: ignore[arg-type]
         )
     return tuple(
         AssetRequest(
