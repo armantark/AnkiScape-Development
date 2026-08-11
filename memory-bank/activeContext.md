@@ -12,6 +12,8 @@ between the 2026-08-08 resume and this pause. The older Pass 7 co-ideation packe
 predates this interval. Use
 `memory-bank/codex-briefs/goal-pause-handoff-2026-08-10.md` for the complete
 interval inventory, proof, and resume order. The goal service remains `paused`.
+Use `memory-bank/codex-briefs/claude-checkpoint-handoff-2026-08-10.md` when the
+owner transfers this clean checkpoint to Claude.
 
 **2026-08-10, owner-paused after Ranging Guild implementation.** The complete
 ten-shot Ranging Guild competition and six-row ticket exchange are implemented
