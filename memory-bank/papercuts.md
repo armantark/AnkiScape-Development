@@ -383,3 +383,4 @@
 2026-08-11 16:50 PDT — A provider `503` authentication outage stopped the workflow during its run and left a zombie task; stop the zombie task before a resume.
 2026-08-11 16:50 PDT — The resumed workflow repeated the harvest phase instead of using cached results because the failed run left an incomplete journal.
 2026-08-11 16:50 PDT — A broad placeholder-convention search emitted 35.1 KB of clipped output; search the target data module and placeholder register separately with narrow terms.
+2026-08-11 17:24:22 PDT — An orchestrator brief copied an unverified exclusion from an earlier harvest into a committed source audit. Final briefs must contain only claims with attached citations.

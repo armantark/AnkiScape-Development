@@ -44,7 +44,7 @@ The following table records each live grinding identity.
 The primary server record is Darkan commit `a2568b880390ef697b1b17e825fdef7868bed67f`.
 
 Darkan `Burying.java:33-64` records the bone identities and burial XP.
-Darkan `Ectofuntus.kt:20-31,91-132,250-276` records the grinding and worship routes.
+Darkan `Ectofuntus.kt:20-31,91-132,193-247,250-276` records the grinding and worship routes.
 
 The following dated RuneScape Wiki revisions give independent period evidence.
 
@@ -58,7 +58,12 @@ The following dated RuneScape Wiki revisions give independent period evidence.
 | Raurg bones | `6541406` |
 | Ourg bones | `6356815` |
 | Frost dragon bones | `6515919` |
+| Frost dragon (Dungeoneering) | `5794845` |
 | Ectofuntus `4.0x` multiplier | `6544994` |
+
+Raurg bones oldid `6541406`, line 26, gives a Zombie impling quantity of `2-3`.
+Darkan `data/npcs/drops/zombie_impling.json:84-86` at the pinned commit gives exactly `2`.
+Darkan does not confirm the upper endpoint of `3`.
 
 ## Zogre Prayer XP correction
 
@@ -107,13 +112,19 @@ No placeholder controls the bone IDs, burial XP, bonemeal IDs, or Ectofuntus mul
 
 ## Open Frost dragon identity mapping
 
-Two period item IDs have the name Frost dragon bones: `18830` and `18832`.
-No recovered period source maps one ID to the Asgarnian Ice Dungeon route.
-No recovered period source maps the other ID to the Daemonheim route.
+The rev-727 cache gives two item definitions named Frost dragon bones.
+Item `18832` is exchangeable. Item `18830` is not exchangeable.
 
-The record preserves both IDs.
-The live combat and Grand Exchange route uses tradeable item `18832`.
-The one-to-one route association stays open.
+Frost dragon bones oldid `6515919`, lines 29-30, says both Frost dragon types always drop one named item.
+Frost dragon (Dungeoneering) oldid `5794845`, lines 19, 27, and 37, also names the item.
+Neither old revision gives an item ID.
+
+The live normal Frost dragon always drops exchangeable item `18832`.
+`data/bone_sources_data.py:88-90,116` and `generated/grand_exchange_period_generated.py:3676` record this implementation.
+Item `18830` has no live route.
+
+No recovered period source maps either ID to the Asgarnian Ice Dungeon or Daemonheim route.
+The live implementation does not settle the period item-to-route mapping.
 
 A period drop routine with a location key can settle this mapping.
 A dated source that names both route-specific item IDs can also settle it.
@@ -126,7 +137,6 @@ This slice excludes four nearby cases.
 - General Graardor drops separate Ourg bone identity `14793`.
 - The coffin route uses Ourg bones item `4834`, not item `14793`.
 - Burnt bones are ground spawns. Burning ordinary bones cannot create them.
-- Unobtainable Frost dragon bone spawns do not supply a live route.
 
 ## Reachability result
 
