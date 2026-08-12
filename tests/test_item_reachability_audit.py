@@ -269,6 +269,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         self.assertEqual(
+            report["routes"]["Polar kebbit fur"],
+            "Hunter:catch_polar_kebbit",
+        )
+        self.assertEqual(
             report["routes"]["Long kebbit spike"],
             "Hunter:track_razor_backed_kebbit",
         )

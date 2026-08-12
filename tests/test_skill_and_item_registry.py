@@ -2175,7 +2175,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 64)
+        self.assertEqual(len(HUNTER_DATA), 65)
         jadinkos = {
             "track_shadow_jadinko": (71, 475.0, {"Noose wand": 1}, "Shadow vine", 19977),
             "track_diseased_jadinko": (78, 580.5, {"Noose wand": 1}, "Corrupt vine", 19979),
@@ -2209,6 +2209,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(HUNTER_DATA["catch_baby_impling_puro_puro"]["tools"], {"Butterfly net": 1})
         self.assertEqual(HUNTER_DATA["catch_baby_impling_world"]["tools"], {})
         self.assertEqual(HUNTER_DATA["catch_wild_kebbit"]["requirements"], {"Logs": 1})
+        polar = HUNTER_DATA["catch_polar_kebbit"]
+        self.assertEqual(polar["level"], 1)
+        self.assertEqual(polar["exp"], 30.0)
+        self.assertEqual(polar["tools"], {"Noose wand": 1})
+        self.assertEqual(
+            polar["outputs"],
+            {"Bones": 1, "Raw beast meat": 1, "Polar kebbit fur": 1},
+        )
+        self.assertEqual(polar["source_item_id"], 10117)
+        self.assertEqual(by_storage_key["Polar kebbit fur"].source_item_id, 10117)
         tracking = HUNTER_DATA["track_razor_backed_kebbit"]
         self.assertEqual(tracking["level"], 49)
         self.assertEqual(tracking["exp"], 348.0)
@@ -2239,6 +2249,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Rope",
             "Noose wand",
             "Raw beast meat",
+            "Polar kebbit fur",
             "Long kebbit spike",
             "Teasing stick",
             "Rabbit snare",

@@ -2318,6 +2318,43 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(butterfly_inv["Butterfly net"], 1)
         self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
+    def test_polar_kebbit_tracking_preserves_noose_wand_and_awards_sourced_outputs(self):
+        target = "catch_polar_kebbit"
+        self.assertEqual(
+            hunter_source_roll_chance_pure(1, HUNTER_DATA[target]),
+            130 / 255,
+        )
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 1, "inventory": {}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Noose wand",),
+        )
+
+        inventory, exp, ok, output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Noose wand": 1},
+            HUNTER_DATA,
+            1,
+            0.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 30.0)
+        self.assertEqual(output_item, "Polar kebbit fur")
+        self.assertEqual(
+            inventory,
+            {
+                "Noose wand": 1,
+                "Bones": 1,
+                "Raw beast meat": 1,
+                "Polar kebbit fur": 1,
+            },
+        )
+
     def test_razor_backed_kebbit_tracking_preserves_noose_wand_and_awards_chain_inputs(self):
         target = "track_razor_backed_kebbit"
         self.assertEqual(

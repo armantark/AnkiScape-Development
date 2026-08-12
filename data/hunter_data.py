@@ -297,6 +297,30 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=60,
     ),
     _target(
+        "catch_polar_kebbit",
+        "Catch polar kebbit",
+        "tracking",
+        1,
+        30.0,
+        _out(_BONES, ("Raw beast meat", 1), ("Polar kebbit fur", 1)),
+        "Polar kebbit fur",
+        source=HUNTER_TRACKING_SOURCE,
+        mechanics_source=(
+            "Hunter oldid 6484443: four or five trail searches collapse into "
+            "one review transaction"
+        ),
+        source_item_id=10117,
+        # PLACEHOLDER(hunter.polar_kebbit_success_curve): a period tracking
+        # catch routine or measured table would replace this fallback.
+        rate1=128,
+        rate99=256,
+        notes=(
+            "One review represents the complete four- or five-search trail and "
+            "final attack; the hidden catch curve uses the registered Hunter fallback."
+        ),
+        sort_order=5,
+    ),
+    _target(
         "track_razor_backed_kebbit",
         "Track razor-backed kebbit",
         "tracking",

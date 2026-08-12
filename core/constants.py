@@ -1579,6 +1579,7 @@ HUNTER_SHARED_ITEM_IMAGES = {
     "Marasamaw plant": os.path.join(SHOP_ITEMS_FOLDER, "marasamaw_plant.png"),
     "Wimpy feather": os.path.join(SHOP_ITEMS_FOLDER, "wimpy_feather.png"),
     "Raw beast meat": os.path.join(SHOP_ITEMS_FOLDER, "raw_beast_meat.png"),
+    "Polar kebbit fur": os.path.join(SHOP_ITEMS_FOLDER, "polar_kebbit_fur.png"),
     "Long kebbit spike": os.path.join(
         FLETCHED_ITEMS_FOLDER, "long_kebbit_spike.png"
     ),
