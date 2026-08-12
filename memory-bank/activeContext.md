@@ -4892,6 +4892,13 @@ flees silently when the player runs out of food.
   or quest implementation is introduced.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
 
+## Farming Stats skill-guide source block — 2026-08-12
+
+- The period client enumerates 110 Farming guide structs; that enumeration, not `FARMING_CROPS`, must drive the future projection.
+- The attempted crop-table implementation was withdrawn because it lost non-crop rows, authentic labels/icons, and quest/cross-skill gates, while tying guide membership to implementation state.
+- A source-backed rebuild specification now defines the multi-registry resolution and display-safety contract. Farming and Dungeoneering remain the actionless non-combat guide gaps.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
+
 ## Pass 9 owner repair — 2026-08-11
 
 - Saved target rows now use an explicit `✓` prefix and a stronger green fill in both flat and grouped selectors. Blue remains the temporary Qt selection state.

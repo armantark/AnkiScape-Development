@@ -6049,6 +6049,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   plain skips and three Qt skips.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
 
+## Farming Stats skill-guide source block — 2026-08-12
+
+- Rev-727 and rev-742 establish a 110-struct Farming guide with seven filters and source-owned labels, levels, icons, categories, and gates.
+- Withdrew the crop-table projection after review proved it inverted the source: it omitted non-crop unlocks, filtered period rows by implementation state, substituted internal names/icons, and discarded access gates.
+- Recorded a rebuild specification that uses the period struct list as the spine and resolves each entry against its owning AnkiScape registry. No product behavior changed.
+- Dungeoneering remains untouched as a separate, larger guide gap.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
+
 ## Pass 9 owner repair — 2026-08-11
 
 - Added a visible text cue and stronger fill for saved target rows across shared flat and grouped selectors.
