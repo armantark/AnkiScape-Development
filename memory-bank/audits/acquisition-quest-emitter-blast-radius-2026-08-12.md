@@ -2,14 +2,16 @@
 
 ## Scope and outcome
 
-This read-only acquisition slice began from the corrected reachability baseline on
+The acquisition program began from the corrected reachability baseline on
 `goal/acquire-2026-08-12`: 1,556 actions, 2,493 reachable items, 103 orphan
-inputs, and 102 blocked actions. No product code changed.
+inputs, and 102 blocked actions. Its initial Snake-hide triage was read-only: the
+authentic Bush-snake route is inert for an ordinary player because Tai Bwo
+Wannai Cleanup requires Jungle Potion, Jungle Potion requires Druidic Ritual,
+and both quests stop on un-emitted `required_actions`.
 
-The candidate family was Snake hide. The authentic Bush-snake route is inert for
-an ordinary player because Tai Bwo Wannai Cleanup requires Jungle Potion, Jungle
-Potion requires Druidic Ritual, and both quests stop on un-emitted
-`required_actions`. The slice stopped before implementation as required.
+A later Hunter slice proved that the program as a whole was not blocked. Commit
+`16375023` shipped four Jadinko routes, moving the live graph to 1,560 actions,
+2,497 reachable items, 99 orphan inputs, and 102 blocked actions.
 
 ## Quest-action emitter count
 
@@ -343,6 +345,19 @@ The four new actions are `Hunter:track_shadow_jadinko`,
 `Hunter:catch_guthix_jadinko`. They make exactly Shadow vine, Corrupt vine,
 Plant teeth, and Guthix vine newly reachable; each disappears from the orphan
 set. Existing Herblore consumers now receive authentic producers.
+
+Ten of the eleven candidate roots remain blocked. The dominant cause is still
+the missing production quest-action emitter: 185 of 196 quests are directly
+action-blocked, and prerequisite closure raises the approximate impact to 190
+of 196. Outside that common cause:
+
+- Dragon impling rewards still need a filled-jar Open/Loot action;
+- the Spider-on-stick chain still needs a Jungle spider carcass producer, a
+  thatching-spar Skewer-stick source, and consumption that returns the stick;
+- Relicym's balm shop access remains circular without the un-emitted Zogre Flesh
+  Eaters progression that first supplies balm and unlocks Uglug; and
+- Curly root still needs its Jadinko-Lair curly-vine Woodcutting producer rather
+  than only the existing Firemaking consumer.
 
 A deliberate mutation changed the Shadow route to emit `Mutated shadow vine`.
 `test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end` failed on the
