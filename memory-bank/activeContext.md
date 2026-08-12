@@ -2,6 +2,8 @@
 
 ## Current Focus
 
+**2026-08-12, quest-stage reachability numbers corrected downward.** The item audit no longer seeds stage products when runtime `required_actions` have no prior `auto_actions` emitter, keeps mutually exclusive quest variants separate, and applies the same gate to quest-combat guaranteed drops. The truthful main-catalog result is 1,556 actions, 2,493 reachable items, 103 orphan inputs, and 102 blocked actions: 80 items lose fictional reachability. The drop from 2,573 is a measurement correction, not a gameplay regression. `d2faf1d2` Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 emit their own actions; its Nial Swiftfling Herb pouch route is inert because normal maximum combat level 126 cannot meet the encounter's default level-156 minimum. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `memory-bank/audits/quest-stage-reachability-truth-2026-08-12.md`.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is

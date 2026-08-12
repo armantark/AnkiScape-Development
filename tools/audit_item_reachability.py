@@ -15,7 +15,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -124,6 +124,79 @@ def _close_actions(
     return reachable, route, unresolved
 
 
+def _quest_stage_sources(
+    quest_data: Mapping[str, Mapping[str, Any]],
+    registered_items: set[str],
+    *,
+    combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool] | None = None,
+) -> tuple[dict[str, set[str]], list[dict[str, Any]]]:
+    sources: dict[str, set[str]] = defaultdict(set)
+    blocked: list[dict[str, Any]] = []
+    combat_encounter_satisfiable = combat_encounter_satisfiable or (lambda _encounter: True)
+    for quest_id, quest in quest_data.items():
+        mandatory_actions: set[str] = set()
+        variant_actions: dict[str, set[str]] = defaultdict(set)
+        for stage in quest.get("stage_requirements", ()) or ():
+            if not isinstance(stage, Mapping):
+                continue
+            variant = str(stage.get("variant", "") or "")
+            emitted_actions = mandatory_actions | variant_actions[variant] if variant else (
+                mandatory_actions | set().union(*variant_actions.values())
+                if variant_actions
+                else mandatory_actions
+            )
+            required_actions = _names(stage.get("required_actions"))
+            products = _names(stage.get("produced_inventory")) & registered_items
+            combat_products: dict[str, set[str]] = {}
+            blocked_combat_products: dict[str, set[str]] = {}
+            for encounter in stage.get("combat_encounters", ()) or ():
+                if not isinstance(encounter, Mapping):
+                    continue
+                encounter_id = str(encounter.get("encounter_id", "unknown"))
+                guaranteed_drops = _names(encounter.get("guaranteed_drops")) & registered_items
+                if not guaranteed_drops:
+                    continue
+                combat_products[encounter_id] = guaranteed_drops
+                if not combat_encounter_satisfiable(encounter):
+                    blocked_combat_products[encounter_id] = guaranteed_drops
+            missing_actions = required_actions - emitted_actions
+            stage_id = stage.get("stage", "unknown")
+            if (missing_actions and (products or combat_products)) or blocked_combat_products:
+                blocked.append(
+                    {
+                        "quest_id": quest_id,
+                        "quest": str(quest.get("display_name", quest_id)),
+                        "stage": stage_id,
+                        "products": sorted(products) if missing_actions else [],
+                        "combat_products": {
+                            encounter_id: sorted(items)
+                            for encounter_id, items in sorted(combat_products.items())
+                        } if missing_actions else {},
+                        "blocked_combat_products": {
+                            encounter_id: sorted(items)
+                            for encounter_id, items in sorted(blocked_combat_products.items())
+                        },
+                        "required_actions": sorted(required_actions),
+                        "missing_required_actions": sorted(missing_actions),
+                    }
+                )
+            if missing_actions:
+                continue
+            for item in products:
+                sources[item].add(f"quest-stage:{quest_id}:{stage_id}")
+            for encounter_id, items in combat_products.items():
+                if encounter_id in blocked_combat_products:
+                    continue
+                for item in items:
+                    sources[item].add(f"quest-combat:{quest_id}:{encounter_id}")
+            auto_actions = _names(stage.get("auto_actions"))
+            if variant:
+                variant_actions[variant].update(auto_actions)
+            else:
+                mandatory_actions.update(auto_actions)
+    return sources, blocked
+
+
 def _rank_root_orphans(
     root_orphans: Iterable[str],
     actions: Iterable[Mapping[str, Any]],
@@ -170,8 +243,33 @@ def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import sorceress_garden_data
     from ankiscape.data import thieving_data
     from ankiscape.data import woodcutting_data
+    from ankiscape.logic_pure.logic_pure import (
+        player_combat_level_pure,
+        quest_combat_encounter_has_stats_pure,
+    )
 
     registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
+    maximum_combat_level = player_combat_level_pure(
+        {
+            "attack_level": 99,
+            "defense_level": 99,
+            "strength_level": 99,
+            "constitution_level": 99,
+            "prayer_level": 99,
+            "ranged_level": 99,
+            "magic_level": 99,
+            "summoning_level": 99,
+        }
+    )
+
+    def quest_combat_source_satisfiable(encounter: Mapping[str, Any]) -> bool:
+        configs = encounter.get("npc_configs", {}) or {}
+        minimum_combat = int(configs.get("minimum_player_combat", encounter.get("level", 0)) or 0)
+        # Model the runtime with battle support enabled and a normal maxed player.
+        return (
+            quest_combat_encounter_has_stats_pure(encounter)
+            and minimum_combat <= maximum_combat_level
+        )
 
     action_tables = {
         "Mining": constants.ORE_DATA,
@@ -620,13 +718,13 @@ def build_reachability_report() -> dict[str, Any]:
             seed_sources[item].add(f"quest:{quest_id}")
         for item in _names(quest.get("start_inventory")) & registered_items:
             seed_sources[item].add(f"quest-start:{quest_id}")
-        for stage in quest.get("stage_requirements", ()) or ():
-            if not isinstance(stage, Mapping):
-                continue
-            for item in _names(stage.get("produced_inventory")) & registered_items:
-                seed_sources[item].add(
-                    f"quest-stage:{quest_id}:{stage.get('stage', 'unknown')}"
-                )
+    quest_stage_sources, blocked_quest_stage_products = _quest_stage_sources(
+        constants.QUEST_DATA,
+        registered_items,
+        combat_encounter_satisfiable=quest_combat_source_satisfiable,
+    )
+    for item, sources in quest_stage_sources.items():
+        seed_sources[item].update(sources)
 
     for table in woodcutting_data.BIRD_NEST_OPEN_TABLES:
         table_spec = vars(table)
@@ -689,6 +787,7 @@ def build_reachability_report() -> dict[str, Any]:
             for item in orphan_inputs
         ],
         "root_orphan_leverage": root_orphan_leverage,
+        "blocked_quest_stage_products": blocked_quest_stage_products,
         "unresolved_actions": sorted(unresolved_actions, key=lambda row: row["id"]),
         "routes": {item: route[item] for item in sorted(route)},
     }

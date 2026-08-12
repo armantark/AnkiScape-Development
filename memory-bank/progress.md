@@ -1,5 +1,11 @@
 # Progress
 
+## Quest-stage reachability truth correction — 2026-08-12
+
+The audit now mirrors runtime action gating before it credits quest-stage products, keeps branch variants separate, and applies equivalent gates to quest-combat guaranteed drops. Main falls from 2,573 to 2,493 reachable items: 80 items that were previously reported reachable never were. Orphan inputs rise from 102 to 103 and blocked actions from 101 to 102. This is a measurement correction, not a gameplay regression.
+
+The later `d2faf1d2` slice was re-derived separately. Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 use emitted `auto_actions`; the acquisition helper supplies inventory and levels but does not manufacture `quest_stage_actions`. The same slice's Herb pouch quest-combat route is inert in normal play: Nial Swiftfling defaults to a level-156 minimum while a normal maxed player is combat level 126, and the test reaches it only with level 400 combat stats. Diamond root and Diamond root dust consequently remain unreachable. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `audits/quest-stage-reachability-truth-2026-08-12.md`.
+
 ## Resumed-goal interval closure — 2026-08-10
 
 The audit covers all work after the 2026-08-08 resume. It reviewed 52 commits
