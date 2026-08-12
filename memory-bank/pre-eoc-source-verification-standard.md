@@ -209,13 +209,57 @@ historical wiki statement that javelins were not smithable/fletchable.
 
 ## Darkan and Implementation Gate
 
-- Record the exact Darkan path and commit that supplies a candidate behavior.
-- Determine whether it is original period material, a later reconstruction, or
-  a stub. Repository branding or a 2012 cache base is not sufficient.
+- Exclude every `src/main/java/com/rs/web/*AuditProbe.kt` file unconditionally.
+  These files are audit instrumentation, not period evidence, regardless of
+  their date.
+- For every other Darkan file, inspect `git log -- <path>` and record the exact
+  path and supplying commit. A date cutoff is not a provenance test: upstream
+  files may have recent refactors, while restoration commits are unit-scoped.
+- Where the Darkan restoration has frozen a unit contract under
+  `memory-bank/audit/reports/`, that contract is authoritative for what the
+  sources prove, what is inference, and what remains deferred. Read it instead
+  of inferring provenance from a source path.
+- Determine whether candidate behavior is original Darkan material, a later
+  reconstruction, or a stub. Repository branding or a 2012 cache base is not
+  sufficient.
 - Reconcile every user-visible requirement, formula, roll, output, failure,
   timer, and side effect with the historical evidence.
 - If Darkan is incomplete or conflicts with the period record, wait for its
   high-fidelity work or implement only the independently proven subset.
+
+## Wiki Section Provenance
+
+A revision timestamp dates the page, not every sentence on it. Record the
+section that supplies each claim. Treat Trivia, update-history, scam, exploit,
+and glitch material as historical or unclear unless an independent live-period
+source proves otherwise. Check page-level markers such as `{{beta}}`; an
+otherwise in-period revision may still describe beta content and require a
+second oldid or independent corroboration.
+
+## Search Discipline and Negative Results
+
+A negative search result is not evidence of absence until the same probe has
+passed a positive control. Before acting on a miss, use the same command,
+parameters, parser, path depth, and data-access method to find something known to
+exist. Until then, state only: "my search with these parameters did not find it."
+A clean false negative is more dangerous than an explicit error because it invites
+a decision instead of a retry.
+
+This rule was added after seven false negatives in one day:
+
+- a reachability query requested the nonexistent `reachable_items` key, so an
+  empty set briefly looked like lost reachability;
+- a quest-combat query used `getattr` only, missed dict-form
+  `guaranteed_drops`, and falsely reported zero guaranteed drops across 294
+  encounters when the investigated item was present;
+- `git branch --list '*wyvern*' '*bone*'` could not match an existing duplicate
+  on a branch named `breadth`;
+- a wiki search used `5,000` where the page wrote `5000`;
+- a Gradle probe passed `-Pdarkan.cache.path` while the build reads
+  `darkanCachePath`;
+- `find -maxdepth 6` searched for a file at depth eight; and
+- an unquoted path containing `2012scape with bots` resolved to a plausible but
+  unrelated sibling tree instead of the intended Darkan checkout.
 
 ## Required Audit Record
 
