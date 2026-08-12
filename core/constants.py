@@ -1576,6 +1576,7 @@ HUNTER_EXTRA_ITEM_DATA = hunter_extra_items_as_dict()
 HUNTER_EXTRA_ITEM_DATA.update(big_chinchompa_extra_items_as_dict())
 HUNTER_ITEM_IMAGES = {}
 HUNTER_SHARED_ITEM_IMAGES = {
+    "Marasamaw plant": os.path.join(SHOP_ITEMS_FOLDER, "marasamaw_plant.png"),
     "Wimpy feather": os.path.join(SHOP_ITEMS_FOLDER, "wimpy_feather.png"),
     "Raw beast meat": os.path.join(SHOP_ITEMS_FOLDER, "raw_beast_meat.png"),
     "Long kebbit spike": os.path.join(

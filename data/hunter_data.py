@@ -45,6 +45,21 @@ HUNTER_NET_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_2
 HUNTER_MAGIC_BOX_SOURCE = "https://www.2011.rs/kb/hunter_magical_imp_boxes_level_71"
 HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
 HUNTER_WIMPY_BIRD_SOURCE = "https://runescape.wiki/w/Wimpy_bird?oldid=5936660"
+HERBLORE_HABITAT_SOURCE = "https://runescape.wiki/w/Herblore_Habitat?oldid=6513740"
+HERBLORE_HABITAT_JADINKO_SOURCES = {
+    "track_diseased_jadinko": "https://runescape.wiki/w/Diseased_jadinko?oldid=6062055",
+    "track_shadow_jadinko": "https://runescape.wiki/w/Shadow_jadinko?oldid=6045371",
+    "catch_cannibal_jadinko": "https://runescape.wiki/w/Cannibal_jadinko?oldid=5976665",
+    "catch_guthix_jadinko": "https://runescape.wiki/w/Guthix_jadinko?oldid=6167443",
+}
+DARKAN_HERBLORE_HABITAT_SOURCE_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+)
+
+# PLACEHOLDER(hunter.herblore_habitat_success_curves): period Marasamaw and
+# tracker catch routines or qualified measured tables would replace this shared fallback.
+HERBLORE_HABITAT_RATE1 = 128
+HERBLORE_HABITAT_RATE99 = 256
 
 EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/eagles_peak_members"
 ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/rocking_out_members"
@@ -77,6 +92,8 @@ HUNTER_REUSABLE_TOOLS_BY_GROUP = {
     "impling_puro_puro": (("Butterfly net", 1),),
 }
 HUNTER_REUSABLE_TOOLS_BY_TARGET = {
+    "catch_cannibal_jadinko": (("Marasamaw plant", 1),),
+    "catch_guthix_jadinko": (("Marasamaw plant", 1),),
     "catch_imp_magic_box": (),
 }
 HUNTER_SUPPLY_BUNDLE = (
@@ -302,6 +319,42 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "final attack; the hidden catch curve uses the registered Hunter fallback."
         ),
         sort_order=10,
+    ),
+    _target(
+        "track_shadow_jadinko",
+        "Track shadow jadinko",
+        "tracking",
+        71,
+        475.0,
+        _out(("Shadow vine", 1)),
+        "Shadow vine",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_shadow_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_shadow.json"),
+        source_enum="SHADOW",
+        source_item_id=19977,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand tracking, Shadow vine, and the red-blossom and abandoned-house Habitat setup. One review represents the complete trail and persistent setup."),
+        sort_order=20,
+    ),
+    _target(
+        "track_diseased_jadinko",
+        "Track diseased jadinko",
+        "tracking",
+        78,
+        580.5,
+        _out(("Corrupt vine", 1)),
+        "Corrupt vine",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_diseased_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_diseased.json"),
+        source_enum="DISEASED",
+        source_item_id=19979,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. One review represents the complete trail and persistent setup."),
+        sort_order=30,
     ),
     _target(
         "catch_ruby_harvest",
@@ -573,6 +626,44 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=40,
     ),
     _target(
+        "catch_cannibal_jadinko",
+        "Catch cannibal jadinko",
+        "box_trapping",
+        75,
+        475.0,
+        _out(("Plant teeth", 1)),
+        "Plant teeth",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_cannibal_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_cannibal.json"),
+        source_enum="CANNIBAL_JADINKO",
+        source_npc_id=13155,
+        source_item_id=19975,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Cannibal jadinko oldid 5976665 pins level 75, 475 XP, Marasamaw plant trapping, Plant teeth, and the green-blossom, Kalferberry, tall-grass, Juju-treated Habitat setup. Persistent setup and optional bait are route context, not per-catch consumables."),
+        sort_order=50,
+    ),
+    _target(
+        "catch_guthix_jadinko",
+        "Catch Guthix jadinko",
+        "box_trapping",
+        81,
+        600.0,
+        _out(("Guthix vine", 1)),
+        "Guthix vine",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_guthix_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_guthix.json"),
+        source_enum="GUTHIX_JADINKO",
+        source_npc_id=13164,
+        source_item_id=19982,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw plant trapping, Guthix vine, a Juju-treated flower patch, and weekly player-specific preferences. Persistent setup and optional bait are route context, not per-catch consumables."),
+        sort_order=60,
+    ),
+    _target(
         "catch_grenwall",
         "Catch grenwall",
         "box_trapping",
@@ -819,6 +910,10 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Blue feather": 10089,
     "Stripy feather": 10087,
     "Wimpy feather": 11525,
+    "Plant teeth": 19975,
+    "Shadow vine": 19977,
+    "Corrupt vine": 19979,
+    "Guthix vine": 19982,
     **HUNTER_MATERIAL_ITEMS,
     **HUNTER_TOOL_ITEMS,
 }
@@ -905,6 +1000,14 @@ def _hunter_extra_category(item_name: str) -> str:
 
 
 def _hunter_extra_source(item_name: str) -> str:
+    jadinko_sources = {
+        "Corrupt vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_diseased_jadinko"],
+        "Guthix vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_guthix_jadinko"],
+        "Shadow vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_shadow_jadinko"],
+        "Plant teeth": HERBLORE_HABITAT_JADINKO_SOURCES["catch_cannibal_jadinko"],
+    }
+    if item_name in jadinko_sources:
+        return jadinko_sources[item_name]
     if item_name == "Impling jar":
         return HUNTER_IMPLING_JAR_SHOP_SOURCE
     if item_name == "Small fishing net":
@@ -925,7 +1028,7 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "exp": 0.0,
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
-            "tradeable": True,
+            "tradeable": item_name not in {"Corrupt vine", "Guthix vine", "Shadow vine", "Plant teeth"},
             "stackable": item_name != "Rope",
         }
     return rows

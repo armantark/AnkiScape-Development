@@ -3841,6 +3841,26 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["hunter_exp"], 348.0)
         self.assertEqual(calls["xp"], [348.0])
 
+    def test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end(self):
+        cases = {
+            "track_shadow_jadinko": (71, "Noose wand", "Shadow vine", 475.0),
+            "track_diseased_jadinko": (78, "Noose wand", "Corrupt vine", 580.5),
+            "catch_cannibal_jadinko": (75, "Marasamaw plant", "Plant teeth", 475.0),
+            "catch_guthix_jadinko": (81, "Marasamaw plant", "Guthix vine", 600.0),
+        }
+        for target, (level, tool, output, expected_xp) in cases.items():
+            with self.subTest(target=target):
+                calls = {"xp": [], "saves": 0, "errors": []}
+                player_data = {"inventory": {tool: 1}, "hunter_level": level, "hunter_exp": 0, "current_hunter": target, "hunter_success_count": 0, "completed_achievements": []}
+                ok = handle_hunter_answer(_context(player_data, calls, random_values=(0.0,)))
+                self.assertTrue(ok)
+                self.assertEqual(player_data["inventory"], {tool: 1, output: 1})
+                self.assertEqual(player_data["hunter_exp"], expected_xp)
+                self.assertEqual(player_data["hunter_success_count"], 1)
+                self.assertEqual(calls["xp"], [expected_xp])
+                self.assertEqual(calls["saves"], 1)
+                self.assertEqual(calls["errors"], [])
+
     def test_hunter_quota_ticket_is_consumed_only_after_success(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         ticket = "Swamp lizard quota ticket"

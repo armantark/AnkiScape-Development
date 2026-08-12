@@ -2175,7 +2175,28 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 60)
+        self.assertEqual(len(HUNTER_DATA), 64)
+        jadinkos = {
+            "track_shadow_jadinko": (71, 475.0, {"Noose wand": 1}, "Shadow vine", 19977),
+            "track_diseased_jadinko": (78, 580.5, {"Noose wand": 1}, "Corrupt vine", 19979),
+            "catch_cannibal_jadinko": (75, 475.0, {"Marasamaw plant": 1}, "Plant teeth", 19975),
+            "catch_guthix_jadinko": (81, 600.0, {"Marasamaw plant": 1}, "Guthix vine", 19982),
+        }
+        for target, (level, xp, tools, output, item_id) in jadinkos.items():
+            with self.subTest(target=target):
+                spec = HUNTER_DATA[target]
+                self.assertEqual(spec["level"], level)
+                self.assertEqual(spec["exp"], xp)
+                self.assertEqual(spec["tools"], tools)
+                self.assertEqual(spec["outputs"], {output: 1})
+                self.assertEqual(spec["source_item_id"], item_id)
+                self.assertFalse(spec["tradeable"])
+                item = by_storage_key[output]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertFalse(item.tradeable)
+                self.assertTrue(item.stackable)
+                self.assertIn(output, HUNTER_ITEM_IMAGES)
+                self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[output]))
         self.assertEqual(
             HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
             ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),

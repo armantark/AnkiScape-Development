@@ -263,8 +263,16 @@ is used as evidence for the Jadinko rows.
 
 The four cache identities are independently present in revision 742: Corrupt
 vine `19979`, Plant teeth `19975`, Shadow vine `19977`, and Guthix vine `19982`.
-Their existence corroborates identity only; it does not substitute for the
-missing attraction-state mechanic.
+All four are stackable and non-exchangeable. Their identities and item flags are
+registered on the live Hunter outputs.
+
+The implementation follows the accepted Common-jadinko abstraction: persistent
+Habitat configurations are source-backed route context, not per-catch consumed
+requirements. Tracking uses the reusable Noose wand; box trapping uses the
+reusable Marasamaw plant. Hidden catch probabilities use registered placeholder
+`hunter.herblore_habitat_success_curves` (`rate1=128`, `rate99=256`) because the
+period pages expose no qualified success curve. Bonus seed rolls remain omitted;
+they are not required to make these four fixed primary outputs live.
 
 Darkan's fixed-primary-drop files corroborate quantity one and each have a real
 pre-fleet supplying history: `data/npcs/drops/hunter/hunter_jadinko_shadow.json`,
@@ -333,22 +341,34 @@ pre-existing defect: a completion check can point at an uncompletable quest.
 That suspicion is recorded for the future emitter pass; this slice did not
 investigate or change either enemy.
 
-## Reachability and omissions
+## Reachability and verification
 
-Before and after remain identical:
+| Metric | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Actions | 1,556 | 1,560 | +4 |
+| Reachable items | 2,493 | 2,497 | +4 |
+| Orphan inputs | 103 | 99 | -4 |
+| Blocked actions | 102 | 102 | 0 |
 
-| Metric | Before | After |
-| --- | ---: | ---: |
-| Actions | 1,556 | 1,556 |
-| Reachable items | 2,493 | 2,493 |
-| Orphan inputs | 103 | 103 |
-| Blocked actions | 102 | 102 |
+The four new actions are `Hunter:track_shadow_jadinko`,
+`Hunter:track_diseased_jadinko`, `Hunter:catch_cannibal_jadinko`, and
+`Hunter:catch_guthix_jadinko`. They make exactly Shadow vine, Corrupt vine,
+Plant teeth, and Guthix vine newly reachable; each disappears from the orphan
+set. Existing Herblore consumers now receive authentic producers.
 
-No new item or route exists. No product files changed, so no mutation proof
-applies. The Snake-hide and crab families need the production quest-action
-interaction/emitter path before their authentic gates can open. The Jadinko
-family instead needs the unmerged Common-jadinko framework plus a live Habitat
-attraction-state model; its downstream two items also need the Juju-hunter
-active effect. The Dragon-impling pair needs a general jar-opening reward path.
-The Spider chain needs producers for both Spider carcass and Skewer stick plus
-the authentic returned-stick transformation.
+A deliberate mutation changed the Shadow route to emit `Mutated shadow vine`.
+`test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end` failed on the
+exact inventory mismatch, then passed after restoration. Focused pure, runtime,
+registry, asset, and placeholder checks pass six tests. Full plain discovery
+passes 4,061 tests with 496 expected skips. The real offscreen Qt corpus passes
+all 4,061 tests with three expected skips when split into independent processes;
+the monolithic process exceeded the ten-minute command cap without a terminal
+failure. The four processes covered 723, 722, 1,727, and 889 tests.
+
+Ordinary tool supply is live: Noose wands cost 4 Coins in Aleck's, Ayleth's, and
+Nardah Hunter shops; Papa Mambo's Shop stocks 30 Marasamaw plants at 38 Coins.
+The routes require normal skill progression and those reusable tools. The
+sixteen emitter-blocked roots remain untouched. The Dragon-impling pair still
+needs a general jar-opening reward path. The Spider chain still needs producers
+for both Spider carcass and Skewer stick plus the authentic returned-stick
+transformation.

@@ -2355,6 +2355,22 @@ class TestLogic(unittest.TestCase):
             },
         )
 
+    def test_jadinko_secondaries_use_reusable_tools_and_fixed_primary_outputs(self):
+        cases = {
+            "track_shadow_jadinko": (71, 475.0, "Noose wand", "Shadow vine"),
+            "track_diseased_jadinko": (78, 580.5, "Noose wand", "Corrupt vine"),
+            "catch_cannibal_jadinko": (75, 475.0, "Marasamaw plant", "Plant teeth"),
+            "catch_guthix_jadinko": (81, 600.0, "Marasamaw plant", "Guthix vine"),
+        }
+        for target, (level, expected_xp, tool, output) in cases.items():
+            with self.subTest(target=target):
+                self.assertEqual(hunter_target_locked_reasons_pure({"hunter_level": level, "inventory": {}}, target, HUNTER_DATA, QUEST_UNLOCK_RULES), (tool,))
+                inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(target, {tool: 1}, HUNTER_DATA, level, 0.0)
+                self.assertTrue(ok)
+                self.assertEqual(xp, expected_xp)
+                self.assertEqual(output_item, output)
+                self.assertEqual(inventory, {tool: 1, output: 1})
+
     def test_cooking_source_odds_and_scaled_probability(self):
         shrimps = COOKING_DATA["cook_shrimps"]
         shark = COOKING_DATA["cook_shark"]
