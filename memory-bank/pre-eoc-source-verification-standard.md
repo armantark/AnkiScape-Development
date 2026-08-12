@@ -245,6 +245,14 @@ exist. Until then, state only: "my search with these parameters did not find it.
 A clean false negative is more dangerous than an explicit error because it invites
 a decision instead of a retry.
 
+A search can also fail by finding a hit and stopping rather than finding the hit.
+Before reading the first match as the answer, check whether more than one row can
+satisfy the predicate. This caught a Dragon impling drop table that contained both
+finished-ammunition and component rows for the same conceptual items: the first
+match was real but wrong, while the correct Dragon arrowheads row sat four entries
+away. Positive controls guard probes that cannot hit; multiplicity checks guard
+probes that hit too easily. Either rule alone leaves a gap.
+
 This rule was added after seven false negatives in one day:
 
 - a reachability query requested the nonexistent `reachable_items` key, so an
