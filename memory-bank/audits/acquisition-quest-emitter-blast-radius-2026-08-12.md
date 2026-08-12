@@ -362,11 +362,10 @@ of 196. Outside that common cause:
 A deliberate mutation changed the Shadow route to emit `Mutated shadow vine`.
 `test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end` failed on the
 exact inventory mismatch, then passed after restoration. Focused pure, runtime,
-registry, asset, and placeholder checks pass six tests. Full plain discovery
-passes 4,061 tests with 496 expected skips. The real offscreen Qt corpus passes
-all 4,061 tests with three expected skips when split into independent processes;
-the monolithic process exceeded the ten-minute command cap without a terminal
-failure. The four processes covered 723, 722, 1,727, and 889 tests.
+registry, asset, and placeholder checks pass six tests. The current full plain
+discovery passes 4,058 tests with 496 expected skips. The current monolithic
+offscreen Qt lane passes all 4,058 tests with three expected skips in 541.373
+seconds.
 
 Ordinary tool supply is live: Noose wands cost 4 Coins in Aleck's, Ayleth's, and
 Nardah Hunter shops; Papa Mambo's Shop stocks 30 Marasamaw plants at 38 Coins.
