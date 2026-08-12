@@ -5891,6 +5891,57 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
 
+    def test_bank_impling_jar_loot_uses_direct_action_undo(self):
+        addon = _load_addon_as_package("ankiscape_impling_jar_direct_action_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Hunter"
+        initial = {
+            "inventory": {
+                "Butterfly net": 1,
+                "Impling jar": 1,
+                "Dragon impling jar": 1,
+            },
+            "hunter_level": 83,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        rolls = iter((2_700_000 / 6_700_000, 0.0))
+        original_random = addon.random.random
+        addon.random.random = lambda: next(rolls)
+        self.addCleanup(setattr, addon.random, "random", original_random)
+
+        result = addon.on_open_impling_jar("Dragon impling jar")
+
+        self.assertEqual(result["reward_item"], "Dragon dart tip")
+        self.assertEqual(result["reward_quantity"], 105)
+        self.assertEqual(
+            addon.player_data["inventory"],
+            {"Butterfly net": 1, "Impling jar": 1, "Dragon dart tip": 105},
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_impling_jar_loot_restores_rng_when_undo_registration_fails(self):
+        addon = _load_addon_as_package("ankiscape_impling_jar_rng_rollback_integration")
+
+        def _reject_undo(*_args):
+            raise RuntimeError
+
+        addon.mw = _DummyMW(types.SimpleNamespace(add_custom_undo_entry=_reject_undo))
+        addon.player_data = {"inventory": {"Dragon impling jar": 1}}
+        before = addon.random.getstate()
+
+        self.assertIsNone(addon.on_open_impling_jar("Dragon impling jar"))
+        self.assertEqual(addon.player_data, {"inventory": {"Dragon impling jar": 1}})
+        self.assertEqual(addon.random.getstate(), before)
+
     def test_bank_discard_x_preserves_remainder_and_uses_direct_action_undo(self):
         addon = _load_addon_as_package("ankiscape_discard_direct_action_integration")
         col = _DummyCol()

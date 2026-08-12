@@ -305,6 +305,19 @@ class TestItemReachabilityAudit(unittest.TestCase):
             {action["id"] for action in report["unresolved_actions"]},
         )
 
+        self.assertEqual(
+            report["routes"]["Dragon impling jar"],
+            "Hunter:catch_dragon_impling_puro_puro",
+        )
+        self.assertEqual(
+            report["routes"]["Dragon arrowtips"],
+            "Item action:loot:Dragon impling jar",
+        )
+        self.assertEqual(
+            report["routes"]["Dragon dart tip"],
+            "Item action:loot:Dragon impling jar",
+        )
+
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         for item_name in (
             "Candle lantern (empty)",

@@ -276,21 +276,32 @@ supply the visible values; the reconstructed files only corroborate the route
 shape and expose the personalised weekly god-environment state that a future
 implementation must not replace with a fixed default.
 
-### Fallback gate: Dragon-impling tips
+### Closed gate: Dragon-impling tips
 
-Dragon arrowtips and Dragon dart tip remain root orphans. The live Hunter path
-can reach Hunter 83 from ordinary level-one targets, buy Impling jars and nets
-from live shops, catch either Dragon-impling target, consume one empty jar, and
-produce one Dragon impling jar. Positive controls show the same gate probe
-accepting the level-one Crimson swift and rejecting Baby/Dragon implings below
-their required levels.
+Dragon arrowtips and Dragon dart tip now have a filled-jar Loot action. The live
+Hunter path can reach Hunter 83 from ordinary level-one targets, buy Impling
+jars and nets from live shops, catch either Dragon-impling target, consume one
+empty jar, and produce one Dragon impling jar.
 
-The route stops after the catch. Dragon impling jar appears in neither
-`ITEM_PACK_DATA` nor `CONSUMABLE_DATA`; the bank UI exposes `Open` only for the
-former, and the consumable path returns `not_a_consumable` for the latter. No
-live reward table or handler opens the jar, so the audit correctly reports no
-producer for either tip. Implementing the pair would first require a general
-impling-jar opening/reward mechanism, not merely two acquisition rows.
+The corrected quest-gate probe iterates all 28 `QUEST_UNLOCK_RULES` and calls
+`hunter_target_locked_reasons_pure`. It finds exactly one `catch_ferret` rule and
+returns `("Eagles' Peak",)` as the positive control. It finds exactly one row
+for each tested Baby/Dragon target and returns no quest lock for
+`catch_baby_impling_puro_puro`, `catch_dragon_impling_puro_puro`, or
+`catch_dragon_impling_world`. Darkan's separate Puro-Puro entry check permits
+entry unless the player carries a Magic box; it has no quest condition. Darkan's
+catch handler independently gates Pirate implings behind Rocking Out but not
+Dragon implings. The quest gate is therefore clear.
+
+Revision-742 cache item `11256` exposes `Loot`; the pinned period Wiki revision
+`6151109` enumerates the Dragon-impling rewards; and Darkan's original
+`dragon_impling.json` at commit
+`c6fbe036b1743f4dd6067ec178332c69c3708856` supplies probabilities and quantity
+ranges. The action keeps source-enumerated rewards that have live AnkiScape item
+identities, reserves omitted probability as an empty registered-result row, and
+does not renormalise the table. Darkan's defective finished-ammunition rows
+`11212` and `11230` are excluded. The generic registry and pure opener can host
+other filled jars, but only Dragon has a source-audited table in this slice.
 
 ### Fallback gate: Spider carcass chain
 
@@ -333,25 +344,27 @@ investigate or change either enemy.
 
 ## Reachability and verification
 
-| Metric | Before | After | Change |
+| Metric | Before jar action | After jar action | Change |
 | --- | ---: | ---: | ---: |
-| Actions | 1,556 | 1,560 | +4 |
-| Reachable items | 2,493 | 2,497 | +4 |
-| Orphan inputs | 103 | 99 | -4 |
-| Blocked actions | 102 | 102 | 0 |
+| Actions | 1,561 | 1,562 | +1 |
+| Reachable items | 2,498 | 2,503 | +5 |
+| Orphan inputs | 99 | 97 | -2 |
+| Blocked actions | 102 | 100 | -2 |
 
-The four new actions are `Hunter:track_shadow_jadinko`,
-`Hunter:track_diseased_jadinko`, `Hunter:catch_cannibal_jadinko`, and
-`Hunter:catch_guthix_jadinko`. They make exactly Shadow vine, Corrupt vine,
-Plant teeth, and Guthix vine newly reachable; each disappears from the orphan
-set. Existing Herblore consumers now receive authentic producers.
+The new `Item action:loot:Dragon impling jar` action makes Dragon arrowtips and
+Dragon dart tip newly reachable; both disappear from the orphan set. Their live
+Fletching consumers then make Dragon arrows and Dragon darts reachable. The loot
+action also makes Amulet of glory reachable because it had no prior producer,
+while Dragon longsword, Dragon bolt tips, Dragon bolts, Dragon bones,
+Dragonstone, Magic seed, Dragonstone ammy, Snapdragon seed, Summer pie, and
+Death tiara already had routes. The Hunter jar route remains
+`Hunter:catch_dragon_impling_puro_puro`.
 
-Ten of the eleven candidate roots remain blocked. The dominant cause is still
+Nine of the eleven candidate roots remain blocked. The dominant cause is still
 the missing production quest-action emitter: 185 of 196 quests are directly
 action-blocked, and prerequisite closure raises the approximate impact to 190
 of 196. Outside that common cause:
 
-- Dragon impling rewards still need a filled-jar Open/Loot action;
 - the Spider-on-stick chain still needs a Jungle spider carcass producer, a
   thatching-spar Skewer-stick source, and consumption that returns the stick;
 - Relicym's balm shop access remains circular without the un-emitted Zogre Flesh
@@ -361,16 +374,19 @@ of 196. Outside that common cause:
 
 A deliberate mutation changed the Shadow route to emit `Mutated shadow vine`.
 `test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end` failed on the
-exact inventory mismatch, then passed after restoration. Focused pure, runtime,
-registry, asset, and placeholder checks pass six tests. The current full plain
-discovery passes 4,058 tests with 496 expected skips. The current monolithic
-offscreen Qt lane passes all 4,058 tests with three expected skips in 541.373
-seconds.
+exact inventory mismatch, then passed after restoration. The Dragon-jar slice
+also mutated `Dragon dart tip` to `Dragon dart tip MUTATION`; the ordinary-player
+integration test failed on that exact reward mismatch and passed after
+restoration. A later correctness review fixed the sourced rare-row weights,
+restored registered Dragon bolt tips, Dragonstone ammy, and Death tiara rewards,
+and added RNG rollback when undo registration fails. The final plain lane passes
+4,072 tests with 497 expected skips in 329.278 seconds. The final offscreen Qt
+lane passes all 4,072 tests with three expected skips in 716.844 seconds.
 
 Ordinary tool supply is live: Noose wands cost 4 Coins in Aleck's, Ayleth's, and
 Nardah Hunter shops; Papa Mambo's Shop stocks 30 Marasamaw plants at 38 Coins.
 The routes require normal skill progression and those reusable tools. The
-sixteen emitter-blocked roots remain untouched. The Dragon-impling pair still
-needs a general jar-opening reward path. The Spider chain still needs producers
-for both Spider carcass and Skewer stick plus the authentic returned-stick
+sixteen emitter-blocked roots remain untouched. The Dragon-impling pair now uses
+the general jar-opening reward path. The Spider chain still needs producers for
+both Spider carcass and Skewer stick plus the authentic returned-stick
 transformation.

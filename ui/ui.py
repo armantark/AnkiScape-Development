@@ -178,6 +178,7 @@ from ..logic.bank_layout_logic import (
 )
 from ..logic.skill_guide_logic import skill_guide_sections_pure
 
+from ..data.impling_jar_data import IMPLING_JAR_DATA
 from ..data.pack_data import ITEM_PACK_DATA
 
 from ..data.evil_tree_data import EVIL_TREE_KINDLING, EVIL_TREE_UTILITY_ID
@@ -4714,6 +4715,7 @@ def show_main_menu(
     on_drink_trouble_brewing_rum=None,
     on_use_great_orb_project_teleport_tablet=None,
     on_open_item_pack=None,
+    on_open_impling_jar=None,
     on_convert_rogue_kit=None,
     on_teleport_training_urn=None,
     get_ge_projection=None,
@@ -26622,6 +26624,25 @@ def show_main_menu(
                 open_all_action.setEnabled(on_open_item_pack is not None)
                 open_all_action.setToolTip(f"Receive {amount * per_pack:,} {content_item}.")
                 open_all_action.triggered.connect(lambda _checked=False: _do_open(open_all=True))
+            menu.addSeparator()
+
+        if item_name in IMPLING_JAR_DATA:
+            loot_action = menu.addAction(f"Loot {item_name}")
+            loot_action.setObjectName("lootImplingJarAction")
+            loot_action.setEnabled(amount > 0 and on_open_impling_jar is not None)
+            loot_action.setToolTip("Break the jar and receive one reward from its loot table.")
+
+            def _do_loot(_checked: bool = False) -> None:
+                if on_open_impling_jar is None:
+                    return
+                result = on_open_impling_jar(item_name)
+                if result:
+                    _refresh_equipment_views()
+                    message = str(result.get("message", ""))
+                    if message:
+                        QMessageBox.information(bank_frame, item_name, message)
+
+            loot_action.triggered.connect(_do_loot)
             menu.addSeparator()
 
         if item_name == "Rogue kit":

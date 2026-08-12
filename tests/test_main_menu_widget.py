@@ -10545,6 +10545,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(opened, [("Vial pack", True)])
 
+    def test_bank_loots_filled_impling_jars(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Dragon impling jar": 1}
+        looted: list[str] = []
+
+        dialog = self._open(
+            pd,
+            on_open_impling_jar=lambda item_name: looted.append(item_name)
+            or {"message": "You loot 105 Dragon dart tip."},
+        )
+        menu = dialog._ankiscape_equip_menu_for("Dragon impling jar")
+        loot = next(action for action in menu.actions() if action.text() == "Loot Dragon impling jar")
+        self.assertEqual(loot.objectName(), "lootImplingJarAction")
+        self.assertTrue(loot.isEnabled())
+
+        original_info = self._ui.QMessageBox.information
+        self._ui.QMessageBox.information = lambda *a, **k: None
+        try:
+            loot.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.information = original_info
+        self.assertEqual(looted, ["Dragon impling jar"])
+
     def test_bank_converts_a_rogue_kit_to_any_period_tool(self) -> None:
         from ankiscape.logic.flash_powder_factory_logic import convert_rogue_kit_pure
 

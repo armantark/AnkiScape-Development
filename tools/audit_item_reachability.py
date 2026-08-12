@@ -239,6 +239,7 @@ def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import pyramid_plunder_data
     from ankiscape.data import shooting_star_data
     from ankiscape.data import shop_data
+    from ankiscape.data.impling_jar_data import IMPLING_JAR_DATA
     from ankiscape.logic import shop_logic
     from ankiscape.data import sorceress_garden_data
     from ankiscape.data import thieving_data
@@ -555,6 +556,20 @@ def build_reachability_report() -> dict[str, Any]:
         actions.append({"id": key, "required": {item_name}, "alternatives": (), "outputs": {content_item}})
         consumers[item_name].add(key)
         producers[content_item].add(key)
+
+    for item_name, rewards in IMPLING_JAR_DATA.items():
+        outputs = {
+            reward.item
+            for reward in rewards
+            if reward.item and int(reward.weight) > 0
+        }
+        if not outputs:
+            continue
+        key = f"Item action:loot:{item_name}"
+        actions.append({"id": key, "required": {item_name}, "alternatives": (), "outputs": outputs})
+        consumers[item_name].add(key)
+        for output in outputs:
+            producers[output].add(key)
 
     bob = shop_data.SHOP_SERVICES.get("bob_barter_decant_four", {})
     if bob.get("visibility") == "visible" and bob.get("action_type") == "decant_potions_to_dose":
