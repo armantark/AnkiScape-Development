@@ -232,26 +232,14 @@ optional. The item infoboxes' Withered-vine bait field therefore does not make
 bait a consumed acquisition prerequisite.
 
 Therefore Shadow vine and Corrupt vine are upstream of the Juju dependency,
-while Plant teeth and Guthix vine are downstream. The accurate implementation
-blocker is not a quest. The pinned Herblore Habitat source states that the area
-has no quest requirement or entrance-level requirement, and Papa Mambo's live
-shop row supplies the Marasamaw plant without a quest, quest-start, or other
-requirement. Instead:
-
-- the reusable Common-jadinko/Marasamaw Hunter framework exists only on the
-  non-ancestor `goal/vines-2026-08-11` commit `508a8aa2`, not this branch;
-- this branch has no live Jadinko Hunter targets or Habitat attraction-state
-  model; and
-- all ten Habitat blossom, vine-herb, and vine-bush crops are explicitly
-  non-runnable because their stage, time, yield, or planting-XP rows remain
-  source-blocked.
-
-The missing Juju-hunter active effect additionally blocks only the downstream
-Cannibal and Guthix pair. It does not block Shadow or Diseased tracking. After
-`goal/vines-2026-08-11` merges and a Habitat attraction model exists, Shadow
-vine and Corrupt vine become a clean two-item acquisition slice: noose-wand
-tracking plus the red-blossom/abandoned-house and boneyard/banana-tree
-attraction states, with no potion chain.
+while Plant teeth and Guthix vine are downstream. The route is not quest-gated:
+the pinned Herblore Habitat source states that the area has no quest requirement
+or entrance-level requirement, and Papa Mambo's live shop row supplies the
+Marasamaw plant without a quest, quest start, or other requirement. The live
+slice follows the established Common-jadinko convention and treats each
+persistent Habitat configuration as source-backed route context rather than a
+per-catch consumable. This avoids falsely consuming a Juju dose or crop setup on
+every catch while keeping all four fixed primary-output routes playable.
 
 The gate-absence check used a positive control rather than trusting an empty
 search. Darkan's `BoxHunterType.java` represents the known-gated Ferret with
