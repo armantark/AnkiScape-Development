@@ -39,6 +39,45 @@ def selector_suggestions(selector: str, test_ids: list[str]) -> list[str]:
     return difflib.get_close_matches(selector, candidates, n=5, cutoff=0.45)
 
 
+def resolve_selectors(selectors: list[str], test_ids: list[str]) -> tuple[list[str], list[str]]:
+    resolved: list[str] = []
+    unresolved: list[str] = []
+    components = {
+        component
+        for test_id in test_ids
+        for component in test_id.split(".")
+    }
+    for selector in selectors:
+        if any(selector.casefold() in test_id.casefold() for test_id in test_ids):
+            resolved.append(selector)
+            continue
+        suggestions = selector_suggestions(selector, test_ids)
+        component_suggestions = [
+            suggestion
+            for suggestion in suggestions
+            if suggestion in components and "." not in suggestion
+        ]
+        if component_suggestions:
+            scores = [
+                (
+                    difflib.SequenceMatcher(
+                        None,
+                        selector.casefold(),
+                        suggestion.casefold(),
+                    ).ratio(),
+                    suggestion,
+                )
+                for suggestion in component_suggestions
+            ]
+            scores.sort(reverse=True)
+            best, suggestion = scores[0]
+            if best >= 0.8 and (len(scores) == 1 or best - scores[1][0] >= 0.1):
+                resolved.append(suggestion)
+                continue
+        unresolved.append(selector)
+    return resolved, unresolved
+
+
 def test_result_exit_code(result: unittest.TestResult, *, focused: bool) -> int:
     if not result.wasSuccessful():
         return 1
@@ -74,6 +113,11 @@ def main() -> int:
         default=1,
         help="unittest output verbosity (default: 1; use 2 for focused diagnosis)",
     )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="print only failures and the final unittest summary",
+    )
     parser.add_argument("--failfast", action="store_true")
     args = parser.parse_args()
 
@@ -85,18 +129,29 @@ def main() -> int:
     if root not in sys.path:
         sys.path.insert(0, root)
 
+    try:
+        from aqt.qt import QFont
+    except ImportError:
+        pass
+    else:
+        QFont.insertSubstitution("Sans Serif", "Arial")
+
     # Discover and run tests under tests/
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir=os.path.join(root, "tests"), pattern="test_*.py")
     all_ids = [test.id() for test in iter_tests(suite)]
-    suite, selected_ids = select_tests(suite, args.selectors)
-
-    if args.selectors and not selected_ids:
-        print(f"No discovered unittest ID matched: {', '.join(args.selectors)}", file=sys.stderr)
-        for selector in args.selectors:
+    selectors, unresolved = resolve_selectors(args.selectors, all_ids)
+    if unresolved:
+        print(f"No unambiguous unittest ID matched: {', '.join(unresolved)}", file=sys.stderr)
+        for selector in unresolved:
             suggestions = selector_suggestions(selector, all_ids)
             if suggestions:
                 print(f"Closest matches for {selector!r}: {', '.join(suggestions)}", file=sys.stderr)
+        return 2
+    suite, selected_ids = select_tests(suite, selectors)
+
+    if args.selectors and not selected_ids:
+        print(f"No discovered unittest ID matched: {', '.join(args.selectors)}", file=sys.stderr)
         return 2
 
     if args.list:
@@ -104,14 +159,14 @@ def main() -> int:
             print(test_id)
         if len(selected_ids) > args.max_results:
             print(
-                f"Refusing to print {len(selected_ids)} IDs; narrow the selector "
-                f"or raise --max-results above {args.max_results}.",
+                f"Showing the first {args.max_results} of {len(selected_ids)} matching IDs; "
+                "narrow the selector or raise --max-results for the full list.",
                 file=sys.stderr,
             )
-            return 2
         return 0
 
-    runner = unittest.TextTestRunner(verbosity=args.verbosity, failfast=args.failfast)
+    verbosity = 0 if args.quiet else args.verbosity
+    runner = unittest.TextTestRunner(verbosity=verbosity, failfast=args.failfast)
     result = runner.run(suite)
     returncode = test_result_exit_code(result, focused=bool(args.selectors))
     if returncode == 2:

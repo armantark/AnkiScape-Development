@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**2026-08-11, recurring repository papercuts are now guarded by tooling.** Broad
+ripgrep skips giant generated catalogs even with `data` as the search root;
+focused tests resolve only unambiguous fuzzy selectors; quiet/logged lanes retain
+truthful summaries and exit codes; reachability has an exit-0 informational
+summary; generator file-path invocation reaches its own CLI contract; and linked
+worktrees can atomically record, inspect, and deliberately take over local session
+ownership. Claims reject canonical and unregistered targets; the owner record is
+ignored and unowned existing worktrees remain valid. The Qt
+harness substitutes installed Arial for missing `Sans Serif` without creating an
+application, removing the recorded warning while preserving test-owned Qt
+lifecycle; generic `monospace` stylesheet input remains untouched and may still
+pay alias discovery. Audit: `memory-bank/papercuts-fixed-2026-08-11.md`.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is

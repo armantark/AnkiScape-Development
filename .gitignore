@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 tools/.cache/
 .venv/
+.venv-qt
 .venv-qt/
 venv/
 ankiscape_debug.log*

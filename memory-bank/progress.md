@@ -1,5 +1,20 @@
 # Progress
 
+## Repository papercut tooling — 2026-08-11
+
+The recurring search, test-selection, shell-wrapper, reachability-audit, generator
+invocation, and worktree-collision failures now have repository-owned guardrails.
+The conservative log counts are 24 generated-catalog search floods, 32 guessed
+unittest selectors, 23 unmatched zsh globs, 10 stale module-path guesses, two
+`pkg_alias` direct-invocation failures, two exact read-only `status` failures,
+two exact reachability chaining failures, and five recorded Qt `Sans Serif`
+startup warnings. The Qt runner substitutes installed Arial for the missing
+family without creating an application; generic `monospace` remains a documented
+partial because the harness must not rewrite production stylesheets. Ownership tracking is atomic for first claims, rejects
+unenforceable targets, and remains advisory and deliberately replaceable rather
+than becoming a lock. Full proof and exclusions:
+`memory-bank/papercuts-fixed-2026-08-11.md`.
+
 ## Resumed-goal interval closure — 2026-08-10
 
 The audit covers all work after the 2026-08-08 resume. It reviewed 52 commits

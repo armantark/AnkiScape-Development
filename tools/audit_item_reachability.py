@@ -698,6 +698,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true", help="Emit the full machine-readable report.")
     parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Print counts and exit 0 even while known catalog debt remains.",
+    )
+    parser.add_argument(
         "--rank-roots",
         type=int,
         metavar="N",
@@ -707,6 +712,11 @@ def main() -> int:
     report = build_reachability_report()
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
+    elif args.summary:
+        print(
+            f"{report['action_count']} actions; {report['reachable_item_count']} reachable items; "
+            f"{report['orphan_input_count']} orphan inputs; {report['unresolved_action_count']} blocked actions"
+        )
     elif args.rank_roots is not None:
         limit = max(args.rank_roots, 0)
         print(
@@ -725,6 +735,8 @@ def main() -> int:
         )
         for row in report["orphan_inputs"]:
             print(f"- {row['item']}: {', '.join(row['consumers'][:4])}")
+    if args.summary:
+        return 0
     return 1 if report["orphan_input_count"] else 0
 
 

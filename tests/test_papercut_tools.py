@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from run_tests import select_tests, selector_suggestions, test_result_exit_code
+from run_tests import resolve_selectors, select_tests, selector_suggestions, test_result_exit_code
 from tools.run_logged import run_logged
 from tools.workflow_manifest_guard import validate_manifest
 
@@ -38,17 +38,40 @@ class PapercutToolTests(unittest.TestCase):
             ]),
         )
 
+    def test_focused_runner_resolves_one_unambiguous_fuzzy_component(self):
+        test_ids = [
+            "tests.test_main_menu_widget.MainMenuWidgetTest.test_opens",
+            "tests.test_runtime_actions.TestRuntimeActions.test_dispatches",
+        ]
+
+        resolved, unresolved = resolve_selectors(["MainMenuWidgetTests"], test_ids)
+
+        self.assertEqual(resolved, ["MainMenuWidgetTest"])
+        self.assertEqual(unresolved, [])
+
+    def test_focused_runner_refuses_ambiguous_fuzzy_methods(self):
+        test_ids = [
+            "tests.test_alpha.AlphaTest.test_alpha_one",
+            "tests.test_alpha.AlphaTest.test_alpha_two",
+        ]
+
+        resolved, unresolved = resolve_selectors(["test_alpha_onf"], test_ids)
+
+        self.assertEqual(resolved, [])
+        self.assertEqual(unresolved, ["test_alpha_onf"])
+
     def test_repo_search_excludes_giant_generated_tables_and_bounds_results(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             (root / "data").mkdir()
             (root / "data" / "shop_data.py").write_text("needle\n", encoding="utf-8")
-            (root / "source.py").write_text("needle\nneedle\n", encoding="utf-8")
+            (root / "data" / "construction_data.py").write_text("needle\n", encoding="utf-8")
+            (root / "data" / "source.py").write_text("needle\nneedle\n", encoding="utf-8")
             command = [
                 sys.executable,
                 str(ROOT / "tools" / "repo_search.py"),
                 "needle",
-                ".",
+                "data",
                 "--max-results",
                 "1",
             ]
@@ -56,8 +79,9 @@ class PapercutToolTests(unittest.TestCase):
             completed = subprocess.run(command, cwd=root, check=False, capture_output=True, text=True)
 
         self.assertEqual(completed.returncode, 2)
-        self.assertIn("source.py:1:needle", completed.stdout)
+        self.assertIn("data/source.py:1:needle", completed.stdout)
         self.assertNotIn("shop_data.py", completed.stdout)
+        self.assertNotIn("construction_data.py", completed.stdout)
         self.assertIn("Search stopped at 1 results", completed.stderr)
 
     def test_repo_search_names_locates_moved_files_without_shell_globs(self):
@@ -156,6 +180,73 @@ class PapercutToolTests(unittest.TestCase):
 
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertIn("external 2011Scape checkout root", completed.stdout)
+
+    def test_ge_generator_direct_invocation_reaches_its_usage_gate(self):
+        completed = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "generate_ge_period_data.py")],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 1)
+        self.assertEqual(completed.stderr.strip(), "usage: generate_ge_period_data.py <output-py>")
+        self.assertNotIn("No module named 'pkg_alias'", completed.stderr)
+
+    def test_reachability_summary_is_chain_safe_without_hiding_audit_debt(self):
+        completed = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "audit_item_reachability.py"), "--summary"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertRegex(
+            completed.stdout.strip(),
+            r"^\d+ actions; \d+ reachable items; \d+ orphan inputs; \d+ blocked actions$",
+        )
+
+    def test_list_truncation_succeeds_with_an_explicit_warning(self):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "run_tests.py"),
+                "PapercutToolTests",
+                "--list",
+                "--max-results",
+                "1",
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(len(completed.stdout.splitlines()), 1)
+        self.assertIn("Showing the first 1 of", completed.stderr)
+
+    def test_quiet_runner_keeps_the_final_summary_without_test_names(self):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "run_tests.py"),
+                "PapercutToolTests.test_logged_runner_preserves_exit_code_and_complete_log",
+                "--quiet",
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("Ran 1 test", completed.stderr)
+        self.assertIn("OK", completed.stderr)
+        self.assertNotIn("test_logged_runner_preserves_exit_code", completed.stderr)
 
     def test_focused_runner_does_not_report_an_all_skipped_lane_as_proof(self):
         result = unittest.TestResult()
