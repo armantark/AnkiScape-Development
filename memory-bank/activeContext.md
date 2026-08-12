@@ -4898,3 +4898,25 @@ flees silently when the player runs out of food.
 - Full plain and real offscreen Qt discovery each pass 4,058 tests. Native MacBook Pro Anki proof passes for the changed surfaces and review layout.
 - Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
 - Results: <https://zvxa8ne0p5qz.postplan.dev>.
+
+## Acquisition blocker follow-up — 2026-08-12
+
+- The four Jadinko secondaries remain root orphans even on the completed
+  `goal/vines-2026-08-11` branch, so they do not overlap that branch's Common
+  jadinko, vine-herb-seed, Marasamaw-plant, or Juju-hunter recipe work.
+- The route has two stages: Shadow jadinko (Hunter 71) and Diseased jadinko
+  (Hunter 78) are upstream noose-wand tracking catches; Corrupt vine then feeds
+  the Juju hunter potion, after which Cannibal jadinko (75) and Guthix jadinko
+  (81) supply Plant teeth and Guthix vine.
+- The family is not quest-blocked. A positive-control gate probe detects Eagles'
+  Peak on Ferret while the relevant Darkan Jadinko rows carry no quest or Slayer
+  gate. The actual blocker is an absent Habitat attraction-state model and a
+  Common-jadinko framework that exists only on unmerged commit `508a8aa2`; the
+  downstream pair additionally needs the Juju-hunter active effect.
+- Fresh crab claw and Fresh crab shell have pinned Crab NPC producers, but their
+  route is inert behind the un-emitted stages of
+  `recipe_for_disaster_freeing_pirate_pete`. Existing quest-gated Dagannoth and
+  Cave horror enemies may share that pre-existing defect and await the emitter
+  pass.
+- Evidence and unchanged reachability are recorded in
+  `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.

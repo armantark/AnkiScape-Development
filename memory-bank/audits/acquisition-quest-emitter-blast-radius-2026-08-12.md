@@ -186,6 +186,153 @@ globs that could not match `breadth`, `5,000` versus `5000`, the wrong Gradle
 property name, insufficient `find -maxdepth`, and an unquoted path with spaces
 that resolved to the wrong sibling tree.
 
+## Follow-up acquisition-family corrections
+
+### Four Jadinko Hunter secondaries
+
+The four Habitat secondaries are distinct from the completed Juju-vine branch.
+Running `python3 tools/audit_item_reachability.py --json` inside the read-only
+`goal/vines-2026-08-11` worktree at `508a8aa2907fbede5754283e5404271c78058f57`
+left all four as root orphans: Corrupt vine, Guthix vine, Shadow vine, and Plant
+teeth. The audit, rather than a name search, is authoritative because inherited
+item definitions and recipe consumers can contain a name without adding an
+acquisition route.
+
+The family splits into two dependency stages:
+
+1. Shadow jadinko at Hunter 71 is a noose-wand tracking catch that yields one
+   Shadow vine. Diseased jadinko at Hunter 78 is another noose-wand tracking
+   catch and yields one Corrupt vine.
+2. Corrupt vine feeds the existing level-54 Juju hunter potion recipe. Cannibal
+   jadinko at Hunter 75 and Guthix jadinko at Hunter 81 are Marasamaw-plant
+   catches whose attraction state depends on that potion; they yield one Plant
+   teeth and one Guthix vine respectively.
+
+The exact period rows are:
+
+- Shadow jadinko oldid `6045371` (`2012-08-05T13:46:52Z`), lead and infobox:
+  level 71, Noose wand, 475 Hunter XP, Shadow vine, and `a chance at some seeds`;
+  attraction is a red vine blossom plus abandoned-house habitat.
+- Diseased jadinko oldid `6062055` (`2012-08-08T19:07:00Z`), lead and infobox:
+  level 78, Noose wand, 580.5 Hunter XP, Corrupt vine, and `a chance at some
+  seeds`; attraction is a Boneyard plus banana tree.
+- Cannibal jadinko oldid `5976665` (`2012-07-22T15:21:18Z`), lead and infobox:
+  level 75, Marasamaw plant, 475 Hunter XP, Plant teeth, and `a chance at vine
+  bush seeds`; attraction is green vine blossom, kalferberry bush, tall grass,
+  and Juju hunter potion.
+- Guthix jadinko oldid `6167443` (`2012-08-30T23:12:19Z`), lead and infobox:
+  level 81, Marasamaw plant, 600 Hunter XP, Guthix vine, and `a chance at some
+  seeds`. Its preferences change every week and the shared god-Jadinko
+  environment is personal to the player; only Juju-hunter treatment of the vine
+  flower remains constant.
+
+Herblore Habitat oldid `6513740` (`2012-10-31T21:20:32Z`), Jadinkos tables,
+labels these wanted rewards `Primary drop` and states that box-trap bait is
+optional. The item infoboxes' Withered-vine bait field therefore does not make
+bait a consumed acquisition prerequisite.
+
+Therefore Shadow vine and Corrupt vine are upstream of the Juju dependency,
+while Plant teeth and Guthix vine are downstream. The accurate implementation
+blocker is not a quest. The pinned Herblore Habitat source states that the area
+has no quest requirement or entrance-level requirement, and Papa Mambo's live
+shop row supplies the Marasamaw plant without a quest, quest-start, or other
+requirement. Instead:
+
+- the reusable Common-jadinko/Marasamaw Hunter framework exists only on the
+  non-ancestor `goal/vines-2026-08-11` commit `508a8aa2`, not this branch;
+- this branch has no live Jadinko Hunter targets or Habitat attraction-state
+  model; and
+- all ten Habitat blossom, vine-herb, and vine-bush crops are explicitly
+  non-runnable because their stage, time, yield, or planting-XP rows remain
+  source-blocked.
+
+The missing Juju-hunter active effect additionally blocks only the downstream
+Cannibal and Guthix pair. It does not block Shadow or Diseased tracking. After
+`goal/vines-2026-08-11` merges and a Habitat attraction model exists, Shadow
+vine and Corrupt vine become a clean two-item acquisition slice: noose-wand
+tracking plus the red-blossom/abandoned-house and boneyard/banana-tree
+attraction states, with no potion chain.
+
+The gate-absence check used a positive control rather than trusting an empty
+search. Darkan's `BoxHunterType.java` represents the known-gated Ferret with
+`List.of(Quest.EAGLES_PEAK)`, while the Cannibal and Guthix rows carry null quest
+and Slayer requirements. The imported AnkiScape gate function likewise reports
+`("Eagles' Peak",)` for `catch_ferret` and no lock for an ungated Hunter target.
+This proves that the probe can detect a real Hunter gate before its empty result
+is used as evidence for the Jadinko rows.
+
+The four cache identities are independently present in revision 742: Corrupt
+vine `19979`, Plant teeth `19975`, Shadow vine `19977`, and Guthix vine `19982`.
+Their existence corroborates identity only; it does not substitute for the
+missing attraction-state mechanic.
+
+Darkan's fixed-primary-drop files corroborate quantity one and each have a real
+pre-fleet supplying history: `data/npcs/drops/hunter/hunter_jadinko_shadow.json`,
+`hunter_jadinko_diseased.json`, `hunter_jadinko_cannibal.json`, and
+`hunter_jadinko_guthix.json` all come from commit
+`087e34d11b59b1d81a6c8aadbf6150a7689c6f4c` (`2022-03-01`, `Herblore habitat
+and several other rate optimizations (#193)`). The newer
+`src/main/java/com/rs/game/content/minigames/herblorehabitat/JadinkoType.kt`
+and `HerbloreHabitat.kt` are restoration-era files, so the period oldids above
+supply the visible values; the reconstructed files only corroborate the route
+shape and expose the personalised weekly god-environment state that a future
+implementation must not replace with a fixed default.
+
+### Fallback gate: Dragon-impling tips
+
+Dragon arrowtips and Dragon dart tip remain root orphans. The live Hunter path
+can reach Hunter 83 from ordinary level-one targets, buy Impling jars and nets
+from live shops, catch either Dragon-impling target, consume one empty jar, and
+produce one Dragon impling jar. Positive controls show the same gate probe
+accepting the level-one Crimson swift and rejecting Baby/Dragon implings below
+their required levels.
+
+The route stops after the catch. Dragon impling jar appears in neither
+`ITEM_PACK_DATA` nor `CONSUMABLE_DATA`; the bank UI exposes `Open` only for the
+former, and the consumable path returns `not_a_consumable` for the latter. No
+live reward table or handler opens the jar, so the audit correctly reports no
+producer for either tip. Implementing the pair would first require a general
+impling-jar opening/reward mechanism, not merely two acquisition rows.
+
+### Fallback gate: Spider carcass chain
+
+The live transformation framework exists, but both roots and the requested
+return mechanic are absent. `Utility:skewer_spider_on_a_stick` consumes one
+Spider carcass and one Skewer stick for one Raw spider on stick;
+`Cooking:cook_spider_on_a_stick` then consumes the raw item at Cooking 16 for
+one `Spider on stick`. The final spelling has no second `a`.
+
+The audit reports Spider carcass and Skewer stick as separate root orphans and
+Raw spider on stick as their cascade orphan. The level-one Spider combat target
+is attainable, but its live drop table has charms only and no carcass. No live
+shop, combat, quest, gathering, or activity source produces either root. The
+skewer transform declares no Skewer-stick byproduct, and the generic utility
+runtime therefore consumes it permanently. Grand Tree Groceries independently
+sells the finished Spider on stick, but that bypass does not make the requested
+carcass-to-raw-to-cooked chain or returned-stick loop live.
+
+Positive controls distinguish the absence from a broken probe: zero-input
+`Gather swamp toads` is reachable and executable at level one, while Dramen
+branch remains correctly blocked behind its unavailable quest-stage action.
+Thus the Spider family would require two acquisition producers plus a corrected
+return transformation, not a narrow one-root slice.
+
+### Crab-family correction
+
+Fresh crab claw and Fresh crab shell have authentic producers. The producer is
+a distinct Crab NPC, not the Mogre table checked in the earlier triage: the
+period evidence is Crab oldids `4905238`, `5906508`, and `6522171`, and Darkan
+combat definitions for NPCs `3424` and `3421` predate the fleet instrumentation.
+The family is nevertheless inert because its combat gate requires partial
+completion of `recipe_for_disaster_freeing_pirate_pete`, whose three stage
+actions have no emitter. The earlier conclusion (blocked) stands, but the stated
+reason (no pinned producer) was wrong.
+
+The existing quest-gated `dagannoth` and `cave_horror` enemies may have the same
+pre-existing defect: a completion check can point at an uncompletable quest.
+That suspicion is recorded for the future emitter pass; this slice did not
+investigate or change either enemy.
+
 ## Reachability and omissions
 
 Before and after remain identical:
@@ -197,8 +344,11 @@ Before and after remain identical:
 | Orphan inputs | 103 | 103 |
 | Blocked actions | 102 | 102 |
 
-No new item or route exists. No product files changed. No full test lane or
-mutation proof applies because the ordinary-player accessibility gate failed
-before implementation. The single unblocking action is to implement and verify
-the production quest-action interaction/emitter path so Druidic Ritual and
-Jungle Potion can be completed from ordinary attainable state.
+No new item or route exists. No product files changed, so no mutation proof
+applies. The Snake-hide and crab families need the production quest-action
+interaction/emitter path before their authentic gates can open. The Jadinko
+family instead needs the unmerged Common-jadinko framework plus a live Habitat
+attraction-state model; its downstream two items also need the Juju-hunter
+active effect. The Dragon-impling pair needs a general jar-opening reward path.
+The Spider chain needs producers for both Spider carcass and Skewer stick plus
+the authentic returned-stick transformation.
