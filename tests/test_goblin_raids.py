@@ -564,6 +564,28 @@ class GoblinRaidStagesTest(unittest.TestCase):
             ),
         )
 
+    def test_dying_raiders_drop_every_recovered_site_material(self):
+        for site_roll, recovered_items in (
+            (0.0, {"Potato seed", "Marigold seed", "Barley seed"}),
+            (0.9, {"Clay", "Copper ore", "Tin ore"}),
+        ):
+            with self.subTest(site_roll=site_roll):
+                player, ok, info = join_goblin_raid_pure(
+                    _with_raid(99, site_roll=site_roll),
+                    GOBLIN_RAIDS_RAID_MODE,
+                )
+                self.assertTrue(ok, info)
+                player["goblin_raids"]["session"]["shouts"] = 2
+                player, _results = _play(
+                    player,
+                    2,
+                    until=lambda current, _result: (
+                        current["goblin_raids"]["session"]["raiders_remaining"] == 9
+                    ),
+                )
+                spoils = player["goblin_raids"]["session"]["spoils"]
+                self.assertEqual(set(spoils), recovered_items)
+
     def test_a_dying_raider_drops_everything_it_had_been_hoarding(self):
         spoils = self.cleared["goblin_raids"]["session"]["spoils"]
         site = GOBLIN_RAID_SITES_BY_ID[
@@ -594,7 +616,9 @@ class GoblinRaidStagesTest(unittest.TestCase):
         site = GOBLIN_RAID_SITES_BY_ID[session["site_id"]]
         claimed, ok, info = claim_goblin_raid_spoils_pure(self.cleared)
         self.assertTrue(ok, info)
+        self.assertEqual(raiders_killed, GOBLIN_RAIDS_RAIDER_COUNT)
         self.assertEqual(info["raiders_killed"], raiders_killed)
+        self.assertLessEqual(info["raiders_killed"], 10)
         self.assertEqual(
             sum(info["rewards"].values()),
             sum(pending.values()) + raiders_killed,
