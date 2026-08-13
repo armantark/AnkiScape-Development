@@ -1,5 +1,10 @@
 # Papercuts
 
+- 2026-08-12 23:02:22 PDT — A Raw-chompy framework search guessed nonexistent `data/activity_data.py`, causing `rg` status 2 even though the combat and Hunter paths were valid; enumerate the concrete activity module before combining targets.
+- 2026-08-12 22:55:55 PDT — A blocker search included generated one-line `data/shop_data.py` and produced 2.4 MB of clipped output; query imported shop rows or named source records instead of searching the generated module.
+- 2026-08-12 22:54:50 PDT — A combined blocked-root search guessed `data/miniquest_data.py`, which does not exist in this checkout, so `rg` returned status 2 despite the valid `quest_data.py` target; locate miniquest storage before adding it to a combined command.
+- 2026-08-12 22:53:54 PDT — A Curly-root producer multiplicity probe guessed `core.constants.WOODCUTTING_DATA` and failed with `AttributeError`; this checkout exports source rows from `data.woodcutting_data`, while runtime-normalized Woodcutting data uses a different constant name.
+- 2026-08-12 22:52:13 PDT — Two follow-up reachability probes mistyped the session scratchpad path (`Library/Application-Support` instead of `Library-Application-Support`), causing one `jq` and one Python read to fail after the valid JSON had already been captured; reuse the exact scratchpad path from the successful write.
 - 2026-08-12 14:44:59 PDT — A review agent reported that the worktree lacked `.venv-qt` and treated the Farming widget test as unverified; the required real-Qt route is the canonical interpreter at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python`, which successfully ran the test and full lane.
 - 2026-08-12 14:04:24 PDT — A cache-config verification used definition-reader flags (`enum --id`) against `query_openrs2_cache_configs.sh`; its actual contract is `<enum|struct|param> <count|dump|find>`, so exact IDs need `enum dump <id>`.
 - 2026-08-12 14:02:49 PDT — After locating Farming evidence, a follow-up read guessed `farming-source-audit-2026-07-11.md`; the actual files are `farming-source-dossier-2026-07-11.md` and `farming-wiki-pin-ledger-2026-07-11.md`.
