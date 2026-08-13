@@ -6008,6 +6008,27 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   than changing Lunar Diplomacy in this slice.
 - Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.
 
+## Quest reachability truth — 2026-08-13
+
+- Reachability figures are branch-relative: `main` at `1cf43931` reports
+  1,556 actions / 2,573 reachable items / 102 orphan inputs / 101 blocked
+  actions / 1,448 seeds, while `goal/acquire-2026-08-12` at `2cfac317` reports
+  1,568 / 2,509 / 97 / 100 / 1,367.
+- On top of that acquire tip, hard-stopping quests at the first unavailable
+  required action and propagating prerequisite and quest-point failure produces
+  1,568 / 2,248 / 100 / 103 / 1,099, with 54 root and 46 cascade orphans.
+- Blood talisman, Jade vine seed, and Magic secateurs are the three newly
+  orphaned quest rewards. Lost City's blocked Dramen branch keeps Cinnamon's
+  real grind action blocked rather than seeding either item directly. The Kudos
+  integrity test now records Dagon'hai history and Prophecy tablet as unavailable
+  completion rewards instead of asserting that every exhibit item is reachable.
+- This branch depends on `goal/acquire-2026-08-12` and must merge after it. The
+  improved figures are not reproducible from `main` alone.
+- Missing actions and registered unsatisfiable encounters now hard-stop quest
+  stages. Inventory, tools, alternatives, routes, variants, and encounters with
+  no registered guaranteed drops remain unmodelled residual debt, so 2,248 can
+  be wrong in either direction and is not final acquisition truth.
+
 ## Black mushroom acquisition — 2026-08-09
 
 - Added a one-pickup, zero-XP Utility route for the cutoff Black mushroom
