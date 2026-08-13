@@ -84,12 +84,10 @@ show the arithmetic. GATE-1 (section 6) governs this table.
 | 9 | Dungeoneering payout curves | 2 | 1 | 1 | ×1.5 ev | 3 | Registered curves at `memory-bank/placeholder-values.md:177-185`; Darkan evidence |
 | 10 | Housekeeping rider: stale selection records | — | — | — | — | rider | Retire `memory-bank/loop-queue.md:177` pause, the stale art row in `memory-bank/gpt-deferred-queue.md`, and the two-planned-skills framing in `memory-bank/roadmap.md` and `memory-bank/progress.md` |
 
-## 6. GATE-1 — owner approval of the top 10
+## 6. GATE-1 — passed
 
-The loop must not consume section 5 before the owner approves it. The design
-thread holds this gate. The override-lane item in section 4 is not gated; the
-loop can take it now. After approval, the design thread will replace this
-section with "GATE-1 passed" and the date.
+The owner approved the section 5 table unchanged on 2026-08-13. The loop can
+consume the ranked list under the section 7 rules.
 
 ## 7. Consumption rules for the loop
 
