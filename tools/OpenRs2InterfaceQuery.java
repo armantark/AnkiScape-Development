@@ -113,6 +113,7 @@ final class OpenRs2InterfaceQuery {
 
     private static void printMatches(Store store, String rawNeedle) {
         String needle = rawNeedle.toLowerCase(Locale.ROOT);
+        List<Integer> skippedIds = new ArrayList<>();
         for (int interfaceId : existingInterfaces(store)) {
             IComponentDefinitions[] components;
             try {
@@ -124,6 +125,7 @@ final class OpenRs2InterfaceQuery {
                 System.err.println(
                         "skipped unsupported IF1 interface " + interfaceId
                 );
+                skippedIds.add(interfaceId);
                 continue;
             }
             for (IComponentDefinitions component : components) {
@@ -134,6 +136,13 @@ final class OpenRs2InterfaceQuery {
                     System.out.print(out);
                 }
             }
+        }
+        if (!skippedIds.isEmpty()) {
+            System.err.printf(
+                    "PARTIAL_SEARCH skipped_count=%d skipped_ids=%s%n",
+                    skippedIds.size(), skippedIds
+            );
+            System.exit(3);
         }
     }
 
