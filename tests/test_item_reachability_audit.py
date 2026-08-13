@@ -262,6 +262,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Eucalyptus logs"],
             "Woodcutting:eucalyptus",
         )
+        self.assertEqual(
+            report["routes"]["Curly root"],
+            "Woodcutting:curly_jade_root",
+        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},
@@ -341,6 +345,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Ale yeast",
             "Arctic pine logs",
             "Eucalyptus logs",
+            "Curly root",
             "Black mushroom",
             "Black mushroom ink",
             "Unholy mould",

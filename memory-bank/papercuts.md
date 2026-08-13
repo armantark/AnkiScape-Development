@@ -1,5 +1,17 @@
 # Papercuts
 
+- 2026-08-13 02:30:10 PDT — The final reachability capture omitted `--json`, then attempted to parse the human summary and failed with `json.decoder.JSONDecodeError: Extra data: line 1 column 6 (char 5)`; use the audit's declared `--json` option when machine-reading its expected nonzero result.
+
+- 2026-08-13 02:16:55 PDT — The first multi-quantity inferno-adze regression used a final RNG draw of `1.0`, so the adze correctly did not incinerate and the inventory assertion failed with `AssertionError: 'Curly root' unexpectedly found in {'Curly root': 4}`; use `0.0` for the adze incineration roll and reserve `1.0` for suppressing the separate strange-rock roll.
+
+- 2026-08-13 01:45:47 PDT — An urn-eligibility search guessed nonexistent `logic/urn_logic.py`; urn mechanics live elsewhere, so locate the function symbol before combining it with known `data/urn_data.py`.
+
+- 2026-08-13 01:45:36 PDT — Two bounded Curly-root searches still included generated one-line `data/shop_data.py`, producing 330KB clipped outputs; never include generated shop data in cross-skill item searches, even through a narrow item name.
+
+- 2026-08-13 01:40:18 PDT — A bounded Curly-root evidence search included guessed `memory-bank/parity-ledgers`, which does not exist, so `rg` returned status 2 alongside valid hits; enumerate Memory Bank subdirectories before combining optional evidence roots.
+
+- 2026-08-13 01:38:51 PDT — A Woodcutting runtime read guessed nonexistent `logic/woodcutting_logic.py`; the live gathering kernel is split across `logic_pure/logic_pure.py` and `runtime/runtime_actions.py`, so locate symbols before opening a presumed skill module.
+
 - 2026-08-12 23:51:05 PDT — The first focused Farming-guide run failed only because the legacy test bans the substring `source` from guide row representations; the new `source_struct_id` metadata name triggered that guard despite containing no source prose, so the field was renamed `guide_struct_id`.
 
 - 2026-08-12 23:37:34 PDT — Two focused Farming probes imported `tests.pkg_alias` as a package even though `tests/` is not a package, then guessed nonexistent `data/utility_activity_data.py`; add `tests` to `sys.path` and locate concrete utility modules before combined searches.

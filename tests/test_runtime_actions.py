@@ -1947,6 +1947,29 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["firemaking_exp"], 25.0)
         self.assertEqual(calls["level_checks"], ["Woodcutting", "Firemaking"])
 
+    def test_woodcutting_incineration_credits_every_declared_output_unit(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["inferno_adze"]},
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "firemaking_exp": 0.0,
+            "current_tree": "curly_jade_root",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(player_data, calls, random_values=(0.0, 1.0, 0.0, 0.0))
+            )
+        )
+        self.assertNotIn("Curly root", player_data["inventory"])
+        self.assertEqual(
+            player_data["achievement_progress"]["skills"]["woodcutting"]["outputs"],
+            {"Curly root": 4},
+        )
+
     def test_arctic_pine_runtime_enforces_the_route_gate_then_awards_the_log(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -1993,6 +2016,47 @@ class TestRuntimeActions(unittest.TestCase):
         )
         self.assertEqual(player_data["inventory"], {"Eucalyptus logs": 1})
         self.assertEqual(player_data["woodcutting_exp"], 165.0)
+        self.assertEqual(calls["errors"], [])
+
+    def test_curly_root_route_mutates_real_woodcutting_and_firemaking_kernels(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(
+            {
+                "toolbelt": {"woodcutting": ["rune_hatchet"]},
+                "woodcutting_level": 83,
+                "woodcutting_exp": 0.0,
+                "current_tree": "curly_jade_root",
+                "firemaking_level": 75,
+                "firemaking_exp": 0.0,
+                "current_firemaking": "curly_root",
+            }
+        )
+
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 1.0, 0.0, 1.0),
+                )
+            )
+        )
+        self.assertEqual(player_data["inventory"]["Curly root"], 4)
+        self.assertEqual(player_data["woodcutting_exp"], 161.6)
+        woodcutting_telemetry = player_data["action_telemetry"]["actions"][
+            "woodcutting:curly_jade_root"
+        ]
+        self.assertEqual(woodcutting_telemetry["outputs"], {"Curly root": 4})
+
+        self.assertTrue(
+            handle_firemaking_answer(
+                _context(player_data, calls, random_values=(0.0, 1.0))
+            )
+        )
+        self.assertEqual(player_data["inventory"]["Curly root"], 3)
+        self.assertEqual(player_data["inventory"]["Ashes"], 1)
+        self.assertEqual(player_data["firemaking_exp"], 161.6)
         self.assertEqual(calls["errors"], [])
 
     def test_fletching_handler_mutates_player_data_through_context(self):

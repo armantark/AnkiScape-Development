@@ -1382,9 +1382,10 @@ class TestLogic(unittest.TestCase):
             "ratio": 3.5,
             "status": "implemented",
         }
-        for target_id, output_item, expected_xp in (
-            ("arctic_pine", "Arctic pine logs", 140.2),
-            ("eucalyptus", "Eucalyptus logs", 165.0),
+        for target_id, output_item, expected_xp, expected_quantity in (
+            ("arctic_pine", "Arctic pine logs", 140.2, 1),
+            ("eucalyptus", "Eucalyptus logs", 165.0, 1),
+            ("curly_jade_root", "Curly root", 161.6, 4),
         ):
             with self.subTest(target_id=target_id):
                 inventory, xp, ok, output, nest = apply_woodcutting_action_pure(
@@ -1400,7 +1401,7 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(xp, expected_xp)
                 self.assertEqual(output, output_item)
                 self.assertIsNone(nest)
-                self.assertEqual(inventory, {output_item: 1})
+                self.assertEqual(inventory, {output_item: expected_quantity})
 
     def test_apply_woodcutting_action_inferno_adze_incinerates_logs(self):
         tree_data = {"tree": {"exp": 25.0, "output_item": "Logs", "low_chance": 64, "high_chance": 200}}

@@ -1243,6 +1243,7 @@ TREE_IMAGES.update(
     {
         "Arctic pine": os.path.join(FIREMAKING_ITEMS_FOLDER, "arctic_pine_logs.png"),
         "Eucalyptus": os.path.join(FIREMAKING_ITEMS_FOLDER, "eucalyptus_logs.png"),
+        "Curly jade root": os.path.join(FIREMAKING_ITEMS_FOLDER, "curly_root.png"),
     }
 )
 

@@ -841,6 +841,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         player_data["inventory"] = new_inv
         output_items: dict[str, int] = {}
         primary_outputs: dict[str, int] = {}
+        output_quantity = max(1, int(spec.get("output_quantity", 1) or 1))
         incinerated_xp = 0.0
         incinerated_count = 0
         for action_output, action_nest, action_exp in action_outputs:
@@ -854,11 +855,13 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             )
             if action_output:
                 primary_outputs[action_output] = (
-                    primary_outputs.get(action_output, 0) + 1
+                    primary_outputs.get(action_output, 0) + output_quantity
                 )
-            for item_name in (action_output, action_nest):
-                if item_name:
-                    output_items[item_name] = output_items.get(item_name, 0) + 1
+                output_items[action_output] = (
+                    output_items.get(action_output, 0) + output_quantity
+                )
+            if action_nest:
+                output_items[action_nest] = output_items.get(action_nest, 0) + 1
             if (
                 action_output is None
                 and spec.get("output_item")
@@ -870,7 +873,8 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         if incinerated_count and spec.get("output_item"):
             source_output = str(spec["output_item"])
             achievement_outputs[source_output] = (
-                achievement_outputs.get(source_output, 0) + incinerated_count
+                achievement_outputs.get(source_output, 0)
+                + incinerated_count * output_quantity
             )
         total_base_exp, _glove_events, _risk_events = _apply_brawling_actions(
             ctx,

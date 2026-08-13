@@ -1664,12 +1664,17 @@ class TargetMetadataTest(unittest.TestCase):
 
         arctic = _row(rows, "arctic_pine")
         eucalyptus = _row(rows, "eucalyptus")
+        curly = _row(rows, "curly_jade_root")
         self.assertFalse(arctic.enabled)
         self.assertIn("Start The Fremennik Isles", arctic.tooltip)
         self.assertIsNotNone(arctic.icon_path)
         self.assertTrue(eucalyptus.enabled)
         self.assertTrue(eucalyptus.current)
         self.assertIsNotNone(eucalyptus.icon_path)
+        self.assertTrue(curly.enabled)
+        self.assertIn("Output: Curly root x4", curly.tooltip)
+        self.assertIn("Base XP: 161.6 per chop", curly.tooltip)
+        self.assertIsNotNone(curly.icon_path)
 
         player["quests"] = {"the_fremennik_isles": {"started": True}}
         unlocked = woodcutting_target_rows(

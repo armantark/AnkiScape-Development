@@ -426,7 +426,8 @@ def apply_woodcutting_action_pure(
     ):
         output_item = None
     elif output_item:
-        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+        output_quantity = max(1, _positive_int(spec.get("output_quantity", 1), 1))
+        new_inv[output_item] = new_inv.get(output_item, 0) + output_quantity
 
     nest_item = None
     if r_nest_drop is not None and r_nest_type is not None and nest_drop_table and r_nest_drop < nest_drop_chance:

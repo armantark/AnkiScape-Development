@@ -905,6 +905,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
             self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
         self.assertEqual(FIREMAKING_DATA["cursed_magic_logs"]["requirements"], {"Cursed magic logs": 1})
+        curly_root = by_storage_key["Curly root"]
+        self.assertEqual(curly_root.source_item_id, 21350)
+        self.assertFalse(curly_root.stackable)
+        self.assertFalse(curly_root.tradeable)
 
     def test_light_source_items_and_icons_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
