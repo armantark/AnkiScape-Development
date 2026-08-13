@@ -1663,35 +1663,35 @@ DOMINION_TOWER_MINE_SPECIAL_MATCH_IDS = tuple(
 # Items, equipment and assets
 # ---------------------------------------------------------------------------
 
-# item name -> (rev-742/727 item id where recovered, stackable)
-# PLACEHOLDER(dominion_tower.reward_item_ids): none of the pinned glove, weapon,
-# mine, medallion, marker, journal, potion, bomb or horn revisions prints an item
-# id, and the cache item dump carries no row under these display names. Zero
-# means "identity not recovered" and is never written into a save.
+# item name -> (period item id, stackable). Direct rev-727 and rev-742 cache
+# queries agree with Darkan's rev-727 `developer-information/itemList.txt`,
+# introduced in commit c6fbe036b1743f4d. Variant families use the first live row;
+# the app does
+# not model colour, charge, dose, marker-stage, or journal-page variants.
 _DOMINION_TOWER_ITEM_ROWS: dict[str, tuple[int, bool]] = {
-    DOMINION_TOWER_GOLIATH_GLOVES: (0, False),
-    DOMINION_TOWER_SPELLCASTER_GLOVES: (0, False),
-    DOMINION_TOWER_SWIFT_GLOVES: (0, False),
-    DOMINION_TOWER_DREADNIP: (0, True),
-    DOMINION_TOWER_SWORD: (0, False),
-    DOMINION_TOWER_STAFF: (0, False),
-    DOMINION_TOWER_CROSSBOW: (0, False),
-    DOMINION_TOWER_MINE: (0, True),
-    DOMINION_TOWER_ASCENDANCY_MINE: (0, True),
-    DOMINION_TOWER_MEDALLION: (0, False),
-    DOMINION_TOWER_SUPER_MEDALLION: (0, False),
-    DOMINION_TOWER_MARKER: (0, False),
-    DOMINION_TOWER_JOURNAL_PAGE: (0, True),
-    DOMINION_TOWER_SCORPION_MEAT: (0, True),
-    DOMINION_TOWER_XP_BOOK: (0, False),
-    DOMINION_TOWER_HELP_HORN: (0, False),
-    DOMINION_TOWER_DIMINUTIVE_BOMB: (0, True),
-    DOMINION_TOWER_MASSIVE_BOMB: (0, True),
-    DOMINION_TOWER_COLOSSAL_BOMB: (0, True),
-    DOMINION_TOWER_DOM_SUPER_RESTORE: (0, True),
-    DOMINION_TOWER_DOM_SUPER_PRAYER: (0, True),
-    DOMINION_TOWER_DOM_SUPER_ANTIPOISON: (0, True),
-    DOMINION_TOWER_DOM_SARADOMIN_BREW: (0, True),
+    DOMINION_TOWER_GOLIATH_GLOVES: (22358, False),
+    DOMINION_TOWER_SPELLCASTER_GLOVES: (22366, False),
+    DOMINION_TOWER_SWIFT_GLOVES: (22362, False),
+    DOMINION_TOWER_DREADNIP: (22370, True),
+    DOMINION_TOWER_SWORD: (22346, False),
+    DOMINION_TOWER_STAFF: (22347, False),
+    DOMINION_TOWER_CROSSBOW: (22348, False),
+    DOMINION_TOWER_MINE: (22371, True),
+    DOMINION_TOWER_ASCENDANCY_MINE: (22372, True),
+    DOMINION_TOWER_MEDALLION: (22338, False),
+    DOMINION_TOWER_SUPER_MEDALLION: (22339, False),
+    DOMINION_TOWER_MARKER: (22354, False),
+    DOMINION_TOWER_JOURNAL_PAGE: (22381, True),
+    DOMINION_TOWER_SCORPION_MEAT: (22342, True),
+    DOMINION_TOWER_XP_BOOK: (22340, False),
+    DOMINION_TOWER_HELP_HORN: (22349, False),
+    DOMINION_TOWER_DIMINUTIVE_BOMB: (22343, True),
+    DOMINION_TOWER_MASSIVE_BOMB: (22344, True),
+    DOMINION_TOWER_COLOSSAL_BOMB: (22345, True),
+    DOMINION_TOWER_DOM_SUPER_RESTORE: (22379, True),
+    DOMINION_TOWER_DOM_SUPER_PRAYER: (22375, True),
+    DOMINION_TOWER_DOM_SUPER_ANTIPOISON: (22377, True),
+    DOMINION_TOWER_DOM_SARADOMIN_BREW: (22373, True),
 }
 
 # The three glove rows exactly as each glove's pinned infobox prints them.
@@ -1847,11 +1847,12 @@ def dominion_tower_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
         item_name: {
             "category": "material",
+            "item_id": item_id,
             "stackable": stackable,
             "tradeable": False,
             "source": DOMINION_TOWER_SOURCE,
         }
-        for item_name, (_item_id, stackable) in _DOMINION_TOWER_ITEM_ROWS.items()
+        for item_name, (item_id, stackable) in _DOMINION_TOWER_ITEM_ROWS.items()
     }
 
 
@@ -1869,7 +1870,7 @@ def dominion_tower_equipment_data_as_dict() -> dict[str, Any]:
             equipment_type="gloves",
             bonuses=EquipmentBonuses(**bonuses),
             attack_speed=4,
-            source_item_id=0,
+            source_item_id=_DOMINION_TOWER_ITEM_ROWS[item_name][0],
             source=DOMINION_TOWER_SOURCE,
             source_status="pinned pre-cutoff item revision",
             skill_requirements=((combat_skill, required_level),),
