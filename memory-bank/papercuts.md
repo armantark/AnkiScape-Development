@@ -1,5 +1,11 @@
 # Papercuts
 
+- 2026-08-13T02:39:31-07:00 — A bounded-looking `git grep` over generated `data/shop_data.py` still emitted 2.3 MB because one catalog row is a giant line; exclude generated catalogs explicitly instead of relying on path scope.
+- 2026-08-13T03:26:05-07:00 — A targeted-test wrapper assigned zsh's read-only `status` parameter, so the tests ran but the wrapper exited before printing the log; use `rc` for captured exit codes.
+- 2026-08-13T03:26:36-07:00 — A targeted `python3 -m unittest` command inherited the canonical checkout as its working directory and then failed to import `tests.test_farming_skill_guide`; always enter the assigned worktree in the same command before invoking tests.
+- 2026-08-13T03:28:03-07:00 — The reachability comparison used an underscore-spelled scratch path while the session scratch directory uses a hyphen-spelled checkout slug, so the completed audit log and saved baseline landed in different sibling paths; copy the new log into the declared scratchpad and compare there.
+- 2026-08-13T03:45:06-07:00 — A focused Qt unittest used the discovery module name `test_main_menu_widget` from the repository root and failed to import it; direct invocations from the root need `tests.test_main_menu_widget`.
+
 - 2026-08-13 02:30:10 PDT — The final reachability capture omitted `--json`, then attempted to parse the human summary and failed with `json.decoder.JSONDecodeError: Extra data: line 1 column 6 (char 5)`; use the audit's declared `--json` option when machine-reading its expected nonzero result.
 
 - 2026-08-13 02:16:55 PDT — The first multi-quantity inferno-adze regression used a final RNG draw of `1.0`, so the adze correctly did not incinerate and the inventory assertion failed with `AssertionError: 'Curly root' unexpectedly found in {'Curly root': 4}`; use `0.0` for the adze incineration roll and reserve `1.0` for suppressing the separate strange-rock roll.

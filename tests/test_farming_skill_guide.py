@@ -269,17 +269,31 @@ class TestFarmingSkillGuide(unittest.TestCase):
             ("Woodcutting 16",),
         )
 
-    def test_unrunnable_period_rows_remain_visible_but_implementation_locked(self):
+    def test_recovered_rows_unlock_while_unresolved_crops_stay_visible(self):
         sections = _sections(_player())
-        white_lily = _row(sections, 3477)
-        potato = _row(sections, 3439)
-        self.assertEqual(white_lily.resolution_status, "crop")
-        self.assertEqual(
-            white_lily.lock_reasons,
-            ("Not implemented in AnkiScape",),
-        )
-        self.assertEqual(potato.resolution_status, "crop")
-        self.assertEqual(potato.lock_reasons, ())
+        for struct_id in (3477, 3487, 3504, 3510):
+            row = _row(sections, struct_id)
+            self.assertEqual(row.resolution_status, "crop")
+            self.assertNotIn("Not implemented in AnkiScape", row.lock_reasons)
+
+        expected_locked = {
+            3482: "Goutweed",
+            3506: "Lergberry bush",
+            3511: "Spirit tree",
+        }
+        for struct_id, name in expected_locked.items():
+            row = _row(sections, struct_id)
+            self.assertEqual(row.name, name)
+            self.assertIn("Not implemented in AnkiScape", row.lock_reasons)
+
+        implementation_locked = [
+            row
+            for section in sections
+            for row in section.rows
+            if "Not implemented in AnkiScape" in row.lock_reasons
+        ]
+        self.assertEqual(len(implementation_locked), 13)
+        self.assertEqual(_row(sections, 3439).lock_reasons, ())
 
     def test_second_spirit_tree_resolves_against_the_secondary_patch(self):
         row = _row(_sections(_player()), 3512)
@@ -360,7 +374,7 @@ class TestFarmingSkillGuide(unittest.TestCase):
         self.assertIn("White tree", crop_names)
         self.assertNotIn("White tree", source_names)
         self.assertIn("White lily", source_names)
-        self.assertFalse(next(crop for crop in FARMING_CROPS if crop.id == "white_lily").runnable)
+        self.assertTrue(next(crop for crop in FARMING_CROPS if crop.id == "white_lily").runnable)
         self.assertIsNotNone(_row(_sections(_player()), 3477))
 
 

@@ -8828,10 +8828,10 @@ class MainMenuWidgetTest(unittest.TestCase):
                 dialog.findChild(QLabel, "statsGuideName::farming-struct:3514").toolTip(),
                 "Requires: Lunar Diplomacy",
             )
-            self.assertIsNotNone(white_lily.graphicsEffect())
+            self.assertIsNone(white_lily.graphicsEffect())
             self.assertEqual(
                 dialog.findChild(QLabel, "statsGuideName::farming-struct:3477").toolTip(),
-                "Requires: Not implemented in AnkiScape",
+                "",
             )
             evil_oak_tooltip = dialog.findChild(
                 QLabel,

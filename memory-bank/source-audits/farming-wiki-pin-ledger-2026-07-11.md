@@ -1,10 +1,17 @@
 # Farming pre-EOC wiki-pin ledger — 2026-07-11
 
-> **Supersession note (2026-08-09):** the Fellstalk entry under missing
-> acquisition routes is superseded by
-> `source-audits/fellstalk-seed-acquisition-2026-08-09.md`. Cutoff Master Farmer
-> oldid `6565826` proves one Fellstalk seed at `Very Rare`; only its hidden
-> relative weight remains a registered placeholder.
+> **Supersession notes:**
+>
+> - 2026-08-09: the Fellstalk entry under missing acquisition routes is
+>   superseded by `source-audits/fellstalk-seed-acquisition-2026-08-09.md`.
+>   Cutoff Master Farmer oldid `6565826` proves one Fellstalk seed at `Very
+>   Rare`; only its hidden relative weight remains a registered placeholder.
+> - 2026-08-13: the crop dispositions below were re-audited with dedicated
+>   item pages, stage tables, Darkan path history, and the real AnkiScape
+>   kernels. White lily, Wergali, Red blossom, Green blossom, and Kalferberry
+>   now ship; Blue blossom, Lergberry, Goutweed, and Spirit tree remain blocked
+>   for the exact fields recorded in section H. Where section H conflicts with
+>   the original July verdicts, section H governs.
 
 Cutoff: strictly before `2012-11-20T00:00:00Z`. Wiki evidence is literal `runescape.wiki` wikitext resolved by `tools/wiki_parity.py`; “GM” is `/Users/ArmanTarkhanian1/Downloads/game-main`; “DK” is Darkan commit `7e7d67b`, read only with `git show`. A modern page is mentioned only once, as a lead proving that Patch bomb belongs to a later update; it is not promoted to period proof.
 
@@ -295,3 +302,94 @@ These crops may ship as ordinary input-starved targets. No replacement route is 
 - **Safe to implement from pinned values:** fruit-tree check XP; the three allotment payments; jute’s 3-seed rule; scarecrow level 23; willow 1,456.3; lantadyme 134.5; plant-cure 0 XP; application XP 18/26; bin capacity 15; regular compost 35–50 min and supercompost 90 min; cactus/bittercap/morchella/belladonna/fellstalk; jade-vine complete loop; evil-turnip complete loop; juju, aura, scroll, amulets, quest route, and the 51+6 repeatable map. [oldids cited above]
 - **Still source_blocked:** white-lily planting XP; exact compost disease factors and extra lives; exact watering multiplier/yield effect; spirit-tree exact stage/time; wergali harvest XP; goutweed exact yield and planting quest gate; several Habitat stages/times/yields and kalferberry decimals. [oldids cited above]
 - **Struck:** Patch bomb, post-cutoff 2014. [no pre-cutoff oldid; modern lead oldid 37010730]
+
+## H. 2026-08-13 unresolved-crop re-audit
+
+### Evidence method and Darkan provenance
+
+This pass followed the current evidence order: Darkan, local OpenRS2 caches,
+`game-main`, then exact pre-cutoff wiki revisions. Cache evidence was used only
+for client-visible states/actions; it does not prove server XP, timing, yield,
+or probability. Darkan `web/*AuditProbe.kt` files were excluded.
+
+`git log --` was run over all three Darkan files used here:
+
+- `src/main/java/com/rs/game/content/skills/farming/ProduceType.java`
+- `src/main/java/com/rs/game/content/skills/farming/PatchType.java`
+- `src/main/java/com/rs/game/content/skills/farming/FarmPatch.java`
+
+The current paths descend through the 2022 package move (`8a953fdb5`) to the
+original Farming implementation. `git blame` attributes White lily, all three
+blossoms, Lergberry, Kalferberry, and the shared growth/disease routine to
+original commit `c6fbe036b` (2021-06-16); Wergali is attributed to `41eb35491f`
+(2022-01-06). Commit `33fdc1ec0` (2026-07-10), “Restore 2012 farming xp fidelity
+in ProduceType,” is a recent wiki-derived restoration, but its diff changes
+none of these rows. It therefore cannot corroborate this pass independently;
+the relevant surviving candidate rows predate it. Darkan's shared disease test
+is `Utils.random(128) < (6 - compostLevel)` in `FarmPatch.java:478-495`; it is a
+general reconstruction, not a crop-specific period probability.
+
+### Source-precedence rule
+
+A dedicated crop or seed page governs that crop over an aggregate table when
+it states the same field directly. This is a provenance decision, not a
+preference for integers or decimals. The original July blocks were correct
+safeguards: the ledger had identified real conflicts but had not yet applied
+this rule consistently or inspected the dedicated stage/yield pages below.
+
+### Crop dispositions
+
+| Crop | Exact evidence and literal relevant text | Final mechanic | Disposition |
+|---|---|---|---|
+| White lily | White lily oldid `6579222`, `2012-11-18T17:41:44Z`: “Players gain 50 experience when planting, and 250 experience when harvesting.” Seeds oldid `6565109` gives 70 and GM's disabled row gives 42; the dedicated page wins. The same page and Seeds give level 52, four 20-minute stages, one lily, and allotment protection. | 50 plant XP; 250 harvest XP; 4 × 20 min; fixed yield 1. The page exposes diseased states but no probability, so the shared 6-slot registered placeholder supplies the hidden roll. | **Runnable.** The former XP conflict was a correct source block until page specificity was applied. |
+| Wergali | Wergali seed oldid `6446873`, `2012-10-20T11:04:42Z`: `|time = 80 min (4x20 min)`, `|plant = 52.8`, `|check = N/A`, `|harvest = 52.8`. This dedicated row resolves Herb patch oldid `6567051`'s 51.5 aggregate conflict. | 52.8 plant XP; 52.8 XP per herb; 4 × 20 min; ordinary variable herb lives/save-slot kernel. | **Runnable.** The former harvest-XP block was a correct safeguard before the dedicated seed page was inspected. |
+| Goutweed | Goutweed oldid `5668713` and Seeds oldid `6565109` prove level 29, 105 planting XP, 45 XP per goutweed, and 4 × 20 min. No period source states the exact harvest yield. Inferring seven from later economics assumes the quantity it is meant to prove. The candidate Eadgar's Ruse planting gate is also unusable today: each of the quest's six stages requires an action string with no emitter. | Yield and planting quest gate remain unrecovered. | **Blocked on `yield` and `quest_gate`.** No circular economics inference and no unsatisfiable invented gate. |
+| Spirit tree | Seeds oldid `6565109` gives 11 × 320 = 3,520 minutes; Spirit tree oldid `6549224`, `2012-11-12T08:44:58Z`, says about 3,680 minutes; Darkan reconstructs 12 × 320 = 3,840 minutes. The dedicated page says the tree cannot be cut down and is removed with a Spade without yielding roots. Rev-727 and rev-742 client states expose `Check-health`/`Clear` and mature `Clear`, never `Chop`. | Lifecycle is plant → grow → check health → clear with Spade, with no harvest, stump, or roots. Exact stages/time remain unresolved. | **Blocked on `stages` and `stage_minutes`.** The generic no-output health-check/clear kernel now preserves the sourced lifecycle for when timing is recovered. |
+| Red blossom | Red blossom seed oldid `5054589`, `2011-12-15T12:55:02Z`: “gives 52 experience for planting, and 255 experience for harvesting” and “approximately 20 minutes, in four five-minute stages.” | 52 plant XP; 255 harvest XP; 4 × 5 min. Period sources never state the picked count, so fixed yield 1 is registered as `farming.vine_blossom_yield`; the hidden disease roll uses `farming.shared_disease_slots`. | **Runnable with two explicit placeholders.** |
+| Green blossom | Green blossom seed oldid `5562807`, `2012-05-03T21:17:28Z`: “It gives 52 experience when planted, and 255 experience when harvested” and “approximately 20 minutes, in four five-minute stages.” | Same exact timing/XP and placeholder boundaries as Red. | **Runnable with two explicit placeholders.** |
+| Blue blossom | Blue blossom seed oldid `5054588`, `2011-12-15T12:53:01Z`: 52 plant XP, 255 harvest XP, and “Approximate time ... 18 to 20 minutes. (based on 2 timed observations).” It gives no stage count. | Red/Green timing is not inherited across sibling crops. | **Blocked on `stages` and `stage_minutes`.** The shared guide row may unlock from Red/Green while this data row remains non-runnable. |
+| Lergberry | Lergberries oldid `6358880`, `2012-10-06T20:56:38Z`: “A full harvest yields 4 berries and earns 31.5 Farming experience for each” and the bush is renewable. Its seed page leaves time blank, Seeds records `?`, and Darkan's 6 × 20-minute row is not independently period-qualified. | Fixed yield 4 is recovered; XP/check/payment remain as previously pinned. Exact stages/time remain absent. | **Blocked on `stages` and `stage_minutes`.** Darkan's timing candidate is not promoted. |
+| Kalferberry | Kalferberry seed oldid `5906898`, `2012-07-08T11:42:43Z`: `|time = 75`, `|plant = 220`, `|check = 375`, `|harvest = 52.5`; prose repeats all four. Its stage table labels the just-planted state 1 and mature state 6. Kalferberries oldid `6513798`, `2012-10-31T21:36:48Z`: “Each full harvest yields 4 berries and earns 52.5 Farming experience for each” and un-cleared bushes renew. Habitat oldid `6513740` gives aggregate 220.2/375.3/52.5; Seeds agrees with 220/375. The dedicated seed page governs planting and health XP, while all sources agree on harvest XP. | 220 plant XP; 375 check XP; 52.5 per berry; five 15-minute transitions = exact 75-minute maturity; fixed yield 4. Renewal is sourced but its interval is not: one six-minute review tick is registered as `farming.kalferberry_regrowth_minutes`. The shared disease placeholder supplies 6 slots. | **Runnable with two explicit placeholders.** Darkan's 10-minute renewal candidate is coupled to its contradicted 120-minute maturity reconstruction and is not period proof. |
+
+### Stage-label control
+
+AnkiScape stores a just-planted crop at kernel stage 0 and performs
+`crop.stages` transitions. Period image tables often call that visible planted
+state stage 1. Existing controls confirm the offset: Redberry displays stages
+1–6 and uses five kernel transitions; Cadavaberry displays 1–7 and uses six.
+Kalferberry's displayed stages 1–6 therefore mean five transitions, not six.
+Seventy-five minutes divided across those transitions gives 15 minutes each.
+
+### Placeholder boundaries
+
+- `farming.shared_disease_slots = 6` represents Darkan's shared uncomposted
+  `6/128` selector for White lily and runnable Habitat crops. It is not claimed
+  as a crop-specific period rate, and ordinary-bush 15-slot data is not
+  inherited into vine bushes.
+- `farming.vine_blossom_yield = 1` preserves a complete single-output harvest
+  because period Red/Green sources state XP and timing but never the count.
+- `farming.kalferberry_regrowth_minutes = 6` preserves the explicitly sourced
+  renewable bush. It is the smallest review-native interval and is not claimed
+  as period-accurate. Darkan's 10-minute candidate was rejected for provenance
+  and because its maturity reconstruction conflicts with the dedicated page.
+
+### Runtime and reachability evidence
+
+Real-kernel tests plant, grow, and harvest White lily, Wergali, Red blossom,
+Green blossom, and Kalferberry. They prove the Habitat disease arithmetic,
+Kalferberry's 75-minute boundary, health check, four-berry harvest, six-minute
+renewal, and the generic Spirit-tree-style check-health → clear → replant queue.
+The Kalferberry regression test was mutation-proved: changing its production
+`regrowth` to `None` failed with `AssertionError: 0 != 1`, then passed after the
+production value was restored.
+
+Against the exact 1,563-action / 2,504-item / 96-orphan / 99-blocked baseline,
+the post-change graph reports 1,568 actions / 2,506 reachable items / 98 orphan
+inputs / 101 blocked actions. The five added Farming actions are White lily,
+Wergali, Red blossom, Green blossom, and Kalferberry. The newly reachable items
+are exactly `Red blossom` and `Green blossom`, each via its corresponding live
+Papa Mambo seed → Farming route. Wergali seed is already reachable from the
+Molanisk combat route, so `Grimy wergali` was already reachable through that
+existing crop action; White lily seed and Kalferberry seed have no live
+acquisition route, so their newly exposed actions add two root orphans and two
+blocked actions rather than reachable outputs.
