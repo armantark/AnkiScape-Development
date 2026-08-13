@@ -6089,3 +6089,9 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Both full lanes pass 4,058 tests. Documentation, test quality, compilation, native Anki, diff, and worktree checks pass.
 - Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
 - Results: <https://zvxa8ne0p5qz.postplan.dev>.
+
+## Inventory direct-action seam — 2026-08-13
+
+- Item packs and impling jars now commit through `commit_direct_action` instead of a private transaction copy, so they inherit the shared music-log refresh and complete undo snapshot, including `current_skill`.
+- The application-path regression opens a Dragon impling jar, proves the pending quest track is refreshed, changes the live skill, and proves undo restores both the save and Hunter.
+- Both full lanes pass 4,104 tests: plain with 498 expected Qt skips, and offscreen Qt with three skips. Reachability is unchanged at 1,568 actions / 2,248 reachable items / 100 orphan inputs / 103 blocked actions.

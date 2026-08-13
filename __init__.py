@@ -5127,48 +5127,52 @@ def on_drink_trouble_brewing_rum(item_name):
     return {"ok": True, **info}
 
 
-def _apply_inventory_direct_action(action):
-    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
-    inventory, result = action(player_data.get("inventory", {}) or {})
-    if not result.get("allowed"):
+def on_open_item_pack(item_name, open_all=False):
+    result = {}
+
+    def _change(data):
+        inventory, outcome = apply_item_pack_open_pure(
+            data.get("inventory", {}) or {},
+            item_name,
+            open_all=bool(open_all),
+        )
+        result.update(outcome)
+        updated = dict(data)
+        updated["inventory"] = inventory
+        return updated, bool(outcome.get("allowed"))
+
+    if not commit_direct_action(_change):
         return None
-    try:
-        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        random.setstate(before["random_state"])
-        return None
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data["inventory"] = inventory
-    save_player_data()
     _refresh_skill_availability()
     try:
         update_review_hud(player_data, current_skill)
-        mw.update_undo_actions()
     except AttributeError:
         pass
     return result
 
 
-def on_open_item_pack(item_name, open_all=False):
-    return _apply_inventory_direct_action(
-        lambda inventory: apply_item_pack_open_pure(
-            inventory,
-            item_name,
-            open_all=bool(open_all),
-        )
-    )
-
-
 def on_open_impling_jar(item_name):
-    return _apply_inventory_direct_action(
-        lambda inventory: apply_impling_jar_open_pure(
-            inventory,
+    result = {}
+
+    def _change(data):
+        inventory, outcome = apply_impling_jar_open_pure(
+            data.get("inventory", {}) or {},
             item_name,
             rng=random.random,
         )
-    )
+        result.update(outcome)
+        updated = dict(data)
+        updated["inventory"] = inventory
+        return updated, bool(outcome.get("allowed"))
+
+    if not commit_direct_action(_change):
+        return None
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except AttributeError:
+        pass
+    return result
 
 
 def on_convert_rogue_kit(output_item):

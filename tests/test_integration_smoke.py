@@ -5906,6 +5906,8 @@ class TestIntegrationSmoke(unittest.TestCase):
                 "Dragon impling jar": 1,
             },
             "hunter_level": 83,
+            "quests": {"troll_romance": {"completed": True}},
+            "music_log": {"version": 1, "unlocked_tracks": []},
         }
         addon.player_data = copy.deepcopy(initial)
         rolls = iter((2_700_000 / 6_700_000, 0.0))
@@ -5923,9 +5925,14 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        # The completed quest is pending before the jar opens, so this proves the
+        # application path ran the shared music-log refresh during its commit.
+        self.assertIn(4, addon.player_data["music_log"]["unlocked_tracks"])
 
+        addon.current_skill = "Cooking"
         addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon.current_skill, "Hunter")
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
     def test_impling_jar_loot_restores_rng_when_undo_registration_fails(self):

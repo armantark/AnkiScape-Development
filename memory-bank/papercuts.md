@@ -1,5 +1,9 @@
 # Papercuts
 
+- 2026-08-13T08:32:30-07:00 — The first independent diff review failed before reading the branch with Kimi API error `403 You've reached your usage limit for this billing cycle`; reroute bounded review to another provider instead of treating the missing verdict as approval.
+- 2026-08-13T08:03:50-07:00 — Both full `run_tests.py` lanes exceeded the tool's 600-second foreground timeout when started concurrently, so neither produced a trustworthy final summary; rerun them separately with a longer external/background monitor rather than treating exit 143 as a test result.
+- 2026-08-13T07:53:00-07:00 — The first focused inventory-seam test command omitted an explicit worktree `cd`, so it passed against the canonical checkout instead of the edited branch; every verification command must set the assigned worktree as its working directory.
+- 2026-08-13T07:49:20-07:00 — The guarded worktree creation reported that the destination already existed even though the earlier attempt was described as creating nothing; `git worktree list --porcelain` confirmed the requested guarded worktree and branch were already valid, so no unsafe workaround was needed.
 - 2026-08-13T04:55:22-07:00 — A direct tooltip probe imported `ankiscape` without installing the repository package alias; standalone source-tree probes must add `tests` to `sys.path` and import `pkg_alias` first.
 - 2026-08-13T04:25:18-07:00 — The full plain lane exposed that replacing Hunter's source-ordered static output map with raw inventory-delta order let Shattered Heart consume the Long kebbit spike; preserve declared output order and append only stochastic gains.
 - 2026-08-13T04:18:23-07:00 — A corrected dotted unittest command still ran from the canonical checkout and reported the new worktree methods missing; include an explicit `cd` to the assigned worktree in every test command.
