@@ -6870,11 +6870,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("__hunter_group__:deadfall", group_roles)
         self.assertIn("__hunter_group__:impling_world", group_roles)
         self.assertEqual(_hunter_group_node(tree, "deadfall").text(0), "Deadfall  (4)")
-        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (1)")
+        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (4)")
 
         wild = _hunter_row(tree, "catch_wild_kebbit")
         ferret = _hunter_row(tree, "catch_ferret")
         pirate = _hunter_row(tree, "catch_pirate_impling_world")
+        polar = _hunter_row(tree, "catch_polar_kebbit")
         razor_backed = _hunter_row(tree, "track_razor_backed_kebbit")
         self.assertIs(wild, tree.currentItem())
         self.assertFalse(wild.isDisabled())
@@ -6887,6 +6888,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Eagles' Peak", ferret.toolTip(0))
         self.assertTrue(pirate.isDisabled())
         self.assertIn("Rocking Out", pirate.toolTip(0))
+        self.assertTrue(polar.isDisabled())
+        self.assertIn("Outputs: Bones x1, Raw beast meat x1, Polar kebbit fur x1", polar.toolTip(0))
+        self.assertIn("Noose wand x1 (you have 0)", polar.toolTip(0))
+        self.assertFalse(polar.icon(0).isNull())
         self.assertTrue(razor_backed.isDisabled())
         self.assertIn("Noose wand x1 (you have 0)", razor_backed.toolTip(0))
         self.assertFalse(razor_backed.icon(0).isNull())
@@ -8704,6 +8709,138 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsNotNone(
                 dialog.findChild(QWidget, "statsGuideRow::equipment:Bronze dagger")
             )
+        finally:
+            dialog.deleteLater()
+
+    def test_farming_skill_guide_renders_source_sections_rows_and_quest_gates(self) -> None:
+        player_data = _make_player_data()
+        player_data.update(
+            {
+                "farming_level": 60,
+                "magic_level": 70,
+                "agility_level": 60,
+                "crafting_level": 60,
+                "construction_level": 50,
+                "woodcutting_level": 1,
+                "firemaking_level": 1,
+            }
+        )
+        dialog = self._open(player_data, current_skill="Farming")
+        dialog.resize(1280, 752)
+        dialog.show()
+        for _ in range(6):
+            QApplication.processEvents()
+        try:
+            content = dialog.findChild(QWidget, "statsSkillGuideContent")
+            sections = [
+                dialog.findChild(QLabel, f"statsGuideSectionTitle::{section_id}")
+                for section_id in ("milestones", "produce", "trees", "special", "other")
+            ]
+            self.assertEqual(
+                [section.text() for section in sections],
+                ["Milestones", "Produce", "Trees", "Special", "Other"],
+            )
+            expected_counts = {
+                "milestones": 2,
+                "produce": 47,
+                "trees": 12,
+                "special": 12,
+                "other": 15,
+            }
+            all_rows = [
+                row
+                for row in content.findChildren(QWidget)
+                if row.objectName().startswith("statsGuideRow::farming-struct:")
+            ]
+            for index, (section_id, expected_count) in enumerate(expected_counts.items()):
+                lower = sections[index].y()
+                upper = sections[index + 1].y() if index + 1 < len(sections) else content.height()
+                self.assertEqual(
+                    sum(lower < row.y() < upper for row in all_rows),
+                    expected_count,
+                )
+
+            potato = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3439")
+            oak = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3453")
+            scarecrow = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3473")
+            jade = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3503")
+            livid = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3514")
+            evil_oak = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3520")
+            white_lily = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3477")
+            dividers = {
+                section_id: dialog.findChild(
+                    QLabel,
+                    f"statsGuideCurrentDivider::{section_id}",
+                )
+                for section_id in ("milestones", "produce", "trees", "special", "other")
+            }
+            self.assertIsNotNone(potato)
+            self.assertIsNotNone(oak)
+            self.assertIsNotNone(scarecrow)
+            self.assertIsNotNone(jade)
+            self.assertIsNotNone(livid)
+            self.assertIsNotNone(evil_oak)
+            self.assertIsNotNone(white_lily)
+            self.assertEqual(
+                {section_id: divider.text() for section_id, divider in dividers.items()},
+                {
+                    "milestones": "Current level 60",
+                    "produce": "Current level 60",
+                    "trees": "Current level 60",
+                    "special": "Current level 60",
+                    "other": "Current level 60",
+                },
+            )
+            first_above_level = {
+                "milestones": "farming-struct:3548",
+                "produce": "farming-struct:3491",
+                "trees": "farming-struct:3464",
+                "special": "farming-struct:3506",
+                "other": "farming-struct:3515",
+            }
+            guide_layout = content.layout()
+            for section_id, row_id in first_above_level.items():
+                divider_widget = dividers[section_id].parentWidget()
+                row_widget = dialog.findChild(QWidget, f"statsGuideRow::{row_id}")
+                self.assertEqual(
+                    guide_layout.indexOf(divider_widget) + 1,
+                    guide_layout.indexOf(row_widget),
+                )
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3453").text(),
+                "Oak tree",
+            )
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3473").text(),
+                "Make and place a scarecrow",
+            )
+            oak_icon = dialog.findChild(QLabel, "statsGuideIcon::farming-struct:3453")
+            self.assertIsNotNone(oak_icon)
+            self.assertFalse(oak_icon.pixmap().isNull())
+            self.assertIsNotNone(jade.graphicsEffect())
+            self.assertAlmostEqual(jade.graphicsEffect().opacity(), 0.45)
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3503").toolTip(),
+                "Requires: Back to My Roots",
+            )
+            self.assertIsNotNone(livid.graphicsEffect())
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3514").toolTip(),
+                "Requires: Lunar Diplomacy",
+            )
+            self.assertIsNone(white_lily.graphicsEffect())
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3477").toolTip(),
+                "",
+            )
+            evil_oak_tooltip = dialog.findChild(
+                QLabel,
+                "statsGuideName::farming-struct:3520",
+            ).toolTip()
+            self.assertIn("Woodcutting 15", evil_oak_tooltip)
+            self.assertIn("Firemaking 15", evil_oak_tooltip)
+            self.assertEqual(len(all_rows), 88)
+            self.assertIsNone(dialog.findChild(QWidget, "statsGuideRow::farming-struct:3526"))
         finally:
             dialog.deleteLater()
 
@@ -10539,6 +10676,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         open_all.trigger()
         QApplication.processEvents()
         self.assertEqual(opened, [("Vial pack", True)])
+
+    def test_bank_loots_filled_impling_jars(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Dragon impling jar": 1}
+        looted: list[str] = []
+
+        dialog = self._open(
+            pd,
+            on_open_impling_jar=lambda item_name: looted.append(item_name)
+            or {"message": "You loot 105 Dragon dart tip."},
+        )
+        menu = dialog._ankiscape_equip_menu_for("Dragon impling jar")
+        loot = next(action for action in menu.actions() if action.text() == "Loot Dragon impling jar")
+        self.assertEqual(loot.objectName(), "lootImplingJarAction")
+        self.assertTrue(loot.isEnabled())
+
+        original_info = self._ui.QMessageBox.information
+        self._ui.QMessageBox.information = lambda *a, **k: None
+        try:
+            loot.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.information = original_info
+        self.assertEqual(looted, ["Dragon impling jar"])
 
     def test_bank_converts_a_rogue_kit_to_any_period_tool(self) -> None:
         from ankiscape.logic.flash_powder_factory_logic import convert_rogue_kit_pure

@@ -27985,6 +27985,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-11-04T04:46:20Z"
   },
+  "hunteritems/corrupt_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Corrupt_vine.png",
+    "file_title": "Corrupt vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082731%21Corrupt_vine.png?ced48",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2f6ec4fc40c6b4fa1031ad80fb5b0207aff34f6e",
+    "size": 344,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:05:45Z"
+  },
   "hunteritems/dark_kebbit_fur.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dark_kebbit_fur.png",
     "file_title": "Dark kebbit fur.png",
@@ -28104,6 +28116,18 @@
     "size": 431,
     "source_wiki": "rs3",
     "timestamp": "2010-11-30T01:08:10Z"
+  },
+  "hunteritems/guthix_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Guthix_vine.png",
+    "file_title": "Guthix vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502042440%21Guthix_vine.png?4d436",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bf46377f79cd175bfdf689cac38a4b1896c65689",
+    "size": 403,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:15:14Z"
   },
   "hunteritems/imp_in_a_box_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Imp-in-a-box_%282%29.png",
@@ -28297,6 +28321,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-04-02T04:27:39Z"
   },
+  "hunteritems/plant_teeth.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Plant_teeth.png",
+    "file_title": "Plant teeth.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502063209%21Plant_teeth.png?19dfb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "50f76bd74165dd4b04249f2001e839d6dfb19e46",
+    "size": 584,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:09:12Z"
+  },
   "hunteritems/polar_kebbit_quota_ticket.png": {
     "file_page_url": "https://runescape.wiki/w/File:Polar_kebbit_quota_ticket.png",
     "file_title": "Polar kebbit quota ticket.png",
@@ -28428,6 +28464,18 @@
     "size": 11720,
     "source_wiki": "rs3",
     "timestamp": "2011-01-28T16:12:01Z"
+  },
+  "hunteritems/shadow_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Shadow_vine.png",
+    "file_title": "Shadow vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502073326%21Shadow_vine.png?bd543",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0bada4a49312b232d45766264cc8e30a2bb77347",
+    "size": 297,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T13:05:26Z"
   },
   "hunteritems/small_fishing_net.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Small_fishing_net.png",

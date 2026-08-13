@@ -1,5 +1,31 @@
 # Progress
 
+## Polar kebbit quota-ticket target — 2026-08-12
+
+Big Chinchompa's Polar kebbit quota ticket now resolves to the live
+`catch_polar_kebbit` Hunter tracking target. The ordinary catch is available at
+Hunter level 1; the separate Big Chinchompa reward purchase correctly requires
+Hunter level 70. One review represents the sourced four- or five-search trail
+and final attack, requires and preserves a Noose wand, awards 30 Hunter XP, and
+produces Bones, Raw beast meat, and Polar kebbit fur. No quest or route wall was
+added because the period Hunter location section lists multiple ordinary routes
+to the Rellekka Hunter area and no quest gate.
+
+Hunter oldid `6484443`, Darkan tracking commit
+`37957d17d62d6b14d326cd719a0ae0c239c76cf9`, and OpenRS2 rev-742 pin the
+visible mechanic and item identities. The unrecovered hidden catch curve uses
+registered placeholder `hunter.polar_kebbit_success_curve` with the established
+shared Hunter fallback. Reachability improves from 1,560 actions / 2,497 items /
+99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102; Polar kebbit
+fur is newly reachable through `Hunter:catch_polar_kebbit`. See
+`memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
+
+## Quest-stage reachability truth correction — 2026-08-12
+
+The audit now mirrors runtime action gating before it credits quest-stage products, keeps branch variants separate, and applies equivalent gates to quest-combat guaranteed drops. Main falls from 2,573 to 2,493 reachable items: 80 items that were previously reported reachable never were. Orphan inputs rise from 102 to 103 and blocked actions from 101 to 102. This is a measurement correction, not a gameplay regression.
+
+The later `d2faf1d2` slice was re-derived separately. Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 use emitted `auto_actions`; the acquisition helper supplies inventory and levels but does not manufacture `quest_stage_actions`. The same slice's Herb pouch quest-combat route is inert in normal play: Nial Swiftfling defaults to a level-156 minimum while a normal maxed player is combat level 126, and the test reaches it only with level 400 combat stats. Diamond root and Diamond root dust consequently remain unreachable. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `audits/quest-stage-reachability-truth-2026-08-12.md`.
+
 ## Resumed-goal interval closure — 2026-08-10
 
 The audit covers all work after the 2026-08-08 resume. It reviewed 52 commits
@@ -2167,10 +2193,10 @@ constructing the state a player would actually be in.
 - Added the complete period reward shop, direct 5-XP-per-point purchase,
   quiet/normal/busy seeded crowd profiles, storage schema 50, telemetry, and
   atomic review/direct undo.
-- Added five quota-ticket items and four executable private-ground routes.
-  Tickets must be carried for the selected Hunter target and are consumed only
-  after a successful catch. Polar-kebbit use remains dependency-blocked on the
-  ordinary source-blocked tracking target.
+- Added five quota-ticket items and initially four executable private-ground
+  routes. Tickets must be carried for the selected Hunter target and are
+  consumed only after a successful catch. The fifth, Polar kebbit, became
+  executable in the 2026-08-12 acquisition slice above.
 - Added provenance-pinned period art, standard 28-pixel display boxes, a global
   Review HUD notice, a compact scroll-safe Utility card, and the contextual
   Hunter private-ground control. Fable's independent review caught and closed
@@ -6022,6 +6048,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   Full plain and offscreen Qt discovery each pass 4,021 tests, with 490 expected
   plain skips and three Qt skips.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
+
+## Farming Stats skill-guide source block — 2026-08-12
+
+- Rev-727 and rev-742 establish a 110-struct Farming guide with seven filters and source-owned labels, levels, icons, categories, and gates.
+- Withdrew the crop-table projection after review proved it inverted the source: it omitted non-crop unlocks, filtered period rows by implementation state, substituted internal names/icons, and discarded access gates.
+- Recorded a rebuild specification that uses the period struct list as the spine and resolves each entry against its owning AnkiScape registry. No product behavior changed.
+- Dungeoneering remains untouched as a separate, larger guide gap.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
 
 ## Pass 9 owner repair — 2026-08-11
 

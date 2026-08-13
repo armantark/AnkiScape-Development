@@ -1664,12 +1664,17 @@ class TargetMetadataTest(unittest.TestCase):
 
         arctic = _row(rows, "arctic_pine")
         eucalyptus = _row(rows, "eucalyptus")
+        curly = _row(rows, "curly_jade_root")
         self.assertFalse(arctic.enabled)
         self.assertIn("Start The Fremennik Isles", arctic.tooltip)
         self.assertIsNotNone(arctic.icon_path)
         self.assertTrue(eucalyptus.enabled)
         self.assertTrue(eucalyptus.current)
         self.assertIsNotNone(eucalyptus.icon_path)
+        self.assertTrue(curly.enabled)
+        self.assertIn("Output: Curly root x4", curly.tooltip)
+        self.assertIn("Base XP: 161.6 per chop", curly.tooltip)
+        self.assertIsNotNone(curly.icon_path)
 
         player["quests"] = {"the_fremennik_isles": {"started": True}}
         unlocked = woodcutting_target_rows(
@@ -1948,6 +1953,26 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(crimson_swift.enabled)
         self.assertEqual(crimson_swift.locked_reasons, ("Bird snare",))
         self.assertIn("Bird snare x1 (you have 0)", crimson_swift.tooltip)
+
+    def test_hunter_rows_disclose_cannibal_jadinko_rare_seed_table(self):
+        rows = hunter_target_rows(
+            {
+                "hunter_level": 75,
+                "inventory": {"Marasamaw plant": 1},
+                "current_hunter": "catch_cannibal_jadinko",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        cannibal = _row(rows, "catch_cannibal_jadinko")
+        self.assertIn(
+            "Rare outputs: Lergberry seed ×1, Kalferberry seed ×1",
+            cannibal.tooltip,
+        )
+        self.assertIn("4.688% table chance", cannibal.tooltip)
 
     def test_hunter_rows_apply_quest_unlock_rules(self):
         player_data = {

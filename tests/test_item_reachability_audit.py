@@ -1,9 +1,102 @@
 import unittest
 
-from tools.audit_item_reachability import build_reachability_report
+from tools.audit_item_reachability import (
+    _quest_stage_sources,
+    build_reachability_report,
+)
 
 
 class TestItemReachabilityAudit(unittest.TestCase):
+    def test_quest_stage_products_require_emitted_actions(self):
+        quest_data = {
+            "blocked": {
+                "display_name": "Blocked Quest",
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "required_actions": ("Do the inert thing",),
+                        "produced_inventory": {"Blocked product": 1},
+                    },
+                ),
+            },
+            "emitted": {
+                "display_name": "Emitted Quest",
+                "stage_requirements": (
+                    {"stage": 1, "auto_actions": ("Do the emitted thing",)},
+                    {
+                        "stage": 2,
+                        "required_actions": ("Do the emitted thing",),
+                        "produced_inventory": {"Reachable product": 1},
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "reachable_fight",
+                                "guaranteed_drops": {"Reachable combat product": 1},
+                            },
+                        ),
+                    },
+                ),
+            },
+            "variants": {
+                "display_name": "Variant Quest",
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "variant": "left",
+                        "auto_actions": ("Left-only action",),
+                    },
+                    {
+                        "stage": 2,
+                        "variant": "right",
+                        "required_actions": ("Left-only action",),
+                        "produced_inventory": {"Cross-variant product": 1},
+                    },
+                ),
+            },
+        }
+
+        sources, blocked = _quest_stage_sources(
+            quest_data,
+            {
+                "Blocked product",
+                "Reachable product",
+                "Reachable combat product",
+                "Cross-variant product",
+            },
+        )
+
+        self.assertNotIn("Blocked product", sources)
+        self.assertNotIn("Cross-variant product", sources)
+        self.assertEqual(sources["Reachable product"], {"quest-stage:emitted:2"})
+        self.assertEqual(
+            sources["Reachable combat product"],
+            {"quest-combat:emitted:reachable_fight"},
+        )
+        self.assertEqual(
+            blocked,
+            [
+                {
+                    "quest_id": "blocked",
+                    "quest": "Blocked Quest",
+                    "stage": 1,
+                    "products": ["Blocked product"],
+                    "combat_products": {},
+                    "blocked_combat_products": {},
+                    "required_actions": ["Do the inert thing"],
+                    "missing_required_actions": ["Do the inert thing"],
+                },
+                {
+                    "quest_id": "variants",
+                    "quest": "Variant Quest",
+                    "stage": 2,
+                    "products": ["Cross-variant product"],
+                    "combat_products": {},
+                    "blocked_combat_products": {},
+                    "required_actions": ["Left-only action"],
+                    "missing_required_actions": ["Left-only action"],
+                },
+            ],
+        )
+
     def test_report_is_deterministic_and_accounts_for_live_action_inputs(self):
         report = build_reachability_report()
         self.assertEqual(report["schema_version"], 1)
@@ -110,18 +203,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Black mushroom ink"],
             "Utility:grind_black_mushroom",
         )
-        self.assertEqual(
-            report["routes"]["Dramen branch"],
-            "quest-stage:lost_city:4",
-        )
+        self.assertNotIn("Dramen branch", report["routes"])
         self.assertEqual(
             report["routes"]["Pendant of lucien"],
             "quest-start:temple_of_ikov",
         )
-        self.assertEqual(
-            report["routes"]["Cinnamon"],
-            "Utility:grind_dramen_branch",
-        )
+        self.assertNotIn("Cinnamon", report["routes"])
         self.assertEqual(
             report["routes"]["Unholy mould"],
             "combat:chaos_druid",
@@ -175,6 +262,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Eucalyptus logs"],
             "Woodcutting:eucalyptus",
         )
+        self.assertEqual(
+            report["routes"]["Curly root"],
+            "Woodcutting:curly_jade_root",
+        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},
@@ -182,12 +273,28 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         self.assertEqual(
+            report["routes"]["Polar kebbit fur"],
+            "Hunter:catch_polar_kebbit",
+        )
+        self.assertEqual(
             report["routes"]["Long kebbit spike"],
             "Hunter:track_razor_backed_kebbit",
         )
         self.assertEqual(
             report["routes"]["Living minerals"],
             "Mining:living_rock_remains",
+        )
+        self.assertEqual(
+            report["routes"]["Lergberry seed"],
+            "Hunter:catch_cannibal_jadinko",
+        )
+        self.assertEqual(
+            report["routes"]["Kalferberry seed"],
+            "Hunter:catch_cannibal_jadinko",
+        )
+        self.assertEqual(
+            report["routes"]["Kalferberry"],
+            "Farming:kalferberry",
         )
         self.assertEqual(
             [
@@ -214,6 +321,19 @@ class TestItemReachabilityAudit(unittest.TestCase):
             {action["id"] for action in report["unresolved_actions"]},
         )
 
+        self.assertEqual(
+            report["routes"]["Dragon impling jar"],
+            "Hunter:catch_dragon_impling_puro_puro",
+        )
+        self.assertEqual(
+            report["routes"]["Dragon arrowtips"],
+            "Item action:loot:Dragon impling jar",
+        )
+        self.assertEqual(
+            report["routes"]["Dragon dart tip"],
+            "Item action:loot:Dragon impling jar",
+        )
+
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         for item_name in (
             "Candle lantern (empty)",
@@ -237,10 +357,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Ale yeast",
             "Arctic pine logs",
             "Eucalyptus logs",
+            "Curly root",
             "Black mushroom",
             "Black mushroom ink",
-            "Dramen branch",
-            "Cinnamon",
             "Unholy mould",
         ):
             self.assertNotIn(item_name, orphan_items)

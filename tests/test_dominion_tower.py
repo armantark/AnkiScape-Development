@@ -1563,6 +1563,7 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
                 data, rng, equipment_data=EQUIPMENT_DATA
             )
             self.assertTrue(ok, result)
+        fought_ids = set()
             self.assertFalse(result.get("player_died"), result)
             if result.get("won"):
                 break
@@ -1571,6 +1572,7 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
                 # The mutant left one form behind, not an empty slot, and the
                 # dogs the player never touched are all still in the arena.
                 self.assertEqual(keys, ["tarn_ghost", *["terror_dog_110"] * 4])
+            fought_ids.add(result["npc_id"])
                 self.assertEqual(
                     dominion_tower_view_pure(data)["engaged_name"], "Tarn"
                 )
@@ -1585,4 +1587,5 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
+        self.assertEqual(fought_ids, {14429, 14430})
     unittest.main()

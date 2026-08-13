@@ -93,20 +93,18 @@ class GoblinRaidSite:
     yodri_rewards: tuple[str, ...]
 
 
-# The three site kinds the article names. It shows a potato field in its own
-# screenshot but never names a raid location, so the sites are the kinds rather
-# than invented place names.
-#
-# PLACEHOLDER(goblin_raids.raided_material_tables): which items each kind yields
-# and at what rate. The forest row is the one the source states by example, "two
-# logs and one oak log"; the seed and ore rows use the most basic period item of
-# the stated kind because no revision lists them.
+# The three site kinds and their stolen materials come from Tip.It's dated
+# Goblin Raids guide, archived by Wayback at 20121228205432. The captured page's
+# SHA-256 is 93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2.
+# It also caps Commander Yodri's return at ten items. The article shows a potato
+# field in its own screenshot but never names a raid location, so the sites are
+# the kinds rather than invented place names.
 GOBLIN_RAID_SITES = (
     GoblinRaidSite(
         "farm",
         "a farm",
         "seeds",
-        ("Potato seed",),
+        ("Potato seed", "Marigold seed", "Barley seed"),
         ("Potato seed", "Marigold seed", "Barley seed"),
     ),
     GoblinRaidSite(
@@ -120,7 +118,7 @@ GOBLIN_RAID_SITES = (
         "mine",
         "a mine",
         "ores",
-        ("Copper ore", "Tin ore"),
+        ("Clay", "Copper ore", "Tin ore"),
         ("Clay", "Copper ore", "Tin ore"),
     ),
 )

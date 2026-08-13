@@ -295,6 +295,7 @@ from ..logic.summoning_logic import (
     summoning_action_requirements_pure,
 )
 from ..logic.slayer_logic import apply_slayer_kills_pure
+from ..logic import inventory_pure
 from ..data.evil_tree_data import (
     EVIL_TREE_ELIGIBLE_BLESSING_TARGETS,
     EVIL_TREE_NEST_MULTIPLIER,
@@ -615,6 +616,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
+        ctx.random_random() if spec.get("secondary_outputs") else None,
+        ctx.random_random() if spec.get("secondary_outputs") else None,
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")
@@ -622,7 +625,15 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
+    actual_gains = inventory_pure.inventory_delta_gains(inventory, new_inv)
     produced_outputs = _spec_output_items(spec, _output_item)
+    produced_outputs.update(
+        {
+            item_name: amount
+            for item_name, amount in actual_gains.items()
+            if item_name not in produced_outputs
+        }
+    )
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,
@@ -841,6 +852,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         player_data["inventory"] = new_inv
         output_items: dict[str, int] = {}
         primary_outputs: dict[str, int] = {}
+        output_quantity = max(1, int(spec.get("output_quantity", 1) or 1))
         incinerated_xp = 0.0
         incinerated_count = 0
         for action_output, action_nest, action_exp in action_outputs:
@@ -854,11 +866,13 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             )
             if action_output:
                 primary_outputs[action_output] = (
-                    primary_outputs.get(action_output, 0) + 1
+                    primary_outputs.get(action_output, 0) + output_quantity
                 )
-            for item_name in (action_output, action_nest):
-                if item_name:
-                    output_items[item_name] = output_items.get(item_name, 0) + 1
+                output_items[action_output] = (
+                    output_items.get(action_output, 0) + output_quantity
+                )
+            if action_nest:
+                output_items[action_nest] = output_items.get(action_nest, 0) + 1
             if (
                 action_output is None
                 and spec.get("output_item")
@@ -870,7 +884,8 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         if incinerated_count and spec.get("output_item"):
             source_output = str(spec["output_item"])
             achievement_outputs[source_output] = (
-                achievement_outputs.get(source_output, 0) + incinerated_count
+                achievement_outputs.get(source_output, 0)
+                + incinerated_count * output_quantity
             )
         total_base_exp, _glove_events, _risk_events = _apply_brawling_actions(
             ctx,

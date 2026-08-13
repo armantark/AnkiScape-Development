@@ -2,6 +2,12 @@
 
 ## Current Focus
 
+**2026-08-12, Polar kebbit quota target restored.** Big Chinchompa's Polar kebbit quota ticket now resolves to live Hunter tracking: the ordinary catch is Hunter level 1, while purchasing the quota ticket remains Hunter level 70. The route preserves a Noose wand, gives 30 XP plus Bones, Raw beast meat, and Polar kebbit fur, and uses registered hidden-curve placeholder `hunter.polar_kebbit_success_curve`. No route wall was added because the period location section lists ordinary access routes and no quest gate. Reachability improves from 1,560 actions / 2,497 reachable items / 99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102 through `Hunter:catch_polar_kebbit`. Source and verification record: `memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
+
+**2026-08-12, four Jadinko potion secondaries acquired.** Hunter now exposes the ordinary-player routes for Shadow jadinko, Diseased jadinko, Cannibal jadinko, and Guthix jadinko. Noose wands and Marasamaw plants remain reusable; each successful route gives its fixed primary output: Shadow vine, Corrupt vine, Plant teeth, or Guthix vine. Persistent Habitat configurations are source-backed route context rather than per-catch consumables, matching the established Common-jadinko abstraction. The hidden catch curves use registered placeholder `hunter.herblore_habitat_success_curves`. Reachability improves from 1,556 actions / 2,493 reachable items / 103 orphan inputs / 102 blocked actions to 1,560 / 2,497 / 99 / 102. Full plain discovery passes 4,061 tests with 496 expected skips. The complete real offscreen Qt corpus passes 4,061 tests with three expected skips when split into independent processes; the monolithic process exceeded the ten-minute command cap. A deliberate Shadow-vine output mutation failed the runtime regression before restoration. Period assets, OpenRS2 identities, pinned oldids, and Darkan provenance are recorded in the acquisition audit.
+
+**2026-08-12, quest-stage reachability numbers corrected downward.** The item audit no longer seeds stage products when runtime `required_actions` have no prior `auto_actions` emitter, keeps mutually exclusive quest variants separate, and applies the same gate to quest-combat guaranteed drops. The truthful main-catalog result is 1,556 actions, 2,493 reachable items, 103 orphan inputs, and 102 blocked actions: 80 items lose fictional reachability. The drop from 2,573 is a measurement correction, not a gameplay regression. `d2faf1d2` Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 emit their own actions; its Nial Swiftfling Herb pouch route is inert because normal maximum combat level 126 cannot meet the encounter's default level-156 minimum. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `memory-bank/audits/quest-stage-reachability-truth-2026-08-12.md`.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is
@@ -1928,8 +1934,8 @@ native Anki process opened exactly one AnkiScape dialog and verified the
 dark-mode card and scroll behavior before the last reviewer polish. The
 post-review native recheck was unavailable because the Mac was locked; focused
 Qt and a fresh final render cover the tooltip, sibling refresh, carried-ticket
-gate, and icon backdrop. Polar-kebbit ticket use remains dependency-blocked on
-the source-blocked ordinary tracking target; this is not an owner design gap.
+gate, and icon backdrop. The former Polar-kebbit tracking dependency was closed
+by the 2026-08-12 acquisition slice above.
 Complete evidence is recorded in
 `source-audits/big-chinchompa-implementation-harvest-2026-07-19.md`.
 
@@ -4886,6 +4892,13 @@ flees silently when the player runs out of food.
   or quest implementation is introduced.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
 
+## Farming Stats skill-guide source block — 2026-08-12
+
+- The period client enumerates 110 Farming guide structs; that enumeration, not `FARMING_CROPS`, must drive the future projection.
+- The attempted crop-table implementation was withdrawn because it lost non-crop rows, authentic labels/icons, and quest/cross-skill gates, while tying guide membership to implementation state.
+- A source-backed rebuild specification now defines the multi-registry resolution and display-safety contract. Farming and Dungeoneering remain the actionless non-combat guide gaps.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
+
 ## Pass 9 owner repair — 2026-08-11
 
 - Saved target rows now use an explicit `✓` prefix and a stronger green fill in both flat and grouped selectors. Blue remains the temporary Qt selection state.
@@ -4896,3 +4909,25 @@ flees silently when the player runs out of food.
 - Full plain and real offscreen Qt discovery each pass 4,058 tests. Native MacBook Pro Anki proof passes for the changed surfaces and review layout.
 - Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
 - Results: <https://zvxa8ne0p5qz.postplan.dev>.
+
+## Acquisition blocker follow-up — 2026-08-12
+
+- The four Jadinko secondaries remain root orphans even on the completed
+  `goal/vines-2026-08-11` branch, so they do not overlap that branch's Common
+  jadinko, vine-herb-seed, Marasamaw-plant, or Juju-hunter recipe work.
+- The route has two stages: Shadow jadinko (Hunter 71) and Diseased jadinko
+  (Hunter 78) are upstream noose-wand tracking catches; Corrupt vine then feeds
+  the Juju hunter potion, after which Cannibal jadinko (75) and Guthix jadinko
+  (81) supply Plant teeth and Guthix vine.
+- The family is not quest-blocked. A positive-control gate probe detects Eagles'
+  Peak on Ferret while the relevant Darkan Jadinko rows carry no quest or Slayer
+  gate. The actual blocker is an absent Habitat attraction-state model and a
+  Common-jadinko framework that exists only on unmerged commit `508a8aa2`; the
+  downstream pair additionally needs the Juju-hunter active effect.
+- Fresh crab claw and Fresh crab shell have pinned Crab NPC producers, but their
+  route is inert behind the un-emitted stages of
+  `recipe_for_disaster_freeing_pirate_pete`. Existing quest-gated Dagannoth and
+  Cave horror enemies may share that pre-existing defect and await the emitter
+  pass.
+- Evidence and unchanged reachability are recorded in
+  `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.
