@@ -36,3 +36,4 @@ IMPLING_JAR_DATA: Dict[str, Tuple[ImplingJarReward, ...]] = {
         ImplingJarReward("", 0, 0, 2_007_447),
     ),
 }
+

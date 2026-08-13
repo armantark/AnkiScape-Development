@@ -28,16 +28,14 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
     def test_complete_books_and_training_tables_have_stable_unique_ids(self):
         self.assertEqual(len([row for row in COMBAT_PRAYERS_BY_ID.values() if row.book == "standard"]), 30)
         self.assertEqual(len([row for row in COMBAT_PRAYERS_BY_ID.values() if row.book == "curses"]), 20)
-        self.assertEqual(len(PRAYER_MATERIALS), 20)
-        self.assertEqual(len(PRAYER_TARGETS), 60)
+        self.assertEqual(len(PRAYER_MATERIALS), 21)
+        self.assertEqual(len(PRAYER_TARGETS), 61)
         self.assertEqual(len(PRAYER_TARGETS), len(set(PRAYER_TARGETS)))
-        self.assertNotIn("ancient_bones", {material.id for material in PRAYER_MATERIALS})
-        for target_id in (
-            "bury_ancient_bones",
-            "ectofuntus_ancient_bones",
-            "gilded_altar_ancient_bones",
-        ):
-            self.assertNotIn(target_id, PRAYER_TARGETS)
+        self.assertIn("ancient_bones", {material.id for material in PRAYER_MATERIALS})
+        self.assertIn("bury_ancient_bones", PRAYER_TARGETS)
+        self.assertEqual(PRAYER_TARGETS["bury_ancient_bones"]["exp"], 200.0)
+        self.assertNotIn("ectofuntus_ancient_bones", PRAYER_TARGETS)
+        self.assertNotIn("gilded_altar_ancient_bones", PRAYER_TARGETS)
 
     def test_owned_gilded_altar_accepts_zero_one_or_two_burners_at_exact_rates(self):
         target_id = "gilded_altar_dragon_bones"
@@ -305,6 +303,20 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         leech = curse_expected_ramp_pure(100, "leech")
         self.assertEqual(leech["enemy_drain"], .25)
         self.assertEqual(leech["self_boost"], .10)
+
+    def test_ancient_gilded_target_migrates_to_existing_bury_target(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 28,
+                "current_prayer": "gilded_altar_ancient_bones",
+                "inventory": {"Ancient bones": 5},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["current_prayer"], "bury_ancient_bones")
+        self.assertIn(migrated["current_prayer"], PRAYER_TARGETS)
+        self.assertEqual(migrated["inventory"]["Ancient bones"], 5)
 
     def test_named_preset_migration_and_target_override(self):
         migrated = migrate_loaded_data(

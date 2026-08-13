@@ -10,11 +10,14 @@ completed Tai Bwo Wannai Trio plus a karambwan-poisoned spear; ordinary Karamja
 Jogres remain quest-ungated. The slice corrects Zogre bones from `12.5` to `22.5`
 Prayer XP. The old
 `1556 / 2573 / 102 / 101` source-audit baseline came from a superseded permissive
-instrument. Re-measurement with corrected main's byte-identical audit tool gives
-main `1568 / 2248 / 100 / 103 / 1099` and integration
-`1571 / 2266 / 84 / 87 / 1104`: plus three actions, plus eighteen reachable
-items, minus sixteen orphans, minus sixteen blocked actions, and plus five seeds.
-Both the Frost dragon generated stat block and coffin selector are genuine
+instrument. Re-measurement after merging current main `e444dfd2`, with its
+union-of-per-scenario audit tool, gives main `1568 / 2248 / 100 / 103 / 1099`
+and integration `1571 / 2266 / 84 / 87 / 1104`: plus three actions, eighteen
+gross reachable additions, zero gross removals, minus sixteen orphans, minus
+sixteen blocked actions, and plus five seeds. The inherited legacy deletion of
+owner-settled Ancient bones was reversed: The Restless Ghost again rewards five,
+`bury_ancient_bones` again exists at 200 XP, and the old-target save migration
+lands on that live target. Both the Frost dragon generated stat block and coffin selector are genuine
 registered hidden-period-value placeholders. Durable audit:
 `memory-bank/source-audits/ectofuntus-bone-family-2026-08-11.md`.
 **2026-08-12, Polar kebbit quota target restored.** Big Chinchompa's Polar kebbit quota ticket now resolves to live Hunter tracking: the ordinary catch is Hunter level 1, while purchasing the quota ticket remains Hunter level 70. The route preserves a Noose wand, gives 30 XP plus Bones, Raw beast meat, and Polar kebbit fur, and uses registered hidden-curve placeholder `hunter.polar_kebbit_success_curve`. No route wall was added because the period location section lists ordinary access routes and no quest gate. Reachability improves from 1,560 actions / 2,497 reachable items / 99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102 through `Hunter:catch_polar_kebbit`. Source and verification record: `memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.

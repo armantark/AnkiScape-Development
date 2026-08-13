@@ -73,7 +73,7 @@ Keep the one-to-one mapping open until a period source settles it.
 
 ## Verification
 
-The complete post-fix plain lane passed:
+The pre-gate-fix full plain lane was:
 
 ```text
 Ran 4128 tests in 360.389s
@@ -83,7 +83,7 @@ OK (skipped=498)
 The corrected audit instrument is byte-identical to main, with SHA-256:
 
 ```text
-aaaf67ff50ef582a992c5755a0504c412710e3f699655c48d09360f0a6db5351
+99042e4d583338c56ef72534f37581f9051c0c35fc197f5b09bdcff86a12877b
 ```
 
 It measures:
@@ -92,6 +92,13 @@ It measures:
 main:        1568 actions; 2248 reachable items; 100 orphan inputs; 103 blocked actions; 1099 seed items
 integration: 1571 actions; 2266 reachable items;  84 orphan inputs;  87 blocked actions; 1104 seed items
 ```
+
+These figures were remeasured after merging current main `e444dfd2`; its audit
+uses union-of-per-scenario quest closures. The route-set comparison is eighteen
+gross additions and zero gross removals. The inherited legacy deletion of
+`Ancient bones` and The Restless Ghost's five-bone reward was restored, so
+`bury_ancient_bones` remains a live 200-XP target and the old-target save
+migration still lands on an existing target.
 
 The older `1556 / 2573 / 102 / 101` and `1559 / 2590 / 86 / 85`
 figures came from a superseded permissive instrument and must not be reused.

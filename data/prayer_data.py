@@ -68,6 +68,7 @@ _BONES = (
     ("fayrg_bones", "Fayrg bones", 84.0), ("raurg_bones", "Raurg bones", 96.0),
     ("dagannoth_bones", "Dagannoth bones", 125.0), ("ourg_bones", "Ourg bones", 140.0),
     ("frost_dragon_bones", "Frost dragon bones", 180.0),
+    ("ancient_bones", "Ancient bones", 200.0),
 )
 BONEMEAL_ITEM_IDS = {
     "Bonemeal": 4255,
@@ -93,7 +94,7 @@ PRAYER_MATERIALS: Tuple[PrayerMaterial, ...] = tuple(
         item_name,
         xp,
         "bone",
-        _bonemeal_name(item_name),
+        None if material_id == "ancient_bones" else _bonemeal_name(item_name),
         f"{BONE_SOURCE}: {material_id.upper()}",
     )
     for material_id, item_name, xp in _BONES
@@ -148,14 +149,15 @@ def prayer_targets_as_dict() -> Dict[str, dict]:
                 "exp": material.xp * ECTOFUNTUS_MULTIPLIER,
                 "source": f"{material.source}; {ECTOFUNTUS_SOURCE}: 4x XP and 5 tokens/worship",
             }
-        targets[f"gilded_altar_{material.id}"] = {
-            "id": f"gilded_altar_{material.id}", "display_name": material.item_name,
-            "material_id": material.id, "material_kind": material.kind,
-            "method": "gilded_altar", "group": "Gilded altar", "level": 1,
-            "requirements": {material.item_name: 1}, "byproducts": {},
-            "base_exp": material.xp, "exp": material.xp * GILDED_ALTAR_MULTIPLIER,
-            "source": f"{material.source}; RuneScape Wiki Prayer oldid=6539264: lit gilded altar 3.5x",
-        }
+        if material.id != "ancient_bones":
+            targets[f"gilded_altar_{material.id}"] = {
+                "id": f"gilded_altar_{material.id}", "display_name": material.item_name,
+                "material_id": material.id, "material_kind": material.kind,
+                "method": "gilded_altar", "group": "Gilded altar", "level": 1,
+                "requirements": {material.item_name: 1}, "byproducts": {},
+                "base_exp": material.xp, "exp": material.xp * GILDED_ALTAR_MULTIPLIER,
+                "source": f"{material.source}; RuneScape Wiki Prayer oldid=6539264: lit gilded altar 3.5x",
+            }
     return targets
 
 

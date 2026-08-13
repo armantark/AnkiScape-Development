@@ -176,9 +176,9 @@ instrument and must not be used as a current baseline:
 1556 actions; 2573 reachable items; 102 orphan inputs; 101 blocked actions
 ```
 
-Re-measurement on corrected main commit `225c9c67`, with
-`tools/audit_item_reachability.py` SHA-256
-`aaaf67ff50ef582a992c5755a0504c412710e3f699655c48d09360f0a6db5351`, gives:
+Re-measurement after merging current main commit `e444dfd2`, with the corrected
+quest-branch audit instrument at `tools/audit_item_reachability.py` SHA-256
+`99042e4d583338c56ef72534f37581f9051c0c35fc197f5b09bdcff86a12877b`, gives:
 
 ```text
 main:        1568 actions; 2248 reachable items; 100 orphan inputs; 103 blocked actions; 1099 seed items
@@ -187,8 +187,18 @@ integration: 1571 actions; 2266 reachable items;  84 orphan inputs;  87 blocked 
 
 The corrected result is therefore plus three actions, plus eighteen reachable
 items, minus sixteen orphan inputs, minus sixteen blocked actions, and plus five
-seed items. The eighteen newly reachable items are the eight selected bones,
-their eight matching bonemeal items, `Ogre coffin key`, and `Steel spear (kp)`.
+seed items. Comparing the named route sets shows eighteen gross additions and
+zero gross removals. The additions are the eight selected bones, their eight
+matching bonemeal items, `Ogre coffin key`, and `Steel spear (kp)`.
+
+The legacy bones commit had silently removed the owner-settled `Ancient bones`
+material and The Restless Ghost's five-bone reward. This integration restores
+both from current main. `bury_ancient_bones` remains a live 200-XP target, while
+Ancient bones deliberately have neither an Ectofuntus nor gilded-altar route.
+That restoration also keeps `_migrate_ancient_gilded_target` safe: its migrated
+`bury_ancient_bones` destination exists. The audit does not list Ancient bones
+as a new route because current main already contains the same quest reward and
+burial target.
 
 The access-gate fix does not change those aggregate figures: Zogre and
 Shaikahan drops are still legitimate combat seed routes once Zogre Flesh Eaters
@@ -200,7 +210,8 @@ This command contract does not invalidate the reported figures.
 
 ## Verification
 
-The owner ran the complete post-fix plain lane in this worktree.
+The complete pre-gate-fix plain lane below is historical. A fresh full lane is
+required after the Ancient-bones restoration and current-main merge.
 
 ```text
 Ran 4128 tests in 360.389s
