@@ -7,8 +7,11 @@ from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic import farming_logic
+from ankiscape.logic.shop_logic import apply_shop_buy_pure
+from ankiscape.logic_pure.logic_pure import apply_hunter_action_pure
 from ankiscape.core.constants import (
     FARMING_COMPOST_STATE_IMAGES,
+    HUNTER_DATA,
     FARMING_HUD_SPROUT_ICON,
     FARMING_ITEM_IMAGES,
     FARMING_PATCH_STATE_IMAGES,
@@ -902,6 +905,70 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertEqual(harvested["farm_patches"]["habitat_vine_bush"]["produce_count"], 0)
         regrown, _ = advance_farm_clock_pure(harvested, 1, lambda: 1.0)
         self.assertEqual(regrown["farm_patches"]["habitat_vine_bush"]["produce_count"], 1)
+
+    def test_reachable_cannibal_jadinko_route_ends_with_kalferberry_harvest(self):
+        shop = SHOP_DATA["papa_mambos_shop"]
+        marasamaw = next(
+            row for row in shop["stock"] if row["item_name"] == "Marasamaw plant"
+        )
+        data = _state(level=77)
+        data.update({"hunter_level": 75, "hunter_exp": 0.0})
+        data["inventory"].update(
+            {
+                "Coins": marasamaw["buy_price"],
+                "Rake": 1,
+                "Seed dibber": 1,
+                "Spade": 1,
+            }
+        )
+
+        data, bought = apply_shop_buy_pure(
+            data,
+            shop["id"],
+            marasamaw["id"],
+            1,
+        )
+        self.assertTrue(bought["allowed"])
+        self.assertEqual(data["inventory"]["Marasamaw plant"], 1)
+
+        inventory, hunter_xp, ok, output_item, _rewards = apply_hunter_action_pure(
+            "catch_cannibal_jadinko",
+            data["inventory"],
+            HUNTER_DATA,
+            data["hunter_level"],
+            0.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.5,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(hunter_xp, 475.0)
+        self.assertEqual(output_item, "Plant teeth")
+        self.assertEqual(inventory["Kalferberry seed"], 1)
+        self.assertEqual(inventory["Marasamaw plant"], 1)
+        data["inventory"] = inventory
+
+        planted, ok, _info = execute_farm_field_step_pure(
+            data,
+            {
+                "kind": "plant",
+                "patch_id": "habitat_vine_bush",
+                "crop_id": "kalferberry",
+            },
+        )
+        self.assertTrue(ok)
+        mature, _ = advance_farm_clock_pure(planted, 13, lambda: 1.0)
+        checked, ok, _info = execute_farm_field_step_pure(
+            mature,
+            {"kind": "check_health", "patch_id": "habitat_vine_bush"},
+        )
+        self.assertTrue(ok)
+        harvested, ok, info = execute_farm_field_step_pure(
+            checked,
+            {"kind": "harvest", "patch_id": "habitat_vine_bush"},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["outputs"], {"Kalferberry": 4})
+        self.assertEqual(harvested["inventory"]["Kalferberry"], 4)
 
     def test_check_health_and_clear_stump_transactions(self):
         data = _state()

@@ -123,6 +123,8 @@ class HunterTarget:
     requirements: Tuple[Tuple[str, int], ...] = ()
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
     xp_rewards: Tuple[Tuple[str, float], ...] = ()
+    secondary_drop_chance: float = 0.0
+    secondary_outputs: Tuple[Tuple[str, int, int], ...] = ()
     tools: Tuple[Tuple[str, int], ...] = ()
     source: str = ""
     mechanics_source: str = ""
@@ -167,6 +169,8 @@ def _target(
     sort_order: int = 0,
     skill_requirements: Tuple[Tuple[str, int], ...] = (),
     xp_rewards: Tuple[Tuple[str, float], ...] = (),
+    secondary_drop_chance: float = 0.0,
+    secondary_outputs: Tuple[Tuple[str, int, int], ...] = (),
 ) -> HunterTarget:
     tools = HUNTER_REUSABLE_TOOLS_BY_TARGET.get(id, HUNTER_REUSABLE_TOOLS_BY_GROUP.get(group, ()))
     return HunterTarget(
@@ -180,6 +184,8 @@ def _target(
         requirements=requirements,
         skill_requirements=skill_requirements,
         xp_rewards=xp_rewards,
+        secondary_drop_chance=secondary_drop_chance,
+        secondary_outputs=secondary_outputs,
         tools=tools,
         source=source,
         mechanics_source=mechanics_source,
@@ -658,14 +664,32 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Plant teeth", 1)),
         "Plant teeth",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_cannibal_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_cannibal.json"),
+        mechanics_source=(
+            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
+            "hunter_jadinko_cannibal.json; "
+            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/jadinko_sub/"
+            "hh_bush_seed.json"
+        ),
         source_enum="CANNIBAL_JADINKO",
         source_npc_id=13155,
         source_item_id=19975,
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        notes=("Cannibal jadinko oldid 5976665 pins level 75, 475 XP, Marasamaw plant trapping, Plant teeth, and the green-blossom, Kalferberry, tall-grass, Juju-treated Habitat setup. Persistent setup and optional bait are route context, not per-catch consumables."),
+        secondary_drop_chance=12 / 256,
+        secondary_outputs=(
+            ("Lergberry seed", 1, 1),
+            ("Kalferberry seed", 1, 1),
+        ),
+        notes=(
+            "Cannibal jadinko oldid 5976665 pins level 75, 475 XP, "
+            "Marasamaw plant trapping, Plant teeth, a chance at vine-bush seeds, "
+            "and the green-blossom, Kalferberry, tall-grass, Juju-treated Habitat setup. "
+            "Darkan's parent table rolls 12/256, then hh_bush_seed drops one of "
+            "Lergberry seed or Kalferberry seed at quantity 1; Kalferberry's 3/128 "
+            "overall chance is derived from those table constants. Persistent setup "
+            "and optional bait are route context, not per-catch consumables."
+        ),
         sort_order=50,
     ),
     _target(
@@ -955,6 +979,11 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "skill_requirements": dict(target.skill_requirements),
         "tools": dict(target.tools),
         "outputs": dict(target.outputs),
+        "secondary_drop_chance": target.secondary_drop_chance,
+        "secondary_outputs": tuple(
+            {"item": item_name, "amount": amount, "weight": weight}
+            for item_name, amount, weight in target.secondary_outputs
+        ),
         "output_item": target.primary_output,
         "output_qty": dict(target.outputs).get(target.primary_output, 1),
         "primary_output": target.primary_output,
@@ -987,6 +1016,8 @@ def hunter_output_items() -> Tuple[str, ...]:
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
             seen.setdefault(item_name, None)
+        for item_name, _amount, _weight in target.secondary_outputs:
+            seen.setdefault(item_name, None)
     return tuple(seen.keys())
 
 
@@ -994,6 +1025,8 @@ def hunter_item_names() -> Tuple[str, ...]:
     seen: Dict[str, None] = {}
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
+            seen.setdefault(item_name, None)
+        for item_name, _amount, _weight in target.secondary_outputs:
             seen.setdefault(item_name, None)
         for material, _amount in target.requirements:
             seen.setdefault(material, None)

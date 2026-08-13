@@ -2409,6 +2409,64 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(output_item, output)
                 self.assertEqual(inventory, {tool: 1, output: 1})
 
+    def test_cannibal_jadinko_bush_seed_table_preserves_primary_output(self):
+        target = "catch_cannibal_jadinko"
+        tool = {"Marasamaw plant": 1}
+
+        missed, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            0.0,
+            r_secondary_chance=HUNTER_DATA[target]["secondary_drop_chance"],
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(missed, {"Marasamaw plant": 1, "Plant teeth": 1})
+
+        failed, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            1.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.5,
+        )
+        self.assertFalse(ok)
+        self.assertEqual(failed, tool)
+
+        lergberry, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            0.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            lergberry,
+            {"Marasamaw plant": 1, "Plant teeth": 1, "Lergberry seed": 1},
+        )
+
+        kalferberry, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            0.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.5,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            kalferberry,
+            {"Marasamaw plant": 1, "Plant teeth": 1, "Kalferberry seed": 1},
+        )
+
     def test_cooking_source_odds_and_scaled_probability(self):
         shrimps = COOKING_DATA["cook_shrimps"]
         shark = COOKING_DATA["cook_shark"]

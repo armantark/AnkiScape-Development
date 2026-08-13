@@ -1954,6 +1954,26 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(crimson_swift.locked_reasons, ("Bird snare",))
         self.assertIn("Bird snare x1 (you have 0)", crimson_swift.tooltip)
 
+    def test_hunter_rows_disclose_cannibal_jadinko_rare_seed_table(self):
+        rows = hunter_target_rows(
+            {
+                "hunter_level": 75,
+                "inventory": {"Marasamaw plant": 1},
+                "current_hunter": "catch_cannibal_jadinko",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        cannibal = _row(rows, "catch_cannibal_jadinko")
+        self.assertIn(
+            "Rare outputs: Lergberry seed ×1, Kalferberry seed ×1",
+            cannibal.tooltip,
+        )
+        self.assertIn("4.688% table chance", cannibal.tooltip)
+
     def test_hunter_rows_apply_quest_unlock_rules(self):
         player_data = {
             "hunter_level": 99,

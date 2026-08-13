@@ -727,6 +727,8 @@ def apply_hunter_action_pure(
     hunter_level,
     r_action,
     success_level=None,
+    r_secondary_chance=None,
+    r_secondary_pick=None,
 ):
     """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
     spec = hunter_data.get(target)
@@ -747,6 +749,25 @@ def apply_hunter_action_pure(
     outputs = _hunter_outputs_from_spec(spec)
     for item_name, amount in outputs.items():
         new_inv[item_name] = new_inv.get(item_name, 0) + amount
+
+    secondary_outputs = spec.get("secondary_outputs") or ()
+    if (
+        r_secondary_chance is not None
+        and r_secondary_pick is not None
+        and secondary_outputs
+        and float(r_secondary_chance) < float(spec.get("secondary_drop_chance", 0.0) or 0.0)
+    ):
+        item_name = pick_weighted_item_pure(secondary_outputs, r_secondary_pick)
+        output = next(
+            (row for row in secondary_outputs if row.get("item") == item_name),
+            None,
+        )
+        if output:
+            new_inv[item_name] = new_inv.get(item_name, 0) + _positive_int(
+                output.get("amount", 1),
+                1,
+            )
+
     primary_output = spec.get("primary_output") or spec.get("output_item")
     xp_rewards = normalize_xp_rewards_pure(spec, "hunter", spec.get("exp", 0))
     return new_inv, primary_xp_reward_amount_pure(xp_rewards, "hunter"), True, primary_output, xp_rewards

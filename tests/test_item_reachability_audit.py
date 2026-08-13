@@ -285,6 +285,18 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Mining:living_rock_remains",
         )
         self.assertEqual(
+            report["routes"]["Lergberry seed"],
+            "Hunter:catch_cannibal_jadinko",
+        )
+        self.assertEqual(
+            report["routes"]["Kalferberry seed"],
+            "Hunter:catch_cannibal_jadinko",
+        )
+        self.assertEqual(
+            report["routes"]["Kalferberry"],
+            "Farming:kalferberry",
+        )
+        self.assertEqual(
             [
                 row for row in report["orphan_inputs"]
                 if row["item"] == "Long kebbit spike"

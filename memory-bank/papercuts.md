@@ -1,5 +1,10 @@
 # Papercuts
 
+- 2026-08-13T04:55:22-07:00 — A direct tooltip probe imported `ankiscape` without installing the repository package alias; standalone source-tree probes must add `tests` to `sys.path` and import `pkg_alias` first.
+- 2026-08-13T04:25:18-07:00 — The full plain lane exposed that replacing Hunter's source-ordered static output map with raw inventory-delta order let Shattered Heart consume the Long kebbit spike; preserve declared output order and append only stochastic gains.
+- 2026-08-13T04:18:23-07:00 — A corrected dotted unittest command still ran from the canonical checkout and reported the new worktree methods missing; include an explicit `cd` to the assigned worktree in every test command.
+- 2026-08-13T04:17:42-07:00 — The first focused Kalferberry command guessed three unittest class/method owners; enumerate definitions around each inserted test before using dotted test selectors.
+- 2026-08-13T04:14:56-07:00 — An inline Python replacement script embedded the apostrophe in `Darkan's` inside a single-quoted source literal and failed before editing; use structured Edit calls for source containing nested quotes.
 - 2026-08-13T02:39:31-07:00 — A bounded-looking `git grep` over generated `data/shop_data.py` still emitted 2.3 MB because one catalog row is a giant line; exclude generated catalogs explicitly instead of relying on path scope.
 - 2026-08-13T03:26:05-07:00 — A targeted-test wrapper assigned zsh's read-only `status` parameter, so the tests ran but the wrapper exited before printing the log; use `rc` for captured exit codes.
 - 2026-08-13T03:26:36-07:00 — A targeted `python3 -m unittest` command inherited the canonical checkout as its working directory and then failed to import `tests.test_farming_skill_guide`; always enter the assigned worktree in the same command before invoking tests.

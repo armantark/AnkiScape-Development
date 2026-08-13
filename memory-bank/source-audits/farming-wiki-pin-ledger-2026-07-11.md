@@ -393,3 +393,25 @@ Molanisk combat route, so `Grimy wergali` was already reachable through that
 existing crop action; White lily seed and Kalferberry seed have no live
 acquisition route, so their newly exposed actions add two root orphans and two
 blocked actions rather than reachable outputs.
+
+### Acquisition follow-up — 2026-08-13
+
+Kalferberry seed is now live through the existing cannibal-jadinko Hunter route.
+Cannibal jadinko oldid `5976665` says a successful catch gives Plant teeth and a
+chance at vine-bush seeds; Herblore Habitat oldid `6513740` identifies Jadinko
+hunting as the Kalferberry-seed route. Darkan
+`data/npcs/drops/hunter/hunter_jadinko_cannibal.json` and
+`data/npcs/drops/hunter/jadinko_sub/hh_bush_seed.json`, both introduced by commit
+`087e34d11b59b1d81a6c8aadbf6150a7689c6f4c`, model a `12/256` parent roll and a
+one-of-two quantity-one table containing Lergberry seed and Kalferberry seed.
+Therefore Kalferberry seed's implemented `3/128`, quantity `1` result is derived
+from those table constants, not quoted from the period pages.
+
+The live route is Papa Mambo's Marasamaw plant stock → Hunter 75 cannibal
+jadinko → Kalferberry seed → Farming 77 habitat vine-bush patch → four
+Kalferberries. The reachability graph moves from 1,568 actions / 2,506 reachable
+items / 98 orphan inputs / 101 blocked actions to 1,568 / 2,509 / 97 / 100.
+The three newly reachable items are Lergberry seed, Kalferberry seed, and
+Kalferberry. White lily seed remains a root orphan: oldid `6219558` sources the
+Wyson one-Mole-skin exchange after Falador hard tasks, but Giant Mole, Mole skin,
+Wyson exchange, and a claimable Falador shield 3 route are absent.

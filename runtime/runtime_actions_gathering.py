@@ -295,6 +295,7 @@ from ..logic.summoning_logic import (
     summoning_action_requirements_pure,
 )
 from ..logic.slayer_logic import apply_slayer_kills_pure
+from ..logic import inventory_pure
 from ..data.evil_tree_data import (
     EVIL_TREE_ELIGIBLE_BLESSING_TARGETS,
     EVIL_TREE_NEST_MULTIPLIER,
@@ -615,6 +616,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
+        ctx.random_random() if spec.get("secondary_outputs") else None,
+        ctx.random_random() if spec.get("secondary_outputs") else None,
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")
@@ -622,7 +625,15 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
+    actual_gains = inventory_pure.inventory_delta_gains(inventory, new_inv)
     produced_outputs = _spec_output_items(spec, _output_item)
+    produced_outputs.update(
+        {
+            item_name: amount
+            for item_name, amount in actual_gains.items()
+            if item_name not in produced_outputs
+        }
+    )
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,
