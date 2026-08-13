@@ -1,10 +1,15 @@
 import com.rs.cache.Cache;
+import com.rs.cache.Index;
+import com.rs.cache.IndexType;
 import com.rs.cache.Store;
 import com.rs.cache.loaders.NPCDefinitions;
 import com.rs.cache.loaders.ObjectDefinitions;
 
 import java.io.File;
+import java.nio.BufferUnderflowException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -78,12 +83,20 @@ final class OpenRs2CacheDefinitionSearch {
                 .map(value -> value.toLowerCase(Locale.ROOT))
                 .toArray(String[]::new);
 
-        int maxId = kind.equals("npc") ? 30_000 : kind.equals("object") ? 100_000 : -1;
+        Index index = kind.equals("npc")
+                ? store.getIndex(IndexType.NPCS)
+                : kind.equals("object") ? store.getIndex(IndexType.OBJECTS) : null;
+        int filesPerArchive = kind.equals("npc") ? 128 : 256;
+        int maxId = index == null
+                ? -1
+                : index.getLastArchiveId() * filesPerArchive
+                        + index.getLastFileId(index.getLastArchiveId()) + 1;
         if (maxId < 0) {
             System.err.println("entity kind must be npc or object");
             System.exit(2);
         }
 
+        List<Integer> skippedIds = new ArrayList<>();
         for (int id = 0; id < maxId; id++) {
             String name;
             String[] options;
@@ -99,13 +112,21 @@ final class OpenRs2CacheDefinitionSearch {
                     name = definition.getName();
                     options = definition.options;
                 }
-            } catch (RuntimeException ignored) {
+            } catch (BufferUnderflowException ignored) {
+                skippedIds.add(id);
                 continue;
             }
             if (name == null) continue;
             String haystack = name.toLowerCase(Locale.ROOT);
             if (Arrays.stream(terms).noneMatch(haystack::contains)) continue;
             System.out.printf("%d\t%s\t%s%n", id, name, Arrays.toString(options));
+        }
+        if (!skippedIds.isEmpty()) {
+            System.err.printf(
+                    "PARTIAL_SEARCH skipped_count=%d skipped_ids=%s%n",
+                    skippedIds.size(), skippedIds
+            );
+            System.exit(3);
         }
     }
 

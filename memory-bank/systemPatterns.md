@@ -199,6 +199,21 @@ expected file and provenance key in the asset test.
   labels, while dumps expose layout, visibility, assets, actions, and principal
   script hooks. None of those fields proves the server accepted an action or
   awarded its result.
+- OpenRS2 item, NPC/object, and interface searches derive their scan range from
+  each cache index, then exit 3 and emit
+  `PARTIAL_SEARCH skipped_count=<count> skipped_ids=[...]` after preserving
+  partial hits whenever a known unreadable condition occurs. Item searches count
+  the loader's explicit `MISSING OPCODE` failures; NPC/object searches count
+  `BufferUnderflowException`; unrelated runtime failures propagate. Before this
+  gate, the readers used hard-coded bounds and swallowed every runtime failure,
+  so past conclusions that a value was absent from the client are not generally
+  trustworthy unless the search can be rerun and shown complete. The rev-742
+  interface reader currently refuses
+  components beginning with `0x03`: the library's pre-decoder guard labels any
+  first byte other than `0xFF` as `if1`, although its decoder handles that
+  version. Fixing that guard is separate work. Future work: interface integration
+  coverage uses only rev 727 and rev 742 although seven extracted caches exist;
+  five remain untested.
 - Owner grills are for unresolved product tradeoffs, not source transcription.
   If pinned period evidence plus settled AnkiScape architecture determines the
   behavior, decide and document it autonomously and batch routine conclusions.
