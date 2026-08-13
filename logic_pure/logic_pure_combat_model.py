@@ -1355,17 +1355,20 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     if quest_gate:
         quests = player_data.get("quests", {}) or {}
         quest_state = quests.get(quest_gate, {}) if isinstance(quests, Mapping) else {}
-        quest_completed = (
-            bool(quest_state.get("completed"))
-            if isinstance(quest_state, Mapping)
-            else bool(quest_state)
-        )
-        if not quest_completed:
+        gate_state = str(enemy.get("quest_gate_state", "completed") or "completed")
+        if isinstance(quest_state, Mapping):
+            quest_accessible = bool(quest_state.get("completed"))
+            if gate_state == "started":
+                quest_accessible = quest_accessible or bool(quest_state.get("started"))
+        else:
+            quest_accessible = bool(quest_state)
+        if not quest_accessible:
+            verb = "Start" if gate_state == "started" else "Complete"
             return (
                 str(
                     enemy.get(
                         "quest_gate_label",
-                        f"Complete {quest_gate.replace('_', ' ').title()}",
+                        f"{verb} {quest_gate.replace('_', ' ').title()}",
                     )
                 ),
             )

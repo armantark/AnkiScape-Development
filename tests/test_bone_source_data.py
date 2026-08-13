@@ -76,6 +76,32 @@ class BoneSourceDataTests(unittest.TestCase):
             "ranged": 213,
         })
         self.assertEqual(enemies["frost_dragon"]["special_max_hits"]["dragonfire"], 500)
+        self.assertEqual(enemies["zogre"]["quest_gate"], "zogre_flesh_eaters")
+        self.assertEqual(enemies["zogre"]["quest_gate_state"], "started")
+        self.assertEqual(
+            enemies["zogre"]["quest_gate_label"],
+            "Open Jiggig during Zogre Flesh Eaters",
+        )
+        self.assertEqual(
+            enemies["zogre"]["location_context"],
+            "Jiggig zogre area after the guard opens the barricade",
+        )
+        self.assertNotIn("quest_gate", enemies["jogre"])
+        self.assertEqual(
+            enemies["jogre"]["location_context"],
+            "Karamja jungle and Pothole Dungeon",
+        )
+        self.assertEqual(
+            enemies["jogre"]["access_status"],
+            "ordinary Karamja access; no quest gate",
+        )
+        self.assertEqual(enemies["shaikahan"]["quest_gate"], "tai_bwo_wannai_trio")
+        self.assertNotIn("quest_gate_state", enemies["shaikahan"])
+        self.assertEqual(
+            enemies["shaikahan"]["quest_gate_label"],
+            "Complete Tai Bwo Wannai Trio",
+        )
+        self.assertEqual(enemies["shaikahan"]["location_context"], "Eastern Karamja jungle")
         self.assertEqual(
             enemies["shaikahan"]["start_equipment"],
             {
@@ -203,12 +229,131 @@ class BoneSourceDataTests(unittest.TestCase):
             },
         )
 
+    def test_zogre_requires_started_zogre_flesh_eaters_on_surface_and_kernel(self):
+        player = {
+            "current_combat_target": "zogre",
+            "combat_encounter": {"target_id": "zogre", "enemy_lifepoints": 1},
+            "inventory": {},
+            "equipment": {},
+        }
+        expected = ("Open Jiggig during Zogre Flesh Eaters",)
+        self.assertEqual(
+            combat_target_locked_reasons_pure(player, "zogre", COMBAT_ENEMY_DATA),
+            expected,
+        )
+        unchanged, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=lambda: 0.0,
+            allow_bank_run=False,
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, player)
+        self.assertEqual(result["reason"], "combat_locked")
+        self.assertEqual(result["locked_reasons"], expected)
+
+        started = {
+            **player,
+            "quests": {"zogre_flesh_eaters": {"started": True, "completed": False}},
+        }
+        self.assertEqual(
+            combat_target_locked_reasons_pure(started, "zogre", COMBAT_ENEMY_DATA),
+            (),
+        )
+        completed = {
+            **player,
+            "quests": {"zogre_flesh_eaters": {"started": True, "completed": True}},
+        }
+        self.assertEqual(
+            combat_target_locked_reasons_pure(completed, "zogre", COMBAT_ENEMY_DATA),
+            (),
+        )
+
+    def test_shaikahan_requires_tai_bwo_wannai_completion_and_poisoned_spear(self):
+        quest_warning = "Complete Tai Bwo Wannai Trio"
+        weapon_warning = "Equip a karambwan-poisoned spear to damage The Shaikahan"
+        base_player = {
+            "current_combat_target": "shaikahan",
+            "combat_encounter": {},
+            "inventory": {"Steel spear (kp)": 1},
+        }
+        equipped_without_quest = {
+            **base_player,
+            "equipment": {"weapon": "Steel spear (kp)"},
+        }
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                equipped_without_quest, "shaikahan", COMBAT_ENEMY_DATA
+            ),
+            (quest_warning,),
+        )
+        unchanged, ok, result = apply_combat_burst_pure(
+            equipped_without_quest,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, equipped_without_quest)
+        self.assertEqual(result["reason"], "combat_locked")
+        self.assertEqual(result["locked_reasons"], (quest_warning,))
+
+        started_quest = {
+            **base_player,
+            "quests": {"tai_bwo_wannai_trio": {"started": True, "completed": False}},
+            "equipment": {"weapon": "Steel spear (kp)"},
+        }
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                started_quest, "shaikahan", COMBAT_ENEMY_DATA
+            ),
+            (quest_warning,),
+        )
+
+        completed_quest = {
+            **base_player,
+            "quests": {"tai_bwo_wannai_trio": {"started": True, "completed": True}},
+        }
+        for equipment in ({}, {"weapon": "Steel spear"}):
+            with self.subTest(equipment=equipment):
+                player = {**completed_quest, "equipment": equipment}
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        player, "shaikahan", COMBAT_ENEMY_DATA
+                    ),
+                    (weapon_warning,),
+                )
+                out, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=1,
+                )
+                self.assertFalse(ok)
+                self.assertEqual(out, player)
+                self.assertEqual(result["reason"], "combat_locked")
+                self.assertEqual(result["locked_reasons"], (weapon_warning,))
+
+        equipped = {
+            **completed_quest,
+            "equipment": {"weapon": "Steel spear (kp)"},
+        }
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                equipped, "shaikahan", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
     def test_shaikahan_damage_requires_the_poisoned_spear_in_the_weapon_slot(self):
         warning = "Equip a karambwan-poisoned spear to damage The Shaikahan"
         base_player = {
             "current_combat_target": "shaikahan",
             "combat_encounter": {},
             "inventory": {"Steel spear (kp)": 1},
+            "quests": {"tai_bwo_wannai_trio": {"started": True, "completed": True}},
         }
 
         for equipment in ({}, {"weapon": "Steel spear"}):

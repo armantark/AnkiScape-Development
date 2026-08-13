@@ -443,7 +443,8 @@ def enter_conquest_pure(
     first_player = (
         "player" if _roll(rng) < 0.5 else "opponent"
     )  # PLACEHOLDER(conquest.first_player_selection)
-    # PLACEHOLDER(conquest.simulated_opponent_rating)
+    # AnkiScape has no live matchmaking queue, so the simulation samples a
+    # nearby opponent rather than reproducing a period server value.
     opponent_rating = max(
         CONQUEST_RATING_FLOOR,
         state["conquest_rating"] + int((_roll(rng) - 0.5) * 200),

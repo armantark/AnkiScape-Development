@@ -210,7 +210,7 @@ class ConquestEntryAndSetupTests(unittest.TestCase):
         self.assertFalse(view["save_enabled"])
         self.assertEqual(view["squad_rows"][0]["count"], CONQUEST_UNIT_CAP + 1)
 
-    def test_simulated_opponent_rating_stays_inside_the_registered_band(self):
+    def test_simulated_opponent_rating_stays_inside_the_disclosed_band(self):
         for roll in (0.0, 0.999999999):
             with self.subTest(roll=roll):
                 player, ok, info = enter_conquest_pure(
@@ -656,7 +656,6 @@ class ConquestReviewTests(unittest.TestCase):
             rows = handle.read()
         for placeholder_id in (
             "conquest.board_metric",
-            "conquest.simulated_opponent_rating",
             "conquest.default_squad",
             "conquest.default_commands",
         ):

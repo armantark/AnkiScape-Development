@@ -42,6 +42,7 @@ import datetime
 from collections.abc import Mapping
 from .logic_pure.logic_pure import (
     apply_consumable_pure,
+    apply_impling_jar_open_pure,
     apply_item_pack_open_pure,
     combat_observed_drop_item_names_pure,
     can_smith_any_pure,
@@ -4491,6 +4492,7 @@ def _on_main_menu(
             on_use_great_orb_project_teleport_tablet
         ),
         on_open_item_pack=on_open_item_pack,
+        on_open_impling_jar=on_open_impling_jar,
         on_convert_rogue_kit=on_convert_rogue_kit,
         on_teleport_training_urn=teleport_training_urn,
         get_ge_projection=_get_ge_projection,
@@ -5126,25 +5128,48 @@ def on_drink_trouble_brewing_rum(item_name):
 
 
 def on_open_item_pack(item_name, open_all=False):
-    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
-    inventory, result = apply_item_pack_open_pure(
-        player_data.get("inventory", {}) or {}, item_name, open_all=bool(open_all)
-    )
-    if not result.get("allowed"):
+    result = {}
+
+    def _change(data):
+        inventory, outcome = apply_item_pack_open_pure(
+            data.get("inventory", {}) or {},
+            item_name,
+            open_all=bool(open_all),
+        )
+        result.update(outcome)
+        updated = dict(data)
+        updated["inventory"] = inventory
+        return updated, bool(outcome.get("allowed"))
+
+    if not commit_direct_action(_change):
         return None
-    try:
-        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        return None
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data["inventory"] = inventory
-    save_player_data()
     _refresh_skill_availability()
     try:
         update_review_hud(player_data, current_skill)
-        mw.update_undo_actions()
+    except AttributeError:
+        pass
+    return result
+
+
+def on_open_impling_jar(item_name):
+    result = {}
+
+    def _change(data):
+        inventory, outcome = apply_impling_jar_open_pure(
+            data.get("inventory", {}) or {},
+            item_name,
+            rng=random.random,
+        )
+        result.update(outcome)
+        updated = dict(data)
+        updated["inventory"] = inventory
+        return updated, bool(outcome.get("allowed"))
+
+    if not commit_direct_action(_change):
+        return None
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
     except AttributeError:
         pass
     return result

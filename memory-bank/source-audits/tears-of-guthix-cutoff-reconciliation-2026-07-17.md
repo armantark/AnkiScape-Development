@@ -92,16 +92,17 @@ ornate article's sentence is recorded here as a period-wiki defect.
 
 The per-tick collection rate was recovered and its placeholder retired on
 2026-07-27: Darkan `TearsOfGuthix.kt:496-510` accepts only one collection update
-per server tick and adds exactly one tear for blue. The green-tear roll
-(`tears_of_guthix.green_tear_chance`) remains a registered placeholder. Its only
-period anchor is the reported 267 tears at 316 quest points. AnkiScape has no
-positional layer for a player to dodge a green stream with, so the green catch
-is necessarily a hidden roll here.
+per server tick and adds exactly one tear for blue. The `0.055` green-tear roll
+is no longer registered as `tears_of_guthix.green_tear_chance`: AnkiScape has no
+positional layer for a player to dodge a green stream, so this is a review-loop
+reachability adaptation rather than a probability the period game stored. Its
+only period anchor remains the reported 267 tears at 316 quest points.
 
 ### Depth re-walk, 2026-08-03
 
-The placeholder remains source-blocked after a fresh pass over every available
-lineage:
+The historical stream rotation and catch behavior remain source-blocked after a
+fresh pass over every available lineage, but the AnkiScape roll is classified as
+an adaptation rather than a historical placeholder:
 
 - Darkan `TearsOfGuthix.kt:477-510` implements click classification and the
   one-update-per-tick guard, but no stream rotation. Its frozen target contract
@@ -118,11 +119,12 @@ lineage:
 - The rev-727/742 cache evidence identifies wall objects and interface state,
   not server-side stream scheduling or movement outcomes.
 
-Therefore `0.055` is retained only as the registered reachability abstraction
+Therefore `0.055` is retained only as a disclosed reachability abstraction
 that maps the article's 267-tear record onto AnkiScape's automatic collection
-beats. It must not be described as the authentic probability. A period server
-rotation routine or a statistically adequate dated capture of switch and catch
-events would retire it. No owner design gap surfaced.
+beats. It must not be described as the authentic probability or registered as
+one. A period server rotation routine or a statistically adequate dated capture
+could recover the historical behavior without changing that classification. No
+owner design gap surfaced.
 
 AnkiScape abstractions, neither of them period claims: one answered card is six
 game ticks of cavern time (design-thread queue 3.2), and up to two weekly visits

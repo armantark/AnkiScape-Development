@@ -1251,6 +1251,7 @@ TREE_IMAGES.update(
     {
         "Arctic pine": os.path.join(FIREMAKING_ITEMS_FOLDER, "arctic_pine_logs.png"),
         "Eucalyptus": os.path.join(FIREMAKING_ITEMS_FOLDER, "eucalyptus_logs.png"),
+        "Curly jade root": os.path.join(FIREMAKING_ITEMS_FOLDER, "curly_root.png"),
     }
 )
 
@@ -1584,8 +1585,10 @@ HUNTER_EXTRA_ITEM_DATA = hunter_extra_items_as_dict()
 HUNTER_EXTRA_ITEM_DATA.update(big_chinchompa_extra_items_as_dict())
 HUNTER_ITEM_IMAGES = {}
 HUNTER_SHARED_ITEM_IMAGES = {
+    "Marasamaw plant": os.path.join(SHOP_ITEMS_FOLDER, "marasamaw_plant.png"),
     "Wimpy feather": os.path.join(SHOP_ITEMS_FOLDER, "wimpy_feather.png"),
     "Raw beast meat": os.path.join(SHOP_ITEMS_FOLDER, "raw_beast_meat.png"),
+    "Polar kebbit fur": os.path.join(SHOP_ITEMS_FOLDER, "polar_kebbit_fur.png"),
     "Long kebbit spike": os.path.join(
         FLETCHED_ITEMS_FOLDER, "long_kebbit_spike.png"
     ),

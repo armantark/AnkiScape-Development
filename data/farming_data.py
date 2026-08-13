@@ -137,6 +137,13 @@ WILLOW_BRANCH_PIN = "Willow branch oldid 6092914 (2012-08-14T16:12:52Z)"
 FARMING_PIN = "Farming oldid 6565110"
 HABITAT_PIN = "Herblore Habitat oldid 6513740"
 
+# PLACEHOLDER(farming.shared_disease_slots): a period White lily or Habitat
+# growth routine, or a qualified cutoff sample, would settle each disease roll.
+SHARED_DISEASE_SLOTS = 6
+# PLACEHOLDER(farming.kalferberry_regrowth_minutes): a period vine-bush
+# regrowth routine or measured cutoff interval would settle the renewal timer.
+KALFERBERRY_REGROWTH_MINUTES = FARM_MINUTES_PER_ANSWER
+
 FARMING_SOURCE_BLOCKED: Mapping[str, str] = MappingProxyType({
     "watering_growth_multiplier": "The ledger does not settle an exact pre-EOC growth multiplier.",
     "watering_yield_effect": "The ledger does not settle an exact pre-EOC yield effect.",
@@ -203,12 +210,12 @@ _FLOWERS = (
     _crop("woad", "Woad", "flower", "Woad seed", "Woad leaf", 25, 1, 20.5, 115.5, 4, 5, disease_slots=15, fixed_yield=3),
     _crop("limpwurt", "Limpwurt", "flower", "Limpwurt seed", "Limpwurt root", 26, 1, 21.5, 120.0, 4, 5, disease_slots=10, fixed_yield=3),
     _crop("scarecrow", "Scarecrow", "flower", "Scarecrow", None, 23, 1, 0.0, 0.0, 0, 0, fixed_yield=0, immune=True, sources=("Scarecrow oldid 6487851",)),
-    _crop("white_lily", "White lily", "flower", "White lily seed", "White lily", 52, 1, None, 250.0, 4, 20, fixed_yield=1, blocked=("planting_xp",), sources=("White lily oldid 6579222", SEEDS_PIN)),
+    _crop("white_lily", "White lily", "flower", "White lily seed", "White lily", 52, 1, 50.0, 250.0, 4, 20, disease_slots=SHARED_DISEASE_SLOTS, fixed_yield=1, sources=("White lily oldid 6579222 (2012-11-18T17:41:44Z)", SEEDS_PIN, "Darkan FarmPatch.java:478-495 @ 7e7d67b")),
 )
 
 
-def _herb(crop_id: str, name: str, level: int, plant: float, harvest: Optional[float], minimum: int, *, maximum: int = 80, blocked: Tuple[str, ...] = ()) -> CropDefinition:
-    return _crop(crop_id, name, "herb", f"{name} seed", f"Grimy {name.lower()}", level, 1, plant, harvest, 4, 20, disease_slots=27, base_lives=3, min_slots=minimum, max_slots=maximum, secateurs=True, blocked=blocked)
+def _herb(crop_id: str, name: str, level: int, plant: float, harvest: Optional[float], minimum: int, *, maximum: int = 80, blocked: Tuple[str, ...] = (), sources: Tuple[str, ...] = (GM_SEED, SEEDS_PIN)) -> CropDefinition:
+    return _crop(crop_id, name, "herb", f"{name} seed", f"Grimy {name.lower()}", level, 1, plant, harvest, 4, 20, disease_slots=27, base_lives=3, min_slots=minimum, max_slots=maximum, secateurs=True, blocked=blocked, sources=sources)
 
 
 _HERBS = (
@@ -227,7 +234,7 @@ _HERBS = (
     _herb("lantadyme", "Lantadyme", 73, 134.5, 151.5, 64),
     _herb("dwarf_weed", "Dwarf weed", 79, 170.5, 192.0, 67),
     _herb("torstol", "Torstol", 85, 199.5, 224.5, 71),
-    _herb("wergali", "Wergali", 46, 52.8, None, 48, blocked=("harvest_xp",)),
+    _herb("wergali", "Wergali", 46, 52.8, 52.8, 48, sources=("Wergali seed oldid 6446873 (2012-10-20T11:04:42Z)", SEEDS_PIN, "Darkan ProduceType.java @ c6fbe036b")),
     _herb("fellstalk", "Fellstalk", 91, 225.0, 315.6, 15, maximum=90),
     _crop("goutweed", "Goutweed", "herb", "Gout tuber", "Goutweed", 29, 1, 105.0, 45.0, 4, 20, disease_slots=27, base_lives=3, min_slots=57, max_slots=80, blocked=("yield", "quest_gate"), sources=("Goutweed oldid 5668713", SEEDS_PIN)),
 )
@@ -355,14 +362,83 @@ def _habitat(crop_id: str, name: str, patch_type: str, level: int, plant: Option
 
 
 _HABITAT = (
-    *(_habitat(f"{color}_blossom", f"{color.title()} blossom", "vine_flower", 54, 52.0, 255.0, None, None, ("stages", "stage_minutes", "yield")) for color in ("red", "blue", "green")),
+    *(
+        _crop(
+            f"{color}_blossom",
+            f"{color.title()} blossom",
+            "vine_flower",
+            f"{color.title()} blossom seed",
+            f"{color.title()} blossom",
+            54,
+            1,
+            52.0,
+            255.0,
+            4 if color != "blue" else None,
+            5 if color != "blue" else None,
+            disease_slots=SHARED_DISEASE_SLOTS,
+            # PLACEHOLDER(farming.vine_blossom_yield): period pages state the
+            # crop, timing, and harvest XP but never the number picked.
+            fixed_yield=1,
+            blocked=("stages", "stage_minutes") if color == "blue" else (),
+            sources=(
+                {
+                    "red": "Red blossom seed oldid 5054589 (2011-12-15T12:55:02Z)",
+                    "blue": "Blue blossom seed oldid 5054588 (2011-12-15T12:53:01Z)",
+                    "green": "Green blossom seed oldid 5562807 (2012-05-03T21:17:28Z)",
+                }[color],
+                HABITAT_PIN,
+                SEEDS_PIN,
+            ),
+        )
+        for color in ("red", "blue", "green")
+    ),
     _habitat("erzille", "Erzille", "vine_herb", 58, 87.0, 87.0, None, _payment(HABITAT_PIN, **{"Green blossom": 3}), ("stages", "stage_minutes", "yield")),
     _habitat("argway", "Argway", "vine_herb", 65, 110.0, 125.0, None, _payment(HABITAT_PIN, **{"Red blossom": 4}), ("stages", "stage_minutes", "yield")),
     _habitat("ugune", "Ugune", "vine_herb", 70, 135.0, 152.0, None, _payment(HABITAT_PIN, **{"Blue blossom": 3}), ("stages", "yield")),
     _habitat("shengo", "Shengo", "vine_herb", 76, 140.5, 160.0, None, _payment(HABITAT_PIN, Lergberry=5), ("stages", "stage_minutes", "yield")),
     _habitat("samaden", "Samaden", "vine_herb", 80, 170.0, 190.0, None, _payment(HABITAT_PIN, Kalferberry=5), ("stages", "stage_minutes", "yield")),
-    _habitat("lergberry", "Lergberry", "vine_bush", 61, 145.5, 31.5, 236.3, _payment(HABITAT_PIN, **{"Red blossom": 3}), ("stages", "stage_minutes", "yield")),
-    _habitat("kalferberry", "Kalferberry", "vine_bush", 77, None, 52.5, None, _payment(HABITAT_PIN, Lergberry=3), ("planting_xp", "stages", "stage_minutes", "yield")),
+    _crop(
+        "lergberry",
+        "Lergberry",
+        "vine_bush",
+        "Lergberry seed",
+        "Lergberry",
+        61,
+        1,
+        145.5,
+        31.5,
+        None,
+        None,
+        check=236.3,
+        fixed_yield=4,
+        protection=_payment(HABITAT_PIN, **{"Red blossom": 3}),
+        blocked=("stages", "stage_minutes"),
+        sources=(HABITAT_PIN, SEEDS_PIN, "Lergberries oldid 6358880 (2012-10-06T20:56:38Z)"),
+    ),
+    _crop(
+        "kalferberry",
+        "Kalferberry",
+        "vine_bush",
+        "Kalferberry seed",
+        "Kalferberry",
+        77,
+        1,
+        220.0,
+        52.5,
+        5,
+        15,
+        check=375.0,
+        disease_slots=SHARED_DISEASE_SLOTS,
+        fixed_yield=4,
+        regrowth=KALFERBERRY_REGROWTH_MINUTES,
+        protection=_payment(HABITAT_PIN, Lergberry=3),
+        sources=(
+            HABITAT_PIN,
+            SEEDS_PIN,
+            "Kalferberry seed oldid 5906898 (2012-07-08T11:42:43Z)",
+            "Kalferberries oldid 6513798 (2012-10-31T21:36:48Z)",
+        ),
+    ),
 )
 
 

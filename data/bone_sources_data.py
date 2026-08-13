@@ -140,7 +140,18 @@ def bone_source_enemies_as_dict() -> dict[str, dict[str, Any]]:
             "source": source.source,
             "source_status": source.source_status,
         }
-        if source.id == "shaikahan":
+        if source.id == "zogre":
+            row["quest_gate"] = "zogre_flesh_eaters"
+            row["quest_gate_state"] = "started"
+            row["quest_gate_label"] = "Open Jiggig during Zogre Flesh Eaters"
+            row["location_context"] = "Jiggig zogre area after the guard opens the barricade"
+        elif source.id == "jogre":
+            row["location_context"] = "Karamja jungle and Pothole Dungeon"
+            row["access_status"] = "ordinary Karamja access; no quest gate"
+        elif source.id == "shaikahan":
+            row["quest_gate"] = "tai_bwo_wannai_trio"
+            row["quest_gate_label"] = "Complete Tai Bwo Wannai Trio"
+            row["location_context"] = "Eastern Karamja jungle"
             row["start_equipment"] = {
                 "slot": "weapon",
                 "items": tuple(

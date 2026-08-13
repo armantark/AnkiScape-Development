@@ -65,38 +65,60 @@ class OpenRs2InterfaceQueryTest(unittest.TestCase):
     "local rev-742 cache and Darkan Java runtime required",
 )
 class OpenRs2If1SearchTest(unittest.TestCase):
-    def test_find_skips_legacy_if1_archives_and_continues_searching(self):
+    def test_find_reports_partial_search_and_keeps_hits(self):
+        skipped_ids = [
+            548,
+            628,
+            629,
+            633,
+            634,
+            635,
+            691,
+            976,
+            1253,
+            1311,
+            1316,
+            1358,
+            1360,
+            1361,
+            1368,
+        ]
         result = subprocess.run(
             [str(TOOL), str(CACHE_742), "find", "Grand Exchange"],
-            check=True,
+            check=False,
             cwd=ROOT,
             capture_output=True,
             text=True,
             timeout=30,
         )
-        self.assertEqual(
-            result.stderr.splitlines(),
-            [
-                f"skipped unsupported IF1 interface {interface_id}"
-                for interface_id in (
-                    548,
-                    628,
-                    629,
-                    633,
-                    634,
-                    635,
-                    691,
-                    976,
-                    1253,
-                    1311,
-                    1316,
-                    1358,
-                    1360,
-                    1361,
-                    1368,
-                )
-            ],
+        self.assertEqual(result.returncode, 3)
+        marker = next(
+            line for line in result.stderr.splitlines() if line.startswith("PARTIAL_SEARCH ")
         )
+        self.assertIn("skipped_count=15", marker)
+        for interface_id in skipped_ids:
+            self.assertIn(str(interface_id), marker)
+        self.assertIn('text="Grand Exchange"', result.stdout)
+
+
+@unittest.skipUnless(
+    CACHE.joinpath("main_file_cache.dat2").is_file()
+    and JAVA.is_file()
+    and CORE.is_dir(),
+    "local rev-727 cache and Darkan Java runtime required",
+)
+class OpenRs2CompleteInterfaceSearchTest(unittest.TestCase):
+    def test_rev_727_find_is_complete(self):
+        result = subprocess.run(
+            [str(TOOL), str(CACHE), "find", "Grand Exchange"],
+            check=False,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertNotIn("PARTIAL_SEARCH", result.stderr)
         self.assertIn('text="Grand Exchange"', result.stdout)
 
 

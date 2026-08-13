@@ -1,0 +1,1239 @@
+[
+  {
+    "struct_id": 3439,
+    "name": "Potato",
+    "level": 1,
+    "icon_item_id": 1942,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3440,
+    "name": "Onion",
+    "level": 5,
+    "icon_item_id": 1957,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3441,
+    "name": "Cabbage",
+    "level": 7,
+    "icon_item_id": 1965,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3442,
+    "name": "Tomato",
+    "level": 12,
+    "icon_item_id": 1982,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3443,
+    "name": "Sweetcorn",
+    "level": 20,
+    "icon_item_id": 5986,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3444,
+    "name": "Strawberry",
+    "level": 31,
+    "icon_item_id": 5504,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3445,
+    "name": "Watermelon",
+    "level": 47,
+    "icon_item_id": 5982,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3446,
+    "name": "Barley",
+    "level": 3,
+    "icon_item_id": 6006,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3447,
+    "name": "Hammerstone hop",
+    "level": 4,
+    "icon_item_id": 5994,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3448,
+    "name": "Asgarnian hop",
+    "level": 8,
+    "icon_item_id": 5996,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3449,
+    "name": "Jute plant",
+    "level": 13,
+    "icon_item_id": 5931,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3450,
+    "name": "Yanillian hop",
+    "level": 16,
+    "icon_item_id": 5998,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3451,
+    "name": "Krandorian hop",
+    "level": 21,
+    "icon_item_id": 6000,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3452,
+    "name": "Wildblood hop",
+    "level": 28,
+    "icon_item_id": 6002,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3453,
+    "name": "Oak tree",
+    "level": 15,
+    "icon_item_id": 1521,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3454,
+    "name": "Willow tree",
+    "level": 30,
+    "icon_item_id": 1519,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3455,
+    "name": "Maple tree",
+    "level": 45,
+    "icon_item_id": 1517,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3456,
+    "name": "Yew tree",
+    "level": 60,
+    "icon_item_id": 1515,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3457,
+    "name": "Magic tree",
+    "level": 75,
+    "icon_item_id": 1513,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3458,
+    "name": "Apple tree",
+    "level": 27,
+    "icon_item_id": 1955,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3459,
+    "name": "Banana tree",
+    "level": 33,
+    "icon_item_id": 1963,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3460,
+    "name": "Orange tree",
+    "level": 39,
+    "icon_item_id": 2108,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3461,
+    "name": "Curry tree",
+    "level": 42,
+    "icon_item_id": 5970,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3462,
+    "name": "Pineapple plant",
+    "level": 51,
+    "icon_item_id": 2114,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3463,
+    "name": "Papaya tree",
+    "level": 57,
+    "icon_item_id": 5972,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3464,
+    "name": "Palm tree",
+    "level": 68,
+    "icon_item_id": 5974,
+    "guide_key": 21,
+    "category_id": 3,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3465,
+    "name": "Redberry bush",
+    "level": 10,
+    "icon_item_id": 1951,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3466,
+    "name": "Cadavaberry bush",
+    "level": 22,
+    "icon_item_id": 753,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3467,
+    "name": "Dwellberry bush",
+    "level": 36,
+    "icon_item_id": 2126,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3468,
+    "name": "Jangerberry bush",
+    "level": 48,
+    "icon_item_id": 247,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3469,
+    "name": "White berry bush",
+    "level": 59,
+    "icon_item_id": 239,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3470,
+    "name": "Poison ivy bush",
+    "level": 70,
+    "icon_item_id": 6018,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3471,
+    "name": "Marigold",
+    "level": 2,
+    "icon_item_id": 6010,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3472,
+    "name": "Rosemary",
+    "level": 11,
+    "icon_item_id": 6014,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3473,
+    "name": "Make and place a scarecrow",
+    "level": 23,
+    "icon_item_id": 6059,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3474,
+    "name": "Nasturtium",
+    "level": 24,
+    "icon_item_id": 6012,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3475,
+    "name": "Woad",
+    "level": 25,
+    "icon_item_id": 5738,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3476,
+    "name": "Limpwurt",
+    "level": 26,
+    "icon_item_id": 225,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3477,
+    "name": "White lily",
+    "level": 52,
+    "icon_item_id": 14583,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3478,
+    "name": "Guam",
+    "level": 9,
+    "icon_item_id": 249,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3479,
+    "name": "Marrentill",
+    "level": 14,
+    "icon_item_id": 251,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3480,
+    "name": "Tarromin",
+    "level": 19,
+    "icon_item_id": 253,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3481,
+    "name": "Harralander",
+    "level": 26,
+    "icon_item_id": 255,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3482,
+    "name": "Goutweed",
+    "level": 29,
+    "icon_item_id": 3261,
+    "guide_key": 21,
+    "requirement_text": "Quest requirement: Eadgar's Ruse",
+    "category_id": 2,
+    "requirements": [
+      {
+        "kind": "quest",
+        "key": "eadgars_ruse",
+        "minimum": 0,
+        "label": "Eadgar's Ruse"
+      }
+    ]
+  },
+  {
+    "struct_id": 3483,
+    "name": "Ranarr",
+    "level": 32,
+    "icon_item_id": 257,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3484,
+    "name": "Spirit weed",
+    "level": 36,
+    "icon_item_id": 12172,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3485,
+    "name": "Toadflax",
+    "level": 38,
+    "icon_item_id": 2998,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3486,
+    "name": "Irit",
+    "level": 44,
+    "icon_item_id": 259,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3487,
+    "name": "Wergali",
+    "level": 46,
+    "icon_item_id": 14854,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3488,
+    "name": "Avantoe",
+    "level": 50,
+    "icon_item_id": 261,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3489,
+    "name": "Kwuarm",
+    "level": 56,
+    "icon_item_id": 263,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3490,
+    "name": "Erzille",
+    "level": 58,
+    "icon_item_id": 19989,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3491,
+    "name": "Snapdragon",
+    "level": 62,
+    "icon_item_id": 3000,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3492,
+    "name": "Argway",
+    "level": 65,
+    "icon_item_id": 19990,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3493,
+    "name": "Cadantine",
+    "level": 67,
+    "icon_item_id": 265,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3494,
+    "name": "Ugune",
+    "level": 70,
+    "icon_item_id": 19991,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3495,
+    "name": "Lantadyme",
+    "level": 73,
+    "icon_item_id": 2481,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3496,
+    "name": "Shengo",
+    "level": 76,
+    "icon_item_id": 19992,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3497,
+    "name": "Dwarf weed",
+    "level": 79,
+    "icon_item_id": 267,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3498,
+    "name": "Samaden",
+    "level": 80,
+    "icon_item_id": 19993,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3499,
+    "name": "Torstol",
+    "level": 85,
+    "icon_item_id": 269,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3500,
+    "name": "Fellstalk",
+    "level": 91,
+    "icon_item_id": 21624,
+    "guide_key": 21,
+    "category_id": 2,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3501,
+    "name": "Evil turnip",
+    "level": 42,
+    "icon_item_id": 12134,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3502,
+    "name": "Bittercap mushroom",
+    "level": 53,
+    "icon_item_id": 6004,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3503,
+    "name": "Jade Vine",
+    "level": 53,
+    "icon_item_id": 11779,
+    "guide_key": 21,
+    "requirement_text": "Quest requirement: Back to My Roots",
+    "category_id": 4,
+    "requirements": [
+      {
+        "kind": "quest",
+        "key": "back_to_my_roots",
+        "minimum": 0,
+        "label": "Back to My Roots"
+      }
+    ]
+  },
+  {
+    "struct_id": 3504,
+    "name": "Vine blossoms",
+    "level": 54,
+    "icon_item_id": 19962,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3505,
+    "name": "Cactus",
+    "level": 55,
+    "icon_item_id": 6016,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3506,
+    "name": "Lergberry bush",
+    "level": 61,
+    "icon_item_id": 19969,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3507,
+    "name": "Belladonna",
+    "level": 63,
+    "icon_item_id": 2398,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3508,
+    "name": "Calquat tree",
+    "level": 72,
+    "icon_item_id": 5980,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3509,
+    "name": "Morchella mushroom",
+    "level": 74,
+    "icon_item_id": 21622,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3510,
+    "name": "Kalferberry bush",
+    "level": 77,
+    "icon_item_id": 19970,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3511,
+    "name": "Spirit tree",
+    "level": 83,
+    "icon_item_id": 6063,
+    "guide_key": 21,
+    "category_id": 4,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3512,
+    "name": "Ability to plant a second spirit tree",
+    "level": 86,
+    "icon_item_id": 6063,
+    "guide_key": 21,
+    "requirement_text": "Quest requirement: Prisoner of Glouphrie",
+    "category_id": 4,
+    "requirements": [
+      {
+        "kind": "quest",
+        "key": "the_prisoner_of_glouphrie",
+        "minimum": 0,
+        "label": "Prisoner of Glouphrie"
+      }
+    ]
+  },
+  {
+    "struct_id": 3513,
+    "name": "Scroll of life",
+    "level": 25,
+    "icon_item_id": 18336,
+    "guide_key": 21,
+    "requirement_text": "Also requires: 25 Dungeoneering",
+    "category_id": 5,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "dungeoneering",
+        "minimum": 25,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3514,
+    "name": "Access to the Livid Farm",
+    "level": 60,
+    "icon_item_id": 20704,
+    "guide_key": 21,
+    "requirement_text": "Quest requirement: Lunar Diplomacy",
+    "category_id": 1,
+    "requirements": [
+      {
+        "kind": "quest",
+        "key": "lunar_diplomacy",
+        "minimum": 0,
+        "label": "Lunar Diplomacy"
+      },
+      {
+        "kind": "skill",
+        "key": "magic",
+        "minimum": 70,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "agility",
+        "minimum": 60,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "crafting",
+        "minimum": 60,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "construction",
+        "minimum": 50,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3515,
+    "name": "Polypore staff",
+    "level": 80,
+    "icon_item_id": 22494,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3516,
+    "name": "Starved ancient effigy",
+    "level": 91,
+    "icon_item_id": 18778,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3517,
+    "name": "Nourished ancient effigy",
+    "level": 93,
+    "icon_item_id": 18779,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3518,
+    "name": "Sated ancient effigy",
+    "level": 95,
+    "icon_item_id": 18780,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3519,
+    "name": "Gorged ancient effigy",
+    "level": 97,
+    "icon_item_id": 18781,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3520,
+    "name": "Nurture evil oak tree saplings",
+    "level": 7,
+    "icon_item_id": 14667,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "woodcutting",
+        "minimum": 15,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "firemaking",
+        "minimum": 15,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3521,
+    "name": "Nurture evil willow tree saplings",
+    "level": 15,
+    "icon_item_id": 14667,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "woodcutting",
+        "minimum": 30,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "firemaking",
+        "minimum": 30,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3522,
+    "name": "Nurture evil maple tree saplings",
+    "level": 22,
+    "icon_item_id": 14667,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "woodcutting",
+        "minimum": 45,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "firemaking",
+        "minimum": 45,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3523,
+    "name": "Nurture evil yew tree saplings",
+    "level": 30,
+    "icon_item_id": 14667,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "woodcutting",
+        "minimum": 60,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "firemaking",
+        "minimum": 60,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3524,
+    "name": "Nurture evil magic tree saplings",
+    "level": 37,
+    "icon_item_id": 14667,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "woodcutting",
+        "minimum": 75,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "firemaking",
+        "minimum": 75,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3525,
+    "name": "Nurture elder evil tree saplings",
+    "level": 42,
+    "icon_item_id": 14667,
+    "guide_key": 21,
+    "category_id": 5,
+    "requirement_text": null,
+    "requirements": [
+      {
+        "kind": "skill",
+        "key": "woodcutting",
+        "minimum": 85,
+        "label": null
+      },
+      {
+        "kind": "skill",
+        "key": "firemaking",
+        "minimum": 85,
+        "label": null
+      }
+    ]
+  },
+  {
+    "struct_id": 3526,
+    "name": "Salve nettles in Daemonheim",
+    "level": 1,
+    "icon_item_id": 17448,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3527,
+    "name": "Cave potato in Daemonheim",
+    "level": 1,
+    "icon_item_id": 17823,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3528,
+    "name": "Sagewort in Daemonheim",
+    "level": 7,
+    "icon_item_id": 17826,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3529,
+    "name": "Wildercress in Daemonheim",
+    "level": 10,
+    "icon_item_id": 17450,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3530,
+    "name": "Valerian in Daemonheim",
+    "level": 18,
+    "icon_item_id": 17827,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3531,
+    "name": "Blightleaf in Daemonheim",
+    "level": 20,
+    "icon_item_id": 17452,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3532,
+    "name": "Aloe in Daemonheim",
+    "level": 29,
+    "icon_item_id": 17828,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3533,
+    "name": "Roseblood in Daemonheim",
+    "level": 30,
+    "icon_item_id": 17454,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3534,
+    "name": "Gissel mushroom in Daemonheim",
+    "level": 34,
+    "icon_item_id": 17824,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3535,
+    "name": "Wormwood in Daemonheim",
+    "level": 40,
+    "icon_item_id": 17829,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3536,
+    "name": "Bryll in Daemonheim",
+    "level": 40,
+    "icon_item_id": 17456,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3537,
+    "name": "Duskweed in Daemonheim",
+    "level": 50,
+    "icon_item_id": 17458,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3538,
+    "name": "Magebane in Daemonheim",
+    "level": 51,
+    "icon_item_id": 17830,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3539,
+    "name": "Soulbell in Daemonheim",
+    "level": 60,
+    "icon_item_id": 17460,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3540,
+    "name": "Featherfoil in Daemonheim",
+    "level": 62,
+    "icon_item_id": 17831,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3541,
+    "name": "Edicap mushroom in Daemonheim",
+    "level": 68,
+    "icon_item_id": 17825,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3542,
+    "name": "Ectograss in Daemonheim",
+    "level": 70,
+    "icon_item_id": 17462,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3543,
+    "name": "Winter's grip in Daemonheim",
+    "level": 73,
+    "icon_item_id": 17832,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3544,
+    "name": "Runeleaf in Daemonheim",
+    "level": 80,
+    "icon_item_id": 17464,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3545,
+    "name": "Lycopus in Daemonheim",
+    "level": 84,
+    "icon_item_id": 17833,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3546,
+    "name": "Spiritbloom in Daemonheim",
+    "level": 90,
+    "icon_item_id": 17466,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3547,
+    "name": "Buckthorn in Daemonheim",
+    "level": 95,
+    "icon_item_id": 17834,
+    "guide_key": 21,
+    "category_id": 6,
+    "requirement_text": null,
+    "requirements": []
+  },
+  {
+    "struct_id": 3548,
+    "name": "Skill mastery",
+    "level": 99,
+    "icon_item_id": 9810,
+    "guide_key": 21,
+    "category_id": 1,
+    "requirement_text": null,
+    "requirements": []
+  }
+]

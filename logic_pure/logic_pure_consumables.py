@@ -2,6 +2,7 @@
 
 from math import comb, floor, sqrt
 
+from ..data.impling_jar_data import IMPLING_JAR_DATA
 from ..data.pack_data import ITEM_PACK_DATA
 from ..logic.skilling_boost_logic import (
     SKILLING_POTION_BOOST,
@@ -302,6 +303,73 @@ def apply_item_pack_open_pure(inventory, item_name, open_all=False):
         "packs_opened": packs_opened,
         "content_item": content_item,
         "content_quantity": content_quantity,
+    }
+
+
+def apply_impling_jar_open_pure(inventory, item_name, rng=None):
+    """Loot one filled impling jar without mutating the input inventory."""
+    updated = dict(inventory or {})
+    rewards = IMPLING_JAR_DATA.get(item_name)
+    owned = _non_negative_int(updated.get(item_name, 0), 0)
+    if not rewards or owned <= 0:
+        return updated, {
+            "allowed": False,
+            "reason": "missing_impling_jar",
+            "item_name": item_name,
+        }
+
+    valid_rewards = tuple(
+        reward
+        for reward in rewards
+        if int(reward.weight) > 0
+        and int(reward.maximum) >= int(reward.minimum)
+        and (reward.item or (int(reward.minimum) == 0 and int(reward.maximum) == 0))
+    )
+    total_weight = sum(int(reward.weight) for reward in valid_rewards)
+    if total_weight <= 0:
+        return updated, {
+            "allowed": False,
+            "reason": "invalid_reward_table",
+            "item_name": item_name,
+        }
+
+    rng = rng or (lambda: 0.0)
+    reward_roll = max(0.0, min(float(rng()), 0.9999999999999999))
+    slot = min(int(reward_roll * total_weight), total_weight - 1)
+    cumulative = 0
+    selected = valid_rewards[-1]
+    for reward in valid_rewards:
+        cumulative += int(reward.weight)
+        if slot < cumulative:
+            selected = reward
+            break
+
+    remaining = owned - 1
+    if remaining:
+        updated[item_name] = remaining
+    else:
+        updated.pop(item_name, None)
+
+    if not selected.item:
+        return updated, {
+            "allowed": True,
+            "item_name": item_name,
+            "reward_item": "",
+            "reward_quantity": 0,
+            "message": "The impling jar contains no registered reward.",
+        }
+
+    minimum = int(selected.minimum)
+    maximum = int(selected.maximum)
+    quantity_roll = max(0.0, min(float(rng()), 0.9999999999999999))
+    quantity = minimum + min(int(quantity_roll * (maximum - minimum + 1)), maximum - minimum)
+    updated[selected.item] = _non_negative_int(updated.get(selected.item, 0), 0) + quantity
+    return updated, {
+        "allowed": True,
+        "item_name": item_name,
+        "reward_item": selected.item,
+        "reward_quantity": quantity,
+        "message": f"You loot {quantity:,} {selected.item}.",
     }
 
 

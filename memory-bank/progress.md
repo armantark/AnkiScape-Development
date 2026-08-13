@@ -1,5 +1,31 @@
 # Progress
 
+## Polar kebbit quota-ticket target — 2026-08-12
+
+Big Chinchompa's Polar kebbit quota ticket now resolves to the live
+`catch_polar_kebbit` Hunter tracking target. The ordinary catch is available at
+Hunter level 1; the separate Big Chinchompa reward purchase correctly requires
+Hunter level 70. One review represents the sourced four- or five-search trail
+and final attack, requires and preserves a Noose wand, awards 30 Hunter XP, and
+produces Bones, Raw beast meat, and Polar kebbit fur. No quest or route wall was
+added because the period Hunter location section lists multiple ordinary routes
+to the Rellekka Hunter area and no quest gate.
+
+Hunter oldid `6484443`, Darkan tracking commit
+`37957d17d62d6b14d326cd719a0ae0c239c76cf9`, and OpenRS2 rev-742 pin the
+visible mechanic and item identities. The unrecovered hidden catch curve uses
+registered placeholder `hunter.polar_kebbit_success_curve` with the established
+shared Hunter fallback. Reachability improves from 1,560 actions / 2,497 items /
+99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102; Polar kebbit
+fur is newly reachable through `Hunter:catch_polar_kebbit`. See
+`memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
+
+## Quest-stage reachability truth correction — 2026-08-12
+
+The audit now mirrors runtime action gating before it credits quest-stage products, keeps branch variants separate, and applies equivalent gates to quest-combat guaranteed drops. Main falls from 2,573 to 2,493 reachable items: 80 items that were previously reported reachable never were. Orphan inputs rise from 102 to 103 and blocked actions from 101 to 102. This is a measurement correction, not a gameplay regression.
+
+The later `d2faf1d2` slice was re-derived separately. Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 use emitted `auto_actions`; the acquisition helper supplies inventory and levels but does not manufacture `quest_stage_actions`. The same slice's Herb pouch quest-combat route is inert in normal play: Nial Swiftfling defaults to a level-156 minimum while a normal maxed player is combat level 126, and the test reaches it only with level 400 combat stats. Diamond root and Diamond root dust consequently remain unreachable. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `audits/quest-stage-reachability-truth-2026-08-12.md`.
+
 ## Resumed-goal interval closure — 2026-08-10
 
 The audit covers all work after the 2026-08-08 resume. It reviewed 52 commits
@@ -970,10 +996,15 @@ skips.
 - Recovered the rev-741/742 Daily Challenge structs and rev-742 challenge
   interface. They settle client task metadata and presentation but contain no
   XP payout field.
-- Hardened interface search across later caches: unsupported legacy IF1
-  archives are listed and skipped instead of aborting the whole query.
-- Retained `daily_challenges.reward_xp` as a registered placeholder with the
-  exact negative-search scope and omissions. No gameplay value changed.
+- Later byte-level verification corrected the interface-search diagnosis: the
+  fifteen skipped rev-742 archives begin with `0x03`, so the first-byte gate's
+  `if1` label did not identify a legacy or unsupported format. The checked-in
+  reader still skips them.
+- A one-off reflective experiment bypassed the guard and decoded all 1,376
+  affected components into coherent interfaces; none related to interface 1343.
+  Reproducing that complete search still requires a guard fix or byte-level
+  parser. `daily_challenges.reward_xp` remains registered because the relevant
+  structs and decoded interface 1343 contain no amount. No gameplay value changed.
 - Full discovery passes 3,802 tests in both lanes, with 460 expected plain skips
   and 3 Qt skips.
 
@@ -2167,10 +2198,10 @@ constructing the state a player would actually be in.
 - Added the complete period reward shop, direct 5-XP-per-point purchase,
   quiet/normal/busy seeded crowd profiles, storage schema 50, telemetry, and
   atomic review/direct undo.
-- Added five quota-ticket items and four executable private-ground routes.
-  Tickets must be carried for the selected Hunter target and are consumed only
-  after a successful catch. Polar-kebbit use remains dependency-blocked on the
-  ordinary source-blocked tracking target.
+- Added five quota-ticket items and initially four executable private-ground
+  routes. Tickets must be carried for the selected Hunter target and are
+  consumed only after a successful catch. The fifth, Polar kebbit, became
+  executable in the 2026-08-12 acquisition slice above.
 - Added provenance-pinned period art, standard 28-pixel display boxes, a global
   Review HUD notice, a compact scroll-safe Utility card, and the contextual
   Hunter private-ground control. Fable's independent review caught and closed
@@ -6008,6 +6039,27 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   than changing Lunar Diplomacy in this slice.
 - Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.
 
+## Quest reachability truth — 2026-08-13
+
+- Reachability figures are branch-relative: `main` at `1cf43931` reports
+  1,556 actions / 2,573 reachable items / 102 orphan inputs / 101 blocked
+  actions / 1,448 seeds, while `goal/acquire-2026-08-12` at `2cfac317` reports
+  1,568 / 2,509 / 97 / 100 / 1,367.
+- On top of that acquire tip, hard-stopping quests at the first unavailable
+  required action and propagating prerequisite and quest-point failure produces
+  1,568 / 2,248 / 100 / 103 / 1,099, with 54 root and 46 cascade orphans.
+- Blood talisman, Jade vine seed, and Magic secateurs are the three newly
+  orphaned quest rewards. Lost City's blocked Dramen branch keeps Cinnamon's
+  real grind action blocked rather than seeding either item directly. The Kudos
+  integrity test now records Dagon'hai history and Prophecy tablet as unavailable
+  completion rewards instead of asserting that every exhibit item is reachable.
+- This branch depends on `goal/acquire-2026-08-12` and must merge after it. The
+  improved figures are not reproducible from `main` alone.
+- Missing actions and registered unsatisfiable encounters now hard-stop quest
+  stages. Inventory, tools, alternatives, routes, variants, and encounters with
+  no registered guaranteed drops remain unmodelled residual debt, so 2,248 can
+  be wrong in either direction and is not final acquisition truth.
+
 ## Black mushroom acquisition — 2026-08-09
 
 - Added a one-pickup, zero-XP Utility route for the cutoff Black mushroom
@@ -6023,6 +6075,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   plain skips and three Qt skips.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
 
+## Farming Stats skill-guide source block — 2026-08-12
+
+- Rev-727 and rev-742 establish a 110-struct Farming guide with seven filters and source-owned labels, levels, icons, categories, and gates.
+- Withdrew the crop-table projection after review proved it inverted the source: it omitted non-crop unlocks, filtered period rows by implementation state, substituted internal names/icons, and discarded access gates.
+- Recorded a rebuild specification that uses the period struct list as the spine and resolves each entry against its owning AnkiScape registry. No product behavior changed.
+- Dungeoneering remains untouched as a separate, larger guide gap.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
+
 ## Pass 9 owner repair — 2026-08-11
 
 - Added a visible text cue and stronger fill for saved target rows across shared flat and grouped selectors.
@@ -6034,3 +6094,9 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Both full lanes pass 4,058 tests. Documentation, test quality, compilation, native Anki, diff, and worktree checks pass.
 - Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
 - Results: <https://zvxa8ne0p5qz.postplan.dev>.
+
+## Inventory direct-action seam — 2026-08-13
+
+- Item packs and impling jars now commit through `commit_direct_action` instead of a private transaction copy, so they inherit the shared music-log refresh and complete undo snapshot, including `current_skill`.
+- The application-path regression opens a Dragon impling jar, proves the pending quest track is refreshed, changes the live skill, and proves undo restores both the save and Hunter.
+- Both full lanes pass 4,104 tests: plain with 498 expected Qt skips, and offscreen Qt with three skips. Reachability is unchanged at 1,568 actions / 2,248 reachable items / 100 orphan inputs / 103 blocked actions.

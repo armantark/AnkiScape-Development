@@ -95,6 +95,11 @@ class BoneAcquisitionToEctofuntusTests(unittest.TestCase):
         inventory: dict[str, int] | None = None,
         equipment: dict[str, str] | None = None,
     ) -> dict:
+        quests = {}
+        if target_id == "zogre":
+            quests["zogre_flesh_eaters"] = {"started": True, "completed": False}
+        elif target_id == "shaikahan":
+            quests["tai_bwo_wannai_trio"] = {"started": True, "completed": True}
         return {
             "inventory": dict(inventory or {}),
             "equipment": dict(equipment or {}),
@@ -118,6 +123,7 @@ class BoneAcquisitionToEctofuntusTests(unittest.TestCase):
             "combat_supply_loadout": {},
             "combat_encounter": {"target_id": target_id, "enemy_lifepoints": 1},
             "combat_kill_counts": {},
+            "quests": quests,
         }
 
     def _kill(
@@ -181,6 +187,48 @@ class BoneAcquisitionToEctofuntusTests(unittest.TestCase):
         self.assertEqual(processed, 1)
         self.assertEqual(inventory["Ogre coffin key"], 0)
         return inventory
+
+    def test_zogre_shaikahan_and_jogre_access_gates_apply_before_kills(self):
+        cases = (
+            (
+                "zogre",
+                {},
+                {},
+                ("Open Jiggig during Zogre Flesh Eaters",),
+                {"zogre_flesh_eaters": {"started": True, "completed": False}},
+            ),
+            (
+                "shaikahan",
+                {},
+                {"weapon": "Steel spear (kp)"},
+                ("Complete Tai Bwo Wannai Trio",),
+                {"tai_bwo_wannai_trio": {"started": True, "completed": True}},
+            ),
+            ("jogre", {}, {}, (), {}),
+        )
+        for target_id, inventory, equipment, locked, quests in cases:
+            with self.subTest(target=target_id):
+                player = self._combat_player(target_id, inventory, equipment)
+                player["quests"] = {}
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        player,
+                        target_id,
+                        COMBAT_ENEMY_DATA,
+                        equipment_data=EQUIPMENT_DATA,
+                    ),
+                    locked,
+                )
+                player["quests"] = quests
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        player,
+                        target_id,
+                        COMBAT_ENEMY_DATA,
+                        equipment_data=EQUIPMENT_DATA,
+                    ),
+                    (),
+                )
 
     def test_frost_dragon_requires_level_85_dungeoneering_on_surface_and_kernel(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

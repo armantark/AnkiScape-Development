@@ -1,6 +1,6 @@
 # Ectofuntus bone family audit — 2026-08-11
 
-Status: **implemented with one registered selector placeholder and one open item-identity mapping**.
+Status: **integrated with two registered hidden-value placeholders, tested access gates, and one open item-identity mapping**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Goal
@@ -100,15 +100,44 @@ The coffin can give Zogre, Fayrg, Raurg, or Ourg bones.
 The Shaikahan route uses a karambwan-poisoned Steel spear.
 The slice adds the exact `Steel spear (kp)` item and preparation action.
 
-## Registered placeholder
+## Access gates
 
-This slice adds one registered placeholder.
+The generic Combat surface has no map or free-form location selector, so ordinary
+location context remains flattened while real access walls stay executable.
+
+- Zogres are the Jiggig-area route opened during `Zogre Flesh Eaters`. Zogre
+  oldid `6547569` and Zogre Flesh Eaters oldid `6441901` are the pinned
+  target/area and quest records; stage-one prose says the guard removes the
+  barricade before the player enters the zogre-infested area. Both selector and
+  combat kernel therefore require the quest to have started, not completed.
+- The Shaikahan is in the eastern Karamja jungle. Tai Bwo Wannai Trio oldid
+  `6529797` lists the ability to fight it as a completion unlock, and The
+  Shaikahan oldid `6552714` independently preserves the location and weapon
+  method. The target therefore requires completed `Tai Bwo Wannai Trio` and
+  separately keeps the continuous karambwan-poisoned-spear equipment gate.
+- Jogres are ordinary Karamja jungle and Pothole Dungeon creatures. Jogre oldid
+  `6240856` establishes the ordinary location record without a quest wall, so
+  the target records Karamja context but deliberately remains quest-ungated.
+
+Main commit `225c9c67` already registers quest IDs `zogre_flesh_eaters` and
+`tai_bwo_wannai_trio` in `generated/quest_catalog_generated.py`; the integration
+reuses those exact save-state keys instead of inventing parallel access flags.
+Legends' Quest is not used: it governs the separate Kharazi-jungle context, not
+these eastern-Karamja creatures.
+
+## Registered placeholders
+
+This slice carries two genuine registered placeholders for hidden values that
+period gameplay had but the recovered record does not expose.
 
 | Placeholder | Live value | What settles it |
 | --- | --- | --- |
 | `bone_sources.ogre_coffin_selector_weights` | Zogre `63`, Fayrg `14`, Raurg `6`, Ourg `3`, and non-bone `39`. The table has `125` slots. | Ogre coffin key oldid `6381645` gives expected bone counts per 100 keys. It does not expose the server selector. A period coffin routine or a qualified cutoff sample must replace the weights. The same source must identify the `39` non-bone slots. |
+| `bone_sources.frost_dragon_generated_levels` | Attack, Strength, Defence, Magic, and Ranged are all `213`. | The period Frost dragon existed with a real combat stat block, but Darkan marks the recovered level-166 definition `nostats` and reconstructs `213` through its checked-in `generateLevels` routine. An authentic period combat definition or server routine with the five core levels replaces it. |
 
-No placeholder controls the bone IDs, burial XP, bonemeal IDs, or Ectofuntus multiplier.
+Neither placeholder invents a mechanic absent from the period game. No
+placeholder controls the bone IDs, burial XP, bonemeal IDs, or Ectofuntus
+multiplier.
 
 ## Open Frost dragon identity mapping
 
@@ -140,24 +169,31 @@ This slice excludes four nearby cases.
 
 ## Reachability result
 
-The branch base at `1cf43931` had this result:
+The original branch record below was produced by the superseded permissive
+instrument and must not be used as a current baseline:
 
 ```text
 1556 actions; 2573 reachable items; 102 orphan inputs; 101 blocked actions
 ```
 
-The implemented worktree has this result:
+Re-measurement on corrected main commit `225c9c67`, with
+`tools/audit_item_reachability.py` SHA-256
+`aaaf67ff50ef582a992c5755a0504c412710e3f699655c48d09360f0a6db5351`, gives:
 
 ```text
-1559 actions; 2590 reachable items; 86 orphan inputs; 85 blocked actions
+main:        1568 actions; 2248 reachable items; 100 orphan inputs; 103 blocked actions; 1099 seed items
+integration: 1571 actions; 2266 reachable items;  84 orphan inputs;  87 blocked actions; 1104 seed items
 ```
 
-The slice adds three actions and seventeen reachable items.
-It removes sixteen orphan inputs and unblocks sixteen actions.
+The corrected result is therefore plus three actions, plus eighteen reachable
+items, minus sixteen orphan inputs, minus sixteen blocked actions, and plus five
+seed items. The eighteen newly reachable items are the eight selected bones,
+their eight matching bonemeal items, `Ogre coffin key`, and `Steel spear (kp)`.
 
-All eight selected bones have routes.
-All eight matching bonemeal items have routes.
-None of these sixteen items is in `orphan_inputs`.
+The access-gate fix does not change those aggregate figures: Zogre and
+Shaikahan drops are still legitimate combat seed routes once Zogre Flesh Eaters
+has started and Tai Bwo Wannai Trio is complete, while Jogre remains an ordinary
+ungated Karamja route.
 
 The audit exits with status `1` while unrelated blocked actions remain.
 This command contract does not invalidate the reported figures.

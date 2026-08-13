@@ -11,11 +11,12 @@ tests and later completion-audit tooling.
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,7 +43,15 @@ def _names(value: Any) -> set[str]:
 
 
 def _outputs(spec: Mapping[str, Any]) -> set[str]:
-    outputs = _names(spec.get("outputs")) | _names(spec.get("byproducts"))
+    outputs = (
+        _names(spec.get("outputs"))
+        | {
+            str(row.get("item"))
+            for row in spec.get("secondary_outputs", ()) or ()
+            if isinstance(row, Mapping) and row.get("item")
+        }
+        | _names(spec.get("byproducts"))
+    )
     outputs |= _names(spec.get("output_item")) | _names(spec.get("alternate_output_item"))
     outputs |= _names(spec.get("byproduct_item"))
     for fish in spec.get("fish", ()) or ():
@@ -124,6 +133,493 @@ def _close_actions(
     return reachable, route, unresolved
 
 
+def _item_counts(value: Any) -> dict[str, int]:
+    if isinstance(value, Mapping):
+        return {
+            str(name): max(1, int(amount or 1))
+            for name, amount in value.items()
+            if isinstance(name, str) and name
+        }
+    counts: dict[str, int] = {}
+    if not isinstance(value, (tuple, list, set)):
+        return counts
+    for row in value:
+        if isinstance(row, Mapping):
+            name = row.get("item") or row.get("item_name") or row.get("display_name")
+            amount = row.get("quantity", row.get("amount", 1))
+        elif isinstance(row, (tuple, list)) and row and isinstance(row[0], str):
+            name = row[0]
+            amount = row[1] if len(row) > 1 else 1
+        else:
+            continue
+        if isinstance(name, str) and name:
+            counts[name] = max(counts.get(name, 0), max(1, int(amount or 1)))
+    return counts
+
+
+def _item_option_groups(value: Any) -> tuple[dict[str, int], ...]:
+    if isinstance(value, Mapping):
+        return (_item_counts(value),) if value else ()
+    if not isinstance(value, (tuple, list, set)):
+        return ()
+    rows = tuple(value)
+    if rows and all(isinstance(row, Mapping) for row in rows):
+        options = {
+            name: amount
+            for row in rows
+            for name, amount in _item_counts(row).items()
+        }
+        return (options,) if options else ()
+    return tuple(options for row in rows if (options := _item_counts(row)))
+
+
+def _quantity_available(
+    item_name: str,
+    amount: int,
+    available_counts: Mapping[str, int],
+    repeatable_items: set[str],
+) -> bool:
+    return item_name in repeatable_items or available_counts.get(item_name, 0) >= amount
+
+
+def _tool_reachable(
+    tool_name: str,
+    amount: int,
+    available_counts: Mapping[str, int],
+    repeatable_items: set[str],
+) -> bool:
+    if _quantity_available(tool_name, amount, available_counts, repeatable_items):
+        return True
+    lowered = tool_name.lower()
+    if lowered == "pickaxe":
+        return any(
+            item.lower().endswith("pickaxe")
+            and _quantity_available(item, amount, available_counts, repeatable_items)
+            for item in available_counts
+        )
+    if lowered in {"hatchet", "axe"}:
+        return any(
+            (item.lower().endswith("hatchet") or item.lower().endswith(" axe"))
+            and _quantity_available(item, amount, available_counts, repeatable_items)
+            for item in available_counts
+        )
+    return False
+
+
+def _stage_satisfiability(
+    stage: Mapping[str, Any],
+    available_counts: Mapping[str, int],
+    repeatable_items: set[str],
+    emitted_actions: set[str],
+    available_routes: set[str],
+    combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool],
+) -> dict[str, Any]:
+    required_items = _item_counts(stage.get("required_inventory"))
+    for item_name, amount in _item_counts(stage.get("consumed_inventory")).items():
+        required_items[item_name] = max(required_items.get(item_name, 0), amount)
+    required_tools = _item_counts(stage.get("required_tools"))
+    required_actions = _names(stage.get("required_actions"))
+    required_routes = _names(stage.get("required_routes"))
+    required_option_groups = _item_option_groups(stage.get("required_inventory_options"))
+    consumed_option_groups = _item_option_groups(stage.get("consumed_inventory_options"))
+    blocked_encounters = []
+    for encounter in stage.get("combat_encounters", ()) or ():
+        if isinstance(encounter, Mapping) and not combat_encounter_satisfiable(encounter):
+            blocked_encounters.append(str(encounter.get("encounter_id", "unknown")))
+    missing_options = [
+        options
+        for options, tool_semantics in (
+            *((options, True) for options in required_option_groups),
+            *((options, False) for options in consumed_option_groups),
+        )
+        if not any(
+            _tool_reachable(item_name, amount, available_counts, repeatable_items)
+            if tool_semantics
+            else _quantity_available(item_name, amount, available_counts, repeatable_items)
+            for item_name, amount in options.items()
+        )
+    ]
+    return {
+        "missing_required_items": {
+            item_name: amount
+            for item_name, amount in required_items.items()
+            if not _quantity_available(item_name, amount, available_counts, repeatable_items)
+        },
+        "missing_required_tools": {
+            tool_name: amount
+            for tool_name, amount in required_tools.items()
+            if not _tool_reachable(tool_name, amount, available_counts, repeatable_items)
+        },
+        "missing_required_actions": required_actions - emitted_actions,
+        "missing_required_routes": required_routes - available_routes,
+        "missing_item_alternatives": missing_options,
+        "blocked_combat_encounters": blocked_encounters,
+    }
+
+
+def _blocked_diagnostic_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
+    return (
+        row["quest_id"],
+        row["stage"],
+        row["variant"],
+        tuple(row["products"]),
+        tuple(row["blocked_combat_encounters"]),
+        tuple(row["missing_required_actions"]),
+        tuple(row["missing_required_routes"]),
+        tuple(row["missing_required_items"]),
+        tuple(row["missing_required_tools"]),
+        tuple(tuple(group) for group in row["missing_item_alternatives"]),
+    )
+
+
+def _quest_stage_sources(
+    quest_data: Mapping[str, Mapping[str, Any]],
+    registered_items: set[str],
+    *,
+    reachable_items: set[str] | None = None,
+    repeatable_items: set[str] | None = None,
+    finite_item_counts: Mapping[str, int] | None = None,
+    selected_variants: Mapping[str, str] | None = None,
+    eligible_quests: set[str] | None = None,
+    combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool] | None = None,
+) -> tuple[dict[str, set[str]], list[dict[str, Any]], set[str]]:
+    sources: dict[str, set[str]] = defaultdict(set)
+    blocked: list[dict[str, Any]] = []
+    blocked_keys: set[tuple[Any, ...]] = set()
+    action_completable: set[str] = set()
+    reachable_items = set(reachable_items or ())
+    repeatable_items = set(repeatable_items or ())
+    finite_item_counts = dict(finite_item_counts or {})
+    selected_variants = dict(selected_variants or {})
+    available_base_counts = {
+        item: max(1, finite_item_counts.get(item, 1))
+        for item in reachable_items
+    }
+    combat_encounter_satisfiable = combat_encounter_satisfiable or (lambda _encounter: True)
+    for quest_id, quest in quest_data.items():
+        indexed_rows = [
+            (index, row)
+            for index, row in enumerate(quest.get("stage_requirements", ()) or ())
+            if isinstance(row, Mapping)
+        ]
+        shared_rows = [(index, row) for index, row in indexed_rows if not row.get("variant")]
+        rows_by_variant: dict[str, list[tuple[int, Mapping[str, Any]]]] = defaultdict(list)
+        for index, row in indexed_rows:
+            variant = str(row.get("variant", "") or "")
+            if variant:
+                rows_by_variant[variant].append((index, row))
+        branches = sorted(rows_by_variant) if rows_by_variant else [""]
+        if quest_id in selected_variants:
+            branches = [selected_variants[quest_id]]
+        choice_stages_by_route = {
+            route: int(choice.get("stage", 0) or 0)
+            for choice in quest.get("choices", ()) or ()
+            if isinstance(choice, Mapping)
+            for option in choice.get("options", ()) or ()
+            if isinstance(option, Mapping)
+            for route in _names(option.get("route_id"))
+        }
+        branch_rows_by_variant = {
+            variant: sorted(
+                shared_rows + rows_by_variant.get(variant, []),
+                key=lambda indexed: (
+                    int(indexed[1].get("stage", 0))
+                    if str(indexed[1].get("stage", 0)).isdigit()
+                    else 0,
+                    indexed[0],
+                ),
+            )
+            for variant in branches
+        }
+        branch_routes = {
+            variant: {
+                route
+                for _index, row in rows_by_variant.get(variant, [])
+                for route in _names(row.get("required_routes"))
+                if route in choice_stages_by_route
+            }
+            for variant in branches
+        }
+        quest_completable = False
+        first_blocked_without_products: dict[str, Any] | None = None
+        branch_source_sets: list[dict[str, set[str]]] = []
+        completed_branch_source_sets: list[dict[str, set[str]]] = []
+        for variant in branches:
+            branch_rows = branch_rows_by_variant[variant]
+            available_counts = dict(available_base_counts)
+            for item_name, amount in _item_counts(quest.get("start_inventory")).items():
+                available_counts[item_name] = available_counts.get(item_name, 0) + amount
+            emitted_actions: set[str] = set()
+            available_routes: set[str] = set()
+            selected_routes = branch_routes[variant]
+            branch_sources: dict[str, set[str]] = defaultdict(set)
+            branch_blocked = False
+            stage_ids = list(dict.fromkeys(row.get("stage", "unknown") for _index, row in branch_rows))
+            for stage_id in stage_ids:
+                numeric_stage = int(stage_id) if str(stage_id).isdigit() else 0
+                available_routes.update(
+                    route
+                    for route in selected_routes
+                    if choice_stages_by_route[route] == numeric_stage
+                )
+                stage_rows = [row for _index, row in branch_rows if row.get("stage", "unknown") == stage_id]
+                gates = [
+                    _stage_satisfiability(
+                        stage,
+                        available_counts,
+                        repeatable_items,
+                        emitted_actions,
+                        available_routes,
+                        combat_encounter_satisfiable,
+                    )
+                    for stage in stage_rows
+                ]
+                stage_blocked = any(any(gate.values()) for gate in gates)
+                products_all = set().union(*(_names(stage.get("produced_inventory")) for stage in stage_rows))
+                products = products_all & registered_items
+                combat_products_all: dict[str, set[str]] = {}
+                for stage in stage_rows:
+                    for encounter in stage.get("combat_encounters", ()) or ():
+                        if not isinstance(encounter, Mapping):
+                            continue
+                        encounter_id = str(encounter.get("encounter_id", "unknown"))
+                        combat_products_all[encounter_id] = _names(encounter.get("guaranteed_drops"))
+                combat_products = {
+                    encounter_id: items & registered_items
+                    for encounter_id, items in combat_products_all.items()
+                    if items & registered_items
+                }
+                if stage_blocked:
+                    blocked_encounters = {
+                        encounter_id
+                        for gate in gates
+                        for encounter_id in gate["blocked_combat_encounters"]
+                    }
+                    diagnostic_variant = variant if any(stage.get("variant") for stage in stage_rows) else ""
+                    diagnostic = {
+                        "quest_id": quest_id,
+                        "quest": str(quest.get("display_name", quest_id)),
+                        "stage": stage_id,
+                        "variant": diagnostic_variant,
+                        "products": sorted(products),
+                        "combat_products": {
+                            encounter_id: sorted(items)
+                            for encounter_id, items in sorted(combat_products.items())
+                        },
+                        "blocked_combat_products": {
+                            encounter_id: sorted(combat_products.get(encounter_id, ()))
+                            for encounter_id in sorted(blocked_encounters)
+                            if combat_products.get(encounter_id)
+                        },
+                        "required_actions": sorted(
+                            set().union(*(_names(stage.get("required_actions")) for stage in stage_rows))
+                        ),
+                        "missing_required_actions": sorted(
+                            set().union(*(gate["missing_required_actions"] for gate in gates))
+                        ),
+                        "missing_required_routes": sorted(
+                            set().union(*(gate["missing_required_routes"] for gate in gates))
+                        ),
+                        "missing_required_items": sorted(
+                            set().union(*(gate["missing_required_items"] for gate in gates))
+                        ),
+                        "missing_required_tools": sorted(
+                            set().union(*(gate["missing_required_tools"] for gate in gates))
+                        ),
+                        "missing_item_alternatives": [
+                            sorted(group)
+                            for gate in gates
+                            for group in gate["missing_item_alternatives"]
+                        ],
+                        "blocked_combat_encounters": sorted(blocked_encounters),
+                    }
+                    diagnostic_key = _blocked_diagnostic_key(diagnostic)
+                    if (products or combat_products) and diagnostic_key not in blocked_keys:
+                        blocked.append(diagnostic)
+                        blocked_keys.add(diagnostic_key)
+                    elif first_blocked_without_products is None:
+                        first_blocked_without_products = diagnostic
+                    branch_blocked = True
+                    break
+                if eligible_quests is None or quest_id in eligible_quests:
+                    for item in products:
+                        branch_sources[item].add(f"quest-stage:{quest_id}:{stage_id}")
+                    for encounter_id, items in combat_products.items():
+                        for item in items:
+                            branch_sources[item].add(f"quest-combat:{quest_id}:{encounter_id}")
+                for stage in stage_rows:
+                    for item_name, amount in _item_counts(stage.get("consumed_inventory")).items():
+                        if item_name not in repeatable_items:
+                            available_counts[item_name] = max(0, available_counts.get(item_name, 0) - amount)
+                    for options in _item_option_groups(stage.get("consumed_inventory_options")):
+                        for item_name, amount in options.items():
+                            if _quantity_available(item_name, amount, available_counts, repeatable_items):
+                                if item_name not in repeatable_items:
+                                    available_counts[item_name] = max(0, available_counts.get(item_name, 0) - amount)
+                                break
+                    for item_name, amount in _item_counts(stage.get("produced_inventory")).items():
+                        available_counts[item_name] = available_counts.get(item_name, 0) + amount
+                    emitted_actions.update(_names(stage.get("auto_actions")))
+                for items in combat_products_all.values():
+                    for item_name in items:
+                        available_counts[item_name] = available_counts.get(item_name, 0) + 1
+            if not branch_blocked:
+                quest_completable = True
+                completed_branch_source_sets.append(branch_sources)
+            branch_source_sets.append(branch_sources)
+        if quest_completable:
+            action_completable.add(quest_id)
+        source_sets = completed_branch_source_sets or branch_source_sets
+        common_items = set.intersection(*(set(branch_sources) for branch_sources in source_sets))
+        for item in common_items:
+            for branch_sources in source_sets:
+                sources[item].update(branch_sources[item])
+        if (
+            not quest_completable
+            and not any(row["quest_id"] == quest_id for row in blocked)
+            and first_blocked_without_products
+        ):
+            blocked.append(first_blocked_without_products)
+    return sources, blocked, action_completable
+
+
+def _close_quest_reachability(
+    actions: Iterable[Mapping[str, Any]],
+    seed_sources: dict[str, set[str]],
+    seed_item_counts: dict[str, int],
+    repeatable_seed_items: set[str],
+    quest_data: Mapping[str, Mapping[str, Any]],
+    registered_items: set[str],
+    combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool],
+) -> tuple[list[dict[str, Any]], set[str], set[str]]:
+    variant_ids = {
+        quest_id: tuple(sorted({
+            str(row.get("variant") or "")
+            for row in quest.get("stage_requirements", ()) or ()
+            if isinstance(row, Mapping) and row.get("variant")
+        }))
+        for quest_id, quest in quest_data.items()
+    }
+    branch_quests = tuple(quest_id for quest_id, variants in variant_ids.items() if variants)
+    scenario_results = []
+    for selected in itertools.product(*(variant_ids[quest_id] for quest_id in branch_quests)):
+        selected_variants = dict(zip(branch_quests, selected))
+        scenario_sources = {item: set(sources) for item, sources in seed_sources.items()}
+        previous_state: tuple[frozenset[str], frozenset[str], frozenset[str]] | None = None
+        blocked: list[dict[str, Any]] = []
+        completable: set[str] = set()
+        startable: set[str] = set()
+        while True:
+            reachable_items, route, _unresolved = _close_actions(actions, scenario_sources)
+            repeatable_items = repeatable_seed_items | {
+                item_name
+                for item_name, source in route.items()
+                if not source.startswith(("quest:", "quest-start:", "quest-stage:", "quest-combat:"))
+            }
+            _, blocked, stage_completable = _quest_stage_sources(
+                quest_data,
+                registered_items,
+                reachable_items=reachable_items,
+                repeatable_items=repeatable_items,
+                finite_item_counts=seed_item_counts,
+                selected_variants=selected_variants,
+                eligible_quests=set(),
+                combat_encounter_satisfiable=combat_encounter_satisfiable,
+            )
+            completable, startable = _quest_completion_sets(quest_data, stage_completable)
+            quest_stage_sources, _, _ = _quest_stage_sources(
+                quest_data,
+                registered_items,
+                reachable_items=reachable_items,
+                repeatable_items=repeatable_items,
+                finite_item_counts=seed_item_counts,
+                selected_variants=selected_variants,
+                eligible_quests=startable,
+                combat_encounter_satisfiable=combat_encounter_satisfiable,
+            )
+            for quest_id in completable:
+                quest = quest_data[quest_id]
+                for item in _names(quest.get("rewards")) & registered_items:
+                    scenario_sources.setdefault(item, set()).add(f"quest:{quest_id}")
+            for quest_id in startable:
+                quest = quest_data[quest_id]
+                for item in _names(quest.get("start_inventory")) & registered_items:
+                    scenario_sources.setdefault(item, set()).add(f"quest-start:{quest_id}")
+            for item, sources in quest_stage_sources.items():
+                scenario_sources.setdefault(item, set()).update(sources)
+            state = (
+                frozenset(scenario_sources),
+                frozenset(completable),
+                frozenset(startable),
+            )
+            if state == previous_state:
+                scenario_results.append((scenario_sources, blocked, completable, startable))
+                break
+            previous_state = state
+
+    common_items = set.intersection(*(set(sources) for sources, _blocked, _complete, _startable in scenario_results))
+    for item in common_items:
+        seed_sources.setdefault(item, set()).update(
+            source
+            for sources, _blocked, _complete, _startable in scenario_results
+            for source in sources[item]
+        )
+    completable = set.intersection(*(set(complete) for _sources, _blocked, complete, _startable in scenario_results))
+    startable = set.intersection(*(set(startable) for _sources, _blocked, _complete, startable in scenario_results))
+    blocked_by_key = {}
+    for _sources, rows, _complete, _startable in scenario_results:
+        for row in rows:
+            key = _blocked_diagnostic_key(row)
+            blocked_by_key.setdefault(key, row)
+    blocked = sorted(
+        blocked_by_key.values(),
+        key=lambda row: (row["quest_id"], int(row["stage"]) if str(row["stage"]).isdigit() else 0, row["variant"]),
+    )
+    return blocked, completable, startable
+
+
+def _required_quest_ids(quest: Mapping[str, Any]) -> set[str]:
+    return {
+        str(row.get("quest_id", ""))
+        for row in quest.get("required_quests", ()) or ()
+        if isinstance(row, Mapping)
+    }
+
+
+def _quest_completion_sets(
+    quest_data: Mapping[str, Mapping[str, Any]],
+    action_completable: set[str],
+) -> tuple[set[str], set[str]]:
+    completed: set[str] = set()
+    changed = True
+    while changed:
+        changed = False
+        quest_points = sum(
+            int(quest_data[quest_id].get("point_reward", 0) or 0)
+            for quest_id in completed
+        )
+        for quest_id in action_completable - completed:
+            quest = quest_data[quest_id]
+            if (
+                _required_quest_ids(quest) <= completed
+                and int(quest.get("required_quest_points", 0) or 0) <= quest_points
+            ):
+                completed.add(quest_id)
+                changed = True
+
+    quest_points = sum(
+        int(quest_data[quest_id].get("point_reward", 0) or 0)
+        for quest_id in completed
+    )
+    startable = {
+        quest_id
+        for quest_id, quest in quest_data.items()
+        if _required_quest_ids(quest) <= completed
+        and int(quest.get("required_quest_points", 0) or 0) <= quest_points
+    }
+    return completed, startable
+
+
 def _rank_root_orphans(
     root_orphans: Iterable[str],
     actions: Iterable[Mapping[str, Any]],
@@ -166,12 +662,38 @@ def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import pyramid_plunder_data
     from ankiscape.data import shooting_star_data
     from ankiscape.data import shop_data
+    from ankiscape.data.impling_jar_data import IMPLING_JAR_DATA
     from ankiscape.logic import shop_logic
     from ankiscape.data import sorceress_garden_data
     from ankiscape.data import thieving_data
     from ankiscape.data import woodcutting_data
+    from ankiscape.logic_pure.logic_pure import (
+        player_combat_level_pure,
+        quest_combat_encounter_has_stats_pure,
+    )
 
     registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
+    maximum_combat_level = player_combat_level_pure(
+        {
+            "attack_level": 99,
+            "defense_level": 99,
+            "strength_level": 99,
+            "constitution_level": 99,
+            "prayer_level": 99,
+            "ranged_level": 99,
+            "magic_level": 99,
+            "summoning_level": 99,
+        }
+    )
+
+    def quest_combat_source_satisfiable(encounter: Mapping[str, Any]) -> bool:
+        configs = encounter.get("npc_configs", {}) or {}
+        minimum_combat = int(configs.get("minimum_player_combat", encounter.get("level", 0)) or 0)
+        # Model the runtime with battle support enabled and a normal maxed player.
+        return (
+            quest_combat_encounter_has_stats_pure(encounter)
+            and minimum_combat <= maximum_combat_level
+        )
 
     action_tables = {
         "Mining": constants.ORE_DATA,
@@ -458,6 +980,20 @@ def build_reachability_report() -> dict[str, Any]:
         consumers[item_name].add(key)
         producers[content_item].add(key)
 
+    for item_name, rewards in IMPLING_JAR_DATA.items():
+        outputs = {
+            reward.item
+            for reward in rewards
+            if reward.item and int(reward.weight) > 0
+        }
+        if not outputs:
+            continue
+        key = f"Item action:loot:{item_name}"
+        actions.append({"id": key, "required": {item_name}, "alternatives": (), "outputs": outputs})
+        consumers[item_name].add(key)
+        for output in outputs:
+            producers[output].add(key)
+
     bob = shop_data.SHOP_SERVICES.get("bob_barter_decant_four", {})
     if bob.get("visibility") == "visible" and bob.get("action_type") == "decant_potions_to_dose":
         for base in shop_logic.DECANTABLE_FOUR_DOSE_POTION_BASES:
@@ -597,37 +1133,6 @@ def build_reachability_report() -> dict[str, Any]:
             consumers[reload_item].add(key)
             producers[full_item].add(key)
 
-    seed_sources: dict[str, set[str]] = defaultdict(set)
-    for shop_id, shop in shop_data.SHOP_DATA.items():
-        if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):
-            continue
-        for row in shop.get("stock", ()) or ():
-            if row.get("disposition") == "live" and int(row.get("default_quantity", 0) or 0) > 0:
-                name = row.get("item_name")
-                if isinstance(name, str) and name:
-                    seed_sources[name].add(f"shop:{shop_id}")
-
-    for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
-        for item in _drop_names(enemy.get("drops", {})):
-            seed_sources[item].add(f"combat:{enemy_id}")
-
-    for row in constants.BIRD_NEST_DROP_TABLE:
-        for item in _names(row.get("item")):
-            seed_sources[item].add("woodcutting:bird_nest_roll")
-
-    for quest_id, quest in constants.QUEST_DATA.items():
-        for item in _names(quest.get("rewards")) & registered_items:
-            seed_sources[item].add(f"quest:{quest_id}")
-        for item in _names(quest.get("start_inventory")) & registered_items:
-            seed_sources[item].add(f"quest-start:{quest_id}")
-        for stage in quest.get("stage_requirements", ()) or ():
-            if not isinstance(stage, Mapping):
-                continue
-            for item in _names(stage.get("produced_inventory")) & registered_items:
-                seed_sources[item].add(
-                    f"quest-stage:{quest_id}:{stage.get('stage', 'unknown')}"
-                )
-
     for table in woodcutting_data.BIRD_NEST_OPEN_TABLES:
         table_spec = vars(table)
         input_item = table_spec["input_item"]
@@ -642,6 +1147,43 @@ def build_reachability_report() -> dict[str, Any]:
         consumers[input_item].add(key)
         for item in outputs:
             producers[item].add(key)
+
+    seed_sources: dict[str, set[str]] = defaultdict(set)
+    seed_item_counts: dict[str, int] = defaultdict(int)
+    repeatable_seed_items: set[str] = set()
+    for shop_id, shop in shop_data.SHOP_DATA.items():
+        if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):
+            continue
+        for row in shop.get("stock", ()) or ():
+            if row.get("disposition") == "live" and int(row.get("default_quantity", 0) or 0) > 0:
+                name = row.get("item_name")
+                if isinstance(name, str) and name:
+                    seed_sources[name].add(f"shop:{shop_id}")
+                    seed_item_counts[name] += int(row.get("default_quantity", 0) or 0)
+                    if int(row.get("restock_amount", 0) or 0) > 0:
+                        repeatable_seed_items.add(name)
+
+    for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
+        for item in _drop_names(enemy.get("drops", {})):
+            seed_sources[item].add(f"combat:{enemy_id}")
+            repeatable_seed_items.add(item)
+
+    for row in constants.BIRD_NEST_DROP_TABLE:
+        for item in _names(row.get("item")):
+            seed_sources[item].add("woodcutting:bird_nest_roll")
+            repeatable_seed_items.add(item)
+
+    blocked_quest_stage_products, completable_quests, startable_quests = (
+        _close_quest_reachability(
+            actions,
+            seed_sources,
+            seed_item_counts,
+            repeatable_seed_items,
+            constants.QUEST_DATA,
+            registered_items,
+            quest_combat_source_satisfiable,
+        )
+    )
 
     reachable, route, unresolved = _close_actions(actions, seed_sources)
 
@@ -689,6 +1231,7 @@ def build_reachability_report() -> dict[str, Any]:
             for item in orphan_inputs
         ],
         "root_orphan_leverage": root_orphan_leverage,
+        "blocked_quest_stage_products": blocked_quest_stage_products,
         "unresolved_actions": sorted(unresolved_actions, key=lambda row: row["id"]),
         "routes": {item: route[item] for item in sorted(route)},
     }

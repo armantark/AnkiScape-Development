@@ -764,12 +764,16 @@
 - Rev 742 interface 1343 is the Daily Challenges panel. Its decoded labels and
   hooks reveal no static reward amount; the two reward item definitions prove
   only the lamp and bag identities and actions.
-- The interface search no longer dies on the first legacy IF1 archive. It
-  reports all fifteen unsupported rev-742 interface IDs on standard error and
-  continues searching the decoded remainder, making negative evidence honest.
+- Later byte-level verification found that the fifteen skipped rev-742 archives
+  begin with `0x03`; the first-byte gate's `if1` exception label was a false
+  format classification. The checked-in reader still skips them, so continuing
+  after the warnings does not make the negative search complete.
+- A one-off reflective experiment bypassed the guard, decoded all 1,376 affected
+  components, and found none related to Daily Challenges interface 1343.
 - Result: `daily_challenges.reward_xp` remains registered at 100 XP per required
-  level. A period server payout routine or independently stated amount is still
-  required to replace it. No gameplay value changed.
+  level because the relevant structs and decoded interface 1343 contain no
+  amount. A period server payout routine or independently stated amount is still
+  required. No gameplay value changed.
 - Verification: 51 focused Daily Challenges, real-cache reader, and placeholder
   tests pass. Full discovery passes 3,802 tests in both lanes, with 460 expected
   plain skips and 3 Qt skips. Documentation, test-quality, diff, and worktree
