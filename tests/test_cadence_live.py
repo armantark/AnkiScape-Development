@@ -49,7 +49,7 @@ from ankiscape.runtime.runtime_actions import (
     run_answer_with_carried_overlay,
 )
 from ankiscape.logic.summoning_logic import advance_summoning_world_tick_pure
-from ankiscape.core.storage_pure import default_player_data
+from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
 from tests.test_combat_logic import _player
 from tests.test_runtime_actions import _context
 
@@ -268,6 +268,36 @@ class TestCadenceLiveCoverage(unittest.TestCase):
                     (3, 4),
                 )
                 self.assertIn("8 game ticks", declaration.source_row)
+
+    def test_loaded_credit_clamps_to_the_profile_residual_boundary(self):
+        for saved_credit in (10_000, 9):
+            with self.subTest(saved_credit=saved_credit):
+                player = migrate_loaded_data(
+                    {
+                        "inventory": {},
+                        "cadence_profiles": {
+                            "woodcutting:maple": {
+                                "credit": saved_credit,
+                                "opening_ready": True,
+                                "assigned_reviews": 0,
+                                "opportunities_emitted": 0,
+                                "cadence_version": 1,
+                            }
+                        },
+                    },
+                    ORE_DATA,
+                )
+
+                _route, emitted = advance_live_cadence_route_pure(
+                    player, "woodcutting", "maple"
+                )
+
+                self.assertTrue(emitted)
+                state = player["cadence_profiles"]["woodcutting:maple"]
+                self.assertEqual(state["credit"], 9)
+                self.assertFalse(state["opening_ready"])
+                self.assertEqual(state["assigned_reviews"], 1)
+                self.assertEqual(state["opportunities_emitted"], 1)
 
     def test_waits_advance_only_live_residual_and_wait_telemetry(self):
         data = {"cadence_profiles": {}}

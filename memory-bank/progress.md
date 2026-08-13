@@ -1,5 +1,9 @@
 # Progress
 
+## Oversized cadence credit recovery — 2026-08-13
+
+Cadence `credit` is the deterministic fractional-admission residual accumulated toward a profile's denominator, so its valid range is `0` through `threshold_denominator - 1`. Immediately after the existing profile-state sanitization, the advance path clamps an oversized persisted integer to that profile-derived upper boundary. This keeps load recoverable while preserving as much earned progress as a valid state can represent; malformed types and negative values retain their existing reset-to-zero behavior. A real migration-plus-live-route regression covers Maple's denominator-10 profile with both credit `10_000` and the valid boundary `9`, proving the saved session advances successfully and retains credit `9` while consuming its opening opportunity.
+
 ## Polar kebbit quota-ticket target — 2026-08-12
 
 Big Chinchompa's Polar kebbit quota ticket now resolves to the live
