@@ -114,3 +114,28 @@ work from them:
   the open work is the 30-handler migration (row 3 above).
 - The GPT-queue art row — half stale. Wicked hood already has period art;
   only Evil Tree kindling remains (row 8 above).
+
+## 9. Rulings made directly by the owner
+
+These were given by the owner in conversation with the orchestration seat, not
+relayed through the design thread. They carry full authority and outrank the
+sections above where they conflict.
+
+**O1 — Fable is out of the loop entirely.** Ruled 2026-08-13 13:49 PDT: "Fable
+is critical on quota, so I need to start interfacing with you now. Do not talk
+to or use Fable anymore." No dispatch to Fable, no consultation, no routing of
+writing or design work to it, until the owner lifts this.
+
+Consequences the next seat must plan around. Fable held product owner,
+architect, and co-lead designer, and authored the ledger this file belongs to.
+Sections 1 through 8 remain in force as written; they are a settled record, not
+a live thread. Open design questions now go to the owner directly, as options
+with a stated lean, at most one per report. Kimi K3 remains the other design
+co-lead and the standing independent reviewer, but was itself over quota when
+this was ruled.
+
+**O2 — the goal is paused.** Ruled 2026-08-13 13:50 PDT, on the grounds that
+the main quota is also over. Recorded through the goal's own pause mechanism in
+`memory-bank/GOAL-BLOCKED.md`, which the goal text accepts as satisfying it.
+That file names the blocker, what was tried, and the single unblocking
+condition, and must be deleted before work resumes.
