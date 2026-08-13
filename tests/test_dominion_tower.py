@@ -1563,6 +1563,7 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
 
     def test_the_ghost_rises_when_the_mutant_falls_and_ends_the_match_alone(self):
         data, rng = self._freestyle_tarn()
+        fought_ids = set()
         seen_ghost = False
         for _ in range(600):
             data["combat_lifepoints"] = 990
@@ -1570,8 +1571,8 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
                 data, rng, equipment_data=EQUIPMENT_DATA
             )
             self.assertTrue(ok, result)
-        fought_ids = set()
             self.assertFalse(result.get("player_died"), result)
+            fought_ids.add(result["npc_id"])
             if result.get("won"):
                 break
             keys = [member["npc_key"] for member in data["dominion_tower"]["roster"]]
@@ -1579,7 +1580,6 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
                 # The mutant left one form behind, not an empty slot, and the
                 # dogs the player never touched are all still in the arena.
                 self.assertEqual(keys, ["tarn_ghost", *["terror_dog_110"] * 4])
-            fought_ids.add(result["npc_id"])
                 self.assertEqual(
                     dominion_tower_view_pure(data)["engaged_name"], "Tarn"
                 )
@@ -1587,6 +1587,7 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
         else:
             self.fail("the match never resolved")
 
+        self.assertEqual(fought_ids, {14429, 14430})
         self.assertTrue(seen_ghost, "the ghost form never appeared")
         # Won with every dog alive: the ghost's death is the whole victory
         # condition, so the arena must not wait on the minions.
@@ -1594,5 +1595,4 @@ class DominionTowerTarnPhaseTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-        self.assertEqual(fought_ids, {14429, 14430})
     unittest.main()

@@ -40,12 +40,9 @@ GOBLIN_RAIDS_SOURCE = (
 # timer.
 GOBLIN_RAIDS_SPAWN_REVIEWS = 5
 
-# PLACEHOLDER(goblin_raids.raid_active_reviews): how long a raid stays up. The
-# announcement cadence is stated; the raid's own duration, its despawn timer and
-# what happens when nobody clears it are all unstated. The complete pre-cutoff
-# article/talk history, rev-741/742 client interfaces and current Darkan tree add
-# no server timer. Fifteen reviews is three announcement intervals, which is long
-# enough for the sourced raider-then-leader sequence to actually be completed.
+# The period gives no solo raid duration. AnkiScape translates the lifecycle to
+# fifteen reviews—the smallest window that fits the sourced ten-raider-then-
+# Hollowtoof sequence—because the review loop has no wall-clock raid scheduler.
 GOBLIN_RAIDS_ACTIVE_REVIEWS = 15
 
 # Exact through independent period convergence. The official rule pays one
