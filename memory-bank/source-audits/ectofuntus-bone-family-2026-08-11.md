@@ -210,12 +210,19 @@ This command contract does not invalidate the reported figures.
 
 ## Verification
 
-The complete pre-gate-fix plain lane below is historical. A fresh full lane is
-required after the Ancient-bones restoration and current-main merge.
+The complete post-gate-fix plain lane passed after the Ancient-bones restoration
+and current-main merge.
 
 ```text
-Ran 4128 tests in 360.389s
+Ran 4131 tests in 316.588s
 OK (skipped=498)
+```
+
+The complete real offscreen Qt lane also passed:
+
+```text
+Ran 4131 tests in 789.273s
+OK (skipped=3)
 ```
 
 The runtime check confirmed all four combat targets.

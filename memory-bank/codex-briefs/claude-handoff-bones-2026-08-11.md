@@ -73,11 +73,12 @@ Keep the one-to-one mapping open until a period source settles it.
 
 ## Verification
 
-The pre-gate-fix full plain lane was:
+The post-gate-fix full lanes passed after restoring Ancient bones and merging
+current main:
 
 ```text
-Ran 4128 tests in 360.389s
-OK (skipped=498)
+plain: Ran 4131 tests in 316.588s; OK (skipped=498)
+Qt:    Ran 4131 tests in 789.273s; OK (skipped=3)
 ```
 
 The corrected audit instrument is byte-identical to main, with SHA-256:
