@@ -84,18 +84,20 @@ class GoblinRaidSite:
     display_name: str
     # Exact: farms give seeds, forests give logs, mines give ores.
     spoil_kind: str
-    # Materials Raiders hoard while stripping the site.
+    # Exact candidate set. The period guide does not state the per-shout selector.
     materials: tuple[str, ...]
-    # Exact potential Black Guard payout table from Tip.It's 2012-10-24 guide.
+    # Exact potential Black Guard payout set from Tip.It's 2012-10-24 guide.
     yodri_rewards: tuple[str, ...]
 
 
-# The three site kinds and their stolen materials come from Tip.It's dated
-# Goblin Raids guide, archived by Wayback at 20121228205432. The captured page's
-# SHA-256 is 93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2.
-# It also caps Commander Yodri's return at ten items. The article shows a potato
-# field in its own screenshot but never names a raid location, so the sites are
-# the kinds rather than invented place names.
+# Tip.It's dated Goblin Raids guide, archived by Wayback at 20121228205432,
+# supplies the three site kinds and each site's exact candidate item set. It does
+# not supply the Raider per-shout selector, quantities, or relative rates. The
+# captured page's SHA-256 is
+# 93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2. It also
+# caps Commander Yodri's return at ten items. The article shows a potato field in
+# its own screenshot but never names a raid location, so the sites are kinds
+# rather than invented place names.
 GOBLIN_RAID_SITES = (
     GoblinRaidSite(
         "farm",

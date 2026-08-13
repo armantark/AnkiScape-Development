@@ -996,10 +996,15 @@ skips.
 - Recovered the rev-741/742 Daily Challenge structs and rev-742 challenge
   interface. They settle client task metadata and presentation but contain no
   XP payout field.
-- Hardened interface search across later caches: unsupported legacy IF1
-  archives are listed and skipped instead of aborting the whole query.
-- Retained `daily_challenges.reward_xp` as a registered placeholder with the
-  exact negative-search scope and omissions. No gameplay value changed.
+- Later byte-level verification corrected the interface-search diagnosis: the
+  fifteen skipped rev-742 archives begin with `0x03`, so the first-byte gate's
+  `if1` label did not identify a legacy or unsupported format. The checked-in
+  reader still skips them.
+- A one-off reflective experiment bypassed the guard and decoded all 1,376
+  affected components into coherent interfaces; none related to interface 1343.
+  Reproducing that complete search still requires a guard fix or byte-level
+  parser. `daily_challenges.reward_xp` remains registered because the relevant
+  structs and decoded interface 1343 contain no amount. No gameplay value changed.
 - Full discovery passes 3,802 tests in both lanes, with 460 expected plain skips
   and 3 Qt skips.
 

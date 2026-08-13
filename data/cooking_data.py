@@ -202,8 +202,10 @@ _POISON_KARAMBWAN_SUCCESS = {"minimum": 0.5, "level_divisor": 20.0}
 # as the failed output until a period server table or measured sample replaces it.
 _KARAMBWANJI_SUCCESS = {"minimum": 0.5, "level_divisor": 28.0}
 # PLACEHOLDER(cooking.dwarven_stout_mature_chance): the exact pre-EOC hidden
-# maturity roll is not recoverable from period primary evidence. Darkan's
-# reconstruction supplies 10% naturally and 75% with The stuff until it is.
+# maturity roll is not recoverable from period primary evidence. Darkan commit
+# c6fbe036b1743f4dd6067ec178332c69c3708856 reconstructs `random(100) <= 10/75`;
+# its exclusive 0..99 draw makes those 11%/76%, so the live 10%/75% are rounded
+# stand-ins rather than exact translations of that routine.
 _DWARVEN_STOUT_MATURE_CHANCE = 0.10
 _DWARVEN_STOUT_STUFF_MATURE_CHANCE = 0.75
 

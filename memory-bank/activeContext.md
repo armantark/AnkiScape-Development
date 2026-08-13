@@ -774,10 +774,13 @@ Qt skips.
 source-blocked.** Rev 741 and 742 expose identical challenge structs with the
 real names, objectives, quantities, levels, coordinates, and item references,
 but no reward field. Rev 742 interface 1343 is the Daily Challenges panel and
-contains no static payout amount. The interface reader now reports and skips
-fifteen unsupported legacy IF1 archives during search instead of aborting, so
-the negative evidence carries its exact omissions. The registered 100-XP-per-
-level abstraction remains honest and unchanged. The next slice re-walks the
+contains no static payout amount. Later byte-level verification found that the fifteen archives skipped under an
+`if1` exception label begin with `0x03`; the label does not prove a legacy or
+unsupported format. The checked-in reader still skips them. A one-off reflective
+experiment bypassed the guard, decoded all 1,376 affected components, and found
+none related to interface 1343. The registered 100-XP-per-level abstraction
+remains source-blocked because the relevant sources carry no amount.
+The next slice re-walks the
 four Skeletal Horror phase-stat placeholders without deriving stats from combat
 level. Full discovery passes 3,802 tests in both lanes, with 460 expected plain
 skips and 3 Qt skips.

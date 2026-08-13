@@ -115,12 +115,16 @@ placeholder is unchanged.
   `Challenge XP Lamp` (`Rub`) and `Challenge Mystery Bag` (`Open`) identities.
   Rev 727 predates the 2012-09-19 Challenge System release and contains null
   rows at those IDs.
-- The interface reader cannot decode fifteen legacy IF1 archives in rev 742:
-  `548`, `628`, `629`, `633`, `634`, `635`, `691`, `976`, `1253`, `1311`,
-  `1316`, `1358`, `1360`, `1361`, and `1368`. Searches now disclose those
-  omissions rather than aborting. A reward amount in an unsupported archive or
-  server routine therefore remains possible, but no decoded client table
-  settles it.
+- The checked-in interface wrapper still skips fifteen rev-742 archives after
+  Darkan core labels their non-`0xFF` first byte `if1`: `548`, `628`, `629`,
+  `633`, `634`, `635`, `691`, `976`, `1253`, `1311`, `1316`, `1358`, `1360`,
+  `1361`, and `1368`. Their `0x03` version bytes do not identify a legacy or
+  unsupported format. A one-off reflective experiment bypassed the guard and
+  decoded all 1,376 affected components into coherent interfaces; none related
+  to Daily Challenges interface 1343. The repository reader cannot reproduce
+  that complete search without a guard fix or byte-level parser. The payout
+  remains source-blocked because the challenge structs, decoded panel 1343, and
+  period prose contain no amount—not because the skipped archives were ignored.
 
 These cache records prove client presentation and configuration only. They do
 not justify deriving a server payout from challenge level, quantity, or item
