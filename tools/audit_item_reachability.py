@@ -136,14 +136,20 @@ def _quest_stage_sources(
     quest_data: Mapping[str, Mapping[str, Any]],
     registered_items: set[str],
     *,
+    eligible_quests: set[str] | None = None,
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool] | None = None,
-) -> tuple[dict[str, set[str]], list[dict[str, Any]]]:
+) -> tuple[dict[str, set[str]], list[dict[str, Any]], set[str]]:
     sources: dict[str, set[str]] = defaultdict(set)
     blocked: list[dict[str, Any]] = []
+    action_completable: set[str] = set()
     combat_encounter_satisfiable = combat_encounter_satisfiable or (lambda _encounter: True)
     for quest_id, quest in quest_data.items():
         mandatory_actions: set[str] = set()
         variant_actions: dict[str, set[str]] = defaultdict(set)
+        quest_blocked = False
+        # Missing actions and registered unsatisfiable encounters hard-stop later
+        # sources; routes, inventory, tools, alternatives, and variants do not.
+        # See memory-bank/audits/acquisition-quest-emitter-blast-radius-2026-08-12.md.
         for stage in quest.get("stage_requirements", ()) or ():
             if not isinstance(stage, Mapping):
                 continue
@@ -188,21 +194,68 @@ def _quest_stage_sources(
                         "missing_required_actions": sorted(missing_actions),
                     }
                 )
-            if missing_actions:
+            if missing_actions or blocked_combat_products:
+                quest_blocked = True
+            if quest_blocked:
                 continue
-            for item in products:
-                sources[item].add(f"quest-stage:{quest_id}:{stage_id}")
-            for encounter_id, items in combat_products.items():
-                if encounter_id in blocked_combat_products:
-                    continue
-                for item in items:
-                    sources[item].add(f"quest-combat:{quest_id}:{encounter_id}")
+            if eligible_quests is None or quest_id in eligible_quests:
+                for item in products:
+                    sources[item].add(f"quest-stage:{quest_id}:{stage_id}")
+                for encounter_id, items in combat_products.items():
+                    if encounter_id in blocked_combat_products:
+                        continue
+                    for item in items:
+                        sources[item].add(f"quest-combat:{quest_id}:{encounter_id}")
             auto_actions = _names(stage.get("auto_actions"))
             if variant:
                 variant_actions[variant].update(auto_actions)
             else:
                 mandatory_actions.update(auto_actions)
-    return sources, blocked
+        if not quest_blocked:
+            action_completable.add(quest_id)
+    return sources, blocked, action_completable
+
+
+def _required_quest_ids(quest: Mapping[str, Any]) -> set[str]:
+    return {
+        str(row.get("quest_id", ""))
+        for row in quest.get("required_quests", ()) or ()
+        if isinstance(row, Mapping)
+    }
+
+
+def _quest_completion_sets(
+    quest_data: Mapping[str, Mapping[str, Any]],
+    action_completable: set[str],
+) -> tuple[set[str], set[str]]:
+    completed: set[str] = set()
+    changed = True
+    while changed:
+        changed = False
+        quest_points = sum(
+            int(quest_data[quest_id].get("point_reward", 0) or 0)
+            for quest_id in completed
+        )
+        for quest_id in action_completable - completed:
+            quest = quest_data[quest_id]
+            if (
+                _required_quest_ids(quest) <= completed
+                and int(quest.get("required_quest_points", 0) or 0) <= quest_points
+            ):
+                completed.add(quest_id)
+                changed = True
+
+    quest_points = sum(
+        int(quest_data[quest_id].get("point_reward", 0) or 0)
+        for quest_id in completed
+    )
+    startable = {
+        quest_id
+        for quest_id, quest in quest_data.items()
+        if _required_quest_ids(quest) <= completed
+        and int(quest.get("required_quest_points", 0) or 0) <= quest_points
+    }
+    return completed, startable
 
 
 def _rank_root_orphans(
@@ -736,14 +789,28 @@ def build_reachability_report() -> dict[str, Any]:
         for item in _names(row.get("item")):
             seed_sources[item].add("woodcutting:bird_nest_roll")
 
-    for quest_id, quest in constants.QUEST_DATA.items():
-        for item in _names(quest.get("rewards")) & registered_items:
-            seed_sources[item].add(f"quest:{quest_id}")
-        for item in _names(quest.get("start_inventory")) & registered_items:
-            seed_sources[item].add(f"quest-start:{quest_id}")
-    quest_stage_sources, blocked_quest_stage_products = _quest_stage_sources(
+    _, blocked_quest_stage_products, action_completable_quests = _quest_stage_sources(
         constants.QUEST_DATA,
         registered_items,
+        eligible_quests=set(),
+        combat_encounter_satisfiable=quest_combat_source_satisfiable,
+    )
+    completable_quests, startable_quests = _quest_completion_sets(
+        constants.QUEST_DATA,
+        action_completable_quests,
+    )
+    for quest_id in completable_quests:
+        quest = constants.QUEST_DATA[quest_id]
+        for item in _names(quest.get("rewards")) & registered_items:
+            seed_sources[item].add(f"quest:{quest_id}")
+    for quest_id in startable_quests:
+        quest = constants.QUEST_DATA[quest_id]
+        for item in _names(quest.get("start_inventory")) & registered_items:
+            seed_sources[item].add(f"quest-start:{quest_id}")
+    quest_stage_sources, _, _ = _quest_stage_sources(
+        constants.QUEST_DATA,
+        registered_items,
+        eligible_quests=startable_quests,
         combat_encounter_satisfiable=quest_combat_source_satisfiable,
     )
     for item, sources in quest_stage_sources.items():

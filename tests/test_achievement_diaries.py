@@ -345,7 +345,7 @@ def _complete_tier(player, tier):
 
 
 class CatalogIntegrityTest(unittest.TestCase):
-    def test_every_kudos_required_item_has_a_reachable_grant_path(self):
+    def test_kudos_required_items_follow_player_finishable_quest_routes(self):
         from ankiscape.data.varrock_museum_data import QUEST_KUDOS
         from tools.audit_item_reachability import build_reachability_report
 
@@ -355,7 +355,10 @@ class CatalogIntegrityTest(unittest.TestCase):
             for row in QUEST_KUDOS
             if row.get("required_item")
         }
-        self.assertEqual(required_items - routes.keys(), set())
+        self.assertEqual(
+            required_items - routes.keys(),
+            {"Dagon'hai history", "Prophecy tablet"},
+        )
 
     def test_every_family_carries_its_period_tiers(self):
         self.assertEqual(

@@ -4910,6 +4910,23 @@ flees silently when the player runs out of food.
 - Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
 - Results: <https://zvxa8ne0p5qz.postplan.dev>.
 
+## Quest reachability truth — 2026-08-13
+
+- Reachability figures are meaningful only with their tree named. `main` at
+  `1cf43931` reports 1,556 / 2,573 / 102 / 101 / 1,448; the acquire tip at
+  `2cfac317` reports 1,568 / 2,509 / 97 / 100 / 1,367; the improved audit on
+  top of that tip reports 1,568 / 2,248 / 100 / 103 / 1,099.
+- The audit hard-stops later quest products and completion rewards after missing
+  actions or registered unsatisfiable encounters, limits start inventory to
+  startable quests, and takes prerequisite plus quest-point gates to a fixed
+  point. It depends on `goal/acquire-2026-08-12` and must merge after it.
+- 2,248 is not acquisition truth and can be wrong in both directions. Goblin
+  Diplomacy is a real false positive because unreachable consumed mail is not
+  modelled; variant handling is latently too strict and too permissive, though
+  the three current variant quests already fail on common required actions.
+  Evidence and the eventual any-complete-path design are in
+  `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.
+
 ## Acquisition blocker follow-up — 2026-08-12
 
 - The four Jadinko secondaries remain root orphans even on the completed

@@ -13,6 +13,100 @@ A later Hunter slice proved that the program as a whole was not blocked. Commit
 `16375023` shipped four Jadinko routes, moving the live graph to 1,560 actions,
 2,497 reachable items, 99 orphan inputs, and 102 blocked actions.
 
+## Improved branch-relative reachability baseline — 2026-08-13
+
+Reachability figures are branch-relative. Quoting a figure without naming the
+exact tree on which it was measured is meaningless.
+
+| Tree | Actions | Reachable items | Orphan inputs | Blocked actions | Seed items |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `main` at `1cf43931` | 1,556 | 2,573 | 102 | 101 | 1,448 |
+| `goal/acquire-2026-08-12` at `2cfac317` | 1,568 | 2,509 | 97 | 100 | 1,367 |
+| `goal/reachability-truth-2026-08-13`, based on that acquire tip | 1,568 | 2,248 | 100 | 103 | 1,099 |
+
+The improved baseline removes quest-stage products after the first missing
+required action or registered unsatisfiable combat encounter, completion rewards
+from quests blocked by those gates, and start inventory from quests that cannot
+start. It propagates failed prerequisites and the 12 available quest points to a
+fixed point, so Dragon Slayer remains below its 32-point start gate. The 100
+orphans split into 54 root and 46 cascade. The three newly orphaned quest rewards
+are exactly Blood talisman, Jade vine seed, and Magic secateurs.
+
+This is strictly better than 2,509, but it is not a corrected acquisition count.
+It can be too high and too low at the same time. Goblin Diplomacy is classified
+completable even though stages 1 and 2 consume unreachable Orange and Blue goblin
+mail (`data/quest_data.py:6648-6666`), because required and consumed inventory,
+tools, item alternatives, and routes are outside this model. Shield of Arrav is
+a concrete route example: stage 4 requires joining one gang, but route state is
+not evaluated, so a route-gated stage can still leave later products and rewards
+eligible if its actions otherwise pass. Conversely, variant handling can
+over-block a quest when one impossible branch sets the quest-wide flag even if
+another branch could finish.
+
+Owner decision for the later coordinated gate model: either (A) count only a
+route proved complete across actions, routes, combat, and variants, or (B) keep
+separate optimistic and proven route totals. This audit records the fork without
+choosing it.
+
+The combat invariant now reconciles the two facts the tool already held: an
+unsatisfiable registered encounter blocks both its stage products and quest
+completion rewards. The earlier model could know the encounter was blocked and
+still call the quest completable, the same contradiction as knowing a stage was
+blocked while counting later stages. A synthetic regression pins both outputs.
+The current six-quest set and all acceptance totals remain unchanged: four quests
+have no encounters, and every registered encounter in Diamond in the Rough and
+Stolen Hearts passes the existing predicate.
+
+The predicate is narrower than its name suggests. Encounters with no registered
+`guaranteed_drops` hit the early `continue` and never enter
+`blocked_combat_products`, so they cannot currently block completion. Required
+and consumed inventory, tools, item alternatives, and `required_routes` are also
+unmodelled.
+
+Only three live quests have variant rows: Shield of Arrav, Heroes' Quest, and
+Temple of Ikov. All three already fail on common or mandatory required-action
+stages before their branch choices, so the new persistent hard-stop introduces
+no current-data variant regression. The latent variant model is nevertheless
+wrong in both directions: one impossible branch can reject a quest globally,
+while later mandatory rows pool emitted actions from mutually exclusive branches.
+
+The recommended eventual design is one stage-satisfiability predicate inside a
+quest-progression fixed point integrated with item reachability: evaluate actions,
+inventory and tool alternatives, routes, combat, and variant-local state per
+path, then accept a quest when any one complete path survives. Layering one
+action-only exception and then one combat-only exception is the mechanism by
+which this file keeps acquiring partial gates while appearing more complete.
+That redesign has no verified target count and belongs in a separate slice rather
+than being improvised here.
+
+A targeted suite of 110 tests passed while all of these gaps were present. A
+green suite over an incomplete model supplied no evidence that 2,509—or now
+2,248—was acquisition truth.
+
+The audit deliberately traverses quest stages twice: once to classify action
+completion and diagnostics, then once to seed only eligible sources. A review
+measured the repeated work at about 7 ms per report. Caching or splitting stage
+metadata was declined because the saving is noise and would add state plus an
+invalidation question to correctness-sensitive tooling.
+
+On this tool, changes to blocking or completeness logic are judged by whether
+they preserve the guarantee, never by how compact they read. The explicit
+`quest_blocked` set-then-check remains because it makes the persistent hard-stop
+across every later stage unmistakable.
+
+The production-handler probes behind this correction are reusable evidence:
+Vampyre Slayer advances on its early `auto_actions`, resolves combat, then stops
+at stage 4 on `Tell Morgan that Count Draynor is dead`; Druidic Ritual stops at
+stage 1 on `Speak to Sanfew about the ritual ingredients`, and seeding that exact
+action advances it. The directly action-blocked set remains 185 quests. Adding
+five prerequisite-blocked quests and six quest-point-gated quests yields 111
+unstartable quests. Of the six completable quests, Diamond in the Rough and
+Stolen Hearts progress through quest-local `auto_actions`; Cook's Assistant,
+Goblin Diplomacy, Imp Catcher, and The Knight's Sword contain neither
+`required_actions` nor `auto_actions`. This is the corrected two-versus-six
+classification: none of the six depends on a global match between required and
+auto action strings, so reusable actions must not be generalized into one.
+
 ## Quest-action emitter count
 
 The live `QUEST_DATA` registry contains 196 playable entries: 194 generated
