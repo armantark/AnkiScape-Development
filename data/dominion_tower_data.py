@@ -846,14 +846,16 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
     # melee." The lair's melee-only reading does not apply here, because the
     # tower states the mutant's style itself.
     "mutant_tarn": _npc(
-        "Mutant tarn", 6477, 69, 650, 190, ("magic",),
-        f"{_W}/Tarn?oldid=6448021",
+        "Mutant tarn", 14429, 69, 650, 190, ("magic",),
+        f"{_W}/Tarn?oldid=6448021; rev-727 Dominion struct 2798",
         successor="tarn_ghost",
     ),
     "tarn_ghost": _npc(
-        # PLACEHOLDER(dominion_tower.tarn_ghost_npc_id): the ghost form's own id.
-        "Tarn", 0, 69, 650, 190, ("melee",),
-        f"{_W}/Tarn?oldid=6448021",
+        # Rev-727 struct 2798 directly selects the attackable level-69 mutant
+        # 14429 for the tower. Its contiguous attackable Tarn partner is 14430;
+        # the older same-name pair is 5421/5420, while the former 6477 is Redeyes.
+        "Tarn", 14430, 69, 650, 190, ("melee",),
+        f"{_W}/Tarn?oldid=6448021; rev-727 Dominion struct 2798",
     ),
     "terror_dog_110": _npc(
         # The tower's dogs are the "large" ones: the two forms differ by size and
