@@ -1,5 +1,9 @@
 # Papercuts
 
+- 2026-08-13T09:02:47-07:00 — Focused tests and a corrected-audit measurement accidentally ran from the canonical checkout because Bash resets to the canonical working directory; every command for this slice must explicitly `cd` into the guarded worktree, even when prior file edits used absolute worktree paths.
+
+- 2026-08-13T08:56:52-07:00 — A quest-stage gate search across `data/quest_data.py`, `core`, `tests`, and `tools` still emitted 40.8 KB despite excluding generated shop data; inspect the catalog schema and runtime consumer by exact line range instead of combining all gate names.
+
 - 2026-08-13T04:55:22-07:00 — A direct tooltip probe imported `ankiscape` without installing the repository package alias; standalone source-tree probes must add `tests` to `sys.path` and import `pkg_alias` first.
 - 2026-08-13T04:25:18-07:00 — The full plain lane exposed that replacing Hunter's source-ordered static output map with raw inventory-delta order let Shattered Heart consume the Long kebbit spike; preserve declared output order and append only stochastic gains.
 - 2026-08-13T04:18:23-07:00 — A corrected dotted unittest command still ran from the canonical checkout and reported the new worktree methods missing; include an explicit `cd` to the assigned worktree in every test command.
@@ -454,3 +458,4 @@
 2026-08-13 06:17:00 PDT — The guarded worktree does not contain `.venv-qt/bin/python`, so the required Qt command failed with `(eval):1: no such file or directory: .venv-qt/bin/python`; use the canonical checkout’s existing `.venv-qt/bin/python` while keeping `run_tests.py` and cwd in the worktree.
 2026-08-13 06:28:00 PDT — The first real-search status capture used zsh’s read-only special parameter `status` and failed with `(eval):1: read-only variable: status` after the searches ran; capture `$?` into a neutral name such as `exit_code`.
 2026-08-13 07:01:00 PDT — The final rev-727 demonstration wrote its status to a mistyped scratchpad path (`Library/Application-Support` instead of `Library-Application-Support`), producing `no such file or directory` after the search itself completed; keep long session scratchpad paths in one variable.
+- 2026-08-13 09:26 PDT — While probing Shield of Arrav diagnostics from the guarded worktree, `from tests import pkg_alias` failed because `pkg_alias.py` is a top-level test-path module; use `PYTHONPATH=tests:.` and `import pkg_alias`.

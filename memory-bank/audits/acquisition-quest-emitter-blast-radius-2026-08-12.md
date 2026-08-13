@@ -79,33 +79,77 @@ which this file keeps acquiring partial gates while appearing more complete.
 That redesign has no verified target count and belongs in a separate slice rather
 than being improvised here.
 
-A targeted suite of 110 tests passed while all of these gaps were present. A
-green suite over an incomplete model supplied no evidence that 2,509—or now
-2,248—was acquisition truth.
+## Stage-satisfiability closure — 2026-08-13
 
-The audit deliberately traverses quest stages twice: once to classify action
-completion and diagnostics, then once to seed only eligible sources. A review
-measured the repeated work at about 7 ms per report. Caching or splitting stage
-metadata was declined because the saving is noise and would add state plus an
-invalidation question to correctness-sensitive tooling.
+The audit now uses one stage predicate for required and consumed inventory,
+required tools, item alternatives, required actions, route state, and combat.
+Combat is evaluated even when an encounter has no registered guaranteed drop.
+Rows are partitioned into shared and variant branches before traversal, evaluated
+in stage order, and a quest is accepted when at least one branch completes.
 
-On this tool, changes to blocking or completeness logic are judged by whether
-they preserve the guarantee, never by how compact they read. The explicit
-`quest_blocked` set-then-check remains because it makes the persistent hard-stop
-across every later stage unmistakable.
+The closure is joint: ordinary actions can unlock quest stages, quest stages and
+rewards can unlock ordinary actions, and the process repeats to stability.
+Mutually exclusive branches are evaluated as separate world states; only items
+reachable in every branch-selection scenario enter the global acquisition graph.
+A choice route becomes available at its declared choice stage, never at quest
+start. Quantity gates distinguish repeatable acquisition routes from finite
+one-shot supplies, consume finite supplies between stages, and preserve the
+runtime's required-option tool semantics versus consumed-option inventory
+semantics.
 
-The production-handler probes behind this correction are reusable evidence:
-Vampyre Slayer advances on its early `auto_actions`, resolves combat, then stops
-at stage 4 on `Tell Morgan that Count Draynor is dead`; Druidic Ritual stops at
-stage 1 on `Speak to Sanfew about the ritual ingredients`, and seeding that exact
-action advances it. The directly action-blocked set remains 185 quests. Adding
-five prerequisite-blocked quests and six quest-point-gated quests yields 111
-unstartable quests. Of the six completable quests, Diamond in the Rough and
-Stolen Hearts progress through quest-local `auto_actions`; Cook's Assistant,
-Goblin Diplomacy, Imp Catcher, and The Knight's Sword contain neither
-`required_actions` nor `auto_actions`. This is the corrected two-versus-six
-classification: none of the six depends on a global match between required and
-auto action strings, so reusable actions must not be generalized into one.
+The final pinned baseline is unchanged at 1,568 actions, 2,248 reachable items,
+100 orphan inputs, 103 blocked actions, and 1,099 seed items. An independent
+throwaway implementation recomputed the same five figures. The isolated current-
+data effects of the five reviewed defects are all zero on those aggregate figures:
+fixed-point closure, quantity accounting, branch-product isolation, route timing,
+and diagnostic deduplication each leave the five totals unchanged when toggled
+alone. That cancellation-free result is not evidence the defects were harmless;
+synthetic reproductions show each decision error directly, and the repaired
+invariants prevent future data additions from silently moving the graph in the
+wrong direction.
+
+Five quests change from the former action-only verdict to blocked:
+
+- `goblin_diplomacy`: stage 1 needs unreachable `Orange goblin mail`; Goblin
+  Diplomacy is correctly uncompletable. Stage 2 also needs unreachable `Blue
+  goblin mail`.
+- `icthlarins_little_helper`: its inventory/tool path is not satisfiable from
+  the acquisition graph.
+- `shilo_village`: its stage requirements are not jointly satisfiable.
+- `smoking_kills`: its item and cat-alternative gates are not satisfiable.
+- `the_knights_sword`: its required inventory path is not satisfiable.
+
+The Shield of Arrav duplicate diagnostic review finding reproduced before the
+repair: the real build emitted two byte-identical stage-one rows. Those rows
+appeared only in `blocked_quest_stage_products`; the blocked-actions figure is
+computed from unresolved ordinary actions and remained 103. The branch traversal
+now deduplicates the diagnostic, and the real build emits exactly one row.
+
+Remaining deliberate model limits are narrower than the previous quantity-free
+model. Repeatable supply proves arbitrary quantity but does not model time or
+currency cost; finite supply tracks known initial and quest-local counts but does
+not solve arbitrary inventory allocation between independent quests. Exact-state
+equipped items and toolbelt substitutions are represented only by direct item
+names plus the runtime-compatible Pickaxe/Hatchet/Axe family checks; arbitrary
+equipment slots and future toolbelt families remain unmodelled. Free-form routes
+without an explicit quest choice remain blocked because no route emitter exists.
+
+Five correctness defects survived a focused green suite because the tests shared
+the implementation's mental model: no cross-quest reward chain, no finite-count
+counterexample, no mutually exclusive product consumer, no late-choice route,
+and no real duplicate-diagnostic assertion. Each reviewer reproduction is now a
+permanent synthetic regression, and the Shield of Arrav live case asserts one
+stage-one diagnostic row.
+
+Measured efficiency work remains deliberately declined. Rebuilding branch
+metadata costs about 80 ms per report, and repeated focused report builds cost
+about 0.5 seconds. Caching either would add invalidation state around a
+correctness-sensitive fixed point for no material user benefit.
+
+The maintenance rule is: everything that decides or feeds satisfiability gets one
+implementation, while reporting may only describe the retained decision. Similar
+parsers are not interchangeable: item records, alternative mappings, quantities,
+and tool semantics require distinct normalization.
 
 ## Quest-action emitter count
 
