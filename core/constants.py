@@ -170,6 +170,11 @@ from ..data.crucible_data import (
 from ..data.daily_challenges_data import (
     daily_challenge_extra_items_as_dict,
 )
+from ..data.bone_sources_data import (
+    bone_source_enemies_as_dict,
+    bone_source_extra_items_as_dict,
+    bone_source_utility_activities_as_dict,
+)
 
 from ..data.treasure_trails_data import (
     TREASURE_TRAILS_ACTIVITY_ID,
@@ -738,6 +743,7 @@ UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(bone_source_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)
 UTILITY_ACTIVITY_DATA.update(big_chinchompa_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
@@ -788,6 +794,7 @@ UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(compost_potion_activities_as_dict())
+COMBAT_ENEMY_DATA.update(bone_source_enemies_as_dict())
 UTILITY_ACTIVITY_DATA[CRYSTAL_CHEST_ACTIVITY_ID] = {
     **crystal_chest_utility_spec(),
     "icon_path": os.path.join(CRAFTED_ITEMS_FOLDER, "crystal_key.png"),
@@ -1187,6 +1194,7 @@ UTILITY_ACTIVITY_GROUPS = frozenset(
         "light_sources",
         "input_preparation",
         "prayer_preparation",
+        "weapon_preparation",
     }
 )
 ACTIVITY_GROUPS = frozenset(
@@ -1679,6 +1687,7 @@ PRAYER_EXTRA_ITEM_DATA = {
     **PRAYER_PASSIVE_ITEM_DATA,
     **URN_ITEM_DATA,
 }
+BONE_SOURCE_EXTRA_ITEM_DATA = bone_source_extra_items_as_dict()
 THIEVING_EXTRA_ITEM_DATA = thieving_extra_items_as_dict()
 PRAYER_ITEM_IMAGES = {}
 for _item_name in PRAYER_EXTRA_ITEM_DATA:
@@ -1796,6 +1805,13 @@ for _item_name, _path in {
 }.items():
     if os.path.exists(_path):
         COMBAT_ITEM_IMAGES[_item_name] = _path
+for _activity_spec in UTILITY_ACTIVITY_DATA.values():
+    _icon_item = _activity_spec.get("icon_item")
+    if not isinstance(_icon_item, str) or _icon_item in UTILITY_ITEM_IMAGES:
+        continue
+    _icon_path = COMBAT_ITEM_IMAGES.get(_icon_item) or PRAYER_ITEM_IMAGES.get(_icon_item)
+    if _icon_path:
+        UTILITY_ITEM_IMAGES[_icon_item] = _icon_path
 _fungicide_spray_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide_spray_10.png")
 if os.path.exists(_fungicide_spray_path):
     for _charges in range(11):
@@ -2630,6 +2646,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **GREAT_ORB_PROJECT_EXTRA_ITEM_DATA,
     **HERBLORE_EXTRA_ITEM_DATA,
     **PRAYER_EXTRA_ITEM_DATA,
+    **BONE_SOURCE_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
     **BRAWLING_GLOVES_EXTRA_ITEM_DATA,
     **FIST_OF_GUTHIX_EXTRA_ITEM_DATA,

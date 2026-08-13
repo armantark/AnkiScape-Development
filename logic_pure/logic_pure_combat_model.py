@@ -1340,21 +1340,35 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
         < required_slayer_level
     ):
         return (f"Slayer level {required_slayer_level}",)
+    skill_requirements = enemy.get("skill_requirements", {}) or {}
+    if isinstance(skill_requirements, Mapping):
+        missing_skill_requirements = tuple(
+            f"{str(skill_id).replace('_', ' ').title()} level {required_level}"
+            for skill_id, raw_required_level in skill_requirements.items()
+            if (required_level := _positive_int(raw_required_level, 0)) > 0
+            and _positive_int(player_data.get(f"{skill_id}_level", 1), 1)
+            < required_level
+        )
+        if missing_skill_requirements:
+            return missing_skill_requirements
     quest_gate = str(enemy.get("quest_gate", enemy.get("required_quest", "")) or "")
     if quest_gate:
         quests = player_data.get("quests", {}) or {}
         quest_state = quests.get(quest_gate, {}) if isinstance(quests, Mapping) else {}
-        quest_completed = (
-            bool(quest_state.get("completed"))
-            if isinstance(quest_state, Mapping)
-            else bool(quest_state)
-        )
-        if not quest_completed:
+        gate_state = str(enemy.get("quest_gate_state", "completed") or "completed")
+        if isinstance(quest_state, Mapping):
+            quest_accessible = bool(quest_state.get("completed"))
+            if gate_state == "started":
+                quest_accessible = quest_accessible or bool(quest_state.get("started"))
+        else:
+            quest_accessible = bool(quest_state)
+        if not quest_accessible:
+            verb = "Start" if gate_state == "started" else "Complete"
             return (
                 str(
                     enemy.get(
                         "quest_gate_label",
-                        f"Complete {quest_gate.replace('_', ' ').title()}",
+                        f"{verb} {quest_gate.replace('_', ' ').title()}",
                     )
                 ),
             )

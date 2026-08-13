@@ -2076,6 +2076,8 @@ class TargetMetadataTest(unittest.TestCase):
         black_mushrooms = _row(rows, "gather_black_mushrooms")
         nests = _row(rows, "open_bird_nest")
         crystal_chest = _row(rows, "open_crystal_chest")
+        ogre_coffin = _row(rows, "loot_ogre_coffin")
+        poison_spear = _row(rows, "poison_steel_spear_with_karambwan")
 
         self.assertTrue(wool.current)
         self.assertTrue(wool.enabled)
@@ -2122,6 +2124,19 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Guaranteed: Uncut dragonstone x1", crystal_chest.tooltip)
         self.assertIn("Possible bonus: one source-table reward bundle", crystal_chest.tooltip)
         self.assertIn("Crystal key x1 (you have 0)", crystal_chest.tooltip)
+        self.assertEqual(
+            os.path.basename(ogre_coffin.icon_path or ""),
+            "zogre_bones.png",
+        )
+        self.assertIn(
+            "Possible outputs: Zogre bones, Fayrg bones, Raurg bones, Ourg bones",
+            ogre_coffin.tooltip,
+        )
+        self.assertIn("Ogre coffin key x1 (you have 0)", ogre_coffin.tooltip)
+        self.assertEqual(
+            os.path.basename(poison_spear.icon_path or ""),
+            "steel_spear.png",
+        )
 
         keyed_rows = utility_activity_rows(
             {"inventory": {"Crystal key": 1}, "current_utility": "open_crystal_chest"},

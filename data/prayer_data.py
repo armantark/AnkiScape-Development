@@ -60,7 +60,7 @@ class PrayerMaterial:
 _BONES = (
     ("bones", "Bones", 4.5), ("wolf_bones", "Wolf bones", 4.5),
     ("burnt_bones", "Burnt bones", 4.5), ("monkey_bones", "Monkey bones", 5.0),
-    ("bat_bones", "Bat bones", 5.3), ("zogre_bones", "Zogre bones", 12.5),
+    ("bat_bones", "Bat bones", 5.3), ("zogre_bones", "Zogre bones", 22.5),
     ("big_bones", "Big bones", 15.0), ("jogre_bones", "Jogre bones", 15.0),
     ("shaikahan_bones", "Shaikahan bones", 25.0),
     ("baby_dragon_bones", "Baby dragon bones", 30.0),
@@ -70,6 +70,18 @@ _BONES = (
     ("frost_dragon_bones", "Frost dragon bones", 180.0),
     ("ancient_bones", "Ancient bones", 200.0),
 )
+BONEMEAL_ITEM_IDS = {
+    "Bonemeal": 4255,
+    "Burnt bonemeal": 4258,
+    "Zogre bonemeal": 4852,
+    "Jogre bonemeal": 4271,
+    "Shaikahan bonemeal": 5615,
+    "Wyvern bonemeal": 6810,
+    "Fayrg bonemeal": 4853,
+    "Raurg bonemeal": 4854,
+    "Ourg bonemeal": 4855,
+    "Frost dragon bonemeal": 18834,
+}
 
 
 def _bonemeal_name(item_name: str) -> str:
@@ -214,10 +226,9 @@ def prayer_extra_items_as_dict() -> Dict[str, dict]:
         items[material.item_name] = {"category": "material", "source": material.source, "exp": material.xp}
         if material.bonemeal_item:
             bonemeal = {"category": "material", "source": f"{material.source}; {ECTOFUNTUS_SOURCE}"}
-            if material.bonemeal_item == "Bonemeal":
-                bonemeal["item_id"] = 4255
-            elif material.bonemeal_item == "Wyvern bonemeal":
-                bonemeal["item_id"] = 6810
+            item_id = BONEMEAL_ITEM_IDS.get(material.bonemeal_item)
+            if item_id is not None:
+                bonemeal["item_id"] = item_id
             items[material.bonemeal_item] = bonemeal
     for name in ("Bucket", "Bucket of slime", "Empty pot", "Ecto-token"):
         items[name] = {"category": "material", "source": ECTOFUNTUS_SOURCE}
