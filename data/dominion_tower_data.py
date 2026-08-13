@@ -719,10 +719,11 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
         f"{_W}/Bouncer?oldid=6356419; npcListBonuses 269",
     ),
     "koschei": _npc(
-        # PLACEHOLDER(dominion_tower.koschei_combat_level): neither the pinned
-        # revision ("level = N/A") nor rev 727 (all four forms carry 0) states a
-        # combat level, and the tower's factor formula multiplies roster combat
-        # levels. The lowest stated level in Koschei's own class E stands in.
+        # PLACEHOLDER(dominion_tower.koschei_combat_level): the pinned revision
+        # prints "level = N/A" and rev 727 explicitly stores combat level 0 for
+        # all four forms. Zero is evidence of an unset client definition, not an
+        # absent row; the tower's factor formula still needs a positive proxy.
+        # The lowest stated level in Koschei's own class E stands in.
         "Koschei the deathless", 1293, 110, 790, 74, ("melee",),
         f"{_W}/Koschei_the_deathless?oldid=6450413; combatdefs/koschei; npcListBonuses 1290-1293",
         attack_speed=6,
@@ -892,9 +893,10 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
     ),
     "solus_dellagar": _npc(
         # PLACEHOLDER(dominion_tower.solus_dellagar_combat_level): the pinned
-        # revision states "level = None" and rev 727 carries 0 for both ids, so
-        # the lowest stated level in Solus's own class H stands in for the
-        # factor formula.
+        # revision states "level = None" and rev 727 explicitly stores combat
+        # level 0 for both ids. Zero is an unset client definition, but the tower
+        # factor formula needs a positive proxy, so the lowest stated level in
+        # Solus's own class H stands in.
         "Solus Dellagar", 2780, 27, 400, 960, ("magic", "melee"),
         f"{_W}/Solus_Dellagar?oldid=6342730; combatdefs/solus_dellagar; npcListBonuses 2780",
         bonuses=_bonuses((0, 0, 0, 0, 0, 5, 5, 5, 72, -10), (16, 0, 0)),

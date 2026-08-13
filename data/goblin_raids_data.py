@@ -40,12 +40,9 @@ GOBLIN_RAIDS_SOURCE = (
 # timer.
 GOBLIN_RAIDS_SPAWN_REVIEWS = 5
 
-# PLACEHOLDER(goblin_raids.raid_active_reviews): how long a raid stays up. The
-# announcement cadence is stated; the raid's own duration, its despawn timer and
-# what happens when nobody clears it are all unstated. The complete pre-cutoff
-# article/talk history, rev-741/742 client interfaces and current Darkan tree add
-# no server timer. Fifteen reviews is three announcement intervals, which is long
-# enough for the sourced raider-then-leader sequence to actually be completed.
+# The period gives no solo raid duration. AnkiScape translates the lifecycle to
+# fifteen reviews—the smallest window that fits the sourced ten-raider-then-
+# Hollowtoof sequence—because the review loop has no wall-clock raid scheduler.
 GOBLIN_RAIDS_ACTIVE_REVIEWS = 15
 
 # Exact through independent period convergence. The official rule pays one
@@ -87,18 +84,20 @@ class GoblinRaidSite:
     display_name: str
     # Exact: farms give seeds, forests give logs, mines give ores.
     spoil_kind: str
-    # Materials Raiders hoard while stripping the site.
+    # Exact candidate set. The period guide does not state the per-shout selector.
     materials: tuple[str, ...]
-    # Exact potential Black Guard payout table from Tip.It's 2012-10-24 guide.
+    # Exact potential Black Guard payout set from Tip.It's 2012-10-24 guide.
     yodri_rewards: tuple[str, ...]
 
 
-# The three site kinds and their stolen materials come from Tip.It's dated
-# Goblin Raids guide, archived by Wayback at 20121228205432. The captured page's
-# SHA-256 is 93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2.
-# It also caps Commander Yodri's return at ten items. The article shows a potato
-# field in its own screenshot but never names a raid location, so the sites are
-# the kinds rather than invented place names.
+# Tip.It's dated Goblin Raids guide, archived by Wayback at 20121228205432,
+# supplies the three site kinds and each site's exact candidate item set. It does
+# not supply the Raider per-shout selector, quantities, or relative rates. The
+# captured page's SHA-256 is
+# 93154a0c8cce74e4da6c65e80bed2bf7db14e29a0a0eb56d3a80004a101d89d2. It also
+# caps Commander Yodri's return at ten items. The article shows a potato field in
+# its own screenshot but never names a raid location, so the sites are kinds
+# rather than invented place names.
 GOBLIN_RAID_SITES = (
     GoblinRaidSite(
         "farm",
