@@ -73,22 +73,56 @@ The prerequisite Druidic Ritual dialogue and cauldron steps use their existing d
 
 ## Reachability result
 
-Before this slice:
+After merging main commit `ee8c0002`, this slice was re-measured with the corrected union-of-per-scenario quest-branch audit (`tools/audit_item_reachability.py` SHA-256 `99042e4d583338c56ef72534f37581f9051c0c35fc197f5b09bdcff86a12877b`).
 
-- 1,568 actions;
-- 2,248 reachable items;
-- 100 orphan inputs;
-- 103 unresolved actions;
-- 1,099 seed items.
+Main before this slice:
 
-After this slice:
+- 1,571 actions;
+- 2,266 reachable items;
+- 84 orphan inputs;
+- 46 root orphans;
+- 38 cascade orphans;
+- 87 unresolved actions;
+- 1,104 seed items.
 
-- 1,573 actions;
-- 2,271 reachable items;
-- 100 orphan inputs;
-- 103 unresolved actions;
-- 1,117 seed items.
+Merged result after this slice:
 
-The five added actions are the five source-backed Herblore cleaning conversions. The ten jungle-herb identities and all thirteen named Shilo Village identities are reachable. Shilo routes are one `quest-start:shilo_village` source (`Wampum belt`) plus twelve `quest-stage:shilo_village:*` sources. Neither Jungle Potion nor Shilo Village has a blocked quest-stage diagnostic after closure.
+- 1,576 actions;
+- 2,289 reachable items;
+- 84 orphan inputs;
+- 46 root orphans;
+- 38 cascade orphans;
+- 87 unresolved actions;
+- 1,122 seed items.
 
-The thirteen Shilo identities are: Wampum belt, Stone-plaque, Tattered scroll, Crumpled scroll, Zadimus corpse, Bone shard, Sword pommel, Locating crystal, Bervirius notes, Bone key, Bone beads, Beads of the dead, and Rashiliyia corpse.
+The five added actions are the five source-backed Herblore cleaning conversions.
+
+Gross reachable-item additions, measured by comparing the corrected main and merged route sets:
+
+- Grimy snake weed
+- Clean snake weed
+- Grimy ardrigal
+- Clean ardrigal
+- Grimy sito foil
+- Clean sito foil
+- Grimy volencia moss
+- Clean volencia moss
+- Grimy rogue's purse
+- Clean rogue's purse
+- Wampum belt
+- Stone-plaque
+- Tattered scroll
+- Crumpled scroll
+- Zadimus corpse
+- Bone shard
+- Sword pommel
+- Locating crystal
+- Bervirius notes
+- Bone key
+- Bone beads
+- Beads of the dead
+- Rashiliyia corpse
+
+Gross reachable-item removals: none.
+
+All ten jungle-herb identities and all thirteen named Shilo Village identities are reachable. Shilo routes are one `quest-start:shilo_village` source (`Wampum belt`) plus twelve `quest-stage:shilo_village:*` sources. Neither Jungle Potion nor Shilo Village has a blocked quest-stage diagnostic after closure.

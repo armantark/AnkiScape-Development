@@ -21,7 +21,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 695)
+        self.assertEqual(len(EQUIPMENT_DATA), 696)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -48,6 +48,18 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(brine_sabre.weapon_type, 6)
         self.assertEqual(brine_sabre.bonuses.attack_slash, 47)
         self.assertEqual(brine_sabre.bonuses.melee_strength, 46)
+        steel_spear = EQUIPMENT_DATA["Steel spear"]
+        steel_spear_kp = EQUIPMENT_DATA["Steel spear (kp)"]
+        self.assertEqual(steel_spear_kp.source_item_id, 3172)
+        self.assertEqual(steel_spear_kp.slot, "weapon")
+        self.assertEqual(steel_spear_kp.bonuses, steel_spear.bonuses)
+        self.assertEqual(steel_spear_kp.required_level, steel_spear.required_level)
+        self.assertEqual(steel_spear_kp.skill_requirements, steel_spear.skill_requirements)
+        self.assertEqual(steel_spear_kp.two_handed, steel_spear.two_handed)
+        self.assertEqual(steel_spear_kp.equipment_type, steel_spear.equipment_type)
+        self.assertEqual(steel_spear_kp.attack_speed, steel_spear.attack_speed)
+        self.assertEqual(steel_spear_kp.weapon_type, steel_spear.weapon_type)
+        self.assertIn("OpenRS2 cache rev 727 item 3172", steel_spear_kp.source)
         for item_name, source_item_id, weapon_type in (
             ("Black scimitar", 1327, 6),
             ("Black mace", 1426, 8),

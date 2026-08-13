@@ -3,6 +3,7 @@ import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
 from tools.audit_item_reachability import (
+    _close_actions,
     _close_quest_reachability,
     _quest_completion_sets,
     _quest_stage_sources,
@@ -332,6 +333,81 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(completable, {"q"})
         self.assertEqual(sources, {})
 
+    def test_branch_only_items_are_reachable_without_cross_branch_conjunctions(self):
+        quest_data = {
+            "q": {
+                "display_name": "Branch Product Quest",
+                "stage_requirements": (
+                    {"stage": 1, "variant": "left", "produced_inventory": {"Left token": 1}},
+                    {"stage": 1, "variant": "right", "produced_inventory": {"Right token": 1}},
+                ),
+            },
+        }
+        actions = (
+            {
+                "id": "needs-both",
+                "required": {"Left token", "Right token"},
+                "alternatives": (),
+                "outputs": {"Pooled product"},
+            },
+        )
+        seed_sources = {}
+        scenario_sources = []
+
+        _blocked, completed, _startable = _close_quest_reachability(
+            actions,
+            seed_sources,
+            {},
+            set(),
+            quest_data,
+            {"Left token", "Right token", "Pooled product"},
+            lambda _encounter: True,
+            scenario_sources_out=scenario_sources,
+        )
+        scenario_reachable = [
+            _close_actions(actions, sources)[0]
+            for sources in scenario_sources
+        ]
+        reachable = set.union(*scenario_reachable)
+
+        self.assertEqual(completed, {"q"})
+        self.assertEqual(reachable, {"Left token", "Right token"})
+        self.assertNotIn("Pooled product", reachable)
+        self.assertEqual(
+            {frozenset(items) for items in scenario_reachable},
+            {frozenset({"Left token"}), frozenset({"Right token"})},
+        )
+
+    def test_globally_completed_quests_are_existential_across_branch_scenarios(self):
+        quest_data = {
+            "q": {
+                "display_name": "One Viable Branch Quest",
+                "rewards": {"Completion reward": 1},
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "variant": "blocked",
+                        "required_inventory": {"Unreachable key": 1},
+                    },
+                    {"stage": 1, "variant": "open"},
+                ),
+            },
+        }
+        seed_sources = {}
+
+        _blocked, completed, _startable = _close_quest_reachability(
+            (),
+            seed_sources,
+            {},
+            set(),
+            quest_data,
+            {"Completion reward"},
+            lambda _encounter: True,
+        )
+
+        self.assertEqual(completed, {"q"})
+        self.assertEqual(seed_sources["Completion reward"], {"quest:q"})
+
     def test_choice_route_is_not_available_before_its_declared_stage(self):
         quest_data = {
             "q": {
@@ -481,13 +557,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1573)
-        self.assertEqual(report["reachable_item_count"], 2271)
-        self.assertEqual(report["orphan_input_count"], 100)
-        self.assertEqual(report["root_orphan_count"], 54)
-        self.assertEqual(report["cascade_orphan_count"], 46)
-        self.assertEqual(report["unresolved_action_count"], 103)
-        self.assertEqual(report["seed_item_count"], 1117)
+        self.assertEqual(report["action_count"], 1576)
+        self.assertEqual(report["reachable_item_count"], 2289)
+        self.assertEqual(report["orphan_input_count"], 84)
+        self.assertEqual(report["root_orphan_count"], 46)
+        self.assertEqual(report["cascade_orphan_count"], 38)
+        self.assertEqual(report["unresolved_action_count"], 87)
+        self.assertEqual(report["seed_item_count"], 1122)
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item

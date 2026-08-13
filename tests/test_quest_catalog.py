@@ -937,6 +937,8 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(nomad_boss["npc_stats_source"].endswith("developer-information/beasts.txt"))
 
         restless = data["the_restless_ghost"]
+        self.assertEqual(restless["rewards"], {"Ancient bones": 5})
+        self.assertEqual(restless["xp_rewards"], ({"skill_id": "prayer", "amount": 125},))
         restless_combat = [
             encounter
             for requirement in restless["stage_requirements"]

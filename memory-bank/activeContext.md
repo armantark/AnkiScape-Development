@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+**2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
+
+**2026-08-13, Ectofuntus bone-family integration corrected.** Burnt, Fayrg,
+Frost dragon, Jogre, Ourg, Raurg, Shaikahan, and Zogre bones now have acquisition
+routes, and all eight matching bonemeal items have Prayer routes. Zogre access
+begins when Zogre Flesh Eaters opens the Jiggig barricade; The Shaikahan requires
+completed Tai Bwo Wannai Trio plus a karambwan-poisoned spear; ordinary Karamja
+Jogres remain quest-ungated. The slice corrects Zogre bones from `12.5` to `22.5`
+Prayer XP. The old
+`1556 / 2573 / 102 / 101` source-audit baseline came from a superseded permissive
+instrument. Re-measurement after merging current main `e444dfd2`, with its
+union-of-per-scenario audit tool, gives main `1568 / 2248 / 100 / 103 / 1099`
+and integration `1571 / 2266 / 84 / 87 / 1104`: plus three actions, eighteen
+gross reachable additions, zero gross removals, minus sixteen orphans, minus
+sixteen blocked actions, and plus five seeds. The inherited legacy deletion of
+owner-settled Ancient bones was reversed: The Restless Ghost again rewards five,
+`bury_ancient_bones` again exists at 200 XP, and the old-target save migration
+lands on that live target. Both the Frost dragon generated stat block and coffin selector are genuine
+registered hidden-period-value placeholders. Durable audit:
+`memory-bank/source-audits/ectofuntus-bone-family-2026-08-11.md`.
+
 **2026-08-12, Polar kebbit quota target restored.** Big Chinchompa's Polar kebbit quota ticket now resolves to live Hunter tracking: the ordinary catch is Hunter level 1, while purchasing the quota ticket remains Hunter level 70. The route preserves a Noose wand, gives 30 XP plus Bones, Raw beast meat, and Polar kebbit fur, and uses registered hidden-curve placeholder `hunter.polar_kebbit_success_curve`. No route wall was added because the period location section lists ordinary access routes and no quest gate. Reachability improves from 1,560 actions / 2,497 reachable items / 99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102 through `Hunter:catch_polar_kebbit`. Source and verification record: `memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
 
 **2026-08-12, four Jadinko potion secondaries acquired.** Hunter now exposes the ordinary-player routes for Shadow jadinko, Diseased jadinko, Cannibal jadinko, and Guthix jadinko. Noose wands and Marasamaw plants remain reusable; each successful route gives its fixed primary output: Shadow vine, Corrupt vine, Plant teeth, or Guthix vine. Persistent Habitat configurations are source-backed route context rather than per-catch consumables, matching the established Common-jadinko abstraction. The hidden catch curves use registered placeholder `hunter.herblore_habitat_success_curves`. Reachability improves from 1,556 actions / 2,493 reachable items / 103 orphan inputs / 102 blocked actions to 1,560 / 2,497 / 99 / 102. Full plain discovery passes 4,061 tests with 496 expected skips. The complete real offscreen Qt corpus passes 4,061 tests with three expected skips when split into independent processes; the monolithic process exceeded the ten-minute command cap. A deliberate Shadow-vine output mutation failed the runtime regression before restoration. Period assets, OpenRS2 identities, pinned oldids, and Darkan provenance are recorded in the acquisition audit.
