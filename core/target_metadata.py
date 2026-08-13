@@ -1873,15 +1873,26 @@ def utility_activity_rows(
         else:
             outputs_raw = spec.get("outputs", {})
             outputs = outputs_raw if isinstance(outputs_raw, Mapping) else {}
+            weighted_outputs_raw = spec.get("weighted_outputs", ())
+            weighted_outputs = (
+                weighted_outputs_raw
+                if isinstance(weighted_outputs_raw, (list, tuple))
+                else ()
+            )
             if outputs:
-                icon_item = str(spec.get("icon_item", next(iter(outputs))))
-                if icon_path is None:
-                    icon_path = utility_item_images.get(icon_item)
+                default_icon_item = next(iter(outputs))
                 output_text = "Outputs: " + ", ".join(f"{item} x{amount}" for item, amount in outputs.items())
+            elif weighted_outputs:
+                weighted_items = [
+                    str(row.get("item"))
+                    for row in weighted_outputs
+                    if isinstance(row, Mapping) and isinstance(row.get("item"), str)
+                ]
+                default_icon_item = weighted_items[0] if weighted_items else label
+                output_text = "Possible outputs: " + ", ".join(weighted_items)
             else:
                 output_item = str(spec.get("output_item", label))
-                if icon_path is None:
-                    icon_path = utility_item_images.get(output_item)
+                default_icon_item = output_item
                 output_qty = spec.get("output_qty", 1)
                 if spec.get("random_reward_table"):
                     output_text = (
@@ -1890,6 +1901,9 @@ def utility_activity_rows(
                     )
                 else:
                     output_text = f"Output: {output_item} x{output_qty} per item"
+            icon_item = str(spec.get("icon_item", default_icon_item))
+            if icon_path is None:
+                icon_path = utility_item_images.get(icon_item)
             requirements = spec.get("requirements", {})
             reqs = requirements if isinstance(requirements, Mapping) else {}
             _, mat_text = _material_lines(reqs, inventory)

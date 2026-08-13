@@ -192,6 +192,7 @@ def bone_source_utility_activities_as_dict() -> dict[str, dict[str, Any]]:
         },
         "loot_ogre_coffin": {
             "display_name": "Loot an Ogre coffin",
+            "icon_item": "Zogre bones",
             "requirements": {"Ogre coffin key": 1},
             "batch_size": 1,
             "group": "containers_opening",
@@ -209,6 +210,7 @@ def bone_source_utility_activities_as_dict() -> dict[str, dict[str, Any]]:
         output_name = f"{base_name} (kp)"
         activities[f"poison_{metal.lower()}_spear_with_karambwan"] = {
             "display_name": f"Poison {base_name.lower()} with karambwan paste",
+            "icon_item": base_name,
             "requirements": {base_name: 1, "Karambwan paste": 1},
             "output_item": output_name,
             "output_qty": 1,

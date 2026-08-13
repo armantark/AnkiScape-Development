@@ -134,6 +134,7 @@ class BoneSourceDataTests(unittest.TestCase):
             },
         )
         coffin = activities["loot_ogre_coffin"]
+        self.assertEqual(coffin["icon_item"], "Zogre bones")
         self.assertEqual(coffin["requirements"], {"Ogre coffin key": 1})
         self.assertEqual(
             [(row["item"], row["weight"]) for row in coffin["weighted_outputs"]],
@@ -153,6 +154,7 @@ class BoneSourceDataTests(unittest.TestCase):
             {key: value for key, value in steel_spear.items() if key != "source"},
             {
                 "display_name": "Poison steel spear with karambwan paste",
+                "icon_item": "Steel spear",
                 "requirements": {"Steel spear": 1, "Karambwan paste": 1},
                 "output_item": "Steel spear (kp)",
                 "output_qty": 1,

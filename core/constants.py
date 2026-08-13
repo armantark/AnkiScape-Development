@@ -1805,6 +1805,13 @@ for _item_name, _path in {
 }.items():
     if os.path.exists(_path):
         COMBAT_ITEM_IMAGES[_item_name] = _path
+for _activity_spec in UTILITY_ACTIVITY_DATA.values():
+    _icon_item = _activity_spec.get("icon_item")
+    if not isinstance(_icon_item, str) or _icon_item in UTILITY_ITEM_IMAGES:
+        continue
+    _icon_path = COMBAT_ITEM_IMAGES.get(_icon_item) or PRAYER_ITEM_IMAGES.get(_icon_item)
+    if _icon_path:
+        UTILITY_ITEM_IMAGES[_icon_item] = _icon_path
 _fungicide_spray_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide_spray_10.png")
 if os.path.exists(_fungicide_spray_path):
     for _charges in range(11):
