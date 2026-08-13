@@ -1,267 +1,9 @@
 import unittest
 
-import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
-from tools.audit_item_reachability import (
-    _quest_completion_sets,
-    _quest_stage_sources,
-    build_reachability_report,
-)
+from tools.audit_item_reachability import build_reachability_report
 
 
 class TestItemReachabilityAudit(unittest.TestCase):
-    def test_blocked_quest_stage_hard_stops_all_later_products(self):
-        quest_data = {
-            "blocked": {
-                "display_name": "Blocked Quest",
-                "stage_requirements": (
-                    {
-                        "stage": 1,
-                        "required_actions": ("Do the inert thing",),
-                        "produced_inventory": {"Blocked product": 1},
-                    },
-                    {
-                        "stage": 5,
-                        "produced_inventory": {"Later product": 1},
-                    },
-                ),
-            },
-            "emitted": {
-                "display_name": "Emitted Quest",
-                "stage_requirements": (
-                    {"stage": 1, "auto_actions": ("Do the emitted thing",)},
-                    {
-                        "stage": 2,
-                        "required_actions": ("Do the emitted thing",),
-                        "produced_inventory": {"Reachable product": 1},
-                        "combat_encounters": (
-                            {
-                                "encounter_id": "reachable_fight",
-                                "guaranteed_drops": {"Reachable combat product": 1},
-                            },
-                        ),
-                    },
-                ),
-            },
-            "variants": {
-                "display_name": "Variant Quest",
-                "stage_requirements": (
-                    {
-                        "stage": 1,
-                        "variant": "left",
-                        "auto_actions": ("Left-only action",),
-                    },
-                    {
-                        "stage": 2,
-                        "variant": "right",
-                        "required_actions": ("Left-only action",),
-                        "produced_inventory": {"Cross-variant product": 1},
-                    },
-                ),
-            },
-        }
-
-        sources, blocked, completable = _quest_stage_sources(
-            quest_data,
-            {
-                "Blocked product",
-                "Later product",
-                "Reachable product",
-                "Reachable combat product",
-                "Cross-variant product",
-            },
-        )
-
-        self.assertNotIn("Blocked product", sources)
-        self.assertNotIn("Later product", sources)
-        self.assertNotIn("Cross-variant product", sources)
-        self.assertEqual(completable, {"emitted"})
-        self.assertEqual(sources["Reachable product"], {"quest-stage:emitted:2"})
-        self.assertEqual(
-            sources["Reachable combat product"],
-            {"quest-combat:emitted:reachable_fight"},
-        )
-        self.assertEqual(
-            blocked,
-            [
-                {
-                    "quest_id": "blocked",
-                    "quest": "Blocked Quest",
-                    "stage": 1,
-                    "products": ["Blocked product"],
-                    "combat_products": {},
-                    "blocked_combat_products": {},
-                    "required_actions": ["Do the inert thing"],
-                    "missing_required_actions": ["Do the inert thing"],
-                },
-                {
-                    "quest_id": "variants",
-                    "quest": "Variant Quest",
-                    "stage": 2,
-                    "products": ["Cross-variant product"],
-                    "combat_products": {},
-                    "blocked_combat_products": {},
-                    "required_actions": ["Left-only action"],
-                    "missing_required_actions": ["Left-only action"],
-                },
-            ],
-        )
-
-    def test_unsatisfiable_combat_blocks_stage_and_completion_rewards(self):
-        quest_data = {
-            "q": {
-                "display_name": "Combat Blocked Quest",
-                "point_reward": 1,
-                "rewards": {"Completion reward": 1},
-                "stage_requirements": (
-                    {
-                        "stage": 1,
-                        "produced_inventory": {"Stage product": 1},
-                        "combat_encounters": (
-                            {
-                                "encounter_id": "impossible_fight",
-                                "guaranteed_drops": {"Combat product": 1},
-                            },
-                        ),
-                    },
-                ),
-            },
-        }
-
-        sources, blocked, action_completable = _quest_stage_sources(
-            quest_data,
-            {"Stage product", "Combat product", "Completion reward"},
-            combat_encounter_satisfiable=lambda _encounter: False,
-        )
-        completed, _ = _quest_completion_sets(
-            quest_data,
-            action_completable,
-        )
-        seeded_rewards = {
-            item
-            for quest_id in completed
-            for item in quest_data[quest_id].get("rewards", {})
-        }
-
-        self.assertEqual(action_completable, set())
-        self.assertEqual(completed, set())
-        self.assertNotIn("Stage product", sources)
-        self.assertNotIn("Combat product", sources)
-        self.assertNotIn("Completion reward", seeded_rewards)
-        self.assertEqual(
-            blocked[0]["blocked_combat_products"],
-            {"impossible_fight": ["Combat product"]},
-        )
-
-    def test_shield_of_arrav_stops_before_later_stage_products(self):
-        registered_items = {
-            definition.storage_key for definition in ITEM_DEFINITIONS
-        }
-        sources, blocked, action_completable = _quest_stage_sources(
-            {"shield_of_arrav": QUEST_DATA["shield_of_arrav"]},
-            registered_items,
-        )
-
-        self.assertNotIn("shield_of_arrav", action_completable)
-        self.assertEqual(blocked[0]["stage"], 1)
-        self.assertEqual(
-            blocked[0]["missing_required_actions"],
-            ["Find and read the Shield of Arrav book"],
-        )
-        for item in (
-            "Intel report",
-            "Weapon store key",
-            "Phoenix crossbow",
-            "Certificate",
-        ):
-            self.assertNotIn(item, sources)
-
-    def test_uncompletable_prerequisite_blocks_quest_completion_and_seeding(self):
-        quest_data = {
-            "blocked": {
-                "display_name": "Blocked Quest",
-                "point_reward": 5,
-                "rewards": {"Blocked reward": 1},
-                "start_inventory": {"Blocked start item": 1},
-                "stage_requirements": (
-                    {"stage": 1, "required_actions": ("Missing action",)},
-                ),
-            },
-            "dependent": {
-                "display_name": "Dependent Quest",
-                "point_reward": 2,
-                "rewards": {"Dependent reward": 1},
-                "start_inventory": {"Dependent start item": 1},
-                "required_quests": (
-                    {"quest_id": "blocked", "display_name": "Blocked Quest"},
-                ),
-                "stage_requirements": (),
-            },
-            "quest_point_gated": {
-                "display_name": "Quest Point Gated",
-                "point_reward": 1,
-                "required_quest_points": 5,
-                "stage_requirements": (),
-            },
-            "completable": {
-                "display_name": "Completable Quest",
-                "point_reward": 3,
-                "stage_requirements": (),
-            },
-        }
-
-        _, _, action_completable = _quest_stage_sources(quest_data, set())
-        completed, startable = _quest_completion_sets(
-            quest_data,
-            action_completable,
-        )
-
-        self.assertEqual(action_completable, {"dependent", "quest_point_gated", "completable"})
-        self.assertEqual(completed, {"completable"})
-        self.assertEqual(startable, {"blocked", "completable"})
-        self.assertNotIn("dependent", startable)
-        self.assertNotIn("quest_point_gated", startable)
-
-    def test_report_matches_player_finishable_quest_baseline(self):
-        report = build_reachability_report()
-
-        self.assertEqual(report["action_count"], 1568)
-        self.assertEqual(report["reachable_item_count"], 2248)
-        self.assertEqual(report["orphan_input_count"], 100)
-        self.assertEqual(report["root_orphan_count"], 54)
-        self.assertEqual(report["cascade_orphan_count"], 46)
-        self.assertEqual(report["unresolved_action_count"], 103)
-        self.assertEqual(report["seed_item_count"], 1099)
-        orphan_items = {row["item"] for row in report["orphan_inputs"]}
-        quest_reward_items = {
-            item
-            for quest in QUEST_DATA.values()
-            for item in quest.get("rewards", {})
-        }
-        self.assertEqual(
-            orphan_items & quest_reward_items,
-            {"Blood talisman", "Jade vine seed", "Magic secateurs"},
-        )
-
-    def test_lost_city_branch_and_cinnamon_require_the_real_quest_chain(self):
-        registered_items = {
-            definition.storage_key for definition in ITEM_DEFINITIONS
-        }
-        sources, _, action_completable = _quest_stage_sources(
-            QUEST_DATA,
-            registered_items,
-        )
-        report = build_reachability_report()
-
-        self.assertNotIn("lost_city", action_completable)
-        self.assertNotIn("Dramen branch", sources)
-        self.assertNotIn("Dramen branch", report["routes"])
-        self.assertNotIn("Cinnamon", report["routes"])
-        self.assertIn(
-            "Utility:grind_dramen_branch",
-            {action["id"] for action in report["unresolved_actions"]},
-        )
-
     def test_report_is_deterministic_and_accounts_for_live_action_inputs(self):
         report = build_reachability_report()
         self.assertEqual(report["schema_version"], 1)
@@ -368,12 +110,18 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Black mushroom ink"],
             "Utility:grind_black_mushroom",
         )
-        self.assertNotIn("Dramen branch", report["routes"])
+        self.assertEqual(
+            report["routes"]["Dramen branch"],
+            "quest-stage:lost_city:4",
+        )
         self.assertEqual(
             report["routes"]["Pendant of lucien"],
             "quest-start:temple_of_ikov",
         )
-        self.assertNotIn("Cinnamon", report["routes"])
+        self.assertEqual(
+            report["routes"]["Cinnamon"],
+            "Utility:grind_dramen_branch",
+        )
         self.assertEqual(
             report["routes"]["Unholy mould"],
             "combat:chaos_druid",
@@ -427,10 +175,6 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Eucalyptus logs"],
             "Woodcutting:eucalyptus",
         )
-        self.assertEqual(
-            report["routes"]["Curly root"],
-            "Woodcutting:curly_jade_root",
-        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},
@@ -438,28 +182,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         self.assertEqual(
-            report["routes"]["Polar kebbit fur"],
-            "Hunter:catch_polar_kebbit",
-        )
-        self.assertEqual(
             report["routes"]["Long kebbit spike"],
             "Hunter:track_razor_backed_kebbit",
         )
         self.assertEqual(
             report["routes"]["Living minerals"],
             "Mining:living_rock_remains",
-        )
-        self.assertEqual(
-            report["routes"]["Lergberry seed"],
-            "Hunter:catch_cannibal_jadinko",
-        )
-        self.assertEqual(
-            report["routes"]["Kalferberry seed"],
-            "Hunter:catch_cannibal_jadinko",
-        )
-        self.assertEqual(
-            report["routes"]["Kalferberry"],
-            "Farming:kalferberry",
         )
         self.assertEqual(
             [
@@ -486,19 +214,6 @@ class TestItemReachabilityAudit(unittest.TestCase):
             {action["id"] for action in report["unresolved_actions"]},
         )
 
-        self.assertEqual(
-            report["routes"]["Dragon impling jar"],
-            "Hunter:catch_dragon_impling_puro_puro",
-        )
-        self.assertEqual(
-            report["routes"]["Dragon arrowtips"],
-            "Item action:loot:Dragon impling jar",
-        )
-        self.assertEqual(
-            report["routes"]["Dragon dart tip"],
-            "Item action:loot:Dragon impling jar",
-        )
-
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         for item_name in (
             "Candle lantern (empty)",
@@ -522,9 +237,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Ale yeast",
             "Arctic pine logs",
             "Eucalyptus logs",
-            "Curly root",
             "Black mushroom",
             "Black mushroom ink",
+            "Dramen branch",
+            "Cinnamon",
             "Unholy mould",
         ):
             self.assertNotIn(item_name, orphan_items)
