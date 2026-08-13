@@ -9,11 +9,13 @@ inputs, and 100 blocked actions.
 
 No unblocked, settled acquisition implementation remains in this queue. The last
 untested candidate, Curly root, is blocked by missing Jadinko Lair integration.
-The dominant structural blocker is the production quest-action emitter gap: 185
-of 196 quests are directly uncompletable because their `required_actions` have no
-emitter, and prerequisite closure raises the approximate impact to 190 of 196.
-The single unblocking action is to implement and verify the production emitter
-mechanism.
+The dominant structural blocker is the production quest-action emitter gap: the
+live quest registry has 196 playable entries, and 185 are directly uncompletable
+because their `required_actions` have no emitter; prerequisite closure raises the
+approximate impact to 190 of 196. These emitter-less routes are inert for an
+ordinary player progressing from level one. The single unblocking action is to
+implement and verify the production emitter mechanism, which would make each
+quest-gated route testable from an actually reachable player state.
 
 ## Verified complete
 
@@ -44,17 +46,39 @@ The four Jadinko routes moved 1,556 / 2,493 / 103 / 102 to
 1,561 / 2,498 / 99 / 102. The Dragon-jar action moved it to
 1,562 / 2,503 / 97 / 100.
 
-## Deferred data depth
+## Farming guide rebuild
 
-The Farming skill-guide projection is **deferred data depth** after its withdrawal
-in `e0e8871a`. The attempted crop-table projection inverted the source
-relationship: it inferred membership, categories, labels, icons, and unlock state
-from internal crops instead of the period client's 110 enum-5463 structs. The
-rebuild contract is
-`memory-bank/source-audits/farming-skill-guide-2026-08-12.md`: enumerate the 110
-structs, preserve cache labels, levels, icons, categories, and gates, resolve each
-row against its owning registry, isolate unresolved rows, and keep reachability
-unchanged. This is the queue's only deferred-data-depth entry.
+The withdrawn Farming skill-guide projection from `e0e8871a` has been rebuilt from
+the period client's enum-5463 spine rather than inferred from internal crop data.
+All 110 structs are pinned with their cache labels, levels, param-2213 icon
+references, guide keys, and categories. The product renders the 88 non-Dungeoneering
+rows in five sections; the 22 Dungeoneering structs remain source-pinned but are
+not rendered. This deliberately departs from the period client's Milestones-first
+single-category view by showing Milestones, Produce, Trees, Special, and Other
+together.
+
+Level requirements remain separate from quest and cross-skill gates. A further
+17 rows carry the distinct `Not implemented in AnkiScape` lock: 12 resolved crop
+rows whose mechanics are not runnable, the catalogued-only Scroll of life reward,
+and four period rows whose owning mechanic is unresolved. These rows stay visible
+because period membership does not depend
+on implementation availability. Registry matches share one availability contract:
+each resolution returns its owning target, and the guide asks the common predicate
+whether that target is implemented. Crop targets map `runnable` into the contract;
+Dungeoneering rewards map `fully_functional`; patch, Livid Farm, Evil Tree, Bork,
+and skillcape targets are available when their live owning target exists.
+
+The rebuild also established that resolution aliases must identify the entity
+described by the guide row, not merely the closest matching name; the
+second-spirit-tree unlock therefore resolves against the secondary spirit-tree
+patch rather than the ordinary Spirit tree crop.
+
+The 88 rendered rows require 82 distinct param-2213 icon IDs. A guide-only explicit
+mapping resolves 73 IDs against existing canonical storage keys; nine IDs have no
+semantically correct registered sprite and render with a neutral missing-asset
+marker: `18336`, `20704`, `22494`, `18778`, `18779`, `18780`, `18781`, `14667`,
+and `9810`. These nine are an asset-acquisition gap. No closest-name substitute
+exists for any of them.
 
 ## Blocked queue
 
@@ -143,6 +167,8 @@ action that would reopen the largest part of this program.
 
 ## Verification state
 
-This closeout changes documentation only. Reachability remains unchanged at
-**1,562 actions / 2,503 reachable items / 97 orphan inputs / 100 blocked
-actions**. No product implementation, mutation proof, or full test lane applies.
+The acquisition implementations and informational Farming guide leave
+reachability unchanged at **1,562 actions / 2,503 reachable items / 97 orphan
+inputs / 100 blocked actions**. The Farming guide has separate pure mutation
+proof, plain-test, and offscreen-Qt verification because it is a product surface,
+not an acquisition-graph change.

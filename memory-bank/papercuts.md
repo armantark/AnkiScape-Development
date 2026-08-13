@@ -1,5 +1,9 @@
 # Papercuts
 
+- 2026-08-12 23:51:05 PDT — The first focused Farming-guide run failed only because the legacy test bans the substring `source` from guide row representations; the new `source_struct_id` metadata name triggered that guard despite containing no source prose, so the field was renamed `guide_struct_id`.
+
+- 2026-08-12 23:37:34 PDT — Two focused Farming probes imported `tests.pkg_alias` as a package even though `tests/` is not a package, then guessed nonexistent `data/utility_activity_data.py`; add `tests` to `sys.path` and locate concrete utility modules before combined searches.
+
 - 2026-08-12 23:02:22 PDT — A Raw-chompy framework search guessed nonexistent `data/activity_data.py`, causing `rg` status 2 even though the combat and Hunter paths were valid; enumerate the concrete activity module before combining targets.
 - 2026-08-12 22:55:55 PDT — A blocker search included generated one-line `data/shop_data.py` and produced 2.4 MB of clipped output; query imported shop rows or named source records instead of searching the generated module.
 - 2026-08-12 22:54:50 PDT — A combined blocked-root search guessed `data/miniquest_data.py`, which does not exist in this checkout, so `rg` returned status 2 despite the valid `quest_data.py` target; locate miniquest storage before adding it to a combined command.
@@ -414,3 +418,7 @@
 2026-08-12 15:14 PDT — While checking the full Dragon-impling table, the first probability-total regression exposed an incomplete manual enumeration (5,705,535 versus 6,700,000).
 2026-08-12 15:37 PDT — A focused unittest selector guessed test_bank_item_pack_open_uses_direct_action_undo; the existing method is test_bank_pack_open_all_uses_direct_action_undo.
 2026-08-12 15:59 PDT — The corrected Qt full-lane command mistyped the scratchpad path as , so shell redirection failed before tests started.
+- 2026-08-13 00:32 PDT — While probing Farming guide icon coverage, `tests/pkg_alias.py` bound `ankiscape` to the canonical checkout because the probe ran outside the target worktree, and an assumed `assets/` root did not exist; probes must run with the target worktree as cwd and inspect its actual top-level asset directories.
+- 2026-08-13 00:37 PDT — The focused Qt Farming test command guessed `TestMainMenuWidget`, but `tests/test_main_menu_widget.py` uses a different class name; locate the owning class before invoking a dotted unittest target.
+- 2026-08-13 01:04 PDT — `tools/audit_item_reachability.py --json` returned exit 1 while writing a complete valid audit with the expected 1562 / 2503 / 97 / 100 totals; its nonzero status represents unresolved graph findings rather than an execution failure.
+- 2026-08-13 01:29 PDT — A zsh reachability wrapper assigned to reserved read-only variable `status`; use a different local name when preserving an expected nonzero audit exit.

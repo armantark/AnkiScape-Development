@@ -176,7 +176,21 @@ from ..logic.bank_layout_logic import (
     reorder_bank_tab_pure,
     set_bank_tab_icon_pure,
 )
-from ..logic.skill_guide_logic import skill_guide_sections_pure
+from ..logic.skill_guide_logic import (
+    farming_skill_guide_sections_pure,
+    skill_guide_sections_pure,
+)
+from ..data.farming_skill_guide_data import (
+    FARMING_GUIDE_ICON_STORAGE_KEYS,
+    FARMING_GUIDE_KEY,
+    FARMING_GUIDE_ROWS,
+    FARMING_GUIDE_SECTIONS,
+)
+from ..data.farming_data import FARMING_CROPS, FARMING_PATCHES_BY_ID
+from ..data.evil_tree_data import EVIL_TREE_TIERS
+from ..data.dungeoneering_data import DUNGEONEERING_REWARDS
+from ..data.bork_data import BORK_EFFIGY_ITEM
+from ..data.achievement_cape_data import SKILLCAPES
 
 from ..data.impling_jar_data import IMPLING_JAR_DATA
 from ..data.pack_data import ITEM_PACK_DATA
@@ -524,6 +538,7 @@ from ..core.target_metadata import (
 from ..data.livid_farm_data import (
     BORROWED_POWER_COMBAT_SPELLS,
     LIVID_FARM_ACTIVITY_ID,
+    LIVID_FARM_ENTRY_LEVELS,
     LIVID_FARM_UNLOCKS,
 )
 from ..logic.livid_farm_logic import (
@@ -24154,11 +24169,29 @@ def show_main_menu(
         guide_layout = QVBoxLayout(content)
         guide_layout.setContentsMargins(0, 4, 4, 0)
         guide_layout.setSpacing(4)
-        sections = skill_guide_sections_pure(
-            skill_name,
-            _SKILL_TARGET_TABLES.get(skill_id),
-            EQUIPMENT_ITEM_DATA,
-            slayer_families=SLAYER_FAMILIES_BY_ID,
+        sections = (
+            farming_skill_guide_sections_pure(
+                player_data,
+                FARMING_GUIDE_ROWS,
+                FARMING_GUIDE_SECTIONS,
+                guide_key=FARMING_GUIDE_KEY,
+                icon_storage_keys=FARMING_GUIDE_ICON_STORAGE_KEYS,
+                item_definitions=ITEM_DEFINITIONS,
+                farming_crops=FARMING_CROPS,
+                farming_patches_by_id=FARMING_PATCHES_BY_ID,
+                evil_tree_tiers=EVIL_TREE_TIERS,
+                livid_farm_entry_levels=LIVID_FARM_ENTRY_LEVELS,
+                dungeoneering_rewards=DUNGEONEERING_REWARDS,
+                bork_effigy_item=BORK_EFFIGY_ITEM,
+                skillcapes=SKILLCAPES,
+            )
+            if skill_id == "farming"
+            else skill_guide_sections_pure(
+                skill_name,
+                _SKILL_TARGET_TABLES.get(skill_id),
+                EQUIPMENT_ITEM_DATA,
+                slayer_families=SLAYER_FAMILIES_BY_ID,
+            )
         )
         first_anchor = None
 
@@ -24174,8 +24207,9 @@ def show_main_menu(
             guide_layout.addWidget(section_title)
             divider_added = False
             for row in section.rows:
-                locked = row.level > current_level
-                if locked and not divider_added:
+                above_current_level = row.level > current_level
+                locked = above_current_level or bool(row.lock_reasons)
+                if above_current_level and not divider_added:
                     divider = QWidget()
                     divider.setObjectName(
                         f"statsGuideCurrentDivider::{section.section_id}"
@@ -24227,17 +24261,27 @@ def show_main_menu(
                     if section.section_id == "monsters"
                     else _pixel_item_icon(row.icon_key or "", 20)
                 )
-                if icon is not None:
+                if icon is not None or row.icon_item_id is not None:
                     icon_label = QLabel()
                     icon_label.setObjectName(f"statsGuideIcon::{row.row_id}")
                     icon_label.setFixedSize(24, 24)
-                    icon_label.setPixmap(icon.pixmap(20, 20))
+                    icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    if icon is not None:
+                        icon_label.setPixmap(icon.pixmap(20, 20))
+                    else:
+                        icon_label.setText("·")
+                        icon_label.setToolTip(
+                            f"Period icon {row.icon_item_id} is not available yet."
+                        )
+                        icon_label.setStyleSheet(f"color: {dim_text_css(icon_label)};")
                     row_layout.addWidget(icon_label)
 
                 name = QLabel(row.name)
                 name.setObjectName(f"statsGuideName::{row.row_id}")
                 name.setWordWrap(True)
                 name.setStyleSheet("color: palette(text);")
+                if row.lock_reasons:
+                    name.setToolTip("Requires: " + ", ".join(row.lock_reasons))
                 row_layout.addWidget(name, 1)
 
                 if locked:
