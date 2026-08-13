@@ -1,5 +1,6 @@
 # Papercuts
 
+- 2026-08-13T11:35:00-07:00 — The first focused cadence regression command omitted the explicit worktree `cd`, so it loaded canonical tests and reported the new method missing; every worktree test command must set the guarded worktree as cwd in the same shell invocation.
 - 2026-08-13T08:32:30-07:00 — The first independent diff review failed before reading the branch with Kimi API error `403 You've reached your usage limit for this billing cycle`; reroute bounded review to another provider instead of treating the missing verdict as approval.
 - 2026-08-13T08:03:50-07:00 — Both full `run_tests.py` lanes exceeded the tool's 600-second foreground timeout when started concurrently, so neither produced a trustworthy final summary; rerun them separately with a longer external/background monitor rather than treating exit 143 as a test result.
 - 2026-08-13T07:53:00-07:00 — The first focused inventory-seam test command omitted an explicit worktree `cd`, so it passed against the canonical checkout instead of the edited branch; every verification command must set the assigned worktree as its working directory.
