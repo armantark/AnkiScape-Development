@@ -51,6 +51,7 @@ from ankiscape.data.dominion_tower_data import (
     DOMINION_TOWER_QUEST_REQUIREMENT,
     DOMINION_TOWER_REWARD_CREDIT_CAP,
     DOMINION_TOWER_SPECIAL_MATCHES,
+    DOMINION_TOWER_SWORD,
     DOMINION_TOWER_XP_BOOK,
     RECIPE_FOR_DISASTER_REQUIREMENT_ID,
     RECIPE_FOR_DISASTER_SUBQUESTS,
@@ -308,19 +309,24 @@ class DominionTowerDataTest(unittest.TestCase):
 
     def test_the_activity_and_its_items_are_registered(self):
         self.assertIn(DOMINION_TOWER_ACTIVITY_ID, UTILITY_ACTIVITY_DATA)
-        for item_name in (
-            "Goliath gloves",
-            "Spellcaster gloves",
-            "Swift gloves",
-            "Dreadnip",
-            DOMINION_TOWER_XP_BOOK,
-            DOMINION_TOWER_JOURNAL_PAGE,
-            DOMINION_TOWER_MINE,
-        ):
-            self.assertIn(item_name, EXTRA_ITEM_DATA)
+        item_ids = {
+            "Goliath gloves": 22358,
+            "Spellcaster gloves": 22366,
+            "Swift gloves": 22362,
+            "Dreadnip": 22370,
+            DOMINION_TOWER_XP_BOOK: 22340,
+            DOMINION_TOWER_JOURNAL_PAGE: 22381,
+            DOMINION_TOWER_MINE: 22371,
+            DOMINION_TOWER_SWORD: 22346,
+        }
+        for item_name, item_id in item_ids.items():
+            self.assertEqual(EXTRA_ITEM_DATA[item_name]["item_id"], item_id)
         for item_name in ("Goliath gloves", "Spellcaster gloves", "Swift gloves"):
             self.assertIn(item_name, EQUIPMENT_DATA)
             self.assertEqual(EQUIPMENT_DATA[item_name].slot, "hands")
+            self.assertEqual(
+                EQUIPMENT_DATA[item_name].source_item_id, item_ids[item_name]
+            )
 
     def test_every_asset_is_pinned_to_a_pre_cutoff_upload(self):
         with open(os.path.join(_ROOT, "assets_provenance.json"), encoding="utf-8") as handle:
@@ -989,6 +995,7 @@ class DominionTowerRewardLadderTest(unittest.TestCase):
         )
         self.assertTrue(ok, info)
         self.assertEqual(int(data["inventory"].get("Dreadnip", 0)), 100)
+        self.assertEqual(EXTRA_ITEM_DATA[info["item_name"]]["item_id"], 22370)
         view = dominion_tower_view_pure(data)
         self.assertEqual(view["reward_credits"], credits_before - 1)
         dreadnip_row = next(
