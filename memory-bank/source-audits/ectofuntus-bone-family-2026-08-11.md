@@ -200,11 +200,11 @@ This command contract does not invalidate the reported figures.
 
 ## Verification
 
-The owner ran the complete plain lane in this worktree.
+The owner ran the complete post-fix plain lane in this worktree.
 
 ```text
-Ran 4069 tests in 226.099s
-OK (skipped=496)
+Ran 4128 tests in 360.389s
+OK (skipped=498)
 ```
 
 The runtime check confirmed all four combat targets.
