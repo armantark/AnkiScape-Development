@@ -74,6 +74,15 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 
 ## Documentation Authority
 
+- `memory-bank/papercuts.md` is an append-only shared log and has the tracked
+  `merge=union` attribute. If that attribute is unavailable during a conflict,
+  resolve the three versions with `git merge-file --union`, then verify that
+  every line added by either side over the merge base survives. For papercut
+  lines, use `grep -qxF -e "$line" --`; because entries begin with `-`, the
+  shorter `grep -qxF "$line"` parses the entry as options and reports false
+  losses. Do not use line-count arithmetic as the containment test: identical
+  papercuts recorded on both branches correctly collapse to one line, making a
+  valid union smaller than ours plus theirs minus base.
 - `README.md` is the Memory Bank entry point. It names the current core files,
   evidence directories, and archive boundary.
 - `future-work-kanban.md`, `activeContext.md`, `progress.md`, and the live
