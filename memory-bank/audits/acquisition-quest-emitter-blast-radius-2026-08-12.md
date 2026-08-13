@@ -33,15 +33,15 @@ orphans split into 54 root and 46 cascade. The three newly orphaned quest reward
 are exactly Blood talisman, Jade vine seed, and Magic secateurs.
 
 This is strictly better than 2,509, but it is not a corrected acquisition count.
-It can be too high and too low at the same time. Goblin Diplomacy is classified
-completable even though stages 1 and 2 consume unreachable Orange and Blue goblin
-mail (`data/quest_data.py:6648-6666`), because required and consumed inventory,
+It can be too high and too low at the same time. Goblin Diplomacy is in the globally-completed set even though stages 1 and 2
+consume Orange and Blue goblin mail that are unavailable from currently modeled
+acquisition routes (`data/quest_data.py:6648-6666`), because required and consumed inventory,
 tools, item alternatives, and routes are outside this model. Shield of Arrav is
 a concrete route example: stage 4 requires joining one gang, but route state is
 not evaluated, so a route-gated stage can still leave later products and rewards
 eligible if its actions otherwise pass. Conversely, variant handling can
-over-block a quest when one impossible branch sets the quest-wide flag even if
-another branch could finish.
+over-block a quest when one branch unavailable from currently modeled routes
+sets the quest-wide flag even if another branch could pass.
 
 Owner decision for the later coordinated gate model: either (A) count only a
 route proved complete across actions, routes, combat, and variants, or (B) keep
@@ -51,9 +51,10 @@ choosing it.
 The combat invariant now reconciles the two facts the tool already held: an
 unsatisfiable registered encounter blocks both its stage products and quest
 completion rewards. The earlier model could know the encounter was blocked and
-still call the quest completable, the same contradiction as knowing a stage was
-blocked while counting later stages. A synthetic regression pins both outputs.
-The current six-quest set and all acceptance totals remain unchanged: four quests
+still include the quest in its stage/action-pass set, the same contradiction as
+knowing a stage was blocked while counting later stages. A synthetic regression
+pins both outputs. The current six-quest stage/action-pass set and all acceptance
+totals remain unchanged: four quests
 have no encounters, and every registered encounter in Diamond in the Rough and
 Stolen Hearts passes the existing predicate.
 
@@ -67,8 +68,9 @@ Only three live quests have variant rows: Shield of Arrav, Heroes' Quest, and
 Temple of Ikov. All three already fail on common or mandatory required-action
 stages before their branch choices, so the new persistent hard-stop introduces
 no current-data variant regression. The latent variant model is nevertheless
-wrong in both directions: one impossible branch can reject a quest globally,
-while later mandatory rows pool emitted actions from mutually exclusive branches.
+wrong in both directions: one branch unavailable from currently modeled routes
+can reject a quest globally, while later mandatory rows pool emitted actions from
+mutually exclusive branches.
 
 The recommended eventual design is one stage-satisfiability predicate inside a
 quest-progression fixed point integrated with item reachability: evaluate actions,
@@ -89,8 +91,9 @@ in stage order, and a quest is accepted when at least one branch completes.
 
 The closure is joint: ordinary actions can unlock quest stages, quest stages and
 rewards can unlock ordinary actions, and the process repeats to stability.
-Mutually exclusive branches are evaluated as separate world states; only items
-reachable in every branch-selection scenario enter the global acquisition graph.
+Mutually exclusive branches are evaluated as separate world states. Individual
+items enter the global acquisition graph when reachable in any scenario, while
+conjunctive action requirements must be satisfied together inside one scenario.
 A choice route becomes available at its declared choice stage, never at quest
 start. Quantity gates distinguish repeatable acquisition routes from finite
 one-shot supplies, consume finite supplies between stages, and preserve the
@@ -100,24 +103,67 @@ semantics.
 The final pinned baseline is unchanged at 1,568 actions, 2,248 reachable items,
 100 orphan inputs, 103 blocked actions, and 1,099 seed items. An independent
 throwaway implementation recomputed the same five figures. The isolated current-
-data effects of the five reviewed defects are all zero on those aggregate figures:
-fixed-point closure, quantity accounting, branch-product isolation, route timing,
-and diagnostic deduplication each leave the five totals unchanged when toggled
-alone. That cancellation-free result is not evidence the defects were harmless;
-synthetic reproductions show each decision error directly, and the repaired
-invariants prevent future data additions from silently moving the graph in the
-wrong direction.
+data effects of fixed-point closure, quantity accounting, branch-product
+isolation, route timing, diagnostic deduplication, and the follow-up existential
+branch-item repair are all zero on those aggregate figures. This is a genuine
+zero delta, not cancellation.
 
-Five quests change from the former action-only verdict to blocked:
+Two different sets had both been called "completable," causing a false comparison.
+They now have explicit names:
 
-- `goblin_diplomacy`: stage 1 needs unreachable `Orange goblin mail`; Goblin
-  Diplomacy is correctly uncompletable. Stage 2 also needs unreachable `Blue
-  goblin mail`.
-- `icthlarins_little_helper`: its inventory/tool path is not satisfiable from
-  the acquisition graph.
-- `shilo_village`: its stage requirements are not jointly satisfiable.
-- `smoking_kills`: its item and cat-alternative gates are not satisfiable.
-- `the_knights_sword`: its required inventory path is not satisfiable.
+- The **stage/action-pass set** contains quests whose own selected stage sequence
+  passes the modeled stage predicate, without applying prerequisite or quest-point
+  closure. It is unchanged at six: `cooks_assistant`, `diamond_in_the_rough`,
+  `hunt_for_surok`, `imp_catcher`, `lair_of_tarn_razorlor`, and `stolen_hearts`.
+- The **globally-completed set** also passes prerequisite and quest-point closure;
+  only this set publishes final rewards as global audit sources; stage products
+  remain gated separately by startability and stage traversal. It changes from
+  six to four. Before: `cooks_assistant`,
+  `diamond_in_the_rough`, `goblin_diplomacy`, `imp_catcher`, `stolen_hearts`, and
+  `the_knights_sword`. After: `cooks_assistant`, `diamond_in_the_rough`,
+  `imp_catcher`, and `stolen_hearts`. Nothing newly becomes globally completed.
+
+The two actual removals from the globally-completed set are `goblin_diplomacy`
+and `the_knights_sword`. `hunt_for_surok` and `lair_of_tarn_razorlor` are in the
+stage/action-pass set but remain prerequisite-blocked by `what_lies_below` and
+`haunted_mine`, so they publish nothing either way.
+
+The unified stage predicate also rejects `icthlarins_little_helper`,
+`shilo_village`, and `smoking_kills`, but prerequisite closure had already kept
+all three outside the old global source graph. Their exclusive products do not
+explain the unchanged totals: Canopic jar, Catspeak amulet, Sphinx's token and the
+two symbols; twelve Shilo Village items including Wampum belt, Bone key, and Beads
+of the dead; and Ranged path key, Magic path key, Masked earmuffs, and Banshee
+voice have no alternative producer, but none had ever entered the graph.
+
+Only one active global source is removed: Goblin Diplomacy's `Gold bar` reward.
+`Gold bar` remains reachable through `Smithing:smelt_gold_bar` and
+`Magic:superheat_gold_bar`. The Knight's Sword publishes nothing because its
+runtime override empties both rewards and `produced_inventory`. The null is
+therefore narrow and exact: one redundant provenance removed, nothing added.
+
+Goblin Diplomacy is not globally completed from currently modeled acquisition
+routes: stage 1 needs unavailable `Orange goblin mail`, and stage 2 needs
+unavailable `Blue goblin mail`. This is not a claim that the period quest was
+impossible. The source-backed quick guide records the real route: obtain Goblin
+mail and Blue dye, make Orange dye from Red and Yellow dye, and dye one mail each.
+Dyeing is not implemented in the acquisition graph. The Knight's Sword and the
+other three predicate-rejected quests are likewise described only relative to
+currently modeled acquisition routes, never as impossible period quests.
+
+The cross-quest item/quest fixed-point repair adds nothing on current data. No
+present quest chain exercises that new closure, so it is a latent correctness fix
+whose evidence is the synthetic regression, not the unchanged live totals.
+
+A follow-up review found that the first branch isolation repair intersected item
+sets across variant scenarios. That prevented cross-branch conjunction pooling
+but was too strict for individual items: an item obtainable only by choosing the
+left branch is reachable even if the right branch lacks it. The repaired model
+keeps each scenario's ordinary action closure separate, unions individually
+reachable items and actions across scenarios, and never evaluates conjunctive
+action inputs against that union. Thus left-only and right-only items are each
+reachable, while an action requiring both remains blocked. The correction leaves
+all five aggregate figures unchanged and is pinned by a synthetic regression.
 
 The Shield of Arrav duplicate diagnostic review finding reproduced before the
 repair: the real build emitted two byte-identical stage-one rows. Those rows
@@ -165,8 +211,9 @@ catalog quests plus two miniquests. It contains:
   `Complete X stage N objective`; and
 - 313 hand-authored action occurrences.
 
-Therefore 185 of 196 quests are directly uncompletable through ordinary runtime
-progression because each reaches at least one action that no runtime path marks.
+Therefore 185 of 196 quests are not stage/action-pass through currently modeled
+ordinary runtime progression because each reaches at least one action that no
+modeled runtime path marks.
 The reverse prerequisite closure adds five catalog entries whose own stages have
 no required action but whose prerequisites are blocked:
 
@@ -280,9 +327,11 @@ The live blocker probe confirms:
 
 `runtime/runtime_actions_production.py:1298-1389` deactivates Questing and rejects
 progress when these stage blocker reasons exist. Consequently an ordinary
-level-one-start player cannot complete Jungle Potion and cannot enter Tai Bwo
-Wannai Cleanup. Adding Bush snake alone would create an inert acquisition route,
-so no product implementation, tests, mutation run, or full test lanes were
+level-one-start player cannot complete Jungle Potion or enter Tai Bwo Wannai
+Cleanup through currently modeled progression routes. This is not a claim about
+what was possible in the period game. Adding Bush snake alone would create an
+inert acquisition route, so no product implementation, tests, mutation run, or
+full test lanes were
 started.
 
 ## Darkan evidence handling
@@ -476,7 +525,8 @@ actions have no emitter. The earlier conclusion (blocked) stands, but the stated
 reason (no pinned producer) was wrong.
 
 The existing quest-gated `dagannoth` and `cave_horror` enemies may have the same
-pre-existing defect: a completion check can point at an uncompletable quest.
+pre-existing defect: a completion check can point at a quest that is not globally completed through
+currently modeled progression routes.
 That suspicion is recorded for the future emitter pass; this slice did not
 investigate or change either enemy.
 

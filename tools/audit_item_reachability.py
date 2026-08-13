@@ -491,6 +491,8 @@ def _close_quest_reachability(
     quest_data: Mapping[str, Mapping[str, Any]],
     registered_items: set[str],
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool],
+    *,
+    scenario_sources_out: list[dict[str, set[str]]] | None = None,
 ) -> tuple[list[dict[str, Any]], set[str], set[str]]:
     variant_ids = {
         quest_id: tuple(sorted({
@@ -557,15 +559,26 @@ def _close_quest_reachability(
                 break
             previous_state = state
 
-    common_items = set.intersection(*(set(sources) for sources, _blocked, _complete, _startable in scenario_results))
-    for item in common_items:
+    if scenario_sources_out is not None:
+        scenario_sources_out.extend(
+            {item: set(item_sources) for item, item_sources in sources.items()}
+            for sources, _blocked, _complete, _startable in scenario_results
+        )
+    reachable_items = set.union(
+        *(set(sources) for sources, _blocked, _complete, _startable in scenario_results)
+    )
+    for item in reachable_items:
         seed_sources.setdefault(item, set()).update(
             source
             for sources, _blocked, _complete, _startable in scenario_results
-            for source in sources[item]
+            for source in sources.get(item, ())
         )
-    completable = set.intersection(*(set(complete) for _sources, _blocked, complete, _startable in scenario_results))
-    startable = set.intersection(*(set(startable) for _sources, _blocked, _complete, startable in scenario_results))
+    completable = set.union(
+        *(set(complete) for _sources, _blocked, complete, _startable in scenario_results)
+    )
+    startable = set.union(
+        *(set(startable) for _sources, _blocked, _complete, startable in scenario_results)
+    )
     blocked_by_key = {}
     for _sources, rows, _complete, _startable in scenario_results:
         for row in rows:
@@ -1173,6 +1186,7 @@ def build_reachability_report() -> dict[str, Any]:
             seed_sources[item].add("woodcutting:bird_nest_roll")
             repeatable_seed_items.add(item)
 
+    scenario_sources: list[dict[str, set[str]]] = []
     blocked_quest_stage_products, completable_quests, startable_quests = (
         _close_quest_reachability(
             actions,
@@ -1182,10 +1196,29 @@ def build_reachability_report() -> dict[str, Any]:
             constants.QUEST_DATA,
             registered_items,
             quest_combat_source_satisfiable,
+            scenario_sources_out=scenario_sources,
         )
     )
 
-    reachable, route, unresolved = _close_actions(actions, seed_sources)
+    scenario_closures = [
+        _close_actions(actions, sources)
+        for sources in scenario_sources
+    ]
+    reachable = set.union(*(items for items, _route, _unresolved in scenario_closures))
+    route = {
+        item: min(
+            item_route[item]
+            for items, item_route, _unresolved in scenario_closures
+            if item in items
+        )
+        for item in reachable
+    }
+    resolved_action_ids = {
+        action["id"]
+        for action in actions
+        if any(action not in scenario_unresolved for _items, _route, scenario_unresolved in scenario_closures)
+    }
+    unresolved = [action for action in actions if action["id"] not in resolved_action_ids]
 
     consumed = set(consumers)
     orphan_inputs = sorted(consumed - reachable)
@@ -1193,8 +1226,23 @@ def build_reachability_report() -> dict[str, Any]:
     cascade_orphans = [item for item in orphan_inputs if producers.get(item)]
     unresolved_actions = []
     for action in unresolved:
-        missing = sorted(action["required"] - reachable)
-        missing_alternatives = [sorted(group) for group in action["alternatives"] if not group & reachable]
+        scenario_gaps = [
+            (
+                sorted(action["required"] - scenario_items),
+                [
+                    sorted(group)
+                    for group in action["alternatives"]
+                    if not group & scenario_items
+                ],
+            )
+            for scenario_items, _route, _scenario_unresolved in scenario_closures
+        ]
+        missing = sorted({item for gaps, _options in scenario_gaps for item in gaps})
+        missing_alternatives = sorted({
+            tuple(group)
+            for _gaps, options in scenario_gaps
+            for group in options
+        })
         unresolved_actions.append(
             {
                 "id": action["id"],
@@ -1203,6 +1251,8 @@ def build_reachability_report() -> dict[str, Any]:
                 "outputs": sorted(action["outputs"]),
             }
         )
+    # Root leverage remains an optimistic quantity-free diagnostic. Branch-local
+    # conjunction truth is preserved in the primary reachable/unresolved figures.
     root_orphan_leverage = _rank_root_orphans(
         root_orphans,
         actions,
