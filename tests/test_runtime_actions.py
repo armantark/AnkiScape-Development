@@ -7,6 +7,7 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
 from ankiscape.logic.brawling_gloves_logic import brawling_glove_state_pure
+from ankiscape.logic_pure.logic_pure import can_start_quest_pure
 from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
@@ -3079,6 +3080,67 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(player_data["quests"]["what_lies_below"]["completed"])
         self.assertEqual(player_data["inventory"]["Dagon'hai history"], 1)
+
+    def test_jungle_potion_real_handler_completes_ordered_herb_route_and_unlocks_shilo(self):
+        from ankiscape.core.constants import HERBLORE_DATA, QUEST_DATA
+
+        quest_id = "jungle_potion"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(
+            {
+                "current_quest": quest_id,
+                "herblore_level": 3,
+                "herblore_exp": 250.0,
+                "quest_points": 4,
+            }
+        )
+        player_data["quests"]["druidic_ritual"] = {
+            "started": True,
+            "progress": 4,
+            "completed": True,
+        }
+        player_data.pop("shattered_heart", None)
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        ctx = _context(player_data, calls)
+        route = (
+            ("clean_snake_weed", "Grimy snake weed", "Clean snake weed"),
+            ("clean_ardrigal", "Grimy ardrigal", "Clean ardrigal"),
+            ("clean_sito_foil", "Grimy sito foil", "Clean sito foil"),
+            ("clean_volencia_moss", "Grimy volencia moss", "Clean volencia moss"),
+            ("clean_rogues_purse", "Grimy rogue's purse", "Clean rogue's purse"),
+        )
+
+        for index, (clean_target, grimy_item, clean_item) in enumerate(route, start=1):
+            self.assertTrue(handle_quest_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], 1)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index * 2)
+            self.assertFalse(player_data["quests"][quest_id]["completed"])
+
+            player_data["current_herblore"] = clean_target
+            self.assertTrue(handle_herblore_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], 0)
+            self.assertEqual(player_data["inventory"][clean_item], 1)
+            self.assertEqual(HERBLORE_DATA[clean_target]["level"], 3)
+            self.assertEqual(HERBLORE_DATA[clean_target]["exp"], 2.5)
+
+            self.assertTrue(handle_quest_answer(ctx))
+            self.assertEqual(player_data["inventory"][clean_item], 0)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index * 2 + 1)
+            self.assertEqual(
+                player_data["quests"][quest_id]["completed"],
+                index == len(route),
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 5)
+        self.assertEqual(player_data["herblore_exp"], 1037.5)
+        self.assertEqual(calls["saves"], 15)
+        self.assertEqual(calls["activity"][-1], "Jungle Potion complete")
+        self.assertEqual(calls["errors"][-1][0], "Quest complete")
+        self.assertTrue(calls["deactivated"])
+
+        player_data.update({"smithing_level": 4, "crafting_level": 20, "agility_level": 32})
+        self.assertTrue(can_start_quest_pure(player_data, "shilo_village", QUEST_DATA))
 
     def test_quest_completion_warns_and_switches_off(self):
         calls = {"xp": [], "saves": 0, "errors": []}

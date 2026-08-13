@@ -97,7 +97,7 @@ class HerbloreDataTests(unittest.TestCase):
         self.assertTrue(all(target.subgroup != "dungeoneering" for target in HERBLORE_TARGETS))
         self.assertTrue(deferred_ids.isdisjoint(herblore_targets_as_dict()))
 
-        self.assertEqual(len(CLEAN_TARGETS), 22)
+        self.assertEqual(len(CLEAN_TARGETS), 27)
         self.assertEqual(len(UNF_TARGETS), 22)
         self.assertEqual(len(FINISHED_TARGETS), 70)
 
