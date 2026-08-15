@@ -302,7 +302,10 @@ from ..logic.werewolf_skullball_logic import werewolf_skullball_view_pure
 from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
 from ..logic.gnome_ball_logic import gnome_ball_view_pure
 
-from ..data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ..data.fish_flingers_data import (
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISH_FLINGERS_EVENT_REVIEWS,
+)
 from ..logic.fish_flingers_logic import fish_flingers_view_pure
 
 from ..data.fishing_trawler_data import (
@@ -13532,9 +13535,11 @@ def show_main_menu(
 
         fish_flingers_progress = QProgressBar()
         fish_flingers_progress.setObjectName("fishFlingersProgress")
-        fish_flingers_progress.setRange(0, 6)
+        fish_flingers_progress.setRange(0, FISH_FLINGERS_EVENT_REVIEWS)
         fish_flingers_progress.setTextVisible(True)
-        fish_flingers_progress.setFormat("%v of 6 landed")
+        fish_flingers_progress.setFormat(
+            f"%v of {FISH_FLINGERS_EVENT_REVIEWS} landed"
+        )
         fish_flingers_progress.setStyleSheet(
             "QProgressBar { color: palette(text); text-align: center;"
             " border: 1px solid palette(mid); border-radius: 4px; }"
@@ -13610,7 +13615,7 @@ def show_main_menu(
             )
             if active:
                 fish_flingers_summary.setText(
-                    f"Catch {int(view['review']) + 1}/6 · "
+                    f"Catch {int(view['review']) + 1}/{FISH_FLINGERS_EVENT_REVIEWS} · "
                     f"{view['species']} at {view['location']} · "
                     f"stock {int(view['stock'])}/{int(view['stock_max'])} "
                     f"({int(view['stock_percent'])}%, {view['stock_label']}) · "
@@ -13623,7 +13628,7 @@ def show_main_menu(
                 )
             else:
                 summary_lines = [
-                    "Six successful reviews · tackle discovery improves every catch · "
+                    f"{FISH_FLINGERS_EVENT_REVIEWS} successful reviews · tackle discovery improves every catch · "
                     "fish stocks rotate automatically · big-fish help and rewards at the finish"
                 ]
                 completed = int(view["events_completed"])
@@ -13655,9 +13660,7 @@ def show_main_menu(
             fish_flingers_primary.setText(
                 "Selected for reviews"
                 if selected
-                else "Select for reviews"
-                if active
-                else "Enter event — 1 ticket"
+                else "Start activity"
             )
             fish_flingers_primary.setEnabled(
                 on_fish_flingers_command is not None
@@ -14737,6 +14740,54 @@ def show_main_menu(
         )
         circus_layout.addWidget(circus_detail)
 
+        circus_queue_box = QWidget()
+        circus_queue_box.setObjectName("circusQueueEditor")
+        circus_queue_layout = QHBoxLayout(circus_queue_box)
+        circus_queue_layout.setContentsMargins(0, 0, 0, 0)
+        circus_queue_layout.setSpacing(4)
+        circus_executing_column = QVBoxLayout()
+        circus_executing_label = QLabel("Executing")
+        circus_executing_label.setStyleSheet(
+            f"color: {dim_text_css(circus_executing_label)}; font-size: 10px; font-weight: 700;"
+        )
+        circus_executing_queue = QListWidget()
+        circus_executing_queue.setObjectName("circusExecutingQueue")
+        circus_executing_queue.setAccessibleName("Executing Circus performances")
+        circus_executing_queue.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        circus_executing_queue.setDefaultDropAction(Qt.DropAction.MoveAction)
+        circus_executing_queue.setMaximumHeight(72)
+        circus_executing_column.addWidget(circus_executing_label)
+        circus_executing_column.addWidget(circus_executing_queue)
+        circus_queue_layout.addLayout(circus_executing_column, 1)
+
+        circus_queue_buttons = QVBoxLayout()
+        circus_queue_buttons.setContentsMargins(0, 14, 0, 0)
+        circus_move_to_non_executing = QPushButton("→")
+        circus_move_to_non_executing.setObjectName("circusMoveToNonExecutingButton")
+        circus_move_to_non_executing.setAccessibleName("Move performance to non-executing")
+        circus_move_to_executing = QPushButton("←")
+        circus_move_to_executing.setObjectName("circusMoveToExecutingButton")
+        circus_move_to_executing.setAccessibleName("Move performance to executing")
+        circus_queue_buttons.addWidget(circus_move_to_non_executing)
+        circus_queue_buttons.addWidget(circus_move_to_executing)
+        circus_queue_layout.addLayout(circus_queue_buttons)
+
+        circus_non_executing_column = QVBoxLayout()
+        circus_non_executing_label = QLabel("Not executing")
+        circus_non_executing_label.setStyleSheet(
+            f"color: {dim_text_css(circus_non_executing_label)}; font-size: 10px; font-weight: 700;"
+        )
+        circus_non_executing_queue = QListWidget()
+        circus_non_executing_queue.setObjectName("circusNonExecutingQueue")
+        circus_non_executing_queue.setAccessibleName("Non-executing Circus performances")
+        circus_non_executing_queue.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        circus_non_executing_queue.setDefaultDropAction(Qt.DropAction.MoveAction)
+        circus_non_executing_queue.setMaximumHeight(72)
+        circus_non_executing_column.addWidget(circus_non_executing_label)
+        circus_non_executing_column.addWidget(circus_non_executing_queue)
+        circus_queue_layout.addLayout(circus_non_executing_column, 1)
+        circus_layout.addWidget(circus_queue_box)
+
         circus_result = QLabel()
         circus_result.setObjectName("circusLastResult")
         circus_result.setWordWrap(True)
@@ -14801,7 +14852,7 @@ def show_main_menu(
         circus_actions_layout = QHBoxLayout(circus_actions)
         circus_actions_layout.setContentsMargins(0, 0, 0, 0)
         circus_actions_layout.setSpacing(6)
-        circus_primary = QPushButton("Arm for next review")
+        circus_primary = QPushButton("Start activity")
         circus_primary.setObjectName("circusPrimaryButton")
         circus_edit = QPushButton("Edit routine…")
         circus_edit.setObjectName("circusEditRoutineButton")
@@ -14822,6 +14873,54 @@ def show_main_menu(
             selected = str(circus_performance.currentData() or "agility")
             return selected if selected in CIRCUS_PERFORMANCES else "agility"
 
+        def _circus_queue_ids(queue: QListWidget) -> list[str]:
+            return [
+                str(queue.item(index).data(Qt.ItemDataRole.UserRole))
+                for index in range(queue.count())
+            ]
+
+        def _save_circus_queue() -> None:
+            if syncing_circus["active"]:
+                return
+            _run_circus_command(
+                "set_queue",
+                {
+                    "executing": _circus_queue_ids(circus_executing_queue),
+                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
+                },
+            )
+
+        def _move_circus_queue_item(source: QListWidget, target: QListWidget) -> None:
+            item = source.takeItem(source.currentRow())
+            if item is None:
+                return
+            target.addItem(item)
+            target.setCurrentItem(item)
+            _save_circus_queue()
+
+        def _populate_circus_queue(view: Mapping[str, Any]) -> None:
+            rows_by_id = {
+                str(row["id"]): row for row in view["performances"]
+            }
+            for queue, ids in (
+                (
+                    circus_executing_queue,
+                    view["performance_queue"]["executing"],
+                ),
+                (
+                    circus_non_executing_queue,
+                    view["performance_queue"]["non_executing"],
+                ),
+            ):
+                queue.clear()
+                for performance_id in ids:
+                    row = rows_by_id[str(performance_id)]
+                    item = QListWidgetItem(str(row["display_name"]))
+                    item.setData(Qt.ItemDataRole.UserRole, str(performance_id))
+                    if row["locked_reasons"]:
+                        item.setToolTip(", ".join(row["locked_reasons"]))
+                    queue.addItem(item)
+
         def _run_circus_command(action_id: str, payload=None) -> dict[str, Any]:
             if on_circus_command is None:
                 return {"ok": False, "message": "Big Top Bonanza actions are unavailable."}
@@ -14838,6 +14937,7 @@ def show_main_menu(
         def _refresh_circus_panel(sync_selection: bool = True) -> None:
             syncing_circus["active"] = True
             view = circus_view_pure(player_data)
+            _populate_circus_queue(view)
             if sync_selection:
                 circus_performance.setCurrentIndex(
                     max(0, circus_performance.findData(view["selected_performance"]))
@@ -14883,12 +14983,6 @@ def show_main_menu(
             strategy = str(circus_strategy.currentData() or "balanced")
             locked = tuple(row["locked_reasons"])
             selected_here = player_data.get("current_utility") == CIRCUS_ACTIVITY_ID
-            armed = (
-                selected_here
-                and view["selected_performance"] == performance_id
-                and view["automation_mode"] == mode
-                and row["strategy"] == strategy
-            )
             circus_status.setText(
                 "Closed this week"
                 if row["used_this_week"]
@@ -14917,9 +15011,16 @@ def show_main_menu(
             firemaking_act = performance_id in {"fire_breathing", "flaming_poi"}
             circus_reward_widgets["acrobat"].setVisible(not firemaking_act)
             circus_reward_widgets["firemaker"].setVisible(firemaking_act)
-            circus_primary.setText("Armed for next review" if armed else "Arm for next review")
+            circus_primary.setText(
+                "Selected for reviews" if selected_here else "Start activity"
+            )
             circus_primary.setAccessibleName(circus_primary.text())
-            circus_primary.setEnabled(on_circus_command is not None and not locked and not armed)
+            circus_primary.setEnabled(
+                on_circus_command is not None
+                and view["session"] is None
+                and bool(view["performance_queue"]["executing"])
+                and not selected_here
+            )
             circus_edit.setVisible(mode == "advanced")
             circus_edit.setEnabled(on_circus_command is not None and not locked)
             circus_abandon.setEnabled(on_circus_command is not None and not locked)
@@ -14936,6 +15037,11 @@ def show_main_menu(
             circus_performance.setEnabled(on_circus_command is not None)
             circus_strategy.setEnabled(on_circus_command is not None)
             circus_mode.setEnabled(on_circus_command is not None)
+            queue_enabled = on_circus_command is not None and view["session"] is None
+            circus_executing_queue.setEnabled(queue_enabled)
+            circus_non_executing_queue.setEnabled(queue_enabled)
+            circus_move_to_non_executing.setEnabled(queue_enabled)
+            circus_move_to_executing.setEnabled(queue_enabled)
             syncing_circus["active"] = False
             _fit_current_activity_detail()
 
@@ -14954,15 +15060,21 @@ def show_main_menu(
             syncing_circus["active"] = False
             _refresh_circus_panel(False)
 
-        def _arm_circus_performance() -> None:
-            _run_circus_command(
-                "set_policy",
+        def _start_circus_activity() -> None:
+            result = _run_circus_command(
+                "start_activity",
                 {
-                    "performance_id": _circus_selected_id(),
+                    "executing": _circus_queue_ids(circus_executing_queue),
+                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
                     "automation_mode": str(circus_mode.currentData() or "casual"),
                     "strategy": str(circus_strategy.currentData() or "balanced"),
                 },
             )
+            if result.get("ok") and _set_utility_selection(
+                CIRCUS_ACTIVITY_ID, activate=True
+            ):
+                tree.clearSelection()
+                _refresh_circus_panel()
 
         def _edit_circus_routine() -> None:
             performance_id = _circus_selected_id()
@@ -15059,7 +15171,23 @@ def show_main_menu(
                 None if syncing_circus["active"] else _refresh_circus_panel(False)
             )
         )
-        circus_primary.clicked.connect(lambda _checked=False: _arm_circus_performance())
+        circus_executing_queue.model().rowsMoved.connect(
+            lambda *_args: _save_circus_queue()
+        )
+        circus_non_executing_queue.model().rowsMoved.connect(
+            lambda *_args: _save_circus_queue()
+        )
+        circus_move_to_non_executing.clicked.connect(
+            lambda _checked=False: _move_circus_queue_item(
+                circus_executing_queue, circus_non_executing_queue
+            )
+        )
+        circus_move_to_executing.clicked.connect(
+            lambda _checked=False: _move_circus_queue_item(
+                circus_non_executing_queue, circus_executing_queue
+            )
+        )
+        circus_primary.clicked.connect(lambda _checked=False: _start_circus_activity())
         circus_edit.clicked.connect(lambda _checked=False: _edit_circus_routine())
         circus_abandon.clicked.connect(lambda _checked=False: _abandon_circus_performance())
         circus_reclaim.clicked.connect(
@@ -20987,6 +21115,9 @@ def show_main_menu(
                 _show_activity_detail(activity_id)
                 return
             if activity_id == COURT_CASES_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == CIRCUS_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
             if activity_id == TROUBLE_BREWING_ACTIVITY_ID:

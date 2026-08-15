@@ -29,6 +29,8 @@ from ankiscape.logic.fish_flingers_logic import (
     buy_fish_flingers_reward_pure,
     enter_fish_flingers_pure,
     fish_flingers_view_pure,
+    fish_flingers_score_pure,
+    fish_flingers_xp_payout_pure,
     fishing_outfit_multiplier_pure,
     leave_fish_flingers_pure,
     sanitize_fish_flingers_session_pure,
@@ -143,6 +145,22 @@ class FishFlingersDataTests(unittest.TestCase):
 
 
 class FishFlingersLogicTests(unittest.TestCase):
+    def test_darkan_score_mapping_and_event_payout(self):
+        # 70 catches trigger one Darkan catch-band point; the other components
+        # exercise the capped local weight proxies and map to score 44.
+        self.assertEqual(
+            fish_flingers_score_pure(
+                {
+                    "fish_caught": 70,
+                    "big_fish": 3,
+                    "assists": 6,
+                    "perfect_tackles": 6,
+                }
+            ),
+            44,
+        )
+        self.assertEqual(fish_flingers_xp_payout_pure(25, 44), 5318)
+
     def test_daily_ticket_grant_uses_answered_cards_and_caps_at_ten(self):
         claimed = sync_fish_flingers_tickets_pure(_player())
         self.assertEqual(claimed["fish_flingers_tickets"], 2)
@@ -481,9 +499,12 @@ class FishFlingersHookTests(unittest.TestCase):
         sys.modules.clear()
         sys.modules.update(self._orig_modules)
 
-    def test_multiplier_finishes_one_event_and_undo_restores_it(self):
+    def test_darkan_payout_finishes_one_event_without_outfit_multiplier_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_fish_flingers_hook")
         logic = sys.modules[f"{addon.__name__}.logic.fish_flingers_logic"]
+        activities = sys.modules[
+            f"{addon.__name__}.runtime.runtime_actions_activities"
+        ]
         storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
         package_constants = sys.modules[f"{addon.__name__}.core.constants"]
         player = storage.default_player_data(
@@ -507,7 +528,12 @@ class FishFlingersHookTests(unittest.TestCase):
         before = copy.deepcopy(addon.player_data)
         before_xp = float(before["fishing_exp"])
         with patch.object(addon.random, "random", return_value=0.999) as rng:
-            addon.on_good_answer(before)
+            with patch.object(
+                activities,
+                "fishing_outfit_multiplier_pure",
+                side_effect=AssertionError("Fish Flingers must not use outfit XP"),
+            ):
+                addon.on_good_answer(before)
         # Three rolls per review: catch, big fish, assist.
         self.assertEqual(rng.call_count, FISH_FLINGERS_EVENT_REVIEWS * 3)
         self.assertEqual(addon.player_data["fish_flingers_events_completed"], 1)

@@ -481,6 +481,37 @@ def apply_circus_command_pure(
     data = dict(player_data)
     state = sanitize_circus_state_pure(data.get("circus"))
     body = payload if isinstance(payload, Mapping) else {}
+    if action_id == "start_activity":
+        executing = _valid_queue_ids(body.get("executing"))
+        non_executing = _valid_queue_ids(body.get("non_executing"))
+        if not executing:
+            return data, False, {"reason": "Choose at least one executing performance."}
+        if set(executing) & set(non_executing):
+            return data, False, {"reason": "A performance can appear in only one queue."}
+        performance_id = executing[0]
+        policy_payload = {
+            "performance_id": performance_id,
+            "automation_mode": body.get("automation_mode", state["automation_mode"]),
+            "strategy": body.get(
+                "strategy", state["strategies"].get(performance_id, "balanced")
+            ),
+        }
+        configured, configured_ok, configured_info = apply_circus_command_pure(
+            data, "set_policy", policy_payload
+        )
+        if not configured_ok:
+            return configured, False, configured_info
+        started, started_ok, started_info = apply_circus_command_pure(
+            configured,
+            "set_queue",
+            {"executing": executing, "non_executing": non_executing},
+        )
+        if not started_ok:
+            return started, False, started_info
+        started["circus"]["last_result"] = (
+            f"Started {CIRCUS_PERFORMANCES[performance_id].display_name} activity."
+        )
+        return started, True, {"message": started["circus"]["last_result"]}
     if action_id == "set_policy":
         performance_id = str(body.get("performance_id", state["selected_performance"]))
         mode = str(body.get("automation_mode", state["automation_mode"]))
@@ -532,7 +563,6 @@ def apply_circus_command_pure(
             "non_executing": non_executing,
         }
         state["selected_performance"] = executing[0]
-        data["current_utility"] = CIRCUS_ACTIVITY_ID
         state["last_result"] = (
             f"Queued {len(executing)} Circus performance"
             f"{'s' if len(executing) != 1 else ''}."

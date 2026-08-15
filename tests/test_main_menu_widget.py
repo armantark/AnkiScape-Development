@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -14589,6 +14589,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_tree.setCurrentItem(row)
         activity_tree.itemActivated.emit(row, 0)
         QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "bankstanding")
 
         panel = _find_named_widget(dialog, "fishFlingersPanel")
         summary = _find_named_label(dialog, "fishFlingersSummary")
@@ -14601,7 +14602,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         buy = reward_page.findChild(QPushButton, "fishFlingersBuyButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
-        self.assertIn("Six successful reviews", summary.text())
+        self.assertIn("8 successful reviews", summary.text())
         self.assertNotIn("claim", summary.text())
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
@@ -14641,7 +14642,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("palette(text)", summary.styleSheet())
         self.assertGreaterEqual(summary.height(), summary.sizeHint().height())
         self.assertLessEqual(panel.width(), dialog.width())
-        self.assertEqual(progress.format(), "%v of 6 landed")
+        self.assertEqual(progress.format(), "%v of 8 landed")
         self.assertFalse(progress.isHidden())
         self.assertFalse(leave.isHidden())
 
@@ -17253,7 +17254,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         from ankiscape.logic.circus_logic import apply_circus_command_pure
 
         pd = _make_player_data()
-        pd["current_utility"] = "big_top_bonanza"
+        pd["current_utility"] = "bankstanding"
         command_calls = []
 
         def circus_command(action_id, payload):
@@ -17279,6 +17280,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         tree.itemClicked.emit(item, 0)
         QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "bankstanding")
         panel = next(
             widget
             for widget in dialog.findChildren(QWidget, "circusPanel")
@@ -17289,6 +17291,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         strategy = panel.findChild(QComboBox, "circusStrategyCombo")
         mode = panel.findChild(QComboBox, "circusAutomationMode")
         primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
+        non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
+        move_to_non_executing = panel.findChild(
+            QPushButton, "circusMoveToNonExecutingButton"
+        )
+        move_to_executing = panel.findChild(
+            QPushButton, "circusMoveToExecutingButton"
+        )
         edit = panel.findChild(QPushButton, "circusEditRoutineButton")
         status = panel.findChild(QLabel, "circusStatusChip")
         reward_icons = [
@@ -17305,6 +17315,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             performance.itemText(performance.findData("fire_breathing")),
         )
         self.assertEqual(len(reward_icons), 5)
+        self.assertEqual(executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "agility")
+        self.assertEqual(non_executing_queue.count(), 5)
         self.assertTrue(all(not widget.pixmap().isNull() for widget in reward_icons))
         self.assertTrue(panel.findChild(QWidget, "circusReward::acrobat").isVisible())
         self.assertFalse(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
@@ -17317,10 +17329,40 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
 
         performance.setCurrentIndex(performance.findData("magic"))
+        magic_row = non_executing_queue.findItems(
+            "Magic", Qt.MatchFlag.MatchContains
+        )[0]
+        non_executing_queue.setCurrentItem(magic_row)
+        move_to_executing.click()
+        before_reorder = [
+            executing_queue.item(index).data(Qt.ItemDataRole.UserRole)
+            for index in range(executing_queue.count())
+        ]
+        source_row = before_reorder.index("magic")
+        destination_row = 1 if source_row == 0 else 0
+        self.assertTrue(
+            executing_queue.model().moveRows(
+                QModelIndex(), source_row, 1, QModelIndex(), destination_row
+            )
+        )
+        QApplication.processEvents()
+        reordered = [
+            executing_queue.item(index).data(Qt.ItemDataRole.UserRole)
+            for index in range(executing_queue.count())
+        ]
+        self.assertNotEqual(reordered, before_reorder)
+        self.assertEqual(command_calls[-1][0], "set_queue")
+        executing_queue.setCurrentItem(
+            executing_queue.findItems("Agility", Qt.MatchFlag.MatchContains)[0]
+        )
+        move_to_non_executing.click()
+        self.assertEqual(
+            executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "magic"
+        )
         strategy.setCurrentIndex(strategy.findData("max_xp"))
         primary.click()
         QApplication.processEvents()
-        self.assertEqual(command_calls[-1][0], "set_policy")
+        self.assertEqual(command_calls[-1][0], "start_activity")
         self.assertEqual(pd["circus"]["selected_performance"], "magic")
         self.assertEqual(pd["circus"]["strategies"]["magic"], "max_xp")
 

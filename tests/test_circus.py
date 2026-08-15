@@ -287,6 +287,27 @@ class CircusLogicTest(unittest.TestCase):
         self.assertEqual(result["performance_id"], "agility")
         self.assertEqual(player["circus"]["session"]["active_performance"], "agility")
 
+    def test_start_activity_commits_queue_and_policy_together(self):
+        player, ok, info = apply_circus_command_pure(
+            _player(),
+            "start_activity",
+            {
+                "executing": ["magic", "agility"],
+                "non_executing": ["ranged"],
+                "automation_mode": "advanced",
+                "strategy": "max_xp",
+            },
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(player["current_utility"], "big_top_bonanza")
+        self.assertEqual(
+            player["circus"]["performance_queue"]["executing"],
+            ["magic", "agility"],
+        )
+        self.assertEqual(player["circus"]["selected_performance"], "magic")
+        self.assertEqual(player["circus"]["automation_mode"], "advanced")
+        self.assertEqual(player["circus"]["strategies"]["magic"], "max_xp")
+
     def test_reclaim_restores_only_missing_unlocked_costumes(self):
         player = _player()
         player["circus"]["unlocked_costumes"] = ["Giant's hand", "Acrobat hood"]

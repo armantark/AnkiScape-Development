@@ -6126,3 +6126,8 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - The final map traces review control, menu control, catalog dependency, state save, feedback projection, persisted feedback, review/world clocks, and undo restore through nine distinct structures in three zones. Payload chips appear only for the selected road; the explainer carries contracts, trace, route jumps, and exact source citations.
 - Mechanical artifact checks, HTML parsing, and `git diff --check` pass. PinchTab verified the default and selected visual states, nine keyboard structures, eight keyboard roads, Escape reset, zero default payload tokens, exactly one selected-road token, and coherent node/road focus disclosure.
 - The plan artifact is hosted at `https://acgrgnw1a8ig.postplan.dev`. The results artifact remains local because Postplan requires valid authentication for inline JavaScript uploads.
+
+## Pass 10 Batch B — 2026-08-15
+
+- Implemented Fish Flingers Darkan payout parity, outfit exclusion, and eight-review panel copy.
+- Implemented atomic Big Top start flow and persisted executing/non-executing queue editing.

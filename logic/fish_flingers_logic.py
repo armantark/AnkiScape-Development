@@ -1,8 +1,9 @@
-"""Pure Fish Flingers entry, six-review event, currency, and shop mechanics."""
+"""Pure Fish Flingers entry, eight-review event, currency, and shop mechanics."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
+from math import floor
 from typing import Any
 
 from ..data.fish_flingers_data import (
@@ -238,12 +239,53 @@ def enter_fish_flingers_pure(
     return data, True, {"message": data["fish_flingers_last_result"]}
 
 
-def _event_xp(fishing_level: Any, fish_caught: int) -> float:
+def fish_flingers_score_pure(session: Mapping[str, Any]) -> int:
+    """Translate the bounded session statistics to Darkan's 48-point score."""
+    fish_caught = _int(session.get("fish_caught"))
+    big_fish = _int(session.get("big_fish"), maximum=3)
+    assists = _int(session.get("assists"), maximum=6)
+    perfect_tackles = _int(session.get("perfect_tackles"), maximum=6)
+
+    # Darkan commit bf9c0f0894e05a592826c6e3e622d1b9538c4e88,
+    # FishFlingersDomain.kt:98-114: score combines catch bands, large fish,
+    # assists, total/heaviest weight, and the perfect-tackle table. The local
+    # eight-review session does not retain weights, so one tracked catch is the
+    # closest proxy for 500 kg and one tracked large fish for 60 kg.
+    catch_points = (
+        5
+        if fish_caught >= 130
+        else 4
+        if fish_caught >= 110
+        else 3
+        if fish_caught >= 90
+        else 2
+        if fish_caught >= 80
+        else 1
+        if fish_caught >= 70
+        else 0
+    )
+    perfect_points = (0, 1, 2, 4, 5, 6, 8)[perfect_tackles]
+    total_weight_kg = fish_caught * 500
+    heaviest_weight_kg = big_fish * 60
+    return (
+        catch_points
+        + big_fish * 2
+        + assists
+        + min(20, total_weight_kg // 500)
+        + min(3, heaviest_weight_kg // 60)
+        + perfect_points
+    )
+
+
+def fish_flingers_xp_payout_pure(fishing_level: Any, score: Any) -> int:
+    # PLACEHOLDER(fish_flingers.xp_payout): period settlement source or a
+    # qualified cutoff-era payout table would retire the Darkan reconstruction.
+    # Darkan commit bf9c0f0894e05a592826c6e3e622d1b9538c4e88,
+    # FishFlingersDomain.kt:130-134: the event pays this once at settlement.
     level = max(1, min(_int(fishing_level, 1), 99))
-    # The cutoff page says XP is score/level scaled and roughly 20,000 at the
-    # high end, but marks its own table obsolete. This disclosed balance curve
-    # reaches 19,800 at level 99 only for a 48-fish maximum event.
-    return float(round(level * 200 * min(1.0, fish_caught / 48.0)))
+    bounded_score = max(0, min(_int(score), 48))
+    maximum = max(162, 235 * level - 73)
+    return floor(maximum * bounded_score / 48)
 
 
 def _stock_label(stock: int) -> str:
@@ -332,7 +374,15 @@ def apply_fish_flingers_review_pure(
         if assists >= 6:
             medals += 1
             medal_labels.append("Team Player")
-        xp = _event_xp(data.get("fishing_level"), fish_total)
+        score = fish_flingers_score_pure(
+            {
+                "fish_caught": fish_total,
+                "big_fish": big_fish,
+                "assists": assists,
+                "perfect_tackles": perfect_tackles,
+            }
+        )
+        xp = fish_flingers_xp_payout_pure(data.get("fishing_level"), score)
         data["fish_flingers_tokens"] = min(
             FISH_FLINGERS_TOKEN_CAP,
             _int(data.get("fish_flingers_tokens")) + tokens,
@@ -375,7 +425,7 @@ def apply_fish_flingers_review_pure(
         f"{FISH_FLINGERS_DISCOVERY_LABELS[review]} · "
         f"{caught} fish at {efficiency * 100:g}% efficiency · "
         f"stock {remaining_stock}/{FISH_FLINGERS_STOCK_MAX} · "
-        f"{next_review}/6 catches{suffix}"
+        f"{next_review}/{FISH_FLINGERS_EVENT_REVIEWS} catches{suffix}"
     )
     return data, {
         "allowed": True,
@@ -384,6 +434,7 @@ def apply_fish_flingers_review_pure(
         "expected_success_chance": 1.0,
         "fish_caught": caught,
         "fish_total": fish_total,
+        "score": score if terminal else 0,
         "species": str(species["name"]),
         "location": str(location["name"]),
         "stock_before": stock_before,
@@ -416,7 +467,7 @@ def leave_fish_flingers_pure(
     progress = int(session["review"])
     _finish_event(data)
     data["fish_flingers_last_result"] = (
-        f"Left Fish Flingers after {progress}/6 catches · entry ticket forfeited"
+        f"Left Fish Flingers after {progress}/{FISH_FLINGERS_EVENT_REVIEWS} catches · entry ticket forfeited"
     )
     return data, True, {"message": data["fish_flingers_last_result"]}
 

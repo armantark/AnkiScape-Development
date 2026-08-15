@@ -4985,3 +4985,8 @@ flees silently when the player runs out of food.
   pass.
 - Evidence and unchanged reachability are recorded in
   `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.
+
+## Pass 10 Batch B — 2026-08-15
+
+- Fish Flingers now settles event XP with the pinned Darkan score and payout reconstruction, with local weight proxies registered as `fish_flingers.xp_payout`; the event path does not apply the Fishing outfit multiplier.
+- Fish Flingers and Big Top now use one Start activity action for review selection. Big Top queue order and execution membership persist through `set_queue`; tree-row clicks remain navigation-only.

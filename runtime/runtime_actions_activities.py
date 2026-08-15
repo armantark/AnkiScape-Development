@@ -1694,8 +1694,10 @@ def _handle_fish_flingers_answer(ctx: RuntimeActionContext) -> bool:
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
-    base_xp = float(result.get("xp", 0.0) or 0.0)
-    awarded_xp = base_xp * fishing_outfit_multiplier_pure(ctx.player_data)
+    # Fish Flingers' event payout is already settled by the Darkan formula.
+    # The Fishing outfit remains relevant to other Fishing activities, but
+    # Darkan's FishFlingers.settle path applies no outfit multiplier here.
+    awarded_xp = float(result.get("xp", 0.0) or 0.0)
     gained = 0.0
     if awarded_xp > 0:
         gained = ctx.award_skill_exp("fishing_exp", awarded_xp)
