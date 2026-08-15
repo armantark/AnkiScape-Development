@@ -1,5 +1,26 @@
 # Active Context
 
+## Pass 10 CLOSED — 2026-08-15
+
+All nine Pass 10 owner clauses are closed in five commits on `main`
+(`0f642686` plan, `b57fb9c5`, `3a1849d3`, `1f820c9e`, `07359c13`). Both full
+lanes pass at 4,144 tests (plain 499 skips, real offscreen Qt 3 skips). A
+Kimi K3 cross-lineage review found seven actionable items, all applied in
+`07359c13`; its one real bug was the farm-preempted award path bypassing the
+new Combat-level popup boundary — confirmed reproducible and now wrapped with
+a regression test. Verdicts: Big Top 1,940 Magic XP was a payout-tier dedup
+bug (fixed, Darkan semantics ported); Fish Flingers ~5.3k XP came from an
+invented formula, replaced by the Darkan payout registered as
+`fish_flingers.xp_payout` provisional/darkan (real sessions score 28–43,
+median 38 → 4,593 XP at Fishing 25); the 0/10 tricks run was ~1-in-32 bad
+luck, not a defect. PENDING: the native MacBook Pro visual check — the laptop
+slept through every SSH window; the ready-to-run orchestration prompt is
+`pass10-native-prompt.md` in the session scratchpad and should run as the
+first step of the next pass or on the owner's word. Trace and closure notes:
+`memory-bank/codex-briefs/pass10-owner-notes-handoff-2026-08-14.md`. Results
+artifact: `status-updates/pass10-results-2026-08-15.html`
+(<https://f3r46ovdy19g.postplan.dev>).
+
 ## Pass 10 Batch A — Big Top Bonanza — 2026-08-15
 
 Batch A is implemented on baseline `389ebcd6`: Big Top now resolves one trick

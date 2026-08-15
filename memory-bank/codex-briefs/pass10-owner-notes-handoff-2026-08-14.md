@@ -200,4 +200,22 @@ overlapping file, the agent must stop that batch before an edit or commit.
 
 | Batch | Start HEAD | Result | Commit | Evidence |
 | --- | --- | --- | --- | --- |
-| Plan | `ca1bd10f` | — | — | — |
+| Plan | `ca1bd10f` | Settled | `0f642686` | Checker passed; opened in Arc; hosted at <https://ns62cpcdniez.postplan.dev>. |
+| A: Big Top | `389ebcd6` | Accepted | `b57fb9c5` | Focused 22 + 198 + 1 passed. Darkan success chance `clamp(50 + level − difficulty, 5, 95)`, half-level mapping, and payout-tier mask ported; no placeholder needed. Regression proves 1,940 → 970. |
+| B: Fish Flingers | `b57fb9c5` | Accepted | `3a1849d3` | Focused 38 + 5 + 1 + 1 passed. Darkan payout registered as `fish_flingers.xp_payout` (provisional/darkan); outfit multiplier excluded per Darkan `settle`; eight-review panel; atomic starts; queue editor. |
+| C: UI trio | `3a1849d3` | Accepted | `1f820c9e` | 194 integration plus focused lanes passed. Pixel probe: saved row `167,213,169` green vs non-saved `247,247,247`; fix removed the `QTreeWidget::item` border QSS that suppressed `BackgroundRole`. |
+| Review fixes | `1f820c9e` | Accepted | `07359c13` | Kimi K3 cross-lineage findings 1–7 applied. Farm-path combat XP confirmed real and wrapped by the single popup boundary. Full plain 4,144 tests / 499 skips; full offscreen Qt 4,144 / 3 skips. |
+
+## Closure notes (2026-08-15)
+
+- The Kimi review confirmed checks 1–8 sound after the fix batch. The
+  Fish Flingers balance simulation: real 8-review sessions reach score
+  28–43 (median 38 → 4,593 XP at Fishing 25); the acceptance test now pins
+  a reachable session, and the catch-band ladder carries a comment that no
+  local session exceeds band 0.
+- The native MacBook Pro visual check is PENDING: the laptop slept through
+  every dispatch window (SSH timeouts; Tailscale showed flapping wakes).
+  The ready-to-run orchestration prompt is preserved at the session
+  scratchpad (`pass10-native-prompt.md`). Run it when the laptop is awake.
+- Batch A's stray per-batch artifact was removed at closure; the pass has
+  one plan artifact and one results artifact.
