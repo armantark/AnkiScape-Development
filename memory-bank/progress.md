@@ -6108,6 +6108,7 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 ## Source-backed system map — 2026-08-14
 
 - Added `status-updates/ankiscape-system-map-plan-2026-08-14.html` and the interactive completion artifact `status-updates/ankiscape-system-map-results-2026-08-14.html`.
-- The map traces real review control, clock advancement, runtime dispatch, catalog payload, pure-rule reduction, persistence, feedback projection, and undo restore paths. It cites the exact implementation seams in the source index and exposes the selected building or path in the explainer panel.
-- Mechanical artifact checks pass, `git diff --check` passes, and PinchTab verified the map rendering, filters, building selection, path selection, and the DOM-mode SVG interaction fallback.
+- The owner rejected the first composition. Opus 5 then rebuilt the result artifact from scratch and Codex rejected its first render for token, label, legend, palette, and clipping failures before accepting a second composition pass.
+- The final map traces review control, menu control, catalog dependency, state save, feedback projection, persisted feedback, review/world clocks, and undo restore through nine distinct structures in three zones. Payload chips appear only for the selected road; the explainer carries contracts, trace, route jumps, and exact source citations.
+- Mechanical artifact checks, HTML parsing, and `git diff --check` pass. PinchTab verified the default and selected visual states, nine keyboard structures, eight keyboard roads, Escape reset, zero default payload tokens, exactly one selected-road token, and coherent node/road focus disclosure.
 - The plan artifact is hosted at `https://acgrgnw1a8ig.postplan.dev`. The results artifact remains local because Postplan requires valid authentication for inline JavaScript uploads.
