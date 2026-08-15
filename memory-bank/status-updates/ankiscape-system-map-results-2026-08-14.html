@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23161a21'/%3E%3Cpath d='M7 19 16 14 25 19 16 24Z' fill='%234f8cff'/%3E%3Cpath d='M16 14v10M7 19v6l9 5 9-5v-6' fill='none' stroke='%234ade80' stroke-width='2'/%3E%3C/svg%3E">
+  <title>AnkiScape system map</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --surface-3: #10141b;
+      --border: #2a3040;
+      --border-strong: #3b4559;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --text-faint: #626d80;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, .16);
+      --green: #4ade80;
+      --green-glow: rgba(74, 222, 128, .16);
+      --amber: #fbbf24;
+      --amber-glow: rgba(251, 191, 36, .16);
+      --purple: #a78bfa;
+      --purple-glow: rgba(167, 139, 250, .16);
+      --cyan: #59d5e8;
+      --cyan-glow: rgba(89, 213, 232, .15);
+      --red: #ff7070;
+      --red-glow: rgba(255, 112, 112, .14);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--bg); }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 6% 0%, rgba(79, 140, 255, .16), transparent 32rem),
+        radial-gradient(circle at 100% 18%, rgba(167, 139, 250, .09), transparent 28rem),
+        var(--bg);
+      font: 14px/1.5 Outfit, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    main { width: min(1480px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 68px; }
+    .mono, code, .badge, .eyebrow, .file, .metric-label, .building-label, .citation code {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, .38);
+      border-radius: 999px;
+      background: var(--green-glow);
+      font-size: .66rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(74,222,128,.1); }
+    header { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin-bottom: 26px; }
+    h1 { max-width: 800px; margin: 17px 0 8px; font-size: clamp(2rem, 4vw, 3.45rem); line-height: 1.02; letter-spacing: -.035em; text-wrap: balance; }
+    .lead { max-width: 800px; margin: 0; color: var(--text-dim); font-size: .98rem; }
+    .header-meta { flex: none; display: grid; gap: 8px; min-width: 215px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: rgba(22, 26, 33, .78); }
+    .header-meta strong { display: block; font-size: .86rem; }
+    .header-meta span { color: var(--text-dim); font-size: .7rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0 0 16px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--border); }
+    .metric { min-height: 72px; padding: 13px 16px; background: rgba(22, 26, 33, .94); }
+    .metric strong { display: block; color: var(--text); font-size: 1.28rem; line-height: 1.1; }
+    .metric-label { display: block; margin-top: 6px; color: var(--text-dim); font-size: .61rem; letter-spacing: .06em; text-transform: uppercase; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+    .panel { border: 1px solid var(--border); border-radius: var(--radius); background: rgba(22, 26, 33, .94); }
+    .map-panel { overflow: hidden; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 18px 14px; border-bottom: 1px solid var(--border); }
+    .eyebrow { color: var(--text-dim); font-size: .6rem; letter-spacing: .11em; text-transform: uppercase; }
+    h2 { margin: 3px 0 0; font-size: 1.03rem; line-height: 1.25; text-wrap: balance; }
+    .map-tools { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: rgba(16, 20, 27, .66); }
+    .mode-button {
+      padding: 7px 10px;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface-2);
+      cursor: pointer;
+      font-size: .7rem;
+    }
+    .mode-button:hover { color: var(--text); border-color: var(--border-strong); }
+    .mode-button:focus-visible, .building:focus-visible, .path-hit:focus-visible, .source-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .mode-button.is-selected { color: #fff; border-color: var(--accent); background: rgba(79, 140, 255, .2); }
+    .map-stage { position: relative; min-height: 690px; overflow: hidden; background: var(--surface-3); }
+    .map-stage::before { content: "CONTROL PLANE / DATA PLANE"; position: absolute; z-index: 1; top: 18px; left: 20px; color: rgba(139,149,168,.52); font: .59rem "JetBrains Mono", monospace; letter-spacing: .12em; }
+    .map-stage::after { content: "click a building or path"; position: absolute; z-index: 1; right: 20px; bottom: 16px; color: rgba(139,149,168,.62); font: .62rem "JetBrains Mono", monospace; }
+    .map-svg { display: block; width: 100%; height: auto; min-height: 690px; }
+    .map-grid { fill: url(#isoGrid); opacity: .82; }
+    .grid-edge { fill: none; stroke: rgba(79, 140, 255, .32); stroke-width: 1.5; }
+    .map-links { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .map-link { cursor: pointer; transition: opacity .18s ease, stroke-width .18s ease, filter .18s ease; }
+    .map-link.hit-area { stroke: transparent; stroke-width: 22; opacity: 0; }
+    .map-link.control { stroke: var(--accent); stroke-width: 3.5; stroke-dasharray: 10 8; }
+    .map-link.data { stroke: var(--amber); stroke-width: 3; stroke-dasharray: 2 9; }
+    .map-link.persist { stroke: var(--green); stroke-width: 3.5; stroke-dasharray: 14 5; }
+    .map-link.feedback { stroke: var(--purple); stroke-width: 3; stroke-dasharray: 8 7; }
+    .map-link.clock { stroke: var(--cyan); stroke-width: 3; stroke-dasharray: 3 6; }
+    .map-link.is-muted { opacity: .1; }
+    .map-link.is-active { opacity: 1; stroke-width: 6; filter: drop-shadow(0 0 6px currentColor); }
+    .map-link.hit-area.is-muted { opacity: 0; }
+    .building { cursor: pointer; transition: opacity .18s ease, filter .18s ease; }
+    .building.is-muted { opacity: .24; }
+    .building.is-active { filter: drop-shadow(0 0 12px rgba(255,255,255,.38)); }
+    .building .ground { fill: rgba(10, 13, 18, .72); stroke: rgba(79, 140, 255, .25); stroke-width: 2; }
+    .building .face-a, .building .face-b, .building .roof, .building .detail { stroke: rgba(9, 12, 17, .65); stroke-width: 2; stroke-linejoin: round; }
+    .building .face-a { fill: var(--building-a); }
+    .building .face-b { fill: var(--building-b); }
+    .building .roof { fill: var(--building-roof); }
+    .building .detail { fill: var(--building-detail); stroke-width: 1.5; }
+    .building .window { fill: rgba(229, 241, 255, .74); stroke: rgba(9,12,17,.45); stroke-width: 1; }
+    .building .glow { fill: var(--building-roof); opacity: .76; }
+    .building-label { fill: var(--text); font-size: 13px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #10141b; stroke-width: 4px; stroke-linejoin: round; }
+    .building-kind { fill: var(--text-dim); font-size: 9px; letter-spacing: .08em; text-anchor: middle; text-transform: uppercase; paint-order: stroke; stroke: #10141b; stroke-width: 3px; }
+    .node-anki { --building-a: #3473d3; --building-b: #2452a0; --building-roof: #70a1ff; --building-detail: #bed4ff; }
+    .node-surface { --building-a: #775ac8; --building-b: #50349d; --building-roof: #bba6ff; --building-detail: #eadfff; }
+    .node-dispatch { --building-a: #258fa6; --building-b: #176276; --building-roof: #73e5f4; --building-detail: #cdfaff; }
+    .node-rules { --building-a: #2b9d5b; --building-b: #1e7042; --building-roof: #7cf0a2; --building-detail: #d6ffe2; }
+    .node-state { --building-a: #b07b17; --building-b: #76500e; --building-roof: #ffd65a; --building-detail: #fff0b7; }
+    .node-catalog { --building-a: #b94b55; --building-b: #7b2f3b; --building-roof: #ff8a91; --building-detail: #ffe0e1; }
+    .node-feedback { --building-a: #8e53bd; --building-b: #5b3289; --building-roof: #d5a8ff; --building-detail: #f2ddff; }
+    .node-clock { --building-a: #31899a; --building-b: #1b5c68; --building-roof: #70e9ee; --building-detail: #dbffff; }
+    .node-undo { --building-a: #8a4b68; --building-b: #5b2f4a; --building-roof: #f09ac0; --building-detail: #ffddec; }
+    .path-label { fill: var(--text-dim); font: 10px "JetBrains Mono", monospace; letter-spacing: .05em; paint-order: stroke; stroke: #10141b; stroke-width: 4px; }
+    .side-column { display: grid; gap: 16px; }
+    .explainer { min-height: 480px; }
+    .explainer-body { padding: 16px 18px 18px; }
+    .selection-kicker { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text-dim); font: .62rem "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .selection-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+    .detail-title { margin: 11px 0 5px; font-size: 1.45rem; line-height: 1.1; letter-spacing: -.02em; }
+    .detail-role { min-height: 48px; margin: 0; color: var(--text-dim); font-size: .84rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 18px; }
+    .chip { padding: 4px 7px; color: var(--text-dim); border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); font: .62rem "JetBrains Mono", monospace; }
+    .detail-section { padding-top: 13px; border-top: 1px solid var(--border); }
+    .detail-section + .detail-section { margin-top: 14px; }
+    .detail-section h3 { margin: 0 0 7px; color: var(--text-dim); font: .62rem "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .detail-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .detail-list li { position: relative; padding-left: 15px; color: var(--text); font-size: .76rem; }
+    .detail-list li::before { content: ""; position: absolute; top: .57em; left: 0; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+    .citation-list { display: grid; gap: 6px; }
+    .source-link { display: block; padding: 7px 8px; color: var(--text-dim); border: 1px solid var(--border); border-radius: 6px; background: rgba(30,35,44,.58); text-decoration: none; }
+    .source-link:hover { color: var(--text); border-color: var(--border-strong); }
+    .source-link code { font-size: .61rem; }
+    .trace-summary { margin-top: 16px; padding: 10px 11px; border: 1px solid rgba(79, 140, 255, .33); border-radius: 8px; background: var(--accent-glow); color: #cbdcff; font-size: .73rem; }
+    .trace-summary strong { display: block; margin-bottom: 3px; color: #fff; font-size: .69rem; letter-spacing: .08em; text-transform: uppercase; }
+    .legend { padding-bottom: 16px; }
+    .legend-grid { display: grid; gap: 9px; padding: 14px 18px 2px; }
+    .legend-row { display: grid; grid-template-columns: 28px 1fr; gap: 9px; align-items: center; color: var(--text-dim); font-size: .72rem; }
+    .legend-line { display: block; width: 28px; height: 3px; border-radius: 2px; }
+    .legend-line.control { background: repeating-linear-gradient(90deg, var(--accent) 0 8px, transparent 8px 13px); }
+    .legend-line.data { background: repeating-linear-gradient(90deg, var(--amber) 0 2px, transparent 2px 7px); }
+    .legend-line.persist { background: repeating-linear-gradient(90deg, var(--green) 0 11px, transparent 11px 15px); }
+    .legend-line.feedback { background: repeating-linear-gradient(90deg, var(--purple) 0 7px, transparent 7px 12px); }
+    .legend-line.clock { background: repeating-linear-gradient(90deg, var(--cyan) 0 3px, transparent 3px 8px); }
+    .legend-building { display: block; width: 20px; height: 16px; transform: skewY(-24deg); border: 1px solid #70a1ff; background: #3473d3; }
+    .sources { margin-top: 16px; padding: 16px 18px; }
+    .source-strip { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+    .file { padding: 5px 7px; color: var(--text-dim); border-radius: 6px; background: var(--surface-2); font-size: .61rem; }
+    .notes { display: grid; grid-template-columns: 1.3fr .7fr; gap: 16px; margin-top: 16px; }
+    .note { padding: 16px 18px; }
+    .note p { margin: 8px 0 0; color: var(--text-dim); font-size: .78rem; }
+    .note strong { color: var(--text); }
+    @media (max-width: 1060px) { header { align-items: flex-start; flex-direction: column; gap: 16px; } .header-meta { width: 100%; grid-template-columns: repeat(3, 1fr); } .workspace { grid-template-columns: 1fr; } .side-column { grid-template-columns: minmax(0, 1fr) minmax(260px, .65fr); } }
+    @media (max-width: 760px) { main { width: min(100% - 20px, 1480px); padding-top: 28px; } .metrics { grid-template-columns: repeat(2, 1fr); } .map-stage, .map-svg { min-height: 560px; } .map-svg { height: 560px; } .side-column, .notes { grid-template-columns: 1fr; } .header-meta { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { h1 { font-size: 2.15rem; } .metrics { grid-template-columns: 1fr 1fr; } .metric { min-height: 65px; padding: 11px 12px; } .metric strong { font-size: 1.05rem; } .metric-label { font-size: .54rem; } .map-tools { gap: 5px; } .mode-button { flex: 1 1 42%; font-size: .64rem; } .map-stage, .map-svg { min-height: 500px; } .map-svg { height: 500px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <span class="badge">Source-backed topology · latest local main</span>
+        <h1>AnkiScape is a review-driven city.</h1>
+        <p class="lead">Trace a review answer or a menu action from Anki’s hook boundary through handler dispatch, pure state mutation, persistence, cadence, and native feedback. Click any building or colored lane to inspect the exact file seam behind it.</p>
+      </div>
+      <div class="header-meta" aria-label="Snapshot metadata">
+        <strong><span class="mono">main</span> · clean checkout</strong>
+        <span>snapshot <code>59fa88d0</code></span>
+        <span>current local branch, not a remote reconstruction</span>
+      </div>
+    </header>
+
+    <section class="metrics" aria-label="Map summary">
+      <div class="metric"><strong>9</strong><span class="metric-label">runtime buildings</span></div>
+      <div class="metric"><strong>5</strong><span class="metric-label">traceable path lanes</span></div>
+      <div class="metric"><strong>3</strong><span class="metric-label">payload classes</span></div>
+      <div class="metric"><strong>0</strong><span class="metric-label">invented services</span></div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel map-panel">
+        <div class="panel-head">
+          <div><div class="eyebrow">Interactive system map</div><h2>Control plane above. State and payload plane below.</h2></div>
+          <span class="mono" style="color: var(--text-dim); font-size: .64rem;">SVG / no external assets</span>
+        </div>
+        <div class="map-tools" role="toolbar" aria-label="Path filters">
+          <button class="mode-button is-selected" type="button" data-mode="all">All paths</button>
+          <button class="mode-button" type="button" data-mode="control">Review control</button>
+          <button class="mode-button" type="button" data-mode="data">State payload</button>
+          <button class="mode-button" type="button" data-mode="feedback">Feedback + clocks</button>
+        </div>
+        <div class="map-stage">
+          <svg class="map-svg" viewBox="0 0 1000 690" role="img" aria-labelledby="map-title map-desc">
+            <title id="map-title">AnkiScape isometric runtime system map</title>
+            <desc id="map-desc">Nine colored 3D building groups represent real repository seams. Dashed and dotted lines trace review control, state payload, persistence, feedback, and clock paths.</desc>
+            <defs>
+              <pattern id="isoGrid" width="72" height="36" patternUnits="userSpaceOnUse">
+                <path d="M0 0 72 36M0 36 72 0" fill="none" stroke="rgba(79,140,255,.22)" stroke-width="1" />
+              </pattern>
+              <marker id="arrow-control" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#4f8cff" /></marker>
+              <marker id="arrow-data" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#fbbf24" /></marker>
+              <marker id="arrow-persist" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#4ade80" /></marker>
+              <marker id="arrow-feedback" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#a78bfa" /></marker>
+              <marker id="arrow-clock" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#59d5e8" /></marker>
+            </defs>
+
+            <polygon class="map-grid" points="45,190 487,58 956,294 515,630 45,397" />
+            <polygon class="grid-edge" points="45,190 487,58 956,294 515,630 45,397" />
+            <path class="grid-edge" d="M165 154 615 382M287 117 737 345M410 80 860 308M163 475 609 139M281 534 727 198M400 596 846 260" opacity=".55" />
+
+            <g class="map-links" aria-label="Data paths">
+              <path class="map-link data" data-path-id="catalog-payload" data-modes="all data" d="M819 451 C776 356 731 277 684 226 C602 302 518 389 453 454" marker-end="url(#arrow-data)" />
+              <path class="map-link hit-area data" data-path-id="catalog-payload" data-modes="all data" d="M819 451 C776 356 731 277 684 226 C602 302 518 389 453 454" />
+              <path class="map-link persist" data-path-id="state-save" data-modes="all data" d="M454 485 C521 510 569 523 624 530" marker-end="url(#arrow-persist)" />
+              <path class="map-link hit-area persist" data-path-id="state-save" data-modes="all data" d="M454 485 C521 510 569 523 624 530" />
+              <path class="map-link clock" data-path-id="review-clock" data-modes="all feedback" d="M191 189 C339 226 493 275 628 333" marker-end="url(#arrow-clock)" />
+              <path class="map-link hit-area clock" data-path-id="review-clock" data-modes="all feedback" d="M191 189 C339 226 493 275 628 333" />
+              <path class="map-link clock" data-path-id="review-clock" data-modes="all feedback" d="M628 333 C635 389 633 457 625 508" marker-end="url(#arrow-clock)" />
+              <path class="map-link hit-area clock" data-path-id="review-clock" data-modes="all feedback" d="M628 333 C635 389 633 457 625 508" />
+            </g>
+
+            <g class="map-links" aria-label="Control paths">
+              <path class="map-link control" data-path-id="review-control" data-modes="all control" d="M190 181 C279 120 362 117 425 142 C514 177 573 188 684 217 C621 294 522 372 436 443" marker-end="url(#arrow-control)" />
+              <path class="map-link hit-area control" data-path-id="review-control" data-modes="all control" d="M190 181 C279 120 362 117 425 142 C514 177 573 188 684 217 C621 294 522 372 436 443" />
+              <path class="map-link control" data-path-id="menu-control" data-modes="all control" d="M429 151 C502 169 578 205 684 217 C628 295 533 376 436 443" marker-end="url(#arrow-control)" opacity=".7" />
+              <path class="map-link hit-area control" data-path-id="menu-control" data-modes="all control" d="M429 151 C502 169 578 205 684 217 C628 295 533 376 436 443" />
+            </g>
+
+            <g class="map-links" aria-label="Feedback paths">
+              <path class="map-link feedback" data-path-id="feedback-projection" data-modes="all feedback" d="M682 226 C572 271 399 363 194 454" marker-end="url(#arrow-feedback)" />
+              <path class="map-link hit-area feedback" data-path-id="feedback-projection" data-modes="all feedback" d="M682 226 C572 271 399 363 194 454" />
+              <path class="map-link feedback" data-path-id="feedback-persistence" data-modes="all feedback data" d="M623 535 C513 525 344 499 194 454" marker-end="url(#arrow-feedback)" opacity=".82" />
+              <path class="map-link hit-area feedback" data-path-id="feedback-persistence" data-modes="all feedback data" d="M623 535 C513 525 344 499 194 454" />
+              <path class="map-link feedback" data-path-id="undo-restore" data-modes="all feedback data" d="M835 284 C785 363 730 440 642 520" marker-end="url(#arrow-feedback)" opacity=".75" />
+              <path class="map-link hit-area feedback" data-path-id="undo-restore" data-modes="all feedback data" d="M835 284 C785 363 730 440 642 520" />
+            </g>
+
+            <g class="path-label" aria-hidden="true">
+              <text x="248" y="121">review answer</text>
+              <text x="538" y="157">handler key</text>
+              <text x="711" y="406">catalog specs</text>
+              <text x="520" y="551">player payload</text>
+              <text x="745" y="350">undo snapshot</text>
+            </g>
+
+            <g class="building node-anki" data-node-id="anki" tabindex="0" role="button" aria-label="Anki review host">
+              <polygon class="ground" points="113,214 183,178 254,214 184,250" />
+              <polygon class="face-a" points="129,200 184,172 184,95 129,122" />
+              <polygon class="face-b" points="184,172 238,200 238,121 184,95" />
+              <polygon class="roof" points="129,122 184,94 238,121 184,149" />
+              <polygon class="window" points="143,137 159,129 159,142 143,150" />
+              <polygon class="window" points="143,161 159,153 159,166 143,174" />
+              <polygon class="window" points="199,128 214,136 214,147 199,139" />
+              <polygon class="window" points="199,152 214,160 214,171 199,163" />
+              <path class="detail" d="M184 95V75" fill="none" />
+              <circle class="glow" cx="184" cy="70" r="6" />
+              <text class="building-label" x="184" y="274">Anki review host</text>
+              <text class="building-kind" x="184" y="289">control ingress</text>
+            </g>
+
+            <g class="building node-surface" data-node-id="surface" tabindex="0" role="button" aria-label="Native Qt surfaces">
+              <polygon class="ground" points="356,163 425,128 498,164 428,200" />
+              <polygon class="face-a" points="370,151 428,122 428,81 370,110" />
+              <polygon class="face-b" points="428,122 484,150 484,109 428,81" />
+              <polygon class="roof" points="370,110 428,81 484,109 428,138" />
+              <polygon class="face-a" points="390,163 428,144 428,112 390,131" opacity=".8" />
+              <polygon class="face-b" points="428,144 466,163 466,132 428,112" opacity=".65" />
+              <polygon class="detail" points="401,121 419,112 419,122 401,131" />
+              <text class="building-label" x="428" y="225">Native Qt surfaces</text>
+              <text class="building-kind" x="428" y="240">menu + review strip</text>
+            </g>
+
+            <g class="building node-dispatch" data-node-id="dispatch" tabindex="0" role="button" aria-label="Runtime dispatch hub">
+              <polygon class="ground" points="641,245 709,210 779,245 710,280" />
+              <polygon class="face-a" points="656,232 710,204 710,118 656,145" />
+              <polygon class="face-b" points="710,204 764,231 764,145 710,118" />
+              <polygon class="roof" points="656,145 710,117 764,145 710,173" />
+              <polygon class="roof" points="670,154 710,133 750,154 710,175" opacity=".76" />
+              <polygon class="window" points="670,166 686,158 686,169 670,177" />
+              <polygon class="window" points="670,190 686,182 686,193 670,201" />
+              <polygon class="window" points="726,161 741,169 741,180 726,172" />
+              <polygon class="window" points="726,185 741,193 741,204 726,196" />
+              <text class="building-label" x="710" y="304">Runtime dispatch hub</text>
+              <text class="building-kind" x="710" y="319">handler registry</text>
+            </g>
+
+            <g class="building node-clock" data-node-id="clock" tabindex="0" role="button" aria-label="Cadence and world clock">
+              <polygon class="ground" points="573,358 628,330 686,359 631,389" />
+              <polygon class="face-a" points="587,346 631,323 631,254 587,277" />
+              <polygon class="face-b" points="631,323 675,346 675,277 631,254" />
+              <polygon class="roof" points="587,277 631,253 675,277 631,301" />
+              <circle class="detail" cx="631" cy="284" r="14" />
+              <path d="M631 284 631 275M631 284 639 288" stroke="#16333b" stroke-width="2" fill="none" />
+              <path class="detail" d="M631 253 631 238" fill="none" />
+              <circle class="glow" cx="631" cy="233" r="5" />
+              <text class="building-label" x="631" y="410">Cadence clock</text>
+              <text class="building-kind" x="631" y="425">review + world ticks</text>
+            </g>
+
+            <g class="building node-feedback" data-node-id="feedback" tabindex="0" role="button" aria-label="Feedback and telemetry beacon">
+              <polygon class="ground" points="104,501 169,468 235,501 170,534" />
+              <polygon class="face-a" points="119,488 170,462 170,398 119,424" />
+              <polygon class="face-b" points="170,462 221,488 221,424 170,398" />
+              <polygon class="roof" points="119,424 170,397 221,424 170,451" />
+              <polygon class="detail" points="144,430 166,419 166,432 144,443" />
+              <path class="detail" d="M170 397V376" fill="none" />
+              <circle class="glow" cx="170" cy="370" r="8" />
+              <text class="building-label" x="170" y="557">Feedback beacon</text>
+              <text class="building-kind" x="170" y="572">HUD + event log</text>
+            </g>
+
+            <g class="building node-rules" data-node-id="rules" tabindex="0" role="button" aria-label="Pure rules foundry">
+              <polygon class="ground" points="341,506 428,462 519,507 432,552" />
+              <polygon class="face-a" points="355,491 432,452 432,382 355,421" />
+              <polygon class="face-b" points="432,452 508,491 508,421 432,382" />
+              <polygon class="roof" points="355,421 432,382 508,421 432,460" />
+              <polygon class="detail" points="375,433 432,404 487,431 432,459" />
+              <polygon class="window" points="377,445 395,436 395,448 377,457" />
+              <polygon class="window" points="458,434 476,443 476,455 458,446" />
+              <path class="detail" d="M470 401V345H490V411" />
+              <path class="glow" d="M470 345h20l-3-12h-14Z" />
+              <text class="building-label" x="432" y="580">Pure rules foundry</text>
+              <text class="building-kind" x="432" y="595">reducers + domain logic</text>
+            </g>
+
+            <g class="building node-state" data-node-id="state" tabindex="0" role="button" aria-label="Player state vault">
+              <polygon class="ground" points="568,565 631,531 699,565 635,599" />
+              <polygon class="face-a" points="580,552 635,523 635,469 580,498" />
+              <polygon class="face-b" points="635,523 689,551 689,497 635,469" />
+              <path class="roof" d="M580 498 635 469 689 497 635 526Z" />
+              <path class="detail" d="M593 502 635 480 676 501 635 523Z" />
+              <circle class="window" cx="635" cy="501" r="8" />
+              <path class="detail" d="M635 501v-8M635 501l7 4" fill="none" />
+              <text class="building-label" x="635" y="625">Player state vault</text>
+              <text class="building-kind" x="635" y="640">Anki config + migration</text>
+            </g>
+
+            <g class="building node-catalog" data-node-id="catalog" tabindex="0" role="button" aria-label="Content registry warehouse">
+              <polygon class="ground" points="784,514 853,478 926,514 856,550" />
+              <polygon class="face-a" points="797,500 856,469 856,421 797,452" />
+              <polygon class="face-b" points="856,469 914,499 914,451 856,421" />
+              <polygon class="roof" points="797,452 856,421 914,451 856,482" />
+              <path class="detail" d="M813 454 856 432 898 454 856 476Z" />
+              <polygon class="window" points="814,466 831,457 831,468 814,477" />
+              <polygon class="window" points="874,455 891,464 891,475 874,466" />
+              <text class="building-label" x="856" y="578">Content registry</text>
+              <text class="building-kind" x="856" y="593">skills + targets + items</text>
+            </g>
+
+            <g class="building node-undo" data-node-id="undo" tabindex="0" role="button" aria-label="Undo archive">
+              <polygon class="ground" points="779,317 833,289 888,317 835,345" />
+              <polygon class="face-a" points="790,306 835,283 835,240 790,263" />
+              <polygon class="face-b" points="835,283 879,305 879,262 835,240" />
+              <polygon class="roof" points="790,263 835,240 879,262 835,286" />
+              <path class="detail" d="M805 268h23M805 278h23" stroke="#351c2e" fill="none" />
+              <path class="detail" d="M849 263h16M849 273h16" stroke="#351c2e" fill="none" />
+              <text class="building-label" x="835" y="371">Undo archive</text>
+              <text class="building-kind" x="835" y="386">snapshot + restore</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="side-column">
+        <aside class="panel explainer" aria-live="polite">
+          <div class="panel-head"><div><div class="eyebrow" id="detail-kind">Selected node</div><h2 id="detail-name">Anki review host</h2></div><span class="selection-dot" id="detail-dot" aria-hidden="true"></span></div>
+          <div class="explainer-body">
+            <p class="detail-role" id="detail-role"></p>
+            <div class="chips" id="detail-chips"></div>
+            <section class="detail-section"><h3>Inbound dependencies</h3><ul class="detail-list" id="detail-deps"></ul></section>
+            <section class="detail-section"><h3>Outbound payload</h3><ul class="detail-list" id="detail-payload"></ul></section>
+            <section class="detail-section"><h3>Source citations</h3><div class="citation-list" id="detail-cites"></div></section>
+            <div class="trace-summary" id="trace-summary"><strong>Trace</strong><span id="trace-text"></span></div>
+          </div>
+        </aside>
+
+        <aside class="panel legend">
+          <div class="panel-head"><div><div class="eyebrow">Legend</div><h2>Read the city by lane.</h2></div></div>
+          <div class="legend-grid">
+            <div class="legend-row"><span class="legend-line control"></span><span><strong>Control</strong> review or menu command</span></div>
+            <div class="legend-row"><span class="legend-line data"></span><span><strong>Data</strong> catalog and state payload</span></div>
+            <div class="legend-row"><span class="legend-line persist"></span><span><strong>Persist</strong> save boundary</span></div>
+            <div class="legend-row"><span class="legend-line feedback"></span><span><strong>Feedback</strong> projection or undo</span></div>
+            <div class="legend-row"><span class="legend-line clock"></span><span><strong>Clock</strong> review/world cadence</span></div>
+            <div class="legend-row"><span class="legend-building"></span><span><strong>Building</strong> source-backed module seam</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="panel sources">
+      <div class="eyebrow">Source index</div>
+      <h2>Every building cites a live seam on <code>main</code>.</h2>
+      <div class="source-strip">
+        <span class="file">__init__.py:518-721</span>
+        <span class="file">__init__.py:5278-5454</span>
+        <span class="file">__init__.py:1314-1415</span>
+        <span class="file">core/hooks.py:29-92</span>
+        <span class="file">core/action_registry.py:52-75</span>
+        <span class="file">runtime/runtime_actions.py:850-906</span>
+        <span class="file">runtime/runtime_actions_context.py:10-40</span>
+        <span class="file">core/storage.py:12-54</span>
+        <span class="file">core/storage_pure.py:1347-1402</span>
+        <span class="file">ui/ui.py:3999-4218</span>
+        <span class="file">core/skill_registry.py:21-57</span>
+        <span class="file">core/target_metadata.py:74-112</span>
+      </div>
+    </section>
+
+    <section class="notes">
+      <div class="panel note"><div class="eyebrow">How to use this map</div><p><strong>Start at Anki review host.</strong> The blue lane is the primary control path. Switch to State payload to see catalog requirements and player-state persistence. Switch to Feedback + clocks to see the review strip, event log, undo, and world-tick projections.</p></div>
+      <div class="panel note"><div class="eyebrow">Scope boundary</div><p>This is a repository topology map, not a world map. It shows control and data ownership in the add-on. It does not imply a standalone transport network or a new runtime service.</p></div>
+    </section>
+  </main>
+
+  <script>
+    const nodes = {
+      anki: {
+        kind: "Control ingress",
+        name: "Anki review host",
+        role: "Receives Anki lifecycle hooks, wraps Reviewer._answerCard, and supplies the answer boundary that starts one review transaction.",
+        category: "runtime",
+        deps: ["Anki profileLoaded and reviewer hooks", "Reviewer answer state: card_turned, answer_shown, ease"],
+        payload: ["profileLoaded callbacks", "review answer arguments", "state_did_undo notifications"],
+        cites: [["core/hooks.py:29-92", "../../core/hooks.py"], ["__init__.py:5357-5369", "../../__init__.py"], ["__init__.py:5746-5766", "../../__init__.py"]],
+        trace: "Anki answer → on_answer_card → runtime transaction"
+      },
+      surface: {
+        kind: "Native surface",
+        name: "Native Qt surfaces",
+        role: "Owns the consolidated menu, the fixed reviewer strip, the HUD, badges, drawers, and player-facing projections.",
+        category: "surface",
+        deps: ["Anki main window and reviewer widgets", "player_data + current_skill projections"],
+        payload: ["menu selections and target changes", "HUD bars, badges, activity messages", "level-up and achievement dialogs"],
+        cites: [["ui/ui.py:3999-4069", "../../ui/ui.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"], ["ui/ui.py:4539-4553", "../../ui/ui.py"], ["ui/ui.py:4597-4765", "../../ui/ui.py"]],
+        trace: "Menu or review strip → callback seam → current state projection"
+      },
+      dispatch: {
+        kind: "Handler routing",
+        name: "Runtime dispatch hub",
+        role: "Resolves a display name into a canonical handler key, checks admission, and selects the answer handler for the active action.",
+        category: "control",
+        deps: ["action_registry review_action_handler_key", "CAN_START_HANDLERS and ANSWER_HANDLERS"],
+        payload: ["handler_key: mining / combat / utility / quest / ...", "RuntimeActionContext callback bundle", "can-start boolean"],
+        cites: [["core/action_registry.py:52-75", "../../core/action_registry.py"], ["runtime/runtime_actions.py:850-906", "../../runtime/runtime_actions.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"]],
+        trace: "current_skill → handler key → can_start_action → answer_handler_for_key"
+      },
+      rules: {
+        kind: "Deterministic rules",
+        name: "Pure rules foundry",
+        role: "Runs domain mutations without importing Anki or Qt. Runtime handlers pass state and callbacks into reducers for XP, items, quests, equipment, and combat.",
+        category: "rules",
+        deps: ["RuntimeActionContext.player_data", "catalog definitions and current target", "random source and callback seam"],
+        payload: ["state mutations: XP, levels, inventory, equipment, quests", "activity outputs and failure kinds", "achievement and telemetry updates"],
+        cites: [["runtime/runtime_actions.py:1-12", "../../runtime/runtime_actions.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"], ["logic_pure/logic_pure_telemetry.py:160-233", "../../logic_pure/logic_pure_telemetry.py"]],
+        trace: "handler → pure reducer → mutated player_data + emitted effects"
+      },
+      catalog: {
+        kind: "Content registry",
+        name: "Content registry",
+        role: "Defines the live skill surface and projects target rows from source-backed data, including requirements, labels, tooltips, locks, and icons.",
+        category: "data",
+        deps: ["CURRENT_SKILLS and ALL_SKILLS", "data/* catalogs", "target metadata projection"],
+        payload: ["SkillDefinition: level_key, exp_key, handler key", "TargetRowMetadata: enabled, current, locked_reasons", "requirements, outputs, and source-facing labels"],
+        cites: [["core/skill_registry.py:21-57", "../../core/skill_registry.py"], ["core/skill_registry.py:321-377", "../../core/skill_registry.py"], ["core/target_metadata.py:74-112", "../../core/target_metadata.py"]],
+        trace: "catalog row → selected target → runtime requirement and output inputs"
+      },
+      state: {
+        kind: "Persistence boundary",
+        name: "Player state vault",
+        role: "Loads the saved payload from Anki config, migrates and sanitizes it, then writes the canonical player payload and current skill back to the collection.",
+        category: "persist",
+        deps: ["Anki collection config", "storage_pure.migrate_loaded_data", "current config version"],
+        payload: ["ankiscape_player_data dictionary", "ankiscape_current_skill", "config_version and additive state keys"],
+        cites: [["core/storage.py:12-54", "../../core/storage.py"], ["core/storage_pure.py:1347-1402", "../../core/storage_pure.py"], ["core/storage_pure.py:2453-2457", "../../core/storage_pure.py"]],
+        trace: "Anki config → migrate_loaded_data → player_data → save_player_data"
+      },
+      feedback: {
+        kind: "Native projection",
+        name: "Feedback beacon",
+        role: "Coalesces XP and activity effects, records the retained event log, and projects live state into the HUD, badges, drawers, and dialogs.",
+        category: "feedback",
+        deps: ["review feedback context", "record_review_event_pure", "Qt review strip widgets"],
+        payload: ["XP total and skill breakdown", "activity messages and event log rows", "HUD, status badge, fill drawer, and event drawer views"],
+        cites: [["__init__.py:518-570", "../../__init__.py"], ["__init__.py:636-727", "../../__init__.py"], ["ui/ui.py:3999-4069", "../../ui/ui.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"]],
+        trace: "pure result → feedback context → event log + visible Qt projection"
+      },
+      clock: {
+        kind: "Review cadence",
+        name: "Cadence clock",
+        role: "Advances shared review and world clocks inside the answer flow, so scheduled effects remain part of the persisted review transaction.",
+        category: "clock",
+        deps: ["reviewed card boundary", "cadence kernel and world-event reducers", "active carried target"],
+        payload: ["answered-card clock", "shop, GE, daily, Miscellania, summoning, and world-event ticks", "cadence waits and opportunity state"],
+        cites: [["__init__.py:5242-5275", "../../__init__.py"], ["__init__.py:5379-5416", "../../__init__.py"]],
+        trace: "answer boundary → shared clocks → player_data before handler commit"
+      },
+      undo: {
+        kind: "Reversible guard rail",
+        name: "Undo archive",
+        role: "Captures changed values, removed keys, current skill, and random state, then restores the snapshot when Anki emits the matching undo operation.",
+        category: "feedback",
+        deps: ["review snapshot before mutation", "Anki state_did_undo", "player state and visible projections"],
+        payload: ["changed_values and remove keys", "current_skill", "random_state", "restored HUD and menu state"],
+        cites: [["__init__.py:1314-1358", "../../__init__.py"], ["__init__.py:1390-1415", "../../__init__.py"], ["__init__.py:1468-1480", "../../__init__.py"]],
+        trace: "snapshot → Anki undo → restore → save + refresh projections"
+      }
+    };
+
+    const paths = {
+      "review-control": { kind: "Review control", name: "Review answer control path", nodes: ["anki", "surface", "dispatch", "rules"], tone: "control", payload: "Anki ease + active current_skill + resolved handler key", trace: "Reviewer._answerCard → on_answer_card → on_good_answer → runtime handler → pure reducer", cites: [["__init__.py:5357-5454", "../../__init__.py"], ["__init__.py:5278-5332", "../../__init__.py"], ["runtime/runtime_actions.py:850-906", "../../runtime/runtime_actions.py"]] },
+      "menu-control": { kind: "Direct control", name: "Menu action control path", nodes: ["surface", "dispatch", "rules"], tone: "control", payload: "selected target/action + callback-rich runtime context", trace: "Qt menu selection → entrypoint callback → runtime handler or pure command → visible state", cites: [["ui/ui.py:4597-4765", "../../ui/ui.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"]] },
+      "catalog-payload": { kind: "Data payload", name: "Catalog dependency path", nodes: ["catalog", "dispatch", "rules"], tone: "data", payload: "SkillDefinition + TargetRowMetadata + requirements/outputs", trace: "skill registry + target metadata → active target → admission checks and reducer inputs", cites: [["core/skill_registry.py:21-57", "../../core/skill_registry.py"], ["core/target_metadata.py:74-112", "../../core/target_metadata.py"], ["core/action_registry.py:52-75", "../../core/action_registry.py"]] },
+      "state-save": { kind: "Persistence", name: "State save path", nodes: ["rules", "state"], tone: "persist", payload: "mutated player_data + current_skill + config_version", trace: "pure mutation → save_player_data → Anki collection config", cites: [["core/storage.py:21-54", "../../core/storage.py"], ["core/storage_pure.py:1347-1402", "../../core/storage_pure.py"]] },
+      "feedback-projection": { kind: "Projection", name: "Feedback projection path", nodes: ["dispatch", "rules", "feedback"], tone: "feedback", payload: "XP total, activity messages, event-log rows, HUD view", trace: "RuntimeActionContext callbacks → feedback context → review strip and drawers", cites: [["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"], ["__init__.py:636-727", "../../__init__.py"], ["ui/ui.py:3999-4218", "../../ui/ui.py"]] },
+      "feedback-persistence": { kind: "Projection", name: "Persisted event feedback", nodes: ["state", "feedback"], tone: "feedback", payload: "review_event_log retained in player_data", trace: "record_review_event_pure → save seam → event-log drawer", cites: [["__init__.py:518-531", "../../__init__.py"], ["logic/review_strip_logic.py:193-211", "../../logic/review_strip_logic.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"]] },
+      "review-clock": { kind: "Clock", name: "Review and world clock path", nodes: ["anki", "clock", "state"], tone: "clock", payload: "answered cards, world-event state, cadence opportunity state", trace: "answer boundary → shared review clocks → world events → persisted player_data", cites: [["__init__.py:5242-5275", "../../__init__.py"], ["__init__.py:5379-5416", "../../__init__.py"]] },
+      "undo-restore": { kind: "Reversible control", name: "Undo restore path", nodes: ["undo", "state"], tone: "feedback", payload: "changed values + removed keys + random_state", trace: "snapshot before answer → state_did_undo → restore → save + refresh UI", cites: [["__init__.py:1314-1358", "../../__init__.py"], ["__init__.py:1390-1415", "../../__init__.py"], ["__init__.py:1468-1480", "../../__init__.py"]] }
+    };
+
+    const buildingEls = [...document.querySelectorAll(".building")];
+    const linkEls = [...document.querySelectorAll(".map-link")];
+    const buttons = [...document.querySelectorAll(".mode-button")];
+    const detail = {
+      kind: document.getElementById("detail-kind"),
+      name: document.getElementById("detail-name"),
+      role: document.getElementById("detail-role"),
+      chips: document.getElementById("detail-chips"),
+      deps: document.getElementById("detail-deps"),
+      payload: document.getElementById("detail-payload"),
+      cites: document.getElementById("detail-cites"),
+      trace: document.getElementById("trace-text")
+    };
+
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]));
+    const citationMarkup = (cites) => cites.map(([label, href]) => `<a class="source-link" href="${href}" target="_blank" rel="noopener"><code>${escapeHtml(label)}</code></a>`).join("");
+    const listMarkup = (items) => items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+    let activeMode = "all";
+    let activeId = "anki";
+
+    function updateLinks() {
+      linkEls.forEach((link) => {
+        const modes = (link.dataset.modes || "").split(" ");
+        link.classList.toggle("is-muted", activeMode !== "all" && !modes.includes(activeMode));
+      });
+    }
+
+    function updateBuildings(pathNodes = []) {
+      buildingEls.forEach((building) => {
+        const selected = building.dataset.nodeId === activeId || pathNodes.includes(building.dataset.nodeId);
+        building.classList.toggle("is-active", selected);
+        building.classList.toggle("is-muted", Boolean(pathNodes.length) && !selected);
+      });
+    }
+
+    function renderNode(id) {
+      const node = nodes[id];
+      activeId = id;
+      detail.kind.textContent = node.kind;
+      detail.name.textContent = node.name;
+      detail.role.textContent = node.role;
+      detail.chips.innerHTML = `<span class="chip">${escapeHtml(node.category)}</span><span class="chip">${node.cites.length} cited seams</span>`;
+      detail.deps.innerHTML = listMarkup(node.deps);
+      detail.payload.innerHTML = listMarkup(node.payload);
+      detail.cites.innerHTML = citationMarkup(node.cites);
+      detail.trace.textContent = node.trace;
+      const connected = Object.values(paths).filter((path) => path.nodes.includes(id));
+      const pathNodes = activeMode === "all" ? [] : connected.filter((path) => path.tone === activeMode || (activeMode === "feedback" && path.tone === "clock")).flatMap((path) => path.nodes);
+      updateBuildings(pathNodes);
+    }
+
+    function renderPath(id) {
+      const path = paths[id];
+      activeId = "";
+      detail.kind.textContent = path.kind;
+      detail.name.textContent = path.name;
+      detail.role.textContent = "This lane is a concrete repository path. The payload below is the contract carried between the cited seams.";
+      detail.chips.innerHTML = `<span class="chip">${escapeHtml(path.tone)}</span><span class="chip">${path.nodes.length} buildings</span>`;
+      detail.deps.innerHTML = listMarkup(path.nodes.map((nodeId) => nodes[nodeId].name));
+      detail.payload.innerHTML = listMarkup([path.payload]);
+      detail.cites.innerHTML = citationMarkup(path.cites);
+      detail.trace.textContent = path.trace;
+      updateBuildings(path.nodes);
+      linkEls.forEach((link) => link.classList.toggle("is-active", link.dataset.pathId === id));
+    }
+
+    function setMode(mode) {
+      activeMode = mode;
+      buttons.forEach((button) => button.classList.toggle("is-selected", button.dataset.mode === mode));
+      updateLinks();
+      renderNode(activeId || "anki");
+    }
+
+    buildingEls.forEach((building) => {
+      const select = () => {
+        linkEls.forEach((link) => link.classList.remove("is-active"));
+        renderNode(building.dataset.nodeId);
+      };
+      building.addEventListener("click", select);
+      building.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); select(); }
+      });
+    });
+
+    linkEls.filter((link) => !link.classList.contains("hit-area")).forEach((link) => {
+      link.addEventListener("click", () => renderPath(link.dataset.pathId));
+    });
+    linkEls.filter((link) => link.classList.contains("hit-area")).forEach((hit) => {
+      hit.addEventListener("click", () => renderPath(hit.dataset.pathId));
+    });
+    buttons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
+    updateLinks();
+    renderNode("anki");
+  </script>
+</body>
+</html>

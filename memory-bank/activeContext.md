@@ -2,6 +2,8 @@
 
 ## Current Focus
 
+**2026-08-14, source-backed system map.** Created an interactive isometric HTML map from local `main` snapshot `59fa88d0`, without changing product code. The map models nine runtime buildings, five dependency/payload lanes, three payload classes, and file citations across `core/hooks.py`, `__init__.py`, `core/action_registry.py`, `runtime/runtime_actions.py`, `core/storage.py`, `core/storage_pure.py`, `logic_pure/logic_pure_telemetry.py`, and `ui/ui.py`. The canonical result is `status-updates/ankiscape-system-map-results-2026-08-14.html`; its checker, HTML parser, and PinchTab visual/interactions checks pass. The plan is hosted at `https://acgrgnw1a8ig.postplan.dev`. Results hosting is pending Postplan authentication because the CLI reported `Missing or invalid API key.`.
+
 **2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
 
 **2026-08-13, Ectofuntus bone-family integration corrected.** Burnt, Fayrg,

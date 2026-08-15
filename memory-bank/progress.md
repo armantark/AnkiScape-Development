@@ -6104,3 +6104,10 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Item packs and impling jars now commit through `commit_direct_action` instead of a private transaction copy, so they inherit the shared music-log refresh and complete undo snapshot, including `current_skill`.
 - The application-path regression opens a Dragon impling jar, proves the pending quest track is refreshed, changes the live skill, and proves undo restores both the save and Hunter.
 - Both full lanes pass 4,104 tests: plain with 498 expected Qt skips, and offscreen Qt with three skips. Reachability is unchanged at 1,568 actions / 2,248 reachable items / 100 orphan inputs / 103 blocked actions.
+
+## Source-backed system map — 2026-08-14
+
+- Added `status-updates/ankiscape-system-map-plan-2026-08-14.html` and the interactive completion artifact `status-updates/ankiscape-system-map-results-2026-08-14.html`.
+- The map traces real review control, clock advancement, runtime dispatch, catalog payload, pure-rule reduction, persistence, feedback projection, and undo restore paths. It cites the exact implementation seams in the source index and exposes the selected building or path in the explainer panel.
+- Mechanical artifact checks pass, `git diff --check` passes, and PinchTab verified the map rendering, filters, building selection, path selection, and the DOM-mode SVG interaction fallback.
+- The plan artifact is hosted at `https://acgrgnw1a8ig.postplan.dev`. The results artifact remains local because Postplan requires valid authentication for inline JavaScript uploads.
