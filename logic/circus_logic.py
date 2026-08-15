@@ -385,10 +385,14 @@ def _reward_for_score(performance_id: str, score: int) -> str:
 def _next_executing_performance(
     player_data: Mapping[str, Any],
     state: Mapping[str, Any],
+    *,
+    exclude_performance_id: str = "",
 ) -> CircusPerformance | None:
     current_week = _answered_card_week(player_data)
     queue = state["performance_queue"]
     for performance_id in queue["executing"]:
+        if performance_id == exclude_performance_id:
+            continue
         performance = CIRCUS_PERFORMANCES[performance_id]
         if state["used_week_by_performance"].get(performance_id) == current_week:
             continue
@@ -448,7 +452,13 @@ def circus_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         if active_session
         else None
     )
-    next_performance = _next_executing_performance(player_data, state)
+    next_performance = _next_executing_performance(
+        player_data,
+        state,
+        exclude_performance_id=(
+            str(active_session["active_performance"]) if active_session else ""
+        ),
+    )
     return {
         **state,
         "week_index": current_week,
@@ -489,29 +499,43 @@ def apply_circus_command_pure(
         if set(executing) & set(non_executing):
             return data, False, {"reason": "A performance can appear in only one queue."}
         performance_id = executing[0]
-        policy_payload = {
-            "performance_id": performance_id,
-            "automation_mode": body.get("automation_mode", state["automation_mode"]),
-            "strategy": body.get(
-                "strategy", state["strategies"].get(performance_id, "balanced")
-            ),
+        mode = str(body.get("automation_mode", state["automation_mode"]))
+        strategy = str(
+            body.get("strategy", state["strategies"].get(performance_id, "balanced"))
+        )
+        if mode not in {"casual", "advanced"}:
+            return data, False, {"reason": "Choose Casual or Advanced mode."}
+        if strategy not in CIRCUS_STRATEGIES:
+            return data, False, {"reason": "Choose a valid performance strategy."}
+        locked = _performance_locked_reasons(
+            data,
+            CIRCUS_PERFORMANCES[performance_id],
+            state,
+        )
+        if locked:
+            return data, False, {"reason": ", ".join(locked)}
+        if state["session"] is not None:
+            return data, False, {"reason": "Finish the active Circus performance first."}
+
+        state["selected_performance"] = performance_id
+        state["automation_mode"] = mode
+        state["strategies"][performance_id] = strategy
+        queued = set(executing) | set(non_executing)
+        non_executing.extend(
+            performance_id
+            for performance_id in CIRCUS_PERFORMANCE_ORDER
+            if performance_id not in queued
+        )
+        state["performance_queue"] = {
+            "executing": executing,
+            "non_executing": non_executing,
         }
-        configured, configured_ok, configured_info = apply_circus_command_pure(
-            data, "set_policy", policy_payload
-        )
-        if not configured_ok:
-            return configured, False, configured_info
-        started, started_ok, started_info = apply_circus_command_pure(
-            configured,
-            "set_queue",
-            {"executing": executing, "non_executing": non_executing},
-        )
-        if not started_ok:
-            return started, False, started_info
-        started["circus"]["last_result"] = (
+        state["last_result"] = (
             f"Started {CIRCUS_PERFORMANCES[performance_id].display_name} activity."
         )
-        return started, True, {"message": started["circus"]["last_result"]}
+        data["current_utility"] = CIRCUS_ACTIVITY_ID
+        data["circus"] = state
+        return data, True, {"message": state["last_result"]}
     if action_id == "set_policy":
         performance_id = str(body.get("performance_id", state["selected_performance"]))
         mode = str(body.get("automation_mode", state["automation_mode"]))
@@ -535,7 +559,6 @@ def apply_circus_command_pure(
         state["automation_mode"] = mode
         state["strategies"][performance_id] = strategy
         state["performance_queue"] = _default_queue_for_selected(performance_id)
-        data["current_utility"] = CIRCUS_ACTIVITY_ID
         state["last_result"] = (
             f"Queued {CIRCUS_PERFORMANCES[performance_id].display_name} · "
             f"{CIRCUS_STRATEGIES[strategy]} · {mode.title()}"

@@ -114,6 +114,39 @@ class CircusLogicTest(unittest.TestCase):
         self.assertIn("The Firemaker's Curse", info["reason"])
         self.assertEqual(unchanged["circus"]["selected_performance"], "agility")
 
+    def test_set_policy_does_not_select_circus_for_reviews(self):
+        player, ok, _ = apply_circus_command_pure(
+            _player(current_utility="bankstanding"),
+            "set_policy",
+            {
+                "performance_id": "magic",
+                "strategy": "balanced",
+                "automation_mode": "casual",
+            },
+        )
+        self.assertTrue(ok)
+        self.assertEqual(player["current_utility"], "bankstanding")
+
+    def test_active_view_exposes_progress_and_next_queued_performance(self):
+        player, ok, _ = apply_circus_command_pure(
+            _player(),
+            "start_activity",
+            {
+                "executing": ["magic", "agility"],
+                "non_executing": ["ranged"],
+                "strategy": "balanced",
+                "automation_mode": "casual",
+            },
+        )
+        self.assertTrue(ok)
+        for _ in range(3):
+            player, _result = apply_circus_review_pure(player, (0.0,))
+        view = circus_view_pure(player)
+        self.assertEqual(view["active_performance"], "magic")
+        self.assertEqual(view["next_performance"], "agility")
+        self.assertEqual(view["session"]["trick_index"], 3)
+        self.assertEqual(view["session"]["success_count"], 3)
+
     def test_one_card_resolves_one_trick_then_closes_performance_on_card_ten(self):
         player = _player()
         updated, ok, _ = apply_circus_command_pure(

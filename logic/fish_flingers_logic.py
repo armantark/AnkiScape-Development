@@ -264,15 +264,15 @@ def fish_flingers_score_pure(session: Mapping[str, Any]) -> int:
         if fish_caught >= 70
         else 0
     )
+    # The local eight-review session cannot exceed 47 catches, so it never
+    # reaches Darkan's 70-catch band inherited from the ten-minute live event.
     perfect_points = (0, 1, 2, 4, 5, 6, 8)[perfect_tackles]
-    total_weight_kg = fish_caught * 500
-    heaviest_weight_kg = big_fish * 60
     return (
         catch_points
         + big_fish * 2
         + assists
-        + min(20, total_weight_kg // 500)
-        + min(3, heaviest_weight_kg // 60)
+        + min(20, fish_caught)
+        + min(3, big_fish)
         + perfect_points
     )
 

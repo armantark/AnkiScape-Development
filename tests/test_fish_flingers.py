@@ -191,13 +191,16 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertFalse(second_ok)
 
     def test_a_full_event_completes_and_awards_source_shaped_currencies(self):
-        player, ok, info = enter_fish_flingers_pure(_player())
+        player, ok, info = enter_fish_flingers_pure(_player(fishing_level=25))
         self.assertTrue(ok, info)
         result = {}
         efficiencies = []
-        for _ in range(FISH_FLINGERS_EVENT_REVIEWS):
+        rolls = [(0.0, 0.0, 0.0)] + [
+            (0.0, 0.0, 0.999)
+        ] * (FISH_FLINGERS_EVENT_REVIEWS - 1)
+        for catch_roll, big_fish_roll, assist_roll in rolls:
             player, result = apply_fish_flingers_review_pure(
-                player, 0.999, 0.0, 0.0
+                player, catch_roll, big_fish_roll, assist_roll
             )
             efficiencies.append(result["efficiency"])
         self.assertEqual(efficiencies, list(FISH_FLINGERS_EFFICIENCY))
@@ -224,7 +227,9 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertIn("Master Angler", result["medal_labels"])
         self.assertIn("Junior Angler", result["medal_labels"])
         self.assertEqual(result["medals"], len(result["medal_labels"]))
-        self.assertGreater(result["xp"], 0)
+        self.assertEqual(result["fish_total"], 23)
+        self.assertEqual(result["score"], 38)
+        self.assertEqual(result["xp"], 4593)
 
     def test_species_location_stock_and_communal_pressure_change_outcomes(self):
         active, ok, info = enter_fish_flingers_pure(_player())

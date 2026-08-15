@@ -17403,6 +17403,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["circus"]["selected_performance"], "magic")
         self.assertEqual(pd["circus"]["strategies"]["magic"], "max_xp")
 
+        from ankiscape.data.circus_data import CIRCUS_PERFORMANCES
+
+        pd["circus"]["performance_queue"] = {
+            "executing": ["magic", "agility"],
+            "non_executing": ["ranged", "fire_breathing", "flaming_poi", "thieving"],
+        }
+        pd["circus"]["session"] = {
+            "active_performance": "magic",
+            "routine": [
+                trick.id for trick in CIRCUS_PERFORMANCES["magic"].tricks[:10]
+            ],
+            "trick_index": 3,
+            "payout_tier_mask": 0,
+            "score": 120,
+            "success_count": 3,
+            "attempted_ids": [],
+        }
+        performance.setCurrentIndex(performance.findData("agility"))
+        performance.setCurrentIndex(performance.findData("magic"))
+        QApplication.processEvents()
+        detail = panel.findChild(QLabel, "circusDetail")
+        self.assertIn(
+            "Magic spell casting · trick 4 of 10 · 3 successes · next: Agility",
+            detail.text(),
+        )
+
         pd["circus"]["used_week_by_performance"]["magic"] = 0
         performance.setCurrentIndex(performance.findData("agility"))
         performance.setCurrentIndex(performance.findData("magic"))

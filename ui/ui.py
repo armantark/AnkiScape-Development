@@ -15033,6 +15033,20 @@ def show_main_menu(
                 )
             else:
                 detail_bits.append("The selected strategy builds the complete routine automatically")
+            if view["session"] is not None and view["active_performance"]:
+                active = CIRCUS_PERFORMANCES[view["active_performance"]]
+                session = view["session"]
+                progress = (
+                    f"{active.display_name} · trick "
+                    f"{int(session['trick_index']) + 1} of {len(session['routine'])} · "
+                    f"{int(session['success_count'])} successes"
+                )
+                if view["next_performance"]:
+                    progress += (
+                        " · next: "
+                        f"{CIRCUS_PERFORMANCES[view['next_performance']].display_name}"
+                    )
+                detail_bits.insert(0, progress)
             circus_detail.setText(" · ".join(detail_bits))
             circus_result.setText(str(view["last_result"]))
             circus_result.setVisible(bool(view["last_result"]))

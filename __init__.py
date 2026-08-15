@@ -3218,7 +3218,7 @@ def _on_main_menu(
         check_achievements(player_data)
         save_player_data()
         _refresh_skill_availability()
-        if info.get("message"):
+        if info.get("message") and str(action_id) != "set_queue":
             _show_activity_gain(str(info["message"]))
         try:
             mw.update_undo_actions()
@@ -5449,7 +5449,13 @@ def on_answer_card(self, ease, _old):
                     "disengaged": True,
                 }
         if successful_answer and had_farm_step:
-            farm_preempted = runtime_actions.handle_farming_review_answer(_runtime_action_context())
+            _begin_review_feedback_context()
+            try:
+                farm_preempted = runtime_actions.handle_farming_review_answer(
+                    _runtime_action_context()
+                )
+            finally:
+                _finish_review_feedback_context()
         else:
             runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
     if successful_answer and review_answered and not exp_awarded and farm_preempted:

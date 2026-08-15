@@ -7743,7 +7743,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
 
         self.assertTrue(result["ok"])
-        self.assertEqual(addon.player_data["current_utility"], "big_top_bonanza")
+        self.assertEqual(addon.player_data["current_utility"], "make_soft_clay")
         self.assertEqual(addon.player_data["circus"]["selected_performance"], "magic")
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
