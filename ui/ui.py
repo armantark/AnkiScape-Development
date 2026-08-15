@@ -14895,7 +14895,7 @@ def show_main_menu(
                 else f"{int(view['remaining_count'])} left this answered-card week"
             )
             circus_summary.setText(
-                f"{row['max_attempts']} tricks resolve in one review · "
+                f"{row['max_attempts']} tricks resolve one per answered card · "
                 f"{CIRCUS_PERFORMANCES[performance_id].skill_id.title()} XP · "
                 "failures award 0 XP"
             )

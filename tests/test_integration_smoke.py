@@ -8963,8 +8963,12 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 42)
         self.assertEqual(
-            addon.player_data["circus"]["used_week_by_performance"],
-            {"agility": 0},
+            addon.player_data["circus"]["session"]["active_performance"],
+            "agility",
+        )
+        self.assertEqual(
+            addon.player_data["circus"]["session"]["trick_index"],
+            1,
         )
         self.assertGreater(addon.player_data["agility_exp"], 0.0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)

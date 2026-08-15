@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 10 Batch A · Big Top Bonanza</title>
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: radial-gradient(circle at 85% 0%, #17233f 0, var(--bg) 38rem);
+    color: var(--text);
+    font: 15px/1.55 Outfit, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 64px; }
+.eyebrow, .tag, .metric-label {
+    font: 700 11px/1.2 "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.eyebrow { color: var(--accent); margin-bottom: 12px; }
+h1 { margin: 0; max-width: 760px; font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1.02; letter-spacing: -.04em; }
+.lede { max-width: 760px; color: var(--text-dim); font-size: 1.05rem; margin: 18px 0 0; }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 32px 0; }
+.metric, .card { background: rgba(22, 26, 33, .92); border: 1px solid var(--border); border-radius: var(--radius); }
+.metric { padding: 18px; }
+.metric-value { display: block; color: var(--green); font-size: 1.8rem; font-weight: 800; margin-top: 6px; }
+.metric-label { color: var(--text-dim); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.card { padding: 22px; }
+.card h2 { margin: 0 0 10px; font-size: 1.2rem; }
+.card p { color: var(--text-dim); margin: 0; }
+.status { display: inline-flex; align-items: center; gap: 8px; color: var(--green); margin-bottom: 12px; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }
+.flow { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.node { background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 12px; flex: 1 1 145px; }
+.node strong { display: block; color: var(--text); }
+.node small { color: var(--text-dim); }
+.arrow { color: var(--accent); font-size: 1.4rem; }
+.tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 17px; }
+.tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; color: var(--text-dim); padding: 5px 8px; letter-spacing: 0; text-transform: none; font-weight: 500; }
+code { color: #c5d4ff; font: 0.9em "JetBrains Mono", ui-monospace, monospace; }
+ul { color: var(--text-dim); margin: 12px 0 0; padding-left: 20px; }
+li + li { margin-top: 7px; }
+.wide { grid-column: 1 / -1; }
+.note { border-left: 3px solid var(--amber); padding-left: 14px; color: var(--text-dim); }
+@media (max-width: 720px) {
+    main { padding: 32px 16px 48px; }
+    .metrics, .grid { grid-template-columns: 1fr; }
+    .wide { grid-column: auto; }
+    .arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<main>
+    <div class="eyebrow">Completed · Pass 10 · Batch A</div>
+    <h1>Big Top now resolves like a real review loop.</h1>
+    <p class="lede">Each answered card advances exactly one trick. The persisted queue keeps owner order, payout tiers are de-duplicated after Darkan's half-level translation, and undo restores the card-level session.</p>
+
+    <section class="metrics" aria-label="Verification metrics">
+        <div class="metric"><span class="metric-label">Focused circus lanes</span><span class="metric-value">22 pass</span></div>
+        <div class="metric"><span class="metric-label">Adjacent pure/runtime</span><span class="metric-value">198 pass</span></div>
+        <div class="metric"><span class="metric-label">Offscreen Qt contract</span><span class="metric-value">1 pass</span></div>
+    </section>
+
+    <section class="grid">
+        <article class="card">
+            <div class="status eyebrow">Implemented</div>
+            <h2>Per-card reducer</h2>
+            <p>The old one-review atomic routine is gone. Runtime consumes one random roll, awards that trick's XP, records its event, and persists the next index.</p>
+            <div class="flow">
+                <div class="node"><strong>Answer card</strong><small>one deterministic roll</small></div>
+                <div class="arrow">→</div>
+                <div class="node"><strong>Resolve trick</strong><small>XP + score + event</small></div>
+                <div class="arrow">→</div>
+                <div class="node"><strong>Persist session</strong><small>undo-safe state</small></div>
+            </div>
+            <div class="tags"><span class="tag">logic/circus_logic.py</span><span class="tag">runtime/runtime_actions_activities.py</span></div>
+        </article>
+
+        <article class="card">
+            <div class="status eyebrow">Parity fixed</div>
+            <h2>Correct payout tier mask</h2>
+            <p>Darkan's effective difficulty is resolved before the once-per-tier mask. Two level-99 Magic tricks at level 20 therefore produce 970 XP total, not 1,940.</p>
+            <div class="flow">
+                <div class="node"><strong>Level 99 trick</strong><small>maps to tier 10</small></div>
+                <div class="arrow">+</div>
+                <div class="node"><strong>Level 99 trick</strong><small>same tier, masked</small></div>
+                <div class="arrow">=</div>
+                <div class="node"><strong>970 XP</strong><small>one payout</small></div>
+            </div>
+            <div class="tags"><span class="tag">Darkan f00ca9b6</span><span class="tag">BigTopBonanza.kt:94-117</span></div>
+        </article>
+
+        <article class="card">
+            <div class="status eyebrow">Queue persisted</div>
+            <h2>Executing and non-executing lists</h2>
+            <p>The state stores both owner-ordered lists. The last executing performance is terminal; completed and abandoned performances are marked used for the current 1,680-card week.</p>
+            <ul>
+                <li>Active performance, trick index, mask, score, and attempted IDs persist.</li>
+                <li>Next executing performance starts on the next answered card.</li>
+                <li>Costume logic and week derivation remain unchanged.</li>
+            </ul>
+            <div class="tags"><span class="tag">performance_queue</span><span class="tag">session</span></div>
+        </article>
+
+        <article class="card">
+            <div class="status eyebrow">Undo covered</div>
+            <h2>One card rolls back one trick</h2>
+            <p>The integration test answers one Circus card, observes trick index 1 and XP, then invokes the existing review undo path and compares the entire player payload to its pre-answer snapshot.</p>
+            <div class="note">Darkan's decoded success roll is ported as <code>clamp(50 + level - difficulty, 5, 95) / 100</code>. No <code>circus.trick_success_chance</code> placeholder was registered.</div>
+        </article>
+
+        <article class="card wide">
+            <div class="status eyebrow">Scope boundary</div>
+            <h2>What remains outside Batch A</h2>
+            <p>The existing Circus panel still exposes its “Arm for next review” button because UI removal and queue controls belong to Batch B. The existing costume-score source gap remains untouched. Full repository lanes are deferred to Pass 10 closure.</p>
+            <div class="tags"><span class="tag">ui/ui.py · mechanical copy only</span><span class="tag">no full lanes run</span><span class="tag">no push</span></div>
+        </article>
+    </section>
+</main>
+</body>
+</html>

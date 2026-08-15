@@ -1,5 +1,19 @@
 # Progress
 
+## Big Top Bonanza per-card queue — 2026-08-15
+
+Pass 10 Batch A replaces the old one-review Circus reducer with one-trick
+resolution per answered card. The persisted state now stores owner-ordered
+executing and non-executing performance lists plus active performance, trick
+index, payout-tier mask, score, success count, and attempted IDs. Darkan
+commit `f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe` is ported for the integer
+success chance and half-level effective tier; no success-chance placeholder
+was needed. Focused checks pass 22 Circus/runtime/integration tests, 198
+adjacent pure/runtime tests, and one real offscreen Qt contract test. Review
+undo restores the pre-card snapshot. The 1,680-card week derivation and
+costume scoring were not changed. Results artifact:
+`status-updates/pass10-batch-a-results-2026-08-15.html`.
+
 ## Oversized cadence credit recovery — 2026-08-13
 
 Cadence `credit` is the deterministic fractional-admission residual accumulated toward a profile's denominator, so its valid range is `0` through `threshold_denominator - 1`. Immediately after the existing profile-state sanitization, the advance path clamps an oversized persisted integer to that profile-derived upper boundary. This keeps load recoverable while preserving as much earned progress as a valid state can represent; malformed types and negative values retain their existing reset-to-zero behavior. A real migration-plus-live-route regression covers Maple's denominator-10 profile with both credit `10_000` and the valid boundary `9`, proving the saved session advances successfully and retains credit `9` while consuming its opening opportunity.

@@ -1,5 +1,16 @@
 # Active Context
 
+## Pass 10 Batch A — Big Top Bonanza — 2026-08-15
+
+Batch A is implemented on baseline `389ebcd6`: Big Top now resolves one trick
+per answered card, persists an owner-ordered executing/non-executing queue and
+card-level session, masks XP after Darkan's effective payout-tier translation,
+and ports Darkan's `clamp(50 + level - difficulty, 5, 95)` success roll. Review
+undo restores the exact pre-card state. The 1,680-card week derivation and
+costume scoring remain unchanged; Batch B still owns the Circus panel's Arm
+button and queue controls. Focused verification is green: 22 Circus/runtime/
+integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
+
 ## Current Focus
 
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
