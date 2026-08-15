@@ -4990,3 +4990,12 @@ flees silently when the player runs out of food.
 
 - Fish Flingers now settles event XP with the pinned Darkan score and payout reconstruction, with local weight proxies registered as `fish_flingers.xp_payout`; the event path does not apply the Fishing outfit multiplier.
 - Fish Flingers and Big Top now use one Start activity action for review selection. Big Top queue order and execution membership persist through `set_queue`; tree-row clicks remain navigation-only.
+
+## Pass 10 Batch C — 2026-08-15
+
+- Combat level now checks the derived level once per review after all skill level
+  dialogs, so aggregate and normal Combat rewards cannot double-fire the popup.
+- Grouped target trees keep native item painting by omitting item border QSS;
+  saved BackgroundRole green and transient native blue selection both render.
+- Reviewer activity progress uses separate text labels above graphical-only bars;
+  the fixed 128px strip footprint remains the geometry authority.

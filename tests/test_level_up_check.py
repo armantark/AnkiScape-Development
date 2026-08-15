@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import call, patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.logic import level_up_check
+from ankiscape.core.logic import combat_level_up_check, level_up_check
 
 
 class LevelUpCheckTest(unittest.TestCase):
@@ -30,6 +30,49 @@ class LevelUpCheckTest(unittest.TestCase):
                 call("Mining", 4, 5),
             ],
         )
+
+    def test_combat_level_boundary_shows_one_popup_for_a_derived_increase(self) -> None:
+        player_data = {
+            "attack_level": 10,
+            "strength_level": 10,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 1,
+            "ranged_level": 1,
+            "magic_level": 1,
+            "summoning_level": 1,
+        }
+
+        with (
+            patch("ankiscape.core.logic._popups_enabled", return_value=True),
+            patch("ankiscape.core.logic.show_level_up_dialog") as show_dialog,
+        ):
+            new_level = combat_level_up_check(3, player_data)
+
+        self.assertGreater(new_level, 3)
+        show_dialog.assert_called_once_with("Combat", 3, new_level)
+
+    def test_non_combat_level_changes_do_not_move_combat_level(self) -> None:
+        player_data = {
+            "mining_level": 99,
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 1,
+            "ranged_level": 1,
+            "magic_level": 1,
+            "summoning_level": 1,
+        }
+
+        with (
+            patch("ankiscape.core.logic._popups_enabled", return_value=True),
+            patch("ankiscape.core.logic.show_level_up_dialog") as show_dialog,
+        ):
+            new_level = combat_level_up_check(3, player_data)
+
+        self.assertEqual(new_level, 3)
+        show_dialog.assert_not_called()
 
 
 if __name__ == "__main__":

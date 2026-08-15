@@ -135,6 +135,29 @@ class DialogLifecycleTest(unittest.TestCase):
         self.assertEqual(captured["message"], "Your Attack level increased.")
         self.assertEqual(captured["transition"], "Level 8 → 9")
 
+    def test_combat_level_popup_uses_the_shared_level_up_dialog(self) -> None:
+        captured = {}
+
+        def _capture_and_close() -> None:
+            modal = QApplication.activeModalWidget()
+            if modal is None:
+                return
+            captured["message"] = modal.findChild(
+                self.ui.QLabel,
+                "levelUpMessage",
+            ).text()
+            captured["transition"] = modal.findChild(
+                self.ui.QLabel,
+                "levelUpTransition",
+            ).text()
+            modal.accept()
+
+        QTimer.singleShot(0, _capture_and_close)
+        self.ui.show_level_up_dialog("Combat", 3, 4)
+
+        self.assertEqual(captured["message"], "Your Combat level increased.")
+        self.assertEqual(captured["transition"], "Level 3 → 4")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6251,6 +6251,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Locked due to:", wall_beast.toolTip(0))
         self.assertIn("Slayer level 35", wall_beast.toolTip(0))
 
+        # The role-based brush assertion above is not enough: QSS item border
+        # rules can make Qt ignore BackgroundRole during native painting.
+        def _sample_row(item, image):
+            rect = tree.visualItemRect(item)
+            viewport_point = QPoint(tree.viewport().width() - 12, rect.center().y())
+            return image.pixelColor(tree.viewport().mapTo(tree, viewport_point))
+
+        saved_pixel = _sample_row(seagull, tree.grab().toImage())
+        candidate_rows = [
+            item
+            for item in _tree_items(tree)
+            if item.parent() is not None
+            and item is not seagull
+            and not item.isDisabled()
+        ]
+        self.assertTrue(candidate_rows, "a non-saved combat row must exist")
+        non_saved = candidate_rows[0]
+        non_saved.parent().setExpanded(True)
+        tree.scrollToItem(non_saved)
+        for _ in range(3):
+            QApplication.processEvents()
+        non_saved_pixel = _sample_row(non_saved, tree.grab().toImage())
+        self.assertGreater(saved_pixel.green(), saved_pixel.red())
+        self.assertGreater(saved_pixel.green(), saved_pixel.blue())
+        self.assertFalse(
+            non_saved_pixel.green() > non_saved_pixel.red()
+            and non_saved_pixel.green() > non_saved_pixel.blue()
+        )
+
+        tree.setCurrentItem(non_saved)
+        for _ in range(3):
+            QApplication.processEvents()
+        selected_pixel = _sample_row(non_saved, tree.grab().toImage())
+        self.assertGreater(selected_pixel.blue(), selected_pixel.green())
+        self.assertNotEqual(selected_pixel.rgba(), saved_pixel.rgba())
+
         for group_index in range(tree.topLevelItemCount()):
             group = tree.topLevelItem(group_index)
             levels = []
@@ -8495,10 +8531,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             tree.selectionMode(), QAbstractItemView.SelectionMode.SingleSelection
         )
-        self.assertRegex(
+        self.assertIn(
+            "QTreeWidget::item:selected { color: palette(text); }",
             tree.styleSheet(),
-            r"QTreeWidget::item:selected \{ border: 2px solid rgba\(66,133,244,0\.95\);",
         )
+        self.assertNotIn("QTreeWidget::item:selected { border:", tree.styleSheet())
         self.assertNotIn("rgba(76,175,80", tree.styleSheet())
         self.assertEqual(current.background(0).color(), QColor(76, 175, 80, 120))
 

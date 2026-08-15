@@ -10,6 +10,7 @@ from .constants import (
 from ..ui.ui import show_level_up_dialog, show_achievement_dialog
 from ..logic.review_strip_logic import record_review_event_pure
 from .skill_registry import skill_level_exp_keys
+from ..logic_pure.logic_pure_combat_engine import player_combat_level_pure
 
 
 def _record_review_event(player_data, kind: str, text: str) -> None:
@@ -52,6 +53,14 @@ def level_up_check(skill, player_data):
                     enabled = True
                 if enabled:
                     show_level_up_dialog(skill, lvl - 1, lvl)
+
+
+def combat_level_up_check(old_level: int, player_data) -> int:
+    """Show the one Combat-level popup for a completed review, if needed."""
+    new_level = player_combat_level_pure(player_data)
+    if new_level > int(old_level) and _popups_enabled():
+        show_level_up_dialog("Combat", int(old_level), new_level)
+    return new_level
 
 from ..logic_pure.logic_pure import get_newly_completed_achievements
 from ..logic.achievement_diary_logic import (

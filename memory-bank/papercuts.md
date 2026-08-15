@@ -506,3 +506,4 @@
 2026-08-15 00:19:10 PDT — A focused Fish Flingers rerun was pointed at a mistyped `addons21/addons21/ankiscape_fork` worktree path and failed before process creation; use the canonical checkout path from the task context.
 2026-08-15 00:20:00 PDT — The combined offscreen Fish Flingers/Circus unittest process stopped emitting after the new Circus queue interaction and remained alive for 38 seconds; isolate the Qt tests before treating a combined hang as a product failure.
 2026-08-15 00:24:00 PDT — An empty queue-logic patch was rejected because the first retry used the wrong duplicated absolute path; the second exact-context patch removed the queue editor's unintended review-selection side effect.
+2026-08-15 00:41 PDT — The first grouped Combat pixel probe found no non-saved row at the realistic 560px viewport because only the saved target group was expanded; the probe now expands and scrolls to a real non-saved row before sampling.

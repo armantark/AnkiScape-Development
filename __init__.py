@@ -90,7 +90,12 @@ from .logic_pure.logic_pure import (
 )
 from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
-from .core.logic import level_up_check as _core_level_up_check, check_achievements
+from .core.logic import (
+    combat_level_up_check as _core_combat_level_up_check,
+    level_up_check as _core_level_up_check,
+    check_achievements,
+)
+from .logic_pure.logic_pure_combat_engine import player_combat_level_pure
 from .ui.ui import (
     ExpPopup,
     show_error_message,
@@ -642,6 +647,7 @@ def _begin_review_feedback_context() -> None:
         "skills": list(getattr(initial_xp, "skill_names", ())),
         "initial_exp": initial_exp,
         "recorded_exp": initial_exp,
+        "combat_level_before": player_combat_level_pure(player_data),
         "activity": [],
     }
     _REVIEW_FEEDBACK_INITIAL_XP = 0.0
@@ -723,6 +729,10 @@ def _finish_review_feedback_context() -> None:
             update_review_hud(player_data, current_skill)
         except Exception:
             pass
+        _core_combat_level_up_check(
+            context["combat_level_before"],
+            player_data,
+        )
     finally:
         _REVIEW_FEEDBACK_FLUSHING = False
 

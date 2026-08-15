@@ -6131,3 +6131,11 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 
 - Implemented Fish Flingers Darkan payout parity, outfit exclusion, and eight-review panel copy.
 - Implemented atomic Big Top start flow and persisted executing/non-executing queue editing.
+
+## Pass 10 Batch C — 2026-08-15
+
+- Implemented the review-scoped derived Combat-level popup boundary.
+- Fixed grouped Combat target saved-row painting and added a shown-widget pixel
+  probe for saved, non-saved, and transient-selection colors.
+- Split both reviewer activity progress bars into labels plus graphical fills;
+  focused pure and offscreen Qt checks pass.

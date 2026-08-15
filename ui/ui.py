@@ -2383,7 +2383,16 @@ if HAS_QT:
             self.title_lbl.setStyleSheet("color: white; font-weight: 600;")
             info.addWidget(self.title_lbl)
 
-            # Progress row
+            # The text and fill are separate so the progress fill never sits
+            # behind the progress text.
+            self.progress_lbl = QLabel("")
+            self.progress_lbl.setObjectName("reviewHudProgressText")
+            self.progress_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.9); font-size: 11px;"
+            )
+            self.progress_lbl.setWordWrap(False)
+            info.addWidget(self.progress_lbl)
+
             self.progress = QProgressBar()
             self.progress.setTextVisible(False)
             self.progress.setFixedHeight(12)
@@ -2446,6 +2455,14 @@ if HAS_QT:
             self.second_progress.setValue(0)
             self.second_progress.setStyleSheet(self.progress.styleSheet())
             self.second_progress.setVisible(False)
+            self.second_progress_lbl = QLabel("")
+            self.second_progress_lbl.setObjectName("reviewHudSecondSkillText")
+            self.second_progress_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.9); font-size: 11px;"
+            )
+            self.second_progress_lbl.setWordWrap(False)
+            self.second_progress_lbl.setVisible(False)
+            info.addWidget(self.second_progress_lbl)
             info.addWidget(self.second_progress)
 
             self.sub_lbl = QLabel("")
@@ -2564,13 +2581,24 @@ if HAS_QT:
                 self.target_lbl.setText("")
                 self.target_lbl.setVisible(False)
                 return
-            for bar, widget in zip(bars, (self.progress, self.second_progress)):
+            for label, widget in (
+                (self.progress_lbl, self.progress),
+                (self.second_progress_lbl, self.second_progress),
+            ):
+                label.setVisible(False)
+                widget.setVisible(False)
+            for bar, label, widget in zip(
+                bars,
+                (self.progress_lbl, self.second_progress_lbl),
+                (self.progress, self.second_progress),
+            ):
                 widget.setValue(int(bar["percent"]))
-                widget.setTextVisible(True)
-                widget.setFormat(
+                label.setText(
                     f"{bar['skill']} Lv {int(bar['level'])} · "
                     f"{int(bar['percent'])}% to {int(bar['target_level'])}"
                 )
+                label.setVisible(True)
+                widget.setTextVisible(False)
                 widget.setVisible(True)
             also_trains = tuple(xp_view.get("also_trains", ()))
             self.target_lbl.setText(
@@ -2632,6 +2660,8 @@ if HAS_QT:
             self.chips_lbl.setVisible(False)
             self.combat_resources.setVisible(False)
             self.second_progress.setVisible(False)
+            self.progress_lbl.setVisible(False)
+            self.second_progress_lbl.setVisible(False)
             self.progress.setTextVisible(False)
             self.progress.setStyleSheet(self.second_progress.styleSheet())
             if skill in _UTILITY_SKILL_NAMES:
@@ -5270,10 +5300,8 @@ def show_main_menu(
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 28px; padding: 1px;"
-            " border-radius: 6px; }"
-            " QTreeWidget::item:selected { border: 2px solid rgba(66,133,244,0.95);"
-            " color: palette(text); }"
+            " QTreeWidget::item { min-height: 28px; padding: 1px; }"
+            " QTreeWidget::item:selected { color: palette(text); }"
             " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )

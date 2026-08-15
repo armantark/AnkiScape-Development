@@ -331,6 +331,33 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(popup_calls, [("exp", 47.0)])
 
+    def test_review_combat_level_boundary_collapses_multi_skill_gain_to_one_check(self):
+        addon = _load_addon_as_package("ankiscape_combat_level_boundary")
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 1,
+            "ranged_level": 1,
+            "magic_level": 1,
+            "summoning_level": 1,
+            "review_event_log": [],
+        }
+        checks = []
+        addon._core_combat_level_up_check = lambda old, data: checks.append(
+            (old, addon.player_combat_level_pure(data))
+        )
+
+        addon._begin_review_feedback_context()
+        addon.player_data["attack_level"] = 10
+        addon.player_data["strength_level"] = 10
+        addon._finish_review_feedback_context()
+
+        self.assertEqual(len(checks), 1)
+        self.assertLess(checks[0][0], checks[0][1])
+
     def test_direct_xp_event_uses_the_awarded_skill_not_the_selected_skill(self):
         addon = _load_addon_as_package("ankiscape_direct_event_skill_name")
         addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
