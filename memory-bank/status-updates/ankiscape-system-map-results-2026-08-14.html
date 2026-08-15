@@ -79,25 +79,28 @@
     .map-tools { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: rgba(16, 20, 27, .66); }
     .mode-button {
       padding: 7px 10px;
-      color: var(--text-dim);
-      border: 1px solid var(--border);
+      color: #c2cbdb;
+      border: 1px solid var(--border-strong);
       border-radius: 7px;
       background: var(--surface-2);
       cursor: pointer;
       font-size: .7rem;
+      transition: color .18s ease, border-color .18s ease, background .18s ease;
     }
-    .mode-button:hover { color: var(--text); border-color: var(--border-strong); }
-    .mode-button:focus-visible, .building:focus-visible, .path-hit:focus-visible, .source-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-    .mode-button.is-selected { color: #fff; border-color: var(--accent); background: rgba(79, 140, 255, .2); }
+    .mode-button:hover { color: #fff; border-color: #70a1ff; background: #232a36; }
+    .mode-button:focus-visible, .source-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .mode-button[aria-pressed="true"] { color: #fff; border-color: #70a1ff; background: #2452a0; }
     .map-stage { position: relative; min-height: 690px; overflow: hidden; background: var(--surface-3); }
-    .map-stage::before { content: "CONTROL PLANE / DATA PLANE"; position: absolute; z-index: 1; top: 18px; left: 20px; color: rgba(139,149,168,.52); font: .59rem "JetBrains Mono", monospace; letter-spacing: .12em; }
-    .map-stage::after { content: "click a building or path"; position: absolute; z-index: 1; right: 20px; bottom: 16px; color: rgba(139,149,168,.62); font: .62rem "JetBrains Mono", monospace; }
+    /* Both overlays sit above the SVG, so neither may swallow a map click. */
+    .map-stage::before { content: "CONTROL PLANE / DATA PLANE"; position: absolute; z-index: 1; top: 18px; left: 20px; pointer-events: none; color: rgba(139,149,168,.52); font: .59rem "JetBrains Mono", monospace; letter-spacing: .12em; }
+    .map-stage::after { content: "click or tab to a building or lane"; position: absolute; z-index: 1; right: 20px; bottom: 16px; pointer-events: none; color: rgba(139,149,168,.62); font: .62rem "JetBrains Mono", monospace; }
     .map-svg { display: block; width: 100%; height: auto; min-height: 690px; }
     .map-grid { fill: url(#isoGrid); opacity: .82; }
     .grid-edge { fill: none; stroke: rgba(79, 140, 255, .32); stroke-width: 1.5; }
     .map-links { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .map-link { cursor: pointer; transition: opacity .18s ease, stroke-width .18s ease, filter .18s ease; }
-    .map-link.hit-area { stroke: transparent; stroke-width: 22; opacity: 0; }
+    /* Visible lanes are paint only. Every pointer and keyboard hit lands on the
+       sibling .path-hit stroke, so one element per lane owns interaction. */
+    .map-link { pointer-events: none; transition: opacity .18s ease, stroke-width .18s ease, filter .18s ease; }
     .map-link.control { stroke: var(--accent); stroke-width: 3.5; stroke-dasharray: 10 8; }
     .map-link.data { stroke: var(--amber); stroke-width: 3; stroke-dasharray: 2 9; }
     .map-link.persist { stroke: var(--green); stroke-width: 3.5; stroke-dasharray: 14 5; }
@@ -105,10 +108,20 @@
     .map-link.clock { stroke: var(--cyan); stroke-width: 3; stroke-dasharray: 3 6; }
     .map-link.is-muted { opacity: .1; }
     .map-link.is-active { opacity: 1; stroke-width: 6; filter: drop-shadow(0 0 6px currentColor); }
-    .map-link.hit-area.is-muted { opacity: 0; }
+    .path-hit { cursor: pointer; pointer-events: stroke; fill: none; stroke: transparent; stroke-width: 26; stroke-linecap: round; }
+    .path-hit.is-muted { pointer-events: none; }
+    .path-hit:focus { outline: none; }
+    .path-hit:focus-visible { stroke: rgba(232, 236, 244, .5); stroke-width: 14; outline: none; }
     .building { cursor: pointer; transition: opacity .18s ease, filter .18s ease; }
     .building.is-muted { opacity: .24; }
     .building.is-active { filter: drop-shadow(0 0 12px rgba(255,255,255,.38)); }
+    /* An outline on an SVG group is drawn around the whole group bounding box,
+       which reads as a marquee across neighbouring lanes. The focus ring is a
+       glow plus a light edge on the painted faces, so it hugs the building. */
+    .building:focus { outline: none; }
+    .building:focus-visible { outline: none; filter: drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 0 11px var(--accent)); }
+    .building:focus-visible.is-muted { opacity: .82; }
+    .building:focus-visible .ground, .building:focus-visible .roof, .building:focus-visible .face-a, .building:focus-visible .face-b { stroke: #f2f6ff; stroke-width: 2.5; }
     .building .ground { fill: rgba(10, 13, 18, .72); stroke: rgba(79, 140, 255, .25); stroke-width: 2; }
     .building .face-a, .building .face-b, .building .roof, .building .detail { stroke: rgba(9, 12, 17, .65); stroke-width: 2; stroke-linejoin: round; }
     .building .face-a { fill: var(--building-a); }
@@ -119,6 +132,11 @@
     .building .glow { fill: var(--building-roof); opacity: .76; }
     .building-label { fill: var(--text); font-size: 13px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #10141b; stroke-width: 4px; stroke-linejoin: round; }
     .building-kind { fill: var(--text-dim); font-size: 9px; letter-spacing: .08em; text-anchor: middle; text-transform: uppercase; paint-order: stroke; stroke: #10141b; stroke-width: 3px; }
+    /* Names live in one layer painted after every building, so a later building
+       can never cover an earlier name. Muting mirrors the building it names. */
+    .building-labels { pointer-events: none; }
+    .building-labels > g { transition: opacity .18s ease; }
+    .building-labels > g.is-muted { opacity: .24; }
     .node-anki { --building-a: #3473d3; --building-b: #2452a0; --building-roof: #70a1ff; --building-detail: #bed4ff; }
     .node-surface { --building-a: #775ac8; --building-b: #50349d; --building-roof: #bba6ff; --building-detail: #eadfff; }
     .node-dispatch { --building-a: #258fa6; --building-b: #176276; --building-roof: #73e5f4; --building-detail: #cdfaff; }
@@ -128,7 +146,8 @@
     .node-feedback { --building-a: #8e53bd; --building-b: #5b3289; --building-roof: #d5a8ff; --building-detail: #f2ddff; }
     .node-clock { --building-a: #31899a; --building-b: #1b5c68; --building-roof: #70e9ee; --building-detail: #dbffff; }
     .node-undo { --building-a: #8a4b68; --building-b: #5b2f4a; --building-roof: #f09ac0; --building-detail: #ffddec; }
-    .path-label { fill: var(--text-dim); font: 10px "JetBrains Mono", monospace; letter-spacing: .05em; paint-order: stroke; stroke: #10141b; stroke-width: 4px; }
+    .path-label { pointer-events: none; }
+    .path-label text { fill: #d3dcec; font: 10px "JetBrains Mono", monospace; letter-spacing: .04em; text-anchor: middle; paint-order: stroke; stroke: rgba(9, 11, 15, .95); stroke-width: 5px; stroke-linejoin: round; }
     .side-column { display: grid; gap: 16px; }
     .explainer { min-height: 480px; }
     .explainer-body { padding: 16px 18px 18px; }
@@ -202,13 +221,13 @@
           <span class="mono" style="color: var(--text-dim); font-size: .64rem;">SVG / no external assets</span>
         </div>
         <div class="map-tools" role="toolbar" aria-label="Path filters">
-          <button class="mode-button is-selected" type="button" data-mode="all">All paths</button>
-          <button class="mode-button" type="button" data-mode="control">Review control</button>
-          <button class="mode-button" type="button" data-mode="data">State payload</button>
-          <button class="mode-button" type="button" data-mode="feedback">Feedback + clocks</button>
+          <button class="mode-button" type="button" data-mode="all" aria-pressed="true">All paths</button>
+          <button class="mode-button" type="button" data-mode="control" aria-pressed="false">Review control</button>
+          <button class="mode-button" type="button" data-mode="data" aria-pressed="false">State payload</button>
+          <button class="mode-button" type="button" data-mode="feedback" aria-pressed="false">Feedback + clocks</button>
         </div>
         <div class="map-stage">
-          <svg class="map-svg" viewBox="0 0 1000 690" role="img" aria-labelledby="map-title map-desc">
+          <svg class="map-svg" viewBox="0 0 1000 690" role="group" aria-labelledby="map-title map-desc">
             <title id="map-title">AnkiScape isometric runtime system map</title>
             <desc id="map-desc">Nine colored 3D building groups represent real repository seams. Dashed and dotted lines trace review control, state payload, persistence, feedback, and clock paths.</desc>
             <defs>
@@ -227,38 +246,38 @@
             <path class="grid-edge" d="M165 154 615 382M287 117 737 345M410 80 860 308M163 475 609 139M281 534 727 198M400 596 846 260" opacity=".55" />
 
             <g class="map-links" aria-label="Data paths">
-              <path class="map-link data" data-path-id="catalog-payload" data-modes="all data" d="M819 451 C776 356 731 277 684 226 C602 302 518 389 453 454" marker-end="url(#arrow-data)" />
-              <path class="map-link hit-area data" data-path-id="catalog-payload" data-modes="all data" d="M819 451 C776 356 731 277 684 226 C602 302 518 389 453 454" />
-              <path class="map-link persist" data-path-id="state-save" data-modes="all data" d="M454 485 C521 510 569 523 624 530" marker-end="url(#arrow-persist)" />
-              <path class="map-link hit-area persist" data-path-id="state-save" data-modes="all data" d="M454 485 C521 510 569 523 624 530" />
-              <path class="map-link clock" data-path-id="review-clock" data-modes="all feedback" d="M191 189 C339 226 493 275 628 333" marker-end="url(#arrow-clock)" />
-              <path class="map-link hit-area clock" data-path-id="review-clock" data-modes="all feedback" d="M191 189 C339 226 493 275 628 333" />
-              <path class="map-link clock" data-path-id="review-clock" data-modes="all feedback" d="M628 333 C635 389 633 457 625 508" marker-end="url(#arrow-clock)" />
-              <path class="map-link hit-area clock" data-path-id="review-clock" data-modes="all feedback" d="M628 333 C635 389 633 457 625 508" />
+              <path class="map-link data" data-path-id="catalog-payload" d="M819 451 C776 356 731 277 684 226 C602 302 518 389 453 454" marker-end="url(#arrow-data)" />
+              <path class="path-hit" data-path-id="catalog-payload" d="M819 451 C776 356 731 277 684 226 C602 302 518 389 453 454" />
+              <path class="map-link persist" data-path-id="state-save" d="M454 485 C521 510 569 523 624 530" marker-end="url(#arrow-persist)" />
+              <path class="path-hit" data-path-id="state-save" d="M454 485 C521 510 569 523 624 530" />
+              <path class="map-link clock" data-path-id="review-clock" d="M191 189 C339 226 493 275 628 333" marker-end="url(#arrow-clock)" />
+              <path class="path-hit" data-path-id="review-clock" d="M191 189 C339 226 493 275 628 333" />
+              <path class="map-link clock" data-path-id="review-clock" d="M628 333 C635 389 633 457 625 508" marker-end="url(#arrow-clock)" />
+              <path class="path-hit" data-path-id="review-clock" d="M628 333 C635 389 633 457 625 508" />
             </g>
 
             <g class="map-links" aria-label="Control paths">
-              <path class="map-link control" data-path-id="review-control" data-modes="all control" d="M190 181 C279 120 362 117 425 142 C514 177 573 188 684 217 C621 294 522 372 436 443" marker-end="url(#arrow-control)" />
-              <path class="map-link hit-area control" data-path-id="review-control" data-modes="all control" d="M190 181 C279 120 362 117 425 142 C514 177 573 188 684 217 C621 294 522 372 436 443" />
-              <path class="map-link control" data-path-id="menu-control" data-modes="all control" d="M429 151 C502 169 578 205 684 217 C628 295 533 376 436 443" marker-end="url(#arrow-control)" opacity=".7" />
-              <path class="map-link hit-area control" data-path-id="menu-control" data-modes="all control" d="M429 151 C502 169 578 205 684 217 C628 295 533 376 436 443" />
+              <path class="map-link control" data-path-id="review-control" d="M190 181 C279 120 362 117 425 142 C514 177 573 188 684 217 C621 294 522 372 436 443" marker-end="url(#arrow-control)" />
+              <path class="path-hit" data-path-id="review-control" d="M190 181 C279 120 362 117 425 142 C514 177 573 188 684 217 C621 294 522 372 436 443" />
+              <path class="map-link control" data-path-id="menu-control" d="M429 151 C502 169 578 205 684 217 C628 295 533 376 436 443" marker-end="url(#arrow-control)" opacity=".7" />
+              <path class="path-hit" data-path-id="menu-control" d="M429 151 C502 169 578 205 684 217 C628 295 533 376 436 443" />
             </g>
 
             <g class="map-links" aria-label="Feedback paths">
-              <path class="map-link feedback" data-path-id="feedback-projection" data-modes="all feedback" d="M682 226 C572 271 399 363 194 454" marker-end="url(#arrow-feedback)" />
-              <path class="map-link hit-area feedback" data-path-id="feedback-projection" data-modes="all feedback" d="M682 226 C572 271 399 363 194 454" />
-              <path class="map-link feedback" data-path-id="feedback-persistence" data-modes="all feedback data" d="M623 535 C513 525 344 499 194 454" marker-end="url(#arrow-feedback)" opacity=".82" />
-              <path class="map-link hit-area feedback" data-path-id="feedback-persistence" data-modes="all feedback data" d="M623 535 C513 525 344 499 194 454" />
-              <path class="map-link feedback" data-path-id="undo-restore" data-modes="all feedback data" d="M835 284 C785 363 730 440 642 520" marker-end="url(#arrow-feedback)" opacity=".75" />
-              <path class="map-link hit-area feedback" data-path-id="undo-restore" data-modes="all feedback data" d="M835 284 C785 363 730 440 642 520" />
+              <path class="map-link feedback" data-path-id="feedback-projection" d="M682 226 C572 271 399 363 194 454" marker-end="url(#arrow-feedback)" />
+              <path class="path-hit" data-path-id="feedback-projection" d="M682 226 C572 271 399 363 194 454" />
+              <path class="map-link feedback" data-path-id="feedback-persistence" d="M623 535 C513 525 344 499 194 454" marker-end="url(#arrow-feedback)" opacity=".82" />
+              <path class="path-hit" data-path-id="feedback-persistence" d="M623 535 C513 525 344 499 194 454" />
+              <path class="map-link feedback" data-path-id="undo-restore" d="M835 284 C785 363 730 440 642 520" marker-end="url(#arrow-feedback)" opacity=".75" />
+              <path class="path-hit" data-path-id="undo-restore" d="M835 284 C785 363 730 440 642 520" />
             </g>
 
             <g class="path-label" aria-hidden="true">
-              <text x="248" y="121">review answer</text>
-              <text x="538" y="157">handler key</text>
-              <text x="711" y="406">catalog specs</text>
-              <text x="520" y="551">player payload</text>
-              <text x="745" y="350">undo snapshot</text>
+              <text x="302" y="110">review answer</text>
+              <text x="548" y="170">handler key</text>
+              <text x="742" y="478">catalog specs</text>
+              <text x="548" y="492">player payload</text>
+              <text x="725" y="400">undo snapshot</text>
             </g>
 
             <g class="building node-anki" data-node-id="anki" tabindex="0" role="button" aria-label="Anki review host">
@@ -272,8 +291,6 @@
               <polygon class="window" points="199,152 214,160 214,171 199,163" />
               <path class="detail" d="M184 95V75" fill="none" />
               <circle class="glow" cx="184" cy="70" r="6" />
-              <text class="building-label" x="184" y="274">Anki review host</text>
-              <text class="building-kind" x="184" y="289">control ingress</text>
             </g>
 
             <g class="building node-surface" data-node-id="surface" tabindex="0" role="button" aria-label="Native Qt surfaces">
@@ -284,8 +301,6 @@
               <polygon class="face-a" points="390,163 428,144 428,112 390,131" opacity=".8" />
               <polygon class="face-b" points="428,144 466,163 466,132 428,112" opacity=".65" />
               <polygon class="detail" points="401,121 419,112 419,122 401,131" />
-              <text class="building-label" x="428" y="225">Native Qt surfaces</text>
-              <text class="building-kind" x="428" y="240">menu + review strip</text>
             </g>
 
             <g class="building node-dispatch" data-node-id="dispatch" tabindex="0" role="button" aria-label="Runtime dispatch hub">
@@ -298,8 +313,6 @@
               <polygon class="window" points="670,190 686,182 686,193 670,201" />
               <polygon class="window" points="726,161 741,169 741,180 726,172" />
               <polygon class="window" points="726,185 741,193 741,204 726,196" />
-              <text class="building-label" x="710" y="304">Runtime dispatch hub</text>
-              <text class="building-kind" x="710" y="319">handler registry</text>
             </g>
 
             <g class="building node-clock" data-node-id="clock" tabindex="0" role="button" aria-label="Cadence and world clock">
@@ -311,8 +324,6 @@
               <path d="M631 284 631 275M631 284 639 288" stroke="#16333b" stroke-width="2" fill="none" />
               <path class="detail" d="M631 253 631 238" fill="none" />
               <circle class="glow" cx="631" cy="233" r="5" />
-              <text class="building-label" x="631" y="410">Cadence clock</text>
-              <text class="building-kind" x="631" y="425">review + world ticks</text>
             </g>
 
             <g class="building node-feedback" data-node-id="feedback" tabindex="0" role="button" aria-label="Feedback and telemetry beacon">
@@ -323,8 +334,6 @@
               <polygon class="detail" points="144,430 166,419 166,432 144,443" />
               <path class="detail" d="M170 397V376" fill="none" />
               <circle class="glow" cx="170" cy="370" r="8" />
-              <text class="building-label" x="170" y="557">Feedback beacon</text>
-              <text class="building-kind" x="170" y="572">HUD + event log</text>
             </g>
 
             <g class="building node-rules" data-node-id="rules" tabindex="0" role="button" aria-label="Pure rules foundry">
@@ -337,8 +346,6 @@
               <polygon class="window" points="458,434 476,443 476,455 458,446" />
               <path class="detail" d="M470 401V345H490V411" />
               <path class="glow" d="M470 345h20l-3-12h-14Z" />
-              <text class="building-label" x="432" y="580">Pure rules foundry</text>
-              <text class="building-kind" x="432" y="595">reducers + domain logic</text>
             </g>
 
             <g class="building node-state" data-node-id="state" tabindex="0" role="button" aria-label="Player state vault">
@@ -349,8 +356,6 @@
               <path class="detail" d="M593 502 635 480 676 501 635 523Z" />
               <circle class="window" cx="635" cy="501" r="8" />
               <path class="detail" d="M635 501v-8M635 501l7 4" fill="none" />
-              <text class="building-label" x="635" y="625">Player state vault</text>
-              <text class="building-kind" x="635" y="640">Anki config + migration</text>
             </g>
 
             <g class="building node-catalog" data-node-id="catalog" tabindex="0" role="button" aria-label="Content registry warehouse">
@@ -361,8 +366,6 @@
               <path class="detail" d="M813 454 856 432 898 454 856 476Z" />
               <polygon class="window" points="814,466 831,457 831,468 814,477" />
               <polygon class="window" points="874,455 891,464 891,475 874,466" />
-              <text class="building-label" x="856" y="578">Content registry</text>
-              <text class="building-kind" x="856" y="593">skills + targets + items</text>
             </g>
 
             <g class="building node-undo" data-node-id="undo" tabindex="0" role="button" aria-label="Undo archive">
@@ -372,8 +375,18 @@
               <polygon class="roof" points="790,263 835,240 879,262 835,286" />
               <path class="detail" d="M805 268h23M805 278h23" stroke="#351c2e" fill="none" />
               <path class="detail" d="M849 263h16M849 273h16" stroke="#351c2e" fill="none" />
-              <text class="building-label" x="835" y="371">Undo archive</text>
-              <text class="building-kind" x="835" y="386">snapshot + restore</text>
+            </g>
+
+            <g class="building-labels" aria-hidden="true">
+              <g data-label-for="anki"><text class="building-label" x="184" y="274">Anki review host</text><text class="building-kind" x="184" y="289">control ingress</text></g>
+              <g data-label-for="surface"><text class="building-label" x="428" y="225">Native Qt surfaces</text><text class="building-kind" x="428" y="240">menu + review strip</text></g>
+              <g data-label-for="dispatch"><text class="building-label" x="710" y="304">Runtime dispatch hub</text><text class="building-kind" x="710" y="319">handler registry</text></g>
+              <g data-label-for="clock"><text class="building-label" x="631" y="410">Cadence clock</text><text class="building-kind" x="631" y="425">review + world ticks</text></g>
+              <g data-label-for="feedback"><text class="building-label" x="170" y="557">Feedback beacon</text><text class="building-kind" x="170" y="572">HUD + event log</text></g>
+              <g data-label-for="rules"><text class="building-label" x="432" y="580">Pure rules foundry</text><text class="building-kind" x="432" y="595">reducers + domain logic</text></g>
+              <g data-label-for="state"><text class="building-label" x="635" y="625">Player state vault</text><text class="building-kind" x="635" y="640">Anki config + migration</text></g>
+              <g data-label-for="catalog"><text class="building-label" x="856" y="578">Content registry</text><text class="building-kind" x="856" y="593">skills + targets + items</text></g>
+              <g data-label-for="undo"><text class="building-label" x="835" y="371">Undo archive</text><text class="building-kind" x="835" y="386">snapshot + restore</text></g>
             </g>
           </svg>
         </div>
@@ -526,18 +539,21 @@
     };
 
     const paths = {
-      "review-control": { kind: "Review control", name: "Review answer control path", nodes: ["anki", "surface", "dispatch", "rules"], tone: "control", payload: "Anki ease + active current_skill + resolved handler key", trace: "Reviewer._answerCard → on_answer_card → on_good_answer → runtime handler → pure reducer", cites: [["__init__.py:5357-5454", "../../__init__.py"], ["__init__.py:5278-5332", "../../__init__.py"], ["runtime/runtime_actions.py:850-906", "../../runtime/runtime_actions.py"]] },
-      "menu-control": { kind: "Direct control", name: "Menu action control path", nodes: ["surface", "dispatch", "rules"], tone: "control", payload: "selected target/action + callback-rich runtime context", trace: "Qt menu selection → entrypoint callback → runtime handler or pure command → visible state", cites: [["ui/ui.py:4597-4765", "../../ui/ui.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"]] },
-      "catalog-payload": { kind: "Data payload", name: "Catalog dependency path", nodes: ["catalog", "dispatch", "rules"], tone: "data", payload: "SkillDefinition + TargetRowMetadata + requirements/outputs", trace: "skill registry + target metadata → active target → admission checks and reducer inputs", cites: [["core/skill_registry.py:21-57", "../../core/skill_registry.py"], ["core/target_metadata.py:74-112", "../../core/target_metadata.py"], ["core/action_registry.py:52-75", "../../core/action_registry.py"]] },
-      "state-save": { kind: "Persistence", name: "State save path", nodes: ["rules", "state"], tone: "persist", payload: "mutated player_data + current_skill + config_version", trace: "pure mutation → save_player_data → Anki collection config", cites: [["core/storage.py:21-54", "../../core/storage.py"], ["core/storage_pure.py:1347-1402", "../../core/storage_pure.py"]] },
-      "feedback-projection": { kind: "Projection", name: "Feedback projection path", nodes: ["dispatch", "rules", "feedback"], tone: "feedback", payload: "XP total, activity messages, event-log rows, HUD view", trace: "RuntimeActionContext callbacks → feedback context → review strip and drawers", cites: [["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"], ["__init__.py:636-727", "../../__init__.py"], ["ui/ui.py:3999-4218", "../../ui/ui.py"]] },
-      "feedback-persistence": { kind: "Projection", name: "Persisted event feedback", nodes: ["state", "feedback"], tone: "feedback", payload: "review_event_log retained in player_data", trace: "record_review_event_pure → save seam → event-log drawer", cites: [["__init__.py:518-531", "../../__init__.py"], ["logic/review_strip_logic.py:193-211", "../../logic/review_strip_logic.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"]] },
-      "review-clock": { kind: "Clock", name: "Review and world clock path", nodes: ["anki", "clock", "state"], tone: "clock", payload: "answered cards, world-event state, cadence opportunity state", trace: "answer boundary → shared review clocks → world events → persisted player_data", cites: [["__init__.py:5242-5275", "../../__init__.py"], ["__init__.py:5379-5416", "../../__init__.py"]] },
-      "undo-restore": { kind: "Reversible control", name: "Undo restore path", nodes: ["undo", "state"], tone: "feedback", payload: "changed values + removed keys + random_state", trace: "snapshot before answer → state_did_undo → restore → save + refresh UI", cites: [["__init__.py:1314-1358", "../../__init__.py"], ["__init__.py:1390-1415", "../../__init__.py"], ["__init__.py:1468-1480", "../../__init__.py"]] }
+      "review-control": { kind: "Review control", name: "Review answer control path", nodes: ["anki", "surface", "dispatch", "rules"], tone: "control", modes: ["control"], payload: "Anki ease + active current_skill + resolved handler key", trace: "Reviewer._answerCard → on_answer_card → on_good_answer → runtime handler → pure reducer", cites: [["__init__.py:5357-5454", "../../__init__.py"], ["__init__.py:5278-5332", "../../__init__.py"], ["runtime/runtime_actions.py:850-906", "../../runtime/runtime_actions.py"]] },
+      "menu-control": { kind: "Direct control", name: "Menu action control path", nodes: ["surface", "dispatch", "rules"], tone: "control", modes: ["control"], payload: "selected target/action + callback-rich runtime context", trace: "Qt menu selection → entrypoint callback → runtime handler or pure command → visible state", cites: [["ui/ui.py:4597-4765", "../../ui/ui.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"]] },
+      "catalog-payload": { kind: "Data payload", name: "Catalog dependency path", nodes: ["catalog", "dispatch", "rules"], tone: "data", modes: ["data"], payload: "SkillDefinition + TargetRowMetadata + requirements/outputs", trace: "skill registry + target metadata → active target → admission checks and reducer inputs", cites: [["core/skill_registry.py:21-57", "../../core/skill_registry.py"], ["core/target_metadata.py:74-112", "../../core/target_metadata.py"], ["core/action_registry.py:52-75", "../../core/action_registry.py"]] },
+      "state-save": { kind: "Persistence", name: "State save path", nodes: ["rules", "state"], tone: "persist", modes: ["data"], payload: "mutated player_data + current_skill + config_version", trace: "pure mutation → save_player_data → Anki collection config", cites: [["core/storage.py:21-54", "../../core/storage.py"], ["core/storage_pure.py:1347-1402", "../../core/storage_pure.py"]] },
+      "feedback-projection": { kind: "Projection", name: "Feedback projection path", nodes: ["dispatch", "rules", "feedback"], tone: "feedback", modes: ["feedback"], payload: "XP total, activity messages, event-log rows, HUD view", trace: "RuntimeActionContext callbacks → feedback context → review strip and drawers", cites: [["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"], ["__init__.py:636-727", "../../__init__.py"], ["ui/ui.py:3999-4218", "../../ui/ui.py"]] },
+      "feedback-persistence": { kind: "Projection", name: "Persisted event feedback", nodes: ["state", "feedback"], tone: "feedback", modes: ["data", "feedback"], payload: "review_event_log retained in player_data", trace: "record_review_event_pure → save seam → event-log drawer", cites: [["__init__.py:518-531", "../../__init__.py"], ["logic/review_strip_logic.py:193-211", "../../logic/review_strip_logic.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"]] },
+      "review-clock": { kind: "Clock", name: "Review and world clock path", nodes: ["anki", "clock", "state"], tone: "clock", modes: ["feedback"], payload: "answered cards, world-event state, cadence opportunity state", trace: "answer boundary → shared review clocks → world events → persisted player_data", cites: [["__init__.py:5242-5275", "../../__init__.py"], ["__init__.py:5379-5416", "../../__init__.py"]] },
+      "undo-restore": { kind: "Reversible control", name: "Undo restore path", nodes: ["undo", "state"], tone: "feedback", modes: ["data", "feedback"], payload: "changed values + removed keys + random_state", trace: "snapshot before answer → state_did_undo → restore → save + refresh UI", cites: [["__init__.py:1314-1358", "../../__init__.py"], ["__init__.py:1390-1415", "../../__init__.py"], ["__init__.py:1468-1480", "../../__init__.py"]] }
     };
 
-    const buildingEls = [...document.querySelectorAll(".building")];
-    const linkEls = [...document.querySelectorAll(".map-link")];
+    const svg = document.querySelector(".map-svg");
+    const buildingEls = [...svg.querySelectorAll(".building")];
+    const labelOf = new Map([...svg.querySelectorAll(".building-labels > g")].map((g) => [g.dataset.labelFor, g]));
+    const linkEls = [...svg.querySelectorAll(".map-link")];
+    const hitEls = [...svg.querySelectorAll(".path-hit")];
     const buttons = [...document.querySelectorAll(".mode-button")];
     const detail = {
       kind: document.getElementById("detail-kind"),
@@ -554,27 +570,21 @@
     const citationMarkup = (cites) => cites.map(([label, href]) => `<a class="source-link" href="${href}" target="_blank" rel="noopener"><code>${escapeHtml(label)}</code></a>`).join("");
     const listMarkup = (items) => items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 
+    // Mode membership lives only in the paths table. The SVG carries no mode
+    // attributes, so the geometry and the explainer cannot drift apart.
+    const pathInMode = (id, mode) => mode === "all" || paths[id].modes.includes(mode);
+    const pathIdsInMode = (mode) => Object.keys(paths).filter((id) => pathInMode(id, mode));
+
     let activeMode = "all";
-    let activeId = "anki";
+    // Exactly one thing is selected: a building or a lane, never both.
+    let selection = { type: "node", id: "anki" };
 
-    function updateLinks() {
-      linkEls.forEach((link) => {
-        const modes = (link.dataset.modes || "").split(" ");
-        link.classList.toggle("is-muted", activeMode !== "all" && !modes.includes(activeMode));
-      });
-    }
-
-    function updateBuildings(pathNodes = []) {
-      buildingEls.forEach((building) => {
-        const selected = building.dataset.nodeId === activeId || pathNodes.includes(building.dataset.nodeId);
-        building.classList.toggle("is-active", selected);
-        building.classList.toggle("is-muted", Boolean(pathNodes.length) && !selected);
-      });
-    }
+    const relatedNodes = (nodeId) => (activeMode === "all" ? [] : pathIdsInMode(activeMode)
+      .filter((id) => paths[id].nodes.includes(nodeId))
+      .flatMap((id) => paths[id].nodes));
 
     function renderNode(id) {
       const node = nodes[id];
-      activeId = id;
       detail.kind.textContent = node.kind;
       detail.name.textContent = node.name;
       detail.role.textContent = node.role;
@@ -583,14 +593,9 @@
       detail.payload.innerHTML = listMarkup(node.payload);
       detail.cites.innerHTML = citationMarkup(node.cites);
       detail.trace.textContent = node.trace;
-      const connected = Object.values(paths).filter((path) => path.nodes.includes(id));
-      const pathNodes = activeMode === "all" ? [] : connected.filter((path) => path.tone === activeMode || (activeMode === "feedback" && path.tone === "clock")).flatMap((path) => path.nodes);
-      updateBuildings(pathNodes);
     }
 
-    function renderPath(id) {
-      const path = paths[id];
-      activeId = "";
+    function renderPath(path) {
       detail.kind.textContent = path.kind;
       detail.name.textContent = path.name;
       detail.role.textContent = "This lane is a concrete repository path. The payload below is the contract carried between the cited seams.";
@@ -599,37 +604,85 @@
       detail.payload.innerHTML = listMarkup([path.payload]);
       detail.cites.innerHTML = citationMarkup(path.cites);
       detail.trace.textContent = path.trace;
-      updateBuildings(path.nodes);
-      linkEls.forEach((link) => link.classList.toggle("is-active", link.dataset.pathId === id));
+    }
+
+    function render() {
+      const path = selection.type === "path" ? paths[selection.id] : null;
+      const highlighted = path ? path.nodes : relatedNodes(selection.id);
+
+      linkEls.forEach((link) => {
+        link.classList.toggle("is-muted", !pathInMode(link.dataset.pathId, activeMode));
+        link.classList.toggle("is-active", Boolean(path) && link.dataset.pathId === selection.id);
+      });
+      hitEls.forEach((hit) => {
+        const id = hit.dataset.pathId;
+        const muted = !pathInMode(id, activeMode);
+        hit.classList.toggle("is-muted", muted);
+        if (!hit.hasAttribute("role")) return;
+        // A filtered-out lane leaves the tab order as well as the pointer layer.
+        hit.setAttribute("tabindex", muted ? "-1" : "0");
+        hit.setAttribute("aria-pressed", String(Boolean(path) && id === selection.id));
+      });
+      buildingEls.forEach((building) => {
+        const id = building.dataset.nodeId;
+        const isSelected = selection.type === "node" && id === selection.id;
+        building.classList.toggle("is-active", isSelected || highlighted.includes(id));
+        const muted = highlighted.length > 0 && !isSelected && !highlighted.includes(id);
+        building.classList.toggle("is-muted", muted);
+        building.setAttribute("aria-pressed", String(isSelected));
+        // The name sits in the top label layer, so it dims with its building.
+        const label = labelOf.get(id);
+        if (label) label.classList.toggle("is-muted", muted);
+      });
+
+      if (path) renderPath(path); else renderNode(selection.id);
     }
 
     function setMode(mode) {
       activeMode = mode;
-      buttons.forEach((button) => button.classList.toggle("is-selected", button.dataset.mode === mode));
-      updateLinks();
-      renderNode(activeId || "anki");
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.mode === mode)));
+      // A filter can hide the selected lane. Rather than leave the old lane lit
+      // while the explainer describes something else, move to the first lane the
+      // new filter actually shows.
+      if (selection.type === "path" && !pathInMode(selection.id, mode)) {
+        selection = { type: "path", id: pathIdsInMode(mode)[0] };
+      }
+      render();
     }
 
-    buildingEls.forEach((building) => {
-      const select = () => {
-        linkEls.forEach((link) => link.classList.remove("is-active"));
-        renderNode(building.dataset.nodeId);
-      };
-      building.addEventListener("click", select);
-      building.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); select(); }
-      });
+    const targetOf = (el) => (el instanceof Element ? el.closest(".path-hit, .building") : null);
+
+    function select(target) {
+      if (!target) return false;
+      if (target.classList.contains("path-hit")) {
+        if (target.classList.contains("is-muted")) return false;
+        selection = { type: "path", id: target.dataset.pathId };
+      } else {
+        selection = { type: "node", id: target.dataset.nodeId };
+      }
+      render();
+      return true;
+    }
+
+    // One keyboard stop per lane; a lane drawn in two segments keeps the extra
+    // segment pointer-only so the tab order matches the eight path definitions.
+    const keyboardLanes = new Set();
+    hitEls.forEach((hit) => {
+      const id = hit.dataset.pathId;
+      if (keyboardLanes.has(id)) return;
+      keyboardLanes.add(id);
+      hit.setAttribute("tabindex", "0");
+      hit.setAttribute("role", "button");
+      hit.setAttribute("aria-label", paths[id].name);
     });
 
-    linkEls.filter((link) => !link.classList.contains("hit-area")).forEach((link) => {
-      link.addEventListener("click", () => renderPath(link.dataset.pathId));
-    });
-    linkEls.filter((link) => link.classList.contains("hit-area")).forEach((hit) => {
-      hit.addEventListener("click", () => renderPath(hit.dataset.pathId));
+    svg.addEventListener("click", (event) => select(targetOf(event.target)));
+    svg.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      if (select(targetOf(event.target))) event.preventDefault();
     });
     buttons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
-    updateLinks();
-    renderNode("anki");
+    render();
   </script>
 </body>
 </html>
