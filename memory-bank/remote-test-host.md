@@ -17,7 +17,8 @@ rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/repo`, and excludes
 `.git`, `__pycache__`, `.venv-qt`, and `ankiscape_debug.log*`. It launches the
 lane through `nohup`, writes logs and completion reports under
 `/Users/armantarkhanian/ankiscape-remote-test-host/reports`, polls those files,
-and rejects a Qt success with more than 10 skips.
+and rejects any success below 4,100 tests, a plain success above 500 skips,
+or a Qt success above 10 skips.
 
 ## Python environments
 
@@ -53,10 +54,11 @@ paths populated from the Studio copies:
 - `/Users/armantarkhanian/.gradle/caches/modules-2/files-2.1` entries for Darkan core 2.0.5, fastutil 8.5.15, log4j-api 2.20.0, and log4j-core 2.20.0
 
 `tools/run_remote_tests.py` preflights these paths, ripgrep, Pillow, Java 25,
-and the Qt imports before it changes the mirror. The source-reading generators
-honour `ANKISCAPE_GAME_MAIN` and `ANKISCAPE_DARKAN_WORLD_SERVER`; generated
-provenance remains pinned to the caller's logical source path so mirroring does
-not rewrite checked-in data.
+and the Qt imports before it changes the mirror. The three source-reading generators exercised by the test corpus honour
+`ANKISCAPE_GAME_MAIN` and `ANKISCAPE_DARKAN_WORLD_SERVER`; generated
+provenance remains pinned to the caller's logical source path so mirroring
+does not rewrite checked-in data. Other source-reading generators, harvesters,
+and gap tools still use Studio-only source paths.
 
 ## Proven result
 

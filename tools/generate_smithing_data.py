@@ -525,9 +525,14 @@ def smithing_forge_recipe_ids() -> Tuple[str, ...]:
 '''
 
 
-def generate(game_root: Path, output_path: Path) -> None:
-    provenance_root = game_root
-    game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", game_root))
+def generate(
+    game_root: Path,
+    output_path: Path,
+    *,
+    provenance_root: Optional[Path] = None,
+) -> None:
+    if provenance_root is None:
+        provenance_root = game_root
     smithing_path = game_root / SMITHING_RELATIVE
     item_constants = _parse_items_constants(game_root / ITEMS_KT_RELATIVE)
     items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
@@ -551,10 +556,16 @@ def generate(game_root: Path, output_path: Path) -> None:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--game-root", type=Path, default=DEFAULT_GAME_ROOT)
+    parser.add_argument("--game-root", type=Path)
     parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "smithing_data.py")
     args = parser.parse_args(argv)
-    generate(args.game_root, args.output)
+    if args.game_root is None:
+        game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
+        provenance_root = DEFAULT_GAME_ROOT
+    else:
+        game_root = args.game_root
+        provenance_root = args.game_root
+    generate(game_root, args.output, provenance_root=provenance_root)
     print(f"Wrote {args.output}")
     return 0
 

@@ -24,6 +24,8 @@ REMOTE_GAME_MAIN = REMOTE_ROOT / "sources" / "game-main"
 REMOTE_DARKAN = REMOTE_ROOT / "sources" / "darkan-world-server"
 SSH = ("ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", HOST)
 RSYNC_SSH = "ssh -o BatchMode=yes -o ConnectTimeout=10"
+MIN_TESTS = 4_100
+MAX_PLAIN_SKIPS = 500
 MAX_QT_SKIPS = 10
 NETWORK_ATTEMPTS = 3
 
@@ -48,6 +50,21 @@ def parse_unittest_summary(output: str) -> TestSummary:
     if tests == 0:
         raise ValueError("remote lane reported zero tests")
     return TestSummary(ran_match.group(0), result_match.group(0), tests, skipped)
+
+
+def validate_test_summary(lane: str, summary: TestSummary) -> None:
+    if summary.tests < MIN_TESTS:
+        raise RuntimeError(
+            f"remote {lane} lane false pass: ran {summary.tests} tests, "
+            f"expected at least {MIN_TESTS}"
+        )
+    max_skips = MAX_PLAIN_SKIPS if lane == "plain" else MAX_QT_SKIPS
+    if summary.skipped > max_skips:
+        lane_label = "Qt" if lane == "qt" else "plain"
+        raise RuntimeError(
+            f"remote {lane_label} lane false pass: skipped={summary.skipped}, "
+            f"expected at most {max_skips}"
+        )
 
 
 def _run_with_retries(command: Sequence[str], *, label: str) -> subprocess.CompletedProcess[str]:
@@ -186,9 +203,20 @@ def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tu
         ).strip()
         if report:
             try:
-                return int(report), seen
+                returncode = int(report)
             except ValueError as exc:
                 raise RuntimeError(f"invalid remote lane report {report!r}") from exc
+            final_output = _ssh(
+                f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
+                label="remote lane final log read",
+            )
+            if final_output.startswith(seen):
+                addition = final_output[len(seen) :]
+            else:
+                addition = final_output
+            if addition:
+                print(addition, end="", flush=True)
+            return returncode, final_output
         if time.monotonic() - started >= timeout:
             raise TimeoutError(
                 f"remote {lane} lane did not finish within {timeout:g} seconds; "
@@ -222,11 +250,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if returncode != 0:
             raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
         summary = parse_unittest_summary(output)
-        if args.lane == "qt" and summary.skipped > MAX_QT_SKIPS:
-            raise RuntimeError(
-                f"remote Qt lane false pass: skipped={summary.skipped}, "
-                f"expected at most {MAX_QT_SKIPS}"
-            )
+        validate_test_summary(args.lane, summary)
     except (RuntimeError, TimeoutError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

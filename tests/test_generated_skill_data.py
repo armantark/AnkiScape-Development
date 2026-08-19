@@ -1,12 +1,15 @@
 import importlib.util
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-GAME_ROOT = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
+PROVENANCE_ROOT = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
+GAME_ROOT = Path(os.environ.get("ANKISCAPE_GAME_MAIN", PROVENANCE_ROOT))
 
 
 def _load_tool(module_name: str, relative_path: str):
@@ -33,10 +36,36 @@ def _equipment_item_block(data: str, item_name: str) -> str:
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 class TestGeneratedSkillData(unittest.TestCase):
+    def test_explicit_game_root_wins_over_environment_for_generators(self):
+        explicit_root = Path("/explicit/game-main")
+        environment_root = Path("/environment/game-main")
+        output_path = Path("/tmp/not-written.py")
+        cases = (
+            (
+                generate_equipment_data,
+                "_parse_items_yml",
+                generate_equipment_data.ITEMS_YML_RELATIVE,
+            ),
+            (
+                generate_smithing_data,
+                "_parse_items_constants",
+                generate_smithing_data.ITEMS_KT_RELATIVE,
+            ),
+        )
+        for module, reader_name, relative_path in cases:
+            with self.subTest(module=module.__name__), patch.dict(
+                os.environ, {"ANKISCAPE_GAME_MAIN": str(environment_root)}
+            ), patch.object(module, reader_name, side_effect=RuntimeError("source probe")) as reader:
+                with self.assertRaisesRegex(RuntimeError, "source probe"):
+                    module.generate(explicit_root, output_path)
+                reader.assert_called_once_with(explicit_root / relative_path)
+
     def test_smithing_generator_reproduces_checked_in_dragon_sq_shield_recipe(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir) / "smithing_data.py"
-            generate_smithing_data.generate(GAME_ROOT, output_path)
+            generate_smithing_data.generate(
+                GAME_ROOT, output_path, provenance_root=PROVENANCE_ROOT
+            )
             generated = output_path.read_text(encoding="utf-8")
 
         self.assertEqual(generated, (ROOT / "data" / "smithing_data.py").read_text(encoding="utf-8"))
@@ -44,7 +73,9 @@ class TestGeneratedSkillData(unittest.TestCase):
     def test_equipment_generator_reproduces_checked_in_dragon_sq_shield_item_1187_block(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir) / "equipment_data.py"
-            generate_equipment_data.generate(GAME_ROOT, output_path)
+            generate_equipment_data.generate(
+                GAME_ROOT, output_path, provenance_root=PROVENANCE_ROOT
+            )
             generated = output_path.read_text(encoding="utf-8")
 
         checked_in = (ROOT / "data" / "equipment_data.py").read_text(encoding="utf-8")
