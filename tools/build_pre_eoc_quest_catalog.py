@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import html
 import json
+import os
 import pprint
 import re
 import time
@@ -67,15 +68,21 @@ LIGHT_SOURCE_STAGE_BLOCKED_QUESTS = frozenset({
     "watchtower",
     "another_slice_of_h_a_m",
 })
+GAME_MAIN_DIR = Path(
+    os.environ.get("ANKISCAPE_GAME_MAIN", "/Users/ArmanTarkhanian1/Downloads/game-main")
+)
 SCAPE_2011_QUEST_IMPL_DIR = (
-    Path("/Users/ArmanTarkhanian1/Downloads/game-main")
-    / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
+    GAME_MAIN_DIR / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
 )
 SCAPE_2011_NPC_DEFINITION_DIR = (
-    Path("/Users/ArmanTarkhanian1/Downloads/game-main")
-    / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
+    GAME_MAIN_DIR / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
 )
-DARKAN_WORLD_SERVER_DIR = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server")
+DARKAN_WORLD_SERVER_DIR = Path(
+    os.environ.get(
+        "ANKISCAPE_DARKAN_WORLD_SERVER",
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server",
+    )
+)
 DARKAN_NPC_LIST_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/npcList.txt"
 DARKAN_BEASTS_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/beasts.txt"
 DARKAN_NPC_COMBATDEF_DIR = DARKAN_WORLD_SERVER_DIR / "data/npcs/combatdefs"

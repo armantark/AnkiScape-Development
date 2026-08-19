@@ -1,5 +1,12 @@
 # Active Context
 
+## MacBook remote verification host — 2026-08-19
+
+- The laptop mirror lives at `/Users/armantarkhanian/ankiscape-remote-test-host`; it is outside Anki and is never canonical.
+- `tools/run_remote_tests.py <local-worktree> {plain,qt}` rsyncs the requested tree, launches the lane detached with `nohup`, polls report files, streams the log, validates a real unittest summary, and rejects Qt false passes above 10 skips.
+- The exact Qt freeze, isolated plain Pillow pin, portable game-main/Darkan source overrides, four required OpenRS2 caches, Java 25, and Darkan Java dependencies are pinned in `memory-bank/remote-test-host.md`.
+- The MacBook passed the unchanged 4,144-test corpus: plain `125.215s`, `skipped=499`; offscreen Qt `295.116s`, `skipped=3`.
+
 ## Pass 10 CLOSED — 2026-08-15
 
 All nine Pass 10 owner clauses are closed in five commits on `main`

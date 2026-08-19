@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -525,6 +526,8 @@ def smithing_forge_recipe_ids() -> Tuple[str, ...]:
 
 
 def generate(game_root: Path, output_path: Path) -> None:
+    provenance_root = game_root
+    game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", game_root))
     smithing_path = game_root / SMITHING_RELATIVE
     item_constants = _parse_items_constants(game_root / ITEMS_KT_RELATIVE)
     items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
@@ -538,10 +541,12 @@ def generate(game_root: Path, output_path: Path) -> None:
         items,
     )
     cannonballs = _cannonball_recipe(item_constants, items)
-    output_path.write_text(
-        _render_module(tuple(smelting) + tuple(products) + (dragon_sq_shield_repair, cannonballs)),
-        encoding="utf-8",
+    rendered = _render_module(
+        tuple(smelting) + tuple(products) + (dragon_sq_shield_repair, cannonballs)
     )
+    if game_root != provenance_root:
+        rendered = rendered.replace(str(game_root), str(provenance_root))
+    output_path.write_text(rendered, encoding="utf-8")
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
