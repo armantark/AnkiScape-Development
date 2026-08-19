@@ -1409,3 +1409,30 @@ The other 172 were re-walked on 2026-08-13.
 The MacBook Pro is now reachable for headless work as
 `ssh armans-macbook-pro '<cmd>'`, but it has no repository copy and no Qt
 environment yet.
+
+### Wrong merge parent in two Jungle Potion records — found 2026-08-19, correction owed
+
+The Jungle Potion re-land merge `6b5e41ac1610a782eecf46790258a5e50f9c3827` has
+parents `3cbe114a3c43fd031f09fc5a5582c0d10a6a17cc` and
+`6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Two durable records on that branch
+instead name `26ccb2a4378f3968e2f255b5f34bddd8ffe889de` as the merge parent:
+
+- `memory-bank/activeContext.md:5027`
+- `memory-bank/source-audits/quest-jungle-potion-playable-2026-08-13.md:133`
+
+The reachability figures those records carry are still numerically valid,
+because `26ccb2a4`, `6c482e61`, `1f878577`, and `323bf390` differ only in
+Memory Bank text. The wording is still wrong: a later seat checks out the
+identifier, not the argument for why the identifier does not matter.
+
+Cause is the brief, not the agent. Every re-land brief in this run quotes the
+verified baseline at `26ccb2a4`, and the agent recorded the briefed identifier
+rather than the one it actually merged. Check every other re-land branch for
+the same substitution before promoting it: `breadth-reland`, `herbs-reland`,
+`papercuts-reland`, `remote-test-host`, `skill-button-refresh`.
+
+Resolution: this is a review finding, and the slice pipeline's resolve stage
+already provides for one commit after review. No rail is relaxed by correcting
+it there. Future briefs must label a quoted baseline as "measured at", and say
+explicitly that the record must name the merge parent the agent actually
+merged.
