@@ -33,7 +33,7 @@ class TestHabitatHerbChain(unittest.TestCase):
                         HUNTER_DATA,
                         78,
                         0.0,
-                        r_secondary_drop=0.0,
+                        r_secondary_chance=0.0,
                         r_secondary_pick=seed_roll,
                     )
                 )

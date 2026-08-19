@@ -426,7 +426,8 @@ def apply_woodcutting_action_pure(
     ):
         output_item = None
     elif output_item:
-        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+        output_quantity = max(1, _positive_int(spec.get("output_quantity", 1), 1))
+        new_inv[output_item] = new_inv.get(output_item, 0) + output_quantity
 
     nest_item = None
     if r_nest_drop is not None and r_nest_type is not None and nest_drop_table and r_nest_drop < nest_drop_chance:
@@ -726,7 +727,7 @@ def apply_hunter_action_pure(
     hunter_level,
     r_action,
     success_level=None,
-    r_secondary_drop=None,
+    r_secondary_chance=None,
     r_secondary_pick=None,
 ):
     """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
@@ -749,23 +750,23 @@ def apply_hunter_action_pure(
     for item_name, amount in outputs.items():
         new_inv[item_name] = new_inv.get(item_name, 0) + amount
 
-    weighted_secondary_outputs = spec.get("weighted_secondary_outputs", ())
-    secondary_output_chance = min(
-        _non_negative_float(spec.get("secondary_output_chance", 0.0), 0.0),
-        1.0,
-    )
+    secondary_outputs = spec.get("secondary_outputs") or ()
     if (
-        weighted_secondary_outputs
-        and r_secondary_drop is not None
+        r_secondary_chance is not None
         and r_secondary_pick is not None
-        and float(r_secondary_drop) < secondary_output_chance
+        and secondary_outputs
+        and float(r_secondary_chance) < float(spec.get("secondary_drop_chance", 0.0) or 0.0)
     ):
-        secondary_output = pick_weighted_item_pure(
-            weighted_secondary_outputs,
-            r_secondary_pick,
+        item_name = pick_weighted_item_pure(secondary_outputs, r_secondary_pick)
+        output = next(
+            (row for row in secondary_outputs if row.get("item") == item_name),
+            None,
         )
-        if secondary_output:
-            new_inv[secondary_output] = new_inv.get(secondary_output, 0) + 1
+        if output:
+            new_inv[item_name] = new_inv.get(item_name, 0) + _positive_int(
+                output.get("amount", 1),
+                1,
+            )
 
     primary_output = spec.get("primary_output") or spec.get("output_item")
     xp_rewards = normalize_xp_rewards_pure(spec, "hunter", spec.get("exp", 0))

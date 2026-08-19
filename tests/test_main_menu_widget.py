@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -6113,7 +6113,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(banshee.text(0), "Banshee (Lvl 23)")
         self.assertIn("Missing Earmuffs", banshee.toolTip(0))
         self.assertIn("Enemy max hit: 10 LP", banshee.toolTip(0))
-        self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
+        self.assertEqual(seagull.text(0), "✓ Seagull (Lvl 2)")
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
@@ -6154,7 +6154,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree = dialog.findChild(QListWidget, "combatTargetTree")
         seagull = tree.currentItem()
         self.assertEqual(seagull.data(Qt.ItemDataRole.UserRole), "seagull")
-        self.assertEqual(seagull.background().color(), QColor(76, 175, 80, 76))
+        self.assertEqual(seagull.background().color(), QColor(76, 175, 80, 120))
+        self.assertEqual(seagull.text(), "✓ Seagull (Lvl 2)")
         self.assertTrue(seagull.font().bold())
         self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(seagull)))
 
@@ -6240,7 +6241,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(tree.visualItemRect(seagull).height(), 30)
         self.assertIs(tree.currentItem(), seagull)
         self.assertTrue(seagull.parent().isExpanded())
-        self.assertEqual(seagull.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertEqual(seagull.background(0).color(), QColor(76, 175, 80, 120))
+        self.assertEqual(seagull.text(0), "✓ Seagull (Lvl 2)")
         self.assertTrue(seagull.font(0).bold())
         self.assertFalse(seagull.isSelected())
         self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(seagull)))
@@ -6248,6 +6250,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(wall_beast.isDisabled())
         self.assertIn("Locked due to:", wall_beast.toolTip(0))
         self.assertIn("Slayer level 35", wall_beast.toolTip(0))
+
+        # The role-based brush assertion above is not enough: QSS item border
+        # rules can make Qt ignore BackgroundRole during native painting.
+        def _sample_row(item, image):
+            rect = tree.visualItemRect(item)
+            viewport_point = QPoint(tree.viewport().width() - 12, rect.center().y())
+            return image.pixelColor(tree.viewport().mapTo(tree, viewport_point))
+
+        saved_pixel = _sample_row(seagull, tree.grab().toImage())
+        candidate_rows = [
+            item
+            for item in _tree_items(tree)
+            if item.parent() is not None
+            and item is not seagull
+            and not item.isDisabled()
+        ]
+        self.assertTrue(candidate_rows, "a non-saved combat row must exist")
+        non_saved = candidate_rows[0]
+        non_saved.parent().setExpanded(True)
+        tree.scrollToItem(non_saved)
+        for _ in range(3):
+            QApplication.processEvents()
+        non_saved_pixel = _sample_row(non_saved, tree.grab().toImage())
+        self.assertGreater(saved_pixel.green(), saved_pixel.red())
+        self.assertGreater(saved_pixel.green(), saved_pixel.blue())
+        self.assertFalse(
+            non_saved_pixel.green() > non_saved_pixel.red()
+            and non_saved_pixel.green() > non_saved_pixel.blue()
+        )
+
+        tree.setCurrentItem(non_saved)
+        for _ in range(3):
+            QApplication.processEvents()
+        selected_pixel = _sample_row(non_saved, tree.grab().toImage())
+        self.assertGreater(selected_pixel.blue(), selected_pixel.green())
+        self.assertNotEqual(selected_pixel.rgba(), saved_pixel.rgba())
 
         for group_index in range(tree.topLevelItemCount()):
             group = tree.topLevelItem(group_index)
@@ -6798,7 +6836,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
         self.assertTrue(crayfish_row.text().startswith("Catch crayfish"))
-        self.assertEqual(sardine_row.text(), "Catch sardine (Lvl 5)/herring (Lvl 10)")
+        self.assertEqual(sardine_row.text(), "✓ Catch sardine (Lvl 5)/herring (Lvl 10)")
         self.assertEqual(mackerel_row.text(), "Catch mackerel (Lvl 16)/cod (Lvl 23)/bass (Lvl 46)")
         self.assertEqual(cave_eel_row.text(), "Catch cave eel (Lvl 38)")
         self.assertFalse(cave_eel_row.icon().isNull())
@@ -6868,11 +6906,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("__hunter_group__:deadfall", group_roles)
         self.assertIn("__hunter_group__:impling_world", group_roles)
         self.assertEqual(_hunter_group_node(tree, "deadfall").text(0), "Deadfall  (4)")
-        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (1)")
+        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (4)")
 
         wild = _hunter_row(tree, "catch_wild_kebbit")
         ferret = _hunter_row(tree, "catch_ferret")
         pirate = _hunter_row(tree, "catch_pirate_impling_world")
+        polar = _hunter_row(tree, "catch_polar_kebbit")
         razor_backed = _hunter_row(tree, "track_razor_backed_kebbit")
         self.assertIs(wild, tree.currentItem())
         self.assertFalse(wild.isDisabled())
@@ -6885,6 +6924,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Eagles' Peak", ferret.toolTip(0))
         self.assertTrue(pirate.isDisabled())
         self.assertIn("Rocking Out", pirate.toolTip(0))
+        self.assertTrue(polar.isDisabled())
+        self.assertIn("Outputs: Bones x1, Raw beast meat x1, Polar kebbit fur x1", polar.toolTip(0))
+        self.assertIn("Noose wand x1 (you have 0)", polar.toolTip(0))
+        self.assertFalse(polar.icon(0).isNull())
         self.assertTrue(razor_backed.isDisabled())
         self.assertIn("Noose wand x1 (you have 0)", razor_backed.toolTip(0))
         self.assertFalse(razor_backed.icon(0).isNull())
@@ -8295,8 +8338,9 @@ class MainMenuWidgetTest(unittest.TestCase):
                     current.data(Qt.ItemDataRole.UserRole), target, skill
                 )
                 self.assertEqual(
-                    current.background().color().getRgb()[:3], (76, 175, 80), skill
+                    current.background().color(), QColor(76, 175, 80, 120), skill
                 )
+                self.assertTrue(current.text().startswith("✓ "), skill)
                 self.assertTrue(current.font().bold(), skill)
                 self.assertFalse(current.isSelected(), skill)
                 self.assertIn("QListWidget::item:selected", target_list.styleSheet())
@@ -8331,7 +8375,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
 
         self.assertEqual(target_list.currentItem(), coal)
-        self.assertEqual(coal.background().color(), QColor(76, 175, 80, 76))
+        self.assertEqual(coal.background().color(), QColor(76, 175, 80, 120))
+        self.assertTrue(coal.text().startswith("✓ "))
+        self.assertFalse(silver.text().startswith("✓ "))
         self.assertTrue(coal.font().bold())
         self.assertNotEqual(silver.background().color(), QColor(76, 175, 80, 76))
         self.assertFalse(silver.font().bold())
@@ -8384,8 +8430,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertTrue(tree.alternatingRowColors())
             self.assertEqual(flat.visualItemRect(flat_current).height(), 30)
             self.assertEqual(tree.visualItemRect(tree_current).height(), 30)
-            self.assertEqual(flat_current.background().color(), QColor(76, 175, 80, 76))
-            self.assertEqual(tree_current.background(0).color(), QColor(76, 175, 80, 76))
+            self.assertEqual(flat_current.background().color(), QColor(76, 175, 80, 120))
+            self.assertEqual(tree_current.background(0).color(), QColor(76, 175, 80, 120))
+            self.assertTrue(flat_current.text().startswith("✓ "))
+            self.assertTrue(tree_current.text(0).startswith("✓ "))
             self.assertTrue(flat_current.font().bold())
             self.assertTrue(tree_current.font(0).bold())
         finally:
@@ -8445,7 +8493,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(self._smith_calls[-1], "forge_bronze_hatchet")
         self.assertIs(tree.currentItem(), hatchet)
-        self.assertEqual(hatchet.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertEqual(hatchet.background(0).color(), QColor(76, 175, 80, 120))
+        self.assertTrue(hatchet.text(0).startswith("✓ "))
+        self.assertFalse(dagger.text(0).startswith("✓ "))
         self.assertTrue(hatchet.font(0).bold())
         self.assertNotEqual(dagger.background(0).color(), QColor(76, 175, 80, 76))
         self.assertFalse(dagger.font(0).bold())
@@ -8481,12 +8531,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             tree.selectionMode(), QAbstractItemView.SelectionMode.SingleSelection
         )
-        self.assertRegex(
+        self.assertIn(
+            "QTreeWidget::item:selected { color: palette(text); }",
             tree.styleSheet(),
-            r"QTreeWidget::item:selected \{ border: 2px solid rgba\(66,133,244,0\.95\);",
         )
+        self.assertNotIn("QTreeWidget::item:selected { border:", tree.styleSheet())
         self.assertNotIn("rgba(76,175,80", tree.styleSheet())
-        self.assertEqual(current.background(0).color(), QColor(76, 175, 80, 76))
+        self.assertEqual(current.background(0).color(), QColor(76, 175, 80, 120))
 
     def test_smithing_highlights_current_target_on_open(self) -> None:
         pd = _make_player_data()
@@ -8646,9 +8697,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
             unlocked = dialog.findChild(QWidget, "statsGuideRow::action:adamantite")
             locked = dialog.findChild(QWidget, "statsGuideRow::action:concentrated_coal")
-            locked_equipment = dialog.findChild(
+            milestone_cape = dialog.findChild(
                 QWidget,
                 "statsGuideRow::equipment:Milestone cape (80)",
+            )
+            locked_equipment = dialog.findChild(
+                QWidget,
+                "statsGuideRow::equipment:Mining cape",
             )
             locked_name = dialog.findChild(QLabel, "statsGuideName::action:concentrated_coal")
             locked_badge = dialog.findChild(QLabel, "statsGuideLevelBadge::action:concentrated_coal")
@@ -8669,6 +8724,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 locked_equipment.graphicsEffect().opacity(),
                 0.45,
             )
+            self.assertIsNone(milestone_cape)
             self.assertGreater(guide.verticalScrollBar().value(), 0)
             divider_y = divider.mapTo(guide.viewport(), QPoint(0, 0)).y()
             self.assertGreaterEqual(divider_y, 0)
@@ -8690,6 +8746,172 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsNotNone(
                 dialog.findChild(QWidget, "statsGuideRow::equipment:Bronze dagger")
             )
+        finally:
+            dialog.deleteLater()
+
+    def test_farming_skill_guide_renders_source_sections_rows_and_quest_gates(self) -> None:
+        player_data = _make_player_data()
+        player_data.update(
+            {
+                "farming_level": 60,
+                "magic_level": 70,
+                "agility_level": 60,
+                "crafting_level": 60,
+                "construction_level": 50,
+                "woodcutting_level": 1,
+                "firemaking_level": 1,
+            }
+        )
+        dialog = self._open(player_data, current_skill="Farming")
+        dialog.resize(1280, 752)
+        dialog.show()
+        for _ in range(6):
+            QApplication.processEvents()
+        try:
+            content = dialog.findChild(QWidget, "statsSkillGuideContent")
+            sections = [
+                dialog.findChild(QLabel, f"statsGuideSectionTitle::{section_id}")
+                for section_id in ("milestones", "produce", "trees", "special", "other")
+            ]
+            self.assertEqual(
+                [section.text() for section in sections],
+                ["Milestones", "Produce", "Trees", "Special", "Other"],
+            )
+            expected_counts = {
+                "milestones": 2,
+                "produce": 47,
+                "trees": 12,
+                "special": 12,
+                "other": 15,
+            }
+            all_rows = [
+                row
+                for row in content.findChildren(QWidget)
+                if row.objectName().startswith("statsGuideRow::farming-struct:")
+            ]
+            for index, (section_id, expected_count) in enumerate(expected_counts.items()):
+                lower = sections[index].y()
+                upper = sections[index + 1].y() if index + 1 < len(sections) else content.height()
+                self.assertEqual(
+                    sum(lower < row.y() < upper for row in all_rows),
+                    expected_count,
+                )
+
+            potato = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3439")
+            oak = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3453")
+            scarecrow = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3473")
+            jade = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3503")
+            livid = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3514")
+            evil_oak = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3520")
+            white_lily = dialog.findChild(QWidget, "statsGuideRow::farming-struct:3477")
+            dividers = {
+                section_id: dialog.findChild(
+                    QLabel,
+                    f"statsGuideCurrentDivider::{section_id}",
+                )
+                for section_id in ("milestones", "produce", "trees", "special", "other")
+            }
+            self.assertIsNotNone(potato)
+            self.assertIsNotNone(oak)
+            self.assertIsNotNone(scarecrow)
+            self.assertIsNotNone(jade)
+            self.assertIsNotNone(livid)
+            self.assertIsNotNone(evil_oak)
+            self.assertIsNotNone(white_lily)
+            self.assertEqual(
+                {section_id: divider.text() for section_id, divider in dividers.items()},
+                {
+                    "milestones": "Current level 60",
+                    "produce": "Current level 60",
+                    "trees": "Current level 60",
+                    "special": "Current level 60",
+                    "other": "Current level 60",
+                },
+            )
+            first_above_level = {
+                "milestones": "farming-struct:3548",
+                "produce": "farming-struct:3491",
+                "trees": "farming-struct:3464",
+                "special": "farming-struct:3506",
+                "other": "farming-struct:3515",
+            }
+            guide_layout = content.layout()
+            for section_id, row_id in first_above_level.items():
+                divider_widget = dividers[section_id].parentWidget()
+                row_widget = dialog.findChild(QWidget, f"statsGuideRow::{row_id}")
+                self.assertEqual(
+                    guide_layout.indexOf(divider_widget) + 1,
+                    guide_layout.indexOf(row_widget),
+                )
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3453").text(),
+                "Oak tree",
+            )
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3473").text(),
+                "Make and place a scarecrow",
+            )
+            oak_icon = dialog.findChild(QLabel, "statsGuideIcon::farming-struct:3453")
+            self.assertIsNotNone(oak_icon)
+            self.assertFalse(oak_icon.pixmap().isNull())
+            self.assertIsNotNone(jade.graphicsEffect())
+            self.assertAlmostEqual(jade.graphicsEffect().opacity(), 0.45)
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3503").toolTip(),
+                "Requires: Back to My Roots",
+            )
+            self.assertIsNotNone(livid.graphicsEffect())
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3514").toolTip(),
+                "Requires: Lunar Diplomacy",
+            )
+            self.assertIsNone(white_lily.graphicsEffect())
+            self.assertEqual(
+                dialog.findChild(QLabel, "statsGuideName::farming-struct:3477").toolTip(),
+                "",
+            )
+            evil_oak_tooltip = dialog.findChild(
+                QLabel,
+                "statsGuideName::farming-struct:3520",
+            ).toolTip()
+            self.assertIn("Woodcutting 15", evil_oak_tooltip)
+            self.assertIn("Firemaking 15", evil_oak_tooltip)
+            self.assertEqual(len(all_rows), 88)
+            self.assertIsNone(dialog.findChild(QWidget, "statsGuideRow::farming-struct:3526"))
+        finally:
+            dialog.deleteLater()
+
+    def test_slayer_skill_guide_lists_every_registry_family(self) -> None:
+        dialog = self._open(_make_player_data(), current_skill="Slayer")
+        try:
+            content = dialog.findChild(QWidget, "statsSkillGuideContent")
+            monsters = dialog.findChild(
+                QLabel,
+                "statsGuideSectionTitle::monsters",
+            )
+            rows = [
+                row
+                for row in content.findChildren(QWidget)
+                if row.objectName().startswith("statsGuideRow::monster:")
+            ]
+            wall_beasts = dialog.findChild(
+                QWidget,
+                "statsGuideRow::monster:wall_beasts",
+            )
+            wall_beasts_badge = dialog.findChild(
+                QLabel,
+                "statsGuideLevelBadge::monster:wall_beasts",
+            )
+            wall_beasts_icon = dialog.findChild(
+                QLabel,
+                "statsGuideIcon::monster:wall_beasts",
+            )
+
+            self.assertEqual(monsters.text(), "Monsters")
+            self.assertEqual(len(rows), 105)
+            self.assertIsNotNone(wall_beasts)
+            self.assertEqual(wall_beasts_badge.text(), "35")
+            self.assertFalse(wall_beasts_icon.pixmap().isNull())
         finally:
             dialog.deleteLater()
 
@@ -10492,6 +10714,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(opened, [("Vial pack", True)])
 
+    def test_bank_loots_filled_impling_jars(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Dragon impling jar": 1}
+        looted: list[str] = []
+
+        dialog = self._open(
+            pd,
+            on_open_impling_jar=lambda item_name: looted.append(item_name)
+            or {"message": "You loot 105 Dragon dart tip."},
+        )
+        menu = dialog._ankiscape_equip_menu_for("Dragon impling jar")
+        loot = next(action for action in menu.actions() if action.text() == "Loot Dragon impling jar")
+        self.assertEqual(loot.objectName(), "lootImplingJarAction")
+        self.assertTrue(loot.isEnabled())
+
+        original_info = self._ui.QMessageBox.information
+        self._ui.QMessageBox.information = lambda *a, **k: None
+        try:
+            loot.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.information = original_info
+        self.assertEqual(looted, ["Dragon impling jar"])
+
     def test_bank_converts_a_rogue_kit_to_any_period_tool(self) -> None:
         from ankiscape.logic.flash_powder_factory_logic import convert_rogue_kit_pure
 
@@ -11565,8 +11811,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(current.data(0, Qt.ItemDataRole.UserRole), "jewellery_gold_ring")
         self.assertEqual(
             current.background(0).color(),
-            QColor(76, 175, 80, 76),
+            QColor(76, 175, 80, 120),
         )
+        self.assertTrue(current.text(0).startswith("✓ "))
         # The family holding the current target opens so the selection is visible.
         self.assertTrue(_craft_family_node(tree, "jewellery").isExpanded())
         # Unrelated families stay collapsed to tame the panel.
@@ -14379,6 +14626,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_tree.setCurrentItem(row)
         activity_tree.itemActivated.emit(row, 0)
         QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "bankstanding")
 
         panel = _find_named_widget(dialog, "fishFlingersPanel")
         summary = _find_named_label(dialog, "fishFlingersSummary")
@@ -14391,7 +14639,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         buy = reward_page.findChild(QPushButton, "fishFlingersBuyButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
-        self.assertIn("Six successful reviews", summary.text())
+        self.assertIn("8 successful reviews", summary.text())
         self.assertNotIn("claim", summary.text())
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
@@ -14431,7 +14679,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("palette(text)", summary.styleSheet())
         self.assertGreaterEqual(summary.height(), summary.sizeHint().height())
         self.assertLessEqual(panel.width(), dialog.width())
-        self.assertEqual(progress.format(), "%v of 6 landed")
+        self.assertEqual(progress.format(), "%v of 8 landed")
         self.assertFalse(progress.isHidden())
         self.assertFalse(leave.isHidden())
 
@@ -16087,7 +16335,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def _wc_row(self, tree_list: "QListWidget", prefix: str) -> "QListWidgetItem":
         return next(
             tree_list.item(i) for i in range(tree_list.count())
-            if tree_list.item(i).text().startswith(prefix)
+            if tree_list.item(i).text().removeprefix("✓ ").startswith(prefix)
         )
 
     def test_woodcutting_list_shows_friendly_names_not_stable_ids(self) -> None:
@@ -16095,7 +16343,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         texts = [tree_list.item(i).text() for i in range(tree_list.count())]
         # Friendly display names, not raw IDs like "oak"/"tree".
         self.assertTrue(any(t.startswith("Oak (Lvl 15)") for t in texts), texts)
-        self.assertTrue(any(t.startswith("Tree (Lvl 1)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("✓ Tree (Lvl 1)") for t in texts), texts)
         self.assertFalse(any(t == "oak" or t == "tree" for t in texts), texts)
 
     def test_woodcutting_ivy_marked_xp_only_no_logs(self) -> None:
@@ -16180,7 +16428,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def _ore_row(self, ore_list: "QListWidget", prefix: str) -> "QListWidgetItem":
         return next(
             ore_list.item(i) for i in range(ore_list.count())
-            if ore_list.item(i).text().startswith(prefix)
+            if ore_list.item(i).text().removeprefix("✓ ").startswith(prefix)
         )
 
     def test_mining_list_shows_friendly_names_not_stable_ids(self) -> None:
@@ -16308,9 +16556,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd, current_skill="Prayer")
         tree = next(
             tree for tree in dialog.findChildren(QTreeWidget)
-            if tree.findItems("Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)
+            if tree.findItems("✓ Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)
         )
-        row = tree.findItems("Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)[0]
+        row = tree.findItems("✓ Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)[0]
         self.assertFalse(row.isDisabled())
         tree.itemClicked.emit(row, 0)
         QApplication.processEvents()
@@ -16366,7 +16614,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree = dialog.findChild(QTreeWidget, "prayerTargetTree")
         row = _tree_row(tree, "gilded_altar_dragon_bones")
         self.assertEqual(mode.currentData(), "owned")
-        self.assertEqual(row.text(0), "Dragon bones — 180 XP")
+        self.assertEqual(row.text(0), "✓ Dragon bones — 180 XP")
         self.assertIn("Owned · 250% XP · 0/2 burners", row.toolTip(0))
         self.assertIn("none required (0 burners)", row.toolTip(0))
         self.assertFalse(row.isDisabled())
@@ -16388,7 +16636,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         row = _tree_row(tree, "gilded_altar_dragon_bones")
         self.assertEqual(mode.currentData(), "owned")
         self.assertEqual(mode.currentText(), "Owned - 350% XP (2/2 burners)")
-        self.assertEqual(row.text(0), "Dragon bones — 252 XP")
+        self.assertEqual(row.text(0), "✓ Dragon bones — 252 XP")
         self.assertIn("Clean marrentill x2", row.toolTip(0))
 
         for width, height in ((720, 540), (900, 560)):
@@ -17043,7 +17291,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         from ankiscape.logic.circus_logic import apply_circus_command_pure
 
         pd = _make_player_data()
-        pd["current_utility"] = "big_top_bonanza"
+        pd["current_utility"] = "bankstanding"
         command_calls = []
 
         def circus_command(action_id, payload):
@@ -17069,6 +17317,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         tree.itemClicked.emit(item, 0)
         QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "bankstanding")
         panel = next(
             widget
             for widget in dialog.findChildren(QWidget, "circusPanel")
@@ -17079,6 +17328,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         strategy = panel.findChild(QComboBox, "circusStrategyCombo")
         mode = panel.findChild(QComboBox, "circusAutomationMode")
         primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
+        non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
+        move_to_non_executing = panel.findChild(
+            QPushButton, "circusMoveToNonExecutingButton"
+        )
+        move_to_executing = panel.findChild(
+            QPushButton, "circusMoveToExecutingButton"
+        )
         edit = panel.findChild(QPushButton, "circusEditRoutineButton")
         status = panel.findChild(QLabel, "circusStatusChip")
         reward_icons = [
@@ -17095,6 +17352,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             performance.itemText(performance.findData("fire_breathing")),
         )
         self.assertEqual(len(reward_icons), 5)
+        self.assertEqual(executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "agility")
+        self.assertEqual(non_executing_queue.count(), 5)
         self.assertTrue(all(not widget.pixmap().isNull() for widget in reward_icons))
         self.assertTrue(panel.findChild(QWidget, "circusReward::acrobat").isVisible())
         self.assertFalse(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
@@ -17107,12 +17366,68 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
 
         performance.setCurrentIndex(performance.findData("magic"))
+        magic_row = non_executing_queue.findItems(
+            "Magic", Qt.MatchFlag.MatchContains
+        )[0]
+        non_executing_queue.setCurrentItem(magic_row)
+        move_to_executing.click()
+        before_reorder = [
+            executing_queue.item(index).data(Qt.ItemDataRole.UserRole)
+            for index in range(executing_queue.count())
+        ]
+        source_row = before_reorder.index("magic")
+        destination_row = 1 if source_row == 0 else 0
+        self.assertTrue(
+            executing_queue.model().moveRows(
+                QModelIndex(), source_row, 1, QModelIndex(), destination_row
+            )
+        )
+        QApplication.processEvents()
+        reordered = [
+            executing_queue.item(index).data(Qt.ItemDataRole.UserRole)
+            for index in range(executing_queue.count())
+        ]
+        self.assertNotEqual(reordered, before_reorder)
+        self.assertEqual(command_calls[-1][0], "set_queue")
+        executing_queue.setCurrentItem(
+            executing_queue.findItems("Agility", Qt.MatchFlag.MatchContains)[0]
+        )
+        move_to_non_executing.click()
+        self.assertEqual(
+            executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "magic"
+        )
         strategy.setCurrentIndex(strategy.findData("max_xp"))
         primary.click()
         QApplication.processEvents()
-        self.assertEqual(command_calls[-1][0], "set_policy")
+        self.assertEqual(command_calls[-1][0], "start_activity")
         self.assertEqual(pd["circus"]["selected_performance"], "magic")
         self.assertEqual(pd["circus"]["strategies"]["magic"], "max_xp")
+
+        from ankiscape.data.circus_data import CIRCUS_PERFORMANCES
+
+        pd["circus"]["performance_queue"] = {
+            "executing": ["magic", "agility"],
+            "non_executing": ["ranged", "fire_breathing", "flaming_poi", "thieving"],
+        }
+        pd["circus"]["session"] = {
+            "active_performance": "magic",
+            "routine": [
+                trick.id for trick in CIRCUS_PERFORMANCES["magic"].tricks[:10]
+            ],
+            "trick_index": 3,
+            "payout_tier_mask": 0,
+            "score": 120,
+            "success_count": 3,
+            "attempted_ids": [],
+        }
+        performance.setCurrentIndex(performance.findData("agility"))
+        performance.setCurrentIndex(performance.findData("magic"))
+        QApplication.processEvents()
+        detail = panel.findChild(QLabel, "circusDetail")
+        self.assertIn(
+            "Magic spell casting · trick 4 of 10 · 3 successes · next: Agility",
+            detail.text(),
+        )
 
         pd["circus"]["used_week_by_performance"]["magic"] = 0
         performance.setCurrentIndex(performance.findData("agility"))

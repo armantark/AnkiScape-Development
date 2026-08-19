@@ -174,11 +174,17 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Finish Ranging Guild closure. Full Qt found two stale Activities
      inventory assertions. The corrected suite passes 4,053 tests. All final
      quality gates pass.
-   - [x] Close the five grimy vine-herb families through Carrion jadinko seed
+   - [x] Close the Ectofuntus bone family through eight acquisition routes,
+     exact bonemeal identities, the corrected Zogre Prayer XP, and one registered
+     Ogre coffin selector placeholder.
+   - [x] Re-land the five grimy vine-herb families through Carrion jadinko seed
      acquisition, runnable Farming crops, corrected clean levels, unfinished
-     potions, one registered base-lives placeholder, and full gate proof.
+     potions, and the registered vine-herb base-lives placeholder.
    - [ ] Fix the one-way skill-button availability refresh in a separate slice.
      `ui/ui.py:1467-1470` enables a button when the pure result is true, but it
      does not disable the button when the result becomes false. The same pattern
      exists on neighbouring skill buttons. This defect is pre-existing.
+   - [ ] Recover the Frost dragon bone ID-to-route mapping. No period source maps
+     item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
+     Daemonheim routes. Preserve both IDs until a period source settles the pair.
 5. [ ] Paused by the owner until the quota resets. Select no new slice.

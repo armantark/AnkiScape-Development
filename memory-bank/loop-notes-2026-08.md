@@ -764,12 +764,16 @@
 - Rev 742 interface 1343 is the Daily Challenges panel. Its decoded labels and
   hooks reveal no static reward amount; the two reward item definitions prove
   only the lamp and bag identities and actions.
-- The interface search no longer dies on the first legacy IF1 archive. It
-  reports all fifteen unsupported rev-742 interface IDs on standard error and
-  continues searching the decoded remainder, making negative evidence honest.
+- Later byte-level verification found that the fifteen skipped rev-742 archives
+  begin with `0x03`; the first-byte gate's `if1` exception label was a false
+  format classification. The checked-in reader still skips them, so continuing
+  after the warnings does not make the negative search complete.
+- A one-off reflective experiment bypassed the guard, decoded all 1,376 affected
+  components, and found none related to Daily Challenges interface 1343.
 - Result: `daily_challenges.reward_xp` remains registered at 100 XP per required
-  level. A period server payout routine or independently stated amount is still
-  required to replace it. No gameplay value changed.
+  level because the relevant structs and decoded interface 1343 contain no
+  amount. A period server payout routine or independently stated amount is still
+  required. No gameplay value changed.
 - Verification: 51 focused Daily Challenges, real-cache reader, and placeholder
   tests pass. Full discovery passes 3,802 tests in both lanes, with 460 expected
   plain skips and 3 Qt skips. Documentation, test-quality, diff, and worktree
@@ -1362,3 +1366,73 @@
   reachability and quest-runtime checks pass 201 tests. Both full discovery
   lanes pass 4,036 tests, with 492 expected plain skips and three real
   offscreen Qt skips. Native Anki is not claimed. GPT-family root verified.
+
+## 2026-08-19 — resumed run, promotion of stranded slices
+
+Resumed after deleting the stale `GOAL-BLOCKED.md`, whose named unblocker
+(the `claude` daily block) had reset days earlier while main carried Pass 10 to
+closure.
+
+Verified baseline, `main` at `26ccb2a4378f3968e2f255b5f34bddd8ffe889de`:
+
+    plain lane   Ran 4144 tests ... OK (skipped=499)
+    qt lane      Ran 4144 tests in 541.966s ... OK (skipped=3)
+    audit_docs   Audited 575 Markdown and 437 HTML files. Documentation audit passed.
+    reachability 1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked actions
+
+A read-only queue audit found that only ONE new implementation slice is
+unblocked and owner-settled: the one-way skill-button availability refresh.
+Everything else that looked open is either already landed, source-blocked, or
+sitting on a `goal/*` branch that was accepted and never merged. Confirmed
+independently with `git cherry main <branch>` on every goal branch:
+
+| branch | unmerged commits | files | content |
+| --- | --- | --- | --- |
+| `goal/papercuts-2026-08-11` | 1 | 12 | tooling guardrails |
+| `goal/breadth-2026-08-11` | 3 | 30 | Skeletal Wyvern and Wyvern bones |
+| `goal/herbs-2026-08-11` | 3 | 25 | grimy herb family |
+| `goal/vines-2026-08-11` | 1 | 27 | Juju vine secondaries |
+| `goal/secondaries-2026-08-11` | 2 | 28 | acquisition work; its own final commit records a handoff instead of authorizing merge |
+| `goal/jungle-potion-2026-08-13` | 1 | — | Jungle Potion |
+| `goal/stage-satisfiability-2026-08-13` | 1 | 1 | audit-document correction only |
+
+So the remaining goal work is mostly promotion, not authoring. Conflict pairs
+that must never merge concurrently: herbs with vines, jungle with secondaries,
+breadth with secondaries.
+
+Placeholder retirement is NOT open work: only three register rows have never
+been re-walked (`fish_flingers.xp_payout`,
+`bone_sources.frost_dragon_generated_levels`,
+`bone_sources.ogre_coffin_selector_weights`) and all three are source-blocked.
+The other 172 were re-walked on 2026-08-13.
+
+The MacBook Pro is now reachable for headless work as
+`ssh armans-macbook-pro '<cmd>'`, but it has no repository copy and no Qt
+environment yet.
+
+### Wrong merge parent in two Jungle Potion records — found 2026-08-19, correction owed
+
+The Jungle Potion re-land merge `6b5e41ac1610a782eecf46790258a5e50f9c3827` has
+parents `3cbe114a3c43fd031f09fc5a5582c0d10a6a17cc` and
+`6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Two durable records on that branch
+instead name `26ccb2a4378f3968e2f255b5f34bddd8ffe889de` as the merge parent:
+
+- `memory-bank/activeContext.md:5027`
+- `memory-bank/source-audits/quest-jungle-potion-playable-2026-08-13.md:133`
+
+The reachability figures those records carry are still numerically valid,
+because `26ccb2a4`, `6c482e61`, `1f878577`, and `323bf390` differ only in
+Memory Bank text. The wording is still wrong: a later seat checks out the
+identifier, not the argument for why the identifier does not matter.
+
+Cause is the brief, not the agent. Every re-land brief in this run quotes the
+verified baseline at `26ccb2a4`, and the agent recorded the briefed identifier
+rather than the one it actually merged. Check every other re-land branch for
+the same substitution before promoting it: `breadth-reland`, `herbs-reland`,
+`papercuts-reland`, `remote-test-host`, `skill-button-refresh`.
+
+Resolution: this is a review finding, and the slice pipeline's resolve stage
+already provides for one commit after review. No rail is relaxed by correcting
+it there. Future briefs must label a quoted baseline as "measured at", and say
+explicitly that the record must name the merge parent the agent actually
+merged.

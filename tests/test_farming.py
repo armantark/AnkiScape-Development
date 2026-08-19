@@ -1,13 +1,17 @@
 import copy
 import json
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic import farming_logic
+from ankiscape.logic.shop_logic import apply_shop_buy_pure
+from ankiscape.logic_pure.logic_pure import apply_hunter_action_pure
 from ankiscape.core.constants import (
     FARMING_COMPOST_STATE_IMAGES,
+    HUNTER_DATA,
     FARMING_HUD_SPROUT_ICON,
     FARMING_ITEM_IMAGES,
     FARMING_PATCH_STATE_IMAGES,
@@ -173,22 +177,27 @@ class TestFarmingData(unittest.TestCase):
         self.assertEqual(magic_secateurs.source_item_id, 7409)
         self.assertFalse(magic_secateurs.stackable)
 
-    def test_unresolved_rows_are_explicitly_non_runnable(self):
-        expected = {
-            "white_lily": "planting_xp",
-            "spirit_tree": "stage_minutes",
-            "wergali": "harvest_xp",
-            "goutweed": "yield",
-            "red_blossom": "stage_minutes",
-            "kalferberry": "planting_xp",
+    def test_recovered_rows_ship_and_genuine_source_blocks_remain(self):
+        for crop_id in (
+            "white_lily",
+            "wergali",
+            "red_blossom",
+            "green_blossom",
+            "kalferberry",
+        ):
+            self.assertTrue(FARMING_CROPS_BY_ID[crop_id].runnable, crop_id)
+            self.assertFalse(FARMING_CROPS_BY_ID[crop_id].source_blocked, crop_id)
+
+        expected_blocks = {
+            "goutweed": {"yield", "quest_gate"},
+            "spirit_tree": {"stages", "stage_minutes"},
+            "blue_blossom": {"stages", "stage_minutes"},
+            "lergberry": {"stages", "stage_minutes"},
         }
-        for crop_id, blocked_field in expected.items():
+        for crop_id, blocked_fields in expected_blocks.items():
             crop = FARMING_CROPS_BY_ID[crop_id]
-            self.assertIn(blocked_field, crop.source_blocked)
+            self.assertEqual(set(crop.source_blocked), blocked_fields)
             self.assertFalse(crop.runnable)
-        for crop_id in ("red_blossom", "blue_blossom", "green_blossom", "lergberry", "kalferberry"):
-            self.assertTrue(FARMING_CROPS_BY_ID[crop_id].source_blocked)
-            self.assertFalse(FARMING_CROPS_BY_ID[crop_id].runnable)
         for crop_id in ("erzille", "argway", "ugune", "shengo", "samaden"):
             crop = FARMING_CROPS_BY_ID[crop_id]
             self.assertEqual(crop.source_blocked, ())
@@ -202,6 +211,44 @@ class TestFarmingData(unittest.TestCase):
         )
         self.assertNotIn("Patch bomb", FARMING_ITEM_DATA)
         self.assertEqual(len(FARMING_ASSET_MANIFEST), len(FARMING_ITEM_DATA))
+
+    def test_recovered_crop_values_and_stage_offsets_are_frozen(self):
+        white_lily = FARMING_CROPS_BY_ID["white_lily"]
+        self.assertEqual(
+            (
+                white_lily.planting_xp,
+                white_lily.harvest_xp,
+                white_lily.fixed_yield,
+                white_lily.disease_slots,
+            ),
+            (50.0, 250.0, 1, 6),
+        )
+        wergali = FARMING_CROPS_BY_ID["wergali"]
+        self.assertEqual(
+            (wergali.planting_xp, wergali.harvest_xp, wergali.stages, wergali.stage_minutes),
+            (52.8, 52.8, 4, 20),
+        )
+        for crop_id in ("red_blossom", "green_blossom"):
+            crop = FARMING_CROPS_BY_ID[crop_id]
+            self.assertEqual(
+                (crop.stages, crop.stage_minutes, crop.fixed_yield, crop.disease_slots),
+                (4, 5, 1, 6),
+            )
+        kalferberry = FARMING_CROPS_BY_ID["kalferberry"]
+        self.assertEqual(
+            (
+                kalferberry.planting_xp,
+                kalferberry.harvest_xp,
+                kalferberry.check_health_xp,
+                kalferberry.stages,
+                kalferberry.stage_minutes,
+                kalferberry.fixed_yield,
+                kalferberry.disease_slots,
+                kalferberry.regrowth_minutes,
+            ),
+            (220.0, 52.5, 375.0, 5, 15, 4, 6, 6),
+        )
+        self.assertEqual(FARMING_CROPS_BY_ID["lergberry"].fixed_yield, 4)
 
     def test_every_data_row_has_a_unique_stable_id_and_source_citation(self):
         self.assertEqual(len(FARMING_CROPS), len(FARMING_CROPS_BY_ID))
@@ -794,6 +841,141 @@ class TestFarmingClockAndActions(unittest.TestCase):
         regrown, _ = advance_farm_clock_pure(harvested, 4, lambda: 1.0)
         self.assertEqual(regrown["farm_patches"]["champions_bush"]["produce_count"], 1)
 
+    def test_recovered_white_lily_and_blossoms_plant_grow_and_harvest(self):
+        cases = (
+            ("white_lily", "falador_flower", 14, "White lily", 50.0, 250.0),
+            ("red_blossom", "habitat_vine_flower", 4, "Red blossom", 52.0, 255.0),
+            ("green_blossom", "habitat_vine_flower", 4, "Green blossom", 52.0, 255.0),
+        )
+        for crop_id, patch_id, cards, output, planting_xp, harvest_xp in cases:
+            with self.subTest(crop_id=crop_id):
+                planted = _plant_ready(_state(), patch_id, crop_id)
+                self.assertEqual(planted["farming_exp"], planting_xp)
+                mature, _ = advance_farm_clock_pure(planted, cards, lambda: 1.0)
+                crop = FARMING_CROPS_BY_ID[crop_id]
+                self.assertEqual(mature["farm_patches"][patch_id]["stage"], crop.stages)
+                harvested, ok, info = execute_farm_field_step_pure(
+                    mature,
+                    {"kind": "harvest", "patch_id": patch_id},
+                )
+                self.assertTrue(ok)
+                self.assertEqual(info["outputs"], {output: 1})
+                self.assertEqual(info["farming_xp"], harvest_xp)
+                self.assertIsNone(harvested["farm_patches"][patch_id]["crop_id"])
+
+    def test_recovered_wergali_uses_the_real_variable_herb_harvest(self):
+        planted = _plant_ready(_state(), "falador_herb", "wergali")
+        self.assertEqual(planted["farming_exp"], 52.8)
+        mature, _ = advance_farm_clock_pure(planted, 14, lambda: 1.0)
+        rolls = iter((1.0, 1.0, 1.0))
+        harvested, ok, info = execute_farm_field_step_pure(
+            mature,
+            {"kind": "harvest", "patch_id": "falador_herb"},
+            lambda: next(rolls),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["outputs"], {"Grimy wergali": 3})
+        self.assertAlmostEqual(info["farming_xp"], 158.4)
+        self.assertIsNone(harvested["farm_patches"]["falador_herb"]["crop_id"])
+
+    def test_habitat_disease_placeholder_runs_at_its_exact_threshold(self):
+        planted = _plant_ready(_state(), "habitat_vine_flower", "red_blossom")
+        healthy, _ = advance_farm_clock_pure(planted, 2, lambda: 6 / 128)
+        self.assertFalse(healthy["farm_patches"]["habitat_vine_flower"]["diseased"])
+        diseased, _ = advance_farm_clock_pure(planted, 2, lambda: 0.0)
+        self.assertTrue(diseased["farm_patches"]["habitat_vine_flower"]["diseased"])
+
+    def test_kalferberry_matures_at_75_minutes_and_renews_after_harvest(self):
+        planted = _plant_ready(_state(), "habitat_vine_bush", "kalferberry")
+        self.assertEqual(planted["farming_exp"], 220.0)
+        before, _ = advance_farm_clock_pure(planted, 12, lambda: 1.0)
+        self.assertEqual(before["farm_clock_minutes"], 72)
+        self.assertEqual(before["farm_patches"]["habitat_vine_bush"]["stage"], 4)
+        mature, _ = advance_farm_clock_pure(before, 1, lambda: 1.0)
+        self.assertEqual(mature["farm_clock_minutes"], 78)
+        self.assertEqual(mature["farm_patches"]["habitat_vine_bush"]["stage"], 5)
+
+        checked, ok, info = execute_farm_field_step_pure(
+            mature,
+            {"kind": "check_health", "patch_id": "habitat_vine_bush"},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["farming_xp"], 375.0)
+        harvested, ok, info = execute_farm_field_step_pure(
+            checked,
+            {"kind": "harvest", "patch_id": "habitat_vine_bush"},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["outputs"], {"Kalferberry": 4})
+        self.assertEqual(info["farming_xp"], 210.0)
+        self.assertEqual(harvested["farm_patches"]["habitat_vine_bush"]["produce_count"], 0)
+        regrown, _ = advance_farm_clock_pure(harvested, 1, lambda: 1.0)
+        self.assertEqual(regrown["farm_patches"]["habitat_vine_bush"]["produce_count"], 1)
+
+    def test_reachable_cannibal_jadinko_route_ends_with_kalferberry_harvest(self):
+        shop = SHOP_DATA["papa_mambos_shop"]
+        marasamaw = next(
+            row for row in shop["stock"] if row["item_name"] == "Marasamaw plant"
+        )
+        data = _state(level=77)
+        data.update({"hunter_level": 75, "hunter_exp": 0.0})
+        data["inventory"].update(
+            {
+                "Coins": marasamaw["buy_price"],
+                "Rake": 1,
+                "Seed dibber": 1,
+                "Spade": 1,
+            }
+        )
+
+        data, bought = apply_shop_buy_pure(
+            data,
+            shop["id"],
+            marasamaw["id"],
+            1,
+        )
+        self.assertTrue(bought["allowed"])
+        self.assertEqual(data["inventory"]["Marasamaw plant"], 1)
+
+        inventory, hunter_xp, ok, output_item, _rewards = apply_hunter_action_pure(
+            "catch_cannibal_jadinko",
+            data["inventory"],
+            HUNTER_DATA,
+            data["hunter_level"],
+            0.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.5,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(hunter_xp, 475.0)
+        self.assertEqual(output_item, "Plant teeth")
+        self.assertEqual(inventory["Kalferberry seed"], 1)
+        self.assertEqual(inventory["Marasamaw plant"], 1)
+        data["inventory"] = inventory
+
+        planted, ok, _info = execute_farm_field_step_pure(
+            data,
+            {
+                "kind": "plant",
+                "patch_id": "habitat_vine_bush",
+                "crop_id": "kalferberry",
+            },
+        )
+        self.assertTrue(ok)
+        mature, _ = advance_farm_clock_pure(planted, 13, lambda: 1.0)
+        checked, ok, _info = execute_farm_field_step_pure(
+            mature,
+            {"kind": "check_health", "patch_id": "habitat_vine_bush"},
+        )
+        self.assertTrue(ok)
+        harvested, ok, info = execute_farm_field_step_pure(
+            checked,
+            {"kind": "harvest", "patch_id": "habitat_vine_bush"},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["outputs"], {"Kalferberry": 4})
+        self.assertEqual(harvested["inventory"]["Kalferberry"], 4)
+
     def test_check_health_and_clear_stump_transactions(self):
         data = _state()
         data["inventory"].update({"Rake": 1, "Spade": 1, "Oak sapling": 1})
@@ -1228,6 +1410,91 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         fruit, _ = advance_farm_clock_pure(fruit, 160, lambda: 1.0)
         fruit_run, _ = queue_full_run_pure(fruit)
         self.assertEqual([step["kind"] for step in fruit_run["farm_queue"]], ["check_health", "harvest"])
+
+    def test_mature_no_output_health_crop_checks_clears_and_replants(self):
+        spirit_tree = replace(
+            FARMING_CROPS_BY_ID["spirit_tree"],
+            stages=1,
+            stage_minutes=6,
+            source_blocked=(),
+        )
+        crops = dict(FARMING_CROPS_BY_ID)
+        crops["spirit_tree"] = spirit_tree
+        state = _state()
+        state["inventory"].update({"Rake": 1, "Spade": 1, "Spirit sapling": 2})
+        with patch.object(farming_logic, "FARMING_CROPS_BY_ID", crops):
+            state, ok, _ = set_farm_plan_pure(
+                state, "spirit_tree_primary", "spirit_tree"
+            )
+            self.assertTrue(ok)
+            planted, ok, _ = execute_farm_field_step_pure(
+                state,
+                {
+                    "kind": "plant",
+                    "patch_id": "spirit_tree_primary",
+                    "crop_id": "spirit_tree",
+                },
+            )
+            self.assertTrue(ok)
+            mature, _ = advance_farm_clock_pure(planted, 1, lambda: 1.0)
+
+            uncleared, ok, _ = execute_farm_field_step_pure(
+                mature,
+                {"kind": "clear", "patch_id": "spirit_tree_primary"},
+            )
+            self.assertFalse(ok)
+            unharvested, ok, info = execute_farm_field_step_pure(
+                mature,
+                {"kind": "harvest", "patch_id": "spirit_tree_primary"},
+            )
+            self.assertFalse(ok)
+            self.assertEqual(info["message"], "check the crop's health first")
+            self.assertEqual(unharvested["inventory"].get("Spirit roots", 0), 0)
+
+            queued, ids = queue_full_run_pure(mature)
+            self.assertEqual(len(ids), 3)
+            self.assertEqual(
+                [step["kind"] for step in queued["farm_queue"]],
+                ["check_health", "clear", "plant"],
+            )
+            checked, consumed, info = consume_next_farm_queue_step_pure(queued)
+            self.assertTrue(consumed)
+            self.assertEqual(info["farming_xp"], spirit_tree.check_health_xp)
+            view = farming_frontend_projection_pure(checked)
+            patch_view = next(
+                row
+                for location in view["locations"]
+                for row in location["patches"]
+                if row["patch_id"] == "spirit_tree_primary"
+            )
+            self.assertEqual(patch_view["primary_action"]["id"], "clear")
+            self.assertFalse(patch_view["primary_action"]["enabled"])
+            self.assertEqual(
+                patch_view["primary_action"]["locked_reason"],
+                "This patch already has queued work.",
+            )
+            manual = copy.deepcopy(checked)
+            manual["farm_queue"] = []
+            manual_view = farming_frontend_projection_pure(manual)
+            manual_patch = next(
+                row
+                for location in manual_view["locations"]
+                for row in location["patches"]
+                if row["patch_id"] == "spirit_tree_primary"
+            )
+            self.assertEqual(manual_patch["primary_action"]["id"], "clear")
+            self.assertTrue(manual_patch["primary_action"]["enabled"])
+
+            cleared, consumed, info = consume_next_farm_queue_step_pure(checked)
+            self.assertTrue(consumed)
+            self.assertEqual(info["outputs"], {})
+            self.assertEqual(cleared["inventory"].get("Spirit roots", 0), 0)
+            replanted, consumed, _ = consume_next_farm_queue_step_pure(cleared)
+            self.assertTrue(consumed)
+            self.assertEqual(
+                replanted["farm_patches"]["spirit_tree_primary"]["crop_id"],
+                "spirit_tree",
+            )
 
     def test_dig_up_is_manual_zero_reward_and_full_run_replaces_a_different_regrower(self):
         state = _state()

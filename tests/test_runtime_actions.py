@@ -595,7 +595,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
         self.assertEqual(player_data["trouble_brewing"]["opponent_progress"], 2)
 
-    def test_circus_review_resolves_one_atomic_multi_skill_performance(self):
+    def test_circus_review_resolves_one_trick_per_answered_card(self):
         from ankiscape.logic.circus_logic import default_circus_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
@@ -610,11 +610,12 @@ class TestRuntimeActions(unittest.TestCase):
             "completed_achievements": [],
         }
 
-        self.assertTrue(
-            handle_utility_answer(
-                _context(player_data, calls, random_values=(0.0,) * 10)
+        for _ in range(10):
+            self.assertTrue(
+                handle_utility_answer(
+                    _context(player_data, calls, random_values=(0.0,))
+                )
             )
-        )
 
         self.assertGreater(player_data["agility_exp"], 0.0)
         self.assertEqual(
@@ -622,9 +623,13 @@ class TestRuntimeActions(unittest.TestCase):
             {"agility": 0},
         )
         self.assertEqual(player_data["inventory"], {"Clown hat": 1})
-        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["saves"], 10)
         self.assertTrue(calls.get("deactivated"))
         self.assertIn("utility:big_top_bonanza", player_data["action_telemetry"]["actions"])
+        self.assertEqual(
+            len([row for row in player_data["review_event_log"] if row["kind"] == "activity"]),
+            11,
+        )
 
     def test_combat_level_refresh_leaves_the_old_level_for_the_level_up_gate(self):
         from ankiscape.runtime.runtime_actions_shared import _refresh_combat_levels
@@ -649,6 +654,10 @@ class TestRuntimeActions(unittest.TestCase):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         state = default_circus_state_pure()
         state["selected_performance"] = "fire_breathing"
+        state["performance_queue"] = {
+            "executing": ["fire_breathing"],
+            "non_executing": ["agility", "magic", "ranged", "flaming_poi", "thieving"],
+        }
         player_data = {
             "current_utility": "big_top_bonanza",
             "circus": state,
@@ -666,7 +675,8 @@ class TestRuntimeActions(unittest.TestCase):
             random_random=lambda: rolls.append(0.0) or 0.0,
         )
 
-        self.assertTrue(handle_utility_answer(ctx))
+        for _ in range(6):
+            self.assertTrue(handle_utility_answer(ctx))
 
         self.assertEqual(len(rolls), 6)
         self.assertGreater(player_data["firemaking_exp"], 0.0)
@@ -696,7 +706,8 @@ class TestRuntimeActions(unittest.TestCase):
             random_random=lambda: rolls.append(0.0) or 0.0,
         )
 
-        self.assertTrue(handle_utility_answer(ctx))
+        for _ in range(2):
+            self.assertTrue(handle_utility_answer(ctx))
 
         self.assertEqual(len(rolls), 2)
         self.assertGreater(player_data["agility_exp"], 0.0)
@@ -1947,6 +1958,29 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["firemaking_exp"], 25.0)
         self.assertEqual(calls["level_checks"], ["Woodcutting", "Firemaking"])
 
+    def test_woodcutting_incineration_credits_every_declared_output_unit(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["inferno_adze"]},
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "firemaking_exp": 0.0,
+            "current_tree": "curly_jade_root",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(player_data, calls, random_values=(0.0, 1.0, 0.0, 0.0))
+            )
+        )
+        self.assertNotIn("Curly root", player_data["inventory"])
+        self.assertEqual(
+            player_data["achievement_progress"]["skills"]["woodcutting"]["outputs"],
+            {"Curly root": 4},
+        )
+
     def test_arctic_pine_runtime_enforces_the_route_gate_then_awards_the_log(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -1993,6 +2027,47 @@ class TestRuntimeActions(unittest.TestCase):
         )
         self.assertEqual(player_data["inventory"], {"Eucalyptus logs": 1})
         self.assertEqual(player_data["woodcutting_exp"], 165.0)
+        self.assertEqual(calls["errors"], [])
+
+    def test_curly_root_route_mutates_real_woodcutting_and_firemaking_kernels(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(
+            {
+                "toolbelt": {"woodcutting": ["rune_hatchet"]},
+                "woodcutting_level": 83,
+                "woodcutting_exp": 0.0,
+                "current_tree": "curly_jade_root",
+                "firemaking_level": 75,
+                "firemaking_exp": 0.0,
+                "current_firemaking": "curly_root",
+            }
+        )
+
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 1.0, 0.0, 1.0),
+                )
+            )
+        )
+        self.assertEqual(player_data["inventory"]["Curly root"], 4)
+        self.assertEqual(player_data["woodcutting_exp"], 161.6)
+        woodcutting_telemetry = player_data["action_telemetry"]["actions"][
+            "woodcutting:curly_jade_root"
+        ]
+        self.assertEqual(woodcutting_telemetry["outputs"], {"Curly root": 4})
+
+        self.assertTrue(
+            handle_firemaking_answer(
+                _context(player_data, calls, random_values=(0.0, 1.0))
+            )
+        )
+        self.assertEqual(player_data["inventory"]["Curly root"], 3)
+        self.assertEqual(player_data["inventory"]["Ashes"], 1)
+        self.assertEqual(player_data["firemaking_exp"], 161.6)
         self.assertEqual(calls["errors"], [])
 
     def test_fletching_handler_mutates_player_data_through_context(self):
@@ -3872,6 +3947,55 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Long kebbit spike"], 1)
         self.assertEqual(player_data["hunter_exp"], 348.0)
         self.assertEqual(calls["xp"], [348.0])
+
+    def test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end(self):
+        cases = {
+            "track_shadow_jadinko": (71, "Noose wand", "Shadow vine", 475.0),
+            "track_diseased_jadinko": (78, "Noose wand", "Corrupt vine", 580.5),
+            "catch_cannibal_jadinko": (75, "Marasamaw plant", "Plant teeth", 475.0),
+            "catch_guthix_jadinko": (81, "Marasamaw plant", "Guthix vine", 600.0),
+        }
+        for target, (level, tool, output, expected_xp) in cases.items():
+            with self.subTest(target=target):
+                calls = {"xp": [], "saves": 0, "errors": []}
+                player_data = {"inventory": {tool: 1}, "hunter_level": level, "hunter_exp": 0, "current_hunter": target, "hunter_success_count": 0, "completed_achievements": []}
+                ok = handle_hunter_answer(
+                    _context(player_data, calls, random_values=(0.0, 1.0))
+                )
+                self.assertTrue(ok)
+                self.assertEqual(player_data["inventory"], {tool: 1, output: 1})
+                self.assertEqual(player_data["hunter_exp"], expected_xp)
+                self.assertEqual(player_data["hunter_success_count"], 1)
+                self.assertEqual(calls["xp"], [expected_xp])
+                self.assertEqual(calls["saves"], 1)
+                self.assertEqual(calls["errors"], [])
+
+    def test_hunter_handler_records_the_actual_kalferberry_secondary_drop(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Marasamaw plant": 1},
+            "hunter_level": 75,
+            "hunter_exp": 0,
+            "current_hunter": "catch_cannibal_jadinko",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_hunter_answer(
+            _context(player_data, calls, random_values=(0.0, 0.0, 0.5))
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            player_data["inventory"],
+            {
+                "Marasamaw plant": 1,
+                "Plant teeth": 1,
+                "Kalferberry seed": 1,
+            },
+        )
+        self.assertEqual(player_data["hunter_exp"], 475.0)
+        self.assertEqual(calls["xp"], [475.0])
 
     def test_hunter_quota_ticket_is_consumed_only_after_success(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}

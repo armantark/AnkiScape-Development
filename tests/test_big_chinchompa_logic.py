@@ -4,6 +4,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.big_chinchompa_data import (
     BIG_CHINCHOMPA_COMPETENCE_CAP,
     BIG_CHINCHOMPA_MOTH_TIERS,
+    BIG_CHINCHOMPA_TICKET_BY_TARGET,
 )
 from ankiscape.logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
@@ -16,7 +17,7 @@ from ankiscape.logic.big_chinchompa_logic import (
     hunter_private_ground_status_pure,
     set_hunter_private_ground_pure,
 )
-from ankiscape.core.constants import EXP_TABLE
+from ankiscape.core.constants import EXP_TABLE, HUNTER_DATA
 
 
 def _player(answered_cards=0, hunter_level=1):
@@ -179,6 +180,16 @@ class BigChinchompaLogicTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(result["hunter_xp"], 5.0)
         self.assertEqual(player["hunter_exp"], 5.0)
+
+    def test_every_quota_ticket_targets_a_live_hunter_target(self):
+        self.assertEqual(
+            sorted(
+                target
+                for target in BIG_CHINCHOMPA_TICKET_BY_TARGET
+                if target not in HUNTER_DATA
+            ),
+            [],
+        )
 
     def test_private_ground_consumes_only_after_success_and_last_ticket_turns_off(self):
         player = _player(0, hunter_level=77)

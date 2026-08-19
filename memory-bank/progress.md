@@ -1,5 +1,49 @@
 # Progress
 
+## Big Top Bonanza per-card queue — 2026-08-15
+
+Pass 10 Batch A replaces the old one-review Circus reducer with one-trick
+resolution per answered card. The persisted state now stores owner-ordered
+executing and non-executing performance lists plus active performance, trick
+index, payout-tier mask, score, success count, and attempted IDs. Darkan
+commit `f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe` is ported for the integer
+success chance and half-level effective tier; no success-chance placeholder
+was needed. Focused checks pass 22 Circus/runtime/integration tests, 198
+adjacent pure/runtime tests, and one real offscreen Qt contract test. Review
+undo restores the pre-card snapshot. The 1,680-card week derivation and
+costume scoring were not changed. Results artifact:
+`status-updates/pass10-batch-a-results-2026-08-15.html`.
+
+## Oversized cadence credit recovery — 2026-08-13
+
+Cadence `credit` is the deterministic fractional-admission residual accumulated toward a profile's denominator, so its valid range is `0` through `threshold_denominator - 1`. Immediately after the existing profile-state sanitization, the advance path clamps an oversized persisted integer to that profile-derived upper boundary. This keeps load recoverable while preserving as much earned progress as a valid state can represent; malformed types and negative values retain their existing reset-to-zero behavior. A real migration-plus-live-route regression covers Maple's denominator-10 profile with both credit `10_000` and the valid boundary `9`, proving the saved session advances successfully and retains credit `9` while consuming its opening opportunity.
+
+## Polar kebbit quota-ticket target — 2026-08-12
+
+Big Chinchompa's Polar kebbit quota ticket now resolves to the live
+`catch_polar_kebbit` Hunter tracking target. The ordinary catch is available at
+Hunter level 1; the separate Big Chinchompa reward purchase correctly requires
+Hunter level 70. One review represents the sourced four- or five-search trail
+and final attack, requires and preserves a Noose wand, awards 30 Hunter XP, and
+produces Bones, Raw beast meat, and Polar kebbit fur. No quest or route wall was
+added because the period Hunter location section lists multiple ordinary routes
+to the Rellekka Hunter area and no quest gate.
+
+Hunter oldid `6484443`, Darkan tracking commit
+`37957d17d62d6b14d326cd719a0ae0c239c76cf9`, and OpenRS2 rev-742 pin the
+visible mechanic and item identities. The unrecovered hidden catch curve uses
+registered placeholder `hunter.polar_kebbit_success_curve` with the established
+shared Hunter fallback. Reachability improves from 1,560 actions / 2,497 items /
+99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102; Polar kebbit
+fur is newly reachable through `Hunter:catch_polar_kebbit`. See
+`memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
+
+## Quest-stage reachability truth correction — 2026-08-12
+
+The audit now mirrors runtime action gating before it credits quest-stage products, keeps branch variants separate, and applies equivalent gates to quest-combat guaranteed drops. Main falls from 2,573 to 2,493 reachable items: 80 items that were previously reported reachable never were. Orphan inputs rise from 102 to 103 and blocked actions from 101 to 102. This is a measurement correction, not a gameplay regression.
+
+The later `d2faf1d2` slice was re-derived separately. Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 use emitted `auto_actions`; the acquisition helper supplies inventory and levels but does not manufacture `quest_stage_actions`. The same slice's Herb pouch quest-combat route is inert in normal play: Nial Swiftfling defaults to a level-156 minimum while a normal maxed player is combat level 126, and the test reaches it only with level 400 combat stats. Diamond root and Diamond root dust consequently remain unreachable. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `audits/quest-stage-reachability-truth-2026-08-12.md`.
+
 ## Resumed-goal interval closure — 2026-08-10
 
 The audit covers all work after the 2026-08-08 resume. It reviewed 52 commits
@@ -970,10 +1014,15 @@ skips.
 - Recovered the rev-741/742 Daily Challenge structs and rev-742 challenge
   interface. They settle client task metadata and presentation but contain no
   XP payout field.
-- Hardened interface search across later caches: unsupported legacy IF1
-  archives are listed and skipped instead of aborting the whole query.
-- Retained `daily_challenges.reward_xp` as a registered placeholder with the
-  exact negative-search scope and omissions. No gameplay value changed.
+- Later byte-level verification corrected the interface-search diagnosis: the
+  fifteen skipped rev-742 archives begin with `0x03`, so the first-byte gate's
+  `if1` label did not identify a legacy or unsupported format. The checked-in
+  reader still skips them.
+- A one-off reflective experiment bypassed the guard and decoded all 1,376
+  affected components into coherent interfaces; none related to interface 1343.
+  Reproducing that complete search still requires a guard fix or byte-level
+  parser. `daily_challenges.reward_xp` remains registered because the relevant
+  structs and decoded interface 1343 contain no amount. No gameplay value changed.
 - Full discovery passes 3,802 tests in both lanes, with 460 expected plain skips
   and 3 Qt skips.
 
@@ -2167,10 +2216,10 @@ constructing the state a player would actually be in.
 - Added the complete period reward shop, direct 5-XP-per-point purchase,
   quiet/normal/busy seeded crowd profiles, storage schema 50, telemetry, and
   atomic review/direct undo.
-- Added five quota-ticket items and four executable private-ground routes.
-  Tickets must be carried for the selected Hunter target and are consumed only
-  after a successful catch. Polar-kebbit use remains dependency-blocked on the
-  ordinary source-blocked tracking target.
+- Added five quota-ticket items and initially four executable private-ground
+  routes. Tickets must be carried for the selected Hunter target and are
+  consumed only after a successful catch. The fifth, Polar kebbit, became
+  executable in the 2026-08-12 acquisition slice above.
 - Added provenance-pinned period art, standard 28-pixel display boxes, a global
   Review HUD notice, a compact scroll-safe Utility card, and the contextual
   Hunter private-ground control. Fable's independent review caught and closed
@@ -6008,6 +6057,27 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   than changing Lunar Diplomacy in this slice.
 - Evidence: `source-audits/cured-yak-hide-service-2026-08-09.md`.
 
+## Quest reachability truth — 2026-08-13
+
+- Reachability figures are branch-relative: `main` at `1cf43931` reports
+  1,556 actions / 2,573 reachable items / 102 orphan inputs / 101 blocked
+  actions / 1,448 seeds, while `goal/acquire-2026-08-12` at `2cfac317` reports
+  1,568 / 2,509 / 97 / 100 / 1,367.
+- On top of that acquire tip, hard-stopping quests at the first unavailable
+  required action and propagating prerequisite and quest-point failure produces
+  1,568 / 2,248 / 100 / 103 / 1,099, with 54 root and 46 cascade orphans.
+- Blood talisman, Jade vine seed, and Magic secateurs are the three newly
+  orphaned quest rewards. Lost City's blocked Dramen branch keeps Cinnamon's
+  real grind action blocked rather than seeding either item directly. The Kudos
+  integrity test now records Dagon'hai history and Prophecy tablet as unavailable
+  completion rewards instead of asserting that every exhibit item is reachable.
+- This branch depends on `goal/acquire-2026-08-12` and must merge after it. The
+  improved figures are not reproducible from `main` alone.
+- Missing actions and registered unsatisfiable encounters now hard-stop quest
+  stages. Inventory, tools, alternatives, routes, variants, and encounters with
+  no registered guaranteed drops remain unmodelled residual debt, so 2,248 can
+  be wrong in either direction and is not final acquisition truth.
+
 ## Black mushroom acquisition — 2026-08-09
 
 - Added a one-pickup, zero-XP Utility route for the cutoff Black mushroom
@@ -6022,3 +6092,50 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   Full plain and offscreen Qt discovery each pass 4,021 tests, with 490 expected
   plain skips and three Qt skips.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
+
+## Farming Stats skill-guide source block — 2026-08-12
+
+- Rev-727 and rev-742 establish a 110-struct Farming guide with seven filters and source-owned labels, levels, icons, categories, and gates.
+- Withdrew the crop-table projection after review proved it inverted the source: it omitted non-crop unlocks, filtered period rows by implementation state, substituted internal names/icons, and discarded access gates.
+- Recorded a rebuild specification that uses the period struct list as the spine and resolves each entry against its owning AnkiScape registry. No product behavior changed.
+- Dungeoneering remains untouched as a separate, larger guide gap.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
+
+## Pass 9 owner repair — 2026-08-11
+
+- Added a visible text cue and stronger fill for saved target rows across shared flat and grouped selectors.
+- Added exact old-to-new values to level-up dialogs and covered multi-level gains.
+- Removed all Milestone cape rows from guide projections without changing the cape systems.
+- Added 105 Slayer monster-family rows to the Stats guide from the current Slayer registry.
+- Audited all 25 skill guides. Farming and Dungeoneering remain the two non-combat guide gaps that need period section evidence.
+- Added focused pure, integration, lifecycle, and real Qt coverage. The guide/UI lane passes 413 tests.
+- Both full lanes pass 4,058 tests. Documentation, test quality, compilation, native Anki, diff, and worktree checks pass.
+- Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
+- Results: <https://zvxa8ne0p5qz.postplan.dev>.
+
+## Inventory direct-action seam — 2026-08-13
+
+- Item packs and impling jars now commit through `commit_direct_action` instead of a private transaction copy, so they inherit the shared music-log refresh and complete undo snapshot, including `current_skill`.
+- The application-path regression opens a Dragon impling jar, proves the pending quest track is refreshed, changes the live skill, and proves undo restores both the save and Hunter.
+- Both full lanes pass 4,104 tests: plain with 498 expected Qt skips, and offscreen Qt with three skips. Reachability is unchanged at 1,568 actions / 2,248 reachable items / 100 orphan inputs / 103 blocked actions.
+
+## Source-backed system map — 2026-08-14
+
+- Added `status-updates/ankiscape-system-map-plan-2026-08-14.html` and the interactive completion artifact `status-updates/ankiscape-system-map-results-2026-08-14.html`.
+- The owner rejected the first composition. Opus 5 then rebuilt the result artifact from scratch and Codex rejected its first render for token, label, legend, palette, and clipping failures before accepting a second composition pass.
+- The final map traces review control, menu control, catalog dependency, state save, feedback projection, persisted feedback, review/world clocks, and undo restore through nine distinct structures in three zones. Payload chips appear only for the selected road; the explainer carries contracts, trace, route jumps, and exact source citations.
+- Mechanical artifact checks, HTML parsing, and `git diff --check` pass. PinchTab verified the default and selected visual states, nine keyboard structures, eight keyboard roads, Escape reset, zero default payload tokens, exactly one selected-road token, and coherent node/road focus disclosure.
+- The plan artifact is hosted at `https://acgrgnw1a8ig.postplan.dev`. The results artifact remains local because Postplan requires valid authentication for inline JavaScript uploads.
+
+## Pass 10 Batch B — 2026-08-15
+
+- Implemented Fish Flingers Darkan payout parity, outfit exclusion, and eight-review panel copy.
+- Implemented atomic Big Top start flow and persisted executing/non-executing queue editing.
+
+## Pass 10 Batch C — 2026-08-15
+
+- Implemented the review-scoped derived Combat-level popup boundary.
+- Fixed grouped Combat target saved-row painting and added a shown-widget pixel
+  probe for saved, non-saved, and transient-selection colors.
+- Split both reviewer activity progress bars into labels plus graphical fills;
+  focused pure and offscreen Qt checks pass.

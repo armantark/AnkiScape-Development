@@ -129,3 +129,28 @@ The figures, not that exit code, define this gate.
 
 The Carrion seed route closes the five seed roots.
 The crop rows activate five grimy herbs, five clean herbs, and five unfinished potions.
+## 2026-08-19 re-land verification
+
+The re-land merged current main `d4c043218d5943f7878d36b556d785eeeefdeb36`
+without changing the period pins above. Carrion's seed roll now uses main's
+existing structured `secondary_outputs` pure-layer contract instead of keeping
+the branch's parallel secondary-output schema. No source value changed.
+
+The real kernel produced every chain outside the test runner. Each Carrion
+catch supplied the selected seed and one Pungent vine; each seed planted in the
+Habitat vine-herb patch, matured after 84 abstracted minutes, and harvested
+three matching grimy herbs; cleaning and unfinished-potion mixing were enabled
+at the corrected level and completed successfully.
+
+| Record | Actions | Reachable items | Orphan inputs | Blocked actions |
+| --- | ---: | ---: | ---: | ---: |
+| Current main `d4c043218d5943f7878d36b556d785eeeefdeb36` | 1,571 | 2,266 | 84 | 87 |
+| Re-land candidate | 1,583 | 2,333 | 50 | 53 |
+| Change | +12 | +67 | -34 | -34 |
+
+The five shipped-failure checks passed: period numbers retain their cited
+sources; the chain ran through the real Hunter, Farming, and Herblore reducers;
+no family row is inert in the reachability graph; no UI or panel rule was
+introduced; and the only unrecovered family value still has both its
+`PLACEHOLDER(farming.vine_herb_base_lives)` marker and register row.
+
