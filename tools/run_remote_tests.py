@@ -24,7 +24,7 @@ REMOTE_GAME_MAIN = REMOTE_ROOT / "sources" / "game-main"
 REMOTE_DARKAN = REMOTE_ROOT / "sources" / "darkan-world-server"
 SSH = ("ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", HOST)
 RSYNC_SSH = "ssh -o BatchMode=yes -o ConnectTimeout=10"
-MIN_TESTS = 4_100
+MIN_TESTS = 4_144
 MAX_PLAIN_SKIPS = 500
 MAX_QT_SKIPS = 10
 NETWORK_ATTEMPTS = 3

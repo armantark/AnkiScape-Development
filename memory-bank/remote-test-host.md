@@ -17,7 +17,7 @@ rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/repo`, and excludes
 `.git`, `__pycache__`, `.venv-qt`, and `ankiscape_debug.log*`. It launches the
 lane through `nohup`, writes logs and completion reports under
 `/Users/armantarkhanian/ankiscape-remote-test-host/reports`, polls those files,
-and rejects any success below 4,100 tests, a plain success above 500 skips,
+and rejects any success below 4,144 tests, a plain success above 500 skips,
 or a Qt success above 10 skips.
 
 ## Python environments
