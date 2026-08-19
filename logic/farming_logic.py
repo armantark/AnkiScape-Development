@@ -1307,7 +1307,18 @@ def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str
     if _int(updated["inventory"].get("Spade")) <= 0:
         return False, "missing Spade", {}
     clearable_scarecrow = crop.id == "scarecrow"
-    if not record.get("dead") and not record.get("stump") and not clearable_scarecrow:
+    clearable_mature_no_output = bool(
+        _is_mature(record, crop)
+        and crop.output_item is None
+        and crop.check_health_xp is not None
+        and record.get("health_checked")
+    )
+    if (
+        not record.get("dead")
+        and not record.get("stump")
+        and not clearable_scarecrow
+        and not clearable_mature_no_output
+    ):
         return False, "patch has no clearable crop or stump", {}
     outputs: dict[str, int] = {}
     if record.get("stump") and crop.root_item:
@@ -1824,6 +1835,9 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
     kinds: list[str] = []
     if crop.check_health_xp is not None and not record.get("health_checked"):
         kinds.append("check_health")
+    if crop.output_item is None and crop.check_health_xp is not None:
+        kinds.extend(("clear", "plant"))
+        return kinds, plan, "queued"
     produce_count = _int(record.get("produce_count"))
     if crop.id == "jade_vine":
         kinds.extend("harvest" for _ in range(produce_count))
@@ -2457,7 +2471,11 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
             if branches:
                 return "ready", f"{branches}/{JADE_VINE_VISIBLE_BRANCHES} {branch_word} ready{warning} · next in {reviews} {review_word}", 0
             return "growing", f"0/{JADE_VINE_VISIBLE_BRANCHES} branches · next in {reviews} {review_word}", reviews
-        if crop.fixed_yield is not None and _int(record.get("produce_count")) <= 0:
+        if (
+            crop.output_item is not None
+            and crop.fixed_yield is not None
+            and _int(record.get("produce_count")) <= 0
+        ):
             elapsed = max(
                 0,
                 _int(state.get("farm_clock_minutes"))
@@ -2681,6 +2699,8 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
         elif status == "ready":
             if crop.check_health_xp is not None and not record.get("health_checked"):
                 primary_kind = "check_health"
+            elif crop.output_item is None and crop.check_health_xp is not None:
+                primary_kind = "clear"
             elif crop.patch_type == "tree" or (crop.id == "jade_vine" and record.get("jade_state") == "wild"):
                 primary_kind = "chop"
             else:

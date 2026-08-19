@@ -158,3 +158,44 @@ The owner made two direct rulings on 2026-08-10.
 
 No open defect remains in the Wyvern bones slice.
 The two full-lane catalog assertions remain outside this documentation-only closure unit.
+
+## Re-land verification — 2026-08-19
+
+The preserved three-commit slice was merged with `main`
+`323bf39090023319eb4e5a80acf6e162d331fa4a` on
+`goal/breadth-reland-2026-08-19`. Five textual conflicts were resolved by
+retaining both histories and recomputing the generated catalog assertions:
+`EQUIPMENT_DATA` has 702 rows, `PERIOD_GE_GUIDE_PRICES` has 1,436 rows, and
+`PERIOD_GE_BUY_LIMITS` has 1,752 rows. The current-main removal of
+`Steel spear (kp)` remains intact.
+
+The five shipped failure modes were checked directly:
+
+1. The recovered IDs, XP values, shield set, and drop remain tied to the pinned
+   sources above. The four unrecovered breath values remain reconstructions.
+2. A standalone runtime-kernel probe, not the test suite, started the real
+   2,000-LP encounter and completed the full route.
+3. Seed `20260819` killed one Skeletal Wyvern in 33 review actions, used six
+   Sharks, left 569 lifepoints, and produced one Wyvern bones drop. The same
+   state then ground the bones, collected one Bucket of slime, and completed
+   Ectofuntus worship in one Prayer action for 200.0 Prayer XP, five
+   Ecto-tokens, one returned Empty pot, and one returned Bucket.
+4. The slice has no UI-panel or target-metadata diff against the merged `main`.
+   The Slayer-level enabled state remains owned by the shared pure target-row
+   path; the Combat runtime addition only renders pure-engine breath events.
+5. All four `skeletal_wyvern.*` reconstructions retain executable
+   `PLACEHOLDER(...)` markers and exact rows in
+   `memory-bank/placeholder-values.md`; all three placeholder-register tests
+   pass.
+
+Verification on the merged tree:
+
+| Gate | Exact result |
+| --- | --- |
+| Plain lane | `Ran 4152 tests in 235.867s`; `OK (skipped=499)`. |
+| Offscreen Qt lane | The worktree-local command first exited `127` with `(eval):1: no such file or directory: .venv-qt/bin/python`. The rerun used the canonical ignored virtualenv interpreter with this worktree as cwd: `Ran 4152 tests in 549.045s`; `OK (skipped=3)`. |
+| Documentation audit | `Audited 577 Markdown and 437 HTML files.` then `Documentation audit passed.` |
+| Test-quality audit | `4117 tests across 188 files`; `hard issues: 0`; `structural clone candidates: 22 groups`. |
+| Item reachability | Baseline `main` `323bf39090023319eb4e5a80acf6e162d331fa4a`: `1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked actions`. Merged tree: `1571 actions; 2278 reachable items; 72 orphan inputs; 71 blocked actions`. The command exits `1` while known orphan inputs remain. |
+| Worktree guard | Layout safe under `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`. |
+| Diff check | `git diff --check` exited `0` with no output. |

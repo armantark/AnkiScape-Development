@@ -174,10 +174,21 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Finish Ranging Guild closure. Full Qt found two stale Activities
      inventory assertions. The corrected suite passes 4,053 tests. All final
      quality gates pass.
-   - [x] Close Wyvern-bones acquisition through the level-72 Skeletal Wyvern
-     Combat row. Preserve item IDs 6812, 6816, and 6810. Reuse the sixteen
-     existing downstream actions and register the four hidden breath values.
+   - [x] Close and re-land Wyvern-bones acquisition through the level-72
+     Skeletal Wyvern Combat row. Preserve item IDs 6812, 6816, and 6810, reuse
+     the sixteen existing downstream actions, register the four hidden breath
+     values, and prove the full kill-to-Ectofuntus route through the real kernel.
    - [ ] Add the six non-gilded Prayer altar rows as separate depth work.
      Construction models Oak, Teak, Cloth, Mahogany, Limestone, Marble, and
      Gilded altar objects. Prayer exposes only the Gilded altar method.
+   - [x] Close the Ectofuntus bone family through eight acquisition routes,
+     exact bonemeal identities, the corrected Zogre Prayer XP, and one registered
+     Ogre coffin selector placeholder.
+   - [ ] Fix the one-way skill-button availability refresh in a separate slice.
+     `ui/ui.py:1467-1470` enables a button when the pure result is true, but it
+     does not disable the button when the result becomes false. The same pattern
+     exists on neighbouring skill buttons. This defect is pre-existing.
+   - [ ] Recover the Frost dragon bone ID-to-route mapping. No period source maps
+     item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
+     Daemonheim routes. Preserve both IDs until a period source settles the pair.
 5. [ ] Paused by the owner until the quota resets. Select no new slice.

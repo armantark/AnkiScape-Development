@@ -1,4 +1,4 @@
-"""Pure atomic multi-skill performance loop for Big Top Bonanza."""
+"""Pure queued, per-card performance loop for Big Top Bonanza."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from ..data.circus_data import (
 )
 
 
-CIRCUS_STATE_VERSION = 1
+CIRCUS_STATE_VERSION = 2
 _SKILL_LEVEL_KEYS = {
     "magic": "magic_level",
     "ranged": "ranged_level",
@@ -71,6 +71,15 @@ def default_circus_state_pure() -> dict[str, Any]:
             for performance_id in CIRCUS_PERFORMANCE_ORDER
         },
         "advanced_routines": {},
+        "performance_queue": {
+            "executing": ["agility"],
+            "non_executing": [
+                performance_id
+                for performance_id in CIRCUS_PERFORMANCE_ORDER
+                if performance_id != "agility"
+            ],
+        },
+        "session": None,
         "used_week_by_performance": {},
         "unlocked_costumes": [],
         "lifetime_performances": 0,
@@ -86,6 +95,52 @@ def _valid_routine(performance_id: str, raw: Any) -> list[str]:
         return []
     routine = [str(value) for value in raw if str(value) in valid_ids]
     return routine[: performance.max_attempts]
+
+
+def _valid_queue_ids(raw: Any) -> list[str]:
+    if not isinstance(raw, (list, tuple)):
+        return []
+    values: list[str] = []
+    for value in raw:
+        performance_id = str(value)
+        if performance_id in CIRCUS_PERFORMANCES and performance_id not in values:
+            values.append(performance_id)
+    return values
+
+
+def _default_queue_for_selected(selected: str) -> dict[str, list[str]]:
+    return {
+        "executing": [selected],
+        "non_executing": [
+            performance_id
+            for performance_id in CIRCUS_PERFORMANCE_ORDER
+            if performance_id != selected
+        ],
+    }
+
+
+def _sanitize_session(raw: Any) -> dict[str, Any] | None:
+    if not isinstance(raw, Mapping):
+        return None
+    active = str(raw.get("active_performance", ""))
+    if active not in CIRCUS_PERFORMANCES:
+        return None
+    routine = _valid_routine(active, raw.get("routine"))
+    if not routine:
+        return None
+    return {
+        "active_performance": active,
+        "routine": routine,
+        "trick_index": _int(raw.get("trick_index"), minimum=0),
+        "payout_tier_mask": _int(raw.get("payout_tier_mask"), minimum=0),
+        "score": _int(raw.get("score"), minimum=0),
+        "success_count": _int(raw.get("success_count"), minimum=0),
+        "attempted_ids": [
+            str(value)
+            for value in raw.get("attempted_ids", ())
+            if str(value) in {trick.id for trick in CIRCUS_PERFORMANCES[active].tricks}
+        ],
+    }
 
 
 def sanitize_circus_state_pure(raw: Any) -> dict[str, Any]:
@@ -119,6 +174,25 @@ def sanitize_circus_state_pure(raw: Any) -> dict[str, Any]:
             )
         )
     }
+    raw_queue = source.get("performance_queue")
+    if isinstance(raw_queue, Mapping):
+        executing = _valid_queue_ids(raw_queue.get("executing"))
+        non_executing = _valid_queue_ids(raw_queue.get("non_executing"))
+        non_executing = [
+            performance_id
+            for performance_id in non_executing
+            if performance_id not in executing
+        ]
+        queued = set(executing) | set(non_executing)
+        non_executing.extend(
+            performance_id
+            for performance_id in CIRCUS_PERFORMANCE_ORDER
+            if performance_id not in queued
+        )
+        queue = {"executing": executing, "non_executing": non_executing}
+    else:
+        queue = _default_queue_for_selected(selected)
+    session = _sanitize_session(source.get("session"))
     raw_weeks = source.get("used_week_by_performance")
     weeks = {
         performance_id: _int(raw_weeks.get(performance_id), -1, minimum=-1)
@@ -145,6 +219,8 @@ def sanitize_circus_state_pure(raw: Any) -> dict[str, Any]:
         "automation_mode": mode,
         "strategies": strategies,
         "advanced_routines": routines,
+        "performance_queue": queue,
+        "session": session,
         "used_week_by_performance": weeks,
         "unlocked_costumes": costumes,
         "lifetime_performances": _int(source.get("lifetime_performances")),
@@ -237,26 +313,29 @@ def _routine_for_strategy(
 
 
 def _success_chance(level: int, suggested_level: int) -> float:
-    # The period source proves non-zero under-level success and non-certain
-    # over-level success but does not expose the curve. This bounded linear
-    # calibration is deliberately isolated for later replacement.
-    return max(0.10, min(0.95, 0.50 + (level - suggested_level) / 200.0))
+    # Darkan f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe, BigTopBonanza.kt:180-181:
+    # successChance is clamp(50 + real level - difficulty, 5, 95).
+    return max(5, min(95, 50 + level - suggested_level)) / 100.0
 
 
-def _barely_success_xp(
+def _payout_tier(
     performance: CircusPerformance,
     level: int,
     trick: CircusTrick,
-) -> float:
+) -> CircusTrick | None:
     if trick.level <= level:
-        return trick.xp
-    # Oldid 6554790 conflicts between "40 levels below" and "half current
-    # level". The detailed strategy section is used as a conservative bounded
-    # translation: map to the highest available band at or below half level.
-    target = max(1, level // 2)
-    candidates = [row for row in _canonical_by_level(performance) if row.level <= target]
-    return max(candidates, key=lambda row: row.level).xp if candidates else min(
-        row.xp for row in performance.tricks
+        return next(
+            (candidate for candidate in _canonical_by_level(performance)
+             if candidate.level == trick.level),
+            None,
+        )
+    # Darkan f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe, BigTopBonanza.kt:183-184:
+    # barelyDifficulty chooses the highest tier at or below half the real level.
+    target = level // 2
+    return max(
+        (row for row in _canonical_by_level(performance) if row.level <= target),
+        key=lambda row: row.level,
+        default=None,
     )
 
 
@@ -303,6 +382,39 @@ def _reward_for_score(performance_id: str, score: int) -> str:
     return str(CIRCUS_REWARDS[reward_id]["display_name"])
 
 
+def _next_executing_performance(
+    player_data: Mapping[str, Any],
+    state: Mapping[str, Any],
+    *,
+    exclude_performance_id: str = "",
+) -> CircusPerformance | None:
+    current_week = _answered_card_week(player_data)
+    queue = state["performance_queue"]
+    for performance_id in queue["executing"]:
+        if performance_id == exclude_performance_id:
+            continue
+        performance = CIRCUS_PERFORMANCES[performance_id]
+        if state["used_week_by_performance"].get(performance_id) == current_week:
+            continue
+        if _performance_locked_reasons(player_data, performance, state):
+            continue
+        return performance
+    return None
+
+
+def _routine_for_performance(
+    performance: CircusPerformance,
+    state: Mapping[str, Any],
+    level: int,
+) -> list[CircusTrick]:
+    strategy = state["strategies"][performance.id]
+    custom = state["advanced_routines"].get(performance.id, [])
+    if state["automation_mode"] == "advanced" and custom:
+        tricks_by_id = {trick.id: trick for trick in performance.tricks}
+        return [tricks_by_id[trick_id] for trick_id in custom]
+    return _routine_for_strategy(performance, level, strategy)
+
+
 def _inventory(player_data: Mapping[str, Any]) -> dict[str, int]:
     raw = player_data.get("inventory")
     if not isinstance(raw, Mapping):
@@ -334,6 +446,19 @@ def circus_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         )
     selected = CIRCUS_PERFORMANCES[state["selected_performance"]]
     selected_locked = _performance_locked_reasons(player_data, selected, state)
+    active_session = state["session"]
+    active_performance = (
+        CIRCUS_PERFORMANCES[active_session["active_performance"]]
+        if active_session
+        else None
+    )
+    next_performance = _next_executing_performance(
+        player_data,
+        state,
+        exclude_performance_id=(
+            str(active_session["active_performance"]) if active_session else ""
+        ),
+    )
     return {
         **state,
         "week_index": current_week,
@@ -341,7 +466,9 @@ def circus_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "selected_name": selected.display_name,
         "selected_skill_id": selected.skill_id,
         "selected_locked_reasons": selected_locked,
-        "can_review": not selected_locked,
+        "active_performance": active_performance.id if active_performance else "",
+        "next_performance": next_performance.id if next_performance else "",
+        "can_review": active_session is not None or next_performance is not None,
         "remaining_count": sum(1 for row in performance_rows if row["available"]),
         "reward_rows": tuple(
             {
@@ -364,6 +491,51 @@ def apply_circus_command_pure(
     data = dict(player_data)
     state = sanitize_circus_state_pure(data.get("circus"))
     body = payload if isinstance(payload, Mapping) else {}
+    if action_id == "start_activity":
+        executing = _valid_queue_ids(body.get("executing"))
+        non_executing = _valid_queue_ids(body.get("non_executing"))
+        if not executing:
+            return data, False, {"reason": "Choose at least one executing performance."}
+        if set(executing) & set(non_executing):
+            return data, False, {"reason": "A performance can appear in only one queue."}
+        performance_id = executing[0]
+        mode = str(body.get("automation_mode", state["automation_mode"]))
+        strategy = str(
+            body.get("strategy", state["strategies"].get(performance_id, "balanced"))
+        )
+        if mode not in {"casual", "advanced"}:
+            return data, False, {"reason": "Choose Casual or Advanced mode."}
+        if strategy not in CIRCUS_STRATEGIES:
+            return data, False, {"reason": "Choose a valid performance strategy."}
+        locked = _performance_locked_reasons(
+            data,
+            CIRCUS_PERFORMANCES[performance_id],
+            state,
+        )
+        if locked:
+            return data, False, {"reason": ", ".join(locked)}
+        if state["session"] is not None:
+            return data, False, {"reason": "Finish the active Circus performance first."}
+
+        state["selected_performance"] = performance_id
+        state["automation_mode"] = mode
+        state["strategies"][performance_id] = strategy
+        queued = set(executing) | set(non_executing)
+        non_executing.extend(
+            performance_id
+            for performance_id in CIRCUS_PERFORMANCE_ORDER
+            if performance_id not in queued
+        )
+        state["performance_queue"] = {
+            "executing": executing,
+            "non_executing": non_executing,
+        }
+        state["last_result"] = (
+            f"Started {CIRCUS_PERFORMANCES[performance_id].display_name} activity."
+        )
+        data["current_utility"] = CIRCUS_ACTIVITY_ID
+        data["circus"] = state
+        return data, True, {"message": state["last_result"]}
     if action_id == "set_policy":
         performance_id = str(body.get("performance_id", state["selected_performance"]))
         mode = str(body.get("automation_mode", state["automation_mode"]))
@@ -381,17 +553,49 @@ def apply_circus_command_pure(
         )
         if locked:
             return data, False, {"reason": ", ".join(locked)}
+        if state["session"] is not None:
+            return data, False, {"reason": "Finish the active Circus performance first."}
         state["selected_performance"] = performance_id
         state["automation_mode"] = mode
         state["strategies"][performance_id] = strategy
-        data["circus"] = state
-        data["current_utility"] = CIRCUS_ACTIVITY_ID
+        state["performance_queue"] = _default_queue_for_selected(performance_id)
         state["last_result"] = (
-            f"Armed {CIRCUS_PERFORMANCES[performance_id].display_name} · "
+            f"Queued {CIRCUS_PERFORMANCES[performance_id].display_name} · "
             f"{CIRCUS_STRATEGIES[strategy]} · {mode.title()}"
         )
         data["circus"] = state
         return data, True, {"message": state["last_result"]}
+    if action_id == "set_queue":
+        if state["session"] is not None:
+            return data, False, {"reason": "Finish the active Circus performance first."}
+        executing = _valid_queue_ids(body.get("executing"))
+        non_executing = _valid_queue_ids(body.get("non_executing"))
+        if not executing:
+            return data, False, {"reason": "Choose at least one executing performance."}
+        overlap = set(executing) & set(non_executing)
+        if overlap:
+            return data, False, {"reason": "A performance can appear in only one queue."}
+        queued = set(executing) | set(non_executing)
+        non_executing.extend(
+            performance_id
+            for performance_id in CIRCUS_PERFORMANCE_ORDER
+            if performance_id not in queued
+        )
+        state["performance_queue"] = {
+            "executing": executing,
+            "non_executing": non_executing,
+        }
+        state["selected_performance"] = executing[0]
+        state["last_result"] = (
+            f"Queued {len(executing)} Circus performance"
+            f"{'s' if len(executing) != 1 else ''}."
+        )
+        data["circus"] = state
+        return data, True, {
+            "message": state["last_result"],
+            "executing": tuple(executing),
+            "non_executing": tuple(non_executing),
+        }
     if action_id == "set_routine":
         performance_id = str(body.get("performance_id", state["selected_performance"]))
         if performance_id not in CIRCUS_PERFORMANCES:
@@ -403,12 +607,16 @@ def apply_circus_command_pure(
         )
         if locked:
             return data, False, {"reason": ", ".join(locked)}
+        if state["session"] is not None:
+            return data, False, {"reason": "Finish the active Circus performance first."}
         routine = _valid_routine(performance_id, body.get("routine"))
         if not routine:
             return data, False, {"reason": "Choose at least one valid trick."}
         state["advanced_routines"][performance_id] = routine
         state["selected_performance"] = performance_id
         state["automation_mode"] = "advanced"
+        if performance_id not in state["performance_queue"]["executing"]:
+            state["performance_queue"] = _default_queue_for_selected(performance_id)
         state["last_result"] = (
             f"Saved {len(routine)}-trick routine for "
             f"{CIRCUS_PERFORMANCES[performance_id].display_name}."
@@ -416,14 +624,28 @@ def apply_circus_command_pure(
         data["circus"] = state
         return data, True, {"message": state["last_result"]}
     if action_id == "abandon":
-        performance_id = str(body.get("performance_id", state["selected_performance"]))
+        active_session = state["session"]
+        performance_id = str(
+            body.get(
+                "performance_id",
+                active_session["active_performance"]
+                if isinstance(active_session, Mapping)
+                else state["selected_performance"],
+            )
+        )
         performance = CIRCUS_PERFORMANCES.get(performance_id)
         if performance is None:
             return data, False, {"reason": "Choose a valid Circus performance."}
-        locked = _performance_locked_reasons(data, performance, state)
-        if locked:
-            return data, False, {"reason": ", ".join(locked)}
+        if active_session is None and performance_id not in state["performance_queue"]["executing"]:
+            locked = _performance_locked_reasons(data, performance, state)
+            if locked:
+                return data, False, {"reason": ", ".join(locked)}
         state["used_week_by_performance"][performance_id] = _answered_card_week(data)
+        if (
+            isinstance(active_session, Mapping)
+            and active_session.get("active_performance") == performance_id
+        ):
+            state["session"] = None
         state["last_result"] = f"Abandoned {performance.display_name} for this answered-card week."
         data["circus"] = state
         return data, True, {"message": state["last_result"]}
@@ -456,94 +678,144 @@ def apply_circus_review_pure(
     player_data: Mapping[str, Any],
     rolls: Sequence[float],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    # Shallow on purpose: this only assigns top-level keys on the working copy;
-    # the locked-reason helpers are read-only.
+    """Resolve exactly one trick for the next executing performance."""
+
     data = dict(player_data)
     state = sanitize_circus_state_pure(data.get("circus"))
-    performance = CIRCUS_PERFORMANCES[state["selected_performance"]]
-    locked = _performance_locked_reasons(data, performance, state)
-    if locked:
-        return data, {"allowed": False, "reason": ", ".join(locked)}
-    level = min(99, max(1, _int(data.get(_SKILL_LEVEL_KEYS[performance.skill_id]), 1, minimum=1)))
-    strategy = state["strategies"][performance.id]
-    custom = state["advanced_routines"].get(performance.id, [])
-    if state["automation_mode"] == "advanced" and custom:
-        tricks_by_id = {trick.id: trick for trick in performance.tricks}
-        routine = [tricks_by_id[trick_id] for trick_id in custom]
-    else:
-        routine = _routine_for_strategy(performance, level, strategy)
     clean_rolls = [max(0.0, min(0.999999, _float(value))) for value in rolls]
-    if len(clean_rolls) < len(routine):
-        return data, {
-            "allowed": False,
-            "reason": f"Circus resolution needs {len(routine)} deterministic rolls.",
-        }
-    awarded_levels: set[int] = set()
-    attempted_ids: list[str] = []
-    notable: list[str] = []
-    xp = 0.0
-    score = 0
-    successes = 0
-    chance_total = 0.0
-    for trick, roll in zip(routine, clean_rolls):
-        chance = _success_chance(level, trick.level)
-        chance_total += chance
-        success = roll < chance
-        repeated = trick.id in attempted_ids
-        attempted_ids.append(trick.id)
-        if success:
-            successes += 1
-            if trick.level not in awarded_levels:
-                xp += _barely_success_xp(performance, level, trick)
-                awarded_levels.add(trick.level)
-        score += _costume_score(
-            trick,
-            success=success,
-            strategy=strategy,
-            repeated=repeated,
-            unlocked_costume_count=len(state["unlocked_costumes"]),
-        )
-        if not success or trick.level >= 90:
-            notable.append(f"{trick.display_name}: {'success' if success else 'failed'}")
+    if not clean_rolls:
+        return data, {"allowed": False, "reason": "Circus resolution needs one deterministic roll."}
 
-    reward = _reward_for_score(performance.id, score)
-    outputs: dict[str, int] = {}
-    if reward and reward not in state["unlocked_costumes"]:
-        state["unlocked_costumes"].append(reward)
-        inventory = _inventory(data)
-        inventory[reward] = inventory.get(reward, 0) + 1
-        data["inventory"] = inventory
-        outputs[reward] = 1
-    state["used_week_by_performance"][performance.id] = _answered_card_week(data)
-    state["lifetime_performances"] += 1
-    state["lifetime_score"] += score
-    result_bits = [
-        f"{performance.display_name} · {successes}/{len(routine)} tricks",
-        f"{xp:,.1f} {performance.skill_id.title()} XP",
-        f"score {score:,}",
-    ]
-    if reward:
-        result_bits.append(
-            f"unlocked {reward}" if outputs else f"{reward} already unlocked"
+    session = state["session"]
+    if session is None:
+        performance = _next_executing_performance(data, state)
+        if performance is None:
+            return data, {"allowed": False, "reason": "Choose an available executing Circus performance."}
+        level = min(
+            99,
+            max(
+                1,
+                _int(
+                    data.get(_SKILL_LEVEL_KEYS[performance.skill_id]),
+                    1,
+                    minimum=1,
+                ),
+            ),
         )
-    if notable:
-        result_bits.append("; ".join(notable[:3]))
-    state["last_result"] = " · ".join(result_bits)[:500]
+        routine = _routine_for_performance(performance, state, level)
+        session = {
+            "active_performance": performance.id,
+            "routine": [trick.id for trick in routine],
+            "trick_index": 0,
+            "payout_tier_mask": 0,
+            "score": 0,
+            "success_count": 0,
+            "attempted_ids": [],
+        }
+        state["session"] = session
+        state["selected_performance"] = performance.id
+    else:
+        performance = CIRCUS_PERFORMANCES[session["active_performance"]]
+        level = min(
+            99,
+            max(
+                1,
+                _int(
+                    data.get(_SKILL_LEVEL_KEYS[performance.skill_id]),
+                    1,
+                    minimum=1,
+                ),
+            ),
+        )
+
+    tricks_by_id = {trick.id: trick for trick in performance.tricks}
+    routine = [tricks_by_id[trick_id] for trick_id in session["routine"]]
+    trick_index = int(session["trick_index"])
+    if trick_index >= len(routine):
+        return data, {"allowed": False, "reason": "The active Circus performance is out of sync."}
+    trick = routine[trick_index]
+    chance = _success_chance(level, trick.level)
+    success = clean_rolls[0] < chance
+    payout_tier = _payout_tier(performance, level, trick) if success else None
+    payout_index = (
+        _canonical_by_level(performance).index(payout_tier)
+        if payout_tier is not None
+        else -1
+    )
+    mask_bit = 1 << payout_index if payout_index >= 0 else 0
+    # Darkan f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe, BigTopBonanza.kt:94-117:
+    # the once-per-tier mask is checked after the effective payout tier is
+    # resolved, so two barely-successful tricks cannot pay the same tier twice.
+    xp = (
+        payout_tier.xp
+        if payout_tier is not None and not session["payout_tier_mask"] & mask_bit
+        else 0.0
+    )
+    if payout_tier is not None and xp > 0:
+        session["payout_tier_mask"] |= mask_bit
+    repeated = trick.id in session["attempted_ids"]
+    session["attempted_ids"].append(trick.id)
+    if success:
+        session["success_count"] += 1
+    score_delta = _costume_score(
+        trick,
+        success=success,
+        strategy=state["strategies"][performance.id],
+        repeated=repeated,
+        unlocked_costume_count=len(state["unlocked_costumes"]),
+    )
+    session["score"] += score_delta
+    session["trick_index"] += 1
+    tier_text = str(payout_tier.level if payout_tier is not None else trick.level)
+    result_text = "success" if success else "failure"
+    skill_name = performance.skill_id.title()
+    trick_event = (
+        f"{performance.display_name} · tier {tier_text} · {result_text} · "
+        f"+{xp:,.1f} {skill_name} XP · {session['success_count']} successes"
+    )
+    outputs: dict[str, int] = {}
+    summary_event = ""
+    completed_performance = session["trick_index"] >= len(routine)
+    score = int(session["score"])
+    if completed_performance:
+        reward = _reward_for_score(performance.id, score)
+        if reward and reward not in state["unlocked_costumes"]:
+            state["unlocked_costumes"].append(reward)
+            inventory = _inventory(data)
+            inventory[reward] = inventory.get(reward, 0) + 1
+            data["inventory"] = inventory
+            outputs[reward] = 1
+        state["used_week_by_performance"][performance.id] = _answered_card_week(data)
+        state["lifetime_performances"] += 1
+        state["lifetime_score"] += score
+        summary_event = f"{performance.display_name} complete · score {score:,}"
+        state["session"] = None
+        state["last_result"] = summary_event[:500]
+    else:
+        state["last_result"] = trick_event[:500]
+
+    next_performance = _next_executing_performance(data, state)
+    terminal = completed_performance and next_performance is None
     data["circus"] = state
     return data, {
         "allowed": True,
         "action_id": CIRCUS_ACTIVITY_ID,
-        "success": successes > 0,
-        "expected_success_chance": chance_total / max(1, len(routine)),
-        "terminal": True,
-        "completed_activity": True,
+        "success": success,
+        "expected_success_chance": chance,
+        "terminal": terminal,
+        "completed_activity": terminal,
+        "completed_performance": completed_performance,
         "performance_id": performance.id,
         "skill_id": performance.skill_id,
         "xp": xp,
         "score": score,
-        "attempts": len(routine),
-        "successes": successes,
-        "trick_ids": tuple(attempted_ids),
+        "score_awarded": score_delta,
+        "attempts": 1,
+        "successes": int(success),
+        "trick_index": trick_index,
+        "trick_id": trick.id,
+        "trick_event": trick_event,
+        "summary_event": summary_event,
         "outputs": outputs,
-        "status": state["last_result"],
+        "status": trick_event,
     }

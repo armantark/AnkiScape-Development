@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape system map</title>
+<style>
+  :root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --surface-3: #10141b;
+    --border: #2a3040;
+    --border-strong: #3b4559;
+    --text: #e8ecf4;
+    --text-dim: #9aa5b8;
+    --text-faint: #6f7b8f;
+    --accent: #6aa5ff;
+    --control: #6aa5ff;
+    --data: #fbbf24;
+    --persist: #4ade80;
+    --feedbk: #fb7185;
+    --clock: #22d3ee;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { min-width: 340px; background: var(--bg); }
+  body {
+    margin: 0;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 4% -6%, rgba(106, 165, 255, .14), transparent 34rem),
+      radial-gradient(circle at 96% 4%, rgba(167, 139, 250, .08), transparent 30rem),
+      var(--bg);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .mono, code, .eyebrow { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  button { font: inherit; color: inherit; }
+
+  /* ---------- masthead: a title strip, not a report card ---------- */
+  header.masthead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 26px;
+    width: min(1880px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 24px 0 14px;
+  }
+  header.masthead h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.2vw, 2.15rem);
+    line-height: 1.05;
+    letter-spacing: -.028em;
+  }
+  header.masthead h1 span { color: var(--text-dim); font-weight: 500; }
+  .lead { flex: 1 1 22rem; margin: 0; max-width: 46rem; color: var(--text-dim); }
+  .snapshot {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(22, 26, 33, .8);
+    color: var(--text-dim);
+    font-size: .78rem;
+  }
+  .snapshot code { color: var(--persist); font-size: .8rem; }
+  .snapshot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--persist); box-shadow: 0 0 0 4px rgba(74, 222, 128, .12); }
+
+  /* ---------- atlas: the map owns the page ---------- */
+  .atlas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    width: min(1880px, calc(100% - 40px));
+    margin: 0 auto 40px;
+  }
+  @media (min-width: 1180px) { .atlas { grid-template-columns: minmax(0, 1fr) 372px; } }
+  @media (min-width: 1700px) { .atlas { grid-template-columns: minmax(0, 1fr) 420px; } }
+
+  .stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .canvas {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: radial-gradient(ellipse at 50% 42%, #141924 0%, #0e1219 58%, #0a0d13 100%);
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .map { display: block; width: 100%; min-width: 940px; height: auto; }
+
+  /* ---------- ground: zone plates, not a rainbow lattice ---------- */
+  .hatch { stroke: rgba(126, 152, 200, .055); stroke-width: 1; }
+  .plate { fill: rgba(146, 172, 214, .028); stroke: rgba(126, 152, 200, .14); stroke-width: 1; }
+  .zone-num { font: 600 11px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #5c6779; letter-spacing: .14em; }
+  .zone-name { font: 10.5px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #48505f; letter-spacing: .16em; }
+
+  /* ---------- roads: low emphasis until chosen ---------- */
+  .lane { cursor: pointer; }
+  .lane:focus { outline: none; }
+  .road { fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: .4; transition: opacity .18s ease, stroke-width .18s ease; }
+  .hit { fill: none; stroke: transparent; stroke-width: 22; pointer-events: stroke; }
+  .lane[data-tone="control"] .road { stroke: var(--control); stroke-width: 2.6; stroke-dasharray: 12 7; }
+  .lane[data-tone="data"] .road { stroke: var(--data); stroke-width: 2.6; stroke-dasharray: 1.5 6; }
+  .lane[data-tone="persist"] .road { stroke: var(--persist); stroke-width: 2.6; stroke-dasharray: 15 5 3 5; }
+  .lane[data-tone="feedback"] .road { stroke: var(--feedbk); stroke-width: 2.6; stroke-dasharray: 8 6; }
+  .lane[data-tone="clock"] .road { stroke: var(--clock); stroke-width: 2.6; stroke-dasharray: 2.5 7; }
+  .lane:hover .road { opacity: .8; stroke-width: 3.4; }
+  .lane.is-dim .road { opacity: .09; }
+  .lane.is-dim .hit { pointer-events: none; }
+  .lane.is-warm .road { opacity: .85; stroke-width: 3.6; }
+  .lane.is-on .road { opacity: 1; stroke-width: 5; filter: drop-shadow(0 0 6px currentColor); animation: flow 1.5s linear infinite; }
+  .lane:focus-visible .halo { stroke: rgba(232, 236, 244, .6); stroke-width: 10; }
+  .halo { fill: none; stroke: transparent; stroke-linecap: round; stroke-linejoin: round; }
+  @keyframes flow { to { stroke-dashoffset: -42; } }
+
+  /* ---------- structures: one material, role colour as trim ------- */
+  .node { cursor: pointer; transition: opacity .18s ease; }
+  .node.is-dim { opacity: .28; }
+  .node:focus { outline: none; }
+  .pad { fill: rgba(255, 255, 255, .018); stroke: currentColor; stroke-opacity: .16; stroke-width: 1.4; transition: stroke-opacity .18s ease, opacity .18s ease; }
+  .pad.is-near, .pad.is-lit { stroke-opacity: .5; }
+  .pad.is-on { stroke-opacity: 1; stroke-width: 2; stroke-dasharray: 7 5; }
+  .pad.is-dim { opacity: .25; }
+  .mass { filter: drop-shadow(0 7px 15px rgba(0, 0, 0, .55)); transition: filter .2s ease; }
+  .face { stroke: rgba(6, 9, 14, .5); stroke-width: .7; stroke-linejoin: round; }
+  .acc { transition: filter .2s ease; }
+  .node:hover .acc, .node.is-lit .acc { filter: brightness(1.35) saturate(1.1); }
+  .node.is-on .acc { filter: brightness(1.7) saturate(1.15) drop-shadow(0 0 5px currentColor); }
+  .node.is-on .mass { filter: drop-shadow(0 7px 15px rgba(0, 0, 0, .55)) drop-shadow(0 0 13px currentColor); }
+
+  /* ---------- callouts: text on open ground, never over a mass ---- */
+  .lbl { pointer-events: none; transition: opacity .18s ease; }
+  .lbl .leader { fill: none; stroke: currentColor; stroke-opacity: .45; stroke-width: 1.1; }
+  .lbl .lname {
+    font: 600 12.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .09em;
+    fill: #c3cddd;
+    paint-order: stroke;
+    stroke: #0b0e14;
+    stroke-width: 3.6;
+    stroke-linejoin: round;
+  }
+  .lbl .lmeta {
+    font: 11.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+    fill: #7b8799;
+    opacity: 0;
+    paint-order: stroke;
+    stroke: #0b0e14;
+    stroke-width: 3.2;
+    stroke-linejoin: round;
+    transition: opacity .18s ease;
+  }
+  .lbl.is-near .lmeta, .lbl.is-on .lmeta { opacity: 1; }
+  .lbl.is-on .lname, .lbl.is-near .lname { fill: #f2f6ff; }
+  .lbl.is-on .leader { stroke-opacity: 1; }
+  .lbl.is-dim { opacity: .24; }
+
+  /* ---------- payload token: only for the chosen road ------------- */
+  .token { pointer-events: none; visibility: hidden; opacity: 0; transition: opacity .18s ease; }
+  .token.is-hot { visibility: visible; opacity: 1; }
+  .token rect { fill: rgba(8, 11, 16, .95); stroke: currentColor; stroke-opacity: .85; }
+  .token text { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; fill: currentColor; }
+  .beam { animation: pulse 3.2s ease-in-out infinite; }
+  .gear { animation: spin 16s linear infinite; transform-box: fill-box; transform-origin: center; }
+  .blink { animation: pulse 2.1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: .16; } 50% { opacity: .7; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- legend: a strip under the map, never over it -------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    padding: 9px 13px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface-3);
+  }
+  .legend h2 { margin: 0 4px 0 0; color: var(--text-faint); font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; }
+  .key { display: flex; align-items: center; gap: 7px; padding: 3px 9px 3px 5px; border: 1px solid transparent; border-radius: 8px; background: none; cursor: default; font-size: .8rem; }
+  .key svg { flex: none; }
+  .key:hover, .key:focus-visible { border-color: var(--border-strong); background: var(--surface-2); outline: none; }
+  .legend .note { flex: 1 1 16rem; margin: 0; color: var(--text-faint); font-size: .76rem; }
+
+  /* ---------- explainer: progressive disclosure ---------- */
+  .explain {
+    position: sticky;
+    top: 16px;
+    align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--pin, var(--border-strong));
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(30, 35, 44, .92), rgba(19, 23, 30, .92));
+  }
+  .explain-head { padding: 16px 18px 14px; border-bottom: 1px solid var(--border); }
+  .explain .eyebrow { margin: 0; color: var(--pin, var(--text-dim)); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+  .explain h2 { margin: 6px 0 0; font-size: 1.16rem; line-height: 1.22; letter-spacing: -.012em; }
+  .explain-body { padding: 16px 18px 20px; }
+  .explain-body > * + * { margin-top: 16px; }
+  .role { margin: 0; color: #cfd7e4; }
+  .explain h3 { margin: 0 0 6px; color: var(--text-faint); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+  .explain ul { margin: 0; padding-left: 17px; color: #c5cede; }
+  .explain li + li { margin-top: 5px; }
+  .explain ol { margin: 0; padding-left: 19px; color: #c5cede; }
+  .explain ol li + li { margin-top: 8px; }
+  .seam { margin: 0 0 10px; color: var(--text-faint); font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+  .trace {
+    margin: 0;
+    padding: 10px 11px;
+    border: 1px solid rgba(106, 165, 255, .3);
+    border-radius: 9px;
+    background: rgba(106, 165, 255, .1);
+    color: #d7e4ff;
+    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow-wrap: anywhere;
+  }
+  .cites { padding: 0; list-style: none; }
+  .cites a { display: block; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-3); color: #cfe0ff; font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; text-decoration: none; overflow-wrap: anywhere; }
+  .cites li + li { margin-top: 5px; }
+  .cites a:hover { border-color: var(--pin, var(--accent)); color: #fff; }
+  .cites a:focus-visible, .jump:focus-visible, .clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .jumps { display: flex; flex-wrap: wrap; gap: 6px; }
+  .jump { padding: 5px 10px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface-2); cursor: pointer; font-size: .78rem; }
+  .jump:hover { border-color: var(--accent); background: #253044; }
+  .jump .dot { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: currentColor; vertical-align: middle; }
+  .clear { margin-top: 14px; padding: 6px 11px; border: 1px solid var(--border-strong); border-radius: 8px; background: none; color: var(--text-dim); cursor: pointer; font-size: .78rem; }
+  .clear:hover { color: #fff; border-color: var(--accent); }
+  .hint { margin: 0; color: var(--text-faint); font-size: .82rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <h1>AnkiScape <span>system map</span></h1>
+  <p class="lead">Nine structures, one per real seam in the add-on, laid out in three zones. The roads between them are the control and data paths that run when a card is answered. Pick one for its contract and its sources.</p>
+  <p class="snapshot">snapshot <code>main 59fa88d0</code> · local working tree, not a remote reconstruction</p>
+</header>
+
+<div class="atlas">
+  <div class="stage">
+    <div class="canvas">
+      <svg class="map" id="map" viewBox="0 0 1320 675" role="group" aria-labelledby="map-title map-desc">
+        <title id="map-title">Isometric map of the AnkiScape add-on</title>
+        <desc id="map-desc">Nine three-dimensional structures stand in three horizontal zones. Zone one holds the hook terminal, cadence clockworks and content warehouse. Zone two holds the Qt surface, dispatch switchyard and undo archive. Zone three holds the feedback beacon, rules foundry and state vault. Directional roads between the zones carry review control, menu control, catalog dependency, state save, feedback projection, persisted event feedback, review and world clocks, and undo restore.</desc>
+        <defs>
+          <marker id="ar-control" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#6aa5ff"/></marker>
+          <marker id="ar-data" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#fbbf24"/></marker>
+          <marker id="ar-persist" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#4ade80"/></marker>
+          <marker id="ar-feedback" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#fb7185"/></marker>
+          <marker id="ar-clock" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#22d3ee"/></marker>
+        </defs>
+        <g id="ground"></g>
+        <g id="pads"></g>
+        <g id="roads"></g>
+        <g id="city"></g>
+        <g id="labels"></g>
+        <g id="tokens"></g>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <h2>Road key</h2>
+      <span class="key" data-tone="control" tabindex="0"><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="#6aa5ff" stroke-width="3.2" stroke-dasharray="12 7" stroke-linecap="round"/></svg>control</span>
+      <span class="key" data-tone="data" tabindex="0"><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="#fbbf24" stroke-width="3.2" stroke-dasharray="1.5 6" stroke-linecap="round"/></svg>dependency</span>
+      <span class="key" data-tone="persist" tabindex="0"><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="#4ade80" stroke-width="3.2" stroke-dasharray="15 5 3 5" stroke-linecap="round"/></svg>persistence</span>
+      <span class="key" data-tone="feedback" tabindex="0"><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="#fb7185" stroke-width="3.2" stroke-dasharray="8 6" stroke-linecap="round"/></svg>projection</span>
+      <span class="key" data-tone="clock" tabindex="0"><svg width="34" height="10" aria-hidden="true"><line x1="1" y1="5" x2="33" y2="5" stroke="#22d3ee" stroke-width="3.2" stroke-dasharray="2.5 7" stroke-linecap="round"/></svg>clock</span>
+      <p class="note">Arrowheads point the way the payload travels. Hover a key to warm its roads. Pick a road to see the payload it carries.</p>
+    </div>
+  </div>
+
+  <aside class="explain" id="explain" aria-live="polite">
+    <div class="explain-head">
+      <p class="eyebrow" id="ex-kind">Read the map</p>
+      <h2 id="ex-name">One review, end to end</h2>
+    </div>
+    <div class="explain-body" id="ex-body"></div>
+  </aside>
+</div>
+
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (name, attrs = {}) => {
+    const node = document.createElementNS(NS, name);
+    for (const k in attrs) node.setAttribute(k, attrs[k]);
+    return node;
+  };
+  const hex = (h) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16));
+  const mix = (a, b, t) => {
+    const [r1, g1, b1] = hex(a), [r2, g2, b2] = hex(b);
+    const c = (x, y) => Math.round(x + (y - x) * t).toString(16).padStart(2, "0");
+    return `#${c(r1, r2)}${c(g1, g2)}${c(b1, b2)}`;
+  };
+
+  /* One shared material for every building body. Role colour is
+     spent only on roof trims, lamps and door lights, so the skyline
+     reads as infrastructure rather than nine coloured toys. */
+  const SHADE = "#05070b";
+  const BODY = "#3a4250";
+  const TONES = {
+    dark: mix(BODY, SHADE, .4),
+    body: BODY,
+    light: mix(BODY, "#ffffff", .12)
+  };
+
+  /* Screen-space layout. Three zone rows, three columns: the map fills
+     the frame evenly instead of collapsing into an isometric diamond. */
+  const TW = 62, TH = 31;                 // tile width / depth in px
+  const COLX = [250, 660, 1070];          // column centre lines
+  const ROWY = [90, 290, 505];            // north corner of each 3x3 plot
+
+  /* A plot is a 186 x 93 diamond. Its four road ports, which the lane
+     coordinates below are written against, are N (cx, oy),
+     S (cx, oy+93), W (cx-93, oy+46.5) and E (cx+93, oy+46.5). A road
+     may also meet an edge off-corner: at a horizontal offset dx the
+     upper edge sits at oy + 46.5 * |dx| / 93. */
+
+  /* ---------------------------------------------------------------
+     Nodes. Every citation is a real seam in this working tree.
+     `parts` are isometric boxes in tile units local to the plot:
+     [i, j, width, depth, height, base, tone]
+  --------------------------------------------------------------- */
+  const nodes = {
+    anki: {
+      at: [0, 0], colour: "#5c9dff",
+      structure: "Hook terminal", short: "TERMINAL", tag: "core/hooks.py", name: "Anki review host", kind: "Control ingress",
+      role: "Receives Anki lifecycle hooks, wraps Reviewer._answerCard and supplies the answer boundary that opens one review transaction.",
+      inbound: ["Anki profileLoaded and reviewer hooks", "Reviewer answer state: card_turned, answer_shown, ease"],
+      outbound: ["profileLoaded callbacks", "review answer arguments", "state_did_undo notifications"],
+      trace: "Anki answer → on_answer_card → runtime transaction",
+      cites: [["core/hooks.py:29-92", "../../core/hooks.py"], ["__init__.py:5357-5454", "../../__init__.py"], ["__init__.py:5746-5766", "../../__init__.py"]],
+      parts: [
+        [0.05, 0.05, 2.9, 2.9, 8, 0, "dark"],
+        [0.45, 0.45, 2.1, 2.1, 32, 8, "body"],
+        [0.45, 0.45, 2.1, 2.1, 4, 40, "accent"],
+        [1.0, 1.0, 1.0, 1.0, 26, 44, "body"],
+        [1.0, 1.0, 1.0, 1.0, 3, 70, "accent"],
+        [0.12, 0.12, 0.16, 0.16, 56, 8, "dark"],
+        [0.12, 2.72, 0.16, 0.16, 56, 8, "dark"],
+        [0.75, 2.6, 0.5, 0.05, 13, 12, "accent"],
+        [1.7, 2.6, 0.5, 0.05, 13, 12, "accent"]
+      ]
+    },
+    clock: {
+      at: [1, 0], colour: "#22d3ee",
+      structure: "Cadence clockworks", short: "CLOCKWORKS", tag: "review + world ticks", name: "Cadence and world clock", kind: "Review cadence",
+      role: "Advances the shared review and world clocks inside the answer flow, so scheduled effects stay part of the persisted review transaction.",
+      inbound: ["reviewed card boundary", "cadence kernel and world-event reducers", "active carried target"],
+      outbound: ["answered-card clock", "shop, GE, daily, Miscellania, summoning and world-event ticks", "cadence waits and opportunity state"],
+      trace: "answer boundary → shared clocks → player_data before handler commit",
+      cites: [["__init__.py:5242-5275", "../../__init__.py"], ["__init__.py:5379-5416", "../../__init__.py"]],
+      parts: [
+        [0.05, 0.3, 2.9, 2.4, 8, 0, "dark"],
+        [0.35, 0.6, 2.3, 1.8, 30, 8, "body"],
+        [0.35, 0.6, 2.3, 1.8, 3, 38, "accent"],
+        [1.6, 0.85, 1.1, 1.1, 34, 38, "body"],
+        [1.6, 0.85, 1.1, 1.1, 3, 72, "accent"],
+        [0.6, 2.34, 0.55, 0.05, 12, 12, "accent"]
+      ]
+    },
+    catalog: {
+      at: [2, 0], colour: "#fbbf24",
+      structure: "Content warehouse", short: "WAREHOUSE", tag: "skill registry", name: "Content registry", kind: "Content registry",
+      role: "Defines the live skill surface and projects target rows from source-backed data, including requirements, labels, tooltips, locks and icons.",
+      inbound: ["CURRENT_SKILLS and ALL_SKILLS", "data/* catalogs", "target metadata projection"],
+      outbound: ["SkillDefinition: level_key, exp_key, handler key", "TargetRowMetadata: enabled, current, locked_reasons", "requirements, outputs and source-facing labels"],
+      trace: "catalog row → selected target → runtime requirement and output inputs",
+      cites: [["core/skill_registry.py:21-57", "../../core/skill_registry.py"], ["core/skill_registry.py:321-377", "../../core/skill_registry.py"], ["core/target_metadata.py:74-112", "../../core/target_metadata.py"]],
+      parts: [
+        [0, 0, 3, 3, 8, 0, "dark"],
+        [0.12, 0.15, 2.76, 2.7, 26, 8, "body"],
+        [0.28, 0.2, 0.34, 2.6, 9, 34, "light"],
+        [0.95, 0.2, 0.34, 2.6, 9, 34, "light"],
+        [1.62, 0.2, 0.34, 2.6, 9, 34, "light"],
+        [2.29, 0.2, 0.34, 2.6, 9, 34, "light"],
+        [0.28, 0.2, 0.34, 2.6, 2.5, 43, "accent"],
+        [1.62, 0.2, 0.34, 2.6, 2.5, 43, "accent"],
+        [0.5, 2.86, 0.65, 0.05, 13, 8, "accent"],
+        [1.85, 2.86, 0.65, 0.05, 13, 8, "accent"]
+      ]
+    },
+    surface: {
+      at: [0, 1], colour: "#a78bfa",
+      structure: "Qt surface", short: "SURFACE", tag: "ui/ui.py", name: "Native Qt surfaces", kind: "Native surface",
+      role: "Owns the consolidated menu, the fixed reviewer strip, the HUD, badges, drawers and every player-facing projection.",
+      inbound: ["Anki main window and reviewer widgets", "player_data and current_skill projections"],
+      outbound: ["menu selections and target changes", "HUD bars, badges and activity messages", "level-up and achievement dialogs"],
+      trace: "Menu or review strip → callback seam → current state projection",
+      cites: [["ui/ui.py:3999-4069", "../../ui/ui.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"], ["ui/ui.py:4539-4553", "../../ui/ui.py"], ["ui/ui.py:4597-4765", "../../ui/ui.py"]],
+      parts: [
+        [0, 0, 3, 3, 8, 0, "dark"],
+        [0.2, 0.2, 2.6, 2.6, 22, 8, "body"],
+        [0.2, 0.2, 2.6, 2.6, 3, 30, "accent"],
+        [0.55, 0.55, 1.9, 1.9, 20, 33, "body"],
+        [0.55, 0.55, 1.9, 1.9, 3, 53, "accent"],
+        [0.95, 0.95, 1.1, 1.1, 16, 56, "body"],
+        [0.95, 0.95, 1.1, 1.1, 3, 72, "accent"]
+      ]
+    },
+    dispatch: {
+      at: [1, 1], colour: "#ff8f5c",
+      structure: "Dispatch switchyard", short: "SWITCHYARD", tag: "action registry", name: "Runtime dispatch hub", kind: "Handler routing",
+      role: "Resolves a display name into a canonical handler key, checks admission and selects the answer handler for the active action.",
+      inbound: ["action_registry review_action_handler_key", "CAN_START_HANDLERS and ANSWER_HANDLERS"],
+      outbound: ["handler_key: mining / combat / utility / quest / …", "RuntimeActionContext callback bundle", "can-start boolean"],
+      trace: "current_skill → handler key → can_start_action → answer_handler_for_key",
+      cites: [["core/action_registry.py:52-75", "../../core/action_registry.py"], ["runtime/runtime_actions.py:850-906", "../../runtime/runtime_actions.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"]],
+      parts: [
+        [0, 0.2, 3, 2.6, 8, 0, "dark"],
+        [0.3, 0.55, 0.55, 1.9, 26, 8, "body"],
+        [1.2, 0.55, 0.55, 1.9, 32, 8, "body"],
+        [2.1, 0.55, 0.55, 1.9, 22, 8, "body"],
+        [0.3, 0.55, 0.55, 1.9, 2.5, 34, "accent"],
+        [1.2, 0.55, 0.55, 1.9, 2.5, 40, "accent"],
+        [2.1, 0.55, 0.55, 1.9, 2.5, 30, "accent"],
+        [0.22, 1.2, 0.16, 0.22, 38, 8, "dark"],
+        [2.72, 1.2, 0.16, 0.22, 38, 8, "dark"],
+        [0.2, 1.2, 2.7, 0.22, 4, 46, "accent"]
+      ]
+    },
+    undo: {
+      at: [2, 1], colour: "#e879f9",
+      structure: "Undo archive", short: "ARCHIVE", tag: "undo restore", name: "Undo archive", kind: "Reversible guard rail",
+      role: "Captures changed values, removed keys, current skill and random state, then restores that snapshot when Anki emits the matching undo operation.",
+      inbound: ["review snapshot taken before mutation", "Anki state_did_undo", "player state and visible projections"],
+      outbound: ["changed_values and removed keys", "current_skill", "random_state", "restored HUD and menu state"],
+      trace: "snapshot → Anki undo → restore → save + refresh projections",
+      cites: [["__init__.py:1314-1358", "../../__init__.py"], ["__init__.py:1390-1415", "../../__init__.py"], ["__init__.py:1468-1480", "../../__init__.py"]],
+      parts: [
+        [0, 0, 3, 3, 10, 0, "dark"],
+        [0.3, 0.3, 2.4, 2.4, 12, 10, "body"],
+        [0.65, 0.65, 1.7, 1.7, 12, 22, "body"],
+        [1.0, 1.0, 1.0, 1.0, 12, 34, "light"],
+        [1.25, 1.25, 0.5, 0.5, 10, 46, "accent"]
+      ]
+    },
+    feedback: {
+      at: [0, 2], colour: "#fb7185",
+      structure: "Feedback beacon", short: "BEACON", tag: "HUD + event log", name: "Feedback beacon", kind: "Native projection",
+      role: "Coalesces XP and activity effects, records the retained event log and projects live state into the HUD, badges, drawers and dialogs.",
+      inbound: ["review feedback context", "record_review_event_pure", "Qt review strip widgets"],
+      outbound: ["XP total and per-skill breakdown", "activity messages and event-log rows", "HUD, status badge, fill drawer and event drawer views"],
+      trace: "pure result → feedback context → event log + visible Qt projection",
+      cites: [["__init__.py:518-570", "../../__init__.py"], ["__init__.py:636-727", "../../__init__.py"], ["ui/ui.py:3999-4069", "../../ui/ui.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"]],
+      parts: [
+        [0.2, 0.2, 2.6, 2.6, 10, 0, "dark"],
+        [0.6, 0.6, 1.8, 1.8, 18, 10, "body"],
+        [0.6, 0.6, 1.8, 1.8, 2.5, 28, "accent"],
+        [1.15, 1.15, 0.7, 0.7, 32, 28, "body"],
+        [0.95, 0.95, 1.1, 1.1, 6, 60, "light"],
+        [1.25, 1.25, 0.5, 0.5, 12, 66, "accent"]
+      ]
+    },
+    rules: {
+      at: [1, 2], colour: "#34d399",
+      structure: "Rules foundry", short: "FOUNDRY", tag: "logic_pure", name: "Pure rules foundry", kind: "Deterministic rules",
+      role: "Runs domain mutations without importing Anki or Qt. Runtime handlers pass state and callbacks into reducers for XP, items, quests, equipment and combat.",
+      inbound: ["RuntimeActionContext.player_data", "catalog definitions and current target", "random source and callback seam"],
+      outbound: ["state mutations: XP, levels, inventory, equipment, quests", "activity outputs and failure kinds", "achievement and telemetry updates"],
+      trace: "handler → pure reducer → mutated player_data + emitted effects",
+      cites: [["runtime/runtime_actions.py:1-12", "../../runtime/runtime_actions.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"], ["logic_pure/logic_pure_telemetry.py:160-233", "../../logic_pure/logic_pure_telemetry.py"]],
+      parts: [
+        [0, 0, 3, 3, 10, 0, "dark"],
+        [0.15, 0.7, 2.7, 1.9, 30, 10, "body"],
+        [0.15, 0.7, 2.7, 1.9, 3, 40, "accent"],
+        [0.5, 0.15, 0.34, 0.34, 54, 10, "dark"],
+        [0.5, 0.15, 0.34, 0.34, 4, 64, "accent"],
+        [1.2, 0.15, 0.28, 0.28, 44, 10, "dark"],
+        [1.85, 0.2, 0.24, 0.24, 36, 10, "dark"]
+      ]
+    },
+    state: {
+      at: [2, 2], colour: "#93b4d0",
+      structure: "State vault", short: "VAULT", tag: "core/storage.py", name: "Player state vault", kind: "Persistence boundary",
+      role: "Loads the saved payload from Anki config, migrates and sanitises it, then writes the canonical player payload and current skill back to the collection.",
+      inbound: ["Anki collection config", "storage_pure.migrate_loaded_data", "current config version"],
+      outbound: ["ankiscape_player_data dictionary", "ankiscape_current_skill", "config_version and additive state keys"],
+      trace: "Anki config → migrate_loaded_data → player_data → save_player_data",
+      cites: [["core/storage.py:12-54", "../../core/storage.py"], ["core/storage_pure.py:1347-1402", "../../core/storage_pure.py"], ["core/storage_pure.py:2453-2457", "../../core/storage_pure.py"]],
+      parts: [
+        [0, 0, 3, 3, 10, 0, "dark"],
+        [0.3, 0.3, 2.4, 2.4, 40, 10, "body"],
+        [0.3, 0.3, 2.4, 2.4, 4, 50, "accent"],
+        [0.75, 0.75, 1.5, 1.5, 10, 54, "light"],
+        [1.35, 1.35, 0.3, 0.3, 16, 64, "dark"],
+        [1.35, 1.35, 0.3, 0.3, 4, 80, "accent"],
+        [0.95, 2.86, 1.1, 0.05, 16, 10, "accent"]
+      ]
+    }
+  };
+
+  /* Roads are screen-space polylines that use the corridors between
+     zones. Every hop starts and ends on a plot edge, so no road ever
+     runs under a name callout. */
+  const lanes = [
+    {
+      id: "review-control", tone: "control", kind: "Review control", name: "Review answer control path",
+      seq: ["anki", "surface", "dispatch", "rules"],
+      hops: [
+        [[250, 183], [250, 290]],
+        [[343, 336.5], [567, 336.5]],
+        [[660, 383], [660, 505]]
+      ],
+      token: "ease + skill", tokenAt: [0, .5],
+      payload: "Anki ease plus the active current_skill plus the resolved handler key.",
+      trace: "Reviewer._answerCard → on_answer_card → on_good_answer → runtime handler → pure reducer",
+      cites: [["__init__.py:5357-5454", "../../__init__.py"], ["runtime/runtime_actions.py:850-906", "../../runtime/runtime_actions.py"]]
+    },
+    {
+      id: "menu-control", tone: "control", kind: "Direct control", name: "Menu action control path",
+      seq: ["surface", "dispatch", "rules"],
+      hops: [
+        [[250, 383], [250, 414], [600, 414], [600, 353]],
+        [[620, 363], [620, 525]]
+      ],
+      token: "target + ctx", tokenAt: [0, .5],
+      payload: "The selected target or action plus the callback-rich runtime context.",
+      trace: "Qt menu selection → entrypoint callback → runtime handler or pure command → visible state",
+      cites: [["ui/ui.py:4597-4765", "../../ui/ui.py"], ["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"]]
+    },
+    {
+      id: "catalog-payload", tone: "data", kind: "Data dependency", name: "Catalog dependency path",
+      seq: ["catalog", "dispatch", "rules"],
+      hops: [
+        [[1070, 183], [1070, 205], [890, 205], [890, 336.5], [753, 336.5]],
+        [[700, 363], [700, 525]]
+      ],
+      token: "targets + reqs", tokenAt: [0, .42],
+      payload: "SkillDefinition plus TargetRowMetadata plus requirements and outputs.",
+      trace: "skill registry + target metadata → active target → admission checks and reducer inputs",
+      cites: [["core/skill_registry.py:21-57", "../../core/skill_registry.py"], ["core/target_metadata.py:74-112", "../../core/target_metadata.py"], ["core/action_registry.py:52-75", "../../core/action_registry.py"]]
+    },
+    {
+      id: "state-save", tone: "persist", kind: "Persistence", name: "State save path",
+      seq: ["rules", "state"],
+      hops: [[[753, 551.5], [977, 551.5]]],
+      token: "player_data", tokenAt: [0, .5],
+      payload: "Mutated player_data plus current_skill plus config_version.",
+      trace: "pure mutation → save_player_data → Anki collection config",
+      cites: [["core/storage.py:12-54", "../../core/storage.py"], ["core/storage_pure.py:1347-1402", "../../core/storage_pure.py"]]
+    },
+    {
+      id: "feedback-projection", tone: "feedback", kind: "Projection", name: "Feedback projection path",
+      seq: ["dispatch", "rules", "feedback"],
+      hops: [
+        [[580, 343], [580, 470], [640, 470], [640, 515]],
+        [[567, 551.5], [343, 551.5]]
+      ],
+      token: "xp + messages", tokenAt: [1, .5],
+      payload: "XP total, activity messages, event-log rows and the HUD view.",
+      trace: "RuntimeActionContext callbacks → feedback context → review strip and drawers",
+      cites: [["runtime/runtime_actions_context.py:10-40", "../../runtime/runtime_actions_context.py"], ["__init__.py:636-727", "../../__init__.py"], ["ui/ui.py:3999-4069", "../../ui/ui.py"]]
+    },
+    {
+      id: "feedback-persistence", tone: "feedback", kind: "Persisted projection", name: "Persisted event feedback",
+      seq: ["state", "feedback"],
+      hops: [[[1070, 598], [1070, 635], [250, 635], [250, 598]]],
+      token: "event log", tokenAt: [0, .5],
+      payload: "The retained review_event_log carried inside player_data.",
+      trace: "record_review_event_pure → save seam → event-log drawer",
+      cites: [["__init__.py:518-570", "../../__init__.py"], ["ui/ui.py:4212-4218", "../../ui/ui.py"]]
+    },
+    {
+      id: "review-clock", tone: "clock", kind: "Clock", name: "Review and world clock path",
+      seq: ["anki", "clock", "state"],
+      hops: [
+        [[343, 136.5], [567, 136.5]],
+        [[660, 183], [660, 214], [1250, 214], [1250, 551.5], [1163, 551.5]]
+      ],
+      token: "cards + ticks", tokenAt: [1, .55],
+      payload: "Answered cards, world-event state and cadence opportunity state.",
+      trace: "answer boundary → shared review clocks → world events → persisted player_data",
+      cites: [["__init__.py:5242-5275", "../../__init__.py"], ["__init__.py:5379-5416", "../../__init__.py"]]
+    },
+    {
+      id: "undo-restore", tone: "feedback", kind: "Reversible control", name: "Undo restore path",
+      seq: ["undo", "state"],
+      hops: [[[1070, 383], [1070, 505]]],
+      token: "snapshot", tokenAt: [0, .5],
+      payload: "Changed values, removed keys and random_state.",
+      trace: "snapshot before answer → state_did_undo → restore → save + refresh UI",
+      cites: [["__init__.py:1390-1415", "../../__init__.py"], ["__init__.py:1468-1480", "../../__init__.py"]]
+    }
+  ];
+
+  /* ------------------------- ground plates ------------------------ */
+  const ground = document.getElementById("ground");
+  const W = 1320, H = 675;
+  for (let c = -H; c < W + H; c += 62) {
+    ground.append(el("line", { class: "hatch", x1: c, y1: 0, x2: c + H * 2, y2: H }));
+    ground.append(el("line", { class: "hatch", x1: c, y1: 0, x2: c - H * 2, y2: H }));
+  }
+  const zones = [
+    { y: 14, h: 186, num: "01", name: "INGRESS" },
+    { y: 218, h: 178, num: "02", name: "ROUTING" },
+    { y: 437, h: 180, num: "03", name: "RULES · STATE" }
+  ];
+  for (const z of zones) {
+    ground.append(el("rect", { class: "plate", x: 24, y: z.y, width: 1272, height: z.h, rx: 16 }));
+    const num = el("text", { class: "zone-num", x: 44, y: z.y + 30 });
+    num.textContent = z.num;
+    const nm = el("text", { class: "zone-name", x: 44, y: z.y + 48 });
+    nm.textContent = z.name;
+    ground.append(num, nm);
+  }
+
+  /* --------------------------- structures ------------------------- */
+  const box = (P, i, j, w, d, h, base, colour) => {
+    const g = el("g");
+    const top = base + h;
+    const faces = [
+      [[P(i, j + d, top), P(i + w, j + d, top), P(i + w, j + d, base), P(i, j + d, base)], mix(colour, SHADE, .34)],
+      [[P(i + w, j, top), P(i + w, j + d, top), P(i + w, j + d, base), P(i + w, j, base)], mix(colour, SHADE, .56)],
+      [[P(i, j, top), P(i + w, j, top), P(i + w, j + d, top), P(i, j + d, top)], mix(colour, "#ffffff", .16)]
+    ];
+    for (const [pts, fill] of faces) g.append(el("polygon", { class: "face", points: pts.map((p) => p.join(",")).join(" "), fill }));
+    return g;
+  };
+
+  const extras = {
+    anki(g, P, colour) {
+      for (const [i, j] of [[0.2, 0.2], [0.2, 2.8]]) {
+        const [x, y] = P(i, j, 64);
+        g.append(el("circle", { class: "blink acc", cx: x, cy: y, r: 3.2, fill: mix(colour, "#ffffff", .5) }));
+      }
+    },
+    clock(g, P, colour) {
+      const [x, y] = P(2.15, 1.4, 75);
+      const cy = y - 15, wheel = el("g", { class: "gear acc" });
+      wheel.append(el("circle", { cx: x, cy, r: 14, fill: "none", stroke: mix(colour, SHADE, .1), "stroke-width": 2.6 }));
+      wheel.append(el("circle", { cx: x, cy, r: 3.6, fill: mix(colour, "#ffffff", .3) }));
+      for (let k = 0; k < 8; k++) {
+        const a = (k * Math.PI) / 4;
+        wheel.append(el("line", { x1: x + Math.cos(a) * 4, y1: cy + Math.sin(a) * 4, x2: x + Math.cos(a) * 17, y2: cy + Math.sin(a) * 17, stroke: mix(colour, SHADE, .2), "stroke-width": 2.2, "stroke-linecap": "round" }));
+      }
+      g.append(wheel);
+    },
+    feedback(g, P, colour) {
+      const [x, y] = P(1.5, 1.5, 78);
+      const cy = y - 12;
+      [[10, 5, 0], [16, 8, .5], [22, 11, 1]].forEach(([rx, ry, delay], k) => {
+        const ring = el("ellipse", { class: "beam acc", cx: x, cy, rx, ry, fill: "none", stroke: colour, "stroke-width": 2 });
+        ring.style.animationDelay = `${delay}s`;
+        ring.setAttribute("opacity", .5 - k * .1);
+        g.append(ring);
+      });
+    },
+    undo(g, P, colour) {
+      const [x, y] = P(1.5, 1.5, 62);
+      g.append(el("path", {
+        class: "acc",
+        d: `M ${x - 22} ${y} A 22 11 0 1 1 ${x + 17} ${y + 7}`,
+        fill: "none", stroke: mix(colour, "#ffffff", .2), "stroke-width": 2.6, "stroke-linecap": "round",
+        "marker-end": "url(#ar-feedback)"
+      }));
+    }
+  };
+
+  const pads = document.getElementById("pads");
+  const city = document.getElementById("city");
+  const labels = document.getElementById("labels");
+  const nodeEls = {}, labelEls = {};
+  const order = Object.keys(nodes).sort((a, b) => nodes[a].at[1] - nodes[b].at[1] || nodes[a].at[0] - nodes[b].at[0]);
+
+  for (const id of order) {
+    const n = nodes[id];
+    const cx = COLX[n.at[0]], oy = ROWY[n.at[1]];
+    const P = (i, j, h = 0) => [cx + (i - j) * (TW / 2), oy + (i + j) * (TH / 2) - h];
+
+    const g = el("g", { class: "node", "data-node": id, tabindex: "0", role: "button", "aria-label": `${n.structure}: ${n.name}` });
+    g.style.color = n.colour;
+
+    /* Ground pad, drawn under the roads so streets meet the plot edge. */
+    const pad = el("polygon", {
+      class: "pad",
+      points: [P(-.2, -.2), P(3.2, -.2), P(3.2, 3.2), P(-.2, 3.2)].map((p) => p.join(",")).join(" ")
+    });
+    pad.style.color = n.colour;
+    pads.append(pad);
+
+    const mass = el("g", { class: "mass" });
+    for (const [i, j, w, d, h, base, tone] of n.parts) {
+      const colour = tone === "accent" ? mix(n.colour, SHADE, .14) : TONES[tone];
+      const b = box(P, i, j, w, d, h, base, colour);
+      if (tone === "accent") b.setAttribute("class", "acc");
+      mass.append(b);
+    }
+    if (extras[id]) extras[id](mass, P, n.colour);
+    g.append(mass);
+    city.append(g);
+    nodeEls[id] = g;
+    n._pad = pad;
+
+    /* Callout: open ground to the south-east of the plot, outside the
+       footprint, with a short leader back to the plot edge. */
+    const lx = cx + 62, ly = oy + 84;
+    const lg = el("g", { class: "lbl", "data-for": id });
+    lg.style.color = n.colour;
+    lg.append(el("path", { class: "leader", d: `M ${cx + 46} ${oy + 70} L ${cx + 55} ${oy + 77} L ${lx - 3} ${oy + 77}` }));
+    const t1 = el("text", { class: "lname", x: lx, y: ly });
+    t1.textContent = n.short;
+    const t2 = el("text", { class: "lmeta", x: lx, y: ly + 15 });
+    t2.textContent = n.tag;
+    lg.append(t1, t2);
+    labels.append(lg);
+    labelEls[id] = lg;
+  }
+
+  /* ----------------------------- roads ---------------------------- */
+  const roads = document.getElementById("roads");
+  const tokens = document.getElementById("tokens");
+  const laneEls = {};
+  const laneById = Object.fromEntries(lanes.map((l) => [l.id, l]));
+
+  const rounded = (pts, r = 14) => {
+    if (pts.length < 3) return `M ${pts[0][0]} ${pts[0][1]} L ${pts[1][0]} ${pts[1][1]}`;
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let k = 1; k < pts.length - 1; k++) {
+      const [a, b, c] = [pts[k - 1], pts[k], pts[k + 1]];
+      const cut = (p, q) => {
+        const dx = q[0] - p[0], dy = q[1] - p[1], len = Math.hypot(dx, dy) || 1;
+        const t = Math.min(r, len / 2) / len;
+        return [p[0] + dx * t, p[1] + dy * t];
+      };
+      const inP = cut(b, a), outP = cut(b, c);
+      d += ` L ${inP[0]} ${inP[1]} Q ${b[0]} ${b[1]} ${outP[0]} ${outP[1]}`;
+    }
+    const last = pts[pts.length - 1];
+    return d + ` L ${last[0]} ${last[1]}`;
+  };
+  const pointAt = (pts, t) => {
+    const segs = pts.slice(1).map((p, k) => Math.hypot(p[0] - pts[k][0], p[1] - pts[k][1]));
+    const total = segs.reduce((a, b) => a + b, 0);
+    let want = total * t;
+    for (let k = 0; k < segs.length; k++) {
+      if (want <= segs[k]) {
+        const f = segs[k] ? want / segs[k] : 0;
+        return [pts[k][0] + (pts[k + 1][0] - pts[k][0]) * f, pts[k][1] + (pts[k + 1][1] - pts[k][1]) * f];
+      }
+      want -= segs[k];
+    }
+    return pts[pts.length - 1];
+  };
+  const TONE = { control: "#6aa5ff", data: "#fbbf24", persist: "#4ade80", feedback: "#fb7185", clock: "#22d3ee" };
+
+  for (const lane of lanes) {
+    const g = el("g", { class: "lane", "data-lane": lane.id, "data-tone": lane.tone, tabindex: "0", role: "button", "aria-label": `${lane.name}: ${lane.seq.map((s) => nodes[s].structure).join(" to ")}` });
+    g.style.color = TONE[lane.tone];
+    for (const hop of lane.hops) {
+      const d = rounded(hop);
+      g.append(el("path", { class: "halo", d }));
+      g.append(el("path", { class: "road", d, "marker-end": `url(#ar-${lane.tone})` }));
+      g.append(el("path", { class: "hit", d }));
+    }
+    roads.append(g);
+    laneEls[lane.id] = g;
+
+    const [hopIdx, t] = lane.tokenAt;
+    const [tx, ty] = pointAt(lane.hops[hopIdx], t);
+    const tg = el("g", { class: "token", "data-token": lane.id });
+    tg.style.color = TONE[lane.tone];
+    const tt = el("text", { x: tx, y: ty + 4, "text-anchor": "middle" });
+    tt.textContent = lane.token;
+    tg.append(tt);
+    tokens.append(tg);
+    const bb = tg.getBBox();
+    tg.insertBefore(el("rect", { x: bb.x - 9, y: bb.y - 5, width: bb.width + 18, height: bb.height + 10, rx: 6 }), tt);
+  }
+
+  /* -------------------------- explainer --------------------------- */
+  const exKind = document.getElementById("ex-kind");
+  const exName = document.getElementById("ex-name");
+  const exBody = document.getElementById("ex-body");
+  const explain = document.getElementById("explain");
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const citeList = (cites) => `<ul class="cites">${cites.map(([label, href]) => `<li><a href="${href}">${esc(label)}</a></li>`).join("")}</ul>`;
+
+  const primer = () => {
+    explain.style.setProperty("--pin", "#6aa5ff");
+    exKind.textContent = "Read the map";
+    exName.textContent = "One review, end to end";
+    exBody.innerHTML = `
+      <ol>
+        <li><strong>Zone 01</strong> takes the review in. A card is answered at the <strong>terminal</strong>, the <strong>clockworks</strong> advance the shared clocks, and the <strong>warehouse</strong> holds the skill and target catalog.</li>
+        <li><strong>Zone 02</strong> routes it. The <strong>surface</strong> raises menu and review-strip control, the <strong>switchyard</strong> resolves a handler key, and the <strong>archive</strong> keeps the snapshot that can undo the whole thing.</li>
+        <li><strong>Zone 03</strong> settles it. The <strong>foundry</strong> mutates state with no Anki or Qt imports, the <strong>vault</strong> writes it back to the collection, and the <strong>beacon</strong> projects XP, messages and the event log.</li>
+      </ol>
+      <p class="hint">Pick any structure or road for its role, its inbound and outbound contract, the trace it runs, and the files that prove it. Only the chosen road shows its payload. Press Escape to come back here.</p>`;
+  };
+
+  const showNode = (id) => {
+    const n = nodes[id];
+    explain.style.setProperty("--pin", n.colour);
+    exKind.textContent = n.kind;
+    exName.textContent = `${n.structure} · ${n.name}`;
+    const links = lanes.filter((l) => l.seq.includes(id));
+    exBody.innerHTML = `
+      <p class="seam">${esc(n.tag)}</p>
+      <p class="role">${esc(n.role)}</p>
+      <section><h3>Inbound contract</h3><ul>${n.inbound.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      <section><h3>Outbound contract</h3><ul>${n.outbound.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      <section><h3>Trace</h3><p class="trace">${esc(n.trace)}</p></section>
+      <section><h3>Connected roads</h3><div class="jumps">${links.map((l) => `<button class="jump" type="button" data-jump-lane="${l.id}" style="color:${TONE[l.tone]}"><span class="dot"></span><span style="color:var(--text)">${esc(l.name)}</span></button>`).join("")}</div></section>
+      <section><h3>Sources</h3>${citeList(n.cites)}</section>
+      <button class="clear" type="button" data-clear>Clear selection</button>`;
+  };
+
+  const showLane = (id) => {
+    const l = laneById[id];
+    explain.style.setProperty("--pin", TONE[l.tone]);
+    exKind.textContent = l.kind;
+    exName.textContent = l.name;
+    exBody.innerHTML = `
+      <section><h3>Route</h3><div class="jumps">${l.seq.map((s) => `<button class="jump" type="button" data-jump-node="${s}" style="color:${nodes[s].colour}"><span class="dot"></span><span style="color:var(--text)">${esc(nodes[s].structure)}</span></button>`).join("")}</div></section>
+      <section><h3>Payload</h3><p class="seam">${esc(l.token)}</p><p class="role">${esc(l.payload)}</p></section>
+      <section><h3>Trace</h3><p class="trace">${esc(l.trace)}</p></section>
+      <section><h3>Sources</h3>${citeList(l.cites)}</section>
+      <button class="clear" type="button" data-clear>Clear selection</button>`;
+  };
+
+  /* -------------------------- selection --------------------------- */
+  let picked = null;
+
+  const paint = () => {
+    let onNodes = [], onLanes = [];
+    if (picked && picked.type === "node") {
+      onLanes = lanes.filter((l) => l.seq.includes(picked.id)).map((l) => l.id);
+      onNodes = [picked.id].concat(onLanes.flatMap((lid) => laneById[lid].seq)).filter((v, k, a) => a.indexOf(v) === k);
+    } else if (picked && picked.type === "lane") {
+      onLanes = [picked.id];
+      onNodes = laneById[picked.id].seq;
+    }
+    for (const id in nodeEls) {
+      const g = nodeEls[id];
+      const on = picked && picked.type === "node" && picked.id === id;
+      const lit = !on && onNodes.includes(id);
+      g.classList.toggle("is-on", !!on);
+      g.classList.toggle("is-lit", !!lit);
+      g.classList.toggle("is-dim", !!picked && !onNodes.includes(id));
+      g.setAttribute("aria-pressed", on ? "true" : "false");
+      const pd = nodes[id]._pad;
+      pd.classList.toggle("is-on", !!on);
+      pd.classList.toggle("is-lit", !!lit);
+      pd.classList.toggle("is-dim", !!picked && !onNodes.includes(id));
+      const lb = labelEls[id];
+      lb.classList.toggle("is-on", !!(on || lit));
+      lb.classList.toggle("is-dim", !!picked && !onNodes.includes(id));
+    }
+    for (const lane of lanes) {
+      const g = laneEls[lane.id];
+      const on = picked && picked.type === "lane" && picked.id === lane.id;
+      g.classList.toggle("is-on", !!on);
+      g.classList.toggle("is-warm", !on && onLanes.includes(lane.id));
+      g.classList.toggle("is-dim", !!picked && !onLanes.includes(lane.id));
+      g.setAttribute("aria-pressed", on ? "true" : "false");
+      tokens.querySelector(`[data-token="${lane.id}"]`).classList.toggle("is-hot", !!on);
+    }
+  };
+
+  const pick = (type, id) => {
+    picked = type ? { type, id } : null;
+    if (!type) primer();
+    else if (type === "node") showNode(id);
+    else showLane(id);
+    paint();
+  };
+
+  const bind = (g, type, id) => {
+    g.addEventListener("click", () => pick(type, id));
+    g.addEventListener("focus", () => pick(type, id));
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(type, id); }
+    });
+  };
+  for (const id in nodeEls) {
+    bind(nodeEls[id], "node", id);
+    nodeEls[id].addEventListener("mouseenter", () => {
+      labelEls[id].classList.add("is-near");
+      nodes[id]._pad.classList.add("is-near");
+    });
+    nodeEls[id].addEventListener("mouseleave", () => {
+      labelEls[id].classList.remove("is-near");
+      nodes[id]._pad.classList.remove("is-near");
+    });
+  }
+  for (const id in laneEls) bind(laneEls[id], "lane", id);
+
+  exBody.addEventListener("click", (e) => {
+    const jn = e.target.closest("[data-jump-node]"), jl = e.target.closest("[data-jump-lane]");
+    if (jn) { pick("node", jn.dataset.jumpNode); nodeEls[jn.dataset.jumpNode].focus(); }
+    else if (jl) { pick("lane", jl.dataset.jumpLane); laneEls[jl.dataset.jumpLane].focus(); }
+    else if (e.target.closest("[data-clear]")) pick(null);
+  });
+
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") pick(null); });
+
+  /* Legend warms matching roads without adding a filter mode. */
+  for (const key of document.querySelectorAll(".key")) {
+    const tone = key.dataset.tone;
+    const warm = (on) => {
+      for (const l of lanes) if (l.tone === tone && !laneEls[l.id].classList.contains("is-on")) laneEls[l.id].classList.toggle("is-warm", on);
+    };
+    key.addEventListener("mouseenter", () => warm(true));
+    key.addEventListener("mouseleave", () => { warm(false); paint(); });
+    key.addEventListener("focus", () => warm(true));
+    key.addEventListener("blur", () => { warm(false); paint(); });
+  }
+
+  primer();
+})();
+</script>
+</body>
+</html>

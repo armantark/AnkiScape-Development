@@ -191,6 +191,9 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
         self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_436)
         self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_752)
+        self.assertNotIn("Steel spear (kp)", PERIOD_GE_GUIDE_PRICES)
+        self.assertNotIn("Steel spear (kp)", PERIOD_GE_BUY_LIMITS)
+        self.assertNotIn("Steel spear (kp)", GE_ITEM_CATALOG)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -270,6 +273,8 @@ class GrandExchangeDataTest(unittest.TestCase):
             for name, row in GE_ITEM_CATALOG.items()
             if row["buy_limit"] is None
         }
+        self.assertNotIn("Steel spear (kp)", GE_ITEM_CATALOG)
+        self.assertNotIn("Steel spear (kp)", blocked)
         self.assertEqual(
             blocked,
             {

@@ -1,7 +1,11 @@
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.logic_pure.logic_pure import apply_item_pack_open_pure
+from ankiscape.logic_pure.logic_pure import (
+    apply_impling_jar_open_pure,
+    apply_item_pack_open_pure,
+)
+from ankiscape.data.impling_jar_data import IMPLING_JAR_DATA
 from ankiscape.data.pack_data import ITEM_PACK_DATA
 from ankiscape.data.shop_data import SHOP_DATA
 
@@ -50,6 +54,76 @@ class ItemPackTests(unittest.TestCase):
                 self.assertFalse(result["allowed"])
                 self.assertEqual(updated, inventory)
                 self.assertIsNot(updated, inventory)
+
+    def test_dragon_impling_jar_preserves_sourced_reward_probabilities(self):
+        rewards = IMPLING_JAR_DATA["Dragon impling jar"]
+        by_item = {reward.item: reward for reward in rewards}
+        self.assertEqual(sum(reward.weight for reward in rewards), 6_700_000)
+        self.assertEqual(
+            (by_item["Dragon dart tip"].minimum, by_item["Dragon dart tip"].maximum),
+            (105, 350),
+        )
+        self.assertEqual(
+            (by_item["Dragon arrowtips"].minimum, by_item["Dragon arrowtips"].maximum),
+            (100, 500),
+        )
+        self.assertEqual(by_item["Dragon dart tip"].weight, 803_531)
+        self.assertEqual(by_item["Dragon arrowtips"].weight, 803_531)
+        self.assertEqual(by_item["Dragon bolt tips"].weight, 803_531)
+        self.assertEqual(by_item["Snapdragon seed"].weight, 25_000)
+        self.assertEqual(by_item["Summer pie"].weight, 25_000)
+        self.assertEqual(by_item["Death tiara"].weight, 12_500)
+        self.assertEqual(by_item[""].weight, 2_007_447)
+        self.assertNotIn("Mystic robe bottom (blue)", by_item)
+        self.assertNotIn("Dragon arrow", by_item)
+        self.assertNotIn("Dragon dart", by_item)
+
+    def test_dragon_impling_jar_loots_component_quantity_boundaries(self):
+        original = {"Dragon impling jar": 2, "Dragon dart tip": 4}
+        rolls = iter((2_700_000 / 6_700_000, 0.999999999))
+        updated, result = apply_impling_jar_open_pure(
+            original,
+            "Dragon impling jar",
+            rng=lambda: next(rolls),
+        )
+        self.assertEqual(original, {"Dragon impling jar": 2, "Dragon dart tip": 4})
+        self.assertEqual(updated, {"Dragon impling jar": 1, "Dragon dart tip": 354})
+        self.assertEqual(result["reward_item"], "Dragon dart tip")
+        self.assertEqual(result["reward_quantity"], 350)
+
+        rolls = iter((3_500_000 / 6_700_000, 0.0))
+        updated, result = apply_impling_jar_open_pure(
+            {"Dragon impling jar": 1},
+            "Dragon impling jar",
+            rng=lambda: next(rolls),
+        )
+        self.assertEqual(updated, {"Dragon arrowtips": 100})
+        self.assertEqual(result["reward_item"], "Dragon arrowtips")
+
+    def test_dragon_impling_jar_can_resolve_to_an_unregistered_reward(self):
+        updated, result = apply_impling_jar_open_pure(
+            {"Dragon impling jar": 1},
+            "Dragon impling jar",
+            rng=lambda: 0.999999999,
+        )
+        self.assertEqual(updated, {})
+        self.assertEqual(result["reward_item"], "")
+        self.assertEqual(result["reward_quantity"], 0)
+
+    def test_impling_jar_bad_rows_are_isolated_from_valid_rewards(self):
+        rewards = IMPLING_JAR_DATA["Dragon impling jar"]
+        mutated = rewards[0].__class__("Broken reward", 5, 1, 99_999)
+        fallback = rewards[0].__class__("Dragon arrowtips", 100, 500, 1)
+        IMPLING_JAR_DATA["Dragon impling jar"] = (mutated, fallback)
+        self.addCleanup(IMPLING_JAR_DATA.__setitem__, "Dragon impling jar", rewards)
+
+        updated, result = apply_impling_jar_open_pure(
+            {"Dragon impling jar": 1},
+            "Dragon impling jar",
+            rng=lambda: 0.0,
+        )
+        self.assertTrue(result["allowed"])
+        self.assertEqual(updated, {"Dragon arrowtips": 100})
 
 
 if __name__ == "__main__":
