@@ -153,4 +153,3 @@ sources; the chain ran through the real Hunter, Farming, and Herblore reducers;
 no family row is inert in the reachability graph; no UI or panel rule was
 introduced; and the only unrecovered family value still has both its
 `PLACEHOLDER(farming.vine_herb_base_lives)` marker and register row.
-
