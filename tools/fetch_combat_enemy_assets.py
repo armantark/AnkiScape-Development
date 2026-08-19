@@ -98,10 +98,11 @@ TITLE_OVERRIDES = {
     "elf_warrior": ("Elf warrior (Iorwerth ranger) (2010).png",),
     "elf_warrior_level_108": ("Elf warrior (Iorwerth warrior) (2010).png",),
     "chaos_elemental": ("Chaos Elemental.png",),
+    "skeletal_wyvern": ("Skeletal Wyvern old.png", "Skeletal Wyvern.png"),
 }
 
 POST_MIGRATION_HISTORICAL_TARGETS = frozenset(
-    {"elf_warrior", "elf_warrior_level_108"}
+    {"elf_warrior", "elf_warrior_level_108", "skeletal_wyvern"}
 )
 
 

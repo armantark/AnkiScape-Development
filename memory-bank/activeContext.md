@@ -1,5 +1,24 @@
 # Active Context
 
+## Skeletal Wyvern re-land verified — 2026-08-19
+
+The three-commit 2026-08-11 Skeletal Wyvern family is merged with `main`
+`323bf39090023319eb4e5a80acf6e162d331fa4a` on branch
+`goal/breadth-reland-2026-08-19`. The merge keeps Pass 10's Combat popup and
+review-strip behavior, changes no UI panel or target-row ownership, and leaves
+the Slayer gate in the shared pure target metadata path. A seeded real-kernel
+run fought a full 2,000-LP Skeletal Wyvern in 33 reviews, used six Sharks,
+recorded one kill and one Wyvern bones drop, then ground the bones, collected
+slime, and completed Ectofuntus worship for exactly 200.0 Prayer XP, five
+Ecto-tokens, one returned Empty pot, and one returned Bucket. All four
+reconstructed breath values still have matching `PLACEHOLDER(...)` markers and
+register rows. Plain discovery passes 4,152 tests in 235.867s with 499 skips;
+real offscreen Qt passes 4,152 tests in 549.045s with three skips. Relative to
+that exact `main` commit, reachability moves from 1,571 actions / 2,266
+reachable items / 84 orphan inputs / 87 blocked actions to 1,571 / 2,278 / 72 /
+71. The durable source and re-land audit remains
+`memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
+
 ## Pass 10 CLOSED — 2026-08-15
 
 All nine Pass 10 owner clauses are closed in five commits on `main`
@@ -62,6 +81,124 @@ registered hidden-period-value placeholders. Durable audit:
 **2026-08-12, four Jadinko potion secondaries acquired.** Hunter now exposes the ordinary-player routes for Shadow jadinko, Diseased jadinko, Cannibal jadinko, and Guthix jadinko. Noose wands and Marasamaw plants remain reusable; each successful route gives its fixed primary output: Shadow vine, Corrupt vine, Plant teeth, or Guthix vine. Persistent Habitat configurations are source-backed route context rather than per-catch consumables, matching the established Common-jadinko abstraction. The hidden catch curves use registered placeholder `hunter.herblore_habitat_success_curves`. Reachability improves from 1,556 actions / 2,493 reachable items / 103 orphan inputs / 102 blocked actions to 1,560 / 2,497 / 99 / 102. Full plain discovery passes 4,061 tests with 496 expected skips. The complete real offscreen Qt corpus passes 4,061 tests with three expected skips when split into independent processes; the monolithic process exceeded the ten-minute command cap. A deliberate Shadow-vine output mutation failed the runtime regression before restoration. Period assets, OpenRS2 identities, pinned oldids, and Darkan provenance are recorded in the acquisition audit.
 
 **2026-08-12, quest-stage reachability numbers corrected downward.** The item audit no longer seeds stage products when runtime `required_actions` have no prior `auto_actions` emitter, keeps mutually exclusive quest variants separate, and applies the same gate to quest-combat guaranteed drops. The truthful main-catalog result is 1,556 actions, 2,493 reachable items, 103 orphan inputs, and 102 blocked actions: 80 items lose fictional reachability. The drop from 2,573 is a measurement correction, not a gameplay regression. `d2faf1d2` Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 emit their own actions; its Nial Swiftfling Herb pouch route is inert because normal maximum combat level 126 cannot meet the encounter's default level-156 minimum. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `memory-bank/audits/quest-stage-reachability-truth-2026-08-12.md`.
+
+## Correction — 2026-08-11
+
+Commit `f6353843` was made while the closure gates still ran. The closing agent treated a missing gate result as a pass.
+
+The commit left these three contract tests failing:
+
+- `test_generated_equipment_contract_shape`;
+- `test_only_audited_unresolved_identities_remain_buy_limit_blocked`; and
+- `test_generated_period_rows_are_registered_and_cutoff_safe`.
+
+This commit closes all three tests. The product behavior does not change.
+
+The three tests had separate root causes:
+
+- Six shield rows increased the equipment count from `695` to `701`.
+- Five exchangeable shields did not have generated Grand Exchange rows.
+- The five recovered Grand Exchange rows made the `1,431` and `1,747` count checks stale.
+
+The generated counts are now `1,436` guide prices and `1,752` buy limits. The five rows use cutoff-safe source revisions.
+
+Adding equipment rows affects three count-based contract tests. The next equipment slice must expect all three:
+
+- `test_generated_equipment_contract_shape`;
+- `test_only_audited_unresolved_identities_remain_buy_limit_blocked`; and
+- `test_generated_period_rows_are_registered_and_cutoff_safe`.
+
+The final plain lane passed. It ran `4,061` tests in `214.051s`: `3,567` passed and `494` skipped.
+
+The offscreen Qt lane used four disjoint batches. The batches ran `4,061` tests in `490.345s` total.
+
+- `a-f` passed: `1,392` tests in `143.649s`; `1,390` passed and `2` skipped.
+- `g-l` had `698` passes, one failure, and one error in `127.311s`.
+- `m-r` passed: `1,024` tests in `175.057s`; `1,023` passed and one skipped.
+- `s-z` passed: `945` tests in `44.328s`.
+
+The aggregate was `4,056` passes, one failure, one error, and three skips. The failure and error are pre-existing repository debt.
+
+These two results reproduce on canonical `main` at `0071218b`:
+
+- `test_hud_singleton_and_cleanup.TestHUDSingletonAndCleanup.test_ensure_review_hud_cleans_duplicates_and_singleton`
+  - `failure: AssertionError: 0 != 2 : Each ensure should verify the strip's stable child order`
+- `test_hud_singleton_and_cleanup.TestHUDSingletonAndCleanup.test_surface_refreshes_do_not_rescan_the_qt_tree`
+  - `error: TypeError: QFrame(parent: QWidget|None = None, flags: Qt.WindowType = Qt.WindowFlags()): argument 1 has unexpected type 'FakeStrip'`
+
+The canonical reproduction command is:
+
+```sh
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork" && QT_QPA_PLATFORM=offscreen PYTHONPATH="$PWD" .venv-qt/bin/python -m unittest tests.test_hud_singleton_and_cleanup -v
+```
+
+The command ends with `Ran 2 tests` and `FAILED (failures=1, errors=1)`. These results are Qt-only and do not appear in the plain lane.
+
+The linked worktree cannot contain `.venv-qt`. The environment is git-ignored and exists only in the canonical checkout.
+
+Use this exact command for one Qt test file:
+
+```sh
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/breadth-2026-08-11" && QT_QPA_PLATFORM=offscreen PYTHONPATH="$PWD" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python" tests/<file>.py
+```
+
+`PYTHONPATH="$PWD"` makes Python load the worktree modules. Without it, Python loads canonical modules and can report false green results.
+
+The check confirmed that `ankiscape.data.combat_data` loaded the worktree copy. That copy contains `skeletal_wyvern`.
+
+The unpartitioned offscreen Qt lane is killed with exit `137` for out of memory. Run these four exact batches:
+
+```sh
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/breadth-2026-08-11" && python3 tools/run_logged.py --label qt-a-f -- env QT_QPA_PLATFORM=offscreen PYTHONPATH="$PWD" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python" -m unittest discover -s tests -p 'test_[a-f]*.py'
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/breadth-2026-08-11" && python3 tools/run_logged.py --label qt-g-l -- env QT_QPA_PLATFORM=offscreen PYTHONPATH="$PWD" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python" -m unittest discover -s tests -p 'test_[g-l]*.py'
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/breadth-2026-08-11" && python3 tools/run_logged.py --label qt-m-r -- env QT_QPA_PLATFORM=offscreen PYTHONPATH="$PWD" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python" -m unittest discover -s tests -p 'test_[m-r]*.py'
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/breadth-2026-08-11" && python3 tools/run_logged.py --label qt-s-z -- env QT_QPA_PLATFORM=offscreen PYTHONPATH="$PWD" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt/bin/python" -m unittest discover -s tests -p 'test_[s-z]*.py'
+```
+
+The other closure gates passed:
+
+- `audit_docs.py`: `561` Markdown files and `431` HTML files, with `0` issues.
+- `audit_test_quality.py`: `4,026` tests in `184` files, with `0` hard issues and `20` clone groups.
+- Changed-module compilation: `15` Python modules, with `0` errors.
+- Tracked JSON parse: `26` files, with `0` errors.
+- Placeholder register: `3` of `3` tests passed.
+- Asset normalization: `2` of `2` tests passed.
+- Worktree guard: `0` unsafe placements.
+
+The reachability audit reports the success signal for this slice. It reports `1,556` actions, `2,585` reachable items, `90` orphan inputs, and `85` blocked actions.
+
+The canonical baseline has `1,556` actions, `2,573` reachable items, `102` orphan inputs, and `101` blocked actions. The audit always exits `1` while an orphan input remains.
+
+Source IDs `238` and `239` are the Ranging Guild diary tasks. They are hand edits in the generated diary data.
+
+`tools/generate_achievement_diary_data.py` does not contain these rows on this branch or on canonical `main`. A regeneration will silently delete them.
+
+Queue item: add source IDs `238` and `239` to the generator. This item is pre-existing data-depth debt.
+
+The earlier Wyvern bones entry remains below as written history.
+
+## Current Focus
+
+**2026-08-11, Wyvern bones acquisition closure.** A level-72 Skeletal Wyvern
+Combat row now gives one Wyvern bones item per kill. The seed activates 12
+existing items and 16 existing actions. Reachability changes from `1556 actions;
+2573 reachable items; 102 orphan inputs; 101 blocked actions` to `1556 actions;
+2585 reachable items; 90 orphan inputs; 85 blocked actions`. The four hidden
+ice-breath values stay in the placeholder register. The six non-gilded chapel
+altars remain a separate depth candidate. Durable audit:
+`memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
+
+The owner made two direct rulings on 2026-08-10. This goal stays on the isolated
+`goal/breadth-2026-08-11` branch until the owner is ready to merge. This ruling
+replaces the goal clause that required one commit on canonical `main`. Luna does
+source harvesting at maximum effort. Sol then does a quick sanity check instead
+of a second full harvest. Sol keeps implementation work.
+
+The plain and offscreen Qt lanes each found two catalog-contract failures. The
+equipment count is `701`, but the test expects `695`. The Grand Exchange audit
+also treats five new shield identities as unexpected blocked items. All other
+closure gates pass, except the reachability audit's expected nonzero exit while
+known blocked actions remain. No Wyvern slice defect remains open.
 
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
