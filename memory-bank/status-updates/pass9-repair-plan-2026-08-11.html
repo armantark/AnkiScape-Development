@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Pass 9 Repair Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(79,140,255,.18), transparent 35rem),
+        radial-gradient(circle at 100% 30%, rgba(74,222,128,.08), transparent 28rem),
+        var(--bg);
+      font-family: Outfit, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 52px 0 72px; }
+    .badge, .priority, .file, .eyebrow {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      color: var(--accent);
+      border: 1px solid rgba(79,140,255,.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      font-size: .7rem;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.03; letter-spacing: -.04em; }
+    .lead { max-width: 780px; margin: 0; color: var(--text-dim); font-size: 1.03rem; }
+    .scope-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin: 34px 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--border);
+    }
+    .scope-strip div { padding: 16px; background: rgba(22,26,33,.96); }
+    .scope-strip strong { display: block; color: var(--green); font-size: 1.25rem; }
+    .scope-strip span { color: var(--text-dim); font-size: .78rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .card {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.98));
+      box-shadow: 0 16px 45px rgba(0,0,0,.2);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: rgba(79,140,255,.5); }
+    .card h2 { margin: 6px 0 10px; font-size: 1.15rem; }
+    .card p { margin: 0 0 16px; color: var(--text-dim); font-size: .9rem; }
+    .priority { font-size: .66rem; color: var(--amber); }
+    .priority.green { color: var(--green); }
+    .priority.purple { color: var(--purple); }
+    .mock-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mock { padding: 10px; min-height: 118px; border: 1px solid var(--border); border-radius: 9px; background: #10131a; }
+    .eyebrow { margin-bottom: 8px; color: var(--text-dim); font-size: .58rem; }
+    .row { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; font-size: .72rem; }
+    .row + .row { margin-top: 4px; }
+    .row.current-before { font-weight: 700; background: rgba(76,175,80,.16); }
+    .row.current-after { font-weight: 700; background: rgba(76,175,80,.46); }
+    .check { color: var(--green); font-size: .95rem; }
+    .level-dialog { display: grid; place-items: center; min-height: 88px; text-align: center; }
+    .level-dialog .value { margin-top: 8px; color: var(--green); font: 700 .85rem "JetBrains Mono", monospace; }
+    .guide-list { display: grid; gap: 5px; }
+    .guide-row { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: center; font-size: .68rem; }
+    .guide-row span:first-child { padding: 3px; text-align: center; border: 1px solid var(--border); border-radius: 4px; }
+    .removed { color: var(--red); text-decoration: line-through; opacity: .65; }
+    .flow { margin-top: 18px; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .flow h2 { margin: 0 0 18px; }
+    .step { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
+    .step:first-of-type { border-top: 0; }
+    .num { display: grid; place-items: center; width: 30px; height: 30px; color: white; border-radius: 8px; background: var(--accent); font-weight: 800; }
+    .step strong { display: block; font-size: .9rem; }
+    .step small { color: var(--text-dim); }
+    .file { padding: 4px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-dim); font-size: .56rem; }
+    .guard { margin-top: 18px; padding: 16px 18px; border-left: 3px solid var(--amber); border-radius: 0 10px 10px 0; background: rgba(251,191,36,.08); color: #f7deb1; font-size: .86rem; }
+    @media (max-width: 900px) {
+      .grid, .mock-pair { grid-template-columns: 1fr; }
+      .scope-strip { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 34px 1fr; }
+      .file { grid-column: 2; justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="badge">Pre-implementation plan · Pass 9</span>
+      <h1>Make state visible.<br>Make guides useful.</h1>
+      <p class="lead">Pass 9 repairs three owner-visible problems. It keeps game mechanics and unlock sources unchanged.</p>
+    </header>
+
+    <section class="scope-strip" aria-label="Plan summary">
+      <div><strong>2</strong><span>atomic product batches</span></div>
+      <div><strong>0</strong><span>new unlock databases</span></div>
+      <div><strong>1</strong><span>collision gate before each batch</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <span class="priority">High · visible state</span>
+        <h2>Saved target indicator</h2>
+        <p>Use text and color together. Blue remains the temporary Qt selection state.</p>
+        <div class="mock-pair">
+          <div class="mock">
+            <div class="eyebrow">Before</div>
+            <div class="row">Chicken (Lvl 1)</div>
+            <div class="row current-before">Man/Woman (Lvl 2)</div>
+            <div class="row">Giant rat (Lvl 3)</div>
+          </div>
+          <div class="mock">
+            <div class="eyebrow">After</div>
+            <div class="row">Chicken (Lvl 1)</div>
+            <div class="row current-after"><span class="check">✓</span> Man/Woman (Lvl 2)</div>
+            <div class="row">Giant rat (Lvl 3)</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority green">High · exact feedback</span>
+        <h2>Level-up dialog</h2>
+        <p>Each dialog will identify the completed transition. Multi-level gains keep one exact transition per dialog.</p>
+        <div class="mock-pair">
+          <div class="mock level-dialog"><div><div class="eyebrow">Before</div>Advanced an Attack level.</div></div>
+          <div class="mock level-dialog"><div><div class="eyebrow">After</div>Attack level increased.<div class="value">Level 8 → 9</div></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority purple">Medium · guide signal</span>
+        <h2>Remove cape spam</h2>
+        <p>The guide projection hides Milestone capes. Crafting and wear rules remain live.</p>
+        <div class="guide-list">
+          <div class="guide-row"><span>70</span><span>Concentrated coal</span></div>
+          <div class="guide-row removed"><span>80</span><span>Milestone cape (80)</span></div>
+          <div class="guide-row"><span>85</span><span>Rune pickaxe</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority green">Medium · source-backed depth</span>
+        <h2>Slayer monster guide</h2>
+        <p>Add one row for every current Slayer family. Use the existing required Slayer level.</p>
+        <div class="guide-list">
+          <div class="guide-row"><span>1</span><span>Banshees</span></div>
+          <div class="guide-row"><span>35</span><span>Wall beasts</span></div>
+          <div class="guide-row"><span>85</span><span>Abyssal demons</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="flow">
+      <h2>Execution and proof</h2>
+      <div class="step"><span class="num">1</span><div><strong>Reproduce the weak cues.</strong><small>Add focused tests that fail on the current behavior.</small></div><span class="file">tests</span></div>
+      <div class="step"><span class="num">2</span><div><strong>Repair the user interface.</strong><small>Change one saved-state seam and the level-up call contract.</small></div><span class="file">ui + core</span></div>
+      <div class="step"><span class="num">3</span><div><strong>Repair guide projections.</strong><small>Use the current equipment and Slayer registries.</small></div><span class="file">guide logic</span></div>
+      <div class="step"><span class="num">4</span><div><strong>Prove the result.</strong><small>Run focused, full, documentation, asset, and worktree checks.</small></div><span class="file">verification</span></div>
+      <div class="guard"><strong>Collision rule:</strong> Stop before an edit or commit if another writer changes an overlapping file.</div>
+    </section>
+  </main>
+</body>
+</html>

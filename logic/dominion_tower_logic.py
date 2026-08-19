@@ -1892,6 +1892,7 @@ def apply_dominion_tower_review_pure(
         player_damage_multiplier=damage_multiplier,
     )
     burst_data["combat_auto_flee"] = auto_flee
+    combat_result = {**combat_result, "npc_id": enemy["npc_id"]}
     effects = _handicap_effects(state["handicaps"])
     blocked_loadout_keys = set()
     if "no_food" in effects:

@@ -233,6 +233,46 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         self.assertNotIn("Arrow shafts", addon.player_data["inventory"])
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
+    def test_farm_combat_xp_uses_one_review_combat_level_boundary(self):
+        addon = _load_addon_as_package("ankiscape_farming_combat_popup_boundary")
+        self._configure(addon)
+        shared = sys.modules[f"{addon.__name__}.runtime.runtime_actions_shared"]
+        addon._advance_world_events_after_review = lambda: None
+        addon.player_data = self._queued_plant_state(addon)
+        addon.player_data.update(
+            {
+                "attack_level": 1,
+                "attack_exp": 0.0,
+                "strength_level": 1,
+                "defense_level": 1,
+                "constitution_level": 10,
+                "prayer_level": 1,
+                "ranged_level": 1,
+                "magic_level": 1,
+                "summoning_level": 1,
+            }
+        )
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        checks = []
+        addon._core_combat_level_up_check = lambda old, data: checks.append(
+            (old, addon.player_combat_level_pure(data))
+        )
+
+        def farm_handler(ctx):
+            ctx.player_data["attack_exp"] = 200.0
+            ctx.level_up_check = lambda _skill, data: data.__setitem__("attack_level", 10)
+            shared._refresh_combat_levels(ctx, {"attack_exp": 200.0})
+            return True
+
+        addon.runtime_actions.handle_farming_review_answer = farm_handler
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(len(checks), 1)
+        self.assertLess(checks[0][0], checks[0][1])
+
     def test_queued_farming_step_checks_achievements_once_with_one_review_snapshot(self):
         addon = _load_addon_as_package("ankiscape_farming_achievement_dispatch")
         self._configure(addon)

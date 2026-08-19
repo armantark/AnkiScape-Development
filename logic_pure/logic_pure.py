@@ -255,6 +255,7 @@ from .logic_pure_gathering import (  # noqa: F401  (re-export)
 from .logic_pure_consumables import (  # noqa: F401  (re-export)
     _consumable_heal,
     apply_consumable_pure,
+    apply_impling_jar_open_pure,
     apply_item_pack_open_pure,
 )
 

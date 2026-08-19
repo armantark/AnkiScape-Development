@@ -1694,8 +1694,10 @@ def _handle_fish_flingers_answer(ctx: RuntimeActionContext) -> bool:
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
-    base_xp = float(result.get("xp", 0.0) or 0.0)
-    awarded_xp = base_xp * fishing_outfit_multiplier_pure(ctx.player_data)
+    # Fish Flingers' event payout is already settled by the Darkan formula.
+    # The Fishing outfit remains relevant to other Fishing activities, but
+    # Darkan's FishFlingers.settle path applies no outfit multiplier here.
+    awarded_xp = float(result.get("xp", 0.0) or 0.0)
     gained = 0.0
     if awarded_xp > 0:
         gained = ctx.award_skill_exp("fishing_exp", awarded_xp)
@@ -1856,25 +1858,9 @@ def _handle_court_cases_answer(ctx: RuntimeActionContext) -> bool:
 
 
 def _handle_circus_answer(ctx: RuntimeActionContext) -> bool:
-    view = circus_view_pure(ctx.player_data)
-    selected_id = str(view.get("selected_performance", "agility"))
-    selected_row = next(
-        (
-            row
-            for row in view.get("performances", ())
-            if str(row.get("id", "")) == selected_id
-        ),
-        {},
-    )
-    routine = tuple(selected_row.get("routine", ()))
-    attempts = (
-        len(routine)
-        if view.get("automation_mode") == "advanced" and routine
-        else int(selected_row.get("max_attempts", 10) or 10)
-    )
     updated, result = apply_circus_review_pure(
         ctx.player_data,
-        tuple(ctx.random_random() for _ in range(attempts)),
+        (ctx.random_random(),),
     )
     if not result.get("allowed"):
         ctx.show_error_message(
@@ -1882,6 +1868,9 @@ def _handle_circus_answer(ctx: RuntimeActionContext) -> bool:
             str(result.get("reason", "Choose an available Circus performance.")),
         )
         return False
+    for event_text in (result.get("trick_event"), result.get("summary_event")):
+        if event_text:
+            updated = record_review_event_pure(updated, "activity", str(event_text))
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     skill_id = str(result.get("skill_id", ""))

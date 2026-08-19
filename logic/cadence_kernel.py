@@ -248,10 +248,9 @@ def advance_cadence_pure(
 
     validate_cadence_profile_pure(profile)
     state = sanitize_cadence_profile_state_pure(raw_state)
+    state["credit"] = min(state["credit"], profile.threshold_denominator - 1)
     if state["cadence_version"] != profile.cadence_version:
         raise ValueError("persisted cadence_version does not match the profile")
-    if state["credit"] >= profile.threshold_denominator:
-        raise ValueError("persisted credit must be smaller than the profile threshold")
 
     state["assigned_reviews"] += 1
     emitted = profile.mode in (PASSTHROUGH, EMBEDDED_PROBABILITY, COMBAT_TICKS)

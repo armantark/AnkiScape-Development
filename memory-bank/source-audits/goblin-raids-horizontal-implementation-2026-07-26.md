@@ -167,9 +167,11 @@ The exact despawn duration remains `source_blocked`:
   (`2017-11-13T20:06:25Z`), five years after the cutoff, so it is not promoted
   into period evidence.
 
-`goblin_raids.raid_active_reviews` therefore stays registered at 15 reviews as
-the smallest completion window for the settled ten-raider-plus-Hollowtoof
-sequence. The re-walk did expose a live lifecycle defect: killing Hollowtoof
+The period search still establishes no solo raid duration. However,
+`goblin_raids.raid_active_reviews` is no longer registered: fifteen reviews is
+AnkiScape's smallest review-loop window for the settled ten-raider-plus-
+Hollowtoof sequence, not a value the period game stored. The re-walk did expose
+a live lifecycle defect: killing Hollowtoof
 moved the session to Yodri's spoils but left the raid active, so the same cleared
 raid could be joined and rewarded repeatedly. Hollowtoof's death now ends that
 active raid; the pending Yodri claim persists independently and does not erase a
@@ -231,11 +233,14 @@ at most ten. It lists these exact potential sets:
 - forest: Logs, Oak logs;
 - mine: Clay, Copper ore, Tin ore.
 
-The guide does not state weights, independent rolls, or any other selection
-distribution within those sets. The exact contents therefore replace the old
-table placeholder, while deterministic round-robin stays explicitly registered
-as `goblin_raids.yodri_reward_selection`; this makes every period item reachable
-without inventing hidden weights.
+The guide does not state weights, independent rolls, quantities per shout, or
+any other selection distribution within those sets. The exact candidate sets
+therefore close the membership half of `goblin_raids.raided_material_tables`,
+but not the Raider per-shout selection or rate implied by that broad original
+identifier. AnkiScape deterministically cycles the candidate set for live Raider
+spoils; that is a disclosed reachability model, not period evidence. Yodri's
+separate within-table selector stays registered as
+`goblin_raids.yodri_reward_selection`.
 
 The same dated guide states that if the player takes too long, the goblins
 teleport away as the Black Guard arrives and the player can still claim a reward

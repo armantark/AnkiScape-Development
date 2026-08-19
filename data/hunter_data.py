@@ -45,10 +45,14 @@ HUNTER_NET_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_2
 HUNTER_MAGIC_BOX_SOURCE = "https://www.2011.rs/kb/hunter_magical_imp_boxes_level_71"
 HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
 HUNTER_WIMPY_BIRD_SOURCE = "https://runescape.wiki/w/Wimpy_bird?oldid=5936660"
-HERBLORE_HABITAT_COMMON_JADINKO_SOURCE = (
-    "https://runescape.wiki/w/Common_jadinko?oldid=6129379"
-)
-HERBLORE_HABITAT_JADINKOS_SOURCE = "https://runescape.wiki/w/Jadinkos?oldid=5917881"
+HERBLORE_HABITAT_SOURCE = "https://runescape.wiki/w/Herblore_Habitat?oldid=6513740"
+HERBLORE_HABITAT_JADINKO_SOURCES = {
+    "catch_common_jadinko": "https://runescape.wiki/w/Common_jadinko?oldid=6129379",
+    "track_diseased_jadinko": "https://runescape.wiki/w/Diseased_jadinko?oldid=6062055",
+    "track_shadow_jadinko": "https://runescape.wiki/w/Shadow_jadinko?oldid=6045371",
+    "catch_cannibal_jadinko": "https://runescape.wiki/w/Cannibal_jadinko?oldid=5976665",
+    "catch_guthix_jadinko": "https://runescape.wiki/w/Guthix_jadinko?oldid=6167443",
+}
 DARKAN_HERBLORE_HABITAT_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
 )
@@ -63,8 +67,9 @@ COMMON_JADINKO_VINE_HERB_SEEDS: Mapping[str, Tuple[int, str]] = {
     "Shengo seed": (19912, "https://runescape.wiki/w/Shengo_seed?oldid=5035618"),
     "Samaden seed": (19917, "https://runescape.wiki/w/Samaden_seed?oldid=5913077"),
 }
+
 # PLACEHOLDER(hunter.herblore_habitat_success_curves): period Marasamaw and
-# tracker catch routines or qualified measured tables would replace the shared fallback.
+# tracker catch routines or qualified measured tables would replace this shared fallback.
 HERBLORE_HABITAT_RATE1 = 128
 HERBLORE_HABITAT_RATE99 = 256
 # PLACEHOLDER(hunter.common_jadinko_seed_roll): a period Common-jadinko drop
@@ -104,6 +109,8 @@ HUNTER_REUSABLE_TOOLS_BY_GROUP = {
 }
 HUNTER_REUSABLE_TOOLS_BY_TARGET = {
     "catch_common_jadinko": (("Marasamaw plant", 1),),
+    "catch_cannibal_jadinko": (("Marasamaw plant", 1),),
+    "catch_guthix_jadinko": (("Marasamaw plant", 1),),
     "catch_imp_magic_box": (),
 }
 HUNTER_SUPPLY_BUNDLE = (
@@ -130,11 +137,11 @@ class HunterTarget:
     base_exp: float
     outputs: Tuple[Tuple[str, int], ...]
     primary_output: str
-    bonus_outputs: Tuple[str, ...] = ()
-    bonus_output_chance: float = 0.0
     requirements: Tuple[Tuple[str, int], ...] = ()
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
     xp_rewards: Tuple[Tuple[str, float], ...] = ()
+    secondary_drop_chance: float = 0.0
+    secondary_outputs: Tuple[Tuple[str, int, int], ...] = ()
     tools: Tuple[Tuple[str, int], ...] = ()
     source: str = ""
     mechanics_source: str = ""
@@ -179,8 +186,8 @@ def _target(
     sort_order: int = 0,
     skill_requirements: Tuple[Tuple[str, int], ...] = (),
     xp_rewards: Tuple[Tuple[str, float], ...] = (),
-    bonus_outputs: Tuple[str, ...] = (),
-    bonus_output_chance: float = 0.0,
+    secondary_drop_chance: float = 0.0,
+    secondary_outputs: Tuple[Tuple[str, int, int], ...] = (),
 ) -> HunterTarget:
     tools = HUNTER_REUSABLE_TOOLS_BY_TARGET.get(id, HUNTER_REUSABLE_TOOLS_BY_GROUP.get(group, ()))
     return HunterTarget(
@@ -191,11 +198,11 @@ def _target(
         base_exp=base_exp,
         outputs=outputs,
         primary_output=primary_output,
-        bonus_outputs=bonus_outputs,
-        bonus_output_chance=bonus_output_chance,
         requirements=requirements,
         skill_requirements=skill_requirements,
         xp_rewards=xp_rewards,
+        secondary_drop_chance=secondary_drop_chance,
+        secondary_outputs=secondary_outputs,
         tools=tools,
         source=source,
         mechanics_source=mechanics_source,
@@ -313,6 +320,30 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=60,
     ),
     _target(
+        "catch_polar_kebbit",
+        "Catch polar kebbit",
+        "tracking",
+        1,
+        30.0,
+        _out(_BONES, ("Raw beast meat", 1), ("Polar kebbit fur", 1)),
+        "Polar kebbit fur",
+        source=HUNTER_TRACKING_SOURCE,
+        mechanics_source=(
+            "Hunter oldid 6484443: four or five trail searches collapse into "
+            "one review transaction"
+        ),
+        source_item_id=10117,
+        # PLACEHOLDER(hunter.polar_kebbit_success_curve): a period tracking
+        # catch routine or measured table would replace this fallback.
+        rate1=128,
+        rate99=256,
+        notes=(
+            "One review represents the complete four- or five-search trail and "
+            "final attack; the hidden catch curve uses the registered Hunter fallback."
+        ),
+        sort_order=5,
+    ),
+    _target(
         "track_razor_backed_kebbit",
         "Track razor-backed kebbit",
         "tracking",
@@ -335,6 +366,42 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "final attack; the hidden catch curve uses the registered Hunter fallback."
         ),
         sort_order=10,
+    ),
+    _target(
+        "track_shadow_jadinko",
+        "Track shadow jadinko",
+        "tracking",
+        71,
+        475.0,
+        _out(("Shadow vine", 1)),
+        "Shadow vine",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_shadow_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_shadow.json"),
+        source_enum="SHADOW",
+        source_item_id=19977,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand tracking, Shadow vine, and the red-blossom and abandoned-house Habitat setup. One review represents the complete trail and persistent setup."),
+        sort_order=20,
+    ),
+    _target(
+        "track_diseased_jadinko",
+        "Track diseased jadinko",
+        "tracking",
+        78,
+        580.5,
+        _out(("Corrupt vine", 1)),
+        "Corrupt vine",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_diseased_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_diseased.json"),
+        source_enum="DISEASED",
+        source_item_id=19979,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. One review represents the complete trail and persistent setup."),
+        sort_order=30,
     ),
     _target(
         "catch_ruby_harvest",
@@ -614,8 +681,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Withered vine", 1)),
         "Withered vine",
         source=(
-            f"{HERBLORE_HABITAT_COMMON_JADINKO_SOURCE}; "
-            f"{HERBLORE_HABITAT_JADINKOS_SOURCE}; "
+            f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_common_jadinko']}; "
+            f"{HERBLORE_HABITAT_SOURCE}; "
             + "; ".join(source for _item_id, source in COMMON_JADINKO_VINE_HERB_SEEDS.values())
         ),
         mechanics_source=COMMON_JADINKO_DROP_SOURCE,
@@ -625,6 +692,12 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
+        secondary_drop_chance=(
+            COMMON_JADINKO_SEED_ROLL_CHANCE / COMMON_JADINKO_SEED_ROLL_OUT_OF
+        ),
+        secondary_outputs=tuple(
+            (item_name, 1, 1) for item_name in COMMON_JADINKO_VINE_HERB_SEEDS
+        ),
         notes=(
             "Common jadinko oldid 6129379 pins level 70, 350 XP, the Marasamaw "
             "route, Withered vine, and a seed chance; the five pinned seed pages "
@@ -632,10 +705,62 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "5917881 requires any vine blossom and assigns no god-Jadinko environment."
         ),
         sort_order=50,
-        bonus_outputs=tuple(COMMON_JADINKO_VINE_HERB_SEEDS),
-        bonus_output_chance=(
-            COMMON_JADINKO_SEED_ROLL_CHANCE / COMMON_JADINKO_SEED_ROLL_OUT_OF
+    ),
+    _target(
+        "catch_cannibal_jadinko",
+        "Catch cannibal jadinko",
+        "box_trapping",
+        75,
+        475.0,
+        _out(("Plant teeth", 1)),
+        "Plant teeth",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_cannibal_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(
+            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
+            "hunter_jadinko_cannibal.json; "
+            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/jadinko_sub/"
+            "hh_bush_seed.json"
         ),
+        source_enum="CANNIBAL_JADINKO",
+        source_npc_id=13155,
+        source_item_id=19975,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        secondary_drop_chance=12 / 256,
+        secondary_outputs=(
+            ("Lergberry seed", 1, 1),
+            ("Kalferberry seed", 1, 1),
+        ),
+        notes=(
+            "Cannibal jadinko oldid 5976665 pins level 75, 475 XP, "
+            "Marasamaw plant trapping, Plant teeth, a chance at vine-bush seeds, "
+            "and the green-blossom, Kalferberry, tall-grass, Juju-treated Habitat setup. "
+            "Darkan's parent table rolls 12/256, then hh_bush_seed drops one of "
+            "Lergberry seed or Kalferberry seed at quantity 1; Kalferberry's 3/128 "
+            "overall chance is derived from those table constants. Persistent setup "
+            "and optional bait are route context, not per-catch consumables."
+        ),
+        sort_order=50,
+    ),
+    _target(
+        "catch_guthix_jadinko",
+        "Catch Guthix jadinko",
+        "box_trapping",
+        81,
+        600.0,
+        _out(("Guthix vine", 1)),
+        "Guthix vine",
+        source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_guthix_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
+        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_guthix.json"),
+        source_enum="GUTHIX_JADINKO",
+        source_npc_id=13164,
+        source_item_id=19982,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        notes=("Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw plant trapping, Guthix vine, a Juju-treated flower patch, and weekly player-specific preferences. Persistent setup and optional bait are route context, not per-catch consumables."),
+        sort_order=60,
     ),
     _target(
         "catch_grenwall",
@@ -652,7 +777,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=60,
         rate99=180,
         notes="Source drop range is 18-21 spikes plus optional herbs; AnkiScape awards the guaranteed minimum.",
-        sort_order=60,
+        sort_order=50,
     ),
     _target(
         "catch_swamp_lizard",
@@ -886,7 +1011,14 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Stripy feather": 10087,
     "Wimpy feather": 11525,
     "Withered vine": 19971,
-    **{item_name: item_id for item_name, (item_id, _source) in COMMON_JADINKO_VINE_HERB_SEEDS.items()},
+    **{
+        item_name: item_id
+        for item_name, (item_id, _source) in COMMON_JADINKO_VINE_HERB_SEEDS.items()
+    },
+    "Plant teeth": 19975,
+    "Shadow vine": 19977,
+    "Corrupt vine": 19979,
+    "Guthix vine": 19982,
     **HUNTER_MATERIAL_ITEMS,
     **HUNTER_TOOL_ITEMS,
 }
@@ -904,8 +1036,11 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "skill_requirements": dict(target.skill_requirements),
         "tools": dict(target.tools),
         "outputs": dict(target.outputs),
-        "bonus_outputs": target.bonus_outputs,
-        "bonus_output_chance": target.bonus_output_chance,
+        "secondary_drop_chance": target.secondary_drop_chance,
+        "secondary_outputs": tuple(
+            {"item": item_name, "amount": amount, "weight": weight}
+            for item_name, amount, weight in target.secondary_outputs
+        ),
         "output_item": target.primary_output,
         "output_qty": dict(target.outputs).get(target.primary_output, 1),
         "primary_output": target.primary_output,
@@ -938,7 +1073,7 @@ def hunter_output_items() -> Tuple[str, ...]:
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
             seen.setdefault(item_name, None)
-        for item_name in target.bonus_outputs:
+        for item_name, _amount, _weight in target.secondary_outputs:
             seen.setdefault(item_name, None)
     return tuple(seen.keys())
 
@@ -948,7 +1083,7 @@ def hunter_item_names() -> Tuple[str, ...]:
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
             seen.setdefault(item_name, None)
-        for item_name in target.bonus_outputs:
+        for item_name, _amount, _weight in target.secondary_outputs:
             seen.setdefault(item_name, None)
         for material, _amount in target.requirements:
             seen.setdefault(material, None)
@@ -985,8 +1120,16 @@ def _hunter_extra_category(item_name: str) -> str:
 def _hunter_extra_source(item_name: str) -> str:
     if item_name in COMMON_JADINKO_VINE_HERB_SEEDS:
         return COMMON_JADINKO_VINE_HERB_SEEDS[item_name][1]
-    if item_name in {"Marasamaw plant", "Withered vine"}:
-        return HERBLORE_HABITAT_JADINKOS_SOURCE
+    jadinko_sources = {
+        "Marasamaw plant": HERBLORE_HABITAT_SOURCE,
+        "Withered vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_common_jadinko"],
+        "Corrupt vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_diseased_jadinko"],
+        "Guthix vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_guthix_jadinko"],
+        "Shadow vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_shadow_jadinko"],
+        "Plant teeth": HERBLORE_HABITAT_JADINKO_SOURCES["catch_cannibal_jadinko"],
+    }
+    if item_name in jadinko_sources:
+        return jadinko_sources[item_name]
     if item_name == "Impling jar":
         return HUNTER_IMPLING_JAR_SHOP_SOURCE
     if item_name == "Small fishing net":
@@ -1007,7 +1150,14 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "exp": 0.0,
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
-            "tradeable": item_name not in {"Withered vine", *COMMON_JADINKO_VINE_HERB_SEEDS},
+            "tradeable": item_name not in {
+                "Withered vine",
+                "Corrupt vine",
+                "Guthix vine",
+                "Shadow vine",
+                "Plant teeth",
+                *COMMON_JADINKO_VINE_HERB_SEEDS,
+            },
             "stackable": item_name not in {"Rope", "Marasamaw plant"},
         }
     return rows

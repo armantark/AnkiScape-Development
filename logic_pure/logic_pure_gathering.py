@@ -426,7 +426,8 @@ def apply_woodcutting_action_pure(
     ):
         output_item = None
     elif output_item:
-        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+        output_quantity = max(1, _positive_int(spec.get("output_quantity", 1), 1))
+        new_inv[output_item] = new_inv.get(output_item, 0) + output_quantity
 
     nest_item = None
     if r_nest_drop is not None and r_nest_type is not None and nest_drop_table and r_nest_drop < nest_drop_chance:
@@ -726,8 +727,8 @@ def apply_hunter_action_pure(
     hunter_level,
     r_action,
     success_level=None,
-    r_bonus_chance=None,
-    r_bonus_pick=None,
+    r_secondary_chance=None,
+    r_secondary_pick=None,
 ):
     """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
     spec = hunter_data.get(target)
@@ -748,26 +749,25 @@ def apply_hunter_action_pure(
     outputs = _hunter_outputs_from_spec(spec)
     for item_name, amount in outputs.items():
         new_inv[item_name] = new_inv.get(item_name, 0) + amount
-    bonus_outputs = tuple(
-        str(item_name)
-        for item_name in spec.get("bonus_outputs", ())
-        if isinstance(item_name, str) and item_name
-    )
-    bonus_chance = max(
-        0.0,
-        min(_non_negative_float(spec.get("bonus_output_chance", 0.0), 0.0), 1.0),
-    )
+
+    secondary_outputs = spec.get("secondary_outputs") or ()
     if (
-        bonus_outputs
-        and r_bonus_chance is not None
-        and float(r_bonus_chance) < bonus_chance
+        r_secondary_chance is not None
+        and r_secondary_pick is not None
+        and secondary_outputs
+        and float(r_secondary_chance) < float(spec.get("secondary_drop_chance", 0.0) or 0.0)
     ):
-        pick_roll = max(
-            0.0,
-            min(float(0.0 if r_bonus_pick is None else r_bonus_pick), 0.999999999999),
+        item_name = pick_weighted_item_pure(secondary_outputs, r_secondary_pick)
+        output = next(
+            (row for row in secondary_outputs if row.get("item") == item_name),
+            None,
         )
-        bonus_item = bonus_outputs[int(pick_roll * len(bonus_outputs))]
-        new_inv[bonus_item] = new_inv.get(bonus_item, 0) + 1
+        if output:
+            new_inv[item_name] = new_inv.get(item_name, 0) + _positive_int(
+                output.get("amount", 1),
+                1,
+            )
+
     primary_output = spec.get("primary_output") or spec.get("output_item")
     xp_rewards = normalize_xp_rewards_pure(spec, "hunter", spec.get("exp", 0))
     return new_inv, primary_xp_reward_amount_pure(xp_rewards, "hunter"), True, primary_output, xp_rewards

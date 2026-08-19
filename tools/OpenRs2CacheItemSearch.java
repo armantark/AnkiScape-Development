@@ -1,14 +1,17 @@
 import com.rs.cache.Cache;
+import com.rs.cache.Index;
+import com.rs.cache.IndexType;
 import com.rs.cache.Store;
 import com.rs.cache.loaders.ItemDefinitions;
 
+import java.nio.BufferUnderflowException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.io.File;
 
 final class OpenRs2CacheItemSearch {
-    private static final int MAX_ITEM_ID = 40_000;
-
     private OpenRs2CacheItemSearch() {}
 
     public static void main(String[] args) throws Exception {
@@ -31,11 +34,26 @@ final class OpenRs2CacheItemSearch {
                 .map(value -> value.toLowerCase(Locale.ROOT))
                 .toArray(String[]::new);
 
-        for (int id = 0; id < MAX_ITEM_ID; id++) {
+        Index index = store.getIndex(IndexType.ITEMS);
+        int lastArchiveId = index.getLastArchiveId();
+        int maxId = lastArchiveId * 256 + index.getLastFileId(lastArchiveId) + 1;
+        List<Integer> skippedIds = new ArrayList<>();
+        for (int id = 0; id < maxId; id++) {
             ItemDefinitions definition;
             try {
                 definition = ItemDefinitions.getItemDefinitions(store, id);
-            } catch (RuntimeException ignored) {
+            } catch (RuntimeException error) {
+                boolean missingOpcode = error.getMessage() != null
+                        && error.getMessage().startsWith("MISSING OPCODE ");
+                boolean truncatedDefinition = error instanceof BufferUnderflowException;
+                boolean invalidParamType = error instanceof ClassCastException
+                        && (error.getStackTrace().length == 0
+                                || error.getStackTrace()[0].getClassName()
+                                        .equals(ItemDefinitions.class.getName()));
+                if (!missingOpcode && !truncatedDefinition && !invalidParamType) {
+                    throw error;
+                }
+                skippedIds.add(id);
                 continue;
             }
             if (definition == null || definition.name == null) {
@@ -46,6 +64,13 @@ final class OpenRs2CacheItemSearch {
                 continue;
             }
             System.out.printf("%d\t%s\t%s%n", id, definition.name, Arrays.toString(definition.inventoryOptions));
+        }
+        if (!skippedIds.isEmpty()) {
+            System.err.printf(
+                    "PARTIAL_SEARCH skipped_count=%d skipped_ids=%s%n",
+                    skippedIds.size(), skippedIds
+            );
+            System.exit(3);
         }
     }
 

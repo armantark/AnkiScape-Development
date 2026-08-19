@@ -30,6 +30,7 @@ BIRD_NEST_SOURCE_PATH = (
 SPLIT_LOG_SOURCE = "https://runescape.wiki/w/Split_log?oldid=5505475"
 ARCTIC_PINE_SOURCE = "https://runescape.wiki/w/Arctic_Pine?oldid=6069429"
 EUCALYPTUS_SOURCE = "https://runescape.wiki/w/Eucalyptus_tree?oldid=6491980"
+CURLY_ROOT_SOURCE = "https://runescape.wiki/w/Curly_root?oldid=6518326"
 
 
 @dataclass(frozen=True)
@@ -140,6 +141,27 @@ WOODCUTTING_TARGETS: Tuple[WoodcuttingTarget, ...] = (
     WoodcuttingTarget("yew", "Yew", 60, 175.0, "Yew logs", 1515, 8, 99, 4, 12),
     WoodcuttingTarget("ivy", "Ivy", 68, 332.5, None, None, 8, 36, 7, 11),
     WoodcuttingTarget("magic", "Magic", 75, 250.0, "Magic logs", 1513, 8, 199, 6, 6),
+    # PLACEHOLDER(woodcutting.curly_jade_root_success_curve): period sources fix
+    # level 83, both 80.8-XP stages, and the four-root collection, but no hidden
+    # success curve. The generic review adapter needs endpoints, so the shared
+    # Hunter fallback keeps the route live without adopting Darkan's unproven
+    # 6/35 rates or 72-tick respawn value.
+    WoodcuttingTarget(
+        "curly_jade_root",
+        "Curly jade root",
+        83,
+        161.6,
+        "Curly root",
+        21350,
+        0,
+        0,
+        128,
+        256,
+        source=CURLY_ROOT_SOURCE,
+        output_quantity=4,
+        output_stackable=False,
+        output_tradeable=False,
+    ),
 )
 
 WOODCUTTING_AXES: Tuple[WoodcuttingAxe, ...] = (

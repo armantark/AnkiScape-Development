@@ -1382,9 +1382,10 @@ class TestLogic(unittest.TestCase):
             "ratio": 3.5,
             "status": "implemented",
         }
-        for target_id, output_item, expected_xp in (
-            ("arctic_pine", "Arctic pine logs", 140.2),
-            ("eucalyptus", "Eucalyptus logs", 165.0),
+        for target_id, output_item, expected_xp, expected_quantity in (
+            ("arctic_pine", "Arctic pine logs", 140.2, 1),
+            ("eucalyptus", "Eucalyptus logs", 165.0, 1),
+            ("curly_jade_root", "Curly root", 161.6, 4),
         ):
             with self.subTest(target_id=target_id):
                 inventory, xp, ok, output, nest = apply_woodcutting_action_pure(
@@ -1400,7 +1401,7 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(xp, expected_xp)
                 self.assertEqual(output, output_item)
                 self.assertIsNone(nest)
-                self.assertEqual(inventory, {output_item: 1})
+                self.assertEqual(inventory, {output_item: expected_quantity})
 
     def test_apply_woodcutting_action_inferno_adze_incinerates_logs(self):
         tree_data = {"tree": {"exp": 25.0, "output_item": "Logs", "low_chance": 64, "high_chance": 200}}
@@ -2340,6 +2341,43 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(butterfly_inv["Butterfly net"], 1)
         self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
+    def test_polar_kebbit_tracking_preserves_noose_wand_and_awards_sourced_outputs(self):
+        target = "catch_polar_kebbit"
+        self.assertEqual(
+            hunter_source_roll_chance_pure(1, HUNTER_DATA[target]),
+            130 / 255,
+        )
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 1, "inventory": {}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Noose wand",),
+        )
+
+        inventory, exp, ok, output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Noose wand": 1},
+            HUNTER_DATA,
+            1,
+            0.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 30.0)
+        self.assertEqual(output_item, "Polar kebbit fur")
+        self.assertEqual(
+            inventory,
+            {
+                "Noose wand": 1,
+                "Bones": 1,
+                "Raw beast meat": 1,
+                "Polar kebbit fur": 1,
+            },
+        )
+
     def test_common_jadinko_preserves_trap_and_rolls_each_vine_herb_seed(self):
         target = "catch_common_jadinko"
         seeds = (
@@ -2365,8 +2403,8 @@ class TestLogic(unittest.TestCase):
             HUNTER_DATA,
             70,
             0.0,
-            r_bonus_chance=16 / 256,
-            r_bonus_pick=0.0,
+            r_secondary_chance=16 / 256,
+            r_secondary_pick=0.0,
         )
         self.assertTrue(ok)
         self.assertEqual(exp, 350.0)
@@ -2383,8 +2421,8 @@ class TestLogic(unittest.TestCase):
                     HUNTER_DATA,
                     70,
                     0.0,
-                    r_bonus_chance=0.0,
-                    r_bonus_pick=(index + 0.1) / len(seeds),
+                    r_secondary_chance=0.0,
+                    r_secondary_pick=(index + 0.1) / len(seeds),
                 )
                 self.assertTrue(caught)
                 self.assertEqual(inventory[expected_seed], 1)
@@ -2428,6 +2466,80 @@ class TestLogic(unittest.TestCase):
                 "Raw beast meat": 1,
                 "Long kebbit spike": 1,
             },
+        )
+
+    def test_jadinko_secondaries_use_reusable_tools_and_fixed_primary_outputs(self):
+        cases = {
+            "track_shadow_jadinko": (71, 475.0, "Noose wand", "Shadow vine"),
+            "track_diseased_jadinko": (78, 580.5, "Noose wand", "Corrupt vine"),
+            "catch_cannibal_jadinko": (75, 475.0, "Marasamaw plant", "Plant teeth"),
+            "catch_guthix_jadinko": (81, 600.0, "Marasamaw plant", "Guthix vine"),
+        }
+        for target, (level, expected_xp, tool, output) in cases.items():
+            with self.subTest(target=target):
+                self.assertEqual(hunter_target_locked_reasons_pure({"hunter_level": level, "inventory": {}}, target, HUNTER_DATA, QUEST_UNLOCK_RULES), (tool,))
+                inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(target, {tool: 1}, HUNTER_DATA, level, 0.0)
+                self.assertTrue(ok)
+                self.assertEqual(xp, expected_xp)
+                self.assertEqual(output_item, output)
+                self.assertEqual(inventory, {tool: 1, output: 1})
+
+    def test_cannibal_jadinko_bush_seed_table_preserves_primary_output(self):
+        target = "catch_cannibal_jadinko"
+        tool = {"Marasamaw plant": 1}
+
+        missed, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            0.0,
+            r_secondary_chance=HUNTER_DATA[target]["secondary_drop_chance"],
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(missed, {"Marasamaw plant": 1, "Plant teeth": 1})
+
+        failed, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            1.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.5,
+        )
+        self.assertFalse(ok)
+        self.assertEqual(failed, tool)
+
+        lergberry, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            0.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            lergberry,
+            {"Marasamaw plant": 1, "Plant teeth": 1, "Lergberry seed": 1},
+        )
+
+        kalferberry, _xp, ok, _output, _rewards = apply_hunter_action_pure(
+            target,
+            tool,
+            HUNTER_DATA,
+            75,
+            0.0,
+            r_secondary_chance=0.0,
+            r_secondary_pick=0.5,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            kalferberry,
+            {"Marasamaw plant": 1, "Plant teeth": 1, "Kalferberry seed": 1},
         )
 
     def test_cooking_source_odds_and_scaled_probability(self):

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pass 10 Results — D&amp;D Parity and One-Commit Starts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎪</text></svg>">
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: "Outfit", "Avenir Next", "Segoe UI", system-ui, sans-serif; line-height: 1.55; padding: 32px 20px 64px; }
+.wrap { max-width: 1080px; margin: 0 auto; }
+.badge { display: inline-block; font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; font-size: .68rem; letter-spacing: .14em; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: 4px 12px; background: rgba(74,222,128,.1); margin-bottom: 14px; }
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+.sub { color: var(--text-dim); font-size: .95rem; max-width: 74ch; margin-bottom: 26px; }
+h2 { font-size: 1.15rem; margin: 32px 0 12px; }
+.mono { font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-family: "JetBrains Mono", monospace; font-size: .62rem; letter-spacing: .12em; color: var(--text-dim); }
+tr:last-child td { border-bottom: none; }
+.st { font-family: "JetBrains Mono", monospace; font-size: .66rem; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.st.done { color: var(--green); border: 1px solid var(--green); background: rgba(74,222,128,.1); }
+.st.info { color: var(--accent); border: 1px solid var(--accent); background: var(--accent-glow); }
+.st.pend { color: var(--amber); border: 1px solid var(--amber); background: rgba(251,191,36,.1); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.card h3 { font-size: 1rem; margin-bottom: 8px; }
+.card p, .card li { font-size: .84rem; }
+.card ul { margin: 6px 0 0 18px; }
+.card li { margin-bottom: 6px; }
+.card li::marker { color: var(--accent); }
+.num { font-family: "JetBrains Mono", monospace; }
+.lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.lane { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; text-align: center; }
+.lane .big { font-family: "JetBrains Mono", monospace; font-size: 1.5rem; color: var(--green); }
+.lane .lbl { font-size: .72rem; color: var(--text-dim); margin-top: 2px; }
+.note { border-left: 3px solid var(--amber); background: var(--surface); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: .84rem; margin-top: 14px; }
+.note b { color: var(--text); }
+.commits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.commit { font-family: "JetBrains Mono", monospace; font-size: .66rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; color: var(--text-dim); }
+@media (max-width: 900px) { .grid, .lanes { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<span class="badge">RESULTS · PASS 10 COMPLETE</span>
+<h1>D&amp;D parity and one-commit starts — done</h1>
+<p class="sub">All nine owner clauses are closed in five commits on <span class="mono">main</span>. Both full lanes are green after an independent Kimi K3 review whose findings were all applied — including one real bug the tests had missed. One item waits on hardware: the native MacBook&nbsp;Pro visual check, blocked all night by the laptop sleeping.</p>
+<div class="commits"><span class="commit">0f642686 plan</span><span class="commit">b57fb9c5 big top</span><span class="commit">3a1849d3 fish flingers</span><span class="commit">1f820c9e ui trio</span><span class="commit">07359c13 review fixes</span></div>
+
+<h2>The nine clauses</h2>
+<div class="tablewrap"><table>
+<tr><th>Owner clause</th><th>Outcome</th><th></th></tr>
+<tr><td>Popup for combat level increase</td><td>New dialog "Your Combat level increased. Level old → new", fired once per review from a single boundary — now also covering the farm-preempted award path, where combat XP really can arrive.</td><td><span class="st done">DONE</span></td></tr>
+<tr><td>1,940 Magic XP at Big Top — "if it's valid it's valid"</td><td><b>It was not valid.</b> Two above-level tricks each mapped down to the 970-XP tier and both paid; period rules pay each tier once. Mask now keys on the payout tier; Darkan's success formula <span class="num">clamp(50 + level − difficulty, 5, 95)%</span> ported outright.</td><td><span class="st done">FIXED</span></td></tr>
+<tr><td>Subactivities in a queue; 10 attempts = 1 action per card</td><td>Performance queue (executing / non-executing, drag-reorderable) with per-card trick resolution and per-trick XP — which is also the period-correct payout timing. Mid-run status shows "trick N of 10" and the next queued performance.</td><td><span class="st done">DONE</span></td></tr>
+<tr><td>"Arm for next review" makes no sense</td><td>Removed. "Start activity" is the only commit action; row clicks navigate only. The hidden <span class="mono">set_policy</span> commit path Kimi found is also gone.</td><td><span class="st done">DONE</span></td></tr>
+<tr><td>0/10 tricks — bug or bad luck?</td><td><b>Bad luck.</b> Roll path verified correct by two independent reviews; at Ranged ~10 an all-fail routine is ~1 in 32. Per-card resolution now shows each roll as it happens.</td><td><span class="st info">NOT A BUG</span></td></tr>
+<tr><td>"This UI text still looks stupid"</td><td>The strip line was QProgressBar fill clipping behind centered text. Text now sits on its own label above a thin graphical-only bar; geometry test pins the split.</td><td><span class="st done">DONE</span></td></tr>
+<tr><td>Fish Flingers needs two buttons</td><td>One press starts it (ticket + entry + review selection). Same one-commit pattern as Big Top.</td><td><span class="st done">DONE</span></td></tr>
+<tr><td>Why does Fish Flingers give 5.3k XP?</td><td>The formula was invented (<span class="num">level × 200 × fish/48</span> × outfit). Replaced with Darkan's <span class="num">floor(max(162, 235L−73) × score/48)</span>, registered <span class="mono">provisional/darkan</span>; outfit multiplier removed from the payout (Darkan applies none). Panel now says eight reviews.</td><td><span class="st done">FIXED</span></td></tr>
+<tr><td>Combat selector still not highlighted</td><td>The green brush was always set; a <span class="mono">QTreeWidget::item</span> border rule in QSS forced stylesheet painting and discarded it. Rule removed; pixel probe now samples <span class="num">167,213,169</span> green on the saved row vs white elsewhere, blue transient selection intact.</td><td><span class="st done">FIXED</span></td></tr>
+</table></div>
+
+<h2>Verification</h2>
+<div class="lanes">
+    <div class="lane"><div class="big">4,144 / 499</div><div class="lbl">full plain lane — tests / expected skips, OK</div></div>
+    <div class="lane"><div class="big">4,144 / 3</div><div class="lbl">full offscreen Qt lane — 3 skips = real run</div></div>
+    <div class="lane"><div class="big">7 / 7</div><div class="lbl">Kimi K3 findings applied (0 blockers)</div></div>
+</div>
+
+<div class="grid" style="margin-top:16px">
+    <div class="card"><h3>What the Kimi review caught</h3>
+        <ul>
+            <li><b>Real bug:</b> combat XP earned through the farm-preempted path skipped the new popup — confirmed reproducible, now wrapped by the same boundary with a regression test.</li>
+            <li>The acceptance test pinned an unreachable score 44; repinned to a simulated-reachable session.</li>
+            <li><span class="mono">set_policy</span> as hidden commit path; <span class="mono">start_activity</span> recursion; weight-proxy "costume" math; queue-drag toast spam — all cleaned.</li>
+        </ul>
+    </div>
+    <div class="card"><h3>Fish Flingers balance, simulated</h3>
+        <p>200 simulated 8-review sessions: fish total median 34 (max 47), so real scores span <span class="num">28–43</span>, median <span class="num">38 → 4,593 XP</span> at Fishing 25 (worst 3,384, best 5,197). Payouts are <b>not deflated</b> versus real play; the old 5.3k assumed a fish count sessions never produce. The 70–130 catch-band ladder is inherited Darkan decoration no local session can reach — commented as such.</p>
+    </div>
+</div>
+
+<div class="note"><b>Pending: native MacBook Pro check.</b> The Sol → Tailscale SSH → Luna computer-use verification never got past SSH — the laptop slept through every window tonight (probes at 00:50–02:26 all timed out; one 22-minute watcher caught only a flapping dark-wake). The orchestration prompt is ready to fire; say the word when the MBP is awake, or it runs as the first step of Pass 11. Everything it would check is already pixel-proven offscreen at the realistic window size.</div>
+</div>
+</body>
+</html>

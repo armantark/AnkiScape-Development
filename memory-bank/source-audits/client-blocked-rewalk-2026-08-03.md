@@ -33,9 +33,16 @@ lamp`, `achievement diary`, and `choose a skill` returned no relevant client
 component or script. The only XP-lamp string is an unrelated Stronghold of
 Player Safety row in script 6192.
 
-The 31 regional diary lamp floors therefore remain registered placeholders.
-The client likely receives or validates those choices through server-owned
-dialogue logic; no floor was inferred from later tier conventions.
+All 32 regional diary lamp floors therefore remain registered placeholders.
+The earlier count of 31 was a recount error: it omitted
+`achievement_diaries.lumbridge.beginner.lamp_minimum_level`, even though that
+stable identifier was present in both code and the register. The client likely
+receives or validates those choices through server-owned dialogue logic; no
+floor was inferred from later tier conventions. The checked-in reader still
+skips fifteen archives behind its faulty first-byte gate. A one-off reflective
+decode of all 1,376 affected components found none related to Diary interface
+917, so these rows are not tooling-blocked by that omission; reproducing the
+complete search still requires a guard fix or byte-level parser.
 
 ## Other explicit client leads
 

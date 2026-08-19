@@ -905,6 +905,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
             self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
         self.assertEqual(FIREMAKING_DATA["cursed_magic_logs"]["requirements"], {"Cursed magic logs": 1})
+        curly_root = by_storage_key["Curly root"]
+        self.assertEqual(curly_root.source_item_id, 21350)
+        self.assertFalse(curly_root.stackable)
+        self.assertFalse(curly_root.tradeable)
 
     def test_light_source_items_and_icons_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
@@ -2175,15 +2179,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 61)
-        self.assertIn("catch_common_jadinko", HUNTER_DATA)
+        self.assertEqual(len(HUNTER_DATA), 66)
         common_jadinko = HUNTER_DATA["catch_common_jadinko"]
         self.assertEqual(common_jadinko["level"], 70)
         self.assertEqual(common_jadinko["exp"], 350.0)
         self.assertEqual(common_jadinko["tools"], {"Marasamaw plant": 1})
         self.assertEqual(common_jadinko["outputs"], {"Withered vine": 1})
+        self.assertEqual(common_jadinko["secondary_drop_chance"], 16 / 256)
         self.assertEqual(
-            common_jadinko["bonus_outputs"],
+            tuple(row["item"] for row in common_jadinko["secondary_outputs"]),
             (
                 "Erzille seed",
                 "Ugune seed",
@@ -2192,7 +2196,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Samaden seed",
             ),
         )
-        self.assertEqual(common_jadinko["bonus_output_chance"], 16 / 256)
         self.assertEqual(
             {
                 dose: by_storage_key[f"Juju hunter potion ({dose})"].source_item_id
@@ -2204,9 +2207,43 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertFalse(by_storage_key["Marasamaw plant"].stackable)
         self.assertFalse(by_storage_key["Withered vine"].tradeable)
         self.assertTrue(by_storage_key["Withered vine"].stackable)
-        for seed_name in common_jadinko["bonus_outputs"]:
+        for row in common_jadinko["secondary_outputs"]:
+            seed_name = row["item"]
             self.assertFalse(by_storage_key[seed_name].tradeable)
             self.assertTrue(by_storage_key[seed_name].stackable)
+
+        jadinkos = {
+            "track_shadow_jadinko": (71, 475.0, {"Noose wand": 1}, "Shadow vine", 19977),
+            "track_diseased_jadinko": (78, 580.5, {"Noose wand": 1}, "Corrupt vine", 19979),
+            "catch_cannibal_jadinko": (75, 475.0, {"Marasamaw plant": 1}, "Plant teeth", 19975),
+            "catch_guthix_jadinko": (81, 600.0, {"Marasamaw plant": 1}, "Guthix vine", 19982),
+        }
+        for target, (level, xp, tools, output, item_id) in jadinkos.items():
+            with self.subTest(target=target):
+                spec = HUNTER_DATA[target]
+                self.assertEqual(spec["level"], level)
+                self.assertEqual(spec["exp"], xp)
+                self.assertEqual(spec["tools"], tools)
+                self.assertEqual(spec["outputs"], {output: 1})
+                self.assertEqual(spec["source_item_id"], item_id)
+                self.assertFalse(spec["tradeable"])
+                item = by_storage_key[output]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertFalse(item.tradeable)
+                self.assertTrue(item.stackable)
+                self.assertIn(output, HUNTER_ITEM_IMAGES)
+                self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[output]))
+        cannibal = HUNTER_DATA["catch_cannibal_jadinko"]
+        self.assertEqual(cannibal["secondary_drop_chance"], 12 / 256)
+        self.assertEqual(
+            cannibal["secondary_outputs"],
+            (
+                {"item": "Lergberry seed", "amount": 1, "weight": 1},
+                {"item": "Kalferberry seed", "amount": 1, "weight": 1},
+            ),
+        )
+        self.assertIn("hunter_jadinko_cannibal.json", cannibal["mechanics_source"])
+        self.assertIn("hh_bush_seed.json", cannibal["mechanics_source"])
         self.assertEqual(
             HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
             ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),
@@ -2219,6 +2256,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(HUNTER_DATA["catch_baby_impling_puro_puro"]["tools"], {"Butterfly net": 1})
         self.assertEqual(HUNTER_DATA["catch_baby_impling_world"]["tools"], {})
         self.assertEqual(HUNTER_DATA["catch_wild_kebbit"]["requirements"], {"Logs": 1})
+        polar = HUNTER_DATA["catch_polar_kebbit"]
+        self.assertEqual(polar["level"], 1)
+        self.assertEqual(polar["exp"], 30.0)
+        self.assertEqual(polar["tools"], {"Noose wand": 1})
+        self.assertEqual(
+            polar["outputs"],
+            {"Bones": 1, "Raw beast meat": 1, "Polar kebbit fur": 1},
+        )
+        self.assertEqual(polar["source_item_id"], 10117)
+        self.assertEqual(by_storage_key["Polar kebbit fur"].source_item_id, 10117)
         tracking = HUNTER_DATA["track_razor_backed_kebbit"]
         self.assertEqual(tracking["level"], 49)
         self.assertEqual(tracking["exp"], 348.0)
@@ -2249,6 +2296,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Rope",
             "Noose wand",
             "Raw beast meat",
+            "Polar kebbit fur",
             "Long kebbit spike",
             "Teasing stick",
             "Rabbit snare",
