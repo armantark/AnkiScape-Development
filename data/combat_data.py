@@ -13589,10 +13589,14 @@ COMBAT_ENEMY_DATA["skeletal_wyvern"] = {
         "shielded_max_hit": 150,
         # PLACEHOLDER(skeletal_wyvern.freeze_ticks): a period server handler or qualified timed recording would replace this delay.
         "player_delay_ticks": 5,
-        "source": "https://runescape.wiki/w/Skeletal_Wyvern?oldid=6569736",
+        "source": (
+            "https://runescape.wiki/w/Skeletal_Wyvern?oldid=6569736; "
+            "https://runescape.wiki/w/Talk:Skeletal_Wyvern?oldid=5516744"
+        ),
         "source_status": (
-            "period shielded maximum and freeze behavior; freeze duration is a "
-            "registered placeholder"
+            "period shielded maximum, freeze behavior, and Talk-page evidence "
+            "that ice breath bypasses ordinary Ranged protection prayer; freeze "
+            "duration is a registered placeholder"
         ),
     },
     "protective_equipment": {

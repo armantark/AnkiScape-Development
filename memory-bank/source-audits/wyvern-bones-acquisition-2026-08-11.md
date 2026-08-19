@@ -1,6 +1,6 @@
 # Wyvern bones acquisition audit — 2026-08-11
 
-Status: **implemented with four registered combat placeholders**.
+Status: **implemented with three registered combat placeholders**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Goal
@@ -29,7 +29,7 @@ The following table records each pinned value and its exact source.
 | The defence bonuses are `140` stab, `90` slash, `90` crush, `80` Magic, and `140` Ranged. The ordinary maximum hit is `139`. | The same Darkan combat definition; RuneScape Wiki `Skeletal Wyvern`, oldid `6569736`. |
 | The period attack set contains Melee, Ranged, and freezing ice breath. | RuneScape Wiki `Skeletal Wyvern`, oldid `6569736`. |
 | Elemental, Mind, Body, Cosmic, Chaos, and Dragonfire shields protect against the ice breath. Anti-dragon shield and antifire potions do not protect. | RuneScape Wiki `Skeletal Wyvern`, oldid `6569736`. |
-| The shielded ice-breath maximum is `150` lifepoints. Higher Magic defence lowers this maximum slightly. | RuneScape Wiki `Skeletal Wyvern`, oldid `6569736`. |
+| The shielded ice-breath maximum is `150` lifepoints. Oldid `6569736` also reports that higher Magic defence lowers this maximum slightly, but AnkiScape deliberately does not implement that reduction: the period source does not expose the curve, and the removed `magic_defence // 64` reconstruction was not source-backed. | RuneScape Wiki `Skeletal Wyvern`, oldid `6569736`. |
 | The shield item identities are `2890`, `9731`, `18691`, `20436`, `20438`, and `11284`. | game-main `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml`, items `2890`, `9731`, `18691`, `20436`, `20438`, and `11284`; OpenRS2 rev-742 item definitions. |
 | The Falador hard task requires Slayer level `72` and one Skeletal Wyvern kill. | Darkan `FaladorTasks`; OpenRS2 rev-727 cache enum `3483`; RuneScape Wiki `Falador achievements`, oldid `6571459`, timestamp `2012-11-18T05:31:03Z`. |
 
@@ -104,11 +104,13 @@ The level-72 Combat row records one guaranteed Wyvern bones drop.
 The shared Combat runtime records the kill and the drop.
 It also records protected and unprotected ice-breath telemetry.
 
-The item registry preserves all three canonical identities:
+The item registry preserves the two implemented storage identities:
 
-- Wyvern bones item `6812`;
-- noted Wyvern bones item `6816`; and
+- Wyvern bones item `6812`; and
 - Wyvern bonemeal item `6810`.
+
+The period evidence table records noted Wyvern bones item `6816`, but the item
+registry has no noted-item field and does not represent that identity.
 
 The Falador task now needs both level `72` Slayer and one recorded kill.
 Slayer assignment readiness now includes the existing Skeletal Wyverns family.
@@ -171,7 +173,7 @@ retaining both histories and recomputing the generated catalog assertions:
 The five shipped failure modes were checked directly:
 
 1. The recovered IDs, XP values, shield set, and drop remain tied to the pinned
-   sources above. The four unrecovered breath values remain reconstructions.
+   sources above. The three unrecovered breath values remain reconstructions.
 2. A standalone runtime-kernel probe, not the test suite, started the real
    2,000-LP encounter and completed the full route.
 3. Seed `20260819` killed one Skeletal Wyvern in 33 review actions, used six
@@ -182,7 +184,7 @@ The five shipped failure modes were checked directly:
 4. The slice has no UI-panel or target-metadata diff against the merged `main`.
    The Slayer-level enabled state remains owned by the shared pure target-row
    path; the Combat runtime addition only renders pure-engine breath events.
-5. All four `skeletal_wyvern.*` reconstructions retain executable
+5. All three `skeletal_wyvern.*` reconstructions retain executable
    `PLACEHOLDER(...)` markers and exact rows in
    `memory-bank/placeholder-values.md`; all three placeholder-register tests
    pass.
@@ -191,8 +193,8 @@ Verification on the merged tree:
 
 | Gate | Exact result |
 | --- | --- |
-| Plain lane | `Ran 4152 tests in 235.867s`; `OK (skipped=499)`. |
-| Offscreen Qt lane | The worktree-local command first exited `127` with `(eval):1: no such file or directory: .venv-qt/bin/python`. The rerun used the canonical ignored virtualenv interpreter with this worktree as cwd: `Ran 4152 tests in 549.045s`; `OK (skipped=3)`. |
+| Plain lane | `Ran 4152 tests in 308.539s`; `OK (skipped=499)`. |
+| Offscreen Qt lane | Not rerun for this record-and-citation correction. The closure brief required the plain lane and explicitly allowed the offscreen Qt lane to be skipped; no Qt behavior changed. |
 | Documentation audit | `Audited 577 Markdown and 437 HTML files.` then `Documentation audit passed.` |
 | Test-quality audit | `4117 tests across 188 files`; `hard issues: 0`; `structural clone candidates: 22 groups`. |
 | Item reachability | Baseline `main` `323bf39090023319eb4e5a80acf6e162d331fa4a`: `1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked actions`. Merged tree: `1571 actions; 2278 reachable items; 72 orphan inputs; 71 blocked actions`. The command exits `1` while known orphan inputs remain. |
