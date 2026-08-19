@@ -1,3 +1,0 @@
-# Keep broad ripgrep searches away from generated catalogs that produce giant lines.
-/data/shop_data.py
-/data/construction_data.py

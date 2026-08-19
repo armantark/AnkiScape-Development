@@ -1,6 +1,8 @@
 import json
 import multiprocessing
+import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -89,6 +91,23 @@ class WorktreeGuardTest(unittest.TestCase):
 
         self.assertEqual(mismatch, (worktree.resolve(), "session-a"))
 
+    def test_unowned_worktree_is_not_silently_accepted_for_an_identified_caller(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            canonical = root / "addons21" / "ankiscape_fork"
+            worktree = root / "ankiscape_worktrees" / "feature"
+            canonical.mkdir(parents=True)
+            worktree.mkdir(parents=True)
+
+            mismatch = ownership_mismatch(
+                (canonical, worktree),
+                canonical,
+                worktree,
+                "session-b",
+            )
+
+        self.assertEqual(mismatch, (worktree.resolve(), None))
+
     def test_unowned_worktree_remains_usable_and_owner_can_be_taken_over(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             worktree = Path(temp_dir)
@@ -146,6 +165,40 @@ class WorktreeGuardTest(unittest.TestCase):
                 claimable_worktree(paths, canonical, canonical)
             with self.assertRaisesRegex(ValueError, "not a registered linked worktree"):
                 claimable_worktree(paths, canonical, unknown)
+
+    def test_ownerless_audit_is_read_only_and_still_checks_layout(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            canonical = Path(temp_dir) / "addons21" / "ankiscape_fork"
+            canonical.mkdir(parents=True)
+            (canonical / "meta.json").write_text(
+                json.dumps({"name": "AnkiScape RuneScape Anki"}),
+                encoding="utf-8",
+            )
+            subprocess.run(("git", "init", "-q", str(canonical)), check=True)
+            exclude = canonical / ".git" / "info" / "exclude"
+            before = exclude.read_bytes()
+            env = dict(os.environ)
+            env.pop("CLAUDE_CODE_SESSION_ID", None)
+
+            completed = subprocess.run(
+                (
+                    sys.executable,
+                    str(Path(__file__).resolve().parents[1] / "tools" / "worktree_guard.py"),
+                    "--repo",
+                    str(canonical),
+                    "audit",
+                ),
+                check=False,
+                capture_output=True,
+                text=True,
+                env=env,
+            )
+            after = exclude.read_bytes()
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("Worktree layout safe:", completed.stdout)
+        self.assertEqual(after, before)
+        self.assertNotIn(".ankiscape-worktree-owner", before.decode())
 
     def test_owner_marker_is_ignored_across_branches_through_common_exclude(self):
         with tempfile.TemporaryDirectory() as temp_dir:

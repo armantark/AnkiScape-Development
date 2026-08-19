@@ -125,12 +125,12 @@ def ownership_mismatch(
     canonical: Path,
     repo: Path,
     owner: str,
-) -> Optional[tuple[Path, str]]:
+) -> Optional[tuple[Path, Optional[str]]]:
     current = repo.resolve()
     if current == canonical.resolve() or current not in {path.resolve() for path in paths}:
         return None
     recorded = read_owner(current)
-    if recorded is None or recorded == owner:
+    if recorded == owner:
         return None
     return current, recorded
 
@@ -182,7 +182,7 @@ def ensure_owner_ignored(repo: Path) -> None:
         exclude_file.write(f"{OWNER_FILE}\n")
 
 
-def audit(repo: Path, owner: str) -> None:
+def audit(repo: Path, owner: Optional[str] = None) -> None:
     canonical, paths = canonical_and_paths(repo)
     unsafe = unsafe_registered_worktrees(paths, canonical)
     duplicates = duplicate_enabled_addons(canonical.parent, canonical)
@@ -190,13 +190,20 @@ def audit(repo: Path, owner: str) -> None:
     if problems:
         joined = "\n".join(f"- {path}" for path in problems)
         raise RuntimeError(f"Anki would load linked/duplicate AnkiScape checkouts:\n{joined}")
-    mismatch = ownership_mismatch(paths, canonical, repo, owner)
-    if mismatch:
-        path, recorded = mismatch
-        raise RuntimeError(
-            "Linked worktrees are owned by another session:\n"
-            f"- {path}: owned by {recorded!r}, caller is {owner!r}"
-        )
+    if owner is not None:
+        mismatch = ownership_mismatch(paths, canonical, repo, owner)
+        if mismatch:
+            path, recorded = mismatch
+            if recorded is None:
+                raise RuntimeError(
+                    "Linked worktree is unclaimed:\n"
+                    f"- {path}\n"
+                    "Run `python3 tools/worktree_guard.py claim` from that worktree first."
+                )
+            raise RuntimeError(
+                "Linked worktrees are owned by another session:\n"
+                f"- {path}: owned by {recorded!r}, caller is {owner!r}"
+            )
     print(f"Worktree layout safe: {canonical}")
     print(f"Linked worktree root: {safe_worktree_root(canonical)}")
 
@@ -248,19 +255,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     add_parser.add_argument("--start-point", default="main")
     args = parser.parse_args(argv)
     try:
-        owner = caller_owner(args.owner)
-        ensure_owner_ignored(args.repo)
         if args.command == "audit":
-            audit(args.repo, owner)
-        elif args.command == "claim":
-            canonical, paths = canonical_and_paths(args.repo)
-            worktree = claimable_worktree(paths, canonical, args.repo)
-            previous = claim_owner(worktree, owner, take_over=args.take_over)
-            if previous is not None and previous != owner:
-                print(f"Took over worktree from: {previous}")
-            print(f"Worktree owner: {owner}")
+            audit(args.repo, args.owner or os.environ.get("CLAUDE_CODE_SESSION_ID"))
         else:
-            add_worktree(args.repo, args.branch, args.name, args.start_point, owner)
+            owner = caller_owner(args.owner)
+            ensure_owner_ignored(args.repo)
+            if args.command == "claim":
+                canonical, paths = canonical_and_paths(args.repo)
+                worktree = claimable_worktree(paths, canonical, args.repo)
+                previous = claim_owner(worktree, owner, take_over=args.take_over)
+                if previous is not None and previous != owner:
+                    print(f"Took over worktree from: {previous}")
+                print(f"Worktree owner: {owner}")
+            else:
+                add_worktree(args.repo, args.branch, args.name, args.start_point, owner)
     except (RuntimeError, ValueError, subprocess.CalledProcessError) as exc:
         parser.exit(2, f"error: {exc}\n")
     return 0

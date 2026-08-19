@@ -533,3 +533,17 @@
 2026-08-19 13:59 PDT — The first mutation-proof subprocess expanded `$PWD` after changing into its temporary directory, so `PYTHONPATH` omitted the worktree and failed with `ModuleNotFoundError: No module named 'test_papercut_tools'`; capture the worktree path before entering the mutation directory.
 2026-08-19 14:13 PDT — The complete offscreen Qt lane passed but emitted 60.4 KB of plugin diagnostics, so the tool persisted the output instead of displaying its final summary; read the persisted log tail before reporting `Ran 4156 tests in 552.881s` and `OK (skipped=3)`.
 2026-08-19 14:14 PDT — The extra `git diff --cached --check` compared the merge tree to the old branch first parent and flagged inherited main file `data/impling_jar_data.py:39: new blank line at EOF.`; the required `git diff --check` and the slice-only `git diff --cached main --check` both pass, so the reland did not rewrite unrelated merged main content.
+
+2026-08-19 14:28 PDT — The focused worktree-guard test failed once with `NameError: name 'sys' is not defined` because its new subprocess probe used `sys.executable` without importing `sys`; add the import before the first test run.
+
+2026-08-19 14:29 PDT — A durable-guidance search exited 2 because the linked worktree has no `CLAUDE.md` path even though the canonical checkout exposes project instructions there; search tracked memory files separately instead of assuming that ignored instruction file is materialized in every worktree.
+
+2026-08-19 14:30 PDT — The first full plain-lane wrapper used zsh reserved read-only variable `status`, so the tests ran but the wrapper exited 1 with `(eval):1: read-only variable: status`; use `rc` for captured exit codes.
+
+2026-08-19 14:49 PDT — The monolithic offscreen Qt lane exceeded the 600000 ms command cap and was terminated with exit 143, as the standing contract anticipates; split all discovered `test_*.py` files into independent sequential processes.
+
+2026-08-19 14:50 PDT — Round-robin Qt file batching changed module import order and exposed `tests.test_hud_singleton_and_cleanup` fake/real Qt contamination (`FakeStrip` passed to `QFrame` plus `sync_calls` 0 != 2); diagnose the file alone before treating a reordered batch as a product failure.
+
+2026-08-19 14:51 PDT — A direct-file Qt batch also aborted with `QWidget: Must construct a QApplication before a QWidget` and xargs signal 6 because it skipped the full discovery lane’s earlier application setup; use a partition runner that creates one offscreen `QApplication` and preserves contiguous top-level test-module order.
+
+2026-08-19 15:02 PDT — The first contiguous Qt partition timed out after 600000 ms because its custom runner created a global `QApplication`, recreating the repository's documented modal-hang hazard; do not bootstrap Qt globally, and partition only after normal full-suite discovery.

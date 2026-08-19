@@ -95,6 +95,25 @@ class PapercutToolTests(unittest.TestCase):
         self.assertNotIn("construction_data.py", completed.stdout)
         self.assertIn("Search stopped at 1 results", completed.stderr)
 
+    def test_repo_search_include_large_reaches_shop_catalogs(self):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tools" / "repo_search.py"),
+                "shop_data",
+                "data",
+                "--names",
+                "--include-large",
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("data/shop_data.py", completed.stdout.splitlines())
+
     def test_repo_search_names_locates_moved_files_without_shell_globs(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -220,7 +239,7 @@ class PapercutToolTests(unittest.TestCase):
             r"^\d+ actions; \d+ reachable items; \d+ orphan inputs; \d+ blocked actions$",
         )
 
-    def test_list_truncation_succeeds_with_an_explicit_warning(self):
+    def test_list_truncation_refuses_to_look_complete(self):
         completed = subprocess.run(
             [
                 sys.executable,
@@ -236,9 +255,9 @@ class PapercutToolTests(unittest.TestCase):
             text=True,
         )
 
-        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(completed.returncode, 2, completed.stderr)
         self.assertEqual(len(completed.stdout.splitlines()), 1)
-        self.assertIn("Showing the first 1 of", completed.stderr)
+        self.assertIn("Refusing to print", completed.stderr)
 
     def test_quiet_runner_keeps_the_final_summary_without_test_names(self):
         completed = subprocess.run(

@@ -166,10 +166,11 @@ def main() -> int:
             print(test_id)
         if len(selected_ids) > args.max_results:
             print(
-                f"Showing the first {args.max_results} of {len(selected_ids)} matching IDs; "
-                "narrow the selector or raise --max-results for the full list.",
+                f"Refusing to print {len(selected_ids)} IDs; narrow the selector "
+                f"or raise --max-results above {args.max_results}.",
                 file=sys.stderr,
             )
+            return 2
         return 0
 
     verbosity = 0 if args.quiet else args.verbosity
