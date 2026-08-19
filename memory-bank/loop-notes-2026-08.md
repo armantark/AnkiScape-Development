@@ -1366,3 +1366,46 @@
   reachability and quest-runtime checks pass 201 tests. Both full discovery
   lanes pass 4,036 tests, with 492 expected plain skips and three real
   offscreen Qt skips. Native Anki is not claimed. GPT-family root verified.
+
+## 2026-08-19 — resumed run, promotion of stranded slices
+
+Resumed after deleting the stale `GOAL-BLOCKED.md`, whose named unblocker
+(the `claude` daily block) had reset days earlier while main carried Pass 10 to
+closure.
+
+Verified baseline, `main` at `26ccb2a4378f3968e2f255b5f34bddd8ffe889de`:
+
+    plain lane   Ran 4144 tests ... OK (skipped=499)
+    qt lane      Ran 4144 tests in 541.966s ... OK (skipped=3)
+    audit_docs   Audited 575 Markdown and 437 HTML files. Documentation audit passed.
+    reachability 1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked actions
+
+A read-only queue audit found that only ONE new implementation slice is
+unblocked and owner-settled: the one-way skill-button availability refresh.
+Everything else that looked open is either already landed, source-blocked, or
+sitting on a `goal/*` branch that was accepted and never merged. Confirmed
+independently with `git cherry main <branch>` on every goal branch:
+
+| branch | unmerged commits | files | content |
+| --- | --- | --- | --- |
+| `goal/papercuts-2026-08-11` | 1 | 12 | tooling guardrails |
+| `goal/breadth-2026-08-11` | 3 | 30 | Skeletal Wyvern and Wyvern bones |
+| `goal/herbs-2026-08-11` | 3 | 25 | grimy herb family |
+| `goal/vines-2026-08-11` | 1 | 27 | Juju vine secondaries |
+| `goal/secondaries-2026-08-11` | 2 | 28 | acquisition work; its own final commit records a handoff instead of authorizing merge |
+| `goal/jungle-potion-2026-08-13` | 1 | — | Jungle Potion |
+| `goal/stage-satisfiability-2026-08-13` | 1 | 1 | audit-document correction only |
+
+So the remaining goal work is mostly promotion, not authoring. Conflict pairs
+that must never merge concurrently: herbs with vines, jungle with secondaries,
+breadth with secondaries.
+
+Placeholder retirement is NOT open work: only three register rows have never
+been re-walked (`fish_flingers.xp_payout`,
+`bone_sources.frost_dragon_generated_levels`,
+`bone_sources.ogre_coffin_selector_weights`) and all three are source-blocked.
+The other 172 were re-walked on 2026-08-13.
+
+The MacBook Pro is now reachable for headless work as
+`ssh armans-macbook-pro '<cmd>'`, but it has no repository copy and no Qt
+environment yet.
