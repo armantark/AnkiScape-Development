@@ -43,7 +43,13 @@ this Anki install for real study.
 - A commit message opens with the problem in plain language, then the solution.
   It is never an inventory of the files you touched. The subject says why the
   change matters.
-- Produce exactly one attributable commit on your own `goal/*` branch.
+- Produce one attributable commit on your own `goal/*` branch. This is the
+  shape of a finished slice, not a cap you must protect at the cost of the
+  record: you may add one further commit to resolve review findings, to correct
+  a wrong identifier in a durable record, or to write a papercut you owe. If
+  correctness and the commit count ever appear to conflict, correctness wins
+  and the count was the default. Never leave a known-wrong record standing to
+  keep a commit total.
 
 ## 3. Scope
 
