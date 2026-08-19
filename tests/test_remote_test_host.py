@@ -30,7 +30,7 @@ class RemoteTestHostTests(unittest.TestCase):
         cases = (
             ("plain", 4099, 499, "ran 4099 tests"),
             ("plain", 4144, 501, "plain lane false pass"),
-            ("qt", 4144, 11, "Qt lane false pass"),
+            ("qt", 4144, 499, "Qt lane false pass"),
         )
         for lane, tests, skipped, message in cases:
             with self.subTest(lane=lane, tests=tests, skipped=skipped):

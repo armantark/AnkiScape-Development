@@ -54,11 +54,13 @@ paths populated from the Studio copies:
 - `/Users/armantarkhanian/.gradle/caches/modules-2/files-2.1` entries for Darkan core 2.0.5, fastutil 8.5.15, log4j-api 2.20.0, and log4j-core 2.20.0
 
 `tools/run_remote_tests.py` preflights these paths, ripgrep, Pillow, Java 25,
-and the Qt imports before it changes the mirror. The three source-reading generators exercised by the test corpus honour
-`ANKISCAPE_GAME_MAIN` and `ANKISCAPE_DARKAN_WORLD_SERVER`; generated
-provenance remains pinned to the caller's logical source path so mirroring
-does not rewrite checked-in data. Other source-reading generators, harvesters,
-and gap tools still use Studio-only source paths.
+and the Qt imports before it changes the mirror. `tools/generate_equipment_data.py`
+and `tools/generate_smithing_data.py` honour `ANKISCAPE_GAME_MAIN`;
+`tools/build_pre_eoc_quest_catalog.py` honours both `ANKISCAPE_GAME_MAIN` and
+`ANKISCAPE_DARKAN_WORLD_SERVER`. Generated provenance remains pinned to the
+caller's logical source path so mirroring does not rewrite checked-in data.
+Other source-reading generators, harvesters, and gap tools still use
+Studio-only source paths.
 
 ## Proven result
 
