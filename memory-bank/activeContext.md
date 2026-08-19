@@ -5024,7 +5024,7 @@ flees silently when the player runs out of food.
 ## Jungle Potion re-land — 2026-08-19
 
 - The preserved Jungle Potion implementation was merged with current `main` at
-  `26ccb2a4378f3968e2f255b5f34bddd8ffe889de`; the merge completed without
+  `6c482e617ffbe1f803b2a17fb00fb74a0d07a305`; the merge completed without
   content conflicts and retained all Pass 10 Circus, Fish Flingers, combat
   popup, review-strip, and `ui/ui.py` changes.
 - A standalone real-kernel drive started the quest from its Druidic Ritual and

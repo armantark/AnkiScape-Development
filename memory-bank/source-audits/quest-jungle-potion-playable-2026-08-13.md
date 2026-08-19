@@ -130,7 +130,7 @@ All ten jungle-herb identities and all thirteen named Shilo Village identities a
 ## Re-land verification — 2026-08-19
 
 The preserved slice was merged with `main` commit
-`26ccb2a4378f3968e2f255b5f34bddd8ffe889de`. Git reported no content
+`6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Git reported no content
 conflicts, so no source-backed Jungle Potion value or `PLACEHOLDER(...)` marker
 was reconstructed during conflict resolution. The branch has no production UI
 or panel delta from main; quest eligibility remains owned by
