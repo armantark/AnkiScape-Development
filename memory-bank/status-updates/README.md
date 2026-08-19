@@ -6,6 +6,8 @@ are preserved by month under `archive/`.
 
 ## Current reports
 
+- `ankiscape-system-map-results-2026-08-14.html`
+- `ankiscape-system-map-plan-2026-08-14.html` (comparison)
 - `achievement-semantics-results-2026-07-16.html`
 - `documentation-archive-results-2026-07-16.html`
 - `documentation-integrity-results-2026-07-16.html`

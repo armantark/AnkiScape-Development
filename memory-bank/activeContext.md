@@ -1,6 +1,40 @@
 # Active Context
 
+## Pass 10 CLOSED — 2026-08-15
+
+All nine Pass 10 owner clauses are closed in five commits on `main`
+(`0f642686` plan, `b57fb9c5`, `3a1849d3`, `1f820c9e`, `07359c13`). Both full
+lanes pass at 4,144 tests (plain 499 skips, real offscreen Qt 3 skips). A
+Kimi K3 cross-lineage review found seven actionable items, all applied in
+`07359c13`; its one real bug was the farm-preempted award path bypassing the
+new Combat-level popup boundary — confirmed reproducible and now wrapped with
+a regression test. Verdicts: Big Top 1,940 Magic XP was a payout-tier dedup
+bug (fixed, Darkan semantics ported); Fish Flingers ~5.3k XP came from an
+invented formula, replaced by the Darkan payout registered as
+`fish_flingers.xp_payout` provisional/darkan (real sessions score 28–43,
+median 38 → 4,593 XP at Fishing 25); the 0/10 tricks run was ~1-in-32 bad
+luck, not a defect. PENDING: the native MacBook Pro visual check — the laptop
+slept through every SSH window; the ready-to-run orchestration prompt is
+`pass10-native-prompt.md` in the session scratchpad and should run as the
+first step of the next pass or on the owner's word. Trace and closure notes:
+`memory-bank/codex-briefs/pass10-owner-notes-handoff-2026-08-14.md`. Results
+artifact: `status-updates/pass10-results-2026-08-15.html`
+(<https://f3r46ovdy19g.postplan.dev>).
+
+## Pass 10 Batch A — Big Top Bonanza — 2026-08-15
+
+Batch A is implemented on baseline `389ebcd6`: Big Top now resolves one trick
+per answered card, persists an owner-ordered executing/non-executing queue and
+card-level session, masks XP after Darkan's effective payout-tier translation,
+and ports Darkan's `clamp(50 + level - difficulty, 5, 95)` success roll. Review
+undo restores the exact pre-card state. The 1,680-card week derivation and
+costume scoring remain unchanged; Batch B still owns the Circus panel's Arm
+button and queue controls. Focused verification is green: 22 Circus/runtime/
+integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
+
 ## Current Focus
+
+**2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 
 **2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
 
@@ -4972,3 +5006,37 @@ flees silently when the player runs out of food.
   pass.
 - Evidence and unchanged reachability are recorded in
   `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.
+
+## Pass 10 Batch B — 2026-08-15
+
+- Fish Flingers now settles event XP with the pinned Darkan score and payout reconstruction, with local weight proxies registered as `fish_flingers.xp_payout`; the event path does not apply the Fishing outfit multiplier.
+- Fish Flingers and Big Top now use one Start activity action for review selection. Big Top queue order and execution membership persist through `set_queue`; tree-row clicks remain navigation-only.
+
+## Pass 10 Batch C — 2026-08-15
+
+- Combat level now checks the derived level once per review after all skill level
+  dialogs, so aggregate and normal Combat rewards cannot double-fire the popup.
+- Grouped target trees keep native item painting by omitting item border QSS;
+  saved BackgroundRole green and transient native blue selection both render.
+- Reviewer activity progress uses separate text labels above graphical-only bars;
+  the fixed 128px strip footprint remains the geometry authority.
+
+## Jungle Potion re-land — 2026-08-19
+
+- The preserved Jungle Potion implementation was merged with current `main` at
+  `26ccb2a4378f3968e2f255b5f34bddd8ffe889de`; the merge completed without
+  content conflicts and retained all Pass 10 Circus, Fish Flingers, combat
+  popup, review-strip, and `ui/ui.py` changes.
+- A standalone real-kernel drive started the quest from its Druidic Ritual and
+  Herblore 3 gates, searched, cleaned, and handed in all five herbs in strict
+  order, completed at progress 11 with one quest point and 775 Herblore XP,
+  and made `can_start_quest_pure(..., "shilo_village", ...)` true.
+- The merged reachability graph contains all ten Jungle Potion herb identities
+  and all thirteen Shilo Village-only products, with zero blocked Jungle Potion
+  or Shilo Village quest-stage products. Against `main`, the merged tree moves
+  from 1,571 actions / 2,266 reachable items / 84 orphan inputs / 87 blocked
+  actions to 1,576 / 2,289 / 84 / 87.
+- Full discovery passes 4,146 tests in each lane: plain skips 499 and real
+  offscreen Qt skips three. The branch adds no panel rule or unmarked
+  reconstruction; the placeholder-register suites pass all 22 tests.
+- Evidence: `source-audits/quest-jungle-potion-playable-2026-08-13.md`.

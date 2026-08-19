@@ -331,6 +331,33 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(popup_calls, [("exp", 47.0)])
 
+    def test_review_combat_level_boundary_collapses_multi_skill_gain_to_one_check(self):
+        addon = _load_addon_as_package("ankiscape_combat_level_boundary")
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 1,
+            "ranged_level": 1,
+            "magic_level": 1,
+            "summoning_level": 1,
+            "review_event_log": [],
+        }
+        checks = []
+        addon._core_combat_level_up_check = lambda old, data: checks.append(
+            (old, addon.player_combat_level_pure(data))
+        )
+
+        addon._begin_review_feedback_context()
+        addon.player_data["attack_level"] = 10
+        addon.player_data["strength_level"] = 10
+        addon._finish_review_feedback_context()
+
+        self.assertEqual(len(checks), 1)
+        self.assertLess(checks[0][0], checks[0][1])
+
     def test_direct_xp_event_uses_the_awarded_skill_not_the_selected_skill(self):
         addon = _load_addon_as_package("ankiscape_direct_event_skill_name")
         addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
@@ -7716,7 +7743,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
 
         self.assertTrue(result["ok"])
-        self.assertEqual(addon.player_data["current_utility"], "big_top_bonanza")
+        self.assertEqual(addon.player_data["current_utility"], "make_soft_clay")
         self.assertEqual(addon.player_data["circus"]["selected_performance"], "magic")
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
@@ -8963,8 +8990,12 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 42)
         self.assertEqual(
-            addon.player_data["circus"]["used_week_by_performance"],
-            {"agility": 0},
+            addon.player_data["circus"]["session"]["active_performance"],
+            "agility",
+        )
+        self.assertEqual(
+            addon.player_data["circus"]["session"]["trick_index"],
+            1,
         )
         self.assertGreater(addon.player_data["agility_exp"], 0.0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)

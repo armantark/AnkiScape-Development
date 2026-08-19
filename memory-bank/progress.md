@@ -1,5 +1,19 @@
 # Progress
 
+## Big Top Bonanza per-card queue — 2026-08-15
+
+Pass 10 Batch A replaces the old one-review Circus reducer with one-trick
+resolution per answered card. The persisted state now stores owner-ordered
+executing and non-executing performance lists plus active performance, trick
+index, payout-tier mask, score, success count, and attempted IDs. Darkan
+commit `f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe` is ported for the integer
+success chance and half-level effective tier; no success-chance placeholder
+was needed. Focused checks pass 22 Circus/runtime/integration tests, 198
+adjacent pure/runtime tests, and one real offscreen Qt contract test. Review
+undo restores the pre-card snapshot. The 1,680-card week derivation and
+costume scoring were not changed. Results artifact:
+`status-updates/pass10-batch-a-results-2026-08-15.html`.
+
 ## Oversized cadence credit recovery — 2026-08-13
 
 Cadence `credit` is the deterministic fractional-admission residual accumulated toward a profile's denominator, so its valid range is `0` through `threshold_denominator - 1`. Immediately after the existing profile-state sanitization, the advance path clamps an oversized persisted integer to that profile-derived upper boundary. This keeps load recoverable while preserving as much earned progress as a valid state can represent; malformed types and negative values retain their existing reset-to-zero behavior. A real migration-plus-live-route regression covers Maple's denominator-10 profile with both credit `10_000` and the valid boundary `9`, proving the saved session advances successfully and retains credit `9` while consuming its opening opportunity.
@@ -6104,3 +6118,24 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Item packs and impling jars now commit through `commit_direct_action` instead of a private transaction copy, so they inherit the shared music-log refresh and complete undo snapshot, including `current_skill`.
 - The application-path regression opens a Dragon impling jar, proves the pending quest track is refreshed, changes the live skill, and proves undo restores both the save and Hunter.
 - Both full lanes pass 4,104 tests: plain with 498 expected Qt skips, and offscreen Qt with three skips. Reachability is unchanged at 1,568 actions / 2,248 reachable items / 100 orphan inputs / 103 blocked actions.
+
+## Source-backed system map — 2026-08-14
+
+- Added `status-updates/ankiscape-system-map-plan-2026-08-14.html` and the interactive completion artifact `status-updates/ankiscape-system-map-results-2026-08-14.html`.
+- The owner rejected the first composition. Opus 5 then rebuilt the result artifact from scratch and Codex rejected its first render for token, label, legend, palette, and clipping failures before accepting a second composition pass.
+- The final map traces review control, menu control, catalog dependency, state save, feedback projection, persisted feedback, review/world clocks, and undo restore through nine distinct structures in three zones. Payload chips appear only for the selected road; the explainer carries contracts, trace, route jumps, and exact source citations.
+- Mechanical artifact checks, HTML parsing, and `git diff --check` pass. PinchTab verified the default and selected visual states, nine keyboard structures, eight keyboard roads, Escape reset, zero default payload tokens, exactly one selected-road token, and coherent node/road focus disclosure.
+- The plan artifact is hosted at `https://acgrgnw1a8ig.postplan.dev`. The results artifact remains local because Postplan requires valid authentication for inline JavaScript uploads.
+
+## Pass 10 Batch B — 2026-08-15
+
+- Implemented Fish Flingers Darkan payout parity, outfit exclusion, and eight-review panel copy.
+- Implemented atomic Big Top start flow and persisted executing/non-executing queue editing.
+
+## Pass 10 Batch C — 2026-08-15
+
+- Implemented the review-scoped derived Combat-level popup boundary.
+- Fixed grouped Combat target saved-row painting and added a shown-widget pixel
+  probe for saved, non-saved, and transient-selection colors.
+- Split both reviewer activity progress bars into labels plus graphical fills;
+  focused pure and offscreen Qt checks pass.

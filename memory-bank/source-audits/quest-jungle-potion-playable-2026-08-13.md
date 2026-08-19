@@ -126,3 +126,26 @@ Gross reachable-item additions, measured by comparing the corrected main and mer
 Gross reachable-item removals: none.
 
 All ten jungle-herb identities and all thirteen named Shilo Village identities are reachable. Shilo routes are one `quest-start:shilo_village` source (`Wampum belt`) plus twelve `quest-stage:shilo_village:*` sources. Neither Jungle Potion nor Shilo Village has a blocked quest-stage diagnostic after closure.
+
+## Re-land verification — 2026-08-19
+
+The preserved slice was merged with `main` commit
+`26ccb2a4378f3968e2f255b5f34bddd8ffe889de`. Git reported no content
+conflicts, so no source-backed Jungle Potion value or `PLACEHOLDER(...)` marker
+was reconstructed during conflict resolution. The branch has no production UI
+or panel delta from main; quest eligibility remains owned by
+`can_start_quest_pure`.
+
+A standalone driver invoked the live `handle_quest_answer` and
+`handle_herblore_answer` handlers. It started from an unstarted Jungle Potion
+state, produced and cleaned the five herbs in order, consumed each clean herb,
+completed at progress 11, moved quest points from 4 to 5, moved Herblore XP
+from 250.0 to 1037.5, and made Shilo Village startable. The reachability report
+then resolved all ten herb identities and all thirteen Shilo Village-only
+products with zero Jungle Potion or Shilo Village blocked-stage diagnostics.
+
+At the named main parent, `tools/audit_item_reachability.py` reported 1,571
+actions, 2,266 reachable items, 84 orphan inputs, and 87 blocked actions. The
+merged tree reports 1,576 actions, 2,289 reachable items, 84 orphan inputs, and
+87 blocked actions. Both expected nonzero audits exit 1 because the repository
+still has 87 unrelated blocked actions.

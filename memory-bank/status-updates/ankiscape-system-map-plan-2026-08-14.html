@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape system map plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, .14);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --cyan: #59d5e8;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(79, 140, 255, .17), transparent 30rem),
+        radial-gradient(circle at 100% 22%, rgba(167, 139, 250, .1), transparent 28rem),
+        var(--bg);
+      font: 15px/1.55 Outfit, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 72px; }
+    .badge, .eyebrow, .file, code {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      color: var(--accent);
+      border: 1px solid rgba(79, 140, 255, .45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      font-size: .68rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; max-width: 780px; font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1.02; letter-spacing: -.035em; text-wrap: balance; }
+    .lead { max-width: 760px; margin: 0; color: var(--text-dim); font-size: 1rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 32px; }
+    .file { padding: 5px 8px; color: var(--text-dim); background: var(--surface-2); border-radius: 7px; font-size: .65rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr); gap: 18px; align-items: stretch; }
+    .panel { border: 1px solid var(--border); border-radius: var(--radius); background: rgba(22, 26, 33, .92); }
+    .panel-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
+    .eyebrow { color: var(--text-dim); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; }
+    h2 { margin: 4px 0 0; font-size: 1.12rem; text-wrap: balance; }
+    .map { position: relative; min-height: 430px; overflow: hidden; background: #10141b; }
+    .map::before {
+      content: "";
+      position: absolute;
+      inset: 95px -8% -70px;
+      transform: rotateX(60deg) rotateZ(-45deg);
+      background-image: linear-gradient(rgba(79,140,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(79,140,255,.16) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: .65;
+    }
+    .map::after { content: ""; position: absolute; inset: 0; background: linear-gradient(140deg, rgba(16,20,27,.08), rgba(16,20,27,.78) 80%); pointer-events: none; }
+    .node { position: absolute; z-index: 1; width: 118px; padding: 13px 12px; border: 1px solid var(--node); border-radius: 9px; background: rgba(19, 24, 33, .94); }
+    .node::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -7px; height: 7px; transform: skewX(-35deg); background: var(--node); opacity: .35; }
+    .node strong { display: block; font-size: .77rem; }
+    .node small { display: block; margin-top: 4px; color: var(--text-dim); font: .62rem/1.35 "JetBrains Mono", monospace; }
+    .node.host { --node: var(--accent); left: 7%; top: 18%; }
+    .node.ui { --node: var(--purple); left: 37%; top: 10%; }
+    .node.dispatch { --node: var(--cyan); right: 7%; top: 25%; }
+    .node.rules { --node: var(--green); left: 24%; bottom: 16%; }
+    .node.state { --node: var(--amber); right: 28%; bottom: 10%; }
+    .node.catalog { right: 5%; bottom: 9%; --node: var(--red); }
+    .node.edge { left: 4%; bottom: 8%; --node: #d39bf8; }
+    .trace { position: absolute; z-index: 2; left: 6%; right: 6%; top: 47%; height: 2px; background: repeating-linear-gradient(90deg, var(--accent) 0 10px, transparent 10px 16px); opacity: .75; }
+    .trace::after { content: "review control"; position: absolute; right: 0; top: -24px; color: var(--accent); font: .62rem "JetBrains Mono", monospace; }
+    .map-caption { position: absolute; z-index: 3; right: 18px; bottom: 16px; max-width: 260px; color: var(--text-dim); font-size: .72rem; }
+    .plan-copy { padding: 18px 20px 20px; }
+    .plan-copy p { margin: 0 0 14px; color: var(--text-dim); font-size: .88rem; }
+    .plan-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .plan-list li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; padding-top: 10px; border-top: 1px solid var(--border); font-size: .82rem; }
+    .num { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: white; font: 700 .7rem "JetBrains Mono", monospace; }
+    .plan-list strong { display: block; font-size: .84rem; }
+    .plan-list span { color: var(--text-dim); }
+    .sources { margin-top: 18px; padding: 18px 20px; }
+    .source-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .source { padding: 12px; border: 1px solid var(--border); border-radius: 9px; background: rgba(30,35,44,.72); }
+    .source strong { display: block; font-size: .75rem; }
+    .source code { display: block; margin-top: 6px; color: var(--text-dim); font-size: .63rem; line-height: 1.45; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .source-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { main { width: min(100% - 20px, 1180px); padding-top: 28px; } .map { min-height: 560px; } .node { width: 104px; } .node.host { left: 4%; top: 12%; } .node.ui { left: 36%; top: 7%; } .node.dispatch { right: 3%; top: 26%; } .node.rules { left: 7%; bottom: 21%; } .node.state { right: 31%; bottom: 10%; } .node.catalog { right: 2%; bottom: 24%; } .node.edge { left: 3%; bottom: 5%; } .source-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="badge">Pre-implementation plan · 2026-08-14</span>
+      <h1>Turn the runtime into a city you can trace.</h1>
+      <p class="lead">A source-backed architecture map for clean <code>main</code> at <code>59fa88d0</code>. The finished artifact will show how a review or menu click becomes a deterministic mutation, a save, and visible feedback.</p>
+      <div class="meta"><span class="file">main · clean</span><span class="file">8 buildings</span><span class="file">5 path lanes</span><span class="file">0 product-code changes</span></div>
+    </header>
+
+    <section class="layout">
+      <div class="panel map" aria-label="Planned isometric map preview">
+        <div class="node host"><strong>Anki host</strong><small>hooks.py<br>__init__.py</small></div>
+        <div class="node ui"><strong>Native surfaces</strong><small>ui/ui.py</small></div>
+        <div class="node dispatch"><strong>Dispatch hub</strong><small>action_registry<br>runtime_actions</small></div>
+        <div class="node rules"><strong>Pure rules</strong><small>logic_pure</small></div>
+        <div class="node state"><strong>State vault</strong><small>storage.py</small></div>
+        <div class="node catalog"><strong>Content registry</strong><small>skill + target data</small></div>
+        <div class="node edge"><strong>Feedback</strong><small>HUD + telemetry</small></div>
+        <div class="trace"></div>
+        <div class="map-caption">Grid is a topology surface. Building height will encode responsibility, not file size.</div>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-head"><div class="eyebrow">Map contract</div><h2>Every arrow must explain a real payload.</h2></div>
+        <div class="plan-copy">
+          <p>Use interaction to switch between control flow, data flow, persistence, and feedback. Selecting a building reveals its role, inbound dependencies, outbound payload, and cited source lines.</p>
+          <ol class="plan-list">
+            <li><span class="num">1</span><div><strong>Review ingress</strong><span>Anki wraps <code>Reviewer._answerCard</code> and calls the answer seam.</span></div></li>
+            <li><span class="num">2</span><div><strong>Route by handler key</strong><span>Action metadata resolves the active skill or action to one runtime handler.</span></div></li>
+            <li><span class="num">3</span><div><strong>Mutate pure state</strong><span>Handlers receive a callback-rich <code>RuntimeActionContext</code> and call pure reducers.</span></div></li>
+            <li><span class="num">4</span><div><strong>Persist and project</strong><span>Storage migrates the payload; HUD, event log, and undo restore visibility.</span></div></li>
+          </ol>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel sources">
+      <div class="eyebrow">Evidence packet</div>
+      <h2>Initial citations for the finished map</h2>
+      <div class="source-grid">
+        <div class="source"><strong>Hook registration</strong><code>core/hooks.py:29-92<br>__init__.py:5746-5766</code></div>
+        <div class="source"><strong>Review transaction</strong><code>__init__.py:5278-5332<br>__init__.py:5357-5454</code></div>
+        <div class="source"><strong>Dispatch registries</strong><code>core/action_registry.py:52-75<br>runtime/runtime_actions.py:850-906</code></div>
+        <div class="source"><strong>Callback payload</strong><code>runtime/runtime_actions_context.py:10-40</code></div>
+        <div class="source"><strong>Persistence boundary</strong><code>core/storage.py:12-54<br>core/storage_pure.py:1347-1402</code></div>
+        <div class="source"><strong>Projection + telemetry</strong><code>ui/ui.py:3999-4218<br>logic_pure/logic_pure_telemetry.py:160-285</code></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

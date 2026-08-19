@@ -596,7 +596,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
         self.assertEqual(player_data["trouble_brewing"]["opponent_progress"], 2)
 
-    def test_circus_review_resolves_one_atomic_multi_skill_performance(self):
+    def test_circus_review_resolves_one_trick_per_answered_card(self):
         from ankiscape.logic.circus_logic import default_circus_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
@@ -611,11 +611,12 @@ class TestRuntimeActions(unittest.TestCase):
             "completed_achievements": [],
         }
 
-        self.assertTrue(
-            handle_utility_answer(
-                _context(player_data, calls, random_values=(0.0,) * 10)
+        for _ in range(10):
+            self.assertTrue(
+                handle_utility_answer(
+                    _context(player_data, calls, random_values=(0.0,))
+                )
             )
-        )
 
         self.assertGreater(player_data["agility_exp"], 0.0)
         self.assertEqual(
@@ -623,9 +624,13 @@ class TestRuntimeActions(unittest.TestCase):
             {"agility": 0},
         )
         self.assertEqual(player_data["inventory"], {"Clown hat": 1})
-        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["saves"], 10)
         self.assertTrue(calls.get("deactivated"))
         self.assertIn("utility:big_top_bonanza", player_data["action_telemetry"]["actions"])
+        self.assertEqual(
+            len([row for row in player_data["review_event_log"] if row["kind"] == "activity"]),
+            11,
+        )
 
     def test_combat_level_refresh_leaves_the_old_level_for_the_level_up_gate(self):
         from ankiscape.runtime.runtime_actions_shared import _refresh_combat_levels
@@ -650,6 +655,10 @@ class TestRuntimeActions(unittest.TestCase):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         state = default_circus_state_pure()
         state["selected_performance"] = "fire_breathing"
+        state["performance_queue"] = {
+            "executing": ["fire_breathing"],
+            "non_executing": ["agility", "magic", "ranged", "flaming_poi", "thieving"],
+        }
         player_data = {
             "current_utility": "big_top_bonanza",
             "circus": state,
@@ -667,7 +676,8 @@ class TestRuntimeActions(unittest.TestCase):
             random_random=lambda: rolls.append(0.0) or 0.0,
         )
 
-        self.assertTrue(handle_utility_answer(ctx))
+        for _ in range(6):
+            self.assertTrue(handle_utility_answer(ctx))
 
         self.assertEqual(len(rolls), 6)
         self.assertGreater(player_data["firemaking_exp"], 0.0)
@@ -697,7 +707,8 @@ class TestRuntimeActions(unittest.TestCase):
             random_random=lambda: rolls.append(0.0) or 0.0,
         )
 
-        self.assertTrue(handle_utility_answer(ctx))
+        for _ in range(2):
+            self.assertTrue(handle_utility_answer(ctx))
 
         self.assertEqual(len(rolls), 2)
         self.assertGreater(player_data["agility_exp"], 0.0)

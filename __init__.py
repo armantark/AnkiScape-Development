@@ -90,7 +90,12 @@ from .logic_pure.logic_pure import (
 )
 from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
-from .core.logic import level_up_check as _core_level_up_check, check_achievements
+from .core.logic import (
+    combat_level_up_check as _core_combat_level_up_check,
+    level_up_check as _core_level_up_check,
+    check_achievements,
+)
+from .logic_pure.logic_pure_combat_engine import player_combat_level_pure
 from .ui.ui import (
     ExpPopup,
     show_error_message,
@@ -642,6 +647,7 @@ def _begin_review_feedback_context() -> None:
         "skills": list(getattr(initial_xp, "skill_names", ())),
         "initial_exp": initial_exp,
         "recorded_exp": initial_exp,
+        "combat_level_before": player_combat_level_pure(player_data),
         "activity": [],
     }
     _REVIEW_FEEDBACK_INITIAL_XP = 0.0
@@ -723,6 +729,10 @@ def _finish_review_feedback_context() -> None:
             update_review_hud(player_data, current_skill)
         except Exception:
             pass
+        _core_combat_level_up_check(
+            context["combat_level_before"],
+            player_data,
+        )
     finally:
         _REVIEW_FEEDBACK_FLUSHING = False
 
@@ -3208,7 +3218,7 @@ def _on_main_menu(
         check_achievements(player_data)
         save_player_data()
         _refresh_skill_availability()
-        if info.get("message"):
+        if info.get("message") and str(action_id) != "set_queue":
             _show_activity_gain(str(info["message"]))
         try:
             mw.update_undo_actions()
@@ -5439,7 +5449,13 @@ def on_answer_card(self, ease, _old):
                     "disengaged": True,
                 }
         if successful_answer and had_farm_step:
-            farm_preempted = runtime_actions.handle_farming_review_answer(_runtime_action_context())
+            _begin_review_feedback_context()
+            try:
+                farm_preempted = runtime_actions.handle_farming_review_answer(
+                    _runtime_action_context()
+                )
+            finally:
+                _finish_review_feedback_context()
         else:
             runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
     if successful_answer and review_answered and not exp_awarded and farm_preempted:
