@@ -19,7 +19,7 @@ class RemoteTestHostTests(unittest.TestCase):
 
     def test_summary_parser_rejects_truncated_and_zero_test_output(self):
         for output, message in (
-            ("progress only", "complete unittest success summary"),
+            ("Ran 4144 tests in 125.215s\n", "complete unittest success summary"),
             ("Ran 0 tests in 0.000s\n\nOK\n", "reported zero tests"),
         ):
             with self.subTest(output=output):
@@ -28,20 +28,22 @@ class RemoteTestHostTests(unittest.TestCase):
 
     def test_lane_guard_rejects_partial_discovery_and_inflated_skips(self):
         cases = (
-            ("plain", 4143, 499, "ran 4143 tests"),
-            ("plain", 4144, 501, "plain lane false pass"),
-            ("qt", 4144, 499, "Qt lane false pass"),
+            ("plain", "Ran 4143 tests in 1.000s\n\nOK (skipped=499)\n", "ran 4143 tests"),
+            ("plain", "Ran 4144 tests in 1.000s\n\nOK (skipped=501)\n", "plain lane false pass"),
+            ("qt", "Ran 4144 tests in 1.000s\n\nOK (skipped=499)\n", "Qt lane false pass"),
         )
-        for lane, tests, skipped, message in cases:
-            with self.subTest(lane=lane, tests=tests, skipped=skipped):
-                summary = run_remote_tests.TestSummary("Ran", "OK", tests, skipped)
+        for lane, output, message in cases:
+            with self.subTest(lane=lane, output=output):
+                summary = run_remote_tests.parse_unittest_summary(output)
                 with self.assertRaisesRegex(RuntimeError, message):
                     run_remote_tests.validate_test_summary(lane, summary)
 
     def test_lane_guard_accepts_recorded_plain_and_qt_baselines(self):
         for lane, skipped in (("plain", 499), ("qt", 3)):
             with self.subTest(lane=lane):
-                summary = run_remote_tests.TestSummary("Ran", "OK", 4144, skipped)
+                summary = run_remote_tests.parse_unittest_summary(
+                    f"Ran 4144 tests in 1.000s\n\nOK (skipped={skipped})\n"
+                )
                 self.assertIsNone(run_remote_tests.validate_test_summary(lane, summary))
 
     def test_stream_reloads_log_after_completion_report_appears(self):
