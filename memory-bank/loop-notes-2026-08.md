@@ -1436,3 +1436,39 @@ already provides for one commit after review. No rail is relaxed by correcting
 it there. Future briefs must label a quoted baseline as "measured at", and say
 explicitly that the record must name the merge parent the agent actually
 merged.
+
+### Review round one: three of four slices rejected
+
+Every slice that reached an independent Opus review on 2026-08-19 came back
+with real defects. None of the rejections were style.
+
+**Jungle Potion — REJECT.** A Shattered Heart strange rock replaces the clean
+herb produced by the quest's Herblore step, because `_record_action` in
+`runtime/runtime_actions_shared.py:566-575` subtracts the produced output as
+the rock's replacement. Each grimy jungle herb has exactly one producer, the
+already-passed search stage, so the quest becomes permanently unfinishable and
+takes Shilo Village and thirteen exclusive items with it. Incidence
+`1 - 0.99**5` = 4.9% of playthroughs. The accompanying test hid it by calling
+`player_data.pop("shattered_heart", None)`.
+
+**Skeletal Wyvern — REJECT.** Protect from Melee nullified the ice breath
+entirely, defeating the six-shield mechanic the slice exists to ship
+(`logic_pure/logic_pure_combat_engine.py:1455`).
+
+**Tooling guardrails — REJECT.** A new root `.ignore` hid `data/shop_data.py`
+and `data/construction_data.py` from every ripgrep search, including
+`tools/repo_search.py --include-large`, which promises to include them. And
+`tools/worktree_guard.py audit` aborted with exit 2 for any caller without
+`CLAUDE_CODE_SESSION_ID` — the guard every dispatched agent depends on.
+
+**Skill buttons — ACCEPT WITH FINDINGS.** The first commit had already been
+rejected for over-disabling Crafting; that was confirmed genuinely fixed, both
+paths now calling `crafting_target_locked_reasons_pure` with identical
+arguments. Smithing still read a bool captured at menu-open rather than a live
+predicate.
+
+Two patterns worth keeping. Every reviewer independently re-ran a lane rather
+than trusting the author's counts, and every count held: the failures were
+never in the numbers, only in what the tests were pointed at. And the two worst
+defects were both pinned by tests that removed or hand-fed the state that
+triggers them, which is the same signature as the 2026-07-26 batch.
