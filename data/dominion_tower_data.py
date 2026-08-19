@@ -719,10 +719,11 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
         f"{_W}/Bouncer?oldid=6356419; npcListBonuses 269",
     ),
     "koschei": _npc(
-        # PLACEHOLDER(dominion_tower.koschei_combat_level): neither the pinned
-        # revision ("level = N/A") nor rev 727 (all four forms carry 0) states a
-        # combat level, and the tower's factor formula multiplies roster combat
-        # levels. The lowest stated level in Koschei's own class E stands in.
+        # PLACEHOLDER(dominion_tower.koschei_combat_level): the pinned revision
+        # prints "level = N/A" and rev 727 explicitly stores combat level 0 for
+        # all four forms. Zero is evidence of an unset client definition, not an
+        # absent row; the tower's factor formula still needs a positive proxy.
+        # The lowest stated level in Koschei's own class E stands in.
         "Koschei the deathless", 1293, 110, 790, 74, ("melee",),
         f"{_W}/Koschei_the_deathless?oldid=6450413; combatdefs/koschei; npcListBonuses 1290-1293",
         attack_speed=6,
@@ -846,14 +847,16 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
     # melee." The lair's melee-only reading does not apply here, because the
     # tower states the mutant's style itself.
     "mutant_tarn": _npc(
-        "Mutant tarn", 6477, 69, 650, 190, ("magic",),
-        f"{_W}/Tarn?oldid=6448021",
+        "Mutant tarn", 14429, 69, 650, 190, ("magic",),
+        f"{_W}/Tarn?oldid=6448021; rev-727 Dominion struct 2798",
         successor="tarn_ghost",
     ),
     "tarn_ghost": _npc(
-        # PLACEHOLDER(dominion_tower.tarn_ghost_npc_id): the ghost form's own id.
-        "Tarn", 0, 69, 650, 190, ("melee",),
-        f"{_W}/Tarn?oldid=6448021",
+        # Rev-727 struct 2798 directly selects the attackable level-69 mutant
+        # 14429 for the tower. Its contiguous attackable Tarn partner is 14430;
+        # the older same-name pair is 5421/5420, while the former 6477 is Redeyes.
+        "Tarn", 14430, 69, 650, 190, ("melee",),
+        f"{_W}/Tarn?oldid=6448021; rev-727 Dominion struct 2798",
     ),
     "terror_dog_110": _npc(
         # The tower's dogs are the "large" ones: the two forms differ by size and
@@ -890,9 +893,10 @@ DOMINION_TOWER_NPCS: dict[str, dict[str, Any]] = {
     ),
     "solus_dellagar": _npc(
         # PLACEHOLDER(dominion_tower.solus_dellagar_combat_level): the pinned
-        # revision states "level = None" and rev 727 carries 0 for both ids, so
-        # the lowest stated level in Solus's own class H stands in for the
-        # factor formula.
+        # revision states "level = None" and rev 727 explicitly stores combat
+        # level 0 for both ids. Zero is an unset client definition, but the tower
+        # factor formula needs a positive proxy, so the lowest stated level in
+        # Solus's own class H stands in.
         "Solus Dellagar", 2780, 27, 400, 960, ("magic", "melee"),
         f"{_W}/Solus_Dellagar?oldid=6342730; combatdefs/solus_dellagar; npcListBonuses 2780",
         bonuses=_bonuses((0, 0, 0, 0, 0, 5, 5, 5, 72, -10), (16, 0, 0)),
@@ -1661,35 +1665,35 @@ DOMINION_TOWER_MINE_SPECIAL_MATCH_IDS = tuple(
 # Items, equipment and assets
 # ---------------------------------------------------------------------------
 
-# item name -> (rev-742/727 item id where recovered, stackable)
-# PLACEHOLDER(dominion_tower.reward_item_ids): none of the pinned glove, weapon,
-# mine, medallion, marker, journal, potion, bomb or horn revisions prints an item
-# id, and the cache item dump carries no row under these display names. Zero
-# means "identity not recovered" and is never written into a save.
+# item name -> (period item id, stackable). Direct rev-727 and rev-742 cache
+# queries agree with Darkan's rev-727 `developer-information/itemList.txt`,
+# introduced in commit c6fbe036b1743f4d. Variant families use the first live row;
+# the app does
+# not model colour, charge, dose, marker-stage, or journal-page variants.
 _DOMINION_TOWER_ITEM_ROWS: dict[str, tuple[int, bool]] = {
-    DOMINION_TOWER_GOLIATH_GLOVES: (0, False),
-    DOMINION_TOWER_SPELLCASTER_GLOVES: (0, False),
-    DOMINION_TOWER_SWIFT_GLOVES: (0, False),
-    DOMINION_TOWER_DREADNIP: (0, True),
-    DOMINION_TOWER_SWORD: (0, False),
-    DOMINION_TOWER_STAFF: (0, False),
-    DOMINION_TOWER_CROSSBOW: (0, False),
-    DOMINION_TOWER_MINE: (0, True),
-    DOMINION_TOWER_ASCENDANCY_MINE: (0, True),
-    DOMINION_TOWER_MEDALLION: (0, False),
-    DOMINION_TOWER_SUPER_MEDALLION: (0, False),
-    DOMINION_TOWER_MARKER: (0, False),
-    DOMINION_TOWER_JOURNAL_PAGE: (0, True),
-    DOMINION_TOWER_SCORPION_MEAT: (0, True),
-    DOMINION_TOWER_XP_BOOK: (0, False),
-    DOMINION_TOWER_HELP_HORN: (0, False),
-    DOMINION_TOWER_DIMINUTIVE_BOMB: (0, True),
-    DOMINION_TOWER_MASSIVE_BOMB: (0, True),
-    DOMINION_TOWER_COLOSSAL_BOMB: (0, True),
-    DOMINION_TOWER_DOM_SUPER_RESTORE: (0, True),
-    DOMINION_TOWER_DOM_SUPER_PRAYER: (0, True),
-    DOMINION_TOWER_DOM_SUPER_ANTIPOISON: (0, True),
-    DOMINION_TOWER_DOM_SARADOMIN_BREW: (0, True),
+    DOMINION_TOWER_GOLIATH_GLOVES: (22358, False),
+    DOMINION_TOWER_SPELLCASTER_GLOVES: (22366, False),
+    DOMINION_TOWER_SWIFT_GLOVES: (22362, False),
+    DOMINION_TOWER_DREADNIP: (22370, True),
+    DOMINION_TOWER_SWORD: (22346, False),
+    DOMINION_TOWER_STAFF: (22347, False),
+    DOMINION_TOWER_CROSSBOW: (22348, False),
+    DOMINION_TOWER_MINE: (22371, True),
+    DOMINION_TOWER_ASCENDANCY_MINE: (22372, True),
+    DOMINION_TOWER_MEDALLION: (22338, False),
+    DOMINION_TOWER_SUPER_MEDALLION: (22339, False),
+    DOMINION_TOWER_MARKER: (22354, False),
+    DOMINION_TOWER_JOURNAL_PAGE: (22381, True),
+    DOMINION_TOWER_SCORPION_MEAT: (22342, True),
+    DOMINION_TOWER_XP_BOOK: (22340, False),
+    DOMINION_TOWER_HELP_HORN: (22349, False),
+    DOMINION_TOWER_DIMINUTIVE_BOMB: (22343, True),
+    DOMINION_TOWER_MASSIVE_BOMB: (22344, True),
+    DOMINION_TOWER_COLOSSAL_BOMB: (22345, True),
+    DOMINION_TOWER_DOM_SUPER_RESTORE: (22379, True),
+    DOMINION_TOWER_DOM_SUPER_PRAYER: (22375, True),
+    DOMINION_TOWER_DOM_SUPER_ANTIPOISON: (22377, True),
+    DOMINION_TOWER_DOM_SARADOMIN_BREW: (22373, True),
 }
 
 # The three glove rows exactly as each glove's pinned infobox prints them.
@@ -1845,11 +1849,12 @@ def dominion_tower_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {
         item_name: {
             "category": "material",
+            "item_id": item_id,
             "stackable": stackable,
             "tradeable": False,
             "source": DOMINION_TOWER_SOURCE,
         }
-        for item_name, (_item_id, stackable) in _DOMINION_TOWER_ITEM_ROWS.items()
+        for item_name, (item_id, stackable) in _DOMINION_TOWER_ITEM_ROWS.items()
     }
 
 
@@ -1867,7 +1872,7 @@ def dominion_tower_equipment_data_as_dict() -> dict[str, Any]:
             equipment_type="gloves",
             bonuses=EquipmentBonuses(**bonuses),
             attack_speed=4,
-            source_item_id=0,
+            source_item_id=_DOMINION_TOWER_ITEM_ROWS[item_name][0],
             source=DOMINION_TOWER_SOURCE,
             source_status="pinned pre-cutoff item revision",
             skill_requirements=((combat_skill, required_level),),

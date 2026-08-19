@@ -47,11 +47,25 @@ client-authored names, visible text, use labels, operation labels, and option
 labels. Output includes stable `interface:component` identities, layout and
 visibility metadata, text/font, sprite/model references, actions, and the
 principal script hooks. It is deterministic for the same cache and query.
-Some later caches retain legacy IF1 archives that Darkan core 2.0.5 does not
-decode. `find` reports each skipped interface on standard error and continues,
-so a negative search has an explicit omission list instead of failing at the
-first archive. An exact `dump` of an unsupported archive still fails rather
-than pretending the record was decoded.
+Correction, 2026-08-13: the checked-in reader still skips fifteen archives in
+revisions 736, 741, and 742. Darkan core 2.0.5 throws an exception labelled
+`if1` whenever a component's first byte is not `0xFF`; the affected components
+begin with version byte `0x03`, so the label does not establish a legacy or
+unsupported format. `OpenRs2InterfaceQuery.find` catches the exception, prints a
+skip warning, and exits zero after searching only the remainder. Absence from
+its output is therefore incomplete negative evidence.
+
+A one-off reflective experiment bypassed that guard and invoked the library's
+package-private decoder directly. It decoded all 1,376 affected components into
+coherent period interfaces, including Squeal of Fortune and Avatar
+Customisation surfaces. The experiment found none related to Achievement Diary
+interface 917, Conquest, or Daily Challenges interface 1343. Reproducing that
+complete search requires a guard fix or a byte-level parser; neither exists in
+the repository today. The archive IDs are `548`, `628`, `629`, `633`, `634`,
+`635`, `691`, `976`, `1253`, `1311`, `1316`, `1358`, `1360`, `1361`, and
+`1368`. Interface ID 976 also demonstrated a namespace-collision hazard: an
+interface archive number is not an item, NPC, object, enum, or struct identity
+merely because the integer matches.
 
 ## Period-cache proof
 

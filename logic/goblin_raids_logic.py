@@ -668,8 +668,9 @@ def apply_goblin_raids_review_pure(
         if session["mode"] == GOBLIN_RAIDS_RAID_MODE:
             state["raid_goblins_killed"] += 1
             if session["stage"] == "raiders":
-                # Each raider has been shouting and hoarding since the raid
-                # began, and drops everything it took when it dies.
+                # The period source fixes each site's candidate set, not its
+                # per-shout selector. Cycling is AnkiScape's deterministic
+                # reachability model for the sourced hoard-and-drop behavior.
                 site = GOBLIN_RAID_SITES_BY_ID[session["site_id"]]
                 for index in range(max(1, int(session["shouts"]) + 1)):
                     item = site.materials[index % len(site.materials)]

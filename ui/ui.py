@@ -176,8 +176,23 @@ from ..logic.bank_layout_logic import (
     reorder_bank_tab_pure,
     set_bank_tab_icon_pure,
 )
-from ..logic.skill_guide_logic import skill_guide_sections_pure
+from ..logic.skill_guide_logic import (
+    farming_skill_guide_sections_pure,
+    skill_guide_sections_pure,
+)
+from ..data.farming_skill_guide_data import (
+    FARMING_GUIDE_ICON_STORAGE_KEYS,
+    FARMING_GUIDE_KEY,
+    FARMING_GUIDE_ROWS,
+    FARMING_GUIDE_SECTIONS,
+)
+from ..data.farming_data import FARMING_CROPS, FARMING_PATCHES_BY_ID
+from ..data.evil_tree_data import EVIL_TREE_TIERS
+from ..data.dungeoneering_data import DUNGEONEERING_REWARDS
+from ..data.bork_data import BORK_EFFIGY_ITEM
+from ..data.achievement_cape_data import SKILLCAPES
 
+from ..data.impling_jar_data import IMPLING_JAR_DATA
 from ..data.pack_data import ITEM_PACK_DATA
 
 from ..data.evil_tree_data import EVIL_TREE_KINDLING, EVIL_TREE_UTILITY_ID
@@ -287,7 +302,10 @@ from ..logic.werewolf_skullball_logic import werewolf_skullball_view_pure
 from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
 from ..logic.gnome_ball_logic import gnome_ball_view_pure
 
-from ..data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ..data.fish_flingers_data import (
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISH_FLINGERS_EVENT_REVIEWS,
+)
 from ..logic.fish_flingers_logic import fish_flingers_view_pure
 
 from ..data.fishing_trawler_data import (
@@ -523,6 +541,7 @@ from ..core.target_metadata import (
 from ..data.livid_farm_data import (
     BORROWED_POWER_COMBAT_SPELLS,
     LIVID_FARM_ACTIVITY_ID,
+    LIVID_FARM_ENTRY_LEVELS,
     LIVID_FARM_UNLOCKS,
 )
 from ..logic.livid_farm_logic import (
@@ -2364,7 +2383,16 @@ if HAS_QT:
             self.title_lbl.setStyleSheet("color: white; font-weight: 600;")
             info.addWidget(self.title_lbl)
 
-            # Progress row
+            # The text and fill are separate so the progress fill never sits
+            # behind the progress text.
+            self.progress_lbl = QLabel("")
+            self.progress_lbl.setObjectName("reviewHudProgressText")
+            self.progress_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.9); font-size: 11px;"
+            )
+            self.progress_lbl.setWordWrap(False)
+            info.addWidget(self.progress_lbl)
+
             self.progress = QProgressBar()
             self.progress.setTextVisible(False)
             self.progress.setFixedHeight(12)
@@ -2427,6 +2455,14 @@ if HAS_QT:
             self.second_progress.setValue(0)
             self.second_progress.setStyleSheet(self.progress.styleSheet())
             self.second_progress.setVisible(False)
+            self.second_progress_lbl = QLabel("")
+            self.second_progress_lbl.setObjectName("reviewHudSecondSkillText")
+            self.second_progress_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.9); font-size: 11px;"
+            )
+            self.second_progress_lbl.setWordWrap(False)
+            self.second_progress_lbl.setVisible(False)
+            info.addWidget(self.second_progress_lbl)
             info.addWidget(self.second_progress)
 
             self.sub_lbl = QLabel("")
@@ -2545,13 +2581,24 @@ if HAS_QT:
                 self.target_lbl.setText("")
                 self.target_lbl.setVisible(False)
                 return
-            for bar, widget in zip(bars, (self.progress, self.second_progress)):
+            for label, widget in (
+                (self.progress_lbl, self.progress),
+                (self.second_progress_lbl, self.second_progress),
+            ):
+                label.setVisible(False)
+                widget.setVisible(False)
+            for bar, label, widget in zip(
+                bars,
+                (self.progress_lbl, self.second_progress_lbl),
+                (self.progress, self.second_progress),
+            ):
                 widget.setValue(int(bar["percent"]))
-                widget.setTextVisible(True)
-                widget.setFormat(
+                label.setText(
                     f"{bar['skill']} Lv {int(bar['level'])} · "
                     f"{int(bar['percent'])}% to {int(bar['target_level'])}"
                 )
+                label.setVisible(True)
+                widget.setTextVisible(False)
                 widget.setVisible(True)
             also_trains = tuple(xp_view.get("also_trains", ()))
             self.target_lbl.setText(
@@ -2613,6 +2660,8 @@ if HAS_QT:
             self.chips_lbl.setVisible(False)
             self.combat_resources.setVisible(False)
             self.second_progress.setVisible(False)
+            self.progress_lbl.setVisible(False)
+            self.second_progress_lbl.setVisible(False)
             self.progress.setTextVisible(False)
             self.progress.setStyleSheet(self.second_progress.styleSheet())
             if skill in _UTILITY_SKILL_NAMES:
@@ -4714,6 +4763,7 @@ def show_main_menu(
     on_drink_trouble_brewing_rum=None,
     on_use_great_orb_project_teleport_tablet=None,
     on_open_item_pack=None,
+    on_open_impling_jar=None,
     on_convert_rogue_kit=None,
     on_teleport_training_urn=None,
     get_ge_projection=None,
@@ -5250,10 +5300,8 @@ def show_main_menu(
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 28px; padding: 1px;"
-            " border-radius: 6px; }"
-            " QTreeWidget::item:selected { border: 2px solid rgba(66,133,244,0.95);"
-            " color: palette(text); }"
+            " QTreeWidget::item { min-height: 28px; padding: 1px; }"
+            " QTreeWidget::item:selected { color: palette(text); }"
             " QTreeWidget::branch:selected { background: rgba(66,133,244,0.35); }"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
@@ -13515,9 +13563,11 @@ def show_main_menu(
 
         fish_flingers_progress = QProgressBar()
         fish_flingers_progress.setObjectName("fishFlingersProgress")
-        fish_flingers_progress.setRange(0, 6)
+        fish_flingers_progress.setRange(0, FISH_FLINGERS_EVENT_REVIEWS)
         fish_flingers_progress.setTextVisible(True)
-        fish_flingers_progress.setFormat("%v of 6 landed")
+        fish_flingers_progress.setFormat(
+            f"%v of {FISH_FLINGERS_EVENT_REVIEWS} landed"
+        )
         fish_flingers_progress.setStyleSheet(
             "QProgressBar { color: palette(text); text-align: center;"
             " border: 1px solid palette(mid); border-radius: 4px; }"
@@ -13593,7 +13643,7 @@ def show_main_menu(
             )
             if active:
                 fish_flingers_summary.setText(
-                    f"Catch {int(view['review']) + 1}/6 · "
+                    f"Catch {int(view['review']) + 1}/{FISH_FLINGERS_EVENT_REVIEWS} · "
                     f"{view['species']} at {view['location']} · "
                     f"stock {int(view['stock'])}/{int(view['stock_max'])} "
                     f"({int(view['stock_percent'])}%, {view['stock_label']}) · "
@@ -13606,7 +13656,7 @@ def show_main_menu(
                 )
             else:
                 summary_lines = [
-                    "Six successful reviews · tackle discovery improves every catch · "
+                    f"{FISH_FLINGERS_EVENT_REVIEWS} successful reviews · tackle discovery improves every catch · "
                     "fish stocks rotate automatically · big-fish help and rewards at the finish"
                 ]
                 completed = int(view["events_completed"])
@@ -13638,9 +13688,7 @@ def show_main_menu(
             fish_flingers_primary.setText(
                 "Selected for reviews"
                 if selected
-                else "Select for reviews"
-                if active
-                else "Enter event — 1 ticket"
+                else "Start activity"
             )
             fish_flingers_primary.setEnabled(
                 on_fish_flingers_command is not None
@@ -14720,6 +14768,54 @@ def show_main_menu(
         )
         circus_layout.addWidget(circus_detail)
 
+        circus_queue_box = QWidget()
+        circus_queue_box.setObjectName("circusQueueEditor")
+        circus_queue_layout = QHBoxLayout(circus_queue_box)
+        circus_queue_layout.setContentsMargins(0, 0, 0, 0)
+        circus_queue_layout.setSpacing(4)
+        circus_executing_column = QVBoxLayout()
+        circus_executing_label = QLabel("Executing")
+        circus_executing_label.setStyleSheet(
+            f"color: {dim_text_css(circus_executing_label)}; font-size: 10px; font-weight: 700;"
+        )
+        circus_executing_queue = QListWidget()
+        circus_executing_queue.setObjectName("circusExecutingQueue")
+        circus_executing_queue.setAccessibleName("Executing Circus performances")
+        circus_executing_queue.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        circus_executing_queue.setDefaultDropAction(Qt.DropAction.MoveAction)
+        circus_executing_queue.setMaximumHeight(72)
+        circus_executing_column.addWidget(circus_executing_label)
+        circus_executing_column.addWidget(circus_executing_queue)
+        circus_queue_layout.addLayout(circus_executing_column, 1)
+
+        circus_queue_buttons = QVBoxLayout()
+        circus_queue_buttons.setContentsMargins(0, 14, 0, 0)
+        circus_move_to_non_executing = QPushButton("→")
+        circus_move_to_non_executing.setObjectName("circusMoveToNonExecutingButton")
+        circus_move_to_non_executing.setAccessibleName("Move performance to non-executing")
+        circus_move_to_executing = QPushButton("←")
+        circus_move_to_executing.setObjectName("circusMoveToExecutingButton")
+        circus_move_to_executing.setAccessibleName("Move performance to executing")
+        circus_queue_buttons.addWidget(circus_move_to_non_executing)
+        circus_queue_buttons.addWidget(circus_move_to_executing)
+        circus_queue_layout.addLayout(circus_queue_buttons)
+
+        circus_non_executing_column = QVBoxLayout()
+        circus_non_executing_label = QLabel("Not executing")
+        circus_non_executing_label.setStyleSheet(
+            f"color: {dim_text_css(circus_non_executing_label)}; font-size: 10px; font-weight: 700;"
+        )
+        circus_non_executing_queue = QListWidget()
+        circus_non_executing_queue.setObjectName("circusNonExecutingQueue")
+        circus_non_executing_queue.setAccessibleName("Non-executing Circus performances")
+        circus_non_executing_queue.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        circus_non_executing_queue.setDefaultDropAction(Qt.DropAction.MoveAction)
+        circus_non_executing_queue.setMaximumHeight(72)
+        circus_non_executing_column.addWidget(circus_non_executing_label)
+        circus_non_executing_column.addWidget(circus_non_executing_queue)
+        circus_queue_layout.addLayout(circus_non_executing_column, 1)
+        circus_layout.addWidget(circus_queue_box)
+
         circus_result = QLabel()
         circus_result.setObjectName("circusLastResult")
         circus_result.setWordWrap(True)
@@ -14784,7 +14880,7 @@ def show_main_menu(
         circus_actions_layout = QHBoxLayout(circus_actions)
         circus_actions_layout.setContentsMargins(0, 0, 0, 0)
         circus_actions_layout.setSpacing(6)
-        circus_primary = QPushButton("Arm for next review")
+        circus_primary = QPushButton("Start activity")
         circus_primary.setObjectName("circusPrimaryButton")
         circus_edit = QPushButton("Edit routine…")
         circus_edit.setObjectName("circusEditRoutineButton")
@@ -14805,6 +14901,54 @@ def show_main_menu(
             selected = str(circus_performance.currentData() or "agility")
             return selected if selected in CIRCUS_PERFORMANCES else "agility"
 
+        def _circus_queue_ids(queue: QListWidget) -> list[str]:
+            return [
+                str(queue.item(index).data(Qt.ItemDataRole.UserRole))
+                for index in range(queue.count())
+            ]
+
+        def _save_circus_queue() -> None:
+            if syncing_circus["active"]:
+                return
+            _run_circus_command(
+                "set_queue",
+                {
+                    "executing": _circus_queue_ids(circus_executing_queue),
+                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
+                },
+            )
+
+        def _move_circus_queue_item(source: QListWidget, target: QListWidget) -> None:
+            item = source.takeItem(source.currentRow())
+            if item is None:
+                return
+            target.addItem(item)
+            target.setCurrentItem(item)
+            _save_circus_queue()
+
+        def _populate_circus_queue(view: Mapping[str, Any]) -> None:
+            rows_by_id = {
+                str(row["id"]): row for row in view["performances"]
+            }
+            for queue, ids in (
+                (
+                    circus_executing_queue,
+                    view["performance_queue"]["executing"],
+                ),
+                (
+                    circus_non_executing_queue,
+                    view["performance_queue"]["non_executing"],
+                ),
+            ):
+                queue.clear()
+                for performance_id in ids:
+                    row = rows_by_id[str(performance_id)]
+                    item = QListWidgetItem(str(row["display_name"]))
+                    item.setData(Qt.ItemDataRole.UserRole, str(performance_id))
+                    if row["locked_reasons"]:
+                        item.setToolTip(", ".join(row["locked_reasons"]))
+                    queue.addItem(item)
+
         def _run_circus_command(action_id: str, payload=None) -> dict[str, Any]:
             if on_circus_command is None:
                 return {"ok": False, "message": "Big Top Bonanza actions are unavailable."}
@@ -14821,6 +14965,7 @@ def show_main_menu(
         def _refresh_circus_panel(sync_selection: bool = True) -> None:
             syncing_circus["active"] = True
             view = circus_view_pure(player_data)
+            _populate_circus_queue(view)
             if sync_selection:
                 circus_performance.setCurrentIndex(
                     max(0, circus_performance.findData(view["selected_performance"]))
@@ -14866,19 +15011,13 @@ def show_main_menu(
             strategy = str(circus_strategy.currentData() or "balanced")
             locked = tuple(row["locked_reasons"])
             selected_here = player_data.get("current_utility") == CIRCUS_ACTIVITY_ID
-            armed = (
-                selected_here
-                and view["selected_performance"] == performance_id
-                and view["automation_mode"] == mode
-                and row["strategy"] == strategy
-            )
             circus_status.setText(
                 "Closed this week"
                 if row["used_this_week"]
                 else f"{int(view['remaining_count'])} left this answered-card week"
             )
             circus_summary.setText(
-                f"{row['max_attempts']} tricks resolve in one review · "
+                f"{row['max_attempts']} tricks resolve one per answered card · "
                 f"{CIRCUS_PERFORMANCES[performance_id].skill_id.title()} XP · "
                 "failures award 0 XP"
             )
@@ -14894,15 +15033,36 @@ def show_main_menu(
                 )
             else:
                 detail_bits.append("The selected strategy builds the complete routine automatically")
+            if view["session"] is not None and view["active_performance"]:
+                active = CIRCUS_PERFORMANCES[view["active_performance"]]
+                session = view["session"]
+                progress = (
+                    f"{active.display_name} · trick "
+                    f"{int(session['trick_index']) + 1} of {len(session['routine'])} · "
+                    f"{int(session['success_count'])} successes"
+                )
+                if view["next_performance"]:
+                    progress += (
+                        " · next: "
+                        f"{CIRCUS_PERFORMANCES[view['next_performance']].display_name}"
+                    )
+                detail_bits.insert(0, progress)
             circus_detail.setText(" · ".join(detail_bits))
             circus_result.setText(str(view["last_result"]))
             circus_result.setVisible(bool(view["last_result"]))
             firemaking_act = performance_id in {"fire_breathing", "flaming_poi"}
             circus_reward_widgets["acrobat"].setVisible(not firemaking_act)
             circus_reward_widgets["firemaker"].setVisible(firemaking_act)
-            circus_primary.setText("Armed for next review" if armed else "Arm for next review")
+            circus_primary.setText(
+                "Selected for reviews" if selected_here else "Start activity"
+            )
             circus_primary.setAccessibleName(circus_primary.text())
-            circus_primary.setEnabled(on_circus_command is not None and not locked and not armed)
+            circus_primary.setEnabled(
+                on_circus_command is not None
+                and view["session"] is None
+                and bool(view["performance_queue"]["executing"])
+                and not selected_here
+            )
             circus_edit.setVisible(mode == "advanced")
             circus_edit.setEnabled(on_circus_command is not None and not locked)
             circus_abandon.setEnabled(on_circus_command is not None and not locked)
@@ -14919,6 +15079,11 @@ def show_main_menu(
             circus_performance.setEnabled(on_circus_command is not None)
             circus_strategy.setEnabled(on_circus_command is not None)
             circus_mode.setEnabled(on_circus_command is not None)
+            queue_enabled = on_circus_command is not None and view["session"] is None
+            circus_executing_queue.setEnabled(queue_enabled)
+            circus_non_executing_queue.setEnabled(queue_enabled)
+            circus_move_to_non_executing.setEnabled(queue_enabled)
+            circus_move_to_executing.setEnabled(queue_enabled)
             syncing_circus["active"] = False
             _fit_current_activity_detail()
 
@@ -14937,15 +15102,21 @@ def show_main_menu(
             syncing_circus["active"] = False
             _refresh_circus_panel(False)
 
-        def _arm_circus_performance() -> None:
-            _run_circus_command(
-                "set_policy",
+        def _start_circus_activity() -> None:
+            result = _run_circus_command(
+                "start_activity",
                 {
-                    "performance_id": _circus_selected_id(),
+                    "executing": _circus_queue_ids(circus_executing_queue),
+                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
                     "automation_mode": str(circus_mode.currentData() or "casual"),
                     "strategy": str(circus_strategy.currentData() or "balanced"),
                 },
             )
+            if result.get("ok") and _set_utility_selection(
+                CIRCUS_ACTIVITY_ID, activate=True
+            ):
+                tree.clearSelection()
+                _refresh_circus_panel()
 
         def _edit_circus_routine() -> None:
             performance_id = _circus_selected_id()
@@ -15042,7 +15213,23 @@ def show_main_menu(
                 None if syncing_circus["active"] else _refresh_circus_panel(False)
             )
         )
-        circus_primary.clicked.connect(lambda _checked=False: _arm_circus_performance())
+        circus_executing_queue.model().rowsMoved.connect(
+            lambda *_args: _save_circus_queue()
+        )
+        circus_non_executing_queue.model().rowsMoved.connect(
+            lambda *_args: _save_circus_queue()
+        )
+        circus_move_to_non_executing.clicked.connect(
+            lambda _checked=False: _move_circus_queue_item(
+                circus_executing_queue, circus_non_executing_queue
+            )
+        )
+        circus_move_to_executing.clicked.connect(
+            lambda _checked=False: _move_circus_queue_item(
+                circus_non_executing_queue, circus_executing_queue
+            )
+        )
+        circus_primary.clicked.connect(lambda _checked=False: _start_circus_activity())
         circus_edit.clicked.connect(lambda _checked=False: _edit_circus_routine())
         circus_abandon.clicked.connect(lambda _checked=False: _abandon_circus_performance())
         circus_reclaim.clicked.connect(
@@ -20972,6 +21159,9 @@ def show_main_menu(
             if activity_id == COURT_CASES_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == CIRCUS_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == TROUBLE_BREWING_ACTIVITY_ID:
                 _refresh_trouble_panel()
                 _show_activity_detail(activity_id)
@@ -24152,11 +24342,29 @@ def show_main_menu(
         guide_layout = QVBoxLayout(content)
         guide_layout.setContentsMargins(0, 4, 4, 0)
         guide_layout.setSpacing(4)
-        sections = skill_guide_sections_pure(
-            skill_name,
-            _SKILL_TARGET_TABLES.get(skill_id),
-            EQUIPMENT_ITEM_DATA,
-            slayer_families=SLAYER_FAMILIES_BY_ID,
+        sections = (
+            farming_skill_guide_sections_pure(
+                player_data,
+                FARMING_GUIDE_ROWS,
+                FARMING_GUIDE_SECTIONS,
+                guide_key=FARMING_GUIDE_KEY,
+                icon_storage_keys=FARMING_GUIDE_ICON_STORAGE_KEYS,
+                item_definitions=ITEM_DEFINITIONS,
+                farming_crops=FARMING_CROPS,
+                farming_patches_by_id=FARMING_PATCHES_BY_ID,
+                evil_tree_tiers=EVIL_TREE_TIERS,
+                livid_farm_entry_levels=LIVID_FARM_ENTRY_LEVELS,
+                dungeoneering_rewards=DUNGEONEERING_REWARDS,
+                bork_effigy_item=BORK_EFFIGY_ITEM,
+                skillcapes=SKILLCAPES,
+            )
+            if skill_id == "farming"
+            else skill_guide_sections_pure(
+                skill_name,
+                _SKILL_TARGET_TABLES.get(skill_id),
+                EQUIPMENT_ITEM_DATA,
+                slayer_families=SLAYER_FAMILIES_BY_ID,
+            )
         )
         first_anchor = None
 
@@ -24172,8 +24380,9 @@ def show_main_menu(
             guide_layout.addWidget(section_title)
             divider_added = False
             for row in section.rows:
-                locked = row.level > current_level
-                if locked and not divider_added:
+                above_current_level = row.level > current_level
+                locked = above_current_level or bool(row.lock_reasons)
+                if above_current_level and not divider_added:
                     divider = QWidget()
                     divider.setObjectName(
                         f"statsGuideCurrentDivider::{section.section_id}"
@@ -24225,17 +24434,27 @@ def show_main_menu(
                     if section.section_id == "monsters"
                     else _pixel_item_icon(row.icon_key or "", 20)
                 )
-                if icon is not None:
+                if icon is not None or row.icon_item_id is not None:
                     icon_label = QLabel()
                     icon_label.setObjectName(f"statsGuideIcon::{row.row_id}")
                     icon_label.setFixedSize(24, 24)
-                    icon_label.setPixmap(icon.pixmap(20, 20))
+                    icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    if icon is not None:
+                        icon_label.setPixmap(icon.pixmap(20, 20))
+                    else:
+                        icon_label.setText("·")
+                        icon_label.setToolTip(
+                            f"Period icon {row.icon_item_id} is not available yet."
+                        )
+                        icon_label.setStyleSheet(f"color: {dim_text_css(icon_label)};")
                     row_layout.addWidget(icon_label)
 
                 name = QLabel(row.name)
                 name.setObjectName(f"statsGuideName::{row.row_id}")
                 name.setWordWrap(True)
                 name.setStyleSheet("color: palette(text);")
+                if row.lock_reasons:
+                    name.setToolTip("Requires: " + ", ".join(row.lock_reasons))
                 row_layout.addWidget(name, 1)
 
                 if locked:
@@ -26622,6 +26841,25 @@ def show_main_menu(
                 open_all_action.setEnabled(on_open_item_pack is not None)
                 open_all_action.setToolTip(f"Receive {amount * per_pack:,} {content_item}.")
                 open_all_action.triggered.connect(lambda _checked=False: _do_open(open_all=True))
+            menu.addSeparator()
+
+        if item_name in IMPLING_JAR_DATA:
+            loot_action = menu.addAction(f"Loot {item_name}")
+            loot_action.setObjectName("lootImplingJarAction")
+            loot_action.setEnabled(amount > 0 and on_open_impling_jar is not None)
+            loot_action.setToolTip("Break the jar and receive one reward from its loot table.")
+
+            def _do_loot(_checked: bool = False) -> None:
+                if on_open_impling_jar is None:
+                    return
+                result = on_open_impling_jar(item_name)
+                if result:
+                    _refresh_equipment_views()
+                    message = str(result.get("message", ""))
+                    if message:
+                        QMessageBox.information(bank_frame, item_name, message)
+
+            loot_action.triggered.connect(_do_loot)
             menu.addSeparator()
 
         if item_name == "Rogue kit":

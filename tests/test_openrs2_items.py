@@ -13,6 +13,11 @@ DEFAULT_CACHE = (
     / "Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache"
 )
 CACHE = Path(os.environ.get("ANKISCAPE_OPENRS2_CACHE_727", DEFAULT_CACHE))
+DEFAULT_CACHE_652 = (
+    Path.home()
+    / "Library/Caches/codex/2012scape-openrs2/extracted/652-2011-06-08/cache"
+)
+CACHE_652 = Path(os.environ.get("ANKISCAPE_OPENRS2_CACHE_652", DEFAULT_CACHE_652))
 DEFAULT_CACHE_741 = (
     Path.home()
     / "Library/Caches/codex/2012scape-openrs2/extracted/741-2012-11-04/cache"
@@ -93,6 +98,28 @@ class OpenRs2ItemQueryTest(unittest.TestCase):
             self.assertTrue(line.startswith(identity), line)
             self.assertIn(bonuses, line)
             self.assertIn("stackable=false\texchangeable=false", line)
+
+
+@unittest.skipUnless(
+    CACHE_652.joinpath("main_file_cache.dat2").is_file()
+    and JAVA.is_file()
+    and CORE.is_dir(),
+    "local rev-652 cache and Darkan Java runtime required",
+)
+class OpenRs2PartialItemSearchTest(unittest.TestCase):
+    def test_search_reports_unreadable_items_and_exits_three(self):
+        result = subprocess.run(
+            [str(TOOL), str(CACHE_652), "bank"],
+            check=False,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual(result.returncode, 3)
+        self.assertIn("PARTIAL_SEARCH skipped_count=", result.stderr)
+        self.assertIn("skipped_ids=[", result.stderr)
+        self.assertIn("Bank", result.stdout)
 
 
 if __name__ == "__main__":

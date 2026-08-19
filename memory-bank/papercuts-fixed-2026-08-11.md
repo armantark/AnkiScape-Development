@@ -1,5 +1,22 @@
 # Papercuts fixed — 2026-08-11
 
+## Re-land review — 2026-08-19
+
+The slice was re-merged against main snapshot
+`323bf39090023319eb4e5a80acf6e162d331fa4a`. None of its implemented guardrails
+had been superseded on main, so none were dropped. The focused-selector guard
+was extended to resolve the subsequently recorded mistake
+`tests/test_bone_sources.py` to discovered component `test_bone_sources` while
+retaining the ambiguity refusal. The reachability instrument had changed
+substantially on main; only the orthogonal `--summary` output/exit contract was
+carried across, with the new graph logic left intact. Main and the merged tree
+both report `1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked
+actions`; parsed `--json` reports are equal with canonical SHA-256
+`287670c806ca798123bcd758a6a578049af685531c7680a7312474a6c2fe43e3`.
+Full plain discovery passes `Ran 4156 tests in 242.767s` with `skipped=499`;
+real offscreen Qt passes `Ran 4156 tests in 552.881s` with `skipped=3`. No
+gameplay or period value changed.
+
 The occurrence counts below are conservative exact-failure counts from the 371-line log. The fixes are tooling-only; the item-reachability JSON report is byte-for-byte equivalent after JSON parsing.
 
 ## Generated catalogs overwhelm broad searches — 24 occurrences

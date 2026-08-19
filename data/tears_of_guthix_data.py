@@ -71,11 +71,9 @@ TEARS_OF_GUTHIX_GREEN_SPOTS = 3
 # Darkan TearsOfGuthix.kt:496-510 accepts at most one collection update per
 # server tick and adds exactly one tear for a blue stream.
 TEARS_OF_GUTHIX_TEARS_PER_TICK = 1
-# PLACEHOLDER(tears_of_guthix.green_tear_chance): the authentic stream-rotation
-# cadence, selection rule, and player catch/movement policy. The cutoff page and
-# its talk revision 6539293 expose observations but no probability; Darkan's
-# restored controller deliberately leaves rotation source-blocked. The 267-tear
-# record is therefore only a weak anchor for this reachability value.
+# AnkiScape has no positional stream layer, so 0.055 is a reachability anchor
+# translating player movement and rapid stream rotation into one hidden review
+# roll. It is a design choice, not a probability the period game ever stored.
 TEARS_OF_GUTHIX_GREEN_TEAR_CHANCE = 0.055
 
 

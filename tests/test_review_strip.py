@@ -573,7 +573,12 @@ class ReviewStripTest(unittest.TestCase):
             QApplication.processEvents()
 
         self.assertTrue(hud.progress.isVisible())
-        self.assertIn("Mining Lv 30", hud.progress.format())
+        self.assertTrue(hud.progress_lbl.isVisible())
+        self.assertIn("Mining Lv 30", hud.progress_lbl.text())
+        self.assertFalse(hud.progress.isTextVisible())
+        self.assertLessEqual(
+            hud.progress_lbl.geometry().bottom(), hud.progress.geometry().top()
+        )
         self.assertFalse(hud.second_progress.isVisible())
         # The activity caption is untouched: the bar carries the skill.
         self.assertIn("stardust", hud.sub_lbl.text())
@@ -619,8 +624,20 @@ class ReviewStripTest(unittest.TestCase):
 
         self.assertTrue(hud.progress.isVisible())
         self.assertTrue(hud.second_progress.isVisible())
-        self.assertIn("Thieving", hud.progress.format())
-        self.assertIn("Strength", hud.second_progress.format())
+        self.assertTrue(hud.progress_lbl.isVisible())
+        self.assertTrue(hud.second_progress_lbl.isVisible())
+        self.assertIn("Thieving", hud.progress_lbl.text())
+        self.assertIn("Strength", hud.second_progress_lbl.text())
+        self.assertFalse(hud.progress.isTextVisible())
+        self.assertFalse(hud.second_progress.isTextVisible())
+        self.assertLessEqual(
+            hud.progress_lbl.geometry().bottom(), hud.progress.geometry().top()
+        )
+        self.assertLessEqual(
+            hud.second_progress_lbl.geometry().bottom(),
+            hud.second_progress.geometry().top(),
+        )
+        self.assertLessEqual(hud.height(), self.ui.REVIEW_STRIP_HEIGHT)
         self.assertIn("Runecrafting", hud.target_lbl.text())
 
     def test_the_second_bar_and_in_bar_text_never_leak_into_another_branch(
@@ -640,6 +657,7 @@ class ReviewStripTest(unittest.TestCase):
             QApplication.processEvents()
 
         self.assertFalse(hud.second_progress.isVisible())
+        self.assertFalse(hud.second_progress_lbl.isVisible())
         self.assertFalse(hud.progress.isTextVisible())
 
     def test_combat_hud_renders_red_resources_without_world_time(self) -> None:

@@ -60,6 +60,17 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(resolved, [])
         self.assertEqual(unresolved, ["test_alpha_onf"])
 
+    def test_focused_runner_resolves_a_test_file_path_to_its_discovered_module(self):
+        test_ids = [
+            "test_bone_sources.BoneSourcesTest.test_routes",
+            "test_runtime_actions.TestRuntimeActions.test_dispatches",
+        ]
+
+        resolved, unresolved = resolve_selectors(["tests/test_bone_sources.py"], test_ids)
+
+        self.assertEqual(resolved, ["test_bone_sources"])
+        self.assertEqual(unresolved, [])
+
     def test_repo_search_excludes_giant_generated_tables_and_bounds_results(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -214,7 +225,7 @@ class PapercutToolTests(unittest.TestCase):
             [
                 sys.executable,
                 str(ROOT / "run_tests.py"),
-                "PapercutToolTests",
+                "tests/test_papercut_tools.py",
                 "--list",
                 "--max-results",
                 "1",

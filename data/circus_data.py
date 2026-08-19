@@ -1,5 +1,9 @@
 """Pinned pre-EOC Big Top Bonanza tables and horizontal reward catalog."""
 
+# Darkan parity for trick success, payout-tier de-duplication, and half-level
+# translation is pinned to commit f00ca9b6dfb796858cc485c52b3f8d5e7674bfbe;
+# see BigTopBonanza.kt:94-117 and :180-187.
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -371,7 +371,9 @@ def apply_crystal_chest_pure(
     return updated, True, str(reward.id), outputs, improved
 
 
-def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
+def apply_utility_activity_pure(
+    activity_key, inventory, utility_activity_data, r_output=None
+):
     """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
     spec = utility_activity_data.get(activity_key)
     if not spec:
@@ -388,7 +390,27 @@ def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
     for material, amount in requirements.items():
         new_inv[material] = new_inv.get(material, 0) - (_positive_int(amount) * batch_count)
     outputs = _utility_outputs_from_spec(spec)
-    if not outputs:
+    weighted_outputs = spec.get("weighted_outputs", ())
+    if weighted_outputs:
+        total_weight = sum(
+            _positive_int(row.get("weight", 0), 0)
+            for row in weighted_outputs
+            if isinstance(row, Mapping)
+        ) + _positive_int(spec.get("non_bone_output_weight", 0), 0)
+        roll = max(0.0, min(float(0.0 if r_output is None else r_output), 0.999999999))
+        slot = int(roll * total_weight) if total_weight else 0
+        cursor = 0
+        outputs = {}
+        for row in weighted_outputs:
+            if not isinstance(row, Mapping):
+                continue
+            cursor += _positive_int(row.get("weight", 0), 0)
+            if slot < cursor:
+                item_name = row.get("item")
+                if isinstance(item_name, str) and item_name:
+                    outputs[item_name] = _positive_int(row.get("quantity", 1), 1)
+                break
+    elif not outputs:
         outputs = {activity_key: 1}
     for output_item, output_qty in outputs.items():
         new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)

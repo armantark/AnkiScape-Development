@@ -1,19 +1,83 @@
 # Active Context
 
+## Pass 10 CLOSED — 2026-08-15
+
+All nine Pass 10 owner clauses are closed in five commits on `main`
+(`0f642686` plan, `b57fb9c5`, `3a1849d3`, `1f820c9e`, `07359c13`). Both full
+lanes pass at 4,144 tests (plain 499 skips, real offscreen Qt 3 skips). A
+Kimi K3 cross-lineage review found seven actionable items, all applied in
+`07359c13`; its one real bug was the farm-preempted award path bypassing the
+new Combat-level popup boundary — confirmed reproducible and now wrapped with
+a regression test. Verdicts: Big Top 1,940 Magic XP was a payout-tier dedup
+bug (fixed, Darkan semantics ported); Fish Flingers ~5.3k XP came from an
+invented formula, replaced by the Darkan payout registered as
+`fish_flingers.xp_payout` provisional/darkan (real sessions score 28–43,
+median 38 → 4,593 XP at Fishing 25); the 0/10 tricks run was ~1-in-32 bad
+luck, not a defect. PENDING: the native MacBook Pro visual check — the laptop
+slept through every SSH window; the ready-to-run orchestration prompt is
+`pass10-native-prompt.md` in the session scratchpad and should run as the
+first step of the next pass or on the owner's word. Trace and closure notes:
+`memory-bank/codex-briefs/pass10-owner-notes-handoff-2026-08-14.md`. Results
+artifact: `status-updates/pass10-results-2026-08-15.html`
+(<https://f3r46ovdy19g.postplan.dev>).
+
+## Pass 10 Batch A — Big Top Bonanza — 2026-08-15
+
+Batch A is implemented on baseline `389ebcd6`: Big Top now resolves one trick
+per answered card, persists an owner-ordered executing/non-executing queue and
+card-level session, masks XP after Darkan's effective payout-tier translation,
+and ports Darkan's `clamp(50 + level - difficulty, 5, 95)` success roll. Review
+undo restores the exact pre-card state. The 1,680-card week derivation and
+costume scoring remain unchanged; Batch B still owns the Circus panel's Arm
+button and queue controls. Focused verification is green: 22 Circus/runtime/
+integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
+
 ## Current Focus
 
-**2026-08-11, recurring repository papercuts are now guarded by tooling.** Broad
-ripgrep skips giant generated catalogs even with `data` as the search root;
-focused tests resolve only unambiguous fuzzy selectors; quiet/logged lanes retain
-truthful summaries and exit codes; reachability has an exit-0 informational
-summary; generator file-path invocation reaches its own CLI contract; and linked
-worktrees can atomically record, inspect, and deliberately take over local session
-ownership. Claims reject canonical and unregistered targets; the owner record is
-ignored and unowned existing worktrees remain valid. The Qt
-harness substitutes installed Arial for missing `Sans Serif` without creating an
-application, removing the recorded warning while preserving test-owned Qt
-lifecycle; generic `monospace` stylesheet input remains untouched and may still
-pay alias discovery. Audit: `memory-bank/papercuts-fixed-2026-08-11.md`.
+**2026-08-19, repository papercut guardrails re-landed against current main.**
+The 2026-08-11 tooling slice is merged with main snapshot
+`323bf39090023319eb4e5a80acf6e162d331fa4a` after re-checking every guardrail
+against the moved test corpus, worktree safety instrument, and reachability
+audit. Focused test selection now also accepts a test file path such as
+`tests/test_bone_sources.py` by resolving its discovered module component;
+ambiguous fuzzy guesses still fail closed. Generated-catalog search bounds,
+quiet and truthful test lanes, chain-safe reachability summaries, direct
+generator invocation, Qt font substitution, and atomic advisory worktree
+ownership remain live. Main and the merged tree both measure 1,571 actions,
+2,266 reachable items, 84 orphan inputs, and 87 blocked actions; their parsed
+`--json` reports are identical. Full plain discovery passes 4,156 tests with
+499 expected skips, and real offscreen Qt passes 4,156 tests with three skips.
+No period value was recovered or changed. Durable audit:
+`memory-bank/papercuts-fixed-2026-08-11.md`.
+
+**2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
+
+**2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
+
+**2026-08-13, Ectofuntus bone-family integration corrected.** Burnt, Fayrg,
+Frost dragon, Jogre, Ourg, Raurg, Shaikahan, and Zogre bones now have acquisition
+routes, and all eight matching bonemeal items have Prayer routes. Zogre access
+begins when Zogre Flesh Eaters opens the Jiggig barricade; The Shaikahan requires
+completed Tai Bwo Wannai Trio plus a karambwan-poisoned spear; ordinary Karamja
+Jogres remain quest-ungated. The slice corrects Zogre bones from `12.5` to `22.5`
+Prayer XP. The old
+`1556 / 2573 / 102 / 101` source-audit baseline came from a superseded permissive
+instrument. Re-measurement after merging current main `e444dfd2`, with its
+union-of-per-scenario audit tool, gives main `1568 / 2248 / 100 / 103 / 1099`
+and integration `1571 / 2266 / 84 / 87 / 1104`: plus three actions, eighteen
+gross reachable additions, zero gross removals, minus sixteen orphans, minus
+sixteen blocked actions, and plus five seeds. The inherited legacy deletion of
+owner-settled Ancient bones was reversed: The Restless Ghost again rewards five,
+`bury_ancient_bones` again exists at 200 XP, and the old-target save migration
+lands on that live target. Both the Frost dragon generated stat block and coffin selector are genuine
+registered hidden-period-value placeholders. Durable audit:
+`memory-bank/source-audits/ectofuntus-bone-family-2026-08-11.md`.
+
+**2026-08-12, Polar kebbit quota target restored.** Big Chinchompa's Polar kebbit quota ticket now resolves to live Hunter tracking: the ordinary catch is Hunter level 1, while purchasing the quota ticket remains Hunter level 70. The route preserves a Noose wand, gives 30 XP plus Bones, Raw beast meat, and Polar kebbit fur, and uses registered hidden-curve placeholder `hunter.polar_kebbit_success_curve`. No route wall was added because the period location section lists ordinary access routes and no quest gate. Reachability improves from 1,560 actions / 2,497 reachable items / 99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102 through `Hunter:catch_polar_kebbit`. Source and verification record: `memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
+
+**2026-08-12, four Jadinko potion secondaries acquired.** Hunter now exposes the ordinary-player routes for Shadow jadinko, Diseased jadinko, Cannibal jadinko, and Guthix jadinko. Noose wands and Marasamaw plants remain reusable; each successful route gives its fixed primary output: Shadow vine, Corrupt vine, Plant teeth, or Guthix vine. Persistent Habitat configurations are source-backed route context rather than per-catch consumables, matching the established Common-jadinko abstraction. The hidden catch curves use registered placeholder `hunter.herblore_habitat_success_curves`. Reachability improves from 1,556 actions / 2,493 reachable items / 103 orphan inputs / 102 blocked actions to 1,560 / 2,497 / 99 / 102. Full plain discovery passes 4,061 tests with 496 expected skips. The complete real offscreen Qt corpus passes 4,061 tests with three expected skips when split into independent processes; the monolithic process exceeded the ten-minute command cap. A deliberate Shadow-vine output mutation failed the runtime regression before restoration. Period assets, OpenRS2 identities, pinned oldids, and Darkan provenance are recorded in the acquisition audit.
+
+**2026-08-12, quest-stage reachability numbers corrected downward.** The item audit no longer seeds stage products when runtime `required_actions` have no prior `auto_actions` emitter, keeps mutually exclusive quest variants separate, and applies the same gate to quest-combat guaranteed drops. The truthful main-catalog result is 1,556 actions, 2,493 reachable items, 103 orphan inputs, and 102 blocked actions: 80 items lose fictional reachability. The drop from 2,573 is a measurement correction, not a gameplay regression. `d2faf1d2` Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 emit their own actions; its Nial Swiftfling Herb pouch route is inert because normal maximum combat level 126 cannot meet the encounter's default level-156 minimum. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `memory-bank/audits/quest-stage-reachability-truth-2026-08-12.md`.
 
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
@@ -781,10 +845,13 @@ Qt skips.
 source-blocked.** Rev 741 and 742 expose identical challenge structs with the
 real names, objectives, quantities, levels, coordinates, and item references,
 but no reward field. Rev 742 interface 1343 is the Daily Challenges panel and
-contains no static payout amount. The interface reader now reports and skips
-fifteen unsupported legacy IF1 archives during search instead of aborting, so
-the negative evidence carries its exact omissions. The registered 100-XP-per-
-level abstraction remains honest and unchanged. The next slice re-walks the
+contains no static payout amount. Later byte-level verification found that the fifteen archives skipped under an
+`if1` exception label begin with `0x03`; the label does not prove a legacy or
+unsupported format. The checked-in reader still skips them. A one-off reflective
+experiment bypassed the guard, decoded all 1,376 affected components, and found
+none related to interface 1343. The registered 100-XP-per-level abstraction
+remains source-blocked because the relevant sources carry no amount.
+The next slice re-walks the
 four Skeletal Horror phase-stat placeholders without deriving stats from combat
 level. Full discovery passes 3,802 tests in both lanes, with 460 expected plain
 skips and 3 Qt skips.
@@ -1941,8 +2008,8 @@ native Anki process opened exactly one AnkiScape dialog and verified the
 dark-mode card and scroll behavior before the last reviewer polish. The
 post-review native recheck was unavailable because the Mac was locked; focused
 Qt and a fresh final render cover the tooltip, sibling refresh, carried-ticket
-gate, and icon backdrop. Polar-kebbit ticket use remains dependency-blocked on
-the source-blocked ordinary tracking target; this is not an owner design gap.
+gate, and icon backdrop. The former Polar-kebbit tracking dependency was closed
+by the 2026-08-12 acquisition slice above.
 Complete evidence is recorded in
 `source-audits/big-chinchompa-implementation-harvest-2026-07-19.md`.
 
@@ -4899,6 +4966,13 @@ flees silently when the player runs out of food.
   or quest implementation is introduced.
 - Evidence: `source-audits/black-mushroom-acquisition-2026-08-09.md`.
 
+## Farming Stats skill-guide source block — 2026-08-12
+
+- The period client enumerates 110 Farming guide structs; that enumeration, not `FARMING_CROPS`, must drive the future projection.
+- The attempted crop-table implementation was withdrawn because it lost non-crop rows, authentic labels/icons, and quest/cross-skill gates, while tying guide membership to implementation state.
+- A source-backed rebuild specification now defines the multi-registry resolution and display-safety contract. Farming and Dungeoneering remain the actionless non-combat guide gaps.
+- Evidence: `source-audits/farming-skill-guide-2026-08-12.md`.
+
 ## Pass 9 owner repair — 2026-08-11
 
 - Saved target rows now use an explicit `✓` prefix and a stronger green fill in both flat and grouped selectors. Blue remains the temporary Qt selection state.
@@ -4909,3 +4983,56 @@ flees silently when the player runs out of food.
 - Full plain and real offscreen Qt discovery each pass 4,058 tests. Native MacBook Pro Anki proof passes for the changed surfaces and review layout.
 - Evidence: `codex-briefs/pass9-owner-notes-handoff-2026-08-11.md`.
 - Results: <https://zvxa8ne0p5qz.postplan.dev>.
+
+## Quest reachability truth — 2026-08-13
+
+- Reachability figures are meaningful only with their tree named. `main` at
+  `1cf43931` reports 1,556 / 2,573 / 102 / 101 / 1,448; the acquire tip at
+  `2cfac317` reports 1,568 / 2,509 / 97 / 100 / 1,367; the improved audit on
+  top of that tip reports 1,568 / 2,248 / 100 / 103 / 1,099.
+- The audit hard-stops later quest products and completion rewards after missing
+  actions or registered unsatisfiable encounters, limits start inventory to
+  startable quests, and takes prerequisite plus quest-point gates to a fixed
+  point. It depends on `goal/acquire-2026-08-12` and must merge after it.
+- 2,248 is not acquisition truth and can be wrong in both directions. Goblin
+  Diplomacy is a real false positive because unreachable consumed mail is not
+  modelled; variant handling is latently too strict and too permissive, though
+  the three current variant quests already fail on common required actions.
+  Evidence and the eventual any-complete-path design are in
+  `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.
+
+## Acquisition blocker follow-up — 2026-08-12
+
+- The four Jadinko secondaries remain root orphans even on the completed
+  `goal/vines-2026-08-11` branch, so they do not overlap that branch's Common
+  jadinko, vine-herb-seed, Marasamaw-plant, or Juju-hunter recipe work.
+- The route has two stages: Shadow jadinko (Hunter 71) and Diseased jadinko
+  (Hunter 78) are upstream noose-wand tracking catches; Corrupt vine then feeds
+  the Juju hunter potion, after which Cannibal jadinko (75) and Guthix jadinko
+  (81) supply Plant teeth and Guthix vine.
+- The family is not quest-blocked. A positive-control gate probe detects Eagles'
+  Peak on Ferret while the relevant Darkan Jadinko rows carry no quest or Slayer
+  gate. The actual blocker is an absent Habitat attraction-state model and a
+  Common-jadinko framework that exists only on unmerged commit `508a8aa2`; the
+  downstream pair additionally needs the Juju-hunter active effect.
+- Fresh crab claw and Fresh crab shell have pinned Crab NPC producers, but their
+  route is inert behind the un-emitted stages of
+  `recipe_for_disaster_freeing_pirate_pete`. Existing quest-gated Dagannoth and
+  Cave horror enemies may share that pre-existing defect and await the emitter
+  pass.
+- Evidence and unchanged reachability are recorded in
+  `audits/acquisition-quest-emitter-blast-radius-2026-08-12.md`.
+
+## Pass 10 Batch B — 2026-08-15
+
+- Fish Flingers now settles event XP with the pinned Darkan score and payout reconstruction, with local weight proxies registered as `fish_flingers.xp_payout`; the event path does not apply the Fishing outfit multiplier.
+- Fish Flingers and Big Top now use one Start activity action for review selection. Big Top queue order and execution membership persist through `set_queue`; tree-row clicks remain navigation-only.
+
+## Pass 10 Batch C — 2026-08-15
+
+- Combat level now checks the derived level once per review after all skill level
+  dialogs, so aggregate and normal Combat rewards cannot double-fire the popup.
+- Grouped target trees keep native item painting by omitting item border QSS;
+  saved BackgroundRole green and transient native blue selection both render.
+- Reviewer activity progress uses separate text labels above graphical-only bars;
+  the fixed 128px strip footprint remains the geometry authority.

@@ -47,10 +47,17 @@ def resolve_selectors(selectors: list[str], test_ids: list[str]) -> tuple[list[s
         for test_id in test_ids
         for component in test_id.split(".")
     }
+    component_names = {component.casefold(): component for component in components}
     for selector in selectors:
         if any(selector.casefold() in test_id.casefold() for test_id in test_ids):
             resolved.append(selector)
             continue
+        normalized_path = selector.replace("\\", "/")
+        if normalized_path.casefold().endswith(".py"):
+            module_name = normalized_path.rsplit("/", 1)[-1][:-3]
+            if component := component_names.get(module_name.casefold()):
+                resolved.append(component)
+                continue
         suggestions = selector_suggestions(selector, test_ids)
         component_suggestions = [
             suggestion
