@@ -48,7 +48,7 @@ from .logic_pure.logic_pure import (
     can_smith_any_pure,
     smithing_inventory_with_coal_bag_pure,
     has_crafting_materials_pure,
-    can_craft_item_pure,
+    crafting_target_locked_reasons_pure,
     fletching_target_locked_reasons_pure,
     cooking_target_locked_reasons_pure,
     hunter_target_locked_reasons_pure,
@@ -785,6 +785,7 @@ for _unlock_rule in QUEST_UNLOCK_RULES:
     if not isinstance(_unlock_rule, Mapping):
         continue
     if _unlock_rule.get("skill_id") not in {
+        "crafting",
         "fletching",
         "firemaking",
         "hunter",
@@ -850,6 +851,7 @@ def _skill_availability_fingerprint():
     equipment = player_data.get("equipment", {}) or {}
     return (
         tuple((key, player_data.get(key, 1)) for key in _SKILL_AVAILABILITY_LEVEL_KEYS),
+        _freeze_skill_availability_value(player_data.get("skilling_current_levels", {})),
         tuple((name, inventory.get(name, 0)) for name in _SKILL_AVAILABILITY_INVENTORY_NAMES),
         tuple(
             (
@@ -885,11 +887,11 @@ def _refresh_skill_availability() -> None:
         values = (
             can_smith_any(),
             any(
-                can_craft_item_pure(
-                    player_data.get("crafting_level", 1),
-                    player_data.get("inventory", {}),
+                not crafting_target_locked_reasons_pure(
+                    player_data,
                     item_name,
                     CRAFTING_DATA,
+                    QUEST_UNLOCK_RULES,
                 )
                 for item_name in CRAFTING_DATA.keys()
             ),

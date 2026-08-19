@@ -168,6 +168,35 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._refresh_skill_availability()
         self.assertEqual(len(refreshes), 2)
 
+    def test_skill_availability_refresh_uses_boosted_crafting_rules(self):
+        addon = _load_addon_as_package("ankiscape_boosted_crafting_availability")
+        addon.player_data = {
+            "inventory": {"Cracked cooking urn (unf)": 3},
+            "smithing_level": 1,
+            "crafting_level": 1,
+            "fletching_level": 1,
+            "firemaking_level": 1,
+            "hunter_level": 1,
+            "cooking_level": 1,
+            "runecrafting_level": 1,
+            "skilling_current_levels": {"crafting": 2},
+            "quests": {},
+            "equipment": {},
+            "wicked_hood": {},
+        }
+        refreshes = []
+        addon.refresh_skill_availability = lambda *values: refreshes.append(values)
+        addon._SKILL_AVAILABILITY_CACHE_FINGERPRINT = None
+
+        addon._refresh_skill_availability()
+        self.assertEqual(len(refreshes), 1)
+        self.assertTrue(refreshes[0][1])
+
+        addon.player_data["skilling_current_levels"]["crafting"] = 1
+        addon._refresh_skill_availability()
+        self.assertEqual(len(refreshes), 2)
+        self.assertFalse(refreshes[1][1])
+
     def test_floating_xp_and_activity_results_share_the_event_log_seam(self):
         addon = _load_addon_as_package("ankiscape_event_log_emissions")
         addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))

@@ -5031,3 +5031,9 @@ flees silently when the player runs out of food.
   saved BackgroundRole green and transient native blue selection both render.
 - Reviewer activity progress uses separate text labels above graphical-only bars;
   the fixed 128px strip footprint remains the geometry authority.
+
+## Skill-button refresh review closure — 2026-08-19
+
+- Full Crafting availability now uses `crafting_target_locked_reasons_pure`, including live skilling levels, and its cache fingerprint tracks `skilling_current_levels`.
+- Processing-skill refreshes require all seven logic-owned results, remove the redundant two-argument runtime refreshes, preserve the disabled current-skill button, and restore unavailable tooltips after live state changes.
+- The offscreen Qt lane now needs filename-range processes after exceeding ten minutes; keep A through L together because `tests/test_hud_singleton_and_cleanup.py` has a pre-existing import-order dependency when started with real Qt.

@@ -1449,71 +1449,72 @@ def focus_main_menu_if_open() -> bool:
 def refresh_skill_availability(
     can_smelt_any_bar: bool,
     can_craft_any_item: bool,
-    can_fletch_any_item: Optional[bool] = None,
-    can_firemake_any_item: Optional[bool] = None,
-    can_hunt_any_item: Optional[bool] = None,
-    can_cook_any_item: Optional[bool] = None,
-    can_runecraft_any_item: Optional[bool] = None,
+    can_fletch_any_item: bool,
+    can_firemake_any_item: bool,
+    can_hunt_any_item: bool,
+    can_cook_any_item: bool,
+    can_runecraft_any_item: bool,
 ):
     """Refresh processing-skill buttons from the pure availability results.
 
-    Never auto-selects the skill; users must choose it explicitly. Omitted
-    processing-skill results remain unchanged for the two-argument partial
-    refresh path.
+    Never auto-selects the skill; users must choose it explicitly.
     """
     try:
-        # Smithing
-        s_btn = _MAIN_MENU_CTX.get("smith_btn")
-        if s_btn is not None:
-            s_btn.setEnabled(can_smelt_any_bar)
-            if can_smelt_any_bar:
-                s_btn.setToolTip("Smithing")
-        # Crafting
-        c_btn = _MAIN_MENU_CTX.get("craft_btn")
-        if c_btn is not None:
-            c_btn.setEnabled(can_craft_any_item)
-            if can_craft_any_item:
-                c_btn.setToolTip("Crafting")
-        # Fletching
-        f_btn = _MAIN_MENU_CTX.get("fletch_btn")
-        if f_btn is not None and can_fletch_any_item is not None:
-            f_btn.setEnabled(can_fletch_any_item)
-            if can_fletch_any_item:
-                f_btn.setToolTip("Fletching")
-        # Firemaking
-        fm_btn = _MAIN_MENU_CTX.get("firemaking_btn")
-        if fm_btn is not None and can_firemake_any_item is not None:
-            fm_btn.setEnabled(can_firemake_any_item)
-            if can_firemake_any_item:
-                fm_btn.setToolTip("Firemaking")
-        # Hunter
-        h_btn = _MAIN_MENU_CTX.get("hunter_btn")
-        if h_btn is not None and can_hunt_any_item is not None:
-            h_btn.setEnabled(can_hunt_any_item)
-            if can_hunt_any_item:
-                h_btn.setToolTip("Hunter")
-        # Cooking
-        cook_btn = _MAIN_MENU_CTX.get("cooking_btn")
-        if cook_btn is not None and can_cook_any_item is not None:
-            cook_btn.setEnabled(can_cook_any_item)
-            if can_cook_any_item:
-                cook_btn.setToolTip("Cooking")
-        # Runecrafting
-        rc_btn = _MAIN_MENU_CTX.get("runecrafting_btn")
-        if rc_btn is not None and can_runecraft_any_item is not None:
-            rc_btn.setEnabled(can_runecraft_any_item)
-            if can_runecraft_any_item:
-                rc_btn.setToolTip("Runecrafting")
-        # Clear warning text if any became available
-        if (
-            (s_btn is not None and s_btn.isEnabled())
-            or (c_btn is not None and c_btn.isEnabled())
-            or (f_btn is not None and f_btn.isEnabled())
-            or (fm_btn is not None and fm_btn.isEnabled())
-            or (h_btn is not None and h_btn.isEnabled())
-            or (cook_btn is not None and cook_btn.isEnabled())
-            or (rc_btn is not None and rc_btn.isEnabled())
-        ):
+        button_specs = (
+            (
+                "smith_btn",
+                can_smelt_any_bar,
+                "Smithing",
+                "Mine ores until you can smelt a bar.",
+            ),
+            (
+                "craft_btn",
+                can_craft_any_item,
+                "Crafting",
+                "Gather materials or level up to craft an item.",
+            ),
+            (
+                "fletch_btn",
+                can_fletch_any_item,
+                "Fletching",
+                "Cut logs or level up to fletch an item.",
+            ),
+            (
+                "firemaking_btn",
+                can_firemake_any_item,
+                "Firemaking",
+                "Cut or acquire logs before training Firemaking.",
+            ),
+            (
+                "hunter_btn",
+                can_hunt_any_item,
+                "Hunter",
+                "Gather jars/materials, complete unlocks, or level up before training Hunter.",
+            ),
+            (
+                "cooking_btn",
+                can_cook_any_item,
+                "Cooking",
+                "Gather raw food or prep ingredients before training Cooking.",
+            ),
+            (
+                "runecrafting_btn",
+                can_runecraft_any_item,
+                "Runecrafting",
+                "Complete Rune Mysteries and gather essence plus altar access.",
+            ),
+        )
+        buttons = []
+        for key, available, skill_name, unavailable_tooltip in button_specs:
+            button = _MAIN_MENU_CTX.get(key)
+            if button is None:
+                continue
+            buttons.append(button)
+            is_current = bool(button.property("ankiscapeCurrentlyTraining"))
+            button.setEnabled(bool(available) and not is_current)
+            button.setToolTip(skill_name if available else unavailable_tooltip)
+
+        if any(button.isEnabled() for button in buttons):
             warn = _MAIN_MENU_CTX.get("warn_label")
             if warn is not None and hasattr(warn, "setText"):
                 warn.setText("")
@@ -22796,6 +22797,9 @@ def show_main_menu(
             train_btn = QPushButton()
             if name == "Prayer":
                 train_btn.setObjectName("prayerTrainButton")
+            train_btn.setProperty(
+                "ankiscapeCurrentlyTraining", state["active"] == name
+            )
             if state["active"] == name:
                 train_btn.setText("Currently active" if is_utility else "Currently training")
                 train_btn.setEnabled(False)

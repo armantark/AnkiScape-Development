@@ -1293,12 +1293,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
 
-    def test_skill_availability_refresh_disables_crafting_when_pure_result_turns_false(self) -> None:
-        from ankiscape.core.constants import CRAFTING_DATA, QUEST_UNLOCK_RULES
-        from ankiscape.logic_pure.logic_pure import (
-            crafting_target_locked_reasons_pure,
-        )
-
+    def test_skill_availability_refresh_disables_crafting_with_reason(self) -> None:
         player_data = _make_player_data()
         player_data["inventory"] = {"Wool": 1}
         dialog = self._open(player_data, current_skill="Mining")
@@ -1311,21 +1306,37 @@ class MainMenuWidgetTest(unittest.TestCase):
             if button.text() == "Train this skill" and button.isVisible()
         )
 
-        def can_craft_any_item() -> bool:
-            return any(
-                not crafting_target_locked_reasons_pure(
-                    player_data, target, CRAFTING_DATA, QUEST_UNLOCK_RULES
-                )
-                for target in CRAFTING_DATA
-            )
-
-        self.assertTrue(can_craft_any_item())
         self.assertTrue(train_button.isEnabled())
 
-        player_data["inventory"].clear()
-        can_craft = can_craft_any_item()
-        self.assertFalse(can_craft)
-        self._ui.refresh_skill_availability(True, can_craft)
+        self._ui.refresh_skill_availability(
+            True, False, True, True, True, True, True
+        )
+        QApplication.processEvents()
+
+        self.assertFalse(train_button.isEnabled())
+        self.assertEqual(
+            train_button.toolTip(),
+            "Gather materials or level up to craft an item.",
+        )
+
+    def test_skill_availability_refresh_keeps_current_training_disabled(self) -> None:
+        dialog = self._open(
+            {**_make_player_data(), "inventory": {"Wool": 5}},
+            current_skill="Crafting",
+        )
+        dialog.show()
+        QApplication.processEvents()
+        _goto_crafting(dialog)
+        train_button = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Currently training" and button.isVisible()
+        )
+
+        self.assertFalse(train_button.isEnabled())
+        self._ui.refresh_skill_availability(
+            True, True, True, True, True, True, True
+        )
         QApplication.processEvents()
 
         self.assertFalse(train_button.isEnabled())
