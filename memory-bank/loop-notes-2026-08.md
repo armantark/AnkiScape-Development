@@ -1510,3 +1510,29 @@ true, and every independent reviewer that re-ran a lane got the author's exact
 counts. What the reviews catch is never a false measurement — it is a test
 pointed at the wrong thing, an instrument quietly loosened, or an unrequested
 change riding along inside a slice about something else.
+
+### First promotion: Skeletal Wyvern, main at 7fb738e5
+
+Merged `goal/breadth-reland-2026-08-19` through the full gate in worktree
+`promote-2026-08-19`. Post-merge run on the merged tree, all green:
+
+    plain lane   Ran 4152 tests in 374.657s   OK (skipped=499)
+    qt lane      Ran 4152 tests in 613.858s   OK (skipped=3)     [monolithic]
+    audit_docs   Audited 577 Markdown and 437 HTML files. Documentation audit passed.
+    test_quality 4117 tests across 188 files; hard issues: 0
+    reachability 1571 actions; 2278 reachable items; 72 orphan inputs; 71 blocked actions
+    worktree_guard  layout safe
+    git diff --check  clean
+
+Reachability improves against the pre-merge baseline of `1571 / 2266 / 84 / 87`:
+twelve more reachable items, twelve fewer orphan inputs, sixteen fewer blocked
+actions.
+
+The Qt lane ran monolithically at 613.858 s because a detached `nohup` script
+has no tool command cap. That is the cheapest way to run the real Qt lane
+without partitioning it, and it should be the default for promotion gates.
+
+Main had advanced by one papercut commit while the gate ran, so the verified
+tree absorbed it before landing; the only file differing from the gated tree
+is `memory-bank/papercuts.md`. Do not commit to main while a promotion gate is
+running — it forces this reconciliation every time.
