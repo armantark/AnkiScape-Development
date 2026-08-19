@@ -1449,54 +1449,61 @@ def focus_main_menu_if_open() -> bool:
 def refresh_skill_availability(
     can_smelt_any_bar: bool,
     can_craft_any_item: bool,
-    can_fletch_any_item: bool = False,
-    can_firemake_any_item: bool = False,
-    can_hunt_any_item: bool = False,
-    can_cook_any_item: bool = False,
-    can_runecraft_any_item: bool = False,
+    can_fletch_any_item: Optional[bool] = None,
+    can_firemake_any_item: Optional[bool] = None,
+    can_hunt_any_item: Optional[bool] = None,
+    can_cook_any_item: Optional[bool] = None,
+    can_runecraft_any_item: Optional[bool] = None,
 ):
-    """Auto-enable processing-skill buttons when they become available while the menu is open.
-    Never auto-selects the skill; users must choose it explicitly. Only enables; does not disable.
+    """Refresh processing-skill buttons from the pure availability results.
 
-    Optional processing-skill booleans default to False so older two-argument
-    callers keep working until they pass the newer skills too.
+    Never auto-selects the skill; users must choose it explicitly. Omitted
+    processing-skill results remain unchanged for the two-argument partial
+    refresh path.
     """
     try:
         # Smithing
         s_btn = _MAIN_MENU_CTX.get("smith_btn")
-        if s_btn is not None and can_smelt_any_bar and not s_btn.isEnabled():
-            s_btn.setEnabled(True)
-            s_btn.setToolTip("Smithing")
+        if s_btn is not None:
+            s_btn.setEnabled(can_smelt_any_bar)
+            if can_smelt_any_bar:
+                s_btn.setToolTip("Smithing")
         # Crafting
         c_btn = _MAIN_MENU_CTX.get("craft_btn")
-        if c_btn is not None and can_craft_any_item and not c_btn.isEnabled():
-            c_btn.setEnabled(True)
-            c_btn.setToolTip("Crafting")
+        if c_btn is not None:
+            c_btn.setEnabled(can_craft_any_item)
+            if can_craft_any_item:
+                c_btn.setToolTip("Crafting")
         # Fletching
         f_btn = _MAIN_MENU_CTX.get("fletch_btn")
-        if f_btn is not None and can_fletch_any_item and not f_btn.isEnabled():
-            f_btn.setEnabled(True)
-            f_btn.setToolTip("Fletching")
+        if f_btn is not None and can_fletch_any_item is not None:
+            f_btn.setEnabled(can_fletch_any_item)
+            if can_fletch_any_item:
+                f_btn.setToolTip("Fletching")
         # Firemaking
         fm_btn = _MAIN_MENU_CTX.get("firemaking_btn")
-        if fm_btn is not None and can_firemake_any_item and not fm_btn.isEnabled():
-            fm_btn.setEnabled(True)
-            fm_btn.setToolTip("Firemaking")
+        if fm_btn is not None and can_firemake_any_item is not None:
+            fm_btn.setEnabled(can_firemake_any_item)
+            if can_firemake_any_item:
+                fm_btn.setToolTip("Firemaking")
         # Hunter
         h_btn = _MAIN_MENU_CTX.get("hunter_btn")
-        if h_btn is not None and can_hunt_any_item and not h_btn.isEnabled():
-            h_btn.setEnabled(True)
-            h_btn.setToolTip("Hunter")
+        if h_btn is not None and can_hunt_any_item is not None:
+            h_btn.setEnabled(can_hunt_any_item)
+            if can_hunt_any_item:
+                h_btn.setToolTip("Hunter")
         # Cooking
         cook_btn = _MAIN_MENU_CTX.get("cooking_btn")
-        if cook_btn is not None and can_cook_any_item and not cook_btn.isEnabled():
-            cook_btn.setEnabled(True)
-            cook_btn.setToolTip("Cooking")
+        if cook_btn is not None and can_cook_any_item is not None:
+            cook_btn.setEnabled(can_cook_any_item)
+            if can_cook_any_item:
+                cook_btn.setToolTip("Cooking")
         # Runecrafting
         rc_btn = _MAIN_MENU_CTX.get("runecrafting_btn")
-        if rc_btn is not None and can_runecraft_any_item and not rc_btn.isEnabled():
-            rc_btn.setEnabled(True)
-            rc_btn.setToolTip("Runecrafting")
+        if rc_btn is not None and can_runecraft_any_item is not None:
+            rc_btn.setEnabled(can_runecraft_any_item)
+            if can_runecraft_any_item:
+                rc_btn.setToolTip("Runecrafting")
         # Clear warning text if any became available
         if (
             (s_btn is not None and s_btn.isEnabled())

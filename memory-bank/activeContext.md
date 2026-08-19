@@ -34,6 +34,17 @@ integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 
 ## Current Focus
 
+**2026-08-19, skill-button availability refresh corrected.** The open Skills
+menu now applies the logic layer's current availability result in both directions
+for Smithing, Crafting, Fletching, Firemaking, Hunter, Cooking, and
+Runecrafting, so a processing button disables as soon as its last runnable
+target disappears. The two-argument Smithing/Crafting refresh leaves omitted
+skills unchanged. A real offscreen Qt regression drives Crafting from one Wool
+through the production lock rules to an empty inventory and proves the live
+button disables. Full discovery passes 4,145 tests in both lanes: plain skips
+500 widget tests, and the real offscreen Qt lane skips 3. No period value or
+source baseline changed.
+
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 
 **2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
