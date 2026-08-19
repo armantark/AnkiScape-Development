@@ -1472,3 +1472,41 @@ than trusting the author's counts, and every count held: the failures were
 never in the numbers, only in what the tests were pointed at. And the two worst
 defects were both pinned by tests that removed or hand-fed the state that
 triggers them, which is the same signature as the 2026-07-26 batch.
+
+### Review round two, and a pattern in what the reviews keep finding
+
+**Skeletal Wyvern — ACCEPT WITH FINDINGS.** The blocking prayer defect is
+confirmed genuinely fixed and not over-corrected, proved by driving the real
+kernel with controls: melee-only 8614 damage falls to 0 under Protect from
+Melee, ranged-only 8335 falls to 0 under Protect from Missiles, breath-only
+38643 is unchanged under both, and ordinary enemies are unaffected. The four
+remaining findings are all record integrity in
+`memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
+
+**Tooling guardrails — REJECT again.** The audit abort MOVED rather than went
+away: it now fires for callers that DO set `CLAUDE_CODE_SESSION_ID` while
+standing in any of the 49 unmarked worktrees. Decision taken by the
+orchestration seat: remove the worktree-ownership feature from the branch
+entirely rather than fix it a third time. It has broken the guard twice in two
+different ways, its own reviewer calls it first-come with no collision
+detection, and it defends against a problem that has not occurred while `audit`
+failing stops every dispatched slice before its first edit.
+
+**Grimy herbs — REJECT.** Three majors. The worst is scope creep, not herb
+work: the branch added a short-circuit to `_set_value` at `__init__.py:4557` so
+it skips saving when the value is unchanged, which silently discards the
+in-place mutation `_set_combat_attack_style` makes immediately before it.
+Unarmed, staff, sceptre and hammer weapons are all `crush` in
+`WEAPON_TYPE_UNARMED_STYLES`, so switching Accurate to Aggressive unarmed never
+persists and reviews keep awarding Attack XP instead of Strength. Confirmed
+against `main` that the short-circuit is branch-introduced; main's `_set_value`
+always saves, so no live save is affected. Also: all five vine-herb seeds gated
+at Hunter 78 when the branch's own cited Darkan source supplies them from the
+Hunter 70 Common jadinko at 16/256, and an icon gate weakened from an
+empty-list assertion to a seven-item allowlist.
+
+The pattern across every rejection so far: the reported numbers were always
+true, and every independent reviewer that re-ran a lane got the author's exact
+counts. What the reviews catch is never a false measurement — it is a test
+pointed at the wrong thing, an instrument quietly loosened, or an unrequested
+change riding along inside a slice about something else.
