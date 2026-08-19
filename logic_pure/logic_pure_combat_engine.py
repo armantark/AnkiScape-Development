@@ -1866,9 +1866,6 @@ def apply_combat_burst_pure(
                 attack_enemy = dict(enemy)
                 attack_enemy["attack_style"] = selected_style
                 attack_enemy.pop("attack_style_by_player_class", None)
-                row_max_hit = _non_negative_int(attack_spec.get("max_hit", 0), 0)
-                if row_max_hit > 0:
-                    attack_enemy["max_hit"] = row_max_hit
             enemy_style = _combat_enemy_attack_style(attack_enemy, combat_class)
             enemy_class = _combat_enemy_attack_class(attack_enemy, combat_class)
             magic_melee = enemy_style == "magic_melee"
@@ -1962,14 +1959,6 @@ def apply_combat_burst_pure(
                     breath_max_hit = _non_negative_int(
                         wyvern_breath_spec.get("shielded_max_hit", 0), 0
                     )
-                    magic_defence = max(
-                        0,
-                        _combat_effective_player_magic_level(data)
-                        - 8
-                        + _combat_defence_bonus_from_totals(player_totals, "magic"),
-                    )
-                    # PLACEHOLDER(skeletal_wyvern.magic_defence_breath_reduction): a period breath handler or qualified damage sample would replace this reduction curve.
-                    breath_max_hit = max(0, breath_max_hit - magic_defence // 64)
                     try:
                         breath_roll = max(
                             0.0, min(float(rng()), 0.999999999999)
@@ -2131,6 +2120,7 @@ def apply_combat_burst_pure(
                 data["combat_prayer_points"] = prayer_points_after
             if (
                 not dragonfire_attack
+                and wyvern_breath_spec is None
                 and (
                     not isinstance(unprotected_effect, Mapping)
                     or bool(

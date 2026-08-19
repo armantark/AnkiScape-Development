@@ -13581,8 +13581,8 @@ COMBAT_ENEMY_DATA["skeletal_wyvern"] = {
     ),
     # PLACEHOLDER(skeletal_wyvern.breath_attack_weight): a period-qualified selector or measured attack sample would replace the uniform branch weights.
     "attack_table": (
-        {"kind": "attack", "style": "melee", "max_hit": 139, "weight": 1},
-        {"kind": "attack", "style": "ranged", "max_hit": 139, "weight": 1},
+        {"kind": "attack", "style": "melee", "weight": 1},
+        {"kind": "attack", "style": "ranged", "weight": 1},
         {"kind": "wyvern_breath", "weight": 1},
     ),
     "wyvern_breath": {

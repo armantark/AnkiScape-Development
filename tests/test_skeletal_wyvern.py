@@ -140,17 +140,12 @@ class SkeletalWyvernDataAndSurfaceTests(unittest.TestCase):
             enemy["drops"]["guaranteed"], (("Wyvern bones", 1),)
         )
         self.assertEqual(
-            tuple(row.get("max_hit") for row in enemy["attack_table"][:2]),
-            (139, 139),
-        )
-        self.assertEqual(
             enemy["protective_equipment"]["items"],
             tuple(PROTECTIVE_SHIELD_IDS),
         )
 
         registered = {item.storage_key: item for item in ITEM_DEFINITIONS}
         self.assertEqual(registered["Wyvern bones"].source_item_id, 6812)
-        self.assertEqual(registered["Wyvern bones"].noted_item_id, 6816)
         self.assertEqual(registered["Wyvern bonemeal"].source_item_id, 6810)
         self.assertTrue(Path(registered["Wyvern bones"].asset_path or "").is_file())
         self.assertTrue(Path(COMBAT_ENEMY_IMAGES["skeletal_wyvern"]).is_file())
@@ -271,28 +266,30 @@ class SkeletalWyvernKernelTests(unittest.TestCase):
             ordinary["combat_encounter"]["player_attack_ticks_remaining"], 3
         )
 
-    def test_magic_defence_reduces_the_shielded_breath_maximum(self):
-        results = []
-        for magic_level in (1, 99):
-            _, ok, result = apply_combat_burst_pure(
-                _live_encounter_player(
-                    magic_level=magic_level,
-                    equipment={"shield": "Elemental shield"},
-                ),
-                COMBAT_ENEMY_DATA,
-                EQUIPMENT_DATA,
-                ticks=1,
-                rng=lambda: 0.999999,
-                live_cadence=True,
-            )
-            self.assertTrue(ok, result)
-            results.append(result)
-
-        self.assertEqual(results[0]["enemy_specials"][0]["max_hit"], 150)
-        self.assertLess(
-            results[1]["enemy_specials"][0]["max_hit"],
-            results[0]["enemy_specials"][0]["max_hit"],
-        )
+    def test_protection_prayers_do_not_reduce_ice_breath(self):
+        for shield_name, expected_damage in ((None, 500), ("Elemental shield", 150)):
+            for prayer_id in ("protect_from_melee", "protect_from_magic"):
+                with self.subTest(shield=shield_name, prayer=prayer_id):
+                    equipment = {"shield": shield_name} if shield_name else {}
+                    _, ok, result = apply_combat_burst_pure(
+                        _live_encounter_player(
+                            prayer_level=99,
+                            combat_prayer_points=990,
+                            combat_prayer_uptime="100",
+                            combat_selected_prayers=[prayer_id],
+                            equipment=equipment,
+                        ),
+                        COMBAT_ENEMY_DATA,
+                        EQUIPMENT_DATA,
+                        ticks=1,
+                        rng=lambda: 0.999999,
+                        live_cadence=True,
+                    )
+                    self.assertTrue(ok, result)
+                    self.assertEqual(result["enemy_damage"], expected_damage)
+                    self.assertEqual(
+                        result["enemy_specials"][0]["max_hit"], expected_damage
+                    )
 
     def test_real_runtime_surfaces_protected_and_unprotected_breath(self):
         for scenario, equipment, expected in (

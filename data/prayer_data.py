@@ -225,7 +225,7 @@ def prayer_extra_items_as_dict() -> Dict[str, dict]:
     for material in PRAYER_MATERIALS:
         material_item = {"category": "material", "source": material.source, "exp": material.xp}
         if material.item_name == "Wyvern bones":
-            material_item.update({"item_id": 6812, "noted_item_id": 6816})
+            material_item["item_id"] = 6812
             material_item["source"] += "; cache rev 742 items 6812/6816; Wyvern bones oldid=6105610"
         items[material.item_name] = material_item
         if material.bonemeal_item:

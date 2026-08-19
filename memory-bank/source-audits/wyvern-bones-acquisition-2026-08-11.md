@@ -58,7 +58,7 @@ The normalized enemy and shield sprites have durable records in
 
 ## Registered placeholders
 
-The period sources do not expose four server values.
+The period sources do not expose three server values.
 The implementation marks each reconstruction with `PLACEHOLDER(...)`.
 
 | Placeholder | Executable value | Why the value stays unrecovered |
@@ -66,7 +66,6 @@ The implementation marks each reconstruction with `PLACEHOLDER(...)`.
 | `skeletal_wyvern.breath_attack_weight` | The attack table gives equal weight to Melee, Ranged, and ice breath. | Oldid `6569736` proves the three attacks. It does not give their selection weights. A period server selector or a qualified period sample must replace this value. |
 | `skeletal_wyvern.freeze_ticks` | Ice breath adds five Combat ticks to the next player attack. | Oldid `6569736` proves that the breath stops attacks. It does not give the duration. A period server handler or a qualified timed recording must replace this value. |
 | `skeletal_wyvern.unshielded_breath_max_hit` | Unprotected damage uses a uniform value from `0` through `500` lifepoints. | Oldid `6569736` reports unshielded hits of `500` or more. It does not give the upper bound. A period server handler or a qualified damage sample must replace this value. |
-| `skeletal_wyvern.magic_defence_breath_reduction` | Each `64` combined Magic-level and Magic-defence points remove one lifepoint from the shielded `150` maximum. | Oldid `6569736` proves a small reduction from Magic defence. It does not expose the curve. A period handler or a qualified multi-value damage sample must replace this value. |
 
 No placeholder controls the bone drop, item identities, burial XP, grinding route, or Ectofuntus reward.
 

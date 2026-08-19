@@ -36,7 +36,6 @@ class ItemDefinition:
     source: str
     license_note: str
     source_item_id: Optional[int] = None
-    noted_item_id: Optional[int] = None
     stackable: bool = True
     required_level: int = 1
     base_exp: float = 0.0
@@ -82,13 +81,6 @@ def _source_item_id(spec: Mapping[str, object]) -> Optional[int]:
     return None
 
 
-def _noted_item_id(spec: Mapping[str, object]) -> Optional[int]:
-    value = spec.get("noted_item_id")
-    if isinstance(value, int) and not isinstance(value, bool):
-        return value
-    return None
-
-
 def _definition(
     name: str,
     category: ItemCategory,
@@ -106,7 +98,6 @@ def _definition(
         source=source,
         license_note="private-fork asset; provenance not audited",
         source_item_id=_source_item_id(spec),
-        noted_item_id=_noted_item_id(spec),
         stackable=_bool_value(spec, "stackable", True),
         required_level=_level_value(spec),
         base_exp=_number_value(spec, "exp", 0.0),
