@@ -784,9 +784,7 @@ parallel checkouts. Every enabled direct child of `addons21` with an
 `__init__.py` is imported as a separate add-on package. Keep only the canonical
 AnkiScape checkout there; linked worktrees belong in the sibling
 `Anki2/ankiscape_worktrees/` root and should be created/audited through
-`tools/worktree_guard.py`. `audit` remains a read-only layout check for callers
-without a session identity. An identified caller entering an older unclaimed
-worktree must run `python3 tools/worktree_guard.py claim` before audit accepts it.
+`tools/worktree_guard.py`.
 
 Production Anki hook wrappers expose their callbacks through `_hooks` but are
 not themselves iterable. Idempotent registration must inspect

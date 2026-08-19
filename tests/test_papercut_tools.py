@@ -38,7 +38,7 @@ class PapercutToolTests(unittest.TestCase):
             ]),
         )
 
-    def test_focused_runner_resolves_one_unambiguous_fuzzy_component(self):
+    def test_focused_runner_refuses_a_fuzzy_module_substitution(self):
         test_ids = [
             "tests.test_main_menu_widget.MainMenuWidgetTest.test_opens",
             "tests.test_runtime_actions.TestRuntimeActions.test_dispatches",
@@ -46,8 +46,8 @@ class PapercutToolTests(unittest.TestCase):
 
         resolved, unresolved = resolve_selectors(["MainMenuWidgetTests"], test_ids)
 
-        self.assertEqual(resolved, ["MainMenuWidgetTest"])
-        self.assertEqual(unresolved, [])
+        self.assertEqual(resolved, [])
+        self.assertEqual(unresolved, ["MainMenuWidgetTests"])
 
     def test_focused_runner_refuses_ambiguous_fuzzy_methods(self):
         test_ids = [
@@ -60,16 +60,29 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(resolved, [])
         self.assertEqual(unresolved, ["test_alpha_onf"])
 
-    def test_focused_runner_resolves_a_test_file_path_to_its_discovered_module(self):
-        test_ids = [
-            "test_bone_sources.BoneSourcesTest.test_routes",
-            "test_runtime_actions.TestRuntimeActions.test_dispatches",
-        ]
+    def test_focused_runner_resolves_a_test_file_path_to_only_its_module(self):
+        class CombatTest(unittest.TestCase):
+            __module__ = "test_combat"
 
-        resolved, unresolved = resolve_selectors(["tests/test_bone_sources.py"], test_ids)
+            def test_routes(self):
+                self.assertTrue(True)
 
-        self.assertEqual(resolved, ["test_bone_sources"])
+        class CombatLogicTest(unittest.TestCase):
+            __module__ = "test_combat_logic"
+
+            def test_dispatches(self):
+                self.assertTrue(True)
+
+        suite = unittest.TestSuite((CombatTest("test_routes"), CombatLogicTest("test_dispatches")))
+        test_ids = [test.id() for test in suite]
+
+        resolved, unresolved = resolve_selectors(["tests/test_combat.py"], test_ids)
+        selected, selected_ids = select_tests(suite, resolved)
+
+        self.assertEqual(resolved, ["test_combat."])
         self.assertEqual(unresolved, [])
+        self.assertEqual(selected_ids, ["test_combat.PapercutToolTests.test_focused_runner_resolves_a_test_file_path_to_only_its_module.<locals>.CombatTest.test_routes"])
+        self.assertEqual(selected.countTestCases(), 1)
 
     def test_repo_search_excludes_giant_generated_tables_and_bounds_results(self):
         with tempfile.TemporaryDirectory() as temp_dir:

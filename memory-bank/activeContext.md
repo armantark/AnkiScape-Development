@@ -38,15 +38,18 @@ integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 The 2026-08-11 tooling slice is merged with main snapshot
 `323bf39090023319eb4e5a80acf6e162d331fa4a` after re-checking every guardrail
 against the moved test corpus, worktree safety instrument, and reachability
-audit. Focused test selection now also accepts a test file path such as
-`tests/test_bone_sources.py` by resolving its discovered module component;
-ambiguous fuzzy guesses still fail closed. Generated-catalog search bounds,
-quiet and truthful test lanes, chain-safe reachability summaries, direct
-generator invocation, Qt font substitution, and atomic advisory worktree
-ownership remain live. Main and the merged tree both measure 1,571 actions,
+audit. Focused test selection accepts an exact test file path such as
+`tests/test_bone_sources.py` by resolving its discovered module component, but
+refuses fuzzy module substitutions. Generated-catalog search bounds, quiet and
+truthful test lanes, chain-safe reachability summaries, direct generator
+invocation, and Qt font substitution remain live. The rejected advisory
+worktree-ownership feature was removed in full after it broke the read-only
+layout audit twice. Main and the merged tree both measure 1,571 actions,
 2,266 reachable items, 84 orphan inputs, and 87 blocked actions; their parsed
-`--json` reports are identical. Full plain discovery passes 4,156 tests with
-499 expected skips, and real offscreen Qt passes 4,156 tests with three skips.
+`--json` reports are identical. Full plain discovery passes 4,152 tests with
+499 expected skips. The real offscreen Qt lane covers the same 4,152 tests in
+five independent processes to remain below the 600-second command cap, with
+three skips in aggregate.
 No period value was recovered or changed. Durable audit:
 `memory-bank/papercuts-fixed-2026-08-11.md`.
 

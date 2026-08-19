@@ -56,30 +56,7 @@ def resolve_selectors(selectors: list[str], test_ids: list[str]) -> tuple[list[s
         if normalized_path.casefold().endswith(".py"):
             module_name = normalized_path.rsplit("/", 1)[-1][:-3]
             if component := component_names.get(module_name.casefold()):
-                resolved.append(component)
-                continue
-        suggestions = selector_suggestions(selector, test_ids)
-        component_suggestions = [
-            suggestion
-            for suggestion in suggestions
-            if suggestion in components and "." not in suggestion
-        ]
-        if component_suggestions:
-            scores = [
-                (
-                    difflib.SequenceMatcher(
-                        None,
-                        selector.casefold(),
-                        suggestion.casefold(),
-                    ).ratio(),
-                    suggestion,
-                )
-                for suggestion in component_suggestions
-            ]
-            scores.sort(reverse=True)
-            best, suggestion = scores[0]
-            if best >= 0.8 and (len(scores) == 1 or best - scores[1][0] >= 0.1):
-                resolved.append(suggestion)
+                resolved.append(f"{component}.")
                 continue
         unresolved.append(selector)
     return resolved, unresolved
