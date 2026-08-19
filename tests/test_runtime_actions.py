@@ -67,8 +67,6 @@ def _context(player_data, calls=None, random_values=None, review_action_multipli
         check_achievements=lambda _data: calls.setdefault("achievement_checks", 0),
         save_player_data=lambda: calls.__setitem__("saves", calls.get("saves", 0) + 1),
         refresh_skill_availability=lambda: calls.setdefault("refreshes", 0),
-        refresh_skill_availability_partial=lambda *_args: calls.setdefault("partial_refreshes", 0),
-        can_smith_any=lambda: False,
         show_exp=lambda exp: calls["xp"].append(exp),
         show_activity_gain=lambda text: calls.setdefault("activity", []).append(text),
         implemented_exp_keys_snapshot=lambda: {},
@@ -5029,7 +5027,7 @@ class TestProcessingPackOverlay(unittest.TestCase):
         # skill/recipe can look unavailable while the bank is full of materials.
         from ankiscape.runtime.runtime_actions import handle_crafting_answer
 
-        observed = {"refresh": [], "partial": []}
+        observed = {"refresh": []}
         player_data = {
             "inventory": {"Uncut opal": 100},
             "crafting_level": 99,
@@ -5042,9 +5040,8 @@ class TestProcessingPackOverlay(unittest.TestCase):
         ctx = dataclasses.replace(
             ctx,
             refresh_skill_availability=lambda: observed["refresh"].append(
-                player_data["inventory"].get("Uncut opal")),
-            refresh_skill_availability_partial=lambda *_a: observed["partial"].append(
-                player_data["inventory"].get("Uncut opal")),
+                player_data["inventory"].get("Uncut opal")
+            ),
         )
 
         run_answer_with_carried_overlay(ctx, "crafting", handle_crafting_answer)
@@ -5052,7 +5049,6 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Uncut opal"], 99)
         # One full refresh, after reconciliation, seeing the true bank (not 27).
         self.assertEqual(observed["refresh"], [99])
-        self.assertEqual(observed["partial"], [])  # suppressed inside the scope
 
     def test_churn_per_action_matches_real_runescape_trip_lengths(self):
         # Balance guard for the invented churn=28 knob. Cross-checked against RS:

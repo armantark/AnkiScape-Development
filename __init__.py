@@ -45,8 +45,7 @@ from .logic_pure.logic_pure import (
     apply_impling_jar_open_pure,
     apply_item_pack_open_pure,
     combat_observed_drop_item_names_pure,
-    can_smith_any_pure,
-    smithing_inventory_with_coal_bag_pure,
+    smithing_target_locked_reasons_pure,
     has_crafting_materials_pure,
     crafting_target_locked_reasons_pure,
     fletching_target_locked_reasons_pure,
@@ -1307,8 +1306,6 @@ def _runtime_action_context() -> RuntimeActionContext:
         check_achievements=check_achievements,
         save_player_data=save_player_data,
         refresh_skill_availability=_refresh_skill_availability,
-        refresh_skill_availability_partial=refresh_skill_availability,
-        can_smith_any=can_smith_any,
         show_exp=_show_runtime_exp,
         show_activity_gain=_show_activity_gain,
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
@@ -4363,7 +4360,6 @@ def _on_main_menu(
     ui.show_main_menu(
         player_data,
         current_skill,
-        can_smith_any(),
         on_save_skill=lambda skill: save_skill(skill, None),
         on_set_ore=lambda ore: _set_value("current_ore", ore),
         on_set_tree=lambda tree: _set_value("current_tree", tree),
@@ -5691,10 +5687,11 @@ def on_show_answer(reviewer):
 
 
 def can_smith_any():
-    return can_smith_any_pure(
-        smithing_inventory_with_coal_bag_pure(player_data),
-        player_data["smithing_level"],
-        SMITHING_DATA,
+    return any(
+        not smithing_target_locked_reasons_pure(
+            player_data, target, SMITHING_DATA, QUEST_UNLOCK_RULES
+        )
+        for target in SMITHING_DATA
     )
 
 

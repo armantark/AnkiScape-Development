@@ -19,8 +19,6 @@ class RuntimeActionContext:
     check_achievements: Callable[[dict[str, Any]], None]
     save_player_data: Callable[[], None]
     refresh_skill_availability: Callable[[], None]
-    refresh_skill_availability_partial: Callable[..., None]
-    can_smith_any: Callable[[], bool]
     show_exp: Callable[[float], None]
     show_activity_gain: Callable[[str], None]
     implemented_exp_keys_snapshot: Callable[[], dict[str, float]]

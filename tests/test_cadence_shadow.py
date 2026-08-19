@@ -216,8 +216,6 @@ class CadenceShadowPureTest(unittest.TestCase):
             check_achievements=noop,
             save_player_data=noop,
             refresh_skill_availability=noop,
-            refresh_skill_availability_partial=noop,
-            can_smith_any=lambda: False,
             show_exp=noop,
             show_activity_gain=noop,
             implemented_exp_keys_snapshot=lambda: {},

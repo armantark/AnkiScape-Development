@@ -34,8 +34,6 @@ def _runtime_context(player_data: dict, roll: float, activity_messages: list[str
         check_achievements=lambda _data: None,
         save_player_data=lambda: None,
         refresh_skill_availability=lambda: None,
-        refresh_skill_availability_partial=lambda *_args: None,
-        can_smith_any=lambda: False,
         show_exp=lambda _xp: None,
         show_activity_gain=activity_messages.append,
         implemented_exp_keys_snapshot=lambda: {},

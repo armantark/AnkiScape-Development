@@ -448,10 +448,6 @@ def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None
     return result
 
 
-def _refresh_smithing_and_crafting_availability(ctx: RuntimeActionContext) -> None:
-    ctx.refresh_skill_availability()
-
-
 def _auto_drink_skilling_potion_if_needed(
     ctx: RuntimeActionContext,
     skill_id: str,
@@ -1451,7 +1447,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
             failure_kind="smelt_fail",
         )
         ctx.save_player_data()
-        _refresh_smithing_and_crafting_availability(ctx)
+        ctx.refresh_skill_availability()
         ctx.show_activity_gain("The ore was too impure")
         return True
 
@@ -1472,6 +1468,6 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     ctx.check_achievements(player_data)
     ctx.save_player_data()
 
-    _refresh_smithing_and_crafting_availability(ctx)
+    ctx.refresh_skill_availability()
     ctx.show_exp(exp_gained)
     return True

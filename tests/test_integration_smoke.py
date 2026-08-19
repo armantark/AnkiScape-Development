@@ -129,8 +129,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             check_achievements=lambda *_args: None,
             save_player_data=lambda: None,
             refresh_skill_availability=lambda: None,
-            refresh_skill_availability_partial=lambda *_args: None,
-            can_smith_any=lambda: False,
             show_exp=lambda amount: captured["xp"].append(amount),
             show_activity_gain=lambda text: captured["activity"].append(text),
             implemented_exp_keys_snapshot=lambda: {},
@@ -4588,7 +4586,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda _data, _skill: None
         addon._show_exp = lambda exp: calls["xp"].append(exp)
         addon._refresh_skill_availability = lambda: None
-        addon._refresh_smithing_and_crafting_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
 
         addon.player_data = {

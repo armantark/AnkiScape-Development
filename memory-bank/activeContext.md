@@ -35,15 +35,20 @@ integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 ## Current Focus
 
 **2026-08-19, skill-button availability refresh corrected.** The open Skills
-menu now applies the logic layer's current availability result in both directions
-for Smithing, Crafting, Fletching, Firemaking, Hunter, Cooking, and
-Runecrafting, so a processing button disables as soon as its last runnable
-target disappears. The two-argument Smithing/Crafting refresh leaves omitted
-skills unchanged. A real offscreen Qt regression drives Crafting from one Wool
-through the production lock rules to an empty inventory and proves the live
-button disables. Full discovery passes 4,145 tests in both lanes: plain skips
-500 widget tests, and the real offscreen Qt lane skips 3. No period value or
-source baseline changed.
+menu now recomputes Smithing, Crafting, Fletching, Firemaking, Hunter, Cooking,
+and Runecrafting availability from current player data whenever their panels
+render, while the review refresh updates the same live buttons in both
+directions. Smithing no longer depends on the bool captured when the menu
+opened; an offscreen regression removes the last Bronze-bar ores, re-renders
+the real Smithing panel, and proves the replacement button disables. The dead
+partial-refresh context seam and its Smithing callback are deleted, Smithing's
+one-line refresh wrapper is inlined, and refreshes leave the deliberately
+tooltip-free “Currently training” button unchanged. Full plain discovery passes
+4,148 tests with 502 expected widget skips. The complete offscreen Qt corpus
+passes the same 4,148 tests with three skips in independent filename ranges
+after the monolithic process exceeded the 600-second cap: A–L ran 2,169 tests
+with two skips, M–R ran 1,039 with one skip, and S–Z ran 940 with none. No period
+value or source baseline changed.
 
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 

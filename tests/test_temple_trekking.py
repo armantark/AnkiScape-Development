@@ -534,8 +534,6 @@ class TempleTrekkingPersistenceRuntimeTests(unittest.TestCase):
             check_achievements=lambda *_args: None,
             save_player_data=lambda: calls.__setitem__("saves", calls["saves"] + 1),
             refresh_skill_availability=lambda: None,
-            refresh_skill_availability_partial=lambda *_args: None,
-            can_smith_any=lambda: True,
             show_exp=lambda *_args: None,
             show_activity_gain=lambda message: calls["messages"].append(str(message)),
             implemented_exp_keys_snapshot=lambda: {},

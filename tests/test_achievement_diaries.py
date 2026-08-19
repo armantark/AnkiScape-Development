@@ -329,8 +329,6 @@ def _crafting_context(player, errors):
         check_achievements=check_achievements,
         save_player_data=lambda: None,
         refresh_skill_availability=lambda: None,
-        refresh_skill_availability_partial=lambda *_args: None,
-        can_smith_any=lambda: False,
         show_exp=lambda _amount: None,
         show_activity_gain=lambda _message: None,
         implemented_exp_keys_snapshot=lambda: {},
