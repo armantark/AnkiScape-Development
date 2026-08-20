@@ -3,19 +3,19 @@
 ## Repository papercut tooling re-land — 2026-08-19
 
 The unmerged 2026-08-11 guardrail slice now sits on main snapshot
-`323bf39090023319eb4e5a80acf6e162d331fa4a`. Current-main review retained the
+`689fdd4489eb646b695a3176a3d23c3ab19c3557`. Current-main review retained the
 search, test-selection, lane-output, reachability-summary, generator, and
 Qt-font guards. The test selector additionally normalizes exact
 `tests/test_*.py` paths to discovered module IDs because that mistake recurred
 after the original slice, while fuzzy module substitutions now fail closed.
 The rejected advisory worktree-ownership feature was removed in full after it
-broke the read-only layout audit twice. Reachability remains exactly 1,571
-actions / 2,266 reachable items / 84 orphan inputs / 87 blocked actions, with
-identical parsed JSON before and after. Full plain discovery passes 4,152 tests with 499 skips. The real
-offscreen Qt lane covers the same 4,152 tests in five independent processes to
-remain below the 600-second command cap, with three skips in aggregate. No gameplay data
-or period value changed. Full proof and historical exclusions remain in
-`memory-bank/papercuts-fixed-2026-08-11.md`.
+broke the read-only layout audit twice. At that merged main snapshot, the tree
+measures 1,571 actions / 2,278 reachable items / 72 orphan inputs / 71 blocked
+actions. Full plain discovery passes 4,160 tests with 499 skips. The real
+offscreen Qt lane covers the same 4,160 tests in four independent discovery
+batches to remain below the 600-second command cap, with three skips in
+aggregate. No gameplay data or period value changed. Full proof and historical
+exclusions remain in `memory-bank/papercuts-fixed-2026-08-11.md`.
 
 ## Big Top Bonanza per-card queue — 2026-08-15
 
