@@ -1657,3 +1657,35 @@ from a `code-review` finding the review never issued, and work orders claiming
 falsely that each session was the only writer. That is the same failure family
 as today's two-writer collision, and it is why this seat now names one
 escalation route and one worktree owner.
+
+### The strange-rock interaction is a class, not two bugs — and both fixes overreached
+
+Independent reviews found the same defect family in two unrelated slices on the
+same day. A Shattered Heart strange rock replaces a produced output, and where
+that output is hard to re-obtain the save is stuck.
+
+- Jungle Potion: the rock ate the clean herb a quest step produced, and each
+  grimy jungle herb had exactly one producer, the search stage already passed.
+  4.9% of playthroughs.
+- Juju vines: two loose Hunter rocks ate both the guaranteed Jadinko output and
+  a 1/80 rare seed, and the four potion inputs are untradeable.
+
+A cross-catalog scan on the Jungle branch found only one other quest-item
+transformation through a rock-eligible handler, Heroes' Quest `cook_lava_eel`,
+which is recoverable through repeatable fishing. So the exposure is now
+believed closed — but both fixes had to be corrected:
+
+- Jungle's fix is keyed on target id and never on quest state, so post-quest the
+  five jungle herbs pay a rock with no output cost while every other herb pays
+  one output per rock. Verified: `POST-QUEST clean sito foil = 1 rock1 = 1`
+  against `ORDINARY clean guam = 0`. Post-quest they become the strictly best
+  Herblore rock farm in the game.
+- Vines' fix narrowed the replacement pool for every OTHER Hunter target from
+  post-bonecrusher `retained_outputs` to spec-only `primary_outputs`, so a rock
+  destroyed banked Bones the action never produced and telemetry stopped
+  matching inventory. Seeded probe, 400 reviews, `random.Random(11)`: pre-fix
+  Bones 100, post-fix Bones 98.
+
+Both fixes were also written as hardcoded id literals duplicating a membership
+the data layer already owns, so a sixth Habitat route would silently reopen the
+soft-lock. Derive from the untradeable-output property instead.
