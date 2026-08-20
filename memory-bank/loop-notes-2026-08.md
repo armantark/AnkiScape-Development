@@ -1409,3 +1409,156 @@ The other 172 were re-walked on 2026-08-13.
 The MacBook Pro is now reachable for headless work as
 `ssh armans-macbook-pro '<cmd>'`, but it has no repository copy and no Qt
 environment yet.
+
+### Wrong merge parent in two Jungle Potion records — found 2026-08-19, correction owed
+
+The Jungle Potion re-land merge `6b5e41ac1610a782eecf46790258a5e50f9c3827` has
+parents `3cbe114a3c43fd031f09fc5a5582c0d10a6a17cc` and
+`6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Two durable records on that branch
+instead name `26ccb2a4378f3968e2f255b5f34bddd8ffe889de` as the merge parent:
+
+- `memory-bank/activeContext.md:5027`
+- `memory-bank/source-audits/quest-jungle-potion-playable-2026-08-13.md:133`
+
+The reachability figures those records carry are still numerically valid,
+because `26ccb2a4`, `6c482e61`, `1f878577`, and `323bf390` differ only in
+Memory Bank text. The wording is still wrong: a later seat checks out the
+identifier, not the argument for why the identifier does not matter.
+
+Cause is the brief, not the agent. Every re-land brief in this run quotes the
+verified baseline at `26ccb2a4`, and the agent recorded the briefed identifier
+rather than the one it actually merged. Check every other re-land branch for
+the same substitution before promoting it: `breadth-reland`, `herbs-reland`,
+`papercuts-reland`, `remote-test-host`, `skill-button-refresh`.
+
+Resolution: this is a review finding, and the slice pipeline's resolve stage
+already provides for one commit after review. No rail is relaxed by correcting
+it there. Future briefs must label a quoted baseline as "measured at", and say
+explicitly that the record must name the merge parent the agent actually
+merged.
+
+### Review round one: three of four slices rejected
+
+Every slice that reached an independent Opus review on 2026-08-19 came back
+with real defects. None of the rejections were style.
+
+**Jungle Potion — REJECT.** A Shattered Heart strange rock replaces the clean
+herb produced by the quest's Herblore step, because `_record_action` in
+`runtime/runtime_actions_shared.py:566-575` subtracts the produced output as
+the rock's replacement. Each grimy jungle herb has exactly one producer, the
+already-passed search stage, so the quest becomes permanently unfinishable and
+takes Shilo Village and thirteen exclusive items with it. Incidence
+`1 - 0.99**5` = 4.9% of playthroughs. The accompanying test hid it by calling
+`player_data.pop("shattered_heart", None)`.
+
+**Skeletal Wyvern — REJECT.** Protect from Melee nullified the ice breath
+entirely, defeating the six-shield mechanic the slice exists to ship
+(`logic_pure/logic_pure_combat_engine.py:1455`).
+
+**Tooling guardrails — REJECT.** A new root `.ignore` hid `data/shop_data.py`
+and `data/construction_data.py` from every ripgrep search, including
+`tools/repo_search.py --include-large`, which promises to include them. And
+`tools/worktree_guard.py audit` aborted with exit 2 for any caller without
+`CLAUDE_CODE_SESSION_ID` — the guard every dispatched agent depends on.
+
+**Skill buttons — ACCEPT WITH FINDINGS.** The first commit had already been
+rejected for over-disabling Crafting; that was confirmed genuinely fixed, both
+paths now calling `crafting_target_locked_reasons_pure` with identical
+arguments. Smithing still read a bool captured at menu-open rather than a live
+predicate.
+
+Two patterns worth keeping. Every reviewer independently re-ran a lane rather
+than trusting the author's counts, and every count held: the failures were
+never in the numbers, only in what the tests were pointed at. And the two worst
+defects were both pinned by tests that removed or hand-fed the state that
+triggers them, which is the same signature as the 2026-07-26 batch.
+
+### Review round two, and a pattern in what the reviews keep finding
+
+**Skeletal Wyvern — ACCEPT WITH FINDINGS.** The blocking prayer defect is
+confirmed genuinely fixed and not over-corrected, proved by driving the real
+kernel with controls: melee-only 8614 damage falls to 0 under Protect from
+Melee, ranged-only 8335 falls to 0 under Protect from Missiles, breath-only
+38643 is unchanged under both, and ordinary enemies are unaffected. The four
+remaining findings are all record integrity in
+`memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
+
+**Tooling guardrails — REJECT again.** The audit abort MOVED rather than went
+away: it now fires for callers that DO set `CLAUDE_CODE_SESSION_ID` while
+standing in any of the 49 unmarked worktrees. Decision taken by the
+orchestration seat: remove the worktree-ownership feature from the branch
+entirely rather than fix it a third time. It has broken the guard twice in two
+different ways, its own reviewer calls it first-come with no collision
+detection, and it defends against a problem that has not occurred while `audit`
+failing stops every dispatched slice before its first edit.
+
+**Grimy herbs — REJECT.** Three majors. The worst is scope creep, not herb
+work: the branch added a short-circuit to `_set_value` at `__init__.py:4557` so
+it skips saving when the value is unchanged, which silently discards the
+in-place mutation `_set_combat_attack_style` makes immediately before it.
+Unarmed, staff, sceptre and hammer weapons are all `crush` in
+`WEAPON_TYPE_UNARMED_STYLES`, so switching Accurate to Aggressive unarmed never
+persists and reviews keep awarding Attack XP instead of Strength. Confirmed
+against `main` that the short-circuit is branch-introduced; main's `_set_value`
+always saves, so no live save is affected. Also: all five vine-herb seeds gated
+at Hunter 78 when the branch's own cited Darkan source supplies them from the
+Hunter 70 Common jadinko at 16/256, and an icon gate weakened from an
+empty-list assertion to a seven-item allowlist.
+
+The pattern across every rejection so far: the reported numbers were always
+true, and every independent reviewer that re-ran a lane got the author's exact
+counts. What the reviews catch is never a false measurement — it is a test
+pointed at the wrong thing, an instrument quietly loosened, or an unrequested
+change riding along inside a slice about something else.
+
+### First promotion: Skeletal Wyvern, main at 7fb738e5
+
+Merged `goal/breadth-reland-2026-08-19` through the full gate in worktree
+`promote-2026-08-19`. Post-merge run on the merged tree, all green:
+
+    plain lane   Ran 4152 tests in 374.657s   OK (skipped=499)
+    qt lane      Ran 4152 tests in 613.858s   OK (skipped=3)     [monolithic]
+    audit_docs   Audited 577 Markdown and 437 HTML files. Documentation audit passed.
+    test_quality 4117 tests across 188 files; hard issues: 0
+    reachability 1571 actions; 2278 reachable items; 72 orphan inputs; 71 blocked actions
+    worktree_guard  layout safe
+    git diff --check  clean
+
+Reachability improves against the pre-merge baseline of `1571 / 2266 / 84 / 87`:
+twelve more reachable items, twelve fewer orphan inputs, sixteen fewer blocked
+actions.
+
+The Qt lane ran monolithically at 613.858 s because a detached `nohup` script
+has no tool command cap. That is the cheapest way to run the real Qt lane
+without partitioning it, and it should be the default for promotion gates.
+
+Main had advanced by one papercut commit while the gate ran, so the verified
+tree absorbed it before landing; the only file differing from the gated tree
+is `memory-bank/papercuts.md`. Do not commit to main while a promotion gate is
+running — it forces this reconciliation every time.
+
+### Skill-button slice accepted with two recorded non-blocking minors
+
+`goal/skill-button-refresh-2026-08-19` at `cfe999c6` took three rounds. Final
+independent verdict is accept with findings, and the reviewer confirmed by
+driving the real widget that Smithing now recomputes from
+`smithing_target_locked_reasons_pure` on every render rather than from a bool
+captured at menu-open, and that the regression forces a real `_render_panel()`
+instead of hand-feeding a value.
+
+Two minors are deliberately NOT fixed, and are recorded here rather than
+polished away while the Codex block runs down:
+
+1. `__init__.py:787` — the availability cache fingerprint gained `"crafting"`
+   but not `"smithing"`, although Smithing availability now applies
+   `QUEST_UNLOCK_RULES` and `data/quest_data.py:9395` gates `forge_cannonballs`
+   on `dwarf_cannon`. The reviewer could not construct a player state that
+   produces a wrong output, because completing the quest grants an Ammo mould
+   which is itself a tracked requirement item. An asymmetry to close, not a
+   shipped defect.
+2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
+   verbatim between `refresh_skill_availability` and the panel render path at
+   `ui/ui.py:22840-22857`, so editing one leaves the other emitting old text.
+   The available branch also sets the tooltip to the bare skill name while the
+   render path sets none, so an enabled button silently acquires a tooltip
+   after the first refresh.
