@@ -7614,7 +7614,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             _icon_pixels(herblore_item.icon()),
             _icon_pixels(QIcon(os.path.join(_ADDON_DIR, "icon", "achievement_icon.png"))),
         )
-        self.assertEqual(clean_group.childCount(), 22)
+        self.assertEqual(clean_group.childCount(), 27)
         self.assertEqual(unf_group.childCount(), 22)
         self.assertEqual(finished_group.childCount(), 70)
         action_rows = [
@@ -7622,7 +7622,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             for item in _smith_tree_items(tree)
             if not str(item.data(0, Qt.ItemDataRole.UserRole)).startswith("__herblore_group__:")
         ]
-        self.assertEqual(len(action_rows), 114)
+        self.assertEqual(len(action_rows), 119)
         self.assertTrue(all(not item.icon(0).isNull() for item in action_rows))
         self.assertNotIn(
             "clean_sagawort",

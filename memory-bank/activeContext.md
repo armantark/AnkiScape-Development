@@ -5186,3 +5186,23 @@ flees silently when the player runs out of food.
 - Full Crafting availability now uses `crafting_target_locked_reasons_pure`, including live skilling levels, and its cache fingerprint tracks `skilling_current_levels`.
 - Processing-skill refreshes require all seven logic-owned results, remove the redundant two-argument runtime refreshes, preserve the disabled current-skill button, and restore unavailable tooltips after live state changes.
 - The offscreen Qt lane now needs filename-range processes after exceeding ten minutes; keep A through L together because `tests/test_hud_singleton_and_cleanup.py` has a pre-existing import-order dependency when started with real Qt.
+
+## Jungle Potion re-land — 2026-08-19
+
+- The preserved Jungle Potion implementation was merged with current `main` at
+  `6c482e617ffbe1f803b2a17fb00fb74a0d07a305`; the merge completed without
+  content conflicts and retained all Pass 10 Circus, Fish Flingers, combat
+  popup, review-strip, and `ui/ui.py` changes.
+- A standalone real-kernel drive started the quest from its Druidic Ritual and
+  Herblore 3 gates, searched, cleaned, and handed in all five herbs in strict
+  order, completed at progress 11 with one quest point and 775 Herblore XP,
+  and made `can_start_quest_pure(..., "shilo_village", ...)` true.
+- The merged reachability graph contains all ten Jungle Potion herb identities
+  and all thirteen Shilo Village-only products, with zero blocked Jungle Potion
+  or Shilo Village quest-stage products. Against `main`, the merged tree moves
+  from 1,571 actions / 2,266 reachable items / 84 orphan inputs / 87 blocked
+  actions to 1,576 / 2,289 / 84 / 87.
+- Full discovery passes 4,146 tests in each lane: plain skips 499 and real
+  offscreen Qt skips three. The branch adds no panel rule or unmarked
+  reconstruction; the placeholder-register suites pass all 22 tests.
+- Evidence: `source-audits/quest-jungle-potion-playable-2026-08-13.md`.

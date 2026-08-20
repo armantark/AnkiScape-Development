@@ -11,6 +11,12 @@ from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from .herblore_data import (
+    DARKAN_HERB_CLEANING_SOURCE_PATH,
+    JUNGLE_POTION_CACHE_SOURCE,
+    JUNGLE_POTION_POST_QUEST_SEARCH_SOURCE,
+    JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
+)
 from .varrock_museum_data import varrock_museum_quest_reward_additions_as_dict
 
 
@@ -463,6 +469,7 @@ DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE = (
 )
 DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
 DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
+DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/TrufitusDialog.kt"
 DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
 HEROES_QUEST_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/heroesquest"
 HEROES_QUEST_DARKAN_SOURCE = f"{HEROES_QUEST_SOURCE_ROOT}/HeroesQuest.java"
@@ -1131,6 +1138,24 @@ DRUIDIC_RITUAL_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(
         4,
         "Kaqemeex taught me the basics of Herblore.",
+        "Quest complete!",
+    ),
+)
+
+JUNGLE_POTION_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Trufitus asked me to search the marshy jungle vines to the south-west for snake weed."),
+    _simple_stage(2, "I found grimy snake weed. I must clean it and give the clean herb to Trufitus."),
+    _simple_stage(3, "Trufitus asked me to search the palm trees on the north-east peninsula for ardrigal."),
+    _simple_stage(4, "I found grimy ardrigal. I must clean it and give the clean herb to Trufitus."),
+    _simple_stage(5, "Trufitus asked me to search the scorched earth south of the village for sito foil."),
+    _simple_stage(6, "I found grimy sito foil. I must clean it and give the clean herb to Trufitus."),
+    _simple_stage(7, "Trufitus asked me to search the rocks south-east of the village for volencia moss."),
+    _simple_stage(8, "I found grimy volencia moss. I must clean it and give the clean herb to Trufitus."),
+    _simple_stage(9, "Trufitus asked me to search the fungus-covered walls in the northern caves for rogue's purse."),
+    _simple_stage(10, "I found grimy rogue's purse. I must clean it and give the clean herb to Trufitus."),
+    _simple_stage(
+        11,
+        "I collected five jungle herbs for Trufitus and he rewarded me with Herblore training.",
         "Quest complete!",
     ),
 )
@@ -3108,6 +3133,41 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         timeline="Fifth Age",
     ),
     QuestDefinition(
+        id=JUNGLE_POTION_ID,
+        display_name="Jungle Potion",
+        stages=len(JUNGLE_POTION_STAGES),
+        point_reward=1,
+        rewards=(),
+        start_point="Speak to Trufitus near Tai Bwo Wannai.",
+        requirements=(
+            "Druidic Ritual",
+            "Herblore 3",
+            "Used during quest: the five jungle herbs found and cleaned in strict order",
+        ),
+        required_items=(),
+        combat="None required; the jungle contains environmental dangers.",
+        source=(
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; "
+            f"{DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; "
+            f"{JUNGLE_POTION_WIKI_SOURCE}"
+        ),
+        journal_stages=JUNGLE_POTION_STAGES,
+        release_date="2002-10-23",
+        members=True,
+        difficulty="Novice",
+        length="Short to Medium",
+        timeline="Fifth Age",
+        required_quests=(QuestPrerequisite(DRUIDIC_RITUAL_ID, "Druidic Ritual"),),
+        required_skills=(QuestSkillRequirement("herblore", "Herblore", 3),),
+        xp_rewards=(QuestXpReward("herblore", 775),),
+        unlocks=(
+            "Access to Tai Bwo Wannai Cleanup",
+            "Access to Rionasta's parcel service",
+            "Access to the Calquat gardener",
+            "Eligibility to start Shilo Village",
+        ),
+    ),
+    QuestDefinition(
         id=SHILO_VILLAGE_ID,
         display_name="Shilo Village",
         stages=len(SHILO_VILLAGE_STAGES),
@@ -4079,6 +4139,78 @@ QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    JUNGLE_POTION_ID: (
+        _stage_req(
+            1,
+            "Search the south-west marshy jungle vines for snake weed.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            produced_inventory=(("Grimy snake weed", 1),),
+            auto_actions=("Search the south-west marshy jungle vines for snake weed",),
+        ),
+        _stage_req(
+            2,
+            "Clean the snake weed and give it to Trufitus.",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean snake weed", 1),),
+            auto_actions=("Give Trufitus clean snake weed",),
+        ),
+        _stage_req(
+            3,
+            "Search the north-east palm trees for ardrigal.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            produced_inventory=(("Grimy ardrigal", 1),),
+            auto_actions=("Search the north-east palm trees for ardrigal",),
+        ),
+        _stage_req(
+            4,
+            "Clean the ardrigal and give it to Trufitus.",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean ardrigal", 1),),
+            auto_actions=("Give Trufitus clean ardrigal",),
+        ),
+        _stage_req(
+            5,
+            "Search the scorched earth south of the village for sito foil.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            produced_inventory=(("Grimy sito foil", 1),),
+            auto_actions=("Search the scorched earth south of the village for sito foil",),
+        ),
+        _stage_req(
+            6,
+            "Clean the sito foil and give it to Trufitus.",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean sito foil", 1),),
+            auto_actions=("Give Trufitus clean sito foil",),
+        ),
+        _stage_req(
+            7,
+            "Search the rocks south-east of the village for volencia moss.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            produced_inventory=(("Grimy volencia moss", 1),),
+            auto_actions=("Search the rocks south-east of the village for volencia moss",),
+        ),
+        _stage_req(
+            8,
+            "Clean the volencia moss and give it to Trufitus.",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean volencia moss", 1),),
+            auto_actions=("Give Trufitus clean volencia moss",),
+        ),
+        _stage_req(
+            9,
+            "Search the fungus-covered northern cavern wall for rogue's purse.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            produced_inventory=(("Grimy rogue's purse", 1),),
+            auto_actions=("Search the fungus-covered northern cavern wall for rogue's purse",),
+        ),
+        _stage_req(
+            10,
+            "Clean the rogue's purse and give it to Trufitus.",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean rogue's purse", 1),),
+            auto_actions=("Give Trufitus clean rogue's purse",),
+        ),
+    ),
     SHILO_VILLAGE_ID: (
         _stage_req(
             1,
@@ -6911,7 +7043,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Speak to Sanfew about the ritual ingredients.",
             f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}",
-            required_actions=("Speak to Sanfew about the ritual ingredients",),
+            auto_actions=("Speak to Sanfew about the ritual ingredients",),
         ),
         _stage_req(
             2,
@@ -6929,7 +7061,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Enchanted beef", 1),
                 ("Enchanted chicken", 1),
             ),
-            required_actions=("Dip the raw meats in the Cauldron of Thunder",),
+            auto_actions=("Dip the raw meats in the Cauldron of Thunder",),
         ),
         _stage_req(
             3,
@@ -6941,7 +7073,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Enchanted beef", 1),
                 ("Enchanted chicken", 1),
             ),
-            required_actions=("Give Sanfew the enchanted meats and return to Kaqemeex",),
+            auto_actions=("Give Sanfew the enchanted meats and return to Kaqemeex",),
         ),
     ),
     RUNE_MYSTERIES_ID: (
@@ -7479,32 +7611,6 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
 
 
 QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
-    JUNGLE_POTION_ID: (
-        _stage_req(
-            1,
-            "Bring Trufitus clean snake weed.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean snake weed", 1),),
-        ),
-        _stage_req(
-            2,
-            "Bring Trufitus clean ardrigal.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean ardrigal", 1),),
-        ),
-        _stage_req(
-            3,
-            "Bring Trufitus clean sito foil.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean sito foil", 1),),
-        ),
-        _stage_req(
-            4,
-            "Bring Trufitus clean volencia moss and clean rogue's purse.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean volencia moss", 1), ("Clean rogue's purse", 1)),
-        ),
-    ),
     SWAN_SONG_ID: (
         _stage_req(
             5,
@@ -9374,6 +9480,14 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
         "https://runescape.wiki/w/Karambwanji?oldid=5838218",
     ),
     QuestUnlockRule(SHILO_VILLAGE_ID, "target", "mining", ("gem_rocks",), "Shilo Village", GEM_ROCK_SOURCE),
+    QuestUnlockRule(
+        JUNGLE_POTION_ID,
+        "target",
+        "utility",
+        JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
+        "Jungle Potion",
+        JUNGLE_POTION_POST_QUEST_SEARCH_SOURCE,
+    ),
     QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "fishing", ("catch_slimy_eel",), "Priest in Peril", PRIEST_IN_PERIL_SOURCE),
     QuestUnlockRule(
         PRIEST_IN_PERIL_ID,

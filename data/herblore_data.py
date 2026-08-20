@@ -53,6 +53,39 @@ SWAMP_TOAD_SOURCE_PATH = (
 )
 SWAMP_TOAD_WIKI_SOURCE = "https://runescape.wiki/w/Swamp_toad?oldid=6088673"
 TOADS_LEGS_WIKI_SOURCE = "https://runescape.wiki/w/Toad%27s_legs?oldid=6065573"
+DARKAN_HERB_CLEANING_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/herblore/HerbCleaning.java"
+)
+JUNGLE_POTION_CACHE_SOURCE = (
+    "OpenRS2 cache 727 (2012-07-24), sha256 "
+    "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8"
+)
+JUNGLE_POTION_HERB_SOURCE = f"{DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}"
+JUNGLE_POTION_CLEAN_TARGET_IDS = (
+    "clean_snake_weed",
+    "clean_ardrigal",
+    "clean_sito_foil",
+    "clean_volencia_moss",
+    "clean_rogues_purse",
+)
+JUNGLE_POTION_SEARCH_ACTIVITY_IDS = (
+    "search_marshy_jungle_vines",
+    "search_jungle_palm_trees",
+    "search_scorched_earth",
+    "search_jungle_mine_rocks",
+    "search_fungus_covered_wall",
+)
+JUNGLE_POTION_POST_QUEST_SEARCH_SOURCE = "; ".join(
+    (
+        JUNGLE_POTION_CACHE_SOURCE,
+        "https://runescape.wiki/w/Grimy_snake_weed?oldid=5379720",
+        "https://runescape.wiki/w/Grimy_ardrigal?oldid=4363001",
+        "https://runescape.wiki/w/Grimy_sito_foil?oldid=5380474",
+        "https://runescape.wiki/w/Grimy_volencia_moss?oldid=6358574",
+        "https://runescape.wiki/w/Grimy_rogue%27s_purse?oldid=5456824",
+    )
+)
 
 DEFAULT_HERBLORE_TARGET = "clean_guam"
 VIAL_OF_WATER_ITEM = "Vial of water"
@@ -115,6 +148,11 @@ _SOURCE_CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('clean_dwarf_weed', 'Clean dwarf weed', "clean", "herb", 70, 13.8, (('Grimy dwarf weed', 1),), 'Clean dwarf weed'),
     HerbloreTarget('clean_torstol', 'Clean torstol', "clean", "herb", 75, 15.0, (('Grimy torstol', 1),), 'Clean torstol'),
     HerbloreTarget('clean_fellstalk', 'Clean fellstalk', "clean", "herb", 91, 16.8, (('Grimy fellstalk', 1),), 'Clean fellstalk'),
+    HerbloreTarget('clean_snake_weed', 'Clean snake weed', "clean", "herb", 3, 2.5, (('Grimy snake weed', 1),), 'Clean snake weed', source=JUNGLE_POTION_HERB_SOURCE),
+    HerbloreTarget('clean_ardrigal', 'Clean ardrigal', "clean", "herb", 3, 2.5, (('Grimy ardrigal', 1),), 'Clean ardrigal', source=JUNGLE_POTION_HERB_SOURCE),
+    HerbloreTarget('clean_sito_foil', 'Clean sito foil', "clean", "herb", 3, 2.5, (('Grimy sito foil', 1),), 'Clean sito foil', source=JUNGLE_POTION_HERB_SOURCE),
+    HerbloreTarget('clean_volencia_moss', 'Clean volencia moss', "clean", "herb", 3, 2.5, (('Grimy volencia moss', 1),), 'Clean volencia moss', source=JUNGLE_POTION_HERB_SOURCE),
+    HerbloreTarget('clean_rogues_purse', "Clean rogue's purse", "clean", "herb", 3, 2.5, (("Grimy rogue's purse", 1),), "Clean rogue's purse", source=JUNGLE_POTION_HERB_SOURCE),
     HerbloreTarget('clean_erzille', 'Clean erzille', "clean", "herb", 54, 10.0, (('Grimy erzille', 1),), 'Clean erzille'),
     HerbloreTarget('clean_argway', 'Clean argway', "clean", "herb", 56, 11.6, (('Grimy argway', 1),), 'Clean argway'),
     HerbloreTarget('clean_ugune', 'Clean ugune', "clean", "herb", 55, 11.5, (('Grimy ugune', 1),), 'Clean ugune'),
@@ -495,6 +533,53 @@ def input_preparation_activities_as_dict() -> Dict[str, Dict[str, object]]:
     }
 
 
+def jungle_potion_search_activities_as_dict() -> Dict[str, Dict[str, object]]:
+    rows = (
+        (
+            "search_marshy_jungle_vines",
+            "Search marshy jungle vines",
+            "Grimy snake weed",
+            "https://runescape.wiki/w/Grimy_snake_weed?oldid=5379720",
+        ),
+        (
+            "search_jungle_palm_trees",
+            "Search jungle palm trees",
+            "Grimy ardrigal",
+            "https://runescape.wiki/w/Grimy_ardrigal?oldid=4363001",
+        ),
+        (
+            "search_scorched_earth",
+            "Search scorched earth",
+            "Grimy sito foil",
+            "https://runescape.wiki/w/Grimy_sito_foil?oldid=5380474",
+        ),
+        (
+            "search_jungle_mine_rocks",
+            "Search jungle mine rocks",
+            "Grimy volencia moss",
+            "https://runescape.wiki/w/Grimy_volencia_moss?oldid=6358574",
+        ),
+        (
+            "search_fungus_covered_wall",
+            "Search fungus-covered cavern wall",
+            "Grimy rogue's purse",
+            "https://runescape.wiki/w/Grimy_rogue%27s_purse?oldid=5456824",
+        ),
+    )
+    return {
+        activity_id: {
+            "display_name": display_name,
+            "requirements": {},
+            "output_item": output_item,
+            "output_qty": 1,
+            "batch_size": 1,
+            "group": "gathering",
+            "source": f"{JUNGLE_POTION_CACHE_SOURCE}; {wiki_source}",
+        }
+        for activity_id, display_name, output_item, wiki_source in rows
+    }
+
+
 def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     """Register every herblore item name (category material). Items already
     registered by another system dedupe by storage key at build time, so this
@@ -527,6 +612,16 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Potato cactus": 3138,
         "Shrink-me-quick": 11204,
         "Shrunk ogleroot": 11205,
+        "Grimy snake weed": 1525,
+        "Clean snake weed": 1526,
+        "Grimy ardrigal": 1527,
+        "Clean ardrigal": 1528,
+        "Grimy sito foil": 1529,
+        "Clean sito foil": 1530,
+        "Grimy volencia moss": 1531,
+        "Clean volencia moss": 1532,
+        "Grimy rogue's purse": 1533,
+        "Clean rogue's purse": 1534,
     }
     canonical_item_sources = {
         "Desert goat horn": "RuneScape Wiki Desert goat horn oldid=6555637",
@@ -534,6 +629,21 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Blue dragon scale": "RuneScape Wiki Blue dragon scale oldid=6169064",
         "Dragon scale dust": "RuneScape Wiki Blue dragon scale oldid=6169064",
         "Potato cactus": "RuneScape Wiki Potato cactus oldid=6543078",
+        **{
+            name: JUNGLE_POTION_HERB_SOURCE
+            for name in (
+                "Grimy snake weed",
+                "Clean snake weed",
+                "Grimy ardrigal",
+                "Clean ardrigal",
+                "Grimy sito foil",
+                "Clean sito foil",
+                "Grimy volencia moss",
+                "Clean volencia moss",
+                "Grimy rogue's purse",
+                "Clean rogue's purse",
+            )
+        },
     }
     result = {}
     for name in herblore_item_names():

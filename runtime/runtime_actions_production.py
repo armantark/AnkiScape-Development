@@ -36,6 +36,7 @@ from ..core.constants import (
     INCIDENTAL_GEM_DROP_CHANCE,
     INCIDENTAL_GEM_DROP_TABLE,
     ITEM_DEFINITIONS,
+    JUNGLE_POTION_CLEAN_TARGET_IDS,
     MINING_BONUS_ITEM_DATA,
     MINING_PICKAXE_DATA,
     MAGIC_DATA,
@@ -131,6 +132,7 @@ from ..logic_pure.logic_pure import (
     red_sandstone_daily_state_pure,
     magic_target_locked_reasons_pure,
     normalize_xp_rewards_pure,
+    quest_completed_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_resolvable_combat_blockers_pure,
@@ -681,7 +683,20 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
             output_items.pop(three_dose, None)
         four_dose = str(factory_bonus["output_item"])
         output_items[four_dose] = int(output_items.get(four_dose, 0) or 0) + 1
-    _record_action(ctx, "herblore", target, True, expected_success_chance=1.0, output_items=output_items)
+    _record_action(
+        ctx,
+        "herblore",
+        target,
+        True,
+        expected_success_chance=1.0,
+        output_items=output_items,
+        shattered_heart_output_items=(
+            {}
+            if target in JUNGLE_POTION_CLEAN_TARGET_IDS
+            and not quest_completed_pure(player_data, "jungle_potion")
+            else None
+        ),
+    )
     xp_rewards = normalize_xp_rewards_pure(spec, "herblore", base_exp)
     exp_gained = _award_action_xp_rewards(ctx, xp_rewards, "herblore")
     ctx.check_achievements(player_data)
