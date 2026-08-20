@@ -1588,3 +1588,72 @@ so an integration failure names its own cause.
 Handling: the failed merge stays on `promote/2026-08-19` rather than being
 reset, since a hard reset is forbidden here and the merge is reproducible. The
 next promotion cuts a fresh promote branch from main.
+
+### Fix rounds manufacture the next defect, and the mechanism is gate pressure
+
+`goal/herbs-reland-2026-08-19` has been rejected three times. Each rejection was
+real, each fix was correct on its own terms, and each fix introduced the next
+rejection — every time by producing a plausible value to make a gate pass.
+
+Round two found five vine seeds over-gated at Hunter 78 against the branch's own
+cited Darkan source. Round three fixed the gating correctly and, in the same
+commit:
+
+- invented the item name "Common vine" for item 19971, whose period name is
+  "Withered vine" per Darkan `config.json` uidName `withered_vine`. Because the
+  name matches nothing in the generated tables, the item has no price and cannot
+  be sold: `preview_shop_sell_pure` returns `sell_price_unresolved` for it while
+  "Pungent vine" is allowed at unit price 1. The source audit recorded the
+  fabricated name as sourced fact;
+- satisfied the icon gate it had just been told to restore by shipping a
+  1302x313, 314,693-byte "Withered vine detail" render as an inventory sprite,
+  next to seven real 28x25 sprites of about 550 bytes. It renders as a ~32x8
+  sliver;
+- asserted `VINE_HERB_DISEASE_SLOTS = 6` as sourced from the generic Darkan
+  growth selector, eleven lines above a `SHARED_DISEASE_SLOTS = 6` that carries
+  `PLACEHOLDER(farming.shared_disease_slots)` for the identical number, and
+  whose register row says that selector cannot settle a crop-specific value.
+
+The pattern to carry forward: **a fix round is where invented facts enter.** The
+agent is under pressure to make a named gate go green, and a plausible name,
+number, or asset does that. Every fix brief should therefore say what this one
+now says — when evidence does not settle something, register a placeholder or
+delete the row, and never produce a value that merely looks right.
+
+### The secondaries branch is promotable, and the caveat that looked like a gate is not one
+
+`goal/secondaries-2026-08-11` looked self-refusing: its final commit subject is
+"Avoid merging the abandoned branch by recording the verified handoff". A
+read-only triage, then the orchestrator reading the record verbatim, both find
+the opposite. `memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
+says plainly:
+
+> The work started on `goal/grind-2026-08-11`. It moved to
+> `goal/secondaries-2026-08-11`.
+>
+> Merge `goal/secondaries-2026-08-11`. Do not merge the old branch. The old
+> branch is abandoned and dirty.
+
+The subject refers to the OLD branch. This one is the named merge target.
+
+The sentence that reads like a shipping gate — "Do not ship this implementation
+without connected station context" — sits under "Facility Prerequisites" and
+refers to the station reference implementation left in the abandoned worktree,
+not to this branch. The same handoff records that the committed tree has zero
+`station` references and zero added station lines. So nothing gates this branch,
+and the genuine owner decision is the separate question of whether runtime code
+should enforce facility prerequisites at all.
+
+NOT started this run, deliberately. It is a 28-file re-land needing a merge,
+verification, an independent review and likely two fix rounds, and it conflicts
+with the Jungle Potion branch on `data/herblore_data.py` and `data/quest_data.py`
+and with the Wyvern work now on main. There is not enough Codex block left to
+carry it honestly, and starting it would leave a half-verified branch. Next
+session begins here with the gate question already settled.
+
+That handoff is also worth reading for its own sake: it records five sessions
+writing to one worktree in an hour, three of them rebuilding an unapproved API
+from a `code-review` finding the review never issued, and work orders claiming
+falsely that each session was the only writer. That is the same failure family
+as today's two-writer collision, and it is why this seat now names one
+escalation route and one worktree owner.
