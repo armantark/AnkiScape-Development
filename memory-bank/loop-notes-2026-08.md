@@ -1536,3 +1536,29 @@ Main had advanced by one papercut commit while the gate ran, so the verified
 tree absorbed it before landing; the only file differing from the gated tree
 is `memory-bank/papercuts.md`. Do not commit to main while a promotion gate is
 running — it forces this reconciliation every time.
+
+### Skill-button slice accepted with two recorded non-blocking minors
+
+`goal/skill-button-refresh-2026-08-19` at `cfe999c6` took three rounds. Final
+independent verdict is accept with findings, and the reviewer confirmed by
+driving the real widget that Smithing now recomputes from
+`smithing_target_locked_reasons_pure` on every render rather than from a bool
+captured at menu-open, and that the regression forces a real `_render_panel()`
+instead of hand-feeding a value.
+
+Two minors are deliberately NOT fixed, and are recorded here rather than
+polished away while the Codex block runs down:
+
+1. `__init__.py:787` — the availability cache fingerprint gained `"crafting"`
+   but not `"smithing"`, although Smithing availability now applies
+   `QUEST_UNLOCK_RULES` and `data/quest_data.py:9395` gates `forge_cannonballs`
+   on `dwarf_cannon`. The reviewer could not construct a player state that
+   produces a wrong output, because completing the quest grants an Ammo mould
+   which is itself a tracked requirement item. An asymmetry to close, not a
+   shipped defect.
+2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
+   verbatim between `refresh_skill_availability` and the panel render path at
+   `ui/ui.py:22840-22857`, so editing one leaves the other emitting old text.
+   The available branch also sets the tooltip to the bare skill name while the
+   render path sets none, so an enabled button silently acquires a tooltip
+   after the first refresh.
