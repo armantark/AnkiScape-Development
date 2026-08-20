@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import os
 import re
 import sys
 from dataclasses import dataclass, replace
@@ -1367,7 +1368,14 @@ def _with_weapon_type(
     return replace(item, weapon_type=weapon_type)
 
 
-def generate(game_root: Path, output_path: Path) -> None:
+def generate(
+    game_root: Path,
+    output_path: Path,
+    *,
+    provenance_root: Optional[Path] = None,
+) -> None:
+    if provenance_root is None:
+        provenance_root = game_root
     addon_root = output_path.resolve().parent
     if str(addon_root) not in sys.path:
         sys.path.insert(0, str(addon_root))
@@ -1392,7 +1400,10 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_smithing_recipe_equipment_items(items, items_by_name))
     )
     equipment_items = tuple(_with_weapon_type(item, items) for item in equipment_items)
-    output_path.write_text(_render_module(equipment_items), encoding="utf-8")
+    rendered = _render_module(equipment_items)
+    if game_root != provenance_root:
+        rendered = rendered.replace(str(game_root), str(provenance_root))
+    output_path.write_text(rendered, encoding="utf-8")
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -1400,12 +1411,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--game-root",
         type=Path,
-        default=DEFAULT_GAME_ROOT,
+        default=None,
         help="external 2011Scape checkout root; reads <root>/data/cfg/items.yml",
     )
     parser.add_argument("--output", type=Path, default=ADDON_ROOT / "data" / "equipment_data.py")
     args = parser.parse_args(argv)
-    generate(args.game_root, args.output)
+    if args.game_root is None:
+        game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
+        provenance_root = DEFAULT_GAME_ROOT
+    else:
+        game_root = args.game_root
+        provenance_root = args.game_root
+    generate(game_root, args.output, provenance_root=provenance_root)
     print(f"Wrote {args.output}")
     return 0
 
