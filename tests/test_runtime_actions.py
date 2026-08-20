@@ -3136,6 +3136,11 @@ class TestRuntimeActions(unittest.TestCase):
             self.assertEqual(player_data["inventory"][clean_item], 1)
             self.assertEqual(HERBLORE_DATA[clean_target]["level"], 3)
             self.assertEqual(HERBLORE_DATA[clean_target]["exp"], 2.5)
+            if index == 1:
+                self.assertEqual(
+                    player_data["inventory"]["Strange rock (Herblore 1)"], 1
+                )
+                self.assertEqual(player_data["inventory"][clean_item], 1)
 
             self.assertTrue(handle_quest_answer(ctx))
             self.assertEqual(player_data["inventory"][clean_item], 0)
@@ -3168,6 +3173,16 @@ class TestRuntimeActions(unittest.TestCase):
             self.assertTrue(handle_utility_answer(ctx))
             self.assertTrue(handle_utility_answer(ctx))
             self.assertEqual(player_data["inventory"][grimy_item], before + 2)
+
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        player_data["inventory"].pop("Strange rock (Herblore 1)", None)
+        player_data["inventory"].pop("Strange rock (Herblore 2)", None)
+        player_data["shattered_heart"] = default_shattered_heart_state_pure()
+        player_data["current_herblore"] = "clean_sito_foil"
+        self.assertTrue(handle_herblore_answer(ctx))
+        self.assertEqual(player_data["inventory"]["Clean sito foil"], 0)
+        self.assertEqual(player_data["inventory"]["Strange rock (Herblore 1)"], 1)
 
         player_data.update({"smithing_level": 4, "crafting_level": 20, "agility_level": 32})
         self.assertTrue(can_start_quest_pure(player_data, "shilo_village", QUEST_DATA))

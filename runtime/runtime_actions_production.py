@@ -134,6 +134,7 @@ from ..logic_pure.logic_pure import (
     red_sandstone_daily_state_pure,
     magic_target_locked_reasons_pure,
     normalize_xp_rewards_pure,
+    quest_completed_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_resolvable_combat_blockers_pure,
@@ -725,7 +726,10 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
         expected_success_chance=1.0,
         output_items=output_items,
         shattered_heart_output_items=(
-            {} if target in JUNGLE_POTION_CLEAN_TARGET_IDS else None
+            {}
+            if target in JUNGLE_POTION_CLEAN_TARGET_IDS
+            and not quest_completed_pure(player_data, "jungle_potion")
+            else None
         ),
     )
     xp_rewards = normalize_xp_rewards_pure(spec, "herblore", base_exp)
