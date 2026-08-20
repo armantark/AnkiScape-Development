@@ -141,8 +141,6 @@ HABITAT_PIN = "Herblore Habitat oldid 6513740"
 VINE_HERB_BASE_LIVES = 3
 VINE_HERB_MIN_SAVE_SLOTS = 67
 VINE_HERB_MAX_SAVE_SLOTS = 80
-# Darkan FarmPatch.java:468-470 rolls Utils.random(128) < (6 - compostLevel).
-VINE_HERB_DISEASE_SLOTS = 6
 # PLACEHOLDER(farming.shared_disease_slots): a period White lily or Habitat
 # growth routine, or a qualified cutoff sample, would settle each disease roll.
 SHARED_DISEASE_SLOTS = 6
@@ -378,14 +376,14 @@ def _habitat(crop_id: str, name: str, patch_type: str, level: int, plant: Option
         4 if vine_herb else None,
         20 if vine_herb else None,
         check=check,
-        disease_slots=VINE_HERB_DISEASE_SLOTS if vine_herb else None,
+        disease_slots=SHARED_DISEASE_SLOTS if vine_herb else None,
         base_lives=VINE_HERB_BASE_LIVES if vine_herb else 0,
         min_slots=VINE_HERB_MIN_SAVE_SLOTS if vine_herb else 0,
         max_slots=VINE_HERB_MAX_SAVE_SLOTS if vine_herb else 0,
         fixed_yield=None,
         protection=protection,
         blocked=blocked,
-        sources=(HABITAT_PIN, SEEDS_PIN, "Darkan 7e7d67b ProduceType.java:27-121, PatchType.java, and FarmPatch.java:468-470") if vine_herb else (HABITAT_PIN, SEEDS_PIN),
+        sources=(HABITAT_PIN, SEEDS_PIN, "Darkan 7e7d67b ProduceType.java:27-121, PatchType.java, and FarmPatch.java:377-393") if vine_herb else (HABITAT_PIN, SEEDS_PIN),
     )
 
 

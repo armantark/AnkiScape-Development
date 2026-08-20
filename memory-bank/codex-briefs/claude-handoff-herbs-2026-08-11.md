@@ -41,17 +41,9 @@ Do not redo the five runnable vine-herb crops.
 The crops are Erzille, Argway, Ugune, Shengo, and Samaden.
 The tracked code uses a four-stage curve with 20 minutes per stage.
 The tracked code uses 67 and 80 as the save endpoints.
-The tracked code uses six disease slots.
-
-The requested handoff names two placeholders:
-
-- `farming.vine_herb_yield_curve`
-- `farming.vine_herb_disease_slots`
-
-The tracked placeholder register does not contain these two identifiers.
-The tracked register contains `farming.vine_herb_base_lives` only.
-The code stores the disease value in `VINE_HERB_DISEASE_SLOTS`.
-Treat this record mismatch as part of the incomplete state.
+The tracked code uses six disease slots through the registered
+`farming.shared_disease_slots` placeholder. Darkan supplies the generic selector,
+but a period Habitat-specific disease rate remains unrecovered.
 Do not redo the runnable crop path.
 
 Do not redo the reachability parser fix.

@@ -24,11 +24,11 @@ All evidence is from before `2012-11-20T00:00:00Z`.
 | Darkan | Commit `7e7d67b481f1b94599de38a98c470419ab7c96b3`, `src/main/java/com/rs/game/content/skills/farming/ProduceType.java:103-107` | Seed IDs, grimy-herb IDs, four stages, Farming levels, XP, and save endpoints `67/80`. |
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/PatchType.java:267-275,370-379` | The vine-herb patch uses four growth ticks per stage. The Farming dossier resolves this as 20 minutes per stage. |
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/FarmPatch.java:377-393` | `setInitialLives()` gives `VINE_HERB` exactly `3 + compostLevel` starting lives. |
-| Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/FarmPatch.java:458-473` | The uncomposted disease check uses `Utils.random(128) < 6`. |
+| Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/FarmPatch.java:458-473` | The generic Farming disease selector supplies the registered `farming.shared_disease_slots` placeholder; it does not settle a Habitat-specific period rate. |
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/hunter/BoxHunterType.java:79-97` | Jadinko NPC IDs, levels, XP, Marasamaw tool use, and success endpoints. |
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/hunter/BoxTrapType.java:30` | Marasamaw plant item ID `19965`. |
 | Darkan | Same commit, `data/npcs/drops/hunter/hunter_jadinko_{common,carrion,draconic,saradomin,zamorak}.json` | Guaranteed vine outputs and the five source-specific vine-herb seed tables at `16/256`, `30/256`, `14/256`, `5/256`, and `5/256`. |
-| RuneScape Wiki files | Cutoff revisions recorded in `assets_provenance.json` | Exact inventory sprites for Common, Aquatic, Draconic, Marble, Oily, Pungent, Saradomin, and Zamorak vines. |
+| RuneScape Wiki files | Cutoff revisions recorded in `assets_provenance.json` | Exact inventory sprites for Withered, Aquatic, Draconic, Marble, Oily, Pungent, Saradomin, and Zamorak vines. |
 | game-main | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/herblore/HerbData.kt:149-187` | Grimy, clean, and unfinished item identities plus clean XP. |
 | game-main | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/herblore/mixing/CreateUnfinishedPotionAction.kt:14-62` | One clean herb and one Vial of water produce one unfinished potion. This action gives no XP. |
 | game-main | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt:17538-17556` | Exact grimy, clean, and unfinished item IDs. |
@@ -36,7 +36,7 @@ All evidence is from before `2012-11-20T00:00:00Z`.
 ## Jadinko seed acquisition
 
 Common jadinko is the earliest direct seed source for this family at Hunter 70.
-The row uses a reusable Marasamaw plant, always gives one Common vine, and rolls
+The row uses a reusable Marasamaw plant, always gives one Withered vine, and rolls
 one of the five seeds with equal weight at `16/256`. Carrion supplies the same
 five seeds at `30/256`. Draconic supplies Ugune, Argway, Shengo, or Samaden at
 `14/256`; Saradomin and Zamorak each supply the same four at `5/256`.
@@ -47,7 +47,7 @@ sprites through the established Hunter asset path.
 
 | Jadinko | Level | XP | NPC ID | Vine item and ID | `rate1/rate99` | Vine-herb seed roll | Exact Darkan source |
 | --- | ---: | ---: | ---: | --- | --- | --- | --- |
-| Common | 70 | 350 | 13119 | Common vine `19971` | `30/150` | All five, `16/256` | `BoxHunterType.java:93`; `hunter_jadinko_common.json`. |
+| Common | 70 | 350 | 13119 | Withered vine `19971` | `30/150` | All five, `16/256` | `BoxHunterType.java:93`; `hunter_jadinko_common.json`. |
 | Igneous | 74 | 465 | 13143 | Marble vine `19980` | `25/145` | None | `BoxHunterType.java:87`; `hunter_jadinko_igneous.json`. |
 | Aquatic | 76 | 475 | 13142 | Aquatic vine `19976` | `15/135` | None | `BoxHunterType.java:85`; `hunter_jadinko_aquatic.json`. |
 | Amphibious | 77 | 485 | 13130 | Oily vine `19972` | `15/130` | None | `BoxHunterType.java:81`; `hunter_jadinko_amphibious.json`. |
@@ -65,7 +65,7 @@ evidence. Each Darkan seed table uses `dropOne: true`; seed IDs are Erzille
 All five crops use one seed and four stages.
 Each stage takes 20 minutes, for an 80-minute total.
 Each crop uses save endpoints `67/80`.
-The uncomposted disease selector uses `6/128` before the compost adjustment.
+Vine herbs use the registered `farming.shared_disease_slots` placeholder: Darkan's generic uncomposted `6/128` selector before the compost adjustment. A period Habitat routine remains unrecovered.
 Darkan fixes the starting lives at `3 + compostLevel`, matching the existing `crop.base_lives + tier.extra_lives` model.
 
 | Crop | Seed ID | Grimy herb ID | Farming level | Plant XP | Harvest XP | Protection payment | Exact source |
@@ -133,7 +133,7 @@ Saradomin, and Zamorak retain their source-specific supplemental rolls through
 main's structured `secondary_outputs` pure-layer contract.
 
 The real kernel produced every chain outside the test runner. Each Common catch
-supplied the selected seed and one Common vine; each seed planted in the
+supplied the selected seed and one Withered vine; each seed planted in the
 Habitat vine-herb patch, matured after 84 abstracted minutes, and harvested
 three matching grimy herbs; cleaning and unfinished-potion mixing were enabled
 at the corrected level and completed successfully.

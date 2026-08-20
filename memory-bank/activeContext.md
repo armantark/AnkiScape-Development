@@ -44,10 +44,14 @@ clean one at its corrected Herblore level, and mix the unfinished potion. All
 five clean and unfinished gates were usable. Current main
 `d4c043218d5943f7878d36b556d785eeeefdeb36` measures `1571 / 2266 / 84 / 87`;
 the merged candidate measures `1584 / 2334 / 50 / 53`, a change of `+13 / +68
-/ -34 / -34`. The plain lane passes 4,152 tests with 499 skips. The accepted
-offscreen Qt split passes 4,152 tests with three skips (`2174 + 1037 + 941`);
-the monolithic process was rejected after exceeding the ten-minute cap. Darkan `FarmPatch.setInitialLives()` resolves the former base-lives placeholder
-as `3 + compostLevel`; no UI or panel rule was added, and runtime only supplies
+/ -34 / -34`. Item `19971` uses its period name, Withered vine, and the exact 28×25 cutoff
+inventory sprite. Vine-herb disease uses the registered
+`farming.shared_disease_slots` placeholder because Darkan's generic selector does
+not settle a Habitat-specific period rate. The plain lane passes 4,153 tests with
+499 skips. The accepted offscreen Qt split passes 4,153 tests with three skips
+(`2175 + 1037 + 941`); the split keeps each process below the command cap. Darkan
+`FarmPatch.setInitialLives()` resolves the former base-lives placeholder as
+`3 + compostLevel`; no UI or panel rule was added, and runtime only supplies
 random draws to the existing pure reducer. Durable source record:
 `memory-bank/source-audits/grimy-herb-family-2026-08-11.md`.
 

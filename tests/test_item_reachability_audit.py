@@ -885,7 +885,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
                     self.assertNotIn(item_name, orphan_items)
 
         expected_vine_routes = {
-            "Common vine": "Hunter:catch_common_jadinko",
+            "Withered vine": "Hunter:catch_common_jadinko",
             "Aquatic vine": "Hunter:catch_aquatic_jadinko",
             "Draconic vine": "Hunter:catch_draconic_jadinko",
             "Marble vine": "Hunter:catch_igneous_jadinko",

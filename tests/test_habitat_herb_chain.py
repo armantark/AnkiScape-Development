@@ -43,7 +43,7 @@ class TestHabitatHerbChain(unittest.TestCase):
                 unfinished_potion = f"{herb_name} potion (unf)"
                 self.assertTrue(caught)
                 self.assertEqual(hunter_xp, 350.0)
-                self.assertEqual(primary_output, "Common vine")
+                self.assertEqual(primary_output, "Withered vine")
                 self.assertEqual(inventory[seed_item], 1)
 
                 state = {

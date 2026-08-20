@@ -40,7 +40,6 @@ HUNTER_ITEMS_DIR = "hunteritems"
 
 WIKI_TITLE_OVERRIDES = {
     "Hunter": "Hunter icon (detail).png",
-    "Common vine": "Withered vine detail.png",
     "Ess' impling jar": "Essence impling jar.png",
     "Gourm' impling jar": "Gourmet impling jar.png",
     "Imp-in-a-box (2)": "Imp-in-a-box (2).png",

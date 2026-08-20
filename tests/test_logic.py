@@ -2347,9 +2347,9 @@ class TestLogic(unittest.TestCase):
                 )
                 self.assertTrue(ok)
                 self.assertEqual(exp, 350.0)
-                self.assertEqual(output_item, "Common vine")
+                self.assertEqual(output_item, "Withered vine")
                 self.assertEqual(inventory["Marasamaw plant"], 1)
-                self.assertEqual(inventory["Common vine"], 1)
+                self.assertEqual(inventory["Withered vine"], 1)
                 self.assertEqual(inventory[expected_seed], 1)
 
         no_seed, _exp, ok, _output_item, _rewards = apply_hunter_action_pure(

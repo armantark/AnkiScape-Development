@@ -2308,6 +2308,13 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             provenance["shopitems/marasamaw_plant.png"]["timestamp"],
             "2011-11-25T19:26:13Z",
         )
+        self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Withered vine"]["item_id"], 19971)
+        self.assertEqual(
+            provenance["hunteritems/withered_vine.png"]["file_title"],
+            "Withered vine.png",
+        )
+        with open(HUNTER_ITEM_IMAGES["Withered vine"], "rb") as icon_file:
+            self.assertEqual(struct.unpack(">II", icon_file.read(24)[16:24]), (28, 25))
         seed_icons = {
             "Erzille seed": (
                 19897,

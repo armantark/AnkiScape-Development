@@ -759,8 +759,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         "marasamaw_trapping",
         70,
         350.0,
-        _out(("Common vine", 1)),
-        "Common vine",
+        _out(("Withered vine", 1)),
+        "Withered vine",
         source=HUNTER_JADINKO_SOURCE,
         mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('common')}",
         source_enum="COMMON_JADINKO",
@@ -1153,7 +1153,7 @@ HUNTER_HABITAT_SEED_ITEMS: Mapping[str, int] = {
 }
 
 HUNTER_HABITAT_VINE_ITEMS: Mapping[str, Tuple[int, str]] = {
-    "Common vine": (19971, "common"),
+    "Withered vine": (19971, "common"),
     "Aquatic vine": (19976, "aquatic"),
     "Draconic vine": (19973, "draconic"),
     "Marble vine": (19980, "igneous"),

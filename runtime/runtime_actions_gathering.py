@@ -606,7 +606,6 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         else calculate_hunter_success_probability_pure(success_level, spec)
     )
     secondary_outputs = spec.get("secondary_outputs", ())
-    inventory_before = dict(inventory)
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,

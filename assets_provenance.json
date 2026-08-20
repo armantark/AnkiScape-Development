@@ -27997,18 +27997,6 @@
     "source_wiki": "rs3",
     "timestamp": "2010-11-04T04:46:20Z"
   },
-  "hunteritems/common_vine.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Withered_vine_detail.png",
-    "file_title": "Withered vine detail.png",
-    "image_url": "https://runescape.wiki/images/archive/20130415213440%21Withered_vine_detail.png?d7113",
-    "license_string": "unknown",
-    "mediatype": "BITMAP",
-    "mime": "image/png",
-    "sha1": "eff7e46e8dd7f0d889c69c24b3d685db66b2c778",
-    "size": 223637,
-    "source_wiki": "rs3",
-    "timestamp": "2012-09-10T11:42:59Z"
-  },
   "hunteritems/corrupt_vine.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Corrupt_vine.png",
     "file_title": "Corrupt vine.png",
@@ -28656,6 +28644,18 @@
     "size": 198,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T14:02:54Z"
+  },
+  "hunteritems/withered_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Withered_vine.png",
+    "file_title": "Withered vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082658%21Withered_vine.png?2e5e9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bf1eeb11c854f0f465ce384a966a468064eec81e",
+    "size": 366,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-25T04:29:18Z"
   },
   "hunteritems/yellow_feather.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Yellow_feather.png",

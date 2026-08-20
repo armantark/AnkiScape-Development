@@ -125,16 +125,37 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         )
         self.assertEqual(addon.player_data["current_hunter"], "catch_crimson_swift")
 
-    def test_same_type_combat_style_change_still_persists(self):
+    def test_same_type_combat_style_change_is_one_undoable_commit(self):
         addon = self.addon
         addon.player_data["combat_attack_style"] = "Accurate"
         addon.player_data["combat_attack_style_type"] = "crush"
 
-        addon._set_combat_attack_style(("Aggressive", "crush"))
+        self.assertTrue(addon._set_combat_attack_style(("Aggressive", "crush")))
 
         self.assertEqual(addon.player_data["combat_attack_style"], "Aggressive")
-        self.assertEqual(self.saves, [True])
-        self.assertEqual(self.collection.entries, [])
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(
+            type("Changes", (), {"operation": "AnkiScape direct action"})()
+        )
+        self.assertEqual(addon.player_data["combat_attack_style"], "Accurate")
+
+    def test_same_target_guild_exit_is_one_undoable_commit(self):
+        addon = self.addon
+        addon.player_data["current_combat_target"] = "goblin"
+        addon.player_data["warriors_guild"] = {
+            "in_cyclops_room": True,
+            "cyclossus_pending": True,
+            "token_drain_residual": 4,
+        }
+
+        self.assertTrue(addon._set_combat_target("goblin"))
+
+        self.assertFalse(addon.player_data["warriors_guild"]["in_cyclops_room"])
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(
+            type("Changes", (), {"operation": "AnkiScape direct action"})()
+        )
+        self.assertTrue(addon.player_data["warriors_guild"]["in_cyclops_room"])
 
     def test_activity_danger_toggle_commits_and_restores_through_the_seam(self):
         from ankiscape.logic.agility_logic import apply_agility_command_pure
