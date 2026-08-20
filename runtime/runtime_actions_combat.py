@@ -693,6 +693,16 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
                 if item_name
                 else "Chaos Elemental tried to remove your equipment"
             )
+        elif special.get("kind") == "wyvern_breath":
+            if special.get("protected"):
+                shield_item = str(special.get("shield_item") or "")
+                ctx.show_activity_gain(
+                    f"Wyvern ice breath · protected by {shield_item} · next attack delayed"
+                )
+            else:
+                ctx.show_activity_gain(
+                    "Wyvern ice breath · unprotected · next attack delayed"
+                )
 
     display_name = str(result.get("display_name") or "enemy")
     kills = int(result.get("kills", 0) or 0)

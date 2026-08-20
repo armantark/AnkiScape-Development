@@ -223,7 +223,11 @@ def prayer_utility_activities_as_dict() -> Dict[str, dict]:
 def prayer_extra_items_as_dict() -> Dict[str, dict]:
     items: Dict[str, dict] = {}
     for material in PRAYER_MATERIALS:
-        items[material.item_name] = {"category": "material", "source": material.source, "exp": material.xp}
+        material_item = {"category": "material", "source": material.source, "exp": material.xp}
+        if material.item_name == "Wyvern bones":
+            material_item["item_id"] = 6812
+            material_item["source"] += "; cache rev 742 items 6812/6816; Wyvern bones oldid=6105610"
+        items[material.item_name] = material_item
         if material.bonemeal_item:
             bonemeal = {"category": "material", "source": f"{material.source}; {ECTOFUNTUS_SOURCE}"}
             item_id = BONEMEAL_ITEM_IDS.get(material.bonemeal_item)

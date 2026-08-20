@@ -558,12 +558,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1571)
-        self.assertEqual(report["reachable_item_count"], 2266)
-        self.assertEqual(report["orphan_input_count"], 84)
-        self.assertEqual(report["root_orphan_count"], 46)
-        self.assertEqual(report["cascade_orphan_count"], 38)
-        self.assertEqual(report["unresolved_action_count"], 87)
-        self.assertEqual(report["seed_item_count"], 1104)
+        self.assertEqual(report["reachable_item_count"], 2278)
+        self.assertEqual(report["orphan_input_count"], 72)
+        self.assertEqual(report["root_orphan_count"], 45)
+        self.assertEqual(report["cascade_orphan_count"], 27)
+        self.assertEqual(report["unresolved_action_count"], 71)
+        self.assertEqual(report["seed_item_count"], 1105)
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item

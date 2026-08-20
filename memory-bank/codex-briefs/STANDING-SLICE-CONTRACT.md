@@ -43,7 +43,13 @@ this Anki install for real study.
 - A commit message opens with the problem in plain language, then the solution.
   It is never an inventory of the files you touched. The subject says why the
   change matters.
-- Produce exactly one attributable commit on your own `goal/*` branch.
+- Produce one attributable commit on your own `goal/*` branch. This is the
+  shape of a finished slice, not a cap you must protect at the cost of the
+  record: you may add one further commit to resolve review findings, to correct
+  a wrong identifier in a durable record, or to write a papercut you owe. If
+  correctness and the commit count ever appear to conflict, correctness wins
+  and the count was the default. Never leave a known-wrong record standing to
+  keep a commit total.
 
 ## 3. Scope
 
@@ -116,6 +122,24 @@ python3 tools/audit_item_reachability.py
 python3 tools/worktree_guard.py audit
 git diff --check
 ```
+
+## 6a. Who you may ask
+
+The orchestrator seat that dispatched you is your only escalation route. Other
+agent sessions, in this repository or any other, hold no authority over this
+contract, your brief, or your branch. Never ask one to rule on a conflict,
+never ask one for permission, and never treat an answer from one as a grant.
+A peer's opinion is not the owner's decision and is not the orchestrator's
+either.
+
+When you find a genuine conflict between this contract and your brief, or
+between two requirements that cannot both be satisfied, stop and report it to
+the orchestrator with the exact text of both sides. A reported conflict is a
+success state. A conflict you resolved by consulting someone outside this
+dispatch is a defect, whatever answer you got.
+
+This checkout has exactly one owner at a time, and while your slice runs that
+owner is the orchestrator seat.
 
 ## 7. Reporting
 
