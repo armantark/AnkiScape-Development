@@ -1619,3 +1619,41 @@ agent is under pressure to make a named gate go green, and a plausible name,
 number, or asset does that. Every fix brief should therefore say what this one
 now says — when evidence does not settle something, register a placeholder or
 delete the row, and never produce a value that merely looks right.
+
+### The secondaries branch is promotable, and the caveat that looked like a gate is not one
+
+`goal/secondaries-2026-08-11` looked self-refusing: its final commit subject is
+"Avoid merging the abandoned branch by recording the verified handoff". A
+read-only triage, then the orchestrator reading the record verbatim, both find
+the opposite. `memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
+says plainly:
+
+> The work started on `goal/grind-2026-08-11`. It moved to
+> `goal/secondaries-2026-08-11`.
+>
+> Merge `goal/secondaries-2026-08-11`. Do not merge the old branch. The old
+> branch is abandoned and dirty.
+
+The subject refers to the OLD branch. This one is the named merge target.
+
+The sentence that reads like a shipping gate — "Do not ship this implementation
+without connected station context" — sits under "Facility Prerequisites" and
+refers to the station reference implementation left in the abandoned worktree,
+not to this branch. The same handoff records that the committed tree has zero
+`station` references and zero added station lines. So nothing gates this branch,
+and the genuine owner decision is the separate question of whether runtime code
+should enforce facility prerequisites at all.
+
+NOT started this run, deliberately. It is a 28-file re-land needing a merge,
+verification, an independent review and likely two fix rounds, and it conflicts
+with the Jungle Potion branch on `data/herblore_data.py` and `data/quest_data.py`
+and with the Wyvern work now on main. There is not enough Codex block left to
+carry it honestly, and starting it would leave a half-verified branch. Next
+session begins here with the gate question already settled.
+
+That handoff is also worth reading for its own sake: it records five sessions
+writing to one worktree in an hour, three of them rebuilding an unapproved API
+from a `code-review` finding the review never issued, and work orders claiming
+falsely that each session was the only writer. That is the same failure family
+as today's two-writer collision, and it is why this seat now names one
+escalation route and one worktree owner.
