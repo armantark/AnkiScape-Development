@@ -237,20 +237,22 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(completed.stderr.strip(), "usage: generate_ge_period_data.py <output-py>")
         self.assertNotIn("No module named 'pkg_alias'", completed.stderr)
 
-    def test_reachability_summary_is_chain_safe_without_hiding_audit_debt(self):
-        completed = subprocess.run(
-            [sys.executable, str(ROOT / "tools" / "audit_item_reachability.py"), "--summary"],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+    def test_reachability_exit_code_does_not_depend_on_output_format(self):
+        results = {}
+        for args in ((), ("--summary",), ("--json",), ("--json", "--summary")):
+            results[args] = subprocess.run(
+                [sys.executable, str(ROOT / "tools" / "audit_item_reachability.py"), *args],
+                cwd=ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
 
-        self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertRegex(
-            completed.stdout.strip(),
-            r"^\d+ actions; \d+ reachable items; \d+ orphan inputs; \d+ blocked actions$",
+            results[("--summary",)].stdout.strip(),
+            r"^\d+ actions; \d+ reachable items; [1-9]\d* orphan inputs; \d+ blocked actions$",
         )
+        self.assertEqual({result.returncode for result in results.values()}, {1})
 
     def test_list_truncation_refuses_to_look_complete(self):
         completed = subprocess.run(

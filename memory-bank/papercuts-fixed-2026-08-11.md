@@ -88,11 +88,11 @@ After: a child exit 7 is returned as exit 7 with its full log retained, and the 
 
 Recorded lines: 345, 357.
 
-Fix: `tools/audit_item_reachability.py --summary` prints the four graph counts and exits 0 for chain-safe informational use. Default and `--json` modes preserve exit 1 while unresolved debt remains.
+Fix: `tools/audit_item_reachability.py --summary` prints only the four graph counts while preserving the audit's finding in its exit status. Default, `--summary`, `--json`, and `--json --summary` now all exit 1 while orphan inputs remain.
 
-Before: `--json` wrote a valid report and exited 1, silently stopping later `&&` gates.
+Before: `--json` wrote a valid report and exited 1, which stopped later `&&` gates; the first fix made `--summary` chain-safe by masking that finding with exit 0, including when combined with `--json`.
 
-After: `--summary` prints `1556 actions; 2573 reachable items; 102 orphan inputs; 101 blocked actions` and exits 0; `--json` still exits 1.
+After: `--summary` prints `1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked actions` and exits 1, matching every other output format on the same tree.
 
 ## Qt harness font startup — 5 occurrences, partially fixed
 

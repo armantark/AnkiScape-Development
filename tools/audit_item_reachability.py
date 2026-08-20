@@ -1293,7 +1293,7 @@ def main() -> int:
     parser.add_argument(
         "--summary",
         action="store_true",
-        help="Print counts and exit 0 even while known catalog debt remains.",
+        help="Print only the audit counts.",
     )
     parser.add_argument(
         "--rank-roots",
@@ -1328,8 +1328,6 @@ def main() -> int:
         )
         for row in report["orphan_inputs"]:
             print(f"- {row['item']}: {', '.join(row['consumers'][:4])}")
-    if args.summary:
-        return 0
     return 1 if report["orphan_input_count"] else 0
 
 
