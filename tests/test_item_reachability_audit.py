@@ -557,13 +557,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1576)
-        self.assertEqual(report["reachable_item_count"], 2272)
-        self.assertEqual(report["orphan_input_count"], 87)
-        self.assertEqual(report["root_orphan_count"], 46)
-        self.assertEqual(report["cascade_orphan_count"], 41)
-        self.assertEqual(report["unresolved_action_count"], 91)
-        self.assertEqual(report["seed_item_count"], 1104)
+        self.assertEqual(report["action_count"], 1571)
+        self.assertEqual(report["reachable_item_count"], 2278)
+        self.assertEqual(report["orphan_input_count"], 72)
+        self.assertEqual(report["root_orphan_count"], 45)
+        self.assertEqual(report["cascade_orphan_count"], 27)
+        self.assertEqual(report["unresolved_action_count"], 71)
+        self.assertEqual(report["seed_item_count"], 1105)
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item

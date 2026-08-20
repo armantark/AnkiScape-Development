@@ -1436,3 +1436,224 @@ already provides for one commit after review. No rail is relaxed by correcting
 it there. Future briefs must label a quoted baseline as "measured at", and say
 explicitly that the record must name the merge parent the agent actually
 merged.
+
+### Review round one: three of four slices rejected
+
+Every slice that reached an independent Opus review on 2026-08-19 came back
+with real defects. None of the rejections were style.
+
+**Jungle Potion — REJECT.** A Shattered Heart strange rock replaces the clean
+herb produced by the quest's Herblore step, because `_record_action` in
+`runtime/runtime_actions_shared.py:566-575` subtracts the produced output as
+the rock's replacement. Each grimy jungle herb has exactly one producer, the
+already-passed search stage, so the quest becomes permanently unfinishable and
+takes Shilo Village and thirteen exclusive items with it. Incidence
+`1 - 0.99**5` = 4.9% of playthroughs. The accompanying test hid it by calling
+`player_data.pop("shattered_heart", None)`.
+
+**Skeletal Wyvern — REJECT.** Protect from Melee nullified the ice breath
+entirely, defeating the six-shield mechanic the slice exists to ship
+(`logic_pure/logic_pure_combat_engine.py:1455`).
+
+**Tooling guardrails — REJECT.** A new root `.ignore` hid `data/shop_data.py`
+and `data/construction_data.py` from every ripgrep search, including
+`tools/repo_search.py --include-large`, which promises to include them. And
+`tools/worktree_guard.py audit` aborted with exit 2 for any caller without
+`CLAUDE_CODE_SESSION_ID` — the guard every dispatched agent depends on.
+
+**Skill buttons — ACCEPT WITH FINDINGS.** The first commit had already been
+rejected for over-disabling Crafting; that was confirmed genuinely fixed, both
+paths now calling `crafting_target_locked_reasons_pure` with identical
+arguments. Smithing still read a bool captured at menu-open rather than a live
+predicate.
+
+Two patterns worth keeping. Every reviewer independently re-ran a lane rather
+than trusting the author's counts, and every count held: the failures were
+never in the numbers, only in what the tests were pointed at. And the two worst
+defects were both pinned by tests that removed or hand-fed the state that
+triggers them, which is the same signature as the 2026-07-26 batch.
+
+### Review round two, and a pattern in what the reviews keep finding
+
+**Skeletal Wyvern — ACCEPT WITH FINDINGS.** The blocking prayer defect is
+confirmed genuinely fixed and not over-corrected, proved by driving the real
+kernel with controls: melee-only 8614 damage falls to 0 under Protect from
+Melee, ranged-only 8335 falls to 0 under Protect from Missiles, breath-only
+38643 is unchanged under both, and ordinary enemies are unaffected. The four
+remaining findings are all record integrity in
+`memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
+
+**Tooling guardrails — REJECT again.** The audit abort MOVED rather than went
+away: it now fires for callers that DO set `CLAUDE_CODE_SESSION_ID` while
+standing in any of the 49 unmarked worktrees. Decision taken by the
+orchestration seat: remove the worktree-ownership feature from the branch
+entirely rather than fix it a third time. It has broken the guard twice in two
+different ways, its own reviewer calls it first-come with no collision
+detection, and it defends against a problem that has not occurred while `audit`
+failing stops every dispatched slice before its first edit.
+
+**Grimy herbs — REJECT.** Three majors. The worst is scope creep, not herb
+work: the branch added a short-circuit to `_set_value` at `__init__.py:4557` so
+it skips saving when the value is unchanged, which silently discards the
+in-place mutation `_set_combat_attack_style` makes immediately before it.
+Unarmed, staff, sceptre and hammer weapons are all `crush` in
+`WEAPON_TYPE_UNARMED_STYLES`, so switching Accurate to Aggressive unarmed never
+persists and reviews keep awarding Attack XP instead of Strength. Confirmed
+against `main` that the short-circuit is branch-introduced; main's `_set_value`
+always saves, so no live save is affected. Also: all five vine-herb seeds gated
+at Hunter 78 when the branch's own cited Darkan source supplies them from the
+Hunter 70 Common jadinko at 16/256, and an icon gate weakened from an
+empty-list assertion to a seven-item allowlist.
+
+The pattern across every rejection so far: the reported numbers were always
+true, and every independent reviewer that re-ran a lane got the author's exact
+counts. What the reviews catch is never a false measurement — it is a test
+pointed at the wrong thing, an instrument quietly loosened, or an unrequested
+change riding along inside a slice about something else.
+
+### First promotion: Skeletal Wyvern, main at 7fb738e5
+
+Merged `goal/breadth-reland-2026-08-19` through the full gate in worktree
+`promote-2026-08-19`. Post-merge run on the merged tree, all green:
+
+    plain lane   Ran 4152 tests in 374.657s   OK (skipped=499)
+    qt lane      Ran 4152 tests in 613.858s   OK (skipped=3)     [monolithic]
+    audit_docs   Audited 577 Markdown and 437 HTML files. Documentation audit passed.
+    test_quality 4117 tests across 188 files; hard issues: 0
+    reachability 1571 actions; 2278 reachable items; 72 orphan inputs; 71 blocked actions
+    worktree_guard  layout safe
+    git diff --check  clean
+
+Reachability improves against the pre-merge baseline of `1571 / 2266 / 84 / 87`:
+twelve more reachable items, twelve fewer orphan inputs, sixteen fewer blocked
+actions.
+
+The Qt lane ran monolithically at 613.858 s because a detached `nohup` script
+has no tool command cap. That is the cheapest way to run the real Qt lane
+without partitioning it, and it should be the default for promotion gates.
+
+Main had advanced by one papercut commit while the gate ran, so the verified
+tree absorbed it before landing; the only file differing from the gated tree
+is `memory-bank/papercuts.md`. Do not commit to main while a promotion gate is
+running — it forces this reconciliation every time.
+
+### Skill-button slice accepted with two recorded non-blocking minors
+
+`goal/skill-button-refresh-2026-08-19` at `cfe999c6` took three rounds. Final
+independent verdict is accept with findings, and the reviewer confirmed by
+driving the real widget that Smithing now recomputes from
+`smithing_target_locked_reasons_pure` on every render rather than from a bool
+captured at menu-open, and that the regression forces a real `_render_panel()`
+instead of hand-feeding a value.
+
+Two minors are deliberately NOT fixed, and are recorded here rather than
+polished away while the Codex block runs down:
+
+1. `__init__.py:787` — the availability cache fingerprint gained `"crafting"`
+   but not `"smithing"`, although Smithing availability now applies
+   `QUEST_UNLOCK_RULES` and `data/quest_data.py:9395` gates `forge_cannonballs`
+   on `dwarf_cannon`. The reviewer could not construct a player state that
+   produces a wrong output, because completing the quest grants an Ammo mould
+   which is itself a tracked requirement item. An asymmetry to close, not a
+   shipped defect.
+2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
+   verbatim between `refresh_skill_availability` and the panel render path at
+   `ui/ui.py:22840-22857`, so editing one leaves the other emitting old text.
+   The available branch also sets the tooltip to the bare skill name while the
+   render path sets none, so an enabled button silently acquires a tooltip
+   after the first refresh.
+
+### The post-merge gate earned itself on the second promotion
+
+Both branches were independently green. Wyvern passed its lanes at 4152 tests
+and landed on main; the skill-button slice passed its own at 4148. Merged, the
+plain lane gave `Ran 4156 tests ... FAILED (errors=3, skipped=502)`:
+
+    File "tests/test_skeletal_wyvern.py", line 99, in _runtime_context
+        return RuntimeActionContext(
+    TypeError: RuntimeActionContext.__init__() got an unexpected keyword argument
+    'refresh_skill_availability_partial'. Did you mean 'refresh_skill_availability'?
+
+The skill-button slice deleted `refresh_skill_availability_partial` because a
+reviewer found it had zero production callers, which was correct. The Wyvern
+test helper was written before that deletion existed. Neither branch could see
+the other, no review could have caught it, and only a run on the merged tree
+could.
+
+This is the argument for the goal's promotion rule in one incident: a slice
+being green on its own branch says nothing about the tree it lands in. Keep
+running the full gate on the merged tree, and keep landing one slice at a time
+so an integration failure names its own cause.
+
+Handling: the failed merge stays on `promote/2026-08-19` rather than being
+reset, since a hard reset is forbidden here and the merge is reproducible. The
+next promotion cuts a fresh promote branch from main.
+
+### Fix rounds manufacture the next defect, and the mechanism is gate pressure
+
+`goal/herbs-reland-2026-08-19` has been rejected three times. Each rejection was
+real, each fix was correct on its own terms, and each fix introduced the next
+rejection — every time by producing a plausible value to make a gate pass.
+
+Round two found five vine seeds over-gated at Hunter 78 against the branch's own
+cited Darkan source. Round three fixed the gating correctly and, in the same
+commit:
+
+- invented the item name "Common vine" for item 19971, whose period name is
+  "Withered vine" per Darkan `config.json` uidName `withered_vine`. Because the
+  name matches nothing in the generated tables, the item has no price and cannot
+  be sold: `preview_shop_sell_pure` returns `sell_price_unresolved` for it while
+  "Pungent vine" is allowed at unit price 1. The source audit recorded the
+  fabricated name as sourced fact;
+- satisfied the icon gate it had just been told to restore by shipping a
+  1302x313, 314,693-byte "Withered vine detail" render as an inventory sprite,
+  next to seven real 28x25 sprites of about 550 bytes. It renders as a ~32x8
+  sliver;
+- asserted `VINE_HERB_DISEASE_SLOTS = 6` as sourced from the generic Darkan
+  growth selector, eleven lines above a `SHARED_DISEASE_SLOTS = 6` that carries
+  `PLACEHOLDER(farming.shared_disease_slots)` for the identical number, and
+  whose register row says that selector cannot settle a crop-specific value.
+
+The pattern to carry forward: **a fix round is where invented facts enter.** The
+agent is under pressure to make a named gate go green, and a plausible name,
+number, or asset does that. Every fix brief should therefore say what this one
+now says — when evidence does not settle something, register a placeholder or
+delete the row, and never produce a value that merely looks right.
+
+### The secondaries branch is promotable, and the caveat that looked like a gate is not one
+
+`goal/secondaries-2026-08-11` looked self-refusing: its final commit subject is
+"Avoid merging the abandoned branch by recording the verified handoff". A
+read-only triage, then the orchestrator reading the record verbatim, both find
+the opposite. `memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
+says plainly:
+
+> The work started on `goal/grind-2026-08-11`. It moved to
+> `goal/secondaries-2026-08-11`.
+>
+> Merge `goal/secondaries-2026-08-11`. Do not merge the old branch. The old
+> branch is abandoned and dirty.
+
+The subject refers to the OLD branch. This one is the named merge target.
+
+The sentence that reads like a shipping gate — "Do not ship this implementation
+without connected station context" — sits under "Facility Prerequisites" and
+refers to the station reference implementation left in the abandoned worktree,
+not to this branch. The same handoff records that the committed tree has zero
+`station` references and zero added station lines. So nothing gates this branch,
+and the genuine owner decision is the separate question of whether runtime code
+should enforce facility prerequisites at all.
+
+NOT started this run, deliberately. It is a 28-file re-land needing a merge,
+verification, an independent review and likely two fix rounds, and it conflicts
+with the Jungle Potion branch on `data/herblore_data.py` and `data/quest_data.py`
+and with the Wyvern work now on main. There is not enough Codex block left to
+carry it honestly, and starting it would leave a half-verified branch. Next
+session begins here with the gate question already settled.
+
+That handoff is also worth reading for its own sake: it records five sessions
+writing to one worktree in an hour, three of them rebuilding an unapproved API
+from a `code-review` finding the review never issued, and work orders claiming
+falsely that each session was the only writer. That is the same failure family
+as today's two-writer collision, and it is why this seat now names one
+escalation route and one worktree owner.

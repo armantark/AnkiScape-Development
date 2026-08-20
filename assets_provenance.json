@@ -7142,6 +7142,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-04-29T19:52:22Z"
   },
+  "combatenemies/skeletal_wyvern.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Skeletal_Wyvern_old.png",
+    "file_title": "Skeletal Wyvern old.png",
+    "image_url": "https://runescape.wiki/images/Skeletal_Wyvern_old.png?78c0f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "090990a55da4560dc72f0ad3f315499a46821ae5",
+    "size": 46583,
+    "source_wiki": "rs3",
+    "timestamp": "2024-11-02T00:39:09Z"
+  },
   "combatenemies/skeleton_level_21.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Skeleton.png",
     "file_title": "Skeleton.png",
@@ -7696,6 +7708,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-08-30T00:08:16Z"
   },
+  "combatitems/body_shield.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Body_shield.png",
+    "file_title": "Body shield.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502180139%21Body_shield.png?b4f63",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c403dce96248d73a6c0d37909bf00171f9f9af93",
+    "size": 570,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T06:21:20Z"
+  },
   "combatitems/brass_necklace.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Brass_necklace.png",
     "file_title": "Brass necklace.png",
@@ -7791,6 +7815,18 @@
     "size": 293,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:27Z"
+  },
+  "combatitems/chaos_shield.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Chaos_shield.png",
+    "file_title": "Chaos shield.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502021445%21Chaos_shield.png?d8f4c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6c4537f048eb142561bd34468d213591534ccc92",
+    "size": 494,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T01:17:29Z"
   },
   "combatitems/chef_s_hat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Chef%27s_hat.png",
@@ -7888,6 +7924,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-05-22T18:16:30Z"
   },
+  "combatitems/cosmic_shield.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cosmic_shield.png",
+    "file_title": "Cosmic shield.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023721%21Cosmic_shield.png?874fd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e4bd902d16d2fac7216170158afb9ed080348d82",
+    "size": 505,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T13:53:49Z"
+  },
   "combatitems/cowhide.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cowhide.png",
     "file_title": "Cowhide.png",
@@ -7972,6 +8020,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:46Z"
   },
+  "combatitems/dragonfire_shield.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dragonfire_shield.png",
+    "file_title": "Dragonfire shield.png",
+    "image_url": "https://runescape.wiki/images/archive/20140806134831%21Dragonfire_shield.png?8f847",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b6a0e65fc9ad225521281aa9c96cd0ea8d4da0eb",
+    "size": 1509,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-06T11:16:07Z"
+  },
   "combatitems/edible_seaweed.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Edible_seaweed.png",
     "file_title": "Edible seaweed.png",
@@ -7983,6 +8043,18 @@
     "size": 268,
     "source_wiki": "rs3",
     "timestamp": "2011-04-26T00:12:28Z"
+  },
+  "combatitems/elemental_shield.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Elemental_shield.png",
+    "file_title": "Elemental shield.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502032048%21Elemental_shield.png?d1e93",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eea6b9b4e04508cc726e843fdee18b901813d080",
+    "size": 578,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-10T02:19:49Z"
   },
   "combatitems/fire_battlestaff.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_battlestaff.png",
@@ -8247,6 +8319,18 @@
     "size": 375,
     "source_wiki": "rs3",
     "timestamp": "2009-10-26T20:07:36Z"
+  },
+  "combatitems/mind_shield.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mind_shield.png",
+    "file_title": "Mind shield.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073107%21Mind_shield.png?d8e58",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a819041cc0694503ce8f75a8e2efa53558861b92",
+    "size": 448,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T01:13:34Z"
   },
   "combatitems/mithril_boots.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Mithril_armoured_boots.png",

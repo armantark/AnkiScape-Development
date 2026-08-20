@@ -821,6 +821,10 @@ CONDITION_OVERRIDES.update({
     ),
     124: (("combat_kill", "highwayman", 1, "Kill a highwayman"),),
     135: (("combat_kill", "ice_giant", 1, "Kill an ice giant"),),
+    149: (
+        ("skill_level", "slayer", 72, "Level 72 Slayer"),
+        ("combat_kill", "skeletal_wyvern", 1, "Kill a skeletal wyvern"),
+    ),
     153: (("combat_kill", "rock_crab", 5, "Kill five rock crabs"),),
     161: (("combat_kill", "black_unicorn", 1, "Kill an adult black unicorn"),),
     544: (

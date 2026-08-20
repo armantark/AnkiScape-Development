@@ -174,6 +174,13 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Finish Ranging Guild closure. Full Qt found two stale Activities
      inventory assertions. The corrected suite passes 4,053 tests. All final
      quality gates pass.
+   - [x] Close and re-land Wyvern-bones acquisition through the level-72
+     Skeletal Wyvern Combat row. Preserve item IDs 6812, 6816, and 6810, reuse
+     the sixteen existing downstream actions, register the four hidden breath
+     values, and prove the full kill-to-Ectofuntus route through the real kernel.
+   - [ ] Add the six non-gilded Prayer altar rows as separate depth work.
+     Construction models Oak, Teak, Cloth, Mahogany, Limestone, Marble, and
+     Gilded altar objects. Prayer exposes only the Gilded altar method.
    - [x] Close the Ectofuntus bone family through eight acquisition routes,
      exact bonemeal identities, the corrected Zogre Prayer XP, and one registered
      Ogre coffin selector placeholder.
