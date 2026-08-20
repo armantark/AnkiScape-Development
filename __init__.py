@@ -4555,16 +4555,15 @@ def _set_combat_target(target):
 
 def _set_value(key: str, value):
     if player_data.get(key) == value:
-        return True
+        save_player_data()
+    else:
+        def _change(current):
+            updated = dict(current)
+            updated[key] = value
+            return updated, True
 
-    def _change(current):
-        updated = dict(current)
-        updated[key] = value
-        return updated, True
-
-    committed = commit_direct_action(_change)
-    if not committed:
-        return False
+        if not commit_direct_action(_change):
+            return False
     # Reflect target/activity changes on the in-review HUD immediately. For XP
     # skills the HUD shows level/progress (so the target swap is not visible
     # there), but for Utilities/Activities the HUD shows the active target name,

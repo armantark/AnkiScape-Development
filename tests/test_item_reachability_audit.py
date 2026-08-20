@@ -557,8 +557,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1583)
-        self.assertEqual(report["reachable_item_count"], 2333)
+        self.assertEqual(report["action_count"], 1584)
+        self.assertEqual(report["reachable_item_count"], 2334)
         self.assertEqual(report["orphan_input_count"], 50)
         self.assertEqual(report["root_orphan_count"], 35)
         self.assertEqual(report["cascade_orphan_count"], 15)
@@ -875,7 +875,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         for crop_id, herb_name in cases:
             with self.subTest(herb=herb_name):
                 expected_routes = {
-                    f"{herb_name} seed": "Hunter:catch_carrion_jadinko",
+                    f"{herb_name} seed": "Hunter:catch_common_jadinko",
                     f"Grimy {herb_name.lower()}": f"Farming:{crop_id}",
                     f"Clean {herb_name.lower()}": f"Herblore:clean_{crop_id}",
                     f"{herb_name} potion (unf)": f"Herblore:unf_{crop_id}",
@@ -885,6 +885,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
                     self.assertNotIn(item_name, orphan_items)
 
         expected_vine_routes = {
+            "Common vine": "Hunter:catch_common_jadinko",
             "Aquatic vine": "Hunter:catch_aquatic_jadinko",
             "Draconic vine": "Hunter:catch_draconic_jadinko",
             "Marble vine": "Hunter:catch_igneous_jadinko",
@@ -899,7 +900,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         unresolved_actions = {row["id"] for row in report["unresolved_actions"]}
         self.assertTrue(
             {
-                "Hunter:catch_carrion_jadinko",
+                "Hunter:catch_common_jadinko",
                 *(f"Farming:{crop_id}" for crop_id, _herb_name in cases),
                 *expected_vine_routes.values(),
             }.isdisjoint(unresolved_actions)

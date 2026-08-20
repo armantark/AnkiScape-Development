@@ -339,11 +339,11 @@ class EffectiveLevelTest(unittest.TestCase):
         self.assertEqual(gut({}), (0, 0))
         self.assertEqual(gut({"cape": "Cooking cape"}), (1, 10.0))
 
-    def test_the_boost_moves_thirty_nine_roll_paths_not_one(self):
-        """The historical 39-path count rises to 46 with seven Jadinko catches.
+    def test_the_boost_moves_forty_one_roll_paths_not_one(self):
+        """The historical 39-path count rises to 47 with eight Jadinko catches.
 
         The claim mattered: an owner told the rule is nearly a no-op may decide
-        differently knowing it now changes 40 Hunter catches, 3 Firemaking
+        differently knowing it now changes 41 Hunter catches, 3 Firemaking
         burns, 2 Thieving yields and 1 Cooking gut. Hunter is measured here
         because it is by far the largest share and its formula is the reason —
         Darkan's `Utils.skillSuccess` interpolates on `level / 99.0` without
@@ -358,6 +358,7 @@ class EffectiveLevelTest(unittest.TestCase):
             != calculate_hunter_success_probability_pure(SKILLCAPE_EFFECTIVE_LEVEL, spec)
         ]
         added_jadinko_paths = {
+            "catch_common_jadinko",
             "catch_igneous_jadinko",
             "catch_aquatic_jadinko",
             "catch_amphibious_jadinko",
@@ -366,7 +367,7 @@ class EffectiveLevelTest(unittest.TestCase):
             "catch_saradomin_jadinko",
             "catch_zamorak_jadinko",
         }
-        self.assertEqual(len(changed), 40)
+        self.assertEqual(len(changed), 41)
         self.assertTrue(added_jadinko_paths <= set(changed))
         self.assertIn("catch_crimson_swift", changed)
 

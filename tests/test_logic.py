@@ -2319,13 +2319,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(butterfly_inv["Butterfly net"], 1)
         self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
-    def test_carrion_jadinko_uniformly_covers_all_five_vine_herb_seeds(self):
-        target = "catch_carrion_jadinko"
+    def test_common_jadinko_opens_all_five_vine_herb_seeds_at_level_70(self):
+        target = "catch_common_jadinko"
         spec = HUNTER_DATA[target]
-        self.assertEqual(spec["level"], 78)
-        self.assertEqual(spec["exp"], 505.0)
-        self.assertEqual(spec["source_npc_id"], 13154)
-        self.assertEqual(spec["secondary_drop_chance"], 30 / 256)
+        self.assertEqual(spec["level"], 70)
+        self.assertEqual(spec["exp"], 350.0)
+        self.assertEqual(spec["source_npc_id"], 13119)
+        self.assertEqual(spec["secondary_drop_chance"], 16 / 256)
 
         seed_rolls = (
             (0.0, "Erzille seed"),
@@ -2340,29 +2340,53 @@ class TestLogic(unittest.TestCase):
                     target,
                     {"Marasamaw plant": 1},
                     HUNTER_DATA,
-                    78,
+                    70,
                     0.0,
                     r_secondary_chance=0.0,
                     r_secondary_pick=pick_roll,
                 )
                 self.assertTrue(ok)
-                self.assertEqual(exp, 505.0)
-                self.assertEqual(output_item, "Pungent vine")
+                self.assertEqual(exp, 350.0)
+                self.assertEqual(output_item, "Common vine")
                 self.assertEqual(inventory["Marasamaw plant"], 1)
-                self.assertEqual(inventory["Pungent vine"], 1)
+                self.assertEqual(inventory["Common vine"], 1)
                 self.assertEqual(inventory[expected_seed], 1)
 
         no_seed, _exp, ok, _output_item, _rewards = apply_hunter_action_pure(
             target,
             {"Marasamaw plant": 1},
             HUNTER_DATA,
-            78,
+            70,
             0.0,
-            r_secondary_chance=30 / 256,
+            r_secondary_chance=16 / 256,
             r_secondary_pick=0.0,
         )
         self.assertTrue(ok)
         self.assertNotIn("Erzille seed", no_seed)
+
+    def test_higher_jadinko_seed_tables_match_darkan(self):
+        all_seeds = (
+            "Erzille seed",
+            "Ugune seed",
+            "Argway seed",
+            "Shengo seed",
+            "Samaden seed",
+        )
+        expected = {
+            "catch_carrion_jadinko": (30 / 256, all_seeds),
+            "catch_draconic_jadinko": (14 / 256, all_seeds[1:]),
+            "catch_saradomin_jadinko": (5 / 256, all_seeds[1:]),
+            "catch_zamorak_jadinko": (5 / 256, all_seeds[1:]),
+        }
+        for target, (chance, seed_names) in expected.items():
+            with self.subTest(target=target):
+                spec = HUNTER_DATA[target]
+                self.assertEqual(spec["secondary_drop_chance"], chance)
+                self.assertEqual(
+                    tuple(row["item"] for row in spec["secondary_outputs"]),
+                    seed_names,
+                )
+
     def test_polar_kebbit_tracking_preserves_noose_wand_and_awards_sourced_outputs(self):
         target = "catch_polar_kebbit"
         self.assertEqual(

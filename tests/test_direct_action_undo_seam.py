@@ -125,6 +125,17 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         )
         self.assertEqual(addon.player_data["current_hunter"], "catch_crimson_swift")
 
+    def test_same_type_combat_style_change_still_persists(self):
+        addon = self.addon
+        addon.player_data["combat_attack_style"] = "Accurate"
+        addon.player_data["combat_attack_style_type"] = "crush"
+
+        addon._set_combat_attack_style(("Aggressive", "crush"))
+
+        self.assertEqual(addon.player_data["combat_attack_style"], "Aggressive")
+        self.assertEqual(self.saves, [True])
+        self.assertEqual(self.collection.entries, [])
+
     def test_activity_danger_toggle_commits_and_restores_through_the_seam(self):
         from ankiscape.logic.agility_logic import apply_agility_command_pure
 

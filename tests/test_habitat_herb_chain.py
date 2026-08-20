@@ -15,7 +15,7 @@ from ankiscape.logic_pure.logic_pure import (
 
 
 class TestHabitatHerbChain(unittest.TestCase):
-    def test_each_carrion_jadinko_seed_reaches_an_unfinished_potion(self):
+    def test_each_common_jadinko_seed_reaches_an_unfinished_potion(self):
         cases = (
             ("erzille", "Erzille", 0.0, 54, 10.0),
             ("ugune", "Ugune", 0.2, 56, 11.5),
@@ -28,10 +28,10 @@ class TestHabitatHerbChain(unittest.TestCase):
             with self.subTest(herb=herb_name):
                 inventory, hunter_xp, caught, primary_output, _rewards = (
                     apply_hunter_action_pure(
-                        "catch_carrion_jadinko",
+                        "catch_common_jadinko",
                         {"Marasamaw plant": 1},
                         HUNTER_DATA,
-                        78,
+                        70,
                         0.0,
                         r_secondary_chance=0.0,
                         r_secondary_pick=seed_roll,
@@ -42,8 +42,8 @@ class TestHabitatHerbChain(unittest.TestCase):
                 clean_herb = f"Clean {herb_name.lower()}"
                 unfinished_potion = f"{herb_name} potion (unf)"
                 self.assertTrue(caught)
-                self.assertEqual(hunter_xp, 505.0)
-                self.assertEqual(primary_output, "Pungent vine")
+                self.assertEqual(hunter_xp, 350.0)
+                self.assertEqual(primary_output, "Common vine")
                 self.assertEqual(inventory[seed_item], 1)
 
                 state = {

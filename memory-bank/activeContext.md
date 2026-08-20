@@ -35,20 +35,20 @@ integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 ## Current Focus
 
 **2026-08-19, the grimy vine-herb family is re-landed on current main.**
-Carrion jadinkos use the existing pure Hunter secondary-output schema to supply
-Erzille, Ugune, Argway, Shengo, and Samaden seeds at the sourced `30/256`
-chance. The real kernel was driven separately from the suite for all five
-chains: catch the seed, plant and grow the crop, harvest three grimy herbs,
+Common jadinkos use the existing pure Hunter secondary-output schema to supply
+Erzille, Ugune, Argway, Shengo, and Samaden seeds from Hunter 70 at the sourced
+`16/256` chance; Carrion, Draconic, Saradomin, and Zamorak retain their exact
+supplemental seed tables. The real kernel was driven separately from the suite
+for all five chains: catch the seed, plant and grow the crop, harvest three grimy herbs,
 clean one at its corrected Herblore level, and mix the unfinished potion. All
 five clean and unfinished gates were usable. Current main
 `d4c043218d5943f7878d36b556d785eeeefdeb36` measures `1571 / 2266 / 84 / 87`;
-the merged candidate measures `1583 / 2333 / 50 / 53`, a change of `+12 / +67
-/ -34 / -34`. The plain lane passes 4,150 tests with 499 skips. The accepted
-offscreen Qt split passes 4,150 tests with three skips (`2172 + 1037 + 941`);
-the monolithic process was rejected after exceeding the ten-minute cap. The
-only reconstructed family value remains visibly registered as
-`farming.vine_herb_base_lives`; no UI or panel rule was added, and runtime only
-supplies random draws to the existing pure reducer. Durable source record:
+the merged candidate measures `1584 / 2334 / 50 / 53`, a change of `+13 / +68
+/ -34 / -34`. The plain lane passes 4,152 tests with 499 skips. The accepted
+offscreen Qt split passes 4,152 tests with three skips (`2174 + 1037 + 941`);
+the monolithic process was rejected after exceeding the ten-minute cap. Darkan `FarmPatch.setInitialLives()` resolves the former base-lives placeholder
+as `3 + compostLevel`; no UI or panel rule was added, and runtime only supplies
+random draws to the existing pure reducer. Durable source record:
 `memory-bank/source-audits/grimy-herb-family-2026-08-11.md`.
 
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.

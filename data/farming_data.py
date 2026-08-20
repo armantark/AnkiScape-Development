@@ -137,8 +137,7 @@ WILLOW_BRANCH_PIN = "Willow branch oldid 6092914 (2012-08-14T16:12:52Z)"
 FARMING_PIN = "Farming oldid 6565110"
 HABITAT_PIN = "Herblore Habitat oldid 6513740"
 
-# PLACEHOLDER(farming.vine_herb_base_lives): a period vine-herb harvest
-# routine or qualified cutoff sample would settle the base lives.
+# Darkan FarmPatch.setInitialLives() gives VINE_HERB 3 + compostLevel lives.
 VINE_HERB_BASE_LIVES = 3
 VINE_HERB_MIN_SAVE_SLOTS = 67
 VINE_HERB_MAX_SAVE_SLOTS = 80

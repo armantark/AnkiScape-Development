@@ -2179,7 +2179,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 72)
+        self.assertEqual(len(HUNTER_DATA), 73)
         jadinkos = {
             "track_shadow_jadinko": (71, 475.0, {"Noose wand": 1}, "Shadow vine", 19977),
             "track_diseased_jadinko": (78, 580.5, {"Noose wand": 1}, "Corrupt vine", 19979),
@@ -2360,15 +2360,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         )
         self.assertEqual(
             iconless,
-            [
-                "Aquatic vine",
-                "Draconic vine",
-                "Marble vine",
-                "Oily vine",
-                "Pungent vine",
-                "Saradomin vine",
-                "Zamorak vine",
-            ],
+            [],
             f"Unexpected Hunter outputs missing icons: {iconless}",
         )
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())

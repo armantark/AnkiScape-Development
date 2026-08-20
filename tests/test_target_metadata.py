@@ -1984,6 +1984,7 @@ class TargetMetadataTest(unittest.TestCase):
             },
             HUNTER_DATA,
             HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
             QUEST_UNLOCK_RULES,
         )
 
@@ -1993,6 +1994,7 @@ class TargetMetadataTest(unittest.TestCase):
             cannibal.tooltip,
         )
         self.assertIn("4.688% table chance", cannibal.tooltip)
+        self.assertIn("Eagles' Peak", _row(rows, "catch_ferret").tooltip)
 
     def test_hunter_rows_apply_quest_unlock_rules(self):
         player_data = {

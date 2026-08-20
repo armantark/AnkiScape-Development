@@ -56,7 +56,6 @@ def _jadinko_drop_source(jadinko: str) -> str:
     return f"{HUNTER_JADINKO_DROP_SOURCE_DIR}/hunter_jadinko_{jadinko}.json"
 
 
-HUNTER_CARRION_DROP_SOURCE = _jadinko_drop_source("carrion")
 HUNTER_PAPA_MAMBO_SHOP_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "data/items/shops/papa_mambos_shop.json"
@@ -221,6 +220,13 @@ def _target(
 
 
 _BONES = ("Bones", 1)
+_VINE_HERB_SEEDS = (
+    ("Erzille seed", 1, 1),
+    ("Ugune seed", 1, 1),
+    ("Argway seed", 1, 1),
+    ("Shengo seed", 1, 1),
+    ("Samaden seed", 1, 1),
+)
 
 HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
     _target(
@@ -748,6 +754,29 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=50,
     ),
     _target(
+        "catch_common_jadinko",
+        "Catch common jadinko",
+        "marasamaw_trapping",
+        70,
+        350.0,
+        _out(("Common vine", 1)),
+        "Common vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('common')}",
+        source_enum="COMMON_JADINKO",
+        source_npc_id=13119,
+        source_item_id=19971,
+        rate1=30,
+        rate99=150,
+        secondary_drop_chance=16 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one uniformly weighted vine-herb seed at 16/256."
+        ),
+        sort_order=10,
+    ),
+    _target(
         "catch_igneous_jadinko",
         "Catch igneous jadinko",
         "marasamaw_trapping",
@@ -810,20 +839,14 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Pungent vine", 1)),
         "Pungent vine",
         source=HUNTER_JADINKO_SOURCE,
-        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {HUNTER_CARRION_DROP_SOURCE}",
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('carrion')}",
         source_enum="CARRION_JADINKO",
         source_npc_id=13154,
         source_item_id=19974,
         rate1=15,
         rate99=130,
         secondary_drop_chance=30 / 256,
-        secondary_outputs=(
-            ("Erzille seed", 1, 1),
-            ("Ugune seed", 1, 1),
-            ("Argway seed", 1, 1),
-            ("Shengo seed", 1, 1),
-            ("Samaden seed", 1, 1),
-        ),
+        secondary_outputs=_VINE_HERB_SEEDS,
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "The Darkan drop table rolls one uniformly weighted vine-herb seed at 30/256."
@@ -845,7 +868,12 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19973,
         rate1=15,
         rate99=130,
-        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        secondary_drop_chance=14 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one of the four higher-level vine-herb seeds at 14/256."
+        ),
         sort_order=10,
     ),
     _target(
@@ -863,7 +891,12 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19981,
         rate1=15,
         rate99=130,
-        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one of the four higher-level vine-herb seeds at 5/256."
+        ),
         sort_order=10,
     ),
     _target(
@@ -881,7 +914,12 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19983,
         rate1=15,
         rate99=130,
-        notes="One review collapses habitat attraction, trap placement, and retrieval.",
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one of the four higher-level vine-herb seeds at 5/256."
+        ),
         sort_order=10,
     ),
     _target(
@@ -1115,6 +1153,7 @@ HUNTER_HABITAT_SEED_ITEMS: Mapping[str, int] = {
 }
 
 HUNTER_HABITAT_VINE_ITEMS: Mapping[str, Tuple[int, str]] = {
+    "Common vine": (19971, "common"),
     "Aquatic vine": (19976, "aquatic"),
     "Draconic vine": (19973, "draconic"),
     "Marble vine": (19980, "igneous"),
@@ -1240,7 +1279,10 @@ def _hunter_extra_source(item_name: str) -> str:
     if item_name in HUNTER_HABITAT_VINE_ITEMS:
         return _jadinko_drop_source(HUNTER_HABITAT_VINE_ITEMS[item_name][1])
     if item_name in HUNTER_HABITAT_SEED_ITEMS:
-        return HUNTER_CARRION_DROP_SOURCE
+        return "; ".join(
+            _jadinko_drop_source(jadinko)
+            for jadinko in ("common", "carrion", "draconic", "saradomin", "zamorak")
+        )
     if item_name == "Marasamaw plant":
         return HUNTER_PAPA_MAMBO_SHOP_SOURCE
     jadinko_sources = {
