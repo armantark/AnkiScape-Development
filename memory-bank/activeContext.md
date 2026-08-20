@@ -5190,19 +5190,21 @@ flees silently when the player runs out of food.
 ## Jungle Potion re-land — 2026-08-19
 
 - The preserved Jungle Potion implementation was merged with current `main` at
-  `6c482e617ffbe1f803b2a17fb00fb74a0d07a305`; the merge completed without
-  content conflicts and retained all Pass 10 Circus, Fish Flingers, combat
-  popup, review-strip, and `ui/ui.py` changes.
+  `4f86193c93d5a4c36c8f71a9509bcedc512b0cb9`; promoted merge
+  `a0088a593427f0769b6d67f6e9365a59317ce02f` completed without content
+  conflicts and retained all Pass 10 Circus, Fish Flingers, combat popup,
+  review-strip, and `ui/ui.py` changes.
 - A standalone real-kernel drive started the quest from its Druidic Ritual and
   Herblore 3 gates, searched, cleaned, and handed in all five herbs in strict
   order, completed at progress 11 with one quest point and 775 Herblore XP,
   and made `can_start_quest_pure(..., "shilo_village", ...)` true.
 - The merged reachability graph contains all ten Jungle Potion herb identities
   and all thirteen Shilo Village-only products, with zero blocked Jungle Potion
-  or Shilo Village quest-stage products. Against `main`, the merged tree moves
-  from 1,571 actions / 2,266 reachable items / 84 orphan inputs / 87 blocked
-  actions to 1,576 / 2,289 / 84 / 87.
-- Full discovery passes 4,146 tests in each lane: plain skips 499 and real
+  or Shilo Village quest-stage products. Against the named `main` parent, the
+  merged tree moves from 1,571 actions / 2,278 reachable items / 72 orphan
+  inputs / 71 blocked actions to 1,581 / 2,301 / 72 / 71; the merged split is
+  45 root plus 27 cascade orphans, with 1,123 seed items.
+- Full discovery passes 4,165 tests in each lane: plain skips 502 and real
   offscreen Qt skips three. The branch adds no panel rule or unmarked
   reconstruction; the placeholder-register suites pass all 22 tests.
 - Evidence: `source-audits/quest-jungle-potion-playable-2026-08-13.md`.

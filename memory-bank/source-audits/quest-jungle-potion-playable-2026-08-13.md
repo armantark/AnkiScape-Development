@@ -73,29 +73,29 @@ The prerequisite Druidic Ritual dialogue and cauldron steps use their existing d
 
 ## Reachability result
 
-After merging main commit `ee8c0002`, this slice was re-measured with the corrected union-of-per-scenario quest-branch audit (`tools/audit_item_reachability.py` SHA-256 `99042e4d583338c56ef72534f37581f9051c0c35fc197f5b09bdcff86a12877b`).
+Promoted merge `a0088a593427f0769b6d67f6e9365a59317ce02f` was re-measured against its `main` parent `4f86193c93d5a4c36c8f71a9509bcedc512b0cb9` with the corrected union-of-per-scenario quest-branch audit (`tools/audit_item_reachability.py` SHA-256 `99042e4d583338c56ef72534f37581f9051c0c35fc197f5b09bdcff86a12877b`).
 
 Main before this slice:
 
 - 1,571 actions;
-- 2,266 reachable items;
-- 84 orphan inputs;
-- 46 root orphans;
-- 38 cascade orphans;
-- 87 unresolved actions;
-- 1,104 seed items.
+- 2,278 reachable items;
+- 72 orphan inputs;
+- 45 root orphans;
+- 27 cascade orphans;
+- 71 unresolved actions;
+- 1,105 seed items.
 
 Merged result after this slice:
 
-- 1,576 actions;
-- 2,289 reachable items;
-- 84 orphan inputs;
-- 46 root orphans;
-- 38 cascade orphans;
-- 87 unresolved actions;
-- 1,122 seed items.
+- 1,581 actions;
+- 2,301 reachable items;
+- 72 orphan inputs;
+- 45 root orphans;
+- 27 cascade orphans;
+- 71 unresolved actions;
+- 1,123 seed items.
 
-The five added actions are the five source-backed Herblore cleaning conversions.
+The ten added actions are the five source-backed searches and five Herblore cleaning conversions.
 
 Gross reachable-item additions, measured by comparing the corrected main and merged route sets:
 
@@ -130,7 +130,8 @@ All ten jungle-herb identities and all thirteen named Shilo Village identities a
 ## Re-land verification — 2026-08-19
 
 The preserved slice was merged with `main` commit
-`6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Git reported no content
+`4f86193c93d5a4c36c8f71a9509bcedc512b0cb9` as promoted merge
+`a0088a593427f0769b6d67f6e9365a59317ce02f`. Git reported no content
 conflicts, so no source-backed Jungle Potion value or `PLACEHOLDER(...)` marker
 was reconstructed during conflict resolution. The branch has no production UI
 or panel delta from main; quest eligibility remains owned by
@@ -145,10 +146,10 @@ then resolved all ten herb identities and all thirteen Shilo Village-only
 products with zero Jungle Potion or Shilo Village blocked-stage diagnostics.
 
 At the named main parent, `tools/audit_item_reachability.py` reported 1,571
-actions, 2,266 reachable items, 84 orphan inputs, and 87 blocked actions. The
-merged tree reports 1,576 actions, 2,289 reachable items, 84 orphan inputs, and
-87 blocked actions. Both expected nonzero audits exit 1 because the repository
-still has 87 unrelated blocked actions.
+actions, 2,278 reachable items, 72 orphan inputs, and 71 blocked actions. The
+merged tree reports 1,581 actions, 2,301 reachable items, 72 orphan inputs, and
+71 blocked actions. Both expected nonzero audits exit 1 because the repository
+still has 71 unrelated blocked actions.
 
 ## Post-quest herb searches — 2026-08-19
 
@@ -165,5 +166,16 @@ record the other search spots and their post-start or post-quest uses.
 A cross-catalog scan found six quest-item transformations through
 strange-rock-eligible handlers: the five Jungle Potion cleanings and Heroes'
 Quest `cook_lava_eel`. The latter is recoverable through the repeatable
-`lava_eel` Fishing target, so no other strictly one-shot exposure remains and
-no design-thread item was opened.
+`lava_eel` Fishing target, so no other strictly one-shot exposure remains.
+
+The shipped Jungle Potion rock exemption is an AnkiScape safeguard, not a rule
+recovered from Darkan. Darkan gates each search object on
+`questStage == requiredStage`, and only the clean-herb turn-in advances that
+stage; a player who loses the clean herb can therefore search the same object
+again. AnkiScape splits that source stage into a search review and a later
+turn-in review, advancing past the search as soon as the grimy herb is found.
+That split makes the search one-shot before turn-in, so the runtime suppresses
+strange-rock output replacement for the five cleanings while the quest remains
+incomplete. The source-faithful alternative is to keep each herb search
+reachable until its corresponding turn-in completes. Replacing the shipped
+safeguard with that stage model is queued for an owner decision.

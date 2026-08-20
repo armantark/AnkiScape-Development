@@ -941,6 +941,22 @@ open forks, except where marked.
   drop table for the Frozen-floor guardians would retire the placeholder
   entirely.
 
+### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — owner decision required
+
+- **Source behavior:** Darkan permits a search only when
+  `questStage == requiredStage` and advances that stage only when Trufitus
+  accepts the clean herb. If the herb is lost, the same search remains
+  available until turn-in.
+- **Shipped behavior:** AnkiScape splits search and turn-in into separate review
+  stages. The search stage advances when the grimy herb is found, making that
+  search one-shot until the quest advances again. The current safeguard keeps
+  Shattered Heart from replacing any of the five clean herbs before quest
+  completion.
+- **Owner decision:** either retain the shipped exemption, or remove it and use
+  the source-faithful stage model in which each search remains reachable until
+  its matching turn-in completes. No behavior changes until the owner chooses.
+  Evidence: `memory-bank/source-audits/quest-jungle-potion-playable-2026-08-13.md`.
+
 ### 4.14 Grill of 2026-07-29 — six answers
 
 1. **3.23 answered: minimal miniquest ledger now.** Miniquests become a
