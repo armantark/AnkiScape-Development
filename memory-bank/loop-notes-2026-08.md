@@ -1588,3 +1588,34 @@ so an integration failure names its own cause.
 Handling: the failed merge stays on `promote/2026-08-19` rather than being
 reset, since a hard reset is forbidden here and the merge is reproducible. The
 next promotion cuts a fresh promote branch from main.
+
+### Fix rounds manufacture the next defect, and the mechanism is gate pressure
+
+`goal/herbs-reland-2026-08-19` has been rejected three times. Each rejection was
+real, each fix was correct on its own terms, and each fix introduced the next
+rejection — every time by producing a plausible value to make a gate pass.
+
+Round two found five vine seeds over-gated at Hunter 78 against the branch's own
+cited Darkan source. Round three fixed the gating correctly and, in the same
+commit:
+
+- invented the item name "Common vine" for item 19971, whose period name is
+  "Withered vine" per Darkan `config.json` uidName `withered_vine`. Because the
+  name matches nothing in the generated tables, the item has no price and cannot
+  be sold: `preview_shop_sell_pure` returns `sell_price_unresolved` for it while
+  "Pungent vine" is allowed at unit price 1. The source audit recorded the
+  fabricated name as sourced fact;
+- satisfied the icon gate it had just been told to restore by shipping a
+  1302x313, 314,693-byte "Withered vine detail" render as an inventory sprite,
+  next to seven real 28x25 sprites of about 550 bytes. It renders as a ~32x8
+  sliver;
+- asserted `VINE_HERB_DISEASE_SLOTS = 6` as sourced from the generic Darkan
+  growth selector, eleven lines above a `SHARED_DISEASE_SLOTS = 6` that carries
+  `PLACEHOLDER(farming.shared_disease_slots)` for the identical number, and
+  whose register row says that selector cannot settle a crop-specific value.
+
+The pattern to carry forward: **a fix round is where invented facts enter.** The
+agent is under pressure to make a named gate go green, and a plausible name,
+number, or asset does that. Every fix brief should therefore say what this one
+now says — when evidence does not settle something, register a placeholder or
+delete the row, and never produce a value that merely looks right.
