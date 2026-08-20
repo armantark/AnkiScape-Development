@@ -11,6 +11,12 @@ from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from .herblore_data import (
+    DARKAN_HERB_CLEANING_SOURCE_PATH,
+    JUNGLE_POTION_CACHE_SOURCE,
+    JUNGLE_POTION_POST_QUEST_SEARCH_SOURCE,
+    JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
+)
 from .varrock_museum_data import varrock_museum_quest_reward_additions_as_dict
 
 
@@ -464,14 +470,6 @@ DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE = (
 DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
 DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
 DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/TrufitusDialog.kt"
-DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE = (
-    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
-    "src/main/java/com/rs/game/content/skills/herblore/HerbCleaning.java"
-)
-JUNGLE_POTION_CACHE_SOURCE = (
-    "OpenRS2 cache 727 (2012-07-24), sha256 "
-    "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8"
-)
 DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
 HEROES_QUEST_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/heroesquest"
 HEROES_QUEST_DARKAN_SOURCE = f"{HEROES_QUEST_SOURCE_ROOT}/HeroesQuest.java"
@@ -3150,7 +3148,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         combat="None required; the jungle contains environmental dangers.",
         source=(
             f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; "
-            f"{DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; "
+            f"{DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; "
             f"{JUNGLE_POTION_WIKI_SOURCE}"
         ),
         journal_stages=JUNGLE_POTION_STAGES,
@@ -4152,7 +4150,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             2,
             "Clean the snake weed and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean snake weed", 1),),
             auto_actions=("Give Trufitus clean snake weed",),
         ),
@@ -4166,7 +4164,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             4,
             "Clean the ardrigal and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean ardrigal", 1),),
             auto_actions=("Give Trufitus clean ardrigal",),
         ),
@@ -4180,7 +4178,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             6,
             "Clean the sito foil and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean sito foil", 1),),
             auto_actions=("Give Trufitus clean sito foil",),
         ),
@@ -4194,7 +4192,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             8,
             "Clean the volencia moss and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean volencia moss", 1),),
             auto_actions=("Give Trufitus clean volencia moss",),
         ),
@@ -4208,7 +4206,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             10,
             "Clean the rogue's purse and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_JUNGLE_POTION_HERB_CLEANING_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean rogue's purse", 1),),
             auto_actions=("Give Trufitus clean rogue's purse",),
         ),
@@ -9482,6 +9480,14 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
         "https://runescape.wiki/w/Karambwanji?oldid=5838218",
     ),
     QuestUnlockRule(SHILO_VILLAGE_ID, "target", "mining", ("gem_rocks",), "Shilo Village", GEM_ROCK_SOURCE),
+    QuestUnlockRule(
+        JUNGLE_POTION_ID,
+        "target",
+        "utility",
+        JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
+        "Jungle Potion",
+        JUNGLE_POTION_POST_QUEST_SEARCH_SOURCE,
+    ),
     QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "fishing", ("catch_slimy_eel",), "Priest in Peril", PRIEST_IN_PERIL_SOURCE),
     QuestUnlockRule(
         PRIEST_IN_PERIL_ID,

@@ -62,6 +62,30 @@ JUNGLE_POTION_CACHE_SOURCE = (
     "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8"
 )
 JUNGLE_POTION_HERB_SOURCE = f"{DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}"
+JUNGLE_POTION_CLEAN_TARGET_IDS = (
+    "clean_snake_weed",
+    "clean_ardrigal",
+    "clean_sito_foil",
+    "clean_volencia_moss",
+    "clean_rogues_purse",
+)
+JUNGLE_POTION_SEARCH_ACTIVITY_IDS = (
+    "search_marshy_jungle_vines",
+    "search_jungle_palm_trees",
+    "search_scorched_earth",
+    "search_jungle_mine_rocks",
+    "search_fungus_covered_wall",
+)
+JUNGLE_POTION_POST_QUEST_SEARCH_SOURCE = "; ".join(
+    (
+        JUNGLE_POTION_CACHE_SOURCE,
+        "https://runescape.wiki/w/Grimy_snake_weed?oldid=5379720",
+        "https://runescape.wiki/w/Grimy_ardrigal?oldid=4363001",
+        "https://runescape.wiki/w/Grimy_sito_foil?oldid=5380474",
+        "https://runescape.wiki/w/Grimy_volencia_moss?oldid=6358574",
+        "https://runescape.wiki/w/Grimy_rogue%27s_purse?oldid=5456824",
+    )
+)
 
 DEFAULT_HERBLORE_TARGET = "clean_guam"
 VIAL_OF_WATER_ITEM = "Vial of water"
@@ -506,6 +530,53 @@ def input_preparation_activities_as_dict() -> Dict[str, Dict[str, object]]:
             "source": activity.source,
         }
         for activity in INPUT_PREPARATION_ACTIVITIES
+    }
+
+
+def jungle_potion_search_activities_as_dict() -> Dict[str, Dict[str, object]]:
+    rows = (
+        (
+            "search_marshy_jungle_vines",
+            "Search marshy jungle vines",
+            "Grimy snake weed",
+            "https://runescape.wiki/w/Grimy_snake_weed?oldid=5379720",
+        ),
+        (
+            "search_jungle_palm_trees",
+            "Search jungle palm trees",
+            "Grimy ardrigal",
+            "https://runescape.wiki/w/Grimy_ardrigal?oldid=4363001",
+        ),
+        (
+            "search_scorched_earth",
+            "Search scorched earth",
+            "Grimy sito foil",
+            "https://runescape.wiki/w/Grimy_sito_foil?oldid=5380474",
+        ),
+        (
+            "search_jungle_mine_rocks",
+            "Search jungle mine rocks",
+            "Grimy volencia moss",
+            "https://runescape.wiki/w/Grimy_volencia_moss?oldid=6358574",
+        ),
+        (
+            "search_fungus_covered_wall",
+            "Search fungus-covered cavern wall",
+            "Grimy rogue's purse",
+            "https://runescape.wiki/w/Grimy_rogue%27s_purse?oldid=5456824",
+        ),
+    )
+    return {
+        activity_id: {
+            "display_name": display_name,
+            "requirements": {},
+            "output_item": output_item,
+            "output_qty": 1,
+            "batch_size": 1,
+            "group": "gathering",
+            "source": f"{JUNGLE_POTION_CACHE_SOURCE}; {wiki_source}",
+        }
+        for activity_id, display_name, output_item, wiki_source in rows
     }
 
 

@@ -419,12 +419,15 @@ from ..data.runecrafting_data import (
 from ..data.herblore_data import (
     DEFAULT_HERBLORE_TARGET,
     HERBLORE_GROUP_LABELS,
+    JUNGLE_POTION_CLEAN_TARGET_IDS,
+    JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
     herblore_extra_items_as_dict,
     herblore_finished_output_items,
     herblore_item_names,
     herblore_output_items,
     herblore_targets_as_dict,
     input_preparation_activities_as_dict,
+    jungle_potion_search_activities_as_dict,
     pestle_and_mortar_activities_as_dict,
 )
 from ..data.shop_data import shop_extra_items_as_dict
@@ -742,6 +745,21 @@ UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(jungle_potion_search_activities_as_dict())
+for _activity_id, _icon_name in zip(
+    JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
+    (
+        "clean_snake_weed.png",
+        "clean_ardrigal.png",
+        "clean_sito_foil.png",
+        "clean_volencia_moss.png",
+        "clean_rogue_s_purse.png",
+    ),
+):
+    UTILITY_ACTIVITY_DATA[_activity_id]["icon_path"] = os.path.join(
+        HERBLORE_ITEMS_FOLDER,
+        _icon_name,
+    )
 UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(bone_source_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)

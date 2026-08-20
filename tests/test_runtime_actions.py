@@ -3110,9 +3110,12 @@ class TestRuntimeActions(unittest.TestCase):
             "progress": 4,
             "completed": True,
         }
-        player_data.pop("shattered_heart", None)
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
-        ctx = _context(player_data, calls)
+        ctx = _context(player_data, calls, random_values=(0.0,) * 5)
+        player_data["current_utility"] = "search_marshy_jungle_vines"
+        self.assertFalse(handle_utility_answer(ctx))
+        self.assertEqual(player_data["inventory"]["Grimy snake weed"], 0)
+
         route = (
             ("clean_snake_weed", "Grimy snake weed", "Clean snake weed"),
             ("clean_ardrigal", "Grimy ardrigal", "Clean ardrigal"),
@@ -3147,8 +3150,24 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["herblore_exp"], 1037.5)
         self.assertEqual(calls["saves"], 15)
         self.assertEqual(calls["activity"][-1], "Jungle Potion complete")
+        self.assertIn("Found 2 Herblore strange rocks.", calls["activity"])
+        self.assertEqual(player_data["inventory"]["Strange rock (Herblore 1)"], 1)
+        self.assertEqual(player_data["inventory"]["Strange rock (Herblore 2)"], 1)
         self.assertEqual(calls["errors"][-1][0], "Quest complete")
         self.assertTrue(calls["deactivated"])
+
+        for activity_id, grimy_item in (
+            ("search_marshy_jungle_vines", "Grimy snake weed"),
+            ("search_jungle_palm_trees", "Grimy ardrigal"),
+            ("search_scorched_earth", "Grimy sito foil"),
+            ("search_jungle_mine_rocks", "Grimy volencia moss"),
+            ("search_fungus_covered_wall", "Grimy rogue's purse"),
+        ):
+            player_data["current_utility"] = activity_id
+            before = player_data["inventory"].get(grimy_item, 0)
+            self.assertTrue(handle_utility_answer(ctx))
+            self.assertTrue(handle_utility_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], before + 2)
 
         player_data.update({"smithing_level": 4, "crafting_level": 20, "agility_level": 32})
         self.assertTrue(can_start_quest_pure(player_data, "shilo_village", QUEST_DATA))

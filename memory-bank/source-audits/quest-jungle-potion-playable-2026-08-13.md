@@ -149,3 +149,21 @@ actions, 2,266 reachable items, 84 orphan inputs, and 87 blocked actions. The
 merged tree reports 1,576 actions, 2,289 reachable items, 84 orphan inputs, and
 87 blocked actions. Both expected nonzero audits exit 1 because the repository
 still has 87 unrelated blocked actions.
+
+## Post-quest herb searches — 2026-08-19
+
+The five search activities remain available after quest completion. Darkan's
+current handlers gate each object to the matching quest stage, but the period
+record does not: rev-727 and all six other on-disk caches retain `Search` on
+objects 2575, 2577, 2579, 2581, and 32106, while game-main contains only item
+identities. The pre-EOC herb pages establish continued acquisition and use:
+`Grimy sito foil` oldid `5380474` explicitly says the spot works after the
+quest; `Grimy volencia moss` oldid `6358574` says players doing or finished the
+quest can search the rocks; and oldids `5379720`, `4363001`, and `5456824`
+record the other search spots and their post-start or post-quest uses.
+
+A cross-catalog scan found six quest-item transformations through
+strange-rock-eligible handlers: the five Jungle Potion cleanings and Heroes'
+Quest `cook_lava_eel`. The latter is recoverable through the repeatable
+`lava_eel` Fishing target, so no other strictly one-shot exposure remains and
+no design-thread item was opened.

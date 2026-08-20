@@ -557,7 +557,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1576)
+        self.assertEqual(report["action_count"], 1581)
         self.assertEqual(report["reachable_item_count"], 2289)
         self.assertEqual(report["orphan_input_count"], 84)
         self.assertEqual(report["root_orphan_count"], 46)
