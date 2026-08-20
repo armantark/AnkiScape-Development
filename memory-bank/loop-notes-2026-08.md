@@ -1562,3 +1562,29 @@ polished away while the Codex block runs down:
    The available branch also sets the tooltip to the bare skill name while the
    render path sets none, so an enabled button silently acquires a tooltip
    after the first refresh.
+
+### The post-merge gate earned itself on the second promotion
+
+Both branches were independently green. Wyvern passed its lanes at 4152 tests
+and landed on main; the skill-button slice passed its own at 4148. Merged, the
+plain lane gave `Ran 4156 tests ... FAILED (errors=3, skipped=502)`:
+
+    File "tests/test_skeletal_wyvern.py", line 99, in _runtime_context
+        return RuntimeActionContext(
+    TypeError: RuntimeActionContext.__init__() got an unexpected keyword argument
+    'refresh_skill_availability_partial'. Did you mean 'refresh_skill_availability'?
+
+The skill-button slice deleted `refresh_skill_availability_partial` because a
+reviewer found it had zero production callers, which was correct. The Wyvern
+test helper was written before that deletion existed. Neither branch could see
+the other, no review could have caught it, and only a run on the merged tree
+could.
+
+This is the argument for the goal's promotion rule in one incident: a slice
+being green on its own branch says nothing about the tree it lands in. Keep
+running the full gate on the merged tree, and keep landing one slice at a time
+so an integration failure names its own cause.
+
+Handling: the failed merge stays on `promote/2026-08-19` rather than being
+reset, since a hard reset is forbidden here and the merge is reproducible. The
+next promotion cuts a fresh promote branch from main.
