@@ -59,8 +59,6 @@ EMPTY_FLASK_ITEM = ("Potion flask", 23191)
 # base display name -> item-state and supported-use metadata
 POTION_FAMILIES: Dict[str, Dict[str, object]] = {
     "Juju hunter potion": {
-        "role": "habitat_reagent",
-        "drinkable": True,
         "skills": ("hunter",),
         # PLACEHOLDER(potions.juju_hunter_boost): an authentic period routine or
         # source that states the player-drink Hunter boost magnitude.
@@ -195,11 +193,9 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
 
 
 def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
-    """Drinkable vial and flask doses, excluding reagent-only families."""
+    """Drinkable vial and flask dose entries."""
     rows: Dict[str, Dict[str, object]] = {}
     for base, spec in POTION_FAMILIES.items():
-        if not spec.get("drinkable", True):
-            continue
         source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose in spec["doses"]:  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {

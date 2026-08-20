@@ -3965,6 +3965,43 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["hunter_exp"], 475.0)
         self.assertEqual(calls["xp"], [475.0])
 
+    def test_hunter_rocks_do_not_replace_bonecrusher_consumed_bones(self):
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Bird snare": 1, "Bonecrusher": 1, "Bones": 100},
+            "carried_inventory": {"catch_crimson_swift": {"Bonecrusher": 1}},
+            "hunter_level": 99,
+            "hunter_exp": 0,
+            "current_hunter": "catch_crimson_swift",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+            "shattered_heart": default_shattered_heart_state_pure(),
+        }
+
+        self.assertTrue(
+            handle_hunter_answer(
+                _context(player_data, calls, random_values=(0.0, 0.0, 0.0))
+            )
+        )
+
+        inventory = player_data["inventory"]
+        self.assertEqual(inventory["Bones"], 100)
+        for rock in SHATTERED_HEART_SKILLS_BY_ID["hunter"].rock_items:
+            self.assertEqual(inventory[rock], 1)
+        self.assertEqual(
+            player_data["action_telemetry"]["actions"][
+                "hunter:catch_crimson_swift"
+            ]["outputs"],
+            {
+                item_name: inventory.get(item_name, 0)
+                for item_name in ("Raw bird meat", "Red feather")
+                if inventory.get(item_name, 0) > 0
+            },
+        )
+
     def test_common_jadinko_bonus_seed_is_recorded_for_review_undo(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

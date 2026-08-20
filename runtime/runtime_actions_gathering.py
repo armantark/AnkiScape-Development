@@ -27,6 +27,7 @@ from ..core.constants import (
     FIREMAKING_DATA,
     FISHING_DATA,
     HUNTER_DATA,
+    HUNTER_EXTRA_ITEM_DATA,
     FLETCHING_DATA,
     HERBLORE_DATA,
     GLORY_GEM_DROP_CHANCE,
@@ -626,8 +627,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
 
     player_data["inventory"] = new_inv
     actual_gains = inventory_pure.inventory_delta_gains(inventory, new_inv)
-    primary_outputs = _spec_output_items(spec, _output_item)
-    produced_outputs = dict(primary_outputs)
+    produced_outputs = _spec_output_items(spec, _output_item)
     produced_outputs.update(
         {
             item_name: amount
@@ -635,14 +635,10 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
             if item_name not in produced_outputs
         }
     )
-    protected_habitat_target = target in {
-        "track_shadow_jadinko",
-        "track_diseased_jadinko",
-        "catch_common_jadinko",
-        "catch_cannibal_jadinko",
-        "catch_guthix_jadinko",
-    }
-    shattered_heart_outputs = {} if protected_habitat_target else primary_outputs
+    has_untradeable_output = any(
+        not HUNTER_EXTRA_ITEM_DATA.get(item_name, {}).get("tradeable", True)
+        for item_name in produced_outputs
+    )
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,
@@ -650,6 +646,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     )
     player_data.clear()
     player_data.update(passive_data)
+    shattered_heart_outputs = {} if has_untradeable_output else retained_outputs
     if bonecrusher_info["consumed"]:
         inventory = dict(player_data.get("inventory", {}) or {})
         for item_name, amount in bonecrusher_info["consumed"].items():
