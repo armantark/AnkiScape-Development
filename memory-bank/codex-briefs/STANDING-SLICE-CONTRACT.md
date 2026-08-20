@@ -113,6 +113,18 @@ widget test skips without `aqt`. The offscreen Qt lane must report a skip count
 near 3. A Qt skip count near the plain lane's is a false pass and must be
 rejected, not reported as green.
 
+The offscreen Qt lane completes in one process in roughly 600 to 760 seconds on
+this machine, which is correct but sits just above the tool's command cap, so
+splitting it into independent processes is a harness workaround rather than
+evidence of a problem. A detached `nohup` run has no cap and needs no split.
+
+**Documentation-only exception.** When your diff touches only Markdown and
+other non-executable records, run the plain lane and skip the offscreen Qt
+lane. Say in your report that you skipped it and that the diff is
+documentation-only. A Markdown change cannot move a widget test, and the lane
+costs ten minutes of a shared machine. This exception is narrow: one executable
+line anywhere in the diff, including a test, removes it.
+
 Also run, and report the exact output of:
 
 ```
