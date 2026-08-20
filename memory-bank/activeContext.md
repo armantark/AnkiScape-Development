@@ -69,6 +69,8 @@ Full plain discovery passes 4,057 tests with 494 expected skips. Reachability is
 
 The queue has two items. Fix the one-way enable state at `ui/ui.py` lines 1467-1470 and on neighboring skill buttons. Recover the Juju hunter boost from a period player-drink routine or an exact dated statement.
 
+**2026-08-19, Juju re-land verification closed a Shattered Heart soft-lock.** Loose Hunter strange rocks no longer replace Common, Shadow, Diseased, Cannibal, or Guthix jadinko outputs; Withered vine, all five rare vine-herb seeds, Shadow vine, Corrupt vine, Plant teeth, and Guthix vine remain in inventory and telemetry when both rocks drop. Real-kernel probes gathered every Common-jadinko seed and completed the four live potion-secondary chains. Final verification passes 4,150 plain tests with 499 skips and 4,150 offscreen Qt tests with three skips. Reachability is 1,576 actions, 2,272 reachable items, 87 orphan inputs, and 91 blocked actions.
+
 **2026-08-10, durable owner pause across the complete resumed interval.** The
 audit covers all 52 commits after Pass 8 through the first pause handoff, plus
 this closure. Every linked worktree is clean. The sole non-ancestor branch is

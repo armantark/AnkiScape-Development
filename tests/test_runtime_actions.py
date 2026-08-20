@@ -3994,6 +3994,88 @@ class TestRuntimeActions(unittest.TestCase):
             {"Withered vine": 1, "Argway seed": 1},
         )
 
+    def test_common_jadinko_rare_seed_survives_loose_strange_rocks(self):
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Marasamaw plant": 1},
+            "hunter_level": 70,
+            "hunter_exp": 0,
+            "current_hunter": "catch_common_jadinko",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+            "shattered_heart": default_shattered_heart_state_pure(),
+        }
+
+        self.assertTrue(
+            handle_hunter_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 0.0, 0.9, 0.0, 0.0),
+                )
+            )
+        )
+
+        inventory = player_data["inventory"]
+        self.assertEqual(inventory["Samaden seed"], 1)
+        self.assertEqual(inventory["Withered vine"], 1)
+        for rock in SHATTERED_HEART_SKILLS_BY_ID["hunter"].rock_items:
+            self.assertEqual(inventory[rock], 1)
+        self.assertEqual(
+            player_data["action_telemetry"]["actions"][
+                "hunter:catch_common_jadinko"
+            ]["outputs"],
+            {"Withered vine": 1, "Samaden seed": 1},
+        )
+
+    def test_jadinko_potion_inputs_survive_loose_strange_rocks(self):
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        routes = (
+            ("track_shadow_jadinko", "Noose wand", "Shadow vine", 71),
+            ("track_diseased_jadinko", "Noose wand", "Corrupt vine", 78),
+            ("catch_cannibal_jadinko", "Marasamaw plant", "Plant teeth", 75),
+            ("catch_guthix_jadinko", "Marasamaw plant", "Guthix vine", 81),
+        )
+        for target, tool, output, level in routes:
+            with self.subTest(target=target):
+                calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+                player_data = {
+                    "inventory": {tool: 1},
+                    "hunter_level": level,
+                    "hunter_exp": 0,
+                    "current_hunter": target,
+                    "hunter_success_count": 0,
+                    "completed_achievements": [],
+                    "shattered_heart": default_shattered_heart_state_pure(),
+                }
+                random_values = (
+                    (0.0, 1.0, 0.5, 0.0, 0.0)
+                    if target == "catch_cannibal_jadinko"
+                    else (0.0, 0.0, 0.0)
+                )
+
+                self.assertTrue(
+                    handle_hunter_answer(
+                        _context(player_data, calls, random_values=random_values)
+                    )
+                )
+
+                inventory = player_data["inventory"]
+                self.assertEqual(inventory[output], 1)
+                for rock in SHATTERED_HEART_SKILLS_BY_ID["hunter"].rock_items:
+                    self.assertEqual(inventory[rock], 1)
+                self.assertEqual(
+                    player_data["action_telemetry"]["actions"][
+                        f"hunter:{target}"
+                    ]["outputs"],
+                    {output: 1},
+                )
+
     def test_hunter_quota_ticket_is_consumed_only_after_success(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         ticket = "Swamp lizard quota ticket"

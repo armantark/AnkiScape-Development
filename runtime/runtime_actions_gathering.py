@@ -626,7 +626,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
 
     player_data["inventory"] = new_inv
     actual_gains = inventory_pure.inventory_delta_gains(inventory, new_inv)
-    produced_outputs = _spec_output_items(spec, _output_item)
+    primary_outputs = _spec_output_items(spec, _output_item)
+    produced_outputs = dict(primary_outputs)
     produced_outputs.update(
         {
             item_name: amount
@@ -634,6 +635,14 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
             if item_name not in produced_outputs
         }
     )
+    protected_habitat_target = target in {
+        "track_shadow_jadinko",
+        "track_diseased_jadinko",
+        "catch_common_jadinko",
+        "catch_cannibal_jadinko",
+        "catch_guthix_jadinko",
+    }
+    shattered_heart_outputs = {} if protected_habitat_target else primary_outputs
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,
@@ -660,6 +669,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         expected_success_chance=expected_success,
         output_items=retained_outputs,
         primary_xp=base_exp,
+        shattered_heart_output_items=shattered_heart_outputs,
     )
     player_data["hunter_success_count"] = player_data.get("hunter_success_count", 0) + 1
     action_rewards = list(xp_rewards or ({"skill_id": "hunter", "amount": base_exp},))
