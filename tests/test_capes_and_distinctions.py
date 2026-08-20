@@ -339,7 +339,7 @@ class EffectiveLevelTest(unittest.TestCase):
         self.assertEqual(gut({}), (0, 0))
         self.assertEqual(gut({"cape": "Cooking cape"}), (1, 10.0))
 
-    def test_the_boost_moves_forty_one_roll_paths_not_one(self):
+    def test_the_boost_moves_forty_seven_roll_paths_not_one(self):
         """The historical 39-path count rises to 47 with eight Jadinko catches.
 
         The claim mattered: an owner told the rule is nearly a no-op may decide

@@ -18,7 +18,12 @@ All evidence is from before `2012-11-20T00:00:00Z`.
 
 | Source | Exact pin | Values that this source supplies |
 | --- | --- | --- |
-| RuneScape Wiki | `Herblore Habitat` oldid `6513740`, `2012-10-31T21:20:32Z` | Farming levels, planting XP, harvest XP, protection payments, clean levels, clean XP, and the five herb families. |
+| RuneScape Wiki | `Herblore Habitat` oldid `6513740`, `2012-10-31T21:20:32Z` | Farming levels, planting XP, harvest XP, protection payments, and the five herb families. |
+| RuneScape Wiki | `Grimy erzille` oldid `6367356`, `2012-10-08T00:31:09Z` | Clean level 54 and 10.0 clean XP. |
+| RuneScape Wiki | `Grimy argway` oldid `5288273`, `2012-02-25T16:58:12Z` | Clean level 57 and 11.6 clean XP. |
+| RuneScape Wiki | `Grimy ugune` oldid `5307711`, `2012-03-01T16:32:35Z` | Clean level 56 and 11.5 clean XP. |
+| RuneScape Wiki | `Grimy shengo` oldid `5288022`, `2012-02-25T14:17:38Z` | Clean level 58 and 11.7 clean XP. |
+| RuneScape Wiki | `Grimy samaden` oldid `5285365`, `2012-02-24T17:32:22Z` | Clean level 59 and 11.7 clean XP. |
 | RuneScape Wiki | `Seeds` oldid `6565109`, `2012-11-17T05:58:56Z` | Seed quantity, crop identities, and the 80-minute Ugune total. |
 | RuneScape Wiki | `Jadinkos` oldid `5917881`, `2012-07-10T13:09:23Z` | Jadinko levels, Hunter XP, primary vine drops, and the vine-herb seed family. |
 | Darkan | Commit `7e7d67b481f1b94599de38a98c470419ab7c96b3`, `src/main/java/com/rs/game/content/skills/farming/ProduceType.java:103-107` | Seed IDs, grimy-herb IDs, four stages, Farming levels, XP, and save endpoints `67/80`. |
@@ -85,23 +90,23 @@ It gives one unfinished potion and zero XP.
 
 | Herb | Grimy ID | Clean ID | Unfinished ID | Clean level | Clean XP | Exact source |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Erzille | 19984 | 19989 | 19998 | 54 | 10.0 | `HerbData.kt:149-155`; `Herblore Habitat` oldid `6513740`. |
-| Argway | 19985 | 19990 | 20000 | 57 | 11.6 | `HerbData.kt:157-163`; corrected by `Herblore Habitat` oldid `6513740`. |
-| Ugune | 19986 | 19991 | 19999 | 56 | 11.5 | `HerbData.kt:165-171`; corrected by `Herblore Habitat` oldid `6513740`. |
-| Shengo | 19987 | 19992 | 20001 | 58 | 11.7 | `HerbData.kt:173-179`; corrected by `Herblore Habitat` oldid `6513740`. |
-| Samaden | 19988 | 19993 | 20002 | 59 | 11.7 | `HerbData.kt:181-187`; corrected by `Herblore Habitat` oldid `6513740`. |
+| Erzille | 19984 | 19989 | 19998 | 54 | 10.0 | `HerbData.kt:149-155`; `Grimy erzille` oldid `6367356`. |
+| Argway | 19985 | 19990 | 20000 | 57 | 11.6 | `HerbData.kt:157-163`; corrected by `Grimy argway` oldid `5288273`. |
+| Ugune | 19986 | 19991 | 19999 | 56 | 11.5 | `HerbData.kt:165-171`; corrected by `Grimy ugune` oldid `5307711`. |
+| Shengo | 19987 | 19992 | 20001 | 58 | 11.7 | `HerbData.kt:173-179`; corrected by `Grimy shengo` oldid `5288022`. |
+| Samaden | 19988 | 19993 | 20002 | 59 | 11.7 | `HerbData.kt:181-187`; corrected by `Grimy samaden` oldid `5285365`. |
 
 ## Corrected clean levels
 
-The dated wiki revision supersedes four stale game-main levels.
+The dated herb-page revisions supersede four stale game-main levels.
 The unfinished-potion rows use the same corrected requirements.
 
 | Herb | Old level | Correct level | Dated revision |
 | --- | ---: | ---: | --- |
-| Argway | 56 | 57 | `Herblore Habitat` oldid `6513740`, `2012-10-31T21:20:32Z`. |
-| Ugune | 55 | 56 | `Herblore Habitat` oldid `6513740`, `2012-10-31T21:20:32Z`. |
-| Shengo | 57 | 58 | `Herblore Habitat` oldid `6513740`, `2012-10-31T21:20:32Z`. |
-| Samaden | 58 | 59 | `Herblore Habitat` oldid `6513740`, `2012-10-31T21:20:32Z`. |
+| Argway | 56 | 57 | `Grimy argway` oldid `5288273`, `2012-02-25T16:58:12Z`. |
+| Ugune | 55 | 56 | `Grimy ugune` oldid `5307711`, `2012-03-01T16:32:35Z`. |
+| Shengo | 57 | 58 | `Grimy shengo` oldid `5288022`, `2012-02-25T14:17:38Z`. |
+| Samaden | 58 | 59 | `Grimy samaden` oldid `5285365`, `2012-02-24T17:32:22Z`. |
 
 ## Recovered base lives
 
