@@ -13,7 +13,7 @@ full gate on the MERGED tree, never on the branch alone.
 | `7fb738e5` | Skeletal Wyvern and Wyvern bones | the family and its six-shield ice-breath mechanic were finished on 2026-08-11 and never reached players |
 | `2015df47` | Skill-button availability | seven Skills buttons switched on when training became possible and never switched off when it stopped |
 | `4f86193c` | MacBook verification host | the laptop now runs the full corpus, and `tools/run_remote_tests.py` drives it |
-| pending | Jungle Potion | the quest had no implementation; a strange rock could brick the save in ~4.9% of playthroughs |
+| `aa106ff7` | Jungle Potion | the quest had no implementation; a strange rock could brick the save in ~4.9% of playthroughs |
 
 ## 2. Branches accepted and NOT yet merged
 
@@ -23,9 +23,27 @@ reachability pin, and a green gate.
 
 | branch | head | remaining minors |
 | --- | --- | --- |
-| `goal/vines-reland-2026-08-19` | `986933f0` | a record line naming the wrong blocker for the Ugune crop; four inert Juju hunter potion rows, declared debt; rock suppression is per-action rather than per-output, which is player-favouring |
+| `goal/vines-reland-2026-08-19` | `986933f0` | **NOT promotable — two majors found on the merged tree, see below** |
 | `goal/herbs-reland-2026-08-19` | `c0face44` | one stale sibling docstring still citing the superseded 39-path count |
 | `goal/papercuts-reland-2026-08-19` | `334214e1` | none recorded |
+
+**The vine slice must be fixed before it lands.** Its merge, its re-measured
+pins (`1586 / 2307 / 75 / 45 / 30 / 75 / 1123`) and its plain lane (4,172 tests,
+502 skips) are all correct. Two majors stop it:
+
+1. It grants a drinkable `+3` Hunter boost for the Juju hunter potion, which
+   both of its own pinned sources contradict — Darkan `Potions.kt:522` is a
+   flavour message with no stat effect, and `memory-bank/placeholder-values.md:35`
+   says the sources "implement only the Habitat reagent use and state that the
+   player does not drink it". A test pins the invented value. This was caused by
+   a review finding calling the `drinkable` guard unused scaffolding; it was
+   instead the only expression of a negative source fact.
+2. `memory-bank/activeContext.md:114` on the merged tree carries pre-merge
+   figures contradicting the baseline the same commit pins.
+
+Neither is reachable in play today, because all four Juju hunter potion doses
+are orphan inputs, but both go live the moment the vine_herb farming chain
+lands. The merge work is done and reusable: `promote5/2026-08-19` holds it.
 
 `goal/secondaries-2026-08-11` is promotable and was deliberately not started;
 see the loop notes for why its final commit is not a refusal.
