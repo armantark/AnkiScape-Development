@@ -53,6 +53,22 @@ integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 
 ## Current Focus
 
+**2026-08-19, skill-button availability refresh corrected.** The open Skills
+menu now recomputes Smithing, Crafting, Fletching, Firemaking, Hunter, Cooking,
+and Runecrafting availability from current player data whenever their panels
+render, while the review refresh updates the same live buttons in both
+directions. Smithing no longer depends on the bool captured when the menu
+opened; an offscreen regression removes the last Bronze-bar ores, re-renders
+the real Smithing panel, and proves the replacement button disables. The dead
+partial-refresh context seam and its Smithing callback are deleted, Smithing's
+one-line refresh wrapper is inlined, and refreshes leave the deliberately
+tooltip-free “Currently training” button unchanged. Full plain discovery passes
+4,148 tests with 502 expected widget skips. The complete offscreen Qt corpus
+passes the same 4,148 tests with three skips in independent filename ranges
+after the monolithic process exceeded the 600-second cap: A–L ran 2,169 tests
+with two skips, M–R ran 1,039 with one skip, and S–Z ran 940 with none. No period
+value or source baseline changed.
+
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 
 **2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
@@ -5157,3 +5173,9 @@ flees silently when the player runs out of food.
   saved BackgroundRole green and transient native blue selection both render.
 - Reviewer activity progress uses separate text labels above graphical-only bars;
   the fixed 128px strip footprint remains the geometry authority.
+
+## Skill-button refresh review closure — 2026-08-19
+
+- Full Crafting availability now uses `crafting_target_locked_reasons_pure`, including live skilling levels, and its cache fingerprint tracks `skilling_current_levels`.
+- Processing-skill refreshes require all seven logic-owned results, remove the redundant two-argument runtime refreshes, preserve the disabled current-skill button, and restore unavailable tooltips after live state changes.
+- The offscreen Qt lane now needs filename-range processes after exceeding ten minutes; keep A through L together because `tests/test_hud_singleton_and_cleanup.py` has a pre-existing import-order dependency when started with real Qt.

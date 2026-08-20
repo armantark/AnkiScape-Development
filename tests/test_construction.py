@@ -45,8 +45,8 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
             award_skill_exp=award, award_hidden_skill_exp=lambda key, _level, xp: award(key, xp),
             level_up_check=lambda *_: None, check_achievements=lambda *_: None,
             save_player_data=lambda: calls.__setitem__("saves", calls.get("saves", 0) + 1),
-            refresh_skill_availability=lambda: None, refresh_skill_availability_partial=lambda *_: None,
-            can_smith_any=lambda: False, show_exp=lambda xp: calls.setdefault("xp", []).append(xp),
+            refresh_skill_availability=lambda: None,
+            show_exp=lambda xp: calls.setdefault("xp", []).append(xp),
             show_activity_gain=lambda text: calls.setdefault("activity", []).append(text),
             implemented_exp_keys_snapshot=lambda: {}, show_quest_exp_delta=lambda *_: None,
         )

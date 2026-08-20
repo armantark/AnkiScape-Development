@@ -59,8 +59,6 @@ def _context(player_data: dict, calls: dict) -> RuntimeActionContext:
         ),
         save_player_data=lambda: calls.__setitem__("saves", calls["saves"] + 1),
         refresh_skill_availability=lambda: None,
-        refresh_skill_availability_partial=lambda *_args: None,
-        can_smith_any=lambda: False,
         show_exp=lambda amount: calls["xp"].append(amount),
         show_activity_gain=lambda text: calls["activity"].append(text),
         implemented_exp_keys_snapshot=lambda: {},

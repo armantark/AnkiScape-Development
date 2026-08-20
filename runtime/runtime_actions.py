@@ -457,7 +457,6 @@ from .runtime_actions_gathering import (  # noqa: F401  (re-export)
 )
 
 from .runtime_actions_production import (  # noqa: F401  (re-export)
-    _refresh_smithing_and_crafting_availability,
     _spec_output_items,
     handle_construction_answer,
     handle_cooking_answer,

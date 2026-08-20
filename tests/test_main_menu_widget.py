@@ -1198,7 +1198,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             **extra,
             player_data=player_data,
             current_skill=current_skill,
-            can_smelt_any_bar=True,
             on_save_skill=save_skill_callback,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
@@ -1292,6 +1291,85 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_skill_availability_refresh_disables_crafting_with_reason(self) -> None:
+        player_data = _make_player_data()
+        player_data["inventory"] = {"Wool": 1}
+        dialog = self._open(player_data, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+        _goto_crafting(dialog)
+        train_button = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+
+        self.assertTrue(train_button.isEnabled())
+
+        self._ui.refresh_skill_availability(
+            True, False, True, True, True, True, True
+        )
+        QApplication.processEvents()
+
+        self.assertFalse(train_button.isEnabled())
+        self.assertEqual(
+            train_button.toolTip(),
+            "Gather materials or level up to craft an item.",
+        )
+
+    def test_skill_availability_refresh_keeps_current_training_disabled(self) -> None:
+        dialog = self._open(
+            {**_make_player_data(), "inventory": {"Wool": 5}},
+            current_skill="Crafting",
+        )
+        dialog.show()
+        QApplication.processEvents()
+        _goto_crafting(dialog)
+        train_button = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Currently training" and button.isVisible()
+        )
+
+        self.assertFalse(train_button.isEnabled())
+        self.assertEqual(train_button.toolTip(), "")
+        self._ui.refresh_skill_availability(
+            True, True, True, True, True, True, True
+        )
+        QApplication.processEvents()
+
+        self.assertFalse(train_button.isEnabled())
+        self.assertEqual(train_button.toolTip(), "")
+
+    def test_smithing_availability_recomputes_on_panel_rerender(self) -> None:
+        player_data = _make_player_data()
+        player_data["inventory"] = {"Copper ore": 1, "Tin ore": 1}
+        dialog = self._open(player_data, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+        _goto_smithing(dialog)
+        train_button = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+        self.assertTrue(train_button.isEnabled())
+
+        player_data["inventory"].clear()
+        _goto_crafting(dialog)
+        _goto_smithing(dialog)
+        rerendered_button = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+
+        self.assertFalse(rerendered_button.isEnabled())
+        self.assertEqual(
+            rerendered_button.toolTip(),
+            "Mine ores until you can smelt a bar.",
+        )
 
     def test_initial_global_tab_can_focus_the_grand_exchange(self) -> None:
         dialog = self._open(
@@ -10645,7 +10723,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._ui.show_main_menu(
             player_data=pd,
             current_skill="Mining",
-            can_smelt_any_bar=True,
             on_save_skill=lambda *a: None,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
@@ -10686,7 +10763,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._ui.show_main_menu(
             player_data=pd,
             current_skill="Mining",
-            can_smelt_any_bar=True,
             on_save_skill=lambda *a: None,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
@@ -10890,7 +10966,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._ui.show_main_menu(
             player_data=pd,
             current_skill="Mining",
-            can_smelt_any_bar=True,
             on_save_skill=lambda *a: None,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
@@ -11052,7 +11127,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._ui.show_main_menu(
             player_data=pd,
             current_skill="Mining",
-            can_smelt_any_bar=True,
             on_save_skill=lambda *a: None,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,

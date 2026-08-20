@@ -106,14 +106,12 @@ from ..logic_pure.logic_pure import (
     firemaking_source_roll_chance_pure,
     calculate_new_level,
     can_chop_woodcutting_target_pure,
-    can_craft_item_pure,
     can_attempt_quest_review_pure,
     can_progress_quest_pure,
     can_runecraft_target_pure,
     can_smith_item_pure,
     can_start_quest_pure,
     cooking_target_locked_reasons_pure,
-    crafting_target_locked_reasons_pure,
     combat_target_locked_reasons_pure,
     eligible_fishing_fish_pure,
     equipment_bonus_state_pure,
@@ -450,25 +448,6 @@ def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None
     return result
 
 
-def _refresh_smithing_and_crafting_availability(ctx: RuntimeActionContext) -> None:
-    player_data = ctx.player_data
-    try:
-        can_craft_any = any(
-            not crafting_target_locked_reasons_pure(
-                player_data,
-                item_name,
-                CRAFTING_DATA,
-                QUEST_UNLOCK_RULES,
-            )
-            for item_name in CRAFTING_DATA.keys()
-        )
-        ctx.refresh_skill_availability_partial(ctx.can_smith_any(), can_craft_any)
-    except Exception:
-        pass
-
-    ctx.refresh_skill_availability()
-
-
 def _auto_drink_skilling_potion_if_needed(
     ctx: RuntimeActionContext,
     skill_id: str,
@@ -564,20 +543,6 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     ctx.level_up_check("Crafting", player_data)
     ctx.check_achievements(player_data)
     ctx.save_player_data()
-
-    try:
-        can_craft_any = any(
-            not crafting_target_locked_reasons_pure(
-                player_data,
-                item_name,
-                CRAFTING_DATA,
-                QUEST_UNLOCK_RULES,
-            )
-            for item_name in CRAFTING_DATA.keys()
-        )
-        ctx.refresh_skill_availability_partial(ctx.can_smith_any(), can_craft_any)
-    except Exception:
-        pass
 
     ctx.refresh_skill_availability()
     ctx.show_exp(exp_gained)
@@ -1482,7 +1447,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
             failure_kind="smelt_fail",
         )
         ctx.save_player_data()
-        _refresh_smithing_and_crafting_availability(ctx)
+        ctx.refresh_skill_availability()
         ctx.show_activity_gain("The ore was too impure")
         return True
 
@@ -1503,6 +1468,6 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     ctx.check_achievements(player_data)
     ctx.save_player_data()
 
-    _refresh_smithing_and_crafting_availability(ctx)
+    ctx.refresh_skill_availability()
     ctx.show_exp(exp_gained)
     return True

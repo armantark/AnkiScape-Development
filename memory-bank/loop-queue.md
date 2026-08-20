@@ -184,7 +184,7 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close the Ectofuntus bone family through eight acquisition routes,
      exact bonemeal identities, the corrected Zogre Prayer XP, and one registered
      Ogre coffin selector placeholder.
-   - [ ] Fix the one-way skill-button availability refresh in a separate slice.
+   - [x] Fix the one-way skill-button availability refresh in a separate slice.
      `ui/ui.py:1467-1470` enables a button when the pure result is true, but it
      does not disable the button when the result becomes false. The same pattern
      exists on neighbouring skill buttons. This defect is pre-existing.
