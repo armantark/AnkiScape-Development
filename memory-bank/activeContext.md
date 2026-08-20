@@ -55,20 +55,20 @@ integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 
 **2026-08-19, repository papercut guardrails re-landed against current main.**
 The 2026-08-11 tooling slice is merged with main snapshot
-`323bf39090023319eb4e5a80acf6e162d331fa4a` after re-checking every guardrail
+`689fdd4489eb646b695a3176a3d23c3ab19c3557` after re-checking every guardrail
 against the moved test corpus, worktree safety instrument, and reachability
 audit. Focused test selection accepts an exact test file path such as
 `tests/test_bone_sources.py` by resolving its discovered module component, but
 refuses fuzzy module substitutions. Generated-catalog search bounds, quiet and
-truthful test lanes, chain-safe reachability summaries, direct generator
-invocation, and Qt font substitution remain live. The rejected advisory
-worktree-ownership feature was removed in full after it broke the read-only
-layout audit twice. Main and the merged tree both measure 1,571 actions,
-2,266 reachable items, 84 orphan inputs, and 87 blocked actions; their parsed
-`--json` reports are identical. Full plain discovery passes 4,152 tests with
-499 expected skips. The real offscreen Qt lane covers the same 4,152 tests in
-five independent processes to remain below the 600-second command cap, with
-three skips in aggregate.
+truthful test lanes, reachability summaries that preserve finding exit codes,
+direct generator invocation, and Qt font substitution remain live. The rejected
+advisory worktree-ownership feature was removed in full after it broke the
+read-only layout audit twice. At the merged main snapshot above, the tree
+measures 1,571 actions, 2,278 reachable items, 72 orphan inputs, and 71 blocked
+actions. Full plain discovery passes 4,160 tests with
+499 expected skips. The real offscreen Qt lane covers the same 4,160 tests in
+four independent discovery batches to remain below the 600-second command cap,
+with three skips in aggregate.
 No period value was recovered or changed. Durable audit:
 `memory-bank/papercuts-fixed-2026-08-11.md`.
 

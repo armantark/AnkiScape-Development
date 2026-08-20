@@ -3,7 +3,7 @@
 ## Re-land review — 2026-08-19
 
 The slice was re-merged against main snapshot
-`323bf39090023319eb4e5a80acf6e162d331fa4a`. The focused-selector guard was
+`689fdd4489eb646b695a3176a3d23c3ab19c3557`. The focused-selector guard was
 extended to resolve an exact path such as `tests/test_bone_sources.py` to the
 discovered component `test_bone_sources`, while fuzzy module substitutions now
 fail closed instead of silently running a different scope. The advisory
@@ -11,16 +11,13 @@ worktree-ownership feature was dropped after two review rounds showed that it
 broke the read-only layout audit and did not detect first-claim collisions. The
 reachability instrument had changed
 substantially on main; only the orthogonal `--summary` output/exit contract was
-carried across, with the new graph logic left intact. Main and the merged tree
-both report `1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked
-actions`; parsed `--json` reports are equal with canonical SHA-256
-`287670c806ca798123bcd758a6a578049af685531c7680a7312474a6c2fe43e3`.
-Full plain discovery passes `Ran 4152 tests in 346.387s` with
-`skipped=499`. The real offscreen Qt lane was split into five independent
-processes because the monolithic lane exceeds the 600-second command cap; the
-partitions ran 1,015, 904, 1,036, 566, and 631 tests (4,152 total) with three
-skips in aggregate. No
-gameplay or period value changed.
+carried across, with the new graph logic left intact. At that merged main snapshot, the tree reports
+`1571 actions; 2278 reachable items; 72 orphan inputs; 71 blocked actions`.
+Full plain discovery passes `Ran 4160 tests in 264.985s` with `skipped=499`.
+The real offscreen Qt lane was split into four independent discovery batches
+because the monolithic lane exceeds the 600-second command cap; the partitions
+ran 1,435, 733, 1,044, and 948 tests (4,160 total) with three skips in
+aggregate. No gameplay or period value changed.
 
 The occurrence counts below are conservative exact-failure counts from the 371-line log. The fixes are tooling-only; the item-reachability JSON report is byte-for-byte equivalent after JSON parsing.
 
@@ -92,7 +89,7 @@ Fix: `tools/audit_item_reachability.py --summary` prints only the four graph cou
 
 Before: `--json` wrote a valid report and exited 1, which stopped later `&&` gates; the first fix made `--summary` chain-safe by masking that finding with exit 0, including when combined with `--json`.
 
-After: `--summary` prints `1571 actions; 2266 reachable items; 84 orphan inputs; 87 blocked actions` and exits 1, matching every other output format on the same tree.
+After: `--summary` prints only the four graph counts and preserves the finding exit code, matching every other output format on the same tree.
 
 ## Qt harness font startup — 5 occurrences, partially fixed
 

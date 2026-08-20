@@ -1,8 +1,11 @@
+import io
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from run_tests import resolve_selectors, select_tests, selector_suggestions, test_result_exit_code
 from tools.run_logged import run_logged
@@ -238,21 +241,38 @@ class PapercutToolTests(unittest.TestCase):
         self.assertNotIn("No module named 'pkg_alias'", completed.stderr)
 
     def test_reachability_exit_code_does_not_depend_on_output_format(self):
-        results = {}
-        for args in ((), ("--summary",), ("--json",), ("--json", "--summary")):
-            results[args] = subprocess.run(
-                [sys.executable, str(ROOT / "tools" / "audit_item_reachability.py"), *args],
-                cwd=ROOT,
-                check=False,
-                capture_output=True,
-                text=True,
-            )
+        from tools import audit_item_reachability
 
-        self.assertRegex(
-            results[("--summary",)].stdout.strip(),
-            r"^\d+ actions; \d+ reachable items; [1-9]\d* orphan inputs; \d+ blocked actions$",
-        )
-        self.assertEqual({result.returncode for result in results.values()}, {1})
+        for orphan_input_count in (0, 2):
+            report = {
+                "action_count": 17,
+                "reachable_item_count": 23,
+                "orphan_input_count": orphan_input_count,
+                "unresolved_action_count": 5,
+                "orphan_inputs": [],
+                "root_orphan_leverage": [],
+            }
+            results = {}
+            for args in ((), ("--summary",), ("--json",), ("--json", "--summary")):
+                output = io.StringIO()
+                with (
+                    patch.object(sys, "argv", ["audit_item_reachability.py", *args]),
+                    patch.object(
+                        audit_item_reachability,
+                        "build_reachability_report",
+                        return_value=report,
+                    ),
+                    redirect_stdout(output),
+                ):
+                    results[args] = (audit_item_reachability.main(), output.getvalue())
+
+            self.assertEqual(
+                results[("--summary",)][1].strip(),
+                f"17 actions; 23 reachable items; {orphan_input_count} orphan inputs; 5 blocked actions",
+            )
+            returncodes = {returncode for returncode, _output in results.values()}
+            self.assertEqual(len(returncodes), 1)
+            self.assertEqual(returncodes.pop(), int(bool(orphan_input_count)))
 
     def test_list_truncation_refuses_to_look_complete(self):
         completed = subprocess.run(
