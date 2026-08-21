@@ -1,23 +1,27 @@
 # Grimy herb family source audit — 2026-08-11
 
-Status: **source-closed; implemented with one registered multi-secondary-table gap.**
+Status: **source-audited; twelve rows are implemented, six have registered multi-secondary-table gaps, and one source-backed tracker route is queued.**
 
 ## Scope
 
 This slice closes the acquisition and processing chain for five vine herbs.
 The herbs are Erzille, Argway, Ugune, Shengo, and Samaden.
-Common jadinkos supply all five seeds from Hunter level 70; Carrion jadinkos
-also supply all five, while Draconic, Saradomin, and Zamorak jadinkos supply
-the four seeds above Erzille at their exact Darkan chances. Igneous jadinkos
-supply Lergberry or Kalferberry seeds, Aquatic jadinkos supply blossom seeds,
-and Amphibious jadinkos supply three fruit-tree seeds.
+Common and Carrion jadinkos supply all five seeds. Draconic, Guthix, Saradomin,
+Zamorak, Shadow, and Diseased supply the four seeds above Erzille at their exact
+Darkan chances. Igneous and Cannibal supply Lergberry or Kalferberry seeds,
+Aquatic supplies blossom seeds, and Amphibious supplies three fruit-tree seeds.
 
-Darkan also gives Common, Saradomin, and Zamorak jadinkos additional independent
-bush- and blossom-seed tables. The pure Hunter action can execute only one
-secondary table per catch, so those exact extra tables are disclosed and
-registered as `hunter.jadinko_multi_secondary_tables` rather than approximated.
-Each vine-herb seed produces its matching grimy herb. Herblore cleaning and
-unfinished-potion rows use the corrected levels.
+Darkan's source roster has thirteen Jadinko types. The branch registers twelve:
+ten Marasamaw catches plus the Shadow and Diseased tracker routes. Camouflaged
+is the third source-backed tracker, but it is not implemented in this slice and
+is queued separately in `memory-bank/design-thread-queue.md` section 3.26.
+
+Six registered rows — Common, Guthix, Saradomin, Zamorak, Shadow, and Diseased —
+also have independent bush- and blossom-seed tables. The pure Hunter action can
+execute only one secondary table per action, so all six exact omissions carry
+adjacent `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` markers rather
+than approximations. Each vine-herb seed produces its matching grimy herb.
+Herblore cleaning and unfinished-potion rows use the corrected levels.
 
 All evidence is from before `2012-11-20T00:00:00Z`.
 
@@ -37,57 +41,70 @@ All evidence is from before `2012-11-20T00:00:00Z`.
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/PatchType.java:267-275,370-379` | The vine-herb patch uses four growth ticks per stage. The Farming dossier resolves this as 20 minutes per stage. |
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/FarmPatch.java:377-393` | `setInitialLives()` gives `VINE_HERB` exactly `3 + compostLevel` starting lives. |
 | Darkan | Same commit, `src/main/java/com/rs/game/content/skills/farming/FarmPatch.java:458-473` | The generic Farming disease selector supplies the registered `farming.shared_disease_slots` placeholder; it does not settle a Habitat-specific period rate. |
-| Darkan | Same commit, `src/main/java/com/rs/game/content/skills/hunter/BoxHunterType.java:79-97` | Jadinko NPC IDs, levels, XP, Marasamaw tool use, and success endpoints. |
-| Darkan | Same commit, `src/main/java/com/rs/game/content/skills/hunter/BoxTrapType.java:30` | Marasamaw plant item ID `19965`. |
-| Darkan | Same commit, `data/npcs/drops/hunter/hunter_jadinko_{common,igneous,aquatic,amphibious,carrion,draconic,saradomin,zamorak}.json` and `data/npcs/drops/hunter/jadinko_sub/hh_{bush,blossom}_seed.json` | Guaranteed vine outputs; vine-herb, bush, blossom, and fruit-tree secondary tables; and every chance and item ID cited below. |
-| RuneScape Wiki files | Cutoff revisions recorded in `assets_provenance.json` | Exact inventory sprites for Withered, Aquatic, Draconic, Marble, Oily, Pungent, Saradomin, and Zamorak vines. |
+| Darkan | Same commit, `src/main/java/com/rs/game/content/skills/hunter/BoxHunterType.java:79-97` | Ten Marasamaw rows: NPC IDs, levels, XP, tool use, and success endpoints. |
+| Darkan | Same commit, `src/main/java/com/rs/game/content/minigames/herblorehabitat/JadinkoType.kt:15-46` | The thirteen-row source roster and each row's Hunter level, guaranteed item, Juju requirement, Habitat feature, and produce setup. Camouflaged is level 79, gives item `19978`, requires Standing Stones and Lergberry, and requires an empty tree patch. |
+| Darkan | Descendant commit `16b179acec2cd94ced1625741dc5a974010c21d2`, same `JadinkoType.kt:15-46` | Restored tracker XP values: Shadow `475.0`, Diseased `580.5`, and Camouflaged `600.0`. The earlier `7e7d67b` pin supplies the roster and setup but predates the `trackerXp` field. |
+| Darkan | Commit `7e7d67b481f1b94599de38a98c470419ab7c96b3`, `src/main/java/com/rs/game/content/skills/hunter/BoxTrapType.java:30` | Marasamaw plant item ID `19965`. |
+| Darkan | Same commit, `data/npcs/drops/hunter/hunter_jadinko_{common,shadow,igneous,cannibal,aquatic,amphibious,carrion,diseased,camouflaged,draconic,saradomin,guthix,zamorak}.json` and `data/npcs/drops/hunter/jadinko_sub/hh_{bush,blossom}_seed.json` | All thirteen guaranteed outputs; every vine-herb, bush, blossom, and fruit-tree secondary table; and every chance and item ID cited below. |
+| RuneScape Wiki files | Cutoff revisions recorded in `assets_provenance.json` | Exact inventory sprites for all twelve implemented guaranteed outputs: Withered, Shadow, Marble, Aquatic, Oily, Pungent, Corrupt, Draconic, Saradomin, Guthix, and Zamorak vines, plus Plant teeth. |
 | game-main | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/herblore/HerbData.kt:149-187` | Grimy, clean, and unfinished item identities plus clean XP. |
 | game-main | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/herblore/mixing/CreateUnfinishedPotionAction.kt:14-62` | One clean herb and one Vial of water produce one unfinished potion. This action gives no XP. |
 | game-main | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt:17538-17556` | Exact grimy, clean, and unfinished item IDs. |
 
 ## Jadinko seed acquisition
 
-Common jadinko is the earliest direct vine-herb seed source at Hunter 70.
-The row uses a reusable Marasamaw plant, always gives one Withered vine, and rolls
-one of the five vine-herb seeds with equal weight at `16/256`. Carrion supplies
-the same five seeds at `30/256`. Draconic supplies Ugune, Argway, Shengo, or
-Samaden at `14/256`; Saradomin and Zamorak each supply the same four at `5/256`.
-Igneous supplies one of the two vine-bush seeds at `13/256`, Aquatic supplies one
-of the three blossom seeds at `12/256`, and Amphibious supplies Apple, Banana, or
-Orange tree seed at `20/256`.
+Common jadinko is the earliest direct vine-herb seed source at Hunter 70. Its
+live secondary table gives one of all five vine-herb seeds at `16/256`; Carrion
+gives the same set at `30/256`. Draconic gives one of the four seeds above
+Erzille at `14/256`; Guthix, Saradomin, Zamorak, Shadow, and Diseased each give
+one of those four at `5/256`. Igneous gives one of the two vine-bush seeds at
+`13/256`, Cannibal at `12/256`, Aquatic gives one of the three blossom seeds at
+`12/256`, and Amphibious gives Apple, Banana, or Orange tree seed at `20/256`.
 
-The slice registers eight period Jadinko rows. Their source tables also provide
-the exact primary vine outputs, and all eight outputs have cutoff-era inventory
-sprites through the established Hunter asset path.
+The source roster has thirteen rows. The table includes all thirteen so its
+boundary follows `JadinkoType.kt`, not the branch: twelve rows have live routes,
+and Camouflaged is explicitly marked absent. All twelve implemented primary
+outputs have cutoff-era inventory sprites through the established Hunter asset
+path.
 
-| Jadinko | Level | XP | NPC ID | Vine item and ID | `rate1/rate99` | Implemented secondary roll | Known omitted independent rolls | Exact Darkan source |
-| --- | ---: | ---: | ---: | --- | --- | --- | --- | --- |
-| Common | 70 | 350 | 13119 | Withered vine `19971` | `30/150` | All five vine-herb seeds, `16/256` | Bush seeds, `14/256`; blossom seeds, `17/256` | `BoxHunterType.java:79`; `hunter_jadinko_common.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
-| Igneous | 74 | 465 | 13143 | Marble vine `19980` | `25/145` | Lergberry or Kalferberry seed, `13/256` | — | `BoxHunterType.java:87`; `hunter_jadinko_igneous.json`; `hh_bush_seed.json`. |
-| Aquatic | 76 | 475 | 13142 | Aquatic vine `19976` | `15/135` | Red, Blue, or Green blossom seed, `12/256` | — | `BoxHunterType.java:85`; `hunter_jadinko_aquatic.json`; `hh_blossom_seed.json`. |
-| Amphibious | 77 | 485 | 13130 | Oily vine `19972` | `15/130` | Apple, Banana, or Orange tree seed, `20/256` | — | `BoxHunterType.java:81`; `hunter_jadinko_amphibious.json`. |
-| Carrion | 78 | 505 | 13154 | Pungent vine `19974` | `15/130` | All five vine-herb seeds, `30/256` | — | `BoxHunterType.java:89`; `hunter_jadinko_carrion.json`. |
-| Draconic | 80 | 525 | 13131 | Draconic vine `19973` | `15/130` | Ugune through Samaden, `14/256` | — | `BoxHunterType.java:83`; `hunter_jadinko_draconic.json`. |
-| Saradomin | 81 | 600 | 13163 | Saradomin vine `19981` | `15/130` | Ugune through Samaden, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:95`; `hunter_jadinko_saradomin.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
-| Zamorak | 81 | 600 | 13165 | Zamorak vine `19983` | `15/130` | Ugune through Samaden, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:97`; `hunter_jadinko_zamorak.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Jadinko | Route | Level | XP | NPC ID | Guaranteed item and ID | `rate1/rate99` | Implemented secondary roll | Other source tables not implemented | Pinned row sources |
+| --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- |
+| Common | Marasamaw | 70 | 350 | 13119 | Withered vine `19971` | `30/150` | All five vine-herb seeds, `16/256` | Bush seeds, `14/256`; blossom seeds, `17/256` | `BoxHunterType.java:79`; `hunter_jadinko_common.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Shadow | Tracker | 71 | 475 | — | Shadow vine `19977` | `128/256` placeholder | Four seeds above Erzille, `5/256` | Bush seeds, `8/256`; blossom seeds, `4/256` | `JadinkoType.kt:35`; `hunter_jadinko_shadow.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Igneous | Marasamaw | 74 | 465 | 13143 | Marble vine `19980` | `25/145` | Lergberry or Kalferberry seed, `13/256` | — | `BoxHunterType.java:87`; `hunter_jadinko_igneous.json`; `hh_bush_seed.json`. |
+| Cannibal | Marasamaw | 75 | 475 | 13155 | Plant teeth `19975` | `20/140` | Lergberry or Kalferberry seed, `12/256` | — | `BoxHunterType.java:91`; `hunter_jadinko_cannibal.json`; `hh_bush_seed.json`. |
+| Aquatic | Marasamaw | 76 | 475 | 13142 | Aquatic vine `19976` | `15/135` | Red, Blue, or Green blossom seed, `12/256` | — | `BoxHunterType.java:85`; `hunter_jadinko_aquatic.json`; `hh_blossom_seed.json`. |
+| Amphibious | Marasamaw | 77 | 485 | 13130 | Oily vine `19972` | `15/130` | Apple, Banana, or Orange tree seed, `20/256` | — | `BoxHunterType.java:81`; `hunter_jadinko_amphibious.json`. |
+| Carrion | Marasamaw | 78 | 505 | 13154 | Pungent vine `19974` | `15/130` | All five vine-herb seeds, `30/256` | — | `BoxHunterType.java:89`; `hunter_jadinko_carrion.json`. |
+| Diseased | Tracker | 78 | 580.5 | — | Corrupt vine `19979` | `128/256` placeholder | Four seeds above Erzille, `5/256` | Bush seeds, `8/256`; blossom seeds, `4/256` | `JadinkoType.kt:41`; `hunter_jadinko_diseased.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Camouflaged | Tracker — not implemented | 79 | 600 | — | Camo vine `19978` | — | None; no live route | Bush seeds, `16/256`; four seeds above Erzille, `4/256`; blossom seeds, `4/256` | `JadinkoType.kt:42`; `hunter_jadinko_camouflaged.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Draconic | Marasamaw | 80 | 525 | 13131 | Draconic vine `19973` | `15/130` | Four seeds above Erzille, `14/256` | — | `BoxHunterType.java:83`; `hunter_jadinko_draconic.json`. |
+| Saradomin | Marasamaw | 81 | 600 | 13163 | Saradomin vine `19981` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:95`; `hunter_jadinko_saradomin.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Guthix | Marasamaw | 81 | 600 | 13164 | Guthix vine `19982` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:93`; `hunter_jadinko_guthix.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Zamorak | Marasamaw | 81 | 600 | 13165 | Zamorak vine `19983` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:97`; `hunter_jadinko_zamorak.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 
-Cannibal and Guthix are also Marasamaw rows in the same enum, with `20/140`
-and `15/130` success endpoints at lines 91 and 93. Those rows use the
-sourced curves; only Shadow and Diseased tracking remain on
-`hunter.herblore_habitat_success_curves`.
+The twelve live rows are registered in `data/hunter_data.py`. The six known
+multi-table omissions have adjacent markers at lines 394, 428, 764, 818, 971,
+and 1003. The ten Marasamaw rows use the sourced `BoxHunterType` curves; only
+the live Shadow and Diseased tracker rows remain on
+`hunter.herblore_habitat_success_curves`. Camouflaged needs a third tracker
+route with its own feature and produce gates, so it is a separate content slice,
+not a seventh marker added to an absent action.
 
-Every listed secondary selector picks one item (`dropOne: true` in its direct or referenced table); vine-herb seed IDs are Erzille `19897`,
-Ugune `19902`, Argway `19907`, Shengo `19912`, and Samaden `19917`. The shared
-bush table contains Lergberry `19937` and Kalferberry `19942`; the shared blossom
+Every implemented secondary selector picks one item (`dropOne: true` in its
+direct or referenced table). Vine-herb seed IDs are Erzille `19897`, Ugune
+`19902`, Argway `19907`, Shengo `19912`, and Samaden `19917`. The shared bush
+table contains Lergberry `19937` and Kalferberry `19942`; the shared blossom
 table contains Red `19922`, Blue `19927`, and Green `19932`. Amphibious directly
 lists Apple `5283`, Banana `5284`, and Orange `5285` tree seeds.
 
-The omitted Common, Saradomin, and Zamorak tables are independent of the live
-vine-herb table and can produce an additional drop on the same catch. Folding
-them into one chance or one weighted output list would change those mechanics.
-The registered gap remains until Hunter carries an ordered tuple of independently
-rolled secondary tables, as recorded in `memory-bank/design-thread-queue.md`
-section 4.16.
+The omitted tables on Common, Guthix, Saradomin, Zamorak, Shadow, and Diseased
+are independent of each row's live vine-herb table and can produce an additional
+drop on the same action. Folding them into one chance or one weighted output
+list would change those mechanics. The registered gap remains until Hunter
+carries an ordered tuple of independently rolled secondary tables, as recorded
+in `memory-bank/design-thread-queue.md` section 4.16. Camouflaged's whole route
+remains separately queued in section 3.26.
 
 ## Vine-herb Farming rows
 

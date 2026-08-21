@@ -545,6 +545,29 @@ comes from `gnome_restaurant_view_pure`, so no logic moves.
 **Blocks:** nothing. Gnome Restaurant is at breadth one either way; this decides
 which layout ships.
 
+### 3.26 Camouflaged jadinko needs its own source-backed tracker slice
+
+Raised 2026-08-21 while closing the grimy-herb re-land audit. This is a content
+gap to preserve, not a request to widen that slice.
+
+Darkan commit `7e7d67b` defines `CAMOUFLAGED` as the third tracker: Hunter 79,
+guaranteed Camo vine item `19978`, Juju hunter potion required, Standing Stones,
+`ProduceType.Lergberry`, and an empty fruit-tree patch. Descendant restoration
+commit `16b179a` adds the exact tracker XP, `600.0`. At `7e7d67b`,
+`data/npcs/drops/hunter/hunter_jadinko_camouflaged.json` independently rolls
+bush seeds at `16/256`, one of Ugune, Argway, Shengo, or Samaden seed at `4/256`,
+and blossom seeds at `4/256`, in addition to the guaranteed Camo vine.
+
+AnkiScape has no `track_camouflaged_jadinko` action, no Standing-Stones plus
+Lergberry tracker gate, and therefore no route to item `19978`. The grimy-herb
+slice registers the other twelve source rows; adding this third tracker is new
+Hunter content and must not be hidden inside the six-row independent-table fix.
+
+Recommendation: implement Camouflaged in its own slice, using the established
+tracker action shape plus its source feature, produce, Juju, empty-tree, XP, and
+three independent drop tables. Blocks: the Camo vine route and a complete
+thirteen-row Jadinko roster, but not the five live vine-herb chains.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
