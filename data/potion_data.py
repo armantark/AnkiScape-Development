@@ -26,6 +26,10 @@ DARKAN_POTION_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "src/main/java/com/rs/game/content/Potions.kt"
 )
+DARKAN_FARM_PATCH_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/farming/FarmPatch.java"
+)
 OPENRS2_JUJU_HUNTER_POTION_DOSE_SOURCE = (
     "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/"
     "727-2012-07-24/cache (archive sha256 "
@@ -42,10 +46,16 @@ JUJU_HUNTER_POTION_DOSE_IDS: Dict[int, int] = {
     4: 20023,
 }
 JUJU_HUNTER_POTION_SOURCE = (
-    f"{DARKAN_POTION_SOURCE_PATH}:522 JUJU_HUNTER_POTION refuses player drinking "
-    "and handles only Habitat reagent use; "
-    "https://runescape.wiki/w/Juju_hunter_potion?oldid=6258636: used on the "
-    "Habitat flower patch rather than drunk; "
+    f"{DARKAN_POTION_SOURCE_PATH}:522,881-904 at commit "
+    "afa87b9754de3bd9cf2fd5024ea903b00d99a798: JUJU_HUNTER_POTION inherits "
+    "canDrink=true, consumes one dose, invokes only the flavour message, and "
+    "applies no stat effect; "
+    f"{DARKAN_FARM_PATCH_SOURCE_PATH}:338-360 at commit "
+    "4e46c05dbd88c44d2a25d48ce96a493d884c978b: using a dose on the Herblore "
+    "Habitat flower patch applies the ten-minute attraction effect; "
+    "https://runescape.wiki/w/Juju_hunter_potion?oldid=6258636 "
+    "(2012-09-17T16:04:30Z): a drink attempt surfaces the same flavour message "
+    "and the potion is used on a vine blossom; "
     f"{OPENRS2_JUJU_HUNTER_POTION_DOSE_SOURCE}: index 19, group 78, "
     "files 55-58 decode items 20023-20026 as doses 4-1"
 )
@@ -63,7 +73,9 @@ EMPTY_FLASK_ITEM = ("Potion flask", 23191)
 POTION_FAMILIES: Dict[str, Dict[str, object]] = {
     "Juju hunter potion": {
         "role": "habitat_reagent",
-        "drinkable": False,
+        "skills": (),
+        "strategy": "flavour_only",
+        "message": "You decide that only plants are likely to enjoy the taste of this potion.",
         "doses": JUJU_HUNTER_POTION_DOSE_IDS,
         "source": JUJU_HUNTER_POTION_SOURCE,
     },
@@ -194,11 +206,9 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
 
 
 def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
-    """Drinkable vial and flask doses, excluding reagent-only families."""
+    """Drinkable vial and flask dose entries."""
     rows: Dict[str, Dict[str, object]] = {}
     for base, spec in POTION_FAMILIES.items():
-        if not spec.get("drinkable", True):
-            continue
         source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose in spec["doses"]:  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {
@@ -209,7 +219,7 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
                 "duration_ticks": spec.get("duration_ticks", 0),
                 "protection_level": spec.get("protection_level", 0),
                 "leaves": potion_dose_name(base, dose - 1) if dose > 1 else VIAL_ITEM[0],
-                "message": f"You drink some of your {base.lower()}.",
+                "message": str(spec.get("message", f"You drink some of your {base.lower()}.")),
                 "source": source,
             }
         for dose in spec.get("flask_doses", {}):  # type: ignore[union-attr]
@@ -221,7 +231,7 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
                 "duration_ticks": spec.get("duration_ticks", 0),
                 "protection_level": spec.get("protection_level", 0),
                 "leaves": potion_flask_name(base, dose - 1) if dose > 1 else EMPTY_FLASK_ITEM[0],
-                "message": f"You drink some of your {base.lower()}.",
+                "message": str(spec.get("message", f"You drink some of your {base.lower()}.")),
                 "source": f"{source}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
             }
     return rows
@@ -235,11 +245,7 @@ def skilling_potion_items_for_skill(skill_id: str) -> Tuple[str, ...]:
     """Matching dose containers, fullest first, for one noncombat skill."""
     rows = []
     for base, spec in POTION_FAMILIES.items():
-        if (
-            not spec.get("drinkable", True)
-            or spec.get("strategy") != "flat_skill"
-            or skill_id not in spec["skills"]
-        ):
+        if spec.get("strategy") != "flat_skill" or skill_id not in spec["skills"]:
             continue
         rows.extend(
             (dose, 1, potion_flask_name(base, dose))

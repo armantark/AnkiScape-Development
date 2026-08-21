@@ -61,9 +61,9 @@ Do not remove a placeholder marker without the source named in this table.
 
 ## Sourced player behavior
 
-Darkan `Potions.kt:522` and Juju hunter potion oldid `6258636` refuse a player drink and establish Habitat reagent use. OpenRS2 item definitions include a `Drink` option, but that client option does not establish a server-side effect.
+Darkan `Potions.kt:522,881-904` registers an ordinary drink: it consumes one dose, invokes only the flavour-message effect, and applies no stat boost. Juju hunter potion oldid `6258636` corroborates the drink-attempt message, while Darkan `FarmPatch.java:338-361` separately establishes Habitat reagent use.
 
-The potion is therefore non-drinkable and has no Hunter-boost placeholder.
+The potion is therefore a flavour-only consumable and Habitat reagent, with no Hunter-boost placeholder.
 
 ## Verification
 

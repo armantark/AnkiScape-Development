@@ -10,6 +10,16 @@ invention: an invention is a value the period never had, and those still wait.
 Authority: `pre-eoc-source-verification-standard.md`, "Breadth-Phase
 Placeholders".
 
+Correction, 2026-08-21: the removed `potions.juju_hunter_boost` row over-read
+its sources when it said the player does not drink the potion. Darkan
+`Potions.kt:522,881-904` at supplying commit
+`afa87b9754de3bd9cf2fd5024ea903b00d99a798` establishes that the ordinary drink
+path consumes one dose, invokes a flavour-message-only effect, and applies no
+stat boost. The separate Habitat reagent behavior is in
+`FarmPatch.java:338-361` at supplying commit
+`4e46c05dbd88c44d2a25d48ce96a493d884c978b`. No Juju hunter drink value remains
+unrecovered, so there is no placeholder row.
+
 ## How to add one
 
 1. Mark the value in code: `# PLACEHOLDER(<id>): <what would settle it>`

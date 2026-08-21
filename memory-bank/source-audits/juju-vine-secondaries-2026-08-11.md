@@ -4,7 +4,7 @@
 
 The Common jadinko Hunter route is live. It keeps the Marasamaw plant and gives one Withered vine on success. It can also give one vine-herb seed.
 
-The Juju hunter potion recipe is live. The four vial doses are registered Habitat reagents and Bob Barter can decant them, but they are not consumables. Darkan and the dated item page establish that the player does not drink the potion.
+The Juju hunter potion recipe is live. The four vial doses are drinkable, remain registered Habitat reagents, and can be decanted by Bob Barter. Drinking consumes one dose, leaves the next-lower dose, applies no stat boost, and surfaces the sourced flavour message.
 
 ## Scope
 
@@ -58,8 +58,9 @@ The five seed pages also pin the Common jadinko route:
 | Dose 3 | Item `20024` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
 | Dose 2 | Item `20025` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
 | Dose 1 | Item `20026` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
-| Cache options | `Drink`, `Empty`, and `Drop` | OpenRS2 revision 742 item definitions for `20023` through `20026`; these client options do not establish a drink effect |
-| Player use | Habitat reagent; drinking is refused without consuming a dose or changing a stat | Darkan `Potions.kt:522`, `JUJU_HUNTER_POTION`; Juju hunter potion oldid `6258636`, 2012-09-17 |
+| Cache options | `Drink`, `Empty`, and `Drop` | OpenRS2 revision 742 item definitions for `20023` through `20026`; these client options establish the action but not its server-side effect |
+| Player drink | Consumes one dose, leaves the next-lower dose (dose 1 leaves a Vial), applies no stat effect, and emits the flavour message | Darkan `Potions.kt:522,881-904`, supplying commit `afa87b9754de3bd9cf2fd5024ea903b00d99a798`; Juju hunter potion oldid `6258636`, 2012-09-17T16:04:30Z |
+| Habitat use | Consumes one dose on the Herblore Habitat flower patch and applies the ten-minute attraction effect | Darkan `FarmPatch.java:338-361`, supplying commit `4e46c05dbd88c44d2a25d48ce96a493d884c978b`; Juju hunter potion oldid `6258636`, 2012-09-17T16:04:30Z |
 
 The OpenRS2 cache archives are:
 
@@ -69,9 +70,11 @@ The OpenRS2 cache archives are:
 
 ## Player-use behavior
 
-Darkan `Potions.kt:522` refuses a player drink with the message, "You decide that only plants are likely to enjoy the taste of this potion." Juju hunter potion oldid `6258636`, 2012-09-17, independently says the player does not drink it and uses it on the Habitat flower patch.
+Darkan `Potions.kt:522` registers `JUJU_HUNTER_POTION` as an ordinary potion enum row with no `canDrink` override. The inherited `canDrink` at lines 881-883 returns `true`; the shared drink path at lines 885-904 replaces the item with the next-lower dose, invokes the row effect, and sends the ordinary drink message. This row's effect only sends, "You decide that only plants are likely to enjoy the taste of this potion." It changes no stat. These lines come from supplying commit `afa87b9754de3bd9cf2fd5024ea903b00d99a798`.
 
-The OpenRS2 item definitions expose a `Drink` menu option, but a cache option does not establish a server-side effect. The two behavioral sources therefore control: the potion remains a Habitat reagent and has no player-drink boost or boost placeholder.
+The dated Juju hunter potion page, oldid `6258636` at 2012-09-17T16:04:30Z, says a drink attempt receives that flavour message and separately documents using the potion on a vine blossom. It does not say the attempted drink preserves the dose. Darkan therefore supplies the hidden server-side dose transition, while the rev-742 `Drink` option and dated message corroborate the action.
+
+Habitat reagent handling is separate from drinking. Darkan `FarmPatch.java:338-361`, supplying commit `4e46c05dbd88c44d2a25d48ce96a493d884c978b`, consumes a vial or flask dose on the Herblore Habitat flower patch and applies the ten-minute Juju hunter effect. `Potions.kt` does not own that reagent path.
 
 ## Registered placeholders
 
@@ -101,11 +104,11 @@ The action makes one independent seed roll. A successful seed roll gives one see
 
 Runtime telemetry records the guaranteed output and the selected bonus seed. Review undo uses the same output record.
 
-Juju hunter potion remains a Habitat reagent. Its `drinkable: False` family metadata excludes all four doses from manual-consumable, skilling-potion, and combat-potion registries.
+Juju hunter potion remains a Habitat reagent and is also a manual consumable. No earlier potion-family row represented a consumed dose whose only effect is a message, so the smallest extension uses the existing generic potion dose chain with empty `skills`, a `flavour_only` strategy label, and a family message override. It adds no new runtime branch.
 
 ## Reachability
 
-The corrected family contributes the live Common jadinko Hunter action and no potion consume actions. On the current merged re-land tree, the audit reports 1,582 actions, 2,307 reachable items, 72 orphan inputs, 45 root orphans, 27 cascade orphans, 71 blocked actions, and 1,123 seed items. The graph still lacks some Habitat roots, including the vine-herb farming chain needed to produce Erzille potion (unf).
+Restoring the four dose-consume actions moves the current refusal baseline from `1,582 / 2,307 / 72 / 45 / 27 / 71 / 1,123` to `1,586 / 2,307 / 75 / 45 / 30 / 75 / 1,123` for actions / reachable items / orphan inputs / root orphans / cascade orphans / blocked actions / seed items. The graph still lacks the vine-herb farming chain needed to produce Erzille potion (unf).
 
 ## Verification
 
@@ -114,14 +117,14 @@ Focused potion, placeholder, registry, runtime, and Bob Barter checks pass.
 The corrected merged tree passes the full plain lane:
 
 ```text
-Ran 4180 tests in 213.983s
+Ran 4180 tests in 219.365s
 OK (skipped=502)
 ```
 
-The offscreen Qt lane ran as four ordered independent processes because the monolithic runtime exceeds the command cap. The batches passed 1,435 tests with two skips, 737 tests with no skips, 1,059 tests with one skip, and 949 tests with no skips: 4,180 tests with three skips in total.
+The offscreen Qt lane ran as four ordered independent processes because its monolithic runtime exceeds the 600-second command cap. The batches passed 1,435 tests in 198.794s with two skips, 737 tests in 219.523s with no skips, 1,059 tests in 290.896s with one skip, and 949 tests in 47.746s with no skips: 4,180 tests in 756.959s with three skips in total.
 
 The final reachability audit reports:
 
 ```text
-1582 actions; 2307 reachable items; 72 orphan inputs; 71 blocked actions
+1586 actions; 2307 reachable items; 75 orphan inputs; 75 blocked actions
 ```
