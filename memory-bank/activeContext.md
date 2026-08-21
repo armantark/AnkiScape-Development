@@ -76,6 +76,25 @@ after the monolithic process exceeded the 600-second cap: A–L ran 2,169 tests
 with two skips, M–R ran 1,039 with one skip, and S–Z ran 940 with none. No period
 value or source baseline changed.
 
+**2026-08-19, repository papercut guardrails re-landed against current main.**
+The 2026-08-11 tooling slice is merged with main snapshot
+`689fdd4489eb646b695a3176a3d23c3ab19c3557` after re-checking every guardrail
+against the moved test corpus, worktree safety instrument, and reachability
+audit. Focused test selection accepts an exact test file path such as
+`tests/test_bone_sources.py` by resolving its discovered module component, but
+refuses fuzzy module substitutions. Generated-catalog search bounds, quiet and
+truthful test lanes, reachability summaries that preserve finding exit codes,
+direct generator invocation, and Qt font substitution remain live. The rejected
+advisory worktree-ownership feature was removed in full after it broke the
+read-only layout audit twice. At the merged main snapshot above, the tree
+measures 1,571 actions, 2,278 reachable items, 72 orphan inputs, and 71 blocked
+actions. Full plain discovery passes 4,160 tests with
+499 expected skips. The real offscreen Qt lane covers the same 4,160 tests in
+four independent discovery batches to remain below the 600-second command cap,
+with three skips in aggregate.
+No period value was recovered or changed. Durable audit:
+`memory-bank/papercuts-fixed-2026-08-11.md`.
+
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 
 **2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
