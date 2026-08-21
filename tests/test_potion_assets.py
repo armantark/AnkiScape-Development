@@ -27,7 +27,6 @@ class PotionAssetTest(unittest.TestCase):
 
         self.assertEqual({request.item_name for request in manifest}, expected)
         juju_hunter = POTION_FAMILIES["Juju hunter potion"]
-        self.assertEqual(juju_hunter["role"], "habitat_reagent")
         self.assertEqual(juju_hunter["skills"], ())
         self.assertEqual(juju_hunter["strategy"], "flavour_only")
         self.assertEqual(

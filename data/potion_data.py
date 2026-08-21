@@ -71,8 +71,8 @@ EMPTY_FLASK_ITEM = ("Potion flask", 23191)
 
 # base display name -> item-state and supported-use metadata
 POTION_FAMILIES: Dict[str, Dict[str, object]] = {
+    # Juju hunter potion is drunk and consumes a dose; empty skills records its no-stat effect, so no role flag is needed.
     "Juju hunter potion": {
-        "role": "habitat_reagent",
         "skills": (),
         "strategy": "flavour_only",
         "message": "You decide that only plants are likely to enjoy the taste of this potion.",
