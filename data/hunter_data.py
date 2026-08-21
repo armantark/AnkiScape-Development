@@ -391,6 +391,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Shadow omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_shadow_jadinko",
         "Track shadow jadinko",
@@ -400,15 +402,31 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Shadow vine", 1)),
         "Shadow vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_shadow_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_shadow.json"),
+        mechanics_source=(
+            f"{_jadinko_drop_source('shadow')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
         source_enum="SHADOW",
         source_item_id=19977,
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        notes=("Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand tracking, Shadow vine, and the red-blossom and abandoned-house Habitat setup. One review represents the complete trail and persistent setup."),
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand "
+            "tracking, Shadow vine, and the red-blossom and abandoned-house Habitat "
+            "setup. One review represents the complete trail and persistent setup. "
+            "The live secondary slot rolls one of the four higher-level vine-herb "
+            "seeds at 5/256. Darkan also rolls bush seeds at 8/256 and blossom seeds "
+            "at 4/256 independently; those known tables remain registered until the "
+            "pure Hunter contract supports multiple secondary tables."
+        ),
         sort_order=20,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Diseased omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_diseased_jadinko",
         "Track diseased jadinko",
@@ -418,13 +436,27 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Corrupt vine", 1)),
         "Corrupt vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_diseased_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_diseased.json"),
+        mechanics_source=(
+            f"{_jadinko_drop_source('diseased')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
         source_enum="DISEASED",
         source_item_id=19979,
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        notes=("Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. One review represents the complete trail and persistent setup."),
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand "
+            "tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. "
+            "One review represents the complete trail and persistent setup. The live "
+            "secondary slot rolls one of the four higher-level vine-herb seeds at "
+            "5/256. Darkan also rolls bush seeds at 8/256 and blossom seeds at 4/256 "
+            "independently; those known tables remain registered until the pure Hunter "
+            "contract supports multiple secondary tables."
+        ),
         sort_order=30,
     ),
     _target(
@@ -729,6 +761,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Guthix omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_guthix_jadinko",
         "Catch Guthix jadinko",
@@ -739,9 +773,9 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         "Guthix vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_guthix_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
         mechanics_source=(
-            f"{BOX_HUNTER_TYPE_SOURCE}; "
-            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
-            "hunter_jadinko_guthix.json"
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('guthix')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
         ),
         source_enum="GUTHIX_JADINKO",
         source_npc_id=13164,
@@ -749,12 +783,18 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=15,
         rate99=130,
         tradeable=False,
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
         notes=(
             "Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw "
             "plant trapping, Guthix vine, a Juju-treated flower patch, and weekly "
             "player-specific preferences. Darkan's BoxHunterType supplies the "
-            "15/130 success endpoints. Persistent setup and optional bait are route "
-            "context, not per-catch consumables."
+            "15/130 success endpoints. The live secondary slot rolls one of the four "
+            "higher-level vine-herb seeds at 5/256. Darkan also rolls bush seeds at "
+            "6/256 and blossom seeds at 4/256 independently; those known tables "
+            "remain registered until the pure Hunter contract supports multiple "
+            "secondary tables. Persistent setup and optional bait are route context, "
+            "not per-catch consumables."
         ),
         sort_order=10,
     ),
@@ -776,7 +816,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=50,
     ),
     # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Common omits its
-    # independent bush/blossom tables until one catch can roll multiple tables.
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_common_jadinko",
         "Catch common jadinko",
@@ -929,7 +969,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=10,
     ),
     # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Saradomin omits its
-    # independent bush/blossom tables until one catch can roll multiple tables.
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_saradomin_jadinko",
         "Catch Saradomin jadinko",
@@ -961,7 +1001,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=10,
     ),
     # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Zamorak omits its
-    # independent bush/blossom tables until one catch can roll multiple tables.
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_zamorak_jadinko",
         "Catch Zamorak jadinko",

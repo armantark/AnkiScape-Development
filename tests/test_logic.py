@@ -2364,7 +2364,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertNotIn("Erzille seed", no_seed)
 
-    def test_jadinko_secondary_tables_match_darkan(self):
+    def test_all_jadinko_live_secondary_tables_match_darkan(self):
         vine_herb_seeds = (
             "Erzille seed",
             "Ugune seed",
@@ -2372,11 +2372,14 @@ class TestLogic(unittest.TestCase):
             "Shengo seed",
             "Samaden seed",
         )
+        bush_seeds = ("Lergberry seed", "Kalferberry seed")
+        higher_vine_herb_seeds = vine_herb_seeds[1:]
         expected = {
-            "catch_igneous_jadinko": (
-                13 / 256,
-                ("Lergberry seed", "Kalferberry seed"),
-            ),
+            "track_shadow_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "track_diseased_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "catch_common_jadinko": (16 / 256, vine_herb_seeds),
+            "catch_igneous_jadinko": (13 / 256, bush_seeds),
+            "catch_cannibal_jadinko": (12 / 256, bush_seeds),
             "catch_aquatic_jadinko": (
                 12 / 256,
                 ("Red blossom seed", "Blue blossom seed", "Green blossom seed"),
@@ -2386,10 +2389,18 @@ class TestLogic(unittest.TestCase):
                 ("Apple tree seed", "Banana tree seed", "Orange tree seed"),
             ),
             "catch_carrion_jadinko": (30 / 256, vine_herb_seeds),
-            "catch_draconic_jadinko": (14 / 256, vine_herb_seeds[1:]),
-            "catch_saradomin_jadinko": (5 / 256, vine_herb_seeds[1:]),
-            "catch_zamorak_jadinko": (5 / 256, vine_herb_seeds[1:]),
+            "catch_draconic_jadinko": (14 / 256, higher_vine_herb_seeds),
+            "catch_guthix_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "catch_saradomin_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "catch_zamorak_jadinko": (5 / 256, higher_vine_herb_seeds),
         }
+        actual = {
+            target
+            for target in HUNTER_DATA
+            if target.endswith("_jadinko")
+            and (target.startswith("catch_") or target.startswith("track_"))
+        }
+        self.assertEqual(actual, set(expected))
         for target, (chance, seed_names) in expected.items():
             with self.subTest(target=target):
                 spec = HUNTER_DATA[target]
@@ -2399,19 +2410,29 @@ class TestLogic(unittest.TestCase):
                     seed_names,
                 )
 
-    def test_new_single_table_jadinko_drops_run_through_the_real_kernel(self):
+    def test_all_jadinko_live_secondary_tables_run_through_the_real_kernel(self):
         cases = {
-            "catch_igneous_jadinko": (74, "Marble vine", "Kalferberry seed"),
-            "catch_aquatic_jadinko": (76, "Aquatic vine", "Green blossom seed"),
-            "catch_amphibious_jadinko": (77, "Oily vine", "Orange tree seed"),
+            "track_shadow_jadinko": ("Shadow vine", "Samaden seed"),
+            "track_diseased_jadinko": ("Corrupt vine", "Samaden seed"),
+            "catch_common_jadinko": ("Withered vine", "Samaden seed"),
+            "catch_igneous_jadinko": ("Marble vine", "Kalferberry seed"),
+            "catch_cannibal_jadinko": ("Plant teeth", "Kalferberry seed"),
+            "catch_aquatic_jadinko": ("Aquatic vine", "Green blossom seed"),
+            "catch_amphibious_jadinko": ("Oily vine", "Orange tree seed"),
+            "catch_carrion_jadinko": ("Pungent vine", "Samaden seed"),
+            "catch_draconic_jadinko": ("Draconic vine", "Samaden seed"),
+            "catch_guthix_jadinko": ("Guthix vine", "Samaden seed"),
+            "catch_saradomin_jadinko": ("Saradomin vine", "Samaden seed"),
+            "catch_zamorak_jadinko": ("Zamorak vine", "Samaden seed"),
         }
-        for target, (level, primary, secondary) in cases.items():
+        for target, (primary, secondary) in cases.items():
             with self.subTest(target=target):
+                spec = HUNTER_DATA[target]
                 inventory, _xp, ok, output_item, _rewards = apply_hunter_action_pure(
                     target,
-                    {"Marasamaw plant": 1},
+                    spec["tools"],
                     HUNTER_DATA,
-                    level,
+                    spec["level"],
                     0.0,
                     r_secondary_chance=0.0,
                     r_secondary_pick=0.999999,
@@ -2420,7 +2441,8 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(output_item, primary)
                 self.assertEqual(inventory[primary], 1)
                 self.assertEqual(inventory[secondary], 1)
-                self.assertEqual(inventory["Marasamaw plant"], 1)
+                for tool, amount in spec["tools"].items():
+                    self.assertEqual(inventory[tool], amount)
 
     def test_all_catch_jadinkos_share_the_marasamaw_group(self):
         expected = {
