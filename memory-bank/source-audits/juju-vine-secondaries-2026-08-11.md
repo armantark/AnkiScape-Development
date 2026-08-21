@@ -26,6 +26,8 @@ The evidence order was Darkan, OpenRS2 revision 727, game-main, OpenRS2 revision
 | Seed chance | `16/256` | Darkan `hunter_jadinko_common.json` |
 | Catch curve | `rate1=128`, `rate99=256` | Registered placeholder `hunter.herblore_habitat_success_curves` |
 
+This Common jadinko transcription is not a complete disposition of Darkan's three seed subtables. The exhaustive ten-row sweep on `goal/herbs-reland-2026-08-19` owns the authoritative multi-table disclosure, including `hh_bush_seed` at `14/256` and `hh_blossom_seed` at `17/256`; this audit does not claim that the current Common row is complete.
+
 OpenRS2 revision 742 pins the item identities and item flags.
 
 | Item | ID | Stackable | Exchangeable |

@@ -4207,6 +4207,43 @@ class TestRuntimeActions(unittest.TestCase):
                     {output: 1},
                 )
 
+    def test_cannibal_jadinko_rocks_replace_only_the_tradeable_seed(self):
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Marasamaw plant": 1},
+            "hunter_level": 99,
+            "hunter_exp": 0,
+            "current_hunter": "catch_cannibal_jadinko",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+            "shattered_heart": default_shattered_heart_state_pure(),
+        }
+
+        self.assertTrue(
+            handle_hunter_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 0.0, 0.5, 0.0, 0.0),
+                )
+            )
+        )
+
+        inventory = player_data["inventory"]
+        self.assertEqual(inventory["Plant teeth"], 1)
+        self.assertEqual(inventory["Kalferberry seed"], 0)
+        for rock in SHATTERED_HEART_SKILLS_BY_ID["hunter"].rock_items:
+            self.assertEqual(inventory[rock], 1)
+        self.assertEqual(
+            player_data["action_telemetry"]["actions"][
+                "hunter:catch_cannibal_jadinko"
+            ]["outputs"],
+            {"Plant teeth": 1},
+        )
+
     def test_hunter_quota_ticket_is_consumed_only_after_success(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         ticket = "Swamp lizard quota ticket"

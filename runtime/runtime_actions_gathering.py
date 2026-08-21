@@ -634,10 +634,6 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
             if item_name not in produced_outputs
         }
     )
-    has_untradeable_output = any(
-        not HUNTER_EXTRA_ITEM_DATA.get(item_name, {}).get("tradeable", True)
-        for item_name in produced_outputs
-    )
     passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
         player_data,
         target,
@@ -645,7 +641,11 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     )
     player_data.clear()
     player_data.update(passive_data)
-    shattered_heart_outputs = {} if has_untradeable_output else retained_outputs
+    shattered_heart_outputs = {
+        item_name: amount
+        for item_name, amount in retained_outputs.items()
+        if HUNTER_EXTRA_ITEM_DATA.get(item_name, {}).get("tradeable", True)
+    }
     if bonecrusher_info["consumed"]:
         inventory = dict(player_data.get("inventory", {}) or {})
         for item_name, amount in bonecrusher_info["consumed"].items():
