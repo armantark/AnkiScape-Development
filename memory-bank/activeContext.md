@@ -47,9 +47,14 @@ the merged candidate measures `1584 / 2334 / 50 / 53`, a change of `+13 / +68
 / -34 / -34`. Item `19971` uses its period name, Withered vine, and the exact 28×25 cutoff
 inventory sprite. Vine-herb disease uses the registered
 `farming.shared_disease_slots` placeholder because Darkan's generic selector does
-not settle a Habitat-specific period rate. The plain lane passes 4,153 tests with
-499 skips. The accepted offscreen Qt split passes 4,153 tests with three skips
-(`2175 + 1037 + 941`); the split keeps each process below the command cap. Darkan
+not settle a Habitat-specific period rate. The plain lane passes 4,155 tests with
+499 skips. The offscreen Qt lane is not green on this branch in isolation:
+`test_hud_singleton_and_cleanup.TestHUDSingletonAndCleanup.test_surface_refreshes_do_not_rescan_the_qt_tree`
+errors at `ui/ui.py:2206` because `QFrame` receives a `FakeStrip`, and
+`test_ensure_review_hud_cleans_duplicates_and_singleton` fails with `0 != 2`.
+Both reproduce at merge-base `d4c04321` and pass on current `main`, so they are
+inherited staleness rather than regressions from this branch. The orchestrator's
+post-merge gate establishes the Qt result for promotion. Darkan
 `FarmPatch.setInitialLives()` resolves the former base-lives placeholder as
 `3 + compostLevel`; no UI or panel rule was added, and runtime only supplies
 random draws to the existing pure reducer. Durable source record:
