@@ -963,6 +963,36 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(dict(addon.player_data), before)
         self.assertEqual(MAGE_ARENA_GOD_DATA["guthix"]["spell_id"], "claws_of_guthix")
 
+    def test_mage_training_arena_alignment_choice_tells_the_player_when_undo_is_unavailable(
+        self,
+    ):
+        """The seam newly made alignment contingent on the undo entry.
+
+        Main wrote and saved without one, so a refusing collection used to be
+        unreachable here. The chosen behaviour: the choice does not land and
+        the player is told so — silent loss is never acceptable.
+        """
+        from ankiscape.logic_pure.logic_pure_landmarks import (
+            sanitize_mage_arena_state_pure,
+        )
+
+        addon = self.addon
+        addon.mw = _DummyMW(_FakeCollection(accepts=False))
+        handler, errors, gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertFalse(handler("select_alignment", "guthix"))
+
+        self.assertEqual(len(errors), 1)
+        title, message = errors[0]
+        self.assertEqual(title, "Alignment unchanged")
+        self.assertIn("was not applied", message)
+        self.assertEqual(gains, [])
+        state = sanitize_mage_arena_state_pure(addon.player_data.get("mage_arena"))
+        self.assertNotEqual(state["alignment"], "guthix")
+        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(self.saves, [], "nothing was written, nothing is saved")
+
     def test_mage_training_arena_cape_claim_restores_state_through_the_real_handler(self):
         addon = self.addon
         addon.player_data["mage_arena"] = {

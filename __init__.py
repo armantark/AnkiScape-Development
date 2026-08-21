@@ -2275,12 +2275,20 @@ def _on_main_menu(
                 return updated, ok
 
             if not commit_direct_action(_change):
-                # A refusal shows its reason; an undo entry that could not be
-                # created wrote nothing, so there is nothing to explain.
                 if refused:
                     show_error_message(
                         "Cannot choose alignment",
                         str(info.get("reason", "That alignment is unavailable.")),
+                    )
+                else:
+                    # Main wrote and saved without an undo entry, so this
+                    # failure mode only exists since the seam. The choice was
+                    # not written; silent loss would leave the player believing
+                    # it took.
+                    show_error_message(
+                        "Alignment unchanged",
+                        "Anki could not create an undo entry, so the choice "
+                        "was not applied.",
                     )
                 return False
             return True
