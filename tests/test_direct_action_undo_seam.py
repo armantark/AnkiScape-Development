@@ -927,6 +927,66 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def _farming_handler(self):
+        """Open the real main menu and capture the real Farming handler."""
+        captured = {}
+        self.addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        self.addon._on_main_menu(initial_skill="Farming")
+        return captured["on_farming_action"]
+
+    def test_farming_action_restores_through_the_seam(self):
+        from ankiscape.logic import farming_logic
+
+        addon = self.addon
+        addon.player_data["farming_level"] = 99
+        before = copy.deepcopy(addon.player_data)
+        handler = self._farming_handler()
+
+        result = handler("set_plan", {"patch_id": "falador_allotment_north", "crop_id": "potato"})
+
+        self.assertTrue(result["ok"])
+        plan = addon.player_data["farm_plans"]["falador_allotment_north"]
+        self.assertEqual(plan.get("crop_id"), "potato")
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(
+            {k: v for k, v in addon.player_data.items() if k.startswith("farm")},
+            {k: v for k, v in before.items() if k.startswith("farm")},
+        )
+
+    def test_a_refused_farming_action_returns_its_own_refusal(self):
+        addon = self.addon
+        handler = self._farming_handler()
+
+        result = handler("set_plan", {"patch_id": "nowhere", "crop_id": "potato"})
+
+        self.assertFalse(result["ok"])
+        self.assertNotEqual(result["message"], "Anki could not create an undo entry.")
+
+    def test_farming_action_when_the_undo_entry_cannot_be_created(self):
+        """The undo-unavailable path must never echo a successful info dict."""
+        from ankiscape.logic.farming_logic import farming_frontend_projection_pure
+
+        addon = self.addon
+        addon.player_data["farming_level"] = 99
+        before = copy.deepcopy(addon.player_data)
+        self.collection.accepts = False
+        handler = self._farming_handler()
+
+        result = handler("set_plan", {"patch_id": "falador_allotment_north", "crop_id": "potato"})
+
+        self.assertEqual(
+            result,
+            {
+                "ok": False,
+                "reason": "undo_unavailable",
+                "message": "Anki could not create an undo entry.",
+                "projection": farming_frontend_projection_pure(addon.player_data),
+            },
+            "a failed undo entry must be reported as such, not as success",
+        )
+        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+
+
 
 if __name__ == "__main__":
     unittest.main()
