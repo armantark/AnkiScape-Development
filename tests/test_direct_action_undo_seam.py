@@ -1454,6 +1454,83 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(gains, [], "the claim toast must not fire either")
         self.assertEqual(dict(addon.player_data), before)
 
+    def _capture_star_handler(self):
+        """Reach the real Shooting Star handler the way the menu wires it."""
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._on_main_menu()
+        return addon, captured["on_shooting_star_command"]
+
+    def _make_exchangeable_star(self, addon):
+        from ankiscape.logic.shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        player = copy.deepcopy(addon.player_data)
+        player["mining_level"] = 99
+        player.setdefault("shop_market_clock", {})["answered_cards"] = 40
+        player["shooting_star"] = default_shooting_star_state_pure()
+        player, _ = advance_shooting_star_world_clock_pure(player)
+        event = dict(player["shooting_star"]["active_event"])
+        event.update(
+            {
+                "current_size": 0,
+                "layer_remaining": 0,
+                "sprite_released": True,
+                "sprite_expires_card": 60,
+            }
+        )
+        player["shooting_star"]["active_event"] = event
+        player["inventory"]["Stardust"] = 99
+        addon.player_data.clear()
+        addon.player_data.update(player)
+
+    def test_shooting_star_exchange_restores_through_the_seam(self):
+        addon, exchange = self._capture_star_handler()
+        self._make_exchangeable_star(addon)
+        before = copy.deepcopy(addon.player_data)
+
+        result = exchange("exchange", {})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(len(self.saves), 1)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertNotEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(
+            addon._DIRECT_ACTION_UNDO_STACK.pop()
+        )
+        self.assertEqual(addon.player_data, before)
+
+    def test_shooting_star_exchange_when_the_collection_refuses_the_entry(self):
+        addon, exchange = self._capture_star_handler()
+        self.collection.accepts = False
+        self._make_exchangeable_star(addon)
+        before = copy.deepcopy(addon.player_data)
+
+        result = exchange("exchange", {})
+
+        self.assertEqual(
+            result,
+            {"ok": False, "message": "Anki could not create an undo entry."},
+        )
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(self.saves, [], "nothing may persist without undo")
+
+    def test_shooting_star_exchange_refusal_keeps_the_sprite_message(self):
+        addon, exchange = self._capture_star_handler()
+
+        result = exchange("exchange", {})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "No Star sprite is available.")
+        self.assertEqual(self.saves, [], "nothing may persist without undo")
+
 
 if __name__ == "__main__":
     unittest.main()
