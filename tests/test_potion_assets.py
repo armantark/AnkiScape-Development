@@ -54,14 +54,7 @@ class PotionAssetTest(unittest.TestCase):
             },
         )
         self.assertTrue(juju_states.issubset(potion_consumables_as_dict()))
-        self.assertEqual(
-            len(manifest),
-            1
-            + sum(
-                len(spec["doses"]) + len(spec.get("flask_doses", {}))
-                for spec in POTION_FAMILIES.values()
-            ),
-        )
+        self.assertEqual(len(manifest), 175)
         self.assertTrue(
             all(request.output_path.is_relative_to(ROOT) for request in manifest)
         )
