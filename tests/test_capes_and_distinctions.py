@@ -317,7 +317,7 @@ class EffectiveLevelTest(unittest.TestCase):
 
         Same target, same roll, same level: the cape is the only difference, and
         it is the difference between nothing and a Roe. This is the Cooking
-        member of the 47 roll paths the boost actually moves; the count itself
+        member of the 49 roll paths the boost actually moves; the count itself
         is pinned by the test below.
         """
 
@@ -339,11 +339,11 @@ class EffectiveLevelTest(unittest.TestCase):
         self.assertEqual(gut({}), (0, 0))
         self.assertEqual(gut({"cape": "Cooking cape"}), (1, 10.0))
 
-    def test_the_boost_moves_forty_seven_roll_paths_not_one(self):
-        """The boost moves 47 paths, including eight Jadinko catches.
+    def test_the_boost_moves_forty_nine_roll_paths_not_one(self):
+        """The boost moves 49 paths, including ten Jadinko catches.
 
         The claim mattered: an owner told the rule is nearly a no-op may decide
-        differently knowing it now changes 41 Hunter catches, 3 Firemaking
+        differently knowing it now changes 43 Hunter catches, 3 Firemaking
         burns, 2 Thieving yields and 1 Cooking gut. Hunter is measured here
         because it is by far the largest share and its formula is the reason —
         Darkan's `Utils.skillSuccess` interpolates on `level / 99.0` without
@@ -357,18 +357,20 @@ class EffectiveLevelTest(unittest.TestCase):
             if calculate_hunter_success_probability_pure(99, spec)
             != calculate_hunter_success_probability_pure(SKILLCAPE_EFFECTIVE_LEVEL, spec)
         ]
-        added_jadinko_paths = {
+        jadinko_paths = {
             "catch_common_jadinko",
             "catch_igneous_jadinko",
+            "catch_cannibal_jadinko",
             "catch_aquatic_jadinko",
             "catch_amphibious_jadinko",
             "catch_carrion_jadinko",
             "catch_draconic_jadinko",
+            "catch_guthix_jadinko",
             "catch_saradomin_jadinko",
             "catch_zamorak_jadinko",
         }
-        self.assertEqual(len(changed), 41)
-        self.assertTrue(added_jadinko_paths <= set(changed))
+        self.assertEqual(len(changed), 43)
+        self.assertTrue(jadinko_paths <= set(changed))
         self.assertIn("catch_crimson_swift", changed)
 
     def test_the_operate_boost_has_full_uptime_and_needs_no_activation(self):

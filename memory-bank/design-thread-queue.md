@@ -826,8 +826,8 @@ semantics clauses and the v88 migration read, not player-visible content.
   decay clock. Do not add an activation button.
 - Visible boosts take the larger value, so an Agility cape does not stack its +1
   on a +3 potion. Invisible familiar boosts add after the visible boost.
-- Re-measured after the arithmetic fixes: **47 shipped roll paths still change**
-  between 99 and the cape's 100 — 41 Hunter, 3 Firemaking, 2 Thieving and 1
+- Re-measured after the arithmetic fixes: **49 shipped roll paths still change**
+  between 99 and the cape's 100 — 43 Hunter, 3 Firemaking, 2 Thieving and 1
   Cooking. The blast radius stands, but it now flows through boost semantics.
 - Authority:
   `memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md`.

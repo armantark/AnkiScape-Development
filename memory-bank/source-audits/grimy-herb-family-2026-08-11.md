@@ -71,6 +71,11 @@ sprites through the established Hunter asset path.
 | Saradomin | 81 | 600 | 13163 | Saradomin vine `19981` | `15/130` | Ugune through Samaden, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:95`; `hunter_jadinko_saradomin.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 | Zamorak | 81 | 600 | 13165 | Zamorak vine `19983` | `15/130` | Ugune through Samaden, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:97`; `hunter_jadinko_zamorak.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 
+Cannibal and Guthix are also Marasamaw rows in the same enum, with `20/140`
+and `15/130` success endpoints at lines 91 and 93. Those rows use the
+sourced curves; only Shadow and Diseased tracking remain on
+`hunter.herblore_habitat_success_curves`.
+
 Every listed secondary selector picks one item (`dropOne: true` in its direct or referenced table); vine-herb seed IDs are Erzille `19897`,
 Ugune `19902`, Argway `19907`, Shengo `19912`, and Samaden `19917`. The shared
 bush table contains Lergberry `19937` and Kalferberry `19942`; the shared blossom
@@ -150,8 +155,9 @@ The level-70 Common jadinko route closes the five seed roots.
 The crop rows activate five grimy herbs, five clean herbs, and five unfinished potions.
 ## 2026-08-19 re-land verification
 
-The re-land merged current main `d4c043218d5943f7878d36b556d785eeeefdeb36`
-while correcting the acquisition rows against the pinned Darkan tables. Common
+The re-land branch starts from merge-base
+`d4c043218d5943f7878d36b556d785eeeefdeb36` and corrects the acquisition rows
+against the pinned Darkan tables. Common
 jadinko now opens all five seed roots at Hunter 70, and Carrion, Draconic,
 Saradomin, and Zamorak retain their source-specific supplemental rolls through
 main's structured `secondary_outputs` pure-layer contract.
@@ -164,7 +170,7 @@ at the corrected level and completed successfully.
 
 | Record | Actions | Reachable items | Orphan inputs | Blocked actions |
 | --- | ---: | ---: | ---: | ---: |
-| Current main `d4c043218d5943f7878d36b556d785eeeefdeb36` | 1,571 | 2,266 | 84 | 87 |
+| Re-land merge-base `d4c043218d5943f7878d36b556d785eeeefdeb36` | 1,571 | 2,266 | 84 | 87 |
 | Re-land candidate | 1,584 | 2,334 | 50 | 53 |
 | Change | +13 | +68 | -34 | -34 |
 

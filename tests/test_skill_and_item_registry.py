@@ -2202,6 +2202,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertIn(output, HUNTER_ITEM_IMAGES)
                 self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[output]))
         cannibal = HUNTER_DATA["catch_cannibal_jadinko"]
+        self.assertEqual((cannibal["rate1"], cannibal["rate99"]), (20, 140))
         self.assertEqual(cannibal["secondary_drop_chance"], 12 / 256)
         self.assertEqual(
             cannibal["secondary_outputs"],
@@ -2210,8 +2211,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 {"item": "Kalferberry seed", "amount": 1, "weight": 1},
             ),
         )
+        self.assertIn("BoxHunterType.java", cannibal["mechanics_source"])
         self.assertIn("hunter_jadinko_cannibal.json", cannibal["mechanics_source"])
         self.assertIn("hh_bush_seed.json", cannibal["mechanics_source"])
+        guthix = HUNTER_DATA["catch_guthix_jadinko"]
+        self.assertEqual((guthix["rate1"], guthix["rate99"]), (15, 130))
+        self.assertIn("BoxHunterType.java", guthix["mechanics_source"])
         self.assertEqual(
             HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
             ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),

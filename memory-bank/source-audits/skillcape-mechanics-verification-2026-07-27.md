@@ -335,7 +335,7 @@ control: the period activation exists only to re-up a boost that decays in real
 time, and reintroducing it on an action counter would re-invent the mechanic
 that was just removed.
 
-The 47 roll paths keep their behaviour unchanged except where a potion or other
+The 49 roll paths keep their behaviour unchanged except where a potion or other
 visible boost is also live; those paths are wrong today and get one level
 smaller.
 
@@ -406,7 +406,7 @@ Recorded, not fixed — this was a read-only investigation.
   100, to 99, or by +1. No source resolves it. Irrelevant to the D13 decision.
 - **Whether the boost survives unequipping the cape.** No period source. A
   modern changelog implies it did at some point, which is not period evidence.
-- **The size of the level-100-versus-99 difference in each of the 47 roll
+- **The size of the level-100-versus-99 difference in each of the 49 roll
   paths.** Not measured here. The earlier note's claim that "every period
   success table saturates at 99 anyway" was not verified either way.
 - **A complete sweep of per-cape passives.** The cache rules out per-cape

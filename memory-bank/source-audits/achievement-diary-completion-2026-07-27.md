@@ -40,7 +40,7 @@ across 8 families, 34 tiers and pools, and **8 condition kinds**.
 | D10 | Cabinet with shared search and filters | **MET** | backend and offscreen UI |
 | D11 | Fabricated rows gone from player-facing surfaces | **MET** | all 171 prior task ids retained underneath |
 | D12 | Every skillcape, trim and keepsake | **NOT MET** | 24 of 25. Dungeoneering blocked; see below. |
-| D13 | Equipped skillcape sets effective level 100 | **MET** | moves 47 roll paths, measured, not 1 |
+| D13 | Equipped skillcape sets effective level 100 | **MET** | moves 49 roll paths, measured, not 1 |
 | D14 | Milestone capes wearable with an all-skills gate | **MET** | woven by the real Crafting handler, then equipped |
 | D15 | Quest point, Max, Completionist, Veteran capes | **NOT MET** | all four obtainable; the Max gate counts 24 skills |
 | D16 | Music Log with the 350-task unlock | **MET** | every track has a row; the unreachable one is labelled latent |
@@ -90,9 +90,9 @@ reported as passing, and disproved one claim outright:
 3. The Music Log rendered twelve rows and dropped 179, so its one latent track was
    invisible rather than labelled.
 4. The Dungeoneering cape and the 25-skill Max gate were absent.
-5. The claim that a worn skillcape moves one roll was **false**: it moves 47.
+5. The claim that a worn skillcape moves one roll was **false**: it moves 49.
    Darkan interpolates on `level / 99.0` without clamping, so the success tables
-   do not all saturate at 99. Hunter alone carries 41.
+   do not all saturate at 99. Hunter alone carries 43.
 6. 149 numeric thresholds carried no citation, no placeholder marker and no
    abstraction comment. Classified: 16 sourced, 140 AnkiScape abstractions, 0
    placeholders. None is period content.

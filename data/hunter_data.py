@@ -75,7 +75,7 @@ DARKAN_HERBLORE_HABITAT_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
 )
 
-# PLACEHOLDER(hunter.herblore_habitat_success_curves): period Marasamaw and
+# PLACEHOLDER(hunter.herblore_habitat_success_curves): period Shadow and Diseased
 # tracker catch routines or qualified measured tables would replace this shared fallback.
 HERBLORE_HABITAT_RATE1 = 128
 HERBLORE_HABITAT_RATE99 = 256
@@ -706,14 +706,14 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         "Plant teeth",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_cannibal_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
         mechanics_source=(
-            f"{_jadinko_drop_source('cannibal')}; "
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('cannibal')}; "
             f"{_jadinko_sub_drop_source('hh_bush_seed')}"
         ),
         source_enum="CANNIBAL_JADINKO",
         source_npc_id=13155,
         source_item_id=19975,
-        rate1=HERBLORE_HABITAT_RATE1,
-        rate99=HERBLORE_HABITAT_RATE99,
+        rate1=20,
+        rate99=140,
         tradeable=False,
         secondary_drop_chance=12 / 256,
         secondary_outputs=_HABITAT_BUSH_SEEDS,
@@ -721,7 +721,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "Cannibal jadinko oldid 5976665 pins level 75, 475 XP, "
             "Marasamaw plant trapping, Plant teeth, a chance at vine-bush seeds, "
             "and the green-blossom, Kalferberry, tall-grass, Juju-treated Habitat setup. "
-            "Darkan's parent table rolls 12/256, then hh_bush_seed drops one of "
+            "Darkan's BoxHunterType supplies the 20/140 success endpoints. Its parent "
+            "table rolls 12/256, then hh_bush_seed drops one of "
             "Lergberry seed or Kalferberry seed at quantity 1; Kalferberry's 3/128 "
             "overall chance is derived from those table constants. Persistent setup "
             "and optional bait are route context, not per-catch consumables."
@@ -737,14 +738,24 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Guthix vine", 1)),
         "Guthix vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_guthix_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_guthix.json"),
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; "
+            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
+            "hunter_jadinko_guthix.json"
+        ),
         source_enum="GUTHIX_JADINKO",
         source_npc_id=13164,
         source_item_id=19982,
-        rate1=HERBLORE_HABITAT_RATE1,
-        rate99=HERBLORE_HABITAT_RATE99,
+        rate1=15,
+        rate99=130,
         tradeable=False,
-        notes=("Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw plant trapping, Guthix vine, a Juju-treated flower patch, and weekly player-specific preferences. Persistent setup and optional bait are route context, not per-catch consumables."),
+        notes=(
+            "Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw "
+            "plant trapping, Guthix vine, a Juju-treated flower patch, and weekly "
+            "player-specific preferences. Darkan's BoxHunterType supplies the "
+            "15/130 success endpoints. Persistent setup and optional bait are route "
+            "context, not per-catch consumables."
+        ),
         sort_order=10,
     ),
     _target(
@@ -764,9 +775,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         notes="Source drop range is 18-21 spikes plus optional herbs; AnkiScape awards the guaranteed minimum.",
         sort_order=50,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Common, Saradomin,
-    # and Zamorak omit independently rolled bush/blossom tables until the pure
-    # Hunter action contract accepts more than one secondary table per catch.
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Common omits its
+    # independent bush/blossom tables until one catch can roll multiple tables.
     _target(
         "catch_common_jadinko",
         "Catch common jadinko",
@@ -918,6 +928,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Saradomin omits its
+    # independent bush/blossom tables until one catch can roll multiple tables.
     _target(
         "catch_saradomin_jadinko",
         "Catch Saradomin jadinko",
@@ -948,6 +960,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Zamorak omits its
+    # independent bush/blossom tables until one catch can roll multiple tables.
     _target(
         "catch_zamorak_jadinko",
         "Catch Zamorak jadinko",
