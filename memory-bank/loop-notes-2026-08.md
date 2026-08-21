@@ -1774,3 +1774,30 @@ way. Routing it through the seam made a successful alignment choice newly
 contingent on `add_custom_undo_entry`, and the first cut lost the choice silently
 with no message. Check every handler for sub-actions that previously bypassed the
 undo path entirely; they need a deliberate decision, not an inherited one.
+
+### Fix-by-instance: four rounds where each fix produced the next finding
+
+`goal/herbs-reland-2026-08-19` has now taken eight review rounds. Every finding
+was real and every fix was correct, but rounds six through nine share one shape:
+
+- round six named three Jadinko rows missing their secondary drop tables; the
+  fix implemented those three;
+- round seven named two rows still on a placeholder success curve when the
+  branch's own audit cited the file containing their endpoints; the fix
+  corrected those two;
+- round eight then found three MORE rows missing their secondary tables, one of
+  which (Guthix) fits the existing one-table contract exactly as two already-
+  implemented rows do, so the recorded blocker never explained its omission.
+
+Measured, not argued: 200,000 seeded catches per row gave Saradomin 1.932%
+against a source 5/256 = 1.953%, and Guthix and Shadow exactly zero.
+
+**The lesson is about the brief, not the agent.** A finding that names instances
+gets instances fixed. When a defect is a class — every row of a table checked
+against its source — the brief has to ask for the enumeration and require a
+disposition for every member, or the next round finds the members nobody named.
+Round nine asks for the sweep: a table of all ten rows, each ending in exactly
+one of implement / register-with-adjacent-marker / source-gives-nothing.
+
+Watch for the same shape elsewhere. It is cheap to produce and expensive to find:
+each round looks like progress because the named thing really was fixed.
