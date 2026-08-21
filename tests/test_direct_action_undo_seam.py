@@ -927,6 +927,101 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def _capture_mage_arena_handler(self):
+        """Reach the real Mage Arena handler through the real menu wiring."""
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        errors = []
+        addon.show_error_message = lambda title, message: errors.append((title, message))
+        addon._refresh_skill_availability = lambda: None
+        gains = []
+        addon._show_activity_gain = lambda message: gains.append(message)
+        addon._on_main_menu()
+        return captured["on_mage_arena_action"], errors, gains
+
+    def test_mage_training_arena_alignment_choice_restores_through_the_real_handler(self):
+        from ankiscape.logic_pure.logic_pure_landmarks import (
+            MAGE_ARENA_GOD_DATA,
+            sanitize_mage_arena_state_pure,
+        )
+
+        addon = self.addon
+        handler, errors, gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertTrue(handler("select_alignment", "guthix"))
+
+        self.assertEqual(errors, [], "a committed choice shows no error")
+        self.assertEqual(gains, [])
+        state = sanitize_mage_arena_state_pure(addon.player_data.get("mage_arena"))
+        self.assertEqual(state["alignment"], "guthix")
+        self.assertEqual(
+            self.collection.entries, ["AnkiScape direct action"]
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(MAGE_ARENA_GOD_DATA["guthix"]["spell_id"], "claws_of_guthix")
+
+    def test_mage_training_arena_cape_claim_restores_state_through_the_real_handler(self):
+        addon = self.addon
+        addon.player_data["mage_arena"] = {
+            "step": 5,
+            "completed": True,
+            "alignment": "",
+            "attuned_spells": [],
+        }
+        handler, errors, gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertTrue(handler("cape", "zamorak"))
+
+        self.assertEqual(errors, [])
+        self.assertEqual(len(gains), 1)
+        self.assertIn("Zamorak cape", gains[0])
+        self.assertEqual(addon.player_data["inventory"].get("Zamorak cape"), 1)
+        self.assertEqual(
+            addon.player_data["mage_arena"]["alignment"], "zamorak"
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(dict(addon.player_data), before)
+
+    def test_mage_training_arena_cape_refusal_shows_reason_and_writes_nothing(self):
+        addon = self.addon
+        handler, errors, _gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertFalse(handler("cape", "zamorak"))
+
+        self.assertEqual(
+            errors,
+            [("Cannot use Mage Arena statue", "mage_arena_incomplete")],
+        )
+        self.assertEqual(self.collection.entries, [])
+        self.assertEqual(dict(addon.player_data), before)
+
+    def test_mage_training_arena_undo_entry_failure_reports_nothing_written(self):
+        """The seam refused after a successful pure step: nothing was written,
+        so the handler must not show the pure step's success-flavoured info as
+        an error reason."""
+        addon = self.addon
+        addon.player_data["mage_arena"] = {
+            "step": 5,
+            "completed": True,
+            "alignment": "",
+            "attuned_spells": [],
+        }
+        handler, errors, gains = self._capture_mage_arena_handler()
+        addon.mw = _DummyMW(_FakeCollection(accepts=False))
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertFalse(handler("cape", "zamorak"))
+
+        self.assertEqual(errors, [], "no undo entry means nothing happened; "
+                                     "the pure refusal text would be wrong here")
+        self.assertEqual(gains, [], "the claim toast must not fire either")
+        self.assertEqual(dict(addon.player_data), before)
+
 
 if __name__ == "__main__":
     unittest.main()
