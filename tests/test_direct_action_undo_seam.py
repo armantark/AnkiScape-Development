@@ -997,9 +997,6 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         addon._on_main_menu()
 
-        def refusing_collection(_operation):
-            raise RuntimeError("collection closed")
-
         class _ClosedCollection:
             def add_custom_undo_entry(self, _operation):
                 raise RuntimeError("collection closed")
@@ -1029,6 +1026,40 @@ class DirectActionUndoSeamTest(unittest.TestCase):
             baseline,
             "no undo entry means no change may be written",
         )
+
+
+    def test_ge_pure_refusal_reports_refusal_through_handler(self):
+        """A pure-function refusal (not an undo failure) must surface the
+        pure result itself, not undo_unavailable."""
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        addon._request_active_bank_run_state = (
+            lambda data: (copy.deepcopy(data), True, "", False)
+        )
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+
+        baseline = copy.deepcopy(addon.player_data)
+        payload = {
+            "side": "sideways",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"]),
+        }
+
+        result = captured["on_ge_action"]("place_offer", payload)
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["reason"], "invalid_side")
+        self.assertNotIn("undo_unavailable", result.values())
+        self.assertEqual(dict(addon.player_data), baseline)
+
 
 
 if __name__ == "__main__":
