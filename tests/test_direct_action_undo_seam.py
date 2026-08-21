@@ -928,5 +928,56 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data, before)
 
 
+    def test_grand_exchange_offer_restores_through_the_real_handler(self):
+        """Drive _apply_ge_action itself through commit_direct_action.
+
+        Stubbed here are only side-effect collaborators (bank run, HUD,
+        achievements surface), never the seam: the handler must reach
+        commit_direct_action for snapshot, undo entry and save.
+        """
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        bank_runs = []
+
+        def request_bank_run(data):
+            bank_runs.append(copy.deepcopy(data))
+            return copy.deepcopy(data), True, "", False
+
+        addon._request_active_bank_run_state = request_bank_run
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        before = copy.deepcopy(addon.player_data)
+        guide_price = int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"])
+        payload = {
+            "side": "buy",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": guide_price,
+        }
+
+        preview = captured["on_ge_action"]("preview_offer", payload)
+        self.assertTrue(preview["ok"])
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        result = captured["on_ge_action"]("place_offer", payload)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 1)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 10_000 - guide_price)
+        self.assertEqual(len(addon.player_data["ge_player_orders"]), 1)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(self.saves), 1)
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+
 if __name__ == "__main__":
     unittest.main()
