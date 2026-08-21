@@ -1008,3 +1008,8 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
    description, labeled as an AnkiScape analog; nothing ships unsigned).
    Requires coordination with the Darkan restoration thread over the suite.
    Until the packet is approved, the honest no-effect display stays.
+
+### 3.27 Shattered Heart output-replacement eligibility — owner decision required
+
+- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:693` for Herblore, `runtime/runtime_actions_gathering.py:668` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
+- **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:307`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.

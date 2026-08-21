@@ -26125,6 +26125,30 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-23T05:33:23Z"
   },
+  "herbloreitems/juju_hunter_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_hunter_potion_%281%29.png",
+    "file_title": "Juju hunter potion (1).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502045344%21Juju_hunter_potion_%281%29.png?8279a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c52275308aab8dcde076d78c2874a7793f2a08e9",
+    "size": 873,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T05:34:56Z"
+  },
+  "herbloreitems/juju_hunter_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_hunter_potion_%282%29.png",
+    "file_title": "Juju hunter potion (2).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502045346%21Juju_hunter_potion_%282%29.png?95456",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2a4a87899f413261c37e448a26017d3e8dc692b2",
+    "size": 886,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T05:35:07Z"
+  },
   "herbloreitems/juju_hunter_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Juju_hunter_potion_%283%29.png",
     "file_title": "Juju hunter potion (3).png",
@@ -26136,6 +26160,18 @@
     "size": 839,
     "source_wiki": "rs3",
     "timestamp": "2011-11-23T05:34:46Z"
+  },
+  "herbloreitems/juju_hunter_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_hunter_potion_%284%29.png",
+    "file_title": "Juju hunter potion (4).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502045349%21Juju_hunter_potion_%284%29.png?7b65e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "170d078a532f7ad1c6dc557ac32fc72aac77cc50",
+    "size": 853,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T05:35:17Z"
   },
   "herbloreitems/juju_mining_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Juju_mining_potion_%283%29.png",
@@ -27985,6 +28021,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-12-05T11:03:11Z"
   },
+  "hunteritems/argway_seed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Argway_seed_5.png",
+    "file_title": "Argway seed 5.png",
+    "image_url": "https://runescape.wiki/images/Argway_seed_5.png?56e97",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "627b62356c67398438164e0747fd44efd4fe3e2b",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-03T04:59:35Z"
+  },
   "hunteritems/baby_impling_jar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Baby_impling_jar.png",
     "file_title": "Baby impling jar.png",
@@ -28201,6 +28249,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-04-02T04:27:30Z"
   },
+  "hunteritems/erzille_seed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Erzille_seed_5.png",
+    "file_title": "Erzille seed 5.png",
+    "image_url": "https://runescape.wiki/images/Erzille_seed_5.png?bdda6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "97690bbe08f4043fc9d56b58a5fc7f20e17e6047",
+    "size": 487,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-03T05:16:56Z"
+  },
   "hunteritems/ess_impling_jar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Essence_impling_jar.png",
     "file_title": "Essence impling jar.png",
@@ -28368,6 +28428,18 @@
     "size": 929,
     "source_wiki": "rs3",
     "timestamp": "2010-04-02T04:27:36Z"
+  },
+  "hunteritems/marasamaw_plant.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Marasamaw_plant.png",
+    "file_title": "Marasamaw plant.png",
+    "image_url": "https://runescape.wiki/images/Marasamaw_plant.png?84b36",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "369c1b1467b72037147e717ff89346970ebe5feb",
+    "size": 981,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:25:30Z"
   },
   "hunteritems/moth_jar.png": {
     "file_page_url": "https://runescape.wiki/w/File:Moth_jar.png",
@@ -28597,6 +28669,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T21:37:19Z"
   },
+  "hunteritems/samaden_seed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Samaden_seed_5.png",
+    "file_title": "Samaden seed 5.png",
+    "image_url": "https://runescape.wiki/images/Samaden_seed_5.png?07e51",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c6dcb1ff8747454bb4edb3cb89113620bd28ddb3",
+    "size": 569,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-03T05:51:26Z"
+  },
   "hunteritems/sapphire_glacialis.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sapphire_glacialis.png",
     "file_title": "Sapphire glacialis.png",
@@ -28620,6 +28704,18 @@
     "size": 297,
     "source_wiki": "rs3",
     "timestamp": "2011-11-28T13:05:26Z"
+  },
+  "hunteritems/shengo_seed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Shengo_seed_5.png",
+    "file_title": "Shengo seed 5.png",
+    "image_url": "https://runescape.wiki/images/Shengo_seed_5.png?2e754",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6fa818b160d245fb6d2dcb39491463c405887f34",
+    "size": 502,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-03T05:52:21Z"
   },
   "hunteritems/small_fishing_net.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Small_fishing_net.png",
@@ -28716,6 +28812,30 @@
     "size": 198,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T14:02:54Z"
+  },
+  "hunteritems/ugune_seed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ugune_seed_5.png",
+    "file_title": "Ugune seed 5.png",
+    "image_url": "https://runescape.wiki/images/Ugune_seed_5.png?77ccb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8ea7f296d595e2bb174c06f3c0f19114a2603afc",
+    "size": 510,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-03T05:58:55Z"
+  },
+  "hunteritems/withered_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Withered_vine.png",
+    "file_title": "Withered vine.png",
+    "image_url": "https://runescape.wiki/images/Withered_vine.png?a1335",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f945f32a2b70ea3ddcea4687e9a335a4ac1ce199",
+    "size": 463,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T09:21:04Z"
   },
   "hunteritems/yellow_feather.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Yellow_feather.png",

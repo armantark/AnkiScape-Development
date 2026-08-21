@@ -1699,26 +1699,21 @@ on the merged tree.
 
 **1. An invented mechanic, and I caused it.** The branch now makes the Juju
 hunter potion a drinkable `+3` Hunter boost. Driving the real kernel,
-`apply_consumable_pure` returns `boosts={'hunter': 3}`. Both sources the same
-commit pins say the opposite. Darkan `Potions.kt:522` is a flavour message with
-no stat effect — "You decide that only plants are likely to enjoy the taste of
-this potion" — and the branch's own ledger row at
-`memory-bank/placeholder-values.md:35` says the sources "implement only the
-Habitat reagent use and state that the player does not drink it".
+`apply_consumable_pure` returns `boosts={'hunter': 3}`. Darkan
+`Potions.kt:522` is a flavour-message-only effect with no stat change — "You
+decide that only plants are likely to enjoy the taste of this potion". The
+then-current ledger correctly rejected the boost but over-read the same source
+as saying the dose is not consumed. Direct inspection of `Potions.kt:881-904`
+shows the row inherits `canDrink=true` and the shared path consumes a dose.
 
-The cause is a finding I forwarded. An earlier review called the
-`role: 'habitat_reagent'` key and the `drinkable` guard over-engineering,
-because nothing read them and no family set `drinkable` to False. I passed that
-on as "delete the key and the guard". They were not scaffolding: they were the
-only place the sourced fact "this potion is not drunk" was expressed. Removing
-them let the potion fall through to the generic `flat_skill` boost path, and a
-test now pins the invented value.
+The cause was the source summary I forwarded, not removal of a valid negative
+mechanic. The `drinkable` guard encoded the ledger's mistaken refusal; deleting
+it exposed the separate invented `flat_skill` boost. The correct shape is the
+generic dose chain with empty skills and the sourced flavour message.
 
-The lesson is narrower than "be careful deleting code". Unreachable code that
-encodes a *negative* source fact looks exactly like speculative scaffolding,
-because nothing exercises it — the absence of a caller is the whole point.
-Before deleting a guard as unused, check whether it is the only record of
-something a source says does NOT happen.
+The lesson is to trace an enum row through its inherited control flow before
+turning a flavour line into a refusal. A row-local message does not establish
+whether the shared drink path consumes the item.
 
 **2. A known-wrong record.** `memory-bank/activeContext.md:114` on the merged
 tree still says "4,159 plain tests with 499 skips" and reachability

@@ -10,6 +10,17 @@ invention: an invention is a value the period never had, and those still wait.
 Authority: `pre-eoc-source-verification-standard.md`, "Breadth-Phase
 Placeholders".
 
+Correction, 2026-08-21: the removed `potions.juju_hunter_boost` row over-read
+its sources when it said the player does not drink the potion. Darkan
+`Potions.kt:522,881-904` at supplying commit
+`afa87b9754de3bd9cf2fd5024ea903b00d99a798` establishes that the ordinary drink
+path consumes one dose, invokes a flavour-message-only effect, and applies no
+stat boost. The period game's separate Herblore Habitat flower-patch ingredient
+behavior is in `FarmPatch.java:338-361` at supplying commit
+`4e46c05dbd88c44d2a25d48ce96a493d884c978b`; this add-on ships no matching
+action that consumes a dose or applies attraction. No Juju hunter drink value
+remains unrecovered, so there is no placeholder row.
+
 ## How to add one
 
 1. Mark the value in code: `# PLACEHOLDER(<id>): <what would settle it>`
@@ -30,7 +41,8 @@ Placeholders".
 | `mining.living_rock_remains_rolls` | Darkan success endpoints `30/145`; uniform inclusive output roll from 5 through 24 | Living rock remains Mining and the existing Rocktail input path | Living rock remains oldid `6556376` pins level 73, 25 XP, and 5–24 minerals but not the distribution; Living Rock Caverns oldid `6547876` conflicts at 5–20. Darkan reconstructs `30/145` and 5–20. A qualified period routine would settle the success curve and distribution, while independent cutoff evidence would resolve the visible range conflict. |
 | `hunter.polar_kebbit_success_curve` | Shared Hunter fallback `rate1=128`, `rate99=256`; at level 1 this is a 130/255 source-roll chance before the established review normalization | Polar kebbit tracking and the Polar kebbit quota-ticket private ground | Hunter oldid `6484443` pins level 1, 30 XP, Noose wand tracking, a four- or five-search trail, and the Bones, Raw beast meat, and Polar kebbit fur outputs, but not a catch/failure probability. A period tracking catch routine or qualified measured table would replace the fallback. |
 | `hunter.razor_backed_kebbit_success_curve` | Shared Hunter fallback `rate1=128`, `rate99=256`; at level 49 this is a 192/255 source-roll chance before the established review normalization | Razor-backed kebbit tracking, Long kebbit spike, and both six-bolt transformations | Hunter oldid `6484443` pins level 49, 348 XP, Noose wand tracking, a four- or five-search trail, and the Long kebbit spike reward, but not a catch/failure probability. A period tracking catch routine or qualified measured table would replace the fallback. |
-| `hunter.herblore_habitat_success_curves` | Shared Hunter fallback `rate1=128`, `rate99=256` | Diseased, Shadow, Cannibal, and Guthix jadinko routes and their four potion secondaries | The pinned creature pages fix levels, XP, tools, Habitat setup, and guaranteed primary outputs but not a qualified catch probability. A period Marasamaw or tracker catch routine, or a qualified measured table, would replace the fallback. |
+| `hunter.herblore_habitat_success_curves` | Shared Hunter fallback `rate1=128`, `rate99=256` | Common, Diseased, Shadow, Cannibal, and Guthix jadinko routes and their potion secondaries | The pinned creature pages fix levels, XP, tools, Habitat setup, and guaranteed primary outputs but not a qualified catch probability. A period Marasamaw or tracker catch routine, or a qualified measured table, would replace the fallback. |
+| `hunter.common_jadinko_seed_roll` | Darkan reconstruction: a 16/256 trigger followed by a uniform choice of one Erzille, Ugune, Argway, Shengo, or Samaden seed | Common jadinko seed rewards and the four required juju-herb chains | Exact seed oldids `5780035`, `6134455`, `5028737`, `5035618`, and `5913077` prove that Common jadinkos can yield every vine-herb seed, while Darkan `hunter_jadinko_common.json` reconstructs the hidden trigger and selector. A period drop routine or qualified capture sample would replace those roll values. |
 | `thieving.master_farmer_fellstalk_weight` | 1 slot in the existing 2,200-slot Master Farmer table | Fellstalk Farming, Prayer renewal, and downstream potion states | Master Farmer oldid `6565826` proves one Fellstalk seed at `Very Rare`, and Fellstalk seed oldid `6565142` independently proves the Master Farmer route, but neither states the hidden relative weight. A period pickpocket table or qualified cutoff sample would replace the minimal one-slot extension. |
 | `woodcutting.arctic_pine_rolls` | Mahogany's `8/25` source chance envelope, `8` depletion roll, and `14` respawn row | Arctic pine Woodcutting and downstream Firemaking/splitting | A period server tree definition or measured table that closes Arctic pine success, depletion, and respawn behavior. Oldid `6069429` pins level, XP, output, location, and access but not the hidden rolls. |
 | `woodcutting.eucalyptus_rolls` | Yew's `4/12` source chance envelope, `8` depletion roll, and `99` respawn row | Eucalyptus Woodcutting and downstream Firemaking | A period server tree definition or measured table that closes Eucalyptus success, depletion, and respawn behavior. Oldid `6491980` pins level, XP, output, and safe route but not the hidden rolls. |

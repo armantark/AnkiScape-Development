@@ -47,6 +47,7 @@ HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
 HUNTER_WIMPY_BIRD_SOURCE = "https://runescape.wiki/w/Wimpy_bird?oldid=5936660"
 HERBLORE_HABITAT_SOURCE = "https://runescape.wiki/w/Herblore_Habitat?oldid=6513740"
 HERBLORE_HABITAT_JADINKO_SOURCES = {
+    "catch_common_jadinko": "https://runescape.wiki/w/Common_jadinko?oldid=6129379",
     "track_diseased_jadinko": "https://runescape.wiki/w/Diseased_jadinko?oldid=6062055",
     "track_shadow_jadinko": "https://runescape.wiki/w/Shadow_jadinko?oldid=6045371",
     "catch_cannibal_jadinko": "https://runescape.wiki/w/Cannibal_jadinko?oldid=5976665",
@@ -55,11 +56,26 @@ HERBLORE_HABITAT_JADINKO_SOURCES = {
 DARKAN_HERBLORE_HABITAT_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
 )
+COMMON_JADINKO_DROP_SOURCE = (
+    f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
+    "hunter_jadinko_common.json"
+)
+COMMON_JADINKO_VINE_HERB_SEEDS: Mapping[str, Tuple[int, str]] = {
+    "Erzille seed": (19897, "https://runescape.wiki/w/Erzille_seed?oldid=5780035"),
+    "Ugune seed": (19902, "https://runescape.wiki/w/Ugune_seed?oldid=6134455"),
+    "Argway seed": (19907, "https://runescape.wiki/w/Argway_seed?oldid=5028737"),
+    "Shengo seed": (19912, "https://runescape.wiki/w/Shengo_seed?oldid=5035618"),
+    "Samaden seed": (19917, "https://runescape.wiki/w/Samaden_seed?oldid=5913077"),
+}
 
 # PLACEHOLDER(hunter.herblore_habitat_success_curves): period Marasamaw and
 # tracker catch routines or qualified measured tables would replace this shared fallback.
 HERBLORE_HABITAT_RATE1 = 128
 HERBLORE_HABITAT_RATE99 = 256
+# PLACEHOLDER(hunter.common_jadinko_seed_roll): a period Common-jadinko drop
+# routine would replace Darkan's reconstructed 16/256, uniform-five seed roll.
+COMMON_JADINKO_SEED_ROLL_CHANCE = 16
+COMMON_JADINKO_SEED_ROLL_OUT_OF = 256
 
 EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/eagles_peak_members"
 ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/rocking_out_members"
@@ -92,6 +108,7 @@ HUNTER_REUSABLE_TOOLS_BY_GROUP = {
     "impling_puro_puro": (("Butterfly net", 1),),
 }
 HUNTER_REUSABLE_TOOLS_BY_TARGET = {
+    "catch_common_jadinko": (("Marasamaw plant", 1),),
     "catch_cannibal_jadinko": (("Marasamaw plant", 1),),
     "catch_guthix_jadinko": (("Marasamaw plant", 1),),
     "catch_imp_magic_box": (),
@@ -656,6 +673,40 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=40,
     ),
     _target(
+        "catch_common_jadinko",
+        "Catch common jadinko",
+        "box_trapping",
+        70,
+        350.0,
+        _out(("Withered vine", 1)),
+        "Withered vine",
+        source=(
+            f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_common_jadinko']}; "
+            f"{HERBLORE_HABITAT_SOURCE}; "
+            + "; ".join(source for _item_id, source in COMMON_JADINKO_VINE_HERB_SEEDS.values())
+        ),
+        mechanics_source=COMMON_JADINKO_DROP_SOURCE,
+        source_enum="COMMON_JADINKO",
+        source_npc_id=13119,
+        source_item_id=19971,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        secondary_drop_chance=(
+            COMMON_JADINKO_SEED_ROLL_CHANCE / COMMON_JADINKO_SEED_ROLL_OUT_OF
+        ),
+        secondary_outputs=tuple(
+            (item_name, 1, 1) for item_name in COMMON_JADINKO_VINE_HERB_SEEDS
+        ),
+        notes=(
+            "Common jadinko oldid 6129379 pins level 70, 350 XP, the Marasamaw "
+            "route, Withered vine, and a seed chance; the five pinned seed pages "
+            "each name Common jadinkos as an acquisition route. Jadinkos oldid "
+            "5917881 requires any vine blossom and assigns no god-Jadinko environment."
+        ),
+        sort_order=50,
+    ),
+    _target(
         "catch_cannibal_jadinko",
         "Catch cannibal jadinko",
         "box_trapping",
@@ -942,6 +993,7 @@ HUNTER_TOOL_ITEMS: Mapping[str, int] = {
     "Bird snare": 10006,
     "Box trap": 10008,
     "Butterfly net": 10010,
+    "Marasamaw plant": 19965,
     "Noose wand": 10150,
     "Teasing stick": 10029,
     "Rabbit snare": 10031,
@@ -958,6 +1010,11 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Blue feather": 10089,
     "Stripy feather": 10087,
     "Wimpy feather": 11525,
+    "Withered vine": 19971,
+    **{
+        item_name: item_id
+        for item_name, (item_id, _source) in COMMON_JADINKO_VINE_HERB_SEEDS.items()
+    },
     "Plant teeth": 19975,
     "Shadow vine": 19977,
     "Corrupt vine": 19979,
@@ -1051,13 +1108,21 @@ def hunter_supply_item_names() -> Tuple[str, ...]:
 def _hunter_extra_category(item_name: str) -> str:
     if item_name in HUNTER_TOOL_ITEMS:
         return "tool"
-    if item_name in HUNTER_MATERIAL_ITEMS:
+    if (
+        item_name in HUNTER_MATERIAL_ITEMS
+        or item_name == "Withered vine"
+        or item_name in COMMON_JADINKO_VINE_HERB_SEEDS
+    ):
         return "material"
     return "hunter"
 
 
 def _hunter_extra_source(item_name: str) -> str:
+    if item_name in COMMON_JADINKO_VINE_HERB_SEEDS:
+        return COMMON_JADINKO_VINE_HERB_SEEDS[item_name][1]
     jadinko_sources = {
+        "Marasamaw plant": HERBLORE_HABITAT_SOURCE,
+        "Withered vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_common_jadinko"],
         "Corrupt vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_diseased_jadinko"],
         "Guthix vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_guthix_jadinko"],
         "Shadow vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_shadow_jadinko"],
@@ -1085,7 +1150,14 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "exp": 0.0,
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
-            "tradeable": item_name not in {"Corrupt vine", "Guthix vine", "Shadow vine", "Plant teeth"},
-            "stackable": item_name != "Rope",
+            "tradeable": item_name not in {
+                "Withered vine",
+                "Corrupt vine",
+                "Guthix vine",
+                "Shadow vine",
+                "Plant teeth",
+                *COMMON_JADINKO_VINE_HERB_SEEDS,
+            },
+            "stackable": item_name not in {"Rope", "Marasamaw plant"},
         }
     return rows

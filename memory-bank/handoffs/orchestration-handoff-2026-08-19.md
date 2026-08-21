@@ -38,12 +38,12 @@ flight will move it again. Re-measure on the merged tree, always.
 Two majors stopped it originally:
 
 1. It grants a drinkable `+3` Hunter boost for the Juju hunter potion, which
-   both of its own pinned sources contradict — Darkan `Potions.kt:522` is a
-   flavour message with no stat effect, and `memory-bank/placeholder-values.md:35`
-   says the sources "implement only the Habitat reagent use and state that the
-   player does not drink it". A test pins the invented value. This was caused by
-   a review finding calling the `drinkable` guard unused scaffolding; it was
-   instead the only expression of a negative source fact.
+   Darkan `Potions.kt:522` contradicts: the row effect is only the sourced
+   flavour message. The then-current placeholder ledger also rejected the
+   boost, but incorrectly claimed the shared drink path refused and preserved
+   the dose. Direct inspection of `Potions.kt:881-904` shows inherited
+   `canDrink=true` and one-dose consumption. The correct fix is a flavour-only
+   drink, not the `drinkable` refusal the prior brief requested.
 2. `memory-bank/activeContext.md:114` on the merged tree carries pre-merge
    figures contradicting the baseline the same commit pins.
 

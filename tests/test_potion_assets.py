@@ -9,6 +9,7 @@ from ankiscape.data.potion_data import (
     EMPTY_FLASK_ITEM,
     POTION_FAMILIES,
     VIAL_ITEM,
+    potion_consumables_as_dict,
     potion_dose_name,
     potion_flask_name,
     potion_item_names,
@@ -25,7 +26,34 @@ class PotionAssetTest(unittest.TestCase):
         expected = set(potion_item_names()) - {VIAL_ITEM[0]}
 
         self.assertEqual({request.item_name for request in manifest}, expected)
-        self.assertEqual(len(manifest), 1 + (len(POTION_FAMILIES) * 10))
+        juju_hunter = POTION_FAMILIES["Juju hunter potion"]
+        self.assertEqual(juju_hunter["skills"], ())
+        self.assertEqual(juju_hunter["strategy"], "flavour_only")
+        self.assertEqual(
+            juju_hunter["message"],
+            "You decide that only plants are likely to enjoy the taste of this potion.",
+        )
+        self.assertEqual(
+            juju_hunter["doses"],
+            {1: 20026, 2: 20025, 3: 20024, 4: 20023},
+        )
+        self.assertNotIn("flask_doses", juju_hunter)
+        juju_states = {
+            request.item_name
+            for request in manifest
+            if request.item_name.startswith("Juju hunter")
+        }
+        self.assertEqual(
+            juju_states,
+            {
+                "Juju hunter potion (1)",
+                "Juju hunter potion (2)",
+                "Juju hunter potion (3)",
+                "Juju hunter potion (4)",
+            },
+        )
+        self.assertTrue(juju_states.issubset(potion_consumables_as_dict()))
+        self.assertEqual(len(manifest), 175)
         self.assertTrue(
             all(request.output_path.is_relative_to(ROOT) for request in manifest)
         )
@@ -71,7 +99,7 @@ class PotionAssetTest(unittest.TestCase):
                     manifest_by_item[item_name].wiki_title,
                     f"{item_name}.png",
                 )
-            for dose in spec["flask_doses"]:  # type: ignore[union-attr]
+            for dose in spec.get("flask_doses", {}):  # type: ignore[union-attr]
                 item_name = potion_flask_name(base, dose)
                 self.assertEqual(
                     manifest_by_item[item_name].wiki_title,
