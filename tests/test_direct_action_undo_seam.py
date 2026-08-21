@@ -928,5 +928,63 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data, before)
 
 
+
+    def _big_chinchompa_handler(self):
+        """Open the real main menu headless and capture the real handler."""
+        captured = {}
+        self.addon.ui.show_main_menu = (
+            lambda *args, **kwargs: captured.update(kwargs)
+        )
+        self.addon._on_main_menu()
+        return captured["on_big_chinchompa_command"]
+
+    def test_big_chinchompa_reward_purchase_restores_through_the_seam(self):
+        addon = self.addon
+        buy_reward = self._big_chinchompa_handler()
+        addon.player_data["big_chinchompa"]["competence_points"] = 5
+        before = copy.deepcopy(addon.player_data)
+
+        result = buy_reward("buy_reward", {"reward_id": "hunter_xp"})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["big_chinchompa"]["competence_points"], 4
+        )
+        self.assertEqual(addon.player_data["hunter_exp"] - before["hunter_exp"], 5.0)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_big_chinchompa_refused_purchase_returns_the_refusal(self):
+        addon = self.addon
+        buy_reward = self._big_chinchompa_handler()
+        addon.player_data["big_chinchompa"]["competence_points"] = 0
+        before = copy.deepcopy(addon.player_data)
+
+        result = buy_reward("buy_reward", {"reward_id": "hunter_xp"})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Not enough Competence points.")
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(len(self.saves), 0)
+        self.assertEqual(
+            len(addon._DIRECT_ACTION_UNDO_STACK), 0,
+            "a refused purchase must not register an undo entry",
+        )
+
+    def test_big_chinchompa_purchase_without_an_undo_entry_commits_nothing(self):
+        addon = self.addon
+        buy_reward = self._big_chinchompa_handler()
+        addon.player_data["big_chinchompa"]["competence_points"] = 5
+        before = copy.deepcopy(addon.player_data)
+        self.collection.accepts = False
+
+        result = buy_reward("buy_reward", {"reward_id": "hunter_xp"})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Anki could not create an undo entry.")
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(len(self.saves), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
