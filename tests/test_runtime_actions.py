@@ -3988,6 +3988,38 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
 
+    def test_hunter_handler_awards_carrion_jadinko_vine_and_selected_seed(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Marasamaw plant": 1},
+            "hunter_level": 78,
+            "hunter_exp": 0,
+            "current_hunter": "catch_carrion_jadinko",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_hunter_answer(
+            _context(player_data, calls, random_values=(0.0, 0.0, 0.99))
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Marasamaw plant"], 1)
+        self.assertEqual(player_data["inventory"]["Pungent vine"], 1)
+        self.assertEqual(player_data["inventory"]["Samaden seed"], 1)
+        telemetry = player_data["action_telemetry"]["actions"][
+            "hunter:catch_carrion_jadinko"
+        ]
+        self.assertEqual(
+            telemetry["outputs"],
+            {"Pungent vine": 1, "Samaden seed": 1},
+        )
+        self.assertEqual(player_data["hunter_exp"], 505.0)
+        self.assertEqual(player_data["hunter_success_count"], 1)
+        self.assertEqual(calls["xp"], [505.0])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+
     def test_hunter_handler_runs_the_collapsed_razor_backed_tracking_route(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -4012,20 +4044,54 @@ class TestRuntimeActions(unittest.TestCase):
 
     def test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end(self):
         cases = {
-            "track_shadow_jadinko": (71, "Noose wand", "Shadow vine", 475.0),
-            "track_diseased_jadinko": (78, "Noose wand", "Corrupt vine", 580.5),
-            "catch_cannibal_jadinko": (75, "Marasamaw plant", "Plant teeth", 475.0),
-            "catch_guthix_jadinko": (81, "Marasamaw plant", "Guthix vine", 600.0),
+            "track_shadow_jadinko": (
+                71,
+                "Noose wand",
+                "Shadow vine",
+                "Samaden seed",
+                475.0,
+            ),
+            "track_diseased_jadinko": (
+                78,
+                "Noose wand",
+                "Corrupt vine",
+                "Samaden seed",
+                580.5,
+            ),
+            "catch_cannibal_jadinko": (
+                75,
+                "Marasamaw plant",
+                "Plant teeth",
+                "Kalferberry seed",
+                475.0,
+            ),
+            "catch_guthix_jadinko": (
+                81,
+                "Marasamaw plant",
+                "Guthix vine",
+                "Samaden seed",
+                600.0,
+            ),
         }
-        for target, (level, tool, output, expected_xp) in cases.items():
+        for target, (level, tool, output, secondary, expected_xp) in cases.items():
             with self.subTest(target=target):
                 calls = {"xp": [], "saves": 0, "errors": []}
-                player_data = {"inventory": {tool: 1}, "hunter_level": level, "hunter_exp": 0, "current_hunter": target, "hunter_success_count": 0, "completed_achievements": []}
+                player_data = {
+                    "inventory": {tool: 1},
+                    "hunter_level": level,
+                    "hunter_exp": 0,
+                    "current_hunter": target,
+                    "hunter_success_count": 0,
+                    "completed_achievements": [],
+                }
                 ok = handle_hunter_answer(
-                    _context(player_data, calls, random_values=(0.0, 1.0))
+                    _context(player_data, calls, random_values=(0.0, 0.0, 0.99))
                 )
                 self.assertTrue(ok)
-                self.assertEqual(player_data["inventory"], {tool: 1, output: 1})
+                self.assertEqual(
+                    player_data["inventory"],
+                    {tool: 1, output: 1, secondary: 1},
+                )
                 self.assertEqual(player_data["hunter_exp"], expected_xp)
                 self.assertEqual(player_data["hunter_success_count"], 1)
                 self.assertEqual(calls["xp"], [expected_xp])
@@ -4167,12 +4233,12 @@ class TestRuntimeActions(unittest.TestCase):
         from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
 
         routes = (
-            ("track_shadow_jadinko", "Noose wand", "Shadow vine", 71),
-            ("track_diseased_jadinko", "Noose wand", "Corrupt vine", 78),
-            ("catch_cannibal_jadinko", "Marasamaw plant", "Plant teeth", 75),
-            ("catch_guthix_jadinko", "Marasamaw plant", "Guthix vine", 81),
+            ("track_shadow_jadinko", "Noose wand", "Shadow vine", 71, "Ugune seed"),
+            ("track_diseased_jadinko", "Noose wand", "Corrupt vine", 78, "Ugune seed"),
+            ("catch_cannibal_jadinko", "Marasamaw plant", "Plant teeth", 75, None),
+            ("catch_guthix_jadinko", "Marasamaw plant", "Guthix vine", 81, "Ugune seed"),
         )
-        for target, tool, output, level in routes:
+        for target, tool, output, level, secondary_output in routes:
             with self.subTest(target=target):
                 calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
                 player_data = {
@@ -4198,13 +4264,17 @@ class TestRuntimeActions(unittest.TestCase):
 
                 inventory = player_data["inventory"]
                 self.assertEqual(inventory[output], 1)
+                expected_outputs = {output: 1}
+                if secondary_output is not None:
+                    self.assertEqual(inventory[secondary_output], 1)
+                    expected_outputs[secondary_output] = 1
                 for rock in SHATTERED_HEART_SKILLS_BY_ID["hunter"].rock_items:
                     self.assertEqual(inventory[rock], 1)
                 self.assertEqual(
                     player_data["action_telemetry"]["actions"][
                         f"hunter:{target}"
                     ]["outputs"],
-                    {output: 1},
+                    expected_outputs,
                 )
 
     def test_cannibal_jadinko_rocks_replace_only_the_tradeable_seed(self):

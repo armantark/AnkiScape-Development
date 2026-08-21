@@ -2351,6 +2351,155 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(butterfly_inv["Butterfly net"], 1)
         self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
+    def test_common_jadinko_opens_all_five_vine_herb_seeds_at_level_70(self):
+        target = "catch_common_jadinko"
+        spec = HUNTER_DATA[target]
+        self.assertEqual(spec["level"], 70)
+        self.assertEqual(spec["exp"], 350.0)
+        self.assertEqual(spec["source_npc_id"], 13119)
+        self.assertEqual(spec["secondary_drop_chance"], 16 / 256)
+
+        seed_rolls = (
+            (0.0, "Erzille seed"),
+            (0.2, "Ugune seed"),
+            (0.4, "Argway seed"),
+            (0.6, "Shengo seed"),
+            (0.8, "Samaden seed"),
+        )
+        for pick_roll, expected_seed in seed_rolls:
+            with self.subTest(seed=expected_seed):
+                inventory, exp, ok, output_item, _rewards = apply_hunter_action_pure(
+                    target,
+                    {"Marasamaw plant": 1},
+                    HUNTER_DATA,
+                    70,
+                    0.0,
+                    r_secondary_chance=0.0,
+                    r_secondary_pick=pick_roll,
+                )
+                self.assertTrue(ok)
+                self.assertEqual(exp, 350.0)
+                self.assertEqual(output_item, "Withered vine")
+                self.assertEqual(inventory["Marasamaw plant"], 1)
+                self.assertEqual(inventory["Withered vine"], 1)
+                self.assertEqual(inventory[expected_seed], 1)
+
+        no_seed, _exp, ok, _output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Marasamaw plant": 1},
+            HUNTER_DATA,
+            70,
+            0.0,
+            r_secondary_chance=16 / 256,
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertNotIn("Erzille seed", no_seed)
+
+    def test_all_jadinko_live_secondary_tables_match_darkan(self):
+        vine_herb_seeds = (
+            "Erzille seed",
+            "Ugune seed",
+            "Argway seed",
+            "Shengo seed",
+            "Samaden seed",
+        )
+        bush_seeds = ("Lergberry seed", "Kalferberry seed")
+        higher_vine_herb_seeds = vine_herb_seeds[1:]
+        expected = {
+            "track_shadow_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "track_diseased_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "catch_common_jadinko": (16 / 256, vine_herb_seeds),
+            "catch_igneous_jadinko": (13 / 256, bush_seeds),
+            "catch_cannibal_jadinko": (12 / 256, bush_seeds),
+            "catch_aquatic_jadinko": (
+                12 / 256,
+                ("Red blossom seed", "Blue blossom seed", "Green blossom seed"),
+            ),
+            "catch_amphibious_jadinko": (
+                20 / 256,
+                ("Apple tree seed", "Banana tree seed", "Orange tree seed"),
+            ),
+            "catch_carrion_jadinko": (30 / 256, vine_herb_seeds),
+            "catch_draconic_jadinko": (14 / 256, higher_vine_herb_seeds),
+            "catch_guthix_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "catch_saradomin_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "catch_zamorak_jadinko": (5 / 256, higher_vine_herb_seeds),
+        }
+        actual = {
+            target
+            for target in HUNTER_DATA
+            if target.endswith("_jadinko")
+            and (target.startswith("catch_") or target.startswith("track_"))
+        }
+        self.assertEqual(actual, set(expected))
+        for target, (chance, seed_names) in expected.items():
+            with self.subTest(target=target):
+                spec = HUNTER_DATA[target]
+                self.assertEqual(spec["secondary_drop_chance"], chance)
+                self.assertEqual(
+                    tuple(row["item"] for row in spec["secondary_outputs"]),
+                    seed_names,
+                )
+
+    def test_all_jadinko_live_secondary_tables_run_through_the_real_kernel(self):
+        cases = {
+            "track_shadow_jadinko": ("Shadow vine", "Samaden seed"),
+            "track_diseased_jadinko": ("Corrupt vine", "Samaden seed"),
+            "catch_common_jadinko": ("Withered vine", "Samaden seed"),
+            "catch_igneous_jadinko": ("Marble vine", "Kalferberry seed"),
+            "catch_cannibal_jadinko": ("Plant teeth", "Kalferberry seed"),
+            "catch_aquatic_jadinko": ("Aquatic vine", "Green blossom seed"),
+            "catch_amphibious_jadinko": ("Oily vine", "Orange tree seed"),
+            "catch_carrion_jadinko": ("Pungent vine", "Samaden seed"),
+            "catch_draconic_jadinko": ("Draconic vine", "Samaden seed"),
+            "catch_guthix_jadinko": ("Guthix vine", "Samaden seed"),
+            "catch_saradomin_jadinko": ("Saradomin vine", "Samaden seed"),
+            "catch_zamorak_jadinko": ("Zamorak vine", "Samaden seed"),
+        }
+        for target, (primary, secondary) in cases.items():
+            with self.subTest(target=target):
+                spec = HUNTER_DATA[target]
+                inventory, _xp, ok, output_item, _rewards = apply_hunter_action_pure(
+                    target,
+                    spec["tools"],
+                    HUNTER_DATA,
+                    spec["level"],
+                    0.0,
+                    r_secondary_chance=0.0,
+                    r_secondary_pick=0.999999,
+                )
+                self.assertTrue(ok)
+                self.assertEqual(output_item, primary)
+                self.assertEqual(inventory[primary], 1)
+                self.assertEqual(inventory[secondary], 1)
+                for tool, amount in spec["tools"].items():
+                    self.assertEqual(inventory[tool], amount)
+
+    def test_all_catch_jadinkos_share_the_marasamaw_group(self):
+        expected = {
+            "catch_common_jadinko",
+            "catch_igneous_jadinko",
+            "catch_cannibal_jadinko",
+            "catch_aquatic_jadinko",
+            "catch_amphibious_jadinko",
+            "catch_carrion_jadinko",
+            "catch_draconic_jadinko",
+            "catch_guthix_jadinko",
+            "catch_saradomin_jadinko",
+            "catch_zamorak_jadinko",
+        }
+        actual = {
+            target
+            for target, spec in HUNTER_DATA.items()
+            if target.startswith("catch_")
+            and target.endswith("_jadinko")
+            and spec["group"] == "marasamaw_trapping"
+        }
+        self.assertEqual(actual, expected)
+        for target in expected:
+            self.assertEqual(HUNTER_DATA[target]["tools"], {"Marasamaw plant": 1})
+
     def test_polar_kebbit_tracking_preserves_noose_wand_and_awards_sourced_outputs(self):
         target = "catch_polar_kebbit"
         self.assertEqual(

@@ -4524,21 +4524,26 @@ def _smelt_target_for_bar(bar_name: str) -> str:
 
 
 def _set_legacy_bar_target(bar_name: str):
-    player_data["current_bar"] = bar_name
-    _set_value("current_smith", _smelt_target_for_bar(bar_name))
+    return _set_values({
+        "current_bar": bar_name,
+        "current_smith": _smelt_target_for_bar(bar_name),
+    })
 
 
 def _set_combat_attack_style(selection):
-    """The combat style combo emits a (weapon_style, style_type) pair so the
-    orthogonal attack-type field is stored alongside the weapon_style. Set the
-    weapon_style directly, then persist+refresh once via the style_type write."""
+    """Persist the orthogonal weapon style and attack type as one undo step."""
     weapon_style, style_type = selection
-    player_data["combat_attack_style"] = weapon_style
-    _set_value("combat_attack_style_type", style_type)
+    return _set_values({
+        "combat_attack_style": weapon_style,
+        "combat_attack_style_type": style_type,
+    })
 
 
 def _set_combat_target(target):
-    player_data["combat_action"] = "attack"
+    values = {
+        "combat_action": "attack",
+        "current_combat_target": target,
+    }
     if target not in {"cyclops", "cyclossus"}:
         guild_state = sanitize_warriors_guild_state_pure(
             player_data.get("warriors_guild")
@@ -4547,13 +4552,21 @@ def _set_combat_target(target):
             guild_state["in_cyclops_room"] = False
             guild_state["cyclossus_pending"] = False
             guild_state["token_drain_residual"] = 0
-            player_data["warriors_guild"] = guild_state
-    _set_value("current_combat_target", target)
+            values["warriors_guild"] = guild_state
+    return _set_values(values)
 
 
-def _set_value(key: str, value):
-    player_data[key] = value
-    save_player_data()
+def _set_values(values):
+    if all(player_data.get(key) == value for key, value in values.items()):
+        return True
+
+    def _change(current):
+        updated = dict(current)
+        updated.update(values)
+        return updated, True
+
+    if not commit_direct_action(_change):
+        return False
     # Reflect target/activity changes on the in-review HUD immediately. For XP
     # skills the HUD shows level/progress (so the target swap is not visible
     # there), but for Utilities/Activities the HUD shows the active target name,
@@ -4563,6 +4576,11 @@ def _set_value(key: str, value):
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+    return True
+
+
+def _set_value(key: str, value):
+    return _set_values({key: value})
 
 
 def _set_combat_prayer_config(key: str, value):

@@ -2142,6 +2142,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda data, skill: calls["hud"].append(skill)
         addon.current_skill = "Utility / Activities"
         addon.player_data = {"inventory": {}, "current_utility": "gather_flax"}
+        addon.mw = _DummyMW(_DummyCol())
 
         addon._set_value("current_utility", "make_soft_clay")
 

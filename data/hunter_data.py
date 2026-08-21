@@ -45,6 +45,25 @@ HUNTER_NET_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_2
 HUNTER_MAGIC_BOX_SOURCE = "https://www.2011.rs/kb/hunter_magical_imp_boxes_level_71"
 HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
 HUNTER_WIMPY_BIRD_SOURCE = "https://runescape.wiki/w/Wimpy_bird?oldid=5936660"
+HUNTER_JADINKO_SOURCE = "https://runescape.wiki/w/Jadinkos?oldid=5917881"
+HUNTER_JADINKO_DROP_SOURCE_DIR = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/npcs/drops/hunter"
+)
+
+
+def _jadinko_drop_source(jadinko: str) -> str:
+    return f"{HUNTER_JADINKO_DROP_SOURCE_DIR}/hunter_jadinko_{jadinko}.json"
+
+
+def _jadinko_sub_drop_source(table: str) -> str:
+    return f"{HUNTER_JADINKO_DROP_SOURCE_DIR}/jadinko_sub/{table}.json"
+
+
+HUNTER_PAPA_MAMBO_SHOP_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/shops/papa_mambos_shop.json"
+)
 HERBLORE_HABITAT_SOURCE = "https://runescape.wiki/w/Herblore_Habitat?oldid=6513740"
 HERBLORE_HABITAT_JADINKO_SOURCES = {
     "catch_common_jadinko": "https://runescape.wiki/w/Common_jadinko?oldid=6129379",
@@ -56,10 +75,6 @@ HERBLORE_HABITAT_JADINKO_SOURCES = {
 DARKAN_HERBLORE_HABITAT_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
 )
-COMMON_JADINKO_DROP_SOURCE = (
-    f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
-    "hunter_jadinko_common.json"
-)
 COMMON_JADINKO_VINE_HERB_SEEDS: Mapping[str, Tuple[int, str]] = {
     "Erzille seed": (19897, "https://runescape.wiki/w/Erzille_seed?oldid=5780035"),
     "Ugune seed": (19902, "https://runescape.wiki/w/Ugune_seed?oldid=6134455"),
@@ -68,7 +83,7 @@ COMMON_JADINKO_VINE_HERB_SEEDS: Mapping[str, Tuple[int, str]] = {
     "Samaden seed": (19917, "https://runescape.wiki/w/Samaden_seed?oldid=5913077"),
 }
 
-# PLACEHOLDER(hunter.herblore_habitat_success_curves): period Marasamaw and
+# PLACEHOLDER(hunter.herblore_habitat_success_curves): period Shadow and Diseased
 # tracker catch routines or qualified measured tables would replace this shared fallback.
 HERBLORE_HABITAT_RATE1 = 128
 HERBLORE_HABITAT_RATE99 = 256
@@ -91,6 +106,7 @@ HUNTER_GROUP_LABELS = {
     "barehanded_butterflies": "Barehanded butterflies",
     "deadfall": "Deadfall",
     "box_trapping": "Box trapping",
+    "marasamaw_trapping": "Marasamaw trapping",
     "net_trapping": "Net trapping",
     "falconry": "Falconry",
     "magic_box": "Magic boxes",
@@ -104,13 +120,11 @@ HUNTER_REUSABLE_TOOLS_BY_GROUP = {
     "tracking": (("Noose wand", 1),),
     "butterfly_netting": (("Butterfly net", 1),),
     "box_trapping": (("Box trap", 1),),
+    "marasamaw_trapping": (("Marasamaw plant", 1),),
     "net_trapping": (("Small fishing net", 1), ("Rope", 1)),
     "impling_puro_puro": (("Butterfly net", 1),),
 }
 HUNTER_REUSABLE_TOOLS_BY_TARGET = {
-    "catch_common_jadinko": (("Marasamaw plant", 1),),
-    "catch_cannibal_jadinko": (("Marasamaw plant", 1),),
-    "catch_guthix_jadinko": (("Marasamaw plant", 1),),
     "catch_imp_magic_box": (),
 }
 HUNTER_SUPPLY_BUNDLE = (
@@ -122,6 +136,7 @@ HUNTER_SUPPLY_BUNDLE = (
     ("Small fishing net", 1),
     ("Rope", 1),
     ("Noose wand", 1),
+    ("Marasamaw plant", 1),
     ("Teasing stick", 1),
     ("Rabbit snare", 1),
     ("Impling jar", 10),
@@ -219,6 +234,23 @@ def _target(
 
 
 _BONES = ("Bones", 1)
+_VINE_HERB_SEEDS = tuple(
+    (item_name, 1, 1) for item_name in COMMON_JADINKO_VINE_HERB_SEEDS
+)
+_HABITAT_BUSH_SEEDS = (
+    ("Lergberry seed", 1, 1),
+    ("Kalferberry seed", 1, 1),
+)
+_HABITAT_BLOSSOM_SEEDS = (
+    ("Red blossom seed", 1, 1),
+    ("Blue blossom seed", 1, 1),
+    ("Green blossom seed", 1, 1),
+)
+_FRUIT_TREE_SEEDS = (
+    ("Apple tree seed", 1, 1),
+    ("Banana tree seed", 1, 1),
+    ("Orange tree seed", 1, 1),
+)
 
 HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
     _target(
@@ -367,6 +399,8 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Shadow omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_shadow_jadinko",
         "Track shadow jadinko",
@@ -376,15 +410,31 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Shadow vine", 1)),
         "Shadow vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_shadow_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_shadow.json"),
+        mechanics_source=(
+            f"{_jadinko_drop_source('shadow')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
         source_enum="SHADOW",
         source_item_id=19977,
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        notes=("Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand tracking, Shadow vine, and the red-blossom and abandoned-house Habitat setup. One review represents the complete trail and persistent setup."),
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand "
+            "tracking, Shadow vine, and the red-blossom and abandoned-house Habitat "
+            "setup. One review represents the complete trail and persistent setup. "
+            "The live secondary slot rolls one of the four higher-level vine-herb "
+            "seeds at 5/256. Darkan also rolls bush seeds at 8/256 and blossom seeds "
+            "at 4/256 independently; those known tables remain registered until the "
+            "pure Hunter contract supports multiple secondary tables."
+        ),
         sort_order=20,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Diseased omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_diseased_jadinko",
         "Track diseased jadinko",
@@ -394,13 +444,27 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         _out(("Corrupt vine", 1)),
         "Corrupt vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['track_diseased_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_diseased.json"),
+        mechanics_source=(
+            f"{_jadinko_drop_source('diseased')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
         source_enum="DISEASED",
         source_item_id=19979,
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        notes=("Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. One review represents the complete trail and persistent setup."),
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand "
+            "tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. "
+            "One review represents the complete trail and persistent setup. The live "
+            "secondary slot rolls one of the four higher-level vine-herb seeds at "
+            "5/256. Darkan also rolls bush seeds at 8/256 and blossom seeds at 4/256 "
+            "independently; those known tables remain registered until the pure Hunter "
+            "contract supports multiple secondary tables."
+        ),
         sort_order=30,
     ),
     _target(
@@ -673,94 +737,74 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=40,
     ),
     _target(
-        "catch_common_jadinko",
-        "Catch common jadinko",
-        "box_trapping",
-        70,
-        350.0,
-        _out(("Withered vine", 1)),
-        "Withered vine",
-        source=(
-            f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_common_jadinko']}; "
-            f"{HERBLORE_HABITAT_SOURCE}; "
-            + "; ".join(source for _item_id, source in COMMON_JADINKO_VINE_HERB_SEEDS.values())
-        ),
-        mechanics_source=COMMON_JADINKO_DROP_SOURCE,
-        source_enum="COMMON_JADINKO",
-        source_npc_id=13119,
-        source_item_id=19971,
-        rate1=HERBLORE_HABITAT_RATE1,
-        rate99=HERBLORE_HABITAT_RATE99,
-        tradeable=False,
-        secondary_drop_chance=(
-            COMMON_JADINKO_SEED_ROLL_CHANCE / COMMON_JADINKO_SEED_ROLL_OUT_OF
-        ),
-        secondary_outputs=tuple(
-            (item_name, 1, 1) for item_name in COMMON_JADINKO_VINE_HERB_SEEDS
-        ),
-        notes=(
-            "Common jadinko oldid 6129379 pins level 70, 350 XP, the Marasamaw "
-            "route, Withered vine, and a seed chance; the five pinned seed pages "
-            "each name Common jadinkos as an acquisition route. Jadinkos oldid "
-            "5917881 requires any vine blossom and assigns no god-Jadinko environment."
-        ),
-        sort_order=50,
-    ),
-    _target(
         "catch_cannibal_jadinko",
         "Catch cannibal jadinko",
-        "box_trapping",
+        "marasamaw_trapping",
         75,
         475.0,
         _out(("Plant teeth", 1)),
         "Plant teeth",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_cannibal_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
         mechanics_source=(
-            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/"
-            "hunter_jadinko_cannibal.json; "
-            f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/jadinko_sub/"
-            "hh_bush_seed.json"
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('cannibal')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}"
         ),
         source_enum="CANNIBAL_JADINKO",
         source_npc_id=13155,
         source_item_id=19975,
-        rate1=HERBLORE_HABITAT_RATE1,
-        rate99=HERBLORE_HABITAT_RATE99,
+        rate1=20,
+        rate99=140,
         tradeable=False,
         secondary_drop_chance=12 / 256,
-        secondary_outputs=(
-            ("Lergberry seed", 1, 1),
-            ("Kalferberry seed", 1, 1),
-        ),
+        secondary_outputs=_HABITAT_BUSH_SEEDS,
         notes=(
             "Cannibal jadinko oldid 5976665 pins level 75, 475 XP, "
             "Marasamaw plant trapping, Plant teeth, a chance at vine-bush seeds, "
             "and the green-blossom, Kalferberry, tall-grass, Juju-treated Habitat setup. "
-            "Darkan's parent table rolls 12/256, then hh_bush_seed drops one of "
+            "Darkan's BoxHunterType supplies the 20/140 success endpoints. Its parent "
+            "table rolls 12/256, then hh_bush_seed drops one of "
             "Lergberry seed or Kalferberry seed at quantity 1; Kalferberry's 3/128 "
             "overall chance is derived from those table constants. Persistent setup "
             "and optional bait are route context, not per-catch consumables."
         ),
-        sort_order=50,
+        sort_order=10,
     ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Guthix omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_guthix_jadinko",
         "Catch Guthix jadinko",
-        "box_trapping",
+        "marasamaw_trapping",
         81,
         600.0,
         _out(("Guthix vine", 1)),
         "Guthix vine",
         source=f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_guthix_jadinko']}; {HERBLORE_HABITAT_SOURCE}",
-        mechanics_source=(f"{DARKAN_HERBLORE_HABITAT_SOURCE_ROOT}data/npcs/drops/hunter/" "hunter_jadinko_guthix.json"),
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('guthix')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
         source_enum="GUTHIX_JADINKO",
         source_npc_id=13164,
         source_item_id=19982,
-        rate1=HERBLORE_HABITAT_RATE1,
-        rate99=HERBLORE_HABITAT_RATE99,
+        rate1=15,
+        rate99=130,
         tradeable=False,
-        notes=("Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw plant trapping, Guthix vine, a Juju-treated flower patch, and weekly player-specific preferences. Persistent setup and optional bait are route context, not per-catch consumables."),
-        sort_order=60,
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw "
+            "plant trapping, Guthix vine, a Juju-treated flower patch, and weekly "
+            "player-specific preferences. Darkan's BoxHunterType supplies the "
+            "15/130 success endpoints. The live secondary slot rolls one of the four "
+            "higher-level vine-herb seeds at 5/256. Darkan also rolls bush seeds at "
+            "6/256 and blossom seeds at 4/256 independently; those known tables "
+            "remain registered until the pure Hunter contract supports multiple "
+            "secondary tables. Persistent setup and optional bait are route context, "
+            "not per-catch consumables."
+        ),
+        sort_order=10,
     ),
     _target(
         "catch_grenwall",
@@ -778,6 +822,233 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate99=180,
         notes="Source drop range is 18-21 spikes plus optional herbs; AnkiScape awards the guaranteed minimum.",
         sort_order=50,
+    ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Common omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
+    _target(
+        "catch_common_jadinko",
+        "Catch common jadinko",
+        "marasamaw_trapping",
+        70,
+        350.0,
+        _out(("Withered vine", 1)),
+        "Withered vine",
+        source=(
+            f"{HERBLORE_HABITAT_JADINKO_SOURCES['catch_common_jadinko']}; "
+            f"{HUNTER_JADINKO_SOURCE}; {HERBLORE_HABITAT_SOURCE}; "
+            + "; ".join(
+                source
+                for _item_id, source in COMMON_JADINKO_VINE_HERB_SEEDS.values()
+            )
+        ),
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('common')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
+        source_enum="COMMON_JADINKO",
+        source_npc_id=13119,
+        source_item_id=19971,
+        rate1=30,
+        rate99=150,
+        tradeable=False,
+        secondary_drop_chance=(
+            COMMON_JADINKO_SEED_ROLL_CHANCE / COMMON_JADINKO_SEED_ROLL_OUT_OF
+        ),
+        secondary_outputs=_VINE_HERB_SEEDS,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The live secondary slot rolls one uniformly weighted vine-herb seed at "
+            "16/256. Darkan also rolls bush seeds at 14/256 and blossom seeds at "
+            "17/256 independently; those known tables remain registered until the "
+            "pure Hunter contract supports multiple secondary tables."
+        ),
+        sort_order=10,
+    ),
+    _target(
+        "catch_igneous_jadinko",
+        "Catch igneous jadinko",
+        "marasamaw_trapping",
+        74,
+        465.0,
+        _out(("Marble vine", 1)),
+        "Marble vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('igneous')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}"
+        ),
+        source_enum="IGNEOUS_JADINKO",
+        source_npc_id=13143,
+        source_item_id=19980,
+        rate1=25,
+        rate99=145,
+        secondary_drop_chance=13 / 256,
+        secondary_outputs=_HABITAT_BUSH_SEEDS,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "Darkan rolls one Lergberry or Kalferberry seed at 13/256."
+        ),
+        sort_order=10,
+    ),
+    _target(
+        "catch_aquatic_jadinko",
+        "Catch aquatic jadinko",
+        "marasamaw_trapping",
+        76,
+        475.0,
+        _out(("Aquatic vine", 1)),
+        "Aquatic vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('aquatic')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
+        source_enum="AQUATIC_JADINKO",
+        source_npc_id=13142,
+        source_item_id=19976,
+        rate1=15,
+        rate99=135,
+        secondary_drop_chance=12 / 256,
+        secondary_outputs=_HABITAT_BLOSSOM_SEEDS,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "Darkan rolls one red, blue, or green blossom seed at 12/256."
+        ),
+        sort_order=10,
+    ),
+    _target(
+        "catch_amphibious_jadinko",
+        "Catch amphibious jadinko",
+        "marasamaw_trapping",
+        77,
+        485.0,
+        _out(("Oily vine", 1)),
+        "Oily vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('amphibious')}",
+        source_enum="AMPHIBIOUS_JADINKO",
+        source_npc_id=13130,
+        source_item_id=19972,
+        rate1=15,
+        rate99=130,
+        secondary_drop_chance=20 / 256,
+        secondary_outputs=_FRUIT_TREE_SEEDS,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "Darkan rolls one apple, banana, or orange tree seed at 20/256."
+        ),
+        sort_order=10,
+    ),
+    _target(
+        "catch_carrion_jadinko",
+        "Catch carrion jadinko",
+        "marasamaw_trapping",
+        78,
+        505.0,
+        _out(("Pungent vine", 1)),
+        "Pungent vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('carrion')}",
+        source_enum="CARRION_JADINKO",
+        source_npc_id=13154,
+        source_item_id=19974,
+        rate1=15,
+        rate99=130,
+        secondary_drop_chance=30 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS,
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one uniformly weighted vine-herb seed at 30/256."
+        ),
+        sort_order=10,
+    ),
+    _target(
+        "catch_draconic_jadinko",
+        "Catch draconic jadinko",
+        "marasamaw_trapping",
+        80,
+        525.0,
+        _out(("Draconic vine", 1)),
+        "Draconic vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('draconic')}",
+        source_enum="DRACONIC_JADINKO",
+        source_npc_id=13131,
+        source_item_id=19973,
+        rate1=15,
+        rate99=130,
+        secondary_drop_chance=14 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The Darkan drop table rolls one of the four higher-level vine-herb seeds at 14/256."
+        ),
+        sort_order=10,
+    ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Saradomin omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
+    _target(
+        "catch_saradomin_jadinko",
+        "Catch Saradomin jadinko",
+        "marasamaw_trapping",
+        81,
+        600.0,
+        _out(("Saradomin vine", 1)),
+        "Saradomin vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('saradomin')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
+        source_enum="SARADOMIN_JADINKO",
+        source_npc_id=13163,
+        source_item_id=19981,
+        rate1=15,
+        rate99=130,
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The live secondary slot rolls one of the four higher-level vine-herb "
+            "seeds at 5/256. Darkan also rolls bush seeds at 6/256 and blossom seeds "
+            "at 4/256 independently; those known tables remain registered until the "
+            "pure Hunter contract supports multiple secondary tables."
+        ),
+        sort_order=10,
+    ),
+    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Zamorak omits its
+    # independent bush/blossom tables until one action can roll multiple tables.
+    _target(
+        "catch_zamorak_jadinko",
+        "Catch Zamorak jadinko",
+        "marasamaw_trapping",
+        81,
+        600.0,
+        _out(("Zamorak vine", 1)),
+        "Zamorak vine",
+        source=HUNTER_JADINKO_SOURCE,
+        mechanics_source=(
+            f"{BOX_HUNTER_TYPE_SOURCE}; {_jadinko_drop_source('zamorak')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
+        source_enum="ZAMORAK_JADINKO",
+        source_npc_id=13165,
+        source_item_id=19983,
+        rate1=15,
+        rate99=130,
+        secondary_drop_chance=5 / 256,
+        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        notes=(
+            "One review collapses habitat attraction, trap placement, and retrieval. "
+            "The live secondary slot rolls one of the four higher-level vine-herb "
+            "seeds at 5/256. Darkan also rolls bush seeds at 6/256 and blossom seeds "
+            "at 4/256 independently; those known tables remain registered until the "
+            "pure Hunter contract supports multiple secondary tables."
+        ),
+        sort_order=10,
     ),
     _target(
         "catch_swamp_lizard",
@@ -1001,6 +1272,22 @@ HUNTER_TOOL_ITEMS: Mapping[str, int] = {
     "Rope": 954,
 }
 
+HUNTER_HABITAT_SEED_ITEMS: Mapping[str, int] = {
+    item_name: item_id
+    for item_name, (item_id, _source) in COMMON_JADINKO_VINE_HERB_SEEDS.items()
+}
+
+HUNTER_HABITAT_VINE_ITEMS: Mapping[str, Tuple[int, str]] = {
+    "Withered vine": (19971, "common"),
+    "Aquatic vine": (19976, "aquatic"),
+    "Draconic vine": (19973, "draconic"),
+    "Marble vine": (19980, "igneous"),
+    "Oily vine": (19972, "amphibious"),
+    "Pungent vine": (19974, "carrion"),
+    "Saradomin vine": (19981, "saradomin"),
+    "Zamorak vine": (19983, "zamorak"),
+}
+
 HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Bones": 526,
     "Raw bird meat": 9978,
@@ -1010,11 +1297,11 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Blue feather": 10089,
     "Stripy feather": 10087,
     "Wimpy feather": 11525,
-    "Withered vine": 19971,
     **{
         item_name: item_id
-        for item_name, (item_id, _source) in COMMON_JADINKO_VINE_HERB_SEEDS.items()
+        for item_name, (item_id, _jadinko) in HUNTER_HABITAT_VINE_ITEMS.items()
     },
+    **HUNTER_HABITAT_SEED_ITEMS,
     "Plant teeth": 19975,
     "Shadow vine": 19977,
     "Corrupt vine": 19979,
@@ -1110,19 +1397,41 @@ def _hunter_extra_category(item_name: str) -> str:
         return "tool"
     if (
         item_name in HUNTER_MATERIAL_ITEMS
-        or item_name == "Withered vine"
-        or item_name in COMMON_JADINKO_VINE_HERB_SEEDS
+        or item_name in HUNTER_HABITAT_SEED_ITEMS
+        or item_name in HUNTER_HABITAT_VINE_ITEMS
     ):
         return "material"
     return "hunter"
 
 
 def _hunter_extra_source(item_name: str) -> str:
-    if item_name in COMMON_JADINKO_VINE_HERB_SEEDS:
-        return COMMON_JADINKO_VINE_HERB_SEEDS[item_name][1]
+    if item_name in HUNTER_HABITAT_VINE_ITEMS:
+        jadinko = HUNTER_HABITAT_VINE_ITEMS[item_name][1]
+        sources = [_jadinko_drop_source(jadinko)]
+        if item_name == "Withered vine":
+            sources.insert(
+                0, HERBLORE_HABITAT_JADINKO_SOURCES["catch_common_jadinko"]
+            )
+        return "; ".join(sources)
+    if item_name in HUNTER_HABITAT_SEED_ITEMS:
+        return "; ".join(
+            (
+                COMMON_JADINKO_VINE_HERB_SEEDS[item_name][1],
+                *(
+                    _jadinko_drop_source(jadinko)
+                    for jadinko in (
+                        "common",
+                        "carrion",
+                        "draconic",
+                        "saradomin",
+                        "zamorak",
+                    )
+                ),
+            )
+        )
+    if item_name == "Marasamaw plant":
+        return HUNTER_PAPA_MAMBO_SHOP_SOURCE
     jadinko_sources = {
-        "Marasamaw plant": HERBLORE_HABITAT_SOURCE,
-        "Withered vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_common_jadinko"],
         "Corrupt vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_diseased_jadinko"],
         "Guthix vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_guthix_jadinko"],
         "Shadow vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_shadow_jadinko"],
@@ -1150,14 +1459,15 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "exp": 0.0,
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
-            "tradeable": item_name not in {
-                "Withered vine",
+            "tradeable": item_name
+            not in {
                 "Corrupt vine",
                 "Guthix vine",
                 "Shadow vine",
                 "Plant teeth",
-                *COMMON_JADINKO_VINE_HERB_SEEDS,
+                *HUNTER_HABITAT_SEED_ITEMS,
+                *HUNTER_HABITAT_VINE_ITEMS,
             },
-            "stackable": item_name not in {"Rope", "Marasamaw plant"},
+            "stackable": item_name not in {"Marasamaw plant", "Rope"},
         }
     return rows

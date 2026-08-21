@@ -545,6 +545,29 @@ comes from `gnome_restaurant_view_pure`, so no logic moves.
 **Blocks:** nothing. Gnome Restaurant is at breadth one either way; this decides
 which layout ships.
 
+### 3.28 Camouflaged jadinko needs its own source-backed tracker slice
+
+Raised 2026-08-21 while closing the grimy-herb re-land audit. This is a content
+gap to preserve, not a request to widen that slice.
+
+Darkan commit `7e7d67b` defines `CAMOUFLAGED` as the third tracker: Hunter 79,
+guaranteed Camo vine item `19978`, Juju hunter potion required, Standing Stones,
+`ProduceType.Lergberry`, and an empty fruit-tree patch. Descendant restoration
+commit `16b179a` adds the exact tracker XP, `600.0`. At `7e7d67b`,
+`data/npcs/drops/hunter/hunter_jadinko_camouflaged.json` independently rolls
+bush seeds at `16/256`, one of Ugune, Argway, Shengo, or Samaden seed at `4/256`,
+and blossom seeds at `4/256`, in addition to the guaranteed Camo vine.
+
+AnkiScape has no `track_camouflaged_jadinko` action, no Standing-Stones plus
+Lergberry tracker gate, and therefore no route to item `19978`. The grimy-herb
+slice registers the other twelve source rows; adding this third tracker is new
+Hunter content and must not be hidden inside the six-row independent-table fix.
+
+Recommendation: implement Camouflaged in its own slice, using the established
+tracker action shape plus its source feature, produce, Juju, empty-tree, XP, and
+three independent drop tables. Blocks: the Camo vine route and a complete
+thirteen-row Jadinko roster, but not the five live vine-herb chains.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
@@ -826,8 +849,8 @@ semantics clauses and the v88 migration read, not player-visible content.
   decay clock. Do not add an activation button.
 - Visible boosts take the larger value, so an Agility cape does not stack its +1
   on a +3 potion. Invisible familiar boosts add after the visible boost.
-- Re-measured after the arithmetic fixes: **39 shipped roll paths still change**
-  between 99 and the cape's 100 — 33 Hunter, 3 Firemaking, 2 Thieving and 1
+- Re-measured after the arithmetic fixes: **49 shipped roll paths still change**
+  between 99 and the cape's 100 — 43 Hunter, 3 Firemaking, 2 Thieving and 1
   Cooking. The blast radius stands, but it now flows through boost semantics.
 - Authority:
   `memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md`.
@@ -1013,3 +1036,22 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
 
 - **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:693` for Herblore, `runtime/runtime_actions_gathering.py:668` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
 - **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:307`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
+
+### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
+
+- Darkan commit `7e7d67b` rolls three independent secondary tables for Common,
+  Guthix, Saradomin, Zamorak, Shadow, and Diseased jadinkos. One Hunter action can
+  therefore award more than one secondary item. The current pure Hunter contract
+  has one `secondary_drop_chance` and one `secondary_outputs` list, so merging the
+  tables would change both marginal chances and same-catch combinations.
+- Do not approximate the missing rolls and do not widen the pure contract inside
+  the grimy-herb slice. Each affected row implements its vine-herb table and marks
+  the exact omission as
+  `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)`.
+- The smallest follow-up is to replace the single secondary slot with an ordered
+  tuple of tables, each carrying its own chance and weighted outputs, and to pass
+  one independent chance/pick pair per table through the pure action and runtime
+  adapter. Existing one-table rows migrate one-for-one. Common then adds bush
+  `14/256` and blossom `17/256`; Guthix, Saradomin, and Zamorak each add bush
+  `6/256` and blossom `4/256`; Shadow and Diseased each add bush `8/256` and
+  blossom `4/256`.

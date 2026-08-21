@@ -1610,6 +1610,11 @@ HUNTER_SHARED_ITEM_IMAGES = {
     "Long kebbit spike": os.path.join(
         FLETCHED_ITEMS_FOLDER, "long_kebbit_spike.png"
     ),
+    "Erzille seed": os.path.join(FARMING_ITEMS_FOLDER, "erzille_seed.png"),
+    "Argway seed": os.path.join(FARMING_ITEMS_FOLDER, "argway_seed.png"),
+    "Ugune seed": os.path.join(FARMING_ITEMS_FOLDER, "ugune_seed.png"),
+    "Shengo seed": os.path.join(FARMING_ITEMS_FOLDER, "shengo_seed.png"),
+    "Samaden seed": os.path.join(FARMING_ITEMS_FOLDER, "samaden_seed.png"),
 }
 for _item_name in set(hunter_item_names()) | set(HUNTER_OUTPUT_ITEMS) | set(HUNTER_EXTRA_ITEM_DATA):
     _path = HUNTER_SHARED_ITEM_IMAGES.get(
