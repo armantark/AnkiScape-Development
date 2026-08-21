@@ -125,9 +125,3 @@ The final reachability audit reports:
 ```text
 1582 actions; 2307 reachable items; 72 orphan inputs; 71 blocked actions
 ```
-
-## Queue
-
-`ui/ui.py` lines 1467-1470 apply skill availability as a one-way enable. A button stays enabled after the pure result becomes false.
-
-The same pattern exists on nearby skill buttons. A separate slice must fix every skill button.
