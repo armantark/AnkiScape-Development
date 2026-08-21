@@ -23,13 +23,19 @@ reachability pin, and a green gate.
 
 | branch | head | remaining minors |
 | --- | --- | --- |
-| `goal/vines-reland-2026-08-19` | `986933f0` | **NOT promotable — two majors found on the merged tree, see below** |
+| `goal/vines-reland-2026-08-19` | see 2026-08-21 note below | **NOT promotable — still in correction; the figures once pinned here are stale** |
 | `goal/herbs-reland-2026-08-19` | `c0face44` | one stale sibling docstring still citing the superseded 39-path count |
 | `goal/papercuts-reland-2026-08-19` | `334214e1` | none recorded |
 
-**The vine slice must be fixed before it lands.** Its merge, its re-measured
-pins (`1586 / 2307 / 75 / 45 / 30 / 75 / 1123`) and its plain lane (4,172 tests,
-502 skips) are all correct. Two majors stop it:
+**The vine slice must be fixed before it lands.** DO NOT pin the figures in this
+section — they were superseded on 2026-08-21 and are recorded here only as the
+history of the correction. The figures once given as `1586 / 2307 / 75 / 45 / 30
+/ 75 / 1123` with a 4,172-test plain lane were valid only for head `986933f0`.
+Removing four invalid consume actions moved the branch to `1582 / 2307 / 72 / 45
+/ 27 / 71 / 1123` at 4,180 tests, and the drink-semantics correction now in
+flight will move it again. Re-measure on the merged tree, always.
+
+Two majors stopped it originally:
 
 1. It grants a drinkable `+3` Hunter boost for the Juju hunter potion, which
    both of its own pinned sources contradict — Darkan `Potions.kt:522` is a
@@ -127,3 +133,36 @@ replacing a shipped safeguard with a parity change is his call. Recorded in
   placeholder or delete the row, never manufacture something that looks right.
 - One commit per slice is the shape of a finished slice, not a cap. Correctness
   outranks the count.
+
+
+## 8. Added 2026-08-21
+
+**Landed since this file was written:** `992191ca` tooling guardrails.
+
+**Undo-seam fan-out, seven branches, all committed, all under one cross-lineage
+review:** `goal/undo-{ge,farming,mta,agility,warriors,chinchompa,star}-2026-08-21`.
+Each migrates ONE `_apply_*` handler onto `commit_direct_action`. Twenty-five of
+the thirty-two handlers remain.
+
+The trap every one of them was warned about, and which the first attempt shipped:
+`commit_direct_action` returns False for two different reasons — the pure
+function refused, or `mw.col.add_custom_undo_entry` raised and nothing was
+written. Collapsing them tells the player an action succeeded while nothing was
+saved. Read the pre-migration handler on `main` to recover its distinct returns;
+do not infer them from the migrated code.
+
+**Ox Alpha authored all seven.** It stalls if told to run the full lanes — those
+are single commands lasting four to ten minutes — and works well when given the
+focused test only, with the orchestrator running the lanes as the promotion gate.
+Probes confirmed it writes, commits, reads 221 KB files and carries the long
+prohibitions preamble without trouble.
+
+**The vine slice's drink semantics were wrong twice, in opposite directions.**
+Darkan `Potions.kt` defines `open fun canDrink(): Boolean { return true }` and a
+`drink()` that swaps in the next-lower dose, invokes the effect and prints "You
+drink some of your ...". `JUJU_HUNTER_POTION` has no override, so the player DOES
+drink it and DOES consume a dose; only the stat effect is absent. The Habitat
+reagent behaviour lives in `FarmPatch.java:340-361`, not in `Potions.kt`. The
+placeholder row that claimed otherwise is being corrected, and it is the reason
+the error propagated: a brief quoted the Memory Bank summary as if it were the
+source.
