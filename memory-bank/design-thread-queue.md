@@ -826,8 +826,8 @@ semantics clauses and the v88 migration read, not player-visible content.
   decay clock. Do not add an activation button.
 - Visible boosts take the larger value, so an Agility cape does not stack its +1
   on a +3 potion. Invisible familiar boosts add after the visible boost.
-- Re-measured after the arithmetic fixes: **39 shipped roll paths still change**
-  between 99 and the cape's 100 — 33 Hunter, 3 Firemaking, 2 Thieving and 1
+- Re-measured after the arithmetic fixes: **47 shipped roll paths still change**
+  between 99 and the cape's 100 — 41 Hunter, 3 Firemaking, 2 Thieving and 1
   Cooking. The blast radius stands, but it now flows through boost semantics.
 - Authority:
   `memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md`.
@@ -992,3 +992,20 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
    description, labeled as an AnkiScape analog; nothing ships unsigned).
    Requires coordination with the Darkan restoration thread over the suite.
    Until the packet is approved, the honest no-effect display stays.
+
+### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
+
+- Darkan commit `7e7d67b` rolls three independent secondary tables for Common,
+  Saradomin, and Zamorak jadinkos. A single catch can therefore award more than
+  one secondary item. The current pure Hunter contract has one
+  `secondary_drop_chance` and one `secondary_outputs` list, so merging the tables
+  would change both marginal chances and same-catch combinations.
+- Do not approximate the missing rolls and do not widen the pure contract inside
+  the grimy-herb slice. The exact omission is registered as
+  `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)`.
+- The smallest follow-up is to replace the single secondary slot with an ordered
+  tuple of tables, each carrying its own chance and weighted outputs, and to pass
+  one independent chance/pick pair per table through the pure action and runtime
+  adapter. Existing one-table rows migrate one-for-one. Common then adds bush
+  `14/256` and blossom `17/256`; Saradomin and Zamorak each add bush `6/256` and
+  blossom `4/256`.

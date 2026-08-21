@@ -1989,6 +1989,11 @@ class TargetMetadataTest(unittest.TestCase):
         )
 
         cannibal = _row(rows, "catch_cannibal_jadinko")
+        self.assertEqual(cannibal.group, "marasamaw_trapping")
+        self.assertEqual(
+            _row(rows, "catch_guthix_jadinko").group,
+            "marasamaw_trapping",
+        )
         self.assertIn(
             "Rare outputs: Lergberry seed ×1, Kalferberry seed ×1",
             cannibal.tooltip,

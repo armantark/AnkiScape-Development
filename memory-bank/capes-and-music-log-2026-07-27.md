@@ -129,7 +129,7 @@ six defects. Five are fixed; one cannot be fixed honestly yet.
   path. The period row stays complete in `SKILLCAPES`, and the test that pins
   its absence is now the record of the gap.
 - **Fork 3.10 said the skillcape boost changes exactly one roll.** Measured, it
-  changes 39: 33 Hunter, 3 Firemaking, 2 Thieving yield, 1 Cooking. Hunter's
+  changes 47: 41 Hunter, 3 Firemaking, 2 Thieving yield, 1 Cooking. Hunter's
   formula interpolates on `level / 99.0` without clamping, which the original
   reasoning missed. The figure is pinned by a test.
 
