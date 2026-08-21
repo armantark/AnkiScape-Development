@@ -1801,3 +1801,32 @@ one of implement / register-with-adjacent-marker / source-gives-nothing.
 
 Watch for the same shape elsewhere. It is cheap to produce and expensive to find:
 each round looks like progress because the named thing really was fixed.
+
+### Bound an enumeration by the source, never by the artifact under review
+
+The herb branch's fix-by-instance cycle was broken by asking for a sweep — a
+table of every jadinko row with a required disposition each. It worked: three
+missing direct tables implemented, six genuinely multi-table rows given adjacent
+markers, 200,000-action probes confirming 3,787 drops on each new row.
+
+Then the reviewer found the sweep was still bounded wrongly. The brief said
+"enumerate ALL ten catch/track jadinko rows". Ten was the count of rows the
+BRANCH had. Darkan's `JadinkoType.kt` defines THIRTEEN jadinkos with THREE
+trackers — `SHADOW`, `DISEASED`, and `CAMOUFLAGED` — and the branch has two.
+`hunter_jadinko_camouflaged.json` sits in the directory the audit cites, giving
+bush seeds 16/256, four vine-herb seeds 4/256, and blossom 4/256. Nothing in the
+tree mentions item 19978, and the records read as complete enumerations.
+
+So the rule is not "sweep the class" but something sharper:
+
+**Take the enumeration set from the source, never from the artifact under
+review.** A sweep bounded by what the branch already contains cannot discover
+what the branch omits — it only re-confirms what is there. The brief has to name
+the source of truth for the row set (here `JadinkoType.kt` plus the drop-file
+directory) and require the report to list which source rows the slice does NOT
+implement.
+
+Camouflaged itself is being disclosed, not implemented: a third tracker route
+with its own feature gate and produce type is new content and belongs in its own
+slice, not in a herb re-land. That is the BFS boundary — found only because of
+this work, so surface it rather than fix it.
