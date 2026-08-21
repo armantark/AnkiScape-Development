@@ -1,4 +1,8 @@
+import os
+import subprocess
+import sys
 import unittest
+from pathlib import Path
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS
@@ -7,6 +11,45 @@ from tools import build_pre_eoc_quest_catalog as builder
 
 
 class TestPreEocQuestCatalogBuilder(unittest.TestCase):
+    def test_mirrored_quest_sources_keep_canonical_provenance(self):
+        game_mirror = "/tmp/disposable-game-main-mirror"
+        darkan_mirror = "/tmp/disposable-darkan-mirror"
+        environment = dict(
+            os.environ,
+            ANKISCAPE_GAME_MAIN=game_mirror,
+            ANKISCAPE_DARKAN_WORLD_SERVER=darkan_mirror,
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "from tools import build_pre_eoc_quest_catalog as builder; "
+                    "payload = f'{builder.SCAPE_2011_QUEST_IMPL_DIR}|{builder.DARKAN_NPC_LIST_PATH}'; "
+                    "print(builder.GAME_MAIN_DIR); "
+                    "print(builder._preserve_source_provenance(payload))"
+                ),
+            ],
+            cwd=Path(__file__).resolve().parents[1],
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(
+            completed.stdout.splitlines(),
+            [
+                game_mirror,
+                (
+                    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+                    "gg/rsmod/plugins/content/quests/impl|/Users/ArmanTarkhanian1/Documents/"
+                    "2012scape with bots/darkan-world-server/developer-information/npcList.txt"
+                ),
+            ],
+        )
+
     def test_light_source_options_match_the_runtime_exact_state_graph(self):
         self.assertEqual(builder.LIT_LIGHT_SOURCE_ITEMS, LIT_LIGHT_SOURCE_ITEMS)
         self.assertEqual(builder.PERIOD_LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS)

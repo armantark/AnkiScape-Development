@@ -138,8 +138,6 @@ def _context(player_data, calls):
         check_achievements=lambda _data: calls.__setitem__("achievements", True),
         save_player_data=lambda: calls.__setitem__("saves", calls["saves"] + 1),
         refresh_skill_availability=lambda: calls.__setitem__("refresh", True),
-        refresh_skill_availability_partial=lambda *_args: None,
-        can_smith_any=lambda: False,
         show_exp=lambda amount: calls["xp"].append(amount),
         show_activity_gain=lambda message: calls["activity"].append(message),
         implemented_exp_keys_snapshot=lambda: {},

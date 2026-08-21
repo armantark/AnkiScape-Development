@@ -543,8 +543,6 @@ class BarrowsRuntimeIntegrationTests(unittest.TestCase):
             level_up_check=lambda *_args: None,
             check_achievements=lambda *_args: None,
             refresh_skill_availability=lambda: None,
-            refresh_skill_availability_partial=lambda *_args: None,
-            can_smith_any=lambda: True,
             show_exp=lambda *_args: None,
             show_activity_gain=lambda text: events["gains"].append(text),
             implemented_exp_keys_snapshot=lambda: {},

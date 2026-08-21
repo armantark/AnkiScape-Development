@@ -7,6 +7,7 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
 from ankiscape.logic.brawling_gloves_logic import brawling_glove_state_pure
+from ankiscape.logic_pure.logic_pure import can_start_quest_pure
 from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
@@ -67,8 +68,6 @@ def _context(player_data, calls=None, random_values=None, review_action_multipli
         check_achievements=lambda _data: calls.setdefault("achievement_checks", 0),
         save_player_data=lambda: calls.__setitem__("saves", calls.get("saves", 0) + 1),
         refresh_skill_availability=lambda: calls.setdefault("refreshes", 0),
-        refresh_skill_availability_partial=lambda *_args: calls.setdefault("partial_refreshes", 0),
-        can_smith_any=lambda: False,
         show_exp=lambda exp: calls["xp"].append(exp),
         show_activity_gain=lambda text: calls.setdefault("activity", []).append(text),
         implemented_exp_keys_snapshot=lambda: {},
@@ -3091,6 +3090,101 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(player_data["quests"]["what_lies_below"]["completed"])
         self.assertEqual(player_data["inventory"]["Dagon'hai history"], 1)
 
+    def test_jungle_potion_real_handler_completes_ordered_herb_route_and_unlocks_shilo(self):
+        from ankiscape.core.constants import HERBLORE_DATA, QUEST_DATA
+
+        quest_id = "jungle_potion"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(
+            {
+                "current_quest": quest_id,
+                "herblore_level": 3,
+                "herblore_exp": 250.0,
+                "quest_points": 4,
+            }
+        )
+        player_data["quests"]["druidic_ritual"] = {
+            "started": True,
+            "progress": 4,
+            "completed": True,
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        ctx = _context(player_data, calls, random_values=(0.0,) * 5)
+        player_data["current_utility"] = "search_marshy_jungle_vines"
+        self.assertFalse(handle_utility_answer(ctx))
+        self.assertEqual(player_data["inventory"]["Grimy snake weed"], 0)
+
+        route = (
+            ("clean_snake_weed", "Grimy snake weed", "Clean snake weed"),
+            ("clean_ardrigal", "Grimy ardrigal", "Clean ardrigal"),
+            ("clean_sito_foil", "Grimy sito foil", "Clean sito foil"),
+            ("clean_volencia_moss", "Grimy volencia moss", "Clean volencia moss"),
+            ("clean_rogues_purse", "Grimy rogue's purse", "Clean rogue's purse"),
+        )
+
+        for index, (clean_target, grimy_item, clean_item) in enumerate(route, start=1):
+            self.assertTrue(handle_quest_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], 1)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index * 2)
+            self.assertFalse(player_data["quests"][quest_id]["completed"])
+
+            player_data["current_herblore"] = clean_target
+            self.assertTrue(handle_herblore_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], 0)
+            self.assertEqual(player_data["inventory"][clean_item], 1)
+            self.assertEqual(HERBLORE_DATA[clean_target]["level"], 3)
+            self.assertEqual(HERBLORE_DATA[clean_target]["exp"], 2.5)
+            if index == 1:
+                self.assertEqual(
+                    player_data["inventory"]["Strange rock (Herblore 1)"], 1
+                )
+                self.assertEqual(player_data["inventory"][clean_item], 1)
+
+            self.assertTrue(handle_quest_answer(ctx))
+            self.assertEqual(player_data["inventory"][clean_item], 0)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index * 2 + 1)
+            self.assertEqual(
+                player_data["quests"][quest_id]["completed"],
+                index == len(route),
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 5)
+        self.assertEqual(player_data["herblore_exp"], 1037.5)
+        self.assertEqual(calls["saves"], 15)
+        self.assertEqual(calls["activity"][-1], "Jungle Potion complete")
+        self.assertIn("Found 2 Herblore strange rocks.", calls["activity"])
+        self.assertEqual(player_data["inventory"]["Strange rock (Herblore 1)"], 1)
+        self.assertEqual(player_data["inventory"]["Strange rock (Herblore 2)"], 1)
+        self.assertEqual(calls["errors"][-1][0], "Quest complete")
+        self.assertTrue(calls["deactivated"])
+
+        for activity_id, grimy_item in (
+            ("search_marshy_jungle_vines", "Grimy snake weed"),
+            ("search_jungle_palm_trees", "Grimy ardrigal"),
+            ("search_scorched_earth", "Grimy sito foil"),
+            ("search_jungle_mine_rocks", "Grimy volencia moss"),
+            ("search_fungus_covered_wall", "Grimy rogue's purse"),
+        ):
+            player_data["current_utility"] = activity_id
+            before = player_data["inventory"].get(grimy_item, 0)
+            self.assertTrue(handle_utility_answer(ctx))
+            self.assertTrue(handle_utility_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], before + 2)
+
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        player_data["inventory"].pop("Strange rock (Herblore 1)", None)
+        player_data["inventory"].pop("Strange rock (Herblore 2)", None)
+        player_data["shattered_heart"] = default_shattered_heart_state_pure()
+        player_data["current_herblore"] = "clean_sito_foil"
+        self.assertTrue(handle_herblore_answer(ctx))
+        self.assertEqual(player_data["inventory"]["Clean sito foil"], 0)
+        self.assertEqual(player_data["inventory"]["Strange rock (Herblore 1)"], 1)
+
+        player_data.update({"smithing_level": 4, "crafting_level": 20, "agility_level": 32})
+        self.assertTrue(can_start_quest_pure(player_data, "shilo_village", QUEST_DATA))
+
     def test_quest_completion_warns_and_switches_off(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -5177,7 +5271,7 @@ class TestProcessingPackOverlay(unittest.TestCase):
         # skill/recipe can look unavailable while the bank is full of materials.
         from ankiscape.runtime.runtime_actions import handle_crafting_answer
 
-        observed = {"refresh": [], "partial": []}
+        observed = {"refresh": []}
         player_data = {
             "inventory": {"Uncut opal": 100},
             "crafting_level": 99,
@@ -5190,9 +5284,8 @@ class TestProcessingPackOverlay(unittest.TestCase):
         ctx = dataclasses.replace(
             ctx,
             refresh_skill_availability=lambda: observed["refresh"].append(
-                player_data["inventory"].get("Uncut opal")),
-            refresh_skill_availability_partial=lambda *_a: observed["partial"].append(
-                player_data["inventory"].get("Uncut opal")),
+                player_data["inventory"].get("Uncut opal")
+            ),
         )
 
         run_answer_with_carried_overlay(ctx, "crafting", handle_crafting_answer)
@@ -5200,7 +5293,6 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Uncut opal"], 99)
         # One full refresh, after reconciliation, seeing the true bank (not 27).
         self.assertEqual(observed["refresh"], [99])
-        self.assertEqual(observed["partial"], [])  # suppressed inside the scope
 
     def test_churn_per_action_matches_real_runescape_trip_lengths(self):
         # Balance guard for the invented churn=28 knob. Cross-checked against RS:

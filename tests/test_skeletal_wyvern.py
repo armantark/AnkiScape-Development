@@ -109,8 +109,6 @@ def _runtime_context(
         check_achievements=lambda *_args: None,
         save_player_data=save_player_data,
         refresh_skill_availability=lambda: None,
-        refresh_skill_availability_partial=lambda *_args: None,
-        can_smith_any=lambda: True,
         show_exp=lambda *_args: None,
         show_activity_gain=show_activity_gain,
         implemented_exp_keys_snapshot=lambda: {},

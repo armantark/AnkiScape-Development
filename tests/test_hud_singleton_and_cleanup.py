@@ -110,6 +110,11 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self._bak_REVIEW_STRIP = getattr(_ui, "_REVIEW_STRIP", None)
         self._bak_DND_BADGE = getattr(_ui, "_DND_BADGE", None)
         self._bak_FARMING_BADGE = getattr(_ui, "_FARMING_BADGE", None)
+        self._bak_SHOOTING_STAR_NOTICE_BAND = getattr(
+            _ui,
+            "_SHOOTING_STAR_NOTICE_BAND",
+            None,
+        )
         self._bak_BANK_RUN_BUTTON = getattr(_ui, "_BANK_RUN_BUTTON", None)
         self._bak_MAIN_MENU_BUTTON = getattr(_ui, "_MAIN_MENU_BUTTON", None)
         self._bak_REVIEW_CONTEXT_STRIP = getattr(_ui, "_REVIEW_CONTEXT_STRIP", None)
@@ -130,6 +135,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         _ui._REVIEW_STRIP = FakeStrip(self.mw)
         _ui._DND_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._FARMING_BADGE = FakeQWidget(_ui._REVIEW_STRIP)
+        _ui._SHOOTING_STAR_NOTICE_BAND = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._BANK_RUN_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._MAIN_MENU_BUTTON = FakeQWidget(_ui._REVIEW_STRIP)
         _ui._REVIEW_CONTEXT_STRIP = FakeQWidget(self.mw)
@@ -150,6 +156,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self.ui._REVIEW_STRIP = self._bak_REVIEW_STRIP
         self.ui._DND_BADGE = self._bak_DND_BADGE
         self.ui._FARMING_BADGE = self._bak_FARMING_BADGE
+        self.ui._SHOOTING_STAR_NOTICE_BAND = self._bak_SHOOTING_STAR_NOTICE_BAND
         self.ui._BANK_RUN_BUTTON = self._bak_BANK_RUN_BUTTON
         self.ui._MAIN_MENU_BUTTON = self._bak_MAIN_MENU_BUTTON
         self.ui._REVIEW_CONTEXT_STRIP = self._bak_REVIEW_CONTEXT_STRIP

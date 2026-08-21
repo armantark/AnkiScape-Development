@@ -477,7 +477,7 @@ from ..logic.slayer_logic import (
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -1449,64 +1449,73 @@ def focus_main_menu_if_open() -> bool:
 def refresh_skill_availability(
     can_smelt_any_bar: bool,
     can_craft_any_item: bool,
-    can_fletch_any_item: bool = False,
-    can_firemake_any_item: bool = False,
-    can_hunt_any_item: bool = False,
-    can_cook_any_item: bool = False,
-    can_runecraft_any_item: bool = False,
+    can_fletch_any_item: bool,
+    can_firemake_any_item: bool,
+    can_hunt_any_item: bool,
+    can_cook_any_item: bool,
+    can_runecraft_any_item: bool,
 ):
-    """Auto-enable processing-skill buttons when they become available while the menu is open.
-    Never auto-selects the skill; users must choose it explicitly. Only enables; does not disable.
+    """Refresh processing-skill buttons from the pure availability results.
 
-    Optional processing-skill booleans default to False so older two-argument
-    callers keep working until they pass the newer skills too.
+    Never auto-selects the skill; users must choose it explicitly.
     """
     try:
-        # Smithing
-        s_btn = _MAIN_MENU_CTX.get("smith_btn")
-        if s_btn is not None and can_smelt_any_bar and not s_btn.isEnabled():
-            s_btn.setEnabled(True)
-            s_btn.setToolTip("Smithing")
-        # Crafting
-        c_btn = _MAIN_MENU_CTX.get("craft_btn")
-        if c_btn is not None and can_craft_any_item and not c_btn.isEnabled():
-            c_btn.setEnabled(True)
-            c_btn.setToolTip("Crafting")
-        # Fletching
-        f_btn = _MAIN_MENU_CTX.get("fletch_btn")
-        if f_btn is not None and can_fletch_any_item and not f_btn.isEnabled():
-            f_btn.setEnabled(True)
-            f_btn.setToolTip("Fletching")
-        # Firemaking
-        fm_btn = _MAIN_MENU_CTX.get("firemaking_btn")
-        if fm_btn is not None and can_firemake_any_item and not fm_btn.isEnabled():
-            fm_btn.setEnabled(True)
-            fm_btn.setToolTip("Firemaking")
-        # Hunter
-        h_btn = _MAIN_MENU_CTX.get("hunter_btn")
-        if h_btn is not None and can_hunt_any_item and not h_btn.isEnabled():
-            h_btn.setEnabled(True)
-            h_btn.setToolTip("Hunter")
-        # Cooking
-        cook_btn = _MAIN_MENU_CTX.get("cooking_btn")
-        if cook_btn is not None and can_cook_any_item and not cook_btn.isEnabled():
-            cook_btn.setEnabled(True)
-            cook_btn.setToolTip("Cooking")
-        # Runecrafting
-        rc_btn = _MAIN_MENU_CTX.get("runecrafting_btn")
-        if rc_btn is not None and can_runecraft_any_item and not rc_btn.isEnabled():
-            rc_btn.setEnabled(True)
-            rc_btn.setToolTip("Runecrafting")
-        # Clear warning text if any became available
-        if (
-            (s_btn is not None and s_btn.isEnabled())
-            or (c_btn is not None and c_btn.isEnabled())
-            or (f_btn is not None and f_btn.isEnabled())
-            or (fm_btn is not None and fm_btn.isEnabled())
-            or (h_btn is not None and h_btn.isEnabled())
-            or (cook_btn is not None and cook_btn.isEnabled())
-            or (rc_btn is not None and rc_btn.isEnabled())
-        ):
+        button_specs = (
+            (
+                "smith_btn",
+                can_smelt_any_bar,
+                "Smithing",
+                "Mine ores until you can smelt a bar.",
+            ),
+            (
+                "craft_btn",
+                can_craft_any_item,
+                "Crafting",
+                "Gather materials or level up to craft an item.",
+            ),
+            (
+                "fletch_btn",
+                can_fletch_any_item,
+                "Fletching",
+                "Cut logs or level up to fletch an item.",
+            ),
+            (
+                "firemaking_btn",
+                can_firemake_any_item,
+                "Firemaking",
+                "Cut or acquire logs before training Firemaking.",
+            ),
+            (
+                "hunter_btn",
+                can_hunt_any_item,
+                "Hunter",
+                "Gather jars/materials, complete unlocks, or level up before training Hunter.",
+            ),
+            (
+                "cooking_btn",
+                can_cook_any_item,
+                "Cooking",
+                "Gather raw food or prep ingredients before training Cooking.",
+            ),
+            (
+                "runecrafting_btn",
+                can_runecraft_any_item,
+                "Runecrafting",
+                "Complete Rune Mysteries and gather essence plus altar access.",
+            ),
+        )
+        buttons = []
+        for key, available, skill_name, unavailable_tooltip in button_specs:
+            button = _MAIN_MENU_CTX.get(key)
+            if button is None:
+                continue
+            buttons.append(button)
+            is_current = bool(button.property("ankiscapeCurrentlyTraining"))
+            button.setEnabled(bool(available) and not is_current)
+            if not is_current:
+                button.setToolTip(skill_name if available else unavailable_tooltip)
+
+        if any(button.isEnabled() for button in buttons):
             warn = _MAIN_MENU_CTX.get("warn_label")
             if warn is not None and hasattr(warn, "setText"):
                 warn.setText("")
@@ -4630,7 +4639,6 @@ def _help_registry_tables() -> dict[str, HelpRegistryTable]:
 def show_main_menu(
     player_data: dict,
     current_skill: str,
-    can_smelt_any_bar: bool,
     on_save_skill,
     on_set_ore,
     on_set_tree,
@@ -4973,6 +4981,17 @@ def show_main_menu(
         page.layout().addWidget(builder(ctx))
 
     # ---- availability + active-skill helpers ----
+    def _smithing_available() -> bool:
+        try:
+            return any(
+                not smithing_target_locked_reasons_pure(
+                    player_data, target, SMITHING_DATA, QUEST_UNLOCK_RULES
+                )
+                for target in SMITHING_DATA
+            )
+        except Exception:
+            return False
+
     def _craft_available() -> bool:
         try:
             return any(
@@ -5083,7 +5102,7 @@ def show_main_menu(
         if display_name == _COMBAT_HUB_NAME:
             return _combat_available()
         if display_name == "Smithing":
-            return bool(can_smelt_any_bar)
+            return _smithing_available()
         if display_name == "Crafting":
             return _craft_available()
         if display_name == "Fletching":
@@ -5124,7 +5143,7 @@ def show_main_menu(
     def _set_active(display_name: str) -> None:
         # Mirror the original gating: never let users train a skill they cannot
         # actually progress, and explain why instead of silently selecting it.
-        if display_name == "Smithing" and not can_smelt_any_bar:
+        if display_name == "Smithing" and not _smithing_available():
             warn.setText("You don't have enough ores to smelt any bars. Mine some ores first!")
             return
         if display_name == "Crafting" and not _craft_available():
@@ -22789,6 +22808,9 @@ def show_main_menu(
             train_btn = QPushButton()
             if name == "Prayer":
                 train_btn.setObjectName("prayerTrainButton")
+            train_btn.setProperty(
+                "ankiscapeCurrentlyTraining", state["active"] == name
+            )
             if state["active"] == name:
                 train_btn.setText("Currently active" if is_utility else "Currently training")
                 train_btn.setEnabled(False)

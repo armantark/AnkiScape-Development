@@ -129,8 +129,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             check_achievements=lambda *_args: None,
             save_player_data=lambda: None,
             refresh_skill_availability=lambda: None,
-            refresh_skill_availability_partial=lambda *_args: None,
-            can_smith_any=lambda: False,
             show_exp=lambda amount: captured["xp"].append(amount),
             show_activity_gain=lambda text: captured["activity"].append(text),
             implemented_exp_keys_snapshot=lambda: {},
@@ -167,6 +165,35 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.player_data["inventory"]["Copper ore"] = 1
         addon._refresh_skill_availability()
         self.assertEqual(len(refreshes), 2)
+
+    def test_skill_availability_refresh_uses_boosted_crafting_rules(self):
+        addon = _load_addon_as_package("ankiscape_boosted_crafting_availability")
+        addon.player_data = {
+            "inventory": {"Cracked cooking urn (unf)": 3},
+            "smithing_level": 1,
+            "crafting_level": 1,
+            "fletching_level": 1,
+            "firemaking_level": 1,
+            "hunter_level": 1,
+            "cooking_level": 1,
+            "runecrafting_level": 1,
+            "skilling_current_levels": {"crafting": 2},
+            "quests": {},
+            "equipment": {},
+            "wicked_hood": {},
+        }
+        refreshes = []
+        addon.refresh_skill_availability = lambda *values: refreshes.append(values)
+        addon._SKILL_AVAILABILITY_CACHE_FINGERPRINT = None
+
+        addon._refresh_skill_availability()
+        self.assertEqual(len(refreshes), 1)
+        self.assertTrue(refreshes[0][1])
+
+        addon.player_data["skilling_current_levels"]["crafting"] = 1
+        addon._refresh_skill_availability()
+        self.assertEqual(len(refreshes), 2)
+        self.assertFalse(refreshes[1][1])
 
     def test_floating_xp_and_activity_results_share_the_event_log_seam(self):
         addon = _load_addon_as_package("ankiscape_event_log_emissions")
@@ -4559,7 +4586,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda _data, _skill: None
         addon._show_exp = lambda exp: calls["xp"].append(exp)
         addon._refresh_skill_availability = lambda: None
-        addon._refresh_smithing_and_crafting_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
 
         addon.player_data = {

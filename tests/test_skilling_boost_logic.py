@@ -42,8 +42,6 @@ def _context(player_data):
         check_achievements=lambda *_args: None,
         save_player_data=lambda: None,
         refresh_skill_availability=lambda: None,
-        refresh_skill_availability_partial=lambda *_args: None,
-        can_smith_any=lambda: False,
         show_exp=lambda *_args: None,
         show_activity_gain=messages.append,
         implemented_exp_keys_snapshot=lambda: {},

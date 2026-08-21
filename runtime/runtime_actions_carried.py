@@ -1348,8 +1348,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             save_player_data=lambda: None,
             check_achievements=lambda _data: deferred_achievement_check.append(True),
             refresh_skill_availability=lambda: deferred_availability_refresh.append(True),
-            # Its return value only feeds the suppressed partial refresh below.
-            refresh_skill_availability_partial=lambda *_args: deferred_availability_refresh.append(True),
         )
         player_data["inventory"] = scoped_inventory
         result = handler(scoped_ctx)

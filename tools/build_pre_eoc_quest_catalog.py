@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import html
 import json
+import os
 import pprint
 import re
 import time
@@ -67,18 +68,35 @@ LIGHT_SOURCE_STAGE_BLOCKED_QUESTS = frozenset({
     "watchtower",
     "another_slice_of_h_a_m",
 })
-SCAPE_2011_QUEST_IMPL_DIR = (
-    Path("/Users/ArmanTarkhanian1/Downloads/game-main")
-    / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
+DEFAULT_GAME_MAIN_DIR = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
+GAME_MAIN_DIR = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_MAIN_DIR))
+SCAPE_2011_QUEST_IMPL_RELATIVE = Path(
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
 )
+SCAPE_2011_QUEST_IMPL_DIR = GAME_MAIN_DIR / SCAPE_2011_QUEST_IMPL_RELATIVE
 SCAPE_2011_NPC_DEFINITION_DIR = (
-    Path("/Users/ArmanTarkhanian1/Downloads/game-main")
-    / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
+    GAME_MAIN_DIR / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
 )
-DARKAN_WORLD_SERVER_DIR = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server")
+DEFAULT_DARKAN_WORLD_SERVER_DIR = Path(
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server"
+)
+DARKAN_WORLD_SERVER_DIR = Path(
+    os.environ.get("ANKISCAPE_DARKAN_WORLD_SERVER", DEFAULT_DARKAN_WORLD_SERVER_DIR)
+)
 DARKAN_NPC_LIST_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/npcList.txt"
 DARKAN_BEASTS_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/beasts.txt"
 DARKAN_NPC_COMBATDEF_DIR = DARKAN_WORLD_SERVER_DIR / "data/npcs/combatdefs"
+
+
+def _preserve_source_provenance(rendered: str) -> str:
+    for source_root, provenance_root in (
+        (GAME_MAIN_DIR, DEFAULT_GAME_MAIN_DIR),
+        (DARKAN_WORLD_SERVER_DIR, DEFAULT_DARKAN_WORLD_SERVER_DIR),
+    ):
+        if source_root != provenance_root:
+            rendered = rendered.replace(str(source_root), str(provenance_root))
+    return rendered
+
 
 # These rows are marked former today, but they still existed as quests just
 # before the Evolution of Combat release. The current release list is a present
@@ -2592,7 +2610,7 @@ def main() -> None:
         "}\n\n"
         f"PRE_EOC_QUEST_CATALOG = {pprint.pformat(tuple(catalog), width=120, sort_dicts=False)}\n"
     )
-    OUTPUT_PATH.write_text(output, encoding="utf-8")
+    OUTPUT_PATH.write_text(_preserve_source_provenance(output), encoding="utf-8")
     print(f"wrote {len(catalog)} quests to {OUTPUT_PATH}")
 
 

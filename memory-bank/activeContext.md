@@ -19,6 +19,13 @@ reachable items / 84 orphan inputs / 87 blocked actions to 1,571 / 2,278 / 72 /
 71. The durable source and re-land audit remains
 `memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
 
+## MacBook remote verification host — 2026-08-19
+
+- The laptop mirror lives at `/Users/armantarkhanian/ankiscape-remote-test-host`; it is outside Anki and is never canonical.
+- `tools/run_remote_tests.py <local-worktree> {plain,qt}` rsyncs the requested tree, launches the lane detached with `nohup`, polls report files, streams the log, validates a real unittest summary, and rejects Qt false passes above 10 skips.
+- The exact Qt freeze, isolated plain Pillow pin, portable game-main/Darkan source overrides, four required OpenRS2 caches, Java 25, and Darkan Java dependencies are pinned in `memory-bank/remote-test-host.md`.
+- The MacBook passed the unchanged 4,144-test corpus: plain `125.215s`, `skipped=499`; offscreen Qt `295.116s`, `skipped=3`.
+
 ## Pass 10 CLOSED — 2026-08-15
 
 All nine Pass 10 owner clauses are closed in five commits on `main`
@@ -52,6 +59,41 @@ button and queue controls. Focused verification is green: 22 Circus/runtime/
 integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 
 ## Current Focus
+
+**2026-08-19, skill-button availability refresh corrected.** The open Skills
+menu now recomputes Smithing, Crafting, Fletching, Firemaking, Hunter, Cooking,
+and Runecrafting availability from current player data whenever their panels
+render, while the review refresh updates the same live buttons in both
+directions. Smithing no longer depends on the bool captured when the menu
+opened; an offscreen regression removes the last Bronze-bar ores, re-renders
+the real Smithing panel, and proves the replacement button disables. The dead
+partial-refresh context seam and its Smithing callback are deleted, Smithing's
+one-line refresh wrapper is inlined, and refreshes leave the deliberately
+tooltip-free “Currently training” button unchanged. Full plain discovery passes
+4,148 tests with 502 expected widget skips. The complete offscreen Qt corpus
+passes the same 4,148 tests with three skips in independent filename ranges
+after the monolithic process exceeded the 600-second cap: A–L ran 2,169 tests
+with two skips, M–R ran 1,039 with one skip, and S–Z ran 940 with none. No period
+value or source baseline changed.
+
+**2026-08-19, repository papercut guardrails re-landed against current main.**
+The 2026-08-11 tooling slice is merged with main snapshot
+`689fdd4489eb646b695a3176a3d23c3ab19c3557` after re-checking every guardrail
+against the moved test corpus, worktree safety instrument, and reachability
+audit. Focused test selection accepts an exact test file path such as
+`tests/test_bone_sources.py` by resolving its discovered module component, but
+refuses fuzzy module substitutions. Generated-catalog search bounds, quiet and
+truthful test lanes, reachability summaries that preserve finding exit codes,
+direct generator invocation, and Qt font substitution remain live. The rejected
+advisory worktree-ownership feature was removed in full after it broke the
+read-only layout audit twice. At the merged main snapshot above, the tree
+measures 1,571 actions, 2,278 reachable items, 72 orphan inputs, and 71 blocked
+actions. Full plain discovery passes 4,160 tests with
+499 expected skips. The real offscreen Qt lane covers the same 4,160 tests in
+four independent discovery batches to remain below the 600-second command cap,
+with three skips in aggregate.
+No period value was recovered or changed. Durable audit:
+`memory-bank/papercuts-fixed-2026-08-11.md`.
 
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 
@@ -5165,3 +5207,31 @@ flees silently when the player runs out of food.
   saved BackgroundRole green and transient native blue selection both render.
 - Reviewer activity progress uses separate text labels above graphical-only bars;
   the fixed 128px strip footprint remains the geometry authority.
+
+## Skill-button refresh review closure — 2026-08-19
+
+- Full Crafting availability now uses `crafting_target_locked_reasons_pure`, including live skilling levels, and its cache fingerprint tracks `skilling_current_levels`.
+- Processing-skill refreshes require all seven logic-owned results, remove the redundant two-argument runtime refreshes, preserve the disabled current-skill button, and restore unavailable tooltips after live state changes.
+- The offscreen Qt lane now needs filename-range processes after exceeding ten minutes; keep A through L together because `tests/test_hud_singleton_and_cleanup.py` has a pre-existing import-order dependency when started with real Qt.
+
+## Jungle Potion re-land — 2026-08-19
+
+- The preserved Jungle Potion implementation was merged with current `main` at
+  `4f86193c93d5a4c36c8f71a9509bcedc512b0cb9`; promoted merge
+  `a0088a593427f0769b6d67f6e9365a59317ce02f` completed without content
+  conflicts and retained all Pass 10 Circus, Fish Flingers, combat popup,
+  review-strip, and `ui/ui.py` changes.
+- A standalone real-kernel drive started the quest from its Druidic Ritual and
+  Herblore 3 gates, searched, cleaned, and handed in all five herbs in strict
+  order, completed at progress 11 with one quest point and 775 Herblore XP,
+  and made `can_start_quest_pure(..., "shilo_village", ...)` true.
+- The merged reachability graph contains all ten Jungle Potion herb identities
+  and all thirteen Shilo Village-only products, with zero blocked Jungle Potion
+  or Shilo Village quest-stage products. Against the named `main` parent, the
+  merged tree moves from 1,571 actions / 2,278 reachable items / 72 orphan
+  inputs / 71 blocked actions to 1,581 / 2,301 / 72 / 71; the merged split is
+  45 root plus 27 cascade orphans, with 1,123 seed items.
+- Full discovery passes 4,165 tests in each lane: plain skips 502 and real
+  offscreen Qt skips three. The branch adds no panel rule or unmarked
+  reconstruction; the placeholder-register suites pass all 22 tests.
+- Evidence: `source-audits/quest-jungle-potion-playable-2026-08-13.md`.

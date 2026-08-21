@@ -373,8 +373,6 @@ class TearsOfGuthixPersistenceAndRuntimeTests(unittest.TestCase):
             check_achievements=lambda *_args: None,
             save_player_data=lambda: saved.append(True),
             refresh_skill_availability=lambda: None,
-            refresh_skill_availability_partial=lambda *_args: None,
-            can_smith_any=lambda: True,
             show_exp=lambda amount: gains.append(float(amount)),
             show_activity_gain=lambda message: gains.append(str(message)),
             implemented_exp_keys_snapshot=lambda: {},

@@ -14,8 +14,9 @@ from typing import Sequence
 DEFAULT_EXCLUDES = (
     "!.git/**",
     "!**/__pycache__/**",
-    "!data/shop_data.py",
-    "!data/combat_data.py",
+    "!shop_data.py",
+    "!construction_data.py",
+    "!combat_data.py",
     "!memory-bank/archive/**",
     "!memory-bank/status-updates/**",
     "!memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json",

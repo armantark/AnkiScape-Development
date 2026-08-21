@@ -33,8 +33,6 @@ def _context(player_data, calls):
         check_achievements=lambda _data: calls.__setitem__("achievement_checks", calls.get("achievement_checks", 0) + 1),
         save_player_data=lambda: calls.__setitem__("saves", calls.get("saves", 0) + 1),
         refresh_skill_availability=lambda: None,
-        refresh_skill_availability_partial=lambda *a: None,
-        can_smith_any=lambda: False,
         show_exp=lambda exp: None,
         show_activity_gain=lambda text: calls.setdefault("activity", []).append(text),
         implemented_exp_keys_snapshot=lambda: {},

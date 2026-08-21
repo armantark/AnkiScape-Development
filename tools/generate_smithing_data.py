@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -524,7 +525,14 @@ def smithing_forge_recipe_ids() -> Tuple[str, ...]:
 '''
 
 
-def generate(game_root: Path, output_path: Path) -> None:
+def generate(
+    game_root: Path,
+    output_path: Path,
+    *,
+    provenance_root: Optional[Path] = None,
+) -> None:
+    if provenance_root is None:
+        provenance_root = game_root
     smithing_path = game_root / SMITHING_RELATIVE
     item_constants = _parse_items_constants(game_root / ITEMS_KT_RELATIVE)
     items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
@@ -538,18 +546,26 @@ def generate(game_root: Path, output_path: Path) -> None:
         items,
     )
     cannonballs = _cannonball_recipe(item_constants, items)
-    output_path.write_text(
-        _render_module(tuple(smelting) + tuple(products) + (dragon_sq_shield_repair, cannonballs)),
-        encoding="utf-8",
+    rendered = _render_module(
+        tuple(smelting) + tuple(products) + (dragon_sq_shield_repair, cannonballs)
     )
+    if game_root != provenance_root:
+        rendered = rendered.replace(str(game_root), str(provenance_root))
+    output_path.write_text(rendered, encoding="utf-8")
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--game-root", type=Path, default=DEFAULT_GAME_ROOT)
+    parser.add_argument("--game-root", type=Path)
     parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "smithing_data.py")
     args = parser.parse_args(argv)
-    generate(args.game_root, args.output)
+    if args.game_root is None:
+        game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
+        provenance_root = DEFAULT_GAME_ROOT
+    else:
+        game_root = args.game_root
+        provenance_root = args.game_root
+    generate(game_root, args.output, provenance_root=provenance_root)
     print(f"Wrote {args.output}")
     return 0
 
