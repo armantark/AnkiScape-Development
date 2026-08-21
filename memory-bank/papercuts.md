@@ -681,3 +681,5 @@
 2026-08-21 14:58 PDT — Splitting the offscreen Qt lane with a zsh `modules=...` variable failed immediately with `(eval):1: read-only variable: modules`; use a different variable name.
 2026-08-21 14:58 PDT — The first renamed Qt split variable was still a zsh scalar, so `$test_modules` reached unittest as one module name ending in ` tests` and failed with `ModuleNotFoundError: No module named 'tests.test_achievement_diaries tests'`; build an array and expand `${test_modules[@]}`.
 2026-08-21 15:37 PDT — While checking the reachability audit exit code, zsh rejected `status=$?` with `(eval):1: read-only variable: status`; the existing papercut already prescribed `rc`, but the wrapper repeated the special name.
+2026-08-21 15:47 PDT — A whole-tree numeric `rg` sweep matched short batch numbers inside hashes and generated records, producing 2.3 MB of output; use digit-boundary scans over `git ls-files` for test-count audits.
+2026-08-21 15:55 PDT — An exact record-edit script found the same Markdown table header twice and stopped after earlier files were written; scope repeated headers from their section heading before replacing them.

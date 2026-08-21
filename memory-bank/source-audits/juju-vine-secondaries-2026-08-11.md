@@ -4,7 +4,7 @@
 
 The Common jadinko Hunter route is live. It keeps the Marasamaw plant and gives one Withered vine on success. It can also give one vine-herb seed.
 
-The Juju hunter potion recipe is live. The four vial doses are drinkable, remain registered Habitat reagents, and can be decanted by Bob Barter. Drinking consumes one dose, leaves the next-lower dose, applies no stat boost, and surfaces the sourced flavour message.
+The Juju hunter potion recipe is live. The four vial doses are drinkable and can be decanted by Bob Barter. Drinking consumes one dose, leaves the next-lower dose, applies no stat boost, and surfaces the sourced flavour message. The period game also defines the potion as an ingredient used on a Herblore Habitat flower patch, but this add-on ships no action that consumes a dose there or applies the attraction effect.
 
 ## Scope
 
@@ -50,7 +50,7 @@ The five seed pages also pin the Common jadinko route:
 
 ## Pinned Juju hunter potion values
 
-| Value | Registered value | Exact source |
+| Value | Add-on or period-game value | Exact source |
 | --- | --- | --- |
 | Recipe | Erzille potion (unf) plus Corrupt vine | `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/herblore/mixing/PotionData.kt`, `JUJU_HUNTING` |
 | Herblore level | `54` | game-main `PotionData.kt`, `JUJU_HUNTING` |
@@ -62,7 +62,7 @@ The five seed pages also pin the Common jadinko route:
 | Dose 1 | Item `20026` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
 | Cache options | `Drink`, `Empty`, and `Drop` | OpenRS2 revision 742 item definitions for `20023` through `20026`; these client options establish the action but not its server-side effect |
 | Player drink | Consumes one dose, leaves the next-lower dose (dose 1 leaves a Vial), applies no stat effect, and emits the flavour message | Darkan `Potions.kt:522,881-904`, supplying commit `afa87b9754de3bd9cf2fd5024ea903b00d99a798`; Juju hunter potion oldid `6258636`, 2012-09-17T16:04:30Z |
-| Habitat use | Consumes one dose on the Herblore Habitat flower patch and applies the ten-minute attraction effect | Darkan `FarmPatch.java:338-361`, supplying commit `4e46c05dbd88c44d2a25d48ce96a493d884c978b`; Juju hunter potion oldid `6258636`, 2012-09-17T16:04:30Z |
+| Period-game Habitat ingredient use (not implemented) | The source game consumes one dose on the Herblore Habitat flower patch and applies the ten-minute attraction effect; this add-on has no corresponding action or effect | Darkan `FarmPatch.java:338-361`, supplying commit `4e46c05dbd88c44d2a25d48ce96a493d884c978b`; Juju hunter potion oldid `6258636`, 2012-09-17T16:04:30Z |
 
 The OpenRS2 cache archives are:
 
@@ -76,7 +76,7 @@ Darkan `Potions.kt:522` registers `JUJU_HUNTER_POTION` as an ordinary potion enu
 
 The dated Juju hunter potion page, oldid `6258636` at 2012-09-17T16:04:30Z, says a drink attempt receives that flavour message and separately documents using the potion on a vine blossom. It does not say the attempted drink preserves the dose. Darkan therefore supplies the hidden server-side dose transition, while the rev-742 `Drink` option and dated message corroborate the action.
 
-Habitat reagent handling is separate from drinking. Darkan `FarmPatch.java:338-361`, supplying commit `4e46c05dbd88c44d2a25d48ce96a493d884c978b`, consumes a vial or flask dose on the Herblore Habitat flower patch and applies the ten-minute Juju hunter effect. `Potions.kt` does not own that reagent path.
+The period game's Habitat ingredient handling is separate from drinking. Darkan `FarmPatch.java:338-361`, supplying commit `4e46c05dbd88c44d2a25d48ce96a493d884c978b`, consumes a vial or flask dose on the Herblore Habitat flower patch and applies the ten-minute Juju hunter effect. This is source evidence only: this add-on ships no matching action, dose consumption, or attraction effect. `Potions.kt` does not own that source-game path.
 
 ## Registered placeholders
 
@@ -106,7 +106,7 @@ The action makes one independent seed roll. A successful seed roll gives one see
 
 Runtime telemetry records the guaranteed output and the selected bonus seed. Review undo uses the same output record.
 
-Juju hunter potion remains a Habitat reagent and is also a manual consumable. No earlier potion-family row represented a consumed dose whose only effect is a message, so the smallest extension uses the existing generic potion dose chain with empty `skills`, a `flavour_only` strategy label, and a family message override. It adds no new runtime branch.
+Juju hunter potion is a manual consumable. The period game defines it as a Herblore Habitat flower-patch ingredient, but this add-on ships no mechanic that consumes it there or applies attraction. No earlier potion-family row represented a consumed dose whose only effect is a message, so the smallest extension uses the existing generic potion dose chain with empty `skills`, a `flavour_only` strategy label, and a family message override. It adds no new runtime branch.
 
 ## Reachability
 
@@ -119,11 +119,11 @@ Focused potion, placeholder, registry, runtime, and Bob Barter checks pass.
 The corrected merged tree passes the full plain lane:
 
 ```text
-Ran 4180 tests in 219.365s
+Ran 4181 tests in 243.061s
 OK (skipped=502)
 ```
 
-The offscreen Qt lane ran as four ordered independent processes because its monolithic runtime exceeds the 600-second command cap. The batches passed 1,435 tests in 198.794s with two skips, 737 tests in 219.523s with no skips, 1,059 tests in 290.896s with one skip, and 949 tests in 47.746s with no skips: 4,180 tests in 756.959s with three skips in total.
+The offscreen Qt lane was deliberately skipped under the documentation-only lane exception because concurrent offscreen Qt runs have hung this repository. No Qt result is claimed for this tree.
 
 The final reachability audit reports:
 

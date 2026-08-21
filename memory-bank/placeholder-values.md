@@ -15,10 +15,11 @@ its sources when it said the player does not drink the potion. Darkan
 `Potions.kt:522,881-904` at supplying commit
 `afa87b9754de3bd9cf2fd5024ea903b00d99a798` establishes that the ordinary drink
 path consumes one dose, invokes a flavour-message-only effect, and applies no
-stat boost. The separate Habitat reagent behavior is in
-`FarmPatch.java:338-361` at supplying commit
-`4e46c05dbd88c44d2a25d48ce96a493d884c978b`. No Juju hunter drink value remains
-unrecovered, so there is no placeholder row.
+stat boost. The period game's separate Herblore Habitat flower-patch ingredient
+behavior is in `FarmPatch.java:338-361` at supplying commit
+`4e46c05dbd88c44d2a25d48ce96a493d884c978b`; this add-on ships no matching
+action that consumes a dose or applies attraction. No Juju hunter drink value
+remains unrecovered, so there is no placeholder row.
 
 ## How to add one
 

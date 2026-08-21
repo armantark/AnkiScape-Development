@@ -34,9 +34,9 @@ The seed selector contains these items:
 
 The slice also adds the Juju hunter potion recipe. Erzille potion (unf) plus Corrupt vine makes dose 3.
 
-All four Juju hunter doses are live consumables. A consumed dose gives three Hunter levels and leaves the next lower dose.
+All four Juju hunter doses are live consumables. A consumed dose applies only the sourced flavour message and leaves the next lower dose; it gives no stat boost.
 
-The potion keeps its Habitat reagent role. Bob Barter can decant the four-dose family.
+The period game defines the potion as an ingredient used on a Herblore Habitat flower patch, but this add-on ships no matching action or attraction effect. Bob Barter can decant the four-dose family.
 
 Runtime telemetry records the guaranteed output and the bonus seed. Review undo uses the same output record.
 
@@ -61,9 +61,9 @@ Do not remove a placeholder marker without the source named in this table.
 
 ## Sourced player behavior
 
-Darkan `Potions.kt:522,881-904` registers an ordinary drink: it consumes one dose, invokes only the flavour-message effect, and applies no stat boost. Juju hunter potion oldid `6258636` corroborates the drink-attempt message, while Darkan `FarmPatch.java:338-361` separately establishes Habitat reagent use.
+Darkan `Potions.kt:522,881-904` registers an ordinary drink: it consumes one dose, invokes only the flavour-message effect, and applies no stat boost. Juju hunter potion oldid `6258636` corroborates the drink-attempt message, while Darkan `FarmPatch.java:338-361` separately defines the period game's flower-patch ingredient use. This add-on has no action that consumes a dose there or applies attraction.
 
-The potion is therefore a flavour-only consumable and Habitat reagent, with no Hunter-boost placeholder.
+The potion is therefore a flavour-only consumable with no Hunter-boost placeholder. Its period-game Herblore Habitat ingredient use remains unimplemented in this add-on.
 
 ## Verification
 
