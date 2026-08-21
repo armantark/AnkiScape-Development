@@ -1728,3 +1728,49 @@ commit pins. Same class main already had to correct in `d1af99b2`.
 Neither is blocking today, because the Juju hunter chain is unreachable — all
 four doses are orphan inputs. Both go live the moment the vine_herb farming
 chain lands, which is why this must be fixed before promotion rather than after.
+
+### Undo-seam migration: the ratified shape, and why one reviewer beat six
+
+Seven `_apply_*` handlers were migrated onto `commit_direct_action` by seven
+independent agents. All seven were reviewed by ONE cross-lineage reviewer rather
+than seven, and that choice found a defect no per-branch review could have:
+
+`goal/undo-star-2026-08-21` deleted the trailing
+`if __name__ == "__main__": unittest.main()` block from
+`tests/test_direct_action_undo_seam.py`. Each sibling appends its tests
+immediately above that guard, so `git merge-tree` across the fifteen branch pairs
+showed star conflicting with ALL FIVE siblings, against six conflicts among the
+other nine pairs combined. One branch's out-of-scope deletion was a merge
+collision multiplier, and it is invisible unless you read the branches together.
+
+**The ratified shape for the remaining twenty-five migrations.** `commit_direct_action`
+returns False for two different reasons and they need different answers:
+
+    accepted = False
+    def _change(current):
+        nonlocal accepted
+        updated, info = ...pure_function...
+        accepted = bool(info.get("ok"))     # capture the pure result
+        return updated, accepted
+
+    if not commit_direct_action(_change, after_apply=_after_apply):
+        if accepted:                        # pure succeeded, undo entry failed
+            return {"ok": False, "reason": "undo_unavailable", ...}
+        return {**info, ...}                # pure refused
+
+Branch on the CAPTURED FLAG, never on the presence, truthiness or identity of a
+payload key. Three of the six diverged on this — star probed `info["reason"]`,
+agility used `result.get("allowed") is False` — and both are correct today only
+because every current return path happens to set a real value. Warriors and GE
+used the captured flag and are the reference implementations.
+
+Also ratified: the `"reason": "undo_unavailable"` key that Farming added and main
+did not have. It is additive, it matches GE, and it makes the failure
+machine-distinguishable. Carry it everywhere.
+
+**A migration can create a failure mode rather than drop one.** On main,
+MTA's `select_alignment` never created an undo entry, so it could not fail that
+way. Routing it through the seam made a successful alignment choice newly
+contingent on `add_custom_undo_entry`, and the first cut lost the choice silently
+with no message. Check every handler for sub-actions that previously bypassed the
+undo path entirely; they need a deliberate decision, not an inherited one.
