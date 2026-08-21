@@ -2352,9 +2352,10 @@ def _on_main_menu(
             return {"ok": committed, **outcome}
 
         result = {}
+        allowed = False
 
         def _change(current):
-            nonlocal result
+            nonlocal result, allowed
             pit_reward = (current.get("agility_activity_state") or {}).get(
                 "pit_reward"
             )
@@ -2366,7 +2367,8 @@ def _on_main_menu(
             updated, result = apply_agility_command_pure(
                 current, action_id, payload, roll=roll
             )
-            return updated, bool(result.get("allowed"))
+            allowed = bool(result.get("allowed"))
+            return updated, allowed
 
         def _after_apply():
             xp = float(result.get("xp", 0.0) or 0.0)
@@ -2380,7 +2382,7 @@ def _on_main_menu(
 
         committed = commit_direct_action(_change, after_apply=_after_apply)
         if not committed:
-            if result.get("allowed") is False:
+            if not allowed:
                 return {"ok": False, **result}
             return {"ok": False, "message": "Anki could not create an undo entry"}
         _refresh_skill_availability()
