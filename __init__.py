@@ -2404,42 +2404,32 @@ def _on_main_menu(
                 return {"ok": False, "message": "Could not save the policy."}
             return {"ok": True, **info}
 
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        if action_id == "enter_room":
-            updated, ok, info = enter_warriors_guild_cyclops_room_pure(
-                player_data
-            )
-        elif action_id == "leave_room":
-            updated, ok, info = leave_warriors_guild_cyclops_room_pure(
-                player_data
-            )
-        elif action_id == "show_defender":
-            updated, ok, info = show_warriors_guild_defender_pure(player_data)
-        else:
+        if action_id not in ("enter_room", "leave_room", "show_defender"):
             return {"ok": False, "message": "Unknown Warriors' Guild command."}
-        if not ok:
-            random.setstate(before["random_state"])
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "That action is unavailable.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+
+        info = {}
+        refused = False
+
+        def _change(current):
+            nonlocal info, refused
+            if action_id == "enter_room":
+                updated, ok, info = enter_warriors_guild_cyclops_room_pure(current)
+            elif action_id == "leave_room":
+                updated, ok, info = leave_warriors_guild_cyclops_room_pure(current)
+            else:
+                updated, ok, info = show_warriors_guild_defender_pure(current)
+            refused = not ok
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if refused:
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "That action is unavailable.")),
+                }
             return {"ok": False, "message": "Anki could not create an undo entry."}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass

@@ -928,5 +928,94 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data, before)
 
 
+
+    def _guild_handler(self):
+        captured = {}
+        self.addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        self.addon.update_review_hud = lambda *_args: None
+        self.addon._on_main_menu(initial_skill="Activities")
+        return captured["on_warriors_guild_command"]
+
+    def test_warriors_guild_room_entry_restores_through_the_seam(self):
+        from ankiscape.logic.warriors_guild_logic import (
+            MULTI_TOKEN_ENTRY_COST,
+            WARRIORS_GUILD_TOKEN_KEYS,
+        )
+
+        addon = self.addon
+        handler = self._guild_handler()
+        addon.player_data["warriors_guild"]["in_cyclops_room"] = False
+        addon.player_data["warriors_guild"]["automation_mode"] = "advanced"
+        addon.player_data["warriors_guild"]["payment_mode"] = "multi"
+        addon.player_data["attack_level"] = 99
+        addon.player_data["strength_level"] = 99
+        for token in WARRIORS_GUILD_TOKEN_KEYS:
+            addon.player_data["warriors_guild"]["tokens"][token] = (
+                MULTI_TOKEN_ENTRY_COST
+            )
+        before = copy.deepcopy(addon.player_data)
+
+        result = handler("enter_room", {})
+
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(addon.player_data["warriors_guild"]["in_cyclops_room"])
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(self.saves), 1, "the entry must persist")
+        addon._restore_direct_action_snapshot(
+            addon._DIRECT_ACTION_UNDO_STACK.pop()
+        )
+        self.assertEqual(addon.player_data["warriors_guild"], before["warriors_guild"])
+
+    def test_warriors_guild_refusal_returns_the_reason_and_writes_nothing(self):
+        from ankiscape.logic.warriors_guild_logic import (
+            MULTI_TOKEN_ENTRY_COST,
+            WARRIORS_GUILD_TOKEN_KEYS,
+        )
+
+        addon = self.addon
+        handler = self._guild_handler()
+        addon.player_data["warriors_guild"]["in_cyclops_room"] = False
+        addon.player_data["warriors_guild"]["automation_mode"] = "advanced"
+        addon.player_data["warriors_guild"]["payment_mode"] = "multi"
+        addon.player_data["attack_level"] = 99
+        addon.player_data["strength_level"] = 99
+        for token in WARRIORS_GUILD_TOKEN_KEYS:
+            addon.player_data["warriors_guild"]["tokens"][token] = 0
+        before = copy.deepcopy(addon.player_data)
+
+        result = handler("enter_room", {})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Need 30 of every Warriors' Guild token")
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(len(self.saves), 0)
+
+    def test_warriors_guild_undo_unavailable_reports_it_instead_of_success(self):
+        from ankiscape.logic.warriors_guild_logic import (
+            MULTI_TOKEN_ENTRY_COST,
+            WARRIORS_GUILD_TOKEN_KEYS,
+        )
+
+        addon = self.addon
+        handler = self._guild_handler()
+        self.collection.accepts = False
+        addon.player_data["warriors_guild"]["in_cyclops_room"] = False
+        addon.player_data["warriors_guild"]["automation_mode"] = "advanced"
+        addon.player_data["warriors_guild"]["payment_mode"] = "multi"
+        addon.player_data["attack_level"] = 99
+        addon.player_data["strength_level"] = 99
+        for token in WARRIORS_GUILD_TOKEN_KEYS:
+            addon.player_data["warriors_guild"]["tokens"][token] = (
+                MULTI_TOKEN_ENTRY_COST
+            )
+
+        result = handler("enter_room", {})
+
+        self.assertEqual(
+            result,
+            {"ok": False, "message": "Anki could not create an undo entry."},
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
