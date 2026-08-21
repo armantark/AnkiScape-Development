@@ -935,9 +935,11 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         return captured["on_farming_action"]
 
     def test_farming_action_restores_through_the_seam(self):
-        from ankiscape.logic import farming_logic
-
         addon = self.addon
+        # The real check_achievements opens a modal dialog on completion; under
+        # a live QApplication that blocks the run forever. Patch the module
+        # global the handler resolves at call time.
+        addon.check_achievements = lambda _data: None
         addon.player_data["farming_level"] = 99
         before = copy.deepcopy(addon.player_data)
         handler = self._farming_handler()
@@ -948,10 +950,7 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         plan = addon.player_data["farm_plans"]["falador_allotment_north"]
         self.assertEqual(plan.get("crop_id"), "potato")
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(
-            {k: v for k, v in addon.player_data.items() if k.startswith("farm")},
-            {k: v for k, v in before.items() if k.startswith("farm")},
-        )
+        self.assertEqual(addon.player_data, before)
 
     def test_a_refused_farming_action_returns_its_own_refusal(self):
         addon = self.addon
