@@ -56,38 +56,18 @@ The audit records every pinned value, source conflict, placeholder, asset, and r
 | --- | --- | --- |
 | `hunter.herblore_habitat_success_curves` | Common jadinko uses `rate1=128` and `rate99=256`. | A period catch routine or a qualified measured table. |
 | `hunter.common_jadinko_seed_roll` | The seed trigger is `16/256`; the selector is uniform across five seeds. | A period drop routine or a qualified capture sample. |
-| `potions.juju_hunter_boost` | A dose gives three Hunter levels. | A period player-drink routine or an exact dated statement. |
 
 Do not remove a placeholder marker without the source named in this table.
 
-## Source conflict
+## Sourced player behavior
 
-Darkan and Juju hunter potion oldid `6258636` refuse a player drink. OpenRS2 item definitions include a `Drink` option but no boost amount.
+Darkan `Potions.kt:522` and Juju hunter potion oldid `6258636` refuse a player drink and establish Habitat reagent use. OpenRS2 item definitions include a `Drink` option, but that client option does not establish a server-side effect.
 
-The owner requires a drinkable potion with a Hunter boost. The live three-level value matches the exact period Hunter potion boost.
-
-Treat this value as recoverable data debt. Do not present it as a recovered Juju value.
+The potion is therefore non-drinkable and has no Hunter-boost placeholder.
 
 ## Verification
 
-The final full plain lane passed:
-
-```text
-Ran 4057 tests in 211.908s
-OK (skipped=494)
-```
-
-The final reachability result is:
-
-```text
-1561 actions; 2574 reachable items; 105 orphan inputs; 105 blocked actions
-```
-
-The baseline at `0071218b` was:
-
-```text
-1556 actions; 2573 reachable items; 102 orphan inputs; 101 blocked actions
-```
+The corrected full-lane and reachability results are recorded in `memory-bank/source-audits/juju-vine-secondaries-2026-08-11.md`.
 
 ## Queue
 
@@ -97,7 +77,6 @@ A later user-interface slice must fix `ui/ui.py` lines 1467-1470. The current co
 
 Inspect the neighboring skill buttons in the same slice. Apply the fix to every matching button.
 
-A later source pass can recover `potions.juju_hunter_boost`. Use the exact source condition in the placeholder table.
 
 ## Next leverage roots
 
