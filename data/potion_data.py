@@ -41,8 +41,11 @@ JUJU_HUNTER_POTION_DOSE_IDS: Dict[int, int] = {
     3: 20024,
     4: 20023,
 }
-JUJU_HUNTER_POTION_DOSE_SOURCE = (
-    f"{DARKAN_POTION_SOURCE_PATH}: JUJU_HUNTER_POTION; "
+JUJU_HUNTER_POTION_SOURCE = (
+    f"{DARKAN_POTION_SOURCE_PATH}:522 JUJU_HUNTER_POTION refuses player drinking "
+    "and handles only Habitat reagent use; "
+    "https://runescape.wiki/w/Juju_hunter_potion?oldid=6258636: used on the "
+    "Habitat flower patch rather than drunk; "
     f"{OPENRS2_JUJU_HUNTER_POTION_DOSE_SOURCE}: index 19, group 78, "
     "files 55-58 decode items 20023-20026 as doses 4-1"
 )
@@ -59,12 +62,10 @@ EMPTY_FLASK_ITEM = ("Potion flask", 23191)
 # base display name -> item-state and supported-use metadata
 POTION_FAMILIES: Dict[str, Dict[str, object]] = {
     "Juju hunter potion": {
-        "skills": ("hunter",),
-        # PLACEHOLDER(potions.juju_hunter_boost): an authentic period routine or
-        # source that states the player-drink Hunter boost magnitude.
-        "strategy": "flat_skill",
+        "role": "habitat_reagent",
+        "drinkable": False,
         "doses": JUJU_HUNTER_POTION_DOSE_IDS,
-        "source": JUJU_HUNTER_POTION_DOSE_SOURCE,
+        "source": JUJU_HUNTER_POTION_SOURCE,
     },
     "Attack potion": {"skills": ("attack",), "strategy": "r", "doses": {1: 125, 2: 123, 3: 121, 4: 2428},
                       "flask_doses": {1: 23205, 2: 23203, 3: 23201, 4: 23199, 5: 23197, 6: 23195}},
@@ -193,9 +194,11 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
 
 
 def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
-    """Drinkable vial and flask dose entries."""
+    """Drinkable vial and flask doses, excluding reagent-only families."""
     rows: Dict[str, Dict[str, object]] = {}
     for base, spec in POTION_FAMILIES.items():
+        if not spec.get("drinkable", True):
+            continue
         source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose in spec["doses"]:  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {
@@ -232,7 +235,11 @@ def skilling_potion_items_for_skill(skill_id: str) -> Tuple[str, ...]:
     """Matching dose containers, fullest first, for one noncombat skill."""
     rows = []
     for base, spec in POTION_FAMILIES.items():
-        if spec.get("strategy") != "flat_skill" or skill_id not in spec["skills"]:
+        if (
+            not spec.get("drinkable", True)
+            or spec.get("strategy") != "flat_skill"
+            or skill_id not in spec["skills"]
+        ):
             continue
         rows.extend(
             (dose, 1, potion_flask_name(base, dose))

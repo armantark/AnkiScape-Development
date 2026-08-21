@@ -4,9 +4,7 @@
 
 The Common jadinko Hunter route is live. It keeps the Marasamaw plant and gives one Withered vine on success. It can also give one vine-herb seed.
 
-The Juju hunter potion recipe is live. The four vial doses are live consumables and Bob Barter can decant them. Each consumed dose gives a three-level Hunter boost and leaves the next dose.
-
-The Hunter boost magnitude is a registered placeholder. No qualified period source states a Juju hunter player-drink boost magnitude.
+The Juju hunter potion recipe is live. The four vial doses are registered Habitat reagents and Bob Barter can decant them, but they are not consumables. Darkan and the dated item page establish that the player does not drink the potion.
 
 ## Scope
 
@@ -60,9 +58,8 @@ The five seed pages also pin the Common jadinko route:
 | Dose 3 | Item `20024` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
 | Dose 2 | Item `20025` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
 | Dose 1 | Item `20026` | OpenRS2 revisions 727, 741, and 742; index 19, group 78, files 55-58 |
-| Container action | `Drink`, `Empty`, and `Drop` options | OpenRS2 revision 742 item definitions for `20023` through `20026` |
-| Dose chain | Each dose leaves the next lower dose; dose 1 leaves a Vial | Shared potion registry contract and the four pinned dose identities |
-| Hunter boost | Three current Hunter levels | Registered placeholder `potions.juju_hunter_boost`; Hunter potion oldid `6462616`, 2012-10-24, supplies the exact three-level fallback |
+| Cache options | `Drink`, `Empty`, and `Drop` | OpenRS2 revision 742 item definitions for `20023` through `20026`; these client options do not establish a drink effect |
+| Player use | Habitat reagent; drinking is refused without consuming a dose or changing a stat | Darkan `Potions.kt:522`, `JUJU_HUNTER_POTION`; Juju hunter potion oldid `6258636`, 2012-09-17 |
 
 The OpenRS2 cache archives are:
 
@@ -70,13 +67,11 @@ The OpenRS2 cache archives are:
 - Revision 741, 2012-11-04, SHA-256 `61855e4c9f18e5ae25124277506c5b4d24317caf96f8e0a5cd1b06a037db7180`.
 - Revision 742, 2012-11-07, SHA-256 `9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8`.
 
-## Source conflict and owner ruling
+## Player-use behavior
 
-Darkan `Potions.kt` refuses a player drink. Juju hunter potion oldid `6258636`, 2012-09-17, also says the player does not drink it.
+Darkan `Potions.kt:522` refuses a player drink with the message, "You decide that only plants are likely to enjoy the taste of this potion." Juju hunter potion oldid `6258636`, 2012-09-17, independently says the player does not drink it and uses it on the Habitat flower patch.
 
-The owner ruled that AnkiScape must make this potion drinkable with a Hunter boost. The period dose records have a `Drink` option, but they do not state the boost amount.
-
-The slice therefore uses a registered three-level placeholder. This value matches the exact period Hunter potion boost.
+The OpenRS2 item definitions expose a `Drink` menu option, but a cache option does not establish a server-side effect. The two behavioral sources therefore control: the potion remains a Habitat reagent and has no player-drink boost or boost placeholder.
 
 ## Registered placeholders
 
@@ -84,7 +79,6 @@ The slice therefore uses a registered three-level placeholder. This value matche
 | --- | --- | --- | --- |
 | `hunter.herblore_habitat_success_curves` | `rate1=128`, `rate99=256` | The dated pages state the routes and rewards but no catch probability. | A period Marasamaw or tracker catch routine, or a qualified measured table. |
 | `hunter.common_jadinko_seed_roll` | A `16/256` trigger and a uniform choice of five vine-herb seeds | Darkan reconstructs the hidden trigger and selector. The dated pages only state a chance. | A period Common jadinko drop routine or a qualified capture sample. |
-| `potions.juju_hunter_boost` | Three Hunter levels | No qualified source states a Juju hunter player-drink boost magnitude. | A period player-drink routine or a dated source that states the exact magnitude. |
 
 ## Assets
 
@@ -107,36 +101,29 @@ The action makes one independent seed roll. A successful seed roll gives one see
 
 Runtime telemetry records the guaranteed output and the selected bonus seed. Review undo uses the same output record.
 
-Juju hunter potion remains a Habitat reagent. It is also a drinkable potion. These roles are not exclusive.
+Juju hunter potion remains a Habitat reagent. Its `drinkable: False` family metadata excludes all four doses from manual-consumable, skilling-potion, and combat-potion registries.
 
 ## Reachability
 
-The merge base is `0071218b`.
-
-| Metric | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Actions | 1,556 | 1,561 | +5 |
-| Reachable items | 2,573 | 2,574 | +1 |
-| Orphan inputs | 102 | 105 | +3 |
-| Blocked actions | 101 | 105 | +4 |
-
-The slice adds the live Hunter action and the four potion consume actions. The graph still lacks some Habitat roots, such as the Marasamaw plant and Corrupt vine routes.
+The corrected family contributes the live Common jadinko Hunter action and no potion consume actions. On the current merged re-land tree, the audit reports 1,582 actions, 2,307 reachable items, 72 orphan inputs, 45 root orphans, 27 cascade orphans, 71 blocked actions, and 1,123 seed items. The graph still lacks some Habitat roots, including the vine-herb farming chain needed to produce Erzille potion (unf).
 
 ## Verification
 
 Focused potion, placeholder, registry, runtime, and Bob Barter checks pass.
 
-Full plain discovery passes:
+The corrected merged tree passes the full plain lane:
 
 ```text
-Ran 4057 tests in 211.908s
-OK (skipped=494)
+Ran 4180 tests in 213.983s
+OK (skipped=502)
 ```
+
+The offscreen Qt lane ran as four ordered independent processes because the monolithic runtime exceeds the command cap. The batches passed 1,435 tests with two skips, 737 tests with no skips, 1,059 tests with one skip, and 949 tests with no skips: 4,180 tests with three skips in total.
 
 The final reachability audit reports:
 
 ```text
-1561 actions; 2574 reachable items; 105 orphan inputs; 105 blocked actions
+1582 actions; 2307 reachable items; 72 orphan inputs; 71 blocked actions
 ```
 
 ## Queue
@@ -144,5 +131,3 @@ The final reachability audit reports:
 `ui/ui.py` lines 1467-1470 apply skill availability as a one-way enable. A button stays enabled after the pure result becomes false.
 
 The same pattern exists on nearby skill buttons. A separate slice must fix every skill button.
-
-The Juju hunter boost placeholder is recoverable data-depth debt. A period player-drink routine or an exact dated statement settles it.

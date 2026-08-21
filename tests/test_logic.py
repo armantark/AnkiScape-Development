@@ -1976,7 +1976,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(no_exp, 0)
         self.assertEqual(no_inv, {})
 
-    def test_juju_hunter_potion_recipe_and_dose_chain_are_live(self):
+    def test_juju_hunter_potion_recipe_is_live_but_the_potion_is_not_drunk(self):
         from ankiscape.core.constants import HERBLORE_DATA
 
         inventory, exp, ok = apply_herblore_action_pure(
@@ -1988,15 +1988,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 123.0)
         self.assertEqual(inventory["Juju hunter potion (3)"], 1)
 
-        dose_two, result = apply_consumable_pure(
-            {"inventory": inventory},
+        player_data = {"inventory": inventory, "hunter_level": 50}
+        unchanged, result = apply_consumable_pure(
+            player_data,
             "Juju hunter potion (3)",
         )
-        self.assertTrue(result["allowed"])
-        self.assertEqual(result["boosts"], {"hunter": 3})
-        self.assertEqual(dose_two["skilling_current_levels"]["hunter"], 4)
-        self.assertEqual(dose_two["inventory"]["Juju hunter potion (2)"], 1)
-        self.assertNotIn("Juju hunter potion (3)", dose_two["inventory"])
+        self.assertEqual(result, {"allowed": False, "reason": "not_a_consumable"})
+        self.assertEqual(unchanged, player_data)
 
     def test_action_telemetry_records_expected_observed_and_outputs(self):
         player_data = {}

@@ -27,8 +27,10 @@ class PotionAssetTest(unittest.TestCase):
 
         self.assertEqual({request.item_name for request in manifest}, expected)
         juju_hunter = POTION_FAMILIES["Juju hunter potion"]
-        self.assertEqual(juju_hunter["skills"], ("hunter",))
-        self.assertEqual(juju_hunter["strategy"], "flat_skill")
+        self.assertEqual(juju_hunter["role"], "habitat_reagent")
+        self.assertFalse(juju_hunter["drinkable"])
+        self.assertNotIn("skills", juju_hunter)
+        self.assertNotIn("strategy", juju_hunter)
         self.assertEqual(
             juju_hunter["doses"],
             {1: 20026, 2: 20025, 3: 20024, 4: 20023},
@@ -48,7 +50,7 @@ class PotionAssetTest(unittest.TestCase):
                 "Juju hunter potion (4)",
             },
         )
-        self.assertTrue(juju_states.issubset(potion_consumables_as_dict()))
+        self.assertTrue(juju_states.isdisjoint(potion_consumables_as_dict()))
         self.assertEqual(
             len(manifest),
             1
