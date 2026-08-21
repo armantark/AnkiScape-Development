@@ -2520,18 +2520,25 @@ def _on_main_menu(
             }
 
         info = {}
+        pure_ok = False
 
         def _change(current):
-            nonlocal info
+            nonlocal info, pure_ok
             updated, ok, info = apply_shooting_star_exchange_pure(current)
+            pure_ok = ok
             return updated, ok
 
         def _after_apply():
             check_achievements(player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
-            if info.get("reason"):
-                return {"ok": False, "message": str(info["reason"])}
+            if not pure_ok:
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "The Star sprite cannot reward you.")
+                    ),
+                }
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",

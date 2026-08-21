@@ -995,4 +995,17 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data, before)
         self.assertEqual(self.saves, [], "nothing may persist without undo")
 
+    def test_shooting_star_exchange_refusal_keeps_the_sprite_message(self):
+        addon, exchange = self._capture_star_handler()
+
+        result = exchange("exchange", {})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "No Star sprite is available.")
+        self.assertEqual(self.saves, [], "nothing may persist without undo")
+
+
+if __name__ == "__main__":
+    unittest.main()
+
 
