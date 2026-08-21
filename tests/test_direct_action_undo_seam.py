@@ -988,5 +988,67 @@ class DirectActionUndoSeamTest(unittest.TestCase):
 
 
 
+    def _capture_agility_handler(self):
+        """Drive the REAL handler: stub the menu dialog, keep the wiring."""
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._refresh_skill_availability = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.check_achievements = lambda _data: None
+        addon._show_exp = lambda _gained: None
+        addon._award_skill_exp = lambda *args, **kwargs: 0.0
+        addon.level_up_check = lambda *_args: None
+        addon._on_main_menu(initial_skill="Activities")
+        return captured["on_agility_command"]
+
+    def test_agility_gnome_ball_entry_restores_through_the_real_handler(self):
+        addon = self.addon
+        command = self._capture_agility_handler()
+        before = copy.deepcopy(addon.player_data)
+
+        outcome = command("enter_gnome_ball", {})
+
+        self.assertTrue(outcome["ok"], outcome)
+        self.assertTrue(addon.player_data["gnome_ball"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_agility_refusal_returns_the_refusal_and_writes_nothing(self):
+        addon = self.addon
+        command = self._capture_agility_handler()
+        addon.player_data["equipment"] = {"weapon": "Bronze sword"}
+        baseline = copy.deepcopy(dict(addon.player_data))
+
+        outcome = command("enter_gnome_ball", {})
+
+        self.assertFalse(outcome["ok"])
+        self.assertIn("unequip your weapon", str(outcome.get("reason")))
+        self.assertEqual(
+            dict(addon.player_data), baseline, "a refusal must write nothing"
+        )
+
+    def test_agility_undo_entry_failure_reports_undo_unavailable(self):
+        """A successful action whose undo entry fails must not look like success."""
+        addon = self.addon
+        addon.mw = _DummyMW(_FakeCollection(accepts=False))
+        command = self._capture_agility_handler()
+        baseline = copy.deepcopy(dict(addon.player_data))
+
+        outcome = command("enter_gnome_ball", {})
+
+        self.assertFalse(outcome["ok"])
+        self.assertEqual(
+            outcome["message"], "Anki could not create an undo entry"
+        )
+        self.assertNotIn("reason", outcome)
+        self.assertEqual(
+            dict(addon.player_data),
+            baseline,
+            "no undo entry means no change may be written",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

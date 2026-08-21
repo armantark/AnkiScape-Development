@@ -2359,35 +2359,42 @@ def _on_main_menu(
                 _update_review_context_surface()
             return {"ok": committed, **outcome}
 
-        before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
-        pit_reward = (player_data.get("agility_activity_state") or {}).get("pit_reward")
-        roll = random.random() if action_id == "gamble_pit_reward" and pit_reward else 0.5
-        updated, result = apply_agility_command_pure(player_data, action_id, payload, roll=roll)
-        if not result.get("allowed"):
-            random.setstate(before["random_state"])
-            return {"ok": False, **result}
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+        result = {}
+        allowed = False
+
+        def _change(current):
+            nonlocal result, allowed
+            pit_reward = (current.get("agility_activity_state") or {}).get(
+                "pit_reward"
+            )
+            roll = (
+                random.random()
+                if action_id == "gamble_pit_reward" and pit_reward
+                else 0.5
+            )
+            updated, result = apply_agility_command_pure(
+                current, action_id, payload, roll=roll
+            )
+            allowed = bool(result.get("allowed"))
+            return updated, allowed
+
+        def _after_apply():
+            xp = float(result.get("xp", 0.0) or 0.0)
+            if xp > 0:
+                skill_id = str(result.get("skill_id", "agility")).lower()
+                skill_name = skill_id.replace("_", " ").title()
+                gained = _award_skill_exp(f"{skill_id}_exp", xp)
+                level_up_check(skill_name, player_data)
+                _show_exp(gained)
+            check_achievements(player_data)
+
+        committed = commit_direct_action(_change, after_apply=_after_apply)
+        if not committed:
+            if not allowed:
+                return {"ok": False, **result}
             return {"ok": False, "message": "Anki could not create an undo entry"}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        xp = float(result.get("xp", 0.0) or 0.0)
-        if xp > 0:
-            skill_id = str(result.get("skill_id", "agility")).lower()
-            skill_name = skill_id.replace("_", " ").title()
-            gained = _award_skill_exp(f"{skill_id}_exp", xp)
-            level_up_check(skill_name, player_data)
-            _show_exp(gained)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
