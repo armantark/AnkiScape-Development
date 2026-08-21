@@ -2226,31 +2226,20 @@ def _on_main_menu(
         }
 
     def _apply_farming_action(action_id, payload):
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
-        if ok:
-            try:
-                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-            except (AttributeError, RuntimeError):
-                return {
-                    "ok": False,
-                    "message": "Anki could not create an undo entry.",
-                    "projection": farming_frontend_projection_pure(player_data),
-                }
-            _DIRECT_ACTION_UNDO_STACK.append(before)
-            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-            player_data.clear()
-            player_data.update(updated)
+        change_ok = False
+        change_message = ""
+
+        def _change(current):
+            nonlocal change_ok, change_message
+            updated, change_ok, change_message = apply_farming_frontend_action_pure(
+                current, action_id, payload
+            )
+            return updated, change_ok
+
+        def _after_apply():
             check_achievements(player_data)
-            save_player_data()
-            try:
-                mw.update_undo_actions()
-            except AttributeError:
-                pass
+
+        committed = commit_direct_action(_change, after_apply=_after_apply)
         try:
             update_review_status_badge(
                 player_data, _open_activities_sheet, _open_farming_sheet
@@ -2258,7 +2247,26 @@ def _on_main_menu(
             update_review_fill_drawer(player_data)
         except Exception:
             pass
-        return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
+        if not committed:
+            if change_ok:
+                # The change applied but Anki refused the undo entry, so nothing
+                # was written; never report the successful info here.
+                return {
+                    "ok": False,
+                    "reason": "undo_unavailable",
+                    "message": "Anki could not create an undo entry.",
+                    "projection": farming_frontend_projection_pure(player_data),
+                }
+            return {
+                "ok": False,
+                "message": change_message,
+                "projection": farming_frontend_projection_pure(player_data),
+            }
+        return {
+            "ok": True,
+            "message": change_message,
+            "projection": farming_frontend_projection_pure(player_data),
+        }
 
     def _apply_mage_arena_action(action_id, god_id):
         if action_id == "select_alignment":
