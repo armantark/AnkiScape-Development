@@ -2275,46 +2275,58 @@ def _on_main_menu(
 
     def _apply_mage_arena_action(action_id, god_id):
         if action_id == "select_alignment":
-            updated, ok, info = set_mage_arena_alignment_pure(
-                player_data,
-                god_id,
-            )
-            if not ok:
-                show_error_message(
-                    "Cannot choose alignment",
-                    str(info.get("reason", "That alignment is unavailable.")),
+            info = {}
+            refused = False
+
+            def _change(current):
+                nonlocal info, refused
+                updated, ok, info = set_mage_arena_alignment_pure(
+                    current,
+                    god_id,
                 )
+                refused = not ok
+                return updated, ok
+
+            if not commit_direct_action(_change):
+                if refused:
+                    show_error_message(
+                        "Cannot choose alignment",
+                        str(info.get("reason", "That alignment is unavailable.")),
+                    )
+                else:
+                    # Main wrote and saved without an undo entry, so this
+                    # failure mode only exists since the seam. The choice was
+                    # not written; silent loss would leave the player believing
+                    # it took.
+                    show_error_message(
+                        "Alignment unchanged",
+                        "Anki could not create an undo entry, so the choice "
+                        "was not applied.",
+                    )
                 return False
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
             return True
         if action_id != "cape":
             return False
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, ok, info = apply_mage_arena_cape_action_pure(
-            player_data,
-            god_id,
-        )
-        if not ok:
-            show_error_message(
-                "Cannot use Mage Arena statue",
-                str(info.get("reason", "That statue action is unavailable.")),
+
+        info = {}
+        refused = False
+
+        def _cape_change(current):
+            nonlocal info, refused
+            updated, ok, info = apply_mage_arena_cape_action_pure(
+                current,
+                god_id,
             )
+            refused = not ok
+            return updated, ok
+
+        if not commit_direct_action(_cape_change):
+            if refused:
+                show_error_message(
+                    "Cannot use Mage Arena statue",
+                    str(info.get("reason", "That statue action is unavailable.")),
+                )
             return False
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return False
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
         _refresh_skill_availability()
         _show_activity_gain(f"Claimed {info.get('cape', 'god cape')}.")
         return True
