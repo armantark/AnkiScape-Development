@@ -1976,6 +1976,38 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(no_exp, 0)
         self.assertEqual(no_inv, {})
 
+    def test_juju_hunter_potion_drink_consumes_a_dose_without_a_stat_boost(self):
+        from ankiscape.core.constants import HERBLORE_DATA
+
+        inventory, exp, ok = apply_herblore_action_pure(
+            "finished_juju_hunting",
+            {"Erzille potion (unf)": 1, "Corrupt vine": 1},
+            HERBLORE_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 123.0)
+        self.assertEqual(inventory["Juju hunter potion (3)"], 1)
+
+        player_data = {
+            "inventory": inventory,
+            "hunter_level": 50,
+            "skilling_current_levels": {"hunter": 50},
+        }
+        dose_two, result = apply_consumable_pure(
+            player_data,
+            "Juju hunter potion (3)",
+        )
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["boosts"], {})
+        self.assertEqual(
+            result["message"],
+            "You decide that only plants are likely to enjoy the taste of this potion.",
+        )
+        self.assertEqual(dose_two["skilling_current_levels"], {"hunter": 50})
+        self.assertEqual(dose_two["inventory"]["Juju hunter potion (2)"], 1)
+        self.assertNotIn("Juju hunter potion (3)", dose_two["inventory"])
+        self.assertEqual(player_data["inventory"]["Juju hunter potion (3)"], 1)
+
     def test_action_telemetry_records_expected_observed_and_outputs(self):
         player_data = {}
 
@@ -2355,6 +2387,59 @@ class TestLogic(unittest.TestCase):
                 "Polar kebbit fur": 1,
             },
         )
+
+    def test_common_jadinko_preserves_trap_and_rolls_each_vine_herb_seed(self):
+        target = "catch_common_jadinko"
+        seeds = (
+            "Erzille seed",
+            "Ugune seed",
+            "Argway seed",
+            "Shengo seed",
+            "Samaden seed",
+        )
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 70, "inventory": {}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Marasamaw plant",),
+        )
+
+        no_seed_inventory, exp, ok, output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Marasamaw plant": 1},
+            HUNTER_DATA,
+            70,
+            0.0,
+            r_secondary_chance=16 / 256,
+            r_secondary_pick=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 350.0)
+        self.assertEqual(output_item, "Withered vine")
+        self.assertEqual(no_seed_inventory["Marasamaw plant"], 1)
+        self.assertEqual(no_seed_inventory["Withered vine"], 1)
+        self.assertTrue(all(seed not in no_seed_inventory for seed in seeds))
+
+        for index, expected_seed in enumerate(seeds):
+            with self.subTest(seed=expected_seed):
+                inventory, _exp, caught, _output_item, _rewards = apply_hunter_action_pure(
+                    target,
+                    {"Marasamaw plant": 1},
+                    HUNTER_DATA,
+                    70,
+                    0.0,
+                    r_secondary_chance=0.0,
+                    r_secondary_pick=(index + 0.1) / len(seeds),
+                )
+                self.assertTrue(caught)
+                self.assertEqual(inventory[expected_seed], 1)
+                self.assertEqual(
+                    {seed for seed in seeds if inventory.get(seed, 0)},
+                    {expected_seed},
+                )
 
     def test_razor_backed_kebbit_tracking_preserves_noose_wand_and_awards_chain_inputs(self):
         target = "track_razor_backed_kebbit"

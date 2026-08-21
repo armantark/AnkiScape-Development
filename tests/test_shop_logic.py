@@ -696,6 +696,23 @@ class TestShopLogic(unittest.TestCase):
         for item_name, quantity in before.items():
             self.assertEqual(restored["inventory"].get(item_name, 0), quantity)
 
+    def test_bob_barter_can_consolidate_juju_hunter_potions_to_four_doses(self):
+        self.assertIn("Juju hunter potion", DECANTABLE_FOUR_DOSE_POTION_BASES)
+        data = build_shop_fixture_player_data()
+        data["inventory"]["Juju hunter potion (3)"] = 2
+
+        updated, result = apply_shop_service_pure(
+            data,
+            "bob_barter_decant_four",
+            4,
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertIn("Juju hunter potion", result["decanted_families"])
+        self.assertEqual(updated["inventory"]["Juju hunter potion (2)"], 1)
+        self.assertEqual(updated["inventory"]["Juju hunter potion (3)"], 0)
+        self.assertEqual(updated["inventory"]["Juju hunter potion (4)"], 1)
+
     def test_bob_barter_decants_to_two_doses_and_preserves_partial_remainder(self):
         data = build_shop_fixture_player_data()
         data["inventory"].update(

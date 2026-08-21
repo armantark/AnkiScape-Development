@@ -1699,26 +1699,21 @@ on the merged tree.
 
 **1. An invented mechanic, and I caused it.** The branch now makes the Juju
 hunter potion a drinkable `+3` Hunter boost. Driving the real kernel,
-`apply_consumable_pure` returns `boosts={'hunter': 3}`. Both sources the same
-commit pins say the opposite. Darkan `Potions.kt:522` is a flavour message with
-no stat effect — "You decide that only plants are likely to enjoy the taste of
-this potion" — and the branch's own ledger row at
-`memory-bank/placeholder-values.md:35` says the sources "implement only the
-Habitat reagent use and state that the player does not drink it".
+`apply_consumable_pure` returns `boosts={'hunter': 3}`. Darkan
+`Potions.kt:522` is a flavour-message-only effect with no stat change — "You
+decide that only plants are likely to enjoy the taste of this potion". The
+then-current ledger correctly rejected the boost but over-read the same source
+as saying the dose is not consumed. Direct inspection of `Potions.kt:881-904`
+shows the row inherits `canDrink=true` and the shared path consumes a dose.
 
-The cause is a finding I forwarded. An earlier review called the
-`role: 'habitat_reagent'` key and the `drinkable` guard over-engineering,
-because nothing read them and no family set `drinkable` to False. I passed that
-on as "delete the key and the guard". They were not scaffolding: they were the
-only place the sourced fact "this potion is not drunk" was expressed. Removing
-them let the potion fall through to the generic `flat_skill` boost path, and a
-test now pins the invented value.
+The cause was the source summary I forwarded, not removal of a valid negative
+mechanic. The `drinkable` guard encoded the ledger's mistaken refusal; deleting
+it exposed the separate invented `flat_skill` boost. The correct shape is the
+generic dose chain with empty skills and the sourced flavour message.
 
-The lesson is narrower than "be careful deleting code". Unreachable code that
-encodes a *negative* source fact looks exactly like speculative scaffolding,
-because nothing exercises it — the absence of a caller is the whole point.
-Before deleting a guard as unused, check whether it is the only record of
-something a source says does NOT happen.
+The lesson is to trace an enum row through its inherited control flow before
+turning a flavour line into a refusal. A row-local message does not establish
+whether the shared drink path consumes the item.
 
 **2. A known-wrong record.** `memory-bank/activeContext.md:114` on the merged
 tree still says "4,159 plain tests with 499 skips" and reachability
@@ -1774,3 +1769,59 @@ way. Routing it through the seam made a successful alignment choice newly
 contingent on `add_custom_undo_entry`, and the first cut lost the choice silently
 with no message. Check every handler for sub-actions that previously bypassed the
 undo path entirely; they need a deliberate decision, not an inherited one.
+
+### Fix-by-instance: four rounds where each fix produced the next finding
+
+`goal/herbs-reland-2026-08-19` has now taken eight review rounds. Every finding
+was real and every fix was correct, but rounds six through nine share one shape:
+
+- round six named three Jadinko rows missing their secondary drop tables; the
+  fix implemented those three;
+- round seven named two rows still on a placeholder success curve when the
+  branch's own audit cited the file containing their endpoints; the fix
+  corrected those two;
+- round eight then found three MORE rows missing their secondary tables, one of
+  which (Guthix) fits the existing one-table contract exactly as two already-
+  implemented rows do, so the recorded blocker never explained its omission.
+
+Measured, not argued: 200,000 seeded catches per row gave Saradomin 1.932%
+against a source 5/256 = 1.953%, and Guthix and Shadow exactly zero.
+
+**The lesson is about the brief, not the agent.** A finding that names instances
+gets instances fixed. When a defect is a class — every row of a table checked
+against its source — the brief has to ask for the enumeration and require a
+disposition for every member, or the next round finds the members nobody named.
+Round nine asks for the sweep: a table of all ten rows, each ending in exactly
+one of implement / register-with-adjacent-marker / source-gives-nothing.
+
+Watch for the same shape elsewhere. It is cheap to produce and expensive to find:
+each round looks like progress because the named thing really was fixed.
+
+### Bound an enumeration by the source, never by the artifact under review
+
+The herb branch's fix-by-instance cycle was broken by asking for a sweep — a
+table of every jadinko row with a required disposition each. It worked: three
+missing direct tables implemented, six genuinely multi-table rows given adjacent
+markers, 200,000-action probes confirming 3,787 drops on each new row.
+
+Then the reviewer found the sweep was still bounded wrongly. The brief said
+"enumerate ALL ten catch/track jadinko rows". Ten was the count of rows the
+BRANCH had. Darkan's `JadinkoType.kt` defines THIRTEEN jadinkos with THREE
+trackers — `SHADOW`, `DISEASED`, and `CAMOUFLAGED` — and the branch has two.
+`hunter_jadinko_camouflaged.json` sits in the directory the audit cites, giving
+bush seeds 16/256, four vine-herb seeds 4/256, and blossom 4/256. Nothing in the
+tree mentions item 19978, and the records read as complete enumerations.
+
+So the rule is not "sweep the class" but something sharper:
+
+**Take the enumeration set from the source, never from the artifact under
+review.** A sweep bounded by what the branch already contains cannot discover
+what the branch omits — it only re-confirms what is there. The brief has to name
+the source of truth for the row set (here `JadinkoType.kt` plus the drop-file
+directory) and require the report to list which source rows the slice does NOT
+implement.
+
+Camouflaged itself is being disclosed, not implemented: a third tracker route
+with its own feature gate and produce type is new content and belongs in its own
+slice, not in a herb re-land. That is the BFS boundary — found only because of
+this work, so surface it rather than fix it.
