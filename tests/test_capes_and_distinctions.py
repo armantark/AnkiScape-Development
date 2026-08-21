@@ -317,7 +317,7 @@ class EffectiveLevelTest(unittest.TestCase):
 
         Same target, same roll, same level: the cape is the only difference, and
         it is the difference between nothing and a Roe. This is the Cooking
-        member of the 39 roll paths the boost actually moves; the count itself
+        member of the 47 roll paths the boost actually moves; the count itself
         is pinned by the test below.
         """
 
@@ -340,7 +340,7 @@ class EffectiveLevelTest(unittest.TestCase):
         self.assertEqual(gut({"cape": "Cooking cape"}), (1, 10.0))
 
     def test_the_boost_moves_forty_seven_roll_paths_not_one(self):
-        """The historical 39-path count rises to 47 with eight Jadinko catches.
+        """The boost moves 47 paths, including eight Jadinko catches.
 
         The claim mattered: an owner told the rule is nearly a no-op may decide
         differently knowing it now changes 41 Hunter catches, 3 Firemaking

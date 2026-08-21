@@ -564,3 +564,7 @@
 2026-08-19 17:58 PDT — As PID `28026` released the shared Qt interpreter, PID `19135` from `jungle-reland-2026-08-19` was already running `test_main_menu_widget test_herblore_assets`, causing a second manual wait before this branch's final Qt lane.
 2026-08-19 18:04 PDT — The first Qt shard used `run_tests.py` module-name selectors, whose substring matching pulled tests outside the intended modules and ran `2246` instead of the measured `2175`; exact `python -m unittest tests.<module>` shards avoid selector overlap.
 2026-08-19 18:15 PDT — The final chained audit command stopped at `tools/audit_item_reachability.py` exit 1 after measuring the pinned `1584 / 2334 / 50 / 53` state, so expected nonzero measurement gates must be captured separately from pass/fail audits.
+2026-08-21 12:03:30 PDT — Searching effective-level call sites failed because I assumed an ankiscape/ source directory; this worktree exposes the package through pkg_alias and keeps source modules at the repository root.
+2026-08-21 12:09:48 PDT — Offscreen verification had to wait for PID `76654` running a full suite through the canonical `.venv-qt`; shared-interpreter lane scheduling remains manual.
+2026-08-21 12:18:38 PDT — A Qt-shard progress probe mistyped the temporary output path as the repository path and returned no size, requiring a corrected check.
+2026-08-21 12:21:21 PDT — A second Qt progress probe again substituted a repository path for the temporary task-output path and returned no size; repeated manual polling is itself error-prone.
