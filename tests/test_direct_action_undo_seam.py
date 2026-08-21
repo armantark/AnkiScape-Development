@@ -938,6 +938,10 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         from ankiscape.logic import farming_logic
 
         addon = self.addon
+        # The real check_achievements opens a modal dialog on completion; under
+        # a live QApplication that blocks the run forever. Patch the module
+        # global the handler resolves at call time.
+        addon.check_achievements = lambda _data: None
         addon.player_data["farming_level"] = 99
         before = copy.deepcopy(addon.player_data)
         handler = self._farming_handler()
