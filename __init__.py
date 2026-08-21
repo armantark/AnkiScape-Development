@@ -2182,8 +2182,10 @@ def _on_main_menu(
                 "projection": _get_ge_projection(),
             }
         result = {}
+        accepted = False
 
         def _change(current):
+            nonlocal accepted
             updated, info = apply_ge_frontend_action_pure(
                 current,
                 action_id,
@@ -2191,7 +2193,8 @@ def _on_main_menu(
                 item_catalog=GE_ITEM_CATALOG,
             )
             result["info"] = info
-            return updated, bool(info.get("ok"))
+            accepted = bool(info.get("ok"))
+            return updated, accepted
 
         def _after_apply():
             if action_id in {"place_offer", "collect_offer", "collect_all"}:
@@ -2208,11 +2211,14 @@ def _on_main_menu(
                 pass
 
         if not commit_direct_action(_change, after_apply=_after_apply):
-            if "info" in result:
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
                 return {
                     **result["info"],
                     "projection": _get_ge_projection(),
                 }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "reason": "undo_unavailable",
