@@ -2477,40 +2477,38 @@ def _on_main_menu(
                 "message": "Unknown Big Chinchompa command.",
             }
 
-        before = _capture_player_data_snapshot()
+        info = {}
         old_hunter_level = int(player_data.get("hunter_level", 1) or 1)
-        updated, ok, info = apply_big_chinchompa_reward_purchase_pure(
-            player_data,
-            str(payload.get("reward_id", "")),
-            exp_table=EXP_TABLE,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "That reward is unavailable.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_big_chinchompa_reward_purchase_pure(
+                current,
+                str(payload.get("reward_id", "")),
+                exp_table=EXP_TABLE,
+            )
+            return updated, ok
+
+        def _after_apply():
+            hunter_xp = float(info.get("hunter_xp", 0.0) or 0.0)
+            if hunter_xp > 0:
+                player_data["hunter_level"] = old_hunter_level
+                level_up_check("Hunter", player_data)
+                _show_exp(_NamedExperience(hunter_xp, ("Hunter",)))
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if info.get("reason"):
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "That reward is unavailable.")),
+                }
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        hunter_xp = float(info.get("hunter_xp", 0.0) or 0.0)
-        if hunter_xp > 0:
-            player_data["hunter_level"] = old_hunter_level
-            level_up_check("Hunter", player_data)
-            _show_exp(_NamedExperience(hunter_xp, ("Hunter",)))
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
