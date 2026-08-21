@@ -1197,5 +1197,139 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(len(self.saves), 0)
 
 
+    def test_grand_exchange_offer_restores_through_the_real_handler(self):
+        """Drive _apply_ge_action itself through commit_direct_action.
+
+        Stubbed here are only side-effect collaborators (bank run, HUD,
+        achievements surface), never the seam: the handler must reach
+        commit_direct_action for snapshot, undo entry and save.
+        """
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        bank_runs = []
+
+        def request_bank_run(data):
+            bank_runs.append(copy.deepcopy(data))
+            return copy.deepcopy(data), True, "", False
+
+        addon._request_active_bank_run_state = request_bank_run
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        before = copy.deepcopy(addon.player_data)
+        guide_price = int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"])
+        payload = {
+            "side": "buy",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": guide_price,
+        }
+
+        preview = captured["on_ge_action"]("preview_offer", payload)
+        self.assertTrue(preview["ok"])
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        result = captured["on_ge_action"]("place_offer", payload)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 1)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 10_000 - guide_price)
+        self.assertEqual(len(addon.player_data["ge_player_orders"]), 1)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(self.saves), 1)
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_ge_undo_unavailable_reports_failure_not_success(self):
+        """When the undo entry cannot be created, the player must not be told
+        the offer was placed. commit_direct_action returns False for a refusal
+        and for a failed undo entry; only the first carries the action's info.
+        """
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        addon._request_active_bank_run_state = (
+            lambda data: (copy.deepcopy(data), True, "", False)
+        )
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+
+        class _ClosedCollection:
+            def add_custom_undo_entry(self, _operation):
+                raise RuntimeError("collection closed")
+
+            def set_config(self, *_args):
+                pass
+
+        addon.mw.col = _ClosedCollection()
+        baseline = copy.deepcopy(addon.player_data)
+        payload = {
+            "side": "buy",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"]),
+        }
+
+        result = captured["on_ge_action"]("place_offer", payload)
+
+        self.assertEqual(
+            result["reason"],
+            "undo_unavailable",
+            "a failed undo entry must surface as undo_unavailable, not as success",
+        )
+        self.assertFalse(result["ok"])
+        self.assertEqual(
+            dict(addon.player_data),
+            baseline,
+            "no undo entry means no change may be written",
+        )
+
+
+    def test_ge_pure_refusal_reports_refusal_through_handler(self):
+        """A pure-function refusal (not an undo failure) must surface the
+        pure result itself, not undo_unavailable."""
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        addon._request_active_bank_run_state = (
+            lambda data: (copy.deepcopy(data), True, "", False)
+        )
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+
+        baseline = copy.deepcopy(addon.player_data)
+        payload = {
+            "side": "sideways",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"]),
+        }
+
+        result = captured["on_ge_action"]("place_offer", payload)
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["reason"], "invalid_side")
+        self.assertNotIn("undo_unavailable", result.values())
+        self.assertEqual(dict(addon.player_data), baseline)
+
+
+
 if __name__ == "__main__":
     unittest.main()

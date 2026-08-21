@@ -2181,47 +2181,52 @@ def _on_main_menu(
                 **info,
                 "projection": _get_ge_projection(),
             }
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, info = apply_ge_frontend_action_pure(
-            player_data,
-            action_id,
-            payload,
-            item_catalog=GE_ITEM_CATALOG,
-        )
-        if not info.get("ok"):
-            return {
-                **info,
-                "projection": _get_ge_projection(),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        result = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted
+            updated, info = apply_ge_frontend_action_pure(
+                current,
+                action_id,
+                payload,
+                item_catalog=GE_ITEM_CATALOG,
+            )
+            result["info"] = info
+            accepted = bool(info.get("ok"))
+            return updated, accepted
+
+        def _after_apply():
+            if action_id in {"place_offer", "collect_offer", "collect_all"}:
+                result["bank_run_triggered"] = _trigger_active_bank_run()
+                result["info"] = {
+                    **result["info"],
+                    "bank_run_triggered": result["bank_run_triggered"],
+                }
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    **result["info"],
+                    "projection": _get_ge_projection(),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
                 "projection": _get_ge_projection(),
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        if action_id in {"place_offer", "collect_offer", "collect_all"}:
-            info = {**info, "bank_run_triggered": _trigger_active_bank_run()}
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
         return {
-            **info,
+            **result["info"],
             "projection": _get_ge_projection(),
         }
 
