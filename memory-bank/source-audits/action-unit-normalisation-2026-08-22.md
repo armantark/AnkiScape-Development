@@ -35,3 +35,11 @@ At multiplier 1, one successful review resolves one selected recipe. The handler
 - it pays exactly one recipe's `exp`.
 
 **Unit conclusion:** a Crafting ledger row expressed as completed recipe outputs/hour is already in AnkiScape actions/hour. An output stack made by one recipe (rather than each member of that stack) is the action unit; there is no inventory-batch conversion.
+
+## Magic
+
+At multiplier 1, one successful review is one cast. `runtime/runtime_actions_magic.py:417-514` invokes `apply_magic_action_pure` once, increments `magic_actions_completed` by 1, and awards the returned Magic XP once. The pure function names its boundary “one ... noncombat cast” (`logic_pure/logic_pure_magic.py:376-398`): it consumes one cast's effective rune cost (staff-covered elemental runes are waived), consumes that spell's dynamic item requirements, applies the spell effect, and returns the spell's flat `exp` (`logic_pure/logic_pure_magic.py:398-552`).
+
+Spell effects do not redefine the action boundary. High Level Alchemy consumes one selected tradeable item and one cast's runes, produces coins, and pays 65 Magic XP (`data/magic_data.py:95`; `logic_pure/logic_pure_magic.py:411-415`). By contrast, inventory spells such as Humidify, Superglass Make, and String Jewellery affect their coded inventory batch in one cast while still paying one flat Magic XP award (`logic_pure/logic_pure_magic.py:433-472`; `data/magic_data.py:405-409`).
+
+**Unit conclusion:** the common action unit is casts/hour, not items transformed/hour. A ledger rate inferred from flat Magic XP per cast is directly comparable; a rate based on the number of inventory items affected by a batch spell would require conversion back to casts.
