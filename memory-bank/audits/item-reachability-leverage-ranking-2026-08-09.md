@@ -48,3 +48,24 @@ authentic acquisition route is blocked.
 - Full real offscreen Qt discovery passes 4,007 tests in 792.761 seconds with
   three intentional skips.
 - No runtime, save, UI, or content data changed in this tooling slice.
+
+## Claim sources — 2026-08-22
+
+The same fixed-point now traverses `CLAIM_DATA`; Bank claims are acquisition
+routes only after their live gates are satisfiable. A required quest must be
+**completable**, not merely defined or startable. Runecrafting and single-skill
+reward level gates must fit the shipped skill ceilings, and diary-tier claims
+stay excluded because the reachability audit does not model diary completion.
+Claim items are finite one-time quantities, so they can satisfy quest inventory
+requirements but never become repeatable sources.
+
+The shipped regressions pin both sides of the rule: the four Diamond in the
+Rough tomb items resolve through their eligible claims, while Wicked hood stays
+unreachable because Rune Mysteries is blocked at stage 1. A constructed Jade
+vine seed claim separately proves that an impossible minimum-level gate does not
+seed an item; the shipped Wicked hood row makes a second constructed unreachable
+quest case redundant.
+
+After claim traversal the seven report pins are exactly `1599 / 2374 / 38 / 34 /
+4 / 37 / 1127` for actions, reachable items, orphan inputs, root orphans, cascade
+orphans, unresolved actions, and seed items.

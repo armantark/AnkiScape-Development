@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core import constants
 from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
 from tools.audit_item_reachability import (
     _close_actions,
@@ -554,16 +556,54 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("dependent", startable)
         self.assertNotIn("quest_point_gated", startable)
 
+    def test_wicked_hood_claim_stays_unreachable_behind_uncompletable_quest(self):
+        report = build_reachability_report()
+
+        self.assertIsNone(report["routes"].get("Wicked hood"))
+
+    def test_diamond_in_the_rough_claim_items_require_reachable_quest_and_level_gates(self):
+        report = build_reachability_report()
+
+        self.assertEqual(
+            {
+                item: report["routes"].get(item)
+                for item in ("Apmeken mask", "Ankh", "Scabaras mask", "Was")
+            },
+            {
+                "Apmeken mask": "claim:diamond_in_the_rough_apmeken_tomb",
+                "Ankh": "claim:diamond_in_the_rough_apmeken_tomb",
+                "Scabaras mask": "claim:diamond_in_the_rough_scabaras_tomb",
+                "Was": "claim:diamond_in_the_rough_scabaras_tomb",
+            },
+        )
+
+    def test_unreachable_claim_level_does_not_seed_item(self):
+        constructed_claim = {
+            "unreachable_level_item": {
+                "claim_type": "skill_reward",
+                "items": (("Jade vine seed", 1),),
+                "required_quest": "diamond_in_the_rough",
+                "xp_amount": 1,
+                "skill_options": ("mining",),
+                "minimum_level": 100,
+            },
+        }
+
+        with patch.dict(constants.CLAIM_DATA, constructed_claim):
+            report = build_reachability_report()
+
+        self.assertIsNone(report["routes"].get("Jade vine seed"))
+
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1599)
-        self.assertEqual(report["reachable_item_count"], 2370)
+        self.assertEqual(report["reachable_item_count"], 2374)
         self.assertEqual(report["orphan_input_count"], 38)
         self.assertEqual(report["root_orphan_count"], 34)
         self.assertEqual(report["cascade_orphan_count"], 4)
         self.assertEqual(report["unresolved_action_count"], 37)
-        self.assertEqual(report["seed_item_count"], 1123)
+        self.assertEqual(report["seed_item_count"], 1127)
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item

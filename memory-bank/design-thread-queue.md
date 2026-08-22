@@ -602,6 +602,34 @@ and a changed source claim require different fixes.
 Blocks: nothing in the grimy-herb family. This is a cross-cutting record-quality
 check to schedule as its own slice, not tooling to add during family promotion.
 
+### 3.30 Rune Mysteries stage 1 has no action emitter and blocks its dependants
+
+Raised 2026-08-22 while extending the item-reachability audit through Bank
+claims. This is a player-visible defect for a dedicated quest slice, not work to
+hide inside the audit.
+
+- **Broken quest stage:** `rune_mysteries`, stage `1`. Its exact required action
+  is `Deliver the strange talisman to Sedridor` at
+  `data/quest_data.py:7086`. No production path emits that action. The matching
+  pure-logic test at `tests/test_logic.py:3183-3188` injects it directly into
+  `quest_stage_actions`, so it does not prove a player can produce it.
+- **Measured failure:** `build_reachability_report()` returns a
+  `blocked_quest_stage_products` row for `rune_mysteries`, stage `1`, with
+  `missing_required_actions` equal to
+  `['Deliver the strange talisman to Sedridor']`.
+- **Direct downstream blocks:** the Wicked hood claim inherits
+  `ClaimDefinition.required_quest = RUNE_MYSTERIES_ID` from
+  `data/quest_data.py:978` because its row at `data/quest_data.py:9668-9674`
+  does not override the field; the `rune_essence` Mining target is gated by the
+  quest at `data/quest_data.py:9438`; and Lunar Diplomacy requires Rune Mysteries
+  at `data/quest_data.py:3462`, which in turn withholds its Lunar Spellbook and
+  Astral Altar unlocks, including the `craft_astral_runes` target.
+
+The next quest agent should add a real runtime emitter for the exact action and
+prove stage 1 through the real kernel from an ordinary started quest, without
+pre-seeding `quest_stage_actions`. Do not repair this by weakening the quest-stage
+reachability audit or by making the Wicked hood unconditional.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

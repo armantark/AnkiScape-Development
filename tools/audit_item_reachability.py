@@ -152,6 +152,54 @@ def _item_counts(value: Any) -> dict[str, int]:
     return counts
 
 
+def _claim_item_sources(
+    claim_data: Mapping[str, Mapping[str, Any]],
+    completable_quests: set[str],
+    registered_items: set[str],
+    maximum_skill_levels: Mapping[str, int],
+) -> tuple[dict[str, set[str]], dict[str, int]]:
+    sources: dict[str, set[str]] = defaultdict(set)
+    item_counts: dict[str, int] = defaultdict(int)
+    for claim_id, claim in claim_data.items():
+        required_quest = str(claim.get("required_quest", "") or "")
+        if required_quest and required_quest not in completable_quests:
+            continue
+        if claim.get("required_diary_tier"):
+            continue
+        required_runecrafting_level = max(
+            1,
+            int(claim.get("required_runecrafting_level", 1) or 1),
+        )
+        if required_runecrafting_level > maximum_skill_levels.get("runecrafting", 0):
+            continue
+
+        claim_type = str(claim.get("claim_type", "item"))
+        if claim_type == "skill_reward":
+            skill_options = tuple(claim.get("skill_options", ()) or ())
+            if len(skill_options) != 1 or float(claim.get("xp_amount", 0) or 0) <= 0:
+                continue
+            minimum_level = max(1, int(claim.get("minimum_level", 1) or 1))
+            if minimum_level > maximum_skill_levels.get(str(skill_options[0]), 0):
+                continue
+            claim_items = _item_counts(claim.get("items"))
+        elif claim_type == "item_bundle":
+            claim_items = _item_counts(claim.get("items"))
+        elif claim_type == "item":
+            item_name = str(claim.get("item_name", claim_id) or claim_id)
+            claim_items = {
+                item_name: max(1, int(claim.get("quantity", 1) or 1)),
+            }
+        else:
+            continue
+
+        for item_name, amount in claim_items.items():
+            if item_name not in registered_items:
+                continue
+            sources[item_name].add(f"claim:{claim_id}")
+            item_counts[item_name] += amount
+    return sources, dict(item_counts)
+
+
 def _item_option_groups(value: Any) -> tuple[dict[str, int], ...]:
     if isinstance(value, Mapping):
         return (_item_counts(value),) if value else ()
@@ -487,6 +535,8 @@ def _close_quest_reachability(
     registered_items: set[str],
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool],
     *,
+    claim_data: Mapping[str, Mapping[str, Any]] | None = None,
+    maximum_skill_levels: Mapping[str, int] | None = None,
     scenario_sources_out: list[dict[str, set[str]]] | None = None,
 ) -> tuple[list[dict[str, Any]], set[str], set[str]]:
     variant_ids = {
@@ -498,27 +548,40 @@ def _close_quest_reachability(
         for quest_id, quest in quest_data.items()
     }
     branch_quests = tuple(quest_id for quest_id, variants in variant_ids.items() if variants)
+    claim_data = claim_data or {}
+    maximum_skill_levels = maximum_skill_levels or {}
     scenario_results = []
     for selected in itertools.product(*(variant_ids[quest_id] for quest_id in branch_quests)):
         selected_variants = dict(zip(branch_quests, selected))
         scenario_sources = {item: set(sources) for item, sources in seed_sources.items()}
-        previous_state: tuple[frozenset[str], frozenset[str], frozenset[str]] | None = None
+        previous_state: tuple[
+            frozenset[str],
+            frozenset[str],
+            frozenset[str],
+            frozenset[tuple[str, int]],
+        ] | None = None
         blocked: list[dict[str, Any]] = []
         completable: set[str] = set()
         startable: set[str] = set()
+        claim_item_counts: dict[str, int] = {}
         while True:
             reachable_items, route, _unresolved = _close_actions(actions, scenario_sources)
             repeatable_items = repeatable_seed_items | {
                 item_name
                 for item_name, source in route.items()
-                if not source.startswith(("quest:", "quest-start:", "quest-stage:", "quest-combat:"))
+                if not source.startswith(
+                    ("quest:", "quest-start:", "quest-stage:", "quest-combat:", "claim:")
+                )
             }
+            finite_item_counts = dict(seed_item_counts)
+            for item_name, amount in claim_item_counts.items():
+                finite_item_counts[item_name] = finite_item_counts.get(item_name, 0) + amount
             _, blocked, stage_completable = _quest_stage_sources(
                 quest_data,
                 registered_items,
                 reachable_items=reachable_items,
                 repeatable_items=repeatable_items,
-                finite_item_counts=seed_item_counts,
+                finite_item_counts=finite_item_counts,
                 selected_variants=selected_variants,
                 eligible_quests=set(),
                 combat_encounter_satisfiable=combat_encounter_satisfiable,
@@ -529,7 +592,7 @@ def _close_quest_reachability(
                 registered_items,
                 reachable_items=reachable_items,
                 repeatable_items=repeatable_items,
-                finite_item_counts=seed_item_counts,
+                finite_item_counts=finite_item_counts,
                 selected_variants=selected_variants,
                 eligible_quests=startable,
                 combat_encounter_satisfiable=combat_encounter_satisfiable,
@@ -544,11 +607,22 @@ def _close_quest_reachability(
                     scenario_sources.setdefault(item, set()).add(f"quest-start:{quest_id}")
             for item, sources in quest_stage_sources.items():
                 scenario_sources.setdefault(item, set()).update(sources)
+            claim_sources, next_claim_item_counts = _claim_item_sources(
+                claim_data,
+                completable,
+                registered_items,
+                maximum_skill_levels,
+            )
+            for item, sources in claim_sources.items():
+                if item not in reachable_items:
+                    scenario_sources.setdefault(item, set()).update(sources)
             state = (
                 frozenset(scenario_sources),
                 frozenset(completable),
                 frozenset(startable),
+                frozenset(next_claim_item_counts.items()),
             )
+            claim_item_counts = next_claim_item_counts
             if state == previous_state:
                 scenario_results.append((scenario_sources, blocked, completable, startable))
                 break
@@ -672,6 +746,7 @@ def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import shop_data
     from ankiscape.data.impling_jar_data import IMPLING_JAR_DATA
     from ankiscape.logic import shop_logic
+    from ankiscape.core.skill_registry import trainable_skill_definitions
     from ankiscape.data import sorceress_garden_data
     from ankiscape.data import thieving_data
     from ankiscape.data import woodcutting_data
@@ -681,6 +756,14 @@ def build_reachability_report() -> dict[str, Any]:
     )
 
     registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
+    maximum_skill_levels = {
+        skill.id: (
+            len(constants.DUNGEONEERING_EXP_TABLE)
+            if skill.id == "dungeoneering"
+            else len(constants.EXP_TABLE)
+        )
+        for skill in trainable_skill_definitions()
+    }
     maximum_combat_level = player_combat_level_pure(
         {
             "attack_level": 99,
@@ -1191,6 +1274,8 @@ def build_reachability_report() -> dict[str, Any]:
             constants.QUEST_DATA,
             registered_items,
             quest_combat_source_satisfiable,
+            claim_data=constants.CLAIM_DATA,
+            maximum_skill_levels=maximum_skill_levels,
             scenario_sources_out=scenario_sources,
         )
     )
