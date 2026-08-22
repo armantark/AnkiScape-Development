@@ -727,8 +727,7 @@ def apply_hunter_action_pure(
     hunter_level,
     r_action,
     success_level=None,
-    r_secondary_chance=None,
-    r_secondary_pick=None,
+    r_secondary_rolls=(),
 ):
     """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
     spec = hunter_data.get(target)
@@ -750,14 +749,16 @@ def apply_hunter_action_pure(
     for item_name, amount in outputs.items():
         new_inv[item_name] = new_inv.get(item_name, 0) + amount
 
-    secondary_outputs = spec.get("secondary_outputs") or ()
-    if (
-        r_secondary_chance is not None
-        and r_secondary_pick is not None
-        and secondary_outputs
-        and float(r_secondary_chance) < float(spec.get("secondary_drop_chance", 0.0) or 0.0)
+    for table, (r_chance, r_pick) in zip(
+        spec.get("secondary_drop_tables") or (),
+        r_secondary_rolls or (),
     ):
-        item_name = pick_weighted_item_pure(secondary_outputs, r_secondary_pick)
+        secondary_outputs = table.get("outputs") or ()
+        if not secondary_outputs or float(r_chance) >= float(
+            table.get("chance", 0.0) or 0.0
+        ):
+            continue
+        item_name = pick_weighted_item_pure(secondary_outputs, r_pick)
         output = next(
             (row for row in secondary_outputs if row.get("item") == item_name),
             None,

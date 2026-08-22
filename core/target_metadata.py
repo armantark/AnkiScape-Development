@@ -1283,7 +1283,7 @@ def hunter_target_rows(
         tools = tools_raw if isinstance(tools_raw, Mapping) else {}
         outputs_raw = spec.get("outputs", {})
         outputs = outputs_raw if isinstance(outputs_raw, Mapping) else {}
-        secondary_outputs = spec.get("secondary_outputs") or ()
+        secondary_drop_tables = spec.get("secondary_drop_tables") or ()
         primary_output = str(spec.get("primary_output", spec.get("output_item", display_name)))
         chance = calculate_hunter_success_probability_pure(lvl_have, spec)
         locked_reasons = hunter_target_locked_reasons_pure(
@@ -1300,13 +1300,21 @@ def hunter_target_rows(
             f"Materials:\n{_indented_material_lines(reqs, inventory)}\n"
             f"Reusable tools:\n{_indented_material_lines(tools, inventory, 'No reusable tools required')}"
         )
-        if secondary_outputs:
-            tooltip += "\nRare outputs: " + ", ".join(
+        rare_tables = []
+        for table in secondary_drop_tables:
+            if not isinstance(table, Mapping):
+                continue
+            output_text = ", ".join(
                 f"{row.get('item')} ×{int(row.get('amount', 1))}"
-                for row in secondary_outputs
+                for row in table.get("outputs", ()) or ()
                 if isinstance(row, Mapping) and row.get("item")
             )
-            tooltip += f" ({float(spec.get('secondary_drop_chance', 0.0)):.3%} table chance)"
+            if output_text:
+                rare_tables.append(
+                    f"{output_text} ({float(table.get('chance', 0.0)):.3%} table chance)"
+                )
+        if rare_tables:
+            tooltip += "\nRare outputs: " + "; ".join(rare_tables)
         side_requirements = spec.get("skill_requirements", {})
         if isinstance(side_requirements, Mapping) and side_requirements:
             tooltip += "\nSide levels: " + ", ".join(

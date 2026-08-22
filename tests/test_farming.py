@@ -943,8 +943,7 @@ class TestFarmingClockAndActions(unittest.TestCase):
             HUNTER_DATA,
             data["hunter_level"],
             0.0,
-            r_secondary_chance=0.0,
-            r_secondary_pick=0.5,
+            r_secondary_rolls=((0.0, 0.5),),
         )
         self.assertTrue(ok)
         self.assertEqual(hunter_xp, 475.0)
