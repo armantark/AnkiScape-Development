@@ -975,6 +975,609 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def _farming_handler(self):
+        """Open the real main menu and capture the real Farming handler."""
+        captured = {}
+        self.addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        self.addon._on_main_menu(initial_skill="Farming")
+        return captured["on_farming_action"]
+
+    def test_farming_action_restores_through_the_seam(self):
+        addon = self.addon
+        # The real check_achievements opens a modal dialog on completion; under
+        # a live QApplication that blocks the run forever. Patch the module
+        # global the handler resolves at call time.
+        addon.check_achievements = lambda _data: None
+        addon.player_data["farming_level"] = 99
+        before = copy.deepcopy(addon.player_data)
+        handler = self._farming_handler()
+
+        result = handler("set_plan", {"patch_id": "falador_allotment_north", "crop_id": "potato"})
+
+        self.assertTrue(result["ok"])
+        plan = addon.player_data["farm_plans"]["falador_allotment_north"]
+        self.assertEqual(plan.get("crop_id"), "potato")
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_a_refused_farming_action_returns_its_own_refusal(self):
+        addon = self.addon
+        handler = self._farming_handler()
+
+        result = handler("set_plan", {"patch_id": "nowhere", "crop_id": "potato"})
+
+        self.assertFalse(result["ok"])
+        self.assertNotEqual(result["message"], "Anki could not create an undo entry.")
+
+    def test_farming_action_when_the_undo_entry_cannot_be_created(self):
+        """The undo-unavailable path must never echo a successful info dict."""
+        from ankiscape.logic.farming_logic import farming_frontend_projection_pure
+
+        addon = self.addon
+        addon.player_data["farming_level"] = 99
+        before = copy.deepcopy(addon.player_data)
+        self.collection.accepts = False
+        handler = self._farming_handler()
+
+        result = handler("set_plan", {"patch_id": "falador_allotment_north", "crop_id": "potato"})
+
+        self.assertEqual(
+            result,
+            {
+                "ok": False,
+                "reason": "undo_unavailable",
+                "message": "Anki could not create an undo entry.",
+                "projection": farming_frontend_projection_pure(addon.player_data),
+            },
+            "a failed undo entry must be reported as such, not as success",
+        )
+        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+
+
+
+    def _capture_agility_handler(self):
+        """Drive the REAL handler: stub the menu dialog, keep the wiring."""
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._refresh_skill_availability = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.check_achievements = lambda _data: None
+        addon._show_exp = lambda _gained: None
+        addon._award_skill_exp = lambda *args, **kwargs: 0.0
+        addon.level_up_check = lambda *_args: None
+        addon._on_main_menu(initial_skill="Activities")
+        return captured["on_agility_command"]
+
+    def test_agility_gnome_ball_entry_restores_through_the_real_handler(self):
+        addon = self.addon
+        command = self._capture_agility_handler()
+        before = copy.deepcopy(addon.player_data)
+
+        outcome = command("enter_gnome_ball", {})
+
+        self.assertTrue(outcome["ok"], outcome)
+        self.assertTrue(addon.player_data["gnome_ball"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_agility_refusal_returns_the_refusal_and_writes_nothing(self):
+        addon = self.addon
+        command = self._capture_agility_handler()
+        addon.player_data["equipment"] = {"weapon": "Bronze sword"}
+        baseline = copy.deepcopy(dict(addon.player_data))
+
+        outcome = command("enter_gnome_ball", {})
+
+        self.assertFalse(outcome["ok"])
+        self.assertIn("unequip your weapon", str(outcome.get("reason")))
+        self.assertEqual(
+            dict(addon.player_data), baseline, "a refusal must write nothing"
+        )
+
+    def test_agility_undo_entry_failure_reports_undo_unavailable(self):
+        """A successful action whose undo entry fails must not look like success."""
+        addon = self.addon
+        addon.mw = _DummyMW(_FakeCollection(accepts=False))
+        command = self._capture_agility_handler()
+        baseline = copy.deepcopy(dict(addon.player_data))
+
+        outcome = command("enter_gnome_ball", {})
+
+        self.assertFalse(outcome["ok"])
+        self.assertEqual(
+            outcome["message"], "Anki could not create an undo entry"
+        )
+        self.assertNotIn("reason", outcome)
+        self.assertEqual(
+            dict(addon.player_data),
+            baseline,
+            "no undo entry means no change may be written",
+        )
+
+
+
+    def _guild_handler(self):
+        captured = {}
+        self.addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        self.addon.update_review_hud = lambda *_args: None
+        self.addon._on_main_menu(initial_skill="Activities")
+        return captured["on_warriors_guild_command"]
+
+    def test_warriors_guild_room_entry_restores_through_the_seam(self):
+        from ankiscape.logic.warriors_guild_logic import (
+            MULTI_TOKEN_ENTRY_COST,
+            WARRIORS_GUILD_TOKEN_KEYS,
+        )
+
+        addon = self.addon
+        handler = self._guild_handler()
+        addon.player_data["warriors_guild"]["in_cyclops_room"] = False
+        addon.player_data["warriors_guild"]["automation_mode"] = "advanced"
+        addon.player_data["warriors_guild"]["payment_mode"] = "multi"
+        addon.player_data["attack_level"] = 99
+        addon.player_data["strength_level"] = 99
+        for token in WARRIORS_GUILD_TOKEN_KEYS:
+            addon.player_data["warriors_guild"]["tokens"][token] = (
+                MULTI_TOKEN_ENTRY_COST
+            )
+        before = copy.deepcopy(addon.player_data)
+
+        result = handler("enter_room", {})
+
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(addon.player_data["warriors_guild"]["in_cyclops_room"])
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(self.saves), 1, "the entry must persist")
+        addon._restore_direct_action_snapshot(
+            addon._DIRECT_ACTION_UNDO_STACK.pop()
+        )
+        self.assertEqual(addon.player_data["warriors_guild"], before["warriors_guild"])
+
+    def test_warriors_guild_refusal_returns_the_reason_and_writes_nothing(self):
+        from ankiscape.logic.warriors_guild_logic import (
+            MULTI_TOKEN_ENTRY_COST,
+            WARRIORS_GUILD_TOKEN_KEYS,
+        )
+
+        addon = self.addon
+        handler = self._guild_handler()
+        addon.player_data["warriors_guild"]["in_cyclops_room"] = False
+        addon.player_data["warriors_guild"]["automation_mode"] = "advanced"
+        addon.player_data["warriors_guild"]["payment_mode"] = "multi"
+        addon.player_data["attack_level"] = 99
+        addon.player_data["strength_level"] = 99
+        for token in WARRIORS_GUILD_TOKEN_KEYS:
+            addon.player_data["warriors_guild"]["tokens"][token] = 0
+        before = copy.deepcopy(addon.player_data)
+
+        result = handler("enter_room", {})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Need 30 of every Warriors' Guild token")
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(len(self.saves), 0)
+
+    def test_warriors_guild_undo_unavailable_reports_it_instead_of_success(self):
+        from ankiscape.logic.warriors_guild_logic import (
+            MULTI_TOKEN_ENTRY_COST,
+            WARRIORS_GUILD_TOKEN_KEYS,
+        )
+
+        addon = self.addon
+        handler = self._guild_handler()
+        self.collection.accepts = False
+        addon.player_data["warriors_guild"]["in_cyclops_room"] = False
+        addon.player_data["warriors_guild"]["automation_mode"] = "advanced"
+        addon.player_data["warriors_guild"]["payment_mode"] = "multi"
+        addon.player_data["attack_level"] = 99
+        addon.player_data["strength_level"] = 99
+        for token in WARRIORS_GUILD_TOKEN_KEYS:
+            addon.player_data["warriors_guild"]["tokens"][token] = (
+                MULTI_TOKEN_ENTRY_COST
+            )
+
+        result = handler("enter_room", {})
+
+        self.assertEqual(
+            result,
+            {"ok": False, "message": "Anki could not create an undo entry."},
+        )
+
+
+
+    def _big_chinchompa_handler(self):
+        """Open the real main menu headless and capture the real handler."""
+        captured = {}
+        self.addon.ui.show_main_menu = (
+            lambda *args, **kwargs: captured.update(kwargs)
+        )
+        self.addon._on_main_menu()
+        return captured["on_big_chinchompa_command"]
+
+    def test_big_chinchompa_reward_purchase_restores_through_the_seam(self):
+        addon = self.addon
+        buy_reward = self._big_chinchompa_handler()
+        addon.player_data["big_chinchompa"]["competence_points"] = 5
+        before = copy.deepcopy(addon.player_data)
+
+        result = buy_reward("buy_reward", {"reward_id": "hunter_xp"})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["big_chinchompa"]["competence_points"], 4
+        )
+        self.assertEqual(addon.player_data["hunter_exp"] - before["hunter_exp"], 5.0)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_big_chinchompa_refused_purchase_returns_the_refusal(self):
+        addon = self.addon
+        buy_reward = self._big_chinchompa_handler()
+        addon.player_data["big_chinchompa"]["competence_points"] = 0
+        before = copy.deepcopy(addon.player_data)
+
+        result = buy_reward("buy_reward", {"reward_id": "hunter_xp"})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Not enough Competence points.")
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(len(self.saves), 0)
+        self.assertEqual(
+            len(addon._DIRECT_ACTION_UNDO_STACK), 0,
+            "a refused purchase must not register an undo entry",
+        )
+
+    def test_big_chinchompa_purchase_without_an_undo_entry_commits_nothing(self):
+        addon = self.addon
+        buy_reward = self._big_chinchompa_handler()
+        addon.player_data["big_chinchompa"]["competence_points"] = 5
+        before = copy.deepcopy(addon.player_data)
+        self.collection.accepts = False
+
+        result = buy_reward("buy_reward", {"reward_id": "hunter_xp"})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Anki could not create an undo entry.")
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(len(self.saves), 0)
+
+
+    def test_grand_exchange_offer_restores_through_the_real_handler(self):
+        """Drive _apply_ge_action itself through commit_direct_action.
+
+        Stubbed here are only side-effect collaborators (bank run, HUD,
+        achievements surface), never the seam: the handler must reach
+        commit_direct_action for snapshot, undo entry and save.
+        """
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        bank_runs = []
+
+        def request_bank_run(data):
+            bank_runs.append(copy.deepcopy(data))
+            return copy.deepcopy(data), True, "", False
+
+        addon._request_active_bank_run_state = request_bank_run
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+        before = copy.deepcopy(addon.player_data)
+        guide_price = int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"])
+        payload = {
+            "side": "buy",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": guide_price,
+        }
+
+        preview = captured["on_ge_action"]("preview_offer", payload)
+        self.assertTrue(preview["ok"])
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        result = captured["on_ge_action"]("place_offer", payload)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["bank_run_triggered"])
+        self.assertEqual(len(bank_runs), 1)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 10_000 - guide_price)
+        self.assertEqual(len(addon.player_data["ge_player_orders"]), 1)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(self.saves), 1)
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data, before)
+
+    def test_ge_undo_unavailable_reports_failure_not_success(self):
+        """When the undo entry cannot be created, the player must not be told
+        the offer was placed. commit_direct_action returns False for a refusal
+        and for a failed undo entry; only the first carries the action's info.
+        """
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        addon._request_active_bank_run_state = (
+            lambda data: (copy.deepcopy(data), True, "", False)
+        )
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+
+        class _ClosedCollection:
+            def add_custom_undo_entry(self, _operation):
+                raise RuntimeError("collection closed")
+
+            def set_config(self, *_args):
+                pass
+
+        addon.mw.col = _ClosedCollection()
+        baseline = copy.deepcopy(addon.player_data)
+        payload = {
+            "side": "buy",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"]),
+        }
+
+        result = captured["on_ge_action"]("place_offer", payload)
+
+        self.assertEqual(
+            result["reason"],
+            "undo_unavailable",
+            "a failed undo entry must surface as undo_unavailable, not as success",
+        )
+        self.assertFalse(result["ok"])
+        self.assertEqual(
+            dict(addon.player_data),
+            baseline,
+            "no undo entry means no change may be written",
+        )
+
+
+    def test_ge_pure_refusal_reports_refusal_through_handler(self):
+        """A pure-function refusal (not an undo failure) must surface the
+        pure result itself, not undo_unavailable."""
+        addon = self.addon
+        addon.player_data["inventory"] = {"Coins": 10_000}
+        addon.current_skill = "Utility / Activities"
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        addon._request_active_bank_run_state = (
+            lambda data: (copy.deepcopy(data), True, "", False)
+        )
+
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._on_main_menu()
+
+        baseline = copy.deepcopy(addon.player_data)
+        payload = {
+            "side": "sideways",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"]),
+        }
+
+        result = captured["on_ge_action"]("place_offer", payload)
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["reason"], "invalid_side")
+        self.assertNotIn("undo_unavailable", result.values())
+        self.assertEqual(dict(addon.player_data), baseline)
+
+    def _capture_mage_arena_handler(self):
+        """Reach the real Mage Arena handler through the real menu wiring."""
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        errors = []
+        addon.show_error_message = lambda title, message: errors.append((title, message))
+        addon._refresh_skill_availability = lambda: None
+        gains = []
+        addon._show_activity_gain = lambda message: gains.append(message)
+        addon._on_main_menu()
+        return captured["on_mage_arena_action"], errors, gains
+
+    def test_mage_training_arena_alignment_choice_restores_through_the_real_handler(self):
+        from ankiscape.logic_pure.logic_pure_landmarks import (
+            MAGE_ARENA_GOD_DATA,
+            sanitize_mage_arena_state_pure,
+        )
+
+        addon = self.addon
+        handler, errors, gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertTrue(handler("select_alignment", "guthix"))
+
+        self.assertEqual(errors, [], "a committed choice shows no error")
+        self.assertEqual(gains, [])
+        state = sanitize_mage_arena_state_pure(addon.player_data.get("mage_arena"))
+        self.assertEqual(state["alignment"], "guthix")
+        self.assertEqual(
+            self.collection.entries, ["AnkiScape direct action"]
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(MAGE_ARENA_GOD_DATA["guthix"]["spell_id"], "claws_of_guthix")
+
+    def test_mage_training_arena_alignment_choice_tells_the_player_when_undo_is_unavailable(
+        self,
+    ):
+        """The seam newly made alignment contingent on the undo entry.
+
+        Main wrote and saved without one, so a refusing collection used to be
+        unreachable here. The chosen behaviour: the choice does not land and
+        the player is told so — silent loss is never acceptable.
+        """
+        from ankiscape.logic_pure.logic_pure_landmarks import (
+            sanitize_mage_arena_state_pure,
+        )
+
+        addon = self.addon
+        addon.mw = _DummyMW(_FakeCollection(accepts=False))
+        handler, errors, gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertFalse(handler("select_alignment", "guthix"))
+
+        self.assertEqual(len(errors), 1)
+        title, message = errors[0]
+        self.assertEqual(title, "Alignment unchanged")
+        self.assertIn("was not applied", message)
+        self.assertEqual(gains, [])
+        state = sanitize_mage_arena_state_pure(addon.player_data.get("mage_arena"))
+        self.assertNotEqual(state["alignment"], "guthix")
+        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(self.saves, [], "nothing was written, nothing is saved")
+
+    def test_mage_training_arena_cape_claim_restores_state_through_the_real_handler(self):
+        addon = self.addon
+        addon.player_data["mage_arena"] = {
+            "step": 5,
+            "completed": True,
+            "alignment": "",
+            "attuned_spells": [],
+        }
+        handler, errors, gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertTrue(handler("cape", "zamorak"))
+
+        self.assertEqual(errors, [])
+        self.assertEqual(len(gains), 1)
+        self.assertIn("Zamorak cape", gains[0])
+        self.assertEqual(addon.player_data["inventory"].get("Zamorak cape"), 1)
+        self.assertEqual(
+            addon.player_data["mage_arena"]["alignment"], "zamorak"
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(dict(addon.player_data), before)
+
+    def test_mage_training_arena_cape_refusal_shows_reason_and_writes_nothing(self):
+        addon = self.addon
+        handler, errors, _gains = self._capture_mage_arena_handler()
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertFalse(handler("cape", "zamorak"))
+
+        self.assertEqual(
+            errors,
+            [("Cannot use Mage Arena statue", "mage_arena_incomplete")],
+        )
+        self.assertEqual(self.collection.entries, [])
+        self.assertEqual(dict(addon.player_data), before)
+
+    def test_mage_training_arena_undo_entry_failure_reports_nothing_written(self):
+        """The seam refused after a successful pure step: nothing was written,
+        so the handler must not show the pure step's success-flavoured info as
+        an error reason."""
+        addon = self.addon
+        addon.player_data["mage_arena"] = {
+            "step": 5,
+            "completed": True,
+            "alignment": "",
+            "attuned_spells": [],
+        }
+        handler, errors, gains = self._capture_mage_arena_handler()
+        addon.mw = _DummyMW(_FakeCollection(accepts=False))
+        before = copy.deepcopy(dict(addon.player_data))
+
+        self.assertFalse(handler("cape", "zamorak"))
+
+        self.assertEqual(errors, [], "no undo entry means nothing happened; "
+                                     "the pure refusal text would be wrong here")
+        self.assertEqual(gains, [], "the claim toast must not fire either")
+        self.assertEqual(dict(addon.player_data), before)
+
+    def _capture_star_handler(self):
+        """Reach the real Shooting Star handler the way the menu wires it."""
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._on_main_menu()
+        return addon, captured["on_shooting_star_command"]
+
+    def _make_exchangeable_star(self, addon):
+        from ankiscape.logic.shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        player = copy.deepcopy(addon.player_data)
+        player["mining_level"] = 99
+        player.setdefault("shop_market_clock", {})["answered_cards"] = 40
+        player["shooting_star"] = default_shooting_star_state_pure()
+        player, _ = advance_shooting_star_world_clock_pure(player)
+        event = dict(player["shooting_star"]["active_event"])
+        event.update(
+            {
+                "current_size": 0,
+                "layer_remaining": 0,
+                "sprite_released": True,
+                "sprite_expires_card": 60,
+            }
+        )
+        player["shooting_star"]["active_event"] = event
+        player["inventory"]["Stardust"] = 99
+        addon.player_data.clear()
+        addon.player_data.update(player)
+
+    def test_shooting_star_exchange_restores_through_the_seam(self):
+        addon, exchange = self._capture_star_handler()
+        self._make_exchangeable_star(addon)
+        before = copy.deepcopy(addon.player_data)
+
+        result = exchange("exchange", {})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(len(self.saves), 1)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertNotEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(
+            addon._DIRECT_ACTION_UNDO_STACK.pop()
+        )
+        self.assertEqual(addon.player_data, before)
+
+    def test_shooting_star_exchange_when_the_collection_refuses_the_entry(self):
+        addon, exchange = self._capture_star_handler()
+        self.collection.accepts = False
+        self._make_exchangeable_star(addon)
+        before = copy.deepcopy(addon.player_data)
+
+        result = exchange("exchange", {})
+
+        self.assertEqual(
+            result,
+            {"ok": False, "message": "Anki could not create an undo entry."},
+        )
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(self.saves, [], "nothing may persist without undo")
+
+    def test_shooting_star_exchange_refusal_keeps_the_sprite_message(self):
+        addon, exchange = self._capture_star_handler()
+
+        result = exchange("exchange", {})
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "No Star sprite is available.")
+        self.assertEqual(self.saves, [], "nothing may persist without undo")
+
 
 if __name__ == "__main__":
     unittest.main()

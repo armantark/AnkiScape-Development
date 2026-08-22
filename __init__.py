@@ -2181,76 +2181,70 @@ def _on_main_menu(
                 **info,
                 "projection": _get_ge_projection(),
             }
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, info = apply_ge_frontend_action_pure(
-            player_data,
-            action_id,
-            payload,
-            item_catalog=GE_ITEM_CATALOG,
-        )
-        if not info.get("ok"):
-            return {
-                **info,
-                "projection": _get_ge_projection(),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        result = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted
+            updated, info = apply_ge_frontend_action_pure(
+                current,
+                action_id,
+                payload,
+                item_catalog=GE_ITEM_CATALOG,
+            )
+            result["info"] = info
+            accepted = bool(info.get("ok"))
+            return updated, accepted
+
+        def _after_apply():
+            if action_id in {"place_offer", "collect_offer", "collect_all"}:
+                result["bank_run_triggered"] = _trigger_active_bank_run()
+                result["info"] = {
+                    **result["info"],
+                    "bank_run_triggered": result["bank_run_triggered"],
+                }
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    **result["info"],
+                    "projection": _get_ge_projection(),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
                 "projection": _get_ge_projection(),
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        if action_id in {"place_offer", "collect_offer", "collect_all"}:
-            info = {**info, "bank_run_triggered": _trigger_active_bank_run()}
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
         return {
-            **info,
+            **result["info"],
             "projection": _get_ge_projection(),
         }
 
     def _apply_farming_action(action_id, payload):
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
-        if ok:
-            try:
-                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-            except (AttributeError, RuntimeError):
-                return {
-                    "ok": False,
-                    "message": "Anki could not create an undo entry.",
-                    "projection": farming_frontend_projection_pure(player_data),
-                }
-            _DIRECT_ACTION_UNDO_STACK.append(before)
-            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-            player_data.clear()
-            player_data.update(updated)
+        change_ok = False
+        change_message = ""
+
+        def _change(current):
+            nonlocal change_ok, change_message
+            updated, change_ok, change_message = apply_farming_frontend_action_pure(
+                current, action_id, payload
+            )
+            return updated, change_ok
+
+        def _after_apply():
             check_achievements(player_data)
-            save_player_data()
-            try:
-                mw.update_undo_actions()
-            except AttributeError:
-                pass
+
+        committed = commit_direct_action(_change, after_apply=_after_apply)
         try:
             update_review_status_badge(
                 player_data, _open_activities_sheet, _open_farming_sheet
@@ -2258,50 +2252,81 @@ def _on_main_menu(
             update_review_fill_drawer(player_data)
         except Exception:
             pass
-        return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
+        if not committed:
+            if change_ok:
+                # The change applied but Anki refused the undo entry, so nothing
+                # was written; never report the successful info here.
+                return {
+                    "ok": False,
+                    "reason": "undo_unavailable",
+                    "message": "Anki could not create an undo entry.",
+                    "projection": farming_frontend_projection_pure(player_data),
+                }
+            return {
+                "ok": False,
+                "message": change_message,
+                "projection": farming_frontend_projection_pure(player_data),
+            }
+        return {
+            "ok": True,
+            "message": change_message,
+            "projection": farming_frontend_projection_pure(player_data),
+        }
 
     def _apply_mage_arena_action(action_id, god_id):
         if action_id == "select_alignment":
-            updated, ok, info = set_mage_arena_alignment_pure(
-                player_data,
-                god_id,
-            )
-            if not ok:
-                show_error_message(
-                    "Cannot choose alignment",
-                    str(info.get("reason", "That alignment is unavailable.")),
+            info = {}
+            refused = False
+
+            def _change(current):
+                nonlocal info, refused
+                updated, ok, info = set_mage_arena_alignment_pure(
+                    current,
+                    god_id,
                 )
+                refused = not ok
+                return updated, ok
+
+            if not commit_direct_action(_change):
+                if refused:
+                    show_error_message(
+                        "Cannot choose alignment",
+                        str(info.get("reason", "That alignment is unavailable.")),
+                    )
+                else:
+                    # Main wrote and saved without an undo entry, so this
+                    # failure mode only exists since the seam. The choice was
+                    # not written; silent loss would leave the player believing
+                    # it took.
+                    show_error_message(
+                        "Alignment unchanged",
+                        "Anki could not create an undo entry, so the choice "
+                        "was not applied.",
+                    )
                 return False
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
             return True
         if action_id != "cape":
             return False
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, ok, info = apply_mage_arena_cape_action_pure(
-            player_data,
-            god_id,
-        )
-        if not ok:
-            show_error_message(
-                "Cannot use Mage Arena statue",
-                str(info.get("reason", "That statue action is unavailable.")),
+
+        info = {}
+        refused = False
+
+        def _cape_change(current):
+            nonlocal info, refused
+            updated, ok, info = apply_mage_arena_cape_action_pure(
+                current,
+                god_id,
             )
+            refused = not ok
+            return updated, ok
+
+        if not commit_direct_action(_cape_change):
+            if refused:
+                show_error_message(
+                    "Cannot use Mage Arena statue",
+                    str(info.get("reason", "That statue action is unavailable.")),
+                )
             return False
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return False
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
         _refresh_skill_availability()
         _show_activity_gain(f"Claimed {info.get('cape', 'god cape')}.")
         return True
@@ -2351,35 +2376,42 @@ def _on_main_menu(
                 _update_review_context_surface()
             return {"ok": committed, **outcome}
 
-        before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
-        pit_reward = (player_data.get("agility_activity_state") or {}).get("pit_reward")
-        roll = random.random() if action_id == "gamble_pit_reward" and pit_reward else 0.5
-        updated, result = apply_agility_command_pure(player_data, action_id, payload, roll=roll)
-        if not result.get("allowed"):
-            random.setstate(before["random_state"])
-            return {"ok": False, **result}
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+        result = {}
+        allowed = False
+
+        def _change(current):
+            nonlocal result, allowed
+            pit_reward = (current.get("agility_activity_state") or {}).get(
+                "pit_reward"
+            )
+            roll = (
+                random.random()
+                if action_id == "gamble_pit_reward" and pit_reward
+                else 0.5
+            )
+            updated, result = apply_agility_command_pure(
+                current, action_id, payload, roll=roll
+            )
+            allowed = bool(result.get("allowed"))
+            return updated, allowed
+
+        def _after_apply():
+            xp = float(result.get("xp", 0.0) or 0.0)
+            if xp > 0:
+                skill_id = str(result.get("skill_id", "agility")).lower()
+                skill_name = skill_id.replace("_", " ").title()
+                gained = _award_skill_exp(f"{skill_id}_exp", xp)
+                level_up_check(skill_name, player_data)
+                _show_exp(gained)
+            check_achievements(player_data)
+
+        committed = commit_direct_action(_change, after_apply=_after_apply)
+        if not committed:
+            if not allowed:
+                return {"ok": False, **result}
             return {"ok": False, "message": "Anki could not create an undo entry"}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        xp = float(result.get("xp", 0.0) or 0.0)
-        if xp > 0:
-            skill_id = str(result.get("skill_id", "agility")).lower()
-            skill_name = skill_id.replace("_", " ").title()
-            gained = _award_skill_exp(f"{skill_id}_exp", xp)
-            level_up_check(skill_name, player_data)
-            _show_exp(gained)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
@@ -2404,42 +2436,32 @@ def _on_main_menu(
                 return {"ok": False, "message": "Could not save the policy."}
             return {"ok": True, **info}
 
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        if action_id == "enter_room":
-            updated, ok, info = enter_warriors_guild_cyclops_room_pure(
-                player_data
-            )
-        elif action_id == "leave_room":
-            updated, ok, info = leave_warriors_guild_cyclops_room_pure(
-                player_data
-            )
-        elif action_id == "show_defender":
-            updated, ok, info = show_warriors_guild_defender_pure(player_data)
-        else:
+        if action_id not in ("enter_room", "leave_room", "show_defender"):
             return {"ok": False, "message": "Unknown Warriors' Guild command."}
-        if not ok:
-            random.setstate(before["random_state"])
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "That action is unavailable.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+
+        info = {}
+        refused = False
+
+        def _change(current):
+            nonlocal info, refused
+            if action_id == "enter_room":
+                updated, ok, info = enter_warriors_guild_cyclops_room_pure(current)
+            elif action_id == "leave_room":
+                updated, ok, info = leave_warriors_guild_cyclops_room_pure(current)
+            else:
+                updated, ok, info = show_warriors_guild_defender_pure(current)
+            refused = not ok
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if refused:
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "That action is unavailable.")),
+                }
             return {"ok": False, "message": "Anki could not create an undo entry."}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
@@ -2472,40 +2494,38 @@ def _on_main_menu(
                 "message": "Unknown Big Chinchompa command.",
             }
 
-        before = _capture_player_data_snapshot()
+        info = {}
         old_hunter_level = int(player_data.get("hunter_level", 1) or 1)
-        updated, ok, info = apply_big_chinchompa_reward_purchase_pure(
-            player_data,
-            str(payload.get("reward_id", "")),
-            exp_table=EXP_TABLE,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "That reward is unavailable.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_big_chinchompa_reward_purchase_pure(
+                current,
+                str(payload.get("reward_id", "")),
+                exp_table=EXP_TABLE,
+            )
+            return updated, ok
+
+        def _after_apply():
+            hunter_xp = float(info.get("hunter_xp", 0.0) or 0.0)
+            if hunter_xp > 0:
+                player_data["hunter_level"] = old_hunter_level
+                level_up_check("Hunter", player_data)
+                _show_exp(_NamedExperience(hunter_xp, ("Hunter",)))
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if info.get("reason"):
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "That reward is unavailable.")),
+                }
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        hunter_xp = float(info.get("hunter_xp", 0.0) or 0.0)
-        if hunter_xp > 0:
-            player_data["hunter_level"] = old_hunter_level
-            level_up_check("Hunter", player_data)
-            _show_exp(_NamedExperience(hunter_xp, ("Hunter",)))
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
@@ -2519,32 +2539,32 @@ def _on_main_menu(
                 "message": "Unknown Shooting Star command.",
             }
 
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_shooting_star_exchange_pure(player_data)
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(
-                    info.get("reason", "The Star sprite cannot reward you.")
-                ),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_shooting_star_exchange_pure(current)
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "The Star sprite cannot reward you.")
+                    ),
+                }
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
