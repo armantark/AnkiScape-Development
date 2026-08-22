@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Run promotion checks under a shared lock and land verified commits safely."""
+"""Run promotion checks and land only the exact commit that passed them."""
 
 from __future__ import annotations
 
 import argparse
-import errno
+import fcntl
 import json
 import os
 import re
@@ -15,11 +15,26 @@ import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Sequence, TextIO
+from typing import Callable, IO, Sequence, TextIO
 
 
-LOCK_NAME = "ankiscape-promotion-gate.lock"
+LAND_LOCK_NAME = "ankiscape-promotion-land.lock"
+ACTIVE_GATE_DIR_NAME = "ankiscape-promotion-gates"
+EVIDENCE_DIR_NAME = "ankiscape-promotion-evidence"
 PROGRESS_LINE = re.compile(r"^[.sEF]+$")
+REACHABILITY_BASELINE_SUMMARY = (
+    "1598 actions; 2369 reachable items; 38 orphan inputs; 37 blocked actions"
+)
+PLAIN_GATE_CHECKS = (
+    "plain lane",
+    "audit_docs",
+    "audit_test_quality",
+    "reachability",
+    "worktree_guard",
+    "worktree clean",
+    "diff check",
+)
+FULL_GATE_CHECKS = ("plain lane", "Qt lane", *PLAIN_GATE_CHECKS[1:])
 
 
 class GateError(RuntimeError):
@@ -51,6 +66,56 @@ class LockRecord:
             raise GateError(f"Promotion lock is unreadable: {exc}") from exc
 
 
+@dataclass(frozen=True)
+class GateEvidence:
+    schema_version: int
+    commit: str
+    worktree: str
+    plain_only: bool
+    passed_checks: tuple[str, ...]
+    completed_at: str
+
+    @classmethod
+    def from_json(cls, text: str) -> "GateEvidence":
+        try:
+            payload = json.loads(text)
+            passed_checks = payload["passed_checks"]
+            if not isinstance(passed_checks, list) or not all(
+                isinstance(label, str) for label in passed_checks
+            ):
+                raise TypeError("passed_checks must be a list of strings")
+            plain_only = payload["plain_only"]
+            if not isinstance(plain_only, bool):
+                raise TypeError("plain_only must be a boolean")
+            return cls(
+                schema_version=int(payload["schema_version"]),
+                commit=str(payload["commit"]),
+                worktree=str(payload["worktree"]),
+                plain_only=plain_only,
+                passed_checks=tuple(passed_checks),
+                completed_at=str(payload["completed_at"]),
+            )
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise GateError(f"Promotion evidence is unreadable: {exc}") from exc
+
+
+@dataclass
+class HeldLock:
+    path: Path
+    stream: IO[str]
+    unlink_on_release: bool
+
+    def release(self) -> None:
+        if self.stream.closed:
+            return
+        if self.unlink_on_release:
+            self.path.unlink(missing_ok=True)
+        self.stream.close()
+
+
+ResultValidator = Callable[[int, list[str]], bool]
+
+
 def _git(
     repo: Path,
     *args: str,
@@ -78,53 +143,16 @@ def git_common_dir(repo: Path) -> Path:
     return path.resolve() if path.is_absolute() else (repo / path).resolve()
 
 
-def lock_path_for(repo: Path) -> Path:
-    return git_common_dir(repo) / LOCK_NAME
+def landing_lock_path_for(repo: Path) -> Path:
+    return git_common_dir(repo) / LAND_LOCK_NAME
 
 
-def process_is_alive(pid: int) -> bool:
-    if pid <= 0:
-        return False
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    except OSError as exc:
-        return exc.errno != errno.ESRCH
-    return True
+def active_gate_dir_for(repo: Path) -> Path:
+    return git_common_dir(repo) / ACTIVE_GATE_DIR_NAME
 
 
-def _read_lock(lock_path: Path) -> LockRecord | None:
-    try:
-        return LockRecord.from_json(lock_path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        return None
-    except OSError as exc:
-        raise GateError(f"Cannot read promotion lock {lock_path}: {exc}") from exc
-    except GateError as exc:
-        raise GateError(f"{exc} at {lock_path}; inspect it before proceeding") from exc
-
-
-def active_lock(lock_path: Path, *, stderr: TextIO = sys.stderr) -> LockRecord | None:
-    record = _read_lock(lock_path)
-    if record is None:
-        return None
-    if process_is_alive(record.pid):
-        return record
-
-    print(
-        "Stale promotion gate lock: "
-        f"PID {record.pid} is gone; it recorded {record.operation} for {record.commit} "
-        f"in {record.worktree} since {record.started_at}. Removing {lock_path}.",
-        file=stderr,
-    )
-    try:
-        lock_path.unlink(missing_ok=True)
-    except OSError as exc:
-        raise GateError(f"Cannot remove stale promotion lock {lock_path}: {exc}") from exc
-    return None
+def evidence_path_for(repo: Path, commit: str) -> Path:
+    return git_common_dir(repo) / EVIDENCE_DIR_NAME / f"{commit}.json"
 
 
 def _new_lock_record(operation: str, worktree: Path, commit: str) -> LockRecord:
@@ -138,65 +166,136 @@ def _new_lock_record(operation: str, worktree: Path, commit: str) -> LockRecord:
     )
 
 
-def _create_lock(lock_path: Path, record: LockRecord) -> None:
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path: Path | None = None
+def _write_record(stream: IO[str], record: LockRecord) -> None:
+    stream.seek(0)
+    stream.truncate()
+    json.dump(asdict(record), stream, sort_keys=True)
+    stream.write("\n")
+    stream.flush()
+    os.fsync(stream.fileno())
+
+
+def _read_record_path(path: Path) -> LockRecord:
     try:
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            dir=lock_path.parent,
-            prefix=f".{LOCK_NAME}.",
-            delete=False,
-        ) as temporary:
-            json.dump(asdict(record), temporary, sort_keys=True)
-            temporary.write("\n")
-            temporary.flush()
-            os.fsync(temporary.fileno())
-            temporary_path = Path(temporary.name)
-        os.link(temporary_path, lock_path)
-    except FileExistsError:
-        raise GateError("promotion lock was claimed by another process") from None
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
+        return LockRecord.from_json(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise GateError(f"Cannot read promotion lock {path}: {exc}") from exc
+    except GateError as exc:
+        raise GateError(f"{exc} at {path}; inspect it before proceeding") from exc
 
 
-def claim_lock(
+def claim_landing_lock(
     repo: Path,
     *,
     operation: str,
     worktree: Path,
     commit: str,
-    stderr: TextIO = sys.stderr,
-) -> tuple[Path, LockRecord]:
-    lock_path = lock_path_for(repo)
-    for _ in range(2):
-        existing = active_lock(lock_path, stderr=stderr)
-        if existing is not None:
-            raise GateError(
-                f"Promotion lock held by PID {existing.pid}: {existing.operation} for "
-                f"{existing.commit} in {existing.worktree} since {existing.started_at}"
-            )
-        record = _new_lock_record(operation, worktree, commit)
+    wait: bool = False,
+) -> HeldLock:
+    path = landing_lock_path_for(repo)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    stream = path.open("a+", encoding="utf-8")
+    try:
+        flags = fcntl.LOCK_EX if wait else fcntl.LOCK_EX | fcntl.LOCK_NB
+        fcntl.flock(stream.fileno(), flags)
+    except BlockingIOError:
+        stream.close()
         try:
-            _create_lock(lock_path, record)
-        except GateError:
+            existing = _read_record_path(path)
+            detail = (
+                f"PID {existing.pid} is {existing.operation} for {existing.commit} in "
+                f"{existing.worktree} since {existing.started_at}"
+            )
+        except GateError as exc:
+            detail = str(exc)
+        raise GateError(f"Promotion landing lock held: {detail}") from None
+    record = _new_lock_record(operation, worktree, commit)
+    _write_record(stream, record)
+    return HeldLock(path, stream, unlink_on_release=False)
+
+
+def claim_gate_marker(worktree: Path, commit: str) -> HeldLock:
+    directory = active_gate_dir_for(worktree)
+    directory.mkdir(parents=True, exist_ok=True)
+    record = _new_lock_record("gate", worktree, commit)
+    path = directory / f"{record.token}.json"
+    stream = path.open("x+", encoding="utf-8")
+    fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    _write_record(stream, record)
+    return HeldLock(path, stream, unlink_on_release=True)
+
+
+def _invalidate_evidence(repo: Path, commit: str) -> None:
+    evidence_path_for(repo, commit).unlink(missing_ok=True)
+
+
+def register_gate(
+    worktree: Path,
+    commit: str,
+    *,
+    stderr: TextIO = sys.stderr,
+) -> HeldLock:
+    coordination = claim_landing_lock(
+        worktree,
+        operation="registering a gate",
+        worktree=worktree,
+        commit=commit,
+        wait=True,
+    )
+    try:
+        for active in active_gate_records(worktree, stderr=stderr):
+            if active.commit == commit:
+                raise GateError(
+                    f"Gate already running for exact commit {commit}: PID {active.pid} in "
+                    f"{active.worktree} since {active.started_at}"
+                )
+        _invalidate_evidence(worktree, commit)
+        return claim_gate_marker(worktree, commit)
+    finally:
+        coordination.release()
+
+
+def active_gate_records(
+    repo: Path,
+    *,
+    stderr: TextIO = sys.stderr,
+) -> tuple[LockRecord, ...]:
+    directory = active_gate_dir_for(repo)
+    if not directory.exists():
+        return ()
+    active: list[LockRecord] = []
+    for path in sorted(directory.glob("*.json")):
+        try:
+            stream = path.open("r+", encoding="utf-8")
+        except FileNotFoundError:
             continue
-        return lock_path, record
-    existing = active_lock(lock_path, stderr=stderr)
-    if existing is not None:
-        raise GateError(
-            f"Promotion lock held by PID {existing.pid}: {existing.operation} for "
-            f"{existing.commit} in {existing.worktree} since {existing.started_at}"
-        )
-    raise GateError(f"Could not claim promotion lock {lock_path}")
+        try:
+            try:
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                stream.seek(0)
+                try:
+                    active.append(LockRecord.from_json(stream.read()))
+                except GateError as exc:
+                    raise GateError(
+                        f"{exc} at active gate marker {path}; inspect it before proceeding"
+                    ) from exc
+                continue
 
-
-def release_lock(lock_path: Path, record: LockRecord) -> None:
-    current = _read_lock(lock_path)
-    if current is not None and current.token == record.token:
-        lock_path.unlink(missing_ok=True)
+            stream.seek(0)
+            try:
+                stale = LockRecord.from_json(stream.read())
+                detail = (
+                    f"it recorded {stale.operation} PID {stale.pid} for {stale.commit} "
+                    f"in {stale.worktree} since {stale.started_at}"
+                )
+            except GateError:
+                detail = "its record is unreadable"
+            print(f"Stale promotion gate marker: {detail}. Removing {path}.", file=stderr)
+            path.unlink(missing_ok=True)
+        finally:
+            stream.close()
+    return tuple(active)
 
 
 def _worktree_rows(repo: Path) -> tuple[dict[str, str], ...]:
@@ -243,7 +342,7 @@ def _run_check(
     worktree: Path,
     selector: Callable[[list[str]], list[str]],
     environment: dict[str, str] | None = None,
-    accept_selected_output_on_failure: bool = False,
+    validator: ResultValidator | None = None,
 ) -> int:
     print(heading, file=log)
     try:
@@ -255,33 +354,56 @@ def _run_check(
             capture_output=True,
             env={**os.environ, **environment} if environment else None,
         )
-        combined = completed.stdout + completed.stderr
-        selected = selector(combined.splitlines())
+        lines = (completed.stdout + completed.stderr).splitlines()
+        selected = selector(lines)
         for line in selected:
             print(line, file=log)
-        accepted = completed.returncode == 0 or (
-            accept_selected_output_on_failure and bool(selected)
+        accepted = (
+            validator(completed.returncode, lines)
+            if validator is not None
+            else completed.returncode == 0
         )
         if not accepted:
             print(f"FAILED: exit {completed.returncode}", file=log)
         log.flush()
-        return 0 if accepted else completed.returncode
+        return 0 if accepted else completed.returncode or 1
     except OSError as exc:
         print(f"FAILED: {exc}", file=log)
         log.flush()
         return 127
 
 
-def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[str, ...]:
+def _worktree_is_clean(returncode: int, lines: list[str]) -> bool:
+    return returncode == 0 and not lines
+
+
+def _reachability_result_is_pinned(returncode: int, lines: list[str]) -> bool:
+    return returncode == 1 and lines == [REACHABILITY_BASELINE_SUMMARY]
+
+
+def _run_gate_checks(
+    worktree: Path,
+    *,
+    plain_only: bool,
+    log: TextIO,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     canonical = main_worktree(worktree)
     checks: list[
-        tuple[str, str, Sequence[str], Callable[[list[str]], list[str]], dict[str, str] | None]
+        tuple[
+            str,
+            str,
+            Sequence[str],
+            Callable[[list[str]], list[str]],
+            dict[str, str] | None,
+            ResultValidator | None,
+        ]
     ] = [
         (
             "plain lane",
             "=== PLAIN LANE ===",
             ("/opt/homebrew/bin/python3", "run_tests.py"),
             lambda lines: _tail_without_progress(lines, 20 if plain_only else 30),
+            None,
             None,
         ),
     ]
@@ -298,6 +420,7 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             ),
             lambda lines: _tail_without_progress(lines, 30),
             {"QT_QPA_PLATFORM": "offscreen"},
+            None,
         ))
     checks.extend((
         (
@@ -306,6 +429,7 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             ("python3", "tools/audit_docs.py"),
             lambda lines: lines[-3:],
             None,
+            None,
         ),
         (
             "audit_test_quality",
@@ -313,13 +437,15 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             ("python3", "tools/audit_test_quality.py"),
             lambda lines: lines[:3],
             None,
+            None,
         ),
         (
             "reachability",
             "=== reachability ===",
-            ("python3", "tools/audit_item_reachability.py"),
-            lambda lines: [line for line in lines if "actions;" in line][-1:],
+            ("python3", "tools/audit_item_reachability.py", "--summary"),
+            lambda lines: [line for line in lines if line == REACHABILITY_BASELINE_SUMMARY][-1:],
             None,
+            _reachability_result_is_pinned,
         ),
         (
             "worktree_guard",
@@ -327,6 +453,15 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             ("python3", "tools/worktree_guard.py", "audit"),
             lambda lines: lines[-2:],
             None,
+            None,
+        ),
+        (
+            "worktree clean",
+            "=== worktree clean ===",
+            ("git", "status", "--porcelain", "--untracked-files=all"),
+            lambda lines: lines or ["clean"],
+            None,
+            _worktree_is_clean,
         ),
         (
             "diff check",
@@ -334,11 +469,13 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             ("git", "diff", "--check"),
             lambda lines: lines or ["clean"],
             None,
+            None,
         ),
     ))
 
+    passed: list[str] = []
     failures: list[str] = []
-    for label, heading, command, selector, environment in checks:
+    for label, heading, command, selector, environment, validator in checks:
         returncode = _run_check(
             log,
             heading=heading,
@@ -346,11 +483,51 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             worktree=worktree,
             selector=selector,
             environment=environment,
-            accept_selected_output_on_failure=label == "reachability",
+            validator=validator,
         )
-        if returncode != 0:
+        if returncode == 0:
+            passed.append(label)
+        else:
             failures.append(f"{label} (exit {returncode})")
-    return tuple(failures)
+    return tuple(passed), tuple(failures)
+
+
+def _write_evidence(
+    worktree: Path,
+    *,
+    commit: str,
+    plain_only: bool,
+    passed_checks: tuple[str, ...],
+) -> Path:
+    evidence = GateEvidence(
+        schema_version=1,
+        commit=commit,
+        worktree=str(worktree.resolve()),
+        plain_only=plain_only,
+        passed_checks=passed_checks,
+        completed_at=datetime.now().astimezone().isoformat(timespec="seconds"),
+    )
+    path = evidence_path_for(worktree, commit)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{commit}.",
+            delete=False,
+        ) as temporary:
+            json.dump(asdict(evidence), temporary, sort_keys=True)
+            temporary.write("\n")
+            temporary.flush()
+            os.fsync(temporary.fileno())
+            temporary_path = Path(temporary.name)
+        os.replace(temporary_path, path)
+        return path
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 def run_gate(
@@ -362,13 +539,8 @@ def run_gate(
 ) -> Path:
     worktree = worktree.resolve()
     commit = commit_at(worktree)
-    lock_path, record = claim_lock(
-        worktree,
-        operation="gate",
-        worktree=worktree,
-        commit=commit,
-        stderr=stderr,
-    )
+    gate_marker = register_gate(worktree, commit, stderr=stderr)
+    passed_checks: tuple[str, ...] = ()
     failures: tuple[str, ...] = ()
     try:
         prefix = "gateplain" if plain_only else "gate"
@@ -379,20 +551,65 @@ def run_gate(
             kind = "plain-lane gate" if plain_only else "gate"
             print(f"=== {kind} for {commit} in {worktree} ===", file=log)
             print(datetime.now().astimezone().ctime(), file=log)
-            failures = _run_gate_checks(worktree, plain_only=plain_only, log=log)
+            passed_checks, failures = _run_gate_checks(
+                worktree,
+                plain_only=plain_only,
+                log=log,
+            )
             ending_commit = commit_at(worktree)
             if ending_commit != commit:
                 failures = (*failures, f"HEAD moved from {commit} to {ending_commit}")
                 print(f"FAILED: HEAD moved from {commit} to {ending_commit}", file=log)
             print("=== GATE DONE ===", file=log)
             print(datetime.now().astimezone().ctime(), file=log)
+        if not failures:
+            expected_checks = PLAIN_GATE_CHECKS if plain_only else FULL_GATE_CHECKS
+            if passed_checks != expected_checks:
+                raise GateError(
+                    f"Gate result is incomplete: passed {passed_checks}; expected {expected_checks}"
+                )
+            _write_evidence(
+                worktree,
+                commit=commit,
+                plain_only=plain_only,
+                passed_checks=passed_checks,
+            )
     finally:
-        release_lock(lock_path, record)
+        gate_marker.release()
 
     print(log_path, file=stdout)
     if failures:
         raise GateError(f"Gate failed: {', '.join(failures)}. Log: {log_path}")
     return log_path
+
+
+def _load_landing_evidence(worktree: Path, commit: str) -> GateEvidence:
+    path = evidence_path_for(worktree, commit)
+    try:
+        evidence = GateEvidence.from_json(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise GateError(
+            f"Landing refused: no passed full-gate evidence for exact commit {commit} at {path}"
+        ) from None
+    except OSError as exc:
+        raise GateError(f"Landing refused: cannot read gate evidence {path}: {exc}") from exc
+    except GateError as exc:
+        raise GateError(f"Landing refused: {exc} at {path}") from exc
+
+    if evidence.schema_version != 1:
+        raise GateError(
+            f"Landing refused: unsupported gate evidence schema {evidence.schema_version} at {path}"
+        )
+    if evidence.commit != commit:
+        raise GateError(
+            f"Landing refused: gate evidence at {path} names {evidence.commit}, not {commit}"
+        )
+    if evidence.plain_only or evidence.passed_checks != FULL_GATE_CHECKS:
+        raise GateError(
+            f"Landing refused: evidence for {commit} did not pass every full-gate check; "
+            f"recorded {evidence.passed_checks}"
+        )
+    return evidence
 
 
 def is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
@@ -414,36 +631,29 @@ def land(
 ) -> str:
     worktree = worktree.resolve()
     target_commit = commit_at(worktree)
-    lock_path = lock_path_for(worktree)
-    existing = active_lock(lock_path, stderr=stderr)
-    own_lock: LockRecord | None = None
-    same_tree = (
-        existing is not None
-        and existing.commit == target_commit
-        and Path(existing.worktree).resolve() == worktree
+    landing_lock = claim_landing_lock(
+        worktree,
+        operation="landing",
+        worktree=worktree,
+        commit=target_commit,
     )
-    if existing is not None and not same_tree:
-        operation = "gate" if existing.operation == "gate" else "landing"
-        raise GateError(
-            f"Landing refused: running {operation} PID {existing.pid} has held "
-            f"{existing.commit} in {existing.worktree} since {existing.started_at}; requested "
-            f"{target_commit} in {worktree} is a different tree"
-        )
-    if existing is not None and existing.operation != "gate":
-        raise GateError(
-            f"Landing refused: PID {existing.pid} is already landing {existing.commit} "
-            f"from {existing.worktree} since {existing.started_at}"
-        )
-    if existing is None:
-        lock_path, own_lock = claim_lock(
-            worktree,
-            operation="land",
-            worktree=worktree,
-            commit=target_commit,
-            stderr=stderr,
-        )
-
     try:
+        active_gates = active_gate_records(worktree, stderr=stderr)
+        for gate in active_gates:
+            if gate.commit != target_commit:
+                raise GateError(
+                    f"Landing refused: running gate PID {gate.pid} has held {gate.commit} in "
+                    f"{gate.worktree} since {gate.started_at}; requested {target_commit} in "
+                    f"{worktree} is a different tree"
+                )
+        if active_gates:
+            gate = active_gates[0]
+            raise GateError(
+                f"Landing refused: gate PID {gate.pid} is still running for exact commit "
+                f"{target_commit} in {gate.worktree} since {gate.started_at}"
+            )
+
+        _load_landing_evidence(worktree, target_commit)
         main_path = main_worktree(worktree)
         main_commit = _git(main_path, "rev-parse", "refs/heads/main").stdout.strip()
         if not is_ancestor(worktree, main_commit, target_commit):
@@ -473,8 +683,7 @@ def land(
         print(f"Landed {target_commit} from {worktree} onto main in {main_path}", file=stdout)
         return target_commit
     finally:
-        if own_lock is not None:
-            release_lock(lock_path, own_lock)
+        landing_lock.release()
 
 
 def main(argv: Sequence[str] | None = None) -> int:

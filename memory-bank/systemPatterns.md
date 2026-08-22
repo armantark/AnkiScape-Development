@@ -969,14 +969,20 @@ activation.
 
 Run promotion checks with `python3 tools/promotion_gate.py run <promotion-worktree>`.
 Use `--plain-only` only for a branch-side check when the merged-tree promotion
-seat will run the offscreen Qt lane. The command keeps the established
-`ankiscape_worktrees/gate-<short-sha>.log` and
-`ankiscape_worktrees/gateplain-<short-sha>.log` outputs and holds
-`ankiscape-promotion-gate.lock` in the shared Git common directory while checks
-run.
+seat will run the offscreen Qt lane; plain-only evidence cannot authorize a
+landing. The command keeps the established `ankiscape_worktrees/gate-<short-sha>.log`
+and `ankiscape_worktrees/gateplain-<short-sha>.log` outputs. Gates for different
+commits may run together, and each active marker is protected by an OS file lock
+so a recycled PID cannot impersonate the gate process.
 
-Land only with `python3 tools/promotion_gate.py land <promotion-worktree>`, not a
-hand-written `git merge --ff-only`. Landing refuses an active gate for another
-commit and a target that is not descended from current `main`. A dead gate's
-lock is reported with its PID, worktree, commit, and start time, then removed so
-the next guarded command can proceed.
+A successful full gate atomically records the exact commit and every passed
+check in the shared Git common directory. The gate requires a clean worktree so
+those checks measure that commit rather than uncommitted files. Starting any
+rerun removes that commit's prior evidence, and a failed rerun writes none.
+Land only with
+`python3 tools/promotion_gate.py land <promotion-worktree>`, not a hand-written
+`git merge --ff-only`. Landing is serialized, requires full-gate evidence for
+the exact target commit, refuses while another tree is being gated, and refuses
+a target that is not descended from current `main`. An unlocked active-gate
+marker is stale regardless of the PID written inside it and is reported before
+removal.
