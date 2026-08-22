@@ -64,6 +64,7 @@ class FightCavesUndoSeamTest(unittest.TestCase):
             message
         )
         self.addon._refresh_skill_availability = lambda: None
+        self.addon.check_achievements = lambda *_args, **_kwargs: None
         self.huds = []
         self.addon.update_review_hud = lambda *args: self.huds.append(args)
 
