@@ -16,7 +16,7 @@ import sys
 import time
 import urllib.parse
 from collections import Counter, defaultdict
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Iterable, Mapping, Optional, Sequence
@@ -26,13 +26,15 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetFetchError,
     HttpWikiClient,
+    RS3_WIKI,
     WIKI_SOURCES_BY_NAME,
     WikiSource,
 )
 
-DEFAULT_CUTOFF_DATE = "2012-11-30"
+DEFAULT_CUTOFF_TIMESTAMP = PRE_EOC_CUTOFF
 DEFAULT_PROVENANCE_PATH = REPO_ROOT / "assets_provenance.json"
 DEFAULT_REPORT_PATH = (
     REPO_ROOT
@@ -43,13 +45,16 @@ DEFAULT_REPORT_PATH = (
 DEFAULT_BATCH_SIZE = 40
 MAX_BATCH_SIZE = 50
 API_ATTEMPTS = 4
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 NO_EARLIER_REVISION = "no_earlier_revision"
 BYTE_IDENTICAL = "byte_identical"
 DIFFERENT = "different"
 UNRESOLVED = "unresolved"
-RESOLVED_STATUSES = frozenset({NO_EARLIER_REVISION, BYTE_IDENTICAL, DIFFERENT})
+NEEDS_INSPECTION = "needs_inspection"
+RESOLVED_STATUSES = frozenset(
+    {NO_EARLIER_REVISION, BYTE_IDENTICAL, DIFFERENT, NEEDS_INSPECTION}
+)
 ALL_STATUSES = RESOLVED_STATUSES | {UNRESOLVED}
 
 
@@ -71,11 +76,6 @@ def _parse_timestamp(value: object) -> datetime:
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
     return parsed.astimezone(timezone.utc)
-
-
-def _cutoff_timestamp(cutoff_date: str) -> str:
-    parsed = date.fromisoformat(cutoff_date)
-    return f"{parsed.isoformat()}T23:59:59Z"
 
 
 def _wiki_source(source_name: object) -> Optional[WikiSource]:
@@ -229,7 +229,7 @@ def _batch_results(
         if "missing" in page:
             results[title] = {
                 "status": UNRESOLVED,
-                "reason": "The recorded file page is now missing from its source wiki.",
+                "reason": "The requested file page is now missing from the queried wiki.",
             }
             continue
         imageinfo = page.get("imageinfo", [])
@@ -296,37 +296,112 @@ def _make_row(
                     "earlier_revision": None,
                 }
             )
-            return row
-        try:
-            status = classify_revision(
-                str(row["recorded_revision"].get("sha1") or ""),
-                revision,
-            )
-        except ValueError as exc:
-            row.update(
-                {
-                    "status": UNRESOLVED,
-                    "reason": str(exc),
-                    "earlier_revision": revision,
-                }
-            )
-            return row
-        row.update({"status": status, "earlier_revision": revision})
-        return row
+        else:
+            try:
+                status = classify_revision(
+                    str(row["recorded_revision"].get("sha1") or ""),
+                    revision,
+                )
+            except ValueError as exc:
+                row.update(
+                    {
+                        "status": UNRESOLVED,
+                        "reason": str(exc),
+                        "earlier_revision": revision,
+                    }
+                )
+            else:
+                row.update({"status": status, "earlier_revision": revision})
+    else:
+        row.update(
+            {
+                "status": result_status if result_status in ALL_STATUSES else UNRESOLVED,
+                "reason": str(result.get("reason") or "No reason recorded."),
+                "earlier_revision": None,
+            }
+        )
 
-    row.update(
-        {
-            "status": result_status if result_status in ALL_STATUSES else UNRESOLVED,
-            "reason": str(result.get("reason") or "No reason recorded."),
-            "earlier_revision": None,
-        }
-    )
+    lookup = {
+        "wiki": source.name if source else None,
+        "status": row["status"],
+        "earlier_revision": row["earlier_revision"],
+    }
+    if "reason" in row:
+        lookup["reason"] = row["reason"]
+    row["source_lookup"] = lookup
+    row["cross_wiki_lookup"] = None
     return row
+
+
+def _apply_cross_wiki_result(
+    row: Dict[str, object],
+    entry: Mapping[str, object],
+    result: Mapping[str, object],
+) -> None:
+    cross_row = _make_row(entry, RS3_WIKI, result)
+    cross_status = str(cross_row["status"])
+    row["cross_wiki_lookup"] = cross_row["source_lookup"]
+    row["earlier_revision"] = None
+    if cross_status in {BYTE_IDENTICAL, DIFFERENT}:
+        row.update(
+            {
+                "status": NEEDS_INSPECTION,
+                "reason": (
+                    "The RS3 wiki has a same-titled pre-cutoff revision, but the "
+                    "title alone does not prove it is the same item's period art."
+                ),
+            }
+        )
+    elif cross_status == NO_EARLIER_REVISION:
+        row.update(
+            {
+                "status": NO_EARLIER_REVISION,
+                "reason": (
+                    "Neither the OSRS source lookup nor the RS3 same-title lookup "
+                    "found a revision at or before the cutoff."
+                ),
+            }
+        )
+    else:
+        row.update(
+            {
+                "status": UNRESOLVED,
+                "reason": (
+                    "The OSRS source lookup had no pre-cutoff revision; the RS3 "
+                    "same-title lookup was unresolved: "
+                    f"{cross_row.get('reason') or 'No reason recorded.'}"
+                ),
+            }
+        )
+
+
+def unreported_post_cutoff_paths(
+    provenance: Mapping[str, object],
+    report: Mapping[str, object],
+    cutoff_timestamp: str = PRE_EOC_CUTOFF,
+) -> list[str]:
+    report_assets = report.get("assets")
+    audited_rows = report_assets if isinstance(report_assets, dict) else {}
+    cutoff = _parse_timestamp(cutoff_timestamp)
+    missing = []
+    for path, entry in provenance.items():
+        if not isinstance(entry, dict):
+            continue
+        if _parse_timestamp(entry.get("timestamp")) <= cutoff:
+            continue
+        row = audited_rows.get(path)
+        expected = _row_input(entry, _wiki_source(entry.get("source_wiki")))
+        if not isinstance(row, dict) or any(
+            row.get(key) != value for key, value in expected.items()
+        ):
+            missing.append(str(path))
+    return sorted(missing)
 
 
 def _summary(late_paths: Iterable[str], rows: Mapping[str, object]) -> Dict[str, object]:
     late_paths = tuple(late_paths)
     counts = Counter()
+    cross_wiki_counts = Counter()
     unresolved_reasons = Counter()
     for path in late_paths:
         row = rows.get(path)
@@ -335,6 +410,9 @@ def _summary(late_paths: Iterable[str], rows: Mapping[str, object]) -> Dict[str,
             continue
         status = str(row["status"])
         counts[status] += 1
+        cross_lookup = row.get("cross_wiki_lookup")
+        if isinstance(cross_lookup, dict):
+            cross_wiki_counts[str(cross_lookup.get("status") or UNRESOLVED)] += 1
         if status == UNRESOLVED:
             unresolved_reasons[str(row.get("reason") or "No reason recorded.")] += 1
     return {
@@ -342,8 +420,16 @@ def _summary(late_paths: Iterable[str], rows: Mapping[str, object]) -> Dict[str,
         NO_EARLIER_REVISION: counts[NO_EARLIER_REVISION],
         BYTE_IDENTICAL: counts[BYTE_IDENTICAL],
         DIFFERENT: counts[DIFFERENT],
+        NEEDS_INSPECTION: counts[NEEDS_INSPECTION],
         UNRESOLVED: counts[UNRESOLVED],
         "pending": counts["pending"],
+        "cross_wiki_results": {
+            "queried": sum(cross_wiki_counts.values()),
+            NO_EARLIER_REVISION: cross_wiki_counts[NO_EARLIER_REVISION],
+            BYTE_IDENTICAL: cross_wiki_counts[BYTE_IDENTICAL],
+            DIFFERENT: cross_wiki_counts[DIFFERENT],
+            UNRESOLVED: cross_wiki_counts[UNRESOLVED],
+        },
         "unresolved_reasons": dict(sorted(unresolved_reasons.items())),
     }
 
@@ -351,7 +437,6 @@ def _summary(late_paths: Iterable[str], rows: Mapping[str, object]) -> Dict[str,
 def _report_document(
     provenance_path: Path,
     report_path: Path,
-    cutoff_date: str,
     cutoff_timestamp: str,
     late_paths: Sequence[str],
     rows: Mapping[str, object],
@@ -359,7 +444,6 @@ def _report_document(
     current_rows = {path: rows[path] for path in sorted(late_paths) if path in rows}
     return {
         "schema_version": SCHEMA_VERSION,
-        "cutoff_date": cutoff_date,
         "cutoff_timestamp": cutoff_timestamp,
         "provenance_path": _display_path(provenance_path),
         "report_path": _display_path(report_path),
@@ -372,11 +456,10 @@ def _report_document(
 def audit_assets(
     provenance_path: Path,
     report_path: Path,
-    cutoff_date: str,
+    cutoff_timestamp: str,
     batch_size: int,
     client: HttpWikiClient,
 ) -> Dict[str, object]:
-    cutoff_timestamp = _cutoff_timestamp(cutoff_date)
     cutoff = _parse_timestamp(cutoff_timestamp)
     provenance = _load_json(provenance_path)
     if not isinstance(provenance, dict):
@@ -409,7 +492,6 @@ def audit_assets(
 
     rows: Dict[str, object] = {}
     jobs: Dict[str, Dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
-    sources = WIKI_SOURCES_BY_NAME
     cached = 0
     for path, entry in late.items():
         source = _wiki_source(entry.get("source_wiki"))
@@ -443,7 +525,6 @@ def audit_assets(
     document = _report_document(
         provenance_path,
         report_path,
-        cutoff_date,
         cutoff_timestamp,
         tuple(late),
         rows,
@@ -452,7 +533,7 @@ def audit_assets(
 
     queried_titles = 0
     for source_name in sorted(jobs):
-        source = sources[source_name]
+        source = WIKI_SOURCES_BY_NAME[source_name]
         titles = sorted(jobs[source_name])
         for start in range(0, len(titles), batch_size):
             batch = titles[start : start + batch_size]
@@ -472,7 +553,6 @@ def audit_assets(
             document = _report_document(
                 provenance_path,
                 report_path,
-                cutoff_date,
                 cutoff_timestamp,
                 tuple(late),
                 rows,
@@ -485,8 +565,49 @@ def audit_assets(
                 flush=True,
             )
 
+    cross_jobs: Dict[str, list[str]] = defaultdict(list)
+    for path, row in rows.items():
+        if (
+            isinstance(row, dict)
+            and row.get("wiki") == "osrs"
+            and row.get("status") == NO_EARLIER_REVISION
+            and row.get("cross_wiki_lookup") is None
+        ):
+            cross_jobs[str(row["file_title"])].append(path)
+
+    cross_titles = sorted(cross_jobs)
+    for start in range(0, len(cross_titles), batch_size):
+        batch = cross_titles[start : start + batch_size]
+        try:
+            payload = _request_batch(client, RS3_WIKI, batch, cutoff_timestamp)
+            results = _batch_results(payload, batch, cutoff_timestamp)
+        except AssetFetchError as exc:
+            results = {
+                title: {"status": UNRESOLVED, "reason": str(exc)} for title in batch
+            }
+        for title in batch:
+            for path in cross_jobs[title]:
+                row = rows[path]
+                if isinstance(row, dict):
+                    _apply_cross_wiki_result(row, late[path], results[title])
+        queried_titles += len(batch)
+        document = _report_document(
+            provenance_path,
+            report_path,
+            cutoff_timestamp,
+            tuple(late),
+            rows,
+        )
+        _write_json(report_path, document)
+        print(
+            f"rs3 cross-wiki: resolved "
+            f"{min(start + len(batch), len(cross_titles))}/{len(cross_titles)} titles",
+            file=sys.stderr,
+            flush=True,
+        )
+
     print(
-        f"Reused {cached} resolved asset rows; queried {queried_titles} unique titles.",
+        f"Reused {cached} resolved asset rows; queried {queried_titles} wiki-title lookups.",
         file=sys.stderr,
     )
     return document
@@ -496,7 +617,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--provenance", type=Path, default=DEFAULT_PROVENANCE_PATH)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT_PATH)
-    parser.add_argument("--cutoff-date", default=DEFAULT_CUTOFF_DATE)
+    parser.add_argument("--cutoff-timestamp", default=DEFAULT_CUTOFF_TIMESTAMP)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--min-interval", type=float, default=1.1)
     return parser
@@ -513,7 +634,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         document = audit_assets(
             provenance_path=args.provenance.resolve(),
             report_path=args.report.resolve(),
-            cutoff_date=args.cutoff_date,
+            cutoff_timestamp=args.cutoff_timestamp,
             batch_size=args.batch_size,
             client=HttpWikiClient(
                 retries=3,

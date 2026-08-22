@@ -42,6 +42,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 
+PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 DEFAULT_USER_AGENT = (
     "AnkiScape-fork asset-fetch/0.1 "
     f"({os.environ.get('ANKISCAPE_ASSET_FETCH_CONTACT', 'private personal fork')})"
