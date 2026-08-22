@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -15,6 +16,21 @@ SPEC.loader.exec_module(audit_asset_cutoff)
 
 
 class AuditAssetCutoffTest(unittest.TestCase):
+    @staticmethod
+    def _missing_cross_wiki_paths(report):
+        assets = report.get("assets")
+        if not isinstance(assets, dict):
+            return []
+        return sorted(
+            path
+            for path, row in assets.items()
+            if isinstance(row, dict)
+            and row.get("source_lookup", {}).get("wiki") == "osrs"
+            and row.get("source_lookup", {}).get("status")
+            == audit_asset_cutoff.NO_EARLIER_REVISION
+            and not isinstance(row.get("cross_wiki_lookup"), dict)
+        )
+
     def test_classification_distinguishes_absent_identical_and_different_revisions(self):
         self.assertEqual(
             audit_asset_cutoff.classify_revision("recorded", None),
@@ -207,6 +223,62 @@ class AuditAssetCutoffTest(unittest.TestCase):
             [],
             "Post-cutoff provenance entries missing or stale in the committed asset "
             f"audit: {', '.join(missing)}",
+        )
+
+        missing_cross_wiki = self._missing_cross_wiki_paths(report)
+        self.assertEqual(
+            missing_cross_wiki,
+            [],
+            "OSRS source lookups missing an RS3 cross-wiki result: "
+            f"{', '.join(missing_cross_wiki)}",
+        )
+
+        class NoRevisionClient:
+            def _request_json(self, url):
+                return {
+                    "query": {
+                        "pages": [
+                            {
+                                "title": "File:Sprite.png",
+                                "imageinfo": [],
+                            }
+                        ]
+                    }
+                }
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            temp_provenance = temp_root / "assets_provenance.json"
+            temp_report = temp_root / "report.json"
+            temp_provenance.write_text(
+                json.dumps(
+                    {
+                        "sprite.png": {
+                            "file_title": "Sprite.png",
+                            "source_wiki": "osrs",
+                            "image_url": "https://example.invalid/Sprite.png",
+                            "sha1": "recorded",
+                            "size": 200,
+                            "timestamp": "2020-01-01T00:00:00Z",
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            generated = audit_asset_cutoff.audit_assets(
+                temp_provenance,
+                temp_report,
+                audit_asset_cutoff.PRE_EOC_CUTOFF,
+                40,
+                NoRevisionClient(),
+            )
+
+        missing_cross_wiki = self._missing_cross_wiki_paths(generated)
+        self.assertEqual(
+            missing_cross_wiki,
+            [],
+            "OSRS source lookups missing an RS3 cross-wiki result: "
+            f"{', '.join(missing_cross_wiki)}",
         )
 
 
