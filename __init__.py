@@ -4409,37 +4409,33 @@ def _on_main_menu(
         if action_id != "get_assignment":
             return {"ok": False, "message": "Unknown Slayer command."}
 
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        updated, ok, info = get_slayer_assignment_pure(
-            player_data,
-            master_id=str(payload.get("master_id", "turael_spria")),
-            rng=random.random,
+        info = {}
+        pure_ok = True
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = get_slayer_assignment_pure(
+                current,
+                master_id=str(payload.get("master_id", "turael_spria")),
+                rng=random.random,
+            )
+            pure_ok = bool(ok)
+            return updated, ok
+
+        committed = commit_direct_action(
+            _change, after_apply=lambda: check_achievements(player_data)
         )
-        if not ok:
-            random.setstate(before["random_state"])
+        if not pure_ok:
             return {
                 "ok": False,
                 "message": str(info.get("reason", "That action is unavailable."))
                 .replace("_", " ")
                 .capitalize(),
             }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+        if not committed:
             return {"ok": False, "message": "Anki could not create an undo entry."}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
