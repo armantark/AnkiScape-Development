@@ -964,3 +964,19 @@ callback still owns the live rebuilt tree, and tolerate deletion before the
 timer fires. A restored saved row stays green and bold; blue selection remains a
 transient keyboard or pointer state and must not change persistence until
 activation.
+
+## Promotion gate and landing lock
+
+Run promotion checks with `python3 tools/promotion_gate.py run <promotion-worktree>`.
+Use `--plain-only` only for a branch-side check when the merged-tree promotion
+seat will run the offscreen Qt lane. The command keeps the established
+`ankiscape_worktrees/gate-<short-sha>.log` and
+`ankiscape_worktrees/gateplain-<short-sha>.log` outputs and holds
+`ankiscape-promotion-gate.lock` in the shared Git common directory while checks
+run.
+
+Land only with `python3 tools/promotion_gate.py land <promotion-worktree>`, not a
+hand-written `git merge --ff-only`. Landing refuses an active gate for another
+commit and a target that is not descended from current `main`. A dead gate's
+lock is reported with its PID, worktree, commit, and start time, then removed so
+the next guarded command can proceed.
