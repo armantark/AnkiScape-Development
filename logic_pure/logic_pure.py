@@ -624,6 +624,7 @@ from .logic_pure_construction import (  # noqa: F401  (re-export)
     apply_construction_action_pure,
     construction_target_locked_reasons_pure,
     effective_gilded_altar_multiplier_pure,
+    owned_altar_id_pure,
     owned_gilded_altar_access_reasons_pure,
     owned_gilded_altar_burner_count_pure,
     owned_gilded_altar_effective_burners_pure,

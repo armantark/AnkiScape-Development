@@ -435,6 +435,7 @@ from ..data.summoning_data import summoning_extra_items_as_dict
 from ..data.potion_data import potion_items_as_dict, potion_item_names
 from ..data.prayer_data import (
     DEFAULT_PRAYER_TARGET,
+    GILDED_ALTAR_MULTIPLIER,
     PRAYER_GROUP_ORDER,
     prayer_extra_items_as_dict,
     prayer_targets_as_dict,

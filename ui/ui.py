@@ -490,6 +490,7 @@ from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
 from ..logic_pure.logic_pure import (
     effective_gilded_altar_multiplier_pure,
     full_urn_teleport_info_pure,
+    owned_altar_id_pure,
     owned_gilded_altar_effective_burners_pure,
     prayer_selection_locked_reasons_pure,
 )
@@ -5663,7 +5664,7 @@ def show_main_menu(
             summary.setText(
                 f"House · {sum(bool(value) for value in rooms.values())} rooms · "
                 f"{SERVANT_DATA.get(servant_id, {}).get('display_name', 'No servant')} · "
-                f"altar {'gilded' if flags.get('guilded_altar') else 'not gilded'}, {burners}/2 burners · "
+                f"altar {CONSTRUCTION_DATA[owned_altar_id_pure(player_data)]['display_name'].lower() if owned_altar_id_pure(player_data) else 'none'}, {burners}/2 burners · "
                 f"{HOUSE_STYLE_DATA.get(style_id, {}).get('display_name', style_id)}"
             )
         else:
