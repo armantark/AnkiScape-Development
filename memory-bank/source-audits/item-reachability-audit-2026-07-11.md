@@ -39,7 +39,28 @@ Period implementation evidence: `game-main/plugins/src/main/kotlin/gg/rsmod/plug
 
 These buckets are now explicit dependencies. They should not be “fixed” by seeding free items or inventing recipes.
 
+## Known instrument blind spot — claim grants (2026-08-22)
+
+`tools/audit_item_reachability.py` does not read `CLAIM_DATA` or traverse the
+claim application path. It seeds shops, Combat drops, and bird nests, closes
+ordinary item actions, and models quest-stage/start/completion products, but it
+never adds claim outputs.
+
+The shipped claim catalog grants 16 unique items. Eleven starter-kit items also
+have non-claim routes and are counted for those routes. Five items are granted
+only through claims — `Wicked hood`, `Apmeken mask`, `Ankh`, `Scabaras mask`,
+and `Was` — and the audit currently counts 0 of those 5. On
+`goal/ditr-hidden-2026-08-22`, the unchanged audit result is `1599 actions; 2370
+reachable items; 38 orphan inputs; 37 blocked actions` even though the real
+claim kernel grants all four Diamond in the Rough items.
+
+Repair this in a dedicated instrument slice: add claim item bundles as explicit
+acquisition sources/actions, preserve required-quest gating in the quest
+scenarios, and add regressions proving both an unconditional claim (`Wicked
+hood`) and the two quest-gated skill claims enter the route map. Re-measure every
+pinned field from the repaired audit rather than adjusting counts arithmetically.
+
 ## Maintenance rule
 
-Run the audit whenever an action family, shop, Combat drop table, quest reward, or item transformation changes. The focused test protects deterministic accounting and representative routes; count growth is expected as authentic content is added.
+Run the audit whenever an action family, shop, Combat drop table, quest reward, claim, or item transformation changes. The focused test protects deterministic accounting and representative routes; count growth is expected as authentic content is added.
 
