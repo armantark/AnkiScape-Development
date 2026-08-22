@@ -53,8 +53,10 @@ from ..core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
 )
-from ..data.treasure_trails_data import CLUE_SCROLL_ITEMS
-from ..logic.treasure_trails_logic import clue_ownership_reason_pure
+from ..logic.treasure_trails_logic import (
+    clue_refusal_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
@@ -1351,12 +1353,13 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     exp_before = ctx.implemented_exp_keys_snapshot()
-    clue_reward_refusal_reason = ""
-    if any(
-        item_name in CLUE_SCROLL_ITEMS.values()
-        for item_name in (quest.get("rewards", {}) or {})
-    ):
-        clue_reward_refusal_reason = clue_ownership_reason_pure(player_data)
+    quest_rewards = quest.get("rewards", {}) or {}
+    filtered_quest_rewards = filter_clue_scroll_outputs_pure(
+        player_data, quest_rewards
+    )
+    clue_reward_refusal_reason = clue_refusal_reason_pure(
+        player_data, quest_rewards, filtered_quest_rewards
+    )
     new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
     if not ok:
         stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)

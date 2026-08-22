@@ -27,6 +27,7 @@ from ..data.trouble_brewing_data import (
 )
 from .treasure_trails_logic import (
     clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 
@@ -478,9 +479,13 @@ def buy_trouble_brewing_reward_pure(
         return data, False, {"reason": "Unknown Trouble Brewing reward."}
     reward_outputs = {reward.display_name: 1}
     if reward.clue_tier:
-        reward_outputs = filter_clue_scroll_outputs_pure(data, reward_outputs)
-        if reward.display_name not in reward_outputs:
-            return data, False, {"reason": clue_ownership_reason_pure(data)}
+        offered_outputs = reward_outputs
+        reward_outputs = filter_clue_scroll_outputs_pure(data, offered_outputs)
+        clue_refusal_reason = clue_refusal_reason_pure(
+            data, offered_outputs, reward_outputs
+        )
+        if clue_refusal_reason:
+            return data, False, {"reason": clue_refusal_reason}
     wallet = _int(data.get("trouble_brewing_pieces_of_eight"))
     if wallet < reward.pieces_of_eight:
         return data, False, {

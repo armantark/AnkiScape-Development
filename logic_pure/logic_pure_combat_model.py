@@ -17,7 +17,7 @@ from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, 
 
 from ..logic.court_cases_logic import filter_court_summons_outputs_pure
 from ..logic.treasure_trails_logic import (
-    clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 
@@ -2738,11 +2738,8 @@ def _combat_roll_drops(
     # knows nothing about: one Court summons, and one clue scroll across every
     # tier.
     filtered = filter_court_summons_outputs_pure(player_data, drops)
-    ownership_reason = clue_ownership_reason_pure(player_data)
     clue_filtered = filter_clue_scroll_outputs_pure(player_data, filtered)
-    clue_refusal = (
-        ownership_reason if ownership_reason and clue_filtered != filtered else ""
-    )
+    clue_refusal = clue_refusal_reason_pure(player_data, filtered, clue_filtered)
     if include_clue_refusal:
         return clue_filtered, clue_refusal
     return clue_filtered

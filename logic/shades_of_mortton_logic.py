@@ -34,7 +34,7 @@ from ..data.shades_of_mortton_data import (
     shades_of_mortton_loar_enemy_pure,
 )
 from .treasure_trails_logic import (
-    clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 
@@ -578,12 +578,10 @@ def open_shades_bronze_chest_pure(
         quantity += int(_roll(rng) * (maximum - minimum + 1))
     _add(inventory, "Coins", coins)
     rewards = {"Coins": coins}
-    ownership_reason = clue_ownership_reason_pure(data)
-    main_rewards = filter_clue_scroll_outputs_pure(data, {reward: quantity})
-    clue_refusal_reason = (
-        ownership_reason
-        if ownership_reason and reward not in main_rewards
-        else ""
+    offered_rewards = {reward: quantity}
+    main_rewards = filter_clue_scroll_outputs_pure(data, offered_rewards)
+    clue_refusal_reason = clue_refusal_reason_pure(
+        data, offered_rewards, main_rewards
     )
     for item_name, amount in main_rewards.items():
         _add(inventory, item_name, amount)

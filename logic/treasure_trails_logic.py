@@ -164,6 +164,29 @@ def filter_clue_scroll_outputs_pure(
     return filtered
 
 
+def clue_refusal_reason_pure(
+    player_data: Mapping[str, Any],
+    offered_outputs: Mapping[str, Any],
+    granted_outputs: Mapping[str, Any],
+) -> str:
+    """Explain a clue removed by the filter, including one kept from this event."""
+    clue_items = tuple(CLUE_SCROLL_ITEMS.values())
+    if all(
+        _int(granted_outputs.get(item_name)) >= _int(offered_outputs.get(item_name))
+        for item_name in clue_items
+    ):
+        return ""
+    ownership_reason = clue_ownership_reason_pure(player_data)
+    if ownership_reason:
+        return ownership_reason
+    kept = [
+        item_name
+        for item_name in clue_items
+        if _int(granted_outputs.get(item_name))
+    ]
+    return "You already have a clue scroll: " + ", ".join(kept)
+
+
 def _roll(rng: Callable[[], float], low: int, high: int) -> int:
     span = max(1, high - low + 1)
     return low + min(int(rng() * span), span - 1)

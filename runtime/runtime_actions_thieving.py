@@ -219,7 +219,7 @@ from ..logic.court_cases_logic import (
     filter_court_summons_outputs_pure,
 )
 from ..logic.treasure_trails_logic import (
-    clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 from ..data.circus_data import CIRCUS_ACTIVITY_ID
@@ -420,12 +420,9 @@ def _thieving_grant_outputs(
     player_data: dict[str, Any], outputs: dict[str, int]
 ) -> tuple[dict[str, int], str]:
     outputs = filter_court_summons_outputs_pure(player_data, outputs)
-    ownership_reason = clue_ownership_reason_pure(player_data)
     granted_outputs = filter_clue_scroll_outputs_pure(player_data, outputs)
-    clue_refusal_reason = (
-        ownership_reason
-        if ownership_reason and granted_outputs != outputs
-        else ""
+    clue_refusal_reason = clue_refusal_reason_pure(
+        player_data, outputs, granted_outputs
     )
     inventory = dict(player_data.get("inventory", {}) or {})
     for item_name, amount in granted_outputs.items():

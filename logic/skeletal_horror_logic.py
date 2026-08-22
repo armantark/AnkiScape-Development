@@ -26,7 +26,7 @@ from ..logic_pure.logic_pure import (
     combat_target_locked_reasons_pure,
 )
 from .treasure_trails_logic import (
-    clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 
@@ -473,13 +473,12 @@ def apply_skeletal_horror_review_pure(
             clue_dropped = False
     clue_refusal_reason = ""
     if clue_dropped:
-        ownership_reason = clue_ownership_reason_pure(data)
-        clue_outputs = filter_clue_scroll_outputs_pure(
-            data, {SKELETAL_HORROR_ELITE_CLUE_ITEM: 1}
+        offered_clue = {SKELETAL_HORROR_ELITE_CLUE_ITEM: 1}
+        clue_outputs = filter_clue_scroll_outputs_pure(data, offered_clue)
+        clue_refusal_reason = clue_refusal_reason_pure(
+            data, offered_clue, clue_outputs
         )
         clue_dropped = SKELETAL_HORROR_ELITE_CLUE_ITEM in clue_outputs
-        if ownership_reason and not clue_dropped:
-            clue_refusal_reason = ownership_reason
         if clue_dropped:
             inventory = dict(data.get("inventory", {}) or {})
             inventory[SKELETAL_HORROR_ELITE_CLUE_ITEM] = (

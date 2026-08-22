@@ -382,6 +382,51 @@ class TestThievingRuntime(unittest.TestCase):
         ]
         self.assertNotIn("Clue scroll (easy)", telemetry["outputs"])
 
+    def test_ham_multi_pick_reports_extra_clues_from_the_same_action(self):
+        clue_index = next(
+            index
+            for index, row in enumerate(HAM_LOOT)
+            if row[0] == "Clue scroll (easy)"
+        )
+        clue_roll = (
+            sum(row[3] for row in HAM_LOOT[:clue_index]) + 0.5
+        ) / THIEVING_TARGETS["pickpocket_female_ham"]["loot_total"]
+        player_data = {
+            "current_thieving": "pickpocket_female_ham",
+            "thieving_level": 99,
+            "thieving_exp": 0.0,
+            "agility_level": 99,
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "inventory": {},
+            "completed_achievements": [],
+        }
+        ctx, calls = _context(
+            player_data,
+            random_values=(
+                0.0,
+                0.125,
+                clue_roll,
+                0.0,
+                clue_roll,
+                0.0,
+                clue_roll,
+                0.0,
+                clue_roll,
+                0.0,
+            ),
+        )
+
+        self.assertTrue(handle_thieving_answer(ctx))
+
+        self.assertEqual(player_data["inventory"], {"Clue scroll (easy)": 1})
+        self.assertTrue(
+            any("already have a clue scroll" in message for message in calls["activity"]),
+            calls["activity"],
+        )
+
     def test_failed_pickpocket_deals_damage_then_next_review_only_clears_stun(self):
         player_data = {
             "current_thieving": "pickpocket_man",

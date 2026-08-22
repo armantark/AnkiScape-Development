@@ -50,7 +50,7 @@ from ..logic_pure.logic_pure import (
 )
 from .achievement_diary_logic import diary_tier_by_id_pure, tier_claim_state_pure
 from .treasure_trails_logic import (
-    clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 
@@ -501,12 +501,9 @@ def apply_bork_review_pure(
     for item_name, chance in BORK_RARE_DROPS:
         if _roll(rng) < chance:
             rare_drops[item_name] = rare_drops.get(item_name, 0) + 1
-    ownership_reason = clue_ownership_reason_pure(data)
     filtered_rare_drops = filter_clue_scroll_outputs_pure(data, rare_drops)
-    clue_refusal_reason = (
-        ownership_reason
-        if ownership_reason and filtered_rare_drops != rare_drops
-        else ""
+    clue_refusal_reason = clue_refusal_reason_pure(
+        data, rare_drops, filtered_rare_drops
     )
     rare_drops = filtered_rare_drops
     _award_drops(data, drops)

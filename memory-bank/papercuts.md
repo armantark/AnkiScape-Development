@@ -789,3 +789,4 @@
 - 2026-08-22 04:39 PDT — Running the codex-review skill's documented stdin command failed: `error: the argument '--uncommitted' cannot be used with '[PROMPT]'`; the cleanup also hit zsh's `read-only variable: status`.
 - 2026-08-22 05:18 PDT — Checking formatter settings with `grep` named both `pyproject.toml` and `.pre-commit-config.yaml`, but neither exists in this worktree, so the probe exited 2 without answering whether line-length tooling is configured.
 - 2026-08-22 05:19 PDT — A scoped formatting edit assumed the new long inventory-assignment text was unique, but the same line already existed at another combat-engine path, so the guard stopped with `anchor count: 2` before editing.
+- 2026-08-22 06:07 PDT — A broad `rg -n "Clue scroll" data` inspection emitted 340.1 KB because generated data contains oversized lines, obscuring the relevant quest and thieving matches; scope searches to known source files or cap each match's printed width.
