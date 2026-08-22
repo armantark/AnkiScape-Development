@@ -23,7 +23,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.data.hunter_data import hunter_item_names  # noqa: E402
+from ankiscape.data.hunter_data import (  # noqa: E402
+    HUNTER_HABITAT_VINE_ITEMS,
+    hunter_item_names,
+)
 from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,
@@ -74,6 +77,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     client = HttpWikiClient()
+    cutoff_client = HttpWikiClient(before_timestamp="2012-11-20T23:59:59Z")
     ok = skipped = failed = 0
     failures: List[str] = []
     for item_name, wiki_title, out_rel, size in _manifest():
@@ -84,7 +88,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             provenance_path=PROVENANCE,
         )
         try:
-            outcome = fetch_asset(request, client, size=size, force=args.force, dry_run=args.dry_run)
+            outcome = fetch_asset(
+                request,
+                cutoff_client if item_name in HUNTER_HABITAT_VINE_ITEMS else client,
+                size=size,
+                force=args.force,
+                dry_run=args.dry_run,
+            )
         except AssetFetchError as exc:
             failed += 1
             failures.append(f"{item_name}: {exc}")

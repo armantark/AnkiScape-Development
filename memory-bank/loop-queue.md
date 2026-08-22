@@ -184,6 +184,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Close the Ectofuntus bone family through eight acquisition routes,
      exact bonemeal identities, the corrected Zogre Prayer XP, and one registered
      Ogre coffin selector placeholder.
+   - [x] Re-land the five grimy vine-herb families through sourced Jadinko seed
+     acquisition, runnable Farming crops, corrected clean levels, unfinished
+     potions, and Darkan-sourced vine-herb base lives.
    - [x] Fix the one-way skill-button availability refresh in a separate slice.
      `ui/ui.py:1467-1470` enables a button when the pure result is true, but it
      does not disable the button when the result becomes false. The same pattern

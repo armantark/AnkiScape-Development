@@ -557,12 +557,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1586)
-        self.assertEqual(report["reachable_item_count"], 2307)
-        self.assertEqual(report["orphan_input_count"], 75)
-        self.assertEqual(report["root_orphan_count"], 45)
-        self.assertEqual(report["cascade_orphan_count"], 30)
-        self.assertEqual(report["unresolved_action_count"], 75)
+        self.assertEqual(report["action_count"], 1598)
+        self.assertEqual(report["reachable_item_count"], 2369)
+        self.assertEqual(report["orphan_input_count"], 38)
+        self.assertEqual(report["root_orphan_count"], 34)
+        self.assertEqual(report["cascade_orphan_count"], 4)
+        self.assertEqual(report["unresolved_action_count"], 37)
         self.assertEqual(report["seed_item_count"], 1123)
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
@@ -860,6 +860,60 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Unholy mould",
         ):
             self.assertNotIn(item_name, orphan_items)
+
+    def test_habitat_vine_herb_chain_is_reachable(self):
+        report = build_reachability_report()
+        orphan_items = {row["item"] for row in report["orphan_inputs"]}
+        cases = (
+            ("erzille", "Erzille"),
+            ("ugune", "Ugune"),
+            ("argway", "Argway"),
+            ("shengo", "Shengo"),
+            ("samaden", "Samaden"),
+        )
+
+        for crop_id, herb_name in cases:
+            with self.subTest(herb=herb_name):
+                seed_route = (
+                    "Hunter:catch_common_jadinko"
+                    if herb_name == "Erzille"
+                    else "Hunter:track_shadow_jadinko"
+                )
+                expected_routes = {
+                    f"{herb_name} seed": seed_route,
+                    f"Grimy {herb_name.lower()}": f"Farming:{crop_id}",
+                    f"Clean {herb_name.lower()}": f"Herblore:clean_{crop_id}",
+                    f"{herb_name} potion (unf)": f"Herblore:unf_{crop_id}",
+                }
+                for item_name, route in expected_routes.items():
+                    self.assertEqual(report["routes"].get(item_name), route)
+                    self.assertNotIn(item_name, orphan_items)
+
+        expected_jadinko_routes = {
+            "Shadow vine": "Hunter:track_shadow_jadinko",
+            "Corrupt vine": "Hunter:track_diseased_jadinko",
+            "Withered vine": "Hunter:catch_common_jadinko",
+            "Marble vine": "Hunter:catch_igneous_jadinko",
+            "Plant teeth": "Hunter:catch_cannibal_jadinko",
+            "Aquatic vine": "Hunter:catch_aquatic_jadinko",
+            "Oily vine": "Hunter:catch_amphibious_jadinko",
+            "Pungent vine": "Hunter:catch_carrion_jadinko",
+            "Draconic vine": "Hunter:catch_draconic_jadinko",
+            "Guthix vine": "Hunter:catch_guthix_jadinko",
+            "Saradomin vine": "Hunter:catch_saradomin_jadinko",
+            "Zamorak vine": "Hunter:catch_zamorak_jadinko",
+        }
+        for item_name, route in expected_jadinko_routes.items():
+            self.assertEqual(report["routes"].get(item_name), route)
+            self.assertNotIn(item_name, orphan_items)
+
+        unresolved_actions = {row["id"] for row in report["unresolved_actions"]}
+        self.assertTrue(
+            {
+                *(f"Farming:{crop_id}" for crop_id, _herb_name in cases),
+                *expected_jadinko_routes.values(),
+            }.isdisjoint(unresolved_actions)
+        )
 
     def test_root_orphan_leverage_is_transitive_and_deterministically_ranked(self):
         report = build_reachability_report()

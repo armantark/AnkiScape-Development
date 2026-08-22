@@ -95,6 +95,35 @@ with three skips in aggregate.
 No period value was recovered or changed. Durable audit:
 `memory-bank/papercuts-fixed-2026-08-11.md`.
 
+**2026-08-19, the grimy vine-herb family is re-landed on current main.**
+Common jadinkos use the existing pure Hunter secondary-output schema to supply
+Erzille, Ugune, Argway, Shengo, and Samaden seeds from Hunter 70 at the sourced
+`16/256` chance; Carrion, Draconic, Saradomin, and Zamorak retain their exact
+supplemental seed tables. The real kernel was driven separately from the suite
+for all five chains: catch the seed, plant and grow the crop, harvest three grimy herbs,
+clean one at its corrected Herblore level, and mix the unfinished potion. All
+five clean and unfinished gates were usable. The merge's main parent
+`f713e5e48ac9e83bc9cd68aab5ebe93cdb134b29` measures `1586 / 2307 / 75 / 45 /
+30 / 75 / 1123`; the herb parent `9a351ea0b38e88b8d635972141815dc13394cbc1`
+measures `1584 / 2334 / 50 / 35 / 15 / 53 / 1104`; and the merged tree measures
+`1598 / 2369 / 38 / 34 / 4 / 37 / 1123` for actions / reachable items / orphan
+inputs / root orphans / cascade orphans / blocked actions / seed items. Action
+count and reachable-item count exceed both parents. Orphan inputs, root orphans,
+cascade orphans, and blocked actions are lower than both parents, not higher.
+Seed count equals main's `1123` and exceeds only the herb parent's `1104`; the
+merge retains main's larger seed universe rather than summing branch deltas.
+Item `19971` uses its period name, Withered vine, and the exact 28×25 cutoff
+inventory sprite. Vine-herb disease uses the registered
+`farming.shared_disease_slots` placeholder because Darkan's generic selector does
+not settle a Habitat-specific period rate. The review-resolution plain lane ran
+4,193 tests in 217.813 seconds and passed with 502 skips. The offscreen Qt lane
+was intentionally deferred under the promotion-gate exception; the orchestrator
+will run both lanes on the merged tree. Darkan
+`FarmPatch.setInitialLives()` resolves the former base-lives placeholder as
+`3 + compostLevel`; no UI or panel rule was added, and runtime only supplies
+random draws to the existing pure reducer. Durable source record:
+`memory-bank/source-audits/grimy-herb-family-2026-08-11.md`.
+
 **2026-08-14, Opus 5 clean-sheet system map accepted.** After the owner rejected the original visual direction, Opus 5 replaced `status-updates/ankiscape-system-map-results-2026-08-14.html` wholesale while preserving only verified architecture facts and citations from local `main` snapshot `59fa88d0`. The accepted map uses nine distinct steel isometric structures in three zones, eight real roads across five path semantics, perimeter callouts, selection-only payload tokens, a separate legend strip, and an integrated primer/explainer. PinchTab proved nine keyboard structures plus eight keyboard roads, zero default payload tokens, exactly one selected-road token and lane, Escape reset, and node/road focus disclosure; the artifact checker, HTML parser, and `git diff --check` pass. No product code changed. The plan remains hosted at `https://acgrgnw1a8ig.postplan.dev`; results hosting remains blocked because Postplan reports `Inline JavaScript requires an authenticated upload.`.
 
 **2026-08-13, oversized cadence credit recovery.** Persisted cadence credit is the exact integer residual below a route profile's denominator. Immediately after the existing persisted-field sanitization, the live advance path clamps credit to `threshold_denominator - 1`, preserving the greatest legitimate progress instead of raising on a valid integer above the profile range. Load-path coverage uses the real storage migration and live Maple route, proving both an oversized save and the exact boundary load successfully and retain residual credit 9 while the opening opportunity is consumed.
@@ -120,7 +149,7 @@ registered hidden-period-value placeholders. Durable audit:
 
 **2026-08-12, Polar kebbit quota target restored.** Big Chinchompa's Polar kebbit quota ticket now resolves to live Hunter tracking: the ordinary catch is Hunter level 1, while purchasing the quota ticket remains Hunter level 70. The route preserves a Noose wand, gives 30 XP plus Bones, Raw beast meat, and Polar kebbit fur, and uses registered hidden-curve placeholder `hunter.polar_kebbit_success_curve`. No route wall was added because the period location section lists ordinary access routes and no quest gate. Reachability improves from 1,560 actions / 2,497 reachable items / 99 orphan inputs / 102 blocked actions to 1,561 / 2,498 / 99 / 102 through `Hunter:catch_polar_kebbit`. Source and verification record: `memory-bank/source-audits/polar-kebbit-tracking-acquisition-2026-08-12.md`.
 
-**2026-08-12, four Jadinko potion secondaries acquired.** Hunter now exposes the ordinary-player routes for Shadow jadinko, Diseased jadinko, Cannibal jadinko, and Guthix jadinko. Noose wands and Marasamaw plants remain reusable; each successful route gives its fixed primary output: Shadow vine, Corrupt vine, Plant teeth, or Guthix vine. Persistent Habitat configurations are source-backed route context rather than per-catch consumables, matching the established Common-jadinko abstraction. The hidden catch curves use registered placeholder `hunter.herblore_habitat_success_curves`. Reachability improves from 1,556 actions / 2,493 reachable items / 103 orphan inputs / 102 blocked actions to 1,560 / 2,497 / 99 / 102. Full plain discovery passes 4,061 tests with 496 expected skips. The complete real offscreen Qt corpus passes 4,061 tests with three expected skips when split into independent processes; the monolithic process exceeded the ten-minute command cap. A deliberate Shadow-vine output mutation failed the runtime regression before restoration. Period assets, OpenRS2 identities, pinned oldids, and Darkan provenance are recorded in the acquisition audit.
+**2026-08-12, four Jadinko potion secondaries acquired.** Hunter now exposes the ordinary-player routes for Shadow jadinko, Diseased jadinko, Cannibal jadinko, and Guthix jadinko. Noose wands and Marasamaw plants remain reusable; each successful route gives its fixed primary output: Shadow vine, Corrupt vine, Plant teeth, or Guthix vine. Persistent Habitat configurations are source-backed route context rather than per-catch consumables, matching the established Common-jadinko abstraction. Cannibal and Guthix use Darkan's sourced `20/140` and `15/130` success endpoints; only the Shadow and Diseased tracking curves use registered placeholder `hunter.herblore_habitat_success_curves`. Reachability improves from 1,556 actions / 2,493 reachable items / 103 orphan inputs / 102 blocked actions to 1,560 / 2,497 / 99 / 102. Full plain discovery passes 4,061 tests with 496 expected skips. The complete real offscreen Qt corpus passes 4,061 tests with three expected skips when split into independent processes; the monolithic process exceeded the ten-minute command cap. A deliberate Shadow-vine output mutation failed the runtime regression before restoration. Period assets, OpenRS2 identities, pinned oldids, and Darkan provenance are recorded in the acquisition audit.
 
 **2026-08-12, quest-stage reachability numbers corrected downward.** The item audit no longer seeds stage products when runtime `required_actions` have no prior `auto_actions` emitter, keeps mutually exclusive quest variants separate, and applies the same gate to quest-combat guaranteed drops. The truthful main-catalog result is 1,556 actions, 2,493 reachable items, 103 orphan inputs, and 102 blocked actions: 80 items lose fictional reachability. The drop from 2,573 is a measurement correction, not a gameplay regression. `d2faf1d2` Troll thistle remains genuinely stage-reachable because Eadgar's Ruse stages 1–4 emit their own actions; its Nial Swiftfling Herb pouch route is inert because normal maximum combat level 126 cannot meet the encounter's default level-156 minimum. No route was repaired. Full plain discovery passes 4,059 tests with 496 expected skips; real offscreen Qt passes 4,059 with three. Durable audit: `memory-bank/audits/quest-stage-reachability-truth-2026-08-12.md`.
 

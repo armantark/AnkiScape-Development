@@ -137,6 +137,10 @@ WILLOW_BRANCH_PIN = "Willow branch oldid 6092914 (2012-08-14T16:12:52Z)"
 FARMING_PIN = "Farming oldid 6565110"
 HABITAT_PIN = "Herblore Habitat oldid 6513740"
 
+# Darkan FarmPatch.setInitialLives() gives VINE_HERB 3 + compostLevel lives.
+VINE_HERB_BASE_LIVES = 3
+VINE_HERB_MIN_SAVE_SLOTS = 67
+VINE_HERB_MAX_SAVE_SLOTS = 80
 # PLACEHOLDER(farming.shared_disease_slots): a period White lily or Habitat
 # growth routine, or a qualified cutoff sample, would settle each disease roll.
 SHARED_DISEASE_SLOTS = 6
@@ -358,7 +362,29 @@ _SPECIAL = (
 
 
 def _habitat(crop_id: str, name: str, patch_type: str, level: int, plant: Optional[float], harvest: Optional[float], check: Optional[float], protection: Optional[ProtectionPayment], blocked: Tuple[str, ...]) -> CropDefinition:
-    return _crop(crop_id, name, patch_type, f"{name} seed", name if patch_type != "vine_herb" else f"Grimy {name.lower()}", level, 1, plant, harvest, None, None, check=check, fixed_yield=None, protection=protection, blocked=blocked, sources=(HABITAT_PIN, SEEDS_PIN))
+    vine_herb = patch_type == "vine_herb"
+    return _crop(
+        crop_id,
+        name,
+        patch_type,
+        f"{name} seed",
+        name if not vine_herb else f"Grimy {name.lower()}",
+        level,
+        1,
+        plant,
+        harvest,
+        4 if vine_herb else None,
+        20 if vine_herb else None,
+        check=check,
+        disease_slots=SHARED_DISEASE_SLOTS if vine_herb else None,
+        base_lives=VINE_HERB_BASE_LIVES if vine_herb else 0,
+        min_slots=VINE_HERB_MIN_SAVE_SLOTS if vine_herb else 0,
+        max_slots=VINE_HERB_MAX_SAVE_SLOTS if vine_herb else 0,
+        fixed_yield=None,
+        protection=protection,
+        blocked=blocked,
+        sources=(HABITAT_PIN, SEEDS_PIN, "Darkan 7e7d67b ProduceType.java:27-121, PatchType.java, and FarmPatch.java:377-393") if vine_herb else (HABITAT_PIN, SEEDS_PIN),
+    )
 
 
 _HABITAT = (
@@ -392,11 +418,11 @@ _HABITAT = (
         )
         for color in ("red", "blue", "green")
     ),
-    _habitat("erzille", "Erzille", "vine_herb", 58, 87.0, 87.0, None, _payment(HABITAT_PIN, **{"Green blossom": 3}), ("stages", "stage_minutes", "yield")),
-    _habitat("argway", "Argway", "vine_herb", 65, 110.0, 125.0, None, _payment(HABITAT_PIN, **{"Red blossom": 4}), ("stages", "stage_minutes", "yield")),
-    _habitat("ugune", "Ugune", "vine_herb", 70, 135.0, 152.0, None, _payment(HABITAT_PIN, **{"Blue blossom": 3}), ("stages", "yield")),
-    _habitat("shengo", "Shengo", "vine_herb", 76, 140.5, 160.0, None, _payment(HABITAT_PIN, Lergberry=5), ("stages", "stage_minutes", "yield")),
-    _habitat("samaden", "Samaden", "vine_herb", 80, 170.0, 190.0, None, _payment(HABITAT_PIN, Kalferberry=5), ("stages", "stage_minutes", "yield")),
+    _habitat("erzille", "Erzille", "vine_herb", 58, 87.0, 87.0, None, _payment(HABITAT_PIN, **{"Green blossom": 3}), ()),
+    _habitat("argway", "Argway", "vine_herb", 65, 110.0, 125.0, None, _payment(HABITAT_PIN, **{"Red blossom": 4}), ()),
+    _habitat("ugune", "Ugune", "vine_herb", 70, 135.0, 152.0, None, _payment(HABITAT_PIN, **{"Blue blossom": 3}), ()),
+    _habitat("shengo", "Shengo", "vine_herb", 76, 140.5, 160.0, None, _payment(HABITAT_PIN, Lergberry=5), ()),
+    _habitat("samaden", "Samaden", "vine_herb", 80, 170.0, 190.0, None, _payment(HABITAT_PIN, Kalferberry=5), ()),
     _crop(
         "lergberry",
         "Lergberry",
