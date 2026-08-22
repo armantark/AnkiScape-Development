@@ -106,3 +106,25 @@ What the owner may want to settle beyond the immediate question: how audit
 deliverables from a dispatched seat should land in future, given that "commit
 only this file" plus a session sitting on `main` is a gate bypass by
 construction, whatever the intent.
+
+## The owner's ruling — 2026-08-21, ruled directly by the owner
+
+Allowed. The seat was Fable, dispatched by the owner to run an independent audit
+on this orchestration seat and on the Ox Alpha work. Its commit `87bf57a2`
+stands, and this seat stops treating it as a collision.
+
+Consequences recorded so a later session does not re-open this:
+
+- A dispatched audit seat may commit its own findings file to `main`. That is
+  not an another-writer collision and must not stop promotion.
+- The stop-and-record rule still applies to any writer this seat cannot account
+  for.
+- The mechanical caution stands on its own merits and is not overruled: any
+  commit to `main` invalidates every promotion gate then in flight, whoever
+  makes it. This seat invalidated two of its own that way earlier today. The
+  remedy is sequencing, not permission — gate one slice at a time, and re-absorb
+  `main` before landing.
+
+The audit's own findings were verified here before use and both held: the circus
+refusal test could not detect a real defect, and the wave-three gate had gone
+green unclaimed. See the entries above.
