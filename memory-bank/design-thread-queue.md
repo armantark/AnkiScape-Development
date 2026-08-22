@@ -630,6 +630,134 @@ prove stage 1 through the real kernel from an ordinary started quest, without
 pre-seeding `quest_stage_actions`. Do not repair this by weakening the quest-stage
 reachability audit or by making the Wicked hood unconditional.
 
+### 3.31 Forty-five quests require specific actions that no runtime path emits
+
+Raised 2026-08-22 after the Rune Mysteries repair exposed the same
+player-visible defect across the quest catalog. This is an implementation
+queue for quest slices, not a reason to relax the reachability gate.
+
+- **Measured class:** at `d1b242ac`,
+  `build_reachability_report()["blocked_quest_stage_products"]` returned
+  `184` rows. Flattening each row's `missing_required_actions` and applying
+  `re.fullmatch(r"^Complete .+ stage \d+ objective$", action)` split the values into `148`
+  generated stubs and `49` specific actions across `45` quests. The counts
+  classify missing-action values, not rows: a row can carry more than one
+  missing action.
+- **Fix pattern:** preserve each stage's sourced action text and source
+  constants, then connect the action through the established production
+  mechanism. For dialogue, hand-in, and puzzle steps abstracted by ordinary
+  quest review progression, the worked repairs move the exact string from
+  `required_actions` to `auto_actions`. See Rune Mysteries commit `8aafd995`
+  and Ernest the Chicken commit `3e4576fb`. The regression must
+  start the quest normally, drive `apply_quest_progress_pure`, and never
+  pre-seed `quest_stage_actions`.
+- **Audit rail:** do **not** repair any quest below by weakening, filtering,
+  suppressing, or changing the semantics of the quest-stage reachability
+  audit. Repair the missing production path. Re-run the same regex split
+  after each slice so the specific set shrinks for a real reason.
+
+**Audit-generated scheduling snapshot (`d1b242ac`):**
+
+- **A Soul's Bane** (`a_souls_bane`)
+  - Stage `2`: `Fill the rage meter with an anger weapon`
+- **Biohazard** (`biohazard`)
+  - Stage `1`: `Ask Jerico about crossing the West Ardougne wall`
+- **Black Knights' Fortress** (`black_knights_fortress`)
+  - Stage `1`: `Infiltrate the Black Knights' Fortress`
+- **Carnillean Rising** (`carnillean_rising`)
+  - Stage `1`: `Speak to Ceril Carnillean`
+  - Stage `1`: `Speak to Xenia`
+- **Clock Tower** (`clock_tower`)
+  - Stage `1`: `Pick up rat poison in the Clock Tower dungeon`
+- **Deadliest Catch** (`deadliest_catch`)
+  - Stage `1`: `Pickpocket the Master fisher for the sea chart`
+- **Dealing with Scabaras** (`dealing_with_scabaras`)
+  - Stage `1`: `Prepare bronze equipment for the High Priest's tests`
+- **Demon Slayer** (`demon_slayer`)
+  - Stage `8`: `Recite Aber, Gabindo, Purchai, Camerinthum, Carlem`
+- **Dragon Slayer** (`dragon_slayer`)
+  - Stage `2`: `Accept Oziach's dragon-slaying challenge`
+- **Dwarf Cannon** (`dwarf_cannon`)
+  - Stage `1`: `Accept replacement railings from Captain Lawgof`
+- **Elemental Workshop II** (`elemental_workshop_ii`)
+  - Stage `1`: `Find and slash the Beaten Book open in the workshop`
+- **Elemental Workshop III** (`elemental_workshop_iii`)
+  - Stage `1`: `Find and read the Ragged book in the workshop`
+- **Ernest the Chicken** (`ernest_the_chicken`)
+  - Stage `1`: `Ask Professor Oddenstein about Ernest`
+- **Family Crest** (`family_crest`)
+  - Stage `2`: `Ask Caleb about the fish salad`
+- **Fight Arena** (`fight_arena`)
+  - Stage `3`: `Talk to Jeremy about the key holder`
+- **Fishing Contest** (`fishing_contest`)
+  - Stage `1`: `Receive a fishing pass from Austri or Vestri`
+- **Gertrude's Cat** (`gertrudes_cat`)
+  - Stage `1`: `Speak to Shilop and Wilough in Varrock Marketplace`
+- **Heroes' Quest** (`heroes_quest`)
+  - Stage `1`: `Accept Achietties' three proof item challenge`
+- **Holy Grail** (`holy_grail`)
+  - Stage `1`: `Ask Merlin about the Holy Grail`
+- **Kennith's Concerns** (`kenniths_concerns`)
+  - Stage `1`: `Talk to a villager past the rocks`
+- **King's Ransom** (`kings_ransom`)
+  - Stage `1`: `Recover the animate rock scroll during the Sinclair Mansion investigation`
+- **Lost City** (`lost_city`)
+  - Stage `1`: `Find Shamus in the Lumbridge Swamp tree`
+- **Merlin's Crystal** (`merlins_crystal`)
+  - Stage `1`: `Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot`
+- **Monk's Friend** (`monks_friend`)
+  - Stage `1`: `Recover the child's blanket from the thieves' hideout`
+- **Monkey Madness** (`monkey_madness`)
+  - Stage `1`: `Acquire the monkey dentures, m'amulet mould, and monkey talisman during the Ape Atoll infiltration`
+- **Pirate's Treasure** (`pirates_treasure`)
+  - Stage `1`: `Smuggle Karamja rum off Karamja`
+- **Plague City** (`plague_city`)
+  - Stage `2`: `Talk to Edmond with the gas mask`
+- **Priest in Peril** (`priest_in_peril`)
+  - Stage `1`: `Speak through the Paterdomus temple door`
+- **Rat Catchers** (`rat_catchers`)
+  - Stage `1`: `Have Hooknosed Jack make rat poison`
+- **Scorpion Catcher** (`scorpion_catcher`)
+  - Stage `1`: `Accept Thormac's scorpion cage`
+- **Sheep Herder** (`sheep_herder`)
+  - Stage `1`: `Accept poisoned sheep feed from Councillor Halgrive`
+- **Shield of Arrav** (`shield_of_arrav`)
+  - Stage `1`: `Find and read the Shield of Arrav book`
+- **Some Like It Cold** (`some_like_it_cold`)
+  - Stage `1`: `Entertain the seal`
+  - Stage `1`: `Speak to Chuck again for teleport`
+  - Stage `1`: `Travel to the Iceberg`
+- **Song from the Depths** (`song_from_the_depths`)
+  - Stage `1`: `Drink the restless sleep potion`
+  - Stage `1`: `Follow the souls to the cave entrance`
+- **Tai Bwo Wannai Trio** (`tai_bwo_wannai_trio`)
+  - Stage `2`: `Catch karambwanji for Tiadeche`
+- **The Restless Ghost** (`the_restless_ghost`)
+  - Stage `1`: `Receive the ghostspeak amulet from Father Urhney`
+- **The Tale of the Muspah** (`the_tale_of_the_muspah`)
+  - Stage `1`: `Cast Enchant Level 1 Jewellery for the sapphire preparations`
+- **Tree Gnome Village** (`tree_gnome_village`)
+  - Stage `1`: `Ask Commander Montai how to help the gnome battlefield`
+- **Tribal Totem** (`tribal_totem`)
+  - Stage `1`: `Ask Wizard Cromperty about the teleportation block`
+- **Vampyre Slayer** (`vampyre_slayer`)
+  - Stage `4`: `Tell Morgan that Count Draynor is dead`
+- **Waterfall Quest** (`waterfall_quest`)
+  - Stage `1`: `Speak to Hudon by the waterfall`
+- **While Guthix Sleeps** (`while_guthix_sleeps`)
+  - Stage `1`: `Cast NPC Contact to reach the quest contacts`
+- **Witch's House** (`witchs_house`)
+  - Stage `2`: `Enter the Witch's house with the door key`
+- **Within the Light** (`within_the_light`)
+  - Stage `1`: `Recover the Temple of Light keys and crystal puzzle pieces`
+- **Wolf Whistle** (`wolf_whistle`)
+  - Stage `1`: `Find Scalectrix at the Taverley well`
+
+Ernest the Chicken is the first item removed from this snapshot by the worked
+repair above. Schedule the remaining 44 quests from this list; before each
+slice, re-measure because earlier slices can expose later blocked stages in
+the same quest.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
