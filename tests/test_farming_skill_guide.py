@@ -271,7 +271,7 @@ class TestFarmingSkillGuide(unittest.TestCase):
 
     def test_recovered_rows_unlock_while_unresolved_crops_stay_visible(self):
         sections = _sections(_player())
-        for struct_id in (3477, 3487, 3504, 3510):
+        for struct_id in (3477, 3487, 3490, 3492, 3494, 3496, 3498, 3504, 3510):
             row = _row(sections, struct_id)
             self.assertEqual(row.resolution_status, "crop")
             self.assertNotIn("Not implemented in AnkiScape", row.lock_reasons)
@@ -292,7 +292,7 @@ class TestFarmingSkillGuide(unittest.TestCase):
             for row in section.rows
             if "Not implemented in AnkiScape" in row.lock_reasons
         ]
-        self.assertEqual(len(implementation_locked), 13)
+        self.assertEqual(len(implementation_locked), 8)
         self.assertEqual(_row(sections, 3439).lock_reasons, ())
 
     def test_second_spirit_tree_resolves_against_the_secondary_patch(self):

@@ -28021,6 +28021,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-12-05T11:03:11Z"
   },
+  "hunteritems/aquatic_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Aquatic_vine.png",
+    "file_title": "Aquatic vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502005351%21Aquatic_vine.png?fbd79",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f67f817d1d5cdc72d37f67a9802767811bf202a8",
+    "size": 383,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:11:04Z"
+  },
   "hunteritems/argway_seed.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Argway_seed_5.png",
     "file_title": "Argway seed 5.png",
@@ -28212,6 +28224,18 @@
     "size": 657,
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T20:50:17Z"
+  },
+  "hunteritems/draconic_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Draconic_vine.png",
+    "file_title": "Draconic vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502030452%21Draconic_vine.png?77380",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4f872de67597fc01a0307a10c095ff69c16b0f72",
+    "size": 392,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:15:36Z"
   },
   "hunteritems/dragon_impling_jar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragon_impling_jar.png",
@@ -28441,6 +28465,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T05:25:30Z"
   },
+  "hunteritems/marble_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Marble_vine.png",
+    "file_title": "Marble vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082733%21Marble_vine.png?d0d37",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9c9c8939c329a5f210c99b1e64ab77f93b420d91",
+    "size": 385,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:08:25Z"
+  },
   "hunteritems/moth_jar.png": {
     "file_page_url": "https://runescape.wiki/w/File:Moth_jar.png",
     "file_title": "Moth jar.png",
@@ -28488,6 +28524,18 @@
     "size": 392,
     "source_wiki": "rs3",
     "timestamp": "2011-08-06T03:32:06Z"
+  },
+  "hunteritems/oily_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Oily_vine.png",
+    "file_title": "Oily vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502061323%21Oily_vine.png?52232",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "03735f1265a52f56e399f4f482b1701347920262",
+    "size": 353,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:14:31Z"
   },
   "hunteritems/orange_feather.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Orange_feather.png",
@@ -28572,6 +28620,18 @@
     "size": 805,
     "source_wiki": "rs3-period",
     "timestamp": "2012-08-28T15:34:55Z"
+  },
+  "hunteritems/pungent_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pungent_vine.png",
+    "file_title": "Pungent vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502064643%21Pungent_vine.png?1ff19",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "10e657b09fec2a717a2b1511e755bcfdd4a538db",
+    "size": 356,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:30:31Z"
   },
   "hunteritems/rabbit_snare.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rabbit_snare.png",
@@ -28692,6 +28752,18 @@
     "size": 11720,
     "source_wiki": "rs3",
     "timestamp": "2011-01-28T16:12:01Z"
+  },
+  "hunteritems/saradomin_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Saradomin_vine.png",
+    "file_title": "Saradomin vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502072342%21Saradomin_vine.png?cf7aa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "98176017f011944f6929f7cb65b15ba8cd91b269",
+    "size": 411,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:15:26Z"
   },
   "hunteritems/shadow_vine.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Shadow_vine.png",
@@ -28828,14 +28900,14 @@
   "hunteritems/withered_vine.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Withered_vine.png",
     "file_title": "Withered vine.png",
-    "image_url": "https://runescape.wiki/images/Withered_vine.png?a1335",
+    "image_url": "https://runescape.wiki/images/archive/20140511082658%21Withered_vine.png?2e5e9",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f945f32a2b70ea3ddcea4687e9a335a4ac1ce199",
-    "size": 463,
+    "sha1": "bf1eeb11c854f0f465ce384a966a468064eec81e",
+    "size": 366,
     "source_wiki": "rs3",
-    "timestamp": "2016-05-02T09:21:04Z"
+    "timestamp": "2010-11-25T04:29:18Z"
   },
   "hunteritems/yellow_feather.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Yellow_feather.png",
@@ -28860,6 +28932,18 @@
     "size": 929,
     "source_wiki": "rs3",
     "timestamp": "2010-04-02T04:27:24Z"
+  },
+  "hunteritems/zamorak_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Zamorak_vine.png",
+    "file_title": "Zamorak vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502093102%21Zamorak_vine.png?c63cd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a7d05b4bd198d03b88f3d3dbdb67f55d490b5f10",
+    "size": 376,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:15:22Z"
   },
   "hunteritems/zombie_impling_jar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Zombie_impling_jar.png",

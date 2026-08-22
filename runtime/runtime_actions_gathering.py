@@ -414,10 +414,6 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
 )
 
-from .runtime_actions_production import (
-    _spec_output_items,
-)
-
 from .runtime_actions_shared import (
     _award_action_xp_rewards,
     _charge_urn_for_action,
@@ -609,6 +605,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         if ctx.cadence_forced_opportunity
         else calculate_hunter_success_probability_pure(success_level, spec)
     )
+    secondary_outputs = spec.get("secondary_outputs", ())
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
@@ -616,8 +613,10 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
-        ctx.random_random() if spec.get("secondary_outputs") else None,
-        ctx.random_random() if spec.get("secondary_outputs") else None,
+        r_secondary_chance=(
+            ctx.random_random() if secondary_outputs else None
+        ),
+        r_secondary_pick=(ctx.random_random() if secondary_outputs else None),
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")

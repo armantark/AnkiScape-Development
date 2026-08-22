@@ -1954,6 +1954,27 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(crimson_swift.locked_reasons, ("Bird snare",))
         self.assertIn("Bird snare x1 (you have 0)", crimson_swift.tooltip)
 
+    def test_carrion_jadinko_row_exposes_tool_and_seed_roll(self):
+        rows = hunter_target_rows(
+            {
+                "hunter_level": 78,
+                "inventory": {"Marasamaw plant": 1},
+                "current_hunter": "catch_carrion_jadinko",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        carrion = _row(rows, "catch_carrion_jadinko")
+        self.assertTrue(carrion.enabled)
+        self.assertTrue(carrion.current)
+        self.assertEqual(carrion.group, "marasamaw_trapping")
+        self.assertIn("Outputs: Pungent vine x1", carrion.tooltip)
+        self.assertIn("Marasamaw plant x1 (you have 1)", carrion.tooltip)
+        self.assertIn("uniformly weighted vine-herb seed at 30/256", carrion.tooltip)
+
     def test_hunter_rows_disclose_cannibal_jadinko_rare_seed_table(self):
         rows = hunter_target_rows(
             {
@@ -1968,11 +1989,17 @@ class TargetMetadataTest(unittest.TestCase):
         )
 
         cannibal = _row(rows, "catch_cannibal_jadinko")
+        self.assertEqual(cannibal.group, "marasamaw_trapping")
+        self.assertEqual(
+            _row(rows, "catch_guthix_jadinko").group,
+            "marasamaw_trapping",
+        )
         self.assertIn(
             "Rare outputs: Lergberry seed ×1, Kalferberry seed ×1",
             cannibal.tooltip,
         )
         self.assertIn("4.688% table chance", cannibal.tooltip)
+        self.assertIn("Eagles' Peak", _row(rows, "catch_ferret").tooltip)
 
     def test_hunter_rows_apply_quest_unlock_rules(self):
         player_data = {

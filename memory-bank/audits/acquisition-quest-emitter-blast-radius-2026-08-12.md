@@ -446,9 +446,11 @@ registered on the live Hunter outputs.
 The implementation follows the accepted Common-jadinko abstraction: persistent
 Habitat configurations are source-backed route context, not per-catch consumed
 requirements. Tracking uses the reusable Noose wand; box trapping uses the
-reusable Marasamaw plant. Hidden catch probabilities use registered placeholder
+reusable Marasamaw plant. Darkan `BoxHunterType.java:91,93` supplies Cannibal's
+`20/140` and Guthix's `15/130` success endpoints. The Shadow and Diseased
+tracking probabilities use registered placeholder
 `hunter.herblore_habitat_success_curves` (`rate1=128`, `rate99=256`) because the
-period pages expose no qualified success curve. Bonus seed rolls remain omitted;
+period pages expose no qualified tracking curve. Bonus seed rolls remain omitted;
 they are not required to make these four fixed primary outputs live.
 
 Darkan's fixed-primary-drop files corroborate quantity one and each have a real
