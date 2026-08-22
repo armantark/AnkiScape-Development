@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+import tarfile
 import tempfile
 import threading
 import unittest
@@ -14,10 +15,11 @@ from unittest.mock import patch
 from tools.promotion_gate import (
     FULL_GATE_CHECKS,
     PLAIN_GATE_CHECKS,
-    REACHABILITY_BASELINE_SUMMARY,
     GateError,
     LockRecord,
-    _reachability_result_is_pinned,
+    _read_reachability_pins,
+    _run_gate_checks,
+    _run_reachability_check,
     _run_check,
     _worktree_is_clean,
     active_gate_dir_for,
@@ -28,6 +30,40 @@ from tools.promotion_gate import (
     register_gate,
     run_gate,
 )
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+CAMO_JADINKO_COMMIT = "c4daba25aa0027436bf7a508202efb83ecaf44f0"
+CAMO_JADINKO_SUMMARY = (
+    "1599 actions; 2370 reachable items; 38 orphan inputs; 37 blocked actions"
+)
+
+
+def extract_git_tree(commit: str, destination: Path) -> Path:
+    archived = subprocess.run(
+        ("git", "archive", "--format=tar", commit),
+        cwd=PROJECT_ROOT,
+        check=True,
+        capture_output=True,
+    )
+    with tarfile.open(fileobj=io.BytesIO(archived.stdout), mode="r:") as archive:
+        archive.extractall(destination, filter="data")
+    return destination.resolve()
+
+
+def run_reachability_check(worktree: Path) -> tuple[int, str]:
+    log = io.StringIO()
+    returncode = _run_reachability_check(log, worktree)
+    return returncode, log.getvalue()
+
+
+def pinned_summary(worktree: Path) -> str:
+    pins = _read_reachability_pins(worktree)
+    return (
+        f"{pins['action_count']} actions; {pins['reachable_item_count']} reachable items; "
+        f"{pins['orphan_input_count']} orphan inputs; "
+        f"{pins['unresolved_action_count']} blocked actions"
+    )
 
 
 class PromotionRepo:
@@ -343,6 +379,32 @@ class PromotionGateTest(unittest.TestCase):
             with self.assertRaisesRegex(GateError, "no passed full-gate evidence"):
                 land(repo.target)
 
+    def test_qt_gate_uses_the_project_runner_and_canonical_interpreter(self):
+        canonical = Path("/canonical/ankiscape_fork")
+        with (
+            patch("tools.promotion_gate.main_worktree", return_value=canonical),
+            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
+            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+        ):
+            passed, failures = _run_gate_checks(
+                Path("/scratch/promotion"),
+                plain_only=False,
+                log=io.StringIO(),
+            )
+
+        qt_call = next(
+            call
+            for call in run_check.call_args_list
+            if call.kwargs["heading"] == "=== QT LANE (monolithic) ==="
+        )
+        self.assertEqual(
+            qt_call.kwargs["command"],
+            (str(canonical / ".venv-qt" / "bin" / "python"), "run_tests.py"),
+        )
+        self.assertEqual(qt_call.kwargs["environment"], {"QT_QPA_PLATFORM": "offscreen"})
+        self.assertEqual(passed, FULL_GATE_CHECKS)
+        self.assertEqual(failures, ())
+
     def test_dirty_worktree_fails_clean_commit_check(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
@@ -362,78 +424,76 @@ class PromotionGateTest(unittest.TestCase):
             self.assertIn("?? untracked.txt", log.getvalue())
             self.assertTrue(log.getvalue().endswith("FAILED: exit 0\n"))
 
-    def test_reachability_accepts_only_the_exact_pinned_exit_one(self):
-        log = io.StringIO()
+    def test_reachability_tree_matching_its_own_pins_passes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = extract_git_tree("HEAD", Path(temp_dir))
 
-        returncode = _run_check(
-            log,
-            heading="=== reachability ===",
-            command=(
-                sys.executable,
-                "-c",
-                f"print({REACHABILITY_BASELINE_SUMMARY!r}); raise SystemExit(1)",
-            ),
-            worktree=Path.cwd(),
-            selector=lambda lines: [
-                line for line in lines if line == REACHABILITY_BASELINE_SUMMARY
-            ][-1:],
-            validator=_reachability_result_is_pinned,
-        )
+            returncode, log = run_reachability_check(worktree)
 
-        self.assertEqual(returncode, 0)
-        self.assertEqual(
-            log.getvalue(),
-            f"=== reachability ===\n{REACHABILITY_BASELINE_SUMMARY}\n",
-        )
+            self.assertEqual(returncode, 0)
+            self.assertEqual(log, f"=== reachability ===\n{pinned_summary(worktree)}\n")
 
-    def test_reachability_rejects_a_crash_after_the_pinned_summary(self):
-        log = io.StringIO()
+    def test_reachability_content_addition_with_updated_pins_passes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = extract_git_tree(CAMO_JADINKO_COMMIT, Path(temp_dir))
 
-        returncode = _run_check(
-            log,
-            heading="=== reachability ===",
-            command=(
-                sys.executable,
-                "-c",
-                f"print({REACHABILITY_BASELINE_SUMMARY!r}); raise RuntimeError('audit crashed')",
-            ),
-            worktree=Path.cwd(),
-            selector=lambda lines: [
-                line for line in lines if line == REACHABILITY_BASELINE_SUMMARY
-            ][-1:],
-            validator=_reachability_result_is_pinned,
-        )
+            returncode, log = run_reachability_check(worktree)
 
-        self.assertEqual(returncode, 1)
-        self.assertEqual(
-            log.getvalue(),
-            f"=== reachability ===\n{REACHABILITY_BASELINE_SUMMARY}\nFAILED: exit 1\n",
-        )
+            self.assertEqual(returncode, 0)
+            self.assertEqual(log, f"=== reachability ===\n{CAMO_JADINKO_SUMMARY}\n")
 
-    def test_reachability_rejects_different_or_missing_summary(self):
-        cases = (
-            "0 actions; 0 reachable items; 999 orphan inputs; 999 blocked actions",
-            "audit produced no summary",
-        )
-        for output in cases:
-            with self.subTest(output=output):
-                log = io.StringIO()
-                returncode = _run_check(
-                    log,
-                    heading="=== reachability ===",
-                    command=(
-                        sys.executable,
-                        "-c",
-                        f"print({output!r}); raise SystemExit(1)",
-                    ),
-                    worktree=Path.cwd(),
-                    selector=lambda lines: [
-                line for line in lines if line == REACHABILITY_BASELINE_SUMMARY
-            ][-1:],
-                    validator=_reachability_result_is_pinned,
-                )
-                self.assertEqual(returncode, 1)
-                self.assertTrue(log.getvalue().endswith("FAILED: exit 1\n"))
+    def test_reachability_content_addition_without_updated_pins_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = extract_git_tree(CAMO_JADINKO_COMMIT, Path(temp_dir))
+            pin_path = worktree / "tests" / "test_item_reachability_audit.py"
+            pins = pin_path.read_text(encoding="utf-8")
+            pins = pins.replace(
+                'self.assertEqual(report["action_count"], 1599)',
+                'self.assertEqual(report["action_count"], 1598)',
+                1,
+            ).replace(
+                'self.assertEqual(report["reachable_item_count"], 2370)',
+                'self.assertEqual(report["reachable_item_count"], 2369)',
+                1,
+            )
+            pin_path.write_text(pins, encoding="utf-8")
+
+            returncode, log = run_reachability_check(worktree)
+
+            self.assertEqual(returncode, 1)
+            self.assertEqual(
+                log,
+                f"=== reachability ===\n{CAMO_JADINKO_SUMMARY}\nFAILED: exit 1\n",
+            )
+
+    def test_reachability_audit_crashing_after_summary_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = extract_git_tree("HEAD", Path(temp_dir))
+            summary = pinned_summary(worktree)
+            (worktree / "tools" / "audit_item_reachability.py").write_text(
+                f"print({summary!r})\nraise RuntimeError('audit crashed')\n",
+                encoding="utf-8",
+            )
+
+            returncode, log = run_reachability_check(worktree)
+
+            self.assertEqual(returncode, 1)
+            self.assertIn(summary, log)
+            self.assertIn("RuntimeError: audit crashed", log)
+            self.assertTrue(log.endswith("FAILED: exit 1\n"))
+
+    def test_reachability_audit_without_summary_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = extract_git_tree("HEAD", Path(temp_dir))
+            (worktree / "tools" / "audit_item_reachability.py").write_text(
+                "raise SystemExit(1)\n",
+                encoding="utf-8",
+            )
+
+            returncode, log = run_reachability_check(worktree)
+
+            self.assertEqual(returncode, 1)
+            self.assertEqual(log, "=== reachability ===\nFAILED: exit 1\n")
 
 
 if __name__ == "__main__":

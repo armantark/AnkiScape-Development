@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import fcntl
 import json
 import os
@@ -22,9 +23,16 @@ LAND_LOCK_NAME = "ankiscape-promotion-land.lock"
 ACTIVE_GATE_DIR_NAME = "ankiscape-promotion-gates"
 EVIDENCE_DIR_NAME = "ankiscape-promotion-evidence"
 PROGRESS_LINE = re.compile(r"^[.sEF]+$")
-REACHABILITY_BASELINE_SUMMARY = (
-    "1598 actions; 2369 reachable items; 38 orphan inputs; 37 blocked actions"
+REACHABILITY_PIN_FIELDS = (
+    "action_count",
+    "reachable_item_count",
+    "orphan_input_count",
+    "root_orphan_count",
+    "cascade_orphan_count",
+    "unresolved_action_count",
+    "seed_item_count",
 )
+REACHABILITY_PIN_METHOD = "test_report_matches_player_finishable_quest_baseline"
 PLAIN_GATE_CHECKS = (
     "plain lane",
     "audit_docs",
@@ -377,8 +385,119 @@ def _worktree_is_clean(returncode: int, lines: list[str]) -> bool:
     return returncode == 0 and not lines
 
 
-def _reachability_result_is_pinned(returncode: int, lines: list[str]) -> bool:
-    return returncode == 1 and lines == [REACHABILITY_BASELINE_SUMMARY]
+def _read_reachability_pins(worktree: Path) -> dict[str, int]:
+    path = worktree / "tests" / "test_item_reachability_audit.py"
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError) as exc:
+        raise GateError(f"Cannot read reachability pins from {path}: {exc}") from exc
+
+    methods = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == REACHABILITY_PIN_METHOD
+    ]
+    if len(methods) != 1:
+        raise GateError(
+            f"Expected one {REACHABILITY_PIN_METHOD} method in {path}; found {len(methods)}"
+        )
+
+    pins: dict[str, int] = {}
+    for node in ast.walk(methods[0]):
+        if (
+            not isinstance(node, ast.Call)
+            or not isinstance(node.func, ast.Attribute)
+            or node.func.attr != "assertEqual"
+            or len(node.args) < 2
+        ):
+            continue
+        actual, expected = node.args[:2]
+        if (
+            not isinstance(actual, ast.Subscript)
+            or not isinstance(actual.value, ast.Name)
+            or actual.value.id != "report"
+            or not isinstance(actual.slice, ast.Constant)
+            or actual.slice.value not in REACHABILITY_PIN_FIELDS
+            or not isinstance(expected, ast.Constant)
+            or type(expected.value) is not int
+        ):
+            continue
+        field = str(actual.slice.value)
+        if field in pins:
+            raise GateError(f"Reachability pin {field!r} appears more than once in {path}")
+        pins[field] = expected.value
+
+    missing = [field for field in REACHABILITY_PIN_FIELDS if field not in pins]
+    if missing:
+        raise GateError(f"Reachability pins missing from {path}: {', '.join(missing)}")
+    return pins
+
+
+def _read_reachability_report(lines: list[str]) -> dict[str, object] | None:
+    try:
+        report = json.loads("\n".join(lines))
+    except (TypeError, json.JSONDecodeError):
+        return None
+    return report if isinstance(report, dict) else None
+
+
+def _reachability_log_lines(lines: list[str]) -> list[str]:
+    report = _read_reachability_report(lines)
+    if report is None:
+        return _tail_without_progress(lines, 5)
+    summary_fields = (
+        "action_count",
+        "reachable_item_count",
+        "orphan_input_count",
+        "unresolved_action_count",
+    )
+    if any(type(report.get(field)) is not int for field in summary_fields):
+        return _tail_without_progress(lines, 5)
+    return [
+        f"{report['action_count']} actions; {report['reachable_item_count']} reachable items; "
+        f"{report['orphan_input_count']} orphan inputs; "
+        f"{report['unresolved_action_count']} blocked actions"
+    ]
+
+
+def _reachability_result_matches_pins(
+    returncode: int,
+    lines: list[str],
+    pins: dict[str, int],
+) -> bool:
+    report = _read_reachability_report(lines)
+    expected_returncode = 1 if pins["orphan_input_count"] else 0
+    return (
+        returncode == expected_returncode
+        and report is not None
+        and all(
+            type(report.get(field)) is int and report[field] == pins[field]
+            for field in REACHABILITY_PIN_FIELDS
+        )
+    )
+
+
+def _run_reachability_check(log: TextIO, worktree: Path) -> int:
+    try:
+        pins = _read_reachability_pins(worktree)
+    except GateError as exc:
+        print("=== reachability ===", file=log)
+        print(f"FAILED: {exc}", file=log)
+        log.flush()
+        return 1
+    return _run_check(
+        log,
+        heading="=== reachability ===",
+        command=("python3", "tools/audit_item_reachability.py", "--json"),
+        worktree=worktree,
+        selector=_reachability_log_lines,
+        validator=lambda returncode, lines: _reachability_result_matches_pins(
+            returncode,
+            lines,
+            pins,
+        ),
+    )
 
 
 def _run_gate_checks(
@@ -413,10 +532,7 @@ def _run_gate_checks(
             "=== QT LANE (monolithic) ===",
             (
                 str(canonical / ".venv-qt" / "bin" / "python"),
-                "-m",
-                "unittest",
-                "discover",
-                "tests",
+                "run_tests.py",
             ),
             lambda lines: _tail_without_progress(lines, 30),
             {"QT_QPA_PLATFORM": "offscreen"},
@@ -438,14 +554,6 @@ def _run_gate_checks(
             lambda lines: lines[:3],
             None,
             None,
-        ),
-        (
-            "reachability",
-            "=== reachability ===",
-            ("python3", "tools/audit_item_reachability.py", "--summary"),
-            lambda lines: [line for line in lines if line == REACHABILITY_BASELINE_SUMMARY][-1:],
-            None,
-            _reachability_result_is_pinned,
         ),
         (
             "worktree_guard",
@@ -489,6 +597,12 @@ def _run_gate_checks(
             passed.append(label)
         else:
             failures.append(f"{label} (exit {returncode})")
+        if label == "audit_test_quality":
+            returncode = _run_reachability_check(log, worktree)
+            if returncode == 0:
+                passed.append("reachability")
+            else:
+                failures.append(f"reachability (exit {returncode})")
     return tuple(passed), tuple(failures)
 
 
