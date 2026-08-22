@@ -21,7 +21,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 702)
+        self.assertEqual(len(EQUIPMENT_DATA), 706)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -78,6 +78,18 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Clown hat"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Ringmaster hat"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Firemaker's tabard"].slot, "body")
+        for item_name, source_item_id, slot in (
+            ("Apmeken mask", 25122, "head"),
+            ("Ankh", 25123, "shield"),
+            ("Scabaras mask", 25124, "head"),
+            ("Was", 25125, "weapon"),
+        ):
+            with self.subTest(item_name=item_name):
+                item = EQUIPMENT_DATA[item_name]
+                self.assertEqual(item.source_item_id, source_item_id)
+                self.assertEqual(item.slot, slot)
+                self.assertEqual(sum(vars(item.bonuses).values()), 0)
+                self.assertIn("OpenRS2 rev-742", item.source)
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].source_item_id, 5014)
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (lit)"].source_item_id, 5013)
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].combat_skill, "defense")
