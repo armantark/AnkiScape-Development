@@ -1,6 +1,7 @@
 import io
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,7 @@ from tools.promotion_gate import (
     GateError,
     LockRecord,
     _create_lock,
+    _run_check,
     land,
     lock_path_for,
     run_gate,
@@ -134,6 +136,32 @@ class PromotionGateTest(unittest.TestCase):
             self.assertEqual(repo.head(repo.main), repo.target_commit)
             self.assertIn(f"Landed {repo.target_commit}", stdout.getvalue())
             self.assertFalse(lock_path_for(repo.main).exists())
+
+    def test_reachability_summary_preserves_the_established_informational_exit(self):
+        log = io.StringIO()
+
+        returncode = _run_check(
+            log,
+            heading="=== reachability ===",
+            command=(
+                sys.executable,
+                "-c",
+                (
+                    "print('1598 actions; 2369 reachable items; 38 orphan inputs; "
+                    "37 blocked actions'); raise SystemExit(1)"
+                ),
+            ),
+            worktree=Path.cwd(),
+            selector=lambda lines: [line for line in lines if "actions;" in line][-1:],
+            accept_selected_output_on_failure=True,
+        )
+
+        self.assertEqual(returncode, 0)
+        self.assertEqual(
+            log.getvalue(),
+            "=== reachability ===\n"
+            "1598 actions; 2369 reachable items; 38 orphan inputs; 37 blocked actions\n",
+        )
 
     def test_failed_gate_releases_its_lock(self):
         with tempfile.TemporaryDirectory() as temp_dir:

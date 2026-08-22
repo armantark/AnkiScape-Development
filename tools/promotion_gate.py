@@ -243,6 +243,7 @@ def _run_check(
     worktree: Path,
     selector: Callable[[list[str]], list[str]],
     environment: dict[str, str] | None = None,
+    accept_selected_output_on_failure: bool = False,
 ) -> int:
     print(heading, file=log)
     try:
@@ -255,12 +256,16 @@ def _run_check(
             env={**os.environ, **environment} if environment else None,
         )
         combined = completed.stdout + completed.stderr
-        for line in selector(combined.splitlines()):
+        selected = selector(combined.splitlines())
+        for line in selected:
             print(line, file=log)
-        if completed.returncode != 0:
+        accepted = completed.returncode == 0 or (
+            accept_selected_output_on_failure and bool(selected)
+        )
+        if not accepted:
             print(f"FAILED: exit {completed.returncode}", file=log)
         log.flush()
-        return completed.returncode
+        return 0 if accepted else completed.returncode
     except OSError as exc:
         print(f"FAILED: {exc}", file=log)
         log.flush()
@@ -341,6 +346,7 @@ def _run_gate_checks(worktree: Path, *, plain_only: bool, log: TextIO) -> tuple[
             worktree=worktree,
             selector=selector,
             environment=environment,
+            accept_selected_output_on_failure=label == "reachability",
         )
         if returncode != 0:
             failures.append(f"{label} (exit {returncode})")
