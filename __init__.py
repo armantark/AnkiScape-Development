@@ -3569,59 +3569,57 @@ def _on_main_menu(
 
     def _apply_shades_of_mortton_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_shades_of_mortton_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-            rng=random.random,
-        )
-        if not ok:
-            random.setstate(before["random_state"])
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Mort'ton action failed.")),
-                **info,
+        info: dict[str, object] = {}
+        ok = False
+
+        def _change(current):
+            nonlocal ok, info
+            updated, ok, info = apply_shades_of_mortton_command_pure(
+                current,
+                str(action_id),
+                payload,
+                rng=random.random,
+            )
+            return updated, ok
+
+        def _after_apply():
+            skill_rows = {
+                "crafting": ("crafting_exp", "Crafting"),
+                "firemaking": ("firemaking_exp", "Firemaking"),
+                "prayer": ("prayer_exp", "Prayer"),
             }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+            total_gained = 0.0
+            for skill_id, amount in dict(info.get("skill_xp") or {}).items():
+                if skill_id not in skill_rows or float(amount or 0.0) <= 0:
+                    continue
+                exp_key, display_name = skill_rows[skill_id]
+                total_gained += _award_skill_exp(exp_key, float(amount))
+                level_up_check(display_name, player_data)
+            check_achievements(player_data)
+            if total_gained > 0:
+                _show_exp(total_gained)
+            if info.get("message"):
+                _show_activity_gain(str(info["message"]))
+
+        committed = commit_direct_action(_change, after_apply=_after_apply)
+        if not committed:
+            if not ok:
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Mort'ton action failed.")),
+                    **info,
+                }
             return {
                 "ok": False,
+                "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        skill_rows = {
-            "crafting": ("crafting_exp", "Crafting"),
-            "firemaking": ("firemaking_exp", "Firemaking"),
-            "prayer": ("prayer_exp", "Prayer"),
-        }
-        total_gained = 0.0
-        for skill_id, amount in dict(info.get("skill_xp") or {}).items():
-            if skill_id not in skill_rows or float(amount or 0.0) <= 0:
-                continue
-            exp_key, display_name = skill_rows[skill_id]
-            total_gained += _award_skill_exp(exp_key, float(amount))
-            level_up_check(display_name, player_data)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
-        if total_gained > 0:
-            _show_exp(total_gained)
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
-
     def _apply_treasure_trails_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_treasure_trails_command_pure(
