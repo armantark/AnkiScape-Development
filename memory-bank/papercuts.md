@@ -765,3 +765,9 @@
 
 - 2026-08-21 16:19 PDT — While comparing staged merge blobs, an unbraced shell variable in `:$stage:path` consumed the path suffix and produced `fatal: ambiguous argument`; brace stage variables in index-object expressions.
 - 2026-08-21 16:33:42 PDT — Running the worktree's absolute `run_tests.py` path from the canonical checkout made relative asset-provenance assertions resolve to `../../ankiscape_worktrees/promote-herbs-2026-08-21/...` and fail; the runner must be launched with the worktree as its current directory.
+
+- 2026-08-21 17:08 PDT — Fetching seven pinned RuneScape Wiki revisions in one API query failed with `invalidparammix`: MediaWiki permits `rvstart` only for a single-page request, so historical multi-title evidence needs one request per title.
+- 2026-08-21 17:09 PDT — Reading a merge parent blob repeated the already-recorded unbraced `:$stage:path` failure as `d7b298660b9d476cb34ed4dc36aca85fcb903856^1ests/test_item_reachability_audit.py`; use `${ref}:path` for every revision-qualified path.
+- 2026-08-21 17:16 PDT — Subagent escalation could send the orchestrator a ruling request but `notify_when_idle` failed with `notify_when_idle is only available from the main conversation of this session`; subagents must wait for automatic cross-session delivery.
+
+- 2026-08-21 17:27 PDT — Capturing an expected unittest failure in zsh used `status`, a read-only special parameter, and aborted before printing the result; use a neutral name such as `test_rc`.

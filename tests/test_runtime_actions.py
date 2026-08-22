@@ -4277,6 +4277,57 @@ class TestRuntimeActions(unittest.TestCase):
                     expected_outputs,
                 )
 
+    def test_source_enumerated_jadinko_vines_survive_loose_strange_rocks(self):
+        from ankiscape.core.constants import HUNTER_EXTRA_ITEM_DATA
+        from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
+        from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure
+
+        routes = (
+            ("catch_igneous_jadinko", "Marble vine", 74),
+            ("catch_aquatic_jadinko", "Aquatic vine", 76),
+            ("catch_amphibious_jadinko", "Oily vine", 77),
+            ("catch_carrion_jadinko", "Pungent vine", 78),
+            ("catch_draconic_jadinko", "Draconic vine", 80),
+            ("catch_saradomin_jadinko", "Saradomin vine", 81),
+            ("catch_zamorak_jadinko", "Zamorak vine", 81),
+        )
+        for target, output, level in routes:
+            with self.subTest(target=target):
+                calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+                player_data = {
+                    "inventory": {"Marasamaw plant": 1},
+                    "hunter_level": level,
+                    "hunter_exp": 0,
+                    "current_hunter": target,
+                    "hunter_success_count": 0,
+                    "completed_achievements": [],
+                    "shattered_heart": default_shattered_heart_state_pure(),
+                }
+
+                self.assertTrue(
+                    handle_hunter_answer(
+                        _context(
+                            player_data,
+                            calls,
+                            random_values=(0.0, 1.0, 0.0, 0.0, 0.0),
+                        )
+                    )
+                )
+
+                inventory = player_data["inventory"]
+                self.assertEqual(inventory[output], 1)
+                for rock in SHATTERED_HEART_SKILLS_BY_ID["hunter"].rock_items:
+                    self.assertEqual(inventory[rock], 1)
+                self.assertEqual(
+                    player_data["action_telemetry"]["actions"][
+                        f"hunter:{target}"
+                    ]["outputs"],
+                    {output: 1},
+                )
+                item_spec = HUNTER_EXTRA_ITEM_DATA[output]
+                self.assertFalse(item_spec["tradeable"])
+                self.assertEqual(item_spec["category"], "material")
+
     def test_cannibal_jadinko_rocks_replace_only_the_tradeable_seed(self):
         from ankiscape.data.shattered_heart_data import SHATTERED_HEART_SKILLS_BY_ID
         from ankiscape.logic.shattered_heart_logic import default_shattered_heart_state_pure

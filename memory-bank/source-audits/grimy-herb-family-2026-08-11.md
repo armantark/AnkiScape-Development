@@ -83,6 +83,47 @@ path.
 | Guthix | Marasamaw | 81 | 600 | 13164 | Guthix vine `19982` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:93`; `hunter_jadinko_guthix.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 | Zamorak | Marasamaw | 81 | 600 | 13165 | Zamorak vine `19983` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:97`; `hunter_jadinko_zamorak.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 
+### Guaranteed-vine item semantics
+
+The seven rows below are enumerated from Darkan commit
+`7e7d67b481f1b94599de38a98c470419ab7c96b3`,
+`src/main/java/com/rs/game/content/minigames/herblorehabitat/JadinkoType.kt:35-45`,
+and its matching Marasamaw routes in
+`src/main/java/com/rs/game/content/skills/hunter/BoxHunterType.java:81-97`, not
+from AnkiScape's item registry. Darkan's inherited
+`ItemConstants.isTradeable()` rule at
+`src/main/java/com/rs/game/content/ItemConstants.java:441-466` (core rule commit
+`c6fbe036b1743f4dd6067ec178332c69c3708856`; exception-set commit
+`14fb66f0db9d2ca8a63c6f0dec24fa1e709e290c`) treats stackable items as
+tradeable only when `canExchange()` is true or their ID is in the explicit
+exception set. None of these seven IDs appears there. The immutable
+`/Users/ArmanTarkhanian1/Library/Caches/Codex/2012scape-openrs2/runescape-727-2012-07-24-openrs2-309-disk.zip`
+archive has SHA-256
+`ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8`; the
+independent near-cutoff
+`/Users/ArmanTarkhanian1/Library/Caches/Codex/2012scape-openrs2/runescape-742-2012-11-07-openrs2-544-disk.zip`
+has SHA-256
+`9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8`. Both
+decode every row below as `stackable=true, exchangeable=false`. Each pinned wiki
+infobox independently says `tradeable = No` and describes an ingredient, bait,
+or compost use, so their Hunter extra-item rows remain untradeable and retain
+category `material`.
+
+| Item | Dated cache definitions | Pinned pre-cutoff wiki evidence |
+| --- | --- | --- |
+| Aquatic vine `19976` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Aquatic vine` oldid `5037449`](https://runescape.wiki/w/Aquatic_vine?oldid=5037449), `2011-12-10T01:37:34Z`, lines 1-20: `tradeable = No`; secondary ingredient for Juju fishing potion. |
+| Draconic vine `19973` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Draconic vine` oldid `5037535`](https://runescape.wiki/w/Draconic_vine?oldid=5037535), `2011-12-10T01:42:45Z`, lines 1-19: `tradeable = No`; secondary ingredient for Juju mining potion. |
+| Marble vine `19980` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Marble vine` oldid `5037668`](https://runescape.wiki/w/Marble_vine?oldid=5037668), `2011-12-10T01:49:47Z`, lines 1-20: `tradeable = No`; secondary ingredient for Juju farming potion. |
+| Oily vine `19972` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Oily vine` oldid `5037731`](https://runescape.wiki/w/Oily_vine?oldid=5037731), `2011-12-10T01:53:01Z`, lines 1-20: `tradeable = No`; combined with Clean samaden for Juju woodcutting potion. |
+| Pungent vine `19974` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Pungent vine` oldid `6016415`](https://runescape.wiki/w/Pungent_vine?oldid=6016415), `2012-07-30T21:11:06Z`, lines 1-20: `tradeable = No`; jadinko bait or supercompost material. |
+| Saradomin vine `19981` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Saradomin vine` oldid `5037805`](https://runescape.wiki/w/Saradomin_vine?oldid=5037805), `2011-12-10T01:56:35Z`, lines 1-20: `tradeable = No`; secondary ingredient for Saradomin's blessing. |
+| Zamorak vine `19983` | rev 727 and rev 742: `stackable=true`, `exchangeable=false` | [`Zamorak vine` oldid `5970327`](https://runescape.wiki/w/Zamorak_vine?oldid=5970327), `2012-07-21T23:17:38Z`, lines 1-20: `tradeable = No`; secondary ingredient for Zamorak's favour. |
+
+The 2011Scape snapshot conflicts: `data/cfg/items.yml:240819-240889` marks all
+seven `tradeable: true`. That lower-tier value does not survive corroboration
+against either dated cache or any of the seven pinned period wiki infoboxes, so
+it is not used.
+
 The twelve live rows are registered in `data/hunter_data.py`. The six known
 multi-table omissions have adjacent markers at lines 394, 428, 764, 818, 971,
 and 1003. The ten Marasamaw rows use the sourced `BoxHunterType` curves; only

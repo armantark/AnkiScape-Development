@@ -102,20 +102,23 @@ Erzille, Ugune, Argway, Shengo, and Samaden seeds from Hunter 70 at the sourced
 supplemental seed tables. The real kernel was driven separately from the suite
 for all five chains: catch the seed, plant and grow the crop, harvest three grimy herbs,
 clean one at its corrected Herblore level, and mix the unfinished potion. All
-five clean and unfinished gates were usable. Current main
-`d4c043218d5943f7878d36b556d785eeeefdeb36` measures `1571 / 2266 / 84 / 87`;
-the merged candidate measures `1584 / 2334 / 50 / 53`, a change of `+13 / +68
-/ -34 / -34`. Item `19971` uses its period name, Withered vine, and the exact 28×25 cutoff
+five clean and unfinished gates were usable. The merge's main parent
+`f713e5e48ac9e83bc9cd68aab5ebe93cdb134b29` measures `1586 / 2307 / 75 / 45 /
+30 / 75 / 1123`; the herb parent `9a351ea0b38e88b8d635972141815dc13394cbc1`
+measures `1584 / 2334 / 50 / 35 / 15 / 53 / 1104`; and the merged tree measures
+`1598 / 2369 / 38 / 34 / 4 / 37 / 1123` for actions / reachable items / orphan
+inputs / root orphans / cascade orphans / blocked actions / seed items. Action
+count and reachable-item count exceed both parents. Orphan inputs, root orphans,
+cascade orphans, and blocked actions are lower than both parents, not higher.
+Seed count equals main's `1123` and exceeds only the herb parent's `1104`; the
+merge retains main's larger seed universe rather than summing branch deltas.
+Item `19971` uses its period name, Withered vine, and the exact 28×25 cutoff
 inventory sprite. Vine-herb disease uses the registered
 `farming.shared_disease_slots` placeholder because Darkan's generic selector does
-not settle a Habitat-specific period rate. The plain lane passes 4,155 tests with
-499 skips. The offscreen Qt lane is not green on this branch in isolation:
-`test_hud_singleton_and_cleanup.TestHUDSingletonAndCleanup.test_surface_refreshes_do_not_rescan_the_qt_tree`
-errors at `ui/ui.py:2206` because `QFrame` receives a `FakeStrip`, and
-`test_ensure_review_hud_cleans_duplicates_and_singleton` fails with `0 != 2`.
-Both reproduce at merge-base `d4c04321` and pass on current `main`, so they are
-inherited staleness rather than regressions from this branch. The orchestrator's
-post-merge gate establishes the Qt result for promotion. Darkan
+not settle a Habitat-specific period rate. The review-resolution plain lane ran
+4,193 tests in 217.813 seconds and passed with 502 skips. The offscreen Qt lane
+was intentionally deferred under the promotion-gate exception; the orchestrator
+will run both lanes on the merged tree. Darkan
 `FarmPatch.setInitialLives()` resolves the former base-lives placeholder as
 `3 + compostLevel`; no UI or panel rule was added, and runtime only supplies
 random draws to the existing pure reducer. Durable source record:
