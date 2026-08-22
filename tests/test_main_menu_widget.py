@@ -6984,7 +6984,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("__hunter_group__:deadfall", group_roles)
         self.assertIn("__hunter_group__:impling_world", group_roles)
         self.assertEqual(_hunter_group_node(tree, "deadfall").text(0), "Deadfall  (4)")
-        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (4)")
+        self.assertEqual(_hunter_group_node(tree, "tracking").text(0), "Tracking  (5)")
 
         wild = _hunter_row(tree, "catch_wild_kebbit")
         ferret = _hunter_row(tree, "catch_ferret")

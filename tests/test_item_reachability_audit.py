@@ -557,8 +557,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1598)
-        self.assertEqual(report["reachable_item_count"], 2369)
+        self.assertEqual(report["action_count"], 1599)
+        self.assertEqual(report["reachable_item_count"], 2370)
         self.assertEqual(report["orphan_input_count"], 38)
         self.assertEqual(report["root_orphan_count"], 34)
         self.assertEqual(report["cascade_orphan_count"], 4)
@@ -892,6 +892,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         expected_jadinko_routes = {
             "Shadow vine": "Hunter:track_shadow_jadinko",
             "Corrupt vine": "Hunter:track_diseased_jadinko",
+            "Striped vine": "Hunter:track_camouflaged_jadinko",
             "Withered vine": "Hunter:catch_common_jadinko",
             "Marble vine": "Hunter:catch_igneous_jadinko",
             "Plant teeth": "Hunter:catch_cannibal_jadinko",
