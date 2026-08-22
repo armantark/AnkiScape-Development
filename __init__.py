@@ -2572,35 +2572,37 @@ def _on_main_menu(
 
     def _apply_fist_of_guthix_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_fist_of_guthix_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Fist of Guthix action failed.")),
-            }
-        if action_id != "set_policy":
-            try:
-                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-            except (AttributeError, RuntimeError):
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_fist_of_guthix_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The pure function refused: report its own refusal.
                 return {
                     "ok": False,
-                    "message": "Anki could not create an undo entry.",
+                    "message": str(info.get("reason", "Fist of Guthix action failed.")),
                 }
-            _DIRECT_ACTION_UNDO_STACK.append(before)
-            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
+            # The change applied but Anki refused the undo entry, so nothing
+            # was written and the player must not be told it worked.
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
