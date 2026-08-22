@@ -6841,7 +6841,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             7,
             "Solve the basement lever puzzle and recover the oil can.",
-            f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            (
+                f"{DARKAN_ERNEST_SOURCE}; {DARKAN_ERNEST_SOURCE_ROOT}/PuzzleRoom.java; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
             auto_actions=("Solve the Draynor Manor basement lever puzzle",),
             produced_inventory=(("Oil can", 1),),
         ),
