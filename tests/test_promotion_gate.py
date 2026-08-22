@@ -513,24 +513,39 @@ class PromotionGateTest(unittest.TestCase):
             )
 
     def test_promotion_docs_explain_tree_owned_reachability_pins(self):
-        patterns = (PROJECT_ROOT / "memory-bank" / "systemPatterns.md").read_text(
-            encoding="utf-8"
-        )
-        papercuts = (PROJECT_ROOT / "memory-bank" / "papercuts.md").read_text(
-            encoding="utf-8"
-        )
+        # Assert the contract, not exact sentences: an editor who rephrases
+        # these passages must not redden the gate, but deleting the
+        # explanation must still fail.
+        patterns = (
+            PROJECT_ROOT / "memory-bank" / "systemPatterns.md"
+        ).read_text(encoding="utf-8").lower()
+        papercuts = (
+            PROJECT_ROOT / "memory-bank" / "papercuts.md"
+        ).read_text(encoding="utf-8").lower()
 
+        pattern_paragraphs = [
+            p for p in patterns.split("\n\n") if "reachabilit" in p
+        ]
         self.assertTrue(
-            "reads all seven reachability pins from the gated tree" in patterns,
-            "systemPatterns.md must explain that reachability pins come from the gated tree",
+            any("pin" in p and "gated tree" in p for p in pattern_paragraphs),
+            "systemPatterns.md must explain that reachability pins come "
+            "from the gated tree",
         )
-        self.assertTrue(
-            "supersedes the 2026-08-22 05:52 papercut" in patterns,
+        self.assertIn(
+            "supersedes",
+            patterns,
             "systemPatterns.md must identify the superseded papercut",
         )
+        self.assertIn(
+            "2026-08-22 05:52",
+            patterns,
+            "systemPatterns.md must identify the superseded papercut by date",
+        )
+        superseded_paragraphs = [
+            p for p in papercuts.split("\n\n") if "superseded" in p
+        ]
         self.assertTrue(
-            "Superseded: the gate now reads all seven pins from the gated tree"
-            in papercuts,
+            any("pin" in p and "gated tree" in p for p in superseded_paragraphs),
             "the 2026-08-22 05:52 papercut must record its superseding rule",
         )
 
