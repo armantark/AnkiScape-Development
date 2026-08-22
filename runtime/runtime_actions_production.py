@@ -44,6 +44,7 @@ from ..core.constants import (
     ORE_DATA,
     PRAYER_DATA,
     DEFAULT_PRAYER_TARGET,
+    GILDED_ALTAR_MULTIPLIER,
     QUEST_DATA,
     QUEST_UNLOCK_RULES,
     RUNECRAFTING_DATA,
@@ -852,7 +853,7 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
         player_data["prayer_bury_count"] = int(player_data.get("prayer_bury_count", 0) or 0) + 1
     _record_action(ctx, "prayer", target, True, expected_success_chance=1.0, output_items=outputs)
     if spec.get("method") == "gilded_altar":
-        source_base = base_exp / 3.5
+        source_base = base_exp / GILDED_ALTAR_MULTIPLIER
         base_exp = source_base * effective_gilded_altar_multiplier_pure(
             player_data,
             player_data.get("prayer_gilded_mode", "hosted"),

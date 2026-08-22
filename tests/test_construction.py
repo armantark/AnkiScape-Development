@@ -257,6 +257,45 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
     def test_runtime_handler_registered(self):
         self.assertIs(answer_handler_for_key("construction"), handle_construction_answer)
 
+    def test_six_non_gilded_altars_build_and_set_the_owned_prayer_rate(self):
+        # Darkan BoneAltar.java Altar enum @ 3b47cfdf: Oak 1.0, Teak 1.1,
+        # Cloth 1.25, Mahogany 1.5, Limestone 1.75, Marble 2.0 base, +0.5 per
+        # lit burner. Dragon bones bury for 72 XP.
+        cases = (
+            ("oak_altar", {"Oak plank": 4}, 72.0),
+            ("teak_altar", {"Teak plank": 4}, 79.2),
+            ("cloth_altar", {"Teak plank": 4, "Bolt of cloth": 2}, 90.0),
+            ("mahogany_altar", {"Mahogany plank": 4, "Bolt of cloth": 2}, 108.0),
+            ("limestone_altar", {"Mahogany plank": 6, "Bolt of cloth": 2, "Limestone brick": 2}, 126.0),
+            ("marble_altar", {"Marble block": 2, "Bolt of cloth": 2}, 144.0),
+        )
+        for altar_id, materials, expected_xp in cases:
+            with self.subTest(altar_id=altar_id):
+                player = _house(
+                    construction_level=99, prayer_level=99, prayer_exp=0,
+                    current_prayer="gilded_altar_dragon_bones",
+                    prayer_gilded_mode="owned", prayer_owned_altar_stint={},
+                    inventory={**materials, "Dragon bones": 1},
+                    completed_achievements=[],
+                )
+                player["current_construction"] = altar_id
+                calls = {}
+                self.assertTrue(handle_construction_answer(self._context(player, calls)))
+                self.assertTrue(player["house_built_flags"][altar_id])
+                self.assertEqual(owned_gilded_altar_burner_count_pure(player), 0)
+
+                self.assertTrue(handle_prayer_answer(self._context(player, calls)))
+                self.assertEqual(player["prayer_exp"], expected_xp)
+
+        # Building a higher tier replaces the chapel's altar and raises the rate.
+        player["current_construction"] = "guilded_altar"
+        player["inventory"] = {"Marble block": 2, "Bolt of cloth": 2, "Gold leaf": 4, "Dragon bones": 1}
+        player["prayer_exp"] = 0
+        self.assertTrue(handle_construction_answer(self._context(player, {})))
+        self.assertTrue(handle_prayer_answer(self._context(player, {})))
+        self.assertEqual(player["prayer_exp"], 180.0)
+
+
     def test_every_manifest_asset_path_exists(self):
         with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets_provenance.json"), encoding="utf-8") as file_obj:
             provenance = json.load(file_obj)

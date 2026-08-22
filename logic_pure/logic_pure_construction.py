@@ -214,10 +214,31 @@ def purchase_house_option_pure(player_data, option_id, options, *, kind):
     return data, True
 
 
+# Darkan BoneAltar.java Altar enum @ 3b47cfdf: base multipliers Oak 1.0,
+# Teak 1.1, Cloth 1.25, Mahogany 1.5, Limestone 1.75, Marble 2.0, Gilded 2.5,
+# +0.5 per lit burner capped at two. A chapel holds one altar; the highest
+# tier built is the one standing.
+_OWNED_ALTAR_TIERS = (
+    "oak_altar", "teak_altar", "cloth_altar",
+    "mahogany_altar", "limestone_altar", "marble_altar", "guilded_altar",
+)
+
+_OWNED_ALTAR_BASE_MULTIPLIERS = {
+    "oak_altar": 1.0, "teak_altar": 1.1, "cloth_altar": 1.25,
+    "mahogany_altar": 1.5, "limestone_altar": 1.75,
+    "marble_altar": 2.0, "guilded_altar": 2.5,
+}
+
+
+def owned_altar_id_pure(player_data):
+    flags = player_data.get("house_built_flags", {}) or {}
+    return next((name for name in reversed(_OWNED_ALTAR_TIERS) if bool(flags.get(name))), None)
+
+
 def owned_gilded_altar_burner_count_pure(player_data):
     rooms = player_data.get("house_rooms_bought", {}) or {}
     flags = player_data.get("house_built_flags", {}) or {}
-    if not bool(player_data.get("house_owned")) or not bool(rooms.get("chapel")) or not bool(flags.get("guilded_altar")):
+    if not bool(player_data.get("house_owned")) or not bool(rooms.get("chapel")) or owned_altar_id_pure(player_data) is None:
         return 0
     return min(2, sum(bool(flags.get(name)) for name in ("inscence_burner", "mahogany_burner", "marble_burner")))
 
@@ -236,16 +257,27 @@ def owned_gilded_altar_marrentill_required_pure(player_data, target_id):
     return owned_gilded_altar_burner_count_pure(player_data)
 
 
+_OWNED_ALTAR_REASON_NAMES = {
+    "oak_altar": "an oak altar",
+    "teak_altar": "a teak altar",
+    "cloth_altar": "a cloth-covered altar",
+    "mahogany_altar": "a mahogany altar",
+    "limestone_altar": "a limestone altar",
+    "marble_altar": "a marble altar",
+    "guilded_altar": "a gilded altar",
+}
+
+
 def owned_gilded_altar_access_reasons_pure(player_data, target_id):
     reasons = []
     rooms = player_data.get("house_rooms_bought", {}) or {}
-    flags = player_data.get("house_built_flags", {}) or {}
+    altar_id = owned_altar_id_pure(player_data)
     if not bool(player_data.get("house_owned")):
         reasons.append("a player-owned house")
     if not bool(rooms.get("chapel")):
         reasons.append("a Chapel")
-    if not bool(flags.get("guilded_altar")):
-        reasons.append("a gilded altar")
+    if altar_id is None:
+        reasons.append(_OWNED_ALTAR_REASON_NAMES["oak_altar"])
     marrentill_required = owned_gilded_altar_marrentill_required_pure(player_data, target_id)
     if marrentill_required > 0:
         inventory = player_data.get("inventory", {}) or {}
@@ -258,5 +290,6 @@ def effective_gilded_altar_multiplier_pure(player_data, mode, target_id=None):
     if mode == "hosted":
         return 3.5
     if mode == "owned":
-        return 2.5 + 0.5 * owned_gilded_altar_effective_burners_pure(player_data, target_id)
+        base = _OWNED_ALTAR_BASE_MULTIPLIERS.get(owned_altar_id_pure(player_data), 1.0)
+        return base + 0.5 * owned_gilded_altar_effective_burners_pure(player_data, target_id)
     return 0.0
