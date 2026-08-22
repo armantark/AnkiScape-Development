@@ -125,6 +125,35 @@ documentation-only. A Markdown change cannot move a widget test, and the lane
 costs ten minutes of a shared machine. This exception is narrow: one executable
 line anywhere in the diff, including a test, removes it.
 
+**Proving a test is load-bearing must leave no trace.** When you break your own
+change to show a test fails, break it, observe it, and restore it before you do
+anything else. Then run `git diff --stat` against your branch point and confirm
+the only files listed are the ones your slice owns. An agent doing this on
+2026-08-21 mutated a DIFFERENT handler than its own — one that had landed on
+main an hour earlier — committed the mutation, and reported the slice complete.
+Its own focused test still passed, because the damage was in code its test did
+not touch.
+
+For that reason, a slice that edits a file other slices share runs the existing
+suite for that file as well as its own focused test, even when the brief names
+only the focused one. `test_direct_action_undo_seam` costs about twenty seconds
+and would have caught the above with an `UnboundLocalError` on the mutated line.
+That is not the full plain lane and it is not the Qt lane; it is the cheap
+neighbour check.
+
+**Promotion-gate exception.** When your brief states that the orchestrator will
+re-run both lanes on the merged tree as the promotion gate, and tells you to run
+the plain lane only, do that and say so in your report. The binding run is the
+one on the merged tree: a branch-side Qt pass gates nothing the merged run does
+not gate again. The reason is contention, not cost — eight agents each starting
+an eleven-minute Qt lane on one machine is how the first wave stalled.
+
+**When a brief and this contract disagree.** A brief may narrow a lane
+requirement only by naming the promotion gate, as above. On any other conflict
+this contract wins, and you record the conflict in `not_done` rather than
+choosing quietly. Do not ask another agent session to break the tie; see
+section 6a.
+
 Also run, and report the exact output of:
 
 ```
