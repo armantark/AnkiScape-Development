@@ -43,3 +43,15 @@ At multiplier 1, one successful review is one cast. `runtime/runtime_actions_mag
 Spell effects do not redefine the action boundary. High Level Alchemy consumes one selected tradeable item and one cast's runes, produces coins, and pays 65 Magic XP (`data/magic_data.py:95`; `logic_pure/logic_pure_magic.py:411-415`). By contrast, inventory spells such as Humidify, Superglass Make, and String Jewellery affect their coded inventory batch in one cast while still paying one flat Magic XP award (`logic_pure/logic_pure_magic.py:433-472`; `data/magic_data.py:405-409`).
 
 **Unit conclusion:** the common action unit is casts/hour, not items transformed/hour. A ledger rate inferred from flat Magic XP per cast is directly comparable; a rate based on the number of inventory items affected by a batch spell would require conversion back to casts.
+
+## Prayer
+
+An XP-bearing Prayer review consumes one material unit. After any runtime-side access/cadence step, `runtime/runtime_actions_production.py:771-869` calls `apply_prayer_action_pure` once, increments `prayer_actions_completed` by 1, and awards its returned XP once. The pure function is explicitly “one normal Prayer training action”: it deducts one target's requirements, adds declared byproducts/outputs, and returns one target's XP (`logic_pure/logic_pure_prayer.py:121-145`). `data/prayer_data.py:119-161` makes the concrete units:
+
+- bury/scatter consumes 1 bone or ash, produces nothing, and pays that material's base XP;
+- Ectofuntus consumes 1 bonemeal (or ash) + 1 bucket of slime, returns the containers, produces 5 Ecto-tokens, and pays 4× base XP; and
+- a gilded altar consumes 1 bone or ash and pays up to 3.5× base XP.
+
+Hosted gilded-altars have one player-visible exception: the first stint spends 1 to 10 successful reviews finding a house, with no material consumed and no XP, before one-material offering reviews begin (`runtime/runtime_actions_production.py:810-831`; `logic_pure/logic_pure_prayer.py:148-162`). Owned altars instead consume marrentill once when a stint begins according to the burner count (`runtime/runtime_actions_production.py:794-809`).
+
+**Unit conclusion:** Prayer ledger rates in bones/ashes offered per hour are AnkiScape XP-bearing actions/hour. Ectofuntus must be counted in worships/material units, not its component preparation clicks; hosted-house search is separate modeled review friction rather than a different material unit.
