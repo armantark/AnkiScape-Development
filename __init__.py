@@ -2572,35 +2572,37 @@ def _on_main_menu(
 
     def _apply_fist_of_guthix_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_fist_of_guthix_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Fist of Guthix action failed.")),
-            }
-        if action_id != "set_policy":
-            try:
-                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-            except (AttributeError, RuntimeError):
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_fist_of_guthix_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The pure function refused: report its own refusal.
                 return {
                     "ok": False,
-                    "message": "Anki could not create an undo entry.",
+                    "message": str(info.get("reason", "Fist of Guthix action failed.")),
                 }
-            _DIRECT_ACTION_UNDO_STACK.append(before)
-            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
+            # The change applied but Anki refused the undo entry, so nothing
+            # was written and the player must not be told it worked.
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
         _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
@@ -2608,82 +2610,93 @@ def _on_main_menu(
 
     def _apply_sorceress_garden_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_sorceress_garden_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Garden action failed.")),
-            }
         # Preferences used to skip undo registration while still saving, which
         # made the Garden's policy boundary the one mutation here you could not
         # take back. Every action now registers.
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        result = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal pure_ok, result
+            updated, ok, info = apply_sorceress_garden_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            pure_ok = bool(ok)
+            result = {"ok": pure_ok, "info": info}
+            return updated, pure_ok
+
+        def _after_apply():
+            _refresh_skill_availability()
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(
+                        result["info"].get("reason", "Garden action failed.")
+                    ),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
+                "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
-        _refresh_skill_availability()
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
-        return {"ok": True, **info}
+        return {"ok": True, **result["info"]}
 
     def _apply_penguin_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
         exp_before = _implemented_exp_keys_snapshot()
-        updated, ok, info = apply_penguin_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Penguin action failed.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_penguin_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            if action_id == "redeem_xp":
+                skill_name = str(info.get("skill_name", ""))
+                if skill_name:
+                    level_up_check(skill_name, player_data)
+                _show_quest_exp_delta(exp_before)
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            if info.get("message"):
+                _show_activity_gain(str(info["message"]))
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The penguin command itself refused: report its refusal.
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Penguin action failed.")),
+                }
+            # The command was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        if action_id == "redeem_xp":
-            skill_name = str(info.get("skill_name", ""))
-            if skill_name:
-                level_up_check(skill_name, player_data)
-            _show_quest_exp_delta(exp_before)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
         return {"ok": True, **info}
 
     def _apply_vinesweeper_command(action_id, payload):
@@ -2752,125 +2765,131 @@ def _on_main_menu(
 
     def _apply_fight_caves_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_fight_caves_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
+        result = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted
+            updated, ok, info = apply_fight_caves_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            result.clear()
+            result.update(info)
+            accepted = bool(ok)
+            return updated, accepted
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                return {
+                    "ok": False,
+                    "message": str(
+                        result.get("reason", "Fight Cave action failed.")
+                    ),
+                    **{
+                        key: result[key]
+                        for key in ("requires_confirmation", "follower_kind")
+                        if key in result
+                    },
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
-                "message": str(info.get("reason", "Fight Cave action failed.")),
-                **{
-                    key: info[key]
-                    for key in ("requires_confirmation", "follower_kind")
-                    if key in info
-                },
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return {
-                "ok": False,
+                "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
+        if result.get("message"):
+            _show_activity_gain(str(result["message"]))
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
-        return {"ok": True, **info}
+        return {"ok": True, **result}
 
     def _apply_dagannoth_kings_command(action_id, payload):
-        payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_dagannoth_kings_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
+        info = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted, info
+            updated, ok, info = apply_dagannoth_kings_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            accepted = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            if info.get("message"):
+                _show_activity_gain(str(info["message"]))
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "Dagannoth Kings action failed.")
+                    ),
+                }
+            # Accepted but no undo entry could be created: nothing was written.
             return {
                 "ok": False,
-                "message": str(
-                    info.get("reason", "Dagannoth Kings action failed.")
-                ),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return {
-                "ok": False,
+                "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
         return {"ok": True, **info}
 
     def _apply_phoenix_lair_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_phoenix_lair_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-            rng=random.random,
-            equipment_data=EQUIPMENT_DATA,
-        )
-        if not ok:
-            # Put the random state back. The rejected call already drew from the
-            # generator, so returning without this leaves the sequence advanced
-            # by a refusal the player never saw — the same restore the sibling
-            # handlers do on their failure paths.
-            random.setstate(before["random_state"])
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Phoenix Lair action failed.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_phoenix_lair_command_pure(
+                current,
+                str(action_id),
+                payload,
+                rng=random.random,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Phoenix Lair action failed.")),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
@@ -2988,85 +3007,100 @@ def _on_main_menu(
 
     def _apply_barrows_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_barrows_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-            random.random,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Barrows action failed.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        result = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted
+            updated, ok, info = apply_barrows_command_pure(
+                current,
+                str(action_id),
+                payload,
+                random.random,
+            )
+            result["info"] = info
+            accepted = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            if result["info"].get("message"):
+                _show_activity_gain(str(result["info"]["message"]))
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(
+                        result.get("info", {}).get(
+                            "reason", "Barrows action failed."
+                        )
+                    ),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
-        return {"ok": True, **info}
+        return {"ok": True, **result["info"]}
 
     def _apply_stealing_creation_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_stealing_creation_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-            random.random,
-        )
-        if not ok:
+        result = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted
+            updated, ok, info = apply_stealing_creation_command_pure(
+                current,
+                str(action_id),
+                payload,
+                random.random,
+            )
+            result["info"] = info
+            accepted = bool(ok)
+            return updated, accepted
+
+        def _after_apply():
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
+                info = result["info"]
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "Stealing Creation action failed.")
+                    ),
+                    **{
+                        key: info[key]
+                        for key in ("requires_confirmation", "follower_kind")
+                        if key in info
+                    },
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
-                "message": str(
-                    info.get("reason", "Stealing Creation action failed.")
-                ),
-                **{
-                    key: info[key]
-                    for key in ("requires_confirmation", "follower_kind")
-                    if key in info
-                },
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return {
-                "ok": False,
+                "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
+        info = result["info"]
         if info.get("status"):
             _show_activity_gain(str(info["status"]))
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
         return {"ok": True, **info}
 
     def _apply_fish_flingers_command(action_id, payload):
