@@ -17,6 +17,10 @@ full gate on the MERGED tree, never on the branch alone.
 
 ## 2. Branches accepted and NOT yet merged
 
+**[Corrected 2026-08-22]** All three branches below are now ancestors of
+`main` at `968b4f61` (verified with `git merge-base --is-ancestor`). This
+section is historical.
+
 All of these have passed an independent cross-lineage review with every
 blocking and major finding resolved. They need only a merge, a re-measured
 reachability pin, and a green gate.
@@ -27,7 +31,8 @@ reachability pin, and a green gate.
 | `goal/herbs-reland-2026-08-19` | `c0face44` | one stale sibling docstring still citing the superseded 39-path count |
 | `goal/papercuts-reland-2026-08-19` | `334214e1` | none recorded |
 
-**The vine slice must be fixed before it lands.** DO NOT pin the figures in this
+**[Corrected 2026-08-22]** The vine slice landed; the warning below no longer
+applies. **The vine slice must be fixed before it lands.** DO NOT pin the figures in this
 section — they were superseded on 2026-08-21 and are recorded here only as the
 history of the correction. The figures once given as `1586 / 2307 / 75 / 45 / 30
 / 75 / 1123` with a 4,172-test plain lane were valid only for head `986933f0`.
@@ -52,7 +57,9 @@ are orphan inputs, but both go live the moment the vine_herb farming chain
 lands. The merge work is done and reusable: `promote5/2026-08-19` holds it.
 
 `goal/secondaries-2026-08-11` is promotable and was deliberately not started;
-see the loop notes for why its final commit is not a refusal.
+see the loop notes for why its final commit is not a refusal. **[Verified
+2026-08-22: still unmerged — it and `promote5/2026-08-19` are not ancestors of
+`main` at `968b4f61`.]**
 
 ## 3. The merge trap, which will bite again
 
@@ -80,7 +87,9 @@ nohup /tmp/ankiscape_gate.sh "<promotion worktree>" > /tmp/gate.log 2>&1 &
 ```
 
 That script is a session scratch file. Rewrite it in `tools/` if this pattern
-survives another run. It must NOT call the reachability audit with `--summary`,
+survives another run. **[Superseded 2026-08-22:** the gate is now enforced by
+`tools/promotion_gate.py` (`run` / `land`) rather than by the orchestrator
+remembering. Use it.**]** It must NOT call the reachability audit with `--summary`,
 which exists only on the papercuts branch; that flag silently skipped the
 reachability check on two promotions before it was caught.
 
@@ -89,12 +98,20 @@ that buys nothing.
 
 ## 5. What is blocked, and by what
 
-- **The five vine-herb seeds cannot be planted.** The habitat crops at
-  `data/farming_data.py:395-399` carry
-  `source_blocked=('stages','stage_minutes','yield')` and are deliberately not
-  executable, so the Juju hunter potion chain stays unreachable and the Withered
-  vine has no consumer. This is declared debt, not a defect, and it mirrors the
-  Juju farming potion already in main.
+- **[Resolved 2026-08-22]** The five vine-herb seeds ARE plantable now. The
+  habitat crop rows sit at `data/farming_data.py:421-425` on the merged tree
+  with `blocked=()`, and `Herblore:finished_juju_hunting` exists at
+  `data/herblore_data.py:285`; the chain is reachable. The merged tree measures
+  `1599 / 2370 / 38 / 34 / 4 / 37 / 1123` (actions / reachable items / orphan
+  inputs / root orphans / cascade orphans / blocked actions / seed items),
+  re-measured with `python3 tools/audit_item_reachability.py` and pinned at
+  `tests/test_item_reachability_audit.py:559-567`. The original text follows:
+
+  The habitat crops at
+  `data/farming_data.py:395-399` carried
+  `source_blocked=('stages','stage_minutes','yield')` and were deliberately not
+  executable, so the Juju hunter potion chain stayed unreachable and the Withered
+  vine had no consumer.
 - **Frost dragon bone route mapping** remains source-blocked: no period source
   maps item `18830` and item `18832` one-to-one.
 - **Three registered placeholders have never been re-walked** and all three are
@@ -141,8 +158,14 @@ replacing a shipped safeguard with a parity change is his call. Recorded in
 
 **Undo-seam fan-out, seven branches, all committed, all under one cross-lineage
 review:** `goal/undo-{ge,farming,mta,agility,warriors,chinchompa,star}-2026-08-21`.
-Each migrates ONE `_apply_*` handler onto `commit_direct_action`. Twenty-five of
-the thirty-two handlers remain.
+Each migrates ONE `_apply_*` handler onto `commit_direct_action`.
+**[Updated 2026-08-22]** the fan-out continued far past these seven and has
+landed broadly: 38 distinct `goal/*` branches merged to `main` between
+2026-08-21 and 2026-08-22, nearly all undo migrations. On the merged tree,
+`commit_direct_action` (`__init__.py:1018`) carries 82 call sites in
+`__init__.py`, and only two `_apply_*` handlers remain in
+`runtime/runtime_actions_shared.py` (`_apply_brawling_actions`,
+`_apply_farming_queue_result`). The "twenty-five remain" figure is stale.
 
 The trap every one of them was warned about, and which the first attempt shipped:
 `commit_direct_action` returns False for two different reasons — the pure
@@ -166,3 +189,39 @@ reagent behaviour lives in `FarmPatch.java:340-361`, not in `Potions.kt`. The
 placeholder row that claimed otherwise is being corrected, and it is the reason
 the error propagated: a brief quoted the Memory Bank summary as if it were the
 source.
+
+
+## 9. Correction pass, 2026-08-22
+
+This file was audited against `main` at `968b4f61` and the stale claims above
+were marked in place rather than silently rewritten. Summary of what changed:
+
+- Sections 1 and 2 said the vine, herb and papercut branches were unmerged and
+  the vine slice needed fixing first. All three branch tips are ancestors of
+  `main` at `968b4f61`; the vine slice landed.
+- Section 4's `/tmp/ankiscape_gate.sh` scratch script is superseded by
+  `tools/promotion_gate.py`, which now enforces the promotion gate.
+- Section 5 claimed the five vine-herb seeds could not be planted and that
+  `Herblore:finished_juju_hunting` was blocked. Both are live:
+  `data/farming_data.py:421-425` (blocked=()) and
+  `data/herblore_data.py:285`. Merged-tree reachability baseline:
+  `1599 / 2370 / 38 / 34 / 4 / 37 / 1123`.
+- Section 8's "twenty-five of thirty-two handlers remain" was stale; see the
+  in-place note there.
+- Citation drift found by `tools/audit_citation_drift.py` in this file:
+  `memory-bank/activeContext.md:114` (content changed) and
+  `data/farming_data.py:395-399` -> now `421-425`.
+
+Still true as of `968b4f61`: `goal/secondaries-2026-08-11` and
+`promote5/2026-08-19` remain unmerged; the three source-blocked placeholders
+(`fish_flingers.xp_payout`, `bone_sources.frost_dragon_generated_levels`,
+`bone_sources.ogre_coffin_selector_weights`) are still registered in
+`memory-bank/placeholder-values.md`; the Jungle Potion safeguard decision
+(design-thread-queue 3.26) still waits for the owner.
+
+Landed since this file was last updated, per merge history on `main` between
+2026-08-21 and 2026-08-22: 38 distinct `goal/*` branches, including the
+remaining undo-seam migrations, trails RNG, asset cutoff, prayer altars,
+camo jadinko reward tables, clue ownership, the gate lock itself, and the
+citation audit. The promotion gate is enforced by `tools/promotion_gate.py`;
+the next orchestration seat should start there, not from memory.
