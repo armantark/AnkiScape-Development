@@ -3219,40 +3219,46 @@ def _on_main_menu(
 
     def _apply_court_cases_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_court_cases_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Court Cases action failed.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        accepted = False
+        result = {}
+
+        def _change(current):
+            nonlocal accepted
+            updated, ok, info = apply_court_cases_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            accepted = ok
+            result["info"] = info
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            if result["info"].get("message"):
+                _show_activity_gain(str(result["info"]["message"]))
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(
+                        result["info"].get("reason", "Court Cases action failed.")
+                    ),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
-        return {"ok": True, **info}
+        return {"ok": True, **result["info"]}
 
     def _apply_circus_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
