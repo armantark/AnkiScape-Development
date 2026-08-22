@@ -984,6 +984,11 @@ match. A content addition must update those pinned assertions in the same
 commit. This supersedes the 2026-08-22 05:52 papercut's interim rule to preserve
 the old grep-based informational behavior. Starting any rerun removes that
 commit's prior evidence, and a failed rerun writes none.
+
+The remote Qt verification checkout is an rsync mirror of the working tree and
+has no `.git` directory. Tests that run in that lane must build fixtures from
+the filesystem and must not shell out to Git.
+
 Land only with
 `python3 tools/promotion_gate.py land <promotion-worktree>`, not a hand-written
 `git merge --ff-only`. Landing is serialized, requires full-gate evidence for
