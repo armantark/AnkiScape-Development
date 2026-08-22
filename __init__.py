@@ -2752,45 +2752,52 @@ def _on_main_menu(
 
     def _apply_fight_caves_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_fight_caves_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
+        result = {}
+        accepted = False
+
+        def _change(current):
+            nonlocal accepted
+            updated, ok, info = apply_fight_caves_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            result.clear()
+            result.update(info)
+            accepted = bool(ok)
+            return updated, accepted
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not accepted:
+                return {
+                    "ok": False,
+                    "message": str(
+                        result.get("reason", "Fight Cave action failed.")
+                    ),
+                    **{
+                        key: result[key]
+                        for key in ("requires_confirmation", "follower_kind")
+                        if key in result
+                    },
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
-                "message": str(info.get("reason", "Fight Cave action failed.")),
-                **{
-                    key: info[key]
-                    for key in ("requires_confirmation", "follower_kind")
-                    if key in info
-                },
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return {
-                "ok": False,
+                "reason": "undo_unavailable",
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
+        if result.get("message"):
+            _show_activity_gain(str(result["message"]))
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
-        return {"ok": True, **info}
+        return {"ok": True, **result}
 
     def _apply_dagannoth_kings_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
