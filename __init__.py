@@ -2211,8 +2211,8 @@ def _on_main_menu(
                 pass
 
         if not commit_direct_action(_change, after_apply=_after_apply):
-            if "reason" not in info:
-                # MUTATION: branch on payload key presence
+            if not accepted:
+                # The pure function refused: report its refusal, as before.
                 return {
                     **result["info"],
                     "projection": _get_ge_projection(),
