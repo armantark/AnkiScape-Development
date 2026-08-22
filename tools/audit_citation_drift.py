@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import os
 import re
@@ -408,7 +409,13 @@ def _preferred_external_sources(context: str) -> tuple[str, ...]:
             for source in ("darkan-world-server", "darkan-client", "darkan-cache"):
                 if source not in preferred:
                     preferred.append(source)
-        if "game-main" in text or "2011scape" in text or "[gm" in text:
+        if (
+            "game-main" in text
+            or "2011scape" in text
+            or "[gm" in text
+            or re.search(r"(?<![a-z0-9_])g:", text)
+            or re.search(r"(?<![a-z0-9_])gm(?![a-z0-9_])", text)
+        ):
             preferred.append("game-main")
         return tuple(preferred)
 
@@ -691,6 +698,14 @@ def _resolve_external(
             None, (), None, (),
             f"The explicitly named {explicit_source} path does not exist in the available source tree.",
         )
+    if preferred:
+        source_name = "darkan" if all(name.startswith("darkan") for name in preferred) else ",".join(preferred)
+        return CitationResult(
+            citation.record_path, citation.record_line, citation.target, "missing_file",
+            f"external-tree:{source_name}", citation.origin_commit, citation.target, (),
+            None, (), None, (),
+            f"The source context names {source_name}, but no available source tree contains the cited file.",
+        )
     return None
 
 def audit_citations(
@@ -786,19 +801,16 @@ def _source_spec(value: str) -> ExternalRepository:
     return ExternalRepository(name, Path(path).expanduser())
 
 
-def _text(lines: tuple[str, ...]) -> str:
-    return "\\n".join(lines) if lines else "<missing>"
+def _text_preview(lines: tuple[str, ...], limit: int = 240) -> str:
+    text = " ".join(line.strip() for line in lines if line.strip()) or "<missing>"
+    return text if len(text) <= limit else f"{text[:limit - 1]}…"
 
 
 def _print_result(result: CitationResult) -> None:
-    print(f"{result.record_path}:{result.record_line}: {result.status}: `{result.target}`")
-    print(f"  {result.detail}")
-    if result.origin_target:
-        print(f"  origin {result.origin_target}: {_text(result.origin_text)}")
-    if result.cited_target:
-        print(f"  cited {result.cited_target}: {_text(result.cited_text)}")
-    if result.real_target and result.real_target != result.cited_target:
-        print(f"  real {result.real_target}: {_text(result.real_text)}")
+    target = result.real_target or result.cited_target or "<missing>"
+    target_text = result.real_text or result.cited_text
+    print(f"{result.record_path}:{result.record_line}: {result.status}: `{result.target}` -> `{target}`")
+    print(f"  target text: {_text_preview(target_text)}")
 
 
 def main() -> int:
@@ -809,8 +821,12 @@ def main() -> int:
     parser.add_argument("--external-tree", action="append", default=[], type=_source_spec, metavar="NAME=PATH")
     parser.add_argument("--no-default-sources", action="store_true")
     parser.add_argument("--all", action="store_true", help="print resolved citations as well as issues")
-    parser.add_argument("--limit", type=int, help="limit the number of citation records printed")
-    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--limit", type=int, default=10, help="number of citation records to print (default: 10)")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="complete gzip-compressed JSON report path (default: MEMORY_BANK/citation-drift-results.json.gz)",
+    )
     args = parser.parse_args()
     default_repositories, default_filesystems = _default_sources()
     repositories = tuple(args.external_repo) if args.no_default_sources else default_repositories + tuple(args.external_repo)
@@ -825,23 +841,27 @@ def main() -> int:
         external_repositories=repositories,
         external_filesystems=filesystems,
     )
-    if args.json:
-        print(json.dumps(asdict(report), indent=2))
-    else:
-        print(f"Scanned {report.markdown_files} Markdown files and found {report.citations} citations.")
-        print(
-            f"Resolved {report.resolved} citations "
-            f"({report.repository_local} repository-local, {report.pinned_external} pinned external, "
-            f"{report.unpinned_external} current external)."
-        )
-        print(f"Found {report.stale} stale and {report.unresolved} unresolved citations.")
-        displayed = report.results if args.all else tuple(
-            result for result in report.results if result.stale or not result.resolved
-        )
-        if args.limit is not None:
-            displayed = displayed[:args.limit]
-        for result in displayed:
-            _print_result(result)
+    report_root = memory_bank or root / "memory-bank"
+    output = args.output or report_root / "citation-drift-results.json.gz"
+    if not output.is_absolute():
+        output = root / output
+    output.parent.mkdir(parents=True, exist_ok=True)
+    payload = (json.dumps(asdict(report), separators=(",", ":")) + "\n").encode()
+    output.write_bytes(gzip.compress(payload, mtime=0))
+
+    print(f"Scanned {report.markdown_files} Markdown files and found {report.citations} citations.")
+    print(
+        f"Resolved {report.resolved} citations "
+        f"({report.repository_local} repository-local, {report.pinned_external} pinned external, "
+        f"{report.unpinned_external} current external)."
+    )
+    print(f"Found {report.stale} stale and {report.unresolved} unresolved citations.")
+    print(f"Wrote complete results to {output}.")
+    displayed = report.results if args.all else tuple(
+        result for result in report.results if result.stale or not result.resolved
+    )
+    for result in displayed[:args.limit]:
+        _print_result(result)
     return 0 if report.ok else 1
 
 
