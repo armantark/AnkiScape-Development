@@ -422,6 +422,55 @@ continuous numpad presses to clean up to 15,000 herbs/hour. That is player input
 throughput of the same excluded class as click-intensive feathered bolts, not a
 stable make-X game cadence.
 
+### Construction extension — 2026-08-22
+
+A Construction action is one furniture build. The period rates include removing
+the furniture, requesting planks, servant travel, and inventory management around
+that XP-bearing build. Removing furniture awards no XP and is not promoted to a
+second AnkiScape action. Sacred-clay rows preserve the ordinary 60/140 XP per
+plank and declare the doubled award separately.
+
+1. Darkan at
+   `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`,
+   commit `3b47cfdfae8b95d543edc2c360aaad5086047804`, contains no XP/hour
+   table. `src/main/java/com/rs/game/content/skills/construction/playerOwnedHouse/HouseObjects.kt`
+   corroborates Oak larder `480`, Oak door `600`, Mahogany table `840`, and
+   mounted Cape of legends `300` XP per build; `HouseServants.kt` corroborates a
+   20-plank Butler and 26-plank Demon butler with distinct bank delays. The
+   source-backed hotspot restoration commit is
+   `7ed77d5f248a0536485cc6815425193ee98409d1`.
+2. The rev-727 cache contains no server rate table. It confirms Oak/Teak/Mahogany
+   planks `8778/8780/8782`, Oak larder `8234`, Mahogany table `8120`, Oak door
+   `8122`, Cape of legends furniture `8284`, Sacred clay hammer `14112`, and the
+   Butler/Demon butler NPCs `4241/4243` with `Fetch-from-bank`.
+3. 2011Scape rev 667 contains no Construction implementation or XP/hour table;
+   the targeted search reaches only generated item/object constants. It supplies
+   no rate or independent server action contract for this skill.
+4. Rev 742 has the same relevant item and servant identities/options as rev 727.
+   The other client caches likewise cannot supply server production rates, so
+   the pinned period guide below supplies them.
+
+| Construction method | Period rate | Source XP per action | **R** | What is baked into the quoted rate |
+|---|---:|---:|---:|---|
+| Mounted Cape of legends, no butler `[C-TRAIN]` | 45,000–55,000 | 3 teak planks × 100 = 300 | **150–183 builds/hour** | Three teak planks, a retained Cape of legends, build/remove cycles, and explicitly **no butler** are baked in. The banking route is not stated, so this row is indicative rather than a universal no-servant cadence. No Sacred clay hammer is named. |
+| Oak dungeon doors, normal Butler, no Sacred clay hammer `[C-TRAIN]` | 200,000–400,000 by player; summary table says 250,000–300,000 | 10 oak planks × 60 = 600 | **≈333–667**; summary **≈417–500** | A normal Butler fetching 20 oak planks, two doors per delivery, repeated build/remove cycles, hammer and saw/toolbelt, and no Sacred clay hammer are baked in. The guide recommends the normal Butler over the Demon butler for this ten-plank recipe. The broad and summary ranges are retained separately. |
+| Oak dungeon doors, Sacred clay hammer efficiency row `[C-TRAIN]` | average 210,000 | 600 base; 1,200 while doubled | **175 builds per total hour** | Oak planks, normal Butler, build/remove cycles, Sacred clay hammer doubling, banking to replace hammers, and the guide's stated time to earn hammers in skilling-only Stealing Creation are all baked in. This is calendar time including hammer acquisition, not one uninterrupted hour inside the house. |
+| Mahogany tables, normal Butler, no Sacred clay hammer `[C-TRAIN]` | around 450,000 | 6 mahogany planks × 140 = 840 | **≈536 builds/hour** | Normal Butler deliveries, three tables per round and four every third round, build/remove cycles, bought mahogany planks, and no Sacred clay hammer are baked in. |
+| Mahogany tables, Demon butler, no Sacred clay hammer `[C-TRAIN]` | average-analysis row 520,000; prose says over 600,000, with some players over 700,000 or 800,000; theoretical maximum around 900,000 | 840 | **≈619** average; **>714**, **>833**, **>952** observed thresholds; theoretical **≈1,071** | Demon butler deliveries, four tables per round and five every third round, build/remove cycles, bought mahogany planks, and no Sacred clay hammer are baked in. The average, observed thresholds, and theoretical ceiling remain separate; none is averaged into another. |
+| Mahogany tables, Sacred clay hammer efficiency row `[C-TRAIN]` | average 200,000 | 840 base; 1,680 while doubled | **≈119 builds per total hour** | Mahogany planks, Demon butler, build/remove cycles, Sacred clay hammer doubling, banking to replace hammers, and the guide's time to earn 20.2 hammers per construction-hour are baked in. This is calendar time including Stealing Creation, not a house-only build rate. |
+
+The pinned source is `[C-TRAIN]` *Construction training*, oldid `6487730`,
+`2012-10-28T02:52:40Z`. It explicitly says all quoted mahogany-table rates are
+**without** Sacred clay hammers unless the separate efficiency row names one,
+and its efficiency model includes a Demon butler for mahogany tables and a
+normal Butler for oak doors.
+
+Construction directly reads **R ≈ 119 to >952 observed builds/hour**, with a
+**theoretical ≈1,071** mahogany-table ceiling. The low Sacred-clay values are not
+a slower in-house animation: they include hours spent earning the hammers. The
+ordinary Butler/Demon-butler rows are not comparable to no-servant methods unless
+that logistics difference remains attached to the rate.
+
 ### Action-unit normalisation follow-up — 2026-08-22
 
 The hypothesis that Runecrafting looked slow only because its source rates counted
@@ -500,6 +549,7 @@ These cannot fit one action per review at `R = 1000` and must declare an explici
 | Herblore: Serum 207, full two-stage route | 1,000 finishes / 2,000 total invocations | Unfinished actions award zero XP; no outfit or scroll is baked in |
 | Herblore: Serum 207 from bought unfinished potions | 3,000 finishes | Maximum quote; long-run output disposal is not isolated |
 | Herblore: Extreme attack | 1,818 finishes | Potential rate; scroll, familiar, and Factory outfit are not named |
+| Construction: mahogany tables, Demon butler | theoretical ≈1,071 builds | About 900k XP/hour; observed thresholds stop above 800k (R >952) |
 
 The overflow list was never "two Thieving stalls." It is a standing property of
 the fastest content in several skills, and `R` cannot be chosen to eliminate it
@@ -559,6 +609,15 @@ Recorded, not filled. Absence is a finding.
   are called fast but receive no number. Those methods remain `source_blocked`;
   Serum 207 and Extreme attack cannot stand in for them. No shipped Herblore XP
   value depends on a fabricated rate, so no placeholder marker is warranted.
+- **Construction:** no clean pre-cutoff XP/hour was recovered for oak larders,
+  ordinary low-level furniture, flatpacks at a workbench, or most non-plank
+  hotspot products. The guide describes oak-larder servant rounds in detail but
+  never supplies elapsed time or XP/hour, so those counts do not manufacture a
+  rate. No numeric no-servant bank route was recovered beyond the incomplete
+  mounted-Cape quote. These methods remain `source_blocked`; door and table rates
+  cannot stand in for different plank counts or servant logistics. No shipped
+  Construction XP value depends on a fabricated rate, so no placeholder marker
+  is warranted.
 
 ## Flagged ambiguities — recorded, never resolved by averaging
 
@@ -665,6 +724,18 @@ Recorded, not filled. Absence is a finding.
     drop or empty; it is retained as an indicative one-hour production ceiling,
     never averaged with the 50k full-route rate. The Extreme-attack quote remains
     a separate potential rate, not a baseline for other potions.
+
+19. **Construction rate populations and Sacred-clay calendar time.** `[C-TRAIN]`
+    gives oak doors as 250–300k in its summary but 200–400k in the detailed
+    passage; both ranges remain attached to the same normal-Butler/no-hammer
+    setup. For mahogany tables it gives a 520k Demon-butler average-analysis row,
+    while the prose says Demon-butler players get over 600k and records separate
+    >700k, >800k, and theoretical ~900k thresholds. None is averaged. The
+    Sacred-clay rows are a different clock: they include time spent earning
+    hammers, which is why 210k oak and 200k mahogany sit below the no-hammer
+    house-only rates despite doubled per-build XP. The mahogany cost expression
+    beside the displayed 200k row uses `260` in its arithmetic; the displayed
+    200k rate is retained and the inconsistency is not repaired by averaging.
 
 ## Content gaps surfaced incidentally
 
