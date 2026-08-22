@@ -224,6 +224,91 @@ stated invariant without inventing evidence. This is an owner decision for a
 separate model slice; this audit implements none of the options and changes no XP
 value.
 
+### Runecrafting extension — 2026-08-22
+
+The evidence search follows the project order and records empty tiers rather than
+turning implementation detail into a rate:
+
+1. Darkan at
+   `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`,
+   commit `3b47cfdfae8b95d543edc2c360aaad5086047804`, contains no XP/hour table.
+   `src/main/java/com/rs/game/content/skills/runecrafting/Runecrafting.java`
+   corroborates altar XP per essence, pouch and Abyssal-familiar essence handling,
+   and the 2.5% master-runecrafter outfit modifier. The original ordinary-rune
+   XP rows come from `c6fbe036b1743f4dd6067ec178332c69c3708856`; later supplying
+   commits include `dd5a89a8caa2825b2e0e13cc94b25eaf3b5a3cbd` for the Ourania
+   XP correction and `ca8796b8133ab3f49677c8c461f59ddd3667df62` for Armadyl runes.
+
+2. The rev-727 cache at
+   `/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/`
+   contains no server XP/hour table and cannot supply one. It confirms the client
+   definitions for Rune essence `1436/1437`, the small/medium/large/giant pouches
+   `5509–5515` (plus large pouch `6819`), Pure essence `7936/7937`, Abyssal
+   parasite pouch `12035/12036`, Air runecrafting gloves `12863`, Wicked hood
+   `22332`, and their relevant `Fill`/`Empty`/`Check`, `Summon`, `Wear`, and
+   `Teleport` options.
+3. 2011Scape rev 667 at
+   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/runecrafting/`
+   contains no XP/hour or circuit-time table. `Rune.kt`, `RunecraftAction.kt`,
+   and `pouches.plugin.kts` independently corroborate XP per essence, whole-stack
+   altar crafting, pouch capacities, and pouch degradation behavior.
+4. None of the other dated OpenRS2 caches can supply a server XP/hour table.
+   Rev 742, the closest checked build to the cutoff, has the same relevant item
+   identities and options as rev 727; no client-definition change alters the
+   condition sets below. The pinned pre-cutoff wiki revisions therefore supply
+   the rates.
+
+For standard altars, one game action is one altar click: it converts the
+whole carried load at once. Accordingly, `XP/action = essence/load × XP/essence`,
+and `R` is complete altar trips per hour. This is the unit AnkiScape exposes; it
+is not a mouse-click rate. Level-based multiple-rune output does not add XP,
+so it never changes the denominator; the Explorer's-ring extra-rune effect is a
+separate, explicitly declared XP modifier.
+
+| Runecrafting method | Period rate | Source XP per action | **R** | What is baked into the quoted rate |
+|---|---:|---:|---:|---|
+| Air runes, Varrock west on foot `[R-F2P]` `[R-XP]` `[R-RING]` | 6,720 base; 7,392 ring; 13,440 gloves; 14,112 both | 140 / 154 / 280 / 294 | **48 in every state** | The sourced 75-second circuit includes running between Varrock west bank and the altar, banking, and the route's musician. Each trip carries 28 essence. The ring adds expected 10% base XP; gloves double ordinary XP but not the ring's extra-rune XP, so the combined multiplier is 2.10. The four states are recorded separately, never averaged. No pouches, Abyss, essence familiar, Wicked hood, or master outfit apply. |
+| Air runes, Varrock-teleport return `[R-F2P]` `[R-XP]` | 8,910 | 27 × 5 = 135 | **66** | Exactly 66 trips/hour at 55 seconds and 1,782 essence/hour; one inventory slot holds the law rune for Varrock Teleport. The route includes running to the altar, teleporting back, banking, and periodic musician rests. It uses no pouches, Abyss, Runecrafting gloves, essence familiar, Wicked hood, master-runecrafter outfit, or Explorer's ring. |
+| Fire runes, F2P Al Kharid on foot `[R-F2P]` `[R-XP]` | 8,820 | 28 × 7 = 196 | **45** | The period inputs give 3,600 / 80 seconds × 28 essence × 7 XP with no ring. The 80-second circuit includes the run between Al Kharid bank and altar and the route's musician. F2P means no pouches, Abyss, essence familiar, Wicked hood, or master outfit; no Fire runecrafting gloves exist. A ring-equipped route is a distinct 9,702-XP/hour state and is not baked into this quote. |
+| Nature runes, Edgeville → fairy ring → glory return `[R-P2P]` `[R-POUCH]` `[R-XP]` | 11,600 | 43 × 9 = 387 | **≈30.0** | Small, medium, and large pouches give 25 inventory + 18 pouched essence. The quoted two-minute circuit includes Edgeville banking, running, the fairy-ring outbound leg, and amulet-of-glory return. It does not use the Abyss or an essence familiar; the guide may use a run-energy familiar. Nature tiara is explicit, so Wicked hood is not baked in. No gloves or master outfit are named, and pouch-repair time is unstated. |
+| Nature runes, Spirit graahk, small+medium+large `[R-P2P]` `[R-POUCH]` `[R-XP]` | 16,000; 17,000–18,000 for a fast clicker | 43 × 9 = 387 | **≈41.3; 43.9–46.5** | The Spirit graahk supplies the outbound teleport, not extra essence; a Ring of duelling returns to Castle Wars, and the rate includes banking and the run from the teleport to the altar. The three pouches are explicit. No Abyss, essence familiar, gloves, Wicked hood, or master outfit is named; pouch-repair time is unstated. The ordinary quote also says about 1,800 essence/hour, or 16,200 XP/hour, consistent with the displayed 16k only to rounding. |
+| Nature runes, Spirit graahk, medium+large+giant `[R-P2P]` `[R-POUCH]` `[R-XP]` | 27,000 | 52 × 9 = 468 | **≈57.7** | The load is 25 inventory essence plus 27 in the three named pouches. Spirit graahk teleport, the run to the altar, Castle Wars return, and banking are baked in; the guide also states about 3,000 essence/hour. No Abyss, essence familiar, gloves, Wicked hood, or master outfit is named; pouch-repair time is unstated. |
+| Nature runes, Zanaris bank and fairy ring both ways `[R-P2P]` `[R-POUCH]` `[R-XP]` | 5,800 | 43 × 9 = 387 | **≈15.0** from the rate | Small, medium, and large pouches, Zanaris banking, and both running/fairy-ring legs are baked in. No Abyss, familiar, gloves, Wicked hood, or master outfit is named; pouch-repair time is unstated. The same passage says both 645 essence/hour (15 trips/hour, matching 5,800 after rounding) and one trip every three minutes (20 trips/hour); both stand, and this row is indicative rather than a cadence contract. |
+
+The pinned period sources are:
+
+- `[R-F2P]` *Free-to-play Runecrafting training*, oldid `6547046`,
+  `2012-11-10T19:16:38Z`.
+- `[R-P2P]` *Pay-to-play Runecrafting training*, oldid `6530445`,
+  `2012-11-04T04:01:57Z`.
+- `[R-TEMPLATE]` *Template:Runecrafting training*, oldid `1736191`,
+  `2009-09-16T19:20:31Z`; its literal formula is
+  `3600 / Time × Ess × Runeexp × Runering`, with a separate glove doubling.
+- `[R-XP]` *Runecrafting*, oldid `6580390`, `2012-11-19T06:05:25Z`;
+  standard-rune XP per essence, whole-load altar crafting, gloves, and the
+  no-extra-XP multiple-rune rule.
+- `[R-POUCH]` *Runecrafting pouches*, oldid `6312549`,
+  `2012-09-28T14:40:17Z`; capacities `3/6/9/12` and an optional Abyssal
+  familiar's seven extra essence.
+- `[R-RING]` *Explorer's ring 3*, oldid `6518088`,
+  `2012-11-01T23:05:00Z`, and *Explorer's ring 2*, oldid `6060464`,
+  `2012-08-08T11:42:34Z`; 10% extra-rune XP and the non-doubled ring/glove
+  interaction.
+
+Across the quoted rate rows, Runecrafting directly reads **R ≈ 15.0–66.0
+complete altar trips/hour**. The internally consistent non-Zanaris rows span
+**≈30.0–66.0**. Nothing is adjusted toward `R = 1000` or toward Smithing's
+spread: the action is a whole essence load, so Runecrafting's numeric trip rate
+is expected to be much smaller than a per-item artisan rate.
+
+**Deliberately excluded from direct `R`:** Ourania/ZMI rolls a random rune and
+therefore random XP for every essence; Runespan mixes luck-sensitive nodes,
+yellow-wizard hand-ins, movement, and different siphon XP; combination-rune
+quotes do not fix the carried load, Magic Imbue/talisman choice, or familiar; and
+the Great Orb Project teletab route mixes altar-loop speed with token-earning
+time. Their period rates are retained in the ambiguity record below rather than
+misread as homogeneous game actions or silently dropped.
+
 ## Combat, measured
 
 Combat's `R` is a **definition, not a measurement**, and that is the entire
@@ -304,6 +389,20 @@ Recorded, not filled. Absence is a finding.
   urn, familiar, or Morytania-legs setups. These gaps do not supply a number. No
   shipped Smithing value depends on a fabricated rate, so no `PLACEHOLDER(...)`
   marker or placeholder-register row is warranted by this sourcing-only slice.
+- **Runecrafting:** no pre-cutoff XP/hour or circuit time was recovered for a
+  Nature-rune route through the Abyss, or for ordinary Law- or Death-rune routes
+  either on foot or through the Abyss. Those methods remain `source_blocked`; the
+  11,600 Nature row is specifically a fairy-ring outbound/glory-return route and
+  cannot stand in for them. Period rates do exist for P2P Fire (about 20k),
+  combinations (30k without pouches; 40k with), Cosmic (1,000 essence/hour),
+  Blood (23–25k), double Astral (25–27k), and level-banded Ourania, but their
+  exact direct `R` remains `source_blocked` where the quote does not isolate the
+  route, pouch set, essence familiar, outfit, repair time, or deterministic XP
+  per load. No shipped Runecrafting XP value depends on a fabricated rate, so no
+  `PLACEHOLDER(...)` marker or placeholder-register row is warranted. The
+  generic `24.0` travel cost in `logic/agility_travel.py` is already labelled
+  `ankiscape_trip_abstraction`, not presented as a period rate; changing that
+  cadence is the open owner decision and is outside this sourcing-only slice.
 
 ## Flagged ambiguities — recorded, never resolved by averaging
 
@@ -347,6 +446,49 @@ Recorded, not filled. Absence is a finding.
    banking per five bodies, but then claims 937.5 bodies/hour and 585k XP/hour with
    Sacred clay hammers. Its own timings yield 900 bodies/hour, not 937.5. The
    internally inconsistent constructed rate is not used.
+10. **Explorer's ring (Runecrafting).** The 2009 training template hardcodes
+    `1.125`; the 2012 Explorer's-ring pages state 10% and explicitly award base XP
+    for each extra rune. The later item-specific `1.10` evidence controls. The
+    stale `1.125` rates remain recorded but are not averaged into the table. With
+    Runecrafting gloves, ordinary XP doubles while ring-extra XP does not, making
+    the combined expected multiplier `2.10`, not `2.20` or `2.25`.
+11. **Nature via Zanaris (Runecrafting).** The same `[R-P2P]` passage says one
+    trip every three minutes, but also 645 essence/hour with a 43-essence load.
+    Those are respectively 20 and 15 trips/hour; 645 × 9 = 5,805 XP matches the
+    displayed 5,800. Both statements remain, and the rate-derived `R ≈ 15.0` is
+    flagged rather than averaged with 20.
+12. **P2P Fire and combination runes.** `[R-P2P]` headlines Fire at about 20k
+    XP/hour, yet its table assumes 2,000 essence/hour, only 14k at 7 XP/essence.
+    The setup lists small/medium pouches, optional Abyssal parasite, and a Wicked
+    hood without isolating them. The same page gives combinations as 30k without
+    pouches and 40k with, but does not fix steam versus lava XP, exact load, Magic
+    Imbue versus consumed talisman, binding necklace, or familiar. No direct `R`
+    is promoted for either quote.
+13. **Blood runes.** `[R-P2P]` gives 23–25k XP/hour while presenting both the
+    Abyss and Drakan's-medallion routes, all four standard pouches, and an optional
+    seven-essence familiar. If no familiar is baked in, 54 × 10.5 = 567 XP/load
+    implies `R = 40.6–44.1`; if it is baked in, 61 × 10.5 = 640.5 implies
+    `R = 35.9–39.0`. The source does not choose, so neither interpretation is
+    promoted and they are never averaged.
+14. **Astral runes.** The double-Astral quote is 25–27k XP/hour but does not fix
+    its pouch/familiar load. Separately, `[R-XP]` prints 8.75 XP/essence, while
+    *Astral rune* oldid `6457955`, `2012-10-23T07:31:32Z`, Darkan, and 2011Scape
+    all state 8.7. The independently corroborated 8.7 shipped value stands; the
+    table discrepancy is not averaged.
+15. **Ourania/ZMI and Runespan.** `[R-P2P]` gives 25–55k XP/hour by level and
+    banking route, plus 75/72/63-second circuit variants, but each essence rolls a
+    random rune and therefore random XP; pouch, optional familiar, outfit, and
+    repair treatment are not fixed by the rate table. *Runespan* oldid `6563925`,
+    `2012-11-16T16:12:38Z`, gives about 90k at level 85 with good nodes/wizard
+    hunting, 55k at level 99 on soul esswraiths only, and over 100k with active
+    high-node/wizard play. Those are heterogeneous, luck- and movement-sensitive
+    activity rates, not one deterministic altar action, so no direct `R` is read.
+16. **Nature teletabs and Great Orb Project time.** `[R-P2P]` says the direct
+    altar loop handles over 8,000 essence/hour but quotes only 35–45k XP/hour; at
+    9 XP/essence, 8,000 would exceed 72k. It separately gives sustainable rates
+    of 10–13k after token-earning time. Fast-clicker circuit claims, pouch repair,
+    familiar load, and GOP win rate are mixed. The altar-only and sustainable
+    numbers remain separate and no mouse rate is promoted as `R`.
 
 ## Content gaps surfaced incidentally
 
