@@ -224,6 +224,24 @@ stated invariant without inventing evidence. This is an owner decision for a
 separate model slice; this audit implements none of the options and changes no XP
 value.
 
+### Action-unit normalisation follow-up — 2026-08-22
+
+The hypothesis that Runecrafting looked slow only because its source rates counted
+whole altar trips while AnkiScape counted individual essence was tested and
+**disproved**. AnkiScape resolves one standard Runecrafting altar load per
+successful review and one Smithing smelt or forge recipe per successful review.
+Runecrafting's `R = 15–66` complete trips/hour and Smithing's `R = 250–1,538`
+handler invocations/hour are therefore already expressed in the same AnkiScape
+unit: one XP-bearing skill invocation at review-action multiplier 1. Multiplying
+Runecrafting trips by essence per trip would change the unit to essence/hour, not
+normalise it.
+
+**The contradiction survived the matched-unit test.** It is a real cadence-model
+contradiction, not a unit artefact. The per-skill action boundaries, arithmetic,
+and separate current-runtime pouch-payload mismatch are recorded in
+[`action-unit-normalisation-2026-08-22.md`](action-unit-normalisation-2026-08-22.md).
+No cadence constant, XP value, or executable behaviour changes in this audit.
+
 ## Combat, measured
 
 Combat's `R` is a **definition, not a measurement**, and that is the entire

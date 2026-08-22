@@ -62,6 +62,14 @@ Hosted gilded-altars have one player-visible exception: the first stint spends 1
 
 The common unit is **one XP-bearing invocation of the selected skill handler at review-action multiplier 1**. Banking, travel, hosted-house search, and cadence waits are review friction around that action, not extra units inside it. In particular, one standard Runecrafting invocation is one complete altar load. Multiplying trips/hour by essence/load would answer “essence/hour,” not “AnkiScape actions/hour.”
 
+| Skill | One AnkiScape action at multiplier 1 |
+|---|---|
+| Runecrafting | One complete standard-rune altar load |
+| Smithing | One selected smelt or forge recipe; mixed routes count each separately |
+| Crafting | One selected recipe, regardless of its output stack size |
+| Magic | One spell cast, including a cast with an inventory-wide effect |
+| Prayer | One bone, ash, bonemeal, or ash unit buried, scattered, or offered |
+
 The original deterministic-artisan rows are already in that common unit:
 
 | Ledger row | Checkable arithmetic | Actions/hour |
