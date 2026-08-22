@@ -771,3 +771,5 @@
 - 2026-08-21 17:16 PDT — Subagent escalation could send the orchestrator a ruling request but `notify_when_idle` failed with `notify_when_idle is only available from the main conversation of this session`; subagents must wait for automatic cross-session delivery.
 
 - 2026-08-21 17:27 PDT — Capturing an expected unittest failure in zsh used `status`, a read-only special parameter, and aborted before printing the result; use a neutral name such as `test_rc`.
+
+- 2026-08-21 17:33 PDT — A focused reachability rerun guessed `ItemReachabilityAuditTest` and failed with `AttributeError: module 'tests.test_item_reachability_audit' has no attribute 'ItemReachabilityAuditTest'. Did you mean: 'TestItemReachabilityAudit'?`; read the declared class before composing a dotted unittest target.
