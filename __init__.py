@@ -2614,16 +2614,18 @@ def _on_main_menu(
         # made the Garden's policy boundary the one mutation here you could not
         # take back. Every action now registers.
         result = {}
+        pure_ok = False
 
         def _change(current):
-            nonlocal result
+            nonlocal pure_ok, result
             updated, ok, info = apply_sorceress_garden_command_pure(
                 current,
                 str(action_id),
                 payload,
             )
-            result = {"ok": bool(ok), "info": info}
-            return updated, bool(ok)
+            pure_ok = bool(ok)
+            result = {"ok": pure_ok, "info": info}
+            return updated, pure_ok
 
         def _after_apply():
             _refresh_skill_availability()
@@ -2633,7 +2635,7 @@ def _on_main_menu(
                 pass
 
         if not commit_direct_action(_change, after_apply=_after_apply):
-            if result.get("ok") is False:
+            if not pure_ok:
                 # The pure function refused: report its refusal, as before.
                 return {
                     "ok": False,
