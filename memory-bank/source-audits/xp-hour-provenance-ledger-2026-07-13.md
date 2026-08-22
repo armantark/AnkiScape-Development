@@ -370,6 +370,58 @@ stable game action cadence. Darts and the similarly speed-of-player arrow claims
 are excluded for the same reason wherever the source does not isolate a queued
 batch rate.
 
+### Herblore extension — 2026-08-22
+
+Herblore exposes three distinct action units: cleaning one herb, making one
+zero-XP unfinished potion, and finishing one potion for the recipe XP. A route
+that makes its own unfinished potions therefore contains twice as many recipe
+invocations as XP-bearing finishes. The table keeps those units explicit rather
+than crediting the zero-XP step with invented XP.
+
+1. Darkan at
+   `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`,
+   commit `3b47cfdfae8b95d543edc2c360aaad5086047804`, contains no XP/hour
+   table. `src/main/java/com/rs/game/content/skills/herblore/CraftablePotion.java`
+   and `Herblore.java` corroborate zero XP for ordinary unfinished potions,
+   50 XP for Serum 207, 220 XP for Extreme attack, one potion per action, and
+   optional Scroll-of-cleansing processing. The current source-qualified recipe
+   XP commit is `f8fb280025a96ff461c1cce84946a95ca75de4aa`.
+2. The rev-727 cache contains no server rate table. It confirms Vial of water
+   `227`, Clean tarromin `253`, Tarromin potion (unf) `95`, Ashes `592`, Serum
+   207 (3) `3410`, Super attack (3) `145`, Clean avantoe `261`, Extreme attack
+   (3) `15309`, Scroll of cleansing `19890`, and Factory outfit pieces
+   `22958–22960` with their relevant `Empty`, `Drink`, `Read`, and `Wear`
+   options.
+3. 2011Scape rev 667 contains no XP/hour table. Its
+   `herblore/HerbData.kt`, `mixing/PotionData.kt`,
+   `CreateUnfinishedPotionAction.kt`, and `CreateFinishedPotionAction.kt`
+   independently corroborate zero-XP unfinished actions, one finished potion per
+   action, and the relevant 50/220 XP values.
+4. Rev 742 has the same relevant item identities and options as rev 727. None of
+   the client caches can supply a server production rate, so the pinned period
+   guide supplies the rates.
+
+| Herblore method | Period rate | Source XP per action | **R** | What is baked into the quoted rate |
+|---|---:|---:|---:|---|
+| Serum 207, make Tarromin potion (unf), then add ashes `[H-TRAIN]` | around 50,000 | 0 for the unfinished step; 50 for the finish | **≈1,000 finished XP actions/hour; ≈2,000 total recipe invocations/hour** | Clean tarromin, vials of water, ashes, two make-X stages, inventory banking, and untradeable Serum 207 output are baked in. No Scroll of cleansing, familiar, or Factory outfit is named. The full Factory outfit would add herb-cleaning XP to the unfinished step, so it is explicitly not assumed. |
+| Serum 207 from bought Tarromin potion (unf) `[H-TRAIN]` | maximum around 150,000 | 50 per finish | **≈3,000 finished potions/hour** | Bought unfinished potions, ashes, one make-X stage, banking, and untradeable output are baked in. The page separately warns that dropping or emptying Serum 207 is time-consuming, so the maximum does not establish a long-run disposal cadence. No Scroll of cleansing, familiar, or Factory outfit is named. |
+| Extreme attack from Super attack (3) `[H-TRAIN]` | potential 400,000 | 220 | **≈1,818 finished potions/hour** | Clean avantoe, bought Super attack (3), 14-pair bank inventories, and no preceding standard-potion production are baked in. The Scroll of cleansing is mentioned afterward as an optional cost saver, not as part of the 400k quote; no familiar or Factory outfit is named. The word "potential" is retained. |
+
+The pinned source is `[H-TRAIN]` *Herblore training*, oldid `6556186`,
+`2012-11-15T03:15:37Z`. Its introduction records the optional modifiers that
+must not be silently folded into a rate: the Scroll of cleansing has a 10% item
+save and 12.5% faster-potion chance, while all five Factory-outfit pieces add the
+herb-cleaning XP to unfinished potions. None of the three rate passages declares
+those modifiers or a familiar, so none is baked into the table.
+
+The recoverable potion routes read **R ≈ 1,000–3,000 XP-bearing finishes/hour**;
+the two-stage Serum route additionally measures about **2,000 total Herblore
+recipe invocations/hour**. The guide's herb-cleaning ceiling is deliberately
+excluded from direct `R`: it requires mouse keys, rapid pointer movement, and
+continuous numpad presses to clean up to 15,000 herbs/hour. That is player input
+throughput of the same excluded class as click-intensive feathered bolts, not a
+stable make-X game cadence.
+
 ### Action-unit normalisation follow-up — 2026-08-22
 
 The hypothesis that Runecrafting looked slow only because its source rates counted
@@ -445,6 +497,9 @@ These cannot fit one action per review at `R = 1000` and must declare an explici
 | Fletching: maple/yew/magic longbows | 1,333 to >1,749 | Bank cycles and stated attention are baked in; Sacred clay is isolated |
 | Fletching: broad arrows, make-10 queue | 2,502 sets | One set is 15 arrows and 225 source XP |
 | Fletching: diamond bolts, make-10 queue | 4,286–4,857 sets | One set is ten tipped bolts and 70 source XP |
+| Herblore: Serum 207, full two-stage route | 1,000 finishes / 2,000 total invocations | Unfinished actions award zero XP; no outfit or scroll is baked in |
+| Herblore: Serum 207 from bought unfinished potions | 3,000 finishes | Maximum quote; long-run output disposal is not isolated |
+| Herblore: Extreme attack | 1,818 finishes | Potential rate; scroll, familiar, and Factory outfit are not named |
 
 The overflow list was never "two Thieving stalls." It is a standing property of
 the fastest content in several skills, and `R` cannot be chosen to eliminate it
@@ -496,6 +551,14 @@ Recorded, not filled. Absence is a finding.
   91.5 to 183 XP/action. Click-intensive feathered bolts are excluded evidence,
   not a missing number, and cannot stand in for queued bolt-tip production. No
   shipped Fletching XP value is changed by this sourcing-only slice.
+- **Herblore:** no clean pre-cutoff XP/hour was recovered for ordinary Attack,
+  Strength, Prayer, Super attack, Super strength, Super restore, or most other
+  standard potion finishes; the guide supplies ingredient counts and XP but not
+  production rates. No homogeneous rate was recovered for cleaning without the
+  explicitly mouse-key-driven method. Extreme strength/magic and Super antifire
+  are called fast but receive no number. Those methods remain `source_blocked`;
+  Serum 207 and Extreme attack cannot stand in for them. No shipped Herblore XP
+  value depends on a fabricated rate, so no placeholder marker is warranted.
 
 ## Flagged ambiguities — recorded, never resolved by averaging
 
@@ -593,6 +656,15 @@ Recorded, not filled. Absence is a finding.
     averaged. The queued broad-arrow and diamond-bolt rows do declare their batch
     sizes and timings, so they remain usable; the explicitly click-intensive
     feathered-bolt rates do not.
+
+18. **Herblore modifiers and Serum disposal.** `[H-TRAIN]` describes the Scroll
+    of cleansing and Factory outfit globally but does not declare either inside
+    the Serum 207 or Extreme-attack rate passages. They are therefore excluded,
+    not silently estimated. The bought-unfinished Serum quote is explicitly a
+    maximum and the same section warns that the untradeable output is slow to
+    drop or empty; it is retained as an indicative one-hour production ceiling,
+    never averaged with the 50k full-route rate. The Extreme-attack quote remains
+    a separate potential rate, not a baseline for other potions.
 
 ## Content gaps surfaced incidentally
 
