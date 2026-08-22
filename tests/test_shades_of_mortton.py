@@ -435,6 +435,8 @@ class ShadesOfMorttonCremationAndChestTests(unittest.TestCase):
         self.assertEqual(result["rewards"], {"Coins": 10})
         self.assertNotIn("Clue scroll (easy)", player["inventory"])
         self.assertIn("no extra reward", result["message"])
+        self.assertIn("already have a clue scroll", result["message"])
+        self.assertIn("Clue scroll (hard)", result["clue_refusal_reason"])
 
     def test_better_colour_key_uses_the_reconstructed_roll_modifier(self):
         def open_with(key_name):

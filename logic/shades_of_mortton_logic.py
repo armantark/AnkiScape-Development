@@ -33,7 +33,10 @@ from ..data.shades_of_mortton_data import (
     SHADES_OF_MORTTON_COMBAT_TARGET_ID,
     shades_of_mortton_loar_enemy_pure,
 )
-from .treasure_trails_logic import filter_clue_scroll_outputs_pure
+from .treasure_trails_logic import (
+    clue_ownership_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 
 
 SHADES_OF_MORTTON_STATE_VERSION = 1
@@ -575,7 +578,13 @@ def open_shades_bronze_chest_pure(
         quantity += int(_roll(rng) * (maximum - minimum + 1))
     _add(inventory, "Coins", coins)
     rewards = {"Coins": coins}
+    ownership_reason = clue_ownership_reason_pure(data)
     main_rewards = filter_clue_scroll_outputs_pure(data, {reward: quantity})
+    clue_refusal_reason = (
+        ownership_reason
+        if ownership_reason and reward not in main_rewards
+        else ""
+    )
     for item_name, amount in main_rewards.items():
         _add(inventory, item_name, amount)
         rewards[item_name] = amount
@@ -595,10 +604,12 @@ def open_shades_bronze_chest_pure(
     )
     data["shades_of_mortton_last_result"] = (
         f"Opened a bronze chest · {reward_summary}"
+        + (f" · {clue_refusal_reason}" if clue_refusal_reason else "")
     )
     return data, True, {
         "message": data["shades_of_mortton_last_result"],
         "rewards": rewards,
+        "clue_refusal_reason": clue_refusal_reason,
     }
 
 

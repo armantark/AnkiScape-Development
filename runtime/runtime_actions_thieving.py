@@ -219,6 +219,7 @@ from ..logic.court_cases_logic import (
     filter_court_summons_outputs_pure,
 )
 from ..logic.treasure_trails_logic import (
+    clue_ownership_reason_pure,
     filter_clue_scroll_outputs_pure,
 )
 from ..data.circus_data import CIRCUS_ACTIVITY_ID
@@ -415,13 +416,22 @@ def _thieving_rng_index(ctx: RuntimeActionContext, size: int) -> int:
     return min(max(int(ctx.random_random() * max(size, 1)), 0), max(size - 1, 0))
 
 
-def _thieving_grant_outputs(player_data: dict[str, Any], outputs: dict[str, int]) -> None:
+def _thieving_grant_outputs(
+    player_data: dict[str, Any], outputs: dict[str, int]
+) -> tuple[dict[str, int], str]:
     outputs = filter_court_summons_outputs_pure(player_data, outputs)
-    outputs = filter_clue_scroll_outputs_pure(player_data, outputs)
+    ownership_reason = clue_ownership_reason_pure(player_data)
+    granted_outputs = filter_clue_scroll_outputs_pure(player_data, outputs)
+    clue_refusal_reason = (
+        ownership_reason
+        if ownership_reason and granted_outputs != outputs
+        else ""
+    )
     inventory = dict(player_data.get("inventory", {}) or {})
-    for item_name, amount in outputs.items():
+    for item_name, amount in granted_outputs.items():
         inventory[item_name] = int(inventory.get(item_name, 0) or 0) + max(int(amount), 0)
     player_data["inventory"] = inventory
+    return granted_outputs, clue_refusal_reason
 
 
 def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, Any]) -> bool:
@@ -491,7 +501,9 @@ def _thieving_award_success(
             )
             for item_name, amount in rolled.items():
                 outputs[item_name] = outputs.get(item_name, 0) + amount
-    _thieving_grant_outputs(ctx.player_data, outputs)
+    granted_outputs, clue_refusal_reason = _thieving_grant_outputs(
+        ctx.player_data, outputs
+    )
     base_xp = float(spec.get("xp", 0.0) if xp is None else xp)
     gained = _award_action_xp_rewards(
         ctx, ({"skill_id": "thieving", "amount": base_xp},), "thieving"
@@ -502,8 +514,10 @@ def _thieving_award_success(
         expected_success_chance=thieving_success_probability_pure(
             ctx.player_data.get("thieving_level", 1), spec
         ) if "min_chance" in spec else 1.0,
-        output_items=outputs, primary_xp=base_xp,
+        output_items=granted_outputs, primary_xp=base_xp,
     )
+    if clue_refusal_reason:
+        ctx.show_activity_gain(clue_refusal_reason)
     ctx.check_achievements(ctx.player_data)
     ctx.refresh_skill_availability()
     ctx.show_exp(gained)

@@ -29,6 +29,7 @@ from ankiscape.runtime.runtime_actions import (
 )
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from ankiscape.data.thieving_data import (
+    HAM_LOOT,
     MASTER_FARMER_FELLSTALK_SOURCE,
     PICKPOCKET_TARGETS,
     STALL_TARGETS,
@@ -338,6 +339,49 @@ class TestThievingPureMechanics(unittest.TestCase):
 
 
 class TestThievingRuntime(unittest.TestCase):
+    def test_ham_pickpocket_refuses_and_reports_a_second_clue(self):
+        clue_index = next(
+            index
+            for index, row in enumerate(HAM_LOOT)
+            if row[0] == "Clue scroll (easy)"
+        )
+        clue_slot = sum(row[3] for row in HAM_LOOT[:clue_index])
+        player_data = {
+            "current_thieving": "pickpocket_female_ham",
+            "thieving_level": 99,
+            "thieving_exp": 0.0,
+            "agility_level": 1,
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "inventory": {"Clue scroll (hard)": 1},
+            "completed_achievements": [],
+        }
+        ctx, calls = _context(
+            player_data,
+            random_values=(
+                0.0,
+                0.0,
+                (clue_slot + 0.5) / THIEVING_TARGETS[
+                    "pickpocket_female_ham"
+                ]["loot_total"],
+                0.0,
+            ),
+        )
+
+        self.assertTrue(handle_thieving_answer(ctx))
+
+        self.assertEqual(player_data["inventory"], {"Clue scroll (hard)": 1})
+        self.assertTrue(
+            any("already have a clue scroll" in message for message in calls["activity"]),
+            calls["activity"],
+        )
+        telemetry = player_data["action_telemetry"]["actions"][
+            "thieving:pickpocket_female_ham"
+        ]
+        self.assertNotIn("Clue scroll (easy)", telemetry["outputs"])
+
     def test_failed_pickpocket_deals_damage_then_next_review_only_clears_stun(self):
         player_data = {
             "current_thieving": "pickpocket_man",

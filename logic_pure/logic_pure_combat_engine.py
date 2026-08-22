@@ -1001,6 +1001,19 @@ def reclaim_death_office_items_pure(player_data):
     return data, True, ""
 
 
+def _combat_drop_ownership_view(data, pending_drops):
+    if not pending_drops:
+        return data
+    ownership_view = dict(data)
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name, amount in pending_drops.items():
+        inventory[item_name] = _non_negative_int(
+            inventory.get(item_name, 0), 0
+        ) + _non_negative_int(amount, 0)
+    ownership_view["inventory"] = inventory
+    return ownership_view
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1526,6 +1539,7 @@ def apply_combat_burst_pure(
     bite_spec = enemy.get("bite") if isinstance(enemy.get("bite"), Mapping) else None
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
+    clue_refusal_reason = ""
     kills = 0
     killed = False
     died = False
@@ -1771,9 +1785,14 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                kill_drops = _combat_apply_triple_charm_reward(
-                    data, _combat_roll_drops(enemy, rng, data)
+                rolled_drops, refused_clue = _combat_roll_drops(
+                    enemy,
+                    rng,
+                    _combat_drop_ownership_view(data, drops),
+                    include_clue_refusal=True,
                 )
+                clue_refusal_reason = clue_refusal_reason or refused_clue
+                kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
                     target_id,
@@ -2302,9 +2321,14 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                kill_drops = _combat_apply_triple_charm_reward(
-                    data, _combat_roll_drops(enemy, rng, data)
+                rolled_drops, refused_clue = _combat_roll_drops(
+                    enemy,
+                    rng,
+                    _combat_drop_ownership_view(data, drops),
+                    include_clue_refusal=True,
                 )
+                clue_refusal_reason = clue_refusal_reason or refused_clue
+                kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
                     target_id,
@@ -2535,6 +2559,7 @@ def apply_combat_burst_pure(
             else ""
         ),
         "drops": drops,
+        "clue_refusal_reason": clue_refusal_reason,
         "xp_rewards": xp_rewards,
         "prayer_points_before": prayer_points_before,
         "prayer_points_after": prayer_points_after,

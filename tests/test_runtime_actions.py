@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import unittest
 from unittest.mock import patch
@@ -2495,6 +2496,93 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Bones"], 1)
         self.assertEqual(player_data["loot_overrides"]["Bones"], "leave")
 
+    def test_combat_handler_refuses_and_reports_a_second_clue_drop(self):
+        enemy_data = copy.deepcopy(runtime_actions_combat.COMBAT_ENEMY_DATA)
+        enemy_data["chicken"]["drops"] = {
+            "guaranteed": (("Clue scroll (medium)", 1),),
+            "tables": (),
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Clue scroll (easy)": 1},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        with patch.object(runtime_actions_combat, "COMBAT_ENEMY_DATA", enemy_data):
+            self.assertTrue(
+                handle_combat_answer(
+                    _context(player_data, calls, [0.0, 0.999999, 0.0])
+                )
+            )
+
+        self.assertEqual(player_data["inventory"]["Clue scroll (easy)"], 1)
+        self.assertNotIn("Clue scroll (medium)", player_data["inventory"])
+        self.assertTrue(
+            any("already have a clue scroll" in message for message in calls["activity"]),
+            calls["activity"],
+        )
+        telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
+        self.assertNotIn("Clue scroll (medium)", telemetry["outputs"])
+
+    def test_combat_burst_grants_only_one_clue_across_multiple_kills(self):
+        enemy_data = copy.deepcopy(runtime_actions_combat.COMBAT_ENEMY_DATA)
+        enemy_data["chicken"]["drops"] = {
+            "guaranteed": (("Clue scroll (medium)", 1),),
+            "tables": (),
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        with patch.object(runtime_actions_combat, "COMBAT_ENEMY_DATA", enemy_data):
+            self.assertTrue(
+                handle_combat_answer(
+                    _context(
+                        player_data,
+                        calls,
+                        [0.0, 0.999999, 0.0] * 500,
+                        review_action_multiplier=10,
+                    )
+                )
+            )
+
+        self.assertEqual(player_data["combat_kill_counts"], {"chicken": 2})
+        self.assertEqual(player_data["inventory"]["Clue scroll (medium)"], 1)
+        self.assertTrue(
+            any("already have a clue scroll" in message for message in calls["activity"]),
+            calls["activity"],
+        )
+        telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
+        self.assertEqual(telemetry["outputs"]["Clue scroll (medium)"], 1)
+
     def test_combat_handler_credits_matching_slayer_assignment_atomically(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -2564,10 +2652,15 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["slayer_exp"], 0.0)
         self.assertNotIn("Slayer", calls.get("level_checks", []))
 
-    def test_combat_handler_routes_a_ready_manual_finisher(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
+    def test_combat_handler_finisher_refuses_and_reports_a_second_clue(self):
+        enemy_data = copy.deepcopy(runtime_actions_combat.COMBAT_ENEMY_DATA)
+        enemy_data["desert_lizard"]["drops"] = {
+            "guaranteed": (("Clue scroll (medium)", 1),),
+            "tables": (),
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {
-            "inventory": {},
+            "inventory": {"Clue scroll (easy)": 1},
             "equipment": {},
             "current_combat_target": "desert_lizard",
             "combat_action": "finisher",
@@ -2589,9 +2682,10 @@ class TestRuntimeActions(unittest.TestCase):
             "completed_achievements": [],
         }
 
-        ok = handle_combat_answer(
-            _context(player_data, calls, [0.999999] * 40)
-        )
+        with patch.object(runtime_actions_combat, "COMBAT_ENEMY_DATA", enemy_data):
+            ok = handle_combat_answer(
+                _context(player_data, calls, [0.999999] * 40)
+            )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["combat_action"], "attack")
@@ -2601,13 +2695,16 @@ class TestRuntimeActions(unittest.TestCase):
             player_data["combat_supply_loadout"]["finishers"],
             {"Ice cooler": 1},
         )
-        self.assertEqual(
-            player_data["action_telemetry"]["actions"]["combat:desert_lizard"][
-                "attempts"
-            ],
-            1,
+        self.assertEqual(player_data["inventory"], {"Clue scroll (easy)": 1})
+        self.assertTrue(
+            any("already have a clue scroll" in message for message in calls["activity"]),
+            calls["activity"],
         )
-        self.assertEqual(calls["activity"], ["Defeated Desert lizard"])
+        telemetry = player_data["action_telemetry"]["actions"][
+            "combat:desert_lizard"
+        ]
+        self.assertNotIn("Clue scroll (medium)", telemetry["outputs"])
+        self.assertIn("Defeated Desert lizard", calls["activity"])
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["saves"], 1)
 
@@ -3089,6 +3186,49 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(player_data["quests"]["what_lies_below"]["completed"])
         self.assertEqual(player_data["inventory"]["Dagon'hai history"], 1)
+
+    def test_do_no_evil_completion_refuses_and_reports_a_second_clue(self):
+        from ankiscape.core.constants import QUEST_DATA
+
+        quest_id = "do_no_evil"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["current_quest"] = quest_id
+        player_data["inventory"]["Clue scroll (easy)"] = 1
+        for requirement in quest["required_quests"]:
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": 1,
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        final_stage = int(quest["stages"]) - 1
+        player_data["quests"][quest_id] = {
+            "started": True,
+            "progress": final_stage,
+            "completed": False,
+        }
+        final_requirement = next(
+            row
+            for row in quest["stage_requirements"]
+            if row["stage"] == final_stage
+        )
+        player_data["quest_stage_actions"][quest_id] = list(
+            final_requirement["required_actions"]
+        )
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["inventory"]["Clue scroll (easy)"], 1)
+        self.assertEqual(player_data["inventory"].get("Clue scroll (elite)", 0), 0)
+        self.assertEqual(player_data["inventory"]["Cramulet"], 1)
+        self.assertTrue(
+            any("already have a clue scroll" in message for message in calls["activity"]),
+            calls["activity"],
+        )
 
     def test_jungle_potion_real_handler_completes_ordered_herb_route_and_unlocks_shilo(self):
         from ankiscape.core.constants import HERBLORE_DATA, QUEST_DATA

@@ -25,6 +25,10 @@ from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_target_locked_reasons_pure,
 )
+from .treasure_trails_logic import (
+    clue_ownership_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 
 
 SKELETAL_HORROR_STATE_VERSION = 1
@@ -467,12 +471,21 @@ def apply_skeletal_horror_review_pure(
             clue_dropped = float(rng()) < SKELETAL_HORROR_ELITE_CLUE_CHANCE
         except (TypeError, ValueError, OverflowError):
             clue_dropped = False
+    clue_refusal_reason = ""
     if clue_dropped:
-        inventory = dict(data.get("inventory", {}) or {})
-        inventory[SKELETAL_HORROR_ELITE_CLUE_ITEM] = (
-            _int(inventory.get(SKELETAL_HORROR_ELITE_CLUE_ITEM)) + 1
+        ownership_reason = clue_ownership_reason_pure(data)
+        clue_outputs = filter_clue_scroll_outputs_pure(
+            data, {SKELETAL_HORROR_ELITE_CLUE_ITEM: 1}
         )
-        data["inventory"] = inventory
+        clue_dropped = SKELETAL_HORROR_ELITE_CLUE_ITEM in clue_outputs
+        if ownership_reason and not clue_dropped:
+            clue_refusal_reason = ownership_reason
+        if clue_dropped:
+            inventory = dict(data.get("inventory", {}) or {})
+            inventory[SKELETAL_HORROR_ELITE_CLUE_ITEM] = (
+                _int(inventory.get(SKELETAL_HORROR_ELITE_CLUE_ITEM)) + 1
+            )
+            data["inventory"] = inventory
     state["kills"] += 1
     state["allowance_week_index"] = _world_week(data)
     if not first_completion:
@@ -486,6 +499,7 @@ def apply_skeletal_horror_review_pure(
         f" · +{int(completion_rewards['slayer_exp']):,} Slayer XP"
         f" · +{int(completion_rewards['prayer_exp']):,} Prayer XP"
         + (" · elite clue scroll" if clue_dropped else "")
+        + (f" · {clue_refusal_reason}" if clue_refusal_reason else "")
     )
     _end_encounter(data, state, message)
     data["skeletal_horror"] = state
@@ -495,6 +509,7 @@ def apply_skeletal_horror_review_pure(
         "status": message,
         "first_completion": first_completion,
         "clue_dropped": clue_dropped,
+        "clue_refusal_reason": clue_refusal_reason,
         "removed_limbs": tuple(SKELETAL_HORROR_LIMBS[old_phase:]),
         "xp_rewards": _merge_xp_rewards(
             combat_result.get("xp_rewards", {}) or {},

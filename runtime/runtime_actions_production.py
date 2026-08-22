@@ -53,6 +53,8 @@ from ..core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
 )
+from ..data.treasure_trails_data import CLUE_SCROLL_ITEMS
+from ..logic.treasure_trails_logic import clue_ownership_reason_pure
 from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
@@ -1349,6 +1351,12 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     exp_before = ctx.implemented_exp_keys_snapshot()
+    clue_reward_refusal_reason = ""
+    if any(
+        item_name in CLUE_SCROLL_ITEMS.values()
+        for item_name in (quest.get("rewards", {}) or {})
+    ):
+        clue_reward_refusal_reason = clue_ownership_reason_pure(player_data)
     new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
     if not ok:
         stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
@@ -1371,6 +1379,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if completed_now:
         display_name = str(quest.get("display_name", quest_id))
         ctx.show_activity_gain(f"{display_name} complete")
+        if clue_reward_refusal_reason:
+            ctx.show_activity_gain(clue_reward_refusal_reason)
         ctx.show_error_message(
             "Quest complete",
             f"{display_name} is complete, so questing has been switched off. "

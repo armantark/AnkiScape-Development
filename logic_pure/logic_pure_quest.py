@@ -6,6 +6,8 @@ from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
+from ..logic.treasure_trails_logic import filter_clue_scroll_outputs_pure
+
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
     COMBAT_ANTIPOISON_POTION_DATA,
@@ -1452,7 +1454,10 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
         state["completed"] = True
         data["quest_points"] = max(0, _positive_int(data.get("quest_points", 0), 0)) + _positive_int(quest.get("point_reward", 0), 0)
         inventory = data["inventory"]
-        for item_name, amount in (quest.get("rewards", {}) or {}).items():
+        rewards = filter_clue_scroll_outputs_pure(
+            data, quest.get("rewards", {}) or {}
+        )
+        for item_name, amount in rewards.items():
             inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
         if quest_id == "family_crest":
             data["family_gauntlet_enchantment"] = "family"

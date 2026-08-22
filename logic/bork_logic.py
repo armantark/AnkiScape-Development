@@ -49,6 +49,10 @@ from ..logic_pure.logic_pure import (
     prayer_effect_state_pure,
 )
 from .achievement_diary_logic import diary_tier_by_id_pure, tier_claim_state_pure
+from .treasure_trails_logic import (
+    clue_ownership_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 
 
 BORK_STATE_VERSION = 1
@@ -497,6 +501,14 @@ def apply_bork_review_pure(
     for item_name, chance in BORK_RARE_DROPS:
         if _roll(rng) < chance:
             rare_drops[item_name] = rare_drops.get(item_name, 0) + 1
+    ownership_reason = clue_ownership_reason_pure(data)
+    filtered_rare_drops = filter_clue_scroll_outputs_pure(data, rare_drops)
+    clue_refusal_reason = (
+        ownership_reason
+        if ownership_reason and filtered_rare_drops != rare_drops
+        else ""
+    )
+    rare_drops = filtered_rare_drops
     _award_drops(data, drops)
     _award_drops(data, rare_drops)
     state["kills"] += 1
@@ -509,6 +521,8 @@ def apply_bork_review_pure(
     )
     if rare_drops:
         message += " · " + ", ".join(sorted(rare_drops))
+    if clue_refusal_reason:
+        message += f" · {clue_refusal_reason}"
     _end_encounter(data, state, message)
     return data, True, {
         **combat_result,
@@ -518,6 +532,7 @@ def apply_bork_review_pure(
         "coins": coins,
         "drops": drops,
         "rare_drops": rare_drops,
+        "clue_refusal_reason": clue_refusal_reason,
         "varrock_elite": varrock_elite,
         "ring_of_wealth": ring_of_wealth,
         "xp_rewards": {
