@@ -103,6 +103,23 @@ class CircusUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(snapshot)
         self.assertEqual(addon.player_data, before)
 
+    def test_circus_refusal_returns_the_reason_and_writes_nothing(self):
+        addon = self.addon
+        handler = self._handler()
+        baseline = copy.deepcopy(addon.player_data)
+
+        result = handler(
+            "start_activity",
+            {"executing": [], "non_executing": [], "automation_mode": "casual"},
+        )
+
+        self.assertEqual(addon.player_data, baseline, "a refusal must write nothing")
+        self.assertEqual(self.saves, [], "a refusal must not persist anything")
+        self.assertFalse(result["ok"])
+        self.assertEqual(
+            result["message"], "Choose at least one executing performance."
+        )
+
     def test_circus_undo_unavailable_reports_failure_not_success(self):
         addon = self.addon
         handler = self._handler()
