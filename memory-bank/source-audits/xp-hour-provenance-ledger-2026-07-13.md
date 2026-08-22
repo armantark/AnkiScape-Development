@@ -311,6 +311,65 @@ the Great Orb Project teletab route mixes altar-loop speed with token-earning
 time. Their period rates are retained in the ambiguity record below rather than
 misread as homogeneous game actions or silently dropped.
 
+### Fletching extension — 2026-08-22
+
+The search distinguishes queued game actions from click-spam. A cut bow, a
+strung bow, one 15-arrow batch, or one 10-bolt-tip batch is one XP-bearing
+Fletching action in AnkiScape. The 50,000–80,000-per-hour feathered-bolt quote is
+not such a rate: the guide explicitly calls that double-click method
+"clicking intensive", so it remains excluded rather than being used to force an
+absurd cadence.
+
+1. Darkan at
+   `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`,
+   commit `3b47cfdfae8b95d543edc2c360aaad5086047804`, contains no XP/hour
+   table. `src/main/java/com/rs/game/content/skills/fletching/Fletching.java`
+   corroborates one-bow actions, batch sizes, and the maple/yew/magic longbow,
+   broad-arrow, and diamond-bolt XP units. The bow rows trace to
+   `2ec36392542297ae3d27ac86ecfec6240cb505d7`; the later source-bounded XP
+   correction is `cbb09c1c216dd36b4d1d664eb1c558008ed9dfda`.
+2. The rev-727 cache contains no server rate table. It confirms Knife `946`, Bow
+   string `1777`, Maple/Yew/Magic logs `1517/1515/1513`, their unstrung and
+   strung longbows `62/851`, `66/855`, and `70/859`, Sacred clay fletching knife
+   `14111`, Broad arrowheads/Broad arrow `13278/4160`, and Diamond bolt
+   tips/Adamant bolts/Diamond bolts `9192/9143/9340`.
+3. 2011Scape rev 667 contains no XP/hour table. Its
+   `fletching/whittling/WhittleItem.kt`, `WhittleAction.kt`,
+   `fletching/stringing/BowItem.kt`, `BowStringAction.kt`, and
+   `fletching/arrows/ArrowData.kt` independently corroborate one output action,
+   banked make-X processing, and the bow/batch XP units. Its broad-arrow batch
+   value conflicts with the period record as noted below; it does not control the
+   source denominator.
+4. Rev 742 has the same relevant item identities and options as rev 727. None of
+   the dated client caches can supply an XP/hour rate, so the pinned guide below
+   supplies the rates.
+
+For queued make-X production, `R = XP/hour ÷ XP/action`. The batch rows use the
+XP awarded by one game batch, not XP for one projectile and not the number of
+mouse clicks used to open the make-X interface.
+
+| Fletching method | Period rate | Source XP per action | **R** | What is baked into the quoted rate |
+|---|---:|---:|---:|---|
+| Maple longbow (u), cutting `[F-P2P]` | 99,000 base; 198,000 with Sacred clay knife | 58.3 base; 116.6 with knife | **≈1,698** in both states | The guide states approximately 1,700 logs/hour **including banking** and one bow per 1.8 seconds. Knife, bank cycle, and bought maple logs are baked in. The doubled row includes the Sacred clay fletching knife; stringing is not included. |
+| Yew longbow (u), cutting `[F-P2P]` | about 100,000; a later passage separately says around 110,000 | 75 | **≈1,333; ≈1,467**, retained separately | Knife cutting from banked yew logs is baked in; bow string is not. The guide discusses Sacred clay knives separately, so neither ordinary quote is treated as doubled. The unexplained 100k/110k disagreement is not averaged. |
+| Magic longbow, stringing `[F-P2P]` | about 150,000; over 160,000 with full attention | 91.5 | **≈1,639; >1,749** | Fourteen unstrung bows and fourteen bow strings per inventory, frequent banking, and the stated attention level are baked in. Sacred clay knives affect cutting, not stringing, and are not included. The full-attention quote remains a distinct lower bound rather than being blended into the ordinary rate. |
+| Broad arrows, make-10 queue `[F-P2P]` | approximately 563,000 | 15 arrows × 15 XP = 225 per set | **≈2,502 sets/hour** | Slayer-point Broad Fletching unlock, bought headless arrows and broad arrowheads, 15-arrow sets, and the make-10 queue are baked in. Both inputs stack, so no bank cycle is part of the rate. The guide states one set every 1.2 seconds and about 2,500 sets/hour; unlike feathering bolts, it does not describe a per-set double-click loop. |
+| Diamond bolts, make-10 queue `[F-P2P]` | 300,000–340,000 | 10 bolts × 7 XP = 70 per set | **≈4,286–4,857 sets/hour** | Adamant bolts, diamond bolt tips, ten-bolt sets, and the make-10 queue are baked in. Both inputs stack, so no bank cycle is part of the rate. The guide gives one set per 0.6 seconds but a lower sustained rate; it does not include enchanting and does not use the click-intensive feathered-bolt method. |
+
+The pinned source is `[F-P2P]` *Pay-to-play Fletching training*, oldid
+`6547531`, `2012-11-11T01:39:11Z`. No page titled *Free-to-play Fletching
+training* exists before the cutoff under that title; Fletching was members-only
+in this period, so that miss supplies no rate.
+
+The recoverable queued methods directly read **R ≈ 1,333–4,857 actions/hour**.
+That spread is not adjusted toward Smithing, Runecrafting, or the old global
+`R`. The two batch methods are legitimate game queues and widen the measured
+range. Feathered mithril/adamant bolts remain deliberately excluded: their
+50,000–80,000 bolts/hour is explicitly player double-click throughput, not one
+stable game action cadence. Darts and the similarly speed-of-player arrow claims
+are excluded for the same reason wherever the source does not isolate a queued
+batch rate.
+
 ### Action-unit normalisation follow-up — 2026-08-22
 
 The hypothesis that Runecrafting looked slow only because its source rates counted
@@ -383,6 +442,9 @@ These cannot fit one action per review at `R = 1000` and must declare an explici
 | Smithing: gold bars, Goldsmith gauntlets + Varrock armour 2 | 1,157–1,246 | Gold and armour modifiers are already baked in |
 | Smithing: Blast Furnace mithril bolts | 1,250–1,500 action units | Mixed one-smelt + one-forge route |
 | Smithing: Blast Furnace mithril ranged components, Sacred clay hammer | 1,538 action units | Hammer's doubled forge XP is already baked in |
+| Fletching: maple/yew/magic longbows | 1,333 to >1,749 | Bank cycles and stated attention are baked in; Sacred clay is isolated |
+| Fletching: broad arrows, make-10 queue | 2,502 sets | One set is 15 arrows and 225 source XP |
+| Fletching: diamond bolts, make-10 queue | 4,286–4,857 sets | One set is ten tipped bolts and 70 source XP |
 
 The overflow list was never "two Thieving stalls." It is a standing property of
 the fastest content in several skills, and `R` cannot be chosen to eliminate it
@@ -424,6 +486,16 @@ Recorded, not filled. Absence is a finding.
   generic `24.0` travel cost in `logic/agility_travel.py` is already labelled
   `ankiscape_trip_abstraction`, not presented as a period rate; changing that
   cadence is the open owner decision and is outside this sourcing-only slice.
+- **Fletching:** no clean pre-cutoff XP/hour was recovered for ordinary
+  shortbows, lower-tier longbows, crossbow stocks/assembly, or most special
+  products. Yew stringing remains `source_blocked` because the same guide says
+  1,000–1,500 bows/hour including banking, yet its 125k and 130k XP/hour quotes
+  imply about 1,667 and 1,733 bows/hour at 75 XP each. Magic-longbow cutting also
+  remains `source_blocked`: the 135k quote does not say whether the separately
+  discussed Sacred clay knife is baked in, which changes the denominator from
+  91.5 to 183 XP/action. Click-intensive feathered bolts are excluded evidence,
+  not a missing number, and cannot stand in for queued bolt-tip production. No
+  shipped Fletching XP value is changed by this sourcing-only slice.
 
 ## Flagged ambiguities — recorded, never resolved by averaging
 
@@ -511,7 +583,22 @@ Recorded, not filled. Absence is a finding.
     familiar load, and GOP win rate are mixed. The altar-only and sustainable
     numbers remain separate and no mouse rate is promoted as `R`.
 
+17. **Fletching guide arithmetic and modifiers.** `[F-P2P]` gives yew cutting
+    as both about 100k and around 110k XP/hour; both direct readings are retained
+    separately. It gives yew stringing as 125k and 130k while also calling
+    1,000–1,500 bows/hour good, an internal contradiction at 75 XP/bow, so no
+    stringing value is promoted. Its 135k magic-cutting quote sits beside a
+    Sacred-clay discussion without declaring whether doubled XP is included; the
+    resulting `R ≈ 1,475` or `≈738` alternatives remain unresolved and are never
+    averaged. The queued broad-arrow and diamond-bolt rows do declare their batch
+    sizes and timings, so they remain usable; the explicitly click-intensive
+    feathered-bolt rates do not.
+
 ## Content gaps surfaced incidentally
 
 - Barehand butterfly catching (Hunter 95) — the period game's best Hunter XP at
   140k/hr, and entirely absent from AnkiScape.
+- Broad-arrow batch XP (Fletching) — `[F-P2P]` and current Darkan award
+  15 XP per arrow, or 225 XP for the 15-arrow action. AnkiScape currently carries
+  150 XP from game-main's `ArrowData.kt`. The source denominator is 225; this
+  ledger records the executable mismatch but does not change the XP value.
