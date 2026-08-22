@@ -7083,7 +7083,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_DUKE_SOURCE_PATH}; {RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}",
             consumed_inventory=(("Air talisman", 1),),
             produced_inventory=(("Research package", 1),),
-            required_actions=("Deliver the strange talisman to Sedridor",),
+            auto_actions=("Deliver the strange talisman to Sedridor",),
         ),
         _stage_req(
             3,
@@ -7091,14 +7091,14 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}; {RUNE_MYSTERIES_AUBURY_SOURCE_PATH}",
             consumed_inventory=(("Research package", 1),),
             produced_inventory=(("Research notes", 1),),
-            required_actions=("Deliver Sedridor's package to Aubury",),
+            auto_actions=("Deliver Sedridor's package to Aubury",),
         ),
         _stage_req(
             5,
             "Return Aubury's research notes to Sedridor.",
             f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}; {RUNE_MYSTERIES_AUBURY_SOURCE_PATH}",
             consumed_inventory=(("Research notes", 1),),
-            required_actions=("Return Aubury's research notes to Sedridor",),
+            auto_actions=("Return Aubury's research notes to Sedridor",),
         ),
     ),
     PRIEST_IN_PERIL_ID: (

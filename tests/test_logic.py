@@ -3178,37 +3178,83 @@ class TestLogic(unittest.TestCase):
             695.0 / 27.0,
         )
 
-    def test_rune_mysteries_progresses_on_reviews_and_rewards_once(self):
+    def test_rune_mysteries_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_stage_actions"] = {
-            "rune_mysteries": [
-                "Deliver the strange talisman to Sedridor",
-                "Deliver Sedridor's package to Aubury",
-                "Return Aubury's research notes to Sedridor",
-            ]
-        }
 
         player_data, ok = start_quest_pure(player_data, "rune_mysteries", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "rune_mysteries")
         self.assertEqual(player_data["inventory"]["Air talisman"], 1)
+        self.assertNotIn("rune_mysteries", player_data["quest_stage_actions"])
 
-        completed_now = False
-        for _ in range(5):
+        expected_steps = (
+            (
+                2,
+                False,
+                ("Deliver the strange talisman to Sedridor",),
+                {"Air talisman": 0, "Research package": 1, "Research notes": 0},
+            ),
+            (
+                3,
+                False,
+                ("Deliver the strange talisman to Sedridor",),
+                {"Air talisman": 0, "Research package": 1, "Research notes": 0},
+            ),
+            (
+                4,
+                False,
+                (
+                    "Deliver the strange talisman to Sedridor",
+                    "Deliver Sedridor's package to Aubury",
+                ),
+                {"Air talisman": 0, "Research package": 0, "Research notes": 1},
+            ),
+            (
+                5,
+                False,
+                (
+                    "Deliver the strange talisman to Sedridor",
+                    "Deliver Sedridor's package to Aubury",
+                ),
+                {"Air talisman": 0, "Research package": 0, "Research notes": 1},
+            ),
+            (
+                6,
+                True,
+                (
+                    "Deliver the strange talisman to Sedridor",
+                    "Deliver Sedridor's package to Aubury",
+                    "Return Aubury's research notes to Sedridor",
+                ),
+                {"Air talisman": 1, "Research package": 0, "Research notes": 0},
+            ),
+        )
+        for progress, completed, actions, inventory in expected_steps:
             player_data, ok, completed_now = apply_quest_progress_pure(
                 player_data,
                 "rune_mysteries",
                 QUEST_DATA,
             )
             self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(
+                player_data["quests"]["rune_mysteries"]["progress"],
+                progress,
+            )
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"]["rune_mysteries"]),
+                actions,
+            )
+            self.assertEqual(
+                {
+                    item_name: player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory
+                },
+                inventory,
+            )
 
-        self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["rune_mysteries"]["completed"])
-        self.assertEqual(player_data["quests"]["rune_mysteries"]["progress"], 6)
         self.assertEqual(player_data["quest_points"], 1)
-        self.assertEqual(player_data["inventory"]["Air talisman"], 1)
-        self.assertEqual(player_data["inventory"]["Research package"], 0)
-        self.assertEqual(player_data["inventory"]["Research notes"], 0)
         self.assertEqual(player_data["runecrafting_exp"], 0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
