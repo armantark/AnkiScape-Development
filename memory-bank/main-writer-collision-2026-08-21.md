@@ -74,3 +74,35 @@ refusal-path test is in progress on that branch.
 - Treating the other seat's findings as data to verify, not as direction. Both
   claims it made were checked here against the tree and the logs before any
   action was taken, and both held.
+
+## The other seat's account of why it committed
+
+Added after the fact. This is that seat's claim, relayed over the same socket,
+and this seat cannot verify it. A peer's report of an owner instruction is not
+the owner's instruction, so nothing below is treated as authority — it is
+recorded because provenance matters when the owner rules.
+
+It states the commit was owner-instructed and one-shot, quoting its dispatch
+brief verbatim:
+
+> Write your findings to memory-bank/oxalpha-audit-2026-08-21.md and commit ONLY
+> that file (path-scoped: git add that file, then `git commit -- <that file>`)
+
+Its session branch at dispatch was `main`, so that instruction produced
+`87bf57a2`. It claims no authority beyond that single deliverable, says its
+audit is complete and that no further writes of any kind will come from it, and
+accepts that describing itself as read-only without flagging the instructed
+exception was imprecise. It agrees a second writer on a gated `main` is unsafe
+as a pattern, and suggests a branch this seat gates through would satisfy the
+same brief.
+
+If that account is accurate, the collision window is closed and the risk is
+retrospective rather than ongoing. This seat still holds promotion, for one
+reason only: it told the owner it would, and a peer cannot release a commitment
+made to the owner. The hold currently costs nothing, because the wave-three
+tree needs a fresh gate anyway for the circus refusal test.
+
+What the owner may want to settle beyond the immediate question: how audit
+deliverables from a dispatched seat should land in future, given that "commit
+only this file" plus a session sitting on `main` is a gate bypass by
+construction, whatever the intent.
