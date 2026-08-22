@@ -2645,45 +2645,49 @@ def _on_main_menu(
 
     def _apply_penguin_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
         exp_before = _implemented_exp_keys_snapshot()
-        updated, ok, info = apply_penguin_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Penguin action failed.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_penguin_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            if action_id == "redeem_xp":
+                skill_name = str(info.get("skill_name", ""))
+                if skill_name:
+                    level_up_check(skill_name, player_data)
+                _show_quest_exp_delta(exp_before)
+            check_achievements(player_data)
+            _refresh_skill_availability()
+            if info.get("message"):
+                _show_activity_gain(str(info["message"]))
+            try:
+                update_review_hud(player_data, current_skill)
+            except AttributeError:
+                pass
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The penguin command itself refused: report its refusal.
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Penguin action failed.")),
+                }
+            # The command was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        if action_id == "redeem_xp":
-            skill_name = str(info.get("skill_name", ""))
-            if skill_name:
-                level_up_check(skill_name, player_data)
-            _show_quest_exp_delta(exp_before)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            mw.update_undo_actions()
-            update_review_hud(player_data, current_skill)
-        except AttributeError:
-            pass
         return {"ok": True, **info}
 
     def _apply_vinesweeper_command(action_id, payload):
