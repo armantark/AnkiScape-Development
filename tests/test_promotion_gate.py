@@ -2,9 +2,9 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
-import tarfile
 import tempfile
 import threading
 import unittest
@@ -36,15 +36,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SYNTHETIC_ACTION_FIELDS = ("action_count", "reachable_item_count")
 
 
-def extract_git_tree(destination: Path) -> Path:
-    archived = subprocess.run(
-        ("git", "archive", "--format=tar", "HEAD"),
-        cwd=PROJECT_ROOT,
-        check=True,
-        capture_output=True,
+def copy_reachability_tree(destination: Path) -> Path:
+    shutil.copytree(
+        PROJECT_ROOT,
+        destination,
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns(".git", "__pycache__", "*.pyc"),
     )
-    with tarfile.open(fileobj=io.BytesIO(archived.stdout), mode="r:") as archive:
-        archive.extractall(destination, filter="data")
     return destination.resolve()
 
 
@@ -71,7 +69,7 @@ def synthetic_reachability_tree(
     *,
     update_pins: bool,
 ) -> tuple[Path, str]:
-    worktree = extract_git_tree(destination)
+    worktree = copy_reachability_tree(destination)
     action_path = worktree / "data" / "thieving_data.py"
     with action_path.open("a", encoding="utf-8") as stream:
         stream.write(
@@ -457,7 +455,8 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_tree_matching_its_own_pins_passes(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree(Path(temp_dir))
+            worktree = copy_reachability_tree(Path(temp_dir))
+            self.assertFalse((worktree / ".git").exists())
 
             returncode, log = run_reachability_check(worktree)
 
@@ -493,7 +492,7 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_warning_on_stderr_does_not_corrupt_json(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree(Path(temp_dir))
+            worktree = copy_reachability_tree(Path(temp_dir))
             audit_path = worktree / "tools" / "audit_item_reachability.py"
             source = audit_path.read_text(encoding="utf-8")
             source = source.replace(
@@ -551,7 +550,7 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_audit_crashing_after_summary_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree(Path(temp_dir))
+            worktree = copy_reachability_tree(Path(temp_dir))
             summary = pinned_summary(worktree)
             (worktree / "tools" / "audit_item_reachability.py").write_text(
                 f"print({summary!r})\nraise RuntimeError('audit crashed')\n",
@@ -567,7 +566,7 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_audit_without_summary_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree(Path(temp_dir))
+            worktree = copy_reachability_tree(Path(temp_dir))
             (worktree / "tools" / "audit_item_reachability.py").write_text(
                 "raise SystemExit(1)\n",
                 encoding="utf-8",
