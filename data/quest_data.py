@@ -6802,13 +6802,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Find Professor Oddenstein and learn what happened to Ernest.",
             f"{DARKAN_ERNEST_SOURCE}; {DARKAN_ERNEST_ODDENSTEIN_SOURCE}",
-            required_actions=("Ask Professor Oddenstein about Ernest",),
+            auto_actions=("Ask Professor Oddenstein about Ernest",),
         ),
         _stage_req(
             2,
             "Agree to retrieve Oddenstein's missing machine parts.",
             f"{DARKAN_ERNEST_ODDENSTEIN_SOURCE}",
-            required_actions=("Agree to retrieve Oddenstein's machine parts",),
+            auto_actions=("Agree to retrieve Oddenstein's machine parts",),
         ),
         _stage_req(
             3,
@@ -6842,7 +6842,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             7,
             "Solve the basement lever puzzle and recover the oil can.",
             f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Solve the Draynor Manor basement lever puzzle",),
+            auto_actions=("Solve the Draynor Manor basement lever puzzle",),
             produced_inventory=(("Oil can", 1),),
         ),
         _stage_req(

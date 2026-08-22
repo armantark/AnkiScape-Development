@@ -5746,23 +5746,35 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(goblin["crafting_exp"], 200.0)
 
         ernest = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        ernest["quests"]["ernest_the_chicken"] = {"started": True, "progress": 1, "completed": False}
+        ernest, ok = start_quest_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(ernest["current_quest"], "ernest_the_chicken")
+        self.assertNotIn("ernest_the_chicken", ernest["quest_stage_actions"])
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(ernest, "ernest_the_chicken", QUEST_DATA),
-            ("Action required: Ask Professor Oddenstein about Ernest",),
+            (),
         )
-        ernest["quest_stage_actions"] = {
-            "ernest_the_chicken": [
+
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["quests"]["ernest_the_chicken"]["progress"], 2)
+        self.assertEqual(
+            ernest["quest_stage_actions"]["ernest_the_chicken"],
+            ["Ask Professor Oddenstein about Ernest"],
+        )
+
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["quests"]["ernest_the_chicken"]["progress"], 3)
+        self.assertEqual(
+            ernest["quest_stage_actions"]["ernest_the_chicken"],
+            [
                 "Ask Professor Oddenstein about Ernest",
                 "Agree to retrieve Oddenstein's machine parts",
-            ]
-        }
-        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
+            ],
+        )
 
         ernest["inventory"].update({"Fish food": 1, "Poison": 1, "Spade": 1})
         ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
@@ -5788,11 +5800,18 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(ernest["inventory"]["Rubber tube"], 1)
 
-        ernest["quest_stage_actions"]["ernest_the_chicken"].append("Solve the Draynor Manor basement lever puzzle")
         ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(ernest["inventory"]["Oil can"], 1)
+        self.assertEqual(
+            ernest["quest_stage_actions"]["ernest_the_chicken"],
+            [
+                "Ask Professor Oddenstein about Ernest",
+                "Agree to retrieve Oddenstein's machine parts",
+                "Solve the Draynor Manor basement lever puzzle",
+            ],
+        )
 
         ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
         self.assertTrue(ok)
