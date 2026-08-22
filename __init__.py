@@ -406,12 +406,9 @@ except Exception:
         return False
 
 _REVIEW_UNDO_STACK = []
-_URN_TELEPORT_UNDO_STACK = []
 _DIRECT_ACTION_UNDO_STACK = []
 _MAX_REVIEW_UNDO_SNAPSHOTS = 30
-_MAX_URN_TELEPORT_UNDO_SNAPSHOTS = 50
 _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS = 50
-_URN_TELEPORT_UNDO_OPERATION = "Teleport training urn"
 _DIRECT_ACTION_UNDO_OPERATION = "AnkiScape direct action"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
@@ -1231,29 +1228,24 @@ def set_prayer_selection(material_id: str, ui_method_id: str) -> bool:
 
 
 def teleport_training_urn(urn_id: str) -> bool:
-    updated, base_xp, ok, skill_id = teleport_full_urn_pure(player_data, urn_id)
-    skill = get_skill(skill_id)
-    if not ok or skill is None:
-        return False
-    try:
-        mw.col.add_custom_undo_entry(_URN_TELEPORT_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        return False
+    base_xp = 0.0
+    skill = None
+    gained = 0.0
 
-    _URN_TELEPORT_UNDO_STACK.append(copy.deepcopy(player_data))
-    if len(_URN_TELEPORT_UNDO_STACK) > _MAX_URN_TELEPORT_UNDO_SNAPSHOTS:
-        del _URN_TELEPORT_UNDO_STACK[:-_MAX_URN_TELEPORT_UNDO_SNAPSHOTS]
+    def _change(current):
+        nonlocal base_xp, skill
+        updated, base_xp, ok, skill_id = teleport_full_urn_pure(current, urn_id)
+        skill = get_skill(skill_id)
+        return updated, ok and skill is not None
 
-    player_data.clear()
-    player_data.update(updated)
-    gained = _award_skill_exp(skill.exp_key, base_xp)
-    level_up_check(skill.display_name, player_data)
-    check_achievements(player_data)
-    save_player_data()
-    try:
-        mw.update_undo_actions()
-    except AttributeError:
-        pass
+    def _after_apply():
+        nonlocal gained
+        gained = _award_skill_exp(skill.exp_key, base_xp)
+        level_up_check(skill.display_name, player_data)
+        check_achievements(player_data)
+
+    if not commit_direct_action(_change, after_apply=_after_apply):
+        return False
     _refresh_skill_availability()
     try:
         update_review_hud(player_data, current_skill)
@@ -1388,10 +1380,6 @@ def _looks_like_review_undo(changes) -> bool:
     return _normalized_undo_operation(changes) in {"answer", "answer card"}
 
 
-def _looks_like_urn_teleport_undo(changes) -> bool:
-    return _normalized_undo_operation(changes) == _URN_TELEPORT_UNDO_OPERATION.lower()
-
-
 def _looks_like_direct_action_undo(changes) -> bool:
     return _normalized_undo_operation(changes) == _DIRECT_ACTION_UNDO_OPERATION.lower()
 
@@ -1429,23 +1417,6 @@ def _restore_review_award_snapshot(snapshot) -> None:
         pass
 
 
-def _restore_urn_teleport_snapshot(snapshot) -> None:
-    player_data.clear()
-    player_data.update(copy.deepcopy(snapshot))
-    save_player_data()
-    try:
-        update_review_hud(player_data, current_skill)
-        update_review_status_badge(
-            player_data, _open_activities_sheet, _open_farming_sheet
-        )
-        update_review_fill_drawer(player_data)
-        update_review_event_log_drawer(player_data)
-        _update_review_bank_run_surface()
-        _update_review_context_surface()
-    except Exception:
-        pass
-
-
 def _restore_direct_action_snapshot(snapshot) -> None:
     global current_skill
     player_data.clear()
@@ -1478,10 +1449,6 @@ def _on_state_did_undo(changes=None) -> None:
     if _looks_like_direct_action_undo(changes):
         if _DIRECT_ACTION_UNDO_STACK:
             _restore_direct_action_snapshot(_DIRECT_ACTION_UNDO_STACK.pop())
-        return
-    if _looks_like_urn_teleport_undo(changes):
-        if _URN_TELEPORT_UNDO_STACK:
-            _restore_urn_teleport_snapshot(_URN_TELEPORT_UNDO_STACK.pop())
         return
     if not _REVIEW_UNDO_STACK or not _looks_like_review_undo(changes):
         return
@@ -3655,15 +3622,28 @@ def _on_main_menu(
         return {"ok": True, **info}
     def _apply_treasure_trails_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        updated, ok, info = apply_treasure_trails_command_pure(
-            player_data, str(action_id), payload, random.random
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "That Treasure Trails action is unavailable.")),
-            }
-        if not commit_direct_action(lambda _current: (updated, True)):
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_treasure_trails_command_pure(
+                current, str(action_id), payload, random.random
+            )
+            pure_ok = ok
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if not pure_ok:
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get(
+                            "reason",
+                            "That Treasure Trails action is unavailable.",
+                        )
+                    ),
+                }
             return {"ok": False, "message": "Anki could not create an undo entry."}
         _refresh_skill_availability()
         return {"ok": True, **info}
