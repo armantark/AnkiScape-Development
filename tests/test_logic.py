@@ -2409,6 +2409,7 @@ class TestLogic(unittest.TestCase):
         expected = {
             "track_shadow_jadinko": (5 / 256, higher_vine_herb_seeds),
             "track_diseased_jadinko": (5 / 256, higher_vine_herb_seeds),
+            "track_camouflaged_jadinko": (4 / 256, higher_vine_herb_seeds),
             "catch_common_jadinko": (16 / 256, vine_herb_seeds),
             "catch_igneous_jadinko": (13 / 256, bush_seeds),
             "catch_cannibal_jadinko": (12 / 256, bush_seeds),
@@ -2626,6 +2627,51 @@ class TestLogic(unittest.TestCase):
                 "Long kebbit spike": 1,
             },
         )
+
+    def test_camouflaged_jadinko_tracker_is_reachable_and_rolls_independent_tables(self):
+        target = "track_camouflaged_jadinko"
+        # Darkan JadinkoType CAMOUFLAGED: Hunter 79, trackerXp 600.0, vine 19978.
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 78, "inventory": {"Noose wand": 1}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Hunter level 79",),
+        )
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 79, "inventory": {"Noose wand": 1}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            (),
+        )
+        inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Noose wand": 1},
+            HUNTER_DATA,
+            79,
+            0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(xp, 600.0)
+        self.assertEqual(output_item, "Striped vine")
+        self.assertEqual(HUNTER_DATA[target]["source_item_id"], 19978)
+
+        # The live secondary slot rolls one of the four higher-level vine-herb
+        # seeds at 4/256; bush and blossom tables stay registered separately.
+        spec = HUNTER_DATA[target]
+        self.assertEqual(spec["secondary_drop_chance"], 4 / 256)
+        self.assertEqual(
+            tuple(row["item"] for row in spec["secondary_outputs"]),
+            ("Ugune seed", "Argway seed", "Shengo seed", "Samaden seed"),
+        )
+        self.assertIn("hh_bush_seed", spec["mechanics_source"])
+        self.assertIn("hh_blossom_seed", spec["mechanics_source"])
+        self.assertIn("16/256", spec["notes"])
 
     def test_jadinko_secondaries_use_reusable_tools_and_fixed_primary_outputs(self):
         cases = {

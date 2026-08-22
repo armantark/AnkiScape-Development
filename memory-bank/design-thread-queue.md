@@ -568,6 +568,15 @@ tracker action shape plus its source feature, produce, Juju, empty-tree, XP, and
 three independent drop tables. Blocks: the Camo vine route and a complete
 thirteen-row Jadinko roster, but not the five live vine-herb chains.
 
+**Resolved 2026-08-22** on `goal/camo-jadinko-2026-08-22`: `track_camouflaged_jadinko`
+now exists as the third tracker row, following the Shadow/Diseased shape with
+`PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` covering the two
+not-yet-live tables. One correction to the record above: item 19978's period
+name is **Striped vine** (wiki `Striped_vine`, infobox `id = 19978`; Darkan
+`HerbloreHabitatTransactions.kt:21` `STRIPED_VINE = 19978`), not "Camo vine" —
+that name exists nowhere. Full sourcing in
+`memory-bank/source-audits/camouflaged-jadinko-tracker-2026-08-22.md`.
+
 ### 3.29 Durable line citations need a mechanical drift check
 
 Raised 2026-08-21 after a grimy-herb record still pointed at pre-merge line

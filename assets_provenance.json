@@ -48578,5 +48578,17 @@
     "size": 728,
     "source_wiki": "osrs",
     "timestamp": "2014-09-04T20:59:33Z"
+  },
+  "hunteritems/striped_vine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Striped_vine.png",
+    "file_title": "Striped vine.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502081508%21Striped_vine.png?04b49",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9025bfed955b13b49859273f7cfe0be5da09bf88",
+    "size": 314,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-27T00:31:13Z"
   }
 }
