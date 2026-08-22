@@ -9,7 +9,9 @@ with itself. The undo and review-dispatch layers live in
 
 from __future__ import annotations
 
+import ast
 import copy
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -61,12 +63,17 @@ from tools.generate_achievement_diary_data import (
     FAMILIES,
     MORYTANIA_LEG_BONUSES,
     _equipment_rows,
+    build,
     resolve_condition_key,
 )
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 class GeneratorSourceInputTest(unittest.TestCase):
-    def test_equipment_rows_read_the_explicit_items_yml(self):
+    @staticmethod
+    def _synthetic_items_yml():
         blocks = []
         expected_ids = {}
         source_id = 50_000
@@ -81,10 +88,13 @@ class GeneratorSourceInputTest(unittest.TestCase):
                     f"  equip_slot: 4\n  attack_stab: {tier_index}\n"
                 )
                 source_id += 1
+        return "".join(blocks), expected_ids
 
+    def test_equipment_rows_read_the_explicit_items_yml(self):
+        items_yml, expected_ids = self._synthetic_items_yml()
         with tempfile.TemporaryDirectory() as temp_dir:
             source = Path(temp_dir) / "items.yml"
-            source.write_text("".join(blocks), encoding="utf-8")
+            source.write_text(items_yml, encoding="utf-8")
             rows = _equipment_rows(source)
 
         for item_name, (item_id, tier_index) in expected_ids.items():
@@ -97,6 +107,50 @@ class GeneratorSourceInputTest(unittest.TestCase):
                     f"bonuses=EquipmentBonuses(attack_stab={tier_index})",
                     block,
                 )
+
+    def test_generator_reproduces_every_shipped_task_row(self):
+        harvest = (
+            ROOT
+            / "memory-bank/source-audits/achievement-diary-harvest-2026-07-26.json"
+        )
+        document = json.loads(harvest.read_text(encoding="utf-8"))
+        items_yml, _expected_ids = self._synthetic_items_yml()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "items.yml"
+            source.write_text(items_yml, encoding="utf-8")
+            generated = build(document, source)
+        shipped = (ROOT / "data/achievement_diary_catalog.py").read_text(
+            encoding="utf-8"
+        )
+
+        def task_rows(module_source):
+            rows = {}
+            for node in ast.walk(ast.parse(module_source)):
+                if (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "DiaryTask"
+                ):
+                    rows[ast.literal_eval(node.args[5])] = ast.dump(
+                        node, include_attributes=False
+                    )
+            return rows
+
+        generated_rows = task_rows(generated)
+        shipped_rows = task_rows(shipped)
+        shared = set(generated_rows) & set(shipped_rows)
+        self.assertEqual(
+            {
+                "missing": sorted(set(shipped_rows) - set(generated_rows)),
+                "extra": sorted(set(generated_rows) - set(shipped_rows)),
+                "changed": sorted(
+                    source_id
+                    for source_id in shared
+                    if generated_rows[source_id] != shipped_rows[source_id]
+                ),
+            },
+            {"missing": [], "extra": [], "changed": []},
+        )
 
 
 def _fresh():

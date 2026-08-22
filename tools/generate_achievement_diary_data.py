@@ -850,6 +850,27 @@ CONDITION_OVERRIDES.update({
     ),
 })
 
+
+# The Ranging Guild tasks retain their source level gate, but level 40 alone is
+# not the deed: one requires over 1,000 tickets; the other requires an exchange
+# purchase.
+CONDITION_OVERRIDES.update({
+    238: (
+        ("skill_level", "ranged", 40, "Level 40 Ranged"),
+        ("hold_item", "Archery ticket", 1001, "Hold over 1,000 archery tickets"),
+    ),
+    239: (
+        ("skill_level", "ranged", 40, "Level 40 Ranged"),
+        (
+            "counter",
+            "ranging_guild.exchange_purchases",
+            1,
+            "Buy a Ranging Guild reward",
+        ),
+    ),
+})
+
+
 # Contract-limited telemetry added at the existing coarse event seams. Every key
 # below has exactly one diary consumer; unrelated shop and Fight Caves events do
 # not grow parallel ledgers.

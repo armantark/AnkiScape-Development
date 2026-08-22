@@ -246,9 +246,9 @@ The canonical baseline has `1,556` actions, `2,573` reachable items, `102` orpha
 
 Source IDs `238` and `239` are the Ranging Guild diary tasks. They are hand edits in the generated diary data.
 
-`tools/generate_achievement_diary_data.py` does not contain these rows on this branch or on canonical `main`. A regeneration will silently delete them.
+`tools/generate_achievement_diary_data.py` now carries source IDs `238` and `239` with their exact Ranging Guild deed predicates. The generator-parity regression compares every shipped task row, and a byte-identical regeneration retains all 474 shipped source IDs.
 
-Queue item: add source IDs `238` and `239` to the generator. This item is pre-existing data-depth debt.
+This pre-existing data-depth debt is closed.
 
 The earlier Wyvern bones entry remains below as written history.
 
