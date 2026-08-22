@@ -4,7 +4,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
 from ankiscape.core.constants import ITEM_DEFINITIONS
-from ankiscape.data.quest_data import QUESTS, QUESTS_BY_ID, quest_reward_items_as_dict, quests_as_dict
+from ankiscape.data.quest_data import CLAIMS_BY_ID, QUESTS, QUESTS_BY_ID, quest_reward_items_as_dict, quests_as_dict
 from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
@@ -1805,6 +1805,52 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(items["Sundial gnomon"]["item_id"], 25118)
         self.assertFalse(items["Heavy weight"]["stackable"])
         self.assertFalse(items["Sundial gnomon"]["tradeable"])
+        self.assertEqual(
+            {
+                item_name: (items[item_name]["item_id"], items[item_name]["equipment_slot"])
+                for item_name in ("Apmeken mask", "Ankh", "Scabaras mask", "Was")
+            },
+            {
+                "Apmeken mask": (25122, "head"),
+                "Ankh": (25123, "weapon"),
+                "Scabaras mask": (25124, "head"),
+                "Was": (25125, "weapon"),
+            },
+        )
+        self.assertEqual(
+            {
+                claim_id: (
+                    CLAIMS_BY_ID[claim_id].claim_type,
+                    CLAIMS_BY_ID[claim_id].required_quest,
+                    CLAIMS_BY_ID[claim_id].xp_amount,
+                    CLAIMS_BY_ID[claim_id].skill_options,
+                    CLAIMS_BY_ID[claim_id].minimum_level,
+                    CLAIMS_BY_ID[claim_id].items,
+                )
+                for claim_id in (
+                    "diamond_in_the_rough_scabaras_tomb",
+                    "diamond_in_the_rough_apmeken_tomb",
+                )
+            },
+            {
+                "diamond_in_the_rough_scabaras_tomb": (
+                    "skill_reward",
+                    "diamond_in_the_rough",
+                    20000,
+                    ("mining",),
+                    80,
+                    (("Scabaras mask", 1), ("Was", 1)),
+                ),
+                "diamond_in_the_rough_apmeken_tomb": (
+                    "skill_reward",
+                    "diamond_in_the_rough",
+                    20000,
+                    ("agility",),
+                    80,
+                    (("Apmeken mask", 1), ("Ankh", 1)),
+                ),
+            },
+        )
 
     def test_icthlarins_little_helper_is_a_playable_source_backed_dependency(self):
         quest = quests_as_dict()["icthlarins_little_helper"]

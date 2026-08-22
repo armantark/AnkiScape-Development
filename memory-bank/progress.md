@@ -6156,3 +6156,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   probe for saved, non-saved, and transient-selection colors.
 - Split both reviewer activity progress bars into labels plus graphical fills;
   focused pure and offscreen Qt checks pass.
+
+
+## Diamond in the Rough hidden rewards — 2026-08-22
+
+- Added the two one-time postquest level-80 tomb claims without changing the
+  ordinary quest-completion payout.
+- The Scabaras claim grants 20,000 Mining XP, Scabaras mask, and Was; the
+  Apmeken claim grants 20,000 Agility XP, Apmeken mask, and Ankh.
+- Rev-742 objects 75775/75776 and items 25122–25125 preserve the action and
+  reward identities; pinned pre-cutoff article revisions supply the level and
+  XP values.

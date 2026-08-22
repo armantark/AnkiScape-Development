@@ -26367,6 +26367,13 @@ def show_main_menu(
             amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
             tooltip = _claim_skill_tooltip(row)
             return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
+        if str(row.get("claim_type", "item")) == "skill_reward":
+            amount = row.get("xp_amount", 0)
+            amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
+            skill_options = tuple(row.get("skill_options", ()) or ())
+            skill_name = _skill_display(str(skill_options[0])) if skill_options else "Skill"
+            items = tuple(row.get("items", ()) or ())
+            return f"{amount_text} {skill_name} XP · {len(items)} item rewards"
         if str(row.get("claim_type", "item")) == "item_bundle":
             items = tuple(row.get("items", ()) or ())
             preview = []
@@ -26390,7 +26397,7 @@ def show_main_menu(
 
     def _claim_item_icon_path(row: dict) -> Optional[str]:
         item_name = str(row.get("item_name", row.get("display_name", "")))
-        if str(row.get("claim_type", "item")) == "item_bundle":
+        if str(row.get("claim_type", "item")) in {"item_bundle", "skill_reward"}:
             items = tuple(row.get("items", ()) or ())
             first = items[0] if items else ()
             if isinstance(first, (tuple, list)) and first and isinstance(first[0], str):
@@ -26465,7 +26472,7 @@ def show_main_menu(
                 icon_label.setStyleSheet("")
             if claim_type == "xp_lamp":
                 title_text = str(row.get("display_name", item_name))
-            elif claim_type == "item_bundle":
+            elif claim_type in {"item_bundle", "skill_reward"}:
                 title_text = str(row.get("display_name", item_name))
             else:
                 title_text = f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}"
@@ -26483,7 +26490,7 @@ def show_main_menu(
             metadata.setStyleSheet(f"color: {dim_text_css(metadata)};")
             if claim_type == "xp_lamp":
                 metadata.setToolTip(_claim_skill_tooltip(row))
-            elif claim_type == "item_bundle":
+            elif claim_type in {"item_bundle", "skill_reward"}:
                 bundle_tooltip = _claim_bundle_tooltip(row)
                 label.setToolTip(bundle_tooltip)
                 metadata.setToolTip(bundle_tooltip)

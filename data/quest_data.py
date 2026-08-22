@@ -9681,6 +9681,30 @@ CLAIMS: Tuple[ClaimDefinition, ...] = (
         items=TUTORIAL_ISLAND_STARTER_KIT_ITEMS,
         required_quest="",
     ),
+    ClaimDefinition(
+        id="diamond_in_the_rough_scabaras_tomb",
+        display_name="Mine the Scabaras tomb fissure",
+        source=f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}",
+        claim_type="skill_reward",
+        item_name="Scabaras mask",
+        items=(("Scabaras mask", 1), ("Was", 1)),
+        required_quest="diamond_in_the_rough",
+        xp_amount=20000,
+        skill_options=("mining",),
+        minimum_level=80,
+    ),
+    ClaimDefinition(
+        id="diamond_in_the_rough_apmeken_tomb",
+        display_name="Climb into the Apmeken tomb fissure",
+        source=f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}",
+        claim_type="skill_reward",
+        item_name="Apmeken mask",
+        items=(("Apmeken mask", 1), ("Ankh", 1)),
+        required_quest="diamond_in_the_rough",
+        xp_amount=20000,
+        skill_options=("agility",),
+        minimum_level=80,
+    ),
     *_quest_lamp_claims(),
 )
 CLAIMS_BY_ID: Dict[str, ClaimDefinition] = {claim.id: claim for claim in CLAIMS}
@@ -9901,6 +9925,50 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
                 f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; "
                 "https://runescape.wiki/w/Sundial_gnomon?oldid=6360192; "
                 f"{DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}; "
+                f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
+            ),
+        },
+        "Apmeken mask": {
+            "category": "equipment",
+            "equipment_slot": "head",
+            "item_id": 25122,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}; "
+                f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
+            ),
+        },
+        "Ankh": {
+            "category": "equipment",
+            "equipment_slot": "weapon",
+            "item_id": 25123,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}; "
+                f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
+            ),
+        },
+        "Scabaras mask": {
+            "category": "equipment",
+            "equipment_slot": "head",
+            "item_id": 25124,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}; "
+                f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
+            ),
+        },
+        "Was": {
+            "category": "equipment",
+            "equipment_slot": "weapon",
+            "item_id": 25125,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}; "
                 f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
             ),
         },

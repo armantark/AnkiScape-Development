@@ -133,6 +133,15 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
     if required_level > 1 and _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
         reasons.append(f"Runecrafting level {required_level}")
+    if str(claim.get("claim_type", "item")) == "skill_reward":
+        skill_options = tuple(claim.get("skill_options", ()) or ())
+        if len(skill_options) == 1:
+            skill_id = str(skill_options[0])
+            minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
+            if _skill_level_for_reward(player_data, skill_id) < minimum_level:
+                skill = get_skill(skill_id)
+                display_name = skill.display_name if skill is not None else skill_id.replace("_", " ").title()
+                reasons.append(f"{display_name} level {minimum_level}")
     required_diary_tier = claim.get("required_diary_tier")
     if isinstance(required_diary_tier, str) and required_diary_tier:
         diary_state = player_data.get("achievement_diaries", {})
@@ -196,7 +205,9 @@ def claim_rows_pure(player_data, claim_data):
                 "items": items,
                 "xp_amount": float(claim.get("xp_amount", 0) or 0),
                 "skill_options": (
-                    _claim_skill_options(claim) if claim.get("claim_type") == "xp_lamp" else ()
+                    _claim_skill_options(claim)
+                    if claim.get("claim_type") in {"xp_lamp", "skill_reward"}
+                    else ()
                 ),
                 "minimum_level": _positive_int(claim.get("minimum_level", 1), 1),
                 "eligible": eligible,
@@ -235,6 +246,21 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
         if amount <= 0:
             return player_data, False
         _apply_skill_xp_reward(data, skill_id, amount)
+    elif claim_type == "skill_reward":
+        skill_options = tuple(claim.get("skill_options", ()) or ())
+        if len(skill_options) != 1:
+            return player_data, False
+        skill_id = str(skill_options[0])
+        minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
+        if _skill_level_for_reward(player_data, skill_id) < minimum_level:
+            return player_data, False
+        amount = float(claim.get("xp_amount", 0) or 0)
+        if amount <= 0:
+            return player_data, False
+        _apply_skill_xp_reward(data, skill_id, amount)
+        inventory = data.setdefault("inventory", {})
+        for item_name, quantity in _claim_bundle_items(claim):
+            inventory[item_name] = inventory.get(item_name, 0) + quantity
     elif claim_type == "item_bundle":
         bundle_items = _claim_bundle_items(claim)
         if not bundle_items:

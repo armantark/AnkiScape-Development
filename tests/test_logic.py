@@ -6693,6 +6693,40 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["thieving_exp"], xp_before["thieving"] + 250)
         self.assertEqual(player_data["mining_exp"], xp_before["mining"])
 
+        hidden_claim_ids = (
+            "diamond_in_the_rough_scabaras_tomb",
+            "diamond_in_the_rough_apmeken_tomb",
+        )
+        self.assertTrue(
+            all(not player_data["claims"][claim_id]["claimed"] for claim_id in hidden_claim_ids)
+        )
+        self.assertEqual(
+            {item: player_data["inventory"].get(item, 0) for item in ("Scabaras mask", "Was", "Apmeken mask", "Ankh")},
+            {"Scabaras mask": 0, "Was": 0, "Apmeken mask": 0, "Ankh": 0},
+        )
+
+        player_data["mining_level"] = 79
+        player_data["agility_level"] = 79
+        rows = {row["claim_id"]: row for row in claim_rows_pure(player_data, CLAIM_DATA)}
+        self.assertEqual(rows[hidden_claim_ids[0]]["locked_reasons"], ("Mining level 80",))
+        self.assertEqual(rows[hidden_claim_ids[1]]["locked_reasons"], ("Agility level 80",))
+
+        player_data["mining_level"] = 80
+        player_data["agility_level"] = 80
+        rows = {row["claim_id"]: row for row in claim_rows_pure(player_data, CLAIM_DATA)}
+        self.assertTrue(all(rows[claim_id]["eligible"] for claim_id in hidden_claim_ids))
+
+        player_data, ok = apply_claim_pure(player_data, hidden_claim_ids[0], CLAIM_DATA)
+        self.assertTrue(ok)
+        player_data, ok = apply_claim_pure(player_data, hidden_claim_ids[1], CLAIM_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["mining_exp"], xp_before["mining"] + 20000)
+        self.assertEqual(player_data["agility_exp"], xp_before["agility"] + 20250)
+        self.assertEqual(
+            {item: player_data["inventory"].get(item, 0) for item in ("Scabaras mask", "Was", "Apmeken mask", "Ankh")},
+            {"Scabaras mask": 1, "Was": 1, "Apmeken mask": 1, "Ankh": 1},
+        )
+
     def test_icthlarins_little_helper_stage_chain_resolves_guardian_ceremony_and_priest(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["icthlarins_little_helper"] = {

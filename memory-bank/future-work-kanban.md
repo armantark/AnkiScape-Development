@@ -1084,8 +1084,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Diamond in the Rough, Icthlarin's Little Helper, and Smoking Kills are now
   source-backed and playable. Sumona and the reward-point surface are therefore
   reachable without bypass flags. Diamond in the Rough's two optional level-80
-  hidden-reward actions remain a separate source-ready follow-up rather than
-  automatic quest-completion XP.
+  hidden-reward actions are separate one-time claims rather than automatic
+  quest-completion XP.
 - Shilo Village is now source-backed and playable. Continue the transitive
   Slayer-helmet route in dependency order: replace Jungle Potion's remaining
   generated objective buttons; build Big Chompy Bird Hunting, Zogre Flesh
