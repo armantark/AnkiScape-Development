@@ -3017,6 +3017,25 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_steel_dragon_double_clue_roll_reports_the_refused_scroll(self):
+        drops, clue_refusal_reason = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["steel_dragon"],
+            _rng([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+            player_data={"inventory": {}},
+            include_clue_refusal=True,
+        )
+
+        clue_drops = {
+            item: amount
+            for item, amount in drops.items()
+            if item.startswith("Clue scroll")
+        }
+        self.assertEqual(clue_drops, {"Clue scroll (elite)": 1})
+        self.assertEqual(
+            clue_refusal_reason,
+            "You can only carry one clue scroll at a time.",
+        )
+
     def test_red_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
         dragon = COMBAT_ENEMY_DATA["red_dragon"]
         empty_ordinary = _combat_roll_drops(

@@ -287,6 +287,26 @@ class SkeletalHorrorMechanicsTests(unittest.TestCase):
             repeated["inventory"][SKELETAL_HORROR_ELITE_CLUE_ITEM], 1
         )
 
+    def test_a_held_clue_refuses_and_reports_the_repeat_clue_roll(self):
+        won, ok, result = _win(_entered())
+        self.assertTrue(ok, result)
+        won["shop_market_clock"]["answered_cards"] = 1680
+        won["inventory"]["Clue scroll (easy)"] = 1
+        repeat, ok, info = apply_skeletal_horror_command_pure(
+            won, "enter", equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, info)
+
+        repeated, ok, result = _win(repeat, repeat_roll=0.0)
+
+        self.assertTrue(ok, result)
+        self.assertFalse(result["clue_dropped"])
+        self.assertEqual(repeated["inventory"]["Clue scroll (easy)"], 1)
+        self.assertEqual(
+            repeated["inventory"].get(SKELETAL_HORROR_ELITE_CLUE_ITEM, 0), 0
+        )
+        self.assertIn("already have a clue scroll", result["status"])
+
     def test_weekly_allowance_resets_and_consumes_only_on_repeat_victory(self):
         # The source says repeat availability *resets* each simulated week, so
         # three idle weeks still leave exactly one entry -- they do not bank.

@@ -422,6 +422,7 @@ class TroubleBrewingRewardTests(unittest.TestCase):
                 )
                 self.assertFalse(ok)
                 self.assertIn("already have a clue scroll", info["reason"])
+                self.assertIn(held_item, info["reason"])
                 self.assertEqual(unchanged, player)
 
     def test_medium_clue_view_exposes_the_central_ownership_blocker(self):

@@ -25,7 +25,11 @@ from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_REWARDS_BY_ID,
     TROUBLE_BREWING_RUMS_BY_ITEM,
 )
-from .treasure_trails_logic import clue_ownership_reason_pure
+from .treasure_trails_logic import (
+    clue_ownership_reason_pure,
+    clue_refusal_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 
 
 TROUBLE_BREWING_STATE_VERSION = 1
@@ -473,17 +477,23 @@ def buy_trouble_brewing_reward_pure(
     reward = TROUBLE_BREWING_REWARDS_BY_ID.get(str(reward_id))
     if reward is None:
         return data, False, {"reason": "Unknown Trouble Brewing reward."}
+    reward_outputs = {reward.display_name: 1}
     if reward.clue_tier:
-        blocked_reason = clue_ownership_reason_pure(data)
-        if blocked_reason:
-            return data, False, {"reason": blocked_reason}
+        offered_outputs = reward_outputs
+        reward_outputs = filter_clue_scroll_outputs_pure(data, offered_outputs)
+        clue_refusal_reason = clue_refusal_reason_pure(
+            data, offered_outputs, reward_outputs
+        )
+        if clue_refusal_reason:
+            return data, False, {"reason": clue_refusal_reason}
     wallet = _int(data.get("trouble_brewing_pieces_of_eight"))
     if wallet < reward.pieces_of_eight:
         return data, False, {
             "reason": f"Requires {reward.pieces_of_eight} Pieces of Eight."
         }
     inventory = dict(data.get("inventory") or {})
-    inventory[reward.display_name] = _int(inventory.get(reward.display_name)) + 1
+    for item_name, amount in reward_outputs.items():
+        inventory[item_name] = _int(inventory.get(item_name)) + amount
     data["inventory"] = inventory
     data["trouble_brewing_pieces_of_eight"] = wallet - reward.pieces_of_eight
     data["trouble_brewing_last_result"] = f"Bought {reward.display_name}."

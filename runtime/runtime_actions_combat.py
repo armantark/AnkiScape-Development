@@ -793,4 +793,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
             f"{healing_phrase}{dragonfire_suffix}"
         )
+    clue_refusal_reason = str(result.get("clue_refusal_reason", ""))
+    if clue_refusal_reason:
+        ctx.show_activity_gain(clue_refusal_reason)
     return True

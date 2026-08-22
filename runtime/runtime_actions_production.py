@@ -1350,7 +1350,14 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     exp_before = ctx.implemented_exp_keys_snapshot()
-    new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+    new_data, ok, completed_now, clue_reward_refusal_reason = (
+        apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+            include_clue_refusal=True,
+        )
+    )
     if not ok:
         stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
         if stage_blocker_reasons:
@@ -1372,6 +1379,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if completed_now:
         display_name = str(quest.get("display_name", quest_id))
         ctx.show_activity_gain(f"{display_name} complete")
+        if clue_reward_refusal_reason:
+            ctx.show_activity_gain(clue_reward_refusal_reason)
         ctx.show_error_message(
             "Quest complete",
             f"{display_name} is complete, so questing has been switched off. "

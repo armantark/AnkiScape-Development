@@ -16,7 +16,10 @@ from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 
 from ..logic.court_cases_logic import filter_court_summons_outputs_pure
-from ..logic.treasure_trails_logic import filter_clue_scroll_outputs_pure
+from ..logic.treasure_trails_logic import (
+    clue_refusal_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 
 try:
     from ..data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
@@ -2717,24 +2720,29 @@ def _combat_roll_drop_table(table, rng, drops, player_data=None):
         break
 
 
-def _combat_roll_drops(enemy, rng, player_data=None):
+def _combat_roll_drops(
+    enemy, rng, player_data=None, *, include_clue_refusal=False
+):
     drops = {}
     drop_spec = enemy.get("drops", {}) if isinstance(enemy, Mapping) else {}
     if not isinstance(drop_spec, Mapping):
-        return drops
+        return (drops, "") if include_clue_refusal else drops
     for item_name, quantity in drop_spec.get("guaranteed", ()) or ():
         if isinstance(item_name, str):
             drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(quantity, 1))
     for table in drop_spec.get("tables", ()) or ():
         _combat_roll_drop_table(table, rng, drops, player_data)
     if not isinstance(player_data, Mapping):
-        return drops
+        return (drops, "") if include_clue_refusal else drops
     # Both filters enforce a one-at-a-time ownership rule the drop table itself
     # knows nothing about: one Court summons, and one clue scroll across every
     # tier.
-    return filter_clue_scroll_outputs_pure(
-        player_data, filter_court_summons_outputs_pure(player_data, drops)
-    )
+    filtered = filter_court_summons_outputs_pure(player_data, drops)
+    clue_filtered = filter_clue_scroll_outputs_pure(player_data, filtered)
+    clue_refusal = clue_refusal_reason_pure(player_data, filtered, clue_filtered)
+    if include_clue_refusal:
+        return clue_filtered, clue_refusal
+    return clue_filtered
 
 
 def _combat_apply_triple_charm_reward(data, drops):
@@ -2793,9 +2801,10 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
             "item": state["item"],
         }
 
-    kill_drops = _combat_apply_triple_charm_reward(
-        data, _combat_roll_drops(enemy, rng, data)
+    rolled_drops, clue_refusal_reason = _combat_roll_drops(
+        enemy, rng, data, include_clue_refusal=True
     )
+    kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
     (
         data,
         kill_drops,
@@ -2853,6 +2862,7 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
         "status_applied": {},
         "status_expired": tuple(),
         "drops": kill_drops,
+        "clue_refusal_reason": clue_refusal_reason,
         "xp_rewards": xp_rewards,
         "finisher_item": state["item"],
         "finisher_consumed": bool(finisher.get("consume", False)),

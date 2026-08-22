@@ -441,7 +441,7 @@ class BorkRewardTests(unittest.TestCase):
         self.assertEqual(data["inventory"]["Uncut diamond"], 1)
         self.assertEqual(data["inventory"].get("Uncut sapphire", 0), 0)
 
-    def test_the_three_rare_rolls_are_independent_and_sourced(self):
+    def test_double_clue_roll_keeps_elite_and_reports_refused_hard_clue(self):
         self.assertEqual(
             [name for name, _ in BORK_RARE_DROPS],
             [BORK_EFFIGY_ITEM, "Clue scroll (elite)", "Clue scroll (hard)"],
@@ -453,10 +453,30 @@ class BorkRewardTests(unittest.TestCase):
         self.assertTrue(ok, result)
         self.assertEqual(
             result["rare_drops"],
-            {BORK_EFFIGY_ITEM: 1, "Clue scroll (elite)": 1, "Clue scroll (hard)": 1},
+            {BORK_EFFIGY_ITEM: 1, "Clue scroll (elite)": 1},
         )
-        for item_name, _chance in BORK_RARE_DROPS:
-            self.assertEqual(data["inventory"][item_name], 1)
+        self.assertEqual(data["inventory"][BORK_EFFIGY_ITEM], 1)
+        self.assertEqual(data["inventory"]["Clue scroll (elite)"], 1)
+        self.assertEqual(data["inventory"].get("Clue scroll (hard)", 0), 0)
+        self.assertIn(
+            "You can only carry one clue scroll at a time.",
+            result["status"],
+        )
+
+    def test_a_held_clue_refuses_and_reports_borks_clue_rolls(self):
+        data = _entered()
+        data["inventory"]["Clue scroll (easy)"] = 1
+
+        data, ok, result = _review(
+            data, [0.5, 0.0, 0.0, 0.0], burst=_burst(killed=True)
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual(result["rare_drops"], {BORK_EFFIGY_ITEM: 1})
+        self.assertEqual(data["inventory"]["Clue scroll (easy)"], 1)
+        self.assertEqual(data["inventory"].get("Clue scroll (elite)", 0), 0)
+        self.assertEqual(data["inventory"].get("Clue scroll (hard)", 0), 0)
+        self.assertIn("already have a clue scroll", result["status"])
 
 
 class BorkPersistenceTests(unittest.TestCase):
