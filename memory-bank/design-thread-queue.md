@@ -568,6 +568,25 @@ tracker action shape plus its source feature, produce, Juju, empty-tree, XP, and
 three independent drop tables. Blocks: the Camo vine route and a complete
 thirteen-row Jadinko roster, but not the five live vine-herb chains.
 
+### 3.29 Durable line citations need a mechanical drift check
+
+Raised 2026-08-21 after a grimy-herb record still pointed at pre-merge line
+numbers and three pinned enum citations pointed at the following rows. These
+errors are mechanically checkable but currently depend on reviewers opening
+every cited location by hand.
+
+Schedule a documentation-audit slice that parses `path:line` and
+`path:start-end` citations in Memory Bank Markdown, resolves repository-local
+paths against the current tree and pinned external paths against their named
+commits, and verifies that each target still exists. The check should report the
+record location, cited target, and target text so a reviewer can confirm the
+semantic claim; existence alone cannot prove that the cited lines say what the
+record says. It must not rewrite citations automatically, because a moved line
+and a changed source claim require different fixes.
+
+Blocks: nothing in the grimy-herb family. This is a cross-cutting record-quality
+check to schedule as its own slice, not tooling to add during family promotion.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

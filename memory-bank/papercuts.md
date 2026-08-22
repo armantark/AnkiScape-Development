@@ -773,3 +773,5 @@
 - 2026-08-21 17:27 PDT — Capturing an expected unittest failure in zsh used `status`, a read-only special parameter, and aborted before printing the result; use a neutral name such as `test_rc`.
 
 - 2026-08-21 17:33 PDT — A focused reachability rerun guessed `ItemReachabilityAuditTest` and failed with `AttributeError: module 'tests.test_item_reachability_audit' has no attribute 'ItemReachabilityAuditTest'. Did you mean: 'TestItemReachabilityAudit'?`; read the declared class before composing a dotted unittest target.
+- 2026-08-21 17:46:04 PDT — While locating pinned source repositories, a probe returned exit 128 because it queried commits in paths that were not repositories or lacked the object; the final scan still found Darkan at /Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server.
+- 2026-08-21 17:46:45 PDT — While checking citation ranges in zsh, naming a function variable `path` overwrote zsh’s special `$path` command-search array, so every `git`, `nl`, and `sed` call failed with `command not found`; use a non-special variable name in zsh helpers.

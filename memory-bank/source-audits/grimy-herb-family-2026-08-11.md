@@ -70,14 +70,14 @@ path.
 | Jadinko | Route | Level | XP | NPC ID | Guaranteed item and ID | `rate1/rate99` | Implemented secondary roll | Other source tables not implemented | Pinned row sources |
 | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- |
 | Common | Marasamaw | 70 | 350 | 13119 | Withered vine `19971` | `30/150` | All five vine-herb seeds, `16/256` | Bush seeds, `14/256`; blossom seeds, `17/256` | `BoxHunterType.java:79`; `hunter_jadinko_common.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
-| Shadow | Tracker | 71 | 475 | — | Shadow vine `19977` | `128/256` placeholder | Four seeds above Erzille, `5/256` | Bush seeds, `8/256`; blossom seeds, `4/256` | `JadinkoType.kt:35`; `hunter_jadinko_shadow.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Shadow | Tracker | 71 | 475 | — | Shadow vine `19977` | `128/256` placeholder | Four seeds above Erzille, `5/256` | Bush seeds, `8/256`; blossom seeds, `4/256` | `JadinkoType.kt:34`; `hunter_jadinko_shadow.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 | Igneous | Marasamaw | 74 | 465 | 13143 | Marble vine `19980` | `25/145` | Lergberry or Kalferberry seed, `13/256` | — | `BoxHunterType.java:87`; `hunter_jadinko_igneous.json`; `hh_bush_seed.json`. |
 | Cannibal | Marasamaw | 75 | 475 | 13155 | Plant teeth `19975` | `20/140` | Lergberry or Kalferberry seed, `12/256` | — | `BoxHunterType.java:91`; `hunter_jadinko_cannibal.json`; `hh_bush_seed.json`. |
 | Aquatic | Marasamaw | 76 | 475 | 13142 | Aquatic vine `19976` | `15/135` | Red, Blue, or Green blossom seed, `12/256` | — | `BoxHunterType.java:85`; `hunter_jadinko_aquatic.json`; `hh_blossom_seed.json`. |
 | Amphibious | Marasamaw | 77 | 485 | 13130 | Oily vine `19972` | `15/130` | Apple, Banana, or Orange tree seed, `20/256` | — | `BoxHunterType.java:81`; `hunter_jadinko_amphibious.json`. |
 | Carrion | Marasamaw | 78 | 505 | 13154 | Pungent vine `19974` | `15/130` | All five vine-herb seeds, `30/256` | — | `BoxHunterType.java:89`; `hunter_jadinko_carrion.json`. |
-| Diseased | Tracker | 78 | 580.5 | — | Corrupt vine `19979` | `128/256` placeholder | Four seeds above Erzille, `5/256` | Bush seeds, `8/256`; blossom seeds, `4/256` | `JadinkoType.kt:41`; `hunter_jadinko_diseased.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
-| Camouflaged | Tracker — not implemented | 79 | 600 | — | Camo vine `19978` | — | None; no live route | Bush seeds, `16/256`; four seeds above Erzille, `4/256`; blossom seeds, `4/256` | `JadinkoType.kt:42`; `hunter_jadinko_camouflaged.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Diseased | Tracker | 78 | 580.5 | — | Corrupt vine `19979` | `128/256` placeholder | Four seeds above Erzille, `5/256` | Bush seeds, `8/256`; blossom seeds, `4/256` | `JadinkoType.kt:40`; `hunter_jadinko_diseased.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
+| Camouflaged | Tracker — not implemented | 79 | 600 | — | Camo vine `19978` | — | None; no live route | Bush seeds, `16/256`; four seeds above Erzille, `4/256`; blossom seeds, `4/256` | `JadinkoType.kt:41`; `hunter_jadinko_camouflaged.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 | Draconic | Marasamaw | 80 | 525 | 13131 | Draconic vine `19973` | `15/130` | Four seeds above Erzille, `14/256` | — | `BoxHunterType.java:83`; `hunter_jadinko_draconic.json`. |
 | Saradomin | Marasamaw | 81 | 600 | 13163 | Saradomin vine `19981` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:95`; `hunter_jadinko_saradomin.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
 | Guthix | Marasamaw | 81 | 600 | 13164 | Guthix vine `19982` | `15/130` | Four seeds above Erzille, `5/256` | Bush seeds, `6/256`; blossom seeds, `4/256` | `BoxHunterType.java:93`; `hunter_jadinko_guthix.json`; `hh_bush_seed.json`; `hh_blossom_seed.json`. |
@@ -92,8 +92,9 @@ and its matching Marasamaw routes in
 `src/main/java/com/rs/game/content/skills/hunter/BoxHunterType.java:81-97`, not
 from AnkiScape's item registry. Darkan's inherited
 `ItemConstants.isTradeable()` rule at
-`src/main/java/com/rs/game/content/ItemConstants.java:441-466` (core rule commit
-`c6fbe036b1743f4dd6067ec178332c69c3708856`; exception-set commit
+`src/main/java/com/rs/game/player/content/ItemConstants.java:388-410` (core
+rule commit `c6fbe036b1743f4dd6067ec178332c69c3708856`) and the later exception
+set at `src/main/java/com/rs/game/content/ItemConstants.java:403-428` (commit
 `14fb66f0db9d2ca8a63c6f0dec24fa1e709e290c`) treats stackable items as
 tradeable only when `canExchange()` is true or their ID is in the explicit
 exception set. None of these seven IDs appears there. The immutable
@@ -125,8 +126,8 @@ against either dated cache or any of the seven pinned period wiki infoboxes, so
 it is not used.
 
 The twelve live rows are registered in `data/hunter_data.py`. The six known
-multi-table omissions have adjacent markers at lines 394, 428, 764, 818, 971,
-and 1003. The ten Marasamaw rows use the sourced `BoxHunterType` curves; only
+multi-table omissions have adjacent markers at lines 402, 436, 772, 826, 989,
+and 1021. The ten Marasamaw rows use the sourced `BoxHunterType` curves; only
 the live Shadow and Diseased tracker rows remain on
 `hunter.herblore_habitat_success_curves`. Camouflaged needs a third tracker
 route with its own feature and produce gates, so it is a separate content slice,
