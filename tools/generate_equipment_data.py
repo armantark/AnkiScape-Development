@@ -994,6 +994,34 @@ def _quest_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEq
     return tuple(generated)
 
 
+def _diamond_in_the_rough_equipment_items() -> Tuple[GeneratedEquipmentItem, ...]:
+    definitions = (
+        ("Apmeken mask", 25122, "head", 6474568),
+        ("Ankh", 25123, "shield", 6540894),
+        ("Scabaras mask", 25124, "head", 6320571),
+        ("Was", 25125, "weapon", 6320596),
+    )
+    return tuple(
+        GeneratedEquipmentItem(
+            item_name=item_name,
+            slot=slot,
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="cosmetic",
+            bonuses={field: 0 for field in BONUS_FIELDS},
+            attack_speed=4,
+            source_item_id=item_id,
+            source=(
+                f"OpenRS2 rev-742 item {item_id}; "
+                f"RuneScape Wiki {item_name} oldid={wiki_oldid}"
+            ),
+            source_status="period exact slot and cache-zeroed bonuses",
+        )
+        for item_name, item_id, slot, wiki_oldid in definitions
+    )
+
+
 def _warriors_guild_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     generated = []
     for item_name, item_id, required_level in WARRIORS_GUILD_DEFENDERS:
@@ -1388,6 +1416,7 @@ def generate(
         + tuple(_mining_bonus_equipment_items(items))
         + tuple(_legacy_equipment_items(items))
         + tuple(_quest_equipment_items(items))
+        + tuple(_diamond_in_the_rough_equipment_items())
         + tuple(_stronghold_equipment_items(items))
         + tuple(_fist_of_guthix_equipment_items(items))
         + tuple(_mage_arena_equipment_items(items))
