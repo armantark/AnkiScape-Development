@@ -4042,38 +4042,52 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["hunter_exp"], 348.0)
         self.assertEqual(calls["xp"], [348.0])
 
-    def test_hunter_handler_runs_the_jadinko_secondary_routes_end_to_end(self):
+    def test_hunter_handler_rolls_source_ordered_jadinko_tables_independently(self):
         cases = {
             "track_shadow_jadinko": (
                 71,
                 "Noose wand",
                 "Shadow vine",
-                "Samaden seed",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
                 475.0,
             ),
             "track_diseased_jadinko": (
                 78,
                 "Noose wand",
                 "Corrupt vine",
-                "Samaden seed",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
                 580.5,
             ),
-            "catch_cannibal_jadinko": (
-                75,
+            "catch_common_jadinko": (
+                70,
                 "Marasamaw plant",
-                "Plant teeth",
-                "Kalferberry seed",
-                475.0,
+                "Withered vine",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
+                350.0,
             ),
             "catch_guthix_jadinko": (
                 81,
                 "Marasamaw plant",
                 "Guthix vine",
-                "Samaden seed",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
+                600.0,
+            ),
+            "catch_saradomin_jadinko": (
+                81,
+                "Marasamaw plant",
+                "Saradomin vine",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
+                600.0,
+            ),
+            "catch_zamorak_jadinko": (
+                81,
+                "Marasamaw plant",
+                "Zamorak vine",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
                 600.0,
             ),
         }
-        for target, (level, tool, output, secondary, expected_xp) in cases.items():
+        for target, (level, tool, output, secondaries, expected_xp) in cases.items():
             with self.subTest(target=target):
                 calls = {"xp": [], "saves": 0, "errors": []}
                 player_data = {
@@ -4084,13 +4098,21 @@ class TestRuntimeActions(unittest.TestCase):
                     "hunter_success_count": 0,
                     "completed_achievements": [],
                 }
+                table_rolls = (0.0, 0.999999) * len(secondaries)
                 ok = handle_hunter_answer(
-                    _context(player_data, calls, random_values=(0.0, 0.0, 0.99))
+                    _context(
+                        player_data,
+                        calls,
+                        random_values=(0.0,) + table_rolls,
+                    )
                 )
                 self.assertTrue(ok)
+                expected_inventory = {tool: 1, output: 1}
+                expected_inventory.update({item: 1 for item in secondaries})
+                self.assertEqual(player_data["inventory"], expected_inventory)
                 self.assertEqual(
-                    player_data["inventory"],
-                    {tool: 1, output: 1, secondary: 1},
+                    player_data["action_telemetry"]["actions"][f"hunter:{target}"]["outputs"],
+                    {output: 1, **{item: 1 for item in secondaries}},
                 )
                 self.assertEqual(player_data["hunter_exp"], expected_xp)
                 self.assertEqual(player_data["hunter_success_count"], 1)
@@ -4175,7 +4197,11 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(
             handle_hunter_answer(
-                _context(player_data, calls, random_values=(0.0, 0.0, 0.4))
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 1.0, 0.0, 0.0, 0.4, 1.0, 0.0),
+                )
             )
         )
 
@@ -4211,7 +4237,17 @@ class TestRuntimeActions(unittest.TestCase):
                 _context(
                     player_data,
                     calls,
-                    random_values=(0.0, 0.0, 0.9, 0.0, 0.0),
+                    random_values=(
+                        0.0,
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.9,
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                    ),
                 )
             )
         )
@@ -4253,7 +4289,7 @@ class TestRuntimeActions(unittest.TestCase):
                 random_values = (
                     (0.0, 1.0, 0.5, 0.0, 0.0)
                     if target == "catch_cannibal_jadinko"
-                    else (0.0, 0.0, 0.0)
+                    else (0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0)
                 )
 
                 self.assertTrue(
@@ -4304,12 +4340,17 @@ class TestRuntimeActions(unittest.TestCase):
                     "shattered_heart": default_shattered_heart_state_pure(),
                 }
 
+                random_values = (
+                    (0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0)
+                    if target in {"catch_saradomin_jadinko", "catch_zamorak_jadinko"}
+                    else (0.0, 1.0, 0.0, 0.0, 0.0)
+                )
                 self.assertTrue(
                     handle_hunter_answer(
                         _context(
                             player_data,
                             calls,
-                            random_values=(0.0, 1.0, 0.0, 0.0, 0.0),
+                            random_values=random_values,
                         )
                     )
                 )

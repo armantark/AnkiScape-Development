@@ -22,11 +22,9 @@ matching the conventions of the twelve existing jadinko rows.
 - Drop tables: `data/npcs/drops/hunter/hunter_jadinko_camouflaged.json` rolls
   guaranteed 19978 at quantity 1, bush seeds via `hh_bush_seed` at 16/256, one
   of Ugune/Argway/Shengo/Samaden seed (19902/19907/19912/19917) at 4/256, and
-  blossom seeds via `hh_blossom_seed` at 4/256. The pure Hunter contract still
-  supports one live secondary slot, so the four higher-level vine-herb seeds
-  ride that slot at 4/256 and the bush/blossom tables stay registered under
-  `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)`, exactly as Shadow,
-  Diseased, Common, Guthix, Saradomin and Zamorak already do.
+  blossom seeds via `hh_blossom_seed` at 4/256. The ordered
+  `secondary_drop_tables` contract preserves that source order and rolls all
+  three tables independently through the pure and runtime Hunter paths.
 - Standing-Stones plus Lergberry plus empty-tree-patch setup: from the
   `JadinkoType.kt` fields above. The AnkiScape Hunter contract models persistent
   setup as route context, not per-catch gating, matching every other jadinko row.

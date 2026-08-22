@@ -2186,15 +2186,25 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(common_jadinko["tools"], {"Marasamaw plant": 1})
         self.assertEqual(common_jadinko["outputs"], {"Withered vine": 1})
         self.assertFalse(common_jadinko["tradeable"])
-        self.assertEqual(common_jadinko["secondary_drop_chance"], 16 / 256)
         self.assertEqual(
-            tuple(row["item"] for row in common_jadinko["secondary_outputs"]),
+            tuple(table["chance"] for table in common_jadinko["secondary_drop_tables"]),
+            (14 / 256, 16 / 256, 17 / 256),
+        )
+        self.assertEqual(
+            tuple(
+                tuple(row["item"] for row in table["outputs"])
+                for table in common_jadinko["secondary_drop_tables"]
+            ),
             (
-                "Erzille seed",
-                "Ugune seed",
-                "Argway seed",
-                "Shengo seed",
-                "Samaden seed",
+                ("Lergberry seed", "Kalferberry seed"),
+                (
+                    "Erzille seed",
+                    "Ugune seed",
+                    "Argway seed",
+                    "Shengo seed",
+                    "Samaden seed",
+                ),
+                ("Red blossom seed", "Blue blossom seed", "Green blossom seed"),
             ),
         )
         self.assertEqual(
@@ -2208,10 +2218,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertFalse(by_storage_key["Marasamaw plant"].stackable)
         self.assertFalse(by_storage_key["Withered vine"].tradeable)
         self.assertTrue(by_storage_key["Withered vine"].stackable)
-        for row in common_jadinko["secondary_outputs"]:
-            seed_name = row["item"]
-            self.assertFalse(by_storage_key[seed_name].tradeable)
-            self.assertTrue(by_storage_key[seed_name].stackable)
+        for table in common_jadinko["secondary_drop_tables"]:
+            for row in table["outputs"]:
+                self.assertTrue(by_storage_key[row["item"]].stackable)
+        for row in common_jadinko["secondary_drop_tables"][1]["outputs"]:
+            self.assertFalse(by_storage_key[row["item"]].tradeable)
 
         jadinkos = {
             "track_shadow_jadinko": (71, 475.0, {"Noose wand": 1}, "Shadow vine", 19977),
@@ -2236,12 +2247,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[output]))
         cannibal = HUNTER_DATA["catch_cannibal_jadinko"]
         self.assertEqual((cannibal["rate1"], cannibal["rate99"]), (20, 140))
-        self.assertEqual(cannibal["secondary_drop_chance"], 12 / 256)
         self.assertEqual(
-            cannibal["secondary_outputs"],
+            cannibal["secondary_drop_tables"],
             (
-                {"item": "Lergberry seed", "amount": 1, "weight": 1},
-                {"item": "Kalferberry seed", "amount": 1, "weight": 1},
+                {
+                    "chance": 12 / 256,
+                    "outputs": (
+                        {"item": "Lergberry seed", "amount": 1, "weight": 1},
+                        {"item": "Kalferberry seed", "amount": 1, "weight": 1},
+                    ),
+                },
             ),
         )
         self.assertIn("BoxHunterType.java", cannibal["mechanics_source"])

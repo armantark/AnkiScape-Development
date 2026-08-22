@@ -570,9 +570,9 @@ thirteen-row Jadinko roster, but not the five live vine-herb chains.
 
 **Resolved 2026-08-22** on `goal/camo-jadinko-2026-08-22`: `track_camouflaged_jadinko`
 now exists as the third tracker row, following the Shadow/Diseased shape with
-`PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` covering the two
-not-yet-live tables. One correction to the record above: item 19978's period
-name is **Striped vine** (wiki `Striped_vine`, infobox `id = 19978`; Darkan
+all three source-backed secondary tables live in Darkan order. One correction
+to the record above: item 19978's period name is **Striped vine** (wiki
+`Striped_vine`, infobox `id = 19978`; Darkan
 `HerbloreHabitatTransactions.kt:21` `STRIPED_VINE = 19978`), not "Camo vine" —
 that name exists nowhere. Full sourcing in
 `memory-bank/source-audits/camouflaged-jadinko-tracker-2026-08-22.md`.
@@ -1083,3 +1083,12 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
   `14/256` and blossom `17/256`; Guthix, Saradomin, and Zamorak each add bush
   `6/256` and blossom `4/256`; Shadow and Diseased each add bush `8/256` and
   blossom `4/256`.
+- **Implemented 2026-08-22:** `secondary_drop_tables` now preserves Darkan's
+  source order and rolls each table independently through the pure Hunter action
+  and runtime adapter. The six live rows carry the exact chances above; all
+  existing one-table Jadinko rows migrated one-for-one. Real-kernel regressions
+  prove all three secondaries can land on one catch. Source: Darkan commit
+  `7e7d67b`, `data/npcs/drops/hunter/hunter_jadinko_{common,guthix,saradomin,zamorak,shadow,diseased}.json`
+  and `data/npcs/drops/hunter/jadinko_sub/{hh_bush_seed,hh_blossom_seed}.json`.
+  All six `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` markers are
+  retired; Camouflaged remains separate under section 3.28.

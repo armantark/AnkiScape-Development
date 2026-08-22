@@ -605,7 +605,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         if ctx.cadence_forced_opportunity
         else calculate_hunter_success_probability_pure(success_level, spec)
     )
-    secondary_outputs = spec.get("secondary_outputs", ())
+    secondary_drop_tables = spec.get("secondary_drop_tables", ())
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
@@ -613,10 +613,10 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
-        r_secondary_chance=(
-            ctx.random_random() if secondary_outputs else None
+        r_secondary_rolls=tuple(
+            (ctx.random_random(), ctx.random_random())
+            for _table in secondary_drop_tables
         ),
-        r_secondary_pick=(ctx.random_random() if secondary_outputs else None),
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")

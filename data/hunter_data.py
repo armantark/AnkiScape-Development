@@ -155,8 +155,9 @@ class HunterTarget:
     requirements: Tuple[Tuple[str, int], ...] = ()
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
     xp_rewards: Tuple[Tuple[str, float], ...] = ()
-    secondary_drop_chance: float = 0.0
-    secondary_outputs: Tuple[Tuple[str, int, int], ...] = ()
+    secondary_drop_tables: Tuple[
+        Tuple[float, Tuple[Tuple[str, int, int], ...]], ...
+    ] = ()
     tools: Tuple[Tuple[str, int], ...] = ()
     source: str = ""
     mechanics_source: str = ""
@@ -201,8 +202,9 @@ def _target(
     sort_order: int = 0,
     skill_requirements: Tuple[Tuple[str, int], ...] = (),
     xp_rewards: Tuple[Tuple[str, float], ...] = (),
-    secondary_drop_chance: float = 0.0,
-    secondary_outputs: Tuple[Tuple[str, int, int], ...] = (),
+    secondary_drop_tables: Tuple[
+        Tuple[float, Tuple[Tuple[str, int, int], ...]], ...
+    ] = (),
 ) -> HunterTarget:
     tools = HUNTER_REUSABLE_TOOLS_BY_TARGET.get(id, HUNTER_REUSABLE_TOOLS_BY_GROUP.get(group, ()))
     return HunterTarget(
@@ -216,8 +218,7 @@ def _target(
         requirements=requirements,
         skill_requirements=skill_requirements,
         xp_rewards=xp_rewards,
-        secondary_drop_chance=secondary_drop_chance,
-        secondary_outputs=secondary_outputs,
+        secondary_drop_tables=secondary_drop_tables,
         tools=tools,
         source=source,
         mechanics_source=mechanics_source,
@@ -399,8 +400,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Shadow omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_shadow_jadinko",
         "Track shadow jadinko",
@@ -420,21 +419,20 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        secondary_drop_chance=5 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=(
+            (8 / 256, _HABITAT_BUSH_SEEDS),
+            (5 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
         notes=(
             "Shadow jadinko oldid 6045371 pins level 71, 475 XP, Noose-wand "
             "tracking, Shadow vine, and the red-blossom and abandoned-house Habitat "
             "setup. One review represents the complete trail and persistent setup. "
-            "The live secondary slot rolls one of the four higher-level vine-herb "
-            "seeds at 5/256. Darkan also rolls bush seeds at 8/256 and blossom seeds "
-            "at 4/256 independently; those known tables remain registered until the "
-            "pure Hunter contract supports multiple secondary tables."
+            "Darkan independently rolls bush seeds at 8/256, one of the four "
+            "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
         sort_order=20,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Diseased omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_diseased_jadinko",
         "Track diseased jadinko",
@@ -454,21 +452,20 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        secondary_drop_chance=5 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=(
+            (8 / 256, _HABITAT_BUSH_SEEDS),
+            (5 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
         notes=(
             "Diseased jadinko oldid 6062055 pins level 78, 580.5 XP, Noose-wand "
             "tracking, Corrupt vine, and the boneyard and banana-tree Habitat setup. "
-            "One review represents the complete trail and persistent setup. The live "
-            "secondary slot rolls one of the four higher-level vine-herb seeds at "
-            "5/256. Darkan also rolls bush seeds at 8/256 and blossom seeds at 4/256 "
-            "independently; those known tables remain registered until the pure Hunter "
-            "contract supports multiple secondary tables."
+            "One review represents the complete trail and persistent setup. Darkan "
+            "independently rolls bush seeds at 8/256, one of the four higher-level "
+            "vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
         sort_order=30,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Camouflaged omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "track_camouflaged_jadinko",
         "Track camouflaged jadinko",
@@ -488,17 +485,18 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=HERBLORE_HABITAT_RATE1,
         rate99=HERBLORE_HABITAT_RATE99,
         tradeable=False,
-        secondary_drop_chance=4 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=(
+            (16 / 256, _HABITAT_BUSH_SEEDS),
+            (4 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
         notes=(
             "Darkan's JadinkoType pins level 79, 600.0 tracker XP, Noose-wand "
             "tracking, Juju potion required, Striped vine, and the Standing-Stones "
             "Lergberry empty-tree Habitat setup. One review represents the complete "
-            "trail and persistent setup. The live secondary slot rolls one of the "
-            "four higher-level vine-herb seeds at 4/256. Darkan also rolls bush seeds "
-            "at 16/256 and blossom seeds at 4/256 independently; those known tables "
-            "remain registered until the pure Hunter contract supports multiple "
-            "secondary tables."
+            "trail and persistent setup. Darkan independently rolls bush seeds at "
+            "16/256, one of the four higher-level vine-herb seeds at 4/256, and "
+            "blossom seeds at 4/256."
         ),
         sort_order=40,
     ),
@@ -790,8 +788,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=20,
         rate99=140,
         tradeable=False,
-        secondary_drop_chance=12 / 256,
-        secondary_outputs=_HABITAT_BUSH_SEEDS,
+        secondary_drop_tables=((12 / 256, _HABITAT_BUSH_SEEDS),),
         notes=(
             "Cannibal jadinko oldid 5976665 pins level 75, 475 XP, "
             "Marasamaw plant trapping, Plant teeth, a chance at vine-bush seeds, "
@@ -804,8 +801,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         ),
         sort_order=10,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Guthix omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_guthix_jadinko",
         "Catch Guthix jadinko",
@@ -826,17 +821,18 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=15,
         rate99=130,
         tradeable=False,
-        secondary_drop_chance=5 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=(
+            (6 / 256, _HABITAT_BUSH_SEEDS),
+            (5 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
         notes=(
             "Guthix jadinko oldid 6167443 pins level 81, 600 XP, Marasamaw "
             "plant trapping, Guthix vine, a Juju-treated flower patch, and weekly "
             "player-specific preferences. Darkan's BoxHunterType supplies the "
-            "15/130 success endpoints. The live secondary slot rolls one of the four "
-            "higher-level vine-herb seeds at 5/256. Darkan also rolls bush seeds at "
-            "6/256 and blossom seeds at 4/256 independently; those known tables "
-            "remain registered until the pure Hunter contract supports multiple "
-            "secondary tables. Persistent setup and optional bait are route context, "
+            "15/130 success endpoints and independently rolls bush seeds at 6/256, "
+            "one of the four higher-level vine-herb seeds at 5/256, and blossom "
+            "seeds at 4/256. Persistent setup and optional bait are route context, "
             "not per-catch consumables."
         ),
         sort_order=10,
@@ -858,8 +854,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         notes="Source drop range is 18-21 spikes plus optional herbs; AnkiScape awards the guaranteed minimum.",
         sort_order=50,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Common omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_common_jadinko",
         "Catch common jadinko",
@@ -887,16 +881,19 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=30,
         rate99=150,
         tradeable=False,
-        secondary_drop_chance=(
-            COMMON_JADINKO_SEED_ROLL_CHANCE / COMMON_JADINKO_SEED_ROLL_OUT_OF
+        secondary_drop_tables=(
+            (14 / 256, _HABITAT_BUSH_SEEDS),
+            (
+                COMMON_JADINKO_SEED_ROLL_CHANCE
+                / COMMON_JADINKO_SEED_ROLL_OUT_OF,
+                _VINE_HERB_SEEDS,
+            ),
+            (17 / 256, _HABITAT_BLOSSOM_SEEDS),
         ),
-        secondary_outputs=_VINE_HERB_SEEDS,
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
-            "The live secondary slot rolls one uniformly weighted vine-herb seed at "
-            "16/256. Darkan also rolls bush seeds at 14/256 and blossom seeds at "
-            "17/256 independently; those known tables remain registered until the "
-            "pure Hunter contract supports multiple secondary tables."
+            "Darkan independently rolls bush seeds at 14/256, one uniformly weighted "
+            "vine-herb seed at 16/256, and blossom seeds at 17/256."
         ),
         sort_order=10,
     ),
@@ -918,8 +915,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19980,
         rate1=25,
         rate99=145,
-        secondary_drop_chance=13 / 256,
-        secondary_outputs=_HABITAT_BUSH_SEEDS,
+        secondary_drop_tables=((13 / 256, _HABITAT_BUSH_SEEDS),),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "Darkan rolls one Lergberry or Kalferberry seed at 13/256."
@@ -944,8 +940,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19976,
         rate1=15,
         rate99=135,
-        secondary_drop_chance=12 / 256,
-        secondary_outputs=_HABITAT_BLOSSOM_SEEDS,
+        secondary_drop_tables=((12 / 256, _HABITAT_BLOSSOM_SEEDS),),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "Darkan rolls one red, blue, or green blossom seed at 12/256."
@@ -967,8 +962,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19972,
         rate1=15,
         rate99=130,
-        secondary_drop_chance=20 / 256,
-        secondary_outputs=_FRUIT_TREE_SEEDS,
+        secondary_drop_tables=((20 / 256, _FRUIT_TREE_SEEDS),),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "Darkan rolls one apple, banana, or orange tree seed at 20/256."
@@ -990,8 +984,7 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19974,
         rate1=15,
         rate99=130,
-        secondary_drop_chance=30 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS,
+        secondary_drop_tables=((30 / 256, _VINE_HERB_SEEDS),),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "The Darkan drop table rolls one uniformly weighted vine-herb seed at 30/256."
@@ -1013,16 +1006,13 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19973,
         rate1=15,
         rate99=130,
-        secondary_drop_chance=14 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=((14 / 256, _VINE_HERB_SEEDS[1:]),),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "The Darkan drop table rolls one of the four higher-level vine-herb seeds at 14/256."
         ),
         sort_order=10,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Saradomin omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_saradomin_jadinko",
         "Catch Saradomin jadinko",
@@ -1042,19 +1032,18 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19981,
         rate1=15,
         rate99=130,
-        secondary_drop_chance=5 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=(
+            (6 / 256, _HABITAT_BUSH_SEEDS),
+            (5 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
-            "The live secondary slot rolls one of the four higher-level vine-herb "
-            "seeds at 5/256. Darkan also rolls bush seeds at 6/256 and blossom seeds "
-            "at 4/256 independently; those known tables remain registered until the "
-            "pure Hunter contract supports multiple secondary tables."
+            "Darkan independently rolls bush seeds at 6/256, one of the four "
+            "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
         sort_order=10,
     ),
-    # PLACEHOLDER(hunter.jadinko_multi_secondary_tables): Zamorak omits its
-    # independent bush/blossom tables until one action can roll multiple tables.
     _target(
         "catch_zamorak_jadinko",
         "Catch Zamorak jadinko",
@@ -1074,14 +1063,15 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=19983,
         rate1=15,
         rate99=130,
-        secondary_drop_chance=5 / 256,
-        secondary_outputs=_VINE_HERB_SEEDS[1:],
+        secondary_drop_tables=(
+            (6 / 256, _HABITAT_BUSH_SEEDS),
+            (5 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
         notes=(
             "One review collapses habitat attraction, trap placement, and retrieval. "
-            "The live secondary slot rolls one of the four higher-level vine-herb "
-            "seeds at 5/256. Darkan also rolls bush seeds at 6/256 and blossom seeds "
-            "at 4/256 independently; those known tables remain registered until the "
-            "pure Hunter contract supports multiple secondary tables."
+            "Darkan independently rolls bush seeds at 6/256, one of the four "
+            "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
         sort_order=10,
     ),
@@ -1359,10 +1349,15 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "skill_requirements": dict(target.skill_requirements),
         "tools": dict(target.tools),
         "outputs": dict(target.outputs),
-        "secondary_drop_chance": target.secondary_drop_chance,
-        "secondary_outputs": tuple(
-            {"item": item_name, "amount": amount, "weight": weight}
-            for item_name, amount, weight in target.secondary_outputs
+        "secondary_drop_tables": tuple(
+            {
+                "chance": chance,
+                "outputs": tuple(
+                    {"item": item_name, "amount": amount, "weight": weight}
+                    for item_name, amount, weight in outputs
+                ),
+            }
+            for chance, outputs in target.secondary_drop_tables
         ),
         "output_item": target.primary_output,
         "output_qty": dict(target.outputs).get(target.primary_output, 1),
@@ -1396,8 +1391,9 @@ def hunter_output_items() -> Tuple[str, ...]:
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
             seen.setdefault(item_name, None)
-        for item_name, _amount, _weight in target.secondary_outputs:
-            seen.setdefault(item_name, None)
+        for _chance, secondary_outputs in target.secondary_drop_tables:
+            for item_name, _amount, _weight in secondary_outputs:
+                seen.setdefault(item_name, None)
     return tuple(seen.keys())
 
 
@@ -1406,8 +1402,9 @@ def hunter_item_names() -> Tuple[str, ...]:
     for target in HUNTER_TARGETS:
         for item_name, _amount in target.outputs:
             seen.setdefault(item_name, None)
-        for item_name, _amount, _weight in target.secondary_outputs:
-            seen.setdefault(item_name, None)
+        for _chance, secondary_outputs in target.secondary_drop_tables:
+            for item_name, _amount, _weight in secondary_outputs:
+                seen.setdefault(item_name, None)
         for material, _amount in target.requirements:
             seen.setdefault(material, None)
         for tool, _amount in target.tools:

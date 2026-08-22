@@ -783,11 +783,11 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
         self.assertEqual(
             report["routes"]["Lergberry seed"],
-            "Hunter:catch_cannibal_jadinko",
+            "Hunter:track_shadow_jadinko",
         )
         self.assertEqual(
             report["routes"]["Kalferberry seed"],
-            "Hunter:catch_cannibal_jadinko",
+            "Hunter:track_shadow_jadinko",
         )
         self.assertEqual(
             report["routes"]["Kalferberry"],

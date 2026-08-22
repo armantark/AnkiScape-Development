@@ -1999,6 +1999,22 @@ class TargetMetadataTest(unittest.TestCase):
             cannibal.tooltip,
         )
         self.assertIn("4.688% table chance", cannibal.tooltip)
+
+        common = _row(rows, "catch_common_jadinko")
+        self.assertIn(
+            "Lergberry seed ×1, Kalferberry seed ×1 (5.469% table chance)",
+            common.tooltip,
+        )
+        self.assertIn(
+            "Erzille seed ×1, Ugune seed ×1, Argway seed ×1, Shengo seed ×1, "
+            "Samaden seed ×1 (6.250% table chance)",
+            common.tooltip,
+        )
+        self.assertIn(
+            "Red blossom seed ×1, Blue blossom seed ×1, Green blossom seed ×1 "
+            "(6.641% table chance)",
+            common.tooltip,
+        )
         self.assertIn("Eagles' Peak", _row(rows, "catch_ferret").tooltip)
 
     def test_hunter_rows_apply_quest_unlock_rules(self):
