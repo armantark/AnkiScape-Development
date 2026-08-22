@@ -13,8 +13,9 @@ For repository-local targets, `changed` compares the target slice at the commit
 that `git blame HEAD` assigns to the cited Markdown line with the same line
 interval in the working tree. This is the commit that last changed the current
 record-line version, not proof of the author's intended claim or the target
-text when an earlier version of that record line was first written. Therefore, `changed` is a review signal, not confirmed
-citation drift. The terminal preview prints both compared texts when they differ.
+text when an earlier version of that record line was first written. Therefore,
+`changed` is a review signal, not confirmed citation drift. The terminal preview
+prints both compared texts when they differ.
 
 The actionable headline includes only `moved`, `missing_lines`, and
 `missing_file` results backed by repository history or a pinned external commit.
