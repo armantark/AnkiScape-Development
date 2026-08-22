@@ -28,10 +28,33 @@ BARE_CITATION_RE = re.compile(
     r"(?P<path>/?(?:[A-Za-z0-9_@.+-]+/)*[A-Za-z0-9_@.+-]+\.[A-Za-z][A-Za-z0-9]*)"
     r":(?P<start>\d+)(?:-(?P<end>\d+))?"
 )
-CONTINUATION_RE = re.compile(r"\s*,\s*(?P<start>\d+)(?:-(?P<end>\d+))?")
+CONTINUATION_RE = re.compile(r"\s*,\s*(?:(?:and|or)\s+)?(?P<start>\d+)(?:-(?P<end>\d+))?", re.I)
+PATH_REFERENCE_RE = re.compile(
+    r"(?<![\w./-])"
+    r"(?P<path>/(?:[^`:\n]+/)*[^`/:\n]+\.[a-z0-9]+|"
+    r"(?:[A-Za-z0-9_@.+-]+/)*[A-Za-z0-9_@.+-]+\.[a-z][a-z0-9]*)"
+    r"(?![.:\w])"
+)
+LINE_LIST_RE = re.compile(
+    r"\blines?\s+(?P<items>\d+(?:[-–]\d+)?"
+    r"(?:(?:\s*,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+)\d+(?:[-–]\d+)?)*)",
+    re.I,
+)
+LINE_LIST_CONTINUATION_RE = re.compile(
+    r"^\s*(?:(?:and|or)\s+)?(?P<items>\d+(?:[-–]\d+)?"
+    r"(?:(?:\s*,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+)\d+(?:[-–]\d+)?)*)",
+    re.I,
+)
+LINE_ITEM_RE = re.compile(r"(?P<start>\d+)(?:[-–](?P<end>\d+))?")
 SHA_RE = re.compile(r"(?<![0-9a-f])(?=[0-9a-f]{7,40}(?![0-9a-f]))(?=[0-9a-f]*[a-f])([0-9a-f]{7,40})", re.I)
 BLAME_HEADER_RE = re.compile(r"^([0-9a-f]{40}) \d+ \d+(?: \d+)?$")
-STALE_STATUSES = frozenset({"changed", "missing_file", "missing_lines", "moved"})
+STRUCTURAL_STATUSES = frozenset({"missing_file", "missing_lines", "moved"})
+SPLIT_FILE_SUFFIXES = frozenset({
+    ".c", ".cc", ".cfg", ".cpp", ".cs", ".css", ".go", ".gradle", ".h", ".hpp",
+    ".html", ".ini", ".java", ".js", ".json", ".jsx", ".kt", ".kts", ".md",
+    ".php", ".py", ".rb", ".rs", ".scala", ".sh", ".sql", ".toml", ".ts",
+    ".tsx", ".txt", ".xml", ".yaml", ".yml",
+})
 _PATH_INDEXES: dict[int, tuple[set[str], dict[str, tuple[str, ...]]]] = {}
 
 
@@ -65,8 +88,25 @@ class CitationResult:
     detail: str
 
     @property
-    def stale(self) -> bool:
-        return self.status in STALE_STATUSES
+    def actionable(self) -> bool:
+        authoritative = self.source == "repository" or bool(self.source and self.source.startswith("external:"))
+        return authoritative and self.status in STRUCTURAL_STATUSES
+
+    @property
+    def changed(self) -> bool:
+        return self.status == "changed"
+
+    @property
+    def unpinned_external_issue(self) -> bool:
+        return bool(
+            self.source
+            and self.source.startswith("external-tree:")
+            and self.status in STRUCTURAL_STATUSES
+        )
+
+    @property
+    def issue(self) -> bool:
+        return self.status in STRUCTURAL_STATUSES or self.changed
 
     @property
     def resolved(self) -> bool:
@@ -81,13 +121,20 @@ class CitationAuditReport:
     repository_local: int
     pinned_external: int
     unpinned_external: int
-    stale: int
+    actionable: int
+    changed: int
+    unpinned_external_issues: int
     unresolved: int
     results: tuple[CitationResult, ...]
 
     @property
     def ok(self) -> bool:
-        return self.stale == 0 and self.unresolved == 0
+        return (
+            self.actionable == 0
+            and self.changed == 0
+            and self.unpinned_external_issues == 0
+            and self.unresolved == 0
+        )
 
 
 @dataclass(frozen=True)
@@ -244,6 +291,35 @@ def _line_citations(text: str, regex: re.Pattern[str]) -> Iterable[tuple[str, in
             cursor = continuation.end()
 
 
+def _split_path_references(text: str) -> tuple[str, ...]:
+    candidates: list[str] = []
+    for span in INLINE_CODE_RE.finditer(text):
+        code = span.group(1)
+        candidates.extend(match.group("path").strip() for match in INLINE_CITATION_RE.finditer(code))
+        candidates.extend(match.group("path").strip() for match in PATH_REFERENCE_RE.finditer(code))
+    candidates.extend(match.group("path").strip() for match in BARE_CITATION_RE.finditer(text))
+    return tuple(dict.fromkeys(
+        candidate for candidate in candidates if Path(candidate).suffix.lower() in SPLIT_FILE_SUFFIXES
+    ))
+
+
+def _split_line_citations(previous_line: str | None, line: str) -> Iterable[tuple[str, int, int]]:
+    for line_list in LINE_LIST_RE.finditer(line):
+        references = _split_path_references(line[:line_list.start()])
+        if references:
+            target_path = references[-1]
+        else:
+            if previous_line is None or re.search(r"[.!?][`*_)}\]]*\s*$", previous_line):
+                continue
+            references = _split_path_references(previous_line)
+            if len(references) != 1:
+                continue
+            target_path = references[0]
+        for item in LINE_ITEM_RE.finditer(line_list.group("items")):
+            start = int(item.group("start"))
+            yield target_path, start, int(item.group("end") or start)
+
+
 def _commit_candidates(lines: Sequence[str], line_index: int) -> tuple[str, ...]:
     candidates: list[str] = []
     for index in range(line_index, max(-1, line_index - 120), -1):
@@ -269,6 +345,8 @@ def _parse_citations(root: Path, memory_bank: Path, git: GitRepository) -> tuple
         lines = path.read_text(encoding="utf-8").splitlines()
         pending: list[tuple[int, str, int, int, str, tuple[str, ...], str]] = []
         fence: str | None = None
+        previous_line: str | None = None
+        continuation_path: str | None = None
         for line_index, line in enumerate(lines):
             fence_match = FENCE_RE.match(line)
             if fence_match:
@@ -277,8 +355,12 @@ def _parse_citations(root: Path, memory_bank: Path, git: GitRepository) -> tuple
                     fence = marker
                 elif marker[0] == fence[0] and len(marker) >= len(fence):
                     fence = None
+                previous_line = None
+                continuation_path = None
                 continue
             if fence:
+                previous_line = None
+                continuation_path = None
                 continue
             spans = tuple(INLINE_CODE_RE.finditer(line))
             found: set[tuple[str, int, int]] = set()
@@ -290,6 +372,22 @@ def _parse_citations(root: Path, memory_bank: Path, git: GitRepository) -> tuple
                 bare_line[span.start():span.end()] = " " * (span.end() - span.start())
             for candidate in _line_citations("".join(bare_line), BARE_CITATION_RE):
                 found.add(candidate)
+            continued = False
+            if continuation_path is not None:
+                continuation = LINE_LIST_CONTINUATION_RE.match(line)
+                if continuation:
+                    continued = True
+                    for item in LINE_ITEM_RE.finditer(continuation.group("items")):
+                        start = int(item.group("start"))
+                        found.add((continuation_path, start, int(item.group("end") or start)))
+            split_candidates = tuple(_split_line_citations(previous_line, line))
+            found.update(split_candidates)
+            if line.rstrip().endswith(",") and split_candidates:
+                paths = {candidate[0] for candidate in split_candidates}
+                continuation_path = next(iter(paths)) if len(paths) == 1 else None
+            elif not (continued and line.rstrip().endswith(",")):
+                continuation_path = None
+            previous_line = line
             if not found:
                 continue
             commits = _commit_candidates(lines, line_index)
@@ -739,7 +837,9 @@ def audit_citations(
     repository_local = sum(result.source == "repository" for result in result_tuple)
     pinned_external = sum(bool(result.source and result.source.startswith("external:")) for result in result_tuple)
     unpinned_external = sum(bool(result.source and result.source.startswith("external-tree:")) for result in result_tuple)
-    stale = sum(result.stale for result in result_tuple)
+    actionable = sum(result.actionable for result in result_tuple)
+    changed = sum(result.changed for result in result_tuple)
+    unpinned_external_issues = sum(result.unpinned_external_issue for result in result_tuple)
     unresolved = len(result_tuple) - resolved
     return CitationAuditReport(
         markdown_files=markdown_files,
@@ -748,7 +848,9 @@ def audit_citations(
         repository_local=repository_local,
         pinned_external=pinned_external,
         unpinned_external=unpinned_external,
-        stale=stale,
+        actionable=actionable,
+        changed=changed,
+        unpinned_external_issues=unpinned_external_issues,
         unresolved=unresolved,
         results=result_tuple,
     )
@@ -810,7 +912,11 @@ def _print_result(result: CitationResult) -> None:
     target = result.real_target or result.cited_target or "<missing>"
     target_text = result.real_text or result.cited_text
     print(f"{result.record_path}:{result.record_line}: {result.status}: `{result.target}` -> `{target}`")
-    print(f"  target text: {_text_preview(target_text)}")
+    if result.origin_text and result.origin_text != target_text:
+        print(f"  introducing-commit text: {_text_preview(result.origin_text)}")
+        print(f"  current target text: {_text_preview(target_text)}")
+    else:
+        print(f"  target text: {_text_preview(target_text)}")
 
 
 def main() -> int:
@@ -835,16 +941,22 @@ def main() -> int:
     memory_bank = args.memory_bank
     if memory_bank is not None and not memory_bank.is_absolute():
         memory_bank = root / memory_bank
+    report_root = (memory_bank or root / "memory-bank").resolve()
+    output = args.output or report_root / "citation-drift-results.json.gz"
+    if not output.is_absolute():
+        output = root / output
+    output = output.resolve()
+    source_records = {path.resolve() for path in _tracked_markdown(root, report_root)}
+    if output in source_records:
+        parser.error(f"--output cannot overwrite citation source record: {output}")
+    if not output.name.endswith(".json.gz"):
+        parser.error("--output must end with .json.gz")
     report = audit_citations(
         root,
         memory_bank=memory_bank,
         external_repositories=repositories,
         external_filesystems=filesystems,
     )
-    report_root = memory_bank or root / "memory-bank"
-    output = args.output or report_root / "citation-drift-results.json.gz"
-    if not output.is_absolute():
-        output = root / output
     output.parent.mkdir(parents=True, exist_ok=True)
     payload = (json.dumps(asdict(report), separators=(",", ":")) + "\n").encode()
     output.write_bytes(gzip.compress(payload, mtime=0))
@@ -855,10 +967,23 @@ def main() -> int:
         f"({report.repository_local} repository-local, {report.pinned_external} pinned external, "
         f"{report.unpinned_external} current external)."
     )
-    print(f"Found {report.stale} stale and {report.unresolved} unresolved citations.")
+    actionable_counts = {
+        status: sum(result.actionable and result.status == status for result in report.results)
+        for status in ("moved", "missing_lines", "missing_file")
+    }
+    print(
+        f"Found {report.actionable} actionable citation drifts "
+        f"({actionable_counts['moved']} moved, {actionable_counts['missing_lines']} missing lines, "
+        f"{actionable_counts['missing_file']} missing files)."
+    )
+    print(
+        f"Also found {report.changed} changed-target review signals, "
+        f"{report.unpinned_external_issues} unpinned-current-tree mismatch signals, "
+        f"and {report.unresolved} unresolved citations."
+    )
     print(f"Wrote complete results to {output}.")
     displayed = report.results if args.all else tuple(
-        result for result in report.results if result.stale or not result.resolved
+        result for result in report.results if result.issue or not result.resolved
     )
     for result in displayed[:args.limit]:
         _print_result(result)
