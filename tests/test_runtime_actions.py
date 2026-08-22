@@ -16,6 +16,7 @@ from ankiscape.runtime import runtime_actions
 from ankiscape.runtime import runtime_actions_activities
 from ankiscape.runtime import runtime_actions_carried
 from ankiscape.runtime import runtime_actions_combat
+from ankiscape.runtime import runtime_actions_production
 
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
@@ -2703,8 +2704,15 @@ class TestRuntimeActions(unittest.TestCase):
         telemetry = player_data["action_telemetry"]["actions"][
             "combat:desert_lizard"
         ]
+        self.assertEqual(telemetry["attempts"], 1)
         self.assertNotIn("Clue scroll (medium)", telemetry["outputs"])
-        self.assertIn("Defeated Desert lizard", calls["activity"])
+        self.assertEqual(
+            calls["activity"],
+            [
+                "Defeated Desert lizard",
+                "You already have a clue scroll: Clue scroll (easy)",
+            ],
+        )
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["saves"], 1)
 
@@ -3228,6 +3236,53 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(
             any("already have a clue scroll" in message for message in calls["activity"]),
             calls["activity"],
+        )
+
+    def test_quest_completion_reports_a_clue_produced_by_its_final_stage(self):
+        quest_id = "do_no_evil"
+        quest_data = copy.deepcopy(runtime_actions_production.QUEST_DATA)
+        quest = quest_data[quest_id]
+        final_stage = int(quest["stages"]) - 1
+        final_requirement = next(
+            row
+            for row in quest["stage_requirements"]
+            if row["stage"] == final_stage
+        )
+        final_requirement["produced_inventory"] = {"Clue scroll (easy)": 1}
+
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["current_quest"] = quest_id
+        for requirement in quest["required_quests"]:
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": 1,
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["quests"][quest_id] = {
+            "started": True,
+            "progress": final_stage,
+            "completed": False,
+        }
+        player_data["quest_stage_actions"][quest_id] = list(
+            final_requirement["required_actions"]
+        )
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        with patch.object(runtime_actions_production, "QUEST_DATA", quest_data):
+            self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["inventory"]["Clue scroll (easy)"], 1)
+        self.assertEqual(player_data["inventory"].get("Clue scroll (elite)", 0), 0)
+        self.assertEqual(player_data["inventory"]["Cramulet"], 1)
+        self.assertEqual(
+            calls["activity"],
+            [
+                "Do No Evil complete",
+                "You can only carry one clue scroll at a time.",
+            ],
         )
 
     def test_jungle_potion_real_handler_completes_ordered_herb_route_and_unlocks_shilo(self):

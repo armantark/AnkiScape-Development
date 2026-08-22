@@ -422,8 +422,8 @@ class TestThievingRuntime(unittest.TestCase):
         self.assertTrue(handle_thieving_answer(ctx))
 
         self.assertEqual(player_data["inventory"], {"Clue scroll (easy)": 1})
-        self.assertTrue(
-            any("already have a clue scroll" in message for message in calls["activity"]),
+        self.assertIn(
+            "You can only carry one clue scroll at a time.",
             calls["activity"],
         )
 

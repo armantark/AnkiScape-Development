@@ -3031,7 +3031,10 @@ class CombatLogicTest(unittest.TestCase):
             if item.startswith("Clue scroll")
         }
         self.assertEqual(clue_drops, {"Clue scroll (elite)": 1})
-        self.assertIn("already have a clue scroll", clue_refusal_reason)
+        self.assertEqual(
+            clue_refusal_reason,
+            "You can only carry one clue scroll at a time.",
+        )
 
     def test_red_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
         dragon = COMBAT_ENEMY_DATA["red_dragon"]

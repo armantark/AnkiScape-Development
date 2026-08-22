@@ -6,7 +6,10 @@ from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
-from ..logic.treasure_trails_logic import filter_clue_scroll_outputs_pure
+from ..logic.treasure_trails_logic import (
+    clue_refusal_reason_pure,
+    filter_clue_scroll_outputs_pure,
+)
 
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
@@ -1435,27 +1438,38 @@ def apply_quest_combat_encounter_pure(
     return data, True, quest_result
 
 
-def apply_quest_progress_pure(player_data, quest_id, quest_data):
+def apply_quest_progress_pure(
+    player_data, quest_id, quest_data, *, include_clue_refusal=False
+):
     data, ok = start_quest_pure(player_data, quest_id, quest_data)
     if not ok:
+        if include_clue_refusal:
+            return player_data, False, False, ""
         return player_data, False, False
     quest = quest_data[quest_id]
     state = quest_state_pure(data, quest_id)
     if state["completed"]:
+        if include_clue_refusal:
+            return data, False, False, ""
         return data, False, False
     if quest_current_stage_blockers_pure(data, quest_id, quest_data):
+        if include_clue_refusal:
+            return player_data, False, False, ""
         return player_data, False, False
     current_stage = quest_current_stage_pure(data, quest_id, quest_data)
     _consume_quest_current_stage_items(data, quest_id, quest)
     total_stages = _positive_int(quest.get("stages", 1), 1)
     state["progress"] = min(total_stages, current_stage + 1)
     completed_now = state["progress"] >= total_stages
+    clue_reward_refusal_reason = ""
     if completed_now:
         state["completed"] = True
         data["quest_points"] = max(0, _positive_int(data.get("quest_points", 0), 0)) + _positive_int(quest.get("point_reward", 0), 0)
         inventory = data["inventory"]
-        rewards = filter_clue_scroll_outputs_pure(
-            data, quest.get("rewards", {}) or {}
+        offered_rewards = quest.get("rewards", {}) or {}
+        rewards = filter_clue_scroll_outputs_pure(data, offered_rewards)
+        clue_reward_refusal_reason = clue_refusal_reason_pure(
+            player_data, offered_rewards, rewards
         )
         for item_name, amount in rewards.items():
             inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
@@ -1463,6 +1477,8 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
             data["family_gauntlet_enchantment"] = "family"
         _apply_quest_xp_rewards(data, quest)
     data.setdefault("quests", {})[quest_id] = state
+    if include_clue_refusal:
+        return data, True, completed_now, clue_reward_refusal_reason
     return data, True, completed_now
 
 

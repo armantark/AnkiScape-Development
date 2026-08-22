@@ -169,7 +169,7 @@ def clue_refusal_reason_pure(
     offered_outputs: Mapping[str, Any],
     granted_outputs: Mapping[str, Any],
 ) -> str:
-    """Explain a clue removed by the filter, including one kept from this event."""
+    """Explain why a clue was removed from an offered reward payload."""
     clue_items = tuple(CLUE_SCROLL_ITEMS.values())
     if all(
         _int(granted_outputs.get(item_name)) >= _int(offered_outputs.get(item_name))
@@ -179,12 +179,7 @@ def clue_refusal_reason_pure(
     ownership_reason = clue_ownership_reason_pure(player_data)
     if ownership_reason:
         return ownership_reason
-    kept = [
-        item_name
-        for item_name in clue_items
-        if _int(granted_outputs.get(item_name))
-    ]
-    return "You already have a clue scroll: " + ", ".join(kept)
+    return "You can only carry one clue scroll at a time."
 
 
 def _roll(rng: Callable[[], float], low: int, high: int) -> int:

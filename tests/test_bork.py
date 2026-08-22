@@ -458,7 +458,10 @@ class BorkRewardTests(unittest.TestCase):
         self.assertEqual(data["inventory"][BORK_EFFIGY_ITEM], 1)
         self.assertEqual(data["inventory"]["Clue scroll (elite)"], 1)
         self.assertEqual(data["inventory"].get("Clue scroll (hard)", 0), 0)
-        self.assertIn("already have a clue scroll", result["status"])
+        self.assertIn(
+            "You can only carry one clue scroll at a time.",
+            result["status"],
+        )
 
     def test_a_held_clue_refuses_and_reports_borks_clue_rolls(self):
         data = _entered()

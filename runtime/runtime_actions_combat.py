@@ -663,10 +663,6 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     if xp_total > 0:
         ctx.show_exp(xp_total)
 
-    clue_refusal_reason = str(result.get("clue_refusal_reason", ""))
-    if clue_refusal_reason:
-        ctx.show_activity_gain(clue_refusal_reason)
-
     food_used = result.get("food_used", ()) or ()
     if food_used:
         eaten: dict[str, int] = {}
@@ -797,4 +793,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
             f"{healing_phrase}{dragonfire_suffix}"
         )
+    clue_refusal_reason = str(result.get("clue_refusal_reason", ""))
+    if clue_refusal_reason:
+        ctx.show_activity_gain(clue_refusal_reason)
     return True
