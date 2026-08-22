@@ -2179,7 +2179,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 73)
+        self.assertEqual(len(HUNTER_DATA), 74)
         common_jadinko = HUNTER_DATA["catch_common_jadinko"]
         self.assertEqual(common_jadinko["level"], 70)
         self.assertEqual(common_jadinko["exp"], 350.0)

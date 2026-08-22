@@ -2431,6 +2431,11 @@ class TestLogic(unittest.TestCase):
                 (5 / 256, higher_vine_herb_seeds),
                 (4 / 256, blossom_seeds),
             ),
+            "track_camouflaged_jadinko": (
+                (16 / 256, bush_seeds),
+                (4 / 256, higher_vine_herb_seeds),
+                (4 / 256, blossom_seeds),
+            ),
             "catch_common_jadinko": (
                 (14 / 256, bush_seeds),
                 (16 / 256, vine_herb_seeds),
@@ -2489,6 +2494,10 @@ class TestLogic(unittest.TestCase):
             ),
             "track_diseased_jadinko": (
                 "Corrupt vine",
+                ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
+            ),
+            "track_camouflaged_jadinko": (
+                "Striped vine",
                 ("Kalferberry seed", "Samaden seed", "Green blossom seed"),
             ),
             "catch_common_jadinko": (
@@ -2690,6 +2699,51 @@ class TestLogic(unittest.TestCase):
                 "Bones": 1,
                 "Raw beast meat": 1,
                 "Long kebbit spike": 1,
+            },
+        )
+
+    def test_camouflaged_jadinko_tracker_is_reachable_and_rolls_independent_tables(self):
+        target = "track_camouflaged_jadinko"
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 78, "inventory": {"Noose wand": 1}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Hunter level 79",),
+        )
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 79, "inventory": {"Noose wand": 1}},
+                target,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            (),
+        )
+
+        spec = HUNTER_DATA[target]
+        inventory, xp, ok, output_item, _rewards = apply_hunter_action_pure(
+            target,
+            {"Noose wand": 1},
+            HUNTER_DATA,
+            79,
+            0.0,
+            r_secondary_rolls=((0.0, 0.999999),) * 3,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(xp, 600.0)
+        self.assertEqual(output_item, "Striped vine")
+        self.assertEqual(spec["source_item_id"], 19978)
+        self.assertEqual(
+            inventory,
+            {
+                "Noose wand": 1,
+                "Striped vine": 1,
+                "Kalferberry seed": 1,
+                "Samaden seed": 1,
+                "Green blossom seed": 1,
             },
         )
 

@@ -467,6 +467,40 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         sort_order=30,
     ),
     _target(
+        "track_camouflaged_jadinko",
+        "Track camouflaged jadinko",
+        "tracking",
+        79,
+        600.0,
+        _out(("Striped vine", 1)),
+        "Striped vine",
+        source=HERBLORE_HABITAT_SOURCE,
+        mechanics_source=(
+            f"{_jadinko_drop_source('camouflaged')}; "
+            f"{_jadinko_sub_drop_source('hh_bush_seed')}; "
+            f"{_jadinko_sub_drop_source('hh_blossom_seed')}"
+        ),
+        source_enum="CAMOUFLAGED",
+        source_item_id=19978,
+        rate1=HERBLORE_HABITAT_RATE1,
+        rate99=HERBLORE_HABITAT_RATE99,
+        tradeable=False,
+        secondary_drop_tables=(
+            (16 / 256, _HABITAT_BUSH_SEEDS),
+            (4 / 256, _VINE_HERB_SEEDS[1:]),
+            (4 / 256, _HABITAT_BLOSSOM_SEEDS),
+        ),
+        notes=(
+            "Darkan's JadinkoType pins level 79, 600.0 tracker XP, Noose-wand "
+            "tracking, Juju potion required, Striped vine, and the Standing-Stones "
+            "Lergberry empty-tree Habitat setup. One review represents the complete "
+            "trail and persistent setup. Darkan independently rolls bush seeds at "
+            "16/256, one of the four higher-level vine-herb seeds at 4/256, and "
+            "blossom seeds at 4/256."
+        ),
+        sort_order=40,
+    ),
+    _target(
         "catch_ruby_harvest",
         "Catch ruby harvest",
         "butterfly_netting",
@@ -1297,6 +1331,7 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Shadow vine": 19977,
     "Corrupt vine": 19979,
     "Guthix vine": 19982,
+    "Striped vine": 19978,
     **HUNTER_MATERIAL_ITEMS,
     **HUNTER_TOOL_ITEMS,
 }
@@ -1434,6 +1469,7 @@ def _hunter_extra_source(item_name: str) -> str:
         "Guthix vine": HERBLORE_HABITAT_JADINKO_SOURCES["catch_guthix_jadinko"],
         "Shadow vine": HERBLORE_HABITAT_JADINKO_SOURCES["track_shadow_jadinko"],
         "Plant teeth": HERBLORE_HABITAT_JADINKO_SOURCES["catch_cannibal_jadinko"],
+        "Striped vine": HERBLORE_HABITAT_SOURCE,
     }
     if item_name in jadinko_sources:
         return jadinko_sources[item_name]
@@ -1462,6 +1498,7 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
                 "Corrupt vine",
                 "Guthix vine",
                 "Shadow vine",
+                "Striped vine",
                 "Plant teeth",
                 *HUNTER_HABITAT_SEED_ITEMS,
                 *HUNTER_HABITAT_VINE_ITEMS,
