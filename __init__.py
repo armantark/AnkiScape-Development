@@ -2833,44 +2833,41 @@ def _on_main_menu(
 
     def _apply_phoenix_lair_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_phoenix_lair_command_pure(
-            player_data,
-            str(action_id),
-            payload,
-            rng=random.random,
-            equipment_data=EQUIPMENT_DATA,
-        )
-        if not ok:
-            # Put the random state back. The rejected call already drew from the
-            # generator, so returning without this leaves the sequence advanced
-            # by a refusal the player never saw — the same restore the sibling
-            # handlers do on their failure paths.
-            random.setstate(before["random_state"])
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "Phoenix Lair action failed.")),
-            }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            random.setstate(before["random_state"])
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_phoenix_lair_command_pure(
+                current,
+                str(action_id),
+                payload,
+                rng=random.random,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Phoenix Lair action failed.")),
+                }
+            # The change was accepted but no undo entry could be created, so
+            # nothing was written and the player must not be told it worked.
             return {
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
