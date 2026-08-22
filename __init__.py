@@ -3671,34 +3671,40 @@ def _on_main_menu(
         return ()
 
     def _apply_tzhaar_fight_pit_command(action_id, payload):
-        before = _capture_player_data_snapshot()
-        updated, ok, info = apply_tzhaar_fight_pit_command_pure(
-            player_data,
-            str(action_id),
-            payload if isinstance(payload, dict) else {},
-        )
-        if not ok:
+        payload = payload if isinstance(payload, dict) else {}
+        info = {}
+        pure_ok = False
+
+        def _change(current):
+            nonlocal info, pure_ok
+            updated, ok, info = apply_tzhaar_fight_pit_command_pure(
+                current,
+                str(action_id),
+                payload,
+            )
+            pure_ok = ok
+            return updated, ok
+
+        def _after_apply():
+            check_achievements(player_data)
+
+        if not commit_direct_action(_change, after_apply=_after_apply):
+            if not pure_ok:
+                # The pure function refused: report its refusal, as before.
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Fight Pit action failed.")),
+                    **info,
+                }
+            # Accepted but no undo entry could be created: nothing was written.
             return {
                 "ok": False,
-                "message": str(info.get("reason", "Fight Pit action failed.")),
-                **info,
+                "message": "Anki could not create an undo entry.",
             }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
-            return {"ok": False, "message": "Anki could not create an undo entry."}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
-        save_player_data()
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
