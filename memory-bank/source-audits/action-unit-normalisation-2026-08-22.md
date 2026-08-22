@@ -23,3 +23,15 @@ At the default review-action multiplier of 1, one successful review applies exac
 A configured review-action multiplier can repeat the same normal action 1 to 10 times per review (`__init__.py:5395-5435`; `logic_pure/logic_pure_progression.py:329-345`), but that common outer multiplier does not change the cross-skill unit comparison at the invariant's stated one-action setting.
 
 **Unit conclusion:** Smithing ledger rates expressed as bars/hour or forged items/hour already count the corresponding AnkiScape action. Blast Furnace may process an in-game inventory as a route, but each bar is one AnkiScape Smithing action; no inventory-size conversion is due.
+
+## Crafting
+
+At multiplier 1, one successful review resolves one selected recipe. The handler performs one `apply_crafting_pure` call and awards its returned XP once (`runtime/runtime_actions_production.py:502-552`). The pure action deliberately caps `batch_count` at 1 because Crafting is XP-bearing (`logic_pure/logic_pure_production.py:221-249`):
+
+- it consumes one recipe's `requirements` quantities;
+- `required_items` are availability gates/tools and are not consumed;
+- leather recipes consume one Thread only on the recipe's one-in-five thread roll;
+- it produces one recipe's `output_qty`, plus any declared byproducts; and
+- it pays exactly one recipe's `exp`.
+
+**Unit conclusion:** a Crafting ledger row expressed as completed recipe outputs/hour is already in AnkiScape actions/hour. An output stack made by one recipe (rather than each member of that stack) is the action unit; there is no inventory-batch conversion.
