@@ -556,10 +556,17 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("dependent", startable)
         self.assertNotIn("quest_point_gated", startable)
 
-    def test_wicked_hood_claim_stays_unreachable_behind_uncompletable_quest(self):
+    def test_wicked_hood_claim_is_reachable_after_rune_mysteries(self):
         report = build_reachability_report()
 
-        self.assertIsNone(report["routes"].get("Wicked hood"))
+        self.assertEqual(report["routes"].get("Wicked hood"), "claim:wicked_hood")
+        self.assertFalse(
+            [
+                row
+                for row in report["blocked_quest_stage_products"]
+                if row["quest_id"] == "rune_mysteries"
+            ]
+        )
 
     def test_diamond_in_the_rough_claim_items_require_reachable_quest_and_level_gates(self):
         report = build_reachability_report()
@@ -604,14 +611,6 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["cascade_orphan_count"], 4)
         self.assertEqual(report["unresolved_action_count"], 37)
         self.assertEqual(report["seed_item_count"], 1128)
-        self.assertEqual(report["routes"].get("Wicked hood"), "claim:wicked_hood")
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "rune_mysteries"
-            ]
-        )
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item
