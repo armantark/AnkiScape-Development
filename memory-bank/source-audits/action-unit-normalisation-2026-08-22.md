@@ -57,3 +57,71 @@ An XP-bearing Prayer review consumes one material unit. After any runtime-side a
 Hosted gilded-altars have one player-visible exception: the first stint spends 1 to 10 successful reviews finding a house, with no material consumed and no XP, before one-material offering reviews begin (`runtime/runtime_actions_production.py:810-831`; `logic_pure/logic_pure_prayer.py:148-162`). Owned altars instead consume marrentill once when a stint begins according to the burner count (`runtime/runtime_actions_production.py:794-809`).
 
 **Unit conclusion:** Prayer ledger rates in bones/ashes offered per hour are AnkiScape XP-bearing actions/hour. Ectofuntus must be counted in worships/material units, not its component preparation clicks; hosted-house search is separate modeled review friction rather than a different material unit.
+
+## Common-unit restatement
+
+The common unit is **one XP-bearing invocation of the selected skill handler at review-action multiplier 1**. Banking, travel, hosted-house search, and cadence waits are review friction around that action, not extra units inside it. In particular, one standard Runecrafting invocation is one complete altar load. Multiplying trips/hour by essence/load would answer “essence/hour,” not “AnkiScape actions/hour.”
+
+The original deterministic-artisan rows are already in that common unit:
+
+| Ledger row | Checkable arithmetic | Actions/hour |
+|---|---:|---:|
+| Crafting — urns | 39,900 ÷ 95 | 420 |
+| Prayer — gilded dragon bones | 230,000 ÷ 252 | 912.698 ≈ 913 |
+| Crafting — dragonhide body | 186,000 ÷ 186 | 1,000 |
+| Magic — High Level Alchemy | 78,000 ÷ 65 | 1,200 |
+| Magic — superheat mithril | 84,800 ÷ 53 | 1,600 |
+| Crafting — elemental battlestaves | 220,000 ÷ 100 | 2,200 |
+
+Every Smithing extension row is also already in handler invocations/hour. Mixed Blast Furnace cycles must count each separate smelt and forge invocation:
+
+| Ledger row | Checkable arithmetic | Actions/hour |
+|---|---:|---:|
+| Ordinary mithril bars | 7,500 ÷ 30 = 9,000 ÷ 36 | 250 |
+| Gold bars with stated modifiers | 65,000 ÷ 56.2 to 70,000 ÷ 56.2 | 1,156.584–1,245.552 ≈ 1,157–1,246 |
+| Cannonballs | 11,000 ÷ 25.6 | 429.688 ≈ 430 |
+| F2P iron platebodies | 65,000 ÷ 125 | 520 |
+| Pack-Yak iron platebodies | 95,000 ÷ 125 to 100,000 ÷ 125 | 760–800 |
+| F2P mithril platebodies | 130,000 ÷ 250 | 520 |
+| F2P adamant platebodies | 162,000 ÷ 312.5 | 518.4 |
+| P2P adamant platebodies | 200,000 ÷ 312.5 | up to 640 |
+| Blast Furnace mithril bolts | (50,000–60,000) ÷ (30 + 50 XP/cycle) × 2 actions/cycle | 1,250–1,500 |
+| Blast Furnace mithril ranged components, Sacred clay hammer | 100,000 ÷ (30 + 100 XP/cycle) × 2 actions/cycle | 1,538.462 ≈ 1,538 |
+| Blast Furnace mithril platebodies, Sacred clay hammer | 70,000 ÷ 650 XP/cycle × 6 actions/cycle | 646.154 ≈ 646 |
+
+Every Runecrafting extension row counts one complete altar-load invocation, so no essence multiplication is due:
+
+| Ledger row | Checkable arithmetic | Actions/hour |
+|---|---:|---:|
+| Air, Varrock west on foot | 6,720 ÷ 140 = 7,392 ÷ 154 = 13,440 ÷ 280 = 14,112 ÷ 294 | 48 |
+| Air, Varrock-teleport return | 8,910 ÷ (27 × 5) | 66 |
+| Fire, Al Kharid on foot | 8,820 ÷ (28 × 7) | 45 |
+| Nature, Edgeville/fairy ring/glory | 11,600 ÷ (43 × 9) | 29.974 ≈ 30.0 |
+| Nature, Spirit graahk, small+medium+large | 16,000 ÷ 387; 17,000–18,000 ÷ 387 | 41.344; 43.928–46.512 |
+| Nature, Spirit graahk, medium+large+giant | 27,000 ÷ (52 × 9) | 57.692 ≈ 57.7 |
+| Nature, Zanaris | 5,800 ÷ (43 × 9) | 14.987 ≈ 15.0 |
+
+### Current-runtime pouch correction
+
+The source action boundary matches, but the current player-facing pouch payload does not. The runtime carried overlay supplies at most 28 loose essence, so a standard Nature-rune review pays at most `28 × 9 = 252 XP`, not the source routes' 387 or 468 XP loads. If `R` is recomputed as the cadence denominator needed for **current executable XP/review**, the pouch rows become:
+
+| Pouch route | Arithmetic against current 252-XP review | Executable-payout R |
+|---|---:|---:|
+| Edgeville/fairy ring/glory | 11,600 ÷ 252 | 46.032 |
+| Spirit graahk, ordinary | 16,000 ÷ 252 | 63.492 |
+| Spirit graahk, fast clicker | 17,000–18,000 ÷ 252 | 67.460–71.429 |
+| Spirit graahk, medium+large+giant | 27,000 ÷ 252 | 107.143 |
+| Zanaris | 5,800 ÷ 252 | 23.016 |
+
+These are not evidence that one review equals one essence. They quantify a separate executable mismatch: pouches are recognized by the pure Runecrafting kernel but do not load pouch-contained essence through the carried overlay.
+
+## Verdict
+
+**The contradiction survives.** Smithing and Runecrafting were already using the same action boundary: one successful AnkiScape handler invocation. The proposed `trips/hour × essence/trip` conversion is therefore a unit change, not a normalisation.
+
+- On the ledger's source-action measure, Smithing plus Runecrafting span 14.987 to 1,538.462 actions/hour: **102.65×**. Excluding the internally contradictory Zanaris row, they still span 29.974 to 1,538.462: **51.29×**.
+- Across all five audited skills, the ledger spans 14.987 to 2,200 actions/hour: **146.79×**.
+- Even if every pouch row is instead recomputed against the current runtime's smaller 28-essence payout, Smithing plus Runecrafting still span 23.016 to 1,538.462: **66.84×**, and all five skills span 23.016 to 2,200: **95.59×**.
+- Smithing alone spans 250 to 1,538.462: **6.15×**, so the universal constant already fails without relying on Runecrafting at all.
+
+No cadence constant, XP value, or executable behavior is changed by this audit.

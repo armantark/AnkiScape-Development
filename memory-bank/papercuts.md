@@ -841,3 +841,4 @@
 - 2026-08-22 11:59 PDT — A broad review-cadence grep produced 51.3 KB of persisted output while tracing action units; narrow future searches to `__init__.py` and the multiplier symbol.
 - 2026-08-22 12:00 PDT — A broad Magic symbol grep produced 32.8 KB of persisted output; exact handler/function-name searches should precede cross-tree symbol searches.
 - 2026-08-22 12:00 PDT — Quoting a wildcard path for the repo’s `ugrep`-backed `grep` prevented expansion and emitted `ugrep: warning: .../runtime_actions*.py: No such file or directory`; search a directory or expand with `find` instead.
+- 2026-08-22 12:04 PDT — A cross-tree Runecrafting-modifier grep produced 336.3 KB because generic ring terms matched catalogs; search the handler imports and exact modifier function first.
