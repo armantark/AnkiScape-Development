@@ -5841,7 +5841,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, rejected_state)
         self.assertEqual(calls, {"save": 2, "hud": 2})
 
-    def test_direct_urn_teleports_use_separate_custom_lifo_undo(self):
+    def test_direct_urn_teleports_use_shared_lifo_undo(self):
         addon = _load_addon_as_package("ankiscape_direct_urn_undo_integration")
         from ankiscape.data.urn_data import URN_TIERS_BY_ID
 
@@ -5871,27 +5871,30 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertTrue(addon.teleport_training_urn(tier.id))
         self.assertTrue(addon.teleport_training_urn(tier.id))
-        self.assertEqual(col.custom_undo_entries, ["Teleport training urn", "Teleport training urn"])
+        self.assertEqual(
+            col.custom_undo_entries,
+            ["AnkiScape direct action", "AnkiScape direct action"],
+        )
         self.assertEqual(mw.undo_updates, 2)
         self.assertEqual(addon.player_data["inventory"][tier.item_full], 0)
         self.assertNotIn("copper", addon.player_data["carried_inventory"])
         self.assertEqual(addon.player_data["mining_exp"], tier.teleport_xp * 2)
         telemetry = addon.player_data["action_telemetry"]["actions"][f"mining:teleport_{tier.id}"]
         self.assertEqual((telemetry["attempts"], telemetry["successes"]), (2, 2))
-        self.assertEqual(len(addon._URN_TELEPORT_UNDO_STACK), 2)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 2)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
-        undo = types.SimpleNamespace(operation="Teleport training urn")
+        undo = types.SimpleNamespace(operation="AnkiScape direct action")
         addon._on_state_did_undo(undo)
         self.assertEqual(addon.player_data["inventory"][tier.item_full], 1)
         self.assertEqual(addon.player_data["carried_inventory"]["copper"][tier.item_full], 1)
         self.assertEqual(addon.player_data["mining_exp"], tier.teleport_xp)
-        self.assertEqual(len(addon._URN_TELEPORT_UNDO_STACK), 1)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         addon._on_state_did_undo(undo)
         self.assertEqual(addon.player_data, initial)
-        self.assertEqual(addon._URN_TELEPORT_UNDO_STACK, [])
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
         self.assertEqual(calls["xp"], [tier.teleport_xp, tier.teleport_xp])
         self.assertEqual(calls["save"], 4)

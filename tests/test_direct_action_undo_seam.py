@@ -281,6 +281,148 @@ class DirectActionUndoSeamTest(unittest.TestCase):
             "no undo entry means no change may be written",
         )
 
+    def _run_with_rng_checkpoint(self, action):
+        previous_state = random.getstate()
+        try:
+            random.seed(20260821)
+            expected_next = random.random()
+            random.seed(20260821)
+            result = action()
+            actual_next = random.random()
+        finally:
+            random.setstate(previous_state)
+        self.assertEqual(actual_next, expected_next)
+        return result
+
+    def _treasure_trails_handler(self):
+        addon = self.addon
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+        addon._on_main_menu(initial_skill="Activities")
+        return captured["on_treasure_trails_command"]
+
+    def test_treasure_trails_refusal_preserves_the_random_sequence(self):
+        addon = self.addon
+        addon.player_data["inventory"] = {}
+        command = self._treasure_trails_handler()
+
+        result = self._run_with_rng_checkpoint(
+            lambda: command("open_casket", {"tier": "easy"})
+        )
+
+        self.assertEqual(
+            result,
+            {"ok": False, "message": "You have no Casket (easy)."},
+        )
+
+    def test_treasure_trails_undo_failure_preserves_the_random_sequence(self):
+        addon = self.addon
+        addon.player_data["inventory"] = {"Casket (easy)": 1}
+        self.collection.accepts = False
+        command = self._treasure_trails_handler()
+
+        result = self._run_with_rng_checkpoint(
+            lambda: command("open_casket", {"tier": "easy"})
+        )
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["message"], "Anki could not create an undo entry.")
+
+    def test_treasure_trails_undo_restores_the_random_sequence(self):
+        addon = self.addon
+        addon.player_data["inventory"] = {"Casket (easy)": 1}
+        command = self._treasure_trails_handler()
+
+        def open_then_undo():
+            result = command("open_casket", {"tier": "easy"})
+            self.assertTrue(result["ok"], result)
+            addon._on_state_did_undo(
+                type("Changes", (), {"operation": "AnkiScape direct action"})()
+            )
+            return result
+
+        self._run_with_rng_checkpoint(open_then_undo)
+
+    def _prepare_volatile_mining_urn(self):
+        from ankiscape.data.urn_data import URN_TIERS_BY_ID
+
+        addon = self.addon
+        tier = URN_TIERS_BY_ID["mining_cracked_urn"]
+        addon.player_data["inventory"] = {
+            tier.item_full: 1,
+            "Volatile clay tool": 1,
+        }
+        addon.player_data["carried_inventory"] = {
+            "copper": {tier.item_full: 1}
+        }
+        addon.player_data["current_ore"] = "copper"
+        addon.player_data["mining_level"] = 40
+        addon.player_data["mining_exp"] = 0.0
+        addon.player_data["stealing_creation"] = {
+            "active_reward_tool": "volatile",
+            "reward_tools": {
+                "morphic": {},
+                "volatile": {
+                    "kind": "volatile",
+                    "form_id": "pickaxe",
+                    "charge": 0.11,
+                    "segments_used": 8,
+                },
+            },
+        }
+        addon.level_up_check = lambda *_args: None
+        addon.check_achievements = lambda _data: None
+        addon._show_exp = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: None
+        addon._update_review_bank_run_surface = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon.ui.update_menu_visibility = lambda *_args: None
+        addon.current_skill = "Mining"
+        return tier
+
+    def test_urn_teleport_refusal_preserves_the_random_sequence(self):
+        addon = self.addon
+        tier = self._prepare_volatile_mining_urn()
+        addon.player_data["inventory"].pop(tier.item_full)
+        addon.player_data["carried_inventory"] = {}
+
+        committed = self._run_with_rng_checkpoint(
+            lambda: addon.teleport_training_urn(tier.id)
+        )
+
+        self.assertFalse(committed)
+
+    def test_urn_teleport_undo_failure_preserves_the_random_sequence(self):
+        addon = self.addon
+        tier = self._prepare_volatile_mining_urn()
+        self.collection.accepts = False
+
+        committed = self._run_with_rng_checkpoint(
+            lambda: addon.teleport_training_urn(tier.id)
+        )
+
+        self.assertFalse(committed)
+
+    def test_urn_teleport_undo_restores_the_random_sequence(self):
+        addon = self.addon
+        tier = self._prepare_volatile_mining_urn()
+
+        def teleport_then_undo():
+            committed = addon.teleport_training_urn(tier.id)
+            self.assertTrue(committed)
+            addon._on_state_did_undo(
+                type("Changes", (), {"operation": "AnkiScape direct action"})()
+            )
+            return committed
+
+        self._run_with_rng_checkpoint(teleport_then_undo)
+
     def test_the_snapshot_stack_stays_bounded(self):
         addon = self.addon
 
