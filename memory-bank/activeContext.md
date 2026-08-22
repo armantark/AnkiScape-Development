@@ -107,7 +107,11 @@ five clean and unfinished gates were usable. The merge's main parent
 30 / 75 / 1123`; the herb parent `9a351ea0b38e88b8d635972141815dc13394cbc1`
 measures `1584 / 2334 / 50 / 35 / 15 / 53 / 1104`; and the merged tree measures
 `1598 / 2369 / 38 / 34 / 4 / 37 / 1123` for actions / reachable items / orphan
-inputs / root orphans / cascade orphans / blocked actions / seed items. Action
+inputs / root orphans / cascade orphans / blocked actions / seed items.
+**Correction 2026-08-22:** that merged-tree figure is superseded; the live pins at
+`tests/test_item_reachability_audit.py:560-566` and the audit tool now read `1599 /
+2370 / 38 / 34 / 4 / 37 / 1123` — the later Camouflaged jadinko tracker added one
+action and one reachable item after this record was written. Action
 count and reachable-item count exceed both parents. Orphan inputs, root orphans,
 cascade orphans, and blocked actions are lower than both parents, not higher.
 Seed count equals main's `1123` and exceeds only the herb parent's `1104`; the
@@ -4867,6 +4871,9 @@ Adjacent bug found and not fixed (it belongs to Fight Caves): `fight_caves_logic
 zeroes `combat_auto_flee_percent` around its burst to stop the auto-flee, but the
 engine reads the boolean `combat_auto_flee`. The Fight Cave therefore still
 flees silently when the player runs out of food.
+**Correction 2026-08-22:** this bug is fixed — `logic/fight_caves_logic.py:514-531`
+now saves, suspends, and restores the boolean `combat_auto_flee` around its burst;
+the obsolete percent key is no longer touched.
 
 ## Pass 7 P0 progression repair — 2026-08-03
 
@@ -5202,6 +5209,8 @@ flees silently when the player runs out of food.
 - The four Jadinko secondaries remain root orphans even on the completed
   `goal/vines-2026-08-11` branch, so they do not overlap that branch's Common
   jadinko, vine-herb-seed, Marasamaw-plant, or Juju-hunter recipe work.
+  **Correction 2026-08-22:** superseded — live Hunter routes for these secondaries
+  now exist and they are no longer root orphans.
 - The route has two stages: Shadow jadinko (Hunter 71) and Diseased jadinko
   (Hunter 78) are upstream noose-wand tracking catches; Corrupt vine then feeds
   the Juju hunter potion, after which Cannibal jadinko (75) and Guthix jadinko
@@ -5211,6 +5220,9 @@ flees silently when the player runs out of food.
   gate. The actual blocker is an absent Habitat attraction-state model and a
   Common-jadinko framework that exists only on unmerged commit `508a8aa2`; the
   downstream pair additionally needs the Juju-hunter active effect.
+  **Correction 2026-08-22:** `508a8aa2` is now an ancestor of main and the
+  Common-jadinko framework it carried has landed, so the "unmerged" claim no longer
+  holds; the absent Habitat attraction-state model remains the open blocker.
 - Fresh crab claw and Fresh crab shell have pinned Crab NPC producers, but their
   route is inert behind the un-emitted stages of
   `recipe_for_disaster_freeing_pirate_pete`. Existing quest-gated Dagannoth and
