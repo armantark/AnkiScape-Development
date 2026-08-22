@@ -4264,81 +4264,93 @@ def _on_main_menu(
     def _apply_summoning_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         info = {}
-        if action_id == "summon":
-            updated, ok, info = summon_familiar_pure(
-                player_data, str(payload.get("familiar_id", ""))
-            )
-        elif action_id == "dismiss":
-            updated, ok, info = dismiss_familiar_pure(player_data)
-        elif action_id == "renew":
-            updated, ok, info = renew_familiar_pure(player_data)
-        elif action_id == "restore_points":
-            updated = restore_summoning_points_pure(player_data)
-            ok = updated != player_data
-        elif action_id == "reclaim_cargo":
-            updated, ok, reclaimed = reclaim_familiar_cargo_pure(
-                player_data, int(payload.get("event_id", 0) or 0)
-            )
-            info = {"reclaimed": reclaimed}
-        elif action_id == "start_familiarisation":
-            updated, ok = start_familiarisation_pure(player_data)
-        elif action_id == "claim_familiarisation":
-            updated, ok, info = claim_familiarisation_reward_pure(
-                player_data, str(payload.get("choice", ""))
-            )
-        elif action_id == "set_winter_storage_priority":
-            updated, ok = set_winter_storage_priority_pure(
-                player_data,
-                str(payload.get("target_id", "")),
-                str(payload.get("item_name", "")),
-                payload.get("threshold_free_slots", 0),
-            )
-        elif action_id == "let_out_pet":
-            updated, ok, reason = let_out_pet_pure(
-                player_data, str(payload.get("instance_id", ""))
-            )
-            info = {"reason": reason}
-        elif action_id == "store_pet":
-            updated, ok = store_active_pet_pure(
-                player_data, location=str(payload.get("location", "bank"))
-            )
-        elif action_id == "release_pet":
-            updated, ok, reason = release_pet_pure(
-                player_data, str(payload.get("instance_id", ""))
-            )
-            info = {"reason": reason}
-        elif action_id == "hatch_phoenix_egg":
-            updated, ok, reason = hatch_phoenix_egg_pure(
-                player_data, str(payload.get("item_name", ""))
-            )
-            info = {"reason": reason, "instance_id": reason if ok else ""}
-        else:
+        ok = False
+
+        def _change(current):
+            nonlocal info, ok
+            if action_id == "summon":
+                updated, ok, info = summon_familiar_pure(
+                    current, str(payload.get("familiar_id", ""))
+                )
+            elif action_id == "dismiss":
+                updated, ok, info = dismiss_familiar_pure(current)
+            elif action_id == "renew":
+                updated, ok, info = renew_familiar_pure(current)
+            elif action_id == "restore_points":
+                updated = restore_summoning_points_pure(current)
+                ok = updated != current
+            elif action_id == "reclaim_cargo":
+                updated, ok, reclaimed = reclaim_familiar_cargo_pure(
+                    current, int(payload.get("event_id", 0) or 0)
+                )
+                info = {"reclaimed": reclaimed}
+            elif action_id == "start_familiarisation":
+                updated, ok = start_familiarisation_pure(current)
+            elif action_id == "claim_familiarisation":
+                updated, ok, info = claim_familiarisation_reward_pure(
+                    current, str(payload.get("choice", ""))
+                )
+            elif action_id == "set_winter_storage_priority":
+                updated, ok = set_winter_storage_priority_pure(
+                    current,
+                    str(payload.get("target_id", "")),
+                    str(payload.get("item_name", "")),
+                    payload.get("threshold_free_slots", 0),
+                )
+            elif action_id == "let_out_pet":
+                updated, ok, reason = let_out_pet_pure(
+                    current, str(payload.get("instance_id", ""))
+                )
+                info = {"reason": reason}
+            elif action_id == "store_pet":
+                updated, ok = store_active_pet_pure(
+                    current, location=str(payload.get("location", "bank"))
+                )
+            elif action_id == "release_pet":
+                updated, ok, reason = release_pet_pure(
+                    current, str(payload.get("instance_id", ""))
+                )
+                info = {"reason": reason}
+            elif action_id == "hatch_phoenix_egg":
+                updated, ok, reason = hatch_phoenix_egg_pure(
+                    current, str(payload.get("item_name", ""))
+                )
+                info = {"reason": reason, "instance_id": reason if ok else ""}
+            else:
+                return current, False
+            return updated, ok
+
+        if action_id not in {
+            "summon",
+            "dismiss",
+            "renew",
+            "restore_points",
+            "reclaim_cargo",
+            "start_familiarisation",
+            "claim_familiarisation",
+            "set_winter_storage_priority",
+            "let_out_pet",
+            "store_pet",
+            "release_pet",
+            "hatch_phoenix_egg",
+        }:
             return {"ok": False, "message": "Unknown Summoning command."}
+
+        def _after_apply():
+            summon_xp = float(info.get("summon_xp", 0.0) or 0.0)
+            if summon_xp > 0:
+                _award_skill_exp("summoning_exp", summon_xp)
+                level_up_check("Summoning", player_data)
+            check_achievements(player_data)
+            _refresh_skill_availability()
+
+        committed = commit_direct_action(_change, after_apply=_after_apply)
         if not ok:
             reason = str(info.get("reason", "That action is unavailable."))
             return {"ok": False, "message": reason.replace("_", " ").capitalize()}
-        before = {
-            "player_data": copy.deepcopy(player_data),
-            "random_state": random.getstate(),
-        }
-        try:
-            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-        except (AttributeError, RuntimeError):
+        if not committed:
             return {"ok": False, "message": "Anki could not create an undo entry."}
-        _DIRECT_ACTION_UNDO_STACK.append(before)
-        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-        player_data.clear()
-        player_data.update(updated)
-        summon_xp = float(info.get("summon_xp", 0.0) or 0.0)
-        if summon_xp > 0:
-            _award_skill_exp("summoning_exp", summon_xp)
-            level_up_check("Summoning", player_data)
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
         try:
-            mw.update_undo_actions()
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
