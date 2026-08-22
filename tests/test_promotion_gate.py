@@ -33,15 +33,12 @@ from tools.promotion_gate import (
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CAMO_JADINKO_COMMIT = "c4daba25aa0027436bf7a508202efb83ecaf44f0"
-CAMO_JADINKO_SUMMARY = (
-    "1599 actions; 2370 reachable items; 38 orphan inputs; 37 blocked actions"
-)
+SYNTHETIC_ACTION_FIELDS = ("action_count", "reachable_item_count")
 
 
-def extract_git_tree(commit: str, destination: Path) -> Path:
+def extract_git_tree(destination: Path) -> Path:
     archived = subprocess.run(
-        ("git", "archive", "--format=tar", commit),
+        ("git", "archive", "--format=tar", "HEAD"),
         cwd=PROJECT_ROOT,
         check=True,
         capture_output=True,
@@ -57,13 +54,47 @@ def run_reachability_check(worktree: Path) -> tuple[int, str]:
     return returncode, log.getvalue()
 
 
-def pinned_summary(worktree: Path) -> str:
-    pins = _read_reachability_pins(worktree)
+def reachability_summary(pins: dict[str, int]) -> str:
     return (
         f"{pins['action_count']} actions; {pins['reachable_item_count']} reachable items; "
         f"{pins['orphan_input_count']} orphan inputs; "
         f"{pins['unresolved_action_count']} blocked actions"
     )
+
+
+def pinned_summary(worktree: Path) -> str:
+    return reachability_summary(_read_reachability_pins(worktree))
+
+
+def synthetic_reachability_tree(
+    destination: Path,
+    *,
+    update_pins: bool,
+) -> tuple[Path, str]:
+    worktree = extract_git_tree(destination)
+    action_path = worktree / "data" / "thieving_data.py"
+    with action_path.open("a", encoding="utf-8") as stream:
+        stream.write(
+            '\nTHIEVING_TARGETS["promotion_gate_synthetic"] = {\n'
+            '    "guaranteed": {"Promotion gate synthetic item": 1},\n'
+            '}\n'
+        )
+
+    pins = _read_reachability_pins(worktree)
+    expected_pins = dict(pins)
+    for field in SYNTHETIC_ACTION_FIELDS:
+        expected_pins[field] += 1
+    if update_pins:
+        pin_path = worktree / "tests" / "test_item_reachability_audit.py"
+        source = pin_path.read_text(encoding="utf-8")
+        for field in SYNTHETIC_ACTION_FIELDS:
+            old = f'self.assertEqual(report["{field}"], {pins[field]})'
+            new = f'self.assertEqual(report["{field}"], {expected_pins[field]})'
+            if source.count(old) != 1:
+                raise AssertionError(f"Expected one synthetic pin target: {old}")
+            source = source.replace(old, new, 1)
+        pin_path.write_text(source, encoding="utf-8")
+    return worktree, reachability_summary(expected_pins)
 
 
 class PromotionRepo:
@@ -426,7 +457,7 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_tree_matching_its_own_pins_passes(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree("HEAD", Path(temp_dir))
+            worktree = extract_git_tree(Path(temp_dir))
 
             returncode, log = run_reachability_check(worktree)
 
@@ -435,40 +466,77 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_content_addition_with_updated_pins_passes(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree(CAMO_JADINKO_COMMIT, Path(temp_dir))
+            worktree, expected_summary = synthetic_reachability_tree(
+                Path(temp_dir),
+                update_pins=True,
+            )
 
             returncode, log = run_reachability_check(worktree)
 
             self.assertEqual(returncode, 0)
-            self.assertEqual(log, f"=== reachability ===\n{CAMO_JADINKO_SUMMARY}\n")
+            self.assertEqual(log, f"=== reachability ===\n{expected_summary}\n")
 
     def test_reachability_content_addition_without_updated_pins_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree(CAMO_JADINKO_COMMIT, Path(temp_dir))
-            pin_path = worktree / "tests" / "test_item_reachability_audit.py"
-            pins = pin_path.read_text(encoding="utf-8")
-            pins = pins.replace(
-                'self.assertEqual(report["action_count"], 1599)',
-                'self.assertEqual(report["action_count"], 1598)',
-                1,
-            ).replace(
-                'self.assertEqual(report["reachable_item_count"], 2370)',
-                'self.assertEqual(report["reachable_item_count"], 2369)',
-                1,
+            worktree, expected_summary = synthetic_reachability_tree(
+                Path(temp_dir),
+                update_pins=False,
             )
-            pin_path.write_text(pins, encoding="utf-8")
 
             returncode, log = run_reachability_check(worktree)
 
             self.assertEqual(returncode, 1)
             self.assertEqual(
                 log,
-                f"=== reachability ===\n{CAMO_JADINKO_SUMMARY}\nFAILED: exit 1\n",
+                f"=== reachability ===\n{expected_summary}\nFAILED: exit 1\n",
             )
+
+    def test_reachability_warning_on_stderr_does_not_corrupt_json(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = extract_git_tree(Path(temp_dir))
+            audit_path = worktree / "tools" / "audit_item_reachability.py"
+            source = audit_path.read_text(encoding="utf-8")
+            source = source.replace(
+                "import sys\n",
+                "import sys\n\nprint('DeprecationWarning: something', file=sys.stderr)\n",
+                1,
+            )
+            audit_path.write_text(source, encoding="utf-8")
+
+            returncode, log = run_reachability_check(worktree)
+
+            self.assertEqual(returncode, 0)
+            self.assertEqual(
+                log,
+                f"=== reachability ===\n{pinned_summary(worktree)}\n"
+                "DeprecationWarning: something\n",
+            )
+
+    def test_promotion_docs_explain_tree_owned_reachability_pins(self):
+        patterns = (PROJECT_ROOT / "memory-bank" / "systemPatterns.md").read_text(
+            encoding="utf-8"
+        )
+        papercuts = (PROJECT_ROOT / "memory-bank" / "papercuts.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertTrue(
+            "reads all seven reachability pins from the gated tree" in patterns,
+            "systemPatterns.md must explain that reachability pins come from the gated tree",
+        )
+        self.assertTrue(
+            "supersedes the 2026-08-22 05:52 papercut" in patterns,
+            "systemPatterns.md must identify the superseded papercut",
+        )
+        self.assertTrue(
+            "Superseded: the gate now reads all seven pins from the gated tree"
+            in papercuts,
+            "the 2026-08-22 05:52 papercut must record its superseding rule",
+        )
 
     def test_reachability_audit_crashing_after_summary_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree("HEAD", Path(temp_dir))
+            worktree = extract_git_tree(Path(temp_dir))
             summary = pinned_summary(worktree)
             (worktree / "tools" / "audit_item_reachability.py").write_text(
                 f"print({summary!r})\nraise RuntimeError('audit crashed')\n",
@@ -484,7 +552,7 @@ class PromotionGateTest(unittest.TestCase):
 
     def test_reachability_audit_without_summary_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            worktree = extract_git_tree("HEAD", Path(temp_dir))
+            worktree = extract_git_tree(Path(temp_dir))
             (worktree / "tools" / "audit_item_reachability.py").write_text(
                 "raise SystemExit(1)\n",
                 encoding="utf-8",

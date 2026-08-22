@@ -977,8 +977,13 @@ so a recycled PID cannot impersonate the gate process.
 
 A successful full gate atomically records the exact commit and every passed
 check in the shared Git common directory. The gate requires a clean worktree so
-those checks measure that commit rather than uncommitted files. Starting any
-rerun removes that commit's prior evidence, and a failed rerun writes none.
+those checks measure that commit rather than uncommitted files. The reachability
+check reads all seven reachability pins from the gated tree, compares them with
+that tree's own JSON audit and expected exit code, and accepts only an exact
+match. A content addition must update those pinned assertions in the same
+commit. This supersedes the 2026-08-22 05:52 papercut's interim rule to preserve
+the old grep-based informational behavior. Starting any rerun removes that
+commit's prior evidence, and a failed rerun writes none.
 Land only with
 `python3 tools/promotion_gate.py land <promotion-worktree>`, not a hand-written
 `git merge --ff-only`. Landing is serialized, requires full-gate evidence for

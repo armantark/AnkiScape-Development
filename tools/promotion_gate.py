@@ -351,6 +351,7 @@ def _run_check(
     selector: Callable[[list[str]], list[str]],
     environment: dict[str, str] | None = None,
     validator: ResultValidator | None = None,
+    parse_stdout_only: bool = False,
 ) -> int:
     print(heading, file=log)
     try:
@@ -362,10 +363,18 @@ def _run_check(
             capture_output=True,
             env={**os.environ, **environment} if environment else None,
         )
-        lines = (completed.stdout + completed.stderr).splitlines()
+        stderr_lines = completed.stderr.splitlines()
+        lines = (
+            completed.stdout.splitlines()
+            if parse_stdout_only
+            else (completed.stdout + completed.stderr).splitlines()
+        )
         selected = selector(lines)
         for line in selected:
             print(line, file=log)
+        if parse_stdout_only:
+            for line in stderr_lines:
+                print(line, file=log)
         accepted = (
             validator(completed.returncode, lines)
             if validator is not None
@@ -497,6 +506,7 @@ def _run_reachability_check(log: TextIO, worktree: Path) -> int:
             lines,
             pins,
         ),
+        parse_stdout_only=True,
     )
 
 
