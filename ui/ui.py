@@ -26362,19 +26362,18 @@ def show_main_menu(
         return f"Choose: {label}."
 
     def _claim_metadata(row: dict) -> str:
-        if str(row.get("claim_type", "item")) == "xp_lamp":
+        claim_type = str(row.get("claim_type", "item"))
+        if claim_type in {"xp_lamp", "skill_reward"}:
             amount = row.get("xp_amount", 0)
             amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
-            tooltip = _claim_skill_tooltip(row)
-            return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
-        if str(row.get("claim_type", "item")) == "skill_reward":
-            amount = row.get("xp_amount", 0)
-            amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
+            if claim_type == "xp_lamp":
+                tooltip = _claim_skill_tooltip(row)
+                return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
             skill_options = tuple(row.get("skill_options", ()) or ())
             skill_name = _skill_display(str(skill_options[0])) if skill_options else "Skill"
             items = tuple(row.get("items", ()) or ())
             return f"{amount_text} {skill_name} XP · {len(items)} item rewards"
-        if str(row.get("claim_type", "item")) == "item_bundle":
+        if claim_type == "item_bundle":
             items = tuple(row.get("items", ()) or ())
             preview = []
             for item in items[:3]:

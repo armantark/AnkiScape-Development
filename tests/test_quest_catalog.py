@@ -1812,7 +1812,7 @@ class TestQuestCatalog(unittest.TestCase):
             },
             {
                 "Apmeken mask": (25122, "head"),
-                "Ankh": (25123, "weapon"),
+                "Ankh": (25123, "shield"),
                 "Scabaras mask": (25124, "head"),
                 "Was": (25125, "weapon"),
             },

@@ -9941,7 +9941,7 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         },
         "Ankh": {
             "category": "equipment",
-            "equipment_slot": "weapon",
+            "equipment_slot": "shield",
             "item_id": 25123,
             "tradeable": False,
             "stackable": False,

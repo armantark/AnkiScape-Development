@@ -859,3 +859,4 @@
 
 - 2026-08-22 13:51 PDT — While querying a contiguous OpenRS2 object range, zsh kept the command-substitution result as one scalar, so `query_openrs2_cache_definitions.sh --id` received the whole space-separated range as one argument and threw `NumberFormatException`; piping `seq` through `xargs` supplied distinct ID arguments.
 - 2026-08-22 13:56 PDT — A batched exact-replacement edit of the Bank claim UI matched the shared `item_bundle` branch twice and aborted before writing; the claim metadata and icon helpers need context-qualified replacements.
+- 2026-08-22 14:02 PDT — The load-bearing mutation restored byte-identical source, but Python reused a same-size, same-second `quest_data.pyc` compiled from `xp_amount=19999`, so the restored test still failed until that bytecode was deleted; same-length source mutations need explicit bytecode invalidation before the pass proof.

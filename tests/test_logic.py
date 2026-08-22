@@ -6697,11 +6697,12 @@ class TestLogic(unittest.TestCase):
             "diamond_in_the_rough_scabaras_tomb",
             "diamond_in_the_rough_apmeken_tomb",
         )
+        hidden_items = ("Scabaras mask", "Was", "Apmeken mask", "Ankh")
         self.assertTrue(
             all(not player_data["claims"][claim_id]["claimed"] for claim_id in hidden_claim_ids)
         )
         self.assertEqual(
-            {item: player_data["inventory"].get(item, 0) for item in ("Scabaras mask", "Was", "Apmeken mask", "Ankh")},
+            {item: player_data["inventory"].get(item, 0) for item in hidden_items},
             {"Scabaras mask": 0, "Was": 0, "Apmeken mask": 0, "Ankh": 0},
         )
 
@@ -6723,7 +6724,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["mining_exp"], xp_before["mining"] + 20000)
         self.assertEqual(player_data["agility_exp"], xp_before["agility"] + 20250)
         self.assertEqual(
-            {item: player_data["inventory"].get(item, 0) for item in ("Scabaras mask", "Was", "Apmeken mask", "Ankh")},
+            {item: player_data["inventory"].get(item, 0) for item in hidden_items},
             {"Scabaras mask": 1, "Was": 1, "Apmeken mask": 1, "Ankh": 1},
         )
 

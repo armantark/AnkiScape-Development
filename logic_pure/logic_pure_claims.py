@@ -232,13 +232,17 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
         return player_data, False
     data = _copy_player_data_with_nested(player_data)
     claim_type = str(claim.get("claim_type", "item"))
-    if claim_type == "xp_lamp":
-        skill_id = selected_skill_id
-        if not isinstance(skill_id, str):
-            return player_data, False
-        skill_options = _claim_skill_options(claim)
-        if skill_id not in skill_options:
-            return player_data, False
+    if claim_type in {"xp_lamp", "skill_reward"}:
+        if claim_type == "xp_lamp":
+            skill_id = selected_skill_id
+            skill_options = _claim_skill_options(claim)
+            if not isinstance(skill_id, str) or skill_id not in skill_options:
+                return player_data, False
+        else:
+            skill_options = tuple(claim.get("skill_options", ()) or ())
+            if len(skill_options) != 1:
+                return player_data, False
+            skill_id = str(skill_options[0])
         minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
         if _skill_level_for_reward(player_data, skill_id) < minimum_level:
             return player_data, False
@@ -246,21 +250,10 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
         if amount <= 0:
             return player_data, False
         _apply_skill_xp_reward(data, skill_id, amount)
-    elif claim_type == "skill_reward":
-        skill_options = tuple(claim.get("skill_options", ()) or ())
-        if len(skill_options) != 1:
-            return player_data, False
-        skill_id = str(skill_options[0])
-        minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
-        if _skill_level_for_reward(player_data, skill_id) < minimum_level:
-            return player_data, False
-        amount = float(claim.get("xp_amount", 0) or 0)
-        if amount <= 0:
-            return player_data, False
-        _apply_skill_xp_reward(data, skill_id, amount)
-        inventory = data.setdefault("inventory", {})
-        for item_name, quantity in _claim_bundle_items(claim):
-            inventory[item_name] = inventory.get(item_name, 0) + quantity
+        if claim_type == "skill_reward":
+            inventory = data.setdefault("inventory", {})
+            for item_name, quantity in _claim_bundle_items(claim):
+                inventory[item_name] = inventory.get(item_name, 0) + quantity
     elif claim_type == "item_bundle":
         bundle_items = _claim_bundle_items(claim)
         if not bundle_items:
