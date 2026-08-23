@@ -1935,13 +1935,13 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=1,
         description="Accept Achietties' three proof item challenge.",
-        required_actions=("Accept Achietties' three proof item challenge",),
+        auto_actions=("Accept Achietties' three proof item challenge",),
         source=f"{HEROES_QUEST_DARKAN_SOURCE}; {HEROES_QUEST_ACHIETTIES_SOURCE}",
     ),
     QuestStageRequirement(
         stage=2,
         description="Ask Gerrant how to catch a lava eel and receive Blamish snail slime.",
-        required_actions=("Ask Gerrant how to catch lava eels",),
+        auto_actions=("Ask Gerrant how to catch lava eels",),
         produced_inventory=(("Blamish snail slime", 1),),
         source=f"{HEROES_QUEST_PORT_SARIM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -1976,15 +1976,17 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Cook the raw Lava eel.",
         consumed_inventory=(("Raw lava eel", 1),),
         produced_inventory=(("Lava eel", 1),),
-        required_actions=("Cook the raw Lava eel",),
+        auto_actions=("Cook the raw Lava eel",),
         source=f"{HEROES_QUEST_COOKING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
         stage=7,
         description="Clear the Ice Queen lair rockslide and defeat the Ice Queen.",
         required_tools=(("Pickaxe", 1),),
-        required_actions=("Clear the Ice Queen lair rockslide",),
-        auto_actions=("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
+        auto_actions=(
+            "Clear the Ice Queen lair rockslide",
+            "Reach the Ice Queen lair through a Dusty key or Agility shortcut route",
+        ),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{HEROES_QUEST_ID}_ice_queen_111",
@@ -2054,7 +2056,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Use the Black Arm Gang contacts in Brimhaven and receive Id papers from Trobert.",
         variant=HEROES_VARIANT_BLACK_ARM,
         required_routes=(HEROES_ROUTE_BLACK_ARM,),
-        required_actions=(
+        auto_actions=(
             "Ask Katrine about the Scarface Pete candlestick mission",
             "Enter the Black Arm Brimhaven hideout with the Four leaved clover password",
             "Accept Trobert's deputy guard impersonation mission",
@@ -2070,7 +2072,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Use the Phoenix Gang contacts in Brimhaven and learn the mansion bribe route.",
         variant=HEROES_VARIANT_PHOENIX,
         required_routes=(HEROES_ROUTE_PHOENIX,),
-        required_actions=(
+        auto_actions=(
             "Ask Straven about the Scarface Pete candlestick mission",
             "Ask Alfonse the waiter for gherkins",
             "Ask Charlie the cook about the Phoenix guard inside Scarface Pete's mansion",
@@ -2084,7 +2086,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_routes=(HEROES_ROUTE_BLACK_ARM,),
         required_tools=(("Black full helm", 1), ("Black platebody", 1), ("Black platelegs", 1)),
         consumed_inventory=(("Id papers", 1),),
-        required_actions=("Show the Id papers to Garv", "Search Scarface Pete's candlestick chest"),
+        auto_actions=("Show the Id papers to Garv", "Search Scarface Pete's candlestick chest"),
         produced_inventory=(("Pete's candlestick", 1),),
         source=f"{HEROES_QUEST_MANSION_DOOR_SOURCE}; {HEROES_QUEST_BRIMHAVEN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -2094,7 +2096,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         variant=HEROES_VARIANT_PHOENIX,
         required_routes=(HEROES_ROUTE_PHOENIX,),
         consumed_inventory=(("Coins", 1000),),
-        required_actions=(
+        auto_actions=(
             "Bribe Garv to turn a blind eye",
             "Search Scarface Pete's candlestick chest",
         ),
@@ -2133,7 +2135,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_routes=(HEROES_ROUTE_BLACK_ARM,),
         consumed_inventory=(("Pete's candlestick", 1),),
         produced_inventory=(("Thieves' armband", 1),),
-        required_actions=("Give Pete's candlestick to Katrine",),
+        auto_actions=("Give Pete's candlestick to Katrine",),
         source=f"{HEROES_QUEST_KATRINE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -2143,14 +2145,14 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_routes=(HEROES_ROUTE_PHOENIX,),
         consumed_inventory=(("Pete's candlestick", 1),),
         produced_inventory=(("Thieves' armband", 1),),
-        required_actions=("Give Pete's candlestick to Straven",),
+        auto_actions=("Give Pete's candlestick to Straven",),
         source=f"{HEROES_QUEST_STRAVEN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
         stage=12,
         description="Give Achietties the cooked Lava eel, Master Thieves' armband, and Fire feather.",
         consumed_inventory=(("Lava eel", 1), ("Thieves' armband", 1), ("Fire feather", 1)),
-        required_actions=("Hand Achietties the Lava eel, Thieves' armband, and Fire feather",),
+        auto_actions=("Hand Achietties the Lava eel, Thieves' armband, and Fire feather",),
         source=f"{HEROES_QUEST_ACHIETTIES_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
 )

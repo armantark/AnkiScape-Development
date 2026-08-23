@@ -4853,150 +4853,254 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["construction_exp"], 2500.0)
         self.assertEqual(after_complete["thieving_exp"], 2500.0)
 
-    def test_heroes_quest_stage_gates_lava_eel_firebird_and_black_arm_route(self):
-        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["heroes_quest"] = {"started": True, "progress": 1, "completed": False}
-        player_data["inventory"].update({
-            "Fishing rod": 1,
-            "Fishing bait": 1,
-            "Harralander potion (unf)": 1,
-            "Bronze pickaxe": 1,
-        })
-        player_data["equipment"] = {
-            "head": "Black full helm",
-            "body": "Black platebody",
-            "legs": "Black platelegs",
-        }
-        player_data["quest_route_states"] = {"heroes_quest": ["Join the Black Arm Gang"]}
-        player_data["quest_stage_actions"] = {
-            "heroes_quest": [
-                "Accept Achietties' three proof item challenge",
-                "Ask Gerrant how to catch lava eels",
-                "Cook the raw Lava eel",
-                "Clear the Ice Queen lair rockslide",
-                "Ask Katrine about the Scarface Pete candlestick mission",
-                "Enter the Black Arm Brimhaven hideout with the Four leaved clover password",
-                "Accept Trobert's deputy guard impersonation mission",
-                "Show the Id papers to Garv",
-                "Search Scarface Pete's candlestick chest",
-                "Give Pete's candlestick to Katrine",
-                "Hand Achietties the Lava eel, Thieves' armband, and Fire feather",
-            ]
-        }
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["heroes_quest"]["progress"], 2)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Blamish snail slime"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Blamish snail slime"], 0)
-        self.assertEqual(player_data["inventory"]["Harralander potion (unf)"], 0)
-        self.assertEqual(player_data["inventory"]["Blamish oil"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Fishing rod"], 0)
-        self.assertEqual(player_data["inventory"]["Oily fishing rod"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Fishing bait"], 0)
-        self.assertEqual(player_data["inventory"]["Raw lava eel"], 1)
-        self.assertIn(
+    def test_heroes_quest_real_stage_emitters_complete_both_routes(self):
+        quest_id = "heroes_quest"
+        common_actions = (
+            "Accept Achietties' three proof item challenge",
+            "Ask Gerrant how to catch lava eels",
             "Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",
-            player_data["quest_stage_actions"]["heroes_quest"],
-        )
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Raw lava eel"], 0)
-        self.assertEqual(player_data["inventory"]["Lava eel"], 1)
-
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "heroes_quest", QUEST_DATA),
-            ("Combat locked until battle support is enabled: Ice Queen level 111",),
-        )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
-        for skill_id in ("attack", "strength", "defense", "constitution", "prayer", "summoning"):
-            player_data[f"{skill_id}_level"] = 99
-        player_data, ok, result = apply_quest_combat_encounter_pure(
-            player_data,
-            "heroes_quest",
-            QUEST_DATA,
-            "heroes_quest_ice_queen_111",
-        )
-        self.assertTrue(ok)
-        self.assertEqual(result["reason"], "combat_resolved")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Ice gloves"], 1)
-        self.assertIn(
+            "Cook the raw Lava eel",
+            "Clear the Ice Queen lair rockslide",
             "Reach the Ice Queen lair through a Dusty key or Agility shortcut route",
-            player_data["quest_stage_actions"]["heroes_quest"],
-        )
-
-        player_data, ok, result = apply_quest_combat_encounter_pure(
-            player_data,
-            "heroes_quest",
-            QUEST_DATA,
-            "heroes_quest_entrana_fire_bird_2",
-        )
-        self.assertTrue(ok)
-        self.assertEqual(result["reason"], "combat_resolved")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Fire feather"], 1)
-        self.assertIn(
             "Reach Entrana without prohibited combat equipment",
-            player_data["quest_stage_actions"]["heroes_quest"],
+        )
+        route_cases = (
+            (
+                "Join the Black Arm Gang",
+                (
+                    "Ask Katrine about the Scarface Pete candlestick mission",
+                    "Enter the Black Arm Brimhaven hideout with the Four leaved clover password",
+                    "Accept Trobert's deputy guard impersonation mission",
+                    "Show the Id papers to Garv",
+                    "Search Scarface Pete's candlestick chest",
+                    "Give Pete's candlestick to Katrine",
+                ),
+            ),
+            (
+                "Join the Phoenix Gang",
+                (
+                    "Ask Straven about the Scarface Pete candlestick mission",
+                    "Ask Alfonse the waiter for gherkins",
+                    "Ask Charlie the cook about the Phoenix guard inside Scarface Pete's mansion",
+                    "Bribe Garv to turn a blind eye",
+                    "Search Scarface Pete's candlestick chest",
+                    "Give Pete's candlestick to Straven",
+                ),
+            ),
         )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Id papers"], 1)
+        for route_id, route_actions in route_cases:
+            with self.subTest(route=route_id):
+                player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                for prerequisite in ("shield_of_arrav", "lost_city", "dragon_slayer", "merlins_crystal", "druidic_ritual"):
+                    player_data["quests"][prerequisite] = {
+                        "started": True,
+                        "progress": QUEST_DATA[prerequisite]["stages"],
+                        "completed": True,
+                    }
+                player_data.update(
+                    {
+                        "attack_level": 99,
+                        "constitution_level": 99,
+                        "cooking_level": 60,
+                        "defense_level": 99,
+                        "fishing_level": 60,
+                        "herblore_level": 30,
+                        "mining_level": 60,
+                        "quest_points": 56,
+                        "strength_level": 99,
+                    }
+                )
+                self.assertTrue(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
+                player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertEqual(player_data["current_quest"], quest_id)
+                self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+                self.assertNotIn(quest_id, player_data.get("quest_route_states", {}))
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Id papers"], 0)
-        self.assertEqual(player_data["inventory"]["Pete's candlestick"], 1)
+                # Stage 1: accepting Achietties' challenge emits with the start.
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    common_actions[:1],
+                )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Pete's candlestick"], 0)
-        self.assertEqual(player_data["inventory"]["Thieves' armband"], 1)
+                # Stage 2: Gerrant hands over Blamish snail slime.
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
+                self.assertEqual(player_data["inventory"]["Blamish snail slime"], 1)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["heroes_quest"]["completed"])
-        self.assertEqual(player_data["quests"]["heroes_quest"]["progress"], 13)
-        self.assertEqual(player_data["quest_points"], 1)
-        self.assertEqual(player_data["inventory"]["Lava eel"], 0)
-        self.assertEqual(player_data["inventory"]["Fire feather"], 0)
-        self.assertEqual(player_data["inventory"]["Thieves' armband"], 0)
-        self.assertEqual(player_data["fishing_exp"], 2725.0)
-        self.assertEqual(player_data["cooking_exp"], 2825.0)
-        self.assertEqual(player_data["defense_exp"], 3075.0)
-        # Herblore is now an implemented skill, so its quest reward is awarded
-        # directly rather than held in pending_skill_exp_rewards.
-        self.assertEqual(player_data["herblore_exp"], 1325.0)
-        self.assertNotIn("herblore_exp", player_data["pending_skill_exp_rewards"])
+                player_data["inventory"]["Harralander potion (unf)"] = 1
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["inventory"]["Blamish snail slime"], 0)
+                self.assertEqual(player_data["inventory"]["Harralander potion (unf)"], 0)
+                self.assertEqual(player_data["inventory"]["Blamish oil"], 1)
+
+                player_data["inventory"]["Fishing rod"] = 1
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["inventory"]["Fishing rod"], 0)
+                self.assertEqual(player_data["inventory"]["Oily fishing rod"], 1)
+
+                player_data["inventory"]["Fishing bait"] = 1
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["inventory"]["Fishing bait"], 0)
+                self.assertEqual(player_data["inventory"]["Raw lava eel"], 1)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    common_actions[:3],
+                )
+
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["inventory"]["Raw lava eel"], 0)
+                self.assertEqual(player_data["inventory"]["Lava eel"], 1)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    common_actions[:4],
+                )
+
+                player_data["inventory"]["Bronze pickaxe"] = 1
+                self.assertEqual(
+                    quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                    ("Combat locked until battle support is enabled: Ice Queen level 111",),
+                )
+                player_data["quest_combat_config"] = {"resolver_enabled": True}
+                player_data, ok, result = apply_quest_combat_encounter_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                    f"{quest_id}_ice_queen_111",
+                )
+                self.assertTrue(ok, result)
+                self.assertEqual(result["reason"], "combat_resolved")
+                self.assertEqual(result["encounter_id"], f"{quest_id}_ice_queen_111")
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["inventory"]["Ice gloves"], 1)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    common_actions[:6],
+                )
+
+                player_data, ok, result = apply_quest_combat_encounter_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                    f"{quest_id}_entrana_fire_bird_2",
+                )
+                self.assertTrue(ok, result)
+                self.assertEqual(result["reason"], "combat_resolved")
+                self.assertEqual(result["encounter_id"], f"{quest_id}_entrana_fire_bird_2")
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
+                self.assertEqual(player_data["inventory"]["Fire feather"], 1)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    common_actions,
+                )
+
+                # Stage 9 splits on the gang contact chosen at that stage.
+                self.assertEqual(
+                    quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                    ("Choose path: Phoenix Gang or Black Arm Gang",),
+                )
+                player_data, ok = apply_quest_route_choice_pure(player_data, quest_id, QUEST_DATA, route_id)
+                self.assertTrue(ok)
+                self.assertEqual(player_data["quest_route_states"][quest_id], [route_id])
+
+                if route_id == "Join the Black Arm Gang":
+                    player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+                    self.assertEqual(player_data["inventory"]["Id papers"], 1)
+
+                    player_data["inventory"].update(
+                        {"Black full helm": 1, "Black platebody": 1, "Black platelegs": 1}
+                    )
+                    player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+                    self.assertEqual(player_data["inventory"]["Id papers"], 0)
+                    self.assertEqual(player_data["inventory"]["Pete's candlestick"], 1)
+                else:
+                    player_data["inventory"]["Coins"] = 1000
+                    player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+                    self.assertEqual(
+                        quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                        ("Battle required: Grip level 22",),
+                    )
+                    player_data, ok, result = apply_quest_combat_encounter_pure(
+                        player_data,
+                        quest_id,
+                        QUEST_DATA,
+                        f"{quest_id}_grip_22",
+                    )
+                    self.assertTrue(ok, result)
+                    self.assertEqual(result["reason"], "combat_resolved")
+                    self.assertEqual(result["encounter_id"], f"{quest_id}_grip_22")
+                    player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+                    self.assertEqual(player_data["inventory"]["Coins"], 0)
+                    self.assertEqual(player_data["inventory"]["Pete's candlestick"], 1)
+
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    (*common_actions, *route_actions[:5]),
+                )
+
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["inventory"]["Pete's candlestick"], 0)
+                self.assertEqual(player_data["inventory"]["Thieves' armband"], 1)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    (*common_actions, *route_actions),
+                )
+
+                player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertTrue(completed_now)
+                self.assertTrue(player_data["quests"][quest_id]["completed"])
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 13)
+                self.assertEqual(player_data["quest_points"], 57)
+                self.assertEqual(player_data["inventory"]["Lava eel"], 0)
+                self.assertEqual(player_data["inventory"]["Fire feather"], 0)
+                self.assertEqual(player_data["inventory"]["Thieves' armband"], 0)
+                self.assertEqual(player_data["fishing_exp"], 2725.0)
+                self.assertEqual(player_data["cooking_exp"], 2825.0)
+                self.assertEqual(player_data["defense_exp"], 3075.0)
+                # Herblore is now an implemented skill, so its quest reward is awarded
+                # directly rather than held in pending_skill_exp_rewards.
+                self.assertEqual(player_data["herblore_exp"], 1325.0)
+                self.assertNotIn("herblore_exp", player_data["pending_skill_exp_rewards"])
+
+                after_complete, ok, completed_again = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertFalse(ok)
+                self.assertFalse(completed_again)
+                self.assertEqual(after_complete["quest_points"], 57)
 
     def test_quest_route_choices_cover_hazeel_and_heroes_inherited_shield_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -5021,14 +5125,12 @@ class TestLogic(unittest.TestCase):
         heroes = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         heroes["quests"]["heroes_quest"] = {"started": True, "progress": 9, "completed": False}
         heroes["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
+        # The inherited Shield of Arrav route resolves the stage 9 gang choice,
+        # and its contact dialogue now emits through ordinary review progress.
         self.assertEqual(quest_current_stage_choices_pure(heroes, "heroes_quest", QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(heroes, "heroes_quest", QUEST_DATA),
-            (
-                "Action required: Ask Katrine about the Scarface Pete candlestick mission",
-                "Action required: Enter the Black Arm Brimhaven hideout with the Four leaved clover password",
-                "Action required: Accept Trobert's deputy guard impersonation mission",
-            ),
+            (),
         )
 
     def test_family_crest_real_stage_emitters_complete_and_reward_once(self):
