@@ -758,6 +758,153 @@ repair above. Schedule the remaining 44 quests from this list; before each
 slice, re-measure because earlier slices can expose later blocked stages in
 the same quest.
 
+### 3.32 Thirty quests require routes that no player can select
+
+Raised 2026-08-22 after a catalog scan found quest-stage route gates that no
+player can set. This is failure mode 3 from the standing slice contract: an
+inert row gated on a state no player reaches. This entry records the defect and
+an open design fork; it does not choose or implement a repair.
+
+- **Broken runtime path:** `apply_quest_route_choice_pure` at
+  `logic_pure/logic_pure_quest.py:425-457` is the only production writer of
+  route values in `quest_route_states`. It accepts a route only when a
+  registered `QuestChoice` for the current stage offers the same `route_id`;
+  otherwise `logic_pure/logic_pure_quest.py:432-440` returns
+  `(player_data, False)`. The Quests tab likewise creates a route button only
+  inside the loop over a `QuestChoice` option at
+  `ui/ui_tab_quests.py:392-405`. A stage can therefore require a route that the
+  player can neither select nor cause the logic layer to record, so the quest
+  stays blocked forever.
+- **Measured catalog class:** at `a23f80f3`, scanning `QUESTS` and subtracting
+  the union of every `choices` option's `route_id` from the union of every
+  stage's `required_routes` found **30 quests** with at least one unsatisfiable
+  route and **44 distinct unsatisfiable route ids**. These counts describe the
+  complete static catalog, not reachability-audit rows.
+- **Measured reachability view:** at the same commit,
+  `build_reachability_report()["blocked_quest_stage_products"]` returned
+  **178 rows**. Counting rows that carry each field gave
+  `missing_required_actions`: **172**, `missing_required_items`: **77**,
+  `missing_required_routes`: **16**, and `missing_required_tools`: **2**. A row
+  can carry more than one field, so these field counts do not sum to 178.
+- **Why 16 is not 30:** the reachability audit reports only the earliest blocked
+  stage for each quest. The **16 rows** carrying `missing_required_routes` are
+  what the current audit exposes; the static scan's **30 quests** are the true
+  size of this defect class. Entry 3.31 records the same exit behavior: its
+  Biohazard snapshot exposed one stage before the earlier gates were repaired,
+  while the landed repair covered 27 actions across all 13 playable stages.
+- **Worked example:** Dwarf Cannon stage `6` requires
+  `Reach the Dwarf Cannon goblin hideout` at `data/quest_data.py:6219-6224`,
+  while `dwarf_cannon.choices` is empty. No route button exists, and the only
+  writer rejects that route because no registered option offers it.
+- **Relationship to entry 3.31:** **19 quests** occur in both the missing-action
+  scheduling snapshot and this unsatisfiable-route class: Biohazard, Dealing
+  with Scabaras, Dwarf Cannon, Family Crest, Gertrude's Cat, Heroes' Quest,
+  Holy Grail, Kennith's Concerns, Lost City, Merlin's Crystal, Plague City,
+  Scorpion Catcher, Sheep Herder, The Tale of the Muspah, Tree Gnome Village,
+  Tribal Totem, Waterfall Quest, Witch's House, and Within the Light. Repairing
+  an action emitter does not make any of these quests finishable while its
+  route remains impossible to set.
+- **Correction to the landed record:** only Biohazard and Dealing with Scabaras
+  in that 19-quest overlap have landed entry 3.31 action-emitter repairs at this
+  base. The commit subjects `Biohazard was impossible to finish; emit every
+  quest step` (`e8efa7ae`) and `Dealing with Scabaras was impossible to finish;
+  emit every quest step` (`6c0cda7d`) read as though those quests are now
+  finishable. That reading is wrong. Both quests still carry an unsatisfiable
+  route, so both landed repairs are incomplete.
+
+**Catalog-generated scheduling snapshot (`a23f80f3`):**
+
+- **Lost City** (`lost_city`)
+  - Stage `2`: `Reach Entrana without combat gear`
+- **Witch's House** (`witchs_house`)
+  - Stage `5`: `Avoid the witch's patrol through the house`
+- **Merlin's Crystal** (`merlins_crystal`)
+  - Stage `2`: `Reach Keep Le Faye through the Catherby crate delivery`
+- **Heroes' Quest** (`heroes_quest`)
+  - Stage `5`: `Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze`
+  - Stage `7`: `Reach the Ice Queen lair through a Dusty key or Agility shortcut route`
+  - Stage `8`: `Reach Entrana without prohibited combat equipment`
+- **Scorpion Catcher** (`scorpion_catcher`)
+  - Stage `3`: `Reach the Taverley Dungeon scorpion room`
+  - Stage `4`: `Reach the Barbarian Outpost scorpion room`
+  - Stage `5`: `Reach the Edgeville Monastery scorpion room`
+- **Family Crest** (`family_crest`)
+  - Stage `8`: `Reach the Witchaven perfect gold mine`
+  - Stage `13`: `Reach Chronozon's lair in Edgeville Dungeon`
+- **Tribal Totem** (`tribal_totem`)
+  - Stage `2`: `Reach the Ardougne RPDT depot`
+- **Temple of Ikov** (`temple_of_ikov`)
+  - Stage `1`: `Enter the Temple of Ikov`
+  - Stage `3`: `Cross the Temple of Ikov lava bridge at low weight`
+- **Holy Grail** (`holy_grail`)
+  - Stage `2`: `Travel to Entrana`
+  - Stage `4`: `Reach the Draynor Manor whistle room`
+  - Stage `5`: `Reach the Fisher Realm crossing at the six stone heads`
+- **Tree Gnome Village** (`tree_gnome_village`)
+  - Stage `1`: `Reach Commander Montai on the battlefield`
+  - Stage `5`: `Enter the Khazard stronghold through the broken wall`
+- **Sheep Herder** (`sheep_herder`)
+  - Stages `3`, `4`, and `5`: `Reach the Ardougne sheep enclosure`
+- **Plague City** (`plague_city`)
+  - Stage `8`: `Reach West Ardougne through the sewer pipe`
+- **Waterfall Quest** (`waterfall_quest`)
+  - Stage `3`: `Reach Golrie under Tree Gnome Village`
+- **Biohazard** (`biohazard`)
+  - Stage `4`: `Reach Jerico's pigeon release tile`
+  - Stage `5`: `Reach Omart by the south West Ardougne wall`
+  - Stages `6` and `7`: `Reach the Mourner HQ garden in West Ardougne`
+  - Stage `11`: `Reach Guidor's house without Varrock guards confiscating the vials`
+- **Dwarf Cannon** (`dwarf_cannon`)
+  - Stage `6`: `Reach the Dwarf Cannon goblin hideout`
+- **Gertrude's Cat** (`gertrudes_cat`)
+  - Stage `3`: `Reach Fluffs in the Varrock Lumber Yard`
+- **Mourning's End Part I** (`mournings_end_part_i`)
+  - Stage `1`: `Reach Lletya`
+- **Making History** (`making_history`)
+  - Stage `1`: `Reach the Outpost, Rellekka, and Port Phasmatys travel legs`
+- **Cabin Fever** (`cabin_fever`)
+  - Stage `1`: `Reach the Port Phasmatys charter route`
+- **Death to the Dorgeshuun** (`death_to_the_dorgeshuun`)
+  - Stage `5`: `Reach the Tears of Guthix cavern`
+- **Enlightened Journey** (`enlightened_journey`)
+  - Stage `1`: `Reach Auguste on Entrana`
+- **Back to my Roots** (`back_to_my_roots`)
+  - Stage `1`: `Reach the Karamja jungle route`
+- **Dealing with Scabaras** (`dealing_with_scabaras`)
+  - Stage `1`: `Reach the Agility Pyramid`
+- **Kennith's Concerns** (`kenniths_concerns`)
+  - Stage `1`: `Reach the Witchaven shrine tunnels`
+- **Rocking Out** (`rocking_out`)
+  - Stage `1`: `Reach the Rimmington customs office`
+- **Myths of the White Lands** (`myths_of_the_white_lands`)
+  - Stage `1`: `Reach the Wizard's Tower ice cave`
+- **In Pyre Need** (`in_pyre_need`)
+  - Stage `1`: `Reach the Phoenix lair`
+- **Glorious Memories** (`glorious_memories`)
+  - Stage `1`: `Reach Rellekka and Miscellania`
+- **The Tale of the Muspah** (`the_tale_of_the_muspah`)
+  - Stage `1`: `Reach the Muspah cave route through Rellekka and Pollnivneach`
+  - Stage `2`: `Reach Rellekka`
+  - Stage `3`: `Reach Pollnivneach`
+- **Within the Light** (`within_the_light`)
+  - Stage `1`: `Reach the Temple of Light through West Ardougne and Lletya`
+
+**OWNER DECISION — open design fork awaiting the owner or the design thread**
+
+- **Fork:** how does a player satisfy a required route that offers no genuine
+  alternative?
+- **Option A:** a stage whose `required_routes` has exactly one possible value is
+  a step, not a choice, and the existing stage auto-action mechanism satisfies
+  it. `QuestChoice` stays for real forks with two or more options, such as the
+  Phoenix Gang and Black Arm Gang fork in Shield of Arrav and Heroes' Quest.
+- **Option B:** register a one-option `QuestChoice` for every such route, so the
+  player clicks a route button before the stage opens.
+- **Option C:** use another approach that the design thread prefers.
+- **Orchestrator's lean, not a ruling:** Option A. A single-valued route is not a
+  decision the player makes, so presenting it as a choice adds a click that
+  carries no information. Option B also grows the choice registry by 44 entries
+  that never branch.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
