@@ -4531,63 +4531,76 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["quest_points"], 1)
         self.assertEqual(after_complete["inventory"]["A magic scroll"], 1)
 
-    def test_waterfall_quest_stage_gates_book_pebble_runes_and_rewards(self):
+    def test_waterfall_quest_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "waterfall_quest"
+        actions = (
+            "Speak to Hudon by the waterfall",
+            "Search the Baxtorian bookcase",
+            "Read the Book on Baxtorian",
+            "Search the Tree Gnome Village crate for the old key",
+            "Unlock Golrie's prison",
+            "Reach Golrie under Tree Gnome Village",
+            "Search the waterfall crate for the large old key",
+            "Use Glarial's pebble on Glarial's tomb",
+            "Search Glarial's tomb for the amulet and urn",
+            "Place six water runes on the pillars",
+            "Place six air runes on the pillars",
+            "Place six earth runes on the pillars",
+            "Place Glarial's amulet on Glarial's statue",
+            "Use Glarial's urn on the chalice",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["waterfall_quest"] = {"started": True, "progress": 1, "completed": False}
-        player_data["inventory"].update({"Rope": 1, "Water rune": 6, "Air rune": 6, "Earth rune": 6})
-        player_data["quest_stage_actions"] = {
-            "waterfall_quest": [
-                "Speak to Hudon by the waterfall",
-                "Search the Baxtorian bookcase",
-                "Read the Book on Baxtorian",
-                "Search the Tree Gnome Village crate for the old key",
-                "Unlock Golrie's prison",
-                "Search the waterfall crate for the large old key",
-                "Use Glarial's pebble on Glarial's tomb",
-                "Search Glarial's tomb for the amulet and urn",
-                "Place six water runes on the pillars",
-                "Place six air runes on the pillars",
-                "Place six earth runes on the pillars",
-                "Place Glarial's amulet on Glarial's statue",
-                "Use Glarial's urn on the chalice",
-            ]
-        }
+        reasons = quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
+        self.assertIn("Fishing 68", reasons)
+        self.assertFalse(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        player_data["fishing_level"] = 68
+        self.assertTrue(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        player_data["inventory"].update({"Rope": 1, "Water rune": 6, "Air rune": 6, "Earth rune": 6})
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 2)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"].get(quest_id, ())),
+            actions[:1],
+        )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Book on Baxtorian"], 1)
-        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 3)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:3])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Old key"], 1)
         self.assertEqual(player_data["inventory"]["Glarial's pebble"], 1)
-        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 4)
-        self.assertIn(
-            "Reach Golrie under Tree Gnome Village",
-            player_data["quest_stage_actions"]["waterfall_quest"],
-        )
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:6])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Large old key"], 1)
         self.assertEqual(player_data["inventory"]["Glarial's amulet"], 1)
         self.assertEqual(player_data["inventory"]["Glarial's urn"], 1)
-        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 5)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:9])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["waterfall_quest"]["completed"])
-        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 6)
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
         self.assertEqual(player_data["inventory"]["Water rune"], 0)
         self.assertEqual(player_data["inventory"]["Air rune"], 0)
         self.assertEqual(player_data["inventory"]["Earth rune"], 0)
@@ -4600,6 +4613,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["attack_exp"], 13750.0)
         self.assertEqual(player_data["strength_exp"], 13750.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["attack_exp"], 13750.0)
+        self.assertEqual(player_data["strength_exp"], 13750.0)
 
     def test_biohazard_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
