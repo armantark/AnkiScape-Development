@@ -5852,31 +5852,56 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(quest_locked_reasons_pure(black, "black_knights_fortress", QUEST_DATA), ("12 quest points",))
 
         black["quest_points"] = 12
-        black["quests"]["black_knights_fortress"] = {"started": True, "progress": 1, "completed": False}
         black["equipment"] = {"body": "Iron chainbody", "head": "Bronze med helm"}
-        black["quest_stage_actions"] = {
-            "black_knights_fortress": [
-                "Infiltrate the Black Knights' Fortress",
-                "Listen at the grill above the Black Knights' meeting",
-                "Report the ruined potion to Sir Amik Varze",
-            ]
-        }
+        black, ok = start_quest_pure(black, "black_knights_fortress", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(black["current_quest"], "black_knights_fortress")
+        self.assertNotIn("black_knights_fortress", black["quest_stage_actions"])
         self.assertEqual(quest_current_stage_blockers_pure(black, "black_knights_fortress", QUEST_DATA), ())
 
         black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(black["quests"]["black_knights_fortress"]["progress"], 2)
+        self.assertEqual(
+            black["quest_stage_actions"]["black_knights_fortress"],
+            ["Infiltrate the Black Knights' Fortress"],
+        )
+
         black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(black["quests"]["black_knights_fortress"]["progress"], 3)
+        self.assertEqual(
+            black["quest_stage_actions"]["black_knights_fortress"],
+            [
+                "Infiltrate the Black Knights' Fortress",
+                "Listen at the grill above the Black Knights' meeting",
+            ],
+        )
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(black, "black_knights_fortress", QUEST_DATA),
+            ("Needs Cabbage x1",),
+        )
         black["inventory"]["Cabbage"] = 1
         black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(black["quests"]["black_knights_fortress"]["progress"], 4)
         self.assertEqual(black["inventory"]["Cabbage"], 0)
+
         black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
+        self.assertEqual(
+            black["quest_stage_actions"]["black_knights_fortress"],
+            [
+                "Infiltrate the Black Knights' Fortress",
+                "Listen at the grill above the Black Knights' meeting",
+                "Report the ruined potion to Sir Amik Varze",
+            ],
+        )
         self.assertEqual(black["quest_points"], 15)
         self.assertEqual(black["inventory"]["Coins"], 2500)
 
