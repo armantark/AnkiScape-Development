@@ -496,11 +496,20 @@ class TestQuestCatalog(unittest.TestCase):
 
         by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
         self.assertEqual(by_stage[1]["required_routes"], ())
-        self.assertEqual(by_stage[1]["auto_actions"], ("Reach Commander Montai on the battlefield",))
-        self.assertEqual(by_stage[5]["auto_actions"], ("Enter the Khazard stronghold through the broken wall",))
+        self.assertEqual(
+            by_stage[1]["auto_actions"],
+            (
+                "Reach Commander Montai on the battlefield",
+                "Ask Commander Montai how to help the gnome battlefield",
+            ),
+        )
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Logs": 6})
         self.assertEqual(
-            by_stage[4]["required_actions"],
+            by_stage[3]["auto_actions"],
+            ("Ask Commander Montai about the tracker gnomes",),
+        )
+        self.assertEqual(
+            by_stage[4]["auto_actions"],
             (
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
@@ -508,6 +517,18 @@ class TestQuestCatalog(unittest.TestCase):
                 "Fire the battlefield ballista at the Khazard stronghold",
             ),
         )
+        self.assertEqual(
+            by_stage[5]["auto_actions"],
+            (
+                "Enter the Khazard stronghold through the broken wall",
+                "Search the stronghold chest for the first Orb of protection",
+            ),
+        )
+        self.assertEqual(
+            by_stage[6]["auto_actions"],
+            ("Return the first Orb of protection to King Bolren",),
+        )
+        self.assertFalse(any(row["required_actions"] for row in by_stage.values()))
         self.assertEqual(by_stage[5]["produced_inventory"], {"Orb of protection": 1})
         self.assertEqual(by_stage[6]["consumed_inventory"], {"Orb of protection": 1})
         self.assertEqual(by_stage[6]["produced_inventory"], {"Orbs of protection": 1})

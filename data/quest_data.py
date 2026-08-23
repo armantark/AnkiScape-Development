@@ -5381,8 +5381,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Reach Commander Montai on the battlefield.",
             f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}",
-            auto_actions=("Reach Commander Montai on the battlefield",),
-            required_actions=("Ask Commander Montai how to help the gnome battlefield",),
+            auto_actions=(
+                "Reach Commander Montai on the battlefield",
+                "Ask Commander Montai how to help the gnome battlefield",
+            ),
         ),
         _stage_req(
             2,
@@ -5394,7 +5396,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Ask Commander Montai about the tracker gnomes.",
             TREE_GNOME_MONTAI_SOURCE,
-            required_actions=("Ask Commander Montai about the tracker gnomes",),
+            auto_actions=("Ask Commander Montai about the tracker gnomes",),
         ),
         _stage_req(
             4,
@@ -5403,7 +5405,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{TREE_GNOME_MONTAI_SOURCE}; {TREE_GNOME_TRACKER1_SOURCE}; {TREE_GNOME_TRACKER2_SOURCE}; "
                 f"{TREE_GNOME_TRACKER3_SOURCE}; {TREE_GNOME_DARKAN_SOURCE}"
             ),
-            required_actions=(
+            auto_actions=(
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
                 "Get the third tracker coordinate",
@@ -5414,8 +5416,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Enter the Khazard stronghold and recover the first Orb of protection.",
             f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}; {TREE_GNOME_KHAZARD_COMMANDER_NPC_SOURCE}",
-            auto_actions=("Enter the Khazard stronghold through the broken wall",),
-            required_actions=("Search the stronghold chest for the first Orb of protection",),
+            auto_actions=(
+                "Enter the Khazard stronghold through the broken wall",
+                "Search the stronghold chest for the first Orb of protection",
+            ),
             produced_inventory=(("Orb of protection", 1),),
             combat_encounters=(
                 _combat(
@@ -5450,7 +5454,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Return the first Orb of protection to King Bolren and recover the remaining orbs from the Khazard warlord.",
             f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_KHAZARD_WARLORD_NPC_SOURCE}",
             consumed_inventory=(("Orb of protection", 1),),
-            required_actions=("Return the first Orb of protection to King Bolren",),
+            auto_actions=("Return the first Orb of protection to King Bolren",),
             produced_inventory=(("Orbs of protection", 1),),
             combat_encounters=(
                 _combat(
