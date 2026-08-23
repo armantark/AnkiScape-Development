@@ -1162,7 +1162,7 @@ class TestQuestCatalog(unittest.TestCase):
         souls = data["a_souls_bane"]
         souls_by_stage = {requirement["stage"]: requirement for requirement in souls["stage_requirements"]}
         self.assertEqual(souls_by_stage[1]["required_inventory"], {"Rope": 1})
-        self.assertEqual(souls_by_stage[2]["required_actions"], ("Fill the rage meter with an anger weapon",))
+        self.assertEqual(souls_by_stage[2]["auto_actions"], ("Fill the rage meter with an anger weapon",))
         self.assertEqual(
             [encounter["display_name"] for encounter in souls_by_stage[3]["combat_encounters"]],
             ["Fear reaper", "Confusion beast", "Hopeless creature"],
