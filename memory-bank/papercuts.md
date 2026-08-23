@@ -973,3 +973,4 @@
 - 2026-08-23T03:29:58-07:00: Two parallel agents created the same new test file, tests/test_single_valued_route_steps.py, and produced an add/add conflict during the route union.
 - 2026-08-23T03:30:55-07:00: Focused route-test commands launched from the canonical checkout imported its pkg_alias and made all 26 tests run against the wrong quest data even when the worktree led PYTHONPATH, because Python searches the current directory first; worktree tests must execute with the worktree as the current directory.
 - 2026-08-23 04:31 PDT — A route conversion changed a widget blocker label that only the Qt lane could catch, so plain-lane-only slices can leave the Qt lane red.
+- 2026-08-23 03:47 PDT — The guarded worktree command rejected a positional base SHA with `error: unrecognized arguments: baecdc85`; the supported form is `--start-point baecdc85`, which the slice brief did not show.
