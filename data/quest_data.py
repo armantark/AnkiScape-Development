@@ -8202,7 +8202,11 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("NPC Contact",),
-            add_required_actions=("Cast NPC Contact to reach the quest contacts",),
+            remove_required_actions=("Complete While Guthix Sleeps stage 1 objective",),
+            add_auto_actions=(
+                "Complete While Guthix Sleeps stage 1 objective",
+                "Cast NPC Contact to reach the quest contacts",
+            ),
         ),
     ),
     "blood_runs_deep": (
