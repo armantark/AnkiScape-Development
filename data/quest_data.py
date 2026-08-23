@@ -1392,7 +1392,11 @@ HEROES_QUEST_CHOICES: Tuple[QuestChoice, ...] = (
         stage=9,
         prompt="Choose the gang contact to use for Scarface Pete's mansion.",
         options=(
-            QuestChoiceOption("Phoenix Gang", HEROES_ROUTE_PHOENIX, "Bribe Garv and resolve Grip contextually."),
+            QuestChoiceOption(
+                "Phoenix Gang",
+                HEROES_ROUTE_PHOENIX,
+                "Use the secret panel and a Black Arm Gang partner's miscellaneous key to confront Grip.",
+            ),
             QuestChoiceOption("Black Arm Gang", HEROES_ROUTE_BLACK_ARM, "Use Trobert's deputy guard route."),
         ),
         source=f"{HEROES_QUEST_KATRINE_SOURCE}; {HEROES_QUEST_STRAVEN_SOURCE}; {HEROES_QUEST_WIKI_SOURCE}",
@@ -2069,7 +2073,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
     QuestStageRequirement(
         stage=9,
-        description="Use the Phoenix Gang contacts in Brimhaven and learn the mansion bribe route.",
+        description="Use the Phoenix Gang contacts in Brimhaven and learn about the mansion's secret panel.",
         variant=HEROES_VARIANT_PHOENIX,
         required_routes=(HEROES_ROUTE_PHOENIX,),
         auto_actions=(
@@ -2092,13 +2096,16 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
     QuestStageRequirement(
         stage=10,
-        description="Use the Phoenix route to enter Scarface Pete's mansion, defeat Grip, and retrieve Pete's candlestick.",
+        description=(
+            "Use the Phoenix secret panel and a Black Arm Gang partner's key to attack Grip after "
+            "that partner lures him, then receive one of the candlesticks they retrieve."
+        ),
         variant=HEROES_VARIANT_PHOENIX,
         required_routes=(HEROES_ROUTE_PHOENIX,),
-        consumed_inventory=(("Coins", 1000),),
         auto_actions=(
-            "Bribe Garv to turn a blind eye",
-            "Search Scarface Pete's candlestick chest",
+            "Enter Scarface Pete's mansion through the Phoenix Gang secret panel",
+            "Unlock the window room with a Black Arm Gang partner's miscellaneous key",
+            "Receive one of Pete's candlesticks after the Black Arm Gang partner opens the chest with Grip's key",
         ),
         combat_encounters=(
             QuestCombatEncounter(
@@ -2106,7 +2113,10 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
                 display_name="Grip",
                 level=22,
                 source=f"{HEROES_QUEST_WIKI_SOURCE}; {HEROES_QUEST_TROBERT_SOURCE}; {HEROES_QUEST_GRIP_NPC_SOURCE}",
-                source_text="The historical details list Grip as the Phoenix-route guard encounter; Trobert identifies Grip as Scarface Pete's head guard.",
+                source_text=(
+                    "The Phoenix Gang member attacks Grip from the window room after a Black Arm Gang partner "
+                    "lures him; Grip's death enables that partner to recover Grip's key."
+                ),
                 npc_stats=(
                     ("hitpoints", 250),
                     ("attack", 18),
@@ -2126,7 +2136,10 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
             ),
         ),
         produced_inventory=(("Pete's candlestick", 1),),
-        source=f"{HEROES_QUEST_MANSION_DOOR_SOURCE}; {HEROES_QUEST_BRIMHAVEN_SOURCE}; {HEROES_QUEST_GRIP_NPC_SOURCE}",
+        source=(
+            f"{HEROES_QUEST_BRIMHAVEN_SOURCE}; {HEROES_QUEST_GRIP_NPC_SOURCE}; "
+            f"{HEROES_QUEST_WIKI_SOURCE}"
+        ),
     ),
     QuestStageRequirement(
         stage=11,
@@ -2835,7 +2848,8 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
             ),
             (
                 "Route choice: Phoenix Gang or Black Arm Gang from Shield of Arrav. "
-                "Black Arm route uses black armour and Id papers; Phoenix route uses a contextual contact and 1,000 coins."
+                "Black Arm route uses black armour and Id papers; Phoenix route uses the secret panel and a "
+                "contextual Black Arm Gang partner for the key, Grip lure, and candlestick handoff."
             ),
         ),
         required_items=(),

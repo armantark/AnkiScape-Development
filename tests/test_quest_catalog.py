@@ -238,7 +238,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(quest["required_quest_points"], 56)
         self.assertIn("Used during quest: Harralander potion (unf) x1", quest["requirements"][11])
         self.assertNotIn("Blamish snail slime", quest["requirements"][11])
-        self.assertIn("contextual contact", quest["requirements"][12])
+        self.assertIn("contextual Black Arm Gang partner", quest["requirements"][12])
         self.assertEqual(quest["choices"][0]["stage"], 9)
         self.assertEqual(
             tuple(option["route_id"] for option in quest["choices"][0]["options"]),
@@ -296,8 +296,16 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(black_arm_mansion["consumed_inventory"], {"Id papers": 1})
         self.assertEqual(black_arm_mansion["produced_inventory"], {"Pete's candlestick": 1})
         phoenix_mansion = by_stage_variant[(10, "phoenix")]
-        self.assertEqual(phoenix_mansion["consumed_inventory"], {"Coins": 1000})
-        self.assertNotIn("Coordinate with a Black Arm partner", phoenix_mansion["required_actions"])
+        self.assertEqual(phoenix_mansion["consumed_inventory"], {})
+        self.assertEqual(phoenix_mansion["required_actions"], ())
+        self.assertEqual(
+            phoenix_mansion["auto_actions"],
+            (
+                "Enter Scarface Pete's mansion through the Phoenix Gang secret panel",
+                "Unlock the window room with a Black Arm Gang partner's miscellaneous key",
+                "Receive one of Pete's candlesticks after the Black Arm Gang partner opens the chest with Grip's key",
+            ),
+        )
         self.assertEqual(phoenix_mansion["produced_inventory"], {"Pete's candlestick": 1})
         self.assertEqual(phoenix_mansion["combat_encounters"][0]["encounter_id"], "heroes_quest_grip_22")
 

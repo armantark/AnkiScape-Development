@@ -4882,8 +4882,9 @@ class TestLogic(unittest.TestCase):
                     "Ask Straven about the Scarface Pete candlestick mission",
                     "Ask Alfonse the waiter for gherkins",
                     "Ask Charlie the cook about the Phoenix guard inside Scarface Pete's mansion",
-                    "Bribe Garv to turn a blind eye",
-                    "Search Scarface Pete's candlestick chest",
+                    "Enter Scarface Pete's mansion through the Phoenix Gang secret panel",
+                    "Unlock the window room with a Black Arm Gang partner's miscellaneous key",
+                    "Receive one of Pete's candlesticks after the Black Arm Gang partner opens the chest with Grip's key",
                     "Give Pete's candlestick to Straven",
                 ),
             ),
@@ -5038,7 +5039,8 @@ class TestLogic(unittest.TestCase):
                     self.assertEqual(player_data["inventory"]["Id papers"], 0)
                     self.assertEqual(player_data["inventory"]["Pete's candlestick"], 1)
                 else:
-                    player_data["inventory"]["Coins"] = 1000
+                    coins_before_mansion = player_data["inventory"]["Coins"]
+                    self.assertEqual(coins_before_mansion, 0)
                     player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
                     self.assertTrue(ok)
                     self.assertFalse(completed_now)
@@ -5058,12 +5060,12 @@ class TestLogic(unittest.TestCase):
                     player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
                     self.assertTrue(ok)
                     self.assertFalse(completed_now)
-                    self.assertEqual(player_data["inventory"]["Coins"], 0)
+                    self.assertEqual(player_data["inventory"]["Coins"], coins_before_mansion)
                     self.assertEqual(player_data["inventory"]["Pete's candlestick"], 1)
 
                 self.assertEqual(
                     tuple(player_data["quest_stage_actions"][quest_id]),
-                    (*common_actions, *route_actions[:5]),
+                    (*common_actions, *route_actions[:-1]),
                 )
 
                 player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
