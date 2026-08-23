@@ -926,3 +926,5 @@
 - 2026-08-22 19:34:40 PDT — Python probes launched from the canonical checkout silently bound pkg_alias to addons21/ankiscape_fork instead of the linked quest worktree; always cd to the guarded worktree before importing pkg_alias.
 - 2026-08-22 19:35 PDT — The first rev-727 and rev-742 interface probes omitted the required `find` subcommand, so `tools/query_openrs2_interfaces.sh` printed its usage instead of searching; call it as `<cache> find <needle>`.
 - 2026-08-22 19:37 PDT — The first focused While Guthix Sleeps regression expected only the stage-2 generated action gate and failed because the real kernel also reported `Needs Coins x5000 or Ring of Charos x1`; stage-transition assertions must include all live item-option blockers.
+- 2026-08-22 21:30 PDT — The first dangling-test scan matched test-module filenames and historical prose, producing 622 false-positive occurrences before qualified-selector filtering.
+- 2026-08-22 21:36 PDT — The item-reachability wrapper assigned zsh’s read-only `status` variable and ended with `(eval):1: read-only variable: status`; use `exit_code` when capturing expected nonzero exits.

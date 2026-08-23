@@ -8027,7 +8027,6 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             remove_required_inventory=("Agility Pyramid", "Random Bronze armours/weapons"),
             remove_required_actions=("Complete Dealing with Scabaras stage 1 objective",),
             add_auto_actions=(
-                "Complete Dealing with Scabaras stage 1 objective",
                 "Prepare bronze equipment for the High Priest's tests",
             ),
             add_required_routes=("Reach the Agility Pyramid",),
@@ -8204,7 +8203,6 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             remove_required_inventory=("NPC Contact",),
             remove_required_actions=("Complete While Guthix Sleeps stage 1 objective",),
             add_auto_actions=(
-                "Complete While Guthix Sleeps stage 1 objective",
                 "Cast NPC Contact to reach the quest contacts",
             ),
         ),
