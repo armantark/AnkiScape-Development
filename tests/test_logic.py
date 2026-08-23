@@ -5999,22 +5999,37 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(progressed["inventory"]["Karamja rum"], 0)
         self.assertEqual(progressed["inventory"]["Chest key"], 1)
 
-    def test_priest_in_peril_blocks_on_source_backed_stage_gates_and_consumes_essence(self):
+    def test_priest_in_peril_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["priest_in_peril"] = {"started": True, "progress": 1, "completed": False}
 
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action",))
-        self.assertEqual(blockers[0]["reason"], "Action required: Speak through the Paterdomus temple door")
+        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "priest_in_peril")
+        self.assertNotIn("priest_in_peril", player_data["quest_stage_actions"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "priest_in_peril", QUEST_DATA),
+            (),
+        )
 
-        player_data["quests"]["priest_in_peril"]["progress"] = 2
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 2)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["priest_in_peril"],
+            ["Speak through the Paterdomus temple door"],
+        )
+
         blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
         self.assertEqual(
             blockers[0]["reason"],
             "Combat locked until battle support is enabled: Temple guardian dog level 30",
         )
-
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
@@ -6022,8 +6037,45 @@ class TestLogic(unittest.TestCase):
             blockers[0]["reason"],
             "Combat stats required before battle support can resolve: Temple guardian dog level 30",
         )
+        player_data["quest_combat_encounters"] = {
+            "priest_in_peril": ["priest_in_peril_temple_guardian_dog_30"]
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 3)
 
-        player_data["quests"]["priest_in_peril"]["progress"] = 5
+        for progress, actions in (
+            (
+                4,
+                [
+                    "Speak through the Paterdomus temple door",
+                    "Report the dead guard dog to King Roald",
+                ],
+            ),
+            (
+                5,
+                [
+                    "Speak through the Paterdomus temple door",
+                    "Report the dead guard dog to King Roald",
+                    "Find Drezel imprisoned in the Paterdomus cell",
+                ],
+            ),
+        ):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "priest_in_peril",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], progress)
+            self.assertEqual(player_data["quest_stage_actions"]["priest_in_peril"], actions)
+
         player_data["attack_level"] = 40
         player_data["strength_level"] = 40
         player_data["defense_level"] = 40
@@ -6031,20 +6083,84 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(blockers[0]["reason"], "Battle required: Monk of Zamorak level 30")
+        player_data["quest_combat_encounters"]["priest_in_peril"].append(
+            "priest_in_peril_monk_of_zamorak_30"
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 6)
 
-        player_data["quests"]["priest_in_peril"]["progress"] = 8
-        player_data["quest_combat_config"] = {"resolver_enabled": False}
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 7)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["priest_in_peril"],
+            [
+                "Speak through the Paterdomus temple door",
+                "Report the dead guard dog to King Roald",
+                "Find Drezel imprisoned in the Paterdomus cell",
+                "Swap the golden key at the Paterdomus monument",
+                "Unlock Drezel's cell",
+            ],
+        )
+
+        player_data["inventory"]["Bucket"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 8)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["priest_in_peril"],
+            [
+                "Speak through the Paterdomus temple door",
+                "Report the dead guard dog to King Roald",
+                "Find Drezel imprisoned in the Paterdomus cell",
+                "Swap the golden key at the Paterdomus monument",
+                "Unlock Drezel's cell",
+                "Bless Salve water with Drezel",
+                "Pour blessed Salve water over the vampire coffin",
+            ],
+        )
+
         player_data["inventory"]["Pure essence"] = 25
         player_data["inventory"]["Rune essence"] = 3
-        completed, ok, completed_now = apply_quest_progress_pure(player_data, "priest_in_peril", QUEST_DATA)
+        completed, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(completed["quests"]["priest_in_peril"]["completed"])
         self.assertEqual(completed["inventory"]["Pure essence"], 0)
         self.assertEqual(completed["inventory"]["Rune essence"], 3)
         self.assertEqual(completed["inventory"]["Wolfbane dagger"], 1)
+        self.assertEqual(completed["quest_points"], 1)
         self.assertEqual(completed["prayer_exp"], 1406.0)
         self.assertEqual(completed["pending_skill_exp_rewards"], {})
+
+        completed_again, ok, completed_now = apply_quest_progress_pure(
+            completed,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(completed_again["inventory"]["Wolfbane dagger"], 1)
 
     def test_source_backed_starter_quests_progress_through_stage_gates(self):
         cook = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
