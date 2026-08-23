@@ -6531,7 +6531,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(druidic["pending_skill_exp_rewards"], {})
 
         vampyre = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        vampyre["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
+        vampyre, ok = start_quest_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(vampyre["current_quest"], "vampyre_slayer")
+        self.assertNotIn("vampyre_slayer", vampyre["quest_stage_actions"])
         blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertEqual(blockers, ())
         vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
@@ -6573,11 +6576,19 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(vampyre["inventory"]["Stake"], 0)
         self.assertEqual(vampyre["quests"]["vampyre_slayer"]["progress"], 4)
-        vampyre["quest_stage_actions"]["vampyre_slayer"].append("Tell Morgan that Count Draynor is dead")
         attack_before_reward = vampyre["attack_exp"]
         vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
+        self.assertEqual(vampyre["quests"]["vampyre_slayer"]["progress"], 5)
+        self.assertEqual(
+            vampyre["quest_stage_actions"]["vampyre_slayer"],
+            [
+                "Speak to Dr Harlow at the Blue Moon Inn",
+                "Buy Dr Harlow a beer at the Blue Moon Inn",
+                "Tell Morgan that Count Draynor is dead",
+            ],
+        )
         self.assertEqual(vampyre["quest_points"], 3)
         self.assertEqual(vampyre["attack_exp"] - attack_before_reward, 4825.0)
         self.assertEqual(vampyre["pending_skill_exp_rewards"], {})

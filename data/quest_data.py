@@ -6999,7 +6999,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             4,
             "Tell Morgan that Count Draynor is dead.",
             f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MORGAN_SOURCE_PATH}; {COUNT_DRAYNOR_NPC_SOURCE_PATH}",
-            required_actions=("Tell Morgan that Count Draynor is dead",),
+            auto_actions=("Tell Morgan that Count Draynor is dead",),
         ),
     ),
     THE_RESTLESS_GHOST_ID: (
