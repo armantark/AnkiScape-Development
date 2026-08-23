@@ -818,7 +818,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(demon_requirements[6]["produced_inventory"], {"Silverlight": 1})
         self.assertEqual(demon_requirements[7]["required_tools"], {"Silverlight": 1})
         self.assertEqual(
-            demon_requirements[8]["required_actions"],
+            demon_requirements[8]["auto_actions"],
             ("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
         )
         delrith = next(

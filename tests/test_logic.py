@@ -7443,10 +7443,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["crafting_exp"], crafting_xp_before + 3875)
         self.assertEqual(player_data["quest_points"], quest_points_before + 2)
 
-    def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
+    def test_demon_slayer_real_stage_emitter_completes_and_rewards_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["demon_slayer"] = {"started": True, "progress": 1, "completed": False}
         player_data["inventory"]["Coins"] = 1
+
+        player_data, ok = start_quest_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "demon_slayer")
+        self.assertNotIn("demon_slayer", player_data["quest_stage_actions"])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
         self.assertTrue(ok)
@@ -7524,23 +7528,32 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 8)
 
-        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action",))
         self.assertEqual(
-            blockers[0]["reason"],
-            "Action required: Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",
+            quest_current_stage_blocker_reasons_pure(player_data, "demon_slayer", QUEST_DATA),
+            (),
         )
 
-        player_data["quest_stage_actions"] = {
-            "demon_slayer": ["Recite Aber, Gabindo, Purchai, Camerinthum, Carlem"],
-        }
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["demon_slayer"]["completed"])
+        self.assertEqual(
+            player_data["quest_stage_actions"]["demon_slayer"],
+            ["Recite Aber, Gabindo, Purchai, Camerinthum, Carlem"],
+        )
         self.assertEqual(player_data["quest_points"], 3)
         self.assertEqual(player_data["inventory"]["Silverlight"], 1)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "demon_slayer",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 3)
+        self.assertEqual(after_complete["inventory"]["Silverlight"], 1)
 
     def test_demon_slayer_delrith_source_backed_stats_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
