@@ -4617,14 +4617,7 @@ class TestLogic(unittest.TestCase):
             "body": "Black platebody",
             "legs": "Black platelegs",
         }
-        player_data["quest_route_states"] = {
-            "heroes_quest": [
-                "Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",
-                "Reach the Ice Queen lair through a Dusty key or Agility shortcut route",
-                "Reach Entrana without prohibited combat equipment",
-                "Join the Black Arm Gang",
-            ]
-        }
+        player_data["quest_route_states"] = {"heroes_quest": ["Join the Black Arm Gang"]}
         player_data["quest_stage_actions"] = {
             "heroes_quest": [
                 "Accept Achietties' three proof item challenge",
@@ -4669,6 +4662,10 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Fishing bait"], 0)
         self.assertEqual(player_data["inventory"]["Raw lava eel"], 1)
+        self.assertIn(
+            "Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",
+            player_data["quest_stage_actions"]["heroes_quest"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
         self.assertTrue(ok)
@@ -4695,6 +4692,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Ice gloves"], 1)
+        self.assertIn(
+            "Reach the Ice Queen lair through a Dusty key or Agility shortcut route",
+            player_data["quest_stage_actions"]["heroes_quest"],
+        )
 
         player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
@@ -4708,6 +4709,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Fire feather"], 1)
+        self.assertIn(
+            "Reach Entrana without prohibited combat equipment",
+            player_data["quest_stage_actions"]["heroes_quest"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "heroes_quest", QUEST_DATA)
         self.assertTrue(ok)

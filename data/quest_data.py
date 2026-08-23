@@ -1961,7 +1961,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         consumed_inventory=(("Fishing bait", 1),),
         produced_inventory=(("Raw lava eel", 1),),
         required_tools=(("Oily fishing rod", 1),),
-        required_routes=("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
+        auto_actions=("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
         source=(
             f"{HEROES_QUEST_FISH_SOURCE}; {HEROES_QUEST_FISHING_SPOT_SOURCE}; "
             f"{HEROES_QUEST_FISHING_SOURCE}; {HEROES_QUEST_PORT_SARIM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
@@ -1980,7 +1980,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Clear the Ice Queen lair rockslide and defeat the Ice Queen.",
         required_tools=(("Pickaxe", 1),),
         required_actions=("Clear the Ice Queen lair rockslide",),
-        required_routes=("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
+        auto_actions=("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{HEROES_QUEST_ID}_ice_queen_111",
@@ -2016,7 +2016,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=8,
         description="Defeat the Entranan Firebird and pick up its feather with Ice gloves.",
         required_tools=(("Ice gloves", 1),),
-        required_routes=("Reach Entrana without prohibited combat equipment",),
+        auto_actions=("Reach Entrana without prohibited combat equipment",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{HEROES_QUEST_ID}_entrana_fire_bird_2",

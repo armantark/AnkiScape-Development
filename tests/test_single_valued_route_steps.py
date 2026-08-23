@@ -111,7 +111,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
                     quest_id,
                     QUEST_DATA,
                     combat_blockers[0]["encounter_id"],
-                    rng=lambda: 0.99,
+                    rng=lambda: 0.0,
                     equipment_data=EQUIPMENT_DATA,
                 )
                 self.assertTrue(ok, f"{quest_id} stage {stage} combat should resolve: {result}")
@@ -143,6 +143,16 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self._drive_route_stages(
             "merlins_crystal",
             {2: ("Reach Keep Le Faye through the Catherby crate delivery",)},
+        )
+
+    def test_heroes_quest_travel_steps_are_recorded(self):
+        self._drive_route_stages(
+            "heroes_quest",
+            {
+                5: ("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
+                7: ("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
+                8: ("Reach Entrana without prohibited combat equipment",),
+            },
         )
 
     def test_witchs_house_patrol_avoidance_is_recorded(self):
