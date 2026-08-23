@@ -5317,6 +5317,7 @@ class TestLogic(unittest.TestCase):
 
         player_data, ok = start_quest_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
+        self.assertNotIn("fight_arena", player_data["quest_stage_actions"])
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
@@ -5330,20 +5331,17 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 3)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
-            ("Action required: Talk to Jeremy about the key holder",),
+            (),
         )
 
-        player_data["quest_stage_actions"] = {
-            "fight_arena": [
-                "Talk to Jeremy about the key holder",
-                "Steal the Khazard cell keys from the lazy guard",
-                "Use the Khazard cell keys on Jeremy's cell",
-            ]
-        }
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 4)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["fight_arena"],
+            ["Talk to Jeremy about the key holder"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
@@ -5363,11 +5361,26 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Khazard cell keys"], 1)
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 7)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["fight_arena"],
+            [
+                "Talk to Jeremy about the key holder",
+                "Steal the Khazard cell keys from the lazy guard",
+            ],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 8)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["fight_arena"],
+            [
+                "Talk to Jeremy about the key holder",
+                "Steal the Khazard cell keys from the lazy guard",
+                "Use the Khazard cell keys on Jeremy's cell",
+            ],
+        )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
             ("Combat locked until battle support is enabled: Khazard ogre level 63",),
@@ -5423,10 +5436,17 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 11)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
-            ("Action required: Return to Lady Servil for the reward",),
+            (),
+        )
+        self.assertEqual(
+            player_data["quest_stage_actions"]["fight_arena"],
+            [
+                "Talk to Jeremy about the key holder",
+                "Steal the Khazard cell keys from the lazy guard",
+                "Use the Khazard cell keys on Jeremy's cell",
+            ],
         )
 
-        player_data["quest_stage_actions"]["fight_arena"].append("Return to Lady Servil for the reward")
         attack_before_reward = player_data["attack_exp"]
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
@@ -5437,6 +5457,15 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["thieving_exp"], 2175.0)
         self.assertEqual(player_data["inventory"]["Coins"], 1000)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["fight_arena"],
+            [
+                "Talk to Jeremy about the key holder",
+                "Steal the Khazard cell keys from the lazy guard",
+                "Use the Khazard cell keys on Jeremy's cell",
+                "Return to Lady Servil for the reward",
+            ],
+        )
 
     def test_witchs_house_stage_gates_items_route_combat_and_reward(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

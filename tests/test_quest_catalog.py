@@ -622,7 +622,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[5]["consumed_inventory"], {"Khali brew": 1})
         self.assertEqual(by_stage[6]["produced_inventory"], {"Khazard cell keys": 1})
         self.assertEqual(by_stage[7]["required_tools"], {"Khazard cell keys": 1})
-        self.assertEqual(by_stage[11]["required_actions"], ("Return to Lady Servil for the reward",))
+        self.assertEqual(by_stage[11]["auto_actions"], ("Return to Lady Servil for the reward",))
 
         ogre = by_stage[8]["combat_encounters"][0]
         self.assertEqual(ogre["display_name"], "Khazard ogre")

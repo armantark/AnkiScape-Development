@@ -6285,7 +6285,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Talk to Jeremy and learn which lazy guard has the cell keys.",
             f"{DARKAN_FIGHT_ARENA_JEREMY_SOURCE}; {DARKAN_FIGHT_ARENA_SOURCE}",
-            required_actions=("Talk to Jeremy about the key holder",),
+            auto_actions=("Talk to Jeremy about the key holder",),
         ),
         _stage_req(
             4,
@@ -6304,7 +6304,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             6,
             "Steal the Khazard cell keys from the sleeping lazy guard.",
             f"{DARKAN_FIGHT_ARENA_LAZY_GUARD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Steal the Khazard cell keys from the lazy guard",),
+            auto_actions=("Steal the Khazard cell keys from the lazy guard",),
             produced_inventory=(("Khazard cell keys", 1),),
         ),
         _stage_req(
@@ -6312,7 +6312,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Use the Khazard cell keys on Jeremy's cell to begin the arena sequence.",
             f"{DARKAN_FIGHT_ARENA_SOURCE}; {DARKAN_FIGHT_ARENA_CUTSCENE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Khazard cell keys", 1),),
-            required_actions=("Use the Khazard cell keys on Jeremy's cell",),
+            auto_actions=("Use the Khazard cell keys on Jeremy's cell",),
         ),
         _stage_req(
             8,
@@ -6398,7 +6398,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             11,
             "Leave the arena and return to Lady Servil for the reward.",
             f"{DARKAN_FIGHT_ARENA_CUTSCENE_SOURCE}; {DARKAN_FIGHT_ARENA_LADY_SOURCE}",
-            required_actions=("Return to Lady Servil for the reward",),
+            auto_actions=("Return to Lady Servil for the reward",),
         ),
     ),
     DEMON_SLAYER_ID: (
