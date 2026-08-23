@@ -14739,7 +14739,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._fish_flingers_calls[-1],
             ("enter_fish_flingers", {}),
         )
-        self.assertEqual(self._utility_calls[-1], "fish_flingers")
+        self.assertEqual(self._activity_start_calls[-1], "fish_flingers")
+        self.assertTrue(
+            any(
+                label.text() == "Training: Activities"
+                for label in dialog.findChildren(QLabel)
+            )
+        )
         self.assertEqual(pd["current_utility"], "fish_flingers")
         self.assertEqual(primary.text(), "Selected for reviews")
         self.assertIn("ACTIVE", currency.text())
