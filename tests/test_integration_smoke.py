@@ -1344,7 +1344,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
         self.assertIn("Needs Cheese x1", calls["dialogs"][0][1])
-        self.assertIn("Use cheese on the mouse hole", calls["dialogs"][0][1])
+        self.assertNotIn("Use cheese on the mouse hole", calls["dialogs"][0][1])
 
     def test_quest_answer_blocks_merlins_crystal_wax_without_repellent(self):
         addon = _load_addon_as_package("ankiscape_merlins_crystal_wax_gate_integration")

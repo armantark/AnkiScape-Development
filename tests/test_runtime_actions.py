@@ -3511,7 +3511,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(calls["deactivated"])
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Cheese x1", calls["errors"][0][1])
-        self.assertIn("Use cheese on the mouse hole", calls["errors"][0][1])
+        self.assertNotIn("Use cheese on the mouse hole", calls["errors"][0][1])
 
     def test_quest_answer_blocks_biohazard_guidor_without_priest_gown(self):
         calls = {"xp": [], "saves": 0, "errors": []}

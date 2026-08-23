@@ -9436,16 +9436,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = (
-            "Blocked: Needs Cheese x1, "
-            "Action required: Use cheese on the mouse hole and attach the magnet to the mouse"
-        )
+        expected = "Blocked: Needs Cheese x1"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_witchs_house")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Cheese x1", action.toolTip())
-        self.assertIn("Use cheese on the mouse hole", action.toolTip())
+        self.assertNotIn("Use cheese on the mouse hole", action.toolTip())
 
     def test_quests_tab_shows_merlins_crystal_wax_stage_blocker(self) -> None:
         pd = _make_player_data()

@@ -7394,7 +7394,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Use the door key to enter the Witch's house.",
             f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_WIKI_SOURCE}",
             required_tools=(("Door key", 1),),
-            required_actions=("Enter the Witch's house with the door key",),
+            auto_actions=("Enter the Witch's house with the door key",),
         ),
         _stage_req(
             3,
@@ -7408,7 +7408,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_DIARY_SOURCE}",
             consumed_inventory=(("Cheese", 1),),
             required_tools=(("Magnet", 1),),
-            required_actions=("Use cheese on the mouse hole and attach the magnet to the mouse",),
+            auto_actions=("Use cheese on the mouse hole and attach the magnet to the mouse",),
         ),
         _stage_req(
             5,
@@ -7433,7 +7433,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Use the backroom key to unlock the shed door.",
             f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Backroom key", 1),),
-            required_actions=("Unlock the Witch's shed door with the backroom key",),
+            auto_actions=("Unlock the Witch's shed door with the backroom key",),
         ),
         _stage_req(
             9,
@@ -7549,7 +7549,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Return the ball to Harvey.",
             f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_BOY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Ball", 1),),
-            required_actions=("Return the ball to Harvey",),
+            auto_actions=("Return the ball to Harvey",),
         ),
     ),
     LOST_CITY_ID: (
