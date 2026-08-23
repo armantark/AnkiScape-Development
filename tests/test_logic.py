@@ -8138,6 +8138,50 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "demon_slayer", QUEST_DATA), ())
 
+    def test_elemental_workshop_iii_ragged_book_emits_on_review(self):
+        quest_id = "elemental_workshop_iii"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        stage_one = next(
+            requirement
+            for requirement in quest["stage_requirements"]
+            if requirement["stage"] == 1
+        )
+        player_data["inventory"].update(stage_one["required_inventory"])
+        player_data["inventory"].update(stage_one["required_tools"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            player_data["quest_stage_actions"][quest_id],
+            ["Find and read the Ragged book in the workshop"],
+        )
+
     def test_elemental_workshop_identical_darkan_sources_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update({"Thread": 1, "Leather": 1})

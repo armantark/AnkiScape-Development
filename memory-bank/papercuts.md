@@ -926,3 +926,4 @@
 - 2026-08-22 19:34:40 PDT — Python probes launched from the canonical checkout silently bound pkg_alias to addons21/ankiscape_fork instead of the linked quest worktree; always cd to the guarded worktree before importing pkg_alias.
 - 2026-08-22 19:35 PDT — The first rev-727 and rev-742 interface probes omitted the required `find` subcommand, so `tools/query_openrs2_interfaces.sh` printed its usage instead of searching; call it as `<cache> find <needle>`.
 - 2026-08-22 19:37 PDT — The first focused While Guthix Sleeps regression expected only the stage-2 generated action gate and failed because the real kernel also reported `Needs Coins x5000 or Ring of Charos x1`; stage-transition assertions must include all live item-option blockers.
+- 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.
