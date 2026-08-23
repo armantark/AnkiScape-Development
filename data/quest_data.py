@@ -1813,7 +1813,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=2,
         description="Hide in the Catherby delivery crate to enter Keep Le Faye.",
-        required_routes=("Reach Keep Le Faye through the Catherby crate delivery",),
+        auto_actions=("Reach Keep Le Faye through the Catherby crate delivery",),
         source=f"{MERLINS_CRYSTAL_KEEP_SOURCE}; {MERLINS_CRYSTAL_CRATE_SCENE_SOURCE}",
     ),
     QuestStageRequirement(
@@ -7414,7 +7414,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Cross the Witch's house hallway without being seen by the witch.",
             f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_WITCH_SENTRY_SOURCE}",
-            required_routes=("Avoid the witch's patrol through the house",),
+            auto_actions=("Avoid the witch's patrol through the house",),
         ),
         _stage_req(
             6,
@@ -7564,7 +7564,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Speak to Shamus about the dramen staff and reach Entrana.",
             f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_SHAMUS_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}",
             required_actions=("Speak to Shamus about the dramen staff",),
-            required_routes=("Reach Entrana without combat gear",),
+            auto_actions=("Reach Entrana without combat gear",),
         ),
         _stage_req(
             3,
@@ -7829,7 +7829,7 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Investigate the Witchaven tunnels and speak to a villager.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
             required_tools=(("Pickaxe", 1),),
-            required_routes=("Reach the Witchaven shrine tunnels",),
+            auto_actions=("Reach the Witchaven shrine tunnels",),
             required_actions=("Talk to a villager past the rocks",),
         ),
         _stage_req(
@@ -8048,6 +8048,12 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             add_required_actions=("Build the clockwork penguin on a crafting table 3",),
         ),
     ),
+    "kenniths_concerns": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_actions=("Complete Kennith's Concerns stage 1 objective",),
+        ),
+    ),
     "myths_of_the_white_lands": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -8059,7 +8065,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Fairy Ring",
                 "Wizard's Tower",
             ),
-            add_required_routes=("Reach the Wizard's Tower ice cave",),
+            remove_required_actions=("Complete Myths of the White Lands stage 1 objective",),
+            add_auto_actions=("Reach the Wizard's Tower ice cave",),
         ),
     ),
     "in_pyre_need": (

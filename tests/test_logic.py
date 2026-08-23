@@ -5765,14 +5765,17 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 5)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
-            ("Route required: Avoid the witch's patrol through the house",),
+            (),
         )
 
-        player_data["quest_route_states"] = {"witchs_house": ["Avoid the witch's patrol through the house"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 6)
+        self.assertIn(
+            "Avoid the witch's patrol through the house",
+            player_data["quest_stage_actions"]["witchs_house"],
+        )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
             ("Needs Leather gloves",),
@@ -5891,14 +5894,17 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 2)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
-            ("Route required: Reach Keep Le Faye through the Catherby crate delivery",),
+            (),
         )
 
-        player_data["quest_route_states"] = {"merlins_crystal": ["Reach Keep Le Faye through the Catherby crate delivery"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 3)
+        self.assertIn(
+            "Reach Keep Le Faye through the Catherby crate delivery",
+            player_data["quest_stage_actions"]["merlins_crystal"],
+        )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
             ("Combat locked until battle support is enabled: Sir Mordred level 39",),
@@ -8612,17 +8618,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["lost_city"]["progress"], 2)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
-            (
-                "Action required: Speak to Shamus about the dramen staff",
-                "Route required: Reach Entrana without combat gear",
-            ),
+            ("Action required: Speak to Shamus about the dramen staff",),
         )
         player_data["quest_stage_actions"]["lost_city"].append("Speak to Shamus about the dramen staff")
-        player_data["quest_route_states"] = {"lost_city": ["Reach Entrana without combat gear"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["lost_city"]["progress"], 3)
+        self.assertIn("Reach Entrana without combat gear", player_data["quest_stage_actions"]["lost_city"])
 
         self.assertIn(
             "Combat locked until battle support is enabled: Tree spirit level 63",

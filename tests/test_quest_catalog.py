@@ -662,7 +662,8 @@ class TestQuestCatalog(unittest.TestCase):
             by_stage[1]["required_actions"],
             ("Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
         )
-        self.assertEqual(by_stage[2]["required_routes"], ("Reach Keep Le Faye through the Catherby crate delivery",))
+        self.assertEqual(by_stage[2]["required_routes"], ())
+        self.assertEqual(by_stage[2]["auto_actions"], ("Reach Keep Le Faye through the Catherby crate delivery",))
 
         mordred = by_stage[3]["combat_encounters"][0]
         self.assertEqual(mordred["encounter_id"], "merlins_crystal_sir_mordred_39")
@@ -1132,7 +1133,8 @@ class TestQuestCatalog(unittest.TestCase):
             witch_by_stage[4]["required_actions"],
             ("Use cheese on the mouse hole and attach the magnet to the mouse",),
         )
-        self.assertEqual(witch_by_stage[5]["required_routes"], ("Avoid the witch's patrol through the house",))
+        self.assertEqual(witch_by_stage[5]["required_routes"], ())
+        self.assertEqual(witch_by_stage[5]["auto_actions"], ("Avoid the witch's patrol through the house",))
         self.assertEqual(witch_by_stage[6]["required_tools"], {"Leather gloves": 1})
         self.assertEqual(witch_by_stage[7]["produced_inventory"], {"Backroom key": 1})
         self.assertEqual(witch_by_stage[8]["required_tools"], {"Backroom key": 1})
