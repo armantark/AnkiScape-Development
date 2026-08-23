@@ -289,3 +289,23 @@ changed an overlapping file.
 - Do not rewrite the bank grid as a Qt model/view.
 - Do not weaken any audit, test, or pinned baseline (contract section 8).
 - Do not push to any remote. Never commit to `main`.
+
+## Batch trace (closure, 2026-08-23)
+
+| Slice | Author | Commits | Review path | Result |
+| --- | --- | --- | --- | --- |
+| flingers-start | ox-alpha | `4da82992` | Sol accept (round 1) | landed |
+| bankstand-seam | ox-alpha + Sol fix | `a7db2d37` + `9408fa14` | Sol reject (3 major) → Sol fix → ox closure accept | landed |
+| bankrun-strip | ox-alpha + Sol fix | `74240a1f` + `9711acb6` | Sol reject (1 major, 4 minor) → Sol fix → ox closure accept | landed |
+| runes | Sol (ox lost round 1) | `e7d51f8d` + `384e557e` | Opus reject (1 major, 3 minor) → Sol fix → ox closure accept | landed |
+| bankstand-sites | Sol (ox stalled round 1) | `4d88cea6` + `e812c985` | Opus 1 major → Sol fix → ox closure accept | landed |
+| bank-search | Sol (ox lost round 1) | `f6b502f09` + `80c7772f` | Opus 2 minor → Sol fix → ox closure accept | landed |
+
+Promotion: six branches merged clean into `promote-pass11/2026-08-23`. First
+gate at `84c7748f` went green (plain 4,389 OK skipped=506; Qt 4,389 OK
+skipped=3) and was invalidated by a loop landing; the absorbed tree `246c8298`
+re-gated green (plain and Qt 4,415 OK, skips 506/3; docs pass; 0 hard issues;
+diff-check clean; reachability at the known informational baseline). Landed on
+`main` as `9c6fcd75` inside a coordinated hold window with the harvesting
+loop. The Opus reviewer's melee-lockout catch on `runes` (Vengeance charged
+runes it never loaded) was the highest-value finding of the pass.

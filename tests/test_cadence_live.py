@@ -824,6 +824,9 @@ class TestLiveCombatContinuity(unittest.TestCase):
         }
         player = _player(
             current_combat_target="reflection_target",
+            combat_attack_style="magic_standard",
+            equipment={"weapon": "Staff of air"},
+            combat_supply_loadout={"runes": {"Mind rune": 1}},
             combat_lifepoints=990,
             combat_auto_flee=False,
             combat_encounter={
@@ -869,6 +872,9 @@ class TestLiveCombatContinuity(unittest.TestCase):
         }
         player = _player(
             current_combat_target="reflection_target",
+            combat_attack_style="magic_standard",
+            equipment={"weapon": "Staff of air"},
+            combat_supply_loadout={"runes": {"Mind rune": 1}},
             constitution_level=99,
             combat_lifepoints=50,
             combat_auto_flee=False,

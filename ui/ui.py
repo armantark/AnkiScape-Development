@@ -4,6 +4,7 @@ import html
 import os
 import re
 from collections.abc import Mapping
+from copy import deepcopy
 from typing import Any, Optional
 import datetime
 
@@ -69,6 +70,7 @@ except Exception:
     mw = None  # type: ignore
     HAS_QT = False
 
+from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
@@ -664,6 +666,7 @@ from ..logic.review_strip_logic import (
     WORLD_EVENT_OUTCOME_REVIEWS,
     activity_xp_bars_pure,
     review_bank_run_button_view_pure,
+    review_bank_run_travel_view_pure,
     review_event_log_drawer_view_pure,
     review_status_badges_view_pure,
     simulated_clock_text_pure,
@@ -2620,6 +2623,46 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
+            # While a bank run is active or queued it owns the entire progress
+            # area (owner ruling: including combat's health/enemy presentation).
+            # The ordinary branches re-show whatever they need below.
+            travel = review_bank_run_travel_view_pure(
+                player_data, review_action_handler_key(skill)
+            )
+            if travel.get("active") or travel.get("queued"):
+                for stale in (
+                    self.enemy_progress,
+                    self.chips_lbl,
+                    self.combat_resources,
+                    self.second_progress,
+                    self.second_progress_lbl,
+                    self.target_lbl,
+                    self.sub_lbl,
+                    self.world_notice_lbl,
+                ):
+                    stale.setVisible(False)
+                self.icon_lbl.clear()
+                ip = os.path.join(current_dir, "icon", "bank_icon.png")
+                pm = QPixmap(ip) if os.path.exists(ip) else None
+                if pm and not pm.isNull():
+                    self.icon_lbl.setPixmap(
+                        pm.scaled(
+                            28,
+                            28,
+                            Qt.AspectRatioMode.KeepAspectRatio,
+                            Qt.TransformationMode.SmoothTransformation,
+                        )
+                    )
+                self.title_lbl.setText("Bank run")
+                self.progress_lbl.setText(str(travel["text"]))
+                self.progress_lbl.setVisible(True)
+                self.progress.setVisible(True)
+                self.progress.setStyleSheet(self.second_progress.styleSheet())
+                self.progress.setValue(int(travel["percent"]))
+                self.adjustSize()
+                self._reposition()
+                self.show()
+                return
             combat_status = combat_status_summary_pure(player_data)
             has_hatchet = (
                 best_woodcutting_axe_pure(
@@ -4725,6 +4768,7 @@ def show_main_menu(
     on_set_farming_spell_patch=None,
     on_set_utility=None,
     on_start_activity=None,
+    on_stop_training=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
     on_set_loot_threshold=None,
@@ -5192,19 +5236,11 @@ def show_main_menu(
         _render_panel()
 
     def _stop_training() -> None:
-        if (
-            state["active"] == "Agility"
-            and str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET)) == "brimhaven_arena"
-            and (player_data.get("agility_activity_state") or {}).get("brimhaven")
-            and on_agility_command is not None
-        ):
-            result = on_agility_command("abandon", {}) or {}
-            if not result.get("ok", result.get("allowed", False)):
-                warn.setText(str(result.get("message", "Could not end the Brimhaven stint")))
-                return
+        if on_stop_training is None or not on_stop_training():
+            warn.setText("Could not switch to Bankstanding.")
+            return
         warn.setText("")
-        state["active"] = "None"
-        on_save_skill("None")
+        state["active"] = _UTILITIES_HUB_NAME
         _refresh_active_label()
         _render_panel()
 
@@ -7552,11 +7588,13 @@ def show_main_menu(
             action_row.setVisible(bool(state["required"]))
 
         if on_set_combat_action is not None:
-            action_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_action(
+            def _set_combat_action(_index: int) -> None:
+                if on_set_combat_action(
                     str(action_combo.currentData() or "attack")
-                )
-            )
+                ) is False:
+                    _refresh_combat_action()
+
+            action_combo.currentIndexChanged.connect(_set_combat_action)
         _refresh_combat_action()
 
         # Attack-style picker. The valid styles depend on the equipped weapon's
@@ -7604,9 +7642,25 @@ def show_main_menu(
                     current_index = index
             combo.setCurrentIndex(current_index)
             if on_set_combat_style is not None:
-                combo.currentIndexChanged.connect(
-                    lambda _index, c=combo: on_set_combat_style(c.currentData())
-                )
+                def _set_combat_style(_index: int, c=combo) -> None:
+                    if on_set_combat_style(c.currentData()) is False:
+                        persisted = (
+                            player_data.get("combat_attack_style"),
+                            player_data.get("combat_attack_style_type"),
+                        )
+                        persisted_index = next(
+                            (
+                                index
+                                for index in range(c.count())
+                                if c.itemData(index) == persisted
+                            ),
+                            0,
+                        )
+                        c.blockSignals(True)
+                        c.setCurrentIndex(persisted_index)
+                        c.blockSignals(False)
+
+                combo.currentIndexChanged.connect(_set_combat_style)
             style_row_layout.addWidget(combo, 1)
             _style_combo_ref["combo"] = combo
             style_row.setVisible(True)
@@ -7645,9 +7699,24 @@ def show_main_menu(
                 selected_spell_index = spell_index
         spell_combo.setCurrentIndex(selected_spell_index)
         if on_set_combat_spell is not None:
-            spell_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_spell(spell_combo.currentData() or DEFAULT_COMBAT_SPELL)
-            )
+            def _set_combat_spell(_index: int) -> None:
+                if on_set_combat_spell(
+                    spell_combo.currentData() or DEFAULT_COMBAT_SPELL
+                ) is False:
+                    spell_combo.blockSignals(True)
+                    spell_combo.setCurrentIndex(
+                        max(
+                            0,
+                            spell_combo.findData(
+                                player_data.get(
+                                    "current_combat_spell", DEFAULT_COMBAT_SPELL
+                                )
+                            ),
+                        )
+                    )
+                    spell_combo.blockSignals(False)
+
+            spell_combo.currentIndexChanged.connect(_set_combat_spell)
         spell_layout.addWidget(spell_label)
         spell_layout.addWidget(spell_combo, 1)
         layout.addWidget(spell_row)
@@ -13767,7 +13836,9 @@ def show_main_menu(
                 result = _run_fish_flingers_command("enter_fish_flingers")
                 if not result.get("ok", False):
                     return
-            if not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
+            # Entering the event must also activate it for reviews; the
+            # non-activating route left the training surface on the old skill.
+            if not _set_utility_selection(FISH_FLINGERS_ACTIVITY_ID, activate=True):
                 return
             _refresh_fish_flingers_panel()
 
@@ -25419,11 +25490,10 @@ def show_main_menu(
         clear_layout_row_layout.addWidget(clear_layout_btn)
         clear_layout_row_layout.addStretch(1)
         custom_layout.addWidget(clear_layout_row)
-        section_layout.addWidget(custom_view)
 
         current_label = QLabel("Current inventory")
         current_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        section_layout.addWidget(current_label)
+        custom_layout.addWidget(current_label)
         current_inventory_host = QWidget()
         current_inventory_layout = QHBoxLayout(current_inventory_host)
         current_inventory_layout.setContentsMargins(4, 4, 4, 4)
@@ -25441,7 +25511,8 @@ def show_main_menu(
             + current_inventory_scroll.frameWidth() * 2
         )
         current_inventory_scroll.setWidget(current_inventory_host)
-        section_layout.addWidget(current_inventory_scroll)
+        custom_layout.addWidget(current_inventory_scroll)
+        section_layout.addWidget(custom_view)
 
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
@@ -25634,7 +25705,12 @@ def show_main_menu(
     bank_selection = {"item": ""}
     bank_cell_buttons: dict[str, QToolButton] = {}
     bank_tab_buttons: dict[str, QToolButton] = {}
-    bank_view_cache = {"categories": {}, "values": {}}
+    bank_view_cache = {
+        "categories": {},
+        "values": {},
+        "inventory": None,
+        "layout": None,
+    }
 
     bank_controls = QWidget()
     bank_controls.setObjectName("bankControls")
@@ -25654,6 +25730,9 @@ def show_main_menu(
     bank_search_summary.setObjectName("bankSearchInputSummary")
     bank_search_summary.setStyleSheet(f"color: {dim_text_css(bank_search_summary)};")
     bank_controls_layout.addWidget(bank_search_summary)
+    bank_search_timer = QTimer(bank_search)
+    bank_search_timer.setSingleShot(True)
+    bank_search_timer.setInterval(140)
 
     bank_sort = QComboBox()
     bank_sort.setObjectName("bankSortCombo")
@@ -25823,13 +25902,29 @@ def show_main_menu(
             f"Add it to the carried pack for the current {skill_name} target to enable Teleport urn."
         )
 
-    def _refresh_bank_surface(*, rebuild_tabs: bool = True) -> None:
-        _refresh_carried_panel()
-        player_data.update(reconcile_bank_layout_for_player_pure(player_data))
-        bank_layout_state["value"] = player_data["bank_layout"]
-        categories, values = _bank_category_and_value_maps()
-        bank_view_cache["categories"] = categories
-        bank_view_cache["values"] = values
+    def _refresh_bank_surface(
+        *, rebuild_tabs: bool = True, refresh_carried: bool = True
+    ) -> None:
+        if refresh_carried:
+            _refresh_carried_panel()
+        inventory = player_data.get("inventory", {}) or {}
+        layout = player_data.get("bank_layout", {}) or {}
+        cache_matches = (
+            not refresh_carried
+            and bank_view_cache["inventory"] == inventory
+            and bank_view_cache["layout"] == layout
+        )
+        if cache_matches:
+            categories = bank_view_cache["categories"]
+            values = bank_view_cache["values"]
+        else:
+            player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+            bank_layout_state["value"] = player_data["bank_layout"]
+            categories, values = _bank_category_and_value_maps()
+            bank_view_cache["categories"] = categories
+            bank_view_cache["values"] = values
+            bank_view_cache["inventory"] = dict(inventory)
+            bank_view_cache["layout"] = deepcopy(bank_layout_state["value"])
         state_value = bank_layout_state["value"]
         sections = bank_sections_pure(
             state_value,
@@ -26300,7 +26395,10 @@ def show_main_menu(
         updated["drop_mode"] = mode
         _persist_bank_layout(updated, render=False)
 
-    bank_search.textChanged.connect(lambda _text: _refresh_bank_surface())
+    bank_search_timer.timeout.connect(
+        lambda: _refresh_bank_surface(rebuild_tabs=False, refresh_carried=False)
+    )
+    bank_search.textChanged.connect(lambda _text: bank_search_timer.start())
     bank_sort.currentIndexChanged.connect(_set_bank_sort)
     bank_auto_categories.toggled.connect(_set_bank_auto_categories)
     bank_swap.clicked.connect(lambda _checked=False: _set_bank_drop_mode("swap"))

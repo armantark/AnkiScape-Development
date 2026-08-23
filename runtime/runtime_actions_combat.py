@@ -56,6 +56,7 @@ from ..core.constants import (
 )
 from ..logic_pure.logic_pure import (
     combat_near_death_without_food_pure,
+    COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
@@ -420,8 +421,8 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     if target_id not in COMBAT_ENEMY_DATA:
-        target_id = DEFAULT_COMBAT_TARGET
-        player_data["current_combat_target"] = target_id
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
 
     enemy = COMBAT_ENEMY_DATA.get(target_id, {})
     wilderness_fingerprint = wilderness_combat_risk_fingerprint(
@@ -776,6 +777,22 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             f"Defeated {kill_phrase}{slayer_suffix}{guild_suffix}"
             f"{dragonfire_suffix}"
         )
+    elif result.get("reason") == "combat_bank_run":
+        # The review was a travel leg, not an exchange: say so instead of the
+        # zero-damage line contradicting the strip's bank-run display.
+        if result.get("bank_run_completed"):
+            ctx.show_activity_gain("Bank run — arrived and restocked")
+        else:
+            route = bank_run_phase_label_pure(
+                player_data.get("combat_bank_run")
+            )
+            remaining = max(
+                0, int(result.get("bank_run_reviews_remaining", 0) or 0)
+            )
+            ctx.show_activity_gain(
+                f"Bank run — {route} · {COMBAT_BANK_RUN_REVIEWS - remaining}"
+                f"/{COMBAT_BANK_RUN_REVIEWS} travel reviews"
+            )
     else:
         enemy_healing = int(result.get("enemy_healing", 0) or 0)
         vampyre_bites = int(result.get("vampyre_bites", 0) or 0)

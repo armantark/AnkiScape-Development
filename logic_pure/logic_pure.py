@@ -369,6 +369,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     combat_weapon_style_options_pure,
     player_combat_level_pure,
     reclaim_death_office_items_pure,
+    reconcile_combat_method_pure,
     refill_combat_supply_loadout_pure,
     request_combat_bank_run_now_pure,
     set_combat_auto_eat_food_pure,

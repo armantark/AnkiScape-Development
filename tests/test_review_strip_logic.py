@@ -56,6 +56,7 @@ from ankiscape.logic.review_strip_logic import (
     record_review_event_pure,
     request_review_bank_run_pure,
     review_bank_run_button_view_pure,
+    review_bank_run_travel_view_pure,
     review_event_log_drawer_view_pure,
     review_status_badges_view_pure,
     skill_xp_bar_pure,
@@ -770,7 +771,7 @@ class ReviewBankRunViewTest(unittest.TestCase):
         self.assertTrue(utility_ok)
         self.assertEqual(utility["review_bank_run_requested_handler"], "utility")
 
-    def test_combat_request_uses_the_engine_gate_instead_of_rebuilding_state(self):
+    def test_combat_request_runs_the_route_inside_a_live_encounter(self):
         combat, ok = request_review_bank_run_pure(
             {
                 **_player(),
@@ -780,8 +781,131 @@ class ReviewBankRunViewTest(unittest.TestCase):
             "chicken",
         )
 
-        self.assertFalse(ok)
-        self.assertFalse(combat.get("combat_bank_run"))
+        self.assertTrue(ok)
+        self.assertEqual(
+            combat["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        # The encounter survives the two-review trip.
+        self.assertEqual(
+            combat["combat_encounter"],
+            {"target_id": "chicken", "disengaged": False},
+        )
+
+
+class BankRunTravelViewTest(unittest.TestCase):
+    def test_no_bank_run_reports_inactive(self):
+        view = review_bank_run_travel_view_pure(_player(), "mining")
+
+        self.assertEqual(view, {"active": False, "queued": False})
+
+    def test_active_combat_run_projects_its_two_review_trip(self):
+        data = _player()
+        data["combat_bank_run"] = {
+            "reviews_remaining": 2,
+            "target_id": "chicken",
+        }
+
+        view = review_bank_run_travel_view_pure(data, "combat")
+
+        self.assertTrue(view["active"])
+        self.assertFalse(view["queued"])
+        self.assertEqual(view["kind"], "combat")
+        self.assertEqual(view["total"], 2)
+        self.assertEqual(view["remaining"], 2)
+        self.assertEqual(view["percent"], 0)
+
+    def test_halfway_combat_run_names_the_progress(self):
+        data = _player()
+        data["combat_bank_run"] = {
+            "reviews_remaining": 1,
+            "target_id": "chicken",
+        }
+
+        view = review_bank_run_travel_view_pure(data, "combat")
+
+        self.assertEqual(view["remaining"], 1)
+        self.assertEqual(view["percent"], 50)
+        self.assertEqual(
+            view["text"], "Bank run — Banking supplies · 1/2 travel reviews"
+        )
+
+    def test_active_carried_run_uses_its_route_label_and_total(self):
+        data = _player()
+        data["skilling_bank_run"] = {
+            "reviews_remaining": 3,
+            "reviews_total": 10,
+            "route_label": "Running to the bank",
+            "route_phases": [
+                {"id": "return", "label": "Heading home", "reviews": 5},
+                {"id": "bank", "label": "Banking", "reviews": 5},
+            ],
+        }
+
+        view = review_bank_run_travel_view_pure(data, "mining")
+
+        self.assertTrue(view["active"])
+        self.assertFalse(view["queued"])
+        self.assertEqual(view["kind"], "carried")
+        # Three reviews left sits inside the closing five-review Banking phase.
+        self.assertEqual(view["label"], "Banking")
+        self.assertEqual(view["total"], 10)
+        self.assertEqual(view["remaining"], 3)
+        self.assertEqual(view["percent"], 70)
+
+    def test_queued_manual_request_is_not_a_false_one_review_route(self):
+        data = _player()
+        data["review_bank_run_requested_target"] = "copper_ore"
+
+        view = review_bank_run_travel_view_pure(data, "mining")
+
+        self.assertFalse(view["active"])
+        self.assertTrue(view["queued"])
+        self.assertEqual(view["kind"], "carried")
+        self.assertEqual(view["total"], 0)
+        self.assertEqual(view["remaining"], 0)
+        self.assertEqual(view["percent"], 0)
+        self.assertEqual(view["text"], "Bank run queued")
+
+    def test_pending_request_selects_the_current_handler_over_stale_states(self):
+        data = _player()
+        data["review_bank_run_requested_handler"] = "utility"
+        data["combat_bank_run"] = {
+            "reviews_remaining": 2,
+            "target_id": "chicken",
+        }
+        data["skilling_bank_run"] = {
+            "reviews_remaining": 4,
+            "reviews_total": 10,
+            "route_label": "Running to the bank",
+        }
+
+        view = review_bank_run_travel_view_pure(data, "utility")
+
+        self.assertFalse(view["active"])
+        self.assertTrue(view["queued"])
+        self.assertEqual(view["text"], "Bank run queued")
+
+    def test_coexisting_states_project_the_current_handlers_route(self):
+        data = _player()
+        data["combat_bank_run"] = {
+            "reviews_remaining": 2,
+            "target_id": "chicken",
+        }
+        data["skilling_bank_run"] = {
+            "reviews_remaining": 4,
+            "reviews_total": 10,
+            "route_label": "Running to the bank",
+        }
+
+        mining_view = review_bank_run_travel_view_pure(data, "mining")
+        combat_view = review_bank_run_travel_view_pure(data, "combat")
+
+        self.assertEqual(mining_view["kind"], "carried")
+        self.assertEqual(mining_view["remaining"], 4)
+        self.assertEqual(mining_view["percent"], 60)
+        self.assertEqual(combat_view["kind"], "combat")
+        self.assertEqual(combat_view["remaining"], 2)
 
 
 class FillDrawerViewTest(unittest.TestCase):

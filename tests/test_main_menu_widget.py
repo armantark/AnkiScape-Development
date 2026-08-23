@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -1161,6 +1161,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
 
         save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
+        combat_action_callback = extra.pop(
+            "on_set_combat_action",
+            lambda action: self._combat_action_calls.append(action),
+        )
+        combat_style_callback = extra.pop(
+            "on_set_combat_style",
+            lambda style: self._combat_style_calls.append(style),
+        )
+        combat_spell_callback = extra.pop(
+            "on_set_combat_spell",
+            lambda spell: self._combat_spell_calls.append(spell),
+        )
         start_activity_callback = extra.pop(
             "on_start_activity",
             lambda activity: (
@@ -1168,6 +1180,12 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.__setitem__("current_utility", activity),
                 True,
             )[-1],
+        )
+
+        stop_training_callback = extra.pop(
+            "on_stop_training",
+            lambda: player_data.__setitem__("current_utility", "bankstanding")
+            or True,
         )
         skilling_potion_callback = extra.pop(
             "on_set_skilling_potion_target", None
@@ -1257,10 +1275,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_start_activity=start_activity_callback,
+            on_stop_training=stop_training_callback,
             on_set_combat=lambda target: self._combat_calls.append(target),
-            on_set_combat_action=lambda action: self._combat_action_calls.append(action),
-            on_set_combat_style=lambda style: self._combat_style_calls.append(style),
-            on_set_combat_spell=lambda spell: self._combat_spell_calls.append(spell),
+            on_set_combat_action=combat_action_callback,
+            on_set_combat_style=combat_style_callback,
+            on_set_combat_spell=combat_spell_callback,
             on_set_combat_auto_eat_threshold=lambda threshold: self._combat_threshold_calls.append(threshold),
             on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
             on_set_combat_prayer_config=_set_prayer_config,
@@ -3762,8 +3781,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         dialog.findChild(QPushButton, "carriedModeAuto").click()
         QApplication.processEvents()
-        self.assertTrue(current_inventory.isVisibleTo(dialog))
-        self.assertTrue(current_loot.isVisibleTo(dialog))
+        self.assertFalse(current_inventory.isVisibleTo(dialog))
+        self.assertFalse(current_loot.isVisibleTo(dialog))
 
         carried_items[:] = [("Shark", 12)]
         self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
@@ -6507,6 +6526,95 @@ class MainMenuWidgetTest(unittest.TestCase):
         ready_dialog.deleteLater()
         reusable_dialog.deleteLater()
         charged_dialog.deleteLater()
+
+    def test_live_encounter_refusals_restore_all_combat_method_selectors(self) -> None:
+        from ankiscape.core.constants import EQUIPMENT_DATA
+        from ankiscape.logic_pure.logic_pure import reconcile_combat_method_pure
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "desert_lizard",
+                "combat_action": "attack",
+                "combat_attack_style": "aggressive",
+                "combat_attack_style_type": "slash",
+                "current_combat_spell": "wind_strike",
+                "equipment": {"weapon": "Bronze longsword"},
+                "slayer_level": 99,
+                "combat_encounter": {
+                    "target_id": "desert_lizard",
+                    "enemy_lifepoints": 30,
+                },
+                "combat_supply_loadout": {
+                    "finishers": {"Ice cooler": 1},
+                    "hazards": {"Waterskin (4)": 1},
+                },
+            }
+        )
+        attempts = {}
+
+        def refuse(key, value, updates):
+            attempts[key] = value
+            _updated, ok, reason = reconcile_combat_method_pure(
+                pd, updates, EQUIPMENT_DATA
+            )
+            self.assertFalse(ok)
+            self.assertEqual(
+                reason,
+                "Finish the active fight before changing combat method.",
+            )
+            return ok
+
+        dialog = self._open(
+            pd,
+            current_skill="Combat",
+            on_set_combat_action=lambda value: refuse(
+                "action", value, {"combat_action": value}
+            ),
+            on_set_combat_style=lambda value: refuse(
+                "style",
+                value,
+                {
+                    "combat_attack_style": value[0],
+                    "combat_attack_style_type": value[1],
+                },
+            ),
+            on_set_combat_spell=lambda value: refuse(
+                "spell", value, {"current_combat_spell": value}
+            ),
+        )
+
+        action_combo = dialog.findChild(QComboBox, "combatActionCombo")
+        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
+        spell_combo = dialog.findChild(QComboBox, "combatSpellCombo")
+        self.assertIsNotNone(action_combo)
+        self.assertIsNotNone(style_combo)
+        self.assertIsNotNone(spell_combo)
+
+        action_combo.setCurrentIndex(action_combo.findData("finisher"))
+        QApplication.processEvents()
+        style_combo.setCurrentIndex(
+            next(
+                index
+                for index in range(style_combo.count())
+                if style_combo.itemData(index) == ("defensive", "slash")
+            )
+        )
+        QApplication.processEvents()
+        spell_combo.setCurrentIndex(spell_combo.findData("water_strike"))
+        QApplication.processEvents()
+
+        self.assertEqual(action_combo.currentData(), "attack")
+        self.assertEqual(style_combo.currentData(), ("aggressive", "slash"))
+        self.assertEqual(spell_combo.currentData(), "wind_strike")
+        self.assertEqual(
+            attempts,
+            {
+                "action": "finisher",
+                "style": ("defensive", "slash"),
+                "spell": "water_strike",
+            },
+        )
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         from ankiscape.ui import ui
@@ -10321,7 +10429,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         summary = _find_named_label(dialog, "bankSearchInputSummary")
 
         search.setText("arrow shafts")
-        QApplication.processEvents()
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Fletched", texts)
         self.assertIn("Arrow shafts x30", texts)
@@ -10331,24 +10439,78 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"], original_inventory)
 
         search.setText("materials")
-        QApplication.processEvents()
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Materials", texts)
         self.assertIn("Feather x50", texts)
         self.assertNotIn("Arrow shafts x30", texts)
 
         search.setText("nothing-here")
-        QApplication.processEvents()
+        QTest.qWait(180)
         self.assertEqual(_bank_grid_texts(dialog), ["No Bank items match your search."])
         self.assertEqual(summary.text(), "Showing 0/5")
 
         search.clear()
-        QApplication.processEvents()
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Logs x5", texts)
         self.assertIn("Arrow shafts x30", texts)
         self.assertEqual(summary.text(), "Showing 5/5")
         self.assertEqual(pd["inventory"], original_inventory)
+
+    def test_bank_search_coalesces_renders_without_rebuilding_adjacent_controls(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coal": 10, "Logs": 5, "Shrimps": 3}
+        projection_calls: list[bool] = []
+
+        def projection() -> dict:
+            projection_calls.append(True)
+            return {"items": ()}
+
+        dialog = self._open(pd, get_ge_projection=projection)
+        _open_bank_tab(dialog)
+        search = _find_named_line_edit(dialog, "bankSearchInput")
+        timer = search.findChild(QTimer)
+        carried_button = dialog.findChild(QPushButton, "carriedBankItem::Coal")
+        tab_button = dialog.findChild(QToolButton, "bankTab::main")
+        self.assertIsNotNone(timer)
+        self.assertIsNotNone(carried_button)
+        self.assertIsNotNone(tab_button)
+        projection_call_count = len(projection_calls)
+        self.assertGreater(projection_call_count, 0)
+
+        created_cells: list[str] = []
+
+        class BankGridRenderProbe(QObject):
+            def eventFilter(self, watched, event):
+                if event.type() == QEvent.Type.ChildAdded:
+                    child = event.child()
+                    if isinstance(child, QToolButton) and child.objectName().startswith(
+                        "bankGridItem::"
+                    ):
+                        created_cells.append(child.objectName())
+                return False
+
+        grid = _find_named_widget(dialog, "bankGrid")
+        render_probe = BankGridRenderProbe(grid)
+        grid.installEventFilter(render_probe)
+        search.setText("c")
+        search.setText("co")
+        search.setText("coal")
+        timer.stop()
+        timer.timeout.emit()
+        grid.removeEventFilter(render_probe)
+
+        self.assertEqual(created_cells, ["bankGridItem::Coal"])
+        self.assertEqual(len(projection_calls), projection_call_count)
+        self.assertEqual(
+            _find_named_label(dialog, "bankSearchInputSummary").text(),
+            "Showing 1/3",
+        )
+        self.assertIs(
+            dialog.findChild(QPushButton, "carriedBankItem::Coal"), carried_button
+        )
+        self.assertIs(dialog.findChild(QToolButton, "bankTab::main"), tab_button)
 
     def test_bank_frame_a_uses_twelve_54_pixel_columns_and_280_pixel_detail(self) -> None:
         from ankiscape.core.constants import ITEM_DEFINITIONS
@@ -14736,7 +14898,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._fish_flingers_calls[-1],
             ("enter_fish_flingers", {}),
         )
-        self.assertEqual(self._utility_calls[-1], "fish_flingers")
+        self.assertEqual(self._activity_start_calls[-1], "fish_flingers")
+        self.assertTrue(
+            any(
+                label.text() == "Training: Activities"
+                for label in dialog.findChildren(QLabel)
+            )
+        )
         self.assertEqual(pd["current_utility"], "fish_flingers")
         self.assertEqual(primary.text(), "Selected for reviews")
         self.assertIn("ACTIVE", currency.text())
@@ -17098,7 +17266,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             "current_agility": "brimhaven_arena",
             "agility_activity_state": {"brimhaven": {"stint_active": True}},
         })
-        dialog = self._open(pd, current_skill="Agility")
+
+        def stop_training():
+            pd["agility_activity_state"].pop("brimhaven")
+            pd["current_utility"] = "bankstanding"
+            self._agility_command_calls.append(("abandon", {}))
+            return True
+
+        dialog = self._open(
+            pd,
+            current_skill="Agility",
+            on_stop_training=stop_training,
+        )
         next(
             button for button in dialog.findChildren(QPushButton)
             if button.text() == "Stop training"
@@ -17107,6 +17286,32 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
         self.assertEqual(self._agility_command_calls[-1][0], "abandon")
+
+    def test_stop_training_uses_the_dedicated_direct_action_callback(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "gather_flax"
+        stop_calls = []
+
+        def stop_training():
+            stop_calls.append(True)
+            pd["current_utility"] = "bankstanding"
+            return True
+
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            on_stop_training=stop_training,
+        )
+        next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Stop training"
+        ).click()
+        QApplication.processEvents()
+
+        self.assertEqual(stop_calls, [True])
+        self.assertEqual(pd["current_utility"], "bankstanding")
+        self.assertEqual(self._activity_start_calls, [])
 
     def test_thieving_target_change_refreshes_train_readiness(self) -> None:
         pd = _make_player_data()

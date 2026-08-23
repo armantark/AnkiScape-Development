@@ -497,6 +497,61 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, exact_before)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_direct_leave_command_lands_on_bankstanding_and_undoes_atomically(self):
+        # Owner clause 2: a direct command that ends an active activity session
+        # must leave the surface on Bankstanding (never "None"), and the
+        # transaction undo must restore the former activity whole.
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+        from ankiscape.logic.conquest_logic import (
+            apply_conquest_command_pure,
+            enter_conquest_pure,
+        )
+
+        addon = _load_addon_as_package("ankiscape_session_clear_bankstanding")
+        addon.mw = _DummyMW(_DummyCol())
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            player[key] = 40
+        player["activity_session"] = {"active_id": ""}
+        player["combat_encounter"] = {}
+        player, ok, info = enter_conquest_pure(player, {}, lambda: 0.25)
+        self.assertTrue(ok, info)
+        addon.player_data = player
+        addon.current_skill = "Activities"
+        addon.save_player_data = lambda: None
+        addon.ui.update_menu_visibility = lambda _skill: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda *_args: None
+        addon._DIRECT_ACTION_UNDO_STACK.clear()
+
+        self.assertTrue(
+            addon.commit_direct_action(
+                lambda current: apply_conquest_command_pure(
+                    current, "resign", {}, lambda: 0.25
+                )[:2]
+            )
+        )
+
+        self.assertEqual(addon.player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+
+        self.assertEqual(addon.player_data["activity_session"], {"active_id": "conquest"})
+        self.assertEqual(addon.player_data["current_utility"], "conquest")
+        self.assertEqual(addon.current_skill, "Activities")
+
     def test_hud_badges_have_no_qt_placeholders_with_matching_signatures(self):
         # This suite loads the add-on without aqt.qt, so ui.py takes its
         # HAS_QT-false branch. A new Qt widget class without a placeholder
@@ -610,11 +665,13 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         self.assertEqual(calls["good_answer"], 2)
 
-        # With Experience HUD ON, both question/answer events should ensure+update
+        # Each question/answer surface event refreshes the HUD exactly once.
+        before_ensure = calls["ensure"]
+        before_update = calls["update"]
         addon._on_rev_show_question()
         addon._on_rev_show_answer()
-        self.assertGreaterEqual(calls["ensure"], 1)
-        self.assertGreaterEqual(calls["update"], 2)
+        self.assertEqual(calls["ensure"] - before_ensure, 2)
+        self.assertEqual(calls["update"] - before_update, 2)
 
         # Floating XP ON => popup shows once
         addon._show_exp(10)
@@ -986,7 +1043,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertTrue(addon.player_data["quests"]["rune_mysteries"]["completed"])
         self.assertEqual(addon.player_data["quest_points"], 1)
         self.assertEqual(addon.player_data["inventory"]["Air talisman"], 1)
@@ -1031,7 +1088,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["the_knights_sword"]["completed"])
         self.assertEqual(addon.player_data["quests"]["the_knights_sword"]["progress"], 2)
         self.assertEqual(addon.player_data["quest_points"], 0)
@@ -1334,7 +1391,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["witchs_house"]["completed"])
         self.assertEqual(addon.player_data["quests"]["witchs_house"]["progress"], 4)
         self.assertEqual(addon.player_data["quest_points"], 0)
@@ -1378,7 +1435,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["merlins_crystal"]["completed"])
         self.assertEqual(addon.player_data["quests"]["merlins_crystal"]["progress"], 4)
         self.assertEqual(addon.player_data["inventory"]["Bucket"], 1)
@@ -1425,7 +1482,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["fight_arena"]["completed"])
         self.assertEqual(addon.player_data["quests"]["fight_arena"]["progress"], 8)
         self.assertEqual(addon.player_data["quest_points"], 0)
@@ -1544,7 +1601,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertTrue(addon.player_data["quests"]["temple_of_ikov"]["completed"])
         self.assertEqual(addon.player_data["quests"]["temple_of_ikov"]["progress"], 11)
         self.assertEqual(addon.player_data["inventory"]["Staff of armadyl"], 0)
@@ -2019,14 +2076,22 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):
         addon = _load_addon_as_package("ankiscape_holy_grail_completion_integration")
 
-        calls = {"save": 0, "gains": [], "dialogs": []}
+        calls = {"save": 0, "gains": [], "dialogs": [], "passes": 0}
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda text: calls["gains"].append(text)
         addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
         addon.level_up_check = lambda _skill, data: data.__setitem__("defense_level", 33)
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_popups_enabled": False}))
+        addon.mw = _DummyMW(
+            _DummyCol(
+                {
+                    "ankiscape_popups_enabled": False,
+                    "ankiscape_review_action_multiplier": 3,
+                    "ankiscape_cadence_kernel": False,
+                }
+            )
+        )
         addon.current_skill = "Quests"
         addon.player_data = {
             "inventory": {"Holy grail": 1},
@@ -2040,10 +2105,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             "item_charges": {},
             "completed_achievements": [],
         }
+        original_overlay = addon.runtime_actions.run_answer_with_carried_overlay
 
-        addon.on_quest_answer()
+        def counted_overlay(*args, **kwargs):
+            calls["passes"] += 1
+            return original_overlay(*args, **kwargs)
 
-        self.assertEqual(addon.current_skill, "None")
+        addon.runtime_actions.run_answer_with_carried_overlay = counted_overlay
+        addon.exp_awarded = False
+
+        addon.on_good_answer()
+
+        self.assertEqual(calls["passes"], 1)
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(addon.player_data["quests"]["holy_grail"]["progress"], 11)
         self.assertTrue(addon.player_data["quests"]["holy_grail"]["completed"])
         self.assertEqual(addon.player_data["inventory"]["Holy grail"], 0)
@@ -2054,7 +2129,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Holy Grail complete"])
-        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+        self.assertEqual(
+            [title for title, _message in calls["dialogs"]],
+            ["Quest complete"],
+        )
 
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
@@ -2744,7 +2822,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(
             addon.player_data["shooting_star"]["notice"]["kind"],
@@ -2847,8 +2925,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.exp_awarded = False
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.current_skill, "None")
-        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "None")
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "Utilities")
         self.assertEqual(addon.player_data["inventory"]["Coins"], 0)
         self.assertEqual(addon.player_data["inventory"]["Bird snare"], 1)
         self.assertEqual(addon.player_data["inventory"]["Impling jar"], 10)
@@ -3782,13 +3860,122 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
         self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(calls, {"save": 1, "event_drawer": 1})
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon.player_data["shooting_star"]["notice"]["kind"],
             "unminable",
+        )
+
+    def test_equipping_a_melee_weapon_returns_loaded_magic_runes_to_bank(self):
+        addon = _load_addon_as_package("ankiscape_combat_weapon_loadout")
+
+        calls = {"save": 0, "hud": 0, "refresh": 0}
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.check_achievements = lambda _data: None
+        addon.update_review_hud = lambda _data, _skill: calls.__setitem__(
+            "hud", calls["hud"] + 1
+        )
+        addon._refresh_skill_availability = lambda: calls.__setitem__(
+            "refresh", calls["refresh"] + 1
+        )
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "inventory": {
+                "Rune scimitar": 1,
+                "Air rune": 0,
+                "Mind rune": 0,
+            },
+            "equipment": {"weapon": "Staff"},
+            "attack_level": 40,
+            "magic_level": 99,
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "wind_strike",
+            "combat_pack_mode": "max_output",
+            "combat_vengeance": True,
+            "combat_supply_loadout": {
+                "runes": {"Air rune": 5, "Mind rune": 5}
+            },
+            "combat_encounter": {},
+            "constitution_level": 10,
+        }
+
+        self.assertTrue(addon.on_equip_item("Rune scimitar"))
+
+        self.assertEqual(
+            addon.player_data["equipment"], {"weapon": "Rune scimitar"}
+        )
+        self.assertEqual(
+            addon.player_data["combat_supply_loadout"]["runes"], {}
+        )
+        self.assertEqual(addon.player_data["inventory"]["Air rune"], 5)
+        self.assertEqual(addon.player_data["inventory"]["Mind rune"], 5)
+        self.assertEqual(addon.player_data["inventory"]["Staff"], 1)
+        self.assertEqual(calls, {"save": 1, "hud": 1, "refresh": 1})
+
+    def test_live_encounter_rejects_every_combat_method_mutation(self):
+        addon = _load_addon_as_package("ankiscape_combat_method_rejections")
+
+        errors = []
+        addon.save_player_data = lambda: self.fail("a rejected mutation saved")
+        addon.show_error_message = lambda title, message: errors.append(
+            (title, message)
+        )
+        addon.player_data = {
+            "inventory": {"Rune scimitar": 1},
+            "equipment": {"weapon": "Staff"},
+            "attack_level": 40,
+            "magic_level": 99,
+            "combat_action": "attack",
+            "combat_attack_style": "magic_standard",
+            "combat_attack_style_type": "auto",
+            "current_combat_spell": "wind_strike",
+            "combat_supply_loadout": {
+                "runes": {"Air rune": 5, "Mind rune": 5}
+            },
+            "combat_encounter": {
+                "target_id": "chicken",
+                "enemy_lifepoints": 30,
+            },
+            "constitution_level": 10,
+        }
+        before = copy.deepcopy(addon.player_data)
+
+        self.assertFalse(
+            addon._set_combat_method_values({"combat_action": "finisher"})
+        )
+        self.assertFalse(
+            addon._set_combat_attack_style(("accurate", "slash"))
+        )
+        self.assertFalse(
+            addon._set_combat_method_values(
+                {"current_combat_spell": "water_strike"}
+            )
+        )
+        self.assertFalse(addon.on_equip_item("Rune scimitar"))
+        self.assertFalse(addon.on_unequip_slot("weapon"))
+        self.assertFalse(addon.on_set_combat_pack_mode("max_output"))
+
+        self.assertEqual(addon.player_data, before)
+        method_reason = "Finish the active fight before changing combat method."
+        self.assertEqual(
+            errors,
+            [
+                ("Cannot change combat method", method_reason),
+                ("Cannot change combat method", method_reason),
+                ("Cannot change combat method", method_reason),
+                ("Cannot equip item", method_reason),
+                ("Cannot unequip item", method_reason),
+                (
+                    "Cannot change combat supplies",
+                    "Finish the active fight before changing supply mode.",
+                ),
+            ],
         )
 
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
@@ -5507,7 +5694,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(
             calls["errors"],
             [
@@ -6758,15 +6945,18 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertNotIn("bank_run_triggered", settings)
         self.assertEqual(len(bank_runs), 2)
 
-    def test_grand_exchange_collection_triggers_bank_run(self):
+    def test_grand_exchange_collection_starts_live_combat_bank_run(self):
         addon = _load_addon_as_package(
             "ankiscape_grand_exchange_collection_bank_run_integration"
         )
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         addon.mw = _DummyMW(_DummyCol())
-        addon.current_skill = "Utility / Activities"
+        addon.current_skill = "Combat"
         ge_logic = sys.modules[f"{addon.__name__}.logic.grand_exchange_logic"]
+        review_strip_logic = sys.modules[
+            f"{addon.__name__}.logic.review_strip_logic"
+        ]
         item_spec = addon.GE_ITEM_CATALOG["Logs"]
         initial, placed = ge_logic.place_ge_offer_pure(
             {"inventory": {"Coins": 10_000}, "smithing_level": 1},
@@ -6785,20 +6975,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             collectible_items=1,
             status="complete",
         )
+        initial.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_encounter": {
+                    "target_id": "chicken",
+                    "enemy_lifepoints": 10,
+                    "disengaged": False,
+                },
+            }
+        )
         addon.player_data = initial
         initial_snapshot = copy.deepcopy(initial)
         addon.save_player_data = lambda: None
-        addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
-        bank_runs = []
-
-        def request_bank_run(data):
-            bank_runs.append(copy.deepcopy(data))
-            updated = copy.deepcopy(data)
-            updated["ge_bank_run_requested"] = True
-            return updated, True, "", False
-
-        addon._request_active_bank_run_state = request_bank_run
         addon._on_main_menu()
 
         result = captured["on_ge_action"](
@@ -6807,8 +6997,22 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertTrue(result["ok"])
         self.assertTrue(result["bank_run_triggered"])
-        self.assertEqual(len(bank_runs), 1)
-        self.assertTrue(addon.player_data["ge_bank_run_requested"])
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        self.assertEqual(
+            addon.player_data["combat_encounter"],
+            initial_snapshot["combat_encounter"],
+        )
+        travel = review_strip_logic.review_bank_run_travel_view_pure(
+            addon.player_data, "combat"
+        )
+        self.assertTrue(travel["active"])
+        self.assertFalse(travel["queued"])
+        self.assertEqual(travel["kind"], "combat")
+        self.assertEqual(travel["total"], 2)
+        self.assertEqual(travel["remaining"], 2)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
@@ -6818,7 +7022,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         result = captured["on_ge_action"]("collect_all", {})
         self.assertTrue(result["ok"])
         self.assertTrue(result["bank_run_triggered"])
-        self.assertEqual(len(bank_runs), 2)
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
