@@ -880,3 +880,5 @@
 - 2026-08-22 17:09 PDT — While checking Darkan Biohazard evidence, a broad stage/item grep still produced 54.7KB and was persisted out of band; inspect each cited source file with targeted ranges instead.
 
 - 2026-08-22 17:21 PDT — A focused Biohazard integration selector guessed class `IntegrationSmokeTest` and failed with `AttributeError: module 'tests.test_integration_smoke' has no attribute 'IntegrationSmokeTest'`; read the module class declaration before composing selectors.
+
+- 2026-08-22 17:22 PDT — A final Biohazard metric probe treated `QUESTS_BY_ID['biohazard']` as a mapping and failed with `TypeError: 'QuestDefinition' object is not subscriptable`; use `quests_as_dict()` for serialized stage rows.
