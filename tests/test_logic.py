@@ -8284,6 +8284,7 @@ class TestLogic(unittest.TestCase):
                 "Cast NPC Contact to reach the quest contacts",
             ],
         )
+
     def test_quest_completion_awards_trainable_xp_and_parks_unimplemented_xp(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["lunar_diplomacy"] = {"started": True, "progress": 7, "completed": False}
