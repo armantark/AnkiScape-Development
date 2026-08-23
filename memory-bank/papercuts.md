@@ -1029,3 +1029,11 @@
 - 2026-08-23 14:13 PDT — The standing slice contract requires `test_direct_action_undo_seam`, but no test by that name exists anywhere under `tests/` at base `8ec703a9`; the shared `tests/test_logic.py` module and full plain lane are the available neighbour coverage.
 - 2026-08-23 14:17 PDT — A zsh wrapper tried to assign the reachability audit exit code to reserved read-only variable `status`, so the audit output was valid but the wrapper ended with `(eval):1: read-only variable: status`; use `rc` for shell exit captures.
 - 2026-08-23 14:37 PDT — A worktree probe reused a nonexistent `pkg_alias.alias_current_package` helper and failed with `ImportError`; importing `pkg_alias` for its module-level alias side effect is the established local pattern.
+
+- 2026-08-23 14:55 PDT — While locating quest runtime mechanics, I probed a nonexistent root `logic.py`; the implementation lives elsewhere in the package.
+
+- 2026-08-23 14:56 PDT — Runtime metadata inspection imported `QUEST_DATA` from `data.quest_data`, but that module exposes catalog builders rather than the assembled mapping; the test module imports the mapping from the package boundary.
+
+- 2026-08-23 14:59 PDT — The assembled quest mapping does not expose a `name` key, so a blocker-candidate probe failed after correctly finding the quest; blocker reasons must be inspected without assuming display metadata keys.
+
+- 2026-08-23 15:13 PDT — The full plain lane replayed one stale Sheep Herder runtime blocker expectation through nine immutability gates, so two direct stale tests appeared as 11 failures; fix the direct expectations before interpreting the gate fan-out.

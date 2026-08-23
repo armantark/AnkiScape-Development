@@ -9318,26 +9318,27 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Red vine worm x1 or Fishing bait x1", action.toolTip())
 
-    def test_quests_tab_shows_sheep_herder_produced_bones_stage_blocker(self) -> None:
+    def test_quests_tab_shows_another_slice_stage_blocker_overflow(self) -> None:
         pd = _make_player_data()
-        pd["inventory"] = {"Sheep feed": 1, "Plague jacket": 1, "Plague trousers": 1, "Cattleprod": 1}
-        pd["current_quest"] = "sheep_herder"
-        pd["quests"]["sheep_herder"] = {"started": True, "progress": 4, "completed": False}
+        pd["current_quest"] = "another_slice_of_h_a_m"
+        pd["quests"]["another_slice_of_h_a_m"] = {
+            "started": True,
+            "progress": 1,
+            "completed": False,
+        }
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
-            "Blocked: Action required: Herd and poison the red sheep, "
-            "Action required: Herd and poison the green sheep, "
-            "Action required: Herd and poison the blue sheep, +1 more"
+            "Blocked: Needs Trowel x1, Needs Specimen brush x1, "
+            "Needs HAM ranger x30 or HAM mage x30, +1 more"
         )
         self.assertIn(expected, labels)
-        action = dialog.findChild(QPushButton, "questAction_sheep_herder")
+        action = dialog.findChild(QPushButton, "questAction_another_slice_of_h_a_m")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Action required: Herd and poison the red sheep", action.toolTip())
-        self.assertIn("+1 more", action.toolTip())
+        self.assertEqual(action.toolTip(), expected)
 
     def test_quests_tab_shows_plague_city_hangover_cure_blocker(self) -> None:
         pd = _make_player_data()

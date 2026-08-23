@@ -1679,6 +1679,26 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(jailer["npc_stats"]["hitpoints"], 470)
         self.assertTrue(jailer["npc_stats_source"].endswith("jailer.json"))
         self.assertEqual(scorpion_by_stage[6]["consumed_inventory"], {"Scorpion cage": 1})
+        expected_scorpion_actions = {
+            1: ("Accept Thormac's scorpion cage",),
+            2: ("Ask the Seer for all three scorpion locations",),
+            3: (
+                "Reach the Taverley Dungeon scorpion room",
+                "Catch the Taverley Dungeon Kharid scorpion",
+            ),
+            4: (
+                "Reach the Barbarian Outpost scorpion room",
+                "Catch the Barbarian Outpost Kharid scorpion",
+            ),
+            5: (
+                "Reach the Edgeville Monastery scorpion room",
+                "Catch the Edgeville Monastery Kharid scorpion",
+            ),
+            6: ("Return the caged scorpions to Thormac",),
+        }
+        for stage, actions in expected_scorpion_actions.items():
+            self.assertEqual(scorpion_by_stage[stage]["required_actions"], ())
+            self.assertEqual(scorpion_by_stage[stage]["auto_actions"], actions)
 
         sheep = data["sheep_herder"]
         sheep_by_stage = {row["stage"]: row for row in sheep["stage_requirements"]}
@@ -1701,9 +1721,33 @@ class TestQuestCatalog(unittest.TestCase):
             sheep_by_stage[5]["consumed_inventory"],
             {"Red sheep bones": 1, "Green sheep bones": 1, "Blue sheep bones": 1, "Yellow sheep bones": 1},
         )
-        for stage in (3, 4, 5):
+        expected_sheep_actions = {
+            1: ("Accept poisoned sheep feed from Councillor Halgrive",),
+            2: (),
+            3: (
+                "Reach the Ardougne sheep enclosure",
+                "Pick up the cattleprod from the sheep enclosure barn",
+            ),
+            4: (
+                "Reach the Ardougne sheep enclosure",
+                "Herd and poison the red sheep",
+                "Herd and poison the green sheep",
+                "Herd and poison the blue sheep",
+                "Herd and poison the yellow sheep",
+            ),
+            5: (
+                "Reach the Ardougne sheep enclosure",
+                "Incinerate the red sheep bones",
+                "Incinerate the green sheep bones",
+                "Incinerate the blue sheep bones",
+                "Incinerate the yellow sheep bones",
+                "Report the incinerated sheep to Councillor Halgrive",
+            ),
+        }
+        for stage, actions in expected_sheep_actions.items():
             self.assertEqual(sheep_by_stage[stage]["required_routes"], ())
-            self.assertEqual(sheep_by_stage[stage]["auto_actions"], ("Reach the Ardougne sheep enclosure",))
+            self.assertEqual(sheep_by_stage[stage]["required_actions"], ())
+            self.assertEqual(sheep_by_stage[stage]["auto_actions"], actions)
         self.assertIn("SheepHerder.kt", sheep_by_stage[4]["source"])
 
         plague = data["plague_city"]
