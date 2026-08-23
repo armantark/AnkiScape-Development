@@ -554,6 +554,32 @@ HOLY_GRAIL_GALAHAD_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/SirGalahadHolyGr
 HOLY_GRAIL_FISHER_KING_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/TheFisherKingHolyGrailD.java"
 HOLY_GRAIL_PERCIVAL_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/SirPercivalHolyGrailD.java"
 HOLY_GRAIL_TITAN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/black_knight_titan.json"
+KINGS_RANSOM_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/kingsransom/KingsRansom.kt "
+    "(commit 38d66e0b794c1bf963866827bf8a43d899c12711; stages 55-60)"
+)
+KINGS_RANSOM_REV_727_ITEM_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/"
+    "extracted/727-2012-07-24/cache item 4428"
+)
+KINGS_RANSOM_2011SCAPE_ITEM_SOURCE = f"{SCAPE_2011_ITEM_IDENTITY_SOURCE} item 4428"
+KINGS_RANSOM_REV_742_ITEM_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/"
+    "extracted/742-2012-11-07/cache item 4428"
+)
+KINGS_RANSOM_WIKI_SOURCE = (
+    "https://runescape.wiki/w/King%27s_Ransom?oldid=6548731 "
+    "(2012-11-12T01:02:00Z, Freeing King Arthur)"
+)
+KINGS_RANSOM_SCROLL_SOURCE = "; ".join(
+    (
+        KINGS_RANSOM_DARKAN_SOURCE,
+        KINGS_RANSOM_REV_727_ITEM_SOURCE,
+        KINGS_RANSOM_2011SCAPE_ITEM_SOURCE,
+        KINGS_RANSOM_REV_742_ITEM_SOURCE,
+        KINGS_RANSOM_WIKI_SOURCE,
+    )
+)
 TREE_GNOME_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/treegnomevillage"
 TREE_GNOME_DARKAN_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/TreeGnomeVillage.java"
 TREE_GNOME_BOLREN_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/dialogues/KingBolrenTreeGnomeVillageD.java"
@@ -3605,6 +3631,7 @@ class QuestStageRequirementCleanup:
     add_required_routes: Tuple[str, ...] = ()
     add_consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     add_produced_inventory: Tuple[Tuple[str, int], ...] = ()
+    source: str = ""
 
 
 FISHING_CONTEST_STAGES: Tuple[QuestStage, ...] = (
@@ -8018,8 +8045,11 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Animate rock scroll",),
             remove_required_actions=("Complete King's Ransom stage 1 objective",),
-            add_required_actions=("Recover the animate rock scroll during the Sinclair Mansion investigation",),
+            add_auto_actions=(
+                "Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail",
+            ),
             add_produced_inventory=(("Animate rock scroll", 1),),
+            source=KINGS_RANSOM_SCROLL_SOURCE,
         ),
     ),
     "dealing_with_scabaras": (
@@ -8956,6 +8986,7 @@ def _apply_stage_requirement_cleanup(
         required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
         auto_actions=_append_unique_strings(requirement.auto_actions, cleanup.add_auto_actions),
         required_routes=_append_unique_strings(requirement.required_routes, cleanup.add_required_routes),
+        source=cleanup.source or requirement.source,
     )
 
 

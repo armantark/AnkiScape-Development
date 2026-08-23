@@ -1,6 +1,7 @@
 import copy
 import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.quest_data import KINGS_RANSOM_SCROLL_SOURCE
 from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_combat_stat_delta_pure,
@@ -3365,6 +3366,62 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Action required: Complete Rat Catchers stage 2 objective",),
+        )
+
+    def test_kings_ransom_cromperty_scroll_emitter_advances_real_stage(self):
+        quest_id = "kings_ransom"
+        action = "Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update(
+            {
+                "Bronze helm": 1,
+                "Granite": 1,
+                "Iron chainbody": 1,
+                "Lockpick": 1,
+            }
+        )
+
+        stage_one = next(
+            requirement
+            for requirement in quest["stage_requirements"]
+            if requirement["stage"] == 1
+        )
+        self.assertEqual(stage_one["required_actions"], ())
+        self.assertEqual(stage_one["auto_actions"], (action,))
+        self.assertEqual(stage_one["source"], KINGS_RANSOM_SCROLL_SOURCE)
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(player_data["quest_stage_actions"][quest_id], [action])
+        self.assertEqual(player_data["inventory"]["Animate rock scroll"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            ("Action required: Complete King's Ransom stage 2 objective",),
         )
 
     def test_clock_tower_real_stage_emitters_complete_and_reward_once(self):
