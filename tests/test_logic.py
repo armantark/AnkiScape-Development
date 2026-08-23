@@ -4184,6 +4184,79 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Combat Training Camp"], 1)
         self.assertEqual(after_complete["thieving_exp"], 1250.0)
 
+    def test_carnillean_rising_real_stage_emitters_complete_and_reward_once(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["construction_level"] = 31
+        player_data["thieving_level"] = 33
+        for quest_id in ("the_blood_pact", "hazeel_cult"):
+            player_data["quests"][quest_id] = {
+                "started": True,
+                "progress": QUEST_DATA[quest_id]["stages"],
+                "completed": True,
+            }
+
+        player_data, ok = start_quest_pure(player_data, "carnillean_rising", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "carnillean_rising")
+        self.assertNotIn("carnillean_rising", player_data["quest_stage_actions"])
+        expected_actions = (
+            "Speak to Xenia",
+            "Speak to Ceril Carnillean",
+            "Collect the Carnillean family book",
+            "Gather the mansion props",
+            "Build the cave quest hotspots",
+            "Recruit Sarsaparilla and Claus",
+            "Guide Philipe through the cellar quest",
+            "Report back to Philipe",
+            "Report back to Ceril and Xenia",
+        )
+        expected_steps = (
+            (2, False, expected_actions[:2]),
+            (3, False, expected_actions[:4]),
+            (4, False, expected_actions[:6]),
+            (5, False, expected_actions[:7]),
+            (6, True, expected_actions),
+        )
+        for progress, completed, actions in expected_steps:
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, "carnillean_rising", QUEST_DATA),
+                (),
+            )
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "carnillean_rising",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"]["carnillean_rising"]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"]["carnillean_rising"]),
+                actions,
+            )
+
+        self.assertTrue(player_data["quests"]["carnillean_rising"]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Coins"], 5000)
+        self.assertEqual(player_data["inventory"]["Construction"], 1)
+        self.assertEqual(player_data["inventory"]["Philipe's sweets"], 1)
+        self.assertEqual(player_data["inventory"]["Treasure chest (Carnillean Rising)"], 1)
+        self.assertEqual(player_data["construction_exp"], 2500.0)
+        self.assertEqual(player_data["thieving_exp"], 2500.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "carnillean_rising",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Coins"], 5000)
+        self.assertEqual(after_complete["construction_exp"], 2500.0)
+        self.assertEqual(after_complete["thieving_exp"], 2500.0)
+
     def test_heroes_quest_stage_gates_lava_eel_firebird_and_black_arm_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["heroes_quest"] = {"started": True, "progress": 1, "completed": False}

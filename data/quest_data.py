@@ -7610,6 +7610,38 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Prepare the sliced banana in rum", "Burn and grind the jogre bones"),
         ),
     ),
+    CARNILLEAN_RISING_ID: (
+        _stage_req(
+            1,
+            "Accept Xenia's request and speak to Ceril Carnillean.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            auto_actions=("Speak to Xenia", "Speak to Ceril Carnillean"),
+        ),
+        _stage_req(
+            2,
+            "Gather the mansion props for Philipe's quest.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            auto_actions=("Collect the Carnillean family book", "Gather the mansion props"),
+        ),
+        _stage_req(
+            3,
+            "Build the cellar quest scene.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            auto_actions=("Build the cave quest hotspots", "Recruit Sarsaparilla and Claus"),
+        ),
+        _stage_req(
+            4,
+            "Guide Philipe through the staged quest.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            auto_actions=("Guide Philipe through the cellar quest",),
+        ),
+        _stage_req(
+            5,
+            "Report back to Philipe, Ceril, and Xenia.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            auto_actions=("Report back to Philipe", "Report back to Ceril and Xenia"),
+        ),
+    ),
 }
 
 
@@ -7800,48 +7832,6 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Escape the dragon's stomach and return to Lucille.",
             SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
             required_actions=("Escape the dragon's stomach", "Return to Lucille"),
-        ),
-    ),
-    CARNILLEAN_RISING_ID: (
-        _stage_req(
-            1,
-            "Accept Xenia's request and speak to Ceril Carnillean.",
-            CARNILLEAN_RISING_WIKI_SOURCE,
-            required_actions=("Speak to Xenia", "Speak to Ceril Carnillean"),
-        ),
-        _stage_req(
-            2,
-            "Gather the mansion props for Philipe's quest.",
-            CARNILLEAN_RISING_WIKI_SOURCE,
-            required_actions=("Collect the Carnillean family book", "Gather the mansion props"),
-        ),
-        _stage_req(
-            3,
-            "Build the cellar quest scene.",
-            CARNILLEAN_RISING_WIKI_SOURCE,
-            required_actions=("Build the cave quest hotspots", "Recruit Sarsaparilla and Claus"),
-        ),
-        _stage_req(
-            4,
-            "Guide Philipe through the staged quest.",
-            CARNILLEAN_RISING_WIKI_SOURCE,
-            required_actions=("Guide Philipe through the cellar quest",),
-            combat_encounters=(
-                _combat(
-                    CARNILLEAN_RISING_ID,
-                    "cave_wolf_matriarch",
-                    "Cave wolf matriarch",
-                    283,
-                    CARNILLEAN_RISING_WIKI_SOURCE,
-                    "Historical guide text describes dodging a level 283 monster during Philipe's staged quest.",
-                ),
-            ),
-        ),
-        _stage_req(
-            5,
-            "Report back to Philipe, Ceril, and Xenia.",
-            CARNILLEAN_RISING_WIKI_SOURCE,
-            required_actions=("Report back to Philipe", "Report back to Ceril and Xenia"),
         ),
     ),
     SOME_LIKE_IT_COLD_ID: (

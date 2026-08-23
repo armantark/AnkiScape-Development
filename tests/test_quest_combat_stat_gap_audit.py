@@ -18,11 +18,11 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 93)
+        self.assertEqual(len(self.gaps), 92)
         self.assertEqual(
             counts,
             {
-                "darkan_hitpoints_only_metadata": 50,
+                "darkan_hitpoints_only_metadata": 49,
                 "darkan_missing_resolver_stats": 15,
                 "darkan_same_name_wrong_level": 6,
                 "darkan_identical_available": 1,
@@ -33,6 +33,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
 
     def test_known_combat_gap_examples_explain_why_rows_remain_statless(self):
         self.assertNotIn(("priest_in_peril", "Monk of Zamorak"), self.by_quest_and_name)
+        self.assertNotIn(("carnillean_rising", "Cave wolf matriarch"), self.by_quest_and_name)
         self.assertEqual(
             audit.classify_gap(
                 self.by_quest_and_name[("priest_in_peril", "Temple guardian dog")],
