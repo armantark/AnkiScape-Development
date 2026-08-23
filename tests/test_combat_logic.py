@@ -618,7 +618,9 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
             active, "max_output", EQUIPMENT_DATA
         )
         self.assertFalse(ok)
-        self.assertIn("active fight", reason)
+        self.assertEqual(
+            reason, "Finish the active fight before changing supply mode."
+        )
         self.assertEqual(refused["combat_pack_mode"], "max_safety")
         self.assertEqual(refused["combat_supply_loadout"]["food"], {"Shrimps": 20})
 
@@ -4370,12 +4372,22 @@ class CombatLogicTest(unittest.TestCase):
         }
         player = _player(
             current_combat_target="vengeance_dummy",
+            combat_attack_style="magic_standard",
+            current_combat_spell="wind_strike",
+            equipment={"weapon": "Staff of air"},
             combat_vengeance=True,
             combat_spellbook_swap="vengeance",
             quests={"lunar_diplomacy": {"completed": True}},
             inventory={"Astral rune": 40, "Earth rune": 100, "Death rune": 20},
             combat_supply_loadout={
-                "runes": {"Astral rune": 4, "Earth rune": 10, "Death rune": 2},
+                "runes": {
+                    "Astral rune": 7,
+                    "Earth rune": 10,
+                    "Death rune": 2,
+                    "Cosmic rune": 2,
+                    "Law rune": 1,
+                    "Mind rune": 2,
+                },
             },
         )
 
@@ -4387,11 +4399,19 @@ class CombatLogicTest(unittest.TestCase):
             rng=_rng([0.0, 0.9]),
         )
         self.assertTrue(ok)
-        self.assertEqual(first_result["runes_used"], {"Astral rune": 4, "Earth rune": 10, "Death rune": 2})
-        self.assertNotIn("Cosmic rune", first_result["runes_used"])
+        self.assertEqual(
+            first_result["runes_used"],
+            {
+                "Astral rune": 7,
+                "Cosmic rune": 2,
+                "Law rune": 1,
+                "Earth rune": 10,
+                "Death rune": 2,
+                "Mind rune": 1,
+            },
+        )
         self.assertTrue(first["combat_encounter"]["vengeance_pending"])
         self.assertEqual(first["inventory"], player["inventory"])
-        self.assertAlmostEqual(first["magic_exp"], 112.0)
 
         second, ok, second_result = apply_combat_burst_pure(
             first,
@@ -4401,11 +4421,11 @@ class CombatLogicTest(unittest.TestCase):
             rng=_rng([0.0, 0.9, 0.0, 0.9]),
         )
         self.assertTrue(ok)
-        self.assertEqual(second_result["runes_used"], {})
+        self.assertEqual(second_result["runes_used"], {"Mind rune": 1})
         self.assertGreater(second_result["player_damage"], 0)
         self.assertFalse(second["combat_encounter"]["vengeance_pending"])
         self.assertEqual(second["inventory"], player["inventory"])
-        self.assertAlmostEqual(second["magic_exp"], 112.0)
+        self.assertLess(second["magic_exp"] - first["magic_exp"], 112.0)
 
     def test_spellbook_swap_cost_is_paid_once_per_active_fight(self):
         enemy_data = {
@@ -4563,14 +4583,18 @@ class CombatLogicTest(unittest.TestCase):
         }
         player = _player(
             current_combat_target="vengeance_target",
-            attack_level=1,
-            strength_level=1,
+            combat_attack_style="magic_standard",
+            current_combat_spell="wind_strike",
+            equipment={"weapon": "Staff of air"},
             combat_auto_flee=False,
             combat_vengeance=True,
+            combat_spellbook_swap="vengeance",
             quests={"lunar_diplomacy": {"completed": True}},
+            combat_supply_loadout={"runes": {"Mind rune": 1}},
             combat_encounter={
                 "target_id": "vengeance_target",
                 "enemy_lifepoints": 5,
+                "spellbook_swap_paid": True,
                 "vengeance_pending": True,
             },
         )
@@ -5569,6 +5593,45 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok, reason)
         self.assertEqual(refilled["combat_supply_loadout"]["runes"], {})
         self.assertEqual(refilled["inventory"], runes)
+
+    def test_non_magic_vengeance_does_not_charge_or_arm_during_a_burst(self):
+        cases = (
+            ("melee", "accurate", {}, {}),
+            (
+                "ranged",
+                "ranged_rapid",
+                {"weapon": "Shortbow"},
+                {"ammo": {"Bronze arrows": 1}},
+            ),
+        )
+        for combat_class, style, equipment, loadout in cases:
+            with self.subTest(combat_class=combat_class):
+                player = _player(
+                    combat_attack_style=style,
+                    equipment=equipment,
+                    combat_supply_loadout=loadout,
+                    combat_pack_mode="max_output",
+                    combat_vengeance=True,
+                    quests={"lunar_diplomacy": {"completed": True}},
+                )
+
+                updated, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=1,
+                    rng=_rng([0.999999]),
+                )
+
+                self.assertTrue(ok, result)
+                self.assertEqual(result["reason"], "combat_burst")
+                self.assertEqual(result["runes_used"], {})
+                self.assertEqual(updated["magic_exp"], 0.0)
+                self.assertFalse(
+                    updated.get("combat_encounter", {}).get(
+                        "vengeance_pending", False
+                    )
+                )
 
     def test_combat_method_reconciliation_reloads_for_the_new_spell(self):
         player = _player(

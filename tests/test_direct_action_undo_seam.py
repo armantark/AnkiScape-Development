@@ -127,17 +127,17 @@ class DirectActionUndoSeamTest(unittest.TestCase):
 
     def test_same_type_combat_style_change_is_one_undoable_commit(self):
         addon = self.addon
-        addon.player_data["combat_attack_style"] = "Accurate"
+        addon.player_data["combat_attack_style"] = "accurate"
         addon.player_data["combat_attack_style_type"] = "crush"
 
-        self.assertTrue(addon._set_combat_attack_style(("Aggressive", "crush")))
+        self.assertTrue(addon._set_combat_attack_style(("aggressive", "crush")))
 
-        self.assertEqual(addon.player_data["combat_attack_style"], "Aggressive")
+        self.assertEqual(addon.player_data["combat_attack_style"], "aggressive")
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(
             type("Changes", (), {"operation": "AnkiScape direct action"})()
         )
-        self.assertEqual(addon.player_data["combat_attack_style"], "Accurate")
+        self.assertEqual(addon.player_data["combat_attack_style"], "accurate")
 
     def test_same_target_guild_exit_is_one_undoable_commit(self):
         addon = self.addon

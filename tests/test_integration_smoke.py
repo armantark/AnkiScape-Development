@@ -3881,11 +3881,23 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertFalse(addon.on_equip_item("Rune scimitar"))
         self.assertFalse(addon.on_unequip_slot("weapon"))
+        self.assertFalse(addon.on_set_combat_pack_mode("max_output"))
 
         self.assertEqual(addon.player_data, before)
+        method_reason = "Finish the active fight before changing combat method."
         self.assertEqual(
-            [message for _title, message in errors],
-            ["Finish the active fight before changing combat method."] * 5,
+            errors,
+            [
+                ("Cannot change combat method", method_reason),
+                ("Cannot change combat method", method_reason),
+                ("Cannot change combat method", method_reason),
+                ("Cannot equip item", method_reason),
+                ("Cannot unequip item", method_reason),
+                (
+                    "Cannot change combat supplies",
+                    "Finish the active fight before changing supply mode.",
+                ),
+            ],
         )
 
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):

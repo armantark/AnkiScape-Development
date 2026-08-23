@@ -7612,8 +7612,16 @@ def show_main_menu(
                             player_data.get("combat_attack_style"),
                             player_data.get("combat_attack_style_type"),
                         )
+                        persisted_index = next(
+                            (
+                                index
+                                for index in range(c.count())
+                                if c.itemData(index) == persisted
+                            ),
+                            0,
+                        )
                         c.blockSignals(True)
-                        c.setCurrentIndex(max(0, c.findData(persisted)))
+                        c.setCurrentIndex(persisted_index)
                         c.blockSignals(False)
 
                 combo.currentIndexChanged.connect(_set_combat_style)
