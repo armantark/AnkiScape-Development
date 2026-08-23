@@ -942,3 +942,6 @@
 - 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.
 - 2026-08-22 21:30 PDT — The first dangling-test scan matched test-module filenames and historical prose, producing 622 false-positive occurrences before qualified-selector filtering.
 - 2026-08-22 21:36 PDT — The item-reachability wrapper assigned zsh’s read-only `status` variable and ended with `(eval):1: read-only variable: status`; use `exit_code` when capturing expected nonzero exits.
+- 2026-08-22 22:06 PDT — The King’s Ransom cache identity probe invoked tools/query_openrs2_cache.sh with python3 and failed at line 2 with `SyntaxError: invalid syntax` on `set -euo pipefail`; invoke the shell tool directly.
+- 2026-08-22 22:07 PDT — `git log -S` on the current quest_data.py path stopped at the tier-package migration and `git show` persisted 466.5 KB instead of the originating King’s Ransom edit; use the blame commit and follow the pre-migration path.
+- 2026-08-22 22:07 PDT — The King’s Ransom live-data probe imported nonexistent `QUEST_DATA` from data.quest_data and failed with `ImportError`; inspect the module exports before probing the catalog.

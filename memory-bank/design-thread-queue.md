@@ -1007,6 +1007,26 @@ Raised 2026-08-22 after an AST-backed scan compared qualified test selectors in
   - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_witchs_house_first_form_combat_gate`
   - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_resolves_witchs_house_first_form_before_stage_progress`
 
+### 3.35 King’s Ransom assigns the animate rock scroll to the wrong quest step
+
+Raised 2026-08-22 while repairing the missing stage-1 action emitter. The live
+row says `Recover the animate rock scroll during the Sinclair Mansion
+investigation`, but both primary quest evidence and the pinned period guide put
+that handoff much later. Darkan
+`src/main/java/com/rs/game/content/quests/kingsransom/KingsRansom.kt` at commit
+`38d66e0b7` issues item `4428` from Wizard Cromperty only at stage `55`, after
+the Holy Grail is recovered; the pinned `King's Ransom` revision `oldid=6548731`
+(`2012-11-12T01:02:00Z`, “Freeing King Arthur”) says the same. Rev-727, rev-742,
+and game-main independently confirm item `4428` as `Animate rock scroll`, but
+do not support the Sinclair Mansion timing.
+
+The sourcing contract forbids manufacturing reachability for a contradicted
+stage action, so the emitter repair is blocked. Decide whether to replace the
+action with the sourced Cromperty handoff inside the current coarse stage map,
+or first replace King’s Ransom’s six generated checkpoints with source-backed
+stages. Until then, stage `1` keeps its missing specific action and the quest is
+not claimed finishable.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
