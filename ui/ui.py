@@ -13836,7 +13836,9 @@ def show_main_menu(
                 result = _run_fish_flingers_command("enter_fish_flingers")
                 if not result.get("ok", False):
                     return
-            if not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
+            # Entering the event must also activate it for reviews; the
+            # non-activating route left the training surface on the old skill.
+            if not _set_utility_selection(FISH_FLINGERS_ACTIVITY_ID, activate=True):
                 return
             _refresh_fish_flingers_panel()
 
