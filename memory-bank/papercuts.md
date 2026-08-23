@@ -895,4 +895,4 @@
 - 2026-08-22 18:29 PDT — The queue-entry extractor did not stop at the next top-level heading, so reading entry 3.31 also printed unrelated later sections.
 - 2026-08-22 18:32 PDT — A broad home-directory `find` for Priest in Peril Darkan files exceeded the 120-second shell timeout; the existing source-audit record already named the exact checkout paths.
 - 2026-08-22 18:32 PDT — The game-main provenance probe ran `git log` at `/Users/ArmanTarkhanian1/Downloads/game-main`, which is not a Git root, and failed with `fatal: not a git repository (or any of the parent directories): .git`; the source file itself remained readable.
-- 2026-08-22 18:42 PDT — The reachability audit wrapper tried to assign its exit code to zsh\x27s read-only `status` variable and ended with `(eval):3: read-only variable: status`; use a neutral name such as `rc` when capturing intentional audit failures.
+- 2026-08-22 18:42 PDT — The reachability audit wrapper tried to assign its exit code to zsh's read-only `status` variable and ended with `(eval):3: read-only variable: status`; use a neutral name such as `rc` when capturing intentional audit failures.
