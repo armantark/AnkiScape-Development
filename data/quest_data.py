@@ -7557,14 +7557,16 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Find Shamus in the Lumbridge Swamp tree.",
             f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_WARRIOR_SOURCE_PATH}; {LOST_CITY_TREE_SOURCE_PATH}",
-            required_actions=("Find Shamus in the Lumbridge Swamp tree",),
+            auto_actions=("Find Shamus in the Lumbridge Swamp tree",),
         ),
         _stage_req(
             2,
             "Speak to Shamus about the dramen staff and reach Entrana.",
             f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_SHAMUS_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}",
-            required_actions=("Speak to Shamus about the dramen staff",),
-            auto_actions=("Reach Entrana without combat gear",),
+            auto_actions=(
+                "Speak to Shamus about the dramen staff",
+                "Reach Entrana without combat gear",
+            ),
         ),
         _stage_req(
             3,
@@ -7601,7 +7603,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Cut a dramen branch from the Dramen tree.",
             f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}",
             required_tools=(("Hatchet", 1),),
-            required_actions=("Cut a dramen branch",),
+            auto_actions=("Cut a dramen branch",),
             produced_inventory=(("Dramen branch", 1),),
         ),
         _stage_req(
@@ -7612,7 +7614,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             consumed_inventory=(("Dramen branch", 1),),
             produced_inventory=(("Dramen staff", 1),),
             required_tools=(("Knife", 1),),
-            required_actions=("Craft a dramen staff", "Enter Zanaris through the Lumbridge Swamp shed"),
+            auto_actions=("Craft a dramen staff", "Enter Zanaris through the Lumbridge Swamp shed"),
         ),
     ),
     TAI_BWO_WANNAI_TRIO_ID: (

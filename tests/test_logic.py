@@ -3907,7 +3907,14 @@ class TestLogic(unittest.TestCase):
             "can_start",
         )
 
+        # Stage 1's Shamus action is emitted automatically now, so a fresh
+        # start reads as in progress until the Tree spirit gate at stage 3.
         player_data["quests"]["lost_city"] = {"started": True, "progress": 1, "completed": False}
+        self.assertEqual(
+            quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
+            "in_progress",
+        )
+        player_data["quests"]["lost_city"] = {"started": True, "progress": 3, "completed": False}
         self.assertEqual(
             quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
             "blocked_at_stage",
@@ -8791,66 +8798,107 @@ class TestLogic(unittest.TestCase):
         )
 
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
+        quest_id = "lost_city"
+        actions = (
+            "Find Shamus in the Lumbridge Swamp tree",
+            "Speak to Shamus about the dramen staff",
+            "Reach Entrana without combat gear",
+            "Cut a dramen branch",
+            "Craft a dramen staff",
+            "Enter Zanaris through the Lumbridge Swamp shed",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["crafting_level"] = 31
         player_data["woodcutting_level"] = 36
+        # Combat level 63+ meets the Tree spirit's minimum combat gate, and a
+        # weapon plus shield let the resolver win the fight in one burst.
+        player_data["attack_level"] = 70
+        player_data["constitution_level"] = 80
+        player_data["defense_level"] = 70
+        player_data["strength_level"] = 70
+        player_data["combat_lifepoints"] = 800
+        player_data["equipment"]["weapon"] = "Rune sword"
+        player_data["equipment"]["shield"] = "Rune kiteshield"
 
-        self.assertEqual(
-            quest_unlock_locked_reasons_pure(player_data, "runecrafting", "craft_cosmic_runes", QUEST_UNLOCK_RULES),
-            ("Lost City",),
-        )
-
-        player_data, ok = start_quest_pure(player_data, "lost_city", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 0)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
-            ("Action required: Find Shamus in the Lumbridge Swamp tree",),
-        )
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
 
-        player_data["quest_stage_actions"] = {"lost_city": ["Find Shamus in the Lumbridge Swamp tree"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 2)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
-            ("Action required: Speak to Shamus about the dramen staff",),
-        )
-        player_data["quest_stage_actions"]["lost_city"].append("Speak to Shamus about the dramen staff")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        # Stage 1: chopping the swamp tree reveals Shamus.
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 3)
-        self.assertIn("Reach Entrana without combat gear", player_data["quest_stage_actions"]["lost_city"])
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:1],
+        )
+
+        # Stage 2: Shamus explains the dramen staff and the adventurer sails
+        # to Entrana unarmed.
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:3],
+        )
 
         self.assertIn(
             "Combat locked until battle support is enabled: Tree spirit level 63",
-            quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
         )
-        player_data["quest_combat_encounters"] = {"lost_city": ["lost_city_tree_spirit"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["encounter_id"], "lost_city_tree_spirit")
+        self.assertEqual(blockers[0]["display_name"], "Tree spirit")
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["encounter_id"], "lost_city_tree_spirit")
 
-        player_data["inventory"]["Hatchet"] = 1
-        player_data["quest_stage_actions"]["lost_city"].append("Cut a dramen branch")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        # Stage 4: cut a dramen branch from the Dramen tree. The branch is
+        # produced as stage 4 resolves and its action is marked then.
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:4],
+        )
         self.assertEqual(player_data["inventory"]["Dramen branch"], 1)
 
-        player_data["inventory"]["Knife"] = 1
-        player_data["quest_stage_actions"]["lost_city"].extend(
-            ["Craft a dramen staff", "Enter Zanaris through the Lumbridge Swamp shed"]
+        # Stage 5: craft the staff and enter Zanaris through the shed.
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            ("Needs Knife",),
         )
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        player_data["inventory"]["Knife"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["lost_city"]["completed"])
         self.assertEqual(player_data["quest_points"], 3)
         self.assertEqual(player_data["inventory"]["Dramen branch"], 0)
         self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions,
+        )
         self.assertEqual(
             quest_unlock_locked_reasons_pure(player_data, "runecrafting", "craft_cosmic_runes", QUEST_UNLOCK_RULES),
             (),

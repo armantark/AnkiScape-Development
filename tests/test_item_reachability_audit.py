@@ -567,6 +567,17 @@ class TestItemReachabilityAudit(unittest.TestCase):
             ]
         )
 
+    def test_lost_city_shamus_action_has_a_runtime_emitter(self):
+        report = build_reachability_report()
+        missing_actions = {
+            action
+            for row in report["blocked_quest_stage_products"]
+            if row["quest_id"] == "lost_city"
+            for action in row["missing_required_actions"]
+        }
+
+        self.assertNotIn("Find Shamus in the Lumbridge Swamp tree", missing_actions)
+
     def test_a_souls_bane_rage_action_has_a_runtime_emitter(self):
         report = build_reachability_report()
         missing_actions = {
@@ -629,12 +640,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1599)
-        self.assertEqual(report["reachable_item_count"], 2410)
-        self.assertEqual(report["orphan_input_count"], 38)
-        self.assertEqual(report["root_orphan_count"], 34)
+        self.assertEqual(report["reachable_item_count"], 2413)
+        self.assertEqual(report["orphan_input_count"], 37)
+        self.assertEqual(report["root_orphan_count"], 33)
         self.assertEqual(report["cascade_orphan_count"], 4)
-        self.assertEqual(report["unresolved_action_count"], 37)
-        self.assertEqual(report["seed_item_count"], 1163)
+        self.assertEqual(report["unresolved_action_count"], 36)
+        self.assertEqual(report["seed_item_count"], 1165)
         self.assertFalse(
             [
                 row
@@ -663,6 +674,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 if row["quest_id"] == "the_restless_ghost"
             ]
         )
+        self.assertFalse(
+            [
+                row
+                for row in report["blocked_quest_stage_products"]
+                if row["quest_id"] == "lost_city"
+            ]
+        )
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item
@@ -684,11 +702,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
         report = build_reachability_report()
 
+        # The stage actions are emitted now, so the branch is granted by
+        # resolving Lost City stage 4 and Cinnamon's real grind resolves with it.
         self.assertNotIn("lost_city", action_completable)
         self.assertNotIn("Dramen branch", sources)
-        self.assertNotIn("Dramen branch", report["routes"])
-        self.assertNotIn("Cinnamon", report["routes"])
-        self.assertIn(
+        self.assertEqual(report["routes"].get("Dramen branch"), "quest-stage:lost_city:4")
+        self.assertEqual(report["routes"].get("Cinnamon"), "Utility:grind_dramen_branch")
+        self.assertNotIn(
             "Utility:grind_dramen_branch",
             {action["id"] for action in report["unresolved_actions"]},
         )
@@ -799,12 +819,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Black mushroom ink"],
             "Utility:grind_black_mushroom",
         )
-        self.assertNotIn("Dramen branch", report["routes"])
+        self.assertEqual(
+            report["routes"]["Dramen branch"],
+            "quest-stage:lost_city:4",
+        )
         self.assertEqual(
             report["routes"]["Pendant of lucien"],
             "quest-start:temple_of_ikov",
         )
-        self.assertNotIn("Cinnamon", report["routes"])
+        self.assertEqual(report["routes"]["Cinnamon"], "Utility:grind_dramen_branch")
         self.assertEqual(
             report["routes"]["Unholy mould"],
             "combat:chaos_druid",
