@@ -771,8 +771,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             )
         return True
     if activity_key not in UTILITY_ACTIVITY_DATA:
-        activity_key = DEFAULT_UTILITY_ACTIVITY
-        player_data["current_utility"] = activity_key
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = UTILITY_ACTIVITY_DATA[activity_key]
     display_name = spec.get("display_name", activity_key)
 

@@ -90,7 +90,10 @@ from ..logic.summoning_logic import familiarisation_view_pure
 from ..logic.tears_of_guthix_logic import reward_skill_pure, tears_of_guthix_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic.troll_invasion_logic import troll_invasion_view_pure
+from ..logic.wicked_hood_logic import bank_run_phase_label_pure
 from ..logic_pure.logic_pure import (
+    COMBAT_BANK_RUN_REVIEWS,
+    _non_negative_int,
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
     compute_level_progress,
@@ -286,6 +289,84 @@ def review_bank_run_button_view_pure(
         "text": REVIEW_BANK_RUN_LABEL,
         "enabled": handler in REVIEW_BANK_RUN_HANDLER_KEYS and not active,
         "tooltip": REVIEW_BANK_RUN_TOOLTIP,
+    }
+
+
+def review_bank_run_travel_view_pure(
+    player_data: Mapping[str, Any], handler_key: Any
+) -> dict[str, Any]:
+    """Project the active review handler's bank run for the HUD strip."""
+
+    def _run(key: str) -> Mapping[str, Any]:
+        raw = player_data.get(key)
+        return raw if isinstance(raw, Mapping) else {}
+
+    handler = str(handler_key or "")
+    requested_handler = str(
+        player_data.get("review_bank_run_requested_handler", "") or ""
+    )
+    requested_target = str(
+        player_data.get("review_bank_run_requested_target", "") or ""
+    )
+    requested_skilling = str(
+        player_data.get("skilling_bank_run_requested", "") or ""
+    )
+    combat_run = _run("combat_bank_run")
+    skilling_run = _run("skilling_bank_run")
+
+    if handler == "combat":
+        kind = "combat"
+        remaining = min(
+            _non_negative_int(combat_run.get("reviews_remaining", 0)),
+            COMBAT_BANK_RUN_REVIEWS,
+        )
+        queued = remaining <= 0 and requested_handler == handler
+    elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
+        kind = "carried"
+        remaining = _non_negative_int(skilling_run.get("reviews_remaining", 0))
+        queued = remaining <= 0 and bool(requested_target or requested_skilling)
+    elif handler and requested_handler == handler:
+        kind = "carried"
+        remaining = 0
+        queued = True
+    else:
+        return {"active": False, "queued": False}
+
+    if remaining <= 0:
+        if not queued:
+            return {"active": False, "queued": False}
+        return {
+            "active": False,
+            "queued": True,
+            "kind": kind,
+            "label": "Queued",
+            "total": 0,
+            "remaining": 0,
+            "percent": 0,
+            "text": "Bank run queued",
+        }
+
+    if kind == "combat":
+        label = "Banking supplies"
+        total = COMBAT_BANK_RUN_REVIEWS
+    else:
+        label = bank_run_phase_label_pure(skilling_run)
+        total = max(
+            remaining,
+            _non_negative_int(skilling_run.get("reviews_total", 0)),
+        )
+
+    done = min(total - remaining, total)
+    percent = int(round(100.0 * done / total))
+    return {
+        "active": True,
+        "queued": False,
+        "kind": kind,
+        "label": label,
+        "total": total,
+        "remaining": remaining,
+        "percent": percent,
+        "text": f"Bank run — {label} · {done}/{total} travel reviews",
     }
 
 

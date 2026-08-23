@@ -62,6 +62,7 @@ from .logic_pure.logic_pure import (
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
+    reconcile_combat_method_pure,
     refill_combat_supply_loadout_pure,
     request_combat_bank_run_now_pure,
     unload_combat_supply_loadout_pure,
@@ -381,7 +382,7 @@ def start_activity_for_reviews(activity_id) -> bool:
             )
             player_data.clear()
             player_data.update(updated)
-            _deactivate_current_skill()
+            _switch_to_bankstanding()
             save_player_data()
             update_review_event_log_drawer(player_data)
             _update_review_context_surface()
@@ -1045,6 +1046,16 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         random.setstate(before["random_state"])
         return False
     updated = refresh_music_log_pure(updated)[0]
+    skill_after_commit = selected_skill
+    if _activity_session_cleared(
+        player_data.get("activity_session"),
+        updated.get("activity_session"),
+    ):
+        # Stage the whole landing without touching live state. Anki must accept
+        # the undo entry before either the save or its review surface changes.
+        updated = dict(updated)
+        updated["current_utility"] = "bankstanding"
+        skill_after_commit = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
@@ -1055,8 +1066,8 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
-    if selected_skill is not None:
-        current_skill = _normalize_legacy_utility_skill(selected_skill)
+    if skill_after_commit is not None:
+        current_skill = _normalize_legacy_utility_skill(skill_after_commit)
         try:
             mw.col.set_config("ankiscape_current_skill", current_skill)
         except AttributeError:
@@ -1464,26 +1475,15 @@ def show_skill_selection():
     save_skill(selected, None)
 
 def _deactivate_current_skill() -> None:
-    """Turn the active skill off (current_skill -> "None").
+    """End the active skill by landing on Bankstanding.
 
-    This remains the fallback for level, unlock, death, and configuration
-    failures. Material exhaustion uses Bankstanding instead so the ordinary
-    review-paced market clock keeps moving without repeated warnings.
+    Owner ruling (Pass 11, clause 2): no path that ends, refuses, invalidates,
+    or stops an activity may leave `current_skill == "None"`. Deactivation and
+    Bankstanding are therefore one transition — every refusal, level/unlock
+    failure, death, and material exhaustion lands on the settled no-XP
+    fallback so the ordinary review-paced market clock keeps moving.
     """
-    global current_skill
-    current_skill = "None"
-    try:
-        ui.update_menu_visibility(current_skill)
-    except Exception:
-        pass
-    try:
-        mw.col.set_config("ankiscape_current_skill", current_skill)
-    except Exception:
-        pass
-    try:
-        update_review_hud(player_data, current_skill)
-    except Exception:
-        pass
+    _switch_to_bankstanding()
 
 
 def _switch_to_bankstanding() -> None:
@@ -1503,6 +1503,19 @@ def _switch_to_bankstanding() -> None:
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+
+
+def _activity_session_cleared(before, after=None) -> bool:
+    """True when an active activity session ended (active_id -> empty).
+
+    The shared transition predicate for every boundary that finalizes an undo
+    snapshot after a session completes: the surface must land on Bankstanding
+    before the snapshot is taken so undo restores the former activity whole.
+    """
+    before_active = str((before or {}).get("active_id", "") or "")
+    after = after if after is not None else player_data.get("activity_session")
+    after_active = str((after or {}).get("active_id", "") or "")
+    return bool(before_active) and not after_active
 
 
 def _missing_materials_text(requirements, inventory) -> str:
@@ -1729,7 +1742,7 @@ def on_request_review_bank_run() -> bool:
     committed = commit_direct_action(
         lambda data: request_review_bank_run_pure(data, handler_key, target_id)
     )
-    _update_review_bank_run_surface()
+    _refresh_bank_run_surfaces()
     return committed
 
 
@@ -1741,6 +1754,18 @@ def _update_review_bank_run_surface() -> None:
         on_request_review_bank_run,
         target_id=_active_review_bank_run_target(handler_key),
     )
+
+
+def _refresh_bank_run_surfaces() -> None:
+    """Refresh the HUD strip and the button after any bank-run state change."""
+    try:
+        from .ui.ui import get_config_bool  # type: ignore
+        if get_config_bool("ankiscape_review_hud_enabled", True):
+            ensure_review_hud()
+            update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    _update_review_bank_run_surface()
 
 
 def _on_main_menu(
@@ -2173,7 +2198,12 @@ def _on_main_menu(
             check_achievements(player_data)
             _refresh_skill_availability()
             try:
-                update_review_hud(player_data, current_skill)
+                if result.get("bank_run_triggered"):
+                    # GE has no route state of its own; the run delegates
+                    # through _trigger_active_bank_run, so show its travel.
+                    _refresh_bank_run_surfaces()
+                else:
+                    update_review_hud(player_data, current_skill)
             except AttributeError:
                 pass
 
@@ -2371,6 +2401,11 @@ def _on_main_menu(
                 level_up_check(skill_name, player_data)
                 _show_exp(gained)
             check_achievements(player_data)
+            if (
+                action_id in {"abandon", "leave_flash_powder_factory"}
+                and player_data.get("current_utility") == "bankstanding"
+            ):
+                _switch_to_bankstanding()
 
         committed = commit_direct_action(_change, after_apply=_after_apply)
         if not committed:
@@ -4444,6 +4479,31 @@ def _on_main_menu(
     def _start_grave_walk():
         return commit_direct_action(start_combat_grave_walk_pure)
 
+    def _stop_training():
+        def _change(current):
+            updated = current
+            if (
+                current_skill == "Agility"
+                and current.get("current_agility") == "brimhaven_arena"
+                and (current.get("agility_activity_state") or {}).get("brimhaven")
+            ):
+                updated, result = apply_agility_command_pure(
+                    current,
+                    "abandon",
+                    {},
+                    roll=0.5,
+                )
+                if not result.get("allowed"):
+                    return current, False
+            updated = dict(updated)
+            updated["current_utility"] = "bankstanding"
+            return updated, True
+
+        return commit_direct_action(
+            _change,
+            selected_skill=UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+        )
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -4538,6 +4598,7 @@ def _on_main_menu(
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_start_activity=start_activity_for_reviews,
+        on_stop_training=_stop_training,
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
@@ -4558,9 +4619,13 @@ def _on_main_menu(
         get_carried_bank_run_summary=_current_carried_bank_run_summary,
         carried_auto_is_combat=review_action_handler_key(current_skill) == "combat",
         on_set_combat=_set_combat_target,
-        on_set_combat_action=lambda action: _set_value("combat_action", action),
+        on_set_combat_action=lambda action: _set_combat_method_values(
+            {"combat_action": action}
+        ),
         on_set_combat_style=_set_combat_attack_style,
-        on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
+        on_set_combat_spell=lambda spell: _set_combat_method_values(
+            {"current_combat_spell": spell}
+        ),
         on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
         on_set_combat_pack_mode=on_set_combat_pack_mode,
         on_set_combat_prayer_config=_set_combat_prayer_config,
@@ -4617,10 +4682,38 @@ def _set_legacy_bar_target(bar_name: str):
     })
 
 
+def _set_combat_method_values(values):
+    if all(player_data.get(key) == value for key, value in values.items()):
+        return True
+    refusal_reason = [""]
+
+    def _change(current):
+        updated, ok, reason = reconcile_combat_method_pure(
+            current, values, EQUIPMENT_DATA
+        )
+        refusal_reason[0] = reason
+        return updated, ok
+
+    def _after_apply():
+        check_achievements(player_data)
+        _refresh_skill_availability()
+
+    if not commit_direct_action(_change, after_apply=_after_apply):
+        if refusal_reason[0]:
+            show_error_message("Cannot change combat method", refusal_reason[0])
+        return False
+    _refresh_open_carried_inventory()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
+
+
 def _set_combat_attack_style(selection):
     """Persist the orthogonal weapon style and attack type as one undo step."""
     weapon_style, style_type = selection
-    return _set_values({
+    return _set_combat_method_values({
         "combat_attack_style": weapon_style,
         "combat_attack_style_type": style_type,
     })
@@ -5052,6 +5145,8 @@ def on_equip_item(item_name):
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
+    failure_reason = [""]
+
     def _apply(current):
         before_equipment = dict(current.get("equipment", {}) or {})
         new_inventory, new_equipment, equipped = equip_item_pure(
@@ -5070,23 +5165,37 @@ def on_equip_item(item_name):
                 updated, before_equipment, EQUIPMENT_CONDITION_DATA
             )
         )
-        return updated, True
+        if before_equipment.get("weapon") != new_equipment.get("weapon"):
+            updated, equipped, failure_reason[0] = reconcile_combat_method_pure(
+                current, updated, EQUIPMENT_DATA
+            )
+        return updated, equipped
 
     if item_name in FAMILY_GAUNTLET_ITEMS:
         equipped = commit_direct_action(_apply)
     else:
         updated, equipped = _apply(player_data)
         if equipped:
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            weapon_changed = (player_data.get("equipment", {}) or {}).get(
+                "weapon"
+            ) != (updated.get("equipment", {}) or {}).get("weapon")
+            if weapon_changed:
+                _save_combat_state_update(updated, evaluate_achievements=True)
+            else:
+                player_data.clear()
+                player_data.update(updated)
+                save_player_data()
     if not equipped:
-        show_error_message("Cannot equip item", f"You need {item_name} in your bank to equip it.")
+        show_error_message(
+            "Cannot equip item",
+            failure_reason[0] or f"You need {item_name} in your bank to equip it.",
+        )
     return equipped
 
 
 def on_unequip_slot(slot):
     item_name = (player_data.get("equipment", {}) or {}).get(slot)
+    failure_reason = [""]
 
     def _apply(current):
         before_equipment = dict(current.get("equipment", {}) or {})
@@ -5105,18 +5214,31 @@ def on_unequip_slot(slot):
                 updated, before_equipment, EQUIPMENT_CONDITION_DATA
             )
         )
-        return updated, True
+        if before_equipment.get("weapon") != new_equipment.get("weapon"):
+            updated, unequipped, failure_reason[0] = reconcile_combat_method_pure(
+                current, updated, EQUIPMENT_DATA
+            )
+        return updated, unequipped
 
     if item_name in FAMILY_GAUNTLET_ITEMS:
         unequipped = commit_direct_action(_apply)
     else:
         updated, unequipped = _apply(player_data)
         if unequipped:
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            weapon_changed = (player_data.get("equipment", {}) or {}).get(
+                "weapon"
+            ) != (updated.get("equipment", {}) or {}).get("weapon")
+            if weapon_changed:
+                _save_combat_state_update(updated, evaluate_achievements=True)
+            else:
+                player_data.clear()
+                player_data.update(updated)
+                save_player_data()
     if not unequipped:
-        show_error_message("Cannot unequip item", "That equipment slot is already empty.")
+        show_error_message(
+            "Cannot unequip item",
+            failure_reason[0] or "That equipment slot is already empty.",
+        )
     return unequipped
 
 
@@ -5421,15 +5543,23 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()
                 )
+                reviewed_skill = current_skill
                 for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
+                    before_tick_session = dict(
+                        player_data.get("activity_session") or {}
+                    )
                     result = runtime_actions.run_answer_with_carried_overlay(
                         review_ctx, handler_key, handler
                     )
                     if result is not False:
                         review_progressed = True
-                    if result is False or current_skill == "None":
+                    if (
+                        result is False
+                        or current_skill != reviewed_skill
+                        or _activity_session_cleared(before_tick_session)
+                    ):
                         break
                 if review_progressed and handler_key not in ("quest", "thieving", "agility"):
                     _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
@@ -5471,6 +5601,7 @@ def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown, _REVIEW_FEEDBACK_INITIAL_XP
     review_answered = card_turned and answer_shown
     successful_answer = ease > 1
+    before_session = player_data.get("activity_session")
     before_state = (
         _capture_player_data_snapshot(review_answer=True) if review_answered else None
     )
@@ -5758,6 +5889,8 @@ def on_answer_card(self, ease, _old):
         result = _old(self, ease)
     finally:
         if review_answered and before_state is not None:
+            if _activity_session_cleared(before_session):
+                _switch_to_bankstanding()
             _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
     try:
@@ -5766,7 +5899,7 @@ def on_answer_card(self, ease, _old):
         )
         update_review_fill_drawer(player_data)
         update_review_event_log_drawer(player_data)
-        _update_review_bank_run_surface()
+        _refresh_bank_run_surfaces()
     except Exception:
         pass
     _update_review_context_surface()
@@ -5826,10 +5959,6 @@ def initialize_exp_popup():
 def _refresh_review_surfaces() -> None:
     """The one refresh of every reviewer overlay, per surface event."""
     try:
-        from .ui.ui import get_config_bool  # type: ignore
-        if get_config_bool("ankiscape_review_hud_enabled", True):
-            ensure_review_hud()
-            update_review_hud(player_data, current_skill)
         ensure_review_context_action_strip()
         _update_review_context_surface()
         ensure_review_status_badge()
@@ -5838,7 +5967,7 @@ def _refresh_review_surfaces() -> None:
         )
         update_review_fill_drawer(player_data, _open_grand_exchange_sheet)
         update_review_event_log_drawer(player_data)
-        _update_review_bank_run_surface()
+        _refresh_bank_run_surfaces()
     except Exception:
         pass
 

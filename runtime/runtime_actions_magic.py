@@ -418,8 +418,8 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_magic", DEFAULT_MAGIC_TARGET)
     if target not in MAGIC_DATA:
-        target = DEFAULT_MAGIC_TARGET
-        player_data["current_magic"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = MAGIC_DATA[target]
     display_name = str(spec.get("display_name", target))
 

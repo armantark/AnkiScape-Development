@@ -6,7 +6,6 @@ import copy
 import math
 from typing import Any, Mapping, Sequence
 
-from ..data.agility_data import DEFAULT_AGILITY_TARGET
 from ..data.flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_ACTIVITY_ID,
     FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
@@ -415,8 +414,7 @@ def apply_flash_powder_factory_review_pure(
                 data["activity_session"].get("active_id", "")
             ) == FLASH_POWDER_FACTORY_ACTIVITY_ID:
                 data["activity_session"] = {"active_id": ""}
-            if str(data.get("current_agility", "")) == FLASH_POWDER_FACTORY_ACTIVITY_ID:
-                data["current_agility"] = DEFAULT_AGILITY_TARGET
+            data["current_utility"] = "bankstanding"
             _record_completion(data)
         else:
             activities[FLASH_POWDER_FACTORY_ACTIVITY_ID] = session
@@ -540,8 +538,7 @@ def apply_flash_powder_factory_review_pure(
             data["activity_session"].get("active_id", "")
         ) == FLASH_POWDER_FACTORY_ACTIVITY_ID:
             data["activity_session"] = {"active_id": ""}
-        if str(data.get("current_agility", "")) == FLASH_POWDER_FACTORY_ACTIVITY_ID:
-            data["current_agility"] = DEFAULT_AGILITY_TARGET
+        data["current_utility"] = "bankstanding"
         _record_completion(data)
     else:
         activities[FLASH_POWDER_FACTORY_ACTIVITY_ID] = session
@@ -609,8 +606,7 @@ def leave_flash_powder_factory_pure(
         data["activity_session"].get("active_id", "")
     ) == FLASH_POWDER_FACTORY_ACTIVITY_ID:
         data["activity_session"] = {"active_id": ""}
-    if str(data.get("current_agility", "")) == FLASH_POWDER_FACTORY_ACTIVITY_ID:
-        data["current_agility"] = DEFAULT_AGILITY_TARGET
+    data["current_utility"] = "bankstanding"
     data["agility_status"] = (
         f"Left Flash Powder Factory · {points} Brianpoints · {penalty}% early-exit penalty"
     )

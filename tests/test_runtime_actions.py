@@ -7,7 +7,12 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
+from ankiscape.data.dungeoneering_data import DUNGEONEERING_ACTIVITY_ID
 from ankiscape.logic.brawling_gloves_logic import brawling_glove_state_pure
+from ankiscape.logic.dungeoneering_logic import (
+    apply_dungeoneering_command_pure,
+    record_dungeon_drop_pure,
+)
 from ankiscape.logic_pure.logic_pure import can_start_quest_pure
 from ankiscape.runtime import runtime_actions
 
@@ -78,11 +83,219 @@ def _context(player_data, calls=None, random_values=None, review_action_multipli
     )
 
 
+def _bankstanding_context(player_data, calls=None, **kwargs):
+    calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
+    ctx = _context(player_data, calls, **kwargs)
+
+    def switch_to_bankstanding():
+        player_data["current_utility"] = "bankstanding"
+        calls["bankstanding"] = calls.get("bankstanding", 0) + 1
+
+    ctx.switch_to_bankstanding = switch_to_bankstanding
+    return ctx
+
+
 def _quest_combat_mid_rolls(repeats=1000):
     return (0.5,) * repeats
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_invalid_runtime_targets_switch_to_bankstanding_without_default_actions(self):
+        cases = (
+            (runtime_actions.handle_utility_answer, "current_utility"),
+            (runtime_actions.handle_fishing_answer, "current_fishing"),
+            (runtime_actions.handle_hunter_answer, "current_hunter"),
+            (runtime_actions.handle_woodcutting_answer, "current_tree"),
+            (runtime_actions.handle_mining_answer, "current_ore"),
+            (runtime_actions.handle_magic_answer, "current_magic"),
+            (runtime_actions.handle_combat_answer, "current_combat_target"),
+            (runtime_actions.handle_thieving_answer, "current_thieving"),
+            (runtime_actions.handle_fletching_answer, "current_fletch"),
+            (runtime_actions.handle_herblore_answer, "current_herblore"),
+            (runtime_actions.handle_summoning_answer, "current_summoning"),
+            (runtime_actions.handle_prayer_answer, "current_prayer"),
+            (runtime_actions.handle_construction_answer, "current_construction"),
+            (runtime_actions.handle_firemaking_answer, "current_firemaking"),
+            (runtime_actions.handle_cooking_answer, "current_cooking"),
+            (runtime_actions.handle_runecrafting_answer, "current_runecrafting"),
+            (runtime_actions.handle_quest_answer, "current_quest"),
+            (runtime_actions.handle_smithing_answer, "current_smith"),
+            (runtime_actions.handle_agility_answer, "current_agility"),
+        )
+        for handler, selection_key in cases:
+            with self.subTest(handler=handler.__name__):
+                player_data = {selection_key: "removed_target"}
+                calls = {"xp": [], "saves": 0, "errors": []}
+
+                self.assertFalse(
+                    handler(_bankstanding_context(player_data, calls))
+                )
+
+                self.assertEqual(player_data["current_utility"], "bankstanding")
+                if selection_key != "current_utility":
+                    self.assertEqual(player_data[selection_key], "removed_target")
+                self.assertEqual(calls["bankstanding"], 1)
+                self.assertEqual(calls["saves"], 0)
+
+    def test_named_activity_refusals_switch_to_bankstanding(self):
+        handlers = (
+            runtime_actions_activities.handle_dungeoneering_answer,
+            runtime_actions_activities.handle_temple_trekking_answer,
+            runtime_actions_activities.handle_gnome_restaurant_answer,
+            runtime_actions_activities.handle_dominion_tower_answer,
+        )
+        for handler in handlers:
+            with self.subTest(handler=handler.__name__):
+                player_data = {}
+                calls = {"xp": [], "saves": 0, "errors": []}
+
+                self.assertFalse(
+                    handler(_bankstanding_context(player_data, calls))
+                )
+
+                self.assertEqual(player_data["current_utility"], "bankstanding")
+                self.assertEqual(calls["bankstanding"], 1)
+                self.assertEqual(len(calls["errors"]), 1)
+
+    def test_dungeoneering_bind_prompt_keeps_the_current_surface(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["dungeoneering_level"] = 11
+        player_data, ok, info = apply_dungeoneering_command_pure(
+            player_data,
+            "enter",
+            {
+                "floor": 6,
+                "size": "small",
+                "complexity": 6,
+                "automation_mode": "casual",
+            },
+        )
+        self.assertTrue(ok, info)
+        player_data, ok, info = record_dungeon_drop_pure(
+            player_data,
+            "Novite arrows",
+            50,
+            ammo=True,
+        )
+        self.assertTrue(ok, info)
+        player_data["current_utility"] = DUNGEONEERING_ACTIVITY_ID
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        self.assertFalse(
+            runtime_actions_activities.handle_dungeoneering_answer(
+                _bankstanding_context(player_data, calls)
+            )
+        )
+
+        self.assertEqual(player_data["current_utility"], DUNGEONEERING_ACTIVITY_ID)
+        self.assertTrue(player_data["dungeoneering"]["pending_bind_offer"])
+        self.assertEqual(calls.get("bankstanding", 0), 0)
+        self.assertEqual(
+            calls["errors"],
+            [
+                (
+                    "Dungeoneering unavailable",
+                    "Resolve the Bind / Replace / Skip offer first.",
+                )
+            ],
+        )
+
+    def test_active_activity_prompts_keep_the_current_surface(self):
+        cases = (
+            (
+                "apply_temple_trekking_review_pure",
+                runtime_actions_activities.handle_temple_trekking_answer,
+                runtime_actions_activities.TEMPLE_TREKKING_ACTIVITY_ID,
+                "temple_trekking",
+                {"session": {"nodes": ["ghasts"]}},
+                "The current event still needs input.",
+            ),
+            (
+                "apply_gnome_restaurant_review_pure",
+                runtime_actions_activities.handle_gnome_restaurant_answer,
+                runtime_actions_activities.GNOME_RESTAURANT_ACTIVITY_ID,
+                "gnome_restaurant",
+                {"order": {"item": "Gnomebowl"}},
+                "Cook or bank 1 Gnomebowl for this delivery.",
+            ),
+            (
+                "apply_dominion_tower_review_pure",
+                runtime_actions_activities.handle_dominion_tower_answer,
+                runtime_actions_activities.DOMINION_TOWER_ACTIVITY_ID,
+                "dominion_tower",
+                {"mode": "climber", "roster": [{"instance_id": 1}]},
+                "Take the handicap on the spinner before the doors open.",
+            ),
+        )
+        for pure_name, handler, activity_id, state_key, state, reason in cases:
+            with self.subTest(handler=handler.__name__):
+                player_data = {
+                    "current_utility": activity_id,
+                    "activity_session": {"active_id": activity_id},
+                    state_key: state,
+                }
+                calls = {"xp": [], "saves": 0, "errors": []}
+                with patch.object(
+                    runtime_actions_activities,
+                    pure_name,
+                    return_value=(copy.deepcopy(player_data), False, {"reason": reason}),
+                ):
+                    self.assertFalse(
+                        handler(_bankstanding_context(player_data, calls))
+                    )
+
+                self.assertEqual(player_data["current_utility"], activity_id)
+                self.assertEqual(calls.get("bankstanding", 0), 0)
+                self.assertEqual(len(calls["errors"]), 1)
+                self.assertEqual(calls["errors"][0][1], reason)
+
+    def test_flash_powder_factory_completion_switches_to_bankstanding(self):
+        from ankiscape.data.flash_powder_factory_data import (
+            FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        )
+        from ankiscape.logic.agility_logic import default_agility_state_pure
+        from ankiscape.logic.flash_powder_factory_logic import (
+            enter_flash_powder_factory_pure,
+        )
+
+        player_data = default_agility_state_pure()
+        player_data.update(
+            {
+                "agility_level": 99,
+                "thieving_level": 99,
+                "herblore_level": 99,
+                "inventory": {},
+                "equipment": {},
+                "activity_session": {"active_id": ""},
+                "summoning_state": {"active_follower": {}},
+                "completed_achievements": [],
+            }
+        )
+        player_data, ok, _info = enter_flash_powder_factory_pure(player_data)
+        self.assertTrue(ok)
+        player_data["current_agility"] = FLASH_POWDER_FACTORY_ACTIVITY_ID
+        player_data["agility_activity_state"][FLASH_POWDER_FACTORY_ACTIVITY_ID].update(
+            {"slots_used": 7, "batches": 7, "score": 800, "residue": 7}
+        )
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        self.assertTrue(
+            handle_agility_answer(
+                _bankstanding_context(
+                    player_data,
+                    calls,
+                    random_values=(0.99, 0.99, 0.99, 0.99),
+                )
+            )
+        )
+
+        self.assertEqual(player_data["current_utility"], "bankstanding")
+        self.assertEqual(
+            player_data["current_agility"], FLASH_POWDER_FACTORY_ACTIVITY_ID
+        )
+        self.assertEqual(player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(calls["bankstanding"], 1)
+
     def test_mining_review_applies_one_brawling_charge_and_multiplier(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data.update(
@@ -1117,7 +1330,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["evil_tree"]["session"]["phase"], "fell")
         self.assertTrue(
             handle_utility_answer(
-                _context(
+                _bankstanding_context(
                     player_data,
                     calls,
                     random_values=(0.0, 0.0, 0.0, 0.0),
@@ -1125,12 +1338,12 @@ class TestRuntimeActions(unittest.TestCase):
             )
         )
 
-        self.assertEqual(player_data["current_utility"], "make_soft_clay")
+        self.assertEqual(player_data["current_utility"], "bankstanding")
         self.assertEqual(player_data["inventory"]["Logs"], 6)
         self.assertEqual(player_data["inventory"]["Coins"], 92)
         self.assertEqual(player_data["evil_tree"]["active_event"], {})
         self.assertEqual(calls["saves"], 3)
-        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["bankstanding"], 1)
         self.assertIn("Felled Normal evil tree", calls["activity"][-1])
         self.assertEqual(
             player_data["action_telemetry"]["actions"][

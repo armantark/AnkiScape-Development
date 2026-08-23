@@ -433,8 +433,8 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_fishing", DEFAULT_FISHING_TARGET)
     if target not in FISHING_DATA:
-        target = DEFAULT_FISHING_TARGET
-        player_data["current_fishing"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = FISHING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("fishing_level", 1)
@@ -562,8 +562,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_hunter", DEFAULT_HUNTER_TARGET)
     if target not in HUNTER_DATA:
-        target = DEFAULT_HUNTER_TARGET
-        player_data["current_hunter"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = HUNTER_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("hunter_level", 1)
@@ -695,8 +695,8 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     tree = player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET)
     if tree not in TREE_DATA:
-        tree = DEFAULT_WOODCUTTING_TARGET
-        player_data["current_tree"] = tree
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = TREE_DATA[tree]
     player_level = player_data.get("woodcutting_level", 1)
     success_level = effective_roll_level_pure(
@@ -934,8 +934,8 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     ore = player_data.get("current_ore", DEFAULT_MINING_TARGET)
     if ore not in ORE_DATA:
-        ore = DEFAULT_MINING_TARGET
-        player_data["current_ore"] = ore
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     ore_spec = ORE_DATA[ore]
     player_level = player_data["mining_level"]
     success_level = effective_roll_level_pure(

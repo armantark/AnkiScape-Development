@@ -524,8 +524,8 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = str(player_data.get("current_thieving", DEFAULT_THIEVING_TARGET))
     if target not in THIEVING_TARGETS:
-        target = DEFAULT_THIEVING_TARGET
-        player_data["current_thieving"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = THIEVING_TARGETS[target]
     locked = thieving_target_locked_reasons_pure(player_data, target, THIEVING_TARGETS)
     if locked:
