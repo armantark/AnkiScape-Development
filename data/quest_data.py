@@ -6481,7 +6481,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             8,
             "Recite the incantation to banish Delrith.",
             f"{DARKAN_DEMON_SLAYER_GYPSY_SOURCE}; {DARKAN_DEMON_SLAYER_INCANTATION_SOURCE}",
-            required_actions=("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
+            auto_actions=("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
         ),
     ),
     DRAGON_SLAYER_ID: (
