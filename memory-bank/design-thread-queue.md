@@ -913,7 +913,7 @@ an open design fork; it does not choose or implement a repair.
 - **Within the Light** (`within_the_light`)
   - Stage `1`: `Reach the Temple of Light through West Ardougne and Lletya`
 
-**OWNER DECISION — open design fork awaiting the owner or the design thread**
+**OWNER DECISION — answered 2026-08-22 in 4.17**
 
 - **Fork:** how does a player satisfy a required route that offers no genuine
   alternative?
@@ -944,12 +944,10 @@ pending implementation work.
   recorded action at all. The settled rule for redundant stubs therefore does
   not decide these rows.
 
-**OWNER DECISION — open design fork awaiting the owner or the design thread**
+**OWNER DECISION — answered 2026-08-22 in 4.17**
 
 - **Fork:** should a stage with no specific action record keep its generated
   completion stub, or should completing that stage record no action?
-- This entry records the fork only. Do not treat either outcome as scheduled or
-  settled until the owner decides it.
 
 ### 3.34 Source-audit test selectors can silently outlive their tests
 
@@ -1436,7 +1434,7 @@ open forks, except where marked.
   drop table for the Frozen-floor guardians would retire the placeholder
   entirely.
 
-### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — owner decision required
+### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — answered 2026-08-22 in 4.17
 
 - **Source behavior:** Darkan permits a search only when
   `questStage == requiredStage` and advances that stage only when Trufitus
@@ -1504,7 +1502,7 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
    Requires coordination with the Darkan restoration thread over the suite.
    Until the packet is approved, the honest no-effect display stays.
 
-### 3.27 Shattered Heart output-replacement eligibility — owner decision required
+### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17
 
 - **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:693` for Herblore, `runtime/runtime_actions_gathering.py:668` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
 - **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:307`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
@@ -1536,3 +1534,31 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
   and `data/npcs/drops/hunter/jadinko_sub/{hh_bush_seed,hh_blossom_seed}.json`.
   All six `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` markers are
   retired; Camouflaged remains separate under section 3.28.
+
+### 4.17 Owner rulings of 2026-08-22 — four forks closed
+
+The owner ruled these through the design thread on 2026-08-22. Each ruling
+carries full authority.
+
+1. **3.32 answered: Option A.** A stage whose `required_routes` has exactly one
+   possible value is a step, not a choice. The existing stage auto-action
+   mechanism satisfies it. `QuestChoice` stays only for real forks with two or
+   more options. Do not register one-option route buttons. This ruling reopens
+   the four incomplete "impossible to finish" repairs (Biohazard, Dealing with
+   Scabaras, Holy Grail, Dwarf Cannon): convert their single-valued routes to
+   auto-steps, then the rest of the 30-quest class in 3.32's snapshot.
+2. **3.33 answered: harvest real actions.** The six Dealing with Scabaras
+   stub-only stages are a sourcing gap, not a design fork. Recover the real
+   stage steps through the evidence order (Darkan first) and replace each stub
+   with sourced action text. A stage keeps its generated stub only when the
+   evidence order is exhausted.
+3. **3.26 answered: source-faithful stage model.** Jungle Potion returns to
+   Darkan semantics: each search stays reachable until its matching turn-in
+   completes. The shipped one-shot search model and the Shattered Heart
+   herb-protection exemption are removed together.
+4. **3.27 answered: shared hook.** Output-replacement eligibility moves into
+   the shared hook at `logic/shattered_heart_logic.py:307`. The four callers
+   (`runtime/runtime_actions_production.py:693`,
+   `runtime/runtime_actions_gathering.py:668`, `:911`, `:1061`) route through
+   it, so a future rock-eligible skill cannot silently regain the
+   untradeable-output defect.
