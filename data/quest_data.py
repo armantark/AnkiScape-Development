@@ -2371,10 +2371,10 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=12,
         description="Use antipoison on Johnathon and ask him about Chronozon.",
-        # JohnathonFamilyCrestD.java accepts item ids 2446/175/177/179 — an unnoted
-        # Antipoison at any dose — and rejects only the noted twins; the pinned wiki
-        # revision asks for "Anti-poison potion (1+ recommended)".
-        required_inventory_options=(
+        # JohnathonFamilyCrestD.java accepts item ids 2446/175/177/179 as
+        # unnoted Antipoison doses and deletes one; it rejects the noted twins.
+        # The pinned wiki revision asks for "Anti-poison potion (1+ recommended)".
+        consumed_inventory_options=(
             (
                 ("Antipoison (4)", 1),
                 ("Antipoison (3)", 1),

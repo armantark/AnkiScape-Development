@@ -344,8 +344,9 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[11]["consumed_inventory"], {"Perfect ruby ring": 1, "Perfect ruby necklace": 1})
         self.assertEqual(by_stage[11]["produced_inventory"], {"Avan crest": 1})
         self.assertEqual(by_stage[12]["required_inventory"], {})
+        self.assertEqual(by_stage[12]["required_inventory_options"], ())
         self.assertEqual(
-            by_stage[12]["required_inventory_options"],
+            by_stage[12]["consumed_inventory_options"],
             (
                 (
                     {"Antipoison (4)": 1},

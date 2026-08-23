@@ -5150,7 +5150,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 13)
-        self.assertEqual(player_data["inventory"]["Antipoison (4)"], 1)
+        self.assertEqual(player_data["inventory"]["Antipoison (4)"], 0)
         self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:12])
 
         self.assertEqual(
