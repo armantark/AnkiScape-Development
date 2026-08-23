@@ -942,3 +942,6 @@
 - 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.
 - 2026-08-22 21:30 PDT — The first dangling-test scan matched test-module filenames and historical prose, producing 622 false-positive occurrences before qualified-selector filtering.
 - 2026-08-22 21:36 PDT — The item-reachability wrapper assigned zsh’s read-only `status` variable and ended with `(eval):1: read-only variable: status`; use `exit_code` when capturing expected nonzero exits.
+- 2026-08-22 22:05:57 PDT — While reading Monk's Friend source provenance, using `path` as a zsh loop variable replaced `$PATH`, so `git` and `sed` became `command not found`; avoid zsh's special `path` array or call tools by absolute path.
+- 2026-08-22 22:07 PDT — Bash calls reset to the canonical checkout, so relative-path reads and the first papercut append targeted main instead of the quest worktree; use absolute worktree paths and `git -C` for every command in dispatched slices.
+- 2026-08-22 22:22 PDT — Invoking an absolute `run_tests.py` while Bash remained in the canonical checkout made 33 asset tests read canonical `assets_provenance.json` against worktree paths; change the process working directory to the worktree before running the suite.

@@ -5576,7 +5576,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Recover the child's blanket from the thieves' hideout.",
             f"{DARKAN_MONKS_FRIEND_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             produced_inventory=(("Child's blanket", 1),),
-            required_actions=("Recover the child's blanket from the thieves' hideout",),
+            auto_actions=("Recover the child's blanket from the thieves' hideout",),
         ),
         _stage_req(
             2,
@@ -5588,7 +5588,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Ask Brother Omad about Brother Cedric and the party.",
             DARKAN_MONKS_FRIEND_OMAD_SOURCE,
-            required_actions=("Ask Brother Omad about Brother Cedric and the party",),
+            auto_actions=("Ask Brother Omad about Brother Cedric and the party",),
         ),
         _stage_req(
             4,
@@ -5606,7 +5606,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             6,
             "Return to Brother Omad and join the birthday party.",
             DARKAN_MONKS_FRIEND_OMAD_SOURCE,
-            required_actions=("Return to Brother Omad and join the birthday party",),
+            auto_actions=("Return to Brother Omad and join the birthday party",),
         ),
     ),
     TRIBAL_TOTEM_ID: (

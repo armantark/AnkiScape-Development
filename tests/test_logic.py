@@ -3270,6 +3270,104 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["runecrafting_exp"], 0)
         self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
 
+    def test_monks_friend_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "monks_friend"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"].update({"Jug of water": 1, "Logs": 1})
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_steps = (
+            (
+                2,
+                False,
+                ("Recover the child's blanket from the thieves' hideout",),
+                {"Child's blanket": 1, "Jug of water": 1, "Logs": 1},
+            ),
+            (
+                3,
+                False,
+                ("Recover the child's blanket from the thieves' hideout",),
+                {"Child's blanket": 0, "Jug of water": 1, "Logs": 1},
+            ),
+            (
+                4,
+                False,
+                (
+                    "Recover the child's blanket from the thieves' hideout",
+                    "Ask Brother Omad about Brother Cedric and the party",
+                ),
+                {"Child's blanket": 0, "Jug of water": 1, "Logs": 1},
+            ),
+            (
+                5,
+                False,
+                (
+                    "Recover the child's blanket from the thieves' hideout",
+                    "Ask Brother Omad about Brother Cedric and the party",
+                ),
+                {"Child's blanket": 0, "Jug of water": 0, "Logs": 1},
+            ),
+            (
+                6,
+                False,
+                (
+                    "Recover the child's blanket from the thieves' hideout",
+                    "Ask Brother Omad about Brother Cedric and the party",
+                ),
+                {"Child's blanket": 0, "Jug of water": 0, "Logs": 0},
+            ),
+            (
+                7,
+                True,
+                (
+                    "Recover the child's blanket from the thieves' hideout",
+                    "Ask Brother Omad about Brother Cedric and the party",
+                    "Return to Brother Omad and join the birthday party",
+                ),
+                {"Child's blanket": 0, "Jug of water": 0, "Logs": 0},
+            ),
+        )
+        for progress, completed, actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                actions,
+            )
+            self.assertEqual(
+                {
+                    item_name: player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory
+                },
+                inventory,
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Law Rune"], 8)
+        self.assertEqual(player_data["woodcutting_exp"], 2000.0)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Law Rune"], 8)
+        self.assertEqual(after_complete["woodcutting_exp"], 2000.0)
+
     def test_monkey_madness_ape_atoll_infiltration_emits_on_review(self):
         quest_id = "monkey_madness"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
