@@ -1037,3 +1037,4 @@
 - 2026-08-23 14:59 PDT — The assembled quest mapping does not expose a `name` key, so a blocker-candidate probe failed after correctly finding the quest; blocker reasons must be inspected without assuming display metadata keys.
 
 - 2026-08-23 15:13 PDT — The full plain lane replayed one stale Sheep Herder runtime blocker expectation through nine immutability gates, so two direct stale tests appeared as 11 failures; fix the direct expectations before interpreting the gate fan-out.
+- 2026-08-23 11:08 PDT — (q-totem) The Tribal Totem stage-2 row carried BOTH an auto route step and a required action in the same `_stage_req`, so the reachability audit reported only stage 1 and understated the slice by three stages; audit reports only the earliest blocked stage, so re-measure after every single edit.
