@@ -486,29 +486,28 @@ class TestItemReachabilityAudit(unittest.TestCase):
             {"impossible_fight": ["Combat product"]},
         )
 
-    def test_shield_of_arrav_stops_before_later_stage_products(self):
-        registered_items = {
-            definition.storage_key for definition in ITEM_DEFINITIONS
-        }
-        sources, blocked, action_completable = _quest_stage_sources(
-            {"shield_of_arrav": QUEST_DATA["shield_of_arrav"]},
-            registered_items,
-        )
+    def test_shield_of_arrav_reaches_all_stage_products(self):
+        report = build_reachability_report()
 
-        self.assertNotIn("shield_of_arrav", action_completable)
-        stage_one = [row for row in blocked if row["stage"] == 1]
-        self.assertEqual(len(stage_one), 1)
-        self.assertEqual(
-            stage_one[0]["missing_required_actions"],
-            ["Find and read the Shield of Arrav book"],
+        self.assertFalse(
+            [
+                row
+                for row in report["blocked_quest_stage_products"]
+                if row["quest_id"] == "shield_of_arrav"
+            ]
         )
         for item in (
+            "Shield of Arrav book",
             "Intel report",
             "Weapon store key",
             "Phoenix crossbow",
+            "Broken shield (Phoenix half)",
+            "Broken shield (Black Arm half)",
+            "Half certificate (Phoenix)",
+            "Half certificate (Black Arm)",
             "Certificate",
         ):
-            self.assertNotIn(item, sources)
+            self.assertIn(item, report["routes"])
 
     def test_uncompletable_prerequisite_blocks_quest_completion_and_seeding(self):
         quest_data = {
@@ -630,12 +629,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1599)
-        self.assertEqual(report["reachable_item_count"], 2381)
+        self.assertEqual(report["reachable_item_count"], 2390)
         self.assertEqual(report["orphan_input_count"], 38)
         self.assertEqual(report["root_orphan_count"], 34)
         self.assertEqual(report["cascade_orphan_count"], 4)
         self.assertEqual(report["unresolved_action_count"], 37)
-        self.assertEqual(report["seed_item_count"], 1134)
+        self.assertEqual(report["seed_item_count"], 1143)
         self.assertFalse(
             [
                 row

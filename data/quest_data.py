@@ -1443,21 +1443,21 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=1,
         description="Find and read the Shield of Arrav book in Reldo's library.",
-        required_actions=("Find and read the Shield of Arrav book",),
+        auto_actions=("Find and read the Shield of Arrav book",),
         produced_inventory=(("Shield of Arrav book", 1),),
         source=f"{DARKAN_SHIELD_OF_ARRAV_BOOK_SOURCE}; {SCAPE_2011_VARROCK_RELDO_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
     ),
     QuestStageRequirement(
         stage=2,
         description="Ask Reldo where to find the Phoenix Gang.",
-        required_actions=("Ask Reldo about the Phoenix Gang",),
+        auto_actions=("Ask Reldo about the Phoenix Gang",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_RELDO_SOURCE}; {SCAPE_2011_VARROCK_RELDO_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
     ),
     QuestStageRequirement(
         stage=3,
         description="Bribe Baraek for the Phoenix hideout location.",
-        consumed_inventory=(("Coins", 10),),
-        required_actions=("Bribe Baraek for the Phoenix hideout",),
+        consumed_inventory=(("Coins", 20),),
+        auto_actions=("Bribe Baraek for the Phoenix hideout",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_BARAEK_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1465,7 +1465,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Choose the Phoenix Gang route with Straven.",
         variant=SHIELD_VARIANT_PHOENIX,
         required_routes=(SHIELD_ROUTE_PHOENIX,),
-        required_actions=("Ask Straven for the Phoenix loyalty task",),
+        auto_actions=("Ask Straven for the Phoenix loyalty task",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1473,7 +1473,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Choose the Black Arm Gang route with Charlie and Katrine.",
         variant=SHIELD_VARIANT_BLACK_ARM,
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
-        required_actions=("Ask Charlie and Katrine for the Black Arm loyalty task",),
+        auto_actions=("Ask Charlie and Katrine for the Black Arm loyalty task",),
         source=(
             f"{DARKAN_SHIELD_OF_ARRAV_CHARLIE_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE}; "
             f"{SHIELD_OF_ARRAV_WIKI_SOURCE}"
@@ -1552,7 +1552,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_routes=(SHIELD_ROUTE_PHOENIX,),
         consumed_inventory=(("Intel report", 1),),
         produced_inventory=(("Weapon store key", 1),),
-        required_actions=("Hand Straven Jonny's intelligence report",),
+        auto_actions=("Hand Straven Jonny's intelligence report",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1561,7 +1561,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         variant=SHIELD_VARIANT_BLACK_ARM,
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
         consumed_inventory=(("Phoenix crossbow", 2),),
-        required_actions=("Hand Katrine two Phoenix crossbows",),
+        auto_actions=("Hand Katrine two Phoenix crossbows",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1569,7 +1569,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Search the Phoenix Gang chest for the right shield half.",
         variant=SHIELD_VARIANT_PHOENIX,
         required_routes=(SHIELD_ROUTE_PHOENIX,),
-        required_actions=("Search the Phoenix Gang shield chest",),
+        auto_actions=("Search the Phoenix Gang shield chest",),
         produced_inventory=(("Broken shield (Phoenix half)", 1),),
         source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -1578,7 +1578,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Search the Black Arm Gang cupboard for the left shield half.",
         variant=SHIELD_VARIANT_BLACK_ARM,
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
-        required_actions=("Search the Black Arm Gang cupboard",),
+        auto_actions=("Search the Black Arm Gang cupboard",),
         produced_inventory=(("Broken shield (Black Arm half)", 1),),
         source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -1588,7 +1588,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         variant=SHIELD_VARIANT_PHOENIX,
         required_routes=(SHIELD_ROUTE_PHOENIX,),
         required_inventory=(("Broken shield (Phoenix half)", 1),),
-        required_actions=("Show King Roald the Phoenix shield half",),
+        auto_actions=("Show King Roald the Phoenix shield half",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1597,7 +1597,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         variant=SHIELD_VARIANT_BLACK_ARM,
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
         required_inventory=(("Broken shield (Black Arm half)", 1),),
-        required_actions=("Show King Roald the Black Arm shield half",),
+        auto_actions=("Show King Roald the Black Arm shield half",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1607,7 +1607,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_routes=(SHIELD_ROUTE_PHOENIX,),
         consumed_inventory=(("Broken shield (Phoenix half)", 1),),
         produced_inventory=(("Half certificate (Phoenix)", 2),),
-        required_actions=("Have Curator Haig Halen authenticate the Phoenix shield half",),
+        auto_actions=("Have Curator Haig Halen authenticate the Phoenix shield half",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1617,7 +1617,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
         consumed_inventory=(("Broken shield (Black Arm half)", 1),),
         produced_inventory=(("Half certificate (Black Arm)", 2),),
-        required_actions=("Have Curator Haig Halen authenticate the Black Arm shield half",),
+        auto_actions=("Have Curator Haig Halen authenticate the Black Arm shield half",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1642,7 +1642,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=11,
         description="Give King Roald the full certificate to claim the reward.",
         consumed_inventory=(("Certificate", 1),),
-        required_actions=("Claim the Shield of Arrav reward from King Roald",),
+        auto_actions=("Claim the Shield of Arrav reward from King Roald",),
         source=f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_SOURCE}",
     ),
 )
@@ -2618,10 +2618,10 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         display_name="Shield of Arrav",
         stages=12,
         point_reward=1,
-        rewards=(("Coins", 1200),),
+        rewards=(("Coins", 600),),
         start_point="Talk to Reldo in the Varrock palace library.",
         requirements=(
-            "Used during quest: Coins x10; your route contact supplies the opposite certificate half.",
+            "Used during quest: Coins x20; your route contact supplies the opposite certificate half.",
             f"Route choice: {SHIELD_ROUTE_PHOENIX} or {SHIELD_ROUTE_BLACK_ARM}.",
             "Black Arm route uses a contextual Phoenix contact for the weapon store.",
         ),

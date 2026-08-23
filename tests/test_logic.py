@@ -5024,6 +5024,172 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["quest_points"], 2)
 
+    def test_shield_of_arrav_real_stage_emitters_complete_both_routes(self):
+        quest_id = "shield_of_arrav"
+        common_actions = (
+            "Find and read the Shield of Arrav book",
+            "Ask Reldo about the Phoenix Gang",
+            "Bribe Baraek for the Phoenix hideout",
+        )
+        route_cases = (
+            (
+                "Join the Phoenix Gang",
+                "shield_of_arrav_jonny_the_beard_2",
+                (
+                    "Ask Straven for the Phoenix loyalty task",
+                    "Hand Straven Jonny's intelligence report",
+                    "Search the Phoenix Gang shield chest",
+                    "Show King Roald the Phoenix shield half",
+                    "Have Curator Haig Halen authenticate the Phoenix shield half",
+                    "Claim the Shield of Arrav reward from King Roald",
+                ),
+                "Intel report",
+                1,
+                "Broken shield (Phoenix half)",
+                "Half certificate (Phoenix)",
+            ),
+            (
+                "Join the Black Arm Gang",
+                "shield_of_arrav_weaponsmaster_23",
+                (
+                    "Ask Charlie and Katrine for the Black Arm loyalty task",
+                    "Hand Katrine two Phoenix crossbows",
+                    "Search the Black Arm Gang cupboard",
+                    "Show King Roald the Black Arm shield half",
+                    "Have Curator Haig Halen authenticate the Black Arm shield half",
+                    "Claim the Shield of Arrav reward from King Roald",
+                ),
+                "Phoenix crossbow",
+                2,
+                "Broken shield (Black Arm half)",
+                "Half certificate (Black Arm)",
+            ),
+        )
+
+        for (
+            route_id,
+            encounter_id,
+            route_actions,
+            proof_item,
+            proof_quantity,
+            shield_half,
+            certificate_half,
+        ) in route_cases:
+            with self.subTest(route=route_id):
+                player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                player_data["inventory"]["Coins"] = 20
+                player_data["attack_level"] = 99
+                player_data["strength_level"] = 99
+                player_data["defense_level"] = 99
+                player_data["constitution_level"] = 99
+
+                player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+                self.assertEqual(player_data["current_quest"], quest_id)
+                self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+                for progress, action_count in ((2, 1), (3, 2), (4, 3)):
+                    player_data, ok, completed_now = apply_quest_progress_pure(
+                        player_data,
+                        quest_id,
+                        QUEST_DATA,
+                    )
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+                    self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+                    self.assertEqual(
+                        tuple(player_data["quest_stage_actions"][quest_id]),
+                        common_actions[:action_count],
+                    )
+
+                self.assertEqual(player_data["inventory"]["Coins"], 0)
+                self.assertEqual(player_data["inventory"]["Shield of Arrav book"], 1)
+                self.assertEqual(
+                    quest_current_stage_blocker_reasons_pure(
+                        player_data,
+                        quest_id,
+                        QUEST_DATA,
+                    ),
+                    ("Choose path: Phoenix Gang or Black Arm Gang",),
+                )
+                player_data, ok = apply_quest_route_choice_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                    route_id,
+                )
+                self.assertTrue(ok)
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    common_actions + route_actions[:1],
+                )
+
+                player_data["quest_combat_config"] = {"resolver_enabled": True}
+                player_data, ok, result = apply_quest_combat_encounter_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                    encounter_id,
+                )
+                self.assertTrue(ok)
+                self.assertEqual(result["reason"], "combat_resolved")
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
+                self.assertEqual(player_data["inventory"][proof_item], proof_quantity)
+
+                for stage, action_count in (
+                    (6, 2),
+                    (7, 3),
+                    (8, 4),
+                    (9, 5),
+                    (10, 5),
+                    (11, 6),
+                ):
+                    player_data, ok, completed_now = apply_quest_progress_pure(
+                        player_data,
+                        quest_id,
+                        QUEST_DATA,
+                    )
+                    self.assertTrue(ok)
+                    self.assertEqual(completed_now, stage == 11)
+                    self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
+                    self.assertEqual(
+                        tuple(player_data["quest_stage_actions"][quest_id]),
+                        common_actions + route_actions[:action_count],
+                    )
+
+                self.assertTrue(player_data["quests"][quest_id]["completed"])
+                self.assertEqual(player_data["inventory"][proof_item], 0)
+                self.assertEqual(player_data["inventory"].get(shield_half, 0), 0)
+                self.assertEqual(player_data["inventory"][certificate_half], 1)
+                self.assertEqual(player_data["inventory"].get("Certificate", 0), 0)
+                self.assertEqual(player_data["inventory"]["Coins"], 600)
+                self.assertEqual(player_data["quest_points"], 1)
+
+                after_complete, ok, completed_again = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertFalse(ok)
+                self.assertFalse(completed_again)
+                self.assertEqual(after_complete["inventory"]["Coins"], 600)
+                self.assertEqual(after_complete["quest_points"], 1)
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_uses_contextual_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}
@@ -5131,7 +5297,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"]["shield_of_arrav"]["completed"])
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["inventory"]["Certificate"], 0)
-        self.assertEqual(player_data["inventory"]["Coins"], 1200)
+        self.assertEqual(player_data["inventory"]["Coins"], 600)
 
     def test_shield_of_arrav_black_arm_route_uses_contextual_contact_and_isolates_variant_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

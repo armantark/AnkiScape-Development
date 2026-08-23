@@ -530,8 +530,9 @@ class TestQuestCatalog(unittest.TestCase):
         quest = data["shield_of_arrav"]
 
         self.assertEqual(quest["stages"], 12)
-        self.assertEqual(quest["rewards"], {"Coins": 1200})
+        self.assertEqual(quest["rewards"], {"Coins": 600})
         self.assertEqual(quest["required_items"], {})
+        self.assertIn("Coins x20", quest["requirements"][0])
         self.assertIn("contextual Phoenix contact", quest["requirements"][2])
         self.assertEqual(quest["choices"][0]["stage"], 4)
         self.assertEqual(
@@ -539,6 +540,9 @@ class TestQuestCatalog(unittest.TestCase):
             ("Join the Phoenix Gang", "Join the Black Arm Gang"),
         )
         self.assertIn("darkan-world-server", quest["source"])
+
+        stage3 = next(row for row in quest["stage_requirements"] if row["stage"] == 3)
+        self.assertEqual(stage3["consumed_inventory"], {"Coins": 20})
 
         stage4 = [row for row in quest["stage_requirements"] if row["stage"] == 4]
         self.assertEqual({row["variant"] for row in stage4}, {"phoenix", "black_arm"})
