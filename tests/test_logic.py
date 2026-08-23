@@ -3356,10 +3356,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
             player_data["quest_stage_actions"][quest_id],
-            [
-                "Complete Rat Catchers stage 1 objective",
-                "Have Hooknosed Jack make rat poison",
-            ],
+            ["Have Hooknosed Jack make rat poison"],
         )
         self.assertEqual(player_data["inventory"]["Vial"], 0)
         self.assertEqual(player_data["inventory"]["Clean kwuarm"], 0)

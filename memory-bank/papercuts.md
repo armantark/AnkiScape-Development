@@ -928,3 +928,5 @@
 - 2026-08-22 19:37 PDT — The first focused While Guthix Sleeps regression expected only the stage-2 generated action gate and failed because the real kernel also reported `Needs Coins x5000 or Ring of Charos x1`; stage-transition assertions must include all live item-option blockers.
 - 2026-08-22 20:29 PDT — While checking Rat Catchers cache evidence, I invoked tools/query_openrs2_cache.sh with python3 instead of Bash; it failed at line 2 with SyntaxError on set -euo pipefail.
 - 2026-08-22 20:31 PDT — The first focused Rat Catchers run used a `tests.` unittest prefix; run_tests.py rejected it as ambiguous and required `test_logic.TestLogic.test_rat_catchers_rat_poison_emitter_advances_real_stage`.
+- 2026-08-22 21:06:06 PDT: A broad rg over quest_data.py and tests produced 5.7 MB of persisted output while tracing stage-stub behavior; narrower searches were needed.
+- 2026-08-22 21:06:35 PDT: A mixed-quote rg pattern for generated quest objectives failed with '(eval):1: unmatched "'; use single-purpose fixed-string searches instead.
