@@ -6268,8 +6268,8 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Place the runes and Glarial's amulet, then use Glarial's urn on the chalice.",
             f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_inventory=(("Glarial's urn", 1),),
             consumed_inventory=(
+                ("Glarial's urn", 1),
                 ("Water rune", 6),
                 ("Air rune", 6),
                 ("Earth rune", 6),

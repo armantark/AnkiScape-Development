@@ -4605,7 +4605,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Air rune"], 0)
         self.assertEqual(player_data["inventory"]["Earth rune"], 0)
         self.assertEqual(player_data["inventory"]["Glarial's amulet"], 0)
-        self.assertEqual(player_data["inventory"]["Glarial's urn"], 1)
+        self.assertEqual(player_data["inventory"]["Glarial's urn"], 0)
         self.assertEqual(player_data["inventory"]["Rope"], 1)
         self.assertEqual(player_data["inventory"]["Diamond"], 2)
         self.assertEqual(player_data["inventory"]["Gold bar"], 2)
