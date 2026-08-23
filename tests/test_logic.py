@@ -8306,6 +8306,53 @@ class TestLogic(unittest.TestCase):
             (),
         )
 
+    def test_while_guthix_sleeps_real_stage_emitters_advance_first_stage(self):
+        quest_id = "while_guthix_sleeps"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_points"] = quest["required_quest_points"]
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        for requirement in quest["required_quests"]:
+            prerequisite = requirement["quest_id"]
+            player_data["quests"][prerequisite] = {
+                "started": True,
+                "progress": QUEST_DATA[prerequisite]["stages"],
+                "completed": True,
+            }
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        stage_one = next(
+            requirement
+            for requirement in quest["stage_requirements"]
+            if requirement["stage"] == 1
+        )
+        player_data["inventory"].update(stage_one["required_inventory"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            player_data["quest_stage_actions"][quest_id],
+            [
+                "Complete While Guthix Sleeps stage 1 objective",
+                "Cast NPC Contact to reach the quest contacts",
+            ],
+        )
+
     def test_quest_completion_awards_trainable_xp_and_parks_unimplemented_xp(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["lunar_diplomacy"] = {"started": True, "progress": 7, "completed": False}

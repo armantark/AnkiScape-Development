@@ -924,3 +924,5 @@
 - 2026-08-22 19:33:20 PDT — A repository-wide Monkey Madness grep produced 1.9 MB because generated and cached outputs matched; scope quest searches to known source files before widening.
 - 2026-08-22 19:34:01 PDT — The runtime quest probe indexed QUESTS as a mapping and failed with TypeError: tuple indices must be integers or slices, not str; use QUEST_DATA for id lookups.
 - 2026-08-22 19:34:40 PDT — Python probes launched from the canonical checkout silently bound pkg_alias to addons21/ankiscape_fork instead of the linked quest worktree; always cd to the guarded worktree before importing pkg_alias.
+- 2026-08-22 19:35 PDT — The first rev-727 and rev-742 interface probes omitted the required `find` subcommand, so `tools/query_openrs2_interfaces.sh` printed its usage instead of searching; call it as `<cache> find <needle>`.
+- 2026-08-22 19:37 PDT — The first focused While Guthix Sleeps regression expected only the stage-2 generated action gate and failed because the real kernel also reported `Needs Coins x5000 or Ring of Charos x1`; stage-transition assertions must include all live item-option blockers.
