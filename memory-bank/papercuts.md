@@ -875,3 +875,4 @@
 
 - 2026-08-22 17:09 PDT — While inspecting Black Knights quest constants from a linked worktree, a Python probe run outside the worktree imported the canonical checkout and failed with `ImportError: attempted relative import beyond top-level package`; package probes must `cd` into the target worktree and import through the `ankiscape` alias.
 - 2026-08-22 17:10 PDT — The Black Knights kernel regression expected `Needs Cabbage`, but consumed-inventory blockers retain the explicit unit as `Needs Cabbage x1`; copy exact blocker text from the kernel when pinning stage gates.
+- 2026-08-22 17:20 PDT — Chaining the required audits with `&&` stopped before `worktree_guard` because `audit_item_reachability.py` intentionally exits 1 while the pinned catalog still has 37 blocked actions; run that measuring audit separately and record both its exact output and exit code.
