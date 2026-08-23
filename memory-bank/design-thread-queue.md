@@ -1535,6 +1535,16 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
   All six `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` markers are
   retired; Camouflaged remains separate under section 3.28.
 
+### 3.35 Melee/ranged Vengeance parity — recorded fork, not scheduled
+
+Raised 2026-08-23 by the Pass 11 `runes` slice. The owner's ruling gates all
+rune handling on an effective magic combat class, so Vengeance is disabled end
+to end for melee and ranged. Period parity note: at 94 Magic on Lunars, a
+melee player could carry Vengeance runes and cast it beside melee swings. If
+the owner ever wants that tactic, the fork is a deliberate carve-out from
+ruling 4 of the Pass 11 brief: a Vengeance-only rune-carry path for non-magic
+classes. Until then the current behavior is settled and correct.
+
 ### 4.17 Owner rulings of 2026-08-22 — four forks closed
 
 The owner ruled these through the design thread on 2026-08-22. Each ruling
