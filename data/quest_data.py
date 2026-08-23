@@ -2449,7 +2449,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=2,
         description="Cut through the temple web and take the Boots of lightness.",
         required_tools=(("Knife", 1),),
-        required_actions=("Cut through the Temple of Ikov web", "Pick up the Boots of lightness"),
+        auto_actions=("Cut through the Temple of Ikov web", "Pick up the Boots of lightness"),
         produced_inventory=(("Boots of lightness", 1),),
         source=f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -2457,8 +2457,10 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=3,
         description="Cross the lava bridge at low weight and pick up the lever.",
         required_tools=(("Pendant of lucien", 1), ("Boots of lightness", 1)),
-        auto_actions=("Cross the Temple of Ikov lava bridge at low weight",),
-        required_actions=("Pick up the Temple of Ikov lever",),
+        auto_actions=(
+            "Cross the Temple of Ikov lava bridge at low weight",
+            "Pick up the Temple of Ikov lever",
+        ),
         produced_inventory=(("Lever", 1),),
         source=f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -2466,20 +2468,20 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=4,
         description="Place and pull the lever near the entrance to open the ice-arrow route.",
         consumed_inventory=(("Lever", 1),),
-        required_actions=("Place and pull the Temple of Ikov lever near the entrance",),
+        auto_actions=("Place and pull the Temple of Ikov lever near the entrance",),
         source=f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
         stage=5,
         description="Search the ice chamber chests for ice arrows.",
-        required_actions=("Search the Temple of Ikov ice-arrow chests",),
+        auto_actions=("Search the Temple of Ikov ice-arrow chests",),
         produced_inventory=(("Ice arrows", 1),),
         source=f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
         stage=6,
         description="Search the trapped lever for traps, then pull it to open the Fire Warrior route.",
-        required_actions=(
+        auto_actions=(
             "Search and disarm the trapped Fire Warrior lever",
             "Pull the disarmed Fire Warrior lever",
         ),
@@ -2523,7 +2525,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=8,
         description="Pay Winelda twenty Limpwurt roots for a teleport across the lava.",
         consumed_inventory=(("Limpwurt root", 20),),
-        required_actions=("Ask Winelda to teleport across the lava",),
+        auto_actions=("Ask Winelda to teleport across the lava",),
         source=f"{TEMPLE_OF_IKOV_WINELDA_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -2531,7 +2533,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Accept the Guardian offer and receive an Armadyl pendant.",
         variant=TEMPLE_OF_IKOV_VARIANT_GUARDIANS,
         required_routes=(TEMPLE_OF_IKOV_ROUTE_GUARDIANS,),
-        required_actions=("Remove the Pendant of lucien and accept the Guardian cleansing",),
+        auto_actions=("Remove the Pendant of lucien and accept the Guardian cleansing",),
         produced_inventory=(("Armadyl pendant", 1),),
         source=f"{TEMPLE_OF_IKOV_GUARDIAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {TEMPLE_OF_IKOV_WIKI_SOURCE}",
     ),
@@ -2541,7 +2543,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         variant=TEMPLE_OF_IKOV_VARIANT_LUCIEN,
         required_routes=(TEMPLE_OF_IKOV_ROUTE_LUCIEN,),
         required_tools=(("Pendant of lucien", 1),),
-        required_actions=("Take the Staff of Armadyl from the guarded chamber",),
+        auto_actions=("Take the Staff of Armadyl from the guarded chamber",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{TEMPLE_OF_IKOV_ID}_guardian_of_armadyl_45",
@@ -2618,7 +2620,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         variant=TEMPLE_OF_IKOV_VARIANT_LUCIEN,
         required_routes=(TEMPLE_OF_IKOV_ROUTE_LUCIEN,),
         consumed_inventory=(("Staff of armadyl", 1),),
-        required_actions=("Give the Staff of Armadyl to Lucien in Varrock",),
+        auto_actions=("Give the Staff of Armadyl to Lucien in Varrock",),
         source=f"{TEMPLE_OF_IKOV_LUCIEN_VARROCK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
 )
