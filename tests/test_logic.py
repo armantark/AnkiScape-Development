@@ -3340,6 +3340,84 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Coin"], 500)
         self.assertEqual(after_complete["quest_points"], 1)
 
+    def test_deadliest_catch_real_stage_emitters_complete_and_reward_once(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["fishing_level"] = 70
+        player_data["hunter_level"] = 67
+        player_data["thieving_level"] = 70
+        player_data["quests"]["tower_of_life"] = {
+            "started": True,
+            "progress": QUEST_DATA["tower_of_life"]["stages"],
+            "completed": True,
+        }
+
+        player_data, ok = start_quest_pure(player_data, "deadliest_catch", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "deadliest_catch")
+        self.assertNotIn("deadliest_catch", player_data["quest_stage_actions"])
+
+        expected_actions = (
+            ("Pickpocket the Master fisher for the sea chart",),
+            (
+                "Pickpocket the Master fisher for the sea chart",
+                "Recruit Linza",
+                "Prepare the giant harpoon",
+            ),
+            (
+                "Pickpocket the Master fisher for the sea chart",
+                "Recruit Linza",
+                "Prepare the giant harpoon",
+                "Track the Thalassus",
+                "Rescue Jones",
+            ),
+        )
+        for stage, actions in enumerate(expected_actions, start=1):
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(
+                    player_data,
+                    "deadliest_catch",
+                    QUEST_DATA,
+                ),
+                (),
+            )
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "deadliest_catch",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 3)
+            self.assertEqual(
+                player_data["quests"]["deadliest_catch"]["progress"],
+                stage + 1,
+            )
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"]["deadliest_catch"]),
+                actions,
+            )
+
+        self.assertTrue(player_data["quests"]["deadliest_catch"]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Bank deposit box"], 1)
+        self.assertEqual(player_data["inventory"]["Small cast net"], 1)
+        self.assertEqual(player_data["fishing_exp"], 70000.0)
+        self.assertEqual(player_data["hunter_exp"], 72660.0)
+        self.assertEqual(player_data["thieving_exp"], 8000.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "deadliest_catch",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Bank deposit box"], 1)
+        self.assertEqual(after_complete["fishing_exp"], 70000.0)
+        self.assertEqual(after_complete["hunter_exp"], 72660.0)
+        self.assertEqual(after_complete["thieving_exp"], 8000.0)
+
     def test_tears_of_guthix_final_lantern_stage_runs_before_completion(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["current_quest"] = "tears_of_guthix"

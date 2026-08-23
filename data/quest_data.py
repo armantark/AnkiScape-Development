@@ -7610,6 +7610,26 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Prepare the sliced banana in rum", "Burn and grind the jogre bones"),
         ),
     ),
+    DEADLIEST_CATCH_ID: (
+        _stage_req(
+            1,
+            "Pickpocket the Master fisher for the sea chart.",
+            DEADLIEST_CATCH_WIKI_SOURCE,
+            auto_actions=("Pickpocket the Master fisher for the sea chart",),
+        ),
+        _stage_req(
+            2,
+            "Recruit Linza and prepare the giant harpoon.",
+            DEADLIEST_CATCH_WIKI_SOURCE,
+            auto_actions=("Recruit Linza", "Prepare the giant harpoon"),
+        ),
+        _stage_req(
+            3,
+            "Track the Thalassus and rescue Jones.",
+            DEADLIEST_CATCH_WIKI_SOURCE,
+            auto_actions=("Track the Thalassus", "Rescue Jones"),
+        ),
+    ),
 }
 
 
@@ -7740,26 +7760,6 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Find the toy train and rescue Kennith.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
             required_actions=("Find Kennith's toy train", "Use the toy train on Kennith"),
-        ),
-    ),
-    DEADLIEST_CATCH_ID: (
-        _stage_req(
-            1,
-            "Pickpocket the Master fisher for the sea chart.",
-            DEADLIEST_CATCH_WIKI_SOURCE,
-            required_actions=("Pickpocket the Master fisher for the sea chart",),
-        ),
-        _stage_req(
-            2,
-            "Recruit Linza and prepare the giant harpoon.",
-            DEADLIEST_CATCH_WIKI_SOURCE,
-            required_actions=("Recruit Linza", "Prepare the giant harpoon"),
-        ),
-        _stage_req(
-            3,
-            "Track the Thalassus and rescue Jones.",
-            DEADLIEST_CATCH_WIKI_SOURCE,
-            required_actions=("Track the Thalassus", "Rescue Jones"),
         ),
     ),
     WOLF_WHISTLE_ID: (
