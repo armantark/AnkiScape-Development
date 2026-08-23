@@ -10084,19 +10084,57 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("the_restless_ghost", self._quest_calls)
 
     def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
-        pd = _make_player_data()
-        pd["current_quest"] = "waterfall_quest"
-        pd["quests"]["waterfall_quest"] = {"started": True, "progress": 0, "completed": False}
-        dialog = self._open(pd)
-        _open_quests_tab(dialog)
+        from ankiscape.ui import ui_tab_quests
 
-        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Action required: Speak to Hudon by the waterfall"
-        self.assertIn(expected, labels)
-        action = dialog.findChild(QPushButton, "questAction_waterfall_quest")
-        self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
-        self.assertIn("Speak to Hudon by the waterfall", action.toolTip())
+        quest_id = "required_action_widget_fixture"
+        required_action = "Complete the required-action widget fixture"
+        quest_data = copy.deepcopy(ui_tab_quests.QUEST_DATA)
+        fixture = copy.deepcopy(quest_data["rune_mysteries"])
+        fixture.update(
+            {
+                "id": quest_id,
+                "display_name": "Required-action widget fixture",
+                "stages": 1,
+                "point_reward": 0,
+                "rewards": {},
+                "requirements": (),
+                "required_items": {},
+                "start_inventory": {},
+                "required_quests": (),
+                "required_skills": (),
+                "required_quest_points": 0,
+                "xp_rewards": (),
+                "lamp_rewards": (),
+                "combat": "",
+                "unlocks": (),
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "description": "Require a constructed action blocker.",
+                        "required_actions": (required_action,),
+                    },
+                ),
+                "choices": (),
+            }
+        )
+        quest_data[quest_id] = fixture
+        pd = _make_player_data()
+        pd["quests"][quest_id] = {"started": True, "progress": 0, "completed": False}
+
+        with (
+            patch.object(self._ui, "QUEST_DATA", quest_data),
+            patch.object(ui_tab_quests, "QUEST_DATA", quest_data),
+        ):
+            dialog = self._open(pd)
+            _open_quests_tab(dialog)
+
+            labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+            expected = "Blocked: Action required: Complete the required-action widget fixture"
+            self.assertIn(expected, labels)
+            action = dialog.findChild(QPushButton, f"questAction_{quest_id}")
+            self.assertIsNotNone(action)
+            self.assertFalse(action.isEnabled())
+            self.assertEqual(action.toolTip(), expected)
 
     def test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements(self) -> None:
         pd = _make_player_data()

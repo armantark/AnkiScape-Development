@@ -6185,6 +6185,11 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 2)
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            (),
+        )
         self.assertIn(
             "Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",
             player_data["quest_stage_actions"]["merlins_crystal"],
@@ -6199,6 +6204,11 @@ class TestLogic(unittest.TestCase):
             "Reach Keep Le Faye through the Catherby crate delivery",
             player_data["quest_stage_actions"]["merlins_crystal"],
         )
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Sir Mordred level 39",),
+        )
+
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 50
         player_data["strength_level"] = 50
@@ -6212,6 +6222,11 @@ class TestLogic(unittest.TestCase):
         )
         self.assertTrue(ok)
         self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["display_name"], "Sir Mordred")
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"merlins_crystal": ["merlins_crystal_sir_mordred_39"]},
+        )
 
         # The combat resolution does not advance the stage; the review apply
         # moves past Sir Mordred, then the wax stage consumes its items and
@@ -6220,11 +6235,18 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 4)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            ("Needs Bucket x1", "Needs Insect repellent x1"),
+        )
         player_data["inventory"]["Bucket"] = 1
         player_data["inventory"]["Insect repellent"] = 1
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Bucket"], 0)
+        self.assertEqual(player_data["inventory"]["Insect repellent"], 1)
+        self.assertEqual(player_data["inventory"]["Bucket of wax"], 1)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 5)
         self.assertIn(
             "Question Morgan Le Faye about Excalibur and the binding words",
@@ -6236,6 +6258,8 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Bucket of wax"], 0)
+        self.assertEqual(player_data["inventory"]["Black candle"], 1)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 6)
         self.assertIn(
             "Ask the Catherby candle-maker for a black candle",
@@ -6244,6 +6268,8 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Bread"], 0)
+        self.assertEqual(player_data["inventory"]["Excalibur"], 1)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 7)
         self.assertEqual(
             [
@@ -6256,6 +6282,10 @@ class TestLogic(unittest.TestCase):
             ],
             [],
         )
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            ("Needs Bat bones x1", "Needs Tinderbox"),
+        )
 
         # Stage 7 ritual chain: inscription, binding, smash, report are all automatic.
         player_data["inventory"]["Bat bones"] = 1
@@ -6263,9 +6293,14 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
+        self.assertEqual(player_data["inventory"]["Bat bones"], 0)
+        self.assertEqual(player_data["inventory"]["Black candle"], 0)
+        self.assertEqual(player_data["inventory"]["Lit black candle"], 1)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 8)
         self.assertTrue(player_data["quests"]["merlins_crystal"]["completed"])
         self.assertEqual(player_data["quest_points"], 6)
+        self.assertEqual(player_data["inventory"]["Excalibur"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         for action in (
             "Read the chaos altar inscription",
             "Bind Thrantax with Snarthon Candtrick Termanto",
