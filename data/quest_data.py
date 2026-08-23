@@ -3602,6 +3602,7 @@ class QuestStageRequirementCleanup:
     remove_required_actions: Tuple[str, ...] = ()
     add_required_actions: Tuple[str, ...] = ()
     add_auto_actions: Tuple[str, ...] = ()
+    remove_required_routes: Tuple[str, ...] = ()
     add_required_routes: Tuple[str, ...] = ()
     add_consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     add_produced_inventory: Tuple[Tuple[str, int], ...] = ()
@@ -5220,8 +5221,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             2,
             "Ask the Entrana High Priest and crone about the Grail.",
             f"{HOLY_GRAIL_MERLIN_SOURCE}; {HOLY_GRAIL_ENTRANA_SOURCE}",
-            required_routes=("Travel to Entrana",),
-            auto_actions=("Ask the Entrana High Priest and crone about the Grail",),
+            auto_actions=(
+                "Travel to Entrana",
+                "Ask the Entrana High Priest and crone about the Grail",
+            ),
         ),
         _stage_req(
             3,
@@ -5235,8 +5238,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Find the Magic whistles in Draynor Manor while carrying the Holy table napkin.",
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Holy table napkin", 1),),
-            required_routes=("Reach the Draynor Manor whistle room",),
-            auto_actions=("Find the Magic whistles in Draynor Manor",),
+            auto_actions=(
+                "Reach the Draynor Manor whistle room",
+                "Find the Magic whistles in Draynor Manor",
+            ),
             produced_inventory=(("Magic whistle", 2),),
         ),
         _stage_req(
@@ -5244,8 +5249,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Blow the Magic whistle at the six stone heads and defeat the Black Knight Titan with Excalibur.",
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_TITAN_SOURCE}; {HOLY_GRAIL_TITAN_NPC_SOURCE}",
             required_tools=(("Magic whistle", 1), ("Excalibur", 1)),
-            required_routes=("Reach the Fisher Realm crossing at the six stone heads",),
-            auto_actions=("Blow the Magic whistle at the six stone heads",),
+            auto_actions=(
+                "Reach the Fisher Realm crossing at the six stone heads",
+                "Blow the Magic whistle at the six stone heads",
+            ),
             produced_inventory=(("Grail bell", 1),),
             combat_encounters=(
                 _combat(
@@ -5972,8 +5979,8 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             consumed_inventory=(("Bird feed", 1),),
             required_tools=(("Pigeon cage", 1),),
-            required_routes=("Reach Jerico's pigeon release tile",),
             auto_actions=(
+                "Reach Jerico's pigeon release tile",
                 "Scatter bird feed on the watchtower fence",
                 "Open the pigeon cage at Jerico's release tile",
             ),
@@ -5982,8 +5989,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Cross the West Ardougne wall with Omart and Kilron's rope ladder.",
             f"{DARKAN_BIOHAZARD_OMART_SOURCE}; {DARKAN_BIOHAZARD_KILRON_SOURCE}; {DARKAN_BIOHAZARD_UTILS_SOURCE}",
-            required_routes=("Reach Omart by the south West Ardougne wall",),
-            auto_actions=("Cross the West Ardougne wall with Omart and Kilron",),
+            auto_actions=(
+                "Reach Omart by the south West Ardougne wall",
+                "Cross the West Ardougne wall with Omart and Kilron",
+            ),
         ),
         _stage_req(
             6,
@@ -5992,8 +6001,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; "
                 f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
-            required_routes=("Reach the Mourner HQ garden in West Ardougne",),
-            auto_actions=("Pick up a rotten apple from the Mourner HQ garden",),
+            auto_actions=(
+                "Reach the Mourner HQ garden in West Ardougne",
+                "Pick up a rotten apple from the Mourner HQ garden",
+            ),
             produced_inventory=(("Rotten apple", 1),),
         ),
         _stage_req(
@@ -6005,8 +6016,11 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             consumed_inventory=(("Rotten apple", 1),),
             produced_inventory=(("Doctors' gown", 1),),
-            required_routes=("Reach the Mourner HQ garden in West Ardougne",),
-            auto_actions=("Put the rotten apple in the Mourner HQ cauldron", "Search the box for a doctors' gown"),
+            auto_actions=(
+                "Reach the Mourner HQ garden in West Ardougne",
+                "Put the rotten apple in the Mourner HQ cauldron",
+                "Search the box for a doctors' gown",
+            ),
         ),
         _stage_req(
             8,
@@ -6101,8 +6115,8 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Touch paper", 1),
             ),
             required_tools=(("Priest gown", 2),),
-            required_routes=("Reach Guidor's house without Varrock guards confiscating the vials",),
             auto_actions=(
+                "Reach Guidor's house without Varrock guards confiscating the vials",
                 "Give sulphuric broline to Hops",
                 "Give ethenea to Da Vinci",
                 "Give liquid honey to Chancy",
@@ -6220,7 +6234,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             6,
             "Find the goblin hideout south-east of the camp.",
             DARKAN_DWARF_CANNON_SOURCE,
-            required_routes=("Reach the Dwarf Cannon goblin hideout",),
+            auto_actions=("Reach the Dwarf Cannon goblin hideout",),
         ),
         _stage_req(
             7,
@@ -8029,8 +8043,9 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             remove_required_actions=("Complete Dealing with Scabaras stage 1 objective",),
             add_auto_actions=(
                 "Prepare bronze equipment for the High Priest's tests",
+                "Reach the Agility Pyramid",
             ),
-            add_required_routes=("Reach the Agility Pyramid",),
+            remove_required_routes=("Reach the Agility Pyramid",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
@@ -8936,6 +8951,9 @@ def _apply_stage_requirement_cleanup(
     required_actions = tuple(
         action for action in requirement.required_actions if action not in set(cleanup.remove_required_actions)
     )
+    required_routes = tuple(
+        route for route in requirement.required_routes if route not in set(cleanup.remove_required_routes)
+    )
     return replace(
         requirement,
         required_inventory=_remove_stage_item_names(requirement.required_inventory, cleanup.remove_required_inventory),
@@ -8955,7 +8973,7 @@ def _apply_stage_requirement_cleanup(
         required_tools=_remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
         required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
         auto_actions=_append_unique_strings(requirement.auto_actions, cleanup.add_auto_actions),
-        required_routes=_append_unique_strings(requirement.required_routes, cleanup.add_required_routes),
+        required_routes=_append_unique_strings(required_routes, cleanup.add_required_routes),
     )
 
 

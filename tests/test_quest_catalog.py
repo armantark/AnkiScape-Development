@@ -1534,7 +1534,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[2]["required_tools"], {"Hammer": 1})
         self.assertEqual(by_stage[4]["produced_inventory"], {"Dwarf remains": 1})
         self.assertEqual(by_stage[5]["consumed_inventory"], {"Dwarf remains": 1})
-        self.assertEqual(by_stage[6]["required_routes"], ("Reach the Dwarf Cannon goblin hideout",))
+        self.assertEqual(by_stage[6]["auto_actions"], ("Reach the Dwarf Cannon goblin hideout",))
         self.assertEqual(by_stage[7]["auto_actions"], ("Rescue Lollk from the goblin hideout",))
         self.assertEqual(by_stage[8]["produced_inventory"], {"Toolkit": 1})
         self.assertEqual(by_stage[9]["required_tools"], {"Toolkit": 1})
