@@ -5202,9 +5202,20 @@ def show_main_menu(
             if not result.get("ok", result.get("allowed", False)):
                 warn.setText(str(result.get("message", "Could not end the Brimhaven stint")))
                 return
+        # Owner clause 2: stopping never leaves "no skill selected" — it lands
+        # on Bankstanding through the same activating seam every other path uses.
+        if on_start_activity is not None:
+            if not on_start_activity("bankstanding"):
+                warn.setText("Could not switch to Bankstanding.")
+                return
+        elif on_set_utility is not None:
+            on_set_utility("bankstanding")
+            player_data["current_utility"] = "bankstanding"
+        else:
+            warn.setText("Could not switch to Bankstanding.")
+            return
         warn.setText("")
-        state["active"] = "None"
-        on_save_skill("None")
+        state["active"] = _UTILITIES_HUB_NAME
         _refresh_active_label()
         _render_panel()
 

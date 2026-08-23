@@ -1045,6 +1045,16 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         random.setstate(before["random_state"])
         return False
     updated = refresh_music_log_pure(updated)[0]
+    if _activity_session_cleared(
+        player_data.get("activity_session"),
+        updated.get("activity_session"),
+    ):
+        # Owner clause 2: a completed session's surface becomes Bankstanding
+        # before the undo snapshot is finalized, so undo restores the former
+        # activity atomically.
+        current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
+        updated = dict(updated)
+        updated["current_utility"] = "bankstanding"
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
@@ -1464,26 +1474,15 @@ def show_skill_selection():
     save_skill(selected, None)
 
 def _deactivate_current_skill() -> None:
-    """Turn the active skill off (current_skill -> "None").
+    """End the active skill by landing on Bankstanding.
 
-    This remains the fallback for level, unlock, death, and configuration
-    failures. Material exhaustion uses Bankstanding instead so the ordinary
-    review-paced market clock keeps moving without repeated warnings.
+    Owner ruling (Pass 11, clause 2): no path that ends, refuses, invalidates,
+    or stops an activity may leave `current_skill == "None"`. Deactivation and
+    Bankstanding are therefore one transition — every refusal, level/unlock
+    failure, death, and material exhaustion lands on the settled no-XP
+    fallback so the ordinary review-paced market clock keeps moving.
     """
-    global current_skill
-    current_skill = "None"
-    try:
-        ui.update_menu_visibility(current_skill)
-    except Exception:
-        pass
-    try:
-        mw.col.set_config("ankiscape_current_skill", current_skill)
-    except Exception:
-        pass
-    try:
-        update_review_hud(player_data, current_skill)
-    except Exception:
-        pass
+    _switch_to_bankstanding()
 
 
 def _switch_to_bankstanding() -> None:
@@ -1503,6 +1502,19 @@ def _switch_to_bankstanding() -> None:
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+
+
+def _activity_session_cleared(before, after=None) -> bool:
+    """True when an active activity session ended (active_id -> empty).
+
+    The shared transition predicate for every boundary that finalizes an undo
+    snapshot after a session completes: the surface must land on Bankstanding
+    before the snapshot is taken so undo restores the former activity whole.
+    """
+    before_active = str((before or {}).get("active_id", "") or "")
+    after = after if after is not None else player_data.get("activity_session")
+    after_active = str((after or {}).get("active_id", "") or "")
+    return bool(before_active) and not after_active
 
 
 def _missing_materials_text(requirements, inventory) -> str:
@@ -5471,6 +5483,7 @@ def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown, _REVIEW_FEEDBACK_INITIAL_XP
     review_answered = card_turned and answer_shown
     successful_answer = ease > 1
+    before_session = player_data.get("activity_session")
     before_state = (
         _capture_player_data_snapshot(review_answer=True) if review_answered else None
     )
@@ -5758,6 +5771,8 @@ def on_answer_card(self, ease, _old):
         result = _old(self, ease)
     finally:
         if review_answered and before_state is not None:
+            if _activity_session_cleared(before_session):
+                _switch_to_bankstanding()
             _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
     try:
