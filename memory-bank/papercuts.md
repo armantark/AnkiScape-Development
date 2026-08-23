@@ -974,3 +974,6 @@
 - 2026-08-23T03:30:55-07:00: Focused route-test commands launched from the canonical checkout imported its pkg_alias and made all 26 tests run against the wrong quest data even when the worktree led PYTHONPATH, because Python searches the current directory first; worktree tests must execute with the worktree as the current directory.
 - 2026-08-23 04:31 PDT — A route conversion changed a widget blocker label that only the Qt lane could catch, so plain-lane-only slices can leave the Qt lane red.
 - 2026-08-23 03:47 PDT — The guarded worktree command rejected a positional base SHA with `error: unrecognized arguments: baecdc85`; the supported form is `--start-point baecdc85`, which the slice brief did not show.
+- 2026-08-23 03:49 PDT — A broad Witch's House grep across tests, data, and source audits produced 34.1 KB and was persisted instead of displayed; constrain quest probes to known files or exact constant names.
+- 2026-08-23 03:49 PDT — The first papercut append used a single-quoted shell string containing \x27, leaving that literal escape in the file despite the brief's warning; use Python or a literal apostrophe and inspect the appended line.
+- 2026-08-23 03:56 PDT — The focused reachability command guessed ItemReachabilityAuditTest, but the class is TestItemReachabilityAudit; inspect the class declaration before composing dotted unittest targets.

@@ -5736,103 +5736,83 @@ class TestLogic(unittest.TestCase):
         )
 
     def test_witchs_house_stage_gates_items_route_combat_and_reward(self):
+        quest_id = "witchs_house"
+        actions = (
+            "Enter the Witch's house with the door key",
+            "Use cheese on the mouse hole and attach the magnet to the mouse",
+            "Avoid the witch's patrol through the house",
+            "Unlock the Witch's shed door with the backroom key",
+            "Return the ball to Harvey",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 
-        player_data, ok = start_quest_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 0)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 2)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Door key"], 1)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
-            ("Action required: Enter the Witch's house with the door key",),
-        )
+        self.assertEqual(tuple(player_data["quest_stage_actions"].get(quest_id, ())), ())
 
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["witchs_house"]["progress"], 2)
-        self.assertEqual(blocked["pending_skill_exp_rewards"], {})
-
-        player_data["quest_stage_actions"] = {"witchs_house": ["Enter the Witch's house with the door key"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 3)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:1])
         self.assertEqual(player_data["inventory"]["Door key"], 1)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 4)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
         self.assertEqual(player_data["inventory"]["Magnet"], 1)
-
-        blockers = quest_current_stage_blockers_pure(player_data, "witchs_house", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item", "required_action"))
         self.assertEqual(
-            tuple(blocker["reason"] for blocker in blockers),
-            (
-                "Needs Cheese x1",
-                "Action required: Use cheese on the mouse hole and attach the magnet to the mouse",
-            ),
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            ("Needs Cheese x1",),
         )
-        self.assertFalse(can_progress_quest_pure(player_data, "witchs_house", QUEST_DATA))
 
         player_data["inventory"]["Cheese"] = 1
-        player_data["quest_stage_actions"]["witchs_house"].append(
-            "Use cheese on the mouse hole and attach the magnet to the mouse"
-        )
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
         self.assertEqual(player_data["inventory"]["Cheese"], 0)
         self.assertEqual(player_data["inventory"]["Magnet"], 1)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 5)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
-            (),
-        )
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:2])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 6)
-        self.assertIn(
-            "Avoid the witch's patrol through the house",
-            player_data["quest_stage_actions"]["witchs_house"],
-        )
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:3])
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Needs Leather gloves",),
         )
 
         player_data["inventory"]["Leather gloves"] = 1
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 7)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 8)
         self.assertEqual(player_data["inventory"]["Backroom key"], 1)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 8)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
-            ("Action required: Unlock the Witch's shed door with the backroom key",),
-        )
 
-        player_data["quest_stage_actions"]["witchs_house"].append("Unlock the Witch's shed door with the backroom key")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 9)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:4])
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (
                 "Combat locked until battle support is enabled: Witch's experiment (Skavid form) level 19",
                 "Combat locked until battle support is enabled: Witch's experiment (Spider form) level 30",
@@ -5848,12 +5828,16 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 60
         resolved_encounters = []
         for expected_remaining in (3, 2, 1, 0):
-            player_data, ok, result = apply_quest_combat_encounter_pure(player_data, "witchs_house", QUEST_DATA)
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
             self.assertTrue(ok)
             self.assertEqual(result["reason"], "combat_resolved")
             resolved_encounters.append(result["encounter_id"])
-            self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 9)
-            blockers = quest_current_stage_blockers_pure(player_data, "witchs_house", QUEST_DATA)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
+            blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
             self.assertEqual(len(blockers), expected_remaining)
         self.assertEqual(
             resolved_encounters,
@@ -5865,37 +5849,33 @@ class TestLogic(unittest.TestCase):
             ],
         )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 10)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 10)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 11)
         self.assertEqual(player_data["inventory"]["Ball"], 1)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 11)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "witchs_house", QUEST_DATA),
-            ("Action required: Return the ball to Harvey",),
-        )
 
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertFalse(blocked["quests"]["witchs_house"]["completed"])
-        self.assertEqual(blocked["pending_skill_exp_rewards"], {})
-
-        player_data["quest_stage_actions"]["witchs_house"].append("Return the ball to Harvey")
         constitution_before_reward = player_data["constitution_exp"]
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["witchs_house"]["completed"])
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 4)
         self.assertEqual(player_data["inventory"]["Ball"], 0)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
         self.assertEqual(player_data["constitution_exp"] - constitution_before_reward, 6325.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quest_points"], 4)
+        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
 
     def test_merlins_crystal_stage_gates_items_route_combat_and_reward(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
