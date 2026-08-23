@@ -1808,7 +1808,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=1,
         description="Investigate Merlin's crystal with the relevant round-table knights.",
-        required_actions=("Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
+        auto_actions=("Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
         source=(
             f"{MERLINS_CRYSTAL_SOURCE}; {MERLINS_CRYSTAL_SIR_GAWAIN_SOURCE}; "
             f"{MERLINS_CRYSTAL_SIR_LUCAN_SOURCE}; {MERLINS_CRYSTAL_SIR_LANCELOT_SOURCE}"
@@ -1859,7 +1859,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         required_inventory=(("Bucket", 1), ("Insect repellent", 1)),
         consumed_inventory=(("Bucket", 1),),
         produced_inventory=(("Bucket of wax", 1),),
-        required_actions=("Question Morgan Le Faye about Excalibur and the binding words",),
+        auto_actions=("Question Morgan Le Faye about Excalibur and the binding words",),
         source=(
             f"{MERLINS_CRYSTAL_MORGAN_SOURCE}; {MERLINS_CRYSTAL_BEEHIVE_SOURCE}; {MERLINS_CRYSTAL_BEEKEEPER_SOURCE}; "
             f"{MERLINS_CRYSTAL_2011SCAPE_CATHERBY_SPAWN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
@@ -1870,7 +1870,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Exchange the bucket of wax for a black candle.",
         consumed_inventory=(("Bucket of wax", 1),),
         produced_inventory=(("Black candle", 1),),
-        required_actions=("Ask the Catherby candle-maker for a black candle",),
+        auto_actions=("Ask the Catherby candle-maker for a black candle",),
         source=f"{MERLINS_CRYSTAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1878,7 +1878,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Pass the Lady of the Lake's Port Sarim test and receive Excalibur.",
         consumed_inventory=(("Bread", 1),),
         produced_inventory=(("Excalibur", 1),),
-        required_actions=("Accept the Lady of the Lake's test in Taverley", "Give bread to the Port Sarim beggar"),
+        auto_actions=("Accept the Lady of the Lake's test in Taverley", "Give bread to the Port Sarim beggar"),
         source=f"{MERLINS_CRYSTAL_LADY_SOURCE}; {MERLINS_CRYSTAL_BEGGAR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1888,7 +1888,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         consumed_inventory=(("Bat bones", 1), ("Black candle", 1)),
         produced_inventory=(("Lit black candle", 1),),
         required_tools=(("Tinderbox", 1), ("Excalibur", 1)),
-        required_actions=(
+        auto_actions=(
             "Read the chaos altar inscription",
             "Bind Thrantax with Snarthon Candtrick Termanto",
             "Shatter Merlin's crystal with Excalibur",

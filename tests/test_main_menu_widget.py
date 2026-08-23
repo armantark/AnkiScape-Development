@@ -9557,9 +9557,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"] = {"Bucket": 1}
         pd["current_quest"] = "merlins_crystal"
         pd["quests"]["merlins_crystal"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_stage_actions"] = {
-            "merlins_crystal": ["Question Morgan Le Faye about Excalibur and the binding words"]
-        }
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
@@ -10088,21 +10085,18 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
         pd = _make_player_data()
-        pd["current_quest"] = "merlins_crystal"
-        pd["quests"]["merlins_crystal"] = {"started": True, "progress": 0, "completed": False}
+        pd["current_quest"] = "waterfall_quest"
+        pd["quests"]["waterfall_quest"] = {"started": True, "progress": 0, "completed": False}
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = (
-            "Blocked: Action required: Complete the round-table investigation with "
-            "Sir Gawain, Sir Lucan, and Sir Lancelot"
-        )
+        expected = "Blocked: Action required: Speak to Hudon by the waterfall"
         self.assertIn(expected, labels)
-        action = dialog.findChild(QPushButton, "questAction_merlins_crystal")
+        action = dialog.findChild(QPushButton, "questAction_waterfall_quest")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Complete the round-table investigation", action.toolTip())
+        self.assertIn("Speak to Hudon by the waterfall", action.toolTip())
 
     def test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements(self) -> None:
         pd = _make_player_data()
