@@ -916,6 +916,97 @@ an open design fork; it does not choose or implement a repair.
   carries no information. Option B also grows the choice registry by 44 entries
   that never branch.
 
+### 3.33 Six Dealing with Scabaras stages use a generated stub as their only action record
+
+Raised 2026-08-22 after a complete scan of the generated quest-action fallback
+found a distinct unresolved shape. This is an unsettled design question, not
+pending implementation work.
+
+- **Measured shape:** at `2a1d454f`, six cleanup rows re-added a generated
+  `Complete {display_name} stage {stage} objective` stub as the only
+  `auto_actions` value for that stage. Every row belongs to **Dealing with
+  Scabaras**: stages `2`, `3`, `4`, `5`, `6`, and `7`.
+- **Why this is separate:** unlike a row where a specific player-meaningful
+  action exists, removing one of these stubs would leave the stage with no
+  recorded action at all. The settled rule for redundant stubs therefore does
+  not decide these rows.
+
+**OWNER DECISION — open design fork awaiting the owner or the design thread**
+
+- **Fork:** should a stage with no specific action record keep its generated
+  completion stub, or should completing that stage record no action?
+- This entry records the fork only. Do not treat either outcome as scheduled or
+  settled until the owner decides it.
+
+### 3.34 Source-audit test selectors can silently outlive their tests
+
+Raised 2026-08-22 after an AST-backed scan compared qualified test selectors in
+`memory-bank/source-audits` with the test methods currently defined under
+`tests`.
+
+- **Measured class:** at `2a1d454f`, the scan found **27 dangling selector
+  occurrences**, representing **24 unique test names across 19 documents**.
+  The dispatch reported 26 occurrences, 23 unique names, and 18 documents. The
+  independently reproduced result adds
+  `memory-bank/source-audits/combat-standard-spells-2026-06-23.md` and its
+  `tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_exposes_style_and_spell_controls`
+  selector; that method is absent from the test AST, so the record keeps the
+  disagreement rather than dropping it to match the earlier count.
+- **Why this accumulated unseen:** `tools/audit_docs.py` checks documentation
+  integrity but does not resolve qualified unittest selectors against the
+  current test AST. A dangling-test-name check belongs in that audit.
+- **Scope:** this is second-level work. Do not rewrite the historical source
+  audits or change `tools/audit_docs.py` as part of the stub-consistency slice.
+
+**Dangling selector snapshot (`2a1d454f`):**
+
+- `memory-bank/source-audits/combat-mugger-2026-06-23.md`
+  - `tests.test_combat_logic.CombatLogicTest.test_mugger_quantity_range_drop_rolls`
+  - `tests.test_combat_logic.CombatLogicTest.test_mugger_drop_rolls_nested_minor_herb_table`
+- `memory-bank/source-audits/combat-standard-spells-2026-06-23.md`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_exposes_style_and_spell_controls`
+- `memory-bank/source-audits/combat-thief-2026-06-23.md`
+  - `tests.test_combat_logic.CombatLogicTest.test_thief_quantity_range_drop_rolls`
+  - `tests.test_combat_logic.CombatLogicTest.test_thief_drop_rolls_nested_minor_herb_table`
+- `memory-bank/source-audits/combat-thug-2026-06-23.md`
+  - `tests.test_combat_logic.CombatLogicTest.test_thug_drop_rolls_nested_minor_herb_table`
+- `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_bank_claims_collapse_locked_rows_into_summary`
+- `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md`
+  - `tests.test_integration_smoke.TestIntegrationSmoke.test_hunter_supply_purchase_runs_once_and_switches_off`
+  - `tests.test_integration_smoke.TestIntegrationSmoke.test_utility_fishing_bait_batches_without_skill_xp`
+  - `tests.test_integration_smoke.TestIntegrationSmoke.test_utility_multiplier_runs_feather_scavenging_ticks`
+- `memory-bank/source-audits/quest-biohazard-stage-detail-2026-06-22.md`
+  - `tests.test_logic.TestLogic.test_biohazard_stage_gates_pigeons_mourner_distillator_and_guidor`
+- `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_generated_combat_gate_as_stage_blocker`
+- `memory-bank/source-audits/quest-darkan-no-combatlevels-beast-stat-fallback-2026-06-22.md`
+  - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_no_combat_levels_beast_stat_gate`
+- `memory-bank/source-audits/quest-dragon-slayer-stage-detail-2026-06-22.md`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_dragon_slayer_elvarg_combat_gate_selection`
+- `memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
+  - `tests.test_logic.TestLogic.test_dwarf_cannon_stage_gates_noncombat_items_actions_and_reward`
+- `memory-bank/source-audits/quest-generated-pseudo-item-cleanup-2026-06-23.md`
+  - `tests.test_logic.TestLogic.test_dwarf_cannon_stage_gates_noncombat_items_actions_and_reward`
+  - `tests.test_logic.TestLogic.test_shield_of_arrav_black_arm_route_requires_key_and_isolates_variant_rewards`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_shield_black_arm_partner_key_action`
+- `memory-bank/source-audits/quest-holy-grail-tree-gnome-stage-detail-2026-06-22.md`
+  - `tests.test_logic.TestLogic.test_holy_grail_stage_gates_excalibur_titan_and_holy_grail_handin`
+- `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
+  - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_resolves_merlins_crystal_mordred_before_stage_progress`
+- `memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md`
+  - `tests.test_logic.TestLogic.test_priest_in_peril_blocks_on_source_backed_stage_gates_and_consumes_essence`
+- `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`
+  - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_sheep_herder_feed_gate`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_sheep_herder_current_stage_blocker`
+- `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_generated_combat_gate_as_stage_blocker`
+- `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md`
+  - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_generated_combat_gate_as_stage_blocker`
+- `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
+  - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_witchs_house_first_form_combat_gate`
+  - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_resolves_witchs_house_first_form_before_stage_progress`
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

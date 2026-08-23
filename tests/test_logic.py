@@ -3545,7 +3545,6 @@ class TestLogic(unittest.TestCase):
         player_data["inventory"].update({"Ugthanki dung": 1, "Pyramid top": 1})
         player_data["quest_route_states"] = {quest_id: ["Reach the Agility Pyramid"]}
         expected_actions = (
-            "Complete Dealing with Scabaras stage 1 objective",
             "Prepare bronze equipment for the High Priest's tests",
             "Complete Dealing with Scabaras stage 2 objective",
             "Complete Dealing with Scabaras stage 3 objective",
@@ -3579,7 +3578,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
                 tuple(player_data["quest_stage_actions"][quest_id]),
-                expected_actions[: stage + 1],
+                expected_actions[:stage],
             )
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
@@ -8452,10 +8451,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
             player_data["quest_stage_actions"][quest_id],
-            [
-                "Complete While Guthix Sleeps stage 1 objective",
-                "Cast NPC Contact to reach the quest contacts",
-            ],
+            ["Cast NPC Contact to reach the quest contacts"],
         )
 
     def test_quest_completion_awards_trainable_xp_and_parks_unimplemented_xp(self):
