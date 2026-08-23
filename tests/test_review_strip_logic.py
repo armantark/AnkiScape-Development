@@ -795,9 +795,9 @@ class ReviewBankRunViewTest(unittest.TestCase):
 
 class BankRunTravelViewTest(unittest.TestCase):
     def test_no_bank_run_reports_inactive(self):
-        view = review_bank_run_travel_view_pure(_player())
+        view = review_bank_run_travel_view_pure(_player(), "mining")
 
-        self.assertEqual(view, {"active": False})
+        self.assertEqual(view, {"active": False, "queued": False})
 
     def test_active_combat_run_projects_its_two_review_trip(self):
         data = _player()
@@ -806,9 +806,10 @@ class BankRunTravelViewTest(unittest.TestCase):
             "target_id": "chicken",
         }
 
-        view = review_bank_run_travel_view_pure(data)
+        view = review_bank_run_travel_view_pure(data, "combat")
 
         self.assertTrue(view["active"])
+        self.assertFalse(view["queued"])
         self.assertEqual(view["kind"], "combat")
         self.assertEqual(view["total"], 2)
         self.assertEqual(view["remaining"], 2)
@@ -821,7 +822,7 @@ class BankRunTravelViewTest(unittest.TestCase):
             "target_id": "chicken",
         }
 
-        view = review_bank_run_travel_view_pure(data)
+        view = review_bank_run_travel_view_pure(data, "combat")
 
         self.assertEqual(view["remaining"], 1)
         self.assertEqual(view["percent"], 50)
@@ -841,9 +842,10 @@ class BankRunTravelViewTest(unittest.TestCase):
             ],
         }
 
-        view = review_bank_run_travel_view_pure(data)
+        view = review_bank_run_travel_view_pure(data, "mining")
 
         self.assertTrue(view["active"])
+        self.assertFalse(view["queued"])
         self.assertEqual(view["kind"], "carried")
         # Three reviews left sits inside the closing five-review Banking phase.
         self.assertEqual(view["label"], "Banking")
@@ -851,30 +853,40 @@ class BankRunTravelViewTest(unittest.TestCase):
         self.assertEqual(view["remaining"], 3)
         self.assertEqual(view["percent"], 70)
 
-    def test_queued_manual_request_shows_before_the_route_starts(self):
+    def test_queued_manual_request_is_not_a_false_one_review_route(self):
         data = _player()
         data["review_bank_run_requested_target"] = "copper_ore"
 
-        view = review_bank_run_travel_view_pure(data)
+        view = review_bank_run_travel_view_pure(data, "mining")
 
-        self.assertTrue(view["active"])
+        self.assertFalse(view["active"])
+        self.assertTrue(view["queued"])
         self.assertEqual(view["kind"], "carried")
-        self.assertEqual(view["total"], 1)
+        self.assertEqual(view["total"], 0)
+        self.assertEqual(view["remaining"], 0)
+        self.assertEqual(view["percent"], 0)
+        self.assertEqual(view["text"], "Bank run queued")
 
-    def test_pending_request_selects_its_own_route_over_stale_states(self):
+    def test_pending_request_selects_the_current_handler_over_stale_states(self):
         data = _player()
-        data["review_bank_run_requested_handler"] = "combat"
+        data["review_bank_run_requested_handler"] = "utility"
+        data["combat_bank_run"] = {
+            "reviews_remaining": 2,
+            "target_id": "chicken",
+        }
         data["skilling_bank_run"] = {
             "reviews_remaining": 4,
             "reviews_total": 10,
             "route_label": "Running to the bank",
         }
 
-        view = review_bank_run_travel_view_pure(data)
+        view = review_bank_run_travel_view_pure(data, "utility")
 
-        self.assertEqual(view["kind"], "combat")
+        self.assertFalse(view["active"])
+        self.assertTrue(view["queued"])
+        self.assertEqual(view["text"], "Bank run queued")
 
-    def test_coexisting_states_prefer_combat(self):
+    def test_coexisting_states_project_the_current_handlers_route(self):
         data = _player()
         data["combat_bank_run"] = {
             "reviews_remaining": 2,
@@ -886,9 +898,14 @@ class BankRunTravelViewTest(unittest.TestCase):
             "route_label": "Running to the bank",
         }
 
-        view = review_bank_run_travel_view_pure(data)
+        mining_view = review_bank_run_travel_view_pure(data, "mining")
+        combat_view = review_bank_run_travel_view_pure(data, "combat")
 
-        self.assertEqual(view["kind"], "combat")
+        self.assertEqual(mining_view["kind"], "carried")
+        self.assertEqual(mining_view["remaining"], 4)
+        self.assertEqual(mining_view["percent"], 60)
+        self.assertEqual(combat_view["kind"], "combat")
+        self.assertEqual(combat_view["remaining"], 2)
 
 
 class FillDrawerViewTest(unittest.TestCase):

@@ -292,18 +292,16 @@ def review_bank_run_button_view_pure(
     }
 
 
-def review_bank_run_travel_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
-    """One projection of any active or queued bank run, for the HUD strip.
-
-    Combat and carried states can coexist in persisted saves, so a pending
-    request names its own route first; otherwise an active combat trip
-    outranks a carried one because it owns the live encounter.
-    """
+def review_bank_run_travel_view_pure(
+    player_data: Mapping[str, Any], handler_key: Any
+) -> dict[str, Any]:
+    """Project the active review handler's bank run for the HUD strip."""
 
     def _run(key: str) -> Mapping[str, Any]:
         raw = player_data.get(key)
         return raw if isinstance(raw, Mapping) else {}
 
+    handler = str(handler_key or "")
     requested_handler = str(
         player_data.get("review_bank_run_requested_handler", "") or ""
     )
@@ -316,40 +314,53 @@ def review_bank_run_travel_view_pure(player_data: Mapping[str, Any]) -> dict[str
     combat_run = _run("combat_bank_run")
     skilling_run = _run("skilling_bank_run")
 
-    if requested_handler == "combat":
+    if handler == "combat":
         kind = "combat"
-    elif requested_handler:
+        remaining = min(
+            _non_negative_int(combat_run.get("reviews_remaining", 0)),
+            COMBAT_BANK_RUN_REVIEWS,
+        )
+        queued = remaining <= 0 and requested_handler == handler
+    elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
         kind = "carried"
-    elif _non_negative_int(combat_run.get("reviews_remaining", 0)) > 0:
-        kind = "combat"
-    elif (
-        requested_target
-        or requested_skilling
-        or _non_negative_int(skilling_run.get("reviews_remaining", 0)) > 0
-    ):
+        remaining = _non_negative_int(skilling_run.get("reviews_remaining", 0))
+        queued = remaining <= 0 and bool(requested_target or requested_skilling)
+    elif handler and requested_handler == handler:
         kind = "carried"
+        remaining = 0
+        queued = True
     else:
-        return {"active": False}
+        return {"active": False, "queued": False}
+
+    if remaining <= 0:
+        if not queued:
+            return {"active": False, "queued": False}
+        return {
+            "active": False,
+            "queued": True,
+            "kind": kind,
+            "label": "Queued",
+            "total": 0,
+            "remaining": 0,
+            "percent": 0,
+            "text": "Bank run queued",
+        }
 
     if kind == "combat":
         label = "Banking supplies"
-        remaining = _non_negative_int(combat_run.get("reviews_remaining", 0))
-        if remaining <= 0:
-            remaining = COMBAT_BANK_RUN_REVIEWS
-        total = max(remaining, COMBAT_BANK_RUN_REVIEWS)
+        total = COMBAT_BANK_RUN_REVIEWS
     else:
         label = bank_run_phase_label_pure(skilling_run)
-        remaining = _non_negative_int(skilling_run.get("reviews_remaining", 0))
-        if remaining <= 0:
-            # Queued only: the carried overlay starts the real route on its
-            # next successful card, so the first travel review shows pending.
-            remaining = 1
-        total = max(remaining, _non_negative_int(skilling_run.get("reviews_total", 0)), 1)
+        total = max(
+            remaining,
+            _non_negative_int(skilling_run.get("reviews_total", 0)),
+        )
 
     done = min(total - remaining, total)
     percent = int(round(100.0 * done / total))
     return {
         "active": True,
+        "queued": False,
         "kind": kind,
         "label": label,
         "total": total,

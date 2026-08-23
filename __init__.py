@@ -5843,10 +5843,6 @@ def initialize_exp_popup():
 def _refresh_review_surfaces() -> None:
     """The one refresh of every reviewer overlay, per surface event."""
     try:
-        from .ui.ui import get_config_bool  # type: ignore
-        if get_config_bool("ankiscape_review_hud_enabled", True):
-            ensure_review_hud()
-            update_review_hud(player_data, current_skill)
         ensure_review_context_action_strip()
         _update_review_context_surface()
         ensure_review_status_badge()

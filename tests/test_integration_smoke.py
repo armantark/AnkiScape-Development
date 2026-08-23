@@ -610,11 +610,13 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         self.assertEqual(calls["good_answer"], 2)
 
-        # With Experience HUD ON, both question/answer events should ensure+update
+        # Each question/answer surface event refreshes the HUD exactly once.
+        before_ensure = calls["ensure"]
+        before_update = calls["update"]
         addon._on_rev_show_question()
         addon._on_rev_show_answer()
-        self.assertGreaterEqual(calls["ensure"], 1)
-        self.assertGreaterEqual(calls["update"], 2)
+        self.assertEqual(calls["ensure"] - before_ensure, 2)
+        self.assertEqual(calls["update"] - before_update, 2)
 
         # Floating XP ON => popup shows once
         addon._show_exp(10)
@@ -6758,15 +6760,18 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertNotIn("bank_run_triggered", settings)
         self.assertEqual(len(bank_runs), 2)
 
-    def test_grand_exchange_collection_triggers_bank_run(self):
+    def test_grand_exchange_collection_starts_live_combat_bank_run(self):
         addon = _load_addon_as_package(
             "ankiscape_grand_exchange_collection_bank_run_integration"
         )
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         addon.mw = _DummyMW(_DummyCol())
-        addon.current_skill = "Utility / Activities"
+        addon.current_skill = "Combat"
         ge_logic = sys.modules[f"{addon.__name__}.logic.grand_exchange_logic"]
+        review_strip_logic = sys.modules[
+            f"{addon.__name__}.logic.review_strip_logic"
+        ]
         item_spec = addon.GE_ITEM_CATALOG["Logs"]
         initial, placed = ge_logic.place_ge_offer_pure(
             {"inventory": {"Coins": 10_000}, "smithing_level": 1},
@@ -6785,20 +6790,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             collectible_items=1,
             status="complete",
         )
+        initial.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_encounter": {
+                    "target_id": "chicken",
+                    "enemy_lifepoints": 10,
+                    "disengaged": False,
+                },
+            }
+        )
         addon.player_data = initial
         initial_snapshot = copy.deepcopy(initial)
         addon.save_player_data = lambda: None
-        addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
-        bank_runs = []
-
-        def request_bank_run(data):
-            bank_runs.append(copy.deepcopy(data))
-            updated = copy.deepcopy(data)
-            updated["ge_bank_run_requested"] = True
-            return updated, True, "", False
-
-        addon._request_active_bank_run_state = request_bank_run
         addon._on_main_menu()
 
         result = captured["on_ge_action"](
@@ -6807,8 +6812,22 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertTrue(result["ok"])
         self.assertTrue(result["bank_run_triggered"])
-        self.assertEqual(len(bank_runs), 1)
-        self.assertTrue(addon.player_data["ge_bank_run_requested"])
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
+        self.assertEqual(
+            addon.player_data["combat_encounter"],
+            initial_snapshot["combat_encounter"],
+        )
+        travel = review_strip_logic.review_bank_run_travel_view_pure(
+            addon.player_data, "combat"
+        )
+        self.assertTrue(travel["active"])
+        self.assertFalse(travel["queued"])
+        self.assertEqual(travel["kind"], "combat")
+        self.assertEqual(travel["total"], 2)
+        self.assertEqual(travel["remaining"], 2)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
@@ -6818,7 +6837,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         result = captured["on_ge_action"]("collect_all", {})
         self.assertTrue(result["ok"])
         self.assertTrue(result["bank_run_triggered"])
-        self.assertEqual(len(bank_runs), 2)
+        self.assertEqual(
+            addon.player_data["combat_bank_run"],
+            {"reviews_remaining": 2, "target_id": "chicken"},
+        )
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")

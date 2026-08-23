@@ -663,18 +663,31 @@ class ReviewStripTest(unittest.TestCase):
     def test_an_active_bank_run_owns_the_strip_and_returns_it_when_cleared(
         self,
     ) -> None:
+        from ankiscape.logic.fist_of_guthix_logic import (
+            default_fist_of_guthix_state_pure,
+            start_fist_of_guthix_match_pure,
+        )
+
         state = self._state()
+        state["fist_of_guthix"] = default_fist_of_guthix_state_pure()
+        state["fist_of_guthix"]["tutorial_complete"] = True
+        state, ok, _info = start_fist_of_guthix_match_pure(
+            state, iter((0.4, 0.5, 0.2, 0.8, 0.1)).__next__
+        )
+        self.assertTrue(ok)
         hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = hud
         hud.show()
         self.parent.resize(1000, 560)
 
-        # Normal Mining: the ordinary branch.
+        # Normal Mining: the ordinary branch, including an unrelated world notice.
         hud.set_data(state, "Mining")
         for _ in range(3):
             QApplication.processEvents()
         self.assertIn("Mining — Lv 30", hud.title_lbl.text())
         self.assertTrue(hud.progress.isVisible())
+        self.assertTrue(hud.world_notice_lbl.isVisible())
+        self.assertIn("Fist of Guthix round 1/2", hud.world_notice_lbl.text())
 
         # Active carried travel: the travel display owns the whole area.
         state["skilling_bank_run"] = {
@@ -694,6 +707,7 @@ class ReviewStripTest(unittest.TestCase):
         self.assertTrue(hud.progress.isVisible())
         self.assertFalse(hud.second_progress.isVisible())
         self.assertFalse(hud.second_progress_lbl.isVisible())
+        self.assertFalse(hud.world_notice_lbl.isVisible())
 
         # Run cleared: the ordinary Mining branch returns by itself.
         state["skilling_bank_run"] = {}
@@ -701,6 +715,7 @@ class ReviewStripTest(unittest.TestCase):
         for _ in range(3):
             QApplication.processEvents()
         self.assertIn("Mining — Lv 30", hud.title_lbl.text())
+        self.assertTrue(hud.world_notice_lbl.isVisible())
 
         # Live combat: player health and enemy presentation.
         state.update(

@@ -69,6 +69,7 @@ except Exception:
     mw = None  # type: ignore
     HAS_QT = False
 
+from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
@@ -2624,8 +2625,10 @@ if HAS_QT:
             # While a bank run is active or queued it owns the entire progress
             # area (owner ruling: including combat's health/enemy presentation).
             # The ordinary branches re-show whatever they need below.
-            travel = review_bank_run_travel_view_pure(player_data)
-            if travel.get("active"):
+            travel = review_bank_run_travel_view_pure(
+                player_data, review_action_handler_key(skill)
+            )
+            if travel.get("active") or travel.get("queued"):
                 for stale in (
                     self.enemy_progress,
                     self.chips_lbl,
@@ -2634,6 +2637,7 @@ if HAS_QT:
                     self.second_progress_lbl,
                     self.target_lbl,
                     self.sub_lbl,
+                    self.world_notice_lbl,
                 ):
                     stale.setVisible(False)
                 self.icon_lbl.clear()
