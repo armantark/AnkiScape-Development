@@ -935,3 +935,7 @@
 - 2026-08-22 20:30:34 PDT — A two-command sed probe failed before execution with `(eval):1: unmatched '` despite balanced-looking quotes; rerunning with unquoted ranges and double-quoted paths succeeded.
 - 2026-08-22 20:33:05 PDT — Simplifying the Fishing Contest regression with a repository-wide exact assertion replacement matched three methods and aborted with `expected one Fishing Contest inventory assertion, found 3`; bound the replacement to the named test method instead.
 - 2026-08-22 21:10:41 PDT: The corrected Fishing Contest source-audit command still failed because TestLogic.test_fishing_contest_stage_gates_pass_garlic_catch_and_trophy had also been renamed; validating the full copied command exposed the second stale reference.
+- 2026-08-22 20:29 PDT — While checking Rat Catchers cache evidence, I invoked tools/query_openrs2_cache.sh with python3 instead of Bash; it failed at line 2 with SyntaxError on set -euo pipefail.
+- 2026-08-22 20:31 PDT — The first focused Rat Catchers run used a `tests.` unittest prefix; run_tests.py rejected it as ambiguous and required `test_logic.TestLogic.test_rat_catchers_rat_poison_emitter_advances_real_stage`.
+- 2026-08-22 21:06:06 PDT: A broad rg over quest_data.py and tests produced 5.7 MB of persisted output while tracing stage-stub behavior; narrower searches were needed.
+- 2026-08-22 21:06:35 PDT: A mixed-quote rg pattern for generated quest objectives failed with '(eval):1: unmatched "'; use single-purpose fixed-string searches instead.
