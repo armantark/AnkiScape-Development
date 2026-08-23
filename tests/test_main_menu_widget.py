@@ -10088,18 +10088,21 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
         pd = _make_player_data()
-        pd["current_quest"] = "the_restless_ghost"
-        pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 1, "completed": False}
+        pd["current_quest"] = "merlins_crystal"
+        pd["quests"]["merlins_crystal"] = {"started": True, "progress": 0, "completed": False}
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Action required: Receive the ghostspeak amulet from Father Urhney"
+        expected = (
+            "Blocked: Action required: Complete the round-table investigation with "
+            "Sir Gawain, Sir Lucan, and Sir Lancelot"
+        )
         self.assertIn(expected, labels)
-        action = dialog.findChild(QPushButton, "questAction_the_restless_ghost")
+        action = dialog.findChild(QPushButton, "questAction_merlins_crystal")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Receive the ghostspeak amulet", action.toolTip())
+        self.assertIn("Complete the round-table investigation", action.toolTip())
 
     def test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements(self) -> None:
         pd = _make_player_data()
