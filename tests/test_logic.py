@@ -3693,14 +3693,13 @@ class TestLogic(unittest.TestCase):
             (
                 "Needs Ugthanki dung x1",
                 "Needs Pyramid top x1",
-                "Route required: Reach the Agility Pyramid",
             ),
         )
 
         player_data["inventory"].update({"Ugthanki dung": 1, "Pyramid top": 1})
-        player_data["quest_route_states"] = {quest_id: ["Reach the Agility Pyramid"]}
         expected_actions = (
             "Prepare bronze equipment for the High Priest's tests",
+            "Reach the Agility Pyramid",
             "Complete Dealing with Scabaras stage 2 objective",
             "Complete Dealing with Scabaras stage 3 objective",
             "Complete Dealing with Scabaras stage 4 objective",
@@ -3709,7 +3708,8 @@ class TestLogic(unittest.TestCase):
             "Complete Dealing with Scabaras stage 7 objective",
         )
 
-        for stage in range(1, 8):
+        stage_action_counts = (2, 3, 4, 5, 6, 7, 8)
+        for stage, action_count in zip(range(1, 8), stage_action_counts):
             if stage == 6:
                 self.assertEqual(
                     quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
@@ -3733,7 +3733,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
                 tuple(player_data["quest_stage_actions"][quest_id]),
-                expected_actions[:stage],
+                expected_actions[:action_count],
             )
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
@@ -3947,17 +3947,8 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], progress)
             self.assertEqual(tuple(player_data["inventory"].get(item_name, 0) for item_name in inventory_names), inventory)
 
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Route required: Reach the Dwarf Cannon goblin hideout",),
-        )
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["dwarf_cannon"]["progress"], 6)
-        self.assertEqual(blocked["crafting_exp"], 0)
+        self.assertEqual(quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA), ())
 
-        player_data["quest_route_states"] = {"dwarf_cannon": ["Reach the Dwarf Cannon goblin hideout"]}
         expected_steps = (
             (7, False, (0, 0, 0, 0, 0)),
             (8, False, (0, 0, 0, 0, 0)),
@@ -3981,6 +3972,7 @@ class TestLogic(unittest.TestCase):
                 "Accept replacement railings from Captain Lawgof",
                 "Report the repaired stockade to Captain Lawgof",
                 "Take Gilob's remains from the watchtower",
+                "Reach the Dwarf Cannon goblin hideout",
                 "Rescue Lollk from the goblin hideout",
                 "Tell Captain Lawgof that Lollk is safe",
                 "Repair the sabotaged cannon",
@@ -4379,23 +4371,18 @@ class TestLogic(unittest.TestCase):
         )
 
         player_data["inventory"].update({"Priest gown": 2})
-        player_data["quest_route_states"] = {
-            "biohazard": [
-                "Reach Jerico's pigeon release tile",
-                "Reach Omart by the south West Ardougne wall",
-                "Reach the Mourner HQ garden in West Ardougne",
-                "Reach Guidor's house without Varrock guards confiscating the vials",
-            ]
-        }
         expected_actions = (
             "Ask Jerico about crossing the West Ardougne wall",
             "Ask Omart about the rope ladder",
             "Ask Jerico about using messenger pigeons",
             "Search Jerico's cupboard for bird feed",
             "Take a pigeon cage from Jerico's house",
+            "Reach Jerico's pigeon release tile",
             "Scatter bird feed on the watchtower fence",
             "Open the pigeon cage at Jerico's release tile",
+            "Reach Omart by the south West Ardougne wall",
             "Cross the West Ardougne wall with Omart and Kilron",
+            "Reach the Mourner HQ garden in West Ardougne",
             "Pick up a rotten apple from the Mourner HQ garden",
             "Put the rotten apple in the Mourner HQ cauldron",
             "Search the box for a doctors' gown",
@@ -4405,6 +4392,7 @@ class TestLogic(unittest.TestCase):
             "Search the crate for Elena's distillator",
             "Return Elena's distillator",
             "Ask the Rimmington chemist for touch paper for Guidor",
+            "Reach Guidor's house without Varrock guards confiscating the vials",
             "Give sulphuric broline to Hops",
             "Give ethenea to Da Vinci",
             "Give liquid honey to Chancy",
@@ -5034,18 +5022,14 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "holy_grail")
         self.assertNotIn("holy_grail", player_data["quest_stage_actions"])
-        player_data["quest_route_states"] = {
-            "holy_grail": [
-                "Travel to Entrana",
-                "Reach the Draynor Manor whistle room",
-                "Reach the Fisher Realm crossing at the six stone heads",
-            ]
-        }
         expected_actions = (
             "Ask Merlin about the Holy Grail",
+            "Travel to Entrana",
             "Ask the Entrana High Priest and crone about the Grail",
             "Ask Sir Galahad for an artifact from the Fisher Realm",
+            "Reach the Draynor Manor whistle room",
             "Find the Magic whistles in Draynor Manor",
+            "Reach the Fisher Realm crossing at the six stone heads",
             "Blow the Magic whistle at the six stone heads",
             "Ring the Grail bell and ask the Fisher King about Percival",
             "Ask King Arthur about Sir Percival",
@@ -5055,14 +5039,15 @@ class TestLogic(unittest.TestCase):
             "Take the Holy grail from the restored Fisher Realm",
         )
 
-        for expected_progress in range(2, 6):
+        stage_action_counts = (1, 3, 4, 6, 8)
+        for offset, expected_progress in enumerate(range(2, 7)[:-1]):
             player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
             self.assertTrue(ok)
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"]["holy_grail"]["progress"], expected_progress)
             self.assertEqual(
                 tuple(player_data["quest_stage_actions"]["holy_grail"]),
-                expected_actions[: expected_progress - 1],
+                expected_actions[: stage_action_counts[offset]],
             )
 
         self.assertEqual(player_data["inventory"]["Holy table napkin"], 1)
@@ -5088,10 +5073,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Grail bell"], 1)
         self.assertEqual(
             tuple(player_data["quest_stage_actions"]["holy_grail"]),
-            expected_actions[:5],
+            expected_actions[:8],
         )
 
-        for expected_progress, action_count in ((7, 6), (8, 7), (9, 10)):
+        for expected_progress, action_count in ((7, 9), (8, 10), (9, 13)):
             player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
             self.assertTrue(ok)
             self.assertFalse(completed_now)
