@@ -6355,30 +6355,6 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(druidic["herblore_exp"], 250.0)
         self.assertEqual(druidic["pending_skill_exp_rewards"], {})
 
-        pirate = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        pirate["quests"]["pirates_treasure"] = {"started": True, "progress": 1, "completed": False}
-        pirate["inventory"]["Karamja rum"] = 1
-        pirate["quest_stage_actions"] = {"pirates_treasure": ["Smuggle Karamja rum off Karamja"]}
-        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(pirate["inventory"]["Karamja rum"], 0)
-        self.assertEqual(pirate["inventory"]["Chest key"], 1)
-        pirate["quest_stage_actions"]["pirates_treasure"].append("Open One-Eyed Hector's chest at the Blue Moon Inn")
-        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(pirate["inventory"]["Chest key"], 0)
-        self.assertEqual(pirate["inventory"]["Pirate message"], 1)
-        pirate["inventory"]["Spade"] = 1
-        pirate["quest_stage_actions"]["pirates_treasure"].append("Read the pirate message and dig in Falador Park")
-        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed_now)
-        self.assertEqual(pirate["inventory"]["Pirate message"], 1)
-        self.assertEqual(pirate["inventory"]["Casket (Pirate's Treasure)"], 1)
-        self.assertEqual(pirate["quest_points"], 2)
-
         vampyre = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         vampyre["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
         blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
@@ -6430,6 +6406,75 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(vampyre["quest_points"], 3)
         self.assertEqual(vampyre["attack_exp"] - attack_before_reward, 4825.0)
         self.assertEqual(vampyre["pending_skill_exp_rewards"], {})
+
+    def test_pirates_treasure_real_stage_emitters_complete_and_reward_once(self):
+        pirate = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        pirate, ok = start_quest_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(pirate["current_quest"], "pirates_treasure")
+        self.assertNotIn("pirates_treasure", pirate["quest_stage_actions"])
+
+        pirate["inventory"]["Karamja rum"] = 1
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(pirate, "pirates_treasure", QUEST_DATA),
+            (),
+        )
+        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 2)
+        self.assertEqual(
+            pirate["quest_stage_actions"]["pirates_treasure"],
+            ["Smuggle Karamja rum off Karamja"],
+        )
+        self.assertEqual(pirate["inventory"]["Karamja rum"], 0)
+        self.assertEqual(pirate["inventory"]["Chest key"], 1)
+
+        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 3)
+        self.assertEqual(
+            pirate["quest_stage_actions"]["pirates_treasure"],
+            [
+                "Smuggle Karamja rum off Karamja",
+                "Open One-Eyed Hector's chest at the Blue Moon Inn",
+            ],
+        )
+        self.assertEqual(pirate["inventory"]["Chest key"], 0)
+        self.assertEqual(pirate["inventory"]["Pirate message"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(pirate, "pirates_treasure", QUEST_DATA),
+            ("Needs Spade",),
+        )
+
+        pirate["inventory"]["Spade"] = 1
+        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 4)
+        self.assertEqual(
+            pirate["quest_stage_actions"]["pirates_treasure"],
+            [
+                "Smuggle Karamja rum off Karamja",
+                "Open One-Eyed Hector's chest at the Blue Moon Inn",
+                "Read the pirate message and dig in Falador Park",
+            ],
+        )
+        self.assertEqual(pirate["inventory"]["Pirate message"], 1)
+        self.assertEqual(pirate["inventory"]["Casket (Pirate's Treasure)"], 1)
+        self.assertEqual(pirate["quest_points"], 2)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            pirate,
+            "pirates_treasure",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["inventory"]["Casket (Pirate's Treasure)"], 1)
+        self.assertEqual(after_complete["quest_points"], 2)
 
     def test_early_darkan_quests_progress_through_source_backed_stage_gates(self):
         goblin = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

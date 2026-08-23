@@ -942,3 +942,4 @@
 - 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.
 - 2026-08-22 21:30 PDT — The first dangling-test scan matched test-module filenames and historical prose, producing 622 false-positive occurrences before qualified-selector filtering.
 - 2026-08-22 21:36 PDT — The item-reachability wrapper assigned zsh’s read-only `status` variable and ended with `(eval):1: read-only variable: status`; use `exit_code` when capturing expected nonzero exits.
+- 2026-08-22 22:10 PDT — Pirate's Treasure probes repeated three harness traps: assigning zsh's special `path` array hid `git` with `command not found: git`; importing `QUEST_DATA` from `ankiscape.data.quest_data` raised `ImportError`; and `run_tests.py` rejected the `tests.test_logic...` selector prefix as `No unambiguous unittest ID matched`.

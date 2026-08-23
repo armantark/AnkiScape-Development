@@ -7023,7 +7023,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_REDBEARD_SOURCE_PATH}",
             consumed_inventory=(("Karamja rum", 1),),
             produced_inventory=(("Chest key", 1),),
-            required_actions=("Smuggle Karamja rum off Karamja",),
+            auto_actions=("Smuggle Karamja rum off Karamja",),
         ),
         _stage_req(
             2,
@@ -7031,7 +7031,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
             consumed_inventory=(("Chest key", 1),),
             produced_inventory=(("Pirate message", 1),),
-            required_actions=("Open One-Eyed Hector's chest at the Blue Moon Inn",),
+            auto_actions=("Open One-Eyed Hector's chest at the Blue Moon Inn",),
         ),
         _stage_req(
             3,
@@ -7039,7 +7039,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
             required_inventory=(("Pirate message", 1),),
             required_tools=(("Spade", 1),),
-            required_actions=("Read the pirate message and dig in Falador Park",),
+            auto_actions=("Read the pirate message and dig in Falador Park",),
         ),
     ),
     DRUIDIC_RITUAL_ID: (
