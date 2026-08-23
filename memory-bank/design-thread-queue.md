@@ -1591,3 +1591,27 @@ through the design thread. It carries full authority.
   Kimi K3, both currently past their windows. If none is available, record the
   slice as quota-blocked rather than seating Fable or accepting a same-lineage
   review.
+
+### 4.19 Fleet-wide Fable rule, relayed by a peer — does not loosen 4.18 here
+
+A peer session (`claude-code-0c`, socket `uds:/tmp/cc-socks/89632.sock`) relayed
+a standing owner ruling on 2026-08-23, citing fleet commit `2edbb0e` and the
+design seat as relay.
+
+- **Relayed rule:** Fable dispatches only on the owner's explicit approval for
+  that specific task. Never automatically, never as a routine or default
+  reviewer, and never as a self-chosen escalation. A work order that wants Fable
+  is parked for the owner and other seats continue.
+- **Stated cause:** overnight loops spent an entire Fable block on routine
+  review dispatches.
+- **Verification status:** UNVERIFIED from this seat. `2edbb0e` is not an object
+  in the AnkiScape repository, and this seat cannot read the fleet repository
+  that would contain it. It is recorded as relayed, not as confirmed.
+- **Effect here: none.** Entry 4.18 is stricter and was ruled by the owner
+  directly to this seat: Fable is barred outright for the remainder of this
+  goal. A peer relay cannot loosen a direct owner ruling, so no Fable dispatch
+  becomes available under 4.19 that 4.18 forbids. Where the two differ, 4.18
+  governs this goal.
+- **After this goal:** 4.18 expires with the goal and 4.19 does not, so the
+  per-task approval rule is the standing constraint for later work. Confirm it
+  against the fleet record before relying on it.
