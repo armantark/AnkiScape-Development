@@ -6489,13 +6489,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             2,
             "Accept Oziach's challenge to slay Elvarg.",
             f"{DARKAN_DRAGON_SLAYER_SOURCE}; {DARKAN_DRAGON_SLAYER_OZIACH_SOURCE}",
-            required_actions=("Accept Oziach's dragon-slaying challenge",),
+            auto_actions=("Accept Oziach's dragon-slaying challenge",),
         ),
         _stage_req(
             3,
             "Finish the Guildmaster's Crandor briefing and receive Melzar's Maze key.",
             f"{DARKAN_DRAGON_SLAYER_SOURCE}; {DARKAN_DRAGON_SLAYER_GUILDMASTER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Complete the Guildmaster's Crandor briefing",),
+            auto_actions=("Complete the Guildmaster's Crandor briefing",),
             produced_inventory=(("Maze key", 1),),
         ),
         _stage_req(
@@ -6505,7 +6505,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_DRAGON_SLAYER_SOURCE}; {DARKAN_DRAGON_SLAYER_GUILDMASTER_SOURCE}; "
                 f"{DARKAN_LUMBRIDGE_DUKE_SOURCE}; {RUNE_MYSTERIES_DUKE_SOURCE_PATH}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
-            required_actions=("Ask Duke Horacio for an anti-dragon shield",),
+            auto_actions=("Ask Duke Horacio for an anti-dragon shield",),
             produced_inventory=(("Anti-dragon shield", 1),),
         ),
         _stage_req(
@@ -6689,7 +6689,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             7,
             "Ask the Oracle how to reach Thalzar's map piece.",
             f"{DARKAN_DRAGON_SLAYER_SOURCE}; {DARKAN_DRAGON_SLAYER_ORACLE_SOURCE}",
-            required_actions=("Ask the Oracle about Thalzar's map piece",),
+            auto_actions=("Ask the Oracle about Thalzar's map piece",),
         ),
         _stage_req(
             8,
@@ -6727,13 +6727,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Recruit Ned as captain and show him the completed Crandor map.",
             f"{DARKAN_DRAGON_SLAYER_SOURCE}; {DARKAN_DRAGON_SLAYER_NED_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Crandor map", 1),),
-            required_actions=("Recruit Ned as captain of the Lady Lumbridge",),
+            auto_actions=("Recruit Ned as captain of the Lady Lumbridge",),
         ),
         _stage_req(
             13,
             "Sail to Crandor with Captain Ned.",
             f"{DARKAN_DRAGON_SLAYER_CAPTAIN_NED_SOURCE}; {DARKAN_DRAGON_SLAYER_BOAT_SCENE_SOURCE}",
-            required_actions=("Sail to Crandor with Captain Ned",),
+            auto_actions=("Sail to Crandor with Captain Ned",),
         ),
         _stage_req(
             14,
@@ -6775,7 +6775,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Report Elvarg's death to Oziach.",
             f"{DARKAN_DRAGON_SLAYER_SOURCE}; {DARKAN_DRAGON_SLAYER_OZIACH_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_inventory=(("Elvarg's head", 1),),
-            required_actions=("Report Elvarg's death to Oziach",),
+            auto_actions=("Report Elvarg's death to Oziach",),
         ),
     ),
     GOBLIN_DIPLOMACY_ID: (

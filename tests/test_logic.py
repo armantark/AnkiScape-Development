@@ -8371,94 +8371,198 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["magic_exp"], 5000.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
-    def test_dragon_slayer_stage_gates_items_combat_and_completion_rewards(self):
+    def test_dragon_slayer_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "dragon_slayer"
+        actions = (
+            "Accept Oziach's dragon-slaying challenge",
+            "Complete the Guildmaster's Crandor briefing",
+            "Ask Duke Horacio for an anti-dragon shield",
+            "Ask the Oracle about Thalzar's map piece",
+            "Recruit Ned as captain of the Lady Lumbridge",
+            "Sail to Crandor with Captain Ned",
+            "Report Elvarg's death to Oziach",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 
-        reasons = quest_locked_reasons_pure(player_data, "dragon_slayer", QUEST_DATA)
+        reasons = quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
         self.assertIn("32 quest points", reasons)
-        self.assertFalse(can_start_quest_pure(player_data, "dragon_slayer", QUEST_DATA))
+        self.assertFalse(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
 
-        player_data["quest_points"] = 32
-        self.assertTrue(can_start_quest_pure(player_data, "dragon_slayer", QUEST_DATA))
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dragon_slayer"]["progress"], 2)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dragon_slayer", QUEST_DATA),
-            ("Action required: Accept Oziach's dragon-slaying challenge",),
+        player_data.update(
+            {
+                "attack_level": 120,
+                "constitution_level": 120,
+                "defense_level": 120,
+                "quest_points": 32,
+                "strength_level": 120,
+            }
         )
+        player_data["inventory"].update(
+            {
+                "Bowl (unfired)": 1,
+                "Coins": 12000,
+                "Hammer": 1,
+                "Plank": 3,
+                "Silk": 1,
+                "Steel nails": 90,
+                "Wizard's mind bomb": 1,
+            }
+        )
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
 
-        oracle = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        oracle["quest_points"] = 32
-        oracle["quests"]["dragon_slayer"] = {
-            "started": True,
-            "progress": 8,
-            "completed": False,
-        }
-        oracle["inventory"].update({
-            "Wizard's mind bomb": 1,
-            "Silk": 1,
-            "Bowl (unfired)": 1,
-        })
+        for progress, action_count in ((2, 0), (3, 1), (4, 2), (5, 3)):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"].get(quest_id, ())),
+                actions[:action_count],
+            )
+
+        self.assertEqual(player_data["inventory"]["Maze key"], 1)
+        self.assertEqual(player_data["inventory"]["Anti-dragon shield"], 1)
+        maze_encounters = (
+            "dragon_slayer_zombie_rat_3",
+            "dragon_slayer_ghost_19",
+            "dragon_slayer_skeleton_22",
+            "dragon_slayer_zombie_24",
+            "dragon_slayer_melzar_the_mad_43",
+            "dragon_slayer_lesser_demon_82",
+        )
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(oracle, "dragon_slayer", QUEST_DATA),
+            tuple(blocker["kind"] for blocker in blockers),
+            ("combat_locked",) * len(maze_encounters),
+        )
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
+        self.assertEqual(
+            tuple(blocker["encounter_id"] for blocker in blockers),
+            maze_encounters,
+        )
+        for encounter_id in maze_encounters:
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["reason"], "combat_resolved")
+            self.assertEqual(result["encounter_id"], encounter_id)
+
+        for progress in (6, 7, 8):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:4],
+        )
+        self.assertEqual(player_data["inventory"]["Coins"], 2000)
+        self.assertEqual(player_data["inventory"]["Map part"], 2)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            ),
             ("Needs Crayfish cage x1 or Lobster pot x1",),
         )
-        oracle["inventory"]["Lobster pot"] = 1
-        oracle, ok, completed_now = apply_quest_progress_pure(oracle, "dragon_slayer", QUEST_DATA)
+
+        player_data["inventory"]["Lobster pot"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(oracle["quests"]["dragon_slayer"]["progress"], 9)
-        self.assertEqual(oracle["inventory"]["Wizard's mind bomb"], 0)
-        self.assertEqual(oracle["inventory"]["Silk"], 0)
-        self.assertEqual(oracle["inventory"]["Bowl (unfired)"], 0)
-        self.assertEqual(oracle["inventory"]["Lobster pot"], 0)
-        self.assertEqual(oracle["inventory"]["Map part"], 1)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
+        self.assertEqual(player_data["inventory"]["Wizard's mind bomb"], 0)
+        self.assertEqual(player_data["inventory"]["Silk"], 0)
+        self.assertEqual(player_data["inventory"]["Bowl (unfired)"], 0)
+        self.assertEqual(player_data["inventory"]["Lobster pot"], 0)
+        self.assertEqual(player_data["inventory"]["Map part"], 3)
 
-        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_points"] = 32
-        player_data["quests"]["dragon_slayer"] = {
-            "started": True,
-            "progress": 14,
-            "completed": False,
-        }
-        player_data["inventory"]["Anti-dragon shield"] = 1
-        blockers = quest_current_stage_blockers_pure(player_data, "dragon_slayer", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
-
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
-        player_data["attack_level"] = 99
-        player_data["strength_level"] = 99
-        player_data["defense_level"] = 99
-        player_data["constitution_level"] = 99
-        blockers = quest_current_stage_blockers_pure(player_data, "dragon_slayer", QUEST_DATA)
+        for progress in (10, 11, 12, 13, 14):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:6],
+        )
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(blockers[0]["display_name"], "Elvarg")
-
-        player_data, ok, result = apply_quest_combat_encounter_pure(player_data, "dragon_slayer", QUEST_DATA)
-        self.assertTrue(ok)
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["reason"], "combat_resolved")
         self.assertEqual(result["encounter_id"], "dragon_slayer_elvarg_83")
-        self.assertEqual(player_data["quest_combat_encounters"], {"dragon_slayer": ["dragon_slayer_elvarg_83"]})
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dragon_slayer"]["progress"], 15)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 15)
         self.assertEqual(player_data["inventory"]["Elvarg's head"], 1)
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dragon_slayer", QUEST_DATA),
-            ("Action required: Report Elvarg's death to Oziach",),
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:6],
         )
 
-        player_data["quest_stage_actions"] = {"dragon_slayer": ["Report Elvarg's death to Oziach"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
         self.assertTrue(ok)
         self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 16)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions,
+        )
         self.assertEqual(player_data["quest_points"], 34)
         self.assertEqual(player_data["defense_exp"], 18650.0)
         self.assertEqual(player_data["strength_exp"], 18650.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quest_points"], 34)
+        self.assertEqual(player_data["defense_exp"], 18650.0)
+        self.assertEqual(player_data["strength_exp"], 18650.0)
 
     def test_tai_bwo_wannai_trio_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
