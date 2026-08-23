@@ -4,6 +4,7 @@ import html
 import os
 import re
 from collections.abc import Mapping
+from copy import deepcopy
 from typing import Any, Optional
 import datetime
 
@@ -25702,7 +25703,12 @@ def show_main_menu(
     bank_selection = {"item": ""}
     bank_cell_buttons: dict[str, QToolButton] = {}
     bank_tab_buttons: dict[str, QToolButton] = {}
-    bank_view_cache = {"categories": {}, "values": {}}
+    bank_view_cache = {
+        "categories": {},
+        "values": {},
+        "inventory": None,
+        "layout": None,
+    }
 
     bank_controls = QWidget()
     bank_controls.setObjectName("bankControls")
@@ -25722,6 +25728,9 @@ def show_main_menu(
     bank_search_summary.setObjectName("bankSearchInputSummary")
     bank_search_summary.setStyleSheet(f"color: {dim_text_css(bank_search_summary)};")
     bank_controls_layout.addWidget(bank_search_summary)
+    bank_search_timer = QTimer(bank_search)
+    bank_search_timer.setSingleShot(True)
+    bank_search_timer.setInterval(140)
 
     bank_sort = QComboBox()
     bank_sort.setObjectName("bankSortCombo")
@@ -25891,13 +25900,29 @@ def show_main_menu(
             f"Add it to the carried pack for the current {skill_name} target to enable Teleport urn."
         )
 
-    def _refresh_bank_surface(*, rebuild_tabs: bool = True) -> None:
-        _refresh_carried_panel()
-        player_data.update(reconcile_bank_layout_for_player_pure(player_data))
-        bank_layout_state["value"] = player_data["bank_layout"]
-        categories, values = _bank_category_and_value_maps()
-        bank_view_cache["categories"] = categories
-        bank_view_cache["values"] = values
+    def _refresh_bank_surface(
+        *, rebuild_tabs: bool = True, refresh_carried: bool = True
+    ) -> None:
+        if refresh_carried:
+            _refresh_carried_panel()
+        inventory = player_data.get("inventory", {}) or {}
+        layout = player_data.get("bank_layout", {}) or {}
+        cache_matches = (
+            not refresh_carried
+            and bank_view_cache["inventory"] == inventory
+            and bank_view_cache["layout"] == layout
+        )
+        if cache_matches:
+            categories = bank_view_cache["categories"]
+            values = bank_view_cache["values"]
+        else:
+            player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+            bank_layout_state["value"] = player_data["bank_layout"]
+            categories, values = _bank_category_and_value_maps()
+            bank_view_cache["categories"] = categories
+            bank_view_cache["values"] = values
+            bank_view_cache["inventory"] = dict(inventory)
+            bank_view_cache["layout"] = deepcopy(bank_layout_state["value"])
         state_value = bank_layout_state["value"]
         sections = bank_sections_pure(
             state_value,
@@ -26368,7 +26393,10 @@ def show_main_menu(
         updated["drop_mode"] = mode
         _persist_bank_layout(updated, render=False)
 
-    bank_search.textChanged.connect(lambda _text: _refresh_bank_surface())
+    bank_search_timer.timeout.connect(
+        lambda: _refresh_bank_surface(rebuild_tabs=False, refresh_carried=False)
+    )
+    bank_search.textChanged.connect(lambda _text: bank_search_timer.start())
     bank_sort.currentIndexChanged.connect(_set_bank_sort)
     bank_auto_categories.toggled.connect(_set_bank_auto_categories)
     bank_swap.clicked.connect(lambda _checked=False: _set_bank_drop_mode("swap"))
