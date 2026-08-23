@@ -105,7 +105,7 @@ encounters. This slice does not claim all-quest parity.
 ## Targeted Verification
 
 - `python3 -m unittest tests.test_quest_catalog.TestQuestCatalog.test_generated_catalog_stage_requirements_cover_items_and_combat`
-- `python3 -m unittest tests.test_logic.TestLogic.test_dragon_slayer_stage_gates_items_combat_and_completion_rewards`
+- `python3 -m unittest tests.test_logic.TestLogic.test_dragon_slayer_real_stage_emitters_complete_and_reward_once`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_dragon_slayer_oracle_item_option_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_dragon_slayer_elvarg_combat_gate_selection`
 - `python3 -m unittest tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
 
