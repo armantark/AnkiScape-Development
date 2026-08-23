@@ -3592,6 +3592,75 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Coin"], 500)
         self.assertEqual(after_complete["quest_points"], 1)
 
+    def test_kenniths_concerns_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "kenniths_concerns"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"]["Pickaxe"] = 1
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_actions = (
+            "Reach the Witchaven shrine tunnels",
+            "Talk to a villager past the rocks",
+            "Warn Kennith",
+            "Speak to Kent near the Legends' Guild",
+            "Trap the possessed villagers in the church",
+            "Mine rubium and fill the steam vents",
+            "Find Kennith's toy train",
+            "Use the toy train on Kennith",
+        )
+        for stage, action_count in enumerate((2, 4, 5, 6, 8), start=1):
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                ),
+                (),
+            )
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 5)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions[:action_count],
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["agility_exp"], 5000.0)
+        self.assertEqual(player_data["mining_exp"], 12000.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["agility_exp"], 5000.0)
+        self.assertEqual(after_complete["mining_exp"], 12000.0)
+
     def test_deadliest_catch_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["fishing_level"] = 70
