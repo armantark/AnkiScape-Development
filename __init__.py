@@ -2371,7 +2371,10 @@ def _on_main_menu(
                 level_up_check(skill_name, player_data)
                 _show_exp(gained)
             check_achievements(player_data)
-            if action_id == "leave_flash_powder_factory":
+            if (
+                action_id in {"abandon", "leave_flash_powder_factory"}
+                and player_data.get("current_utility") == "bankstanding"
+            ):
                 _switch_to_bankstanding()
 
         committed = commit_direct_action(_change, after_apply=_after_apply)

@@ -7,7 +7,12 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
+from ankiscape.data.dungeoneering_data import DUNGEONEERING_ACTIVITY_ID
 from ankiscape.logic.brawling_gloves_logic import brawling_glove_state_pure
+from ankiscape.logic.dungeoneering_logic import (
+    apply_dungeoneering_command_pure,
+    record_dungeon_drop_pure,
+)
 from ankiscape.logic_pure.logic_pure import can_start_quest_pure
 from ankiscape.runtime import runtime_actions
 
@@ -104,6 +109,7 @@ class TestRuntimeActions(unittest.TestCase):
             (runtime_actions.handle_mining_answer, "current_ore"),
             (runtime_actions.handle_magic_answer, "current_magic"),
             (runtime_actions.handle_combat_answer, "current_combat_target"),
+            (runtime_actions.handle_thieving_answer, "current_thieving"),
             (runtime_actions.handle_fletching_answer, "current_fletch"),
             (runtime_actions.handle_herblore_answer, "current_herblore"),
             (runtime_actions.handle_summoning_answer, "current_summoning"),
@@ -150,6 +156,98 @@ class TestRuntimeActions(unittest.TestCase):
                 self.assertEqual(player_data["current_utility"], "bankstanding")
                 self.assertEqual(calls["bankstanding"], 1)
                 self.assertEqual(len(calls["errors"]), 1)
+
+    def test_dungeoneering_bind_prompt_keeps_the_current_surface(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["dungeoneering_level"] = 11
+        player_data, ok, info = apply_dungeoneering_command_pure(
+            player_data,
+            "enter",
+            {
+                "floor": 6,
+                "size": "small",
+                "complexity": 6,
+                "automation_mode": "casual",
+            },
+        )
+        self.assertTrue(ok, info)
+        player_data, ok, info = record_dungeon_drop_pure(
+            player_data,
+            "Novite arrows",
+            50,
+            ammo=True,
+        )
+        self.assertTrue(ok, info)
+        player_data["current_utility"] = DUNGEONEERING_ACTIVITY_ID
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        self.assertFalse(
+            runtime_actions_activities.handle_dungeoneering_answer(
+                _bankstanding_context(player_data, calls)
+            )
+        )
+
+        self.assertEqual(player_data["current_utility"], DUNGEONEERING_ACTIVITY_ID)
+        self.assertTrue(player_data["dungeoneering"]["pending_bind_offer"])
+        self.assertEqual(calls.get("bankstanding", 0), 0)
+        self.assertEqual(
+            calls["errors"],
+            [
+                (
+                    "Dungeoneering unavailable",
+                    "Resolve the Bind / Replace / Skip offer first.",
+                )
+            ],
+        )
+
+    def test_active_activity_prompts_keep_the_current_surface(self):
+        cases = (
+            (
+                "apply_temple_trekking_review_pure",
+                runtime_actions_activities.handle_temple_trekking_answer,
+                runtime_actions_activities.TEMPLE_TREKKING_ACTIVITY_ID,
+                "temple_trekking",
+                {"session": {"nodes": ["ghasts"]}},
+                "The current event still needs input.",
+            ),
+            (
+                "apply_gnome_restaurant_review_pure",
+                runtime_actions_activities.handle_gnome_restaurant_answer,
+                runtime_actions_activities.GNOME_RESTAURANT_ACTIVITY_ID,
+                "gnome_restaurant",
+                {"order": {"item": "Gnomebowl"}},
+                "Cook or bank 1 Gnomebowl for this delivery.",
+            ),
+            (
+                "apply_dominion_tower_review_pure",
+                runtime_actions_activities.handle_dominion_tower_answer,
+                runtime_actions_activities.DOMINION_TOWER_ACTIVITY_ID,
+                "dominion_tower",
+                {"mode": "climber", "roster": [{"instance_id": 1}]},
+                "Take the handicap on the spinner before the doors open.",
+            ),
+        )
+        for pure_name, handler, activity_id, state_key, state, reason in cases:
+            with self.subTest(handler=handler.__name__):
+                player_data = {
+                    "current_utility": activity_id,
+                    "activity_session": {"active_id": activity_id},
+                    state_key: state,
+                }
+                calls = {"xp": [], "saves": 0, "errors": []}
+                with patch.object(
+                    runtime_actions_activities,
+                    pure_name,
+                    return_value=(copy.deepcopy(player_data), False, {"reason": reason}),
+                ):
+                    self.assertFalse(
+                        handler(_bankstanding_context(player_data, calls))
+                    )
+
+                self.assertEqual(player_data["current_utility"], activity_id)
+                self.assertEqual(calls.get("bankstanding", 0), 0)
+                self.assertEqual(len(calls["errors"]), 1)
+                self.assertEqual(calls["errors"][0][1], reason)
 
     def test_flash_powder_factory_completion_switches_to_bankstanding(self):
         from ankiscape.data.flash_powder_factory_data import (

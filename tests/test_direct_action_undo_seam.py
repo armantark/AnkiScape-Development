@@ -1204,7 +1204,7 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
-    def test_flash_powder_factory_leave_switches_to_bankstanding_and_undoes(self):
+    def test_flash_powder_factory_stop_switches_to_bankstanding_and_undoes(self):
         from ankiscape.data.flash_powder_factory_data import (
             FLASH_POWDER_FACTORY_ACTIVITY_ID,
         )
@@ -1229,7 +1229,7 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon.current_skill = "Activities"
         before = copy.deepcopy(addon.player_data)
 
-        outcome = command("leave_flash_powder_factory", {})
+        outcome = command("abandon", {})
 
         self.assertTrue(outcome["ok"], outcome)
         self.assertEqual(addon.current_skill, "Utilities")
