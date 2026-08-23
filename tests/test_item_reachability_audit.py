@@ -578,6 +578,21 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         self.assertNotIn("Find Shamus in the Lumbridge Swamp tree", missing_actions)
 
+    def test_waterfall_quest_dialogue_and_tomb_actions_have_runtime_emitters(self):
+        report = build_reachability_report()
+        missing_actions = {
+            action
+            for row in report["blocked_quest_stage_products"]
+            if row["quest_id"] == "waterfall_quest"
+            for action in row["missing_required_actions"]
+        }
+
+        self.assertEqual(
+            missing_actions,
+            set(),
+            "Waterfall Quest still blocks on a specific action",
+        )
+
     def test_gertrudes_cat_dialogue_actions_have_runtime_emitters(self):
         report = build_reachability_report()
         missing_actions = {
@@ -655,12 +670,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1599)
-        self.assertEqual(report["reachable_item_count"], 2452)
+        self.assertEqual(report["reachable_item_count"], 0)
         self.assertEqual(report["orphan_input_count"], 37)
         self.assertEqual(report["root_orphan_count"], 33)
         self.assertEqual(report["cascade_orphan_count"], 4)
         self.assertEqual(report["unresolved_action_count"], 36)
-        self.assertEqual(report["seed_item_count"], 1204)
+        self.assertEqual(report["seed_item_count"], 0)
         self.assertFalse(
             [
                 row

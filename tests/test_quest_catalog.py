@@ -1739,15 +1739,27 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(waterfall["combat"].startswith("None required"))
         self.assertEqual(waterfall_by_stage[2]["produced_inventory"], {"Book on Baxtorian": 1})
         self.assertEqual(waterfall_by_stage[3]["produced_inventory"], {"Old key": 1, "Glarial's pebble": 1})
-        self.assertEqual(waterfall_by_stage[3]["auto_actions"], ("Reach Golrie under Tree Gnome Village",))
+        self.assertEqual(
+            waterfall_by_stage[3]["required_actions"],
+            (),
+            "Waterfall Quest stage 3 must not require actions no runtime path emits",
+        )
+        self.assertEqual(
+            waterfall_by_stage[3]["auto_actions"],
+            (
+                "Search the Tree Gnome Village crate for the old key",
+                "Unlock Golrie's prison",
+                "Reach Golrie under Tree Gnome Village",
+            ),
+        )
         self.assertEqual(
             waterfall_by_stage[4]["produced_inventory"],
             {"Large old key": 1, "Glarial's amulet": 1, "Glarial's urn": 1},
         )
-        self.assertEqual(waterfall_by_stage[5]["required_inventory"], {"Glarial's urn": 1})
+        self.assertEqual(waterfall_by_stage[5]["required_inventory"], {})
         self.assertEqual(
             waterfall_by_stage[5]["consumed_inventory"],
-            {"Water rune": 6, "Air rune": 6, "Earth rune": 6, "Glarial's amulet": 1},
+            {"Glarial's urn": 1, "Water rune": 6, "Air rune": 6, "Earth rune": 6, "Glarial's amulet": 1},
         )
 
     def test_source_backed_starter_quest_stage_overrides_replace_generated_guesses(self):

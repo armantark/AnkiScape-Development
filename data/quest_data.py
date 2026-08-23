@@ -6246,22 +6246,25 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Find Hudon after speaking to Almera.",
             f"{DARKAN_WATERFALL_ALMERA_SOURCE}; {DARKAN_WATERFALL_HUDON_SOURCE}",
-            required_actions=("Speak to Hudon by the waterfall",),
+            auto_actions=("Speak to Hudon by the waterfall",),
         ),
         _stage_req(
             2,
             "Search for and read the Book on Baxtorian.",
             f"{DARKAN_WATERFALL_SOURCE}; {DARKAN_WATERFALL_BOOK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             produced_inventory=(("Book on Baxtorian", 1),),
-            required_actions=("Search the Baxtorian bookcase", "Read the Book on Baxtorian"),
+            auto_actions=("Search the Baxtorian bookcase", "Read the Book on Baxtorian"),
         ),
         _stage_req(
             3,
             "Free Golrie and receive Glarial's pebble.",
             f"{DARKAN_WATERFALL_SOURCE}; {DARKAN_WATERFALL_GOLRIE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             produced_inventory=(("Old key", 1), ("Glarial's pebble", 1)),
-            required_actions=("Search the Tree Gnome Village crate for the old key", "Unlock Golrie's prison"),
-            auto_actions=("Reach Golrie under Tree Gnome Village",),
+            auto_actions=(
+                "Search the Tree Gnome Village crate for the old key",
+                "Unlock Golrie's prison",
+                "Reach Golrie under Tree Gnome Village",
+            ),
         ),
         _stage_req(
             4,
@@ -6270,7 +6273,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_inventory=(("Glarial's pebble", 1),),
             produced_inventory=(("Large old key", 1), ("Glarial's amulet", 1), ("Glarial's urn", 1)),
             required_tools=(("Rope", 1),),
-            required_actions=(
+            auto_actions=(
                 "Search the waterfall crate for the large old key",
                 "Use Glarial's pebble on Glarial's tomb",
                 "Search Glarial's tomb for the amulet and urn",
@@ -6280,15 +6283,15 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Place the runes and Glarial's amulet, then use Glarial's urn on the chalice.",
             f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_inventory=(("Glarial's urn", 1),),
             consumed_inventory=(
+                ("Glarial's urn", 1),
                 ("Water rune", 6),
                 ("Air rune", 6),
                 ("Earth rune", 6),
                 ("Glarial's amulet", 1),
             ),
             required_tools=(("Rope", 1),),
-            required_actions=(
+            auto_actions=(
                 "Place six water runes on the pillars",
                 "Place six air runes on the pillars",
                 "Place six earth runes on the pillars",
