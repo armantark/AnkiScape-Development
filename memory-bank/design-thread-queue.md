@@ -1572,3 +1572,22 @@ carries full authority.
    `runtime/runtime_actions_gathering.py:668`, `:911`, `:1061`) route through
    it, so a future rock-eligible skill cannot silently regain the
    untradeable-output defect.
+
+### 4.18 Fable is barred for the remainder of this goal — ruled directly by the owner
+
+The owner ruled this directly to the orchestration seat on 2026-08-23, not
+through the design thread. It carries full authority.
+
+- **Ruling, verbatim:** "Do not ever use fable again during this goal."
+- **Scope:** the `fable` model seat, for every remaining slice of the active
+  autonomous goal. It covers authoring, reviewing, judging, and any panel seat.
+  It is not limited to a quota window, so a Fable reset does not lift it.
+- **State when ruled:** Fable held no in-flight work. It had been the
+  cross-lineage reviewer for batches three, four and five, and was already 5
+  points past its window, so the practical effect is on future routing only.
+- **Consequence for routing:** the cross-lineage reviewer seat for
+  Ox Alpha-authored slices stays with Sol. Where a slice is Sol-authored and
+  needs a reviewer of a different lineage, the remaining candidates are Opus and
+  Kimi K3, both currently past their windows. If none is available, record the
+  slice as quota-blocked rather than seating Fable or accepting a same-lineage
+  review.
