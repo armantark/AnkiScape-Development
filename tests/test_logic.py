@@ -4262,109 +4262,152 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Yellow sheep bones"], 0)
         self.assertEqual(player_data["inventory"]["Coins"], 3100)
 
-    def test_plague_city_stage_gates_gas_mask_hangover_cure_and_rescue(self):
-        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["plague_city"] = {"started": True, "progress": 1, "completed": False}
-
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "plague_city", QUEST_DATA),
-            ("Needs Dwellberries x1",),
+    def test_plague_city_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "plague_city"
+        actions = (
+            "Pick up the picture of Elena in Alrena's house",
+            "Talk to Edmond with the gas mask",
+            "Soften Edmond's mud patch with four buckets of water",
+            "Dig through Edmond's softened mud patch",
+            "Pull the sewer grill",
+            "Ask Edmond for help with the grill",
+            "Tie rope to the sewer grill",
+            "Ask Edmond to pull the sewer grill rope",
+            "Reach West Ardougne through the sewer pipe",
+            "Speak to Jethick about Elena",
+            "Show Jethick the picture of Elena",
+            "Agree to return Jethick's book",
+            "Return Jethick's book to Ted Rehnison",
+            "Ask Martha Rehnison about Elena",
+            "Ask Milli Rehnison where Elena was taken",
+            "Ask the mourners for prison house clearance",
+            "Convince the Clerk to let you speak to Bravek",
+            "Ask Bravek for his cure recipe",
+            "Mix chocolate dust with milk and snape grass",
+            "Give Bravek the hangover cure",
+            "Ask Bravek for a prison house warrant",
+            "Enter the prison house with Bravek's warrant",
+            "Search the barrel for the small key",
+            "Unlock Elena's cell",
+            "Free Elena and report to Edmond",
         )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update(
             {
-                "Dwellberries": 1,
-                "Bucket of water": 4,
-                "Spade": 1,
-                "Rope": 1,
-                "Picture of Elena": 1,
-                "Chocolate dust": 1,
                 "Bucket of milk": 1,
-                "Snape grass": 1,
+                "Bucket of water": 4,
+                "Chocolate dust": 1,
+                "Dwellberries": 1,
                 "Pestle and mortar": 1,
+                "Rope": 1,
+                "Snape grass": 1,
+                "Spade": 1,
             }
         )
-        player_data["quest_stage_actions"] = {
-            "plague_city": [
-                "Talk to Edmond with the gas mask",
-                "Soften Edmond's mud patch with four buckets of water",
-                "Dig through Edmond's softened mud patch",
-                "Pull the sewer grill",
-                "Ask Edmond for help with the grill",
-                "Tie rope to the sewer grill",
-                "Ask Edmond to pull the sewer grill rope",
-                "Speak to Jethick about Elena",
-                "Show Jethick the picture of Elena",
-                "Agree to return Jethick's book",
-                "Return Jethick's book to Ted Rehnison",
-                "Ask Martha Rehnison about Elena",
-                "Ask Milli Rehnison where Elena was taken",
-                "Ask the mourners for prison house clearance",
-                "Convince the Clerk to let you speak to Bravek",
-                "Ask Bravek for his cure recipe",
-                "Mix chocolate dust with milk and snape grass",
-                "Give Bravek the hangover cure",
-                "Ask Bravek for a prison house warrant",
-                "Enter the prison house with Bravek's warrant",
-                "Search the barrel for the small key",
-                "Unlock Elena's cell",
-                "Free Elena and report to Edmond",
-            ]
-        }
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        # Stage 1: give Alrena the dwellberries; she makes the gas mask, and
+        # the picture of Elena is picked up inside her house.
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 2)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Dwellberries"], 0)
         self.assertEqual(player_data["inventory"]["Gas mask"], 1)
-
-        for expected_progress in range(3, 14):
-            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
-            self.assertTrue(ok)
-            self.assertFalse(completed_now)
-            self.assertEqual(player_data["quests"]["plague_city"]["progress"], expected_progress)
-
-        self.assertEqual(player_data["inventory"]["Bucket of water"], 0)
-        self.assertEqual(player_data["inventory"]["Bucket"], 4)
-        self.assertEqual(player_data["inventory"]["Rope"], 0)
-        self.assertEqual(player_data["inventory"]["Turnip growing for beginners"], 0)
-        self.assertIn(
-            "Reach West Ardougne through the sewer pipe",
-            player_data["quest_stage_actions"]["plague_city"],
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:1],
         )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        # Stage 9 requires a picture of Elena produced back at stage 1.
+        for expected_progress in range(3, 10):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], expected_progress)
+        self.assertEqual(player_data["inventory"]["Bucket of water"], 0)
+        self.assertEqual(player_data["inventory"]["Bucket"], 4)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:10],
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 14)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 10)
+        self.assertEqual(player_data["inventory"]["Turnip growing for beginners"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 11)
+        self.assertEqual(player_data["inventory"]["Turnip growing for beginners"], 0)
+
+        for expected_progress in (12, 13):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], expected_progress)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions[:16],
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 14)
         self.assertEqual(player_data["inventory"]["Scruffy note"], 1)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 15)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 15)
         self.assertEqual(player_data["inventory"]["Hangover cure"], 1)
         self.assertEqual(player_data["inventory"]["Chocolate dust"], 0)
         self.assertEqual(player_data["inventory"]["Bucket of milk"], 0)
         self.assertEqual(player_data["inventory"]["Snape grass"], 0)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 16)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 16)
         self.assertEqual(player_data["inventory"]["Hangover cure"], 0)
         self.assertEqual(player_data["inventory"]["Warrant"], 1)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["plague_city"]["completed"])
-        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 17)
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 17)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions,
+        )
         self.assertEqual(player_data["inventory"]["A small key"], 1)
         self.assertEqual(player_data["inventory"]["A magic scroll"], 1)
         self.assertEqual(player_data["inventory"]["Gas mask"], 1)
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["mining_exp"], 2425.0)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["A magic scroll"], 1)
 
     def test_waterfall_quest_stage_gates_book_pebble_runes_and_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
