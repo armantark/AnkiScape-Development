@@ -6861,13 +6861,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Enter the Black Knights' Fortress in disguise.",
             f"{DARKAN_BLACK_KNIGHTS_SOURCE}; {DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Iron chainbody", 1), ("Bronze med helm", 1)),
-            required_actions=("Infiltrate the Black Knights' Fortress",),
+            auto_actions=("Infiltrate the Black Knights' Fortress",),
         ),
         _stage_req(
             2,
             "Listen at the grill and learn about the invincibility potion.",
             DARKAN_BLACK_KNIGHTS_SOURCE,
-            required_actions=("Listen at the grill above the Black Knights' meeting",),
+            auto_actions=("Listen at the grill above the Black Knights' meeting",),
         ),
         _stage_req(
             3,
@@ -6879,7 +6879,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             4,
             "Report the ruined potion to Sir Amik Varze.",
             DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE,
-            required_actions=("Report the ruined potion to Sir Amik Varze",),
+            auto_actions=("Report the ruined potion to Sir Amik Varze",),
         ),
     ),
     VAMPYRE_SLAYER_ID: (
