@@ -951,3 +951,5 @@
 - 2026-08-22 22:07 PDT — The King’s Ransom live-data probe imported nonexistent `QUEST_DATA` from data.quest_data and failed with `ImportError`; inspect the module exports before probing the catalog.
 - 2026-08-22 22:05 PDT — A worktree reachability probe with only `PYTHONPATH` still imported `pkg_alias` from the canonical checkout because the shell cwd took precedence; probes must insert the worktree at `sys.path[0]` or run its script by absolute path.
 - 2026-08-22 22:21 PDT — The documentation-only plain lane ran 4,359 tests for 353.306 seconds before failing 33 unrelated source-art registry assertions (`failures=33, skipped=502`), so a blocker slice still pays nearly six minutes for an inherited asset baseline failure.
+- 2026-08-22 23:01 PDT — While inspecting prior quest emitter commits, `git show -- <paths> <commit>` treated the commit as a path and returned no diff; put the commit before `--`.
+- 2026-08-22 23:02 PDT — The first game-main item probe searched for YAML key `^4428:` and returned no output because item rows use `- id: 4428`; probe the actual schema.
