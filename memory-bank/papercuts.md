@@ -939,3 +939,4 @@
 - 2026-08-22 20:31 PDT — The first focused Rat Catchers run used a `tests.` unittest prefix; run_tests.py rejected it as ambiguous and required `test_logic.TestLogic.test_rat_catchers_rat_poison_emitter_advances_real_stage`.
 - 2026-08-22 21:06:06 PDT: A broad rg over quest_data.py and tests produced 5.7 MB of persisted output while tracing stage-stub behavior; narrower searches were needed.
 - 2026-08-22 21:06:35 PDT: A mixed-quote rg pattern for generated quest objectives failed with '(eval):1: unmatched "'; use single-purpose fixed-string searches instead.
+- 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.

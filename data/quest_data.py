@@ -8135,7 +8135,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Ragged book",),
-            add_required_actions=("Find and read the Ragged book in the workshop",),
+            remove_required_actions=("Complete Elemental Workshop III stage 1 objective",),
+            add_auto_actions=("Find and read the Ragged book in the workshop",),
         ),
         QuestStageRequirementCleanup(
             stage=7,
