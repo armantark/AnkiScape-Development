@@ -495,7 +495,9 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(quest["xp_rewards"], ({"skill_id": "attack", "amount": 11450.0},))
 
         by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
-        self.assertEqual(by_stage[1]["required_routes"], ("Reach Commander Montai on the battlefield",))
+        self.assertEqual(by_stage[1]["required_routes"], ())
+        self.assertEqual(by_stage[1]["auto_actions"], ("Reach Commander Montai on the battlefield",))
+        self.assertEqual(by_stage[5]["auto_actions"], ("Enter the Khazard stronghold through the broken wall",))
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Logs": 6})
         self.assertEqual(
             by_stage[4]["required_actions"],
@@ -1648,7 +1650,9 @@ class TestQuestCatalog(unittest.TestCase):
             sheep_by_stage[5]["consumed_inventory"],
             {"Red sheep bones": 1, "Green sheep bones": 1, "Blue sheep bones": 1, "Yellow sheep bones": 1},
         )
-        self.assertEqual(sheep_by_stage[4]["required_routes"], ("Reach the Ardougne sheep enclosure",))
+        for stage in (3, 4, 5):
+            self.assertEqual(sheep_by_stage[stage]["required_routes"], ())
+            self.assertEqual(sheep_by_stage[stage]["auto_actions"], ("Reach the Ardougne sheep enclosure",))
         self.assertIn("SheepHerder.kt", sheep_by_stage[4]["source"])
 
         plague = data["plague_city"]
@@ -1660,6 +1664,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(plague_by_stage[1]["produced_inventory"], {"Gas mask": 1})
         self.assertEqual(plague_by_stage[3]["consumed_inventory"], {"Bucket of water": 4})
         self.assertEqual(plague_by_stage[3]["produced_inventory"], {"Bucket": 4})
+        self.assertEqual(plague_by_stage[8]["auto_actions"], ("Reach West Ardougne through the sewer pipe",))
         self.assertEqual(plague_by_stage[9]["required_inventory"], {"Picture of Elena": 1})
         self.assertEqual(plague_by_stage[9]["produced_inventory"], {"Turnip growing for beginners": 1})
         self.assertEqual(
@@ -1677,6 +1682,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(waterfall["combat"].startswith("None required"))
         self.assertEqual(waterfall_by_stage[2]["produced_inventory"], {"Book on Baxtorian": 1})
         self.assertEqual(waterfall_by_stage[3]["produced_inventory"], {"Old key": 1, "Glarial's pebble": 1})
+        self.assertEqual(waterfall_by_stage[3]["auto_actions"], ("Reach Golrie under Tree Gnome Village",))
         self.assertEqual(
             waterfall_by_stage[4]["produced_inventory"],
             {"Large old key": 1, "Glarial's amulet": 1, "Glarial's urn": 1},

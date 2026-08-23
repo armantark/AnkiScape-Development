@@ -4131,12 +4131,8 @@ class TestLogic(unittest.TestCase):
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "sheep_herder", QUEST_DATA),
-            (
-                "Action required: Pick up the cattleprod from the sheep enclosure barn",
-                "Route required: Reach the Ardougne sheep enclosure",
-            ),
+            ("Action required: Pick up the cattleprod from the sheep enclosure barn",),
         )
-        player_data["quest_route_states"] = {"sheep_herder": ["Reach the Ardougne sheep enclosure"]}
         player_data["quest_stage_actions"]["sheep_herder"].append(
             "Pick up the cattleprod from the sheep enclosure barn"
         )
@@ -4145,6 +4141,10 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 4)
         self.assertEqual(player_data["inventory"]["Cattleprod"], 1)
+        self.assertIn(
+            "Reach the Ardougne sheep enclosure",
+            player_data["quest_stage_actions"]["sheep_herder"],
+        )
 
         player_data["quest_stage_actions"]["sheep_herder"].extend(
             [
@@ -4207,7 +4207,6 @@ class TestLogic(unittest.TestCase):
                 "Pestle and mortar": 1,
             }
         )
-        player_data["quest_route_states"] = {"plague_city": ["Reach West Ardougne through the sewer pipe"]}
         player_data["quest_stage_actions"] = {
             "plague_city": [
                 "Talk to Edmond with the gas mask",
@@ -4253,6 +4252,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Bucket"], 4)
         self.assertEqual(player_data["inventory"]["Rope"], 0)
         self.assertEqual(player_data["inventory"]["Turnip growing for beginners"], 0)
+        self.assertIn(
+            "Reach West Ardougne through the sewer pipe",
+            player_data["quest_stage_actions"]["plague_city"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
         self.assertTrue(ok)
@@ -4291,7 +4294,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["waterfall_quest"] = {"started": True, "progress": 1, "completed": False}
         player_data["inventory"].update({"Rope": 1, "Water rune": 6, "Air rune": 6, "Earth rune": 6})
-        player_data["quest_route_states"] = {"waterfall_quest": ["Reach Golrie under Tree Gnome Village"]}
         player_data["quest_stage_actions"] = {
             "waterfall_quest": [
                 "Speak to Hudon by the waterfall",
@@ -4327,6 +4329,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Old key"], 1)
         self.assertEqual(player_data["inventory"]["Glarial's pebble"], 1)
         self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 4)
+        self.assertIn(
+            "Reach Golrie under Tree Gnome Village",
+            player_data["quest_stage_actions"]["waterfall_quest"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
         self.assertTrue(ok)
@@ -5146,12 +5152,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["tree_gnome_village"] = {"started": True, "progress": 1, "completed": False}
         player_data["inventory"]["Logs"] = 6
-        player_data["quest_route_states"] = {
-            "tree_gnome_village": [
-                "Reach Commander Montai on the battlefield",
-                "Enter the Khazard stronghold through the broken wall",
-            ]
-        }
         player_data["quest_stage_actions"] = {
             "tree_gnome_village": [
                 "Ask Commander Montai how to help the gnome battlefield",
@@ -5175,6 +5175,10 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], expected_progress)
         self.assertEqual(player_data["inventory"]["Logs"], 0)
+        self.assertIn(
+            "Reach Commander Montai on the battlefield",
+            player_data["quest_stage_actions"]["tree_gnome_village"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
         self.assertTrue(ok)
@@ -5225,6 +5229,10 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 6)
         self.assertEqual(player_data["inventory"]["Orb of protection"], 1)
+        self.assertIn(
+            "Enter the Khazard stronghold through the broken wall",
+            player_data["quest_stage_actions"]["tree_gnome_village"],
+        )
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "tree_gnome_village", QUEST_DATA),

@@ -93,6 +93,13 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
                     if blocker["kind"] == "required_route"
                 )
                 self.assertEqual(route_blockers, (), f"{quest_id} stage {stage} still requires a route choice")
+                recorded_steps = tuple(
+                    action
+                    for requirement in rows
+                    for action in requirement.get("auto_actions", ())
+                )
+                for expected_text in expected_by_stage[stage]:
+                    self.assertIn(expected_text, recorded_steps)
 
             for requirement in rows:
                 _mark_quest_stage_actions(player_data, quest_id, requirement.get("required_actions", ()))
@@ -192,6 +199,37 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
                 3: ("Reach the Taverley Dungeon scorpion room",),
                 4: ("Reach the Barbarian Outpost scorpion room",),
                 5: ("Reach the Edgeville Monastery scorpion room",),
+            },
+        )
+
+    def test_sheep_herder_enclosure_routes_are_recorded(self):
+        self._drive_route_stages(
+            "sheep_herder",
+            {
+                3: ("Reach the Ardougne sheep enclosure",),
+                4: ("Reach the Ardougne sheep enclosure",),
+                5: ("Reach the Ardougne sheep enclosure",),
+            },
+        )
+
+    def test_plague_city_sewer_route_is_recorded(self):
+        self._drive_route_stages(
+            "plague_city",
+            {8: ("Reach West Ardougne through the sewer pipe",)},
+        )
+
+    def test_waterfall_quest_golrie_route_is_recorded(self):
+        self._drive_route_stages(
+            "waterfall_quest",
+            {3: ("Reach Golrie under Tree Gnome Village",)},
+        )
+
+    def test_tree_gnome_village_battlefield_routes_are_recorded(self):
+        self._drive_route_stages(
+            "tree_gnome_village",
+            {
+                1: ("Reach Commander Montai on the battlefield",),
+                5: ("Enter the Khazard stronghold through the broken wall",),
             },
         )
 

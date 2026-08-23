@@ -5375,7 +5375,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Reach Commander Montai on the battlefield.",
             f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}",
-            required_routes=("Reach Commander Montai on the battlefield",),
+            auto_actions=("Reach Commander Montai on the battlefield",),
             required_actions=("Ask Commander Montai how to help the gnome battlefield",),
         ),
         _stage_req(
@@ -5408,7 +5408,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Enter the Khazard stronghold and recover the first Orb of protection.",
             f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}; {TREE_GNOME_KHAZARD_COMMANDER_NPC_SOURCE}",
-            required_routes=("Enter the Khazard stronghold through the broken wall",),
+            auto_actions=("Enter the Khazard stronghold through the broken wall",),
             required_actions=("Search the stronghold chest for the first Orb of protection",),
             produced_inventory=(("Orb of protection", 1),),
             combat_encounters=(
@@ -5804,7 +5804,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
                 f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
-            required_routes=("Reach the Ardougne sheep enclosure",),
+            auto_actions=("Reach the Ardougne sheep enclosure",),
             required_actions=("Pick up the cattleprod from the sheep enclosure barn",),
             produced_inventory=(("Cattleprod", 1),),
         ),
@@ -5818,7 +5818,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             required_inventory=(("Sheep feed", 1),),
             required_tools=(("Plague jacket", 1), ("Plague trousers", 1), ("Cattleprod", 1)),
-            required_routes=("Reach the Ardougne sheep enclosure",),
+            auto_actions=("Reach the Ardougne sheep enclosure",),
             required_actions=(
                 "Herd and poison the red sheep",
                 "Herd and poison the green sheep",
@@ -5853,7 +5853,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 "Incinerate the yellow sheep bones",
                 "Report the incinerated sheep to Councillor Halgrive",
             ),
-            required_routes=("Reach the Ardougne sheep enclosure",),
+            auto_actions=("Reach the Ardougne sheep enclosure",),
         ),
     ),
     PLAGUE_CITY_ID: (
@@ -5910,7 +5910,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Wear the gas mask, enter West Ardougne through the sewer, and speak to Jethick.",
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
             required_tools=(("Gas mask", 1),),
-            required_routes=("Reach West Ardougne through the sewer pipe",),
+            auto_actions=("Reach West Ardougne through the sewer pipe",),
             required_actions=("Speak to Jethick about Elena",),
         ),
         _stage_req(
@@ -6209,7 +6209,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_WATERFALL_SOURCE}; {DARKAN_WATERFALL_GOLRIE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             produced_inventory=(("Old key", 1), ("Glarial's pebble", 1)),
             required_actions=("Search the Tree Gnome Village crate for the old key", "Unlock Golrie's prison"),
-            required_routes=("Reach Golrie under Tree Gnome Village",),
+            auto_actions=("Reach Golrie under Tree Gnome Village",),
         ),
         _stage_req(
             4,
