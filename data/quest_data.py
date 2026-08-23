@@ -445,6 +445,28 @@ DARKAN_FIGHT_ARENA_KHAZARD_SCORPION_NPC_SOURCE = (
     f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/khazard_scorpion (nostats) (noanims).json"
 )
 SCAPE_2011_ITEM_IDENTITY_SOURCE = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
+ELEMENTAL_WORKSHOP_II_DARKAN_COMMIT = "fd901261fbf3a3ccee75236c422765c9d9383f4a"
+ELEMENTAL_WORKSHOP_II_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/elemental_workshop/ElementalWorkshopII.kt"
+    f" @ {ELEMENTAL_WORKSHOP_II_DARKAN_COMMIT}"
+)
+ELEMENTAL_WORKSHOP_II_REV_727_CACHE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/"
+    "extracted/727-2012-07-24/cache"
+)
+ELEMENTAL_WORKSHOP_II_REV_742_CACHE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/"
+    "extracted/742-2012-11-07/cache"
+)
+ELEMENTAL_WORKSHOP_II_WIKI_SOURCE = "https://runescape.wiki/w/Elemental_Workshop_II?oldid=6358871"
+ELEMENTAL_WORKSHOP_II_QUICK_GUIDE_SOURCE = (
+    "https://runescape.wiki/w/Elemental_Workshop_II%2FQuick_guide?oldid=6333340"
+)
+ELEMENTAL_WORKSHOP_II_STAGE_ONE_SOURCE = (
+    f"{ELEMENTAL_WORKSHOP_II_DARKAN_SOURCE}; {ELEMENTAL_WORKSHOP_II_REV_727_CACHE_SOURCE}; "
+    f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}; {ELEMENTAL_WORKSHOP_II_REV_742_CACHE_SOURCE}; "
+    f"{ELEMENTAL_WORKSHOP_II_WIKI_SOURCE}; {ELEMENTAL_WORKSHOP_II_QUICK_GUIDE_SOURCE}"
+)
 SHIELD_OF_ARRAV_WIKI_SOURCE = "https://runescape.wiki/w/Shield_of_Arrav?oldid=6326184"
 SCAPE_2011_VARROCK_RELDO_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -3605,6 +3627,7 @@ class QuestStageRequirementCleanup:
     add_required_routes: Tuple[str, ...] = ()
     add_consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     add_produced_inventory: Tuple[Tuple[str, int], ...] = ()
+    source: str = ""
 
 
 FISHING_CONTEST_STAGES: Tuple[QuestStage, ...] = (
@@ -7926,8 +7949,9 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Beaten Book", "Slashed book"),
             remove_required_actions=("Complete Elemental Workshop II stage 1 objective",),
-            add_required_actions=("Find and slash the Beaten Book open in the workshop",),
-            add_produced_inventory=(("Slashed book", 1),),
+            add_auto_actions=("Find the Beaten book in the Exam Centre and read its hidden scroll",),
+            add_produced_inventory=(("Beaten book", 1),),
+            source=ELEMENTAL_WORKSHOP_II_STAGE_ONE_SOURCE,
         ),
     ),
     "enlightened_journey": (
@@ -8956,6 +8980,7 @@ def _apply_stage_requirement_cleanup(
         required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
         auto_actions=_append_unique_strings(requirement.auto_actions, cleanup.add_auto_actions),
         required_routes=_append_unique_strings(requirement.required_routes, cleanup.add_required_routes),
+        source=cleanup.source or requirement.source,
     )
 
 

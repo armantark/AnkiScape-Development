@@ -8198,6 +8198,67 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "demon_slayer", QUEST_DATA), ())
 
+    def test_elemental_workshop_ii_beaten_book_emits_and_is_produced_on_review(self):
+        quest_id = "elemental_workshop_ii"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update({"Battered key": 1, "Pickaxe": 1, "Hammer": 1})
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        stage_one = next(
+            requirement
+            for requirement in quest["stage_requirements"]
+            if requirement["stage"] == 1
+        )
+        self.assertEqual(stage_one["required_actions"], ())
+        self.assertEqual(
+            stage_one["auto_actions"],
+            ("Find the Beaten book in the Exam Centre and read its hidden scroll",),
+        )
+        self.assertEqual(stage_one["produced_inventory"], {"Beaten book": 1})
+        source_markers = (
+            "ElementalWorkshopII.kt @ fd901261fbf3a3ccee75236c422765c9d9383f4a",
+            "extracted/727-2012-07-24/cache",
+            "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+            "extracted/742-2012-11-07/cache",
+            "Elemental_Workshop_II?oldid=6358871",
+            "Elemental_Workshop_II%2FQuick_guide?oldid=6333340",
+        )
+        source_positions = tuple(stage_one["source"].index(marker) for marker in source_markers)
+        self.assertEqual(source_positions, tuple(sorted(source_positions)))
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            player_data["quest_stage_actions"][quest_id],
+            ["Find the Beaten book in the Exam Centre and read its hidden scroll"],
+        )
+        self.assertEqual(player_data["inventory"]["Beaten book"], 1)
+        self.assertEqual(player_data["inventory"].get("Slashed book", 0), 0)
+
     def test_elemental_workshop_iii_ragged_book_emits_on_review(self):
         quest_id = "elemental_workshop_iii"
         quest = QUEST_DATA[quest_id]

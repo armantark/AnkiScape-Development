@@ -942,3 +942,5 @@
 - 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.
 - 2026-08-22 21:30 PDT — The first dangling-test scan matched test-module filenames and historical prose, producing 622 false-positive occurrences before qualified-selector filtering.
 - 2026-08-22 21:36 PDT — The item-reachability wrapper assigned zsh’s read-only `status` variable and ended with `(eval):1: read-only variable: status`; use `exit_code` when capturing expected nonzero exits.
+- 2026-08-22 23:00 PDT — The pinned Darkan commit lookup failed with `fatal: bad object fd901261fbf3a3ccee75236c422765c9d9383f4a` at `/Users/ArmanTarkhanian1/Documents/2012scape with bots`; the actual Git root is the nested `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`.
+- 2026-08-22 23:07 PDT — A repository-wide grep for the reachability pin values matched generated numeric data and persisted 1.9 MB of output; constrain pin searches to the promotion and reachability audit tests.
