@@ -681,6 +681,19 @@ queue for quest slices, not a reason to relax the reachability gate.
   - Stage `1`: `Accept replacement railings from Captain Lawgof`
 - **Elemental Workshop II** (`elemental_workshop_ii`)
   - Stage `1`: `Find and slash the Beaten Book open in the workshop`
+  - **Source conflict found 2026-08-22:** do not add an emitter for this
+    string. The pinned quest article (`oldid=6358871`,
+    `2012-10-06T20:56:17Z`) says the player finds the distinct Beaten book in
+    the Exam Centre and reads its hidden scroll; it separately identifies the
+    Slashed book as an Elemental Workshop I item reclaimed in Seers' Village.
+    The pinned quick guide (`oldid=6333340`, `2012-10-02T07:32:08Z`) agrees.
+    Darkan commit `fd901261fbf3a3ccee75236c422765c9d9383f4a` implements those
+    same search-and-read steps with Beaten book id `9717`, while Slashed book
+    remains id `9715`; rev-727 and rev-742 cache definitions and game-main's
+    item table preserve the same two identities. The cleanup row at
+    `data/quest_data.py:7924` instead invents slashing the Beaten Book in the
+    workshop and produces `Slashed book`. This needs a source-correction slice,
+    not reachability for the reported action.
 - **Elemental Workshop III** (`elemental_workshop_iii`)
   - Stage `1`: `Find and read the Ragged book in the workshop`
 - **Ernest the Chicken** (`ernest_the_chicken`)

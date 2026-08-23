@@ -942,3 +942,5 @@
 - 2026-08-22 20:27 PDT — While checking Elemental Workshop III cache evidence, `tools/query_openrs2_cache.sh --help` exited 2 because the script has no help mode and interpreted `--help` as the required cache path.
 - 2026-08-22 21:30 PDT — The first dangling-test scan matched test-module filenames and historical prose, producing 622 false-positive occurrences before qualified-selector filtering.
 - 2026-08-22 21:36 PDT — The item-reachability wrapper assigned zsh’s read-only `status` variable and ended with `(eval):1: read-only variable: status`; use `exit_code` when capturing expected nonzero exits.
+- 2026-08-22 22:05 PDT — A worktree reachability probe with only `PYTHONPATH` still imported `pkg_alias` from the canonical checkout because the shell cwd took precedence; probes must insert the worktree at `sys.path[0]` or run its script by absolute path.
+- 2026-08-22 22:21 PDT — The documentation-only plain lane ran 4,359 tests for 353.306 seconds before failing 33 unrelated source-art registry assertions (`failures=33, skipped=502`), so a blocker slice still pays nearly six minutes for an inherited asset baseline failure.
