@@ -7559,14 +7559,14 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             TAI_BWO_WANNAI_TRIO_SOURCE,
             required_inventory=(("Raw karambwan", 2),),
             required_tools=(("Small fishing net", 1),),
-            required_actions=("Catch karambwanji for Tiadeche",),
+            auto_actions=("Catch karambwanji for Tiadeche",),
         ),
         _stage_req(
             3,
             "Prepare Tamayu to fight the Shaikahan.",
             TAI_BWO_WANNAI_TRIO_SOURCE,
             required_inventory=(("Agility potion (4)", 1), ("Steel spear", 1)),
-            required_actions=("Repair and poison Tamayu's spear",),
+            auto_actions=("Repair and poison Tamayu's spear",),
             combat_encounters=(
                 _combat(
                     TAI_BWO_WANNAI_TRIO_ID,
@@ -7608,7 +7608,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             TAI_BWO_WANNAI_TRIO_SOURCE,
             required_inventory=(("Karamjan rum", 1), ("Seaweed", 1), ("Banana", 1), ("Jogre bones", 1)),
             required_tools=(("Knife", 1), ("Tinderbox", 1), ("Pestle and mortar", 1)),
-            required_actions=("Prepare the sliced banana in rum", "Burn and grind the jogre bones"),
+            auto_actions=("Prepare the sliced banana in rum", "Burn and grind the jogre bones"),
         ),
     ),
     CARNILLEAN_RISING_ID: (
