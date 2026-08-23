@@ -258,7 +258,10 @@ class FlashPowderFactoryPureTests(unittest.TestCase):
         self.assertGreaterEqual(result["brianpoints"], 135)
         self.assertLessEqual(result["brianpoints"], 155)
         self.assertEqual(completed["activity_session"], {"active_id": ""})
-        self.assertEqual(completed["current_agility"], "burthorpe_course")
+        self.assertEqual(completed["current_utility"], "bankstanding")
+        self.assertEqual(
+            completed["current_agility"], FLASH_POWDER_FACTORY_ACTIVITY_ID
+        )
 
         early = _entered()
         early_session = early["agility_activity_state"][FLASH_POWDER_FACTORY_ACTIVITY_ID]
@@ -268,6 +271,7 @@ class FlashPowderFactoryPureTests(unittest.TestCase):
         self.assertEqual(info["penalty_percent"], 40)
         self.assertEqual(info["brianpoints"], 81)
         self.assertEqual(left["activity_session"], {"active_id": ""})
+        self.assertEqual(left["current_utility"], "bankstanding")
 
         expected_penalties = (50, 50, 50, 50, 50, 40, 26, 0)
         for slots_used, expected in enumerate(expected_penalties):

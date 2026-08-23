@@ -361,6 +361,7 @@ from ..data.dagannoth_kings_data import DAGANNOTH_KINGS_ACTIVITY_ID
 from ..logic.dagannoth_kings_logic import (
     apply_dagannoth_kings_review_pure,
 )
+from ..data.dungeoneering_data import DUNGEONEERING_ACTIVITY_ID
 from ..logic.dungeoneering_logic import apply_dungeoneering_review_pure
 from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
 from ..logic.phoenix_lair_logic import (
@@ -463,6 +464,14 @@ MAGE_ARENA_UTILITY_KEY = "mage_arena"
 
 
 MAGE_ARENA_ATTUNE_PREFIX = "mage_arena_attune:"
+
+
+def _activity_session_is_current(
+    ctx: RuntimeActionContext,
+    activity_id: str,
+) -> bool:
+    active = ctx.player_data.get("activity_session")
+    return isinstance(active, Mapping) and str(active.get("active_id", "")) == activity_id
 
 
 def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
@@ -743,7 +752,7 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
     ctx.show_activity_gain(message)
 
     if result.get("completed"):
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
     return True
 
 
@@ -1060,6 +1069,14 @@ def handle_dungeoneering_answer(ctx: RuntimeActionContext) -> bool:
         player_died=int(ctx.player_data.get("combat_lifepoints", 1) or 0) <= 0,
     )
     if not ok:
+        state = ctx.player_data.get("dungeoneering")
+        if not (
+            _activity_session_is_current(ctx, DUNGEONEERING_ACTIVITY_ID)
+            and isinstance(state, Mapping)
+            and state.get("active")
+            and state.get("session")
+        ):
+            _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Dungeoneering unavailable",
             str(result.get("reason", "Enter or resume a floor before training.")),
@@ -1545,7 +1562,7 @@ def handle_flash_powder_factory_answer(
         str(result.get("status", "Flash powder circuit complete"))
     )
     if result.get("completed_activity"):
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
     return True
 
 
@@ -2621,6 +2638,13 @@ def handle_temple_trekking_answer(
         productive=productive,
     )
     if not ok:
+        state = ctx.player_data.get("temple_trekking")
+        if not (
+            _activity_session_is_current(ctx, TEMPLE_TREKKING_ACTIVITY_ID)
+            and isinstance(state, Mapping)
+            and state.get("session")
+        ):
+            _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Temple Trekking unavailable",
             str(result.get("reason", "Start or resume a trek before training.")),
@@ -2710,6 +2734,13 @@ def handle_gnome_restaurant_answer(
         productive=productive,
     )
     if not ok:
+        state = ctx.player_data.get("gnome_restaurant")
+        if not (
+            _activity_session_is_current(ctx, GNOME_RESTAURANT_ACTIVITY_ID)
+            and isinstance(state, Mapping)
+            and state.get("order")
+        ):
+            _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Gnome Restaurant unavailable",
             str(result.get("reason", "Take a delivery job before reviewing.")),
@@ -2742,6 +2773,14 @@ def handle_dominion_tower_answer(ctx: RuntimeActionContext) -> bool:
         equipment_data=EQUIPMENT_DATA,
     )
     if not ok:
+        state = ctx.player_data.get("dominion_tower")
+        if not (
+            _activity_session_is_current(ctx, DOMINION_TOWER_ACTIVITY_ID)
+            and isinstance(state, Mapping)
+            and state.get("mode")
+            and state.get("roster")
+        ):
+            _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Dominion Tower unavailable",
             str(result.get("reason", "Enter the tower before training it.")),
@@ -2905,8 +2944,8 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     if target_id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
         return handle_flash_powder_factory_answer(ctx)
     if target_id not in AGILITY_TARGETS_BY_ID:
-        target_id = DEFAULT_AGILITY_TARGET
-        player_data["current_agility"] = target_id
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     locked = agility_target_locked_reasons_pure(player_data, target_id)
     if locked:
         ctx.deactivate_current_skill()

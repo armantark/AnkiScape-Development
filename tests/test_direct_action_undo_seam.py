@@ -1286,6 +1286,44 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, before)
 
+    def test_flash_powder_factory_stop_switches_to_bankstanding_and_undoes(self):
+        from ankiscape.data.flash_powder_factory_data import (
+            FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        )
+        from ankiscape.logic.flash_powder_factory_logic import (
+            enter_flash_powder_factory_pure,
+        )
+
+        addon = self.addon
+        addon.player_data.update(
+            {
+                "agility_level": 75,
+                "thieving_level": 75,
+                "herblore_level": 50,
+                "current_agility": FLASH_POWDER_FACTORY_ACTIVITY_ID,
+            }
+        )
+        entered, allowed, info = enter_flash_powder_factory_pure(addon.player_data)
+        self.assertTrue(allowed, info)
+        addon.player_data.clear()
+        addon.player_data.update(entered)
+        command = self._capture_agility_handler()
+        addon.current_skill = "Activities"
+        before = copy.deepcopy(addon.player_data)
+
+        outcome = command("abandon", {})
+
+        self.assertTrue(outcome["ok"], outcome)
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(
+            addon.player_data["current_agility"],
+            FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        )
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.current_skill, "Activities")
+        self.assertEqual(addon.player_data, before)
+
     def test_agility_refusal_returns_the_refusal_and_writes_nothing(self):
         addon = self.addon
         command = self._capture_agility_handler()
