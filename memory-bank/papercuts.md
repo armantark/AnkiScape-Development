@@ -960,3 +960,4 @@
 - 2026-08-23T03:05:16-07:00: The first exact replacement for route data failed because top-level `QuestStageRequirement` fields use eight spaces while `_stage_req` fields use twelve; the mixed representations made one mechanical edit pattern miss.
 - 2026-08-23T03:06:57-07:00: The first route-kernel regression assumed quest side-state keys were absent, but `default_player_data` initializes empty `quest_stage_actions` and `quest_route_states` dictionaries, so all five cases failed before reaching the stage.
 - 2026-08-23T03:08:43-07:00: The generic route regression used `rng=lambda: 0.99` for combat, which made the Heroes' Quest Ice Queen encounter remain unresolved through the 20-call guard even at level 200; combat success rolls need a low deterministic value.
+- 2026-08-23T03:10:06-07:00: The generic route driver required every traversed stage to have a requirement row, but Family Crest stage 1 is intentionally empty and advances through the kernel with no row.

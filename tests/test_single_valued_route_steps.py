@@ -85,8 +85,8 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         while player_data["quests"][quest_id]["progress"] <= target_stage:
             stage = quest_current_stage_pure(player_data, quest_id, QUEST_DATA)
             rows = _stage_rows(quest_id, stage)
-            self.assertTrue(rows, f"{quest_id} stage {stage} should have requirements")
             if stage in expected_by_stage:
+                self.assertTrue(rows, f"{quest_id} stage {stage} should have requirements")
                 route_blockers = tuple(
                     blocker
                     for blocker in quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
@@ -152,6 +152,24 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
                 5: ("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
                 7: ("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
                 8: ("Reach Entrana without prohibited combat equipment",),
+            },
+        )
+
+    def test_family_crest_dungeon_routes_are_recorded(self):
+        self._drive_route_stages(
+            "family_crest",
+            {
+                8: ("Reach the Witchaven perfect gold mine",),
+                13: ("Reach Chronozon's lair in Edgeville Dungeon",),
+            },
+        )
+
+    def test_temple_of_ikov_travel_steps_are_recorded(self):
+        self._drive_route_stages(
+            "temple_of_ikov",
+            {
+                1: ("Enter the Temple of Ikov",),
+                3: ("Cross the Temple of Ikov lava bridge at low weight",),
             },
         )
 

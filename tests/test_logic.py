@@ -4796,12 +4796,6 @@ class TestLogic(unittest.TestCase):
             "Necklace mould": 1,
             "Antipoison": 1,
         })
-        player_data["quest_route_states"] = {
-            "family_crest": [
-                "Reach the Witchaven perfect gold mine",
-                "Reach Chronozon's lair in Edgeville Dungeon",
-            ]
-        }
         player_data["quest_stage_actions"] = {
             "family_crest": [
                 "Ask Caleb about the fish salad",
@@ -4842,6 +4836,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Perfect gold ore"], 2)
+        self.assertIn(
+            "Reach the Witchaven perfect gold mine",
+            player_data["quest_stage_actions"]["family_crest"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
         self.assertTrue(ok)
@@ -4878,6 +4876,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Johnathon crest"], 1)
+        self.assertIn(
+            "Reach Chronozon's lair in Edgeville Dungeon",
+            player_data["quest_stage_actions"]["family_crest"],
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
         self.assertTrue(ok)
@@ -4915,12 +4917,6 @@ class TestLogic(unittest.TestCase):
             })
             self.assertTrue(can_start_quest_pure(player_data, "temple_of_ikov", QUEST_DATA))
             player_data["quests"]["temple_of_ikov"] = {"started": True, "progress": 1, "completed": False}
-            player_data["quest_route_states"] = {
-                "temple_of_ikov": [
-                    "Enter the Temple of Ikov",
-                    "Cross the Temple of Ikov lava bridge at low weight",
-                ]
-            }
             player_data["quest_stage_actions"] = {
                 "temple_of_ikov": [
                     "Cut through the Temple of Ikov web",
@@ -4949,6 +4945,11 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["inventory"]["Boots of lightness"], 1)
             self.assertEqual(player_data["inventory"]["Lever"], 0)
             self.assertEqual(player_data["inventory"]["Ice arrows"], 1)
+            self.assertIn("Enter the Temple of Ikov", player_data["quest_stage_actions"]["temple_of_ikov"])
+            self.assertIn(
+                "Cross the Temple of Ikov lava bridge at low weight",
+                player_data["quest_stage_actions"]["temple_of_ikov"],
+            )
             self.assertEqual(
                 quest_current_stage_blocker_reasons_pure(player_data, "temple_of_ikov", QUEST_DATA),
                 ("Combat locked until battle support is enabled: Fire Warrior of Lesarkus level 84",),
@@ -4974,7 +4975,13 @@ class TestLogic(unittest.TestCase):
             return player_data
 
         guardians_data = ready_for_branch_choice()
-        guardians_data["quest_route_states"]["temple_of_ikov"].append("Side with the Guardians of Armadyl")
+        guardians_data, ok = apply_quest_route_choice_pure(
+            guardians_data,
+            "temple_of_ikov",
+            QUEST_DATA,
+            "Side with the Guardians of Armadyl",
+        )
+        self.assertTrue(ok)
         guardians_data["quest_stage_actions"]["temple_of_ikov"].append(
             "Remove the Pendant of lucien and accept the Guardian cleansing"
         )
@@ -4995,7 +5002,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(guardians_data["inventory"]["Shiny key"], 1)
 
         lucien_data = copy.deepcopy(ready_for_branch_choice())
-        lucien_data["quest_route_states"]["temple_of_ikov"].append("Side with Lucien")
+        lucien_data, ok = apply_quest_route_choice_pure(
+            lucien_data,
+            "temple_of_ikov",
+            QUEST_DATA,
+            "Side with Lucien",
+        )
+        self.assertTrue(ok)
         lucien_data["quest_stage_actions"]["temple_of_ikov"].append("Take the Staff of Armadyl from the guarded chamber")
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(lucien_data, "temple_of_ikov", QUEST_DATA),

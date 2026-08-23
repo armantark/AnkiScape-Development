@@ -2329,7 +2329,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Solve the Witchaven dungeon route and mine two perfect gold ores.",
         required_tools=(("Pickaxe", 1),),
         required_actions=("Solve the Witchaven dungeon lever puzzle", "Mine two perfect gold ores"),
-        required_routes=("Reach the Witchaven perfect gold mine",),
+        auto_actions=("Reach the Witchaven perfect gold mine",),
         produced_inventory=(("Perfect gold ore", 2),),
         source=(
             f"{FAMILY_CREST_DARKAN_SOURCE}; {FAMILY_CREST_WITCHHAVEN_PUZZLE_SOURCE}; "
@@ -2374,7 +2374,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Hit Chronozon with all four elemental blast spells and defeat him.",
         required_tools=(("Caleb crest", 1), ("Avan crest", 1)),
         required_actions=("Hit Chronozon with Air, Water, Earth, and Fire Blast",),
-        required_routes=("Reach Chronozon's lair in Edgeville Dungeon",),
+        auto_actions=("Reach Chronozon's lair in Edgeville Dungeon",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{FAMILY_CREST_ID}_chronozon_170",
@@ -2439,7 +2439,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Enter the Temple of Ikov with Lucien's pendant and a light source.",
         required_inventory_options=(tuple((item_name, 1) for item_name in LIT_LIGHT_SOURCE_ITEMS),),
         required_tools=(("Pendant of lucien", 1),),
-        required_routes=("Enter the Temple of Ikov",),
+        auto_actions=("Enter the Temple of Ikov",),
         source=(
             f"{TEMPLE_OF_IKOV_DARKAN_SOURCE}; {TEMPLE_OF_IKOV_DUNGEON_SOURCE}; "
             f"{TEMPLE_OF_IKOV_LUCIEN_ARDOUGNE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
@@ -2457,7 +2457,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=3,
         description="Cross the lava bridge at low weight and pick up the lever.",
         required_tools=(("Pendant of lucien", 1), ("Boots of lightness", 1)),
-        required_routes=("Cross the Temple of Ikov lava bridge at low weight",),
+        auto_actions=("Cross the Temple of Ikov lava bridge at low weight",),
         required_actions=("Pick up the Temple of Ikov lever",),
         produced_inventory=(("Lever", 1),),
         source=f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
