@@ -3340,6 +3340,95 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Coin"], 500)
         self.assertEqual(after_complete["quest_points"], 1)
 
+    def test_dealing_with_scabaras_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "dealing_with_scabaras"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        quest = QUEST_DATA[quest_id]
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (
+                "Needs Ugthanki dung x1",
+                "Needs Pyramid top x1",
+                "Route required: Reach the Agility Pyramid",
+            ),
+        )
+
+        player_data["inventory"].update({"Ugthanki dung": 1, "Pyramid top": 1})
+        player_data["quest_route_states"] = {quest_id: ["Reach the Agility Pyramid"]}
+        expected_actions = (
+            "Complete Dealing with Scabaras stage 1 objective",
+            "Prepare bronze equipment for the High Priest's tests",
+            "Complete Dealing with Scabaras stage 2 objective",
+            "Complete Dealing with Scabaras stage 3 objective",
+            "Complete Dealing with Scabaras stage 4 objective",
+            "Complete Dealing with Scabaras stage 5 objective",
+            "Complete Dealing with Scabaras stage 6 objective",
+            "Complete Dealing with Scabaras stage 7 objective",
+        )
+
+        for stage in range(1, 8):
+            if stage == 6:
+                self.assertEqual(
+                    quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                    ("Combat locked until battle support is enabled: Skeletons",),
+                )
+                player_data["quest_combat_encounters"] = {
+                    quest_id: ["dealing_with_scabaras_skeletons_1"]
+                }
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                (),
+            )
+
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 7)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions[: stage + 1],
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Pyramid Plunder"], 1)
+        self.assertEqual(player_data["agility_exp"], 7000.0)
+        self.assertEqual(player_data["prayer_exp"], 7000.0)
+        self.assertEqual(player_data["strength_exp"], 7000.0)
+        self.assertEqual(player_data["thieving_exp"], 7000.0)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Pyramid Plunder"], 1)
+        self.assertEqual(after_complete["agility_exp"], 7000.0)
+        self.assertEqual(after_complete["prayer_exp"], 7000.0)
+        self.assertEqual(after_complete["strength_exp"], 7000.0)
+        self.assertEqual(after_complete["thieving_exp"], 7000.0)
+
     def test_tears_of_guthix_final_lantern_stage_runs_before_completion(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["current_quest"] = "tears_of_guthix"

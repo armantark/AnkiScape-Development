@@ -3601,6 +3601,7 @@ class QuestStageRequirementCleanup:
     remove_required_tools: Tuple[str, ...] = ()
     remove_required_actions: Tuple[str, ...] = ()
     add_required_actions: Tuple[str, ...] = ()
+    add_auto_actions: Tuple[str, ...] = ()
     add_required_routes: Tuple[str, ...] = ()
     add_consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     add_produced_inventory: Tuple[Tuple[str, int], ...] = ()
@@ -8034,12 +8035,43 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Agility Pyramid", "Random Bronze armours/weapons"),
-            add_required_actions=("Prepare bronze equipment for the High Priest's tests",),
+            remove_required_actions=("Complete Dealing with Scabaras stage 1 objective",),
+            add_auto_actions=(
+                "Complete Dealing with Scabaras stage 1 objective",
+                "Prepare bronze equipment for the High Priest's tests",
+            ),
             add_required_routes=("Reach the Agility Pyramid",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
             remove_required_inventory=("Food",),
+            remove_required_actions=("Complete Dealing with Scabaras stage 2 objective",),
+            add_auto_actions=("Complete Dealing with Scabaras stage 2 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_actions=("Complete Dealing with Scabaras stage 3 objective",),
+            add_auto_actions=("Complete Dealing with Scabaras stage 3 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_actions=("Complete Dealing with Scabaras stage 4 objective",),
+            add_auto_actions=("Complete Dealing with Scabaras stage 4 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete Dealing with Scabaras stage 5 objective",),
+            add_auto_actions=("Complete Dealing with Scabaras stage 5 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=6,
+            remove_required_actions=("Complete Dealing with Scabaras stage 6 objective",),
+            add_auto_actions=("Complete Dealing with Scabaras stage 6 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=7,
+            remove_required_actions=("Complete Dealing with Scabaras stage 7 objective",),
+            add_auto_actions=("Complete Dealing with Scabaras stage 7 objective",),
         ),
     ),
     "roving_elves": (
@@ -8928,6 +8960,7 @@ def _apply_stage_requirement_cleanup(
         produced_inventory=_append_stage_item_pairs(requirement.produced_inventory, cleanup.add_produced_inventory),
         required_tools=_remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
         required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
+        auto_actions=_append_unique_strings(requirement.auto_actions, cleanup.add_auto_actions),
         required_routes=_append_unique_strings(requirement.required_routes, cleanup.add_required_routes),
     )
 
