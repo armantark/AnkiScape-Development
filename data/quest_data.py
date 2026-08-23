@@ -8414,9 +8414,14 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Shadow",
                 "Prayer potions",
             ),
-            add_required_actions=("Recover the Temple of Light keys and crystal puzzle pieces",),
-            remove_required_actions=("Complete Within the Light stage 1 objective",),
-            add_auto_actions=("Reach the Temple of Light through West Ardougne and Lletya",),
+            remove_required_actions=(
+                "Complete Within the Light stage 1 objective",
+                "Recover the Temple of Light keys and crystal puzzle pieces",
+            ),
+            add_auto_actions=(
+                "Reach the Temple of Light through West Ardougne and Lletya",
+                "Recover the Temple of Light keys and crystal puzzle pieces",
+            ),
         ),
     ),
     "the_firemakers_curse": (
