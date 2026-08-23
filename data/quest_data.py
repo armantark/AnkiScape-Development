@@ -5537,7 +5537,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Find rat poison in the Clock Tower dungeon.",
             f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Pick up rat poison in the Clock Tower dungeon",),
+            auto_actions=("Pick up rat poison in the Clock Tower dungeon",),
             produced_inventory=(("Rat poison", 1),),
         ),
         _stage_req(
@@ -5545,13 +5545,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Poison the Clock Tower dungeon rats to open the blocked door.",
             f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Rat poison", 1),),
-            required_actions=("Poison the Clock Tower dungeon rats",),
+            auto_actions=("Poison the Clock Tower dungeon rats",),
         ),
         _stage_req(
             3,
             "Find the four Clock Tower cogs.",
             f"{DARKAN_CLOCK_TOWER_SOURCE}; {DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Find the white, black, blue, and red Clock Tower cogs",),
+            auto_actions=("Find the white, black, blue, and red Clock Tower cogs",),
             produced_inventory=(("White cog", 1), ("Black cog", 1), ("Blue cog", 1), ("Red cog", 1)),
         ),
         _stage_req(
@@ -5560,13 +5560,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_CLOCK_TOWER_SOURCE}; {DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_inventory_options=(((("Bucket of water", 1), ("Ice gloves", 1)),)),
             consumed_inventory=(("White cog", 1), ("Black cog", 1), ("Blue cog", 1), ("Red cog", 1)),
-            required_actions=("Place the four Clock Tower cogs",),
+            auto_actions=("Place the four Clock Tower cogs",),
         ),
         _stage_req(
             5,
             "Report the repaired clock to Brother Kojo.",
             DARKAN_CLOCK_TOWER_KOJO_SOURCE,
-            required_actions=("Report the repaired clock to Brother Kojo",),
+            auto_actions=("Report the repaired clock to Brother Kojo",),
         ),
     ),
     MONKS_FRIEND_ID: (
