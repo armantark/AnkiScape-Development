@@ -7599,6 +7599,115 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "the_restless_ghost", QUEST_DATA), ())
 
+    def test_restless_ghost_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "the_restless_ghost"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 20
+        player_data["strength_level"] = 20
+        player_data["defense_level"] = 20
+        player_data["constitution_level"] = 20
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_steps = (
+            (
+                2,
+                ("Receive the ghostspeak amulet from Father Urhney",),
+                {"Ghostspeak amulet": 1, "Muddy skull": 0},
+            ),
+            (
+                3,
+                (
+                    "Receive the ghostspeak amulet from Father Urhney",
+                    "Speak to the restless ghost",
+                ),
+                {"Ghostspeak amulet": 1, "Muddy skull": 0},
+            ),
+            (
+                4,
+                (
+                    "Receive the ghostspeak amulet from Father Urhney",
+                    "Speak to the restless ghost",
+                    "Search the mining spot for the ghost's skull",
+                ),
+                {"Ghostspeak amulet": 1, "Muddy skull": 1},
+            ),
+        )
+        for progress, actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                actions,
+            )
+            self.assertEqual(
+                {
+                    item_name: player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory
+                },
+                inventory,
+            )
+
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["encounter_id"], "the_restless_ghost_skeleton_warlock")
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+            rng=lambda: 0.5,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {quest_id: ["the_restless_ghost_skeleton_warlock"]},
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            (
+                "Receive the ghostspeak amulet from Father Urhney",
+                "Speak to the restless ghost",
+                "Search the mining spot for the ghost's skull",
+                "Return the muddy skull to the ghost's coffin",
+            ),
+        )
+        self.assertEqual(player_data["inventory"].get("Muddy skull", 0), 0)
+        self.assertEqual(player_data["inventory"]["Ancient bones"], 5)
+        self.assertEqual(player_data["prayer_exp"], 125.0)
+        self.assertEqual(player_data["quest_points"], 1)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["inventory"]["Ancient bones"], 5)
+        self.assertEqual(after_complete["prayer_exp"], 125.0)
+        self.assertEqual(after_complete["quest_points"], 1)
+
     def test_stolen_hearts_stage_chain_resolves_combat_items_and_exact_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["stolen_hearts"] = {

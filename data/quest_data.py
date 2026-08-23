@@ -7007,7 +7007,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Receive the ghostspeak amulet from Father Urhney.",
             f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_FATHER_URHNEY_SOURCE_PATH}",
-            required_actions=("Receive the ghostspeak amulet from Father Urhney",),
+            auto_actions=("Receive the ghostspeak amulet from Father Urhney",),
             produced_inventory=(("Ghostspeak amulet", 1),),
         ),
         _stage_req(
@@ -7015,13 +7015,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Speak to the restless ghost while wearing the ghostspeak amulet.",
             f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_DIALOGUE_SOURCE_PATH}",
             required_inventory=(("Ghostspeak amulet", 1),),
-            required_actions=("Speak to the restless ghost",),
+            auto_actions=("Speak to the restless ghost",),
         ),
         _stage_req(
             3,
             "Search the Lumbridge Swamp mining spot for the muddy skull.",
             f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}",
-            required_actions=("Search the mining spot for the ghost's skull",),
+            auto_actions=("Search the mining spot for the ghost's skull",),
             produced_inventory=(("Muddy skull", 1),),
         ),
         _stage_req(
@@ -7033,7 +7033,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             required_inventory=(("Muddy skull", 1),),
             consumed_inventory=(("Muddy skull", 1),),
-            required_actions=("Return the muddy skull to the ghost's coffin",),
+            auto_actions=("Return the muddy skull to the ghost's coffin",),
             combat_encounters=(
                 _combat(
                     THE_RESTLESS_GHOST_ID,
