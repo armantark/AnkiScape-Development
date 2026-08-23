@@ -343,7 +343,19 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertEqual(by_stage[11]["consumed_inventory"], {"Perfect ruby ring": 1, "Perfect ruby necklace": 1})
         self.assertEqual(by_stage[11]["produced_inventory"], {"Avan crest": 1})
-        self.assertEqual(by_stage[12]["required_inventory"], {"Antipoison": 1})
+        self.assertEqual(by_stage[12]["required_inventory"], {})
+        self.assertEqual(by_stage[12]["required_inventory_options"], ())
+        self.assertEqual(
+            by_stage[12]["consumed_inventory_options"],
+            (
+                (
+                    {"Antipoison (4)": 1},
+                    {"Antipoison (3)": 1},
+                    {"Antipoison (2)": 1},
+                    {"Antipoison (1)": 1},
+                ),
+            ),
+        )
         self.assertEqual(by_stage[12]["required_tools"], {"Caleb crest": 1, "Avan crest": 1})
         self.assertEqual(by_stage[13]["produced_inventory"], {"Johnathon crest": 1})
         self.assertEqual(
@@ -363,6 +375,7 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertEqual(chronozon["npc_configs"]["max_hit"], 180)
         self.assertEqual(chronozon["npc_configs"]["attack_style"], "melee")
+        self.assertEqual(chronozon["npc_configs"]["minimum_player_combat"], 1)
         self.assertTrue(chronozon["npc_stats_source"].endswith("chronozon (noanims).json"))
 
     def test_temple_of_ikov_has_source_backed_stage_requirements(self):

@@ -9425,9 +9425,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         }
         pd["current_quest"] = "family_crest"
         pd["quests"]["family_crest"] = {"started": True, "progress": 10, "completed": False}
-        pd["quest_stage_actions"] = {
-            "family_crest": ["Craft the perfect ruby ring and perfect ruby necklace"]
-        }
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 

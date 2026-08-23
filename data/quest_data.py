@@ -2287,7 +2287,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=2,
         description="Ask Caleb about his crest piece and agree to collect the cooked fish.",
-        required_actions=("Ask Caleb about the fish salad",),
+        auto_actions=("Ask Caleb about the fish salad",),
         source=f"{FAMILY_CREST_CALEB_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -2307,33 +2307,36 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=4,
         description="Ask Caleb where Avan might be found.",
         required_tools=(("Caleb crest", 1),),
-        required_actions=("Ask Caleb where Avan is searching for treasure",),
+        auto_actions=("Ask Caleb where Avan is searching for treasure",),
         source=f"{FAMILY_CREST_CALEB_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
         stage=5,
         description="Ask the Al Kharid gem trader about Avan.",
-        required_actions=("Ask the Al Kharid gem trader about Avan",),
+        auto_actions=("Ask the Al Kharid gem trader about Avan",),
         source=FAMILY_CREST_GEM_TRADER_SOURCE,
     ),
     QuestStageRequirement(
         stage=6,
         description="Ask Avan what he wants in exchange for his crest piece.",
-        required_actions=("Ask Avan about perfect gold jewellery",),
+        auto_actions=("Ask Avan about perfect gold jewellery",),
         source=FAMILY_CREST_AVAN_SOURCE,
     ),
     QuestStageRequirement(
         stage=7,
         description="Ask Boot where perfect gold can be found.",
-        required_actions=("Ask Boot about perfect gold",),
+        auto_actions=("Ask Boot about perfect gold",),
         source=FAMILY_CREST_BOOT_SOURCE,
     ),
     QuestStageRequirement(
         stage=8,
         description="Solve the Witchaven dungeon route and mine two perfect gold ores.",
         required_tools=(("Pickaxe", 1),),
-        required_actions=("Solve the Witchaven dungeon lever puzzle", "Mine two perfect gold ores"),
-        auto_actions=("Reach the Witchaven perfect gold mine",),
+        auto_actions=(
+            "Reach the Witchaven perfect gold mine",
+            "Solve the Witchaven dungeon lever puzzle",
+            "Mine two perfect gold ores",
+        ),
         produced_inventory=(("Perfect gold ore", 2),),
         source=(
             f"{FAMILY_CREST_DARKAN_SOURCE}; {FAMILY_CREST_WITCHHAVEN_PUZZLE_SOURCE}; "
@@ -2345,7 +2348,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Smelt the perfect gold ore into perfect gold bars.",
         consumed_inventory=(("Perfect gold ore", 2),),
         produced_inventory=(("Perfect gold bar", 2),),
-        required_actions=("Smelt the perfect gold ore in a furnace",),
+        auto_actions=("Smelt the perfect gold ore in a furnace",),
         source=f"{FAMILY_CREST_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -2354,7 +2357,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         consumed_inventory=(("Perfect gold bar", 2), ("Ruby", 2)),
         produced_inventory=(("Perfect ruby ring", 1), ("Perfect ruby necklace", 1)),
         required_tools=(("Ring mould", 1), ("Necklace mould", 1),),
-        required_actions=("Craft the perfect ruby ring and perfect ruby necklace",),
+        auto_actions=("Craft the perfect ruby ring and perfect ruby necklace",),
         source=f"{FAMILY_CREST_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
@@ -2368,17 +2371,29 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=12,
         description="Use antipoison on Johnathon and ask him about Chronozon.",
-        required_inventory=(("Antipoison", 1),),
+        # JohnathonFamilyCrestD.java accepts item ids 2446/175/177/179 as
+        # unnoted Antipoison doses and deletes one; it rejects the noted twins.
+        # The pinned wiki revision asks for "Anti-poison potion (1+ recommended)".
+        consumed_inventory_options=(
+            (
+                ("Antipoison (4)", 1),
+                ("Antipoison (3)", 1),
+                ("Antipoison (2)", 1),
+                ("Antipoison (1)", 1),
+            ),
+        ),
         required_tools=(("Caleb crest", 1), ("Avan crest", 1)),
-        required_actions=("Use an unnoted antipoison on Johnathon", "Ask Johnathon about Chronozon"),
+        auto_actions=("Use an unnoted antipoison on Johnathon", "Ask Johnathon about Chronozon"),
         source=f"{FAMILY_CREST_JOHNATHON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
         stage=13,
         description="Hit Chronozon with all four elemental blast spells and defeat him.",
         required_tools=(("Caleb crest", 1), ("Avan crest", 1)),
-        required_actions=("Hit Chronozon with Air, Water, Earth, and Fire Blast",),
-        auto_actions=("Reach Chronozon's lair in Edgeville Dungeon",),
+        auto_actions=(
+            "Reach Chronozon's lair in Edgeville Dungeon",
+            "Hit Chronozon with Air, Water, Earth, and Fire Blast",
+        ),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{FAMILY_CREST_ID}_chronozon_170",
@@ -2400,6 +2415,10 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
                     ("attack_style", "melee"),
                     ("attack_bonus", "slash_att"),
                     ("aggressiveness_type", "aggressive"),
+                    # No period or Darkan source gates this fight on player combat
+                    # level; defaulting to Chronozon's own level 170 would make it
+                    # unreachable (see miniquest-ledger Bork/Tarn precedent).
+                    ("minimum_player_combat", 1),
                 ),
                 npc_stats_source=FAMILY_CREST_CHRONOZON_NPC_SOURCE,
             ),
@@ -2412,7 +2431,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Combine the three crest parts into the restored Family crest.",
         consumed_inventory=(("Caleb crest", 1), ("Avan crest", 1), ("Johnathon crest", 1)),
         produced_inventory=(("Family crest", 1),),
-        required_actions=("Combine the three crest parts",),
+        auto_actions=("Combine the three crest parts",),
         source=f"{FAMILY_CREST_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
     QuestStageRequirement(
