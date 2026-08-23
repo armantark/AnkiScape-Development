@@ -4341,124 +4341,235 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["quest_points"], 1)
         self.assertEqual(after_complete["fishing_exp"], 2437.0)
 
-    def test_scorpion_catcher_stage_exposes_source_backed_jailer_combat_gate(self):
+    def test_scorpion_catcher_real_stage_emitters_preserve_jailer_gate_and_complete(self):
+        quest_id = "scorpion_catcher"
+        actions = (
+            "Accept Thormac's scorpion cage",
+            "Ask the Seer for all three scorpion locations",
+            "Reach the Taverley Dungeon scorpion room",
+            "Catch the Taverley Dungeon Kharid scorpion",
+            "Reach the Barbarian Outpost scorpion room",
+            "Catch the Barbarian Outpost Kharid scorpion",
+            "Reach the Edgeville Monastery scorpion room",
+            "Catch the Edgeville Monastery Kharid scorpion",
+            "Return the caged scorpions to Thormac",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["scorpion_catcher"] = {"started": True, "progress": 3, "completed": False}
-        player_data["inventory"]["Scorpion cage"] = 1
-        player_data["quest_stage_actions"] = {
-            "scorpion_catcher": ["Catch the Taverley Dungeon Kharid scorpion"]
-        }
+        player_data["agility_level"] = 35
+        player_data["prayer_level"] = 31
 
-        blockers = quest_current_stage_blockers_pure(player_data, "scorpion_catcher", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        for progress, expected_actions in ((2, actions[:1]), (3, actions[:2])):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions,
+            )
+            self.assertEqual(player_data["inventory"]["Scorpion cage"], 1)
+
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "scorpion_catcher", QUEST_DATA),
+            {
+                key: blockers[0][key]
+                for key in (
+                    "encounter_id",
+                    "display_name",
+                    "level",
+                    "quantity",
+                    "completed_quantity",
+                    "remaining_quantity",
+                )
+            },
+            {
+                "encounter_id": "scorpion_catcher_jailer",
+                "display_name": "Jailer",
+                "level": 39,
+                "quantity": 1,
+                "completed_quantity": 0,
+                "remaining_quantity": 1,
+            },
+        )
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Combat locked until battle support is enabled: Jailer level 39",),
         )
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "scorpion_catcher", QUEST_DATA)
+        blocked, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
         self.assertFalse(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["scorpion_catcher"]["progress"], 3)
+        self.assertEqual(blocked["quests"][quest_id]["progress"], 3)
+        self.assertEqual(tuple(blocked["quest_stage_actions"][quest_id]), actions[:2])
         self.assertEqual(blocked["strength_exp"], 0)
 
-        player_data["quest_combat_encounters"] = {"scorpion_catcher": ["scorpion_catcher_jailer"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "scorpion_catcher", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["scorpion_catcher"]["progress"], 4)
-        self.assertIn(
-            "Reach the Taverley Dungeon scorpion room",
-            player_data["quest_stage_actions"]["scorpion_catcher"],
+        player_data["quest_combat_encounters"] = {
+            quest_id: ["scorpion_catcher_jailer"]
+        }
+        expected_steps = (
+            (4, False, actions[:4], 1),
+            (5, False, actions[:6], 1),
+            (6, False, actions[:8], 1),
+            (7, True, actions, 0),
         )
+        for progress, completed, expected_actions, cage_count in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions,
+            )
+            self.assertEqual(player_data["inventory"].get("Scorpion cage", 0), cage_count)
+            self.assertEqual(
+                player_data["quest_combat_encounters"],
+                {quest_id: ["scorpion_catcher_jailer"]},
+            )
 
-    def test_sheep_herder_stage_gates_clothing_tools_and_all_four_bones(self):
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["strength_exp"], 6625.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["strength_exp"], 6625.0)
+        self.assertEqual(after_complete["inventory"].get("Scorpion cage", 0), 0)
+
+    def test_sheep_herder_real_stage_emitters_preserve_consumption_and_rewards(self):
+        quest_id = "sheep_herder"
+        actions = (
+            "Accept poisoned sheep feed from Councillor Halgrive",
+            "Reach the Ardougne sheep enclosure",
+            "Pick up the cattleprod from the sheep enclosure barn",
+            "Herd and poison the red sheep",
+            "Herd and poison the green sheep",
+            "Herd and poison the blue sheep",
+            "Herd and poison the yellow sheep",
+            "Incinerate the red sheep bones",
+            "Incinerate the green sheep bones",
+            "Incinerate the blue sheep bones",
+            "Incinerate the yellow sheep bones",
+            "Report the incinerated sheep to Councillor Halgrive",
+        )
+        inventory_names = (
+            "Coins",
+            "Sheep feed",
+            "Plague jacket",
+            "Plague trousers",
+            "Cattleprod",
+            "Red sheep bones",
+            "Green sheep bones",
+            "Blue sheep bones",
+            "Yellow sheep bones",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["sheep_herder"] = {"started": True, "progress": 1, "completed": False}
         player_data["inventory"]["Coins"] = 100
 
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "sheep_herder", QUEST_DATA),
-            ("Action required: Accept poisoned sheep feed from Councillor Halgrive",),
-        )
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["sheep_herder"]["progress"], 1)
-        self.assertEqual(blocked["quest_points"], 0)
-
-        player_data["quest_stage_actions"] = {
-            "sheep_herder": ["Accept poisoned sheep feed from Councillor Halgrive"]
-        }
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 2)
-        self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 3)
-        self.assertEqual(player_data["inventory"]["Coins"], 0)
-        self.assertEqual(player_data["inventory"]["Plague jacket"], 1)
-        self.assertEqual(player_data["inventory"]["Plague trousers"], 1)
+        expected_steps = (
+            (2, False, actions[:1], (100, 1, 0, 0, 0, 0, 0, 0, 0)),
+            (3, False, actions[:1], (0, 1, 1, 1, 0, 0, 0, 0, 0)),
+            (4, False, actions[:3], (0, 1, 1, 1, 1, 0, 0, 0, 0)),
+            (5, False, actions[:7], (0, 1, 1, 1, 1, 1, 1, 1, 1)),
+            (6, True, actions, (3100, 1, 2, 2, 2, 0, 0, 0, 0)),
+        )
+        for progress, completed, expected_actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions,
+            )
+            self.assertEqual(
+                tuple(
+                    player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory_names
+                ),
+                inventory,
+            )
+            if progress == 4:
+                missing_gear = copy.deepcopy(player_data)
+                for item_name in (
+                    "Sheep feed",
+                    "Plague jacket",
+                    "Plague trousers",
+                    "Cattleprod",
+                ):
+                    missing_gear["inventory"][item_name] = 0
+                self.assertEqual(
+                    quest_current_stage_blocker_reasons_pure(
+                        missing_gear,
+                        quest_id,
+                        QUEST_DATA,
+                    ),
+                    (
+                        "Needs Sheep feed x1",
+                        "Needs Plague jacket",
+                        "Needs Plague trousers",
+                        "Needs Cattleprod",
+                    ),
+                )
 
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "sheep_herder", QUEST_DATA),
-            ("Action required: Pick up the cattleprod from the sheep enclosure barn",),
-        )
-        player_data["quest_stage_actions"]["sheep_herder"].append(
-            "Pick up the cattleprod from the sheep enclosure barn"
-        )
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 4)
-        self.assertEqual(player_data["inventory"]["Cattleprod"], 1)
-        self.assertIn(
-            "Reach the Ardougne sheep enclosure",
-            player_data["quest_stage_actions"]["sheep_herder"],
-        )
-
-        player_data["quest_stage_actions"]["sheep_herder"].extend(
-            [
-                "Herd and poison the red sheep",
-                "Herd and poison the green sheep",
-                "Herd and poison the blue sheep",
-                "Herd and poison the yellow sheep",
-            ]
-        )
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 5)
-        self.assertEqual(player_data["inventory"]["Red sheep bones"], 1)
-        self.assertEqual(player_data["inventory"]["Green sheep bones"], 1)
-        self.assertEqual(player_data["inventory"]["Blue sheep bones"], 1)
-        self.assertEqual(player_data["inventory"]["Yellow sheep bones"], 1)
-
-        player_data["quest_stage_actions"]["sheep_herder"].extend(
-            [
-                "Incinerate the red sheep bones",
-                "Incinerate the green sheep bones",
-                "Incinerate the blue sheep bones",
-                "Incinerate the yellow sheep bones",
-                "Report the incinerated sheep to Councillor Halgrive",
-            ]
-        )
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["sheep_herder"]["completed"])
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 6)
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 4)
-        self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
-        self.assertEqual(player_data["inventory"]["Red sheep bones"], 0)
-        self.assertEqual(player_data["inventory"]["Green sheep bones"], 0)
-        self.assertEqual(player_data["inventory"]["Blue sheep bones"], 0)
-        self.assertEqual(player_data["inventory"]["Yellow sheep bones"], 0)
-        self.assertEqual(player_data["inventory"]["Coins"], 3100)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        terminal_inventory = tuple(
+            player_data["inventory"].get(item_name, 0)
+            for item_name in inventory_names
+        )
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 4)
+        self.assertEqual(
+            tuple(
+                after_complete["inventory"].get(item_name, 0)
+                for item_name in inventory_names
+            ),
+            terminal_inventory,
+        )
 
     def test_plague_city_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "plague_city"

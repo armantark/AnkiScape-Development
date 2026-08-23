@@ -5757,14 +5757,14 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Accept Thormac's scorpion cage.",
             f"{DARKAN_SCORPION_CATCHER_THORMAC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Accept Thormac's scorpion cage",),
+            auto_actions=("Accept Thormac's scorpion cage",),
             produced_inventory=(("Scorpion cage", 1),),
         ),
         _stage_req(
             2,
             "Ask the Seer for all three scorpion locations.",
             f"{DARKAN_SCORPION_CATCHER_SEER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
-            required_actions=("Ask the Seer for all three scorpion locations",),
+            auto_actions=("Ask the Seer for all three scorpion locations",),
         ),
         _stage_req(
             3,
@@ -5774,8 +5774,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE}"
             ),
             required_tools=(("Scorpion cage", 1),),
-            auto_actions=("Reach the Taverley Dungeon scorpion room",),
-            required_actions=("Catch the Taverley Dungeon Kharid scorpion",),
+            auto_actions=(
+                "Reach the Taverley Dungeon scorpion room",
+                "Catch the Taverley Dungeon Kharid scorpion",
+            ),
             combat_encounters=(
                 _combat(
                     SCORPION_CATCHER_ID,
@@ -5808,23 +5810,27 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Catch the Barbarian Outpost scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
-            auto_actions=("Reach the Barbarian Outpost scorpion room",),
-            required_actions=("Catch the Barbarian Outpost Kharid scorpion",),
+            auto_actions=(
+                "Reach the Barbarian Outpost scorpion room",
+                "Catch the Barbarian Outpost Kharid scorpion",
+            ),
         ),
         _stage_req(
             5,
             "Catch the Edgeville Monastery scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
-            auto_actions=("Reach the Edgeville Monastery scorpion room",),
-            required_actions=("Catch the Edgeville Monastery Kharid scorpion",),
+            auto_actions=(
+                "Reach the Edgeville Monastery scorpion room",
+                "Catch the Edgeville Monastery Kharid scorpion",
+            ),
         ),
         _stage_req(
             6,
             "Return the caged scorpions to Thormac.",
             f"{DARKAN_SCORPION_CATCHER_THORMAC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Scorpion cage", 1),),
-            required_actions=("Return the caged scorpions to Thormac",),
+            auto_actions=("Return the caged scorpions to Thormac",),
         ),
     ),
     SHEEP_HERDER_ID: (
@@ -5832,7 +5838,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Accept poisoned sheep feed from Councillor Halgrive.",
             f"{DARKAN_SHEEP_HERDER_COUNCILLOR_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Accept poisoned sheep feed from Councillor Halgrive",),
+            auto_actions=("Accept poisoned sheep feed from Councillor Halgrive",),
             produced_inventory=(("Sheep feed", 1),),
         ),
         _stage_req(
@@ -5850,8 +5856,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
                 f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
-            auto_actions=("Reach the Ardougne sheep enclosure",),
-            required_actions=("Pick up the cattleprod from the sheep enclosure barn",),
+            auto_actions=(
+                "Reach the Ardougne sheep enclosure",
+                "Pick up the cattleprod from the sheep enclosure barn",
+            ),
             produced_inventory=(("Cattleprod", 1),),
         ),
         _stage_req(
@@ -5864,8 +5872,8 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             required_inventory=(("Sheep feed", 1),),
             required_tools=(("Plague jacket", 1), ("Plague trousers", 1), ("Cattleprod", 1)),
-            auto_actions=("Reach the Ardougne sheep enclosure",),
-            required_actions=(
+            auto_actions=(
+                "Reach the Ardougne sheep enclosure",
                 "Herd and poison the red sheep",
                 "Herd and poison the green sheep",
                 "Herd and poison the blue sheep",
@@ -5892,14 +5900,14 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Blue sheep bones", 1),
                 ("Yellow sheep bones", 1),
             ),
-            required_actions=(
+            auto_actions=(
+                "Reach the Ardougne sheep enclosure",
                 "Incinerate the red sheep bones",
                 "Incinerate the green sheep bones",
                 "Incinerate the blue sheep bones",
                 "Incinerate the yellow sheep bones",
                 "Report the incinerated sheep to Councillor Halgrive",
             ),
-            auto_actions=("Reach the Ardougne sheep enclosure",),
         ),
     ),
     PLAGUE_CITY_ID: (

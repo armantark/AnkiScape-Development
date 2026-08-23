@@ -670,12 +670,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1599)
-        self.assertEqual(report["reachable_item_count"], 2458)
+        self.assertEqual(report["reachable_item_count"], 2467)
         self.assertEqual(report["orphan_input_count"], 37)
         self.assertEqual(report["root_orphan_count"], 33)
         self.assertEqual(report["cascade_orphan_count"], 4)
         self.assertEqual(report["unresolved_action_count"], 36)
-        self.assertEqual(report["seed_item_count"], 1210)
+        self.assertEqual(report["seed_item_count"], 1219)
         self.assertFalse(
             [
                 row
@@ -716,6 +716,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 row
                 for row in report["blocked_quest_stage_products"]
                 if row["quest_id"] == "lost_city"
+            ]
+        )
+        self.assertFalse(
+            [
+                row
+                for row in report["blocked_quest_stage_products"]
+                if row["quest_id"] in {"scorpion_catcher", "sheep_herder"}
             ]
         )
         orphan_items = {row["item"] for row in report["orphan_inputs"]}

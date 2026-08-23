@@ -1024,3 +1024,11 @@
 - 2026-08-23 12:56 PDT — Running a worktree's focused unittest from the canonical checkout imported the canonical `tests/test_logic.py` despite absolute paths used for inspection, producing `AttributeError: type object 'TestLogic' has no attribute 'test_waterfall_quest_real_stage_emitters_complete_and_reward_once'`; test commands must change into the target worktree.
 - 2026-08-23 13:01 PDT — The full plain lane exposed a second Waterfall contract assertion outside the brief's named regression: `test_local_source_batch_quest_stage_replacements_are_structured` still expected Glarial's urn in `required_inventory`, failing with `AssertionError: {} != {"Glarial's urn": 1}` after the source-faithful data fix.
 - 2026-08-23 11:20 PDT — (q-light slice) The Within the Light stage-1 cleanup carried a specific `add_required_actions` string with no runtime emitter, so stage 1 was permanently blocked; the fix pattern is to check every `add_required_actions` entry against the reachability audit before landing, not just the generated stubs.
+
+- 2026-08-23 14:55 PDT — While locating quest runtime mechanics, I probed a nonexistent root `logic.py`; the implementation lives elsewhere in the package.
+
+- 2026-08-23 14:56 PDT — Runtime metadata inspection imported `QUEST_DATA` from `data.quest_data`, but that module exposes catalog builders rather than the assembled mapping; the test module imports the mapping from the package boundary.
+
+- 2026-08-23 14:59 PDT — The assembled quest mapping does not expose a `name` key, so a blocker-candidate probe failed after correctly finding the quest; blocker reasons must be inspected without assuming display metadata keys.
+
+- 2026-08-23 15:13 PDT — The full plain lane replayed one stale Sheep Herder runtime blocker expectation through nine immutability gates, so two direct stale tests appeared as 11 failures; fix the direct expectations before interpreting the gate fan-out.

@@ -3945,29 +3945,21 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Fishing Contest 2/7"])
 
-    def test_quest_answer_blocks_and_progresses_sheep_herder_feed_gate(self):
+    def test_quest_answer_progresses_sheep_herder_feed_handoff(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {},
             "current_quest": "sheep_herder",
-            "quests": {"sheep_herder": {"started": True, "progress": 1, "completed": False}},
+            "quests": {
+                "sheep_herder": {
+                    "started": True,
+                    "progress": 1,
+                    "completed": False,
+                }
+            },
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
-        }
-
-        ok = handle_quest_answer(_context(player_data, calls))
-
-        self.assertFalse(ok)
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 1)
-        self.assertEqual(player_data["inventory"], {})
-        self.assertEqual(calls["saves"], 0)
-        self.assertEqual(calls["errors"][0][0], "Quest blocked")
-        self.assertIn("Accept poisoned sheep feed from Councillor Halgrive", calls["errors"][0][1])
-
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data["quest_stage_actions"] = {
-            "sheep_herder": ["Accept poisoned sheep feed from Councillor Halgrive"]
         }
 
         ok = handle_quest_answer(_context(player_data, calls))
@@ -3976,6 +3968,10 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertFalse(player_data["quests"]["sheep_herder"]["completed"])
         self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["sheep_herder"],
+            ["Accept poisoned sheep feed from Councillor Halgrive"],
+        )
         self.assertEqual(player_data["quest_points"], 0)
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
