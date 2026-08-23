@@ -661,7 +661,7 @@ class TestQuestCatalog(unittest.TestCase):
         by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
         self.assertEqual(by_stage[1]["required_inventory"], {})
         self.assertEqual(
-            by_stage[1]["required_actions"],
+            by_stage[1]["auto_actions"],
             ("Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
         )
         self.assertEqual(by_stage[2]["required_routes"], ())
@@ -683,7 +683,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[4]["consumed_inventory"], {"Bucket": 1})
         self.assertEqual(by_stage[4]["produced_inventory"], {"Bucket of wax": 1})
         self.assertEqual(
-            by_stage[4]["required_actions"],
+            by_stage[4]["auto_actions"],
             ("Question Morgan Le Faye about Excalibur and the binding words",),
         )
         self.assertEqual(by_stage[5]["consumed_inventory"], {"Bucket of wax": 1})
@@ -695,7 +695,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[7]["produced_inventory"], {"Lit black candle": 1})
         self.assertEqual(by_stage[7]["required_tools"], {"Tinderbox": 1, "Excalibur": 1})
         self.assertEqual(
-            by_stage[7]["required_actions"],
+            by_stage[7]["auto_actions"],
             (
                 "Read the chaos altar inscription",
                 "Bind Thrantax with Snarthon Candtrick Termanto",

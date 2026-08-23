@@ -1421,9 +1421,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Bucket": 1},
             "current_quest": "merlins_crystal",
             "quests": {"merlins_crystal": {"started": True, "progress": 4, "completed": False}},
-            "quest_stage_actions": {
-                "merlins_crystal": ["Question Morgan Le Faye about Excalibur and the binding words"]
-            },
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
