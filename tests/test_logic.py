@@ -3790,9 +3790,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["crafting_exp"], 750)
 
-    def test_fishing_contest_stage_gates_pass_garlic_catch_and_trophy(self):
+    def test_fishing_contest_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "fishing_contest"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["fishing_contest"] = {"started": True, "progress": 1, "completed": False}
+        player_data["fishing_level"] = 10
         player_data["inventory"].update(
             {
                 "Coins": 5,
@@ -3802,63 +3803,65 @@ class TestLogic(unittest.TestCase):
             }
         )
 
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "fishing_contest", QUEST_DATA),
-            ("Action required: Receive a fishing pass from Austri or Vestri",),
-        )
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["fishing_contest"]["progress"], 1)
-        self.assertEqual(blocked["fishing_exp"], 0)
-
-        player_data["quest_stage_actions"] = {
-            "fishing_contest": ["Receive a fishing pass from Austri or Vestri"]
-        }
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 2)
-        self.assertEqual(player_data["inventory"]["Fishing pass"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 3)
-        self.assertEqual(player_data["inventory"]["Coins"], 0)
-        self.assertEqual(player_data["inventory"]["Fishing pass"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Garlic"], 0)
-        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 4)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "fishing_contest", QUEST_DATA),
-            ("Action required: Catch the winning giant carp",),
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
         )
 
-        player_data["quest_stage_actions"]["fishing_contest"].append("Catch the winning giant carp")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Red vine worm"], 0)
-        self.assertEqual(player_data["inventory"]["Raw giant carp"], 1)
-        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 5)
+        pass_action = "Receive a fishing pass from Austri or Vestri"
+        catch_action = "Catch the winning giant carp"
+        inventory_names = (
+            "Fishing pass",
+            "Coins",
+            "Garlic",
+            "Red vine worm",
+            "Raw giant carp",
+            "Fishing trophy",
+        )
+        expected_steps = (
+            (2, False, (pass_action,), (1, 5, 1, 1, 0, 0)),
+            (3, False, (pass_action,), (1, 0, 1, 1, 0, 0)),
+            (4, False, (pass_action,), (1, 0, 0, 1, 0, 0)),
+            (5, False, (pass_action, catch_action), (1, 0, 0, 0, 1, 0)),
+            (6, False, (pass_action, catch_action), (1, 0, 0, 0, 0, 1)),
+            (7, True, (pass_action, catch_action), (1, 0, 0, 0, 0, 0)),
+        )
+        for progress, completed, actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                actions,
+            )
+            self.assertEqual(
+                tuple(player_data["inventory"].get(item_name, 0) for item_name in inventory_names),
+                inventory,
+            )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Raw giant carp"], 0)
-        self.assertEqual(player_data["inventory"]["Fishing trophy"], 1)
-        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 6)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["fishing_contest"]["completed"])
-        self.assertEqual(player_data["inventory"]["Fishing trophy"], 0)
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["fishing_exp"], 2437.0)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["fishing_exp"], 2437.0)
 
     def test_scorpion_catcher_stage_exposes_source_backed_jailer_combat_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

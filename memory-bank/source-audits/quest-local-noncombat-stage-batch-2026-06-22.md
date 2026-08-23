@@ -135,10 +135,10 @@ Targeted tests run after this batch:
 ```bash
 python3 -m unittest \
   tests.test_quest_catalog.TestQuestCatalog.test_local_source_batch_quest_stage_replacements_are_structured \
-  tests.test_logic.TestLogic.test_fishing_contest_stage_gates_pass_garlic_catch_and_trophy \
+  tests.test_logic.TestLogic.test_fishing_contest_real_stage_emitters_complete_and_reward_once \
   tests.test_logic.TestLogic.test_scorpion_catcher_stage_exposes_source_backed_jailer_combat_gate \
-  tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_and_progresses_fishing_contest_pass_gate \
-  tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_fishing_contest_pass_gate \
+  tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_fishing_contest_pass_emitter \
+  tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_fishing_contest_pass_emitter \
   tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons
 ```
 

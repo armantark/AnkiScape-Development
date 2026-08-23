@@ -1086,7 +1086,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 
-    def test_quest_answer_progresses_fishing_contest_pass_gate(self):
+    def test_quest_answer_progresses_fishing_contest_pass_emitter(self):
         addon = _load_addon_as_package("ankiscape_fishing_contest_stage_integration")
 
         calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
@@ -1104,9 +1104,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "current_quest": "fishing_contest",
             "quests": {"fishing_contest": {"started": True, "progress": 1, "completed": False}},
-            "quest_stage_actions": {
-                "fishing_contest": ["Receive a fishing pass from Austri or Vestri"]
-            },
             "quest_points": 0,
             "fishing_exp": 0,
             "claims": {"wicked_hood": {"claimed": False}},
@@ -1123,6 +1120,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertFalse(addon.player_data["quests"]["fishing_contest"]["completed"])
         self.assertEqual(addon.player_data["quests"]["fishing_contest"]["progress"], 2)
         self.assertEqual(addon.player_data["inventory"]["Fishing pass"], 1)
+        self.assertEqual(
+            addon.player_data["quest_stage_actions"]["fishing_contest"],
+            ["Receive a fishing pass from Austri or Vestri"],
+        )
         self.assertEqual(addon.player_data["quest_points"], 0)
         self.assertEqual(addon.player_data["fishing_exp"], 0)
         self.assertEqual(calls["save"], 1)

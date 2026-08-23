@@ -9203,15 +9203,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = (
-            "Blocked: Needs Red vine worm x1 or Fishing bait x1, "
-            "Action required: Catch the winning giant carp"
-        )
+        expected = "Blocked: Needs Red vine worm x1 or Fishing bait x1"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_fishing_contest")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Catch the winning giant carp", action.toolTip())
+        self.assertIn("Red vine worm x1 or Fishing bait x1", action.toolTip())
 
     def test_quests_tab_shows_sheep_herder_produced_bones_stage_blocker(self) -> None:
         pd = _make_player_data()
