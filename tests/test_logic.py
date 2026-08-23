@@ -3270,6 +3270,76 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["runecrafting_exp"], 0)
         self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
 
+    def test_clock_tower_real_stage_emitters_complete_and_reward_once(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        player_data, ok = start_quest_pure(player_data, "clock_tower", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "clock_tower")
+        self.assertNotIn("clock_tower", player_data["quest_stage_actions"])
+
+        expected_actions = (
+            "Pick up rat poison in the Clock Tower dungeon",
+            "Poison the Clock Tower dungeon rats",
+            "Find the white, black, blue, and red Clock Tower cogs",
+            "Place the four Clock Tower cogs",
+            "Report the repaired clock to Brother Kojo",
+        )
+        expected_inventory = (
+            {"Rat poison": 1, "White cog": 0, "Black cog": 0, "Blue cog": 0, "Red cog": 0},
+            {"Rat poison": 0, "White cog": 0, "Black cog": 0, "Blue cog": 0, "Red cog": 0},
+            {"Rat poison": 0, "White cog": 1, "Black cog": 1, "Blue cog": 1, "Red cog": 1},
+            {"Rat poison": 0, "White cog": 0, "Black cog": 0, "Blue cog": 0, "Red cog": 0},
+            {"Rat poison": 0, "White cog": 0, "Black cog": 0, "Blue cog": 0, "Red cog": 0},
+        )
+
+        for stage, inventory in enumerate(expected_inventory, start=1):
+            if stage == 4:
+                self.assertEqual(
+                    quest_current_stage_blocker_reasons_pure(player_data, "clock_tower", QUEST_DATA),
+                    ("Needs Bucket of water x1 or Ice gloves x1",),
+                )
+                player_data["inventory"]["Bucket of water"] = 1
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, "clock_tower", QUEST_DATA),
+                (),
+            )
+
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "clock_tower",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 5)
+            self.assertEqual(player_data["quests"]["clock_tower"]["progress"], stage + 1)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"]["clock_tower"]),
+                expected_actions[:stage],
+            )
+            self.assertEqual(
+                {
+                    item_name: player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory
+                },
+                inventory,
+            )
+
+        self.assertTrue(player_data["quests"]["clock_tower"]["completed"])
+        self.assertEqual(player_data["inventory"]["Bucket of water"], 1)
+        self.assertEqual(player_data["inventory"]["Coin"], 500)
+        self.assertEqual(player_data["quest_points"], 1)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "clock_tower",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["inventory"]["Coin"], 500)
+        self.assertEqual(after_complete["quest_points"], 1)
+
     def test_tears_of_guthix_final_lantern_stage_runs_before_completion(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["current_quest"] = "tears_of_guthix"
