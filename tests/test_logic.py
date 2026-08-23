@@ -3666,153 +3666,90 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Iron bar"], 0)
         self.assertEqual(player_data["inventory"]["Blurite bar"], 0)
 
-    def test_dwarf_cannon_stage_gates_noncombat_items_actions_and_reward(self):
+    def test_dwarf_cannon_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["inventory"].update({"Hammer": 1})
+        player_data["inventory"]["Hammer"] = 1
 
         player_data, ok = start_quest_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 0)
-        self.assertFalse(can_progress_quest_pure(player_data, "dwarf_cannon", QUEST_DATA))
+        self.assertNotIn("dwarf_cannon", player_data["quest_stage_actions"])
+        self.assertTrue(can_progress_quest_pure(player_data, "dwarf_cannon", QUEST_DATA))
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Accept replacement railings from Captain Lawgof",),
+            (),
         )
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "dwarf_cannon", QUEST_DATA), ())
 
-        player_data["quest_stage_actions"] = {"dwarf_cannon": ["Accept replacement railings from Captain Lawgof"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 2)
-        self.assertEqual(player_data["inventory"]["Railing"], 6)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 3)
-        self.assertEqual(player_data["inventory"]["Railing"], 0)
-        self.assertEqual(player_data["inventory"]["Hammer"], 1)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Report the repaired stockade to Captain Lawgof",),
+        expected_steps = (
+            (2, (6, 0, 0, 0, 0)),
+            (3, (0, 0, 0, 0, 0)),
+            (4, (0, 0, 0, 0, 0)),
+            (5, (0, 1, 0, 0, 0)),
+            (6, (0, 0, 0, 0, 0)),
         )
+        inventory_names = ("Railing", "Dwarf remains", "Toolkit", "Ammo mould", "Nulodion's notes")
+        for progress, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], progress)
+            self.assertEqual(tuple(player_data["inventory"].get(item_name, 0) for item_name in inventory_names), inventory)
 
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["dwarf_cannon"]["progress"], 3)
-        self.assertEqual(blocked["crafting_exp"], 0)
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Report the repaired stockade to Captain Lawgof")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 4)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Take Gilob's remains from the watchtower",),
-        )
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Take Gilob's remains from the watchtower")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 5)
-        self.assertEqual(player_data["inventory"]["Dwarf remains"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["inventory"]["Dwarf remains"], 0)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 6)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
             ("Route required: Reach the Dwarf Cannon goblin hideout",),
         )
+        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked["quests"]["dwarf_cannon"]["progress"], 6)
+        self.assertEqual(blocked["crafting_exp"], 0)
 
         player_data["quest_route_states"] = {"dwarf_cannon": ["Reach the Dwarf Cannon goblin hideout"]}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 7)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Rescue Lollk from the goblin hideout",),
+        expected_steps = (
+            (7, False, (0, 0, 0, 0, 0)),
+            (8, False, (0, 0, 0, 0, 0)),
+            (9, False, (0, 0, 1, 0, 0)),
+            (10, False, (0, 0, 1, 0, 0)),
+            (11, False, (0, 0, 1, 0, 0)),
+            (12, False, (0, 0, 1, 1, 1)),
+            (13, False, (0, 0, 1, 0, 0)),
+            (14, True, (0, 0, 1, 1, 0)),
         )
+        for progress, completed, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], progress)
+            self.assertEqual(tuple(player_data["inventory"].get(item_name, 0) for item_name in inventory_names), inventory)
 
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Rescue Lollk from the goblin hideout")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 8)
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Tell Captain Lawgof that Lollk is safe",),
+            player_data["quest_stage_actions"]["dwarf_cannon"],
+            [
+                "Accept replacement railings from Captain Lawgof",
+                "Report the repaired stockade to Captain Lawgof",
+                "Take Gilob's remains from the watchtower",
+                "Rescue Lollk from the goblin hideout",
+                "Tell Captain Lawgof that Lollk is safe",
+                "Repair the sabotaged cannon",
+                "Tell Captain Lawgof that the cannon is repaired",
+                "Speak to Nulodion about Captain Lawgof's cannon",
+                "Receive Captain Lawgof's cannon recommendation",
+            ],
         )
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Tell Captain Lawgof that Lollk is safe")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 9)
-        self.assertEqual(player_data["inventory"]["Toolkit"], 1)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Repair the sabotaged cannon",),
-        )
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Repair the sabotaged cannon")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 10)
-        self.assertEqual(player_data["inventory"]["Toolkit"], 1)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Tell Captain Lawgof that the cannon is repaired",),
-        )
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Tell Captain Lawgof that the cannon is repaired")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 11)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Speak to Nulodion about Captain Lawgof's cannon",),
-        )
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Speak to Nulodion about Captain Lawgof's cannon")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 12)
-        self.assertEqual(player_data["inventory"]["Ammo mould"], 1)
-        self.assertEqual(player_data["inventory"]["Nulodion's notes"], 1)
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 13)
-        self.assertEqual(player_data["inventory"]["Ammo mould"], 0)
-        self.assertEqual(player_data["inventory"]["Nulodion's notes"], 0)
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Action required: Receive Captain Lawgof's cannon recommendation",),
-        )
-
-        player_data["quest_stage_actions"]["dwarf_cannon"].append("Receive Captain Lawgof's cannon recommendation")
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["dwarf_cannon"]["completed"])
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 14)
+        self.assertEqual(player_data["inventory"]["Hammer"], 1)
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["crafting_exp"], 750)
-        self.assertEqual(player_data["inventory"]["Ammo mould"], 1)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "dwarf_cannon", QUEST_DATA), ())
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["crafting_exp"], 750)
 
     def test_fishing_contest_stage_gates_pass_garlic_catch_and_trophy(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

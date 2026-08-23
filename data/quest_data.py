@@ -6187,7 +6187,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Accept replacement railings from Captain Lawgof.",
             f"{DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Accept replacement railings from Captain Lawgof",),
+            auto_actions=("Accept replacement railings from Captain Lawgof",),
             produced_inventory=(("Railing", 6),),
         ),
         _stage_req(
@@ -6201,13 +6201,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Report the repaired stockade to Captain Lawgof.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
-            required_actions=("Report the repaired stockade to Captain Lawgof",),
+            auto_actions=("Report the repaired stockade to Captain Lawgof",),
         ),
         _stage_req(
             4,
             "Find Gilob's remains at the watchtower.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Take Gilob's remains from the watchtower",),
+            auto_actions=("Take Gilob's remains from the watchtower",),
             produced_inventory=(("Dwarf remains", 1),),
         ),
         _stage_req(
@@ -6226,13 +6226,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             7,
             "Rescue Lollk from the goblin hideout.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LOLLK_SOURCE}",
-            required_actions=("Rescue Lollk from the goblin hideout",),
+            auto_actions=("Rescue Lollk from the goblin hideout",),
         ),
         _stage_req(
             8,
             "Return to Captain Lawgof after rescuing Lollk.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
-            required_actions=("Tell Captain Lawgof that Lollk is safe",),
+            auto_actions=("Tell Captain Lawgof that Lollk is safe",),
             produced_inventory=(("Toolkit", 1),),
         ),
         _stage_req(
@@ -6240,19 +6240,19 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Repair the sabotaged cannon with Captain Lawgof's toolkit.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Toolkit", 1),),
-            required_actions=("Repair the sabotaged cannon",),
+            auto_actions=("Repair the sabotaged cannon",),
         ),
         _stage_req(
             10,
             "Tell Captain Lawgof that the cannon is repaired.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
-            required_actions=("Tell Captain Lawgof that the cannon is repaired",),
+            auto_actions=("Tell Captain Lawgof that the cannon is repaired",),
         ),
         _stage_req(
             11,
             "Speak to Nulodion for the ammo mould and notes.",
             f"{DARKAN_DWARF_CANNON_NULODION_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Speak to Nulodion about Captain Lawgof's cannon",),
+            auto_actions=("Speak to Nulodion about Captain Lawgof's cannon",),
             produced_inventory=(("Ammo mould", 1), ("Nulodion's notes", 1)),
         ),
         _stage_req(
@@ -6265,7 +6265,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             13,
             "Receive Captain Lawgof's recommendation to buy and use a multicannon.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
-            required_actions=("Receive Captain Lawgof's cannon recommendation",),
+            auto_actions=("Receive Captain Lawgof's cannon recommendation",),
         ),
     ),
     FIGHT_ARENA_ID: (
