@@ -1573,7 +1573,13 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(gertrude["combat"], "None.")
         self.assertEqual(gertrude_by_stage[2]["consumed_inventory"], {"Coins": 100})
         self.assertEqual(gertrude_by_stage[3]["required_routes"], ())
-        self.assertEqual(gertrude_by_stage[3]["auto_actions"], ("Reach Fluffs in the Varrock Lumber Yard",))
+        self.assertEqual(
+            gertrude_by_stage[3]["auto_actions"],
+            (
+                "Reach Fluffs in the Varrock Lumber Yard",
+                "Try to pick up Fluffs in the Lumber Yard",
+            ),
+        )
         self.assertEqual(gertrude_by_stage[4]["consumed_inventory"], {"Bucket of milk": 1})
         self.assertEqual(gertrude_by_stage[4]["produced_inventory"], {"Bucket": 1})
         self.assertEqual(gertrude_by_stage[5]["consumed_inventory"], {"Raw sardine": 1, "Doogle leaves": 1})

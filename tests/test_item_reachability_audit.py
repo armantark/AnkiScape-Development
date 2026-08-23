@@ -578,6 +578,21 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         self.assertNotIn("Find Shamus in the Lumbridge Swamp tree", missing_actions)
 
+    def test_gertrudes_cat_dialogue_actions_have_runtime_emitters(self):
+        report = build_reachability_report()
+        missing_actions = {
+            action
+            for row in report["blocked_quest_stage_products"]
+            if row["quest_id"] == "gertrudes_cat"
+            for action in row["missing_required_actions"]
+        }
+
+        self.assertEqual(
+            missing_actions,
+            set(),
+            "Gertrude's Cat still blocks on a specific action",
+        )
+
     def test_a_souls_bane_rage_action_has_a_runtime_emitter(self):
         report = build_reachability_report()
         missing_actions = {

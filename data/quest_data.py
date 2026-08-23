@@ -5540,7 +5540,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Speak to Shilop or Wilough in Varrock Marketplace.",
             DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE,
-            required_actions=("Speak to Shilop and Wilough in Varrock Marketplace",),
+            auto_actions=("Speak to Shilop and Wilough in Varrock Marketplace",),
         ),
         _stage_req(
             2,
@@ -5552,8 +5552,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Find Fluffs in the Lumber Yard and learn she is thirsty.",
             DARKAN_GERTRUDES_CAT_SOURCE,
-            auto_actions=("Reach Fluffs in the Varrock Lumber Yard",),
-            required_actions=("Try to pick up Fluffs in the Lumber Yard",),
+            auto_actions=(
+                "Reach Fluffs in the Varrock Lumber Yard",
+                "Try to pick up Fluffs in the Lumber Yard",
+            ),
         ),
         _stage_req(
             4,
@@ -5579,7 +5581,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             7,
             "Find Fluffs' kittens in the Lumber Yard.",
             f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Search the shaking crate for Fluffs' kittens",),
+            auto_actions=("Search the shaking crate for Fluffs' kittens",),
             produced_inventory=(("Three little kittens", 1),),
         ),
         _stage_req(
@@ -5592,7 +5594,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             9,
             "Tell Gertrude that Fluffs and the kittens are safe.",
             DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE,
-            required_actions=("Tell Gertrude that Fluffs and the kittens are safe",),
+            auto_actions=("Tell Gertrude that Fluffs and the kittens are safe",),
         ),
     ),
     CLOCK_TOWER_ID: (

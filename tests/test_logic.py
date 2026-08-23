@@ -8793,6 +8793,93 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["quest_points"], 3)
         self.assertEqual(after_complete["inventory"]["Silverlight"], 1)
 
+    def test_gertrudes_cat_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "gertrudes_cat"
+        actions = (
+            "Speak to Shilop and Wilough in Varrock Marketplace",
+            "Reach Fluffs in the Varrock Lumber Yard",
+            "Try to pick up Fluffs in the Lumber Yard",
+            "Search the shaking crate for Fluffs' kittens",
+            "Tell Gertrude that Fluffs and the kittens are safe",
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"].update(
+            {
+                "Bucket of milk": 1,
+                "Coins": 1000,
+                "Doogle leaves": 1,
+                "Raw sardine": 1,
+            }
+        )
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_steps = (
+            (2, actions[:1], {"Coins": 1000, "Bucket of milk": 1}),
+            (3, actions[:1], {"Coins": 900, "Bucket of milk": 1}),
+            (4, actions[:3], {"Bucket of milk": 1, "Bucket": 0}),
+            (5, actions[:3], {"Bucket of milk": 0, "Bucket": 1}),
+            (6, actions[:3], {"Raw sardine": 0, "Doogle leaves": 0, "Doogle sardine": 1}),
+            (7, actions[:3], {"Doogle sardine": 0, "Three little kittens": 0}),
+            (8, actions[:4], {"Three little kittens": 1}),
+            (
+                9,
+                actions[:4],
+                {"Three little kittens": 0, "Chocolate cake": 0, "Kitten": 0, "Stew": 0},
+            ),
+        )
+        for progress, recorded_actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"].get(quest_id, ())),
+                recorded_actions,
+            )
+            self.assertEqual(
+                {
+                    item_name: player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory
+                },
+                inventory,
+            )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            actions,
+        )
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Kitten"], 1)
+        self.assertEqual(player_data["inventory"]["Chocolate cake"], 1)
+        self.assertEqual(player_data["inventory"]["Stew"], 1)
+        self.assertEqual(player_data["cooking_exp"], 1525.0)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Kitten"], 1)
+
     def test_demon_slayer_delrith_source_backed_stats_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"]["Silverlight"] = 1
