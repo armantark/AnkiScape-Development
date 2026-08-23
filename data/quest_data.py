@@ -711,6 +711,10 @@ WOLF_WHISTLE_WIKI_SOURCE = "https://runescape.wiki/w/Wolf_Whistle?oldid=6327531"
 SONG_FROM_THE_DEPTHS_WIKI_SOURCE = "https://runescape.wiki/w/Song_from_the_Depths?oldid=6467675"
 CARNILLEAN_RISING_WIKI_SOURCE = "https://runescape.wiki/w/Carnillean_Rising?oldid=6534490"
 SOME_LIKE_IT_COLD_WIKI_SOURCE = "https://runescape.wiki/w/Some_Like_It_Cold?oldid=6545099"
+SOME_LIKE_IT_COLD_CACHE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/"
+    "extracted/742-2012-11-07/cache"
+)
 SWAN_SONG_WIKI_SOURCE = "https://runescape.wiki/w/Swan_Song?oldid=6548264"
 SHILO_VILLAGE_WIKI_SOURCE = "https://runescape.wiki/w/Shilo_Village?oldid=6389566"
 SHILO_VILLAGE_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/shilo_village"
@@ -4203,6 +4207,12 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     "diamond_in_the_rough": (),
     "icthlarins_little_helper": (("Catspeak amulet", 1),),
     SMOKING_KILLS_ID: (),
+    SONG_FROM_THE_DEPTHS_ID: (
+        ("Coral bolts", 50),
+        ("Coral crossbow", 1),
+        ("Remora's necklace", 1),
+    ),
+    SOME_LIKE_IT_COLD_ID: (("Rock costume", 1), ("Pop costume", 1)),
 }
 
 QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
@@ -4213,6 +4223,13 @@ QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
         QuestXpReward("agility", 250),
         QuestXpReward("constitution", 250),
         QuestXpReward("thieving", 250),
+    ),
+    SONG_FROM_THE_DEPTHS_ID: (QuestXpReward("constitution", 700),),
+    SOME_LIKE_IT_COLD_ID: (
+        QuestXpReward("construction", 10000),
+        QuestXpReward("crafting", 40000),
+        QuestXpReward("fishing", 40000),
+        QuestXpReward("thieving", 10000),
     ),
 }
 
@@ -7783,6 +7800,88 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             auto_actions=("Track the Thalassus", "Rescue Jones"),
         ),
     ),
+    WOLF_WHISTLE_ID: (
+        _stage_req(
+            1,
+            "Find Scalectrix at the Taverley well.",
+            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
+            auto_actions=("Find Scalectrix at the Taverley well",),
+        ),
+        _stage_req(
+            2,
+            "Collect the wolpertinger pouch materials.",
+            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
+            auto_actions=("Collect the ancient wolf bone amulet", "Collect the embroidered pouch", "Collect the white hare meat"),
+        ),
+        _stage_req(
+            3,
+            "Infuse the giant wolpertinger pouch and save Bowloftrix.",
+            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
+            auto_actions=("Infuse the giant wolpertinger pouch", "Take the pouch to Scalectrix"),
+        ),
+    ),
+    SONG_FROM_THE_DEPTHS_ID: (
+        _stage_req(
+            1,
+            "Drink the restless sleep potion and follow the souls to the cave.",
+            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
+            auto_actions=("Drink the restless sleep potion", "Follow the souls to the cave entrance"),
+        ),
+        _stage_req(
+            2,
+            "Work through the dream cave puzzles.",
+            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
+            auto_actions=("Complete the maze doors", "Solve the symbol rooms", "Move the saplings through the dream rooms"),
+        ),
+        _stage_req(
+            3,
+            "Escape the dragon's stomach and return to Lucille.",
+            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
+            auto_actions=("Escape the dragon's stomach", "Return to Lucille"),
+        ),
+    ),
+    SOME_LIKE_IT_COLD_ID: (
+        _stage_req(
+            1,
+            "Reach the seals and learn how to enter the Iceberg.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            auto_actions=("Speak to Chuck again for teleport", "Entertain the seal", "Travel to the Iceberg"),
+        ),
+        _stage_req(
+            2,
+            "Build Ping and Pong's rock costumes.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            auto_actions=("Build Ping and Pong's rock costumes", "Give Ping and Pong their costumes"),
+        ),
+        _stage_req(
+            3,
+            "Infiltrate the Walrus camp and recover the egg.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            auto_actions=("Distract the Walrus", "Steal the egg from the table"),
+        ),
+        _stage_req(
+            4,
+            "Defeat Astoria and repair the submarine engine.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            auto_actions=(
+                "Defeat Astoria in Battlefish",
+                "Collect camp repair supplies",
+                "Repair the submarine engine",
+            ),
+        ),
+        _stage_req(
+            5,
+            "Defeat the seals in Battlefish.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            auto_actions=("Defeat the seals in Battlefish",),
+        ),
+        _stage_req(
+            6,
+            "Escape the Walrus camp.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            auto_actions=("Escape in the submarine",),
+        ),
+    ),
 }
 
 
@@ -7915,84 +8014,6 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Find the toy train and rescue Kennith.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
             auto_actions=("Find Kennith's toy train", "Use the toy train on Kennith"),
-        ),
-    ),
-    WOLF_WHISTLE_ID: (
-        _stage_req(
-            1,
-            "Find Scalectrix at the Taverley well.",
-            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
-            required_actions=("Find Scalectrix at the Taverley well",),
-        ),
-        _stage_req(
-            2,
-            "Collect the wolpertinger pouch materials.",
-            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
-            required_actions=("Collect the ancient wolf bone amulet", "Collect the embroidered pouch", "Collect the white hare meat"),
-        ),
-        _stage_req(
-            3,
-            "Infuse the giant wolpertinger pouch and save Bowloftrix.",
-            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
-            required_actions=("Infuse the giant wolpertinger pouch", "Take the pouch to Scalectrix"),
-        ),
-    ),
-    SONG_FROM_THE_DEPTHS_ID: (
-        _stage_req(
-            1,
-            "Drink the restless sleep potion and follow the souls to the cave.",
-            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
-            required_actions=("Drink the restless sleep potion", "Follow the souls to the cave entrance"),
-        ),
-        _stage_req(
-            2,
-            "Work through the dream cave puzzles.",
-            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
-            required_actions=("Complete the maze doors", "Solve the symbol rooms", "Move the saplings through the dream rooms"),
-        ),
-        _stage_req(
-            3,
-            "Escape the dragon's stomach and return to Lucille.",
-            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
-            required_actions=("Escape the dragon's stomach", "Return to Lucille"),
-        ),
-    ),
-    SOME_LIKE_IT_COLD_ID: (
-        _stage_req(
-            1,
-            "Reach the seals and learn how to enter the Iceberg.",
-            SOME_LIKE_IT_COLD_WIKI_SOURCE,
-            required_actions=("Speak to Chuck again for teleport", "Entertain the seal", "Travel to the Iceberg"),
-        ),
-        _stage_req(
-            2,
-            "Build Ping and Pong's rock costumes.",
-            SOME_LIKE_IT_COLD_WIKI_SOURCE,
-            required_actions=("Build Ping and Pong's rock costumes", "Give Ping and Pong their costumes"),
-        ),
-        _stage_req(
-            3,
-            "Infiltrate the Walrus camp and recover the egg.",
-            SOME_LIKE_IT_COLD_WIKI_SOURCE,
-            required_actions=("Distract the Walrus", "Steal the egg from the table"),
-        ),
-        _stage_req(
-            4,
-            "Collect supplies and repair the submarine engine.",
-            SOME_LIKE_IT_COLD_WIKI_SOURCE,
-            required_actions=("Collect camp repair supplies", "Repair the submarine engine"),
-        ),
-        _stage_req(
-            5,
-            "Win the Battlefish games.",
-            SOME_LIKE_IT_COLD_WIKI_SOURCE,
-            required_actions=("Defeat Astoria in Battlefish", "Defeat the seals in Battlefish"),
-        ),
-        _stage_req(
-            6,
-            "Escape the Walrus camp.",
-            SOME_LIKE_IT_COLD_WIKI_SOURCE,
-            required_actions=("Escape in the submarine",),
         ),
     ),
 }
@@ -10099,6 +10120,20 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             }
     generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},
+        "Rock costume": {
+            "category": "material",
+            "item_id": 24863,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"{SOME_LIKE_IT_COLD_WIKI_SOURCE}; {SOME_LIKE_IT_COLD_CACHE_SOURCE}",
+        },
+        "Pop costume": {
+            "category": "material",
+            "item_id": 24864,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"{SOME_LIKE_IT_COLD_WIKI_SOURCE}; {SOME_LIKE_IT_COLD_CACHE_SOURCE}",
+        },
         "Ransom note": {
             "category": "material",
             "item_id": 25127,
@@ -11093,6 +11128,8 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},
         "Tome of Experience, 2nd Ed.": {"category": "material", "source": LEGACY_OF_SEERGAZE_SOURCE},
     })
+    generated_items.pop("Queen Black Dragon", None)
+    generated_items.pop("Penguin Hide and Seek", None)
     return generated_items
 
 

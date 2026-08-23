@@ -1825,3 +1825,5 @@ Camouflaged itself is being disclosed, not implemented: a third tracker route
 with its own feature gate and produce type is new content and belongs in its own
 slice, not in a herb re-land. That is the BFS boundary — found only because of
 this work, so surface it rather than fix it.
+
+- 2026-08-23 q-scb source correction: Song from the Depths oldid `6467675` awards 700 Constitution XP at completion; its additional 30,000 XP comes from two optional post-quest Ancient Walls, and reduced Queen Black Dragon damage is an unlock rather than an item. Some Like It Cold oldid `6545099` awards 40,000 Crafting, 40,000 Fishing, 10,000 Construction, and 10,000 Thieving XP plus both Rock and Pop costumes; the duplicate XP was an early-bird tome that expired on 2012-08-28, and Penguin Hide and Seek is an extension rather than an item. Rev 727 item IDs `24863` and `24864` are unnamed preloads; rev 742 names them `Rock costume` and `Pop costume`, with `Wear`/`Destroy`, `stackable=false`, and `exchangeable=false`.

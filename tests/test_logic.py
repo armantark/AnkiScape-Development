@@ -3937,6 +3937,236 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["hunter_exp"], 72660.0)
         self.assertEqual(after_complete["thieving_exp"], 8000.0)
 
+    def test_wolf_whistle_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "wolf_whistle"
+        quest = QUEST_DATA[quest_id]
+        self.assertEqual(len(quest["stage_requirements"]), 3)
+        self.assertTrue(
+            all(not requirement["required_actions"] for requirement in quest["stage_requirements"])
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_actions = (
+            "Find Scalectrix at the Taverley well",
+            "Collect the ancient wolf bone amulet",
+            "Collect the embroidered pouch",
+            "Collect the white hare meat",
+            "Infuse the giant wolpertinger pouch",
+            "Take the pouch to Scalectrix",
+        )
+        for stage, action_count in enumerate((1, 4, 6), start=1):
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                (),
+            )
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 3)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions[:action_count],
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Gold charm"], 275)
+        self.assertEqual(player_data["summoning_exp"], 276.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Gold charm"], 275)
+        self.assertEqual(after_complete["summoning_exp"], 276.0)
+
+    def test_song_from_the_depths_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "song_from_the_depths"
+        quest = QUEST_DATA[quest_id]
+        self.assertEqual(len(quest["stage_requirements"]), 3)
+        self.assertTrue(
+            all(not requirement["required_actions"] for requirement in quest["stage_requirements"])
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        starting_constitution_exp = player_data["constitution_exp"]
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_actions = (
+            "Drink the restless sleep potion",
+            "Follow the souls to the cave entrance",
+            "Complete the maze doors",
+            "Solve the symbol rooms",
+            "Move the saplings through the dream rooms",
+            "Escape the dragon's stomach",
+            "Return to Lucille",
+        )
+        for stage, action_count in enumerate((2, 5, 7), start=1):
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                (),
+            )
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 3)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions[:action_count],
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Coral bolts"], 50)
+        self.assertEqual(player_data["inventory"]["Coral crossbow"], 1)
+        self.assertNotIn("Queen Black Dragon", player_data["inventory"])
+        self.assertEqual(player_data["inventory"]["Remora's necklace"], 1)
+        self.assertEqual(
+            player_data["constitution_exp"],
+            starting_constitution_exp + 700.0,
+        )
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Coral bolts"], 50)
+        self.assertEqual(after_complete["inventory"]["Coral crossbow"], 1)
+        self.assertEqual(
+            after_complete["constitution_exp"],
+            starting_constitution_exp + 700.0,
+        )
+
+    def test_some_like_it_cold_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "some_like_it_cold"
+        quest = QUEST_DATA[quest_id]
+        self.assertEqual(len(quest["stage_requirements"]), 6)
+        self.assertTrue(
+            all(not requirement["required_actions"] for requirement in quest["stage_requirements"])
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.assertFalse(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        starting_exp = {
+            skill_id: player_data[f"{skill_id}_exp"]
+            for skill_id in ("construction", "crafting", "fishing", "thieving")
+        }
+        self.assertTrue(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_actions = (
+            "Speak to Chuck again for teleport",
+            "Entertain the seal",
+            "Travel to the Iceberg",
+            "Build Ping and Pong's rock costumes",
+            "Give Ping and Pong their costumes",
+            "Distract the Walrus",
+            "Steal the egg from the table",
+            "Defeat Astoria in Battlefish",
+            "Collect camp repair supplies",
+            "Repair the submarine engine",
+            "Defeat the seals in Battlefish",
+            "Escape in the submarine",
+        )
+        for stage, action_count in enumerate((3, 5, 7, 10, 11, 12), start=1):
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+                (),
+            )
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage == 6)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
+            self.assertEqual(
+                tuple(player_data["quest_stage_actions"][quest_id]),
+                expected_actions[:action_count],
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertNotIn("Penguin Hide and Seek", player_data["inventory"])
+        self.assertEqual(player_data["inventory"]["Rock costume"], 1)
+        self.assertEqual(player_data["inventory"]["Pop costume"], 1)
+        self.assertEqual(
+            {
+                skill_id: player_data[f"{skill_id}_exp"] - starting_exp[skill_id]
+                for skill_id in starting_exp
+            },
+            {
+                "construction": 10000.0,
+                "crafting": 40000.0,
+                "fishing": 40000.0,
+                "thieving": 10000.0,
+            },
+        )
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertNotIn("Penguin Hide and Seek", after_complete["inventory"])
+        self.assertEqual(after_complete["inventory"]["Rock costume"], 1)
+        self.assertEqual(after_complete["inventory"]["Pop costume"], 1)
+        self.assertEqual(
+            {
+                skill_id: after_complete[f"{skill_id}_exp"] - starting_exp[skill_id]
+                for skill_id in starting_exp
+            },
+            {
+                "construction": 10000.0,
+                "crafting": 40000.0,
+                "fishing": 40000.0,
+                "thieving": 10000.0,
+            },
+        )
+
     def test_dealing_with_scabaras_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "dealing_with_scabaras"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
