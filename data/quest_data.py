@@ -7110,7 +7110,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Speak through the locked Paterdomus temple door.",
             f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}",
-            required_actions=("Speak through the Paterdomus temple door",),
+            auto_actions=("Speak through the Paterdomus temple door",),
         ),
         _stage_req(
             2,
@@ -7148,13 +7148,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Report the dead guard dog to King Roald.",
             f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}",
-            required_actions=("Report the dead guard dog to King Roald",),
+            auto_actions=("Report the dead guard dog to King Roald",),
         ),
         _stage_req(
             4,
             "Return to Paterdomus and find Drezel imprisoned upstairs.",
             f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
-            required_actions=("Find Drezel imprisoned in the Paterdomus cell",),
+            auto_actions=("Find Drezel imprisoned in the Paterdomus cell",),
         ),
         _stage_req(
             5,
@@ -7175,14 +7175,14 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             6,
             "Swap the golden key at the monument and unlock Drezel's cell.",
             f"{PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
-            required_actions=("Swap the golden key at the Paterdomus monument", "Unlock Drezel's cell"),
+            auto_actions=("Swap the golden key at the Paterdomus monument", "Unlock Drezel's cell"),
         ),
         _stage_req(
             7,
             "Bless Salve water in a bucket and pour it over the vampire coffin.",
             f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
             required_inventory=(("Bucket", 1),),
-            required_actions=("Bless Salve water with Drezel", "Pour blessed Salve water over the vampire coffin"),
+            auto_actions=("Bless Salve water with Drezel", "Pour blessed Salve water over the vampire coffin"),
         ),
         _stage_req(
             8,
