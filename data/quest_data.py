@@ -7829,33 +7829,35 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Investigate the Witchaven tunnels and speak to a villager.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
             required_tools=(("Pickaxe", 1),),
-            auto_actions=("Reach the Witchaven shrine tunnels",),
-            required_actions=("Talk to a villager past the rocks",),
+            auto_actions=(
+                "Reach the Witchaven shrine tunnels",
+                "Talk to a villager past the rocks",
+            ),
         ),
         _stage_req(
             2,
             "Warn Kennith and speak to Kent.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
-            required_actions=("Warn Kennith", "Speak to Kent near the Legends' Guild"),
+            auto_actions=("Warn Kennith", "Speak to Kent near the Legends' Guild"),
         ),
         _stage_req(
             3,
             "Trap the possessed villagers in the church.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
-            required_actions=("Trap the possessed villagers in the church",),
+            auto_actions=("Trap the possessed villagers in the church",),
         ),
         _stage_req(
             4,
             "Mine rubium and fill the steam vents.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
             required_tools=(("Pickaxe", 1),),
-            required_actions=("Mine rubium and fill the steam vents",),
+            auto_actions=("Mine rubium and fill the steam vents",),
         ),
         _stage_req(
             5,
             "Find the toy train and rescue Kennith.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
-            required_actions=("Find Kennith's toy train", "Use the toy train on Kennith"),
+            auto_actions=("Find Kennith's toy train", "Use the toy train on Kennith"),
         ),
     ),
     WOLF_WHISTLE_ID: (
@@ -8057,6 +8059,22 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_actions=("Complete Kennith's Concerns stage 1 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_actions=("Complete Kennith's Concerns stage 2 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_actions=("Complete Kennith's Concerns stage 3 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_actions=("Complete Kennith's Concerns stage 4 objective",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete Kennith's Concerns stage 5 objective",),
         ),
     ),
     "myths_of_the_white_lands": (
