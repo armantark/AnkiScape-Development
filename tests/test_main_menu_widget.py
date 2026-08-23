@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -10324,7 +10324,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         summary = _find_named_label(dialog, "bankSearchInputSummary")
 
         search.setText("arrow shafts")
-        QApplication.processEvents()
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Fletched", texts)
         self.assertIn("Arrow shafts x30", texts)
@@ -10334,24 +10334,68 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"], original_inventory)
 
         search.setText("materials")
-        QApplication.processEvents()
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Materials", texts)
         self.assertIn("Feather x50", texts)
         self.assertNotIn("Arrow shafts x30", texts)
 
         search.setText("nothing-here")
-        QApplication.processEvents()
+        QTest.qWait(180)
         self.assertEqual(_bank_grid_texts(dialog), ["No Bank items match your search."])
         self.assertEqual(summary.text(), "Showing 0/5")
 
         search.clear()
-        QApplication.processEvents()
+        QTest.qWait(180)
         texts = _bank_grid_texts(dialog)
         self.assertIn("Logs x5", texts)
         self.assertIn("Arrow shafts x30", texts)
         self.assertEqual(summary.text(), "Showing 5/5")
         self.assertEqual(pd["inventory"], original_inventory)
+
+    def test_bank_search_coalesces_renders_without_rebuilding_adjacent_controls(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coal": 10, "Logs": 5, "Shrimps": 3}
+        dialog = self._open(pd)
+        _open_bank_tab(dialog)
+        search = _find_named_line_edit(dialog, "bankSearchInput")
+        carried_button = dialog.findChild(QPushButton, "carriedBankItem::Coal")
+        tab_button = dialog.findChild(QToolButton, "bankTab::main")
+        self.assertIsNotNone(carried_button)
+        self.assertIsNotNone(tab_button)
+
+        created_cells: list[str] = []
+
+        class BankGridRenderProbe(QObject):
+            def eventFilter(self, watched, event):
+                if event.type() == QEvent.Type.ChildAdded:
+                    child = event.child()
+                    if isinstance(child, QToolButton) and child.objectName().startswith(
+                        "bankGridItem::"
+                    ):
+                        created_cells.append(child.objectName())
+                return False
+
+        grid = _find_named_widget(dialog, "bankGrid")
+        render_probe = BankGridRenderProbe(grid)
+        grid.installEventFilter(render_probe)
+        search.setText("c")
+        QTest.qWait(20)
+        search.setText("co")
+        QTest.qWait(20)
+        search.setText("coal")
+        QTest.qWait(180)
+        grid.removeEventFilter(render_probe)
+
+        self.assertEqual(created_cells, ["bankGridItem::Coal"])
+        self.assertEqual(
+            _find_named_label(dialog, "bankSearchInputSummary").text(),
+            "Showing 1/3",
+        )
+        self.assertIs(
+            dialog.findChild(QPushButton, "carriedBankItem::Coal"), carried_button
+        )
+        self.assertIs(dialog.findChild(QToolButton, "bankTab::main"), tab_button)
 
     def test_bank_frame_a_uses_twelve_54_pixel_columns_and_280_pixel_detail(self) -> None:
         from ankiscape.core.constants import ITEM_DEFINITIONS
