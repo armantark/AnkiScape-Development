@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -10356,13 +10356,23 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_bank_search_coalesces_renders_without_rebuilding_adjacent_controls(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coal": 10, "Logs": 5, "Shrimps": 3}
-        dialog = self._open(pd)
+        projection_calls: list[bool] = []
+
+        def projection() -> dict:
+            projection_calls.append(True)
+            return {"items": ()}
+
+        dialog = self._open(pd, get_ge_projection=projection)
         _open_bank_tab(dialog)
         search = _find_named_line_edit(dialog, "bankSearchInput")
+        timer = search.findChild(QTimer)
         carried_button = dialog.findChild(QPushButton, "carriedBankItem::Coal")
         tab_button = dialog.findChild(QToolButton, "bankTab::main")
+        self.assertIsNotNone(timer)
         self.assertIsNotNone(carried_button)
         self.assertIsNotNone(tab_button)
+        projection_call_count = len(projection_calls)
+        self.assertGreater(projection_call_count, 0)
 
         created_cells: list[str] = []
 
@@ -10380,14 +10390,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         render_probe = BankGridRenderProbe(grid)
         grid.installEventFilter(render_probe)
         search.setText("c")
-        QTest.qWait(20)
         search.setText("co")
-        QTest.qWait(20)
         search.setText("coal")
-        QTest.qWait(180)
+        timer.stop()
+        timer.timeout.emit()
         grid.removeEventFilter(render_probe)
 
         self.assertEqual(created_cells, ["bankGridItem::Coal"])
+        self.assertEqual(len(projection_calls), projection_call_count)
         self.assertEqual(
             _find_named_label(dialog, "bankSearchInputSummary").text(),
             "Showing 1/3",

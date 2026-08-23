@@ -4,6 +4,7 @@ import html
 import os
 import re
 from collections.abc import Mapping
+from copy import deepcopy
 from typing import Any, Optional
 import datetime
 
@@ -25634,7 +25635,12 @@ def show_main_menu(
     bank_selection = {"item": ""}
     bank_cell_buttons: dict[str, QToolButton] = {}
     bank_tab_buttons: dict[str, QToolButton] = {}
-    bank_view_cache = {"categories": {}, "values": {}}
+    bank_view_cache = {
+        "categories": {},
+        "values": {},
+        "inventory": None,
+        "layout": None,
+    }
 
     bank_controls = QWidget()
     bank_controls.setObjectName("bankControls")
@@ -25831,11 +25837,24 @@ def show_main_menu(
     ) -> None:
         if refresh_carried:
             _refresh_carried_panel()
-        player_data.update(reconcile_bank_layout_for_player_pure(player_data))
-        bank_layout_state["value"] = player_data["bank_layout"]
-        categories, values = _bank_category_and_value_maps()
-        bank_view_cache["categories"] = categories
-        bank_view_cache["values"] = values
+        inventory = player_data.get("inventory", {}) or {}
+        layout = player_data.get("bank_layout", {}) or {}
+        cache_matches = (
+            not refresh_carried
+            and bank_view_cache["inventory"] == inventory
+            and bank_view_cache["layout"] == layout
+        )
+        if cache_matches:
+            categories = bank_view_cache["categories"]
+            values = bank_view_cache["values"]
+        else:
+            player_data.update(reconcile_bank_layout_for_player_pure(player_data))
+            bank_layout_state["value"] = player_data["bank_layout"]
+            categories, values = _bank_category_and_value_maps()
+            bank_view_cache["categories"] = categories
+            bank_view_cache["values"] = values
+            bank_view_cache["inventory"] = dict(inventory)
+            bank_view_cache["layout"] = deepcopy(bank_layout_state["value"])
         state_value = bank_layout_state["value"]
         sections = bank_sections_pure(
             state_value,
