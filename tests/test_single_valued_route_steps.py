@@ -74,7 +74,7 @@ def _player_ready_through_stage(quest_id, target_stage):
 
 
 class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
-    def _drive_route_stages(self, quest_id, expected_by_stage):
+    def assert_route_stages_progress(self, quest_id, expected_by_stage):
         target_stage = max(expected_by_stage)
         player_data = _player_ready_through_stage(quest_id, target_stage)
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
@@ -135,25 +135,25 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertNotIn(quest_id, player_data.get("quest_route_states", {}))
 
     def test_kenniths_concerns_shrine_tunnels_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "kenniths_concerns",
             {1: ("Reach the Witchaven shrine tunnels",)},
         )
 
     def test_lost_city_entrana_travel_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "lost_city",
             {2: ("Reach Entrana without combat gear",)},
         )
 
     def test_merlins_crystal_crate_delivery_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "merlins_crystal",
             {2: ("Reach Keep Le Faye through the Catherby crate delivery",)},
         )
 
     def test_heroes_quest_travel_steps_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "heroes_quest",
             {
                 5: ("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
@@ -163,7 +163,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
 
     def test_family_crest_dungeon_routes_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "family_crest",
             {
                 8: ("Reach the Witchaven perfect gold mine",),
@@ -172,7 +172,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
 
     def test_temple_of_ikov_travel_steps_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "temple_of_ikov",
             {
                 1: ("Enter the Temple of Ikov",),
@@ -181,19 +181,19 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
 
     def test_gertrudes_cat_lumber_yard_route_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "gertrudes_cat",
             {3: ("Reach Fluffs in the Varrock Lumber Yard",)},
         )
 
     def test_tribal_totem_rpdt_route_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "tribal_totem",
             {2: ("Reach the Ardougne RPDT depot",)},
         )
 
     def test_scorpion_catcher_room_routes_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "scorpion_catcher",
             {
                 3: ("Reach the Taverley Dungeon scorpion room",),
@@ -203,7 +203,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
 
     def test_sheep_herder_enclosure_routes_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "sheep_herder",
             {
                 3: ("Reach the Ardougne sheep enclosure",),
@@ -213,19 +213,19 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
 
     def test_plague_city_sewer_route_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "plague_city",
             {8: ("Reach West Ardougne through the sewer pipe",)},
         )
 
     def test_waterfall_quest_golrie_route_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "waterfall_quest",
             {3: ("Reach Golrie under Tree Gnome Village",)},
         )
 
     def test_tree_gnome_village_battlefield_routes_are_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "tree_gnome_village",
             {
                 1: ("Reach Commander Montai on the battlefield",),
@@ -234,13 +234,13 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
 
     def test_witchs_house_patrol_avoidance_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "witchs_house",
             {5: ("Avoid the witch's patrol through the house",)},
         )
 
     def test_myths_of_the_white_lands_ice_cave_route_is_recorded(self):
-        self._drive_route_stages(
+        self.assert_route_stages_progress(
             "myths_of_the_white_lands",
             {1: ("Reach the Wizard's Tower ice cave",)},
         )
