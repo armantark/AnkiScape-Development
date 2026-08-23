@@ -878,3 +878,5 @@
 - 2026-08-22 17:08 PDT — While checking Biohazard route and Priest gown production, a broad recursive grep produced 2.3MB of output; future source checks should constrain file types and directories before searching common item names.
 
 - 2026-08-22 17:09 PDT — While checking Darkan Biohazard evidence, a broad stage/item grep still produced 54.7KB and was persisted out of band; inspect each cited source file with targeted ranges instead.
+
+- 2026-08-22 17:21 PDT — A focused Biohazard integration selector guessed class `IntegrationSmokeTest` and failed with `AttributeError: module 'tests.test_integration_smoke' has no attribute 'IntegrationSmokeTest'`; read the module class declaration before composing selectors.
