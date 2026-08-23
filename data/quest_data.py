@@ -7201,7 +7201,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             2,
             "Fill the rage meter with the correct anger weapon before leaving the rage room.",
             f"{A_SOULS_BANE_WIKI_SOURCE}; {A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}",
-            required_actions=("Fill the rage meter with an anger weapon",),
+            auto_actions=("Fill the rage meter with an anger weapon",),
         ),
         _stage_req(
             3,

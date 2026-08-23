@@ -568,6 +568,17 @@ class TestItemReachabilityAudit(unittest.TestCase):
             ]
         )
 
+    def test_a_souls_bane_rage_action_has_a_runtime_emitter(self):
+        report = build_reachability_report()
+        missing_actions = {
+            action
+            for row in report["blocked_quest_stage_products"]
+            if row["quest_id"] == "a_souls_bane"
+            for action in row["missing_required_actions"]
+        }
+
+        self.assertNotIn("Fill the rage meter with an anger weapon", missing_actions)
+
     def test_diamond_in_the_rough_claim_items_require_reachable_quest_and_level_gates(self):
         report = build_reachability_report()
 
