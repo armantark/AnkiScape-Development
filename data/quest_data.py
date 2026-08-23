@@ -5214,20 +5214,20 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Ask Merlin about the Holy Grail.",
             f"{HOLY_GRAIL_KING_ARTHUR_SOURCE}; {HOLY_GRAIL_MERLIN_SOURCE}",
-            required_actions=("Ask Merlin about the Holy Grail",),
+            auto_actions=("Ask Merlin about the Holy Grail",),
         ),
         _stage_req(
             2,
             "Ask the Entrana High Priest and crone about the Grail.",
             f"{HOLY_GRAIL_MERLIN_SOURCE}; {HOLY_GRAIL_ENTRANA_SOURCE}",
             required_routes=("Travel to Entrana",),
-            required_actions=("Ask the Entrana High Priest and crone about the Grail",),
+            auto_actions=("Ask the Entrana High Priest and crone about the Grail",),
         ),
         _stage_req(
             3,
             "Ask Sir Galahad for an artifact from the Fisher Realm.",
             f"{HOLY_GRAIL_ENTRANA_SOURCE}; {HOLY_GRAIL_GALAHAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Ask Sir Galahad for an artifact from the Fisher Realm",),
+            auto_actions=("Ask Sir Galahad for an artifact from the Fisher Realm",),
             produced_inventory=(("Holy table napkin", 1),),
         ),
         _stage_req(
@@ -5236,7 +5236,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Holy table napkin", 1),),
             required_routes=("Reach the Draynor Manor whistle room",),
-            required_actions=("Find the Magic whistles in Draynor Manor",),
+            auto_actions=("Find the Magic whistles in Draynor Manor",),
             produced_inventory=(("Magic whistle", 2),),
         ),
         _stage_req(
@@ -5245,7 +5245,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_TITAN_SOURCE}; {HOLY_GRAIL_TITAN_NPC_SOURCE}",
             required_tools=(("Magic whistle", 1), ("Excalibur", 1)),
             required_routes=("Reach the Fisher Realm crossing at the six stone heads",),
-            required_actions=("Blow the Magic whistle at the six stone heads",),
+            auto_actions=("Blow the Magic whistle at the six stone heads",),
             produced_inventory=(("Grail bell", 1),),
             combat_encounters=(
                 _combat(
@@ -5279,13 +5279,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Ring the Grail bell and ask the Fisher King about Percival.",
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_FISHER_KING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Grail bell", 1),),
-            required_actions=("Ring the Grail bell and ask the Fisher King about Percival",),
+            auto_actions=("Ring the Grail bell and ask the Fisher King about Percival",),
         ),
         _stage_req(
             7,
             "Ask King Arthur about Sir Percival and receive the Magic gold feather.",
             f"{HOLY_GRAIL_KING_ARTHUR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Ask King Arthur about Sir Percival",),
+            auto_actions=("Ask King Arthur about Sir Percival",),
             produced_inventory=(("Magic gold feather", 1),),
         ),
         _stage_req(
@@ -5294,7 +5294,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_PERCIVAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Magic gold feather", 1),),
             consumed_inventory=(("Magic whistle", 1),),
-            required_actions=(
+            auto_actions=(
                 "Use the Magic gold feather to find Sir Percival",
                 "Free Sir Percival from the sack",
                 "Show Sir Percival the Magic whistle",
@@ -5304,7 +5304,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             9,
             "Take the Holy grail from the restored Fisher Realm.",
             f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Take the Holy grail from the restored Fisher Realm",),
+            auto_actions=("Take the Holy grail from the restored Fisher Realm",),
             produced_inventory=(("Holy grail", 1),),
         ),
         _stage_req(
