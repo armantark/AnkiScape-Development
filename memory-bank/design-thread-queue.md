@@ -804,13 +804,24 @@ an open design fork; it does not choose or implement a repair.
   Tribal Totem, Waterfall Quest, Witch's House, and Within the Light. Repairing
   an action emitter does not make any of these quests finishable while its
   route remains impossible to set.
-- **Correction to the landed record:** only Biohazard and Dealing with Scabaras
-  in that 19-quest overlap have landed entry 3.31 action-emitter repairs at this
-  base. The commit subjects `Biohazard was impossible to finish; emit every
-  quest step` (`e8efa7ae`) and `Dealing with Scabaras was impossible to finish;
-  emit every quest step` (`6c0cda7d`) read as though those quests are now
-  finishable. That reading is wrong. Both quests still carry an unsatisfiable
-  route, so both landed repairs are incomplete.
+- **Correction to the landed record:** four quests in that 19-quest overlap
+  carry a landed entry 3.31 action-emitter repair. Their commit subjects read as
+  though the quest is now finishable:
+  - `Biohazard was impossible to finish; emit every quest step` (`e8efa7ae`)
+  - `Dealing with Scabaras was impossible to finish; emit every quest step`
+    (`6c0cda7d`)
+  - `Holy Grail was impossible to finish; emit its quest steps` (`17656ce4`)
+  - `Dwarf Cannon was impossible to finish; emit every quest step` (`e473ffa0`)
+
+  That reading is wrong for all four. Each still carries an unsatisfiable route,
+  so each landed repair is incomplete. Two further quests repaired in the same
+  batch are not affected: Shield of Arrav satisfies its routes through a real
+  two-option `QuestChoice`, and Priest in Peril declares no route at all.
+
+  Counted against the live audit rather than the entry 3.31 snapshot, the open
+  overlap at `a23f80f3` is **17 quests**; the snapshot figure of 19 adds
+  Biohazard and Dealing with Scabaras, whose action emitters had already
+  landed.
 
 **Catalog-generated scheduling snapshot (`a23f80f3`):**
 
