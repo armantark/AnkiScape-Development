@@ -9330,14 +9330,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         expected = (
             "Blocked: Action required: Herd and poison the red sheep, "
             "Action required: Herd and poison the green sheep, "
-            "Action required: Herd and poison the blue sheep, +2 more"
+            "Action required: Herd and poison the blue sheep, +1 more"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_sheep_herder")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
         self.assertIn("Action required: Herd and poison the red sheep", action.toolTip())
-        self.assertIn("+2 more", action.toolTip())
+        self.assertIn("+1 more", action.toolTip())
 
     def test_quests_tab_shows_plague_city_hangover_cure_blocker(self) -> None:
         pd = _make_player_data()

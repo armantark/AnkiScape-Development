@@ -1813,7 +1813,7 @@ MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=2,
         description="Hide in the Catherby delivery crate to enter Keep Le Faye.",
-        required_routes=("Reach Keep Le Faye through the Catherby crate delivery",),
+        auto_actions=("Reach Keep Le Faye through the Catherby crate delivery",),
         source=f"{MERLINS_CRYSTAL_KEEP_SOURCE}; {MERLINS_CRYSTAL_CRATE_SCENE_SOURCE}",
     ),
     QuestStageRequirement(
@@ -1961,7 +1961,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         consumed_inventory=(("Fishing bait", 1),),
         produced_inventory=(("Raw lava eel", 1),),
         required_tools=(("Oily fishing rod", 1),),
-        required_routes=("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
+        auto_actions=("Reach a lava eel fishing spot in Taverley Dungeon or the Lava Maze",),
         source=(
             f"{HEROES_QUEST_FISH_SOURCE}; {HEROES_QUEST_FISHING_SPOT_SOURCE}; "
             f"{HEROES_QUEST_FISHING_SOURCE}; {HEROES_QUEST_PORT_SARIM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
@@ -1980,7 +1980,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Clear the Ice Queen lair rockslide and defeat the Ice Queen.",
         required_tools=(("Pickaxe", 1),),
         required_actions=("Clear the Ice Queen lair rockslide",),
-        required_routes=("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
+        auto_actions=("Reach the Ice Queen lair through a Dusty key or Agility shortcut route",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{HEROES_QUEST_ID}_ice_queen_111",
@@ -2016,7 +2016,7 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=8,
         description="Defeat the Entranan Firebird and pick up its feather with Ice gloves.",
         required_tools=(("Ice gloves", 1),),
-        required_routes=("Reach Entrana without prohibited combat equipment",),
+        auto_actions=("Reach Entrana without prohibited combat equipment",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{HEROES_QUEST_ID}_entrana_fire_bird_2",
@@ -2329,7 +2329,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Solve the Witchaven dungeon route and mine two perfect gold ores.",
         required_tools=(("Pickaxe", 1),),
         required_actions=("Solve the Witchaven dungeon lever puzzle", "Mine two perfect gold ores"),
-        required_routes=("Reach the Witchaven perfect gold mine",),
+        auto_actions=("Reach the Witchaven perfect gold mine",),
         produced_inventory=(("Perfect gold ore", 2),),
         source=(
             f"{FAMILY_CREST_DARKAN_SOURCE}; {FAMILY_CREST_WITCHHAVEN_PUZZLE_SOURCE}; "
@@ -2374,7 +2374,7 @@ FAMILY_CREST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Hit Chronozon with all four elemental blast spells and defeat him.",
         required_tools=(("Caleb crest", 1), ("Avan crest", 1)),
         required_actions=("Hit Chronozon with Air, Water, Earth, and Fire Blast",),
-        required_routes=("Reach Chronozon's lair in Edgeville Dungeon",),
+        auto_actions=("Reach Chronozon's lair in Edgeville Dungeon",),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{FAMILY_CREST_ID}_chronozon_170",
@@ -2439,7 +2439,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         description="Enter the Temple of Ikov with Lucien's pendant and a light source.",
         required_inventory_options=(tuple((item_name, 1) for item_name in LIT_LIGHT_SOURCE_ITEMS),),
         required_tools=(("Pendant of lucien", 1),),
-        required_routes=("Enter the Temple of Ikov",),
+        auto_actions=("Enter the Temple of Ikov",),
         source=(
             f"{TEMPLE_OF_IKOV_DARKAN_SOURCE}; {TEMPLE_OF_IKOV_DUNGEON_SOURCE}; "
             f"{TEMPLE_OF_IKOV_LUCIEN_ARDOUGNE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
@@ -2457,7 +2457,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         stage=3,
         description="Cross the lava bridge at low weight and pick up the lever.",
         required_tools=(("Pendant of lucien", 1), ("Boots of lightness", 1)),
-        required_routes=("Cross the Temple of Ikov lava bridge at low weight",),
+        auto_actions=("Cross the Temple of Ikov lava bridge at low weight",),
         required_actions=("Pick up the Temple of Ikov lever",),
         produced_inventory=(("Lever", 1),),
         source=f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
@@ -5375,7 +5375,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Reach Commander Montai on the battlefield.",
             f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}",
-            required_routes=("Reach Commander Montai on the battlefield",),
+            auto_actions=("Reach Commander Montai on the battlefield",),
             required_actions=("Ask Commander Montai how to help the gnome battlefield",),
         ),
         _stage_req(
@@ -5408,7 +5408,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Enter the Khazard stronghold and recover the first Orb of protection.",
             f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}; {TREE_GNOME_KHAZARD_COMMANDER_NPC_SOURCE}",
-            required_routes=("Enter the Khazard stronghold through the broken wall",),
+            auto_actions=("Enter the Khazard stronghold through the broken wall",),
             required_actions=("Search the stronghold chest for the first Orb of protection",),
             produced_inventory=(("Orb of protection", 1),),
             combat_encounters=(
@@ -5546,7 +5546,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Find Fluffs in the Lumber Yard and learn she is thirsty.",
             DARKAN_GERTRUDES_CAT_SOURCE,
-            required_routes=("Reach Fluffs in the Varrock Lumber Yard",),
+            auto_actions=("Reach Fluffs in the Varrock Lumber Yard",),
             required_actions=("Try to pick up Fluffs in the Lumber Yard",),
         ),
         _stage_req(
@@ -5676,7 +5676,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             2,
             "Take Lord Handelmort's address label from the RPDT crate.",
             f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_routes=("Reach the Ardougne RPDT depot",),
+            auto_actions=("Reach the Ardougne RPDT depot",),
             required_actions=("Take Lord Handelmort's address label from the RPDT crate",),
             produced_inventory=(("Address label", 1),),
         ),
@@ -5728,7 +5728,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE}"
             ),
             required_tools=(("Scorpion cage", 1),),
-            required_routes=("Reach the Taverley Dungeon scorpion room",),
+            auto_actions=("Reach the Taverley Dungeon scorpion room",),
             required_actions=("Catch the Taverley Dungeon Kharid scorpion",),
             combat_encounters=(
                 _combat(
@@ -5762,7 +5762,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Catch the Barbarian Outpost scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
-            required_routes=("Reach the Barbarian Outpost scorpion room",),
+            auto_actions=("Reach the Barbarian Outpost scorpion room",),
             required_actions=("Catch the Barbarian Outpost Kharid scorpion",),
         ),
         _stage_req(
@@ -5770,7 +5770,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Catch the Edgeville Monastery scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
-            required_routes=("Reach the Edgeville Monastery scorpion room",),
+            auto_actions=("Reach the Edgeville Monastery scorpion room",),
             required_actions=("Catch the Edgeville Monastery Kharid scorpion",),
         ),
         _stage_req(
@@ -5804,7 +5804,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
                 f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
-            required_routes=("Reach the Ardougne sheep enclosure",),
+            auto_actions=("Reach the Ardougne sheep enclosure",),
             required_actions=("Pick up the cattleprod from the sheep enclosure barn",),
             produced_inventory=(("Cattleprod", 1),),
         ),
@@ -5818,7 +5818,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             required_inventory=(("Sheep feed", 1),),
             required_tools=(("Plague jacket", 1), ("Plague trousers", 1), ("Cattleprod", 1)),
-            required_routes=("Reach the Ardougne sheep enclosure",),
+            auto_actions=("Reach the Ardougne sheep enclosure",),
             required_actions=(
                 "Herd and poison the red sheep",
                 "Herd and poison the green sheep",
@@ -5853,7 +5853,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 "Incinerate the yellow sheep bones",
                 "Report the incinerated sheep to Councillor Halgrive",
             ),
-            required_routes=("Reach the Ardougne sheep enclosure",),
+            auto_actions=("Reach the Ardougne sheep enclosure",),
         ),
     ),
     PLAGUE_CITY_ID: (
@@ -5910,7 +5910,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Wear the gas mask, enter West Ardougne through the sewer, and speak to Jethick.",
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
             required_tools=(("Gas mask", 1),),
-            required_routes=("Reach West Ardougne through the sewer pipe",),
+            auto_actions=("Reach West Ardougne through the sewer pipe",),
             required_actions=("Speak to Jethick about Elena",),
         ),
         _stage_req(
@@ -6209,7 +6209,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_WATERFALL_SOURCE}; {DARKAN_WATERFALL_GOLRIE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             produced_inventory=(("Old key", 1), ("Glarial's pebble", 1)),
             required_actions=("Search the Tree Gnome Village crate for the old key", "Unlock Golrie's prison"),
-            required_routes=("Reach Golrie under Tree Gnome Village",),
+            auto_actions=("Reach Golrie under Tree Gnome Village",),
         ),
         _stage_req(
             4,
@@ -7414,7 +7414,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             5,
             "Cross the Witch's house hallway without being seen by the witch.",
             f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_WITCH_SENTRY_SOURCE}",
-            required_routes=("Avoid the witch's patrol through the house",),
+            auto_actions=("Avoid the witch's patrol through the house",),
         ),
         _stage_req(
             6,
@@ -7564,7 +7564,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Speak to Shamus about the dramen staff and reach Entrana.",
             f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_SHAMUS_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}",
             required_actions=("Speak to Shamus about the dramen staff",),
-            required_routes=("Reach Entrana without combat gear",),
+            auto_actions=("Reach Entrana without combat gear",),
         ),
         _stage_req(
             3,
@@ -7829,7 +7829,7 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Investigate the Witchaven tunnels and speak to a villager.",
             KENNITHS_CONCERNS_WIKI_SOURCE,
             required_tools=(("Pickaxe", 1),),
-            required_routes=("Reach the Witchaven shrine tunnels",),
+            auto_actions=("Reach the Witchaven shrine tunnels",),
             required_actions=("Talk to a villager past the rocks",),
         ),
         _stage_req(
@@ -7964,7 +7964,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Lletya", "Elf teleport crystal"),
-            add_required_routes=("Reach Lletya",),
+            remove_required_actions=("Complete Mourning's End Part I stage 1 objective",),
+            add_auto_actions=("Reach Lletya",),
         ),
         QuestStageRequirementCleanup(
             stage=3,
@@ -7981,7 +7982,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=5,
             remove_required_tools=("Tears of Guthix cavern",),
-            add_required_routes=("Reach the Tears of Guthix cavern",),
+            remove_required_actions=("Complete Death to the Dorgeshuun stage 5 objective",),
+            add_auto_actions=("Reach the Tears of Guthix cavern",),
         ),
     ),
     "elemental_workshop_ii": (
@@ -8005,7 +8007,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Port Sarim",
                 "Daemonheim",
             ),
-            add_required_routes=("Reach Auguste on Entrana",),
+            remove_required_actions=("Complete Enlightened Journey stage 1 objective",),
+            add_auto_actions=("Reach Auguste on Entrana",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
@@ -8031,14 +8034,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Making History",
             ),
             remove_required_inventory_options=("Ecto-token", "Port Sarim", "Port Phasmatys", "Fairy Tale III - Orks Rift"),
-            add_required_routes=("Reach the Outpost, Rellekka, and Port Phasmatys travel legs",),
+            remove_required_actions=("Complete Making History stage 1 objective",),
+            add_auto_actions=("Reach the Outpost, Rellekka, and Port Phasmatys travel legs",),
         ),
     ),
     "cabin_fever": (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory_options=("Ghosts Ahoy",),
-            add_required_routes=("Reach the Port Phasmatys charter route",),
+            remove_required_actions=("Complete Cabin Fever stage 1 objective",),
+            add_auto_actions=("Reach the Port Phasmatys charter route",),
         ),
     ),
     "cold_war": (
@@ -8046,6 +8051,12 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=2,
             remove_required_inventory=("Crafting table 3",),
             add_required_actions=("Build the clockwork penguin on a crafting table 3",),
+        ),
+    ),
+    "kenniths_concerns": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_actions=("Complete Kennith's Concerns stage 1 objective",),
         ),
     ),
     "myths_of_the_white_lands": (
@@ -8059,14 +8070,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Fairy Ring",
                 "Wizard's Tower",
             ),
-            add_required_routes=("Reach the Wizard's Tower ice cave",),
+            remove_required_actions=("Complete Myths of the White Lands stage 1 objective",),
+            add_auto_actions=("Reach the Wizard's Tower ice cave",),
         ),
     ),
     "in_pyre_need": (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory_options=("Fairy Rings", "Phoenix lair teleport"),
-            add_required_routes=("Reach the Phoenix lair",),
+            remove_required_actions=("Complete In Pyre Need stage 1 objective",),
+            add_auto_actions=("Reach the Phoenix lair",),
         ),
     ),
     "the_fremennik_isles": (
@@ -8180,7 +8193,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Food",),
             remove_required_inventory_options=("Shilo Village",),
-            add_required_routes=("Reach the Karamja jungle route",),
+            remove_required_actions=("Complete Back to my Roots stage 1 objective",),
+            add_auto_actions=("Reach the Karamja jungle route",),
         ),
     ),
     "rocking_out": (
@@ -8188,14 +8202,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Brimhaven tablet", "Ectophial"),
             remove_required_inventory_options=("Rimmington", "Rimmington tablet", "Love Story"),
-            add_required_routes=("Reach the Rimmington customs office",),
+            remove_required_actions=("Complete Rocking Out stage 1 objective",),
+            add_auto_actions=("Reach the Rimmington customs office",),
         ),
     ),
     "glorious_memories": (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Teleport to House", "Player-owned house", "Rellekka", "Rellekka tablet", "Ring of wealth"),
-            add_required_routes=("Reach Rellekka and Miscellania",),
+            remove_required_actions=("Complete Glorious Memories stage 1 objective",),
+            add_auto_actions=("Reach Rellekka and Miscellania",),
         ),
     ),
     "elemental_workshop_iii": (
@@ -8236,17 +8252,20 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Food",
             ),
             add_required_actions=("Cast Enchant Level 1 Jewellery for the sapphire preparations",),
-            add_required_routes=("Reach the Muspah cave route through Rellekka and Pollnivneach",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 1 objective",),
+            add_auto_actions=("Reach the Muspah cave route through Rellekka and Pollnivneach",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
             remove_required_inventory=("Rellekka",),
-            add_required_routes=("Reach Rellekka",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 2 objective",),
+            add_auto_actions=("Reach Rellekka",),
         ),
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_inventory=("Pollnivneach",),
-            add_required_routes=("Reach Pollnivneach",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 3 objective",),
+            add_auto_actions=("Reach Pollnivneach",),
         ),
         QuestStageRequirementCleanup(
             stage=4,
@@ -8310,7 +8329,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Prayer potions",
             ),
             add_required_actions=("Recover the Temple of Light keys and crystal puzzle pieces",),
-            add_required_routes=("Reach the Temple of Light through West Ardougne and Lletya",),
+            remove_required_actions=("Complete Within the Light stage 1 objective",),
+            add_auto_actions=("Reach the Temple of Light through West Ardougne and Lletya",),
         ),
     ),
     "the_firemakers_curse": (
