@@ -3270,6 +3270,45 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["runecrafting_exp"], 0)
         self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
 
+    def test_monkey_madness_ape_atoll_infiltration_emits_on_review(self):
+        quest_id = "monkey_madness"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        quest = QUEST_DATA[quest_id]
+        for requirement in quest["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update({"Gold bar": 1, "Ball of wool": 1, "Bananas": 5})
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            player_data["quest_stage_actions"][quest_id],
+            [
+                "Acquire the monkey dentures, m'amulet mould, and monkey talisman during the Ape Atoll infiltration"
+            ],
+        )
+
     def test_clock_tower_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 

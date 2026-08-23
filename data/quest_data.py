@@ -7882,7 +7882,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Monkey Dentures", "M'Amulet mould", "Monkey talisman"),
             remove_required_actions=("Complete Monkey Madness stage 1 objective",),
-            add_required_actions=(
+            add_auto_actions=(
                 "Acquire the monkey dentures, m'amulet mould, and monkey talisman during the Ape Atoll infiltration",
             ),
         ),
