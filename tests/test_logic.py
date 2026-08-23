@@ -8374,6 +8374,164 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["strength_exp"], 18650.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
+    def test_tai_bwo_wannai_trio_real_stage_emitters_complete_and_reward_once(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(
+            {
+                "agility_level": 120,
+                "attack_level": 120,
+                "constitution_level": 120,
+                "cooking_level": 30,
+                "defense_level": 120,
+                "fishing_level": 5,
+                "prayer_level": 120,
+                "strength_level": 120,
+            }
+        )
+        player_data["quests"]["jungle_potion"] = {
+            "started": True,
+            "progress": QUEST_DATA["jungle_potion"]["stages"],
+            "completed": True,
+        }
+        player_data["inventory"].update(
+            {
+                "Raw karambwan": 2,
+                "Small fishing net": 1,
+                "Agility potion (4)": 1,
+                "Steel spear": 1,
+                "Karamjan rum": 1,
+                "Seaweed": 1,
+                "Banana": 1,
+                "Jogre bones": 1,
+                "Knife": 1,
+                "Tinderbox": 1,
+                "Pestle and mortar": 1,
+            }
+        )
+
+        player_data, ok = start_quest_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "tai_bwo_wannai_trio")
+        self.assertNotIn("tai_bwo_wannai_trio", player_data["quest_stage_actions"])
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 2)
+        self.assertNotIn("tai_bwo_wannai_trio", player_data["quest_stage_actions"])
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 3)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
+            ["Catch karambwanji for Tiadeche"],
+        )
+
+        # The source-backed Monkey encounter has no combat stats to resolve yet;
+        # isolate action emission while the Jogre still runs through the real resolver.
+        player_data["quest_combat_encounters"] = {
+            "tai_bwo_wannai_trio": ["tai_bwo_wannai_trio_monkey"]
+        }
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+            "tai_bwo_wannai_trio_jogre",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "tai_bwo_wannai_trio_jogre")
+        self.assertEqual(result["remaining_quantity"], 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 4)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
+            [
+                "Catch karambwanji for Tiadeche",
+                "Repair and poison Tamayu's spear",
+            ],
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 5)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
+            [
+                "Catch karambwanji for Tiadeche",
+                "Repair and poison Tamayu's spear",
+                "Prepare the sliced banana in rum",
+                "Burn and grind the jogre bones",
+            ],
+        )
+
+        attack_before_reward = player_data["attack_exp"]
+        strength_before_reward = player_data["strength_exp"]
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 6)
+        self.assertEqual(
+            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
+            [
+                "Catch karambwanji for Tiadeche",
+                "Repair and poison Tamayu's spear",
+                "Prepare the sliced banana in rum",
+                "Burn and grind the jogre bones",
+            ],
+        )
+        self.assertEqual(player_data["quest_points"], 2)
+        self.assertEqual(player_data["inventory"]["Coins"], 2000)
+        self.assertEqual(player_data["inventory"]["Rune spear (kp)"], 1)
+        self.assertEqual(player_data["cooking_exp"], 5000.0)
+        self.assertEqual(player_data["fishing_exp"], 5000.0)
+        self.assertEqual(player_data["attack_exp"] - attack_before_reward, 2500.0)
+        self.assertEqual(player_data["strength_exp"] - strength_before_reward, 2500.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "tai_bwo_wannai_trio",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 2)
+        self.assertEqual(after_complete["inventory"]["Coins"], 2000)
+        self.assertEqual(after_complete["inventory"]["Rune spear (kp)"], 1)
+        self.assertEqual(after_complete["cooking_exp"], 5000.0)
+        self.assertEqual(after_complete["fishing_exp"], 5000.0)
+
     def test_fishing_unlock_rules_cover_swan_song_and_tai_bwo_wannai_trio(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 
