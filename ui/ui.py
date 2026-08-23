@@ -69,6 +69,7 @@ except Exception:
     mw = None  # type: ignore
     HAS_QT = False
 
+from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
@@ -664,6 +665,7 @@ from ..logic.review_strip_logic import (
     WORLD_EVENT_OUTCOME_REVIEWS,
     activity_xp_bars_pure,
     review_bank_run_button_view_pure,
+    review_bank_run_travel_view_pure,
     review_event_log_drawer_view_pure,
     review_status_badges_view_pure,
     simulated_clock_text_pure,
@@ -2620,6 +2622,46 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
+            # While a bank run is active or queued it owns the entire progress
+            # area (owner ruling: including combat's health/enemy presentation).
+            # The ordinary branches re-show whatever they need below.
+            travel = review_bank_run_travel_view_pure(
+                player_data, review_action_handler_key(skill)
+            )
+            if travel.get("active") or travel.get("queued"):
+                for stale in (
+                    self.enemy_progress,
+                    self.chips_lbl,
+                    self.combat_resources,
+                    self.second_progress,
+                    self.second_progress_lbl,
+                    self.target_lbl,
+                    self.sub_lbl,
+                    self.world_notice_lbl,
+                ):
+                    stale.setVisible(False)
+                self.icon_lbl.clear()
+                ip = os.path.join(current_dir, "icon", "bank_icon.png")
+                pm = QPixmap(ip) if os.path.exists(ip) else None
+                if pm and not pm.isNull():
+                    self.icon_lbl.setPixmap(
+                        pm.scaled(
+                            28,
+                            28,
+                            Qt.AspectRatioMode.KeepAspectRatio,
+                            Qt.TransformationMode.SmoothTransformation,
+                        )
+                    )
+                self.title_lbl.setText("Bank run")
+                self.progress_lbl.setText(str(travel["text"]))
+                self.progress_lbl.setVisible(True)
+                self.progress.setVisible(True)
+                self.progress.setStyleSheet(self.second_progress.styleSheet())
+                self.progress.setValue(int(travel["percent"]))
+                self.adjustSize()
+                self._reposition()
+                self.show()
+                return
             combat_status = combat_status_summary_pure(player_data)
             has_hatchet = (
                 best_woodcutting_axe_pure(

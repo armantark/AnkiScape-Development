@@ -2691,8 +2691,9 @@ def combat_has_active_encounter_pure(player_data):
 def request_combat_bank_run_now_pure(player_data):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
-    if combat_has_active_encounter_pure(data):
-        return data, False, "An active fight must end before making a bank run."
+    # Owner ruling (Pass 11): a manual bank run is allowed mid-fight; the
+    # encounter survives the two-review route and resumes after, exactly like
+    # the automatic state machine.
     active_run = data.get("combat_bank_run")
     if isinstance(active_run, Mapping) and _non_negative_int(
         active_run.get("reviews_remaining", 0), 0

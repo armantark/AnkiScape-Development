@@ -1741,7 +1741,7 @@ def on_request_review_bank_run() -> bool:
     committed = commit_direct_action(
         lambda data: request_review_bank_run_pure(data, handler_key, target_id)
     )
-    _update_review_bank_run_surface()
+    _refresh_bank_run_surfaces()
     return committed
 
 
@@ -1753,6 +1753,18 @@ def _update_review_bank_run_surface() -> None:
         on_request_review_bank_run,
         target_id=_active_review_bank_run_target(handler_key),
     )
+
+
+def _refresh_bank_run_surfaces() -> None:
+    """Refresh the HUD strip and the button after any bank-run state change."""
+    try:
+        from .ui.ui import get_config_bool  # type: ignore
+        if get_config_bool("ankiscape_review_hud_enabled", True):
+            ensure_review_hud()
+            update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    _update_review_bank_run_surface()
 
 
 def _on_main_menu(
@@ -2185,7 +2197,12 @@ def _on_main_menu(
             check_achievements(player_data)
             _refresh_skill_availability()
             try:
-                update_review_hud(player_data, current_skill)
+                if result.get("bank_run_triggered"):
+                    # GE has no route state of its own; the run delegates
+                    # through _trigger_active_bank_run, so show its travel.
+                    _refresh_bank_run_surfaces()
+                else:
+                    update_review_hud(player_data, current_skill)
             except AttributeError:
                 pass
 
@@ -5820,7 +5837,7 @@ def on_answer_card(self, ease, _old):
         )
         update_review_fill_drawer(player_data)
         update_review_event_log_drawer(player_data)
-        _update_review_bank_run_surface()
+        _refresh_bank_run_surfaces()
     except Exception:
         pass
     _update_review_context_surface()
@@ -5880,10 +5897,6 @@ def initialize_exp_popup():
 def _refresh_review_surfaces() -> None:
     """The one refresh of every reviewer overlay, per surface event."""
     try:
-        from .ui.ui import get_config_bool  # type: ignore
-        if get_config_bool("ankiscape_review_hud_enabled", True):
-            ensure_review_hud()
-            update_review_hud(player_data, current_skill)
         ensure_review_context_action_strip()
         _update_review_context_surface()
         ensure_review_status_badge()
@@ -5892,7 +5905,7 @@ def _refresh_review_surfaces() -> None:
         )
         update_review_fill_drawer(player_data, _open_grand_exchange_sheet)
         update_review_event_log_drawer(player_data)
-        _update_review_bank_run_surface()
+        _refresh_bank_run_surfaces()
     except Exception:
         pass
 
