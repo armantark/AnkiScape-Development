@@ -5546,7 +5546,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             3,
             "Find Fluffs in the Lumber Yard and learn she is thirsty.",
             DARKAN_GERTRUDES_CAT_SOURCE,
-            required_routes=("Reach Fluffs in the Varrock Lumber Yard",),
+            auto_actions=("Reach Fluffs in the Varrock Lumber Yard",),
             required_actions=("Try to pick up Fluffs in the Lumber Yard",),
         ),
         _stage_req(
@@ -5676,7 +5676,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             2,
             "Take Lord Handelmort's address label from the RPDT crate.",
             f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_routes=("Reach the Ardougne RPDT depot",),
+            auto_actions=("Reach the Ardougne RPDT depot",),
             required_actions=("Take Lord Handelmort's address label from the RPDT crate",),
             produced_inventory=(("Address label", 1),),
         ),
@@ -5728,7 +5728,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE}"
             ),
             required_tools=(("Scorpion cage", 1),),
-            required_routes=("Reach the Taverley Dungeon scorpion room",),
+            auto_actions=("Reach the Taverley Dungeon scorpion room",),
             required_actions=("Catch the Taverley Dungeon Kharid scorpion",),
             combat_encounters=(
                 _combat(
@@ -5762,7 +5762,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Catch the Barbarian Outpost scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
-            required_routes=("Reach the Barbarian Outpost scorpion room",),
+            auto_actions=("Reach the Barbarian Outpost scorpion room",),
             required_actions=("Catch the Barbarian Outpost Kharid scorpion",),
         ),
         _stage_req(
@@ -5770,7 +5770,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Catch the Edgeville Monastery scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
-            required_routes=("Reach the Edgeville Monastery scorpion room",),
+            auto_actions=("Reach the Edgeville Monastery scorpion room",),
             required_actions=("Catch the Edgeville Monastery Kharid scorpion",),
         ),
         _stage_req(

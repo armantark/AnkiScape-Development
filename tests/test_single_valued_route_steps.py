@@ -173,6 +173,28 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
             },
         )
 
+    def test_gertrudes_cat_lumber_yard_route_is_recorded(self):
+        self._drive_route_stages(
+            "gertrudes_cat",
+            {3: ("Reach Fluffs in the Varrock Lumber Yard",)},
+        )
+
+    def test_tribal_totem_rpdt_route_is_recorded(self):
+        self._drive_route_stages(
+            "tribal_totem",
+            {2: ("Reach the Ardougne RPDT depot",)},
+        )
+
+    def test_scorpion_catcher_room_routes_are_recorded(self):
+        self._drive_route_stages(
+            "scorpion_catcher",
+            {
+                3: ("Reach the Taverley Dungeon scorpion room",),
+                4: ("Reach the Barbarian Outpost scorpion room",),
+                5: ("Reach the Edgeville Monastery scorpion room",),
+            },
+        )
+
     def test_witchs_house_patrol_avoidance_is_recorded(self):
         self._drive_route_stages(
             "witchs_house",

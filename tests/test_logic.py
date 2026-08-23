@@ -4071,7 +4071,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["scorpion_catcher"] = {"started": True, "progress": 3, "completed": False}
         player_data["inventory"]["Scorpion cage"] = 1
-        player_data["quest_route_states"] = {"scorpion_catcher": ["Reach the Taverley Dungeon scorpion room"]}
         player_data["quest_stage_actions"] = {
             "scorpion_catcher": ["Catch the Taverley Dungeon Kharid scorpion"]
         }
@@ -4093,6 +4092,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["scorpion_catcher"]["progress"], 4)
+        self.assertIn(
+            "Reach the Taverley Dungeon scorpion room",
+            player_data["quest_stage_actions"]["scorpion_catcher"],
+        )
 
     def test_sheep_herder_stage_gates_clothing_tools_and_all_four_bones(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
