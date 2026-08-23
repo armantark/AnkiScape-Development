@@ -629,6 +629,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 if row["quest_id"] == "clock_tower"
             ]
         )
+        self.assertFalse(
+            [
+                row
+                for row in report["blocked_quest_stage_products"]
+                if row["quest_id"] == "deadliest_catch"
+            ]
+        )
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item
