@@ -8269,9 +8269,11 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Sorceress's Garden",
                 "Food",
             ),
-            add_required_actions=("Cast Enchant Level 1 Jewellery for the sapphire preparations",),
+            add_auto_actions=(
+                "Cast Enchant Level 1 Jewellery for the sapphire preparations",
+                "Reach the Muspah cave route through Rellekka and Pollnivneach",
+            ),
             remove_required_actions=("Complete The Tale of the Muspah stage 1 objective",),
-            add_auto_actions=("Reach the Muspah cave route through Rellekka and Pollnivneach",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
@@ -8288,7 +8290,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=4,
             remove_required_inventory=("Enchant sapphire",),
-            add_required_actions=("Enchant the sapphires for Ali the Wise",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 4 objective",),
+            add_auto_actions=(
+                "Bore sapphires from the ice block and enchant them",
+                "Enchant the sapphires for Ali the Wise",
+            ),
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete The Tale of the Muspah stage 5 objective",),
+            add_auto_actions=("Bore and enchant the sapphires around Jhallan",),
         ),
     ),
     "legacy_of_seergaze": (

@@ -3271,6 +3271,128 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["runecrafting_exp"], 0)
         self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
 
+    def test_tale_of_the_muspah_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "the_tale_of_the_muspah"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        reasons = quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
+        self.assertIn("Firemaking 6", reasons)
+        self.assertFalse(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
+
+        for skill_id in ("firemaking", "magic", "mining", "woodcutting"):
+            player_data[f"{skill_id}_level"] = 10
+        player_data["inventory"].update(
+            {
+                "Amulet of glory": 1,
+                "Cosmic rune": 8,
+                "Desert clothing": 1,
+                "Explorer's ring": 1,
+                "Hatchet": 1,
+                "Knife": 1,
+                "Sapphire": 8,
+                "Spade": 1,
+                "Tinderbox": 1,
+                "Waterskin": 1,
+                "Water rune": 8,
+                "Water staff": 1,
+                "Weight-reducing clothing": 1,
+            }
+        )
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_steps = (
+            (
+                2,
+                False,
+                (
+                    "Cast Enchant Level 1 Jewellery for the sapphire preparations",
+                    "Reach the Muspah cave route through Rellekka and Pollnivneach",
+                ),
+                {"Sapphire": 8},
+            ),
+            (
+                3,
+                False,
+                (
+                    "Cast Enchant Level 1 Jewellery for the sapphire preparations",
+                    "Reach the Muspah cave route through Rellekka and Pollnivneach",
+                    "Reach Rellekka",
+                ),
+                {"Sapphire": 8},
+            ),
+            (
+                4,
+                False,
+                (
+                    "Cast Enchant Level 1 Jewellery for the sapphire preparations",
+                    "Reach the Muspah cave route through Rellekka and Pollnivneach",
+                    "Reach Rellekka",
+                    "Reach Pollnivneach",
+                ),
+                {"Sapphire": 8},
+            ),
+            (
+                5,
+                False,
+                (
+                    "Cast Enchant Level 1 Jewellery for the sapphire preparations",
+                    "Reach the Muspah cave route through Rellekka and Pollnivneach",
+                    "Reach Rellekka",
+                    "Reach Pollnivneach",
+                    "Bore sapphires from the ice block and enchant them",
+                    "Enchant the sapphires for Ali the Wise",
+                ),
+                {"Sapphire": 8},
+            ),
+            (
+                6,
+                True,
+                (
+                    "Cast Enchant Level 1 Jewellery for the sapphire preparations",
+                    "Reach the Muspah cave route through Rellekka and Pollnivneach",
+                    "Reach Rellekka",
+                    "Reach Pollnivneach",
+                    "Bore sapphires from the ice block and enchant them",
+                    "Enchant the sapphires for Ali the Wise",
+                    "Bore and enchant the sapphires around Jhallan",
+                ),
+                {"Sapphire": 8},
+            ),
+        )
+        for progress, completed, actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
+            self.assertEqual(
+                {item_name: player_data["inventory"].get(item_name, 0) for item_name in inventory},
+                inventory,
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["firemaking_exp"], 500.0)
+        self.assertEqual(player_data["magic_exp"], 1000.0)
+        self.assertEqual(player_data["mining_exp"], 800.0)
+        self.assertEqual(player_data["woodcutting_exp"], 800.0)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["firemaking_exp"], 500.0)
+
     def test_monks_friend_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "monks_friend"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
