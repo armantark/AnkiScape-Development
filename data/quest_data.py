@@ -7964,7 +7964,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Lletya", "Elf teleport crystal"),
-            add_required_routes=("Reach Lletya",),
+            remove_required_actions=("Complete Mourning's End Part I stage 1 objective",),
+            add_auto_actions=("Reach Lletya",),
         ),
         QuestStageRequirementCleanup(
             stage=3,
@@ -7981,7 +7982,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=5,
             remove_required_tools=("Tears of Guthix cavern",),
-            add_required_routes=("Reach the Tears of Guthix cavern",),
+            remove_required_actions=("Complete Death to the Dorgeshuun stage 5 objective",),
+            add_auto_actions=("Reach the Tears of Guthix cavern",),
         ),
     ),
     "elemental_workshop_ii": (
@@ -8005,7 +8007,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Port Sarim",
                 "Daemonheim",
             ),
-            add_required_routes=("Reach Auguste on Entrana",),
+            remove_required_actions=("Complete Enlightened Journey stage 1 objective",),
+            add_auto_actions=("Reach Auguste on Entrana",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
@@ -8031,14 +8034,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Making History",
             ),
             remove_required_inventory_options=("Ecto-token", "Port Sarim", "Port Phasmatys", "Fairy Tale III - Orks Rift"),
-            add_required_routes=("Reach the Outpost, Rellekka, and Port Phasmatys travel legs",),
+            remove_required_actions=("Complete Making History stage 1 objective",),
+            add_auto_actions=("Reach the Outpost, Rellekka, and Port Phasmatys travel legs",),
         ),
     ),
     "cabin_fever": (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory_options=("Ghosts Ahoy",),
-            add_required_routes=("Reach the Port Phasmatys charter route",),
+            remove_required_actions=("Complete Cabin Fever stage 1 objective",),
+            add_auto_actions=("Reach the Port Phasmatys charter route",),
         ),
     ),
     "cold_war": (
@@ -8066,7 +8071,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory_options=("Fairy Rings", "Phoenix lair teleport"),
-            add_required_routes=("Reach the Phoenix lair",),
+            remove_required_actions=("Complete In Pyre Need stage 1 objective",),
+            add_auto_actions=("Reach the Phoenix lair",),
         ),
     ),
     "the_fremennik_isles": (
@@ -8180,7 +8186,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Food",),
             remove_required_inventory_options=("Shilo Village",),
-            add_required_routes=("Reach the Karamja jungle route",),
+            remove_required_actions=("Complete Back to my Roots stage 1 objective",),
+            add_auto_actions=("Reach the Karamja jungle route",),
         ),
     ),
     "rocking_out": (
@@ -8188,14 +8195,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Brimhaven tablet", "Ectophial"),
             remove_required_inventory_options=("Rimmington", "Rimmington tablet", "Love Story"),
-            add_required_routes=("Reach the Rimmington customs office",),
+            remove_required_actions=("Complete Rocking Out stage 1 objective",),
+            add_auto_actions=("Reach the Rimmington customs office",),
         ),
     ),
     "glorious_memories": (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Teleport to House", "Player-owned house", "Rellekka", "Rellekka tablet", "Ring of wealth"),
-            add_required_routes=("Reach Rellekka and Miscellania",),
+            remove_required_actions=("Complete Glorious Memories stage 1 objective",),
+            add_auto_actions=("Reach Rellekka and Miscellania",),
         ),
     ),
     "elemental_workshop_iii": (
@@ -8236,17 +8245,20 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Food",
             ),
             add_required_actions=("Cast Enchant Level 1 Jewellery for the sapphire preparations",),
-            add_required_routes=("Reach the Muspah cave route through Rellekka and Pollnivneach",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 1 objective",),
+            add_auto_actions=("Reach the Muspah cave route through Rellekka and Pollnivneach",),
         ),
         QuestStageRequirementCleanup(
             stage=2,
             remove_required_inventory=("Rellekka",),
-            add_required_routes=("Reach Rellekka",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 2 objective",),
+            add_auto_actions=("Reach Rellekka",),
         ),
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_inventory=("Pollnivneach",),
-            add_required_routes=("Reach Pollnivneach",),
+            remove_required_actions=("Complete The Tale of the Muspah stage 3 objective",),
+            add_auto_actions=("Reach Pollnivneach",),
         ),
         QuestStageRequirementCleanup(
             stage=4,
@@ -8310,7 +8322,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Prayer potions",
             ),
             add_required_actions=("Recover the Temple of Light keys and crystal puzzle pieces",),
-            add_required_routes=("Reach the Temple of Light through West Ardougne and Lletya",),
+            remove_required_actions=("Complete Within the Light stage 1 objective",),
+            add_auto_actions=("Reach the Temple of Light through West Ardougne and Lletya",),
         ),
     ),
     "the_firemakers_curse": (

@@ -7498,7 +7498,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update({"Pickaxe": 1})
         player_data["quests"]["death_to_the_dorgeshuun"] = {"started": True, "progress": 5, "completed": False}
-        player_data["quest_route_states"] = {"death_to_the_dorgeshuun": ["Reach the Tears of Guthix cavern"]}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["quest_combat_encounters"] = {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]}
         player_data["attack_level"] = 100
@@ -7507,8 +7506,8 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 100
 
         blockers = quest_current_stage_blockers_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action", "combat_encounter"))
-        self.assertEqual(blockers[1]["reason"], "Battle required: Senior H.A.M. guard level 22 x3")
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Senior H.A.M. guard level 22 x3")
         self.assertTrue(can_attempt_quest_review_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA))
 
         first, ok, result = apply_quest_combat_encounter_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA)
