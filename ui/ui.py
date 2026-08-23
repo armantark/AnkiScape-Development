@@ -4725,6 +4725,7 @@ def show_main_menu(
     on_set_farming_spell_patch=None,
     on_set_utility=None,
     on_start_activity=None,
+    on_stop_training=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
     on_set_loot_threshold=None,
@@ -5192,19 +5193,11 @@ def show_main_menu(
         _render_panel()
 
     def _stop_training() -> None:
-        if (
-            state["active"] == "Agility"
-            and str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET)) == "brimhaven_arena"
-            and (player_data.get("agility_activity_state") or {}).get("brimhaven")
-            and on_agility_command is not None
-        ):
-            result = on_agility_command("abandon", {}) or {}
-            if not result.get("ok", result.get("allowed", False)):
-                warn.setText(str(result.get("message", "Could not end the Brimhaven stint")))
-                return
+        if on_stop_training is None or not on_stop_training():
+            warn.setText("Could not switch to Bankstanding.")
+            return
         warn.setText("")
-        state["active"] = "None"
-        on_save_skill("None")
+        state["active"] = _UTILITIES_HUB_NAME
         _refresh_active_label()
         _render_panel()
 

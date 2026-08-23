@@ -497,6 +497,61 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, exact_before)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_direct_leave_command_lands_on_bankstanding_and_undoes_atomically(self):
+        # Owner clause 2: a direct command that ends an active activity session
+        # must leave the surface on Bankstanding (never "None"), and the
+        # transaction undo must restore the former activity whole.
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+        from ankiscape.logic.conquest_logic import (
+            apply_conquest_command_pure,
+            enter_conquest_pure,
+        )
+
+        addon = _load_addon_as_package("ankiscape_session_clear_bankstanding")
+        addon.mw = _DummyMW(_DummyCol())
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            player[key] = 40
+        player["activity_session"] = {"active_id": ""}
+        player["combat_encounter"] = {}
+        player, ok, info = enter_conquest_pure(player, {}, lambda: 0.25)
+        self.assertTrue(ok, info)
+        addon.player_data = player
+        addon.current_skill = "Activities"
+        addon.save_player_data = lambda: None
+        addon.ui.update_menu_visibility = lambda _skill: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda *_args: None
+        addon._DIRECT_ACTION_UNDO_STACK.clear()
+
+        self.assertTrue(
+            addon.commit_direct_action(
+                lambda current: apply_conquest_command_pure(
+                    current, "resign", {}, lambda: 0.25
+                )[:2]
+            )
+        )
+
+        self.assertEqual(addon.player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+
+        self.assertEqual(addon.player_data["activity_session"], {"active_id": "conquest"})
+        self.assertEqual(addon.player_data["current_utility"], "conquest")
+        self.assertEqual(addon.current_skill, "Activities")
+
     def test_hud_badges_have_no_qt_placeholders_with_matching_signatures(self):
         # This suite loads the add-on without aqt.qt, so ui.py takes its
         # HAS_QT-false branch. A new Qt widget class without a placeholder
@@ -986,7 +1041,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertTrue(addon.player_data["quests"]["rune_mysteries"]["completed"])
         self.assertEqual(addon.player_data["quest_points"], 1)
         self.assertEqual(addon.player_data["inventory"]["Air talisman"], 1)
@@ -1031,7 +1086,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["the_knights_sword"]["completed"])
         self.assertEqual(addon.player_data["quests"]["the_knights_sword"]["progress"], 2)
         self.assertEqual(addon.player_data["quest_points"], 0)
@@ -1334,7 +1389,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["witchs_house"]["completed"])
         self.assertEqual(addon.player_data["quests"]["witchs_house"]["progress"], 4)
         self.assertEqual(addon.player_data["quest_points"], 0)
@@ -1378,7 +1433,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["merlins_crystal"]["completed"])
         self.assertEqual(addon.player_data["quests"]["merlins_crystal"]["progress"], 4)
         self.assertEqual(addon.player_data["inventory"]["Bucket"], 1)
@@ -1425,7 +1480,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertFalse(addon.player_data["quests"]["fight_arena"]["completed"])
         self.assertEqual(addon.player_data["quests"]["fight_arena"]["progress"], 8)
         self.assertEqual(addon.player_data["quest_points"], 0)
@@ -1544,7 +1599,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_quest_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertTrue(addon.player_data["quests"]["temple_of_ikov"]["completed"])
         self.assertEqual(addon.player_data["quests"]["temple_of_ikov"]["progress"], 11)
         self.assertEqual(addon.player_data["inventory"]["Staff of armadyl"], 0)
@@ -2019,14 +2074,22 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):
         addon = _load_addon_as_package("ankiscape_holy_grail_completion_integration")
 
-        calls = {"save": 0, "gains": [], "dialogs": []}
+        calls = {"save": 0, "gains": [], "dialogs": [], "passes": 0}
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda text: calls["gains"].append(text)
         addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
         addon.level_up_check = lambda _skill, data: data.__setitem__("defense_level", 33)
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_popups_enabled": False}))
+        addon.mw = _DummyMW(
+            _DummyCol(
+                {
+                    "ankiscape_popups_enabled": False,
+                    "ankiscape_review_action_multiplier": 3,
+                    "ankiscape_cadence_kernel": False,
+                }
+            )
+        )
         addon.current_skill = "Quests"
         addon.player_data = {
             "inventory": {"Holy grail": 1},
@@ -2040,10 +2103,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             "item_charges": {},
             "completed_achievements": [],
         }
+        original_overlay = addon.runtime_actions.run_answer_with_carried_overlay
 
-        addon.on_quest_answer()
+        def counted_overlay(*args, **kwargs):
+            calls["passes"] += 1
+            return original_overlay(*args, **kwargs)
 
-        self.assertEqual(addon.current_skill, "None")
+        addon.runtime_actions.run_answer_with_carried_overlay = counted_overlay
+        addon.exp_awarded = False
+
+        addon.on_good_answer()
+
+        self.assertEqual(calls["passes"], 1)
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(addon.player_data["quests"]["holy_grail"]["progress"], 11)
         self.assertTrue(addon.player_data["quests"]["holy_grail"]["completed"])
         self.assertEqual(addon.player_data["inventory"]["Holy grail"], 0)
@@ -2054,7 +2127,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Holy Grail complete"])
-        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+        self.assertEqual(
+            [title for title, _message in calls["dialogs"]],
+            ["Quest complete"],
+        )
 
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
@@ -2744,7 +2820,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(
             addon.player_data["shooting_star"]["notice"]["kind"],
@@ -2847,8 +2923,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.exp_awarded = False
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.current_skill, "None")
-        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "None")
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "Utilities")
         self.assertEqual(addon.player_data["inventory"]["Coins"], 0)
         self.assertEqual(addon.player_data["inventory"]["Bird snare"], 1)
         self.assertEqual(addon.player_data["inventory"]["Impling jar"], 10)
@@ -3782,7 +3858,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
         self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(calls, {"save": 1, "event_drawer": 1})
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
@@ -5507,7 +5583,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(
             calls["errors"],
             [

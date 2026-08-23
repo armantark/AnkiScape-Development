@@ -1045,6 +1045,16 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         random.setstate(before["random_state"])
         return False
     updated = refresh_music_log_pure(updated)[0]
+    skill_after_commit = selected_skill
+    if _activity_session_cleared(
+        player_data.get("activity_session"),
+        updated.get("activity_session"),
+    ):
+        # Stage the whole landing without touching live state. Anki must accept
+        # the undo entry before either the save or its review surface changes.
+        updated = dict(updated)
+        updated["current_utility"] = "bankstanding"
+        skill_after_commit = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
@@ -1055,8 +1065,8 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
-    if selected_skill is not None:
-        current_skill = _normalize_legacy_utility_skill(selected_skill)
+    if skill_after_commit is not None:
+        current_skill = _normalize_legacy_utility_skill(skill_after_commit)
         try:
             mw.col.set_config("ankiscape_current_skill", current_skill)
         except AttributeError:
@@ -1464,26 +1474,15 @@ def show_skill_selection():
     save_skill(selected, None)
 
 def _deactivate_current_skill() -> None:
-    """Turn the active skill off (current_skill -> "None").
+    """End the active skill by landing on Bankstanding.
 
-    This remains the fallback for level, unlock, death, and configuration
-    failures. Material exhaustion uses Bankstanding instead so the ordinary
-    review-paced market clock keeps moving without repeated warnings.
+    Owner ruling (Pass 11, clause 2): no path that ends, refuses, invalidates,
+    or stops an activity may leave `current_skill == "None"`. Deactivation and
+    Bankstanding are therefore one transition — every refusal, level/unlock
+    failure, death, and material exhaustion lands on the settled no-XP
+    fallback so the ordinary review-paced market clock keeps moving.
     """
-    global current_skill
-    current_skill = "None"
-    try:
-        ui.update_menu_visibility(current_skill)
-    except Exception:
-        pass
-    try:
-        mw.col.set_config("ankiscape_current_skill", current_skill)
-    except Exception:
-        pass
-    try:
-        update_review_hud(player_data, current_skill)
-    except Exception:
-        pass
+    _switch_to_bankstanding()
 
 
 def _switch_to_bankstanding() -> None:
@@ -1503,6 +1502,19 @@ def _switch_to_bankstanding() -> None:
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+
+
+def _activity_session_cleared(before, after=None) -> bool:
+    """True when an active activity session ended (active_id -> empty).
+
+    The shared transition predicate for every boundary that finalizes an undo
+    snapshot after a session completes: the surface must land on Bankstanding
+    before the snapshot is taken so undo restores the former activity whole.
+    """
+    before_active = str((before or {}).get("active_id", "") or "")
+    after = after if after is not None else player_data.get("activity_session")
+    after_active = str((after or {}).get("active_id", "") or "")
+    return bool(before_active) and not after_active
 
 
 def _missing_materials_text(requirements, inventory) -> str:
@@ -4444,6 +4456,31 @@ def _on_main_menu(
     def _start_grave_walk():
         return commit_direct_action(start_combat_grave_walk_pure)
 
+    def _stop_training():
+        def _change(current):
+            updated = current
+            if (
+                current_skill == "Agility"
+                and current.get("current_agility") == "brimhaven_arena"
+                and (current.get("agility_activity_state") or {}).get("brimhaven")
+            ):
+                updated, result = apply_agility_command_pure(
+                    current,
+                    "abandon",
+                    {},
+                    roll=0.5,
+                )
+                if not result.get("allowed"):
+                    return current, False
+            updated = dict(updated)
+            updated["current_utility"] = "bankstanding"
+            return updated, True
+
+        return commit_direct_action(
+            _change,
+            selected_skill=UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+        )
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -4538,6 +4575,7 @@ def _on_main_menu(
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_start_activity=start_activity_for_reviews,
+        on_stop_training=_stop_training,
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
@@ -5421,15 +5459,23 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()
                 )
+                reviewed_skill = current_skill
                 for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
+                    before_tick_session = dict(
+                        player_data.get("activity_session") or {}
+                    )
                     result = runtime_actions.run_answer_with_carried_overlay(
                         review_ctx, handler_key, handler
                     )
                     if result is not False:
                         review_progressed = True
-                    if result is False or current_skill == "None":
+                    if (
+                        result is False
+                        or current_skill != reviewed_skill
+                        or _activity_session_cleared(before_tick_session)
+                    ):
                         break
                 if review_progressed and handler_key not in ("quest", "thieving", "agility"):
                     _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
@@ -5471,6 +5517,7 @@ def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown, _REVIEW_FEEDBACK_INITIAL_XP
     review_answered = card_turned and answer_shown
     successful_answer = ease > 1
+    before_session = player_data.get("activity_session")
     before_state = (
         _capture_player_data_snapshot(review_answer=True) if review_answered else None
     )
@@ -5758,6 +5805,8 @@ def on_answer_card(self, ease, _old):
         result = _old(self, ease)
     finally:
         if review_answered and before_state is not None:
+            if _activity_session_cleared(before_session):
+                _switch_to_bankstanding()
             _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
     try:
