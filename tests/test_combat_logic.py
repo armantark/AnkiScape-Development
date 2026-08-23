@@ -82,6 +82,7 @@ from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     derive_casual_combat_magic_pure,
     reclaim_death_office_items_pure,
+    reconcile_combat_method_pure,
     request_combat_bank_run_now_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
@@ -5554,23 +5555,72 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(refilled["inventory"]["Mind rune"], 0)
         self.assertEqual(refilled["inventory"]["Fire rune"], 5)
 
-    def test_manual_refill_loadout_includes_melee_vengeance_runes(self):
+    def test_manual_refill_loadout_excludes_melee_vengeance_runes(self):
+        runes = {"Astral rune": 8, "Earth rune": 20, "Death rune": 4}
         player = _player(
+            combat_pack_mode="max_output",
             combat_vengeance=True,
             quests={"lunar_diplomacy": {"completed": True}},
-            inventory={"Astral rune": 8, "Earth rune": 20, "Death rune": 4},
+            inventory=runes,
         )
 
         refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
 
         self.assertTrue(ok, reason)
+        self.assertEqual(refilled["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(refilled["inventory"], runes)
+
+    def test_combat_method_reconciliation_reloads_for_the_new_spell(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="wind_strike",
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 0, "Mind rune": 0, "Water rune": 7},
+            combat_supply_loadout={
+                "runes": {"Air rune": 5, "Mind rune": 5}
+            },
+        )
+
+        updated, ok, reason = reconcile_combat_method_pure(
+            player,
+            {"current_combat_spell": "water_strike"},
+            EQUIPMENT_DATA,
+        )
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(updated["current_combat_spell"], "water_strike")
         self.assertEqual(
-            refilled["combat_supply_loadout"]["runes"],
-            {"Astral rune": 8, "Earth rune": 20, "Death rune": 4},
+            updated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5, "Water rune": 7},
         )
         self.assertEqual(
-            refilled["inventory"],
-            {"Astral rune": 0, "Earth rune": 0, "Death rune": 0},
+            updated["inventory"],
+            {"Air rune": 0, "Mind rune": 0, "Water rune": 0},
+        )
+
+    def test_combat_method_reconciliation_rejects_a_live_encounter(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="wind_strike",
+            equipment={"weapon": "Staff"},
+            combat_supply_loadout={
+                "runes": {"Air rune": 5, "Mind rune": 5}
+            },
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
+        )
+
+        updated, ok, reason = reconcile_combat_method_pure(
+            player,
+            {"current_combat_spell": "water_strike"},
+            EQUIPMENT_DATA,
+        )
+
+        self.assertFalse(ok)
+        self.assertEqual(reason, "Finish the active fight before changing combat method.")
+        self.assertEqual(updated["current_combat_spell"], "wind_strike")
+        self.assertEqual(
+            updated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
         )
 
     def test_manual_refill_loadout_blocks_inside_active_encounter(self):

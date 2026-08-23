@@ -2436,8 +2436,10 @@ def _combat_supplemental_rune_cost_pure(player_data, equipment_data=None):
 
 
 def _combat_required_rune_cost_pure(player_data, combat_class, spell_spec, equipment_data=None):
+    if combat_class != "magic":
+        return {}
     combined = {}
-    if combat_class == "magic" and isinstance(spell_spec, Mapping):
+    if isinstance(spell_spec, Mapping):
         for rune_name, amount in _combat_effective_rune_cost_pure(
             player_data,
             spell_spec.get("rune_cost", {}),

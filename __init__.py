@@ -62,6 +62,7 @@ from .logic_pure.logic_pure import (
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
+    reconcile_combat_method_pure,
     refill_combat_supply_loadout_pure,
     request_combat_bank_run_now_pure,
     unload_combat_supply_loadout_pure,
@@ -4558,9 +4559,13 @@ def _on_main_menu(
         get_carried_bank_run_summary=_current_carried_bank_run_summary,
         carried_auto_is_combat=review_action_handler_key(current_skill) == "combat",
         on_set_combat=_set_combat_target,
-        on_set_combat_action=lambda action: _set_value("combat_action", action),
+        on_set_combat_action=lambda action: _set_combat_method_values(
+            {"combat_action": action}
+        ),
         on_set_combat_style=_set_combat_attack_style,
-        on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
+        on_set_combat_spell=lambda spell: _set_combat_method_values(
+            {"current_combat_spell": spell}
+        ),
         on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
         on_set_combat_pack_mode=on_set_combat_pack_mode,
         on_set_combat_prayer_config=_set_combat_prayer_config,
@@ -4617,10 +4622,38 @@ def _set_legacy_bar_target(bar_name: str):
     })
 
 
+def _set_combat_method_values(values):
+    if all(player_data.get(key) == value for key, value in values.items()):
+        return True
+    refusal_reason = [""]
+
+    def _change(current):
+        updated, ok, reason = reconcile_combat_method_pure(
+            current, values, EQUIPMENT_DATA
+        )
+        refusal_reason[0] = reason
+        return updated, ok
+
+    def _after_apply():
+        check_achievements(player_data)
+        _refresh_skill_availability()
+
+    if not commit_direct_action(_change, after_apply=_after_apply):
+        if refusal_reason[0]:
+            show_error_message("Cannot change combat method", refusal_reason[0])
+        return False
+    _refresh_open_carried_inventory()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
+
+
 def _set_combat_attack_style(selection):
     """Persist the orthogonal weapon style and attack type as one undo step."""
     weapon_style, style_type = selection
-    return _set_values({
+    return _set_combat_method_values({
         "combat_attack_style": weapon_style,
         "combat_attack_style_type": style_type,
     })
@@ -5052,6 +5085,8 @@ def on_equip_item(item_name):
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
+    failure_reason = [""]
+
     def _apply(current):
         before_equipment = dict(current.get("equipment", {}) or {})
         new_inventory, new_equipment, equipped = equip_item_pure(
@@ -5070,23 +5105,37 @@ def on_equip_item(item_name):
                 updated, before_equipment, EQUIPMENT_CONDITION_DATA
             )
         )
-        return updated, True
+        if before_equipment.get("weapon") != new_equipment.get("weapon"):
+            updated, equipped, failure_reason[0] = reconcile_combat_method_pure(
+                current, updated, EQUIPMENT_DATA
+            )
+        return updated, equipped
 
     if item_name in FAMILY_GAUNTLET_ITEMS:
         equipped = commit_direct_action(_apply)
     else:
         updated, equipped = _apply(player_data)
         if equipped:
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            weapon_changed = (player_data.get("equipment", {}) or {}).get(
+                "weapon"
+            ) != (updated.get("equipment", {}) or {}).get("weapon")
+            if weapon_changed:
+                _save_combat_state_update(updated, evaluate_achievements=True)
+            else:
+                player_data.clear()
+                player_data.update(updated)
+                save_player_data()
     if not equipped:
-        show_error_message("Cannot equip item", f"You need {item_name} in your bank to equip it.")
+        show_error_message(
+            "Cannot equip item",
+            failure_reason[0] or f"You need {item_name} in your bank to equip it.",
+        )
     return equipped
 
 
 def on_unequip_slot(slot):
     item_name = (player_data.get("equipment", {}) or {}).get(slot)
+    failure_reason = [""]
 
     def _apply(current):
         before_equipment = dict(current.get("equipment", {}) or {})
@@ -5105,18 +5154,31 @@ def on_unequip_slot(slot):
                 updated, before_equipment, EQUIPMENT_CONDITION_DATA
             )
         )
-        return updated, True
+        if before_equipment.get("weapon") != new_equipment.get("weapon"):
+            updated, unequipped, failure_reason[0] = reconcile_combat_method_pure(
+                current, updated, EQUIPMENT_DATA
+            )
+        return updated, unequipped
 
     if item_name in FAMILY_GAUNTLET_ITEMS:
         unequipped = commit_direct_action(_apply)
     else:
         updated, unequipped = _apply(player_data)
         if unequipped:
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            weapon_changed = (player_data.get("equipment", {}) or {}).get(
+                "weapon"
+            ) != (updated.get("equipment", {}) or {}).get("weapon")
+            if weapon_changed:
+                _save_combat_state_update(updated, evaluate_achievements=True)
+            else:
+                player_data.clear()
+                player_data.update(updated)
+                save_player_data()
     if not unequipped:
-        show_error_message("Cannot unequip item", "That equipment slot is already empty.")
+        show_error_message(
+            "Cannot unequip item",
+            failure_reason[0] or "That equipment slot is already empty.",
+        )
     return unequipped
 
 

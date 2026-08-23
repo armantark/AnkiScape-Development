@@ -2706,18 +2706,37 @@ def request_combat_bank_run_now_pure(player_data):
     return data, True, ""
 
 
-def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
+def reconcile_combat_method_pure(player_data, updates, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
     if combat_has_active_encounter_pure(data):
-        return data, False, "Finish the active fight before changing supply mode."
-    data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
-    data = derive_casual_combat_magic_pure(data)
+        return data, False, "Finish the active fight before changing combat method."
+    data.update(updates)
+    method_updates = {
+        key: updates[key]
+        for key in (
+            "combat_action",
+            "combat_attack_style",
+            "combat_attack_style_type",
+            "current_combat_spell",
+            "combat_pack_mode",
+        )
+        if key in updates
+    }
     data, ok, reason = unload_combat_supply_loadout_pure(data)
     if not ok:
         return data, False, reason
     data, ok, reason = refill_combat_supply_loadout_pure(data, equipment_data)
+    data.update(method_updates)
     return data, ok, reason
+
+
+def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
+    data = derive_casual_combat_magic_pure(data)
+    return reconcile_combat_method_pure(player_data, data, equipment_data)
 
 
 def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):

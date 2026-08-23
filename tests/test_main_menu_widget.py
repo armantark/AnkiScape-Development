@@ -3762,8 +3762,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         dialog.findChild(QPushButton, "carriedModeAuto").click()
         QApplication.processEvents()
-        self.assertTrue(current_inventory.isVisibleTo(dialog))
-        self.assertTrue(current_loot.isVisibleTo(dialog))
+        self.assertFalse(current_inventory.isVisibleTo(dialog))
+        self.assertFalse(current_loot.isVisibleTo(dialog))
 
         carried_items[:] = [("Shark", 12)]
         self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()

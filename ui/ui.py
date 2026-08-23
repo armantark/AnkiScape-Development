@@ -7552,11 +7552,13 @@ def show_main_menu(
             action_row.setVisible(bool(state["required"]))
 
         if on_set_combat_action is not None:
-            action_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_action(
+            def _set_combat_action(_index: int) -> None:
+                if on_set_combat_action(
                     str(action_combo.currentData() or "attack")
-                )
-            )
+                ) is False:
+                    _refresh_combat_action()
+
+            action_combo.currentIndexChanged.connect(_set_combat_action)
         _refresh_combat_action()
 
         # Attack-style picker. The valid styles depend on the equipped weapon's
@@ -7604,9 +7606,17 @@ def show_main_menu(
                     current_index = index
             combo.setCurrentIndex(current_index)
             if on_set_combat_style is not None:
-                combo.currentIndexChanged.connect(
-                    lambda _index, c=combo: on_set_combat_style(c.currentData())
-                )
+                def _set_combat_style(_index: int, c=combo) -> None:
+                    if on_set_combat_style(c.currentData()) is False:
+                        persisted = (
+                            player_data.get("combat_attack_style"),
+                            player_data.get("combat_attack_style_type"),
+                        )
+                        c.blockSignals(True)
+                        c.setCurrentIndex(max(0, c.findData(persisted)))
+                        c.blockSignals(False)
+
+                combo.currentIndexChanged.connect(_set_combat_style)
             style_row_layout.addWidget(combo, 1)
             _style_combo_ref["combo"] = combo
             style_row.setVisible(True)
@@ -7645,9 +7655,24 @@ def show_main_menu(
                 selected_spell_index = spell_index
         spell_combo.setCurrentIndex(selected_spell_index)
         if on_set_combat_spell is not None:
-            spell_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_spell(spell_combo.currentData() or DEFAULT_COMBAT_SPELL)
-            )
+            def _set_combat_spell(_index: int) -> None:
+                if on_set_combat_spell(
+                    spell_combo.currentData() or DEFAULT_COMBAT_SPELL
+                ) is False:
+                    spell_combo.blockSignals(True)
+                    spell_combo.setCurrentIndex(
+                        max(
+                            0,
+                            spell_combo.findData(
+                                player_data.get(
+                                    "current_combat_spell", DEFAULT_COMBAT_SPELL
+                                )
+                            ),
+                        )
+                    )
+                    spell_combo.blockSignals(False)
+
+            spell_combo.currentIndexChanged.connect(_set_combat_spell)
         spell_layout.addWidget(spell_label)
         spell_layout.addWidget(spell_combo, 1)
         layout.addWidget(spell_row)
@@ -25419,11 +25444,10 @@ def show_main_menu(
         clear_layout_row_layout.addWidget(clear_layout_btn)
         clear_layout_row_layout.addStretch(1)
         custom_layout.addWidget(clear_layout_row)
-        section_layout.addWidget(custom_view)
 
         current_label = QLabel("Current inventory")
         current_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        section_layout.addWidget(current_label)
+        custom_layout.addWidget(current_label)
         current_inventory_host = QWidget()
         current_inventory_layout = QHBoxLayout(current_inventory_host)
         current_inventory_layout.setContentsMargins(4, 4, 4, 4)
@@ -25441,7 +25465,8 @@ def show_main_menu(
             + current_inventory_scroll.frameWidth() * 2
         )
         current_inventory_scroll.setWidget(current_inventory_host)
-        section_layout.addWidget(current_inventory_scroll)
+        custom_layout.addWidget(current_inventory_scroll)
+        section_layout.addWidget(custom_view)
 
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
