@@ -877,3 +877,12 @@
 - 2026-08-22 17:10 PDT — The A Soul's Bane regression guessed the item-blocker copy as `Item required: Rope x1`, but the kernel emits exact text `Needs Rope x1`; copy blocker strings from a probe before pinning them.
 - 2026-08-22 17:10 PDT — The end-to-end quest test compared final Constitution XP with the pre-combat value and failed at `2638.599 != 1654.0`; real quest fights award combat XP, so quest-reward assertions must snapshot XP after combat and before completion.
 - 2026-08-22 17:19 PDT — The full plain lane ran 435.448 seconds before `test_generated_catalog_stage_requirements_cover_items_and_combat` exposed a stale A Soul's Bane `required_actions` pin; quest emitter slices should search exact action text across tests before the full lane.
+- 2026-08-22 17:07 PDT — While enumerating Biohazard stage actions, importing `data.quest_data` directly failed with `ImportError: attempted relative import beyond top-level package`; the quest catalog must be loaded through the package root.
+
+- 2026-08-22 17:08 PDT — While checking Biohazard route and Priest gown production, a broad recursive grep produced 2.3MB of output; future source checks should constrain file types and directories before searching common item names.
+
+- 2026-08-22 17:09 PDT — While checking Darkan Biohazard evidence, a broad stage/item grep still produced 54.7KB and was persisted out of band; inspect each cited source file with targeted ranges instead.
+
+- 2026-08-22 17:21 PDT — A focused Biohazard integration selector guessed class `IntegrationSmokeTest` and failed with `AttributeError: module 'tests.test_integration_smoke' has no attribute 'IntegrationSmokeTest'`; read the module class declaration before composing selectors.
+
+- 2026-08-22 17:22 PDT — A final Biohazard metric probe treated `QUESTS_BY_ID['biohazard']` as a mapping and failed with `TypeError: 'QuestDefinition' object is not subscriptable`; use `quests_as_dict()` for serialized stage rows.

@@ -3931,13 +3931,23 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["strength_exp"], 13750.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
-    def test_biohazard_stage_gates_pigeons_mourner_distillator_and_guidor(self):
+    def test_biohazard_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["biohazard"] = {"started": True, "progress": 1, "completed": False}
+        player_data["agility_level"] = 33
+        player_data["magic_level"] = 33
+        player_data["quests"]["plague_city"] = {
+            "started": True,
+            "progress": 18,
+            "completed": True,
+        }
 
+        player_data, ok = start_quest_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "biohazard")
+        self.assertNotIn("biohazard", player_data["quest_stage_actions"])
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "biohazard", QUEST_DATA),
-            ("Action required: Ask Jerico about crossing the West Ardougne wall",),
+            (),
         )
 
         player_data["inventory"].update({"Priest gown": 2})
@@ -3949,37 +3959,35 @@ class TestLogic(unittest.TestCase):
                 "Reach Guidor's house without Varrock guards confiscating the vials",
             ]
         }
-        player_data["quest_stage_actions"] = {
-            "biohazard": [
-                "Ask Jerico about crossing the West Ardougne wall",
-                "Ask Omart about the rope ladder",
-                "Ask Jerico about using messenger pigeons",
-                "Search Jerico's cupboard for bird feed",
-                "Take a pigeon cage from Jerico's house",
-                "Scatter bird feed on the watchtower fence",
-                "Open the pigeon cage at Jerico's release tile",
-                "Cross the West Ardougne wall with Omart and Kilron",
-                "Pick up a rotten apple from the Mourner HQ garden",
-                "Put the rotten apple in the Mourner HQ cauldron",
-                "Search the box for a doctors' gown",
-                "Enter Mourner HQ wearing the doctors' gown",
-                "Defeat and search the level 13 mourner",
-                "Unlock the distillator cage with the key",
-                "Search the crate for Elena's distillator",
-                "Return Elena's distillator",
-                "Ask the Rimmington chemist for touch paper for Guidor",
-                "Give sulphuric broline to Hops",
-                "Give ethenea to Da Vinci",
-                "Give liquid honey to Chancy",
-                "Collect the sulphuric broline from Hops in Varrock",
-                "Collect the ethenea from Da Vinci in Varrock",
-                "Collect the liquid honey from Chancy in Varrock",
-                "Enter Guidor's room wearing priest gowns",
-                "Give Guidor the vials, plague sample, and touch paper",
-                "Tell Elena that Guidor found no plague",
-                "Report the plague hoax to King Lathas",
-            ]
-        }
+        expected_actions = (
+            "Ask Jerico about crossing the West Ardougne wall",
+            "Ask Omart about the rope ladder",
+            "Ask Jerico about using messenger pigeons",
+            "Search Jerico's cupboard for bird feed",
+            "Take a pigeon cage from Jerico's house",
+            "Scatter bird feed on the watchtower fence",
+            "Open the pigeon cage at Jerico's release tile",
+            "Cross the West Ardougne wall with Omart and Kilron",
+            "Pick up a rotten apple from the Mourner HQ garden",
+            "Put the rotten apple in the Mourner HQ cauldron",
+            "Search the box for a doctors' gown",
+            "Enter Mourner HQ wearing the doctors' gown",
+            "Defeat and search the level 13 mourner",
+            "Unlock the distillator cage with the key",
+            "Search the crate for Elena's distillator",
+            "Return Elena's distillator",
+            "Ask the Rimmington chemist for touch paper for Guidor",
+            "Give sulphuric broline to Hops",
+            "Give ethenea to Da Vinci",
+            "Give liquid honey to Chancy",
+            "Collect the sulphuric broline from Hops in Varrock",
+            "Collect the ethenea from Da Vinci in Varrock",
+            "Collect the liquid honey from Chancy in Varrock",
+            "Enter Guidor's room wearing priest gowns",
+            "Give Guidor the vials, plague sample, and touch paper",
+            "Tell Elena that Guidor found no plague",
+            "Report the plague hoax to King Lathas",
+        )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
@@ -4090,6 +4098,21 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Combat Training Camp"], 1)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["thieving_exp"], 1250.0)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"]["biohazard"]),
+            expected_actions,
+        )
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "biohazard",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 3)
+        self.assertEqual(after_complete["inventory"]["Combat Training Camp"], 1)
+        self.assertEqual(after_complete["thieving_exp"], 1250.0)
 
     def test_heroes_quest_stage_gates_lava_eel_firebird_and_black_arm_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

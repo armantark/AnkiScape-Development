@@ -5940,13 +5940,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Ask Jerico for a route back into West Ardougne.",
             f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_JERICO_SOURCE}",
-            required_actions=("Ask Jerico about crossing the West Ardougne wall",),
+            auto_actions=("Ask Jerico about crossing the West Ardougne wall",),
         ),
         _stage_req(
             2,
             "Meet Omart at the south end of the West Ardougne wall.",
             f"{DARKAN_BIOHAZARD_JERICO_SOURCE}; {DARKAN_BIOHAZARD_OMART_SOURCE}",
-            required_actions=("Ask Omart about the rope ladder",),
+            auto_actions=("Ask Omart about the rope ladder",),
         ),
         _stage_req(
             3,
@@ -5956,7 +5956,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
             produced_inventory=(("Bird feed", 1), ("Pigeon cage", 1)),
-            required_actions=(
+            auto_actions=(
                 "Ask Jerico about using messenger pigeons",
                 "Search Jerico's cupboard for bird feed",
                 "Take a pigeon cage from Jerico's house",
@@ -5972,7 +5972,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             consumed_inventory=(("Bird feed", 1),),
             required_tools=(("Pigeon cage", 1),),
             required_routes=("Reach Jerico's pigeon release tile",),
-            required_actions=(
+            auto_actions=(
                 "Scatter bird feed on the watchtower fence",
                 "Open the pigeon cage at Jerico's release tile",
             ),
@@ -5982,7 +5982,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Cross the West Ardougne wall with Omart and Kilron's rope ladder.",
             f"{DARKAN_BIOHAZARD_OMART_SOURCE}; {DARKAN_BIOHAZARD_KILRON_SOURCE}; {DARKAN_BIOHAZARD_UTILS_SOURCE}",
             required_routes=("Reach Omart by the south West Ardougne wall",),
-            required_actions=("Cross the West Ardougne wall with Omart and Kilron",),
+            auto_actions=("Cross the West Ardougne wall with Omart and Kilron",),
         ),
         _stage_req(
             6,
@@ -5992,7 +5992,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
             required_routes=("Reach the Mourner HQ garden in West Ardougne",),
-            required_actions=("Pick up a rotten apple from the Mourner HQ garden",),
+            auto_actions=("Pick up a rotten apple from the Mourner HQ garden",),
             produced_inventory=(("Rotten apple", 1),),
         ),
         _stage_req(
@@ -6005,7 +6005,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             consumed_inventory=(("Rotten apple", 1),),
             produced_inventory=(("Doctors' gown", 1),),
             required_routes=("Reach the Mourner HQ garden in West Ardougne",),
-            required_actions=("Put the rotten apple in the Mourner HQ cauldron", "Search the box for a doctors' gown"),
+            auto_actions=("Put the rotten apple in the Mourner HQ cauldron", "Search the box for a doctors' gown"),
         ),
         _stage_req(
             8,
@@ -6017,7 +6017,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             produced_inventory=(("Key", 1), ("Distillator", 1)),
             required_tools=(("Doctors' gown", 1),),
-            required_actions=(
+            auto_actions=(
                 "Enter Mourner HQ wearing the doctors' gown",
                 "Defeat and search the level 13 mourner",
                 "Unlock the distillator cage with the key",
@@ -6063,7 +6063,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Sulphuric broline", 1),
                 ("Plague sample", 1),
             ),
-            required_actions=("Return Elena's distillator",),
+            auto_actions=("Return Elena's distillator",),
         ),
         _stage_req(
             10,
@@ -6079,7 +6079,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Plague sample", 1),
             ),
             produced_inventory=(("Touch paper", 1),),
-            required_actions=("Ask the Rimmington chemist for touch paper for Guidor",),
+            auto_actions=("Ask the Rimmington chemist for touch paper for Guidor",),
         ),
         _stage_req(
             11,
@@ -6101,7 +6101,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             required_tools=(("Priest gown", 2),),
             required_routes=("Reach Guidor's house without Varrock guards confiscating the vials",),
-            required_actions=(
+            auto_actions=(
                 "Give sulphuric broline to Hops",
                 "Give ethenea to Da Vinci",
                 "Give liquid honey to Chancy",
@@ -6116,13 +6116,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             12,
             "Tell Elena that Guidor found the plague sample harmless.",
             f"{DARKAN_BIOHAZARD_GUIDOR_SOURCE}; {DARKAN_BIOHAZARD_ELENA_SOURCE}",
-            required_actions=("Tell Elena that Guidor found no plague",),
+            auto_actions=("Tell Elena that Guidor found no plague",),
         ),
         _stage_req(
             13,
             "Report Elena's news to King Lathas.",
             f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_KING_SOURCE}",
-            required_actions=("Report the plague hoax to King Lathas",),
+            auto_actions=("Report the plague hoax to King Lathas",),
         ),
     ),
     WATERFALL_QUEST_ID: (
