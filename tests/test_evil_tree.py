@@ -150,6 +150,7 @@ class TestEvilTreeSession(unittest.TestCase):
         self.assertEqual(player["firemaking_exp"], 200.0)
         self.assertEqual(player["inventory"].get(EVIL_TREE_KINDLING), 0)
         self.assertEqual(player["evil_tree"]["active_event"], {})
+        self.assertEqual(player["current_utility"], "bankstanding")
 
     def test_nurture_only_visit_is_explicit_and_consumes_one_interaction(self):
         player = _player(answered_cards=20, level=1)
@@ -173,6 +174,7 @@ class TestEvilTreeSession(unittest.TestCase):
         self.assertEqual(updated["farming_exp"], 311.0)
         self.assertEqual(updated["evil_tree"]["participations_today"], 1)
         self.assertEqual(updated["evil_tree"]["session"], {})
+        self.assertEqual(updated["current_utility"], "bankstanding")
 
     def test_view_and_sanitizer_reject_malformed_nested_state(self):
         sanitized = sanitize_evil_tree_state_pure(

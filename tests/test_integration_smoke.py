@@ -3782,7 +3782,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
         self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(calls, {"save": 1, "event_drawer": 1})
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)

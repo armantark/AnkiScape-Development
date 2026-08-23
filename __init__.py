@@ -381,7 +381,7 @@ def start_activity_for_reviews(activity_id) -> bool:
             )
             player_data.clear()
             player_data.update(updated)
-            _deactivate_current_skill()
+            _switch_to_bankstanding()
             save_player_data()
             update_review_event_log_drawer(player_data)
             _update_review_context_surface()
@@ -2371,6 +2371,8 @@ def _on_main_menu(
                 level_up_check(skill_name, player_data)
                 _show_exp(gained)
             check_achievements(player_data)
+            if action_id == "leave_flash_powder_factory":
+                _switch_to_bankstanding()
 
         committed = commit_direct_action(_change, after_apply=_after_apply)
         if not committed:

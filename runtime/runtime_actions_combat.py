@@ -420,8 +420,8 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     if target_id not in COMBAT_ENEMY_DATA:
-        target_id = DEFAULT_COMBAT_TARGET
-        player_data["current_combat_target"] = target_id
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
 
     enemy = COMBAT_ENEMY_DATA.get(target_id, {})
     wilderness_fingerprint = wilderness_combat_risk_fingerprint(

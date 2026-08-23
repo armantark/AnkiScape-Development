@@ -556,8 +556,8 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_fletch", DEFAULT_FLETCHING_TARGET)
     if target not in FLETCHING_DATA:
-        target = DEFAULT_FLETCHING_TARGET
-        player_data["current_fletch"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = FLETCHING_DATA[target]
     display_name = spec.get("display_name", target)
     locked_reasons = fletching_target_locked_reasons_pure(player_data, target, FLETCHING_DATA, QUEST_UNLOCK_RULES)
@@ -623,8 +623,8 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_herblore", DEFAULT_HERBLORE_TARGET)
     if target not in HERBLORE_DATA:
-        target = DEFAULT_HERBLORE_TARGET
-        player_data["current_herblore"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = HERBLORE_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("herblore_level", 1)
@@ -713,8 +713,8 @@ def handle_summoning_answer(ctx: RuntimeActionContext) -> bool:
         player_data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
     )
     if target not in SUMMONING_ACTIONS_BY_ID:
-        target = DEFAULT_SUMMONING_TARGET
-        player_data["current_summoning"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     action = SUMMONING_ACTIONS_BY_ID[target]
     locked_reasons = summoning_action_locked_reasons_pure(player_data, target)
     level_reasons = tuple(
@@ -772,8 +772,8 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_prayer", DEFAULT_PRAYER_TARGET)
     if target not in PRAYER_DATA:
-        target = DEFAULT_PRAYER_TARGET
-        player_data["current_prayer"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = PRAYER_DATA[target]
     display_name = spec.get("display_name", target)
     locked = prayer_target_locked_reasons_pure(player_data, target, PRAYER_DATA)
@@ -872,8 +872,8 @@ def handle_construction_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_construction", DEFAULT_CONSTRUCTION_TARGET)
     if target not in CONSTRUCTION_DATA:
-        target = DEFAULT_CONSTRUCTION_TARGET
-        player_data["current_construction"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = CONSTRUCTION_DATA[target]
     locked = construction_target_locked_reasons_pure(
         player_data, target, CONSTRUCTION_DATA, ROOM_DATA, SERVANT_DATA,
@@ -938,8 +938,8 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
     if target not in FIREMAKING_DATA:
-        target = DEFAULT_FIREMAKING_TARGET
-        player_data["current_firemaking"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = FIREMAKING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("firemaking_level", 1)
@@ -1036,8 +1036,8 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
     if target not in COOKING_DATA:
-        target = DEFAULT_COOKING_TARGET
-        player_data["current_cooking"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = COOKING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("cooking_level", 1)
@@ -1190,8 +1190,8 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
     if target not in RUNECRAFTING_DATA:
-        target = DEFAULT_RUNECRAFTING_TARGET
-        player_data["current_runecrafting"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = RUNECRAFTING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("runecrafting_level", 1)
@@ -1280,8 +1280,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     quest_id = player_data.get("current_quest", "rune_mysteries")
     if quest_id not in QUEST_DATA:
-        quest_id = "rune_mysteries"
-        player_data["current_quest"] = quest_id
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     quest = QUEST_DATA[quest_id]
     stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
     combat_blockers = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
@@ -1396,8 +1396,8 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
     if target not in SMITHING_DATA:
-        target = DEFAULT_SMITHING_TARGET
-        player_data["current_smith"] = target
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     spec = SMITHING_DATA[target]
     display_name = spec.get("display_name", spec.get("output_item", target))
     player_level = player_data["smithing_level"]

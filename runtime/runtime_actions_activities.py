@@ -743,7 +743,7 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
     ctx.show_activity_gain(message)
 
     if result.get("completed"):
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
     return True
 
 
@@ -1060,6 +1060,7 @@ def handle_dungeoneering_answer(ctx: RuntimeActionContext) -> bool:
         player_died=int(ctx.player_data.get("combat_lifepoints", 1) or 0) <= 0,
     )
     if not ok:
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Dungeoneering unavailable",
             str(result.get("reason", "Enter or resume a floor before training.")),
@@ -1545,7 +1546,7 @@ def handle_flash_powder_factory_answer(
         str(result.get("status", "Flash powder circuit complete"))
     )
     if result.get("completed_activity"):
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
     return True
 
 
@@ -2621,6 +2622,7 @@ def handle_temple_trekking_answer(
         productive=productive,
     )
     if not ok:
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Temple Trekking unavailable",
             str(result.get("reason", "Start or resume a trek before training.")),
@@ -2710,6 +2712,7 @@ def handle_gnome_restaurant_answer(
         productive=productive,
     )
     if not ok:
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Gnome Restaurant unavailable",
             str(result.get("reason", "Take a delivery job before reviewing.")),
@@ -2742,6 +2745,7 @@ def handle_dominion_tower_answer(ctx: RuntimeActionContext) -> bool:
         equipment_data=EQUIPMENT_DATA,
     )
     if not ok:
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Dominion Tower unavailable",
             str(result.get("reason", "Enter the tower before training it.")),
@@ -2905,8 +2909,8 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     if target_id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
         return handle_flash_powder_factory_answer(ctx)
     if target_id not in AGILITY_TARGETS_BY_ID:
-        target_id = DEFAULT_AGILITY_TARGET
-        player_data["current_agility"] = target_id
+        _switch_material_failure_to_bankstanding(ctx)
+        return False
     locked = agility_target_locked_reasons_pure(player_data, target_id)
     if locked:
         ctx.deactivate_current_skill()

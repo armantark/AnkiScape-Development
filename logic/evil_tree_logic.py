@@ -445,7 +445,7 @@ def apply_evil_tree_review_pure(
                 f"Nurtured {tier.display_name}; the remaining skill gates "
                 "prevented felling."
             )
-            data["current_utility"] = "make_soft_clay"
+            data["current_utility"] = "bankstanding"
         else:
             session["phase"] = "prepare"
             state["session"] = session
@@ -522,7 +522,7 @@ def apply_evil_tree_review_pure(
             f"Felled {tier.display_name}: {logs} {log_name}, "
             f"{coins:,} coins, and {ordinary_item}."
         )
-        data["current_utility"] = "make_soft_clay"
+        data["current_utility"] = "bankstanding"
 
     data["evil_tree"] = sanitize_evil_tree_state_pure(state)
     return data, True, result
