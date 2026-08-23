@@ -953,3 +953,5 @@
 - 2026-08-22 22:21 PDT — The documentation-only plain lane ran 4,359 tests for 353.306 seconds before failing 33 unrelated source-art registry assertions (`failures=33, skipped=502`), so a blocker slice still pays nearly six minutes for an inherited asset baseline failure.
 - 2026-08-22 23:01 PDT — While inspecting prior quest emitter commits, `git show -- <paths> <commit>` treated the commit as a path and returned no diff; put the commit before `--`.
 - 2026-08-22 23:02 PDT — The first game-main item probe searched for YAML key `^4428:` and returned no output because item rows use `- id: 4428`; probe the actual schema.
+- 2026-08-22 23:00 PDT — The pinned Darkan commit lookup failed with `fatal: bad object fd901261fbf3a3ccee75236c422765c9d9383f4a` at `/Users/ArmanTarkhanian1/Documents/2012scape with bots`; the actual Git root is the nested `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`.
+- 2026-08-22 23:07 PDT — A repository-wide grep for the reachability pin values matched generated numeric data and persisted 1.9 MB of output; constrain pin searches to the promotion and reachability audit tests.
