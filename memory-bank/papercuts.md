@@ -926,3 +926,5 @@
 - 2026-08-22 19:34:40 PDT — Python probes launched from the canonical checkout silently bound pkg_alias to addons21/ankiscape_fork instead of the linked quest worktree; always cd to the guarded worktree before importing pkg_alias.
 - 2026-08-22 19:35 PDT — The first rev-727 and rev-742 interface probes omitted the required `find` subcommand, so `tools/query_openrs2_interfaces.sh` printed its usage instead of searching; call it as `<cache> find <needle>`.
 - 2026-08-22 19:37 PDT — The first focused While Guthix Sleeps regression expected only the stage-2 generated action gate and failed because the real kernel also reported `Needs Coins x5000 or Ring of Charos x1`; stage-transition assertions must include all live item-option blockers.
+- 2026-08-22 20:29 PDT — While checking Rat Catchers cache evidence, I invoked tools/query_openrs2_cache.sh with python3 instead of Bash; it failed at line 2 with SyntaxError on set -euo pipefail.
+- 2026-08-22 20:31 PDT — The first focused Rat Catchers run used a `tests.` unittest prefix; run_tests.py rejected it as ambiguous and required `test_logic.TestLogic.test_rat_catchers_rat_poison_emitter_advances_real_stage`.

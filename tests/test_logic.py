@@ -3309,6 +3309,67 @@ class TestLogic(unittest.TestCase):
             ],
         )
 
+    def test_rat_catchers_rat_poison_emitter_advances_real_stage(self):
+        quest_id = "rat_catchers"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in QUEST_DATA[quest_id]["required_quests"]:
+            prerequisite = QUEST_DATA[requirement["quest_id"]]
+            player_data["quests"][requirement["quest_id"]] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        player_data["inventory"].update(
+            {
+                "Vial": 1,
+                "Clean kwuarm": 1,
+                "Red spiders' eggs": 1,
+                "Cheese": 4,
+                "Unicorn horn dust": 1,
+                "Clean marrentill": 1,
+                "Bucket of milk": 1,
+                "Catspeak amulet": 1,
+                "Pot of weeds": 1,
+                "Coins": 600,
+                "Snake Charm": 1,
+                "Cat": 1,
+                "Tinderbox": 1,
+            }
+        )
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            player_data["quest_stage_actions"][quest_id],
+            [
+                "Complete Rat Catchers stage 1 objective",
+                "Have Hooknosed Jack make rat poison",
+            ],
+        )
+        self.assertEqual(player_data["inventory"]["Vial"], 0)
+        self.assertEqual(player_data["inventory"]["Clean kwuarm"], 0)
+        self.assertEqual(player_data["inventory"]["Red spiders' eggs"], 0)
+        self.assertEqual(player_data["inventory"]["Rat poison"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
+            ("Action required: Complete Rat Catchers stage 2 objective",),
+        )
+
     def test_clock_tower_real_stage_emitters_complete_and_reward_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 

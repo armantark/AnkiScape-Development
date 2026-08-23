@@ -7891,7 +7891,11 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Rat poison",),
-            add_required_actions=("Have Hooknosed Jack make rat poison",),
+            remove_required_actions=("Complete Rat Catchers stage 1 objective",),
+            add_auto_actions=(
+                "Complete Rat Catchers stage 1 objective",
+                "Have Hooknosed Jack make rat poison",
+            ),
             add_consumed_inventory=(("Vial", 1), ("Clean kwuarm", 1), ("Red spiders' eggs", 1)),
             add_produced_inventory=(("Rat poison", 1),),
         ),
