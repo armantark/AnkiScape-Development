@@ -5493,44 +5493,67 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["defense_exp"], 15300.0)
         self.assertEqual(after_complete["prayer_exp"], 11000.0)
 
-    def test_tree_gnome_village_requires_two_commanders_and_warlord_before_completion(self):
+    def test_tree_gnome_village_real_stage_emitters_complete_after_commanders_and_warlord(self):
+        quest_id = "tree_gnome_village"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["tree_gnome_village"] = {"started": True, "progress": 1, "completed": False}
         player_data["inventory"]["Logs"] = 6
-        player_data["quest_stage_actions"] = {
-            "tree_gnome_village": [
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertNotIn(quest_id, player_data["quest_route_states"])
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            (
+                "Reach Commander Montai on the battlefield",
+                "Ask Commander Montai how to help the gnome battlefield",
+            ),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
+        self.assertEqual(player_data["inventory"]["Logs"], 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            (
+                "Reach Commander Montai on the battlefield",
+                "Ask Commander Montai how to help the gnome battlefield",
+                "Ask Commander Montai about the tracker gnomes",
+            ),
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            (
+                "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
                 "Get the third tracker coordinate",
                 "Fire the battlefield ballista at the Khazard stronghold",
-                "Search the stronghold chest for the first Orb of protection",
-                "Return the first Orb of protection to King Bolren",
-            ]
-        }
-
-        for expected_progress in range(2, 5):
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                "tree_gnome_village",
-                QUEST_DATA,
-            )
-            self.assertTrue(ok)
-            self.assertFalse(completed_now)
-            self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], expected_progress)
-        self.assertEqual(player_data["inventory"]["Logs"], 0)
-        self.assertIn(
-            "Reach Commander Montai on the battlefield",
-            player_data["quest_stage_actions"]["tree_gnome_village"],
+            ),
         )
-
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 5)
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "tree_gnome_village", QUEST_DATA),
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Combat locked until battle support is enabled: Khazard commander level 48 x2",),
         )
 
@@ -5546,7 +5569,7 @@ class TestLogic(unittest.TestCase):
         )
         player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "tree_gnome_village",
+            quest_id,
             QUEST_DATA,
         )
         self.assertTrue(ok)
@@ -5554,11 +5577,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(result["remaining_quantity"], 1)
         self.assertEqual(
             player_data["quest_combat_encounter_counts"],
-            {"tree_gnome_village": {"tree_gnome_village_khazard_commander_48": 1}},
+            {quest_id: {"tree_gnome_village_khazard_commander_48": 1}},
         )
+
         player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "tree_gnome_village",
+            quest_id,
             QUEST_DATA,
         )
         self.assertTrue(ok)
@@ -5566,48 +5590,98 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(result["remaining_quantity"], 0)
         self.assertEqual(
             player_data["quest_combat_encounters"],
-            {"tree_gnome_village": ["tree_gnome_village_khazard_commander_48"]},
+            {quest_id: ["tree_gnome_village_khazard_commander_48"]},
         )
 
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 6)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
         self.assertEqual(player_data["inventory"]["Orb of protection"], 1)
-        self.assertIn(
-            "Enter the Khazard stronghold through the broken wall",
-            player_data["quest_stage_actions"]["tree_gnome_village"],
-        )
-
         self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "tree_gnome_village", QUEST_DATA),
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            (
+                "Reach Commander Montai on the battlefield",
+                "Ask Commander Montai how to help the gnome battlefield",
+                "Ask Commander Montai about the tracker gnomes",
+                "Get the first tracker coordinate",
+                "Get the second tracker coordinate",
+                "Get the third tracker coordinate",
+                "Fire the battlefield ballista at the Khazard stronghold",
+                "Enter the Khazard stronghold through the broken wall",
+                "Search the stronghold chest for the first Orb of protection",
+            ),
+        )
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Battle required: Khazard warlord level 112",),
         )
+
         player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "tree_gnome_village",
+            quest_id,
             QUEST_DATA,
         )
         self.assertTrue(ok)
         self.assertEqual(result["display_name"], "Khazard warlord")
         self.assertEqual(result["remaining_quantity"], 0)
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {
+                quest_id: [
+                    "tree_gnome_village_khazard_commander_48",
+                    "tree_gnome_village_khazard_warlord_112",
+                ]
+            },
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 7)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
         self.assertEqual(player_data["inventory"]["Orb of protection"], 0)
         self.assertEqual(player_data["inventory"]["Orbs of protection"], 1)
+        self.assertEqual(
+            tuple(player_data["quest_stage_actions"][quest_id]),
+            (
+                "Reach Commander Montai on the battlefield",
+                "Ask Commander Montai how to help the gnome battlefield",
+                "Ask Commander Montai about the tracker gnomes",
+                "Get the first tracker coordinate",
+                "Get the second tracker coordinate",
+                "Get the third tracker coordinate",
+                "Fire the battlefield ballista at the Khazard stronghold",
+                "Enter the Khazard stronghold through the broken wall",
+                "Search the stronghold chest for the first Orb of protection",
+                "Return the first Orb of protection to King Bolren",
+            ),
+        )
 
         attack_before_reward = player_data["attack_exp"]
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(player_data["quests"]["tree_gnome_village"]["completed"])
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 8)
+        self.assertEqual(player_data["inventory"]["Logs"], 0)
+        self.assertEqual(player_data["inventory"]["Orb of protection"], 0)
         self.assertEqual(player_data["inventory"]["Orbs of protection"], 0)
         self.assertEqual(player_data["inventory"]["Gnome amulet"], 1)
         self.assertAlmostEqual(player_data["attack_exp"] - attack_before_reward, 11450.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["quest_points"], 2)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["inventory"]["Gnome amulet"], 1)
+        self.assertEqual(after_complete["attack_exp"], player_data["attack_exp"])
+        self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
+        self.assertEqual(after_complete["quest_points"], 2)
 
     def test_shield_of_arrav_real_stage_emitters_complete_both_routes(self):
         quest_id = "shield_of_arrav"
