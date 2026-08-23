@@ -1086,7 +1086,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 
-    def test_quest_answer_progresses_fishing_contest_pass_gate(self):
+    def test_quest_answer_progresses_fishing_contest_pass_emitter(self):
         addon = _load_addon_as_package("ankiscape_fishing_contest_stage_integration")
 
         calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
