@@ -5717,14 +5717,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Ask Wizard Cromperty about his teleportation block.",
             f"{DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}",
-            required_actions=("Ask Wizard Cromperty about the teleportation block",),
+            auto_actions=("Ask Wizard Cromperty about the teleportation block",),
         ),
         _stage_req(
             2,
             "Take Lord Handelmort's address label from the RPDT crate.",
             f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            auto_actions=("Reach the Ardougne RPDT depot",),
-            required_actions=("Take Lord Handelmort's address label from the RPDT crate",),
+            auto_actions=("Reach the Ardougne RPDT depot", "Take Lord Handelmort's address label from the RPDT crate"),
             produced_inventory=(("Address label", 1),),
         ),
         _stage_req(
@@ -5732,13 +5731,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Switch the RPDT crate address labels and request delivery.",
             f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_RPDT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Address label", 1),),
-            required_actions=("Switch the RPDT crate address labels and request delivery",),
+            auto_actions=("Switch the RPDT crate address labels and request delivery",),
         ),
         _stage_req(
             4,
             "Teleport into Handelmort Mansion, bypass the traps, and loot the Rantuki totem.",
             f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=(
+            auto_actions=(
                 "Teleport into Handelmort Mansion",
                 "Disarm Handelmort's trapped stairs",
                 "Solve Handelmort's lock with KURT",

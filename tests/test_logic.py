@@ -3491,6 +3491,82 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Law Rune"], 8)
         self.assertEqual(after_complete["woodcutting_exp"], 2000.0)
 
+    def test_tribal_totem_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "tribal_totem"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        reasons = quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
+        self.assertIn("Thieving 21", reasons)
+        self.assertFalse(can_start_quest_pure(player_data, quest_id, QUEST_DATA))
+
+        player_data["thieving_level"] = 21
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        cromperty_action = "Ask Wizard Cromperty about the teleportation block"
+        depot_actions = (
+            "Reach the Ardougne RPDT depot",
+            "Take Lord Handelmort's address label from the RPDT crate",
+        )
+        switch_action = ("Switch the RPDT crate address labels and request delivery",)
+        mansion_actions = (
+            "Teleport into Handelmort Mansion",
+            "Disarm Handelmort's trapped stairs",
+            "Solve Handelmort's lock with KURT",
+            "Loot the Rantuki totem",
+        )
+
+        expected_steps = (
+            (2, False, (cromperty_action,), {"Address label": 0, "Totem": 0}),
+            (3, False, (cromperty_action,) + depot_actions, {"Address label": 1, "Totem": 0}),
+            (4, False, (cromperty_action,) + depot_actions + switch_action, {"Address label": 0, "Totem": 0}),
+            (
+                5,
+                False,
+                (cromperty_action,) + depot_actions + switch_action + mansion_actions,
+                {"Address label": 0, "Totem": 1},
+            ),
+            (6, True, None, {"Address label": 0, "Totem": 0}),
+        )
+        for progress, completed, actions, inventory in expected_steps:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, completed)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            if actions is not None:
+                self.assertEqual(
+                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    actions,
+                )
+            self.assertEqual(
+                {
+                    item_name: player_data["inventory"].get(item_name, 0)
+                    for item_name in inventory
+                },
+                inventory,
+            )
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["thieving_exp"], 1775.0)
+        self.assertEqual(player_data["inventory"]["Swordfish"], 5)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["thieving_exp"], 1775.0)
+        self.assertEqual(after_complete["inventory"]["Swordfish"], 5)
+
     def test_monkey_madness_ape_atoll_infiltration_emits_on_review(self):
         quest_id = "monkey_madness"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

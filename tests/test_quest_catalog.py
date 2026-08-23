@@ -1660,7 +1660,10 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(tribal["stages"], 6)
         self.assertEqual(tribal["combat"], "None.")
         self.assertEqual(tribal_by_stage[2]["required_routes"], ())
-        self.assertEqual(tribal_by_stage[2]["auto_actions"], ("Reach the Ardougne RPDT depot",))
+        self.assertEqual(
+            tribal_by_stage[2]["auto_actions"],
+            ("Reach the Ardougne RPDT depot", "Take Lord Handelmort's address label from the RPDT crate"),
+        )
         self.assertEqual(tribal_by_stage[2]["produced_inventory"], {"Address label": 1})
         self.assertEqual(tribal_by_stage[3]["consumed_inventory"], {"Address label": 1})
         self.assertEqual(tribal_by_stage[4]["produced_inventory"], {"Totem": 1})
