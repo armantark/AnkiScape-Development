@@ -5429,7 +5429,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Receive a fishing pass from Austri or Vestri.",
             f"{DARKAN_FISHING_CONTEST_SOURCE}; {DARKAN_FISHING_CONTEST_DWARF_BROTHERS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-            required_actions=("Receive a fishing pass from Austri or Vestri",),
+            auto_actions=("Receive a fishing pass from Austri or Vestri",),
             produced_inventory=(("Fishing pass", 1),),
         ),
         _stage_req(
@@ -5457,7 +5457,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             consumed_inventory_options=((("Red vine worm", 1), ("Fishing bait", 1)),),
             produced_inventory=(("Raw giant carp", 1),),
             required_tools=(("Fishing rod", 1),),
-            required_actions=("Catch the winning giant carp",),
+            auto_actions=("Catch the winning giant carp",),
         ),
         _stage_req(
             5,

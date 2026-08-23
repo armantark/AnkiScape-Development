@@ -1104,9 +1104,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "current_quest": "fishing_contest",
             "quests": {"fishing_contest": {"started": True, "progress": 1, "completed": False}},
-            "quest_stage_actions": {
-                "fishing_contest": ["Receive a fishing pass from Austri or Vestri"]
-            },
             "quest_points": 0,
             "fishing_exp": 0,
             "claims": {"wicked_hood": {"claimed": False}},
@@ -1123,6 +1120,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertFalse(addon.player_data["quests"]["fishing_contest"]["completed"])
         self.assertEqual(addon.player_data["quests"]["fishing_contest"]["progress"], 2)
         self.assertEqual(addon.player_data["inventory"]["Fishing pass"], 1)
+        self.assertEqual(
+            addon.player_data["quest_stage_actions"]["fishing_contest"],
+            ["Receive a fishing pass from Austri or Vestri"],
+        )
         self.assertEqual(addon.player_data["quest_points"], 0)
         self.assertEqual(addon.player_data["fishing_exp"], 0)
         self.assertEqual(calls["save"], 1)
