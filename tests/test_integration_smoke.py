@@ -2074,14 +2074,22 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):
         addon = _load_addon_as_package("ankiscape_holy_grail_completion_integration")
 
-        calls = {"save": 0, "gains": [], "dialogs": []}
+        calls = {"save": 0, "gains": [], "dialogs": [], "passes": 0}
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda text: calls["gains"].append(text)
         addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
         addon.level_up_check = lambda _skill, data: data.__setitem__("defense_level", 33)
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_popups_enabled": False}))
+        addon.mw = _DummyMW(
+            _DummyCol(
+                {
+                    "ankiscape_popups_enabled": False,
+                    "ankiscape_review_action_multiplier": 3,
+                    "ankiscape_cadence_kernel": False,
+                }
+            )
+        )
         addon.current_skill = "Quests"
         addon.player_data = {
             "inventory": {"Holy grail": 1},
@@ -2095,10 +2103,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             "item_charges": {},
             "completed_achievements": [],
         }
+        original_overlay = addon.runtime_actions.run_answer_with_carried_overlay
 
-        addon.on_quest_answer()
+        def counted_overlay(*args, **kwargs):
+            calls["passes"] += 1
+            return original_overlay(*args, **kwargs)
 
+        addon.runtime_actions.run_answer_with_carried_overlay = counted_overlay
+        addon.exp_awarded = False
+
+        addon.on_good_answer()
+
+        self.assertEqual(calls["passes"], 1)
         self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(addon.player_data["quests"]["holy_grail"]["progress"], 11)
         self.assertTrue(addon.player_data["quests"]["holy_grail"]["completed"])
         self.assertEqual(addon.player_data["inventory"]["Holy grail"], 0)
@@ -2109,7 +2127,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Holy Grail complete"])
-        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+        self.assertEqual(
+            [title for title, _message in calls["dialogs"]],
+            ["Quest complete"],
+        )
 
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")

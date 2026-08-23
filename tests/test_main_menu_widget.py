@@ -1169,6 +1169,12 @@ class MainMenuWidgetTest(unittest.TestCase):
                 True,
             )[-1],
         )
+
+        stop_training_callback = extra.pop(
+            "on_stop_training",
+            lambda: player_data.__setitem__("current_utility", "bankstanding")
+            or True,
+        )
         skilling_potion_callback = extra.pop(
             "on_set_skilling_potion_target", None
         )
@@ -1257,6 +1263,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_start_activity=start_activity_callback,
+            on_stop_training=stop_training_callback,
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_action=lambda action: self._combat_action_calls.append(action),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -17101,7 +17108,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             "current_agility": "brimhaven_arena",
             "agility_activity_state": {"brimhaven": {"stint_active": True}},
         })
-        dialog = self._open(pd, current_skill="Agility")
+
+        def stop_training():
+            pd["agility_activity_state"].pop("brimhaven")
+            pd["current_utility"] = "bankstanding"
+            self._agility_command_calls.append(("abandon", {}))
+            return True
+
+        dialog = self._open(
+            pd,
+            current_skill="Agility",
+            on_stop_training=stop_training,
+        )
         next(
             button for button in dialog.findChildren(QPushButton)
             if button.text() == "Stop training"
@@ -17110,6 +17128,32 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
         self.assertEqual(self._agility_command_calls[-1][0], "abandon")
+
+    def test_stop_training_uses_the_dedicated_direct_action_callback(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "gather_flax"
+        stop_calls = []
+
+        def stop_training():
+            stop_calls.append(True)
+            pd["current_utility"] = "bankstanding"
+            return True
+
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            on_stop_training=stop_training,
+        )
+        next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Stop training"
+        ).click()
+        QApplication.processEvents()
+
+        self.assertEqual(stop_calls, [True])
+        self.assertEqual(pd["current_utility"], "bankstanding")
+        self.assertEqual(self._activity_start_calls, [])
 
     def test_thieving_target_change_refreshes_train_readiness(self) -> None:
         pd = _make_player_data()

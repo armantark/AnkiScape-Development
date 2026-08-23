@@ -1045,16 +1045,16 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         random.setstate(before["random_state"])
         return False
     updated = refresh_music_log_pure(updated)[0]
+    skill_after_commit = selected_skill
     if _activity_session_cleared(
         player_data.get("activity_session"),
         updated.get("activity_session"),
     ):
-        # Owner clause 2: a completed session's surface becomes Bankstanding
-        # before the undo snapshot is finalized, so undo restores the former
-        # activity atomically.
-        current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
+        # Stage the whole landing without touching live state. Anki must accept
+        # the undo entry before either the save or its review surface changes.
         updated = dict(updated)
         updated["current_utility"] = "bankstanding"
+        skill_after_commit = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
@@ -1065,8 +1065,8 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
-    if selected_skill is not None:
-        current_skill = _normalize_legacy_utility_skill(selected_skill)
+    if skill_after_commit is not None:
+        current_skill = _normalize_legacy_utility_skill(skill_after_commit)
         try:
             mw.col.set_config("ankiscape_current_skill", current_skill)
         except AttributeError:
@@ -4456,6 +4456,31 @@ def _on_main_menu(
     def _start_grave_walk():
         return commit_direct_action(start_combat_grave_walk_pure)
 
+    def _stop_training():
+        def _change(current):
+            updated = current
+            if (
+                current_skill == "Agility"
+                and current.get("current_agility") == "brimhaven_arena"
+                and (current.get("agility_activity_state") or {}).get("brimhaven")
+            ):
+                updated, result = apply_agility_command_pure(
+                    current,
+                    "abandon",
+                    {},
+                    roll=0.5,
+                )
+                if not result.get("allowed"):
+                    return current, False
+            updated = dict(updated)
+            updated["current_utility"] = "bankstanding"
+            return updated, True
+
+        return commit_direct_action(
+            _change,
+            selected_skill=UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+        )
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -4550,6 +4575,7 @@ def _on_main_menu(
         on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_start_activity=start_activity_for_reviews,
+        on_stop_training=_stop_training,
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
@@ -5433,15 +5459,23 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()
                 )
+                reviewed_skill = current_skill
                 for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
+                    before_tick_session = dict(
+                        player_data.get("activity_session") or {}
+                    )
                     result = runtime_actions.run_answer_with_carried_overlay(
                         review_ctx, handler_key, handler
                     )
                     if result is not False:
                         review_progressed = True
-                    if result is False or current_skill == "None":
+                    if (
+                        result is False
+                        or current_skill != reviewed_skill
+                        or _activity_session_cleared(before_tick_session)
+                    ):
                         break
                 if review_progressed and handler_key not in ("quest", "thieving", "agility"):
                     _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)

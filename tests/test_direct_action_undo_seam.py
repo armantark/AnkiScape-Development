@@ -281,6 +281,84 @@ class DirectActionUndoSeamTest(unittest.TestCase):
             "no undo entry means no change may be written",
         )
 
+    def test_session_clearing_undo_failure_keeps_the_live_surface_whole(self):
+        addon = self.addon
+        addon.current_skill = "Activities"
+        addon.player_data["current_utility"] = "conquest"
+        addon.player_data["activity_session"] = {"active_id": "conquest"}
+        baseline = copy.deepcopy(addon.player_data)
+        self.collection.accepts = False
+
+        committed = self.commit(
+            lambda current: (
+                {**current, "activity_session": {"active_id": ""}},
+                True,
+            )
+        )
+
+        self.assertFalse(committed)
+        self.assertEqual(addon.current_skill, "Activities")
+        self.assertEqual(addon.player_data, baseline)
+        self.assertEqual(self.collection.entries, [])
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_stop_training_callback_is_one_undoable_bankstanding_switch(self):
+        addon = self.addon
+        addon.current_skill = "Mining"
+        addon.player_data["current_utility"] = "gather_flax"
+        before = copy.deepcopy(addon.player_data)
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+
+        addon._on_main_menu(initial_skill="Mining")
+        committed = captured["on_stop_training"]()
+
+        self.assertTrue(committed)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+
+        addon._on_state_did_undo(
+            type("Changes", (), {"operation": "AnkiScape direct action"})()
+        )
+
+        self.assertEqual(addon.current_skill, "Mining")
+        self.assertEqual(addon.player_data, before)
+
+    def test_stop_training_abandons_brimhaven_in_the_same_undo_entry(self):
+        addon = self.addon
+        addon.current_skill = "Agility"
+        addon.player_data["current_agility"] = "brimhaven_arena"
+        addon.player_data["current_utility"] = "gather_flax"
+        addon.player_data["agility_activity_state"] = {
+            "brimhaven": {"stint_active": True}
+        }
+        before = copy.deepcopy(addon.player_data)
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda _data: None
+
+        addon._on_main_menu(initial_skill="Agility")
+        committed = captured["on_stop_training"]()
+
+        self.assertTrue(committed)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
+        self.assertNotIn(
+            "brimhaven", addon.player_data.get("agility_activity_state", {})
+        )
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+
+        addon._on_state_did_undo(
+            type("Changes", (), {"operation": "AnkiScape direct action"})()
+        )
+
+        self.assertEqual(addon.current_skill, "Agility")
+        self.assertEqual(addon.player_data, before)
+
     def _run_with_rng_checkpoint(self, action):
         previous_state = random.getstate()
         try:
@@ -1063,6 +1141,7 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         from ankiscape.logic.conquest_logic import apply_conquest_command_pure
 
         addon = self.addon
+        addon.current_skill = "Activities"
         for key in (
             "attack_level",
             "strength_level",
@@ -1110,8 +1189,11 @@ class DirectActionUndoSeamTest(unittest.TestCase):
             )
         )
         self.assertEqual(addon.player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(addon.current_skill, "Utilities")
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, active)
+        self.assertEqual(addon.current_skill, "Activities")
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data, after_setup)
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
