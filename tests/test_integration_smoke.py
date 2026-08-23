@@ -3869,6 +3869,115 @@ class TestIntegrationSmoke(unittest.TestCase):
             "unminable",
         )
 
+    def test_equipping_a_melee_weapon_returns_loaded_magic_runes_to_bank(self):
+        addon = _load_addon_as_package("ankiscape_combat_weapon_loadout")
+
+        calls = {"save": 0, "hud": 0, "refresh": 0}
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.check_achievements = lambda _data: None
+        addon.update_review_hud = lambda _data, _skill: calls.__setitem__(
+            "hud", calls["hud"] + 1
+        )
+        addon._refresh_skill_availability = lambda: calls.__setitem__(
+            "refresh", calls["refresh"] + 1
+        )
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "inventory": {
+                "Rune scimitar": 1,
+                "Air rune": 0,
+                "Mind rune": 0,
+            },
+            "equipment": {"weapon": "Staff"},
+            "attack_level": 40,
+            "magic_level": 99,
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "wind_strike",
+            "combat_pack_mode": "max_output",
+            "combat_vengeance": True,
+            "combat_supply_loadout": {
+                "runes": {"Air rune": 5, "Mind rune": 5}
+            },
+            "combat_encounter": {},
+            "constitution_level": 10,
+        }
+
+        self.assertTrue(addon.on_equip_item("Rune scimitar"))
+
+        self.assertEqual(
+            addon.player_data["equipment"], {"weapon": "Rune scimitar"}
+        )
+        self.assertEqual(
+            addon.player_data["combat_supply_loadout"]["runes"], {}
+        )
+        self.assertEqual(addon.player_data["inventory"]["Air rune"], 5)
+        self.assertEqual(addon.player_data["inventory"]["Mind rune"], 5)
+        self.assertEqual(addon.player_data["inventory"]["Staff"], 1)
+        self.assertEqual(calls, {"save": 1, "hud": 1, "refresh": 1})
+
+    def test_live_encounter_rejects_every_combat_method_mutation(self):
+        addon = _load_addon_as_package("ankiscape_combat_method_rejections")
+
+        errors = []
+        addon.save_player_data = lambda: self.fail("a rejected mutation saved")
+        addon.show_error_message = lambda title, message: errors.append(
+            (title, message)
+        )
+        addon.player_data = {
+            "inventory": {"Rune scimitar": 1},
+            "equipment": {"weapon": "Staff"},
+            "attack_level": 40,
+            "magic_level": 99,
+            "combat_action": "attack",
+            "combat_attack_style": "magic_standard",
+            "combat_attack_style_type": "auto",
+            "current_combat_spell": "wind_strike",
+            "combat_supply_loadout": {
+                "runes": {"Air rune": 5, "Mind rune": 5}
+            },
+            "combat_encounter": {
+                "target_id": "chicken",
+                "enemy_lifepoints": 30,
+            },
+            "constitution_level": 10,
+        }
+        before = copy.deepcopy(addon.player_data)
+
+        self.assertFalse(
+            addon._set_combat_method_values({"combat_action": "finisher"})
+        )
+        self.assertFalse(
+            addon._set_combat_attack_style(("accurate", "slash"))
+        )
+        self.assertFalse(
+            addon._set_combat_method_values(
+                {"current_combat_spell": "water_strike"}
+            )
+        )
+        self.assertFalse(addon.on_equip_item("Rune scimitar"))
+        self.assertFalse(addon.on_unequip_slot("weapon"))
+        self.assertFalse(addon.on_set_combat_pack_mode("max_output"))
+
+        self.assertEqual(addon.player_data, before)
+        method_reason = "Finish the active fight before changing combat method."
+        self.assertEqual(
+            errors,
+            [
+                ("Cannot change combat method", method_reason),
+                ("Cannot change combat method", method_reason),
+                ("Cannot change combat method", method_reason),
+                ("Cannot equip item", method_reason),
+                ("Cannot unequip item", method_reason),
+                (
+                    "Cannot change combat supplies",
+                    "Finish the active fight before changing supply mode.",
+                ),
+            ],
+        )
+
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
 

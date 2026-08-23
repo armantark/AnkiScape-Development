@@ -1161,6 +1161,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
 
         save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
+        combat_action_callback = extra.pop(
+            "on_set_combat_action",
+            lambda action: self._combat_action_calls.append(action),
+        )
+        combat_style_callback = extra.pop(
+            "on_set_combat_style",
+            lambda style: self._combat_style_calls.append(style),
+        )
+        combat_spell_callback = extra.pop(
+            "on_set_combat_spell",
+            lambda spell: self._combat_spell_calls.append(spell),
+        )
         start_activity_callback = extra.pop(
             "on_start_activity",
             lambda activity: (
@@ -1265,9 +1277,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_start_activity=start_activity_callback,
             on_stop_training=stop_training_callback,
             on_set_combat=lambda target: self._combat_calls.append(target),
-            on_set_combat_action=lambda action: self._combat_action_calls.append(action),
-            on_set_combat_style=lambda style: self._combat_style_calls.append(style),
-            on_set_combat_spell=lambda spell: self._combat_spell_calls.append(spell),
+            on_set_combat_action=combat_action_callback,
+            on_set_combat_style=combat_style_callback,
+            on_set_combat_spell=combat_spell_callback,
             on_set_combat_auto_eat_threshold=lambda threshold: self._combat_threshold_calls.append(threshold),
             on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
             on_set_combat_prayer_config=_set_prayer_config,
@@ -3769,8 +3781,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         dialog.findChild(QPushButton, "carriedModeAuto").click()
         QApplication.processEvents()
-        self.assertTrue(current_inventory.isVisibleTo(dialog))
-        self.assertTrue(current_loot.isVisibleTo(dialog))
+        self.assertFalse(current_inventory.isVisibleTo(dialog))
+        self.assertFalse(current_loot.isVisibleTo(dialog))
 
         carried_items[:] = [("Shark", 12)]
         self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
@@ -6514,6 +6526,95 @@ class MainMenuWidgetTest(unittest.TestCase):
         ready_dialog.deleteLater()
         reusable_dialog.deleteLater()
         charged_dialog.deleteLater()
+
+    def test_live_encounter_refusals_restore_all_combat_method_selectors(self) -> None:
+        from ankiscape.core.constants import EQUIPMENT_DATA
+        from ankiscape.logic_pure.logic_pure import reconcile_combat_method_pure
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "desert_lizard",
+                "combat_action": "attack",
+                "combat_attack_style": "aggressive",
+                "combat_attack_style_type": "slash",
+                "current_combat_spell": "wind_strike",
+                "equipment": {"weapon": "Bronze longsword"},
+                "slayer_level": 99,
+                "combat_encounter": {
+                    "target_id": "desert_lizard",
+                    "enemy_lifepoints": 30,
+                },
+                "combat_supply_loadout": {
+                    "finishers": {"Ice cooler": 1},
+                    "hazards": {"Waterskin (4)": 1},
+                },
+            }
+        )
+        attempts = {}
+
+        def refuse(key, value, updates):
+            attempts[key] = value
+            _updated, ok, reason = reconcile_combat_method_pure(
+                pd, updates, EQUIPMENT_DATA
+            )
+            self.assertFalse(ok)
+            self.assertEqual(
+                reason,
+                "Finish the active fight before changing combat method.",
+            )
+            return ok
+
+        dialog = self._open(
+            pd,
+            current_skill="Combat",
+            on_set_combat_action=lambda value: refuse(
+                "action", value, {"combat_action": value}
+            ),
+            on_set_combat_style=lambda value: refuse(
+                "style",
+                value,
+                {
+                    "combat_attack_style": value[0],
+                    "combat_attack_style_type": value[1],
+                },
+            ),
+            on_set_combat_spell=lambda value: refuse(
+                "spell", value, {"current_combat_spell": value}
+            ),
+        )
+
+        action_combo = dialog.findChild(QComboBox, "combatActionCombo")
+        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
+        spell_combo = dialog.findChild(QComboBox, "combatSpellCombo")
+        self.assertIsNotNone(action_combo)
+        self.assertIsNotNone(style_combo)
+        self.assertIsNotNone(spell_combo)
+
+        action_combo.setCurrentIndex(action_combo.findData("finisher"))
+        QApplication.processEvents()
+        style_combo.setCurrentIndex(
+            next(
+                index
+                for index in range(style_combo.count())
+                if style_combo.itemData(index) == ("defensive", "slash")
+            )
+        )
+        QApplication.processEvents()
+        spell_combo.setCurrentIndex(spell_combo.findData("water_strike"))
+        QApplication.processEvents()
+
+        self.assertEqual(action_combo.currentData(), "attack")
+        self.assertEqual(style_combo.currentData(), ("aggressive", "slash"))
+        self.assertEqual(spell_combo.currentData(), "wind_strike")
+        self.assertEqual(
+            attempts,
+            {
+                "action": "finisher",
+                "style": ("defensive", "slash"),
+                "spell": "water_strike",
+            },
+        )
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         from ankiscape.ui import ui

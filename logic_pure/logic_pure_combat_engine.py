@@ -1134,15 +1134,28 @@ def apply_combat_burst_pure(
 
     encounter = data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
-    spellbook_swap_paid = bool(active_encounter and encounter.get("spellbook_swap_paid", False))
-    vengeance_pending = bool(active_encounter and encounter.get("vengeance_pending", False))
+    magic_supplements_enabled = combat_class == "magic"
+    spellbook_swap_paid = bool(
+        magic_supplements_enabled
+        and active_encounter
+        and encounter.get("spellbook_swap_paid", False)
+    )
+    vengeance_pending = bool(
+        magic_supplements_enabled
+        and active_encounter
+        and encounter.get("vengeance_pending", False)
+    )
     vengeance_cast_paid = bool(
-        active_encounter and encounter.get("vengeance_cast_paid", False)
+        magic_supplements_enabled
+        and active_encounter
+        and encounter.get("vengeance_cast_paid", False)
     )
     supplemental_used = {}
     supplemental_magic_xp = 0.0
-    pending_supplemental = _combat_pending_supplemental_magic_costs_pure(
-        data, equipment_data
+    pending_supplemental = (
+        _combat_pending_supplemental_magic_costs_pure(data, equipment_data)
+        if magic_supplements_enabled
+        else ()
     )
     if live_cadence and vengeance_cast_paid:
         pending_supplemental = tuple(
@@ -2453,7 +2466,9 @@ def apply_combat_burst_pure(
             next_encounter["retaliation_stopped"] = True
         if spellbook_swap_paid:
             next_encounter["spellbook_swap_paid"] = True
-        if bool(data.get("combat_vengeance", False)) or vengeance_pending:
+        if magic_supplements_enabled and (
+            bool(data.get("combat_vengeance", False)) or vengeance_pending
+        ):
             next_encounter["vengeance_pending"] = bool(vengeance_pending)
         if live_cadence and vengeance_cast_paid:
             next_encounter["vengeance_cast_paid"] = True
@@ -2707,6 +2722,19 @@ def request_combat_bank_run_now_pure(player_data):
     return data, True, ""
 
 
+def reconcile_combat_method_pure(player_data, updates, equipment_data=None):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    if combat_has_active_encounter_pure(data):
+        return data, False, "Finish the active fight before changing combat method."
+    data.update(updates)
+    data, ok, reason = unload_combat_supply_loadout_pure(data)
+    if not ok:
+        return data, False, reason
+    data, ok, reason = refill_combat_supply_loadout_pure(data, equipment_data)
+    return data, ok, reason
+
+
 def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
@@ -2714,11 +2742,7 @@ def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
         return data, False, "Finish the active fight before changing supply mode."
     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
     data = derive_casual_combat_magic_pure(data)
-    data, ok, reason = unload_combat_supply_loadout_pure(data)
-    if not ok:
-        return data, False, reason
-    data, ok, reason = refill_combat_supply_loadout_pure(data, equipment_data)
-    return data, ok, reason
+    return reconcile_combat_method_pure(player_data, data, equipment_data)
 
 
 def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):
