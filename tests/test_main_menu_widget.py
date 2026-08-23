@@ -9242,14 +9242,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Needs Chocolate dust x1, Needs Snape grass x1, "
-            "Needs Pestle and mortar, +1 more"
+            "Needs Pestle and mortar"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_plague_city")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Chocolate dust x1", action.toolTip())
-        self.assertIn("+1 more", action.toolTip())
+        self.assertIn("Needs Snape grass x1", action.toolTip())
 
     def test_quests_tab_shows_biohazard_guidor_disguise_blocker(self) -> None:
         pd = _make_player_data()

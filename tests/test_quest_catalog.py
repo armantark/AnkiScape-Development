@@ -1661,10 +1661,16 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(plague["combat"], "None.")
         self.assertEqual(plague["rewards"], {"A magic scroll": 1})
         self.assertEqual(plague_by_stage[1]["consumed_inventory"], {"Dwellberries": 1})
-        self.assertEqual(plague_by_stage[1]["produced_inventory"], {"Gas mask": 1})
+        self.assertEqual(
+            plague_by_stage[1]["produced_inventory"],
+            {"Gas mask": 1, "Picture of Elena": 1},
+        )
         self.assertEqual(plague_by_stage[3]["consumed_inventory"], {"Bucket of water": 4})
         self.assertEqual(plague_by_stage[3]["produced_inventory"], {"Bucket": 4})
-        self.assertEqual(plague_by_stage[8]["auto_actions"], ("Reach West Ardougne through the sewer pipe",))
+        self.assertEqual(
+            plague_by_stage[8]["auto_actions"],
+            ("Reach West Ardougne through the sewer pipe", "Speak to Jethick about Elena"),
+        )
         self.assertEqual(plague_by_stage[9]["required_inventory"], {"Picture of Elena": 1})
         self.assertEqual(plague_by_stage[9]["produced_inventory"], {"Turnip growing for beginners": 1})
         self.assertEqual(

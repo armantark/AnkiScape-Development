@@ -347,6 +347,10 @@ DARKAN_PLAGUE_CITY_UTILS_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/utils/Plagu
 DARKAN_PLAGUE_CITY_CUTSCENE_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/cutscene/PlagueCityCutscene.kt"
 DARKAN_PLAGUE_CITY_EDMOND_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/EdmondD.kt"
 DARKAN_PLAGUE_CITY_ALRENA_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/AlrenaD.kt"
+DARKAN_PLAGUE_CITY_PICTURE_SPAWN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/spawns/areas/kandarin.json"
+)
 DARKAN_PLAGUE_CITY_JETHICK_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/JethickD.kt"
 DARKAN_PLAGUE_CITY_REHNISON_DOOR_SOURCE = (
     f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/objects/RehnisonDoorD.kt"
@@ -5860,16 +5864,20 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             1,
             "Give Alrena dwellberries so she can finish the gas mask.",
-            f"{DARKAN_PLAGUE_CITY_ALRENA_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            (
+                f"{DARKAN_PLAGUE_CITY_ALRENA_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; "
+                f"{DARKAN_PLAGUE_CITY_PICTURE_SPAWN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            auto_actions=("Pick up the picture of Elena in Alrena's house",),
             consumed_inventory=(("Dwellberries", 1),),
-            produced_inventory=(("Gas mask", 1),),
+            produced_inventory=(("Gas mask", 1), ("Picture of Elena", 1)),
         ),
         _stage_req(
             2,
             "Talk to Edmond with the gas mask and learn the sewer plan.",
             f"{DARKAN_PLAGUE_CITY_EDMOND_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
             required_inventory=(("Gas mask", 1),),
-            required_actions=("Talk to Edmond with the gas mask",),
+            auto_actions=("Talk to Edmond with the gas mask",),
         ),
         _stage_req(
             3,
@@ -5877,41 +5885,43 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Bucket of water", 4),),
             produced_inventory=(("Bucket", 4),),
-            required_actions=("Soften Edmond's mud patch with four buckets of water",),
+            auto_actions=("Soften Edmond's mud patch with four buckets of water",),
         ),
         _stage_req(
             4,
             "Dig through the softened mud patch into the sewers.",
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Spade", 1),),
-            required_actions=("Dig through Edmond's softened mud patch",),
+            auto_actions=("Dig through Edmond's softened mud patch",),
         ),
         _stage_req(
             5,
             "Pull the sewer grill and learn that Edmond must help.",
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_EDMOND_SOURCE}",
-            required_actions=("Pull the sewer grill", "Ask Edmond for help with the grill"),
+            auto_actions=("Pull the sewer grill", "Ask Edmond for help with the grill"),
         ),
         _stage_req(
             6,
             "Tie rope to the sewer grill.",
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Rope", 1),),
-            required_actions=("Tie rope to the sewer grill",),
+            auto_actions=("Tie rope to the sewer grill",),
         ),
         _stage_req(
             7,
             "Ask Edmond to pull the rope and remove the grill.",
             f"{DARKAN_PLAGUE_CITY_EDMOND_SOURCE}; {DARKAN_PLAGUE_CITY_CUTSCENE_SOURCE}",
-            required_actions=("Ask Edmond to pull the sewer grill rope",),
+            auto_actions=("Ask Edmond to pull the sewer grill rope",),
         ),
         _stage_req(
             8,
             "Wear the gas mask, enter West Ardougne through the sewer, and speak to Jethick.",
             f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
             required_tools=(("Gas mask", 1),),
-            auto_actions=("Reach West Ardougne through the sewer pipe",),
-            required_actions=("Speak to Jethick about Elena",),
+            auto_actions=(
+                "Reach West Ardougne through the sewer pipe",
+                "Speak to Jethick about Elena",
+            ),
         ),
         _stage_req(
             9,
@@ -5919,20 +5929,20 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_inventory=(("Picture of Elena", 1),),
             produced_inventory=(("Turnip growing for beginners", 1),),
-            required_actions=("Show Jethick the picture of Elena", "Agree to return Jethick's book"),
+            auto_actions=("Show Jethick the picture of Elena", "Agree to return Jethick's book"),
         ),
         _stage_req(
             10,
             "Return Jethick's book to Ted Rehnison.",
             f"{DARKAN_PLAGUE_CITY_REHNISON_DOOR_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
             consumed_inventory=(("Turnip growing for beginners", 1),),
-            required_actions=("Return Jethick's book to Ted Rehnison",),
+            auto_actions=("Return Jethick's book to Ted Rehnison",),
         ),
         _stage_req(
             11,
             "Ask Martha Rehnison where Elena went.",
             f"{DARKAN_PLAGUE_CITY_MARTHA_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
-            required_actions=("Ask Martha Rehnison about Elena",),
+            auto_actions=("Ask Martha Rehnison about Elena",),
         ),
         _stage_req(
             12,
@@ -5941,7 +5951,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_PLAGUE_CITY_MILLI_SOURCE}; {DARKAN_PLAGUE_CITY_PRISON_DOOR_SOURCE}; "
                 f"{DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}"
             ),
-            required_actions=(
+            auto_actions=(
                 "Ask Milli Rehnison where Elena was taken",
                 "Ask the mourners for prison house clearance",
             ),
@@ -5954,7 +5964,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 f"{DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
             produced_inventory=(("Scruffy note", 1),),
-            required_actions=("Convince the Clerk to let you speak to Bravek", "Ask Bravek for his cure recipe"),
+            auto_actions=("Convince the Clerk to let you speak to Bravek", "Ask Bravek for his cure recipe"),
         ),
         _stage_req(
             14,
@@ -5963,7 +5973,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             consumed_inventory=(("Chocolate dust", 1), ("Bucket of milk", 1), ("Snape grass", 1)),
             produced_inventory=(("Hangover cure", 1),),
             required_tools=(("Pestle and mortar", 1),),
-            required_actions=("Mix chocolate dust with milk and snape grass",),
+            auto_actions=("Mix chocolate dust with milk and snape grass",),
         ),
         _stage_req(
             15,
@@ -5971,7 +5981,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_PLAGUE_CITY_BRAVEK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Hangover cure", 1),),
             produced_inventory=(("Warrant", 1),),
-            required_actions=("Give Bravek the hangover cure", "Ask Bravek for a prison house warrant"),
+            auto_actions=("Give Bravek the hangover cure", "Ask Bravek for a prison house warrant"),
         ),
         _stage_req(
             16,
@@ -5984,7 +5994,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
             required_inventory=(("Warrant", 1),),
             produced_inventory=(("A small key", 1),),
-            required_actions=(
+            auto_actions=(
                 "Enter the prison house with Bravek's warrant",
                 "Search the barrel for the small key",
                 "Unlock Elena's cell",
