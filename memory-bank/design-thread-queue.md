@@ -1622,3 +1622,94 @@ design seat as relay.
 - **After this goal:** 4.18 expires with the goal and 4.19 does not, so the
   per-task approval rule is the standing constraint for later work. Confirm it
   against the fleet record before relying on it.
+
+### 5.3 Quest reward strings can become inventory keys without semantic validation
+
+Raised 2026-08-24 after two reward corrections exposed a catalog-wide parser
+hazard. This entry records the class and the measurement disagreement below. It
+is **not scheduled work** and is not a quest-by-quest task list.
+
+- **Measurement disagreement at the instructed base:** at
+  `8ec703a9bbceba7c4cb278b99155f1111ea189e4`, `QUESTS` contains `196`
+  quests. Of those, `144` carry at least one final item reward. Flattening each
+  `QuestDefinition.rewards` tuple as `(name, amount)` produced `318` reward
+  occurrences, `294` distinct `(name, amount)` tuples, and `275` distinct
+  names. Comparing those names with
+  `{definition.storage_key for definition in core.constants.ITEM_DEFINITIONS}`
+  found **0 undefined names**, not `269`. All `275` names are storage keys in
+  the final `3,503`-row registry. The reported `269` and the earlier wrong
+  `288` therefore do not reproduce on this base and are not adopted here.
+- **Why a direct membership probe is false evidence:**
+  `ITEM_DEFINITIONS` is a tuple of `ItemDefinition` objects, not a mapping or a
+  set of strings. Testing either a reward tuple or a reward name directly with
+  `value not in ITEM_DEFINITIONS` compares unlike types and flags every value.
+  The catalog also self-registers raw quest reward strings:
+  `data/quest_data.py:10078-10090` emits each raw `item_name`,
+  `core/constants.py:1411` loads that output,
+  `core/constants.py:2643-2655` merges it into extra item data, and
+  `core/constants.py:2777` builds the final registry. The final registry is
+  therefore not an independent validator of quest reward semantics.
+- **Semantic shape of the `275`-name candidate pool:** this is a manual,
+  one-bucket-per-name classification of all final reward names on this base. It
+  is not a claim that all `275` are defects.
+  - **`176` concrete item or currency-shaped labels:** examples are
+    `Air talisman`, `Ammo mould`, and `Catspeak amulet`. These need source-level
+    confirmation and canonical item identity; on this base all three examples
+    already have final item definitions.
+  - **`20` generic item families or bundles:** examples are `Arrowheads`,
+    `Dagon'hai robes set`, and `Proselyte armour`. A true completion grant must
+    expand to concrete items or move to the owning unlock system.
+  - **`8` experience or activity-point labels:** examples are
+    `2,100 Cooking`, `6,500 Prayer`, and `Zeal points`. `Construction` is in
+    this bucket because Missing My Mummy stores it with amount `2,100`, even
+    though Carnillean Rising also uses the same name once. These values belong
+    in XP or activity-state data, not inventory.
+  - **`64` unlock, destination, activity, NPC, spell, title, or other state
+    labels:** examples are `Pyramid Plunder`, `Castle Wars`,
+    `South of Brimhaven`, and `Varrock Museum`. These belong in unlock or
+    activity state.
+  - **`5` wiki-furniture strings:** examples are
+    `File:Apmeken's tomb entrance.jpg`, `The concept art for Thalassus`, and
+    `Expensive spices (necklace) (page does not exist)`. These should never
+    enter runtime data.
+  - **`2` prose fragments:** `A box trap.` and
+    `20 noted Pure/Rune essence and the other items (from chasing Solus)`.
+    These require a sourced replacement or removal, not an item definition.
+- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1468-1475` obtains
+  the completion reward mapping and grants every row with the bare assignment
+  `inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)`.
+  It performs no
+  definition lookup and no semantic type check. A reward string therefore
+  becomes an inventory key when its quest completes. Self-registration means
+  that adding a definition lookup alone would not reject the parser artifacts
+  above.
+- **Candidate-pool live-versus-latent split:** applying
+  `re.fullmatch(r"^Complete .+ stage \d+ objective$", action)` to every
+  affected quest's stage `required_actions`, then capturing the existing
+  reachability closure's `completable_quests` set, split the `144` reward-bearing
+  quests into **`112` generated-stub-blocked**, **`18` completable today**, and
+  **`14` blocked by other gates**. The `18` live quests are A Soul's Bane,
+  Biohazard, Black Knights' Fortress, Clock Tower, Cook's Assistant, Dwarf
+  Cannon, Family Crest, Imp Catcher, Monk's Friend, Plague City, Rune
+  Mysteries, Shield of Arrav, Stolen Hearts, Temple of Ikov, The Restless
+  Ghost, Tree Gnome Village, Tribal Totem, and Waterfall Quest. The other
+  `126` are latent at this base. Within the `99` obviously non-concrete names
+  in the five non-concrete buckets above, `56` quests are affected: `51` are
+  generated-stub-blocked, Biohazard is the only completable live quest, and
+  Carnillean Rising, Deadliest Catch, Dealing with Scabaras, and The Tale of
+  the Muspah are blocked by non-stub gates.
+- **Reachability-audit blind spot:** the audit does not diagnose reward names.
+  It measures blocked stage products and their missing actions, routes, items,
+  tools, and combat gates at `tools/audit_item_reachability.py:442-470`, and it
+  exports only `blocked_quest_stage_products` at
+  `tools/audit_item_reachability.py:1363-1366`. For a completable quest it
+  intersects reward names with the already self-populated registry and adds
+  them as sources at `tools/audit_item_reachability.py:600-603`. It therefore
+  cannot expose this class.
+- **Established repair route:** use
+  `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` at `data/quest_data.py:4197-4206` to
+  replace or suppress a quest's scraped item rows before
+  `data/quest_data.py:8947-8953` builds its final rewards. Route experience
+  through `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, and keep unlocks in their
+  owning quest or activity state. Apply those corrections only after
+  source-checking each quest; this record does not schedule them.
