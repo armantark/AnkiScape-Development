@@ -25,6 +25,7 @@ from ..data.shattered_heart_data import (
 SHATTERED_HEART_STATE_VERSION = 1
 _KNOWN_ROCK_ITEMS = set(SHATTERED_HEART_ROCK_ITEMS)
 _KNOWN_SKILLS = set(SHATTERED_HEART_ELIGIBLE_SKILLS)
+_OUTPUT_REPLACEMENT_ITEMS: frozenset[str] | None = None
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
@@ -304,6 +305,17 @@ def _rng_value(rng) -> float:
     return max(0.0, min(1.0, value))
 
 
+def _output_replacement_items() -> frozenset[str]:
+    global _OUTPUT_REPLACEMENT_ITEMS
+    if _OUTPUT_REPLACEMENT_ITEMS is None:
+        from ..core.constants import ITEM_DEFINITIONS
+
+        _OUTPUT_REPLACEMENT_ITEMS = frozenset(
+            item.storage_key for item in ITEM_DEFINITIONS if item.tradeable
+        )
+    return _OUTPUT_REPLACEMENT_ITEMS
+
+
 def apply_shattered_heart_skilling_hook_pure(
     player_data: Mapping[str, Any],
     skill_id: str,
@@ -312,10 +324,9 @@ def apply_shattered_heart_skilling_hook_pure(
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """Roll strange rocks after one successful eligible skilling action.
 
-    ``output_items`` is the integration seam for source output replacement. It
-    names quantities produced by this action and already present in inventory;
-    each loose rock removes one such unit. A carried bag catches the rock and
-    leaves ordinary output untouched.
+    ``output_items`` names quantities produced by this action and already
+    present in inventory. The shared item registry decides which tradeable
+    outputs may be replaced; a carried bag leaves every ordinary output intact.
     """
 
     data = dict(player_data)
@@ -334,9 +345,13 @@ def apply_shattered_heart_skilling_hook_pure(
         return data, False, {"reason": "Both strange rocks for this skill are held."}
 
     outputs = {
-        str(item_name): _int(quantity)
-        for item_name, quantity in (output_items.items() if isinstance(output_items, Mapping) else ())
-        if isinstance(item_name, str) and _int(quantity) > 0
+        item_name: _int(quantity)
+        for item_name, quantity in (
+            output_items.items() if isinstance(output_items, Mapping) else ()
+        )
+        if isinstance(item_name, str)
+        and item_name in _output_replacement_items()
+        and _int(quantity) > 0
     }
     bag_carried = _bag_carried(data)
     awarded: list[str] = []

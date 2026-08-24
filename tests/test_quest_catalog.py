@@ -2131,7 +2131,7 @@ class TestQuestCatalog(unittest.TestCase):
         quest = quests_as_dict()["jungle_potion"]
         by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
 
-        self.assertEqual(quest["stages"], 11)
+        self.assertEqual(quest["stages"], 6)
         self.assertEqual(quest["point_reward"], 1)
         self.assertEqual(quest["rewards"], {})
         self.assertEqual(quest["xp_rewards"], ({"skill_id": "herblore", "amount": 775},))
@@ -2145,7 +2145,7 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertNotIn("Firemaking 33", quest["requirements"])
         self.assertNotIn("Slayer 33", quest["requirements"])
-        self.assertEqual(tuple(by_stage), tuple(range(1, 11)))
+        self.assertEqual(tuple(by_stage), tuple(range(1, 6)))
         self.assertFalse(
             any(
                 action.startswith("Complete Jungle Potion stage")
@@ -2156,16 +2156,17 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(all(not row["required_actions"] for row in by_stage.values()))
 
         herb_rows = (
-            (1, 2, "Grimy snake weed", "Clean snake weed", 1525, 1526),
-            (3, 4, "Grimy ardrigal", "Clean ardrigal", 1527, 1528),
-            (5, 6, "Grimy sito foil", "Clean sito foil", 1529, 1530),
-            (7, 8, "Grimy volencia moss", "Clean volencia moss", 1531, 1532),
-            (9, 10, "Grimy rogue's purse", "Clean rogue's purse", 1533, 1534),
+            (1, "Grimy snake weed", "Clean snake weed", 1525, 1526),
+            (2, "Grimy ardrigal", "Clean ardrigal", 1527, 1528),
+            (3, "Grimy sito foil", "Clean sito foil", 1529, 1530),
+            (4, "Grimy volencia moss", "Clean volencia moss", 1531, 1532),
+            (5, "Grimy rogue's purse", "Clean rogue's purse", 1533, 1534),
         )
         item_by_name = {item.storage_key: item for item in ITEM_DEFINITIONS}
-        for search_stage, turn_in_stage, grimy_name, clean_name, grimy_id, clean_id in herb_rows:
-            self.assertEqual(by_stage[search_stage]["produced_inventory"], {grimy_name: 1})
-            self.assertEqual(by_stage[turn_in_stage]["consumed_inventory"], {clean_name: 1})
+        for stage, grimy_name, clean_name, grimy_id, clean_id in herb_rows:
+            self.assertEqual(by_stage[stage]["produced_inventory"], {grimy_name: 1})
+            self.assertEqual(by_stage[stage]["consumed_inventory"], {clean_name: 1})
+            self.assertTrue(by_stage[stage]["repeatable_until_consumed"])
             self.assertEqual(item_by_name[grimy_name].source_item_id, grimy_id)
             self.assertEqual(item_by_name[clean_name].source_item_id, clean_id)
 

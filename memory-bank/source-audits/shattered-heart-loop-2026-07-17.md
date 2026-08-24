@@ -112,10 +112,13 @@ Labeled AnkiScape abstractions:
   Exact per-action inclusions and exclusions remain a later catalog-depth harvest;
 - the flat skilling inventory has no ordinary 28-slot carried layout. When a
   loose rock and an ordinary output arrive together, the hook removes one unit
-  of that action's output to preserve the sourced replacement consequence. A
-  carried collection bag suppresses that replacement. The hook runs before
-  telemetry, achievement and Daily Challenge credit, so a replaced output is
-  not later counted as though the player kept it; and
+  of that action's output to preserve the sourced replacement consequence. The
+  shared hook filters caller-supplied candidate outputs through canonical item
+  tradeability, so untradeable outputs remain while incidental bird nests and
+  gems stay outside the primary-output candidate set. A carried collection bag
+  suppresses replacement. The hook runs before telemetry, achievement and Daily
+  Challenge credit, so a replaced output is not later counted as though the
+  player kept it; and
 - the existing POH contract supplies the location layer: building the replica
   plinth requires an owned Study and consumes the sourced plinth item. No second
   house or geography system is introduced.

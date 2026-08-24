@@ -1313,6 +1313,19 @@ HUNTER_HABITAT_VINE_ITEMS: Mapping[str, Tuple[int, str]] = {
     "Zamorak vine": (19983, "zamorak"),
 }
 
+_HUNTER_UNTRADEABLE_ITEMS = frozenset(
+    {
+        "Corrupt vine",
+        "Guthix vine",
+        "Shadow vine",
+        "Striped vine",
+        "Plant teeth",
+        *HUNTER_HABITAT_SEED_ITEMS,
+        *HUNTER_HABITAT_VINE_ITEMS,
+    }
+)
+
+
 HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Bones": 526,
     "Raw bird meat": 9978,
@@ -1376,7 +1389,10 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "rate1": target.rate1,
         "rate99": target.rate99,
         "deterministic": target.deterministic,
-        "tradeable": target.tradeable,
+        "tradeable": (
+            target.tradeable
+            and target.primary_output not in _HUNTER_UNTRADEABLE_ITEMS
+        ),
         "notes": target.notes,
         "sort_key": (_GROUP_SORT.get(target.group, 999), target.sort_order, target.level, target.display_name),
     }
@@ -1493,16 +1509,7 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "exp": 0.0,
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
-            "tradeable": item_name
-            not in {
-                "Corrupt vine",
-                "Guthix vine",
-                "Shadow vine",
-                "Striped vine",
-                "Plant teeth",
-                *HUNTER_HABITAT_SEED_ITEMS,
-                *HUNTER_HABITAT_VINE_ITEMS,
-            },
+            "tradeable": item_name not in _HUNTER_UNTRADEABLE_ITEMS,
             "stackable": item_name not in {"Marasamaw plant", "Rope"},
         }
     return rows

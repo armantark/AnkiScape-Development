@@ -27,7 +27,6 @@ from ..core.constants import (
     FIREMAKING_DATA,
     FISHING_DATA,
     HUNTER_DATA,
-    HUNTER_EXTRA_ITEM_DATA,
     FLETCHING_DATA,
     HERBLORE_DATA,
     GLORY_GEM_DROP_CHANCE,
@@ -640,11 +639,6 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     )
     player_data.clear()
     player_data.update(passive_data)
-    shattered_heart_outputs = {
-        item_name: amount
-        for item_name, amount in retained_outputs.items()
-        if HUNTER_EXTRA_ITEM_DATA.get(item_name, {}).get("tradeable", True)
-    }
     if bonecrusher_info["consumed"]:
         inventory = dict(player_data.get("inventory", {}) or {})
         for item_name, amount in bonecrusher_info["consumed"].items():
@@ -664,7 +658,6 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         expected_success_chance=expected_success,
         output_items=retained_outputs,
         primary_xp=base_exp,
-        shattered_heart_output_items=shattered_heart_outputs,
     )
     player_data["hunter_success_count"] = player_data.get("hunter_success_count", 0) + 1
     action_rewards = list(xp_rewards or ({"skill_id": "hunter", "amount": base_exp},))

@@ -4,6 +4,7 @@ import copy
 import json
 import os
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import (
@@ -33,6 +34,7 @@ from ankiscape.data.shattered_heart_data import (
     SHATTERED_HEART_SECOND_ROCK_MODIFIER,
     SHATTERED_HEART_SKILLS,
     SHATTERED_HEART_SKILLS_BY_ID,
+    ShatteredHeartSkill,
     shattered_heart_activity_as_dict,
     shattered_heart_extra_items_as_dict,
 )
@@ -306,6 +308,32 @@ class ShatteredHeartSkillingHookTests(unittest.TestCase):
         self.assertEqual(info["chances"], (SHATTERED_HEART_ROCK_CHANCE, SHATTERED_HEART_ROCK_CHANCE * SHATTERED_HEART_SECOND_ROCK_MODIFIER))
         self.assertEqual(info["replaced_outputs"], {"Logs": 2})
         self.assertEqual(updated["inventory"]["Logs"], 0)
+
+    def test_a_future_eligible_skill_cannot_replace_an_untradeable_output(self):
+        data = _player()
+        data["inventory"]["Overload (3)"] = 1
+        future_skill = ShatteredHeartSkill(
+            "future_skill",
+            "Future skill",
+            (90_001, 90_002),
+            (90_003, 90_004),
+        )
+
+        with patch.dict(
+            SHATTERED_HEART_SKILLS_BY_ID,
+            {future_skill.id: future_skill},
+        ):
+            updated, ok, info = apply_shattered_heart_skilling_hook_pure(
+                data,
+                future_skill.id,
+                lambda: 0.0,
+                {"Overload (3)": 1},
+            )
+
+        self.assertTrue(ok, info)
+        self.assertEqual(info["rocks"], future_skill.rock_items)
+        self.assertEqual(info["replaced_outputs"], {})
+        self.assertEqual(updated["inventory"]["Overload (3)"], 1)
 
     def test_the_second_rock_is_halved_until_another_skill_yields_a_rock(self):
         data = _player()

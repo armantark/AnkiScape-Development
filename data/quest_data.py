@@ -936,6 +936,7 @@ class QuestStageRequirement:
     consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     produced_inventory: Tuple[Tuple[str, int], ...] = ()
+    repeatable_until_consumed: bool = False
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
     auto_actions: Tuple[str, ...] = ()
@@ -1199,18 +1200,13 @@ DRUIDIC_RITUAL_STAGES: Tuple[QuestStage, ...] = (
 )
 
 JUNGLE_POTION_STAGES: Tuple[QuestStage, ...] = (
-    _simple_stage(1, "Trufitus asked me to search the marshy jungle vines to the south-west for snake weed."),
-    _simple_stage(2, "I found grimy snake weed. I must clean it and give the clean herb to Trufitus."),
-    _simple_stage(3, "Trufitus asked me to search the palm trees on the north-east peninsula for ardrigal."),
-    _simple_stage(4, "I found grimy ardrigal. I must clean it and give the clean herb to Trufitus."),
-    _simple_stage(5, "Trufitus asked me to search the scorched earth south of the village for sito foil."),
-    _simple_stage(6, "I found grimy sito foil. I must clean it and give the clean herb to Trufitus."),
-    _simple_stage(7, "Trufitus asked me to search the rocks south-east of the village for volencia moss."),
-    _simple_stage(8, "I found grimy volencia moss. I must clean it and give the clean herb to Trufitus."),
-    _simple_stage(9, "Trufitus asked me to search the fungus-covered walls in the northern caves for rogue's purse."),
-    _simple_stage(10, "I found grimy rogue's purse. I must clean it and give the clean herb to Trufitus."),
+    _simple_stage(1, "Trufitus asked me to find, clean, and return snake weed from the marshy jungle vines."),
+    _simple_stage(2, "Trufitus asked me to find, clean, and return ardrigal from the north-east palm trees."),
+    _simple_stage(3, "Trufitus asked me to find, clean, and return sito foil from the scorched earth."),
+    _simple_stage(4, "Trufitus asked me to find, clean, and return volencia moss from the south-east rocks."),
+    _simple_stage(5, "Trufitus asked me to find, clean, and return rogue's purse from the northern caves."),
     _simple_stage(
-        11,
+        6,
         "I collected five jungle herbs for Trufitus and he rewarded me with Herblore training.",
         "Quest complete!",
     ),
@@ -3628,6 +3624,7 @@ def _stage_req(
     consumed_inventory: Tuple[Tuple[str, int], ...] = (),
     consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
     produced_inventory: Tuple[Tuple[str, int], ...] = (),
+    repeatable_until_consumed: bool = False,
     required_tools: Tuple[Tuple[str, int], ...] = (),
     required_actions: Tuple[str, ...] = (),
     auto_actions: Tuple[str, ...] = (),
@@ -3643,6 +3640,7 @@ def _stage_req(
         consumed_inventory=consumed_inventory,
         consumed_inventory_options=consumed_inventory_options,
         produced_inventory=produced_inventory,
+        repeatable_until_consumed=repeatable_until_consumed,
         required_tools=required_tools,
         required_actions=required_actions,
         auto_actions=auto_actions,
@@ -4254,73 +4252,63 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     JUNGLE_POTION_ID: (
         _stage_req(
             1,
-            "Search the south-west marshy jungle vines for snake weed.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            "Find, clean, and give Trufitus snake weed from the south-west marshy jungle vines.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean snake weed", 1),),
             produced_inventory=(("Grimy snake weed", 1),),
-            auto_actions=("Search the south-west marshy jungle vines for snake weed",),
+            repeatable_until_consumed=True,
+            auto_actions=(
+                "Search the south-west marshy jungle vines for snake weed",
+                "Give Trufitus clean snake weed",
+            ),
         ),
         _stage_req(
             2,
-            "Clean the snake weed and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean snake weed", 1),),
-            auto_actions=("Give Trufitus clean snake weed",),
+            "Find, clean, and give Trufitus ardrigal from the north-east palm trees.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean ardrigal", 1),),
+            produced_inventory=(("Grimy ardrigal", 1),),
+            repeatable_until_consumed=True,
+            auto_actions=(
+                "Search the north-east palm trees for ardrigal",
+                "Give Trufitus clean ardrigal",
+            ),
         ),
         _stage_req(
             3,
-            "Search the north-east palm trees for ardrigal.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            produced_inventory=(("Grimy ardrigal", 1),),
-            auto_actions=("Search the north-east palm trees for ardrigal",),
+            "Find, clean, and give Trufitus sito foil from the scorched earth south of the village.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean sito foil", 1),),
+            produced_inventory=(("Grimy sito foil", 1),),
+            repeatable_until_consumed=True,
+            auto_actions=(
+                "Search the scorched earth south of the village for sito foil",
+                "Give Trufitus clean sito foil",
+            ),
         ),
         _stage_req(
             4,
-            "Clean the ardrigal and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean ardrigal", 1),),
-            auto_actions=("Give Trufitus clean ardrigal",),
+            "Find, clean, and give Trufitus volencia moss from the rocks south-east of the village.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean volencia moss", 1),),
+            produced_inventory=(("Grimy volencia moss", 1),),
+            repeatable_until_consumed=True,
+            auto_actions=(
+                "Search the rocks south-east of the village for volencia moss",
+                "Give Trufitus clean volencia moss",
+            ),
         ),
         _stage_req(
             5,
-            "Search the scorched earth south of the village for sito foil.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            produced_inventory=(("Grimy sito foil", 1),),
-            auto_actions=("Search the scorched earth south of the village for sito foil",),
-        ),
-        _stage_req(
-            6,
-            "Clean the sito foil and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean sito foil", 1),),
-            auto_actions=("Give Trufitus clean sito foil",),
-        ),
-        _stage_req(
-            7,
-            "Search the rocks south-east of the village for volencia moss.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            produced_inventory=(("Grimy volencia moss", 1),),
-            auto_actions=("Search the rocks south-east of the village for volencia moss",),
-        ),
-        _stage_req(
-            8,
-            "Clean the volencia moss and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
-            consumed_inventory=(("Clean volencia moss", 1),),
-            auto_actions=("Give Trufitus clean volencia moss",),
-        ),
-        _stage_req(
-            9,
-            "Search the fungus-covered northern cavern wall for rogue's purse.",
-            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
-            produced_inventory=(("Grimy rogue's purse", 1),),
-            auto_actions=("Search the fungus-covered northern cavern wall for rogue's purse",),
-        ),
-        _stage_req(
-            10,
-            "Clean the rogue's purse and give it to Trufitus.",
-            f"{DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_WIKI_SOURCE}",
+            "Find, clean, and give Trufitus rogue's purse from the fungus-covered northern cavern wall.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {DARKAN_JUNGLE_POTION_TRUFITUS_SOURCE}; {DARKAN_HERB_CLEANING_SOURCE_PATH}; {JUNGLE_POTION_CACHE_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean rogue's purse", 1),),
-            auto_actions=("Give Trufitus clean rogue's purse",),
+            produced_inventory=(("Grimy rogue's purse", 1),),
+            repeatable_until_consumed=True,
+            auto_actions=(
+                "Search the fungus-covered northern cavern wall for rogue's purse",
+                "Give Trufitus clean rogue's purse",
+            ),
         ),
     ),
     SHILO_VILLAGE_ID: (
@@ -8940,6 +8928,9 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
                 consumed_inventory=_catalog_item_pairs(raw.get("consumed_inventory", {})),
                 consumed_inventory_options=_catalog_item_options(raw.get("consumed_inventory_options", ())),
                 produced_inventory=_catalog_item_pairs(raw.get("produced_inventory", {})),
+                repeatable_until_consumed=_catalog_bool(
+                    dict(raw), "repeatable_until_consumed"
+                ),
                 required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
                 required_actions=_catalog_strings(raw.get("required_actions", ())),
                 auto_actions=_catalog_strings(raw.get("auto_actions", ())),
@@ -10031,6 +10022,7 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
             for option_group in requirement.consumed_inventory_options
         ),
         "produced_inventory": dict(requirement.produced_inventory),
+        "repeatable_until_consumed": requirement.repeatable_until_consumed,
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,
         "auto_actions": requirement.auto_actions,

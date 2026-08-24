@@ -3498,7 +3498,7 @@ class TestRuntimeActions(unittest.TestCase):
             ],
         )
 
-    def test_jungle_potion_real_handler_completes_ordered_herb_route_and_unlocks_shilo(self):
+    def test_jungle_potion_real_handler_repeats_each_search_until_turn_in_and_unlocks_shilo(self):
         from ankiscape.core.constants import HERBLORE_DATA, QUEST_DATA
 
         quest_id = "jungle_potion"
@@ -3530,42 +3530,58 @@ class TestRuntimeActions(unittest.TestCase):
             ("clean_rogues_purse", "Grimy rogue's purse", "Clean rogue's purse"),
         )
 
-        for index, (clean_target, grimy_item, clean_item) in enumerate(route, start=1):
+        for stage, (clean_target, grimy_item, clean_item) in enumerate(route, start=1):
             self.assertTrue(handle_quest_answer(ctx))
             self.assertEqual(player_data["inventory"][grimy_item], 1)
-            self.assertEqual(player_data["quests"][quest_id]["progress"], index * 2)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage)
             self.assertFalse(player_data["quests"][quest_id]["completed"])
+
+            player_data["inventory"][grimy_item] = 0
+            self.assertTrue(handle_quest_answer(ctx))
+            self.assertEqual(player_data["inventory"][grimy_item], 1)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage)
 
             player_data["current_herblore"] = clean_target
             self.assertTrue(handle_herblore_answer(ctx))
             self.assertEqual(player_data["inventory"][grimy_item], 0)
-            self.assertEqual(player_data["inventory"][clean_item], 1)
             self.assertEqual(HERBLORE_DATA[clean_target]["level"], 3)
             self.assertEqual(HERBLORE_DATA[clean_target]["exp"], 2.5)
-            if index == 1:
+            if stage == 1:
+                self.assertEqual(player_data["inventory"][clean_item], 0)
                 self.assertEqual(
                     player_data["inventory"]["Strange rock (Herblore 1)"], 1
                 )
-                self.assertEqual(player_data["inventory"][clean_item], 1)
+                self.assertEqual(
+                    player_data["inventory"]["Strange rock (Herblore 2)"], 1
+                )
+                self.assertTrue(handle_quest_answer(ctx))
+                self.assertEqual(player_data["inventory"][grimy_item], 1)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], stage)
+                self.assertTrue(handle_herblore_answer(ctx))
+                self.assertEqual(player_data["inventory"][grimy_item], 0)
+            self.assertEqual(player_data["inventory"][clean_item], 1)
 
             self.assertTrue(handle_quest_answer(ctx))
             self.assertEqual(player_data["inventory"][clean_item], 0)
-            self.assertEqual(player_data["quests"][quest_id]["progress"], index * 2 + 1)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
                 player_data["quests"][quest_id]["completed"],
-                index == len(route),
+                stage == len(route),
             )
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 5)
-        self.assertEqual(player_data["herblore_exp"], 1037.5)
-        self.assertEqual(calls["saves"], 15)
+        self.assertEqual(player_data["herblore_exp"], 1040.0)
+        self.assertEqual(calls["saves"], 22)
         self.assertEqual(calls["activity"][-1], "Jungle Potion complete")
         self.assertIn("Found 2 Herblore strange rocks.", calls["activity"])
         self.assertEqual(player_data["inventory"]["Strange rock (Herblore 1)"], 1)
         self.assertEqual(player_data["inventory"]["Strange rock (Herblore 2)"], 1)
         self.assertEqual(calls["errors"][-1][0], "Quest complete")
         self.assertTrue(calls["deactivated"])
+        for _clean_target, grimy_item, clean_item in route:
+            self.assertEqual(player_data["inventory"][grimy_item], 0)
+            self.assertEqual(player_data["inventory"][clean_item], 0)
 
         for activity_id, grimy_item in (
             ("search_marshy_jungle_vines", "Grimy snake weed"),

@@ -722,6 +722,12 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
     source = str(requirement.get("source", ""))
     inventory = player_data.get("inventory", {}) or {}
     blockers = []
+    repeatable_consumed_items = {
+        item_name
+        for item_name, _amount in _quest_stage_item_pairs(
+            requirement, "consumed_inventory"
+        )
+    } if bool(requirement.get("repeatable_until_consumed")) else set()
 
     required_items = {}
     for item_name, amount in (
@@ -732,6 +738,8 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
     for item_name, amount in required_items.items():
         owned = _positive_int(inventory.get(item_name, 0), 0)
         if owned < amount:
+            if item_name in repeatable_consumed_items:
+                continue
             blockers.append(
                 _quest_blocker(
                     stage,
@@ -1241,6 +1249,33 @@ def start_quest_pure(player_data, quest_id, quest_data):
     return data, True
 
 
+def _produce_repeatable_quest_stage_items(data, quest_id, quest):
+    inventory = data["inventory"]
+    requirements, blockers = _quest_current_stage_selected_requirements(
+        data, quest_id, {quest_id: quest}
+    )
+    if blockers:
+        return False
+    produced = False
+    for requirement in requirements:
+        if not bool(requirement.get("repeatable_until_consumed")):
+            continue
+        consumed_items = _quest_stage_item_pairs(requirement, "consumed_inventory")
+        if not consumed_items or all(
+            _positive_int(inventory.get(item_name, 0), 0) >= amount
+            for item_name, amount in consumed_items
+        ):
+            continue
+        for item_name, amount in _quest_stage_item_pairs(
+            requirement, "produced_inventory"
+        ):
+            inventory[item_name] = (
+                _positive_int(inventory.get(item_name, 0), 0) + amount
+            )
+            produced = True
+    return produced
+
+
 def _consume_quest_current_stage_items(data, quest_id, quest):
     inventory = data["inventory"]
     requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})
@@ -1255,6 +1290,8 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
                 if _positive_int(inventory.get(item_name, 0), 0) >= amount:
                     inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
                     break
+        if bool(requirement.get("repeatable_until_consumed")):
+            continue
         for item_name, amount in _quest_stage_item_pairs(requirement, "produced_inventory"):
             inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount
 
@@ -1457,6 +1494,12 @@ def apply_quest_progress_pure(
             return player_data, False, False, ""
         return player_data, False, False
     current_stage = quest_current_stage_pure(data, quest_id, quest_data)
+    if _produce_repeatable_quest_stage_items(data, quest_id, quest):
+        state["progress"] = current_stage
+        data.setdefault("quests", {})[quest_id] = state
+        if include_clue_refusal:
+            return data, True, False, ""
+        return data, True, False
     _consume_quest_current_stage_items(data, quest_id, quest)
     total_stages = _positive_int(quest.get("stages", 1), 1)
     state["progress"] = min(total_stages, current_stage + 1)

@@ -168,14 +168,10 @@ strange-rock-eligible handlers: the five Jungle Potion cleanings and Heroes'
 Quest `cook_lava_eel`. The latter is recoverable through the repeatable
 `lava_eel` Fishing target, so no other strictly one-shot exposure remains.
 
-The shipped Jungle Potion rock exemption is an AnkiScape safeguard, not a rule
-recovered from Darkan. Darkan gates each search object on
-`questStage == requiredStage`, and only the clean-herb turn-in advances that
-stage; a player who loses the clean herb can therefore search the same object
-again. AnkiScape splits that source stage into a search review and a later
-turn-in review, advancing past the search as soon as the grimy herb is found.
-That split makes the search one-shot before turn-in, so the runtime suppresses
-strange-rock output replacement for the five cleanings while the quest remains
-incomplete. The source-faithful alternative is to keep each herb search
-reachable until its corresponding turn-in completes. Replacing the shipped
-safeguard with that stage model is queued for an owner decision.
+Jungle Potion follows Darkan's stage boundary. Each herb search and its
+matching clean-herb turn-in share one quest stage: searching produces the grimy
+herb without advancing, and consuming the clean herb at Trufitus is the only
+action that advances. Losing a herb therefore leaves the same search reachable.
+The five cleanings use the ordinary Shattered Heart replacement rule; no
+quest-specific rock exemption remains. Post-quest searches continue through
+the five utility activities documented above.
