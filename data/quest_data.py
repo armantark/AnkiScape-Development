@@ -4207,6 +4207,9 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     "diamond_in_the_rough": (),
     "icthlarins_little_helper": (("Catspeak amulet", 1),),
     SMOKING_KILLS_ID: (),
+    SHEEP_HERDER_ID: (("Coins", 3100),),
+    "cold_war": (),
+    "hunt_for_red_raktuber": (),
     SONG_FROM_THE_DEPTHS_ID: (
         ("Coral bolts", 50),
         ("Coral crossbow", 1),

@@ -1038,3 +1038,9 @@
 
 - 2026-08-23 15:13 PDT — The full plain lane replayed one stale Sheep Herder runtime blocker expectation through nine immutability gates, so two direct stale tests appeared as 11 failures; fix the direct expectations before interpreting the gate fan-out.
 - 2026-08-23 11:08 PDT — (q-totem) The Tribal Totem stage-2 row carried BOTH an auto route step and a required action in the same `_stage_req`, so the reachability audit reported only stage 1 and understated the slice by three stages; audit reports only the earliest blocked stage, so re-measure after every single edit.
+- 2026-08-24 08:22:50 PDT — A direct PYTHONPATH repro imported core.constants as a top-level module and failed with `ImportError: attempted relative import beyond top-level package`; use the repository test package loader or a synthetic package import instead.
+- 2026-08-24 08:25:05 PDT — A broad `find` for `SheepHerder.kt` exceeded the 120-second foreground timeout; use Spotlight metadata or known source roots for repository evidence lookup.
+- 2026-08-24 08:25:48 PDT — The test import helper is available as `pkg_alias` but is not stored at `tests/pkg_alias.py`; locate the module before reading it instead of assuming its path.
+- 2026-08-24 08:26:40 PDT — A zsh loop kept each quoted `title oldid` pair as one scalar, so the direct wiki probe sent an empty `oldid` and wrote unexpected filenames; use explicit delimiter parsing or the repository wiki parity tool.
+- 2026-08-24 08:29:45 PDT — The first completion proof imported a nonexistent `ankiscape.data.constants_data` module for `ORE_DATA`; import it from `ankiscape.core.constants`, as the suite does.
+- 2026-08-24 08:30:03 PDT — A `PYTHONPATH` completion proof still imported `pkg_alias.py` from the canonical checkout because Python searched the shell current directory first; use `python3 -P` so the target worktree wins and the proof cannot silently inspect the wrong tree.

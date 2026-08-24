@@ -4693,6 +4693,7 @@ class TestLogic(unittest.TestCase):
 
     def test_sheep_herder_real_stage_emitters_preserve_consumption_and_rewards(self):
         quest_id = "sheep_herder"
+        self.assertEqual(QUEST_DATA[quest_id]["rewards"], {"Coins": 3100})
         actions = (
             "Accept poisoned sheep feed from Councillor Halgrive",
             "Reach the Ardougne sheep enclosure",
@@ -4732,7 +4733,7 @@ class TestLogic(unittest.TestCase):
             (3, False, actions[:1], (0, 1, 1, 1, 0, 0, 0, 0, 0)),
             (4, False, actions[:3], (0, 1, 1, 1, 1, 0, 0, 0, 0)),
             (5, False, actions[:7], (0, 1, 1, 1, 1, 1, 1, 1, 1)),
-            (6, True, actions, (3100, 1, 2, 2, 2, 0, 0, 0, 0)),
+            (6, True, actions, (3100, 1, 1, 1, 1, 0, 0, 0, 0)),
         )
         for progress, completed, expected_actions, inventory in expected_steps:
             player_data, ok, completed_now = apply_quest_progress_pure(

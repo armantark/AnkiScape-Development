@@ -1370,6 +1370,13 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
 
+    def test_cold_war_and_hunt_for_red_raktuber_unlocks_are_not_item_rewards(self):
+        data = quests_as_dict()
+
+        self.assertEqual(data["cold_war"]["rewards"], {})
+        self.assertEqual(data["hunt_for_red_raktuber"]["rewards"], {})
+        self.assertNotIn("Penguin Hide and Seek", quest_reward_items_as_dict())
+
     def test_same_quest_products_are_not_required_before_they_are_produced(self):
         violations = []
         for quest_id, quest in quests_as_dict().items():
