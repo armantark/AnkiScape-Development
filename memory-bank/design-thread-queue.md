@@ -1713,3 +1713,186 @@ is **not scheduled work** and is not a quest-by-quest task list.
   through `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, and keep unlocks in their
   owning quest or activity state. Apply those corrections only after
   source-checking each quest; this record does not schedule them.
+### 5.4 Fresh queue audit found five unblocked records — 2026-08-24
+
+Raised by a full read of this file at
+`8f96c02fcbf42d23fd9743af774d12e883418248`. The audit examined **35**
+current or explicitly pending entries: **9 COMPLETE**, **7 DEFERRED DATA
+DEPTH**, **14 BLOCKED** (**12 owner**, **2 source**), and **5 UNBLOCKED**.
+The pending reward-name record is included because the dispatch names it, but it
+is not in the audited tree: its heading exists only at
+`a468d18a:memory-bank/design-thread-queue.md:1619` on
+`goal/reward-artifact-record-2026-08-24` and its `8ec703a9` measurements are
+stale against this base.
+
+**COMPLETE — measured in this tree:**
+
+- `### 3.11 The all-skills capes have 24 skills to ask for, and the period has 25`
+  (`memory-bank/design-thread-queue.md:270`) — the live registry now measures
+  `25` trainable skills and `25` skillcape rows, including Dungeoneering;
+  `b60f2fcf` is an ancestor of the audited commit.
+- `### 3.15 Does the reviewer badge list only favourited Distractions?`
+  (`memory-bank/design-thread-queue.md:414`) — `b94de70b` implements the
+  superseding pass-4 two-badge/right-click surface and 4.14 affirms
+  Distractions-only favourites.
+- `### 3.21 Gnome Restaurant: one delivery ticket, or an order-and-reward board`
+  (`memory-bank/design-thread-queue.md:491`) — 4.14 confirms the ticket and
+  `49769d21` is in the audited history.
+- `### 3.29 Durable line citations need a mechanical drift check`
+  (`memory-bank/design-thread-queue.md:586`) — `b5addc1d` adds
+  `tools/audit_citation_drift.py`; the dispatch forbids running that tool, so
+  this audit verified the closing commit and file instead.
+- `### 3.30 Rune Mysteries stage 1 has no action emitter and blocks its dependants`
+  (`memory-bank/design-thread-queue.md:605`) — `8aafd995` is present and the
+  catalog now emits `Deliver the strange talisman to Sedridor`.
+- `### 3.32 Thirty quests require routes that no player can select`
+  (`memory-bank/design-thread-queue.md:774`) — the fresh reachability report has
+  `rows_with_missing_required_routes=0`.
+- `### 3.35 King’s Ransom assigns the animate rock scroll to the wrong quest step`
+  (`memory-bank/design-thread-queue.md:1021`) — `fdbec823` is present and the
+  live action is `Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail`.
+- `### 5.1 Direct actions have no undo (breadth criterion 5)`
+  (`memory-bank/design-thread-queue.md:1161`) — `aefcc4ea` supplies the shared
+  seam; a fresh static scan finds `80` `commit_direct_action(` call sites and
+  `0` remaining `def _apply_*_command` handlers in `__init__.py`. The two
+  remaining `_apply_` definitions in `runtime/runtime_actions_shared.py` are
+  action-calculation helpers, not direct command handlers, and the plain lane
+  exercises the migrated seams.
+- `### Open decisions queued by the pass-3 shop-UI work — 2026-07-26`
+  (`memory-bank/design-thread-queue.md:1275`) — the live registry measures all
+  `25` skillcapes and all `25` sourced master-shop rows; Dungeoneering is no
+  longer latent.
+
+**DEFERRED DATA DEPTH:**
+
+- `### 3.5 Two Crucible reward rows have nothing to act on`
+  (`memory-bank/design-thread-queue.md:141`) — fissure travel and the Rogue-glove
+  degradation family are omitted depth surfaces, with the glove charge count
+  still unrecovered.
+- `### 3.7 Activity-owned population base ceilings`
+  (`memory-bank/design-thread-queue.md:200`) — activity-specific population
+  statistics remain unrecovered; the mechanically complete fuzzy simulation
+  uses the disclosed current ceilings.
+- `### 3.8 How a geography-bound period task becomes a predicate`
+  (`memory-bank/design-thread-queue.md:220`) — the alternative is the explicit
+  per-task hand-curation pass, not missing breadth mechanics.
+- `### 3.13 Shattered Heart has no recovered strange-rock rate table`
+  (`memory-bank/design-thread-queue.md:316`) — the registered global placeholder
+  preserves acquisition; per-skill rate precision is unrecovered depth.
+- `### 3.17 Breadth-one follower supplies stay compact and explicit`
+  (`memory-bank/design-thread-queue.md:378`) — widening the explicit Lobster
+  pack to the ordinary food catalog is depth beyond the working trek loop.
+- `### 3.18 Mage Training Arena ordinary dragonstone spawns in breadth one`
+  (`memory-bank/design-thread-queue.md:391`) — the separately clocked timed spawn
+  is the entry's declared catalog/depth pass.
+- `### 5.2 Post-cutoff art — measured, and mostly deliberate`
+  (`memory-bank/design-thread-queue.md:1177`) — wholesale modern-RS3 asset
+  replacement is the entry's own deferred slow-data harvest, not a breadth
+  blocker.
+
+**BLOCKED — owner:** the full-file read found no later ruling for these exact
+forks, so the implemented recommendation is not authority to close them.
+
+- `### 3.1 Skeletal Horror wish lists are satisfied by a free button click`
+  (`memory-bank/design-thread-queue.md:30`) — owner must keep the stand-in or
+  park the boss behind real wish-list state.
+- `### 3.2 Clan Wars purple portal — who gets a crossfire kill?`
+  (`memory-bank/design-thread-queue.md:59`) — owner must choose the purple-team
+  crossfire scoring rule.
+- `### 3.3 Tears of Guthix — how many review beats one cavern visit is worth`
+  (`memory-bank/design-thread-queue.md:89`) — owner must choose the
+  ticks-to-reviews conversion.
+- `### 3.4 Do No Evil's one-time elite clue can be lost permanently`
+  (`memory-bank/design-thread-queue.md:116`) — owner must choose permanent loss
+  or a pending-reward path.
+- `### 3.6 The Supreme Champion's invulnerable phase is not modelled`
+  (`memory-bank/design-thread-queue.md:168`) — owner must accept the disclosed
+  omission or change event cadence.
+- `### 3.12 New predicates overfill Ardougne Easy's twelve-task budget`
+  (`memory-bank/design-thread-queue.md:303`) — owner has not ruled on the final
+  twelve-row curation.
+- `### 3.14 Shattered Heart conflicts on reacquiring a placed skill pair`
+  (`memory-bank/design-thread-queue.md:339`) — owner has not chosen between the
+  repeated lead rule and the stale blocking bullet.
+- `### 3.15 Temple Trekking and Burgh de Rott Ramble share one surface`
+  (`memory-bank/design-thread-queue.md:356`) — owner has not confirmed the
+  one-card direction selector.
+- `### 3.16 Route choice applies to each encounter, not the whole trek`
+  (`memory-bank/design-thread-queue.md:366`) — owner has not confirmed the saved
+  next-encounter policy.
+- `### 3.19 Mobilising Armies' hourly rank cap has no clock to hang on`
+  (`memory-bank/design-thread-queue.md:450`) — owner has not confirmed the
+  `36`-review rolling window.
+- `### 3.20 Winning by the primary objective can outrun the ten-order rank gate`
+  (`memory-bank/design-thread-queue.md:472`) — owner has not chosen calibrated
+  objective lengths versus a completion waiver.
+- `### 3.35 Melee/ranged Vengeance parity — recorded fork, not scheduled`
+  (`memory-bank/design-thread-queue.md:1538`) — only the owner can carve
+  Vengeance out of the settled effective-magic-class ruling.
+
+**BLOCKED — source:**
+
+- `### 3.31 Forty-five quests require specific actions that no runtime path emits`
+  (`memory-bank/design-thread-queue.md:633`) — the ordinary reachability report
+  now exposes `0` specific missing actions and `131` generated-stub actions
+  across `131` quests, but a fresh stage-by-stage catalog walk found **11** later
+  specific actions behind at least one earlier missing generated stub. They are:
+  `mournings_end_part_i` stage `3` `Have Oronwen repair the mourner trousers`;
+  stage `5` `Use the rotten apple to sabotage the mourner food stores`;
+  `spirits_of_the_elid` stage `2` `Cast Telegrab for the water channel puzzle`;
+  `enakhras_lament` stage `5` `Cast Crumble Undead during the boneguard fight`;
+  `in_aid_of_the_myreque` stage `6` `Enchant sapphire for the Myreque preparations`;
+  `the_eyes_of_glouphrie` stage `3` `Collect a bucket of sap from an evergreen tree`;
+  `cold_war` stage `2` `Build the clockwork penguin on a crafting table 3`;
+  `the_fremennik_isles` stage `5` `Cure and stitch yak-hide armour` and
+  `Make a Fremennik round shield`; `legacy_of_seergaze` stage `5`
+  `Cast Enchant Level 2 Jewellery for the emerald preparations`; and
+  `do_no_evil` stage `3` `Recover an m'amulet mould before making the monkeyspeak amulet`.
+  Ruling 4.17 makes each earlier stub-only stage a source-harvest task and
+  requires real-kernel progression from a normally started quest, so these
+  later emitters cannot be proved before that source work lands.
+- `### 3.33 Six Dealing with Scabaras stages use a generated stub as their only action record`
+  (`memory-bank/design-thread-queue.md:932`) — stages `2` through `7` still have
+  exactly one `auto_actions` value each, `Complete Dealing with Scabaras stage N objective`;
+  ruling 4.17 requires sourced action text after the evidence order is exhausted.
+
+**UNBLOCKED settled work remains:**
+
+- `### 3.34 Source-audit test selectors can silently outlive their tests`
+  (`memory-bank/design-thread-queue.md:952`) — a fresh AST scan found **36
+  dangling occurrences**, **33 unique selectors**, and **23 documents**, not
+  the recorded `27`/`24`/`19`. Add the qualified-selector check to
+  `tools/audit_docs.py`, then repair the historical references against the live
+  tests.
+- `### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — answered 2026-08-22 in 4.17`
+  (`memory-bank/design-thread-queue.md:1437`) — the owner chose the
+  source-faithful search-until-turn-in model, but the catalog still alternates
+  one-shot search and turn-in stages and
+  `runtime/runtime_actions_production.py:694-700` still carries the pre-ruling
+  Shattered Heart exemption. Reshape the five stage pairs and remove the
+  exemption together.
+- `### 4.15 Grill of 2026-07-30 — design-gap answers`
+  (`memory-bank/design-thread-queue.md:1484`) — the requested Kinship party
+  design packet does not exist, while the named Darkan dependency is available
+  in current history at `d4d430606`, `fcad1e89d`, and `f2ed1d725`. Produce the
+  flattened-port packet and per-class analog table; runtime implementation then
+  waits for owner approval.
+- `### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17`
+  (`memory-bank/design-thread-queue.md:1505`) — the owner chose the shared hook,
+  but `apply_shattered_heart_skilling_hook_pure` still accepts caller-filtered
+  `output_items` and the four runtime callers still own eligibility. Move the
+  tradeability rule into the hook and route all four callers through it.
+- `### 5.3 Quest reward strings can become inventory keys without semantic validation`
+  (`a468d18a:memory-bank/design-thread-queue.md:1619`, pending integration) — on
+  this audited base the fresh measurement is **196 quests**, **142
+  reward-bearing quests**, **310 reward occurrences**, **288 distinct
+  `(name, amount)` pairs**, **269 distinct names**, **3,502 final item
+  definitions**, and **0 unregistered names**. Self-registration is therefore
+  still not validation. The live Biohazard completion regression at
+  `tests/test_logic.py:5203` affirmatively expects the non-item unlock
+  `Combat Training Camp` in inventory. Rebase the record, source-classify the
+  current candidate pool, and route non-items through item suppression, XP, or
+  their owning unlock state instead of inventory.
+
+**Deciding answer: YES.** The five UNBLOCKED entries above are settled work that
+is not implemented. The autonomous goal is not finished on this tree.
