@@ -39,7 +39,7 @@ level-16 Thief row.
 ## Verification
 
 - `python3 -m py_compile combat_data.py tests/test_combat_logic.py`
-- `python3 -m unittest tests.test_combat_logic.CombatLogicTest.test_thief_import_row_matches_source_and_nested_minor_herbs tests.test_combat_logic.CombatLogicTest.test_thief_quantity_range_drop_rolls tests.test_combat_logic.CombatLogicTest.test_thief_drop_rolls_nested_minor_herb_table`
+- `python3 -m unittest tests.test_combat_logic.CombatLogicTest.test_thief_import_row_matches_source_and_nested_minor_herbs tests.test_combat_logic.CombatLogicTest.test_humanoid_quantity_range_drop_rolls tests.test_combat_logic.CombatLogicTest.test_humanoid_drop_tables_reach_nested_minor_herbs`
 - `python3 -m unittest tests.test_combat_logic tests.test_skill_and_item_registry tests.test_target_metadata`
 - `python3 run_tests.py`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`

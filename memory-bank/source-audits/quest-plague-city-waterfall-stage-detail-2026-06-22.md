@@ -111,8 +111,8 @@ Fetched or wired quest item icons into `questitems/` with provenance entries:
 Targeted tests added or updated:
 
 - `tests.test_quest_catalog.TestQuestCatalog.test_local_source_batch_quest_stage_replacements_are_structured`
-- `tests.test_logic.TestLogic.test_plague_city_stage_gates_gas_mask_hangover_cure_and_rescue`
-- `tests.test_logic.TestLogic.test_waterfall_quest_stage_gates_book_pebble_runes_and_rewards`
+- `tests.test_logic.TestLogic.test_plague_city_real_stage_emitters_complete_and_reward_once`
+- `tests.test_logic.TestLogic.test_waterfall_quest_real_stage_emitters_complete_and_reward_once`
 - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_waterfall_book_gate`
 - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_waterfall_book_gate`
 - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_plague_city_hangover_cure_blocker`

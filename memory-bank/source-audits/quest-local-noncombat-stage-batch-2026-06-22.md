@@ -136,7 +136,7 @@ Targeted tests run after this batch:
 python3 -m unittest \
   tests.test_quest_catalog.TestQuestCatalog.test_local_source_batch_quest_stage_replacements_are_structured \
   tests.test_logic.TestLogic.test_fishing_contest_real_stage_emitters_complete_and_reward_once \
-  tests.test_logic.TestLogic.test_scorpion_catcher_stage_exposes_source_backed_jailer_combat_gate \
+  tests.test_logic.TestLogic.test_scorpion_catcher_real_stage_emitters_preserve_jailer_gate_and_complete \
   tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_fishing_contest_pass_emitter \
   tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_fishing_contest_pass_emitter \
   tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons

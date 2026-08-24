@@ -118,7 +118,7 @@ Use a throwaway Anki profile or back up the current AnkiScape save first.
 ## Verification
 
 - `python3 -m unittest tests.test_logic tests.test_runtime_actions tests.test_integration_smoke`
-- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_generated_combat_gate_as_stage_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_resolver_ready_combat_gate_selection`
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_demon_slayer_item_stage_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_resolver_ready_combat_gate_selection`
 - `python3 -m unittest tests.test_quest_catalog tests.test_logic.TestLogic.test_restless_ghost_skeleton_warlock_override_is_resolver_ready`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_source_backed_focused_combat_override`
 - `python3 tools/audit_quest_stage_gate_coverage.py`

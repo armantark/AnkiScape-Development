@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import subprocess
@@ -15,6 +16,9 @@ from urllib.parse import unquote
 
 MARKDOWN_LINK_RE = re.compile(r"(?<![\w])!?\[[^\]]*\]\((<[^>]+>|[^\s)]+)(?:\s+['\"][^'\"]*['\"])?\)")
 FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
+QUALIFIED_TEST_SELECTOR_RE = re.compile(
+    r"(?<![\w.])(tests(?:\.[A-Za-z_]\w*)+\.test_[A-Za-z_]\w*)(?![\w.])"
+)
 
 
 @dataclass(frozen=True)
@@ -118,6 +122,36 @@ def _read_text(path: Path, root: Path, issues: list[DocIssue]) -> str | None:
     return text
 
 
+def _defined_test_selectors(root: Path) -> frozenset[str]:
+    selectors: set[str] = set()
+    tests_root = root / "tests"
+    if not tests_root.exists():
+        return frozenset()
+    for path in tests_root.rglob("test*.py"):
+        module = ".".join(path.relative_to(root).with_suffix("").parts)
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test"):
+                selectors.add(f"{module}.{node.name}")
+            elif isinstance(node, ast.ClassDef):
+                for child in node.body:
+                    if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name.startswith("test"):
+                        selectors.add(f"{module}.{node.name}.{child.name}")
+    return frozenset(selectors)
+
+
+def _audit_test_selectors(
+    path: Path, root: Path, text: str, selectors: frozenset[str], issues: list[DocIssue]
+) -> None:
+    if path.relative_to(root).parts[:2] != ("memory-bank", "source-audits"):
+        return
+    for line_number, line in enumerate(text.splitlines(), 1):
+        for match in QUALIFIED_TEST_SELECTOR_RE.finditer(line):
+            selector = match.group(1)
+            if selector not in selectors:
+                issues.append(DocIssue("dangling_test_selector", _relative(path, root), line_number, selector))
+
+
 def _audit_markdown(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
     fence: str | None = None
     visible_lines: list[str] = []
@@ -189,6 +223,7 @@ def audit_docs(root: Path) -> DocAuditReport:
     issues: list[DocIssue] = []
     markdown_files = 0
     html_files = 0
+    test_selectors = _defined_test_selectors(root)
     for path in _tracked_docs(root):
         text = _read_text(path, root, issues)
         if text is None:
@@ -196,6 +231,7 @@ def audit_docs(root: Path) -> DocAuditReport:
         if path.suffix == ".md":
             markdown_files += 1
             _audit_markdown(path, root, text, issues)
+            _audit_test_selectors(path, root, text, test_selectors, issues)
         else:
             html_files += 1
             _audit_html(path, root, text, issues)
