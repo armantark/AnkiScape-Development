@@ -997,3 +997,4 @@ the exact target commit, refuses while another tree is being gated, and refuses
 a target that is not descended from current `main`. An unlocked active-gate
 marker is stale regardless of the PID written inside it and is reported before
 removal.
+- A global pseudo-item removal in `quest_reward_items_as_dict()` is safe only after every catalog quest that parsed the same name has a `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` entry; enumerate all catalog references first.
