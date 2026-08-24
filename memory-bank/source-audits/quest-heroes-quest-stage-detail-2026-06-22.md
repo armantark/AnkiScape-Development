@@ -101,7 +101,7 @@ collapse an alternate route into a required kill.
 Focused tests added:
 
 - `tests.test_quest_catalog.TestQuestCatalog.test_heroes_quest_has_source_backed_stage_requirements`
-- `tests.test_logic.TestLogic.test_heroes_quest_stage_gates_lava_eel_firebird_and_black_arm_route`
+- `tests.test_logic.TestLogic.test_heroes_quest_real_stage_emitters_complete_both_routes`
 - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_heroes_final_without_fire_feather`
 - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_heroes_gerrant_slime_gate`
 - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_heroes_black_arm_disguise_blocker`

@@ -50,10 +50,8 @@ Fetched to `questitems/` with provenance:
 Targeted tests added or updated:
 
 - `tests.test_quest_catalog.TestQuestCatalog.test_local_source_batch_quest_stage_replacements_are_structured`
-- `tests.test_logic.TestLogic.test_sheep_herder_stage_gates_clothing_tools_and_all_four_bones`
-- `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_and_progresses_sheep_herder_feed_gate`
-- `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_sheep_herder_feed_gate`
-- `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_sheep_herder_current_stage_blocker`
+- `tests.test_logic.TestLogic.test_sheep_herder_real_stage_emitters_preserve_consumption_and_rewards`
+- `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_progresses_sheep_herder_feed_handoff`
 - `tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
 
 Audit after this slice:

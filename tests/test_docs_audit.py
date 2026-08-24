@@ -37,6 +37,30 @@ class DocumentationAuditTests(unittest.TestCase):
         self.assertTrue(report.ok, report.issues)
         self.assertEqual((report.markdown_files, report.html_files), (2, 1))
 
+    def test_reports_dangling_qualified_test_selectors(self) -> None:
+        root = self._repo()
+        self._track(
+            root,
+            "tests/test_example.py",
+            "import unittest\n\n"
+            "class ExampleTest(unittest.TestCase):\n"
+            "    def test_replacement(self):\n"
+            "        pass\n",
+        )
+        stale = "tests.test_example.ExampleTest.test_replacement_old"
+        self._track(
+            root,
+            "memory-bank/source-audits/example.md",
+            "`python3 -m unittest tests.test_example.ExampleTest.test_replacement " + stale + "`\n",
+        )
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertEqual(
+            [(issue.kind, issue.detail) for issue in report.issues],
+            [("dangling_test_selector", stale)],
+        )
+
     def test_reports_broken_links_and_unclosed_fences(self) -> None:
         root = self._repo()
         self._track(root, "README.md", "# Docs\n\n[Missing](docs/missing.md)\n\n```text\n")

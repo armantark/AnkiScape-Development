@@ -51,5 +51,5 @@ through Wave on top of the existing shared Combat Magic burst path.
 
 ## Verification
 
-- `python3 -m unittest tests.test_combat_logic tests.test_target_metadata tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_exposes_style_and_spell_controls`
+- `python3 -m unittest tests.test_combat_logic tests.test_target_metadata tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_derives_style_from_equipment_and_exposes_spell_on_equipment_tab`
 - `python3 -m unittest tests.test_skill_and_item_registry`

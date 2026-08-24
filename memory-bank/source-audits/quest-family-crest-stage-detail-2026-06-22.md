@@ -96,7 +96,7 @@ level 170 and records the discrepancy in quest prose.
 Focused tests added:
 
 - `tests.test_quest_catalog.TestQuestCatalog.test_family_crest_has_source_backed_stage_requirements`
-- `tests.test_logic.TestLogic.test_family_crest_stage_gates_fish_jewellery_chronozon_and_final_reward`
+- `tests.test_logic.TestLogic.test_family_crest_real_stage_emitters_complete_and_reward_once`
 - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_family_crest_jewellery_without_two_rubies`
 - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_progresses_family_crest_caleb_fish_gate`
 - `tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_family_crest_jewellery_blocker`

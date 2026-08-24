@@ -1018,6 +1018,13 @@ Raised 2026-08-22 after an AST-backed scan compared qualified test selectors in
   - `tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_witchs_house_first_form_combat_gate`
   - `tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_resolves_witchs_house_first_form_before_stage_progress`
 
+- **Second-level follow-up (2026-08-24):** Source-audit verification
+  snapshots also pin historical run totals beside mutable commands. For example,
+  `quest-witchs-house-stage-detail-2026-06-22.md` still says `ran 18 tests` after
+  two retired selectors with no replacement were removed from that command.
+  Audit result-count drift separately; this selector-existence slice does not
+  rewrite historical totals.
+
 ### 3.35 King’s Ransom assigns the animate rock scroll to the wrong quest step
 
 Raised 2026-08-22 while repairing the missing stage-1 action emitter. The live
