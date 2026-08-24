@@ -109,8 +109,9 @@ Use a throwaway Anki profile or back up the current AnkiScape save first.
 9. Restore `Priest gown x2`, route state, and errand-boy actions. Confirm stage
    11 consumes the vials/sample/touch paper and advances.
 10. Complete the Elena and King Lathas report stages. Confirm Biohazard awards 3
-   quest points, adds `Combat Training Camp x1`, and queues `thieving_exp:
-   1250.0` exactly once.
+   quest points, records `Use of the Combat Training Camp north of Ardougne` as
+   an unlock rather than an inventory item, and grants `thieving_exp: 1250.0`
+   exactly once.
 
 ## Quest-Only Item Follow-Up
 

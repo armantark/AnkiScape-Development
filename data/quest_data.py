@@ -4199,7 +4199,10 @@ QUEST_ITEM_REWARD_ADDITIONS_BY_ID = varrock_museum_quest_reward_additions_as_dic
 QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     TREE_GNOME_VILLAGE_ID: (("Gnome amulet", 1),),
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
+    BIOHAZARD_ID: (),
     DWARF_CANNON_ID: (("Ammo mould", 1),),
+    CLOCK_TOWER_ID: (("Coins", 500),),
+    MONKS_FRIEND_ID: (("Law rune", 8),),
     HAZEEL_CULT_ID: (("Coins", 2005),),
     "stolen_hearts": (("Coins", 2500),),
     "diamond_in_the_rough": (),
@@ -4215,6 +4218,14 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     ),
     SOME_LIKE_IT_COLD_ID: (("Rock costume", 1), ("Pop costume", 1)),
 }
+
+QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
+    BIOHAZARD_ID: (
+        "Ability to travel freely through the West Ardougne Gate",
+        "Use of the Combat Training Camp north of Ardougne",
+    ),
+}
+
 
 QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
     "royal_trouble": (QuestXpReward("agility", 5000),),
@@ -8995,6 +9006,8 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         if isinstance(reward, dict) and reward.get("amount")
     )
     lamp_rewards = QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, lamp_rewards)
+    unlocks = tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ()))
+    unlocks = QUEST_UNLOCK_REPLACEMENTS_BY_ID.get(quest_id, unlocks)
     return QuestDefinition(
         id=quest_id,
         display_name=display_name,
@@ -9017,7 +9030,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         required_quest_points=_catalog_int(row, "required_quest_points", 0),
         xp_rewards=xp_rewards,
         lamp_rewards=lamp_rewards,
-        unlocks=tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ())),
+        unlocks=unlocks,
         release_order=_catalog_int(row, "release_order", 9999),
         stage_requirements=_catalog_stage_requirements(row.get("stage_requirements", ())),
         start_inventory=_catalog_item_pairs(row.get("start_inventory", {})),
@@ -11133,6 +11146,9 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
     })
     generated_items.pop("Queen Black Dragon", None)
     generated_items.pop("Penguin Hide and Seek", None)
+    generated_items.pop("Combat Training Camp", None)
+    generated_items.pop("Coin", None)
+    generated_items.pop("Law Rune", None)
     return generated_items
 
 

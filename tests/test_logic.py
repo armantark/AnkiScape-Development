@@ -1,7 +1,7 @@
 import copy
 import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.data.quest_data import KINGS_RANSOM_SCROLL_SOURCE
+from ankiscape.data.quest_data import KINGS_RANSOM_SCROLL_SOURCE, quest_reward_items_as_dict
 from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_combat_stat_delta_pure,
@@ -3477,7 +3477,8 @@ class TestLogic(unittest.TestCase):
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 1)
-        self.assertEqual(player_data["inventory"]["Law Rune"], 8)
+        self.assertEqual(player_data["inventory"]["Law rune"], 8)
+        self.assertNotIn("Law Rune", player_data["inventory"])
         self.assertEqual(player_data["woodcutting_exp"], 2000.0)
 
         after_complete, ok, completed_again = apply_quest_progress_pure(
@@ -3488,7 +3489,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
-        self.assertEqual(after_complete["inventory"]["Law Rune"], 8)
+        self.assertEqual(after_complete["inventory"]["Law rune"], 8)
+        self.assertNotIn("Law Rune", after_complete["inventory"])
         self.assertEqual(after_complete["woodcutting_exp"], 2000.0)
 
     def test_tribal_totem_real_stage_emitters_complete_and_reward_once(self):
@@ -3777,7 +3779,8 @@ class TestLogic(unittest.TestCase):
 
         self.assertTrue(player_data["quests"]["clock_tower"]["completed"])
         self.assertEqual(player_data["inventory"]["Bucket of water"], 1)
-        self.assertEqual(player_data["inventory"]["Coin"], 500)
+        self.assertEqual(player_data["inventory"]["Coins"], 500)
+        self.assertNotIn("Coin", player_data["inventory"])
         self.assertEqual(player_data["quest_points"], 1)
 
         after_complete, ok, completed_again = apply_quest_progress_pure(
@@ -3787,7 +3790,8 @@ class TestLogic(unittest.TestCase):
         )
         self.assertFalse(ok)
         self.assertFalse(completed_again)
-        self.assertEqual(after_complete["inventory"]["Coin"], 500)
+        self.assertEqual(after_complete["inventory"]["Coins"], 500)
+        self.assertNotIn("Coin", after_complete["inventory"])
         self.assertEqual(after_complete["quest_points"], 1)
 
     def test_kenniths_concerns_real_stage_emitters_complete_and_reward_once(self):
@@ -5200,7 +5204,14 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"]["biohazard"]["completed"])
         self.assertEqual(player_data["quests"]["biohazard"]["progress"], 14)
         self.assertEqual(player_data["quest_points"], 3)
-        self.assertEqual(player_data["inventory"]["Combat Training Camp"], 1)
+        self.assertNotIn("Combat Training Camp", player_data["inventory"])
+        self.assertEqual(
+            QUEST_DATA["biohazard"]["unlocks"],
+            (
+                "Ability to travel freely through the West Ardougne Gate",
+                "Use of the Combat Training Camp north of Ardougne",
+            ),
+        )
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["thieving_exp"], 1250.0)
         self.assertEqual(
@@ -5216,7 +5227,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 3)
-        self.assertEqual(after_complete["inventory"]["Combat Training Camp"], 1)
+        self.assertNotIn("Combat Training Camp", after_complete["inventory"])
         self.assertEqual(after_complete["thieving_exp"], 1250.0)
 
     def test_carnillean_rising_real_stage_emitters_complete_and_reward_once(self):
@@ -10529,6 +10540,63 @@ class TestLogic(unittest.TestCase):
         claimed_again, ok = apply_claim_pure(claimed_data, "tutorial_island_starter_kit", CLAIM_DATA)
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Bronze arrows"], claimed_data["inventory"]["Bronze arrows"])
+
+    def test_reachable_quest_completion_grants_only_source_backed_items(self):
+        expected_rewards = {
+            "a_souls_bane": {"Coins": 500},
+            "biohazard": {},
+            "black_knights_fortress": {"Coins": 2500},
+            "clock_tower": {"Coins": 500},
+            "cooks_assistant": {"Coins": 500, "Sardine": 20},
+            "dwarf_cannon": {"Ammo mould": 1},
+            "family_crest": {"Family gauntlets": 1},
+            "imp_catcher": {"Amulet of accuracy": 1},
+            "monks_friend": {"Law rune": 8},
+            "plague_city": {"A magic scroll": 1},
+            "rune_mysteries": {"Air talisman": 1},
+            "sheep_herder": {"Coins": 3100},
+            "shield_of_arrav": {"Coins": 600},
+            "song_from_the_depths": {
+                "Coral bolts": 50,
+                "Coral crossbow": 1,
+                "Remora's necklace": 1,
+            },
+            "stolen_hearts": {"Coins": 2500},
+            "temple_of_ikov": {"Shiny key": 1},
+            "the_restless_ghost": {"Ancient bones": 5},
+            "tree_gnome_village": {"Gnome amulet": 1},
+            "tribal_totem": {"Swordfish": 5},
+            "waterfall_quest": {"Diamond": 2, "Gold bar": 2, "Mithril seeds": 40},
+            "wolf_whistle": {"Gold charm": 275},
+        }
+        fake_reward_names = {"Combat Training Camp", "Coin", "Law Rune"}
+        self.assertTrue(fake_reward_names.isdisjoint(quest_reward_items_as_dict()))
+
+        for quest_id, expected in expected_rewards.items():
+            with self.subTest(quest_id=quest_id):
+                player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                quest = QUEST_DATA[quest_id]
+                player_data["quests"][quest_id] = {
+                    "started": True,
+                    "progress": quest["stages"],
+                    "completed": False,
+                }
+                inventory_before = dict(player_data["inventory"])
+
+                completed_data, progressed, completed = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                granted = {
+                    item_name: amount - inventory_before.get(item_name, 0)
+                    for item_name, amount in completed_data["inventory"].items()
+                    if amount > inventory_before.get(item_name, 0)
+                }
+
+                self.assertTrue(progressed)
+                self.assertTrue(completed)
+                self.assertEqual(granted, expected)
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
