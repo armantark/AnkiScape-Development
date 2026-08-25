@@ -1896,3 +1896,80 @@ forks, so the implemented recommendation is not authority to close them.
 
 **Deciding answer: YES.** The five UNBLOCKED entries above are settled work that
 is not implemented. The autonomous goal is not finished on this tree.
+
+### 4.20 Model fallback after an Ox Alpha outage — ruled directly by the owner
+
+The owner ruled this directly on 2026-08-24 at 22:54 PDT, not through the
+design thread. It carries full authority.
+
+- **Ruling, verbatim:** "If Ox Alpha access disappears tonight, you can move to GPT models again."
+- **Meaning:** when the `ox-alpha` model stops resolving, the orchestrator
+  returns to the standard routing rubric without pausing the active goal. This
+  agrees with the goal text and needs no further approval.
+- **Effect on 4.18:** none. Fable stays barred for this goal under 4.18, which
+  the owner also ruled directly. A GPT-model fallback does not reopen the Fable
+  seat.
+- **After this goal:** 4.18 expires with the goal. This ruling is an outage
+  contingency and does not set standing model policy beyond the active goal.
+
+### 5.5 Four quests grant conditional post-quest rewards unconditionally
+
+Raised 2026-08-25 from the reward-work branch review. Four quests grant a reward
+at completion that the source gives only after a later condition. Nothing
+implements a one-time post-quest claim, so the runtime hands the reward over
+unconditionally. Members, each with its citation:
+
+- `cabin_fever` grants 10,000 Coins at completion. Cabin Fever,
+  oldid=6533785: "10,000 coins (only if you speak to Bill Teach after the
+  quest)".
+- `rocking_out` grants Magical cage at completion. Rocking Out,
+  oldid=6521879: "Receive Magical cage by talking to Bill Teach after the
+  quest."
+- `do_no_evil` grants Clue scroll (elite) at completion. Do No Evil,
+  oldid=6587790: "Find one \"free\" Clue scroll (elite) with Ava's Alerter.
+  This Clue scroll can be found in either Meiyerditch, on the Iceberg, in
+  Isafdar or on Lunar Isle." See also blocked owner fork 3.4, which covers the
+  same scroll's permanent-loss path.
+- `the_golem` has no route at all to its six-gem throne reward. The Golem,
+  oldid=6543894: "As an extra reward, use your chisel on Thammaron's throne -
+  with a hammer in your inventory, to get six gems - 2 Rubies, 2 Emeralds, and
+  2 Sapphires". Measured on the branch: all `the_golem` stage outputs are
+  empty, no claims and no utility entries exist, and completion grants nothing.
+
+**Why deferred, not fixed:** the first three quests over-grant today. Deleting
+a real player-facing reward is the worse failure, so the class stays recorded
+instead of patched blind.
+
+**Needs an owner decision** on the mechanism before any slice work: a one-time
+post-quest claim, a new action, or both. This entry is not scheduled work.
+
+### 5.6 Roughly 44 non-item reward rows across 24 quests — typed reward model proposed, not decided
+
+Raised 2026-08-25 from the reward-work branch review. About 44 reward rows in
+24 quests name things that are not inventory items: currencies, locations, NPC
+access, spells, emotes, and titles. Measured examples on the branch include
+Karamja, Daemonheim, Fremennik name, Teleport to House, and Managing
+Miscellania.
+
+The reviewer's structural recommendation, recorded here as a proposal only: a
+typed reward model that separates inventory items, wallets, unlocks,
+locations, NPC access, spells, emotes, and titles before the catalog is
+generated, instead of correcting names one at a time. Entry 5.3 documents the
+parser hazard that makes row-by-row correction fragile.
+
+This is an architecture decision for the owner and the design thread. Do not
+schedule it as slice work.
+
+### 5.7 Hunter tool stackability flags mark non-stackable tools stackable
+
+Raised 2026-08-25 from the reward-work branch review. Pre-existing on canonical
+main and unrelated to the reward work; it surfaced because a quest began
+granting a box trap again.
+
+`data/hunter_data.py:1513` sets `"stackable": item_name not in {"Marasamaw plant", "Rope"}`.
+That marks every other Hunter tool stackable, including Box trap 10008, Bird
+snare 10006, Butterfly net 10010, Noose wand 10150, Teasing stick 10029,
+Rabbit snare 10031, and Small fishing net 303. The rev-742 cache gives Box trap
+10008 as stackable=false. None of these tools stack in the period game.
+
+Deferred with the rest of this round's records; no slice scheduled.

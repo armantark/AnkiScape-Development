@@ -1096,3 +1096,6 @@
 - 2026-08-24 11:05 PDT — Broad role searches across AnkiScape and Darkan spilled 667.2 KB and 746.6 KB into persisted output; constrain party research to Dungeoneering files and exact symbols first.
 - 2026-08-24 11:36 PDT — Verifying the orphaned Darkan packet: the brief named `/Users/ArmanTarkhanian1/Documents/2012scape`, but that path was not a directory, so the first commit-existence check could not start.
 - 2026-08-24 11:43 PDT — Verifying the orphaned Darkan packet: `python3 tools/audit_item_reachability.py` exited 1 with `1599 actions; 2469 reachable items; 37 orphan inputs; 36 blocked actions`, so the binding verification gate blocked the documentation commit.
+- 2026-08-25 00:50 PDT — An agent scanning `data/quest_data.py` or `memory-bank/design-thread-queue.md` to find its own work list exhausts its context before doing the work; five agents died this way on one task. The fix is for the dispatcher to measure first and hand over an exact list.
+- 2026-08-25 00:50 PDT — `tools/worktree_guard.py add` rejects a leaf name containing a slash, and the error surfaces only after the branch argument looks fine; give the branch and the leaf as two separate explicit arguments.
+- 2026-08-25 00:50 PDT — `tools/audit_item_reachability.py` exits 1 on the inherited 37 orphan inputs, so agents repeatedly read that exit code as a failure of their own change.

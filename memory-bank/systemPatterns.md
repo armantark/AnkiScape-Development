@@ -998,3 +998,17 @@ a target that is not descended from current `main`. An unlocked active-gate
 marker is stale regardless of the PID written inside it and is reported before
 removal.
 - A global pseudo-item removal in `quest_reward_items_as_dict()` is safe only after every catalog quest that parsed the same name has a `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` entry; enumerate all catalog references first.
+
+## Quest reward replacement dicts REPLACE, not extend
+
+`QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID`, `QUEST_UNLOCK_REPLACEMENTS_BY_ID`, and
+`QUEST_XP_REWARD_REPLACEMENTS_BY_ID` in `data/quest_data.py` replace a quest's
+whole tuple; they do not extend it. Writing one corrected string deletes every
+generated entry the catalog supplied for that quest. Four separate agents made
+this mistake on one branch, and it cost three review rounds. The symptom is
+silent: the test suite stayed green because the unlock check used `issubset`.
+
+The check that catches it: load `QUEST_DATA` on canonical main and on the
+branch, then difference the reward, unlock, and experience sets for all 196
+quests. Any quest that loses an entry is a regression unless the loss is a
+deliberate, sourced rewrite.
