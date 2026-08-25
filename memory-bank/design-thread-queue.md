@@ -1943,10 +1943,12 @@ instead of patched blind.
 **Needs an owner decision** on the mechanism before any slice work: a one-time
 post-quest claim, a new action, or both. This entry is not scheduled work.
 
-### 5.6 Roughly 44 non-item reward rows across 24 quests — typed reward model proposed, not decided
+### 5.6 47 non-item reward occurrences across 24 quests — typed reward model proposed, not decided
 
-Raised 2026-08-25 from the reward-work branch review. About 44 reward rows in
-24 quests name things that are not inventory items: currencies, locations, NPC
+Raised 2026-08-25 from the reward-work branch review. Corrected the same day
+against the test corpus at main c26f9c26: the audited count is 47 occurrences,
+not roughly 44. These reward rows in 24 quests name things that are not
+inventory items: currencies, locations, NPC
 access, spells, emotes, and titles. Measured examples on the branch include
 Karamja, Daemonheim, Fremennik name, Teleport to House, and Managing
 Miscellania.
@@ -1973,3 +1975,54 @@ Rabbit snare 10031, and Small fishing net 303. The rev-742 cache gives Box trap
 10008 as stackable=false. None of these tools stack in the period game.
 
 Deferred with the rest of this round's records; no slice scheduled.
+
+### 5.8 Three minor findings were accepted without fixes — 2026-08-25
+
+Two commits landed with findings the reviewer judged safe to defer. Recorded as
+one entry so a later slice can pick them up together.
+
+**Claim tool gate ignores equipment and the toolbelt.**
+`logic_pure/logic_pure_claims.py:133-141` reads `player_data["inventory"]` only.
+Quest-stage tool requirements resolve through `_has_quest_tool` at
+`logic_pure/logic_pure_quest.py:485-511`, which also honours equipment slots and
+the mining and woodcutting toolbelt. A future tool-gated claim whose tool can be
+equipped or stored on the belt would be refused where the equivalent quest stage
+accepts it. No impact today: Chisel and Hammer are neither equippable nor
+belt-stored, and the toolbelt defaults carry only woodcutting and mining tools
+at `core/storage_pure.py:784-790`. Fix when a case appears: route the claim gate
+through `_has_quest_tool`.
+
+**Hunter cache flags are hand-transcribed.**
+`data/hunter_data.py:1352-1394` holds `_HUNTER_EXTRA_ITEM_STACKABLE_BY_ID`,
+typed by hand from cache output rather than generated. Drift protection is
+indirect: the regression pins a second copy of all 38 id and flag pairs, so a
+wrong edit must corrupt two files together to pass. This matches repository
+convention — the gen_item_values.py dump is also committed, though that one is
+machine generated. Fix if wanted: emit this map through the same generation
+pipeline.
+
+**Stripy feather shares the Bones registry-precedence defect.** It is
+pre-registered through another path with `source_item_id=0`, exactly like Bones
+and Wimpy feather. No player-visible effect: its Hunter row says stackable True
+and cache item 10087 agrees.
+
+### 5.9 Queue audit found an accepted slice never merged — unblocked work remains
+
+A queue audit at main c26f9c26 found one branch holding accepted work that is
+not an ancestor of main. Branch `goal/secondaries-2026-08-11` carries commits
+d2faf1d2 and 3c05da03. Facts, verbatim from the audit:
+
+- It is NOT superseded. All 23 items the slice names still lack reachable routes
+  at c26f9c26.
+- The "abandoned branch" wording inside 3c05da03 refers to the older
+  goal/grind-2026-08-11, not to this branch. Its embedded handoff explicitly
+  names goal/secondaries-2026-08-11 as the merge target.
+- It must NOT be cherry-picked blindly. A later audit proved that Herb pouch,
+  Diamond root and Diamond root dust were inert in the original implementation.
+  The branch needs a re-land against current main with a fresh review.
+
+Also checked: `goal/stage-satisfiability-2026-08-13` IS superseded. Its only
+unique commit 544d54e2 is an audit-document correction, and main commit
+6fd075df carries a fuller correction of the same document.
+
+Classification: this is unblocked work that remains, not complete.
