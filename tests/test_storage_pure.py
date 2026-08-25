@@ -551,6 +551,42 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
         self.assertEqual(data["review_context_preferences"], {})
 
+    def test_v118_migration_retires_completion_rewards_already_granted(self):
+        legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        legacy["config_version"] = 117
+        for quest_id in ("cabin_fever", "rocking_out"):
+            legacy["quests"][quest_id] = {
+                "started": True,
+                "progress": 1,
+                "completed": True,
+            }
+        legacy["claims"].pop("cabin_fever_bill_teach_coins")
+        legacy["claims"].pop("rocking_out_bill_teach_magical_cage")
+
+        migrated = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            migrated["claims"]["cabin_fever_bill_teach_coins"],
+            {"claimed": True},
+        )
+        self.assertEqual(
+            migrated["claims"]["rocking_out_bill_teach_magical_cage"],
+            {"claimed": True},
+        )
+
+        current = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for quest_id in ("cabin_fever", "rocking_out"):
+            current["quests"][quest_id]["completed"] = True
+        current = migrate_loaded_data(current, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            current["claims"]["cabin_fever_bill_teach_coins"],
+            {"claimed": False},
+        )
+        self.assertEqual(
+            current["claims"]["rocking_out_bill_teach_magical_cage"],
+            {"claimed": False},
+        )
+
     def test_v111_migration_restores_constitution_starting_xp_once(self):
         untouched = migrate_loaded_data({"config_version": 110}, ORE_DATA)
         migrated = migrate_loaded_data(

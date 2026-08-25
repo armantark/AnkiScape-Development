@@ -5,6 +5,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core import constants
 from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
 from tools.audit_item_reachability import (
+    _claim_item_sources,
     _close_actions,
     _close_quest_reachability,
     _quest_completion_sets,
@@ -648,6 +649,39 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 "Was": "claim:diamond_in_the_rough_scabaras_tomb",
             },
         )
+
+    def test_the_golem_throne_claim_requires_reachable_chisel_and_hammer(self):
+        claim_id = "the_golem_thammarons_throne_gems"
+        claim_data = {claim_id: constants.CLAIM_DATA[claim_id]}
+        args = (
+            claim_data,
+            {"the_golem"},
+            {"Ruby", "Emerald", "Sapphire"},
+            {"runecrafting": 1},
+        )
+
+        blocked_sources, blocked_counts = _claim_item_sources(
+            *args,
+            {"Chisel": 1},
+            set(),
+        )
+        sources, counts = _claim_item_sources(
+            *args,
+            {"Chisel": 1, "Hammer": 1},
+            set(),
+        )
+
+        self.assertEqual(blocked_sources, {})
+        self.assertEqual(blocked_counts, {})
+        self.assertEqual(
+            sources,
+            {
+                "Ruby": {f"claim:{claim_id}"},
+                "Emerald": {f"claim:{claim_id}"},
+                "Sapphire": {f"claim:{claim_id}"},
+            },
+        )
+        self.assertEqual(counts, {"Ruby": 2, "Emerald": 2, "Sapphire": 2})
 
     def test_unreachable_claim_level_does_not_seed_item(self):
         constructed_claim = {

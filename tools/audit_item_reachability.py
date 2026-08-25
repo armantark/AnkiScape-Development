@@ -157,6 +157,8 @@ def _claim_item_sources(
     completable_quests: set[str],
     registered_items: set[str],
     maximum_skill_levels: Mapping[str, int],
+    available_counts: Mapping[str, int],
+    repeatable_items: set[str],
 ) -> tuple[dict[str, set[str]], dict[str, int]]:
     sources: dict[str, set[str]] = defaultdict(set)
     item_counts: dict[str, int] = defaultdict(int)
@@ -171,6 +173,12 @@ def _claim_item_sources(
             int(claim.get("required_runecrafting_level", 1) or 1),
         )
         if required_runecrafting_level > maximum_skill_levels.get("runecrafting", 0):
+            continue
+        required_tools = _item_counts(claim.get("required_tools"))
+        if any(
+            not _tool_reachable(tool_name, amount, available_counts, repeatable_items)
+            for tool_name, amount in required_tools.items()
+        ):
             continue
 
         claim_type = str(claim.get("claim_type", "item"))
@@ -612,6 +620,8 @@ def _close_quest_reachability(
                 completable,
                 registered_items,
                 maximum_skill_levels,
+                finite_item_counts,
+                repeatable_items,
             )
             for item, sources in claim_sources.items():
                 if item not in reachable_items:

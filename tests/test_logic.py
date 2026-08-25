@@ -268,7 +268,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
     "back_to_my_roots": frozenset({("Jade vine seed", 1)}),
     "biohazard": frozenset({}),
-    "cabin_fever": frozenset({("Book o' piracy", 1), ("Coins", 10000)}),
+    "cabin_fever": frozenset({("Book o' piracy", 1)}),
     "carnillean_rising": frozenset({("Coins", 5000), ("Mahogany plank", 10), ("Oak plank", 100), ("Philipe's sweets", 1), ("Teak plank", 30), ("Treasure chest (Carnillean Rising)", 1)}),
     "catapult_construction": frozenset({("Adamant halberd", 1), ("Coins", 2000), ("Sailor's hat", 1), ("Teak plank", 30)}),
     "clock_tower": frozenset({("Coins", 500)}),
@@ -291,7 +291,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "nomads_requiem": frozenset({("Soul Wars cape", 1)}),
     "observatory_quest": frozenset({("Maple longbow", 1), ("Uncut sapphire", 1)}),
     "plague_city": frozenset({("A magic scroll", 1)}),
-    "rocking_out": frozenset({("Magical cage", 1)}),
+    "rocking_out": frozenset({}),
     "sheep_herder": frozenset({("Coins", 3100)}),
     "smoking_kills": frozenset({}),
     "some_like_it_cold": frozenset({("Pop costume", 1), ("Rock costume", 1)}),
@@ -10816,6 +10816,108 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Wicked hood"], 1)
 
+    def test_cabin_fever_bill_teach_claim_is_post_quest_and_once_only(self):
+        claim_id = "cabin_fever_bill_teach_coins"
+        self.assertEqual(
+            CLAIM_DATA[claim_id]["source"],
+            "https://runescape.wiki/w/Cabin_Fever?oldid=6533785",
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        row = next(
+            row for row in claim_rows_pure(player_data, CLAIM_DATA)
+            if row["claim_id"] == claim_id
+        )
+        self.assertEqual(row["locked_reasons"], ("quest",))
+        player_data["quests"]["cabin_fever"] = {
+            "started": True,
+            "progress": QUEST_DATA["cabin_fever"]["stages"],
+            "completed": False,
+        }
+
+        completed_data, progressed, completed = apply_quest_progress_pure(
+            player_data, "cabin_fever", QUEST_DATA
+        )
+
+        self.assertTrue(progressed)
+        self.assertTrue(completed)
+        self.assertEqual(completed_data["inventory"].get("Coins", 0), 0)
+        self.assertEqual(completed_data["inventory"].get("Book o' piracy", 0), 1)
+        claimed_data, ok = apply_claim_pure(completed_data, claim_id, CLAIM_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(claimed_data["inventory"]["Coins"], 10000)
+        claimed_again, ok = apply_claim_pure(claimed_data, claim_id, CLAIM_DATA)
+        self.assertFalse(ok)
+        self.assertEqual(claimed_again["inventory"]["Coins"], 10000)
+
+    def test_rocking_out_bill_teach_claim_is_post_quest_and_once_only(self):
+        claim_id = "rocking_out_bill_teach_magical_cage"
+        self.assertEqual(
+            CLAIM_DATA[claim_id]["source"],
+            "https://runescape.wiki/w/Rocking_Out?oldid=6521879",
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rocking_out"] = {
+            "started": True,
+            "progress": QUEST_DATA["rocking_out"]["stages"],
+            "completed": False,
+        }
+
+        completed_data, progressed, completed = apply_quest_progress_pure(
+            player_data, "rocking_out", QUEST_DATA
+        )
+
+        self.assertTrue(progressed)
+        self.assertTrue(completed)
+        self.assertEqual(completed_data["inventory"].get("Magical cage", 0), 0)
+        claimed_data, ok = apply_claim_pure(completed_data, claim_id, CLAIM_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(claimed_data["inventory"]["Magical cage"], 1)
+        claimed_again, ok = apply_claim_pure(claimed_data, claim_id, CLAIM_DATA)
+        self.assertFalse(ok)
+        self.assertEqual(claimed_again["inventory"]["Magical cage"], 1)
+
+    def test_the_golem_throne_claim_requires_tools_and_is_once_only(self):
+        claim_id = "the_golem_thammarons_throne_gems"
+        self.assertEqual(
+            CLAIM_DATA[claim_id]["source"],
+            "https://runescape.wiki/w/The_Golem?oldid=6543894",
+        )
+        self.assertEqual(
+            CLAIM_DATA[claim_id]["required_tools"],
+            (("Chisel", 1), ("Hammer", 1)),
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["the_golem"] = {
+            "started": True,
+            "progress": QUEST_DATA["the_golem"]["stages"],
+            "completed": False,
+        }
+
+        completed_data, progressed, completed = apply_quest_progress_pure(
+            player_data, "the_golem", QUEST_DATA
+        )
+
+        self.assertTrue(progressed)
+        self.assertTrue(completed)
+        for gem in ("Ruby", "Emerald", "Sapphire"):
+            self.assertEqual(completed_data["inventory"].get(gem, 0), 0)
+        completed_data["inventory"]["Chisel"] = 1
+        refused_data, ok = apply_claim_pure(completed_data, claim_id, CLAIM_DATA)
+        self.assertFalse(ok)
+        self.assertEqual(refused_data["inventory"].get("Ruby", 0), 0)
+        completed_data["inventory"]["Hammer"] = 1
+        claimed_data, ok = apply_claim_pure(completed_data, claim_id, CLAIM_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(
+            {gem: claimed_data["inventory"][gem] for gem in ("Ruby", "Emerald", "Sapphire")},
+            {"Ruby": 2, "Emerald": 2, "Sapphire": 2},
+        )
+        self.assertEqual(claimed_data["inventory"]["Chisel"], 1)
+        self.assertEqual(claimed_data["inventory"]["Hammer"], 1)
+        claimed_again, ok = apply_claim_pure(claimed_data, claim_id, CLAIM_DATA)
+        self.assertFalse(ok)
+        self.assertEqual(claimed_again["inventory"]["Ruby"], 2)
+
     def test_tutorial_starter_kit_claim_grants_source_backed_bundle_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         rows = claim_rows_pure(player_data, CLAIM_DATA)
@@ -10870,7 +10972,7 @@ class TestLogic(unittest.TestCase):
             },
             "clock_tower": {"Coins": 500},
             "cooks_assistant": {"Coins": 500, "Sardine": 20},
-            "cabin_fever": {"Book o' piracy": 1, "Coins": 10000},
+            "cabin_fever": {"Book o' piracy": 1},
             "deadliest_catch": {
                 "Small cast net": 1,
             },
@@ -10896,7 +10998,7 @@ class TestLogic(unittest.TestCase):
             },
             "observatory_quest": {"Maple longbow": 1, "Uncut sapphire": 1},
             "plague_city": {"A magic scroll": 1},
-            "rocking_out": {"Magical cage": 1},
+            "rocking_out": {},
             "rune_mysteries": {"Air talisman": 1},
             "sheep_herder": {"Coins": 3100},
             "shield_of_arrav": {"Coins": 600},
