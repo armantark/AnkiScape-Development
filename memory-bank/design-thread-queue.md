@@ -1973,3 +1973,34 @@ Rabbit snare 10031, and Small fishing net 303. The rev-742 cache gives Box trap
 10008 as stackable=false. None of these tools stack in the period game.
 
 Deferred with the rest of this round's records; no slice scheduled.
+
+### 5.8 Ox Alpha route removal reversed — ruled directly by the owner
+
+Recorded 2026-08-25 at 10:04 PDT. The owner ruled this directly, not through
+the design thread. It carries full authority.
+
+- **Ruling, verbatim:** "Ox Alpha still seems to be going strong according to
+  OpenRouter charts. Please start using it again instead of GPT"
+- **What happened:** the orchestrator judged the Ox Alpha window closed on two
+  signals: one API Error 400 Provider returned error during a dispatch, and the
+  config label that read free until 2026-08-24. It then removed the
+  openai-compatibility block from the local proxy configuration, as the goal
+  instructed.
+- **That judgement was wrong.** The owner checked the provider's own charts and
+  found the model serving normally. The single 400 was transient, not a window
+  closure.
+- **The evidence available at the time already argued against the conclusion.**
+  Ox Alpha completed work successfully at 03:29 on 2026-08-25, after the stated
+  cutoff date, so the calendar signal had already failed once. Earlier in the
+  same session the same route returned a cooling-down error twice and recovered
+  both times, which is direct precedent that one provider error from this route
+  proves nothing.
+- **Current state:** the configuration block is restored from its backup.
+  Routing returns to Ox Alpha for authoring work.
+- **Lesson for this goal:** treat a single provider error as transient. Require
+  a repeated failure across separated attempts, or the owner's confirmation,
+  before declaring a model route dead or removing its configuration.
+
+This ruling supersedes the fallback move made under 4.20 for this incident. It
+does not change 4.20 itself: that contingency stays valid for a real outage,
+confirmed by repeated failure or by the owner.
