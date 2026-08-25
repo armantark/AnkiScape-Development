@@ -1049,6 +1049,7 @@ class ClaimDefinition:
     quantity: int = 1
     items: Tuple[Tuple[str, int], ...] = ()
     required_quest: str = RUNE_MYSTERIES_ID
+    required_tools: Tuple[Tuple[str, int], ...] = ()
     required_runecrafting_level: int = 0
     xp_amount: float = 0.0
     skill_options: Tuple[str, ...] = ()
@@ -4254,9 +4255,9 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
         ("Treasure chest (Carnillean Rising)", 1),
     ),
     DEADLIEST_CATCH_ID: (("Small cast net", 1),),
-    # The pinned revision awards Book o' piracy and Coins but no ship; its
-    # Charter Ship line is a halved-prices unlock (Cabin Fever oldid=6533785).
-    "cabin_fever": (("Book o' piracy", 1), ("Coins", 10000)),
+    # The pinned revision awards Book o' piracy at completion; Bill Teach
+    # gives the 10,000 coins only in a later conversation (oldid=6533785).
+    "cabin_fever": (("Book o' piracy", 1),),
     "dealing_with_scabaras": (),
     "do_no_evil": (("Clue scroll (elite)", 1), ("Cramulet", 1)),
     "dream_mentor": (),
@@ -4267,7 +4268,9 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     "missing_my_mummy": (("Coins", 5000),),
     "nomads_requiem": (("Soul Wars cape", 1),),
     "observatory_quest": (("Maple longbow", 1), ("Uncut sapphire", 1)),
-    ROCKING_OUT_ID: (("Magical cage", 1),),
+    # Bill Teach gives the Magical cage only when spoken to after the quest
+    # (Rocking Out oldid=6521879).
+    ROCKING_OUT_ID: (),
     "spirit_of_summer": (("Jennica's ring", 1),),
     "the_dig_site": (("Fruit blast", 1), ("Gold bar", 2)),
     "the_golem": (),
@@ -10251,6 +10254,31 @@ CLAIMS: Tuple[ClaimDefinition, ...] = (
         required_quest="",
     ),
     ClaimDefinition(
+        id="cabin_fever_bill_teach_coins",
+        display_name="Cabin Fever: Speak to Bill Teach",
+        source="https://runescape.wiki/w/Cabin_Fever?oldid=6533785",
+        item_name="Coins",
+        quantity=10000,
+        required_quest="cabin_fever",
+    ),
+    ClaimDefinition(
+        id="rocking_out_bill_teach_magical_cage",
+        display_name="Rocking Out: Speak to Bill Teach",
+        source="https://runescape.wiki/w/Rocking_Out?oldid=6521879",
+        item_name="Magical cage",
+        required_quest=ROCKING_OUT_ID,
+    ),
+    ClaimDefinition(
+        id="the_golem_thammarons_throne_gems",
+        display_name="The Golem: Chisel Thammaron's throne",
+        source="https://runescape.wiki/w/The_Golem?oldid=6543894",
+        claim_type="item_bundle",
+        item_name="Ruby",
+        items=(("Ruby", 2), ("Emerald", 2), ("Sapphire", 2)),
+        required_quest="the_golem",
+        required_tools=(("Chisel", 1), ("Hammer", 1)),
+    ),
+    ClaimDefinition(
         id="diamond_in_the_rough_scabaras_tomb",
         display_name="Mine the Scabaras tomb fissure",
         source=f"{DIAMOND_IN_THE_ROUGH_WIKI_SOURCE}; {DIAMOND_IN_THE_ROUGH_CACHE_SOURCE}",
@@ -11554,6 +11582,7 @@ def claims_as_dict() -> Dict[str, Dict[str, object]]:
             "items": claim.items,
             "source": claim.source,
             "required_quest": claim.required_quest,
+            "required_tools": claim.required_tools,
             "required_runecrafting_level": claim.required_runecrafting_level,
             "xp_amount": claim.xp_amount,
             "skill_options": claim.skill_options,

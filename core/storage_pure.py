@@ -356,7 +356,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 117
+CURRENT_CONFIG_VERSION = 118
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -1035,6 +1035,20 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
     data["claims"] = clean_claims
 
 
+def _retire_legacy_completion_reward_claims(data: Dict[str, Any]) -> None:
+    claims = data.get("claims")
+    quests = data.get("quests")
+    if not isinstance(claims, dict) or not isinstance(quests, dict):
+        return
+    for quest_id, claim_id in (
+        ("cabin_fever", "cabin_fever_bill_teach_coins"),
+        ("rocking_out", "rocking_out_bill_teach_magical_cage"),
+    ):
+        quest_state = quests.get(quest_id)
+        if isinstance(quest_state, dict) and quest_state.get("completed"):
+            claims[claim_id] = {"claimed": True}
+
+
 def _migrate_legacy_claimed_diary_lamps(data: Dict[str, Any]) -> None:
     """Do not duplicate XP that pre-v107 tier claims already applied directly."""
 
@@ -1417,6 +1431,10 @@ def migrate_loaded_data(
     _migrate_quest_stage_side_state(data)
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
+    # v118 moves two guaranteed completion items behind later Bill Teach
+    # conversations. Older completed saves already received those items.
+    if loaded_config_version < 118:
+        _retire_legacy_completion_reward_claims(data)
     _migrate_runecrafting_side_state(data)
     _migrate_unlocked_abilities(data)
     _migrate_toolbelt(data)
