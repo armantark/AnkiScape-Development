@@ -6,6 +6,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import (
     KINGS_RANSOM_SCROLL_SOURCE,
     QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID,
+    QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID,
     QUEST_UNLOCK_REPLACEMENTS_BY_ID,
     quest_reward_items_as_dict,
 )
@@ -144,10 +145,10 @@ from ankiscape.core.constants import (
     UTILITY_ACTIVITY_DATA,
 )
 
-# Exact unlock sets for every quest with a QUEST_UNLOCK_REPLACEMENTS_BY_ID entry.
-# A replacement tuple swaps the whole generated tuple, so a silently dropped
-# entry deletes a source-granted capability; this guard makes that fail the suite.
-QUEST_UNLOCK_GUARD: Dict[str, FrozenSet[str]] = {
+# Exact unlock sets only for quests with a QUEST_UNLOCK_REPLACEMENTS_BY_ID
+# entry. Item-replacement quests outside this dictionary are intentionally not
+# claimed as unlock coverage.
+QUEST_UNLOCK_REPLACEMENT_GUARD: Dict[str, FrozenSet[str]] = {
     "a_fairy_tale_iii_battle_at_orks_rift": frozenset({
         "Ability to fetch teeth to get a Tooth creature by speaking to the Tooth Fairy after the quest.",
         "Ability to sell suqah tooth to the Tooth Fairy for 2,000 coins each. You can also sell to her old teeth, monkey dentures, and kebbit teeth, for amounts ranging from 1 to 200 coins.",
@@ -259,9 +260,9 @@ QUEST_UNLOCK_GUARD: Dict[str, FrozenSet[str]] = {
 }
 
 
-# Exact completion grants for every quest with a QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID
-# entry; same whole-tuple-replacement hazard as the unlock guard above.
-QUEST_REWARD_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
+# Exact flat completion grants for every quest with a
+# QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID entry.
+QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "a_fairy_tale_iii_battle_at_orks_rift": frozenset({("Magic watering can", 1)}),
     "a_tail_of_two_cats": frozenset({("Catspeak amulet (e)", 1), ("Doctors hat", 1)}),
     "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
@@ -279,7 +280,7 @@ QUEST_REWARD_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "dream_mentor": frozenset({}),
     "dwarf_cannon": frozenset({("Ammo mould", 1)}),
     "eagles_peak": frozenset({("Box trap", 1), ("Eagle costume", 1)}),
-    "hazeel_cult": frozenset({("Carnillean armour", 1), ("Coins", 2005), ("Mark of Hazeel", 1)}),
+    "hazeel_cult": frozenset({("Coins", 2005)}),
     "hunt_for_red_raktuber": frozenset({}),
     "icthlarins_little_helper": frozenset({("Catspeak amulet", 1)}),
     "in_aid_of_the_myreque": frozenset({}),
@@ -301,6 +302,64 @@ QUEST_REWARD_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "the_golem": frozenset({}),
     "the_grand_tree": frozenset({}),
     "tree_gnome_village": frozenset({("Gnome amulet", 1)}),
+}
+
+
+# Exact lamp definitions for every quest with a
+# QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID entry.
+QUEST_LAMP_REWARD_REPLACEMENT_GUARD: Dict[str, Tuple[Tuple[object, ...], ...]] = {
+    "carnillean_rising": (
+        (
+            "Carnillean lamp",
+            1500,
+            (
+                "agility",
+                "attack",
+                "constitution",
+                "construction",
+                "cooking",
+                "crafting",
+                "defense",
+                "dungeoneering",
+                "farming",
+                "firemaking",
+                "fishing",
+                "fletching",
+                "herblore",
+                "hunter",
+                "magic",
+                "mining",
+                "prayer",
+                "ranged",
+                "runecrafting",
+                "slayer",
+                "smithing",
+                "strength",
+                "summoning",
+                "thieving",
+                "woodcutting",
+            ),
+            31,
+            "https://runescape.wiki/w/Carnillean_lamp?oldid=6153995",
+            (
+                "Two Carnillean lamps are awarded for completing the Carnillean Rising quest. "
+                "They may be claimed from the chest by Ceril inside the Carnillean mansion. "
+                "Each lamp gives 1,500 experience in a skill (above level 30) of your choice."
+            ),
+            2,
+        ),
+    ),
+    "myths_of_the_white_lands": (
+        (
+            "Post-quest ice-cave Agility reward",
+            10000,
+            ("agility",),
+            1,
+            "https://runescape.wiki/w/Myths_of_the_White_Lands?oldid=6555850",
+            "Optional reward for completing the additional ice-cave route.",
+            1,
+        ),
+    ),
 }
 
 
@@ -5718,6 +5777,91 @@ class TestLogic(unittest.TestCase):
                 self.assertFalse(completed_again)
                 self.assertEqual(after_complete["quest_points"], 57)
 
+    def test_hazeel_cult_routes_grant_only_their_own_artifact(self):
+        quest_id = "hazeel_cult"
+        route_cases = (
+            (
+                "Side with Ceril Carnillean",
+                {"Carnillean armour": 1, "Coins": 2005},
+            ),
+            (
+                "Side with Hazeel's cult",
+                {"Coins": 2005, "Mark of Hazeel": 1},
+            ),
+        )
+        for route_id, expected_grants in route_cases:
+            with self.subTest(route=route_id):
+                player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                inventory_before = dict(player_data["inventory"])
+                player_data, ok = apply_quest_route_choice_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                    route_id,
+                )
+                self.assertTrue(ok)
+                player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
+
+                actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
+                actions.append("Complete Hazeel Cult stage 1 objective")
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+
+                actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
+                actions.append("Complete Hazeel Cult stage 2 objective")
+                if route_id == "Side with Ceril Carnillean":
+                    player_data.update(
+                        {
+                            "attack_level": 99,
+                            "constitution_level": 99,
+                            "defense_level": 99,
+                            "strength_level": 99,
+                        }
+                    )
+                    player_data["quest_combat_config"] = {"resolver_enabled": True}
+                    for expected_remaining in (1, 0):
+                        player_data, ok, result = apply_quest_combat_encounter_pure(
+                            player_data,
+                            quest_id,
+                            QUEST_DATA,
+                            "hazeel_cult_alomone_13",
+                        )
+                        self.assertTrue(ok, result)
+                        self.assertTrue(result["killed"], result)
+                        self.assertEqual(result["remaining_quantity"], expected_remaining)
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
+                if route_id == "Side with Ceril Carnillean":
+                    self.assertEqual(player_data["inventory"]["Carnillean armour"], 2)
+
+                actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
+                actions.append("Complete Hazeel Cult stage 3 objective")
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertTrue(completed_now)
+                grants = {
+                    item_name: amount - inventory_before.get(item_name, 0)
+                    for item_name, amount in player_data["inventory"].items()
+                    if amount > inventory_before.get(item_name, 0)
+                }
+                self.assertEqual(grants, expected_grants)
+
     def test_quest_route_choices_cover_hazeel_and_heroes_inherited_shield_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         hazeel_choices = quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA)
@@ -11021,27 +11165,52 @@ class TestLogic(unittest.TestCase):
                     # inventory item; they land on the existing zeal wallet.
                     self.assertEqual(completed_data["soul_wars_zeal"], 70)
 
-    def test_quest_replacement_tuples_pin_the_complete_reward_and_unlock_sets(self):
-        # QUEST_UNLOCK_REPLACEMENTS_BY_ID and QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID
-        # swap a quest's whole generated tuple, so removing one name can silently
-        # delete a source-backed capability or item behind it. These exact pins
-        # cover every quest with an entry in either dictionary: any dropped
-        # entry, added entry, or quantity change fails the suite.
-        self.assertEqual(set(QUEST_UNLOCK_GUARD), set(QUEST_UNLOCK_REPLACEMENTS_BY_ID))
-        self.assertEqual(set(QUEST_REWARD_GUARD), set(QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID))
-        for quest_id, expected in QUEST_UNLOCK_GUARD.items():
-            with self.subTest(quest_id=quest_id):
+    def test_quest_replacement_guards_pin_all_replaced_items_lamps_and_unlocks(self):
+        """Pin every item and lamp replacement, and only quests with unlock replacements."""
+        self.assertEqual(
+            set(QUEST_ITEM_REWARD_REPLACEMENT_GUARD),
+            set(QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID),
+        )
+        self.assertEqual(
+            set(QUEST_LAMP_REWARD_REPLACEMENT_GUARD),
+            set(QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID),
+        )
+        self.assertEqual(
+            set(QUEST_UNLOCK_REPLACEMENT_GUARD),
+            set(QUEST_UNLOCK_REPLACEMENTS_BY_ID),
+        )
+        for quest_id, expected in QUEST_ITEM_REWARD_REPLACEMENT_GUARD.items():
+            with self.subTest(reward_kind="items", quest_id=quest_id):
+                self.assertEqual(
+                    dict(expected),
+                    dict(QUEST_DATA[quest_id]["rewards"]),
+                    f"{quest_id} flat completion grant drifted from the pinned revision",
+                )
+        for quest_id, expected in QUEST_LAMP_REWARD_REPLACEMENT_GUARD.items():
+            with self.subTest(reward_kind="lamps", quest_id=quest_id):
+                actual = tuple(
+                    (
+                        reward["display_name"],
+                        reward["amount"],
+                        tuple(reward["skill_options"]),
+                        reward["minimum_level"],
+                        reward["source"],
+                        reward["source_text"],
+                        reward["quantity"],
+                    )
+                    for reward in QUEST_DATA[quest_id]["lamp_rewards"]
+                )
+                self.assertEqual(
+                    expected,
+                    actual,
+                    f"{quest_id} lamp reward set drifted from the pinned revision",
+                )
+        for quest_id, expected in QUEST_UNLOCK_REPLACEMENT_GUARD.items():
+            with self.subTest(reward_kind="unlocks", quest_id=quest_id):
                 self.assertEqual(
                     expected,
                     frozenset(QUEST_DATA[quest_id]["unlocks"]),
                     f"{quest_id} unlock set drifted from the pinned revision",
-                )
-        for quest_id, expected in QUEST_REWARD_GUARD.items():
-            with self.subTest(quest_id=quest_id):
-                self.assertEqual(
-                    dict(expected),
-                    dict(QUEST_DATA[quest_id]["rewards"]),
-                    f"{quest_id} completion grant drifted from the pinned revision",
                 )
 
     def test_quest_completion_grants_generated_item_rewards(self):

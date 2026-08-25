@@ -783,13 +783,9 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertGreaterEqual(len(quests_with_narrative_actions), 190)
 
         hazeel = data["hazeel_cult"]
-        # The pinned revision (oldid=6579784) awards the route-conditional
-        # Mark of Hazeel (cult side) and Carnillean armour (Ceril side)
-        # alongside the coins; both are real registered items.
-        self.assertEqual(
-            hazeel["rewards"],
-            {"Carnillean armour": 1, "Coins": 2005, "Mark of Hazeel": 1},
-        )
+        # Only the coins are common completion loot; the two artifacts emit
+        # from mutually exclusive route stages (Hazeel Cult oldid=6579784).
+        self.assertEqual(hazeel["rewards"], {"Coins": 2005})
         self.assertEqual(hazeel["choices"][0]["stage"], 1)
         self.assertEqual(
             tuple(option["route_id"] for option in hazeel["choices"][0]["options"]),

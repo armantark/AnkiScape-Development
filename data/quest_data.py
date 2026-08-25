@@ -1376,6 +1376,8 @@ TEMPLE_OF_IKOV_VARIANT_GUARDIANS = "guardians"
 TEMPLE_OF_IKOV_VARIANT_LUCIEN = "lucien"
 HAZEEL_CULT_ROUTE_CARNILLEAN = "Side with Ceril Carnillean"
 HAZEEL_CULT_ROUTE_HAZEEL = "Side with Hazeel's cult"
+HAZEEL_CULT_VARIANT_CARNILLEAN = "carnillean"
+HAZEEL_CULT_VARIANT_HAZEEL = "hazeel"
 VOID_STARES_BACK_ROUTE_KORASI = "Sacrifice Korasi"
 VOID_STARES_BACK_ROUTE_JESSIKA = "Sacrifice Jessika"
 TEMPLE_OF_IKOV_BOW_OPTIONS: Tuple[Tuple[str, int], ...] = (
@@ -4216,15 +4218,9 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     DWARF_CANNON_ID: (("Ammo mould", 1),),
     CLOCK_TOWER_ID: (("Coins", 500),),
     MONKS_FRIEND_ID: (("Law rune", 8),),
-    HAZEEL_CULT_ID: (
-        # The pinned revision's armour/mark lines are route-conditional
-        # (Hazeel Cult oldid=6579784): Mark of Hazeel on the cult side,
-        # Carnillean armour from killing Alomone on the Ceril side. Both are
-        # real registered items, so both stay granted.
-        ("Carnillean armour", 1),
-        ("Coins", 2005),
-        ("Mark of Hazeel", 1),
-    ),
+    # Hazeel Cult oldid=6579784 grants its two artifacts from mutually
+    # exclusive quest routes; only the 2,005 coins are common completion loot.
+    HAZEEL_CULT_ID: (("Coins", 2005),),
     "stolen_hearts": (("Coins", 2500),),
     "diamond_in_the_rough": (),
     "icthlarins_little_helper": (("Catspeak amulet", 1),),
@@ -4451,6 +4447,47 @@ QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
 }
 
 QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
+    CARNILLEAN_RISING_ID: (
+        QuestLampReward(
+            "Carnillean lamp",
+            1500,
+            (
+                "agility",
+                "attack",
+                "constitution",
+                "construction",
+                "cooking",
+                "crafting",
+                "defense",
+                "dungeoneering",
+                "farming",
+                "firemaking",
+                "fishing",
+                "fletching",
+                "herblore",
+                "hunter",
+                "magic",
+                "mining",
+                "prayer",
+                "ranged",
+                "runecrafting",
+                "slayer",
+                "smithing",
+                "strength",
+                "summoning",
+                "thieving",
+                "woodcutting",
+            ),
+            31,
+            "https://runescape.wiki/w/Carnillean_lamp?oldid=6153995",
+            (
+                "Two Carnillean lamps are awarded for completing the Carnillean Rising quest. "
+                "They may be claimed from the chest by Ceril inside the Carnillean mansion. "
+                "Each lamp gives 1,500 experience in a skill (above level 30) of your choice."
+            ),
+            quantity=2,
+        ),
+    ),
     "myths_of_the_white_lands": (
         QuestLampReward(
             "Post-quest ice-cave Agility reward",
@@ -4465,6 +4502,84 @@ QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    HAZEEL_CULT_ID: (
+        _stage_req(
+            1,
+            "Choose whether to expose the cult or help revive Hazeel.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            required_actions=("Complete Hazeel Cult stage 1 objective",),
+        ),
+        _stage_req(
+            2,
+            (
+                "Defeat Alomone twice, keep both armour drops until one can be given to Ceril, "
+                "and retain the other as the route reward."
+            ),
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_CARNILLEAN,
+            required_routes=(HAZEEL_CULT_ROUTE_CARNILLEAN,),
+            produced_inventory=(("Carnillean armour", 2),),
+            required_actions=("Complete Hazeel Cult stage 2 objective",),
+            combat_encounters=(
+                _combat(
+                    HAZEEL_CULT_ID,
+                    "alomone_13",
+                    "Alomone",
+                    13,
+                    "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+                    "Alomone (13) (Carnillean side)",
+                    quantity=2,
+                    npc_stats=(
+                        ("hitpoints", 250),
+                        ("attack", 10),
+                        ("strength", 10),
+                        ("defence", 4),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 1),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=(
+                        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+                        "data/npcs/combatdefs/uncategorized/alomone (noanims).json"
+                    ),
+                ),
+            ),
+        ),
+        _stage_req(
+            2,
+            "Help the cult prepare Hazeel's revival.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_HAZEEL,
+            required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
+            required_actions=("Complete Hazeel Cult stage 2 objective",),
+        ),
+        _stage_req(
+            3,
+            "Give one Carnillean armour to Ceril, expose Butler Jones, and finish the quest.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_CARNILLEAN,
+            required_routes=(HAZEEL_CULT_ROUTE_CARNILLEAN,),
+            consumed_inventory=(("Carnillean armour", 1),),
+            produced_inventory=(("Carnillean armour", 2),),
+            repeatable_until_consumed=True,
+            required_actions=("Complete Hazeel Cult stage 3 objective",),
+        ),
+        _stage_req(
+            3,
+            "Complete Hazeel's revival and receive the Mark of Hazeel.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_HAZEEL,
+            required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
+            produced_inventory=(("Mark of Hazeel", 1),),
+            required_actions=("Complete Hazeel Cult stage 3 objective",),
+        ),
+    ),
     JUNGLE_POTION_ID: (
         _stage_req(
             1,
