@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quest repair programme — results, 2026-08-24</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0e12'/%3E%3Cpath d='M8 20 L14 24 L24 9' stroke='%234ade80' stroke-width='3.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Outfit,"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;line-height:1.55;padding:38px 22px 70px}
+.wrap{max-width:1080px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace}
+.badge{display:inline-block;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);border:1px solid rgba(79,140,255,.32);padding:5px 12px;border-radius:999px}
+h1{font-size:2rem;font-weight:700;margin:16px 0 8px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.95rem;margin:0 0 30px;max-width:70ch}
+h2{font-size:1.05rem;font-weight:700;margin:38px 0 14px;letter-spacing:-.01em}
+h2 .n{color:var(--accent);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.85rem;margin-right:8px}
+
+.headline{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:8px}
+@media(max-width:900px){.headline{grid-template-columns:1fr}}
+.big{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;position:relative;overflow:hidden}
+.big::after{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,var(--green),transparent)}
+.big .lbl{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.arrow{display:flex;align-items:baseline;gap:14px;margin-top:10px;flex-wrap:wrap}
+.from{font-size:1.9rem;font-weight:700;color:var(--text-dim);text-decoration:line-through;text-decoration-color:rgba(255,92,92,.55);text-decoration-thickness:2px}
+.to{font-size:2.5rem;font-weight:700;color:var(--green);line-height:1}
+.big .cap{color:var(--text-dim);font-size:.82rem;margin-top:8px}
+
+.bar{height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:14px;display:flex}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;font-size:.72rem;color:var(--text-dim)}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.36)}
+.card h3{margin:0 0 4px;font-size:.95rem;font-weight:700}
+.pri{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:7px}
+.crit{color:var(--red)}.high{color:var(--amber)}.med{color:var(--green)}.pol{color:var(--purple)}
+.card p{margin:7px 0 0;font-size:.86rem;color:var(--text-dim)}
+.card p b{color:var(--text);font-weight:600}
+.files{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px}
+.f{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.63rem;color:var(--text-dim)}
+
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);font-weight:500}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"JetBrains Mono",ui-monospace,monospace}
+.zero{color:var(--green);font-weight:700}
+
+.lane{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 18px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.78rem;color:var(--text-dim);overflow-x:auto}
+.lane b{color:var(--green);font-weight:500}
+.lane .k{color:var(--text)}
+
+.open{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:var(--radius);padding:15px 18px;margin-bottom:11px}
+.open h4{margin:0 0 5px;font-size:.88rem}
+.open p{margin:0;font-size:.83rem;color:var(--text-dim)}
+.open.you{border-left-color:var(--accent)}
+.open.src{border-left-color:var(--purple)}
+
+.miss{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.miss .row{display:grid;grid-template-columns:26px 1fr;gap:13px;padding:13px 17px;border-bottom:1px solid var(--border)}
+.miss .row:last-child{border-bottom:none}
+.miss .ic{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.95rem;color:var(--red);line-height:1.4}
+.miss h4{margin:0 0 3px;font-size:.86rem}
+.miss p{margin:0;font-size:.81rem;color:var(--text-dim)}
+.miss .fix{color:var(--green)}
+
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);color:var(--text-dim);font-size:.76rem;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+@media print{body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="badge">Results · autonomous run</span>
+<h1>Quest repair programme</h1>
+<p class="sub">Two defect classes made 45 quests impossible to finish. Both are closed on main, verified by driving the real kernel rather than by a green suite. 2026-08-22 to 2026-08-24, main at <code>20602942</code>.</p>
+
+<div class="headline">
+  <div class="big">
+    <div class="lbl">Stage actions no path emitted</div>
+    <div class="arrow"><span class="from">45 quests</span><span class="to">0</span></div>
+    <div class="cap">49 specific missing actions, now none. Each stage listed a step the runtime never produced, so the quest stalled there forever.</div>
+  </div>
+  <div class="big">
+    <div class="lbl">Routes no player could select</div>
+    <div class="arrow"><span class="from">30 quests</span><span class="to">0</span></div>
+    <div class="cap">47 stages demanded a route only a registered choice could set, and none existed. Your Option A ruling turned each into a recorded step.</div>
+  </div>
+</div>
+
+<h2><span class="n">01</span>What still blocks a quest, and why that is not the same number</h2>
+<div class="tw">
+<table>
+<thead><tr><th>Cause</th><th>Rows</th><th>Status</th><th>Owner of the decision</th></tr></thead>
+<tbody>
+<tr><td>Specific action with no emitter</td><td class="num zero">0</td><td>Closed this run</td><td>—</td></tr>
+<tr><td>Unsatisfiable route</td><td class="num zero">0</td><td>Closed this run</td><td>—</td></tr>
+<tr><td>Generated placeholder stub</td><td class="num">131</td><td>Source-blocked</td><td>Ruling 4.17 made it a harvest task</td></tr>
+<tr><td>Missing item or tool</td><td class="num">24</td><td>Untouched class</td><td>Not part of this programme</td></tr>
+</tbody>
+</table>
+</div>
+<div class="bar">
+  <i style="width:84.5%;background:var(--purple)"></i><i style="width:15.5%;background:var(--amber)"></i>
+</div>
+<div class="legend">
+  <span><i class="dot" style="background:var(--purple)"></i>131 stub rows, awaiting sourced text</span>
+  <span><i class="dot" style="background:var(--amber)"></i>24 item or tool rows, separate class</span>
+</div>
+<p class="sub" style="margin-top:12px">155 blocked rows remain, and none of them is the defect this programme fixed. Calling that "155 still broken" would be wrong in the other direction.</p>
+
+<h2><span class="n">02</span>Both lanes, on the merged tree</h2>
+<div class="lane">
+<span class="k">plain</span>&nbsp;&nbsp;Ran 4431 tests in 303.351s&nbsp;&nbsp;<b>OK (skipped=506)</b><br>
+<span class="k">qt&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Ran 4431 tests in 613.241s&nbsp;&nbsp;<b>OK (skipped=3)</b>
+</div>
+<p class="sub" style="margin-top:11px">The Qt skip count is the one that matters. Every widget test skips without <code>aqt</code>, so a run reporting 506 skips in the Qt lane is a false pass, not a green one. It caught two stale interface labels this run that the plain lane could not see.</p>
+
+<h2><span class="n">03</span>Four things that went wrong, and what caught them</h2>
+<div class="miss">
+  <div class="row"><div class="ic">✗</div><div>
+    <h4>An invented mechanic reached a branch</h4>
+    <p>A Heroes' Quest repair had the player bribe an NPC for 1,000 coins. No cited handler and no pinned wiki revision contained a bribe. Its own test passed, because the test proved the invention. <span class="fix">Caught by the reviewer reading the cited source.</span></p>
+  </div></div>
+  <div class="row"><div class="ic">✗</div><div>
+    <h4>Two slices cited a source and did the opposite</h4>
+    <p>Both cited a handler that calls <code>deleteItem</code>, then modelled a possession check, so the quest completed without consuming anything. <span class="fix">Caught twice; the rule is now in every brief.</span></p>
+  </div></div>
+  <div class="row"><div class="ic">✗</div><div>
+    <h4>A slice was reported complete with an empty branch</h4>
+    <p>Tree Gnome Village's agent produced nothing and returned a report reading like the others. <span class="fix">Caught because the reviewer checks each branch holds a commit before reading any report.</span></p>
+  </div></div>
+  <div class="row"><div class="ic">✗</div><div>
+    <h4>A test rewrite silently dropped invariants</h4>
+    <p>Merlin's Crystal gained emitter coverage and lost assertions on item consumption and reward state. A regression that stopped consuming the Bucket would have passed. <span class="fix">Caught by diffing against the base version of the test.</span></p>
+  </div></div>
+</div>
+
+<h2><span class="n">04</span>Also landed</h2>
+<div class="grid">
+  <div class="card">
+    <span class="pri high">Owner ruling 4.17 · implemented</span>
+    <h3>Jungle Potion returns to source semantics</h3>
+    <p>Each herb search stays reachable until its own turn-in consumes it, and the Shattered Heart herb exemption went with it, because the exemption only existed to soften the one-shot model. All five search and turn-in pairs verified against <b>JunglePotion.java</b>.</p>
+    <div class="files"><span class="f">data/quest_data.py</span><span class="f">logic_pure_quest.py</span></div>
+  </div>
+  <div class="card">
+    <span class="pri high">Owner ruling 4.17 · implemented</span>
+    <h3>Rock eligibility moved into one hook</h3>
+    <p>Output-replacement eligibility now lives in the shared hook, and the proof is a <b>newly registered skill</b> routed through it, not the four existing callers. A future rock-eligible skill cannot silently regain the untradeable-output defect.</p>
+    <div class="files"><span class="f">shattered_heart_logic.py</span><span class="f">runtime_actions_*.py</span></div>
+  </div>
+  <div class="card">
+    <span class="pri med">Tooling</span>
+    <h3>Stale test commands cannot rot silently again</h3>
+    <p>36 copy-paste unittest selectors across 23 source-audit documents named tests that no longer exist. All repaired, and <b>audit_docs.py</b> now fails on a dangling selector, proven by making one dangle.</p>
+    <div class="files"><span class="f">tools/audit_docs.py</span><span class="f">memory-bank/source-audits/</span></div>
+  </div>
+  <div class="card">
+    <span class="pri crit">Player-visible</span>
+    <h3>Quests stopped granting places as items</h3>
+    <p>Rewards are written as bare inventory keys with no definition lookup, so Biohazard handed the player <b>Combat Training Camp</b> as an object. Fixed for every quest reachable today; the accesses became unlock state.</p>
+    <div class="files"><span class="f">data/quest_data.py</span><span class="f">ui_tab_quests.py</span></div>
+  </div>
+</div>
+
+<h2><span class="n">05</span>Open, and who owns each</h2>
+<div class="open you">
+  <h4>Darkan party simulation — waiting on you</h4>
+  <p>A 534-line packet answers queue entry 4.15: the flattened party model, a per-class analog table, and eight open questions stated as options with trade-offs. It settles none of them on purpose, because the entry requires your approval before any runtime work. Verified against three Darkan commits by a second agent. At <code>memory-bank/darkan-party-simulation-analysis-packet-2026-08-24.md</code>.</p>
+</div>
+<div class="open src">
+  <h4>131 stub-only stages — source-blocked</h4>
+  <p>Your ruling 4.17 made these a harvest task rather than a design fork: recover the real stage text through the evidence order, and keep a stub only where the evidence is exhausted. Eleven further specific actions sit behind these stubs, invisible to the audit because it reports one blocked stage per quest.</p>
+</div>
+<div class="open">
+  <h4>Reward names outside the reachable set — in flight</h4>
+  <p>33 corrections across 21 quests sit finished but uncommitted in a worktree; the agent's process died before it committed. Two more names were missed by my own filter and are being added now. Nothing is lost and main is clean.</p>
+</div>
+
+<h2><span class="n">06</span>Two measurement errors worth keeping</h2>
+<div class="grid">
+  <div class="card">
+    <span class="pri pol">Method</span>
+    <h3>The audit's zero is not the data's zero</h3>
+    <p>I reported the action class closed at zero. A reviewer walked the catalog by hand and found <b>11 specific actions across 9 quests</b> that the audit cannot see, because it stops at each quest's first blocked stage. Both numbers are honest; only one answers "is this quest playable".</p>
+  </div>
+  <div class="card">
+    <span class="pri pol">Method</span>
+    <h3>Reward names have no mechanical test</h3>
+    <p>I tried a keyword filter, then registry membership. Both wrong: <b>234 of 239</b> reward names exist only through self-registration, including <code>Acorn</code>. Whether a name is a thing a player can hold is a judgement, not a query.</p>
+  </div>
+</div>
+
+<div class="foot">
+  <span>main <code>20602942</code> · 345 non-merge commits since the goal baseline</span>
+  <span>Every figure re-measured at 2026-08-24 20:21 PDT</span>
+</div>
+
+</div>
+</body>
+</html>
