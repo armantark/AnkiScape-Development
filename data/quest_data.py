@@ -4310,11 +4310,19 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Piscatoris - South of Falconry",
     ),
     "dealing_with_scabaras": (
-        "Ability to craft an Enchanted water tiara, which protects you from the desert heat effect.",
+        # The pinned revision's tiara line swallows a how-to paragraph; the
+        # unlock states the capability and the crafting steps live in the
+        # stage objectives (Dealing with Scabaras oldid=6581466, reward list).
+        "The ability to craft an Enchanted water tiara - protects you from the Desert heat effect",
         "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
     ),
     "do_no_evil": (
         "New magic carpet destinations, connecting the Monkey colony with Shantay Pass and southern Pollnivneach.",
+        "Ability to pickpocket monkey knife fighters.",
+        "Ability to run chimp ice for further rewards.",
+        "Access to a passageway from the desert (rockslide south of the Kalphite Hive entrance) "
+        "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
+        "The ability to upgrade Ava's accumulator to Ava's alerter.",
         "Access to the Monkey colony.",
     ),
     "dream_mentor": ("Seven new spells added to the Lunar Spellbook",),
@@ -4337,6 +4345,8 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos.",
     ),
     ROCKING_OUT_ID: (
+        # The pinned revision's line ends in a broken "{{Skill_clickpic}}"
+        # template render, not real content (Rocking Out oldid=6521879).
         "Ability to catch Pirate implings with 76 Hunter",
         "Ability to steal from customs lockers",
         "Ability to buy Braindeath 'rum' from The Rusty Anchor Inn",
@@ -4357,10 +4367,13 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     ),
     "the_golem": (
         "Magic carpet route opened to the ruins of Uzer.",
+        "Ability to collect multiple Phoenix feathers",
     ),
     "cabin_fever": (
         # The pinned revision awards no ship; its reward line is that Charter
-        # Ship prices are halved (Cabin Fever oldid=6533785).
+        # Ship prices are halved (Cabin Fever oldid=6533785, reward list).
+        "Access to Mos Le'Harmless",
+        "Access to kill Cave horrors.",
         "Charter Ship prices are halved.",
     ),
     "the_grand_tree": (

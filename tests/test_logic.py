@@ -10621,6 +10621,10 @@ class TestLogic(unittest.TestCase):
             "back_to_my_roots": {"Eagles' Peak", "East Ardougne"},
             "catapult_construction": {"Castle Wars"},
             "carnillean_rising": {"Construction"},
+            # Cabin Fever's generated "Charter ship" item row is filtered out
+            # of quest_reward_items_as_dict(); auditing the name here keeps
+            # that filter honest.
+            "cabin_fever": {"Charter ship"},
             "deadliest_catch": {
                 "Bank deposit box",
                 "North-East of Pollnivneach",
@@ -10689,6 +10693,8 @@ class TestLogic(unittest.TestCase):
                 "Increased damage when using the Castle Wars catapults"
             },
             "cabin_fever": {
+                "Access to Mos Le'Harmless",
+                "Access to kill Cave horrors.",
                 "Charter Ship prices are halved.",
             },
             "deadliest_catch": {
@@ -10701,14 +10707,22 @@ class TestLogic(unittest.TestCase):
                 "Bank deposit box south of Brimhaven",
                 "Piscatoris - South of Falconry",
             },
+            # Clean rewrite: the generated run-on paragraph is a capability
+            # line plus a how-to explanation; the unlock keeps the capability
+            # and drops the mechanics (Scabaras oldid=6581466).
             "dealing_with_scabaras": {
-                "Ability to craft an Enchanted water tiara, which protects you from the desert heat effect.",
+                "The ability to craft an Enchanted water tiara - protects you from the Desert heat effect",
                 "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
             },
             "dream_mentor": {"Seven new spells added to the Lunar Spellbook"},
             "do_no_evil": {
                 "New magic carpet destinations, connecting the Monkey colony with Shantay Pass "
                 "and southern Pollnivneach.",
+                "Ability to pickpocket monkey knife fighters.",
+                "Ability to run chimp ice for further rewards.",
+                "Access to a passageway from the desert (rockslide south of the Kalphite Hive entrance) "
+                "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
+                "The ability to upgrade Ava's accumulator to Ava's alerter.",
                 "Access to the Monkey colony.",
             },
             "in_aid_of_the_myreque": {
@@ -10725,12 +10739,22 @@ class TestLogic(unittest.TestCase):
                 "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos."
             },
             "rocking_out": {
+                # Clean rewrite of the pinned revision's broken skill-clickpic
+                # render (Rocking Out oldid=6521879).
                 "Ability to catch Pirate implings with 76 Hunter",
+                "Ability to steal from customs lockers",
+                "Ability to buy Braindeath 'rum' from The Rusty Anchor Inn",
+                "Access to the Rock Island Prison.",
+                "Access to a Bank deposit box in Rimmington",
+                "Ability to raise Ex-ex-parrot by speaking to Bill Teach and 50 Ships Mufassah (requires 71 Summoning)",
                 "Free access to the Brimhaven Agility Arena",
             },
             "spirit_of_summer": {"Access to a new Spirit Realm"},
             "the_dig_site": {"Access through the Varrock Museum back door and gate."},
-            "the_golem": {"Magic carpet route opened to the ruins of Uzer."},
+            "the_golem": {
+                "Magic carpet route opened to the ruins of Uzer.",
+                "Ability to collect multiple Phoenix feathers",
+            },
             "the_grand_tree": {
                 "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."
             },
@@ -10743,8 +10767,8 @@ class TestLogic(unittest.TestCase):
             "magic": 5000.0,
             "prayer": 6500.0,
         }
-        self.assertEqual(len(non_item_reward_names_by_quest), 23)
-        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 43)
+        self.assertEqual(len(non_item_reward_names_by_quest), 24)
+        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 44)
         self.assertLessEqual(
             set(expected_rewards) | set(non_item_reward_names_by_quest),
             set(QUEST_DATA),
@@ -10766,8 +10790,27 @@ class TestLogic(unittest.TestCase):
         for quest in QUEST_DATA.values():
             granted = dict(quest["rewards"])
             self.assertNotIn("Strung rabbit foot", granted)
+        # Exact sets for the quests whose unlocks flow through
+        # QUEST_UNLOCK_REPLACEMENTS_BY_ID: issubset stays green while a
+        # replacement tuple silently deletes the source-backed unlocks the
+        # generated catalog provided, so those five must match exactly.
+        exact_unlock_quests = {
+            "cabin_fever",
+            "dealing_with_scabaras",
+            "do_no_evil",
+            "rocking_out",
+            "the_golem",
+        }
         for quest_id, expected in expected_unlocks.items():
-            self.assertTrue(expected.issubset(QUEST_DATA[quest_id]["unlocks"]))
+            actual = set(QUEST_DATA[quest_id]["unlocks"])
+            if quest_id in exact_unlock_quests:
+                self.assertEqual(set(expected), actual, f"{quest_id} unlock set drifted")
+            else:
+                self.assertTrue(expected.issubset(actual))
+        # The "A box trap." override must stay: without it the name falls back
+        # to a junk string even though Hunter data independently defines item
+        # 10008 and keeps this dictionary green.
+        self.assertNotIn("A box trap.", quest_reward_items_as_dict())
 
         for quest_id, quest in QUEST_DATA.items():
             with self.subTest(quest_id=quest_id):
