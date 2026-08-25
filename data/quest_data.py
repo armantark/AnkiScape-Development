@@ -177,6 +177,9 @@ DARKAN_TUTORIAL_SOURCE_ROOT = (
 DARKAN_NPC_COMBATDEF_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs"
 )
+DARKAN_HAZEEL_CULT_ALOMONE_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/alomone (noanims).json"
+)
 DARKAN_DEVELOPER_INFO_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/developer-information"
 )
@@ -4544,10 +4547,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                         ("attack_bonus", "crush_att"),
                         ("aggressiveness_type", "passive"),
                     ),
-                    npc_stats_source=(
-                        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
-                        "data/npcs/combatdefs/uncategorized/alomone (noanims).json"
-                    ),
+                    npc_stats_source=DARKAN_HAZEEL_CULT_ALOMONE_NPC_SOURCE,
                 ),
             ),
         ),
@@ -4572,7 +4572,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         ),
         _stage_req(
             3,
-            "Complete Hazeel's revival and receive the Mark of Hazeel.",
+            "Complete Hazeel's revival and finish the quest.",
             "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
             variant=HAZEEL_CULT_VARIANT_HAZEEL,
             required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
