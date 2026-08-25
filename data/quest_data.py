@@ -4311,10 +4311,11 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     ),
     "dealing_with_scabaras": (
         # The pinned revision's tiara line swallows a how-to paragraph; the
-        # unlock states the capability and the crafting steps live in the
-        # stage objectives (Dealing with Scabaras oldid=6581466, reward list).
+        # unlock states the capability (Dealing with Scabaras oldid=6581466,
+        # reward list).
         "The ability to craft an Enchanted water tiara - protects you from the Desert heat effect",
-        "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
+        "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand, "
+        "but noted gold artefacts still cannot be exchanged.",
     ),
     "do_no_evil": (
         "New magic carpet destinations, connecting the Monkey colony with Shantay Pass and southern Pollnivneach.",
@@ -4324,6 +4325,7 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
         "The ability to upgrade Ava's accumulator to Ava's alerter.",
         "Access to the Monkey colony.",
+        "The ability to add the camulet and catspeak amulet to the Cramulet.",
     ),
     "dream_mentor": ("Seven new spells added to the Lunar Spellbook",),
     "in_aid_of_the_myreque": (
@@ -4354,6 +4356,7 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Access to a Bank deposit box in Rimmington",
         "Ability to raise Ex-ex-parrot by speaking to Bill Teach and 50 Ships Mufassah (requires 71 Summoning)",
         "Free access to the Brimhaven Agility Arena",
+        "Removes need for the Book o' piracy when speaking to pirates on Mos Le'Harmless",
     ),
     "spirit_of_summer": (
         "Access to the alternative Axe Hut, in which axeless level 42 Ghostly warriors can be fought without the need of a lockpick.",

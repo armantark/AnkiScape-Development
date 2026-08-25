@@ -10712,7 +10712,8 @@ class TestLogic(unittest.TestCase):
             # and drops the mechanics (Scabaras oldid=6581466).
             "dealing_with_scabaras": {
                 "The ability to craft an Enchanted water tiara - protects you from the Desert heat effect",
-                "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
+                "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand, "
+                "but noted gold artefacts still cannot be exchanged.",
             },
             "dream_mentor": {"Seven new spells added to the Lunar Spellbook"},
             "do_no_evil": {
@@ -10724,6 +10725,7 @@ class TestLogic(unittest.TestCase):
                 "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
                 "The ability to upgrade Ava's accumulator to Ava's alerter.",
                 "Access to the Monkey colony.",
+                "The ability to add the camulet and catspeak amulet to the Cramulet.",
             },
             "in_aid_of_the_myreque": {
                 "Talk to Historian Minas to receive 5 Kudos in the Varrock Museum."
@@ -10748,6 +10750,7 @@ class TestLogic(unittest.TestCase):
                 "Access to a Bank deposit box in Rimmington",
                 "Ability to raise Ex-ex-parrot by speaking to Bill Teach and 50 Ships Mufassah (requires 71 Summoning)",
                 "Free access to the Brimhaven Agility Arena",
+                "Removes need for the Book o' piracy when speaking to pirates on Mos Le'Harmless",
             },
             "spirit_of_summer": {"Access to a new Spirit Realm"},
             "the_dig_site": {"Access through the Varrock Museum back door and gate."},
