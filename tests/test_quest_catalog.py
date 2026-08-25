@@ -783,6 +783,8 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertGreaterEqual(len(quests_with_narrative_actions), 190)
 
         hazeel = data["hazeel_cult"]
+        # Only the coins are common completion loot; the two artifacts emit
+        # from mutually exclusive route stages (Hazeel Cult oldid=6579784).
         self.assertEqual(hazeel["rewards"], {"Coins": 2005})
         self.assertEqual(hazeel["choices"][0]["stage"], 1)
         self.assertEqual(

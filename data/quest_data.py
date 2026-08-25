@@ -152,6 +152,14 @@ LOST_CITY_KB_SOURCE = "https://2011.rs/kb/lost_city_members"
 LUNAR_DIPLOMACY_SOURCE = "https://www.2011.rs/kb/sym_lunar_diplomacy_members_a_m"
 MOURNINGS_END_PART_II_SOURCE = "https://www.2011.rs/kb/mourning_s_ends_part_ii_the_temple_of_light_members"
 LEGACY_OF_SEERGAZE_SOURCE = "https://2011.rs/kb/legacy_of_seergaze_members"
+LEGACY_OF_SEERGAZE_REWARD_SOURCE = (
+    "RuneScape Wiki Legacy of Seergaze oldid=6521668 (2012-11-02T22:17:22Z); "
+    "OpenRS2 rev-727 and rev-742 item definitions 13160-13162"
+)
+LET_THEM_EAT_PIE_SPICES_SOURCE = (
+    "RuneScape Wiki Let Them Eat Pie oldid=6521972 (2012-11-03T01:39:36Z); "
+    "OpenRS2 rev-727 and rev-742 item definition 23081"
+)
 SWAN_SONG_SOURCE = "https://www.2011.rs/kb/swan_song_members"
 TAI_BWO_WANNAI_TRIO_SOURCE = "https://www.2011.rs/kb/tai_bwo_wannai_trio_members"
 DARKAN_QUEST_SOURCE_ROOT = (
@@ -168,6 +176,9 @@ DARKAN_TUTORIAL_SOURCE_ROOT = (
 )
 DARKAN_NPC_COMBATDEF_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs"
+)
+DARKAN_HAZEEL_CULT_ALOMONE_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/alomone (noanims).json"
 )
 DARKAN_DEVELOPER_INFO_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/developer-information"
@@ -903,6 +914,11 @@ HUNTER_PRIEST_IN_PERIL_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_leve
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
     "Amulet of ghostspeak": "Ghostspeak amulet",
     "Ring of charos": "Ring of Charos",
+    # Eagles' Peak's pinned revision lists "A box trap." — parser mangling of a
+    # real rev-742 item (10008, the placeable trap with the Lay action), not a
+    # junk string. Normalise it onto the canonical item instead of prohibiting
+    # the name and dropping a genuine reward.
+    "A box trap.": "Box trap",
 }
 
 
@@ -1363,6 +1379,8 @@ TEMPLE_OF_IKOV_VARIANT_GUARDIANS = "guardians"
 TEMPLE_OF_IKOV_VARIANT_LUCIEN = "lucien"
 HAZEEL_CULT_ROUTE_CARNILLEAN = "Side with Ceril Carnillean"
 HAZEEL_CULT_ROUTE_HAZEEL = "Side with Hazeel's cult"
+HAZEEL_CULT_VARIANT_CARNILLEAN = "carnillean"
+HAZEEL_CULT_VARIANT_HAZEEL = "hazeel"
 VOID_STARES_BACK_ROUTE_KORASI = "Sacrifice Korasi"
 VOID_STARES_BACK_ROUTE_JESSIKA = "Sacrifice Jessika"
 TEMPLE_OF_IKOV_BOW_OPTIONS: Tuple[Tuple[str, int], ...] = (
@@ -3568,7 +3586,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         display_name="Legacy of Seergaze",
         stages=7,
         point_reward=2,
-        rewards=(("Blood talisman", 1), ("Ivandis flail", 1), ("Tome of Experience, 2nd Ed.", 1)),
+        rewards=(("Blood talisman", 1), ("Ivandis flail", 1), ("Tome of xp 2nd ed (3)", 1)),
         start_point="Talk to the Mercenary Adventurer at the Burgh de Rott Ramble start point east of Paterdomus.",
         requirements=(
             "Darkness of Hallowvale",
@@ -3582,7 +3600,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         ),
         required_items=(),
         combat="Two different combat styles are useful against level 80 guards and Vyrewatch.",
-        source=LEGACY_OF_SEERGAZE_SOURCE,
+        source=f"{LEGACY_OF_SEERGAZE_SOURCE}; {LEGACY_OF_SEERGAZE_REWARD_SOURCE}",
         journal_stages=LEGACY_OF_SEERGAZE_STAGES,
         release_date="2008-04-22",
         members=True,
@@ -4203,6 +4221,8 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     DWARF_CANNON_ID: (("Ammo mould", 1),),
     CLOCK_TOWER_ID: (("Coins", 500),),
     MONKS_FRIEND_ID: (("Law rune", 8),),
+    # Hazeel Cult oldid=6579784 grants its two artifacts from mutually
+    # exclusive quest routes; only the 2,005 coins are common completion loot.
     HAZEEL_CULT_ID: (("Coins", 2005),),
     "stolen_hearts": (("Coins", 2500),),
     "diamond_in_the_rough": (),
@@ -4211,6 +4231,47 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     SHEEP_HERDER_ID: (("Coins", 3100),),
     "cold_war": (),
     "hunt_for_red_raktuber": (),
+    "a_fairy_tale_iii_battle_at_orks_rift": (("Magic watering can", 1),),
+    "a_tail_of_two_cats": (("Catspeak amulet (e)", 1), ("Doctors hat", 1)),
+    ANOTHER_SLICE_OF_H_A_M_ID: (("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)),
+    "back_to_my_roots": (
+        ("Jade vine seed", 1),
+    ),
+    "catapult_construction": (
+        ("Adamant halberd", 1),
+        ("Coins", 2000),
+        ("Sailor's hat", 1),
+        ("Teak plank", 30),
+    ),
+    "carnillean_rising": (
+        # The malformed "Construction" row stood for the pinned revision's
+        # construction-supplies bundle (Carnillean Rising oldid=6534490).
+        ("Coins", 5000),
+        ("Oak plank", 100),
+        ("Philipe's sweets", 1),
+        ("Teak plank", 30),
+        ("Mahogany plank", 10),
+        ("Treasure chest (Carnillean Rising)", 1),
+    ),
+    DEADLIEST_CATCH_ID: (("Small cast net", 1),),
+    # The pinned revision awards Book o' piracy and Coins but no ship; its
+    # Charter Ship line is a halved-prices unlock (Cabin Fever oldid=6533785).
+    "cabin_fever": (("Book o' piracy", 1), ("Coins", 10000)),
+    "dealing_with_scabaras": (),
+    "do_no_evil": (("Clue scroll (elite)", 1), ("Cramulet", 1)),
+    "dream_mentor": (),
+    EAGLES_PEAK_ID: (("Box trap", 1), ("Eagle costume", 1)),
+    "in_aid_of_the_myreque": (),
+    "let_them_eat_pie": (("Expensive spices", 1), ("Meat pie", 5)),
+    "meeting_history": (("Enchanted key", 1),),
+    "missing_my_mummy": (("Coins", 5000),),
+    "nomads_requiem": (("Soul Wars cape", 1),),
+    "observatory_quest": (("Maple longbow", 1), ("Uncut sapphire", 1)),
+    ROCKING_OUT_ID: (("Magical cage", 1),),
+    "spirit_of_summer": (("Jennica's ring", 1),),
+    "the_dig_site": (("Fruit blast", 1), ("Gold bar", 2)),
+    "the_golem": (),
+    "the_grand_tree": (),
     SONG_FROM_THE_DEPTHS_ID: (
         ("Coral bolts", 50),
         ("Coral crossbow", 1),
@@ -4224,6 +4285,140 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Ability to travel freely through the West Ardougne Gate",
         "Use of the Combat Training Camp north of Ardougne",
     ),
+    "a_fairy_tale_iii_battle_at_orks_rift": (
+        "Free access to the Zanaris Market",
+        "Ability to use the Fairy Rings and get into Zanaris without a Lunar or Dramen staff.",
+        "Ability to fetch teeth to get a Tooth creature by speaking to the Tooth Fairy after the quest.",
+        "Access to a new battle area in the Ork's Rift, which contains Ivory Bre'egth (cursed), Ivory Gromblod (cursed) and Ivory Shredflesh (cursed). They all have a combat level of 108 and have high gem and blue charm drop rates.",
+        "Ability to sell suqah tooth to the Tooth Fairy for 2,000 coins each. You can also sell to her old teeth, monkey dentures, and kebbit teeth, for amounts ranging from 1 to 200 coins.",
+        "Access to Mos Le Harmless through K'Chunk's island; code D-I-P.",
+        "To have your patches automatically weeded, talk to Martin the Master Gardener after the quest "
+        "to unlock the ability to have gardeners keep your farming patches weed free.",
+    ),
+    "a_tail_of_two_cats": (
+        "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
+    ),
+    ANOTHER_SLICE_OF_H_A_M_ID: (
+        "Ability to buy Goblin Village teleport orbs",
+        "Free access to the Dorgesh-Kaan - Keldagrim Train System",
+    ),
+    "back_to_my_roots": (
+        "Ability to slay the Jade Vine for extra Slayer and Farming experience once every 15 hours.",
+        "Vine Farming Patch in East Ardougne",
+        "Transportation between Eagles' Peak and Karamja using the Karamjan Jungle eagle.",
+        "A new maze Jade vine maze, slightly larger than Draynor Manor, containing 8 new creatures: "
+        "Giant ant soldier level 58, Giant ant worker level 40, Tenacious toucan level 70, Giant Wasp level 66, "
+        "Frog level 66, Pernicious parrot level 66, Wild jade vine level 167, Karamjan Jungle eagle.",
+    ),
+    "catapult_construction": ("Increased damage when using the Castle Wars catapults",),
+    # Keeps the generated ferret-capture and eagle-transport unlocks; the
+    # rabbit line restores the pinned revision's rabbit-flushing, trapping
+    # and foot-stringing capability (Eagles' Peak oldid=6579761). The strung
+    # rabbit foot itself stays ungranted — it is crafted later, not awarded.
+    EAGLES_PEAK_ID: (
+        "Ability to capture ferrets using box traps.",
+        "Access to the Eagle transport system",
+        "Use captured ferrets to flush rabbits from rabbit holes, trap them with a "
+        "rabbit trap, and string a dropped rabbit's foot with a ball of wool to wear "
+        "as a necklace when cutting trees to increase bird-nest chances.",
+    ),
+    "deadliest_catch": (
+        "Bank deposit box north-west of Bedabin Camp",
+        "Bank deposit box south of Elf Camp",
+        "Bank deposit box west of Harmony Island",
+        "Bank deposit box west of Mort Myre Swamp",
+        "Bank deposit box north-east of Pollnivneach",
+        "Bank deposit box on the south coast of Ape Atoll",
+        "Bank deposit box south of Brimhaven",
+        "Piscatoris - South of Falconry",
+    ),
+    "dealing_with_scabaras": (
+        # The pinned revision's tiara line swallows a how-to paragraph; the
+        # unlock states the capability (Dealing with Scabaras oldid=6581466,
+        # reward list).
+        "The ability to craft an Enchanted water tiara - protects you from the Desert heat effect",
+        "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand, "
+        "but noted gold artefacts still cannot be exchanged.",
+    ),
+    "do_no_evil": (
+        "New magic carpet destinations, connecting the Monkey colony with Shantay Pass and southern Pollnivneach.",
+        "Ability to pickpocket monkey knife fighters.",
+        "Ability to run chimp ice for further rewards.",
+        "Access to a passageway from the desert (rockslide south of the Kalphite Hive entrance) "
+        "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
+        "The ability to upgrade Ava's accumulator to Ava's alerter.",
+        "Access to the Monkey colony.",
+        # Entering this cavern is gated on level 80 Agility (oldid=6587790);
+        # its contents (20,000 Agility xp, Apmeken mask, ankh) are conditional
+        # rewards awaiting a claim mechanism.
+        "Players with level 80 Agility (boosts may be used) can enter the cavern "
+        "in the south wall of the Monkey colony.",
+        "The ability to add the camulet and catspeak amulet to the Cramulet.",
+    ),
+    # The pinned revision lists the Random option on NPC Contact beneath the
+    # seven-spell line as a sibling reward (Dream Mentor oldid=6550965).
+    "dream_mentor": (
+        "Seven new spells added to the Lunar Spellbook",
+        "Access to the 'Random' option on NPC Contact",
+    ),
+    "in_aid_of_the_myreque": (
+        "Access to Burgh de Rott",
+        "You can now play Temple Trekking activity.",
+        "Ability to use a Gadderhammer, which is strong against shades.",
+        "Ability to make and use Rod of Ivandis and Guthix balance potion to fight and defeat Vampyre Juveniles and Juvinates.",
+        "Talk to Historian Minas to receive 5 Kudos in the Varrock Museum.",
+    ),
+    "meeting_history": (
+        "Speak to Historian Minas at the Varrock Museum to earn 5 Kudos.",
+    ),
+    "nomads_requiem": (
+        "Access to a Bloodwood tree in the Soul Wars waiting area.",
+        "Soul Wars is added to the available respawn points.",
+        "Decaying Avatar and Nomad become available as bosses in the Dominion Tower.",
+    ),
+    "observatory_quest": (
+        "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos.",
+    ),
+    ROCKING_OUT_ID: (
+        # The pinned revision's line ends in a broken "{{Skill_clickpic}}"
+        # template render, not real content (Rocking Out oldid=6521879).
+        "Ability to catch Pirate implings with 76 Hunter",
+        "Ability to steal from customs lockers",
+        "Ability to buy Braindeath 'rum' from The Rusty Anchor Inn",
+        "Access to the Rock Island Prison.",
+        "Access to a Bank deposit box in Rimmington",
+        "Ability to raise Ex-ex-parrot by speaking to Bill Teach and 50 Ships Mufassah (requires 71 Summoning)",
+        "Free access to the Brimhaven Agility Arena",
+        "Removes need for the Book o' piracy when speaking to pirates on Mos Le'Harmless",
+    ),
+    "spirit_of_summer": (
+        "Access to the alternative Axe Hut, in which axeless level 42 Ghostly warriors can be fought without the need of a lockpick.",
+        "Access to the Cursed Magic Tree",
+        "Access to a Goth leprechaun in level 26 wilderness, as well as the flower patch he guards.",
+        "Access to a new Spirit Realm",
+    ),
+    "the_dig_site": (
+        "Ability to do Varrock Museum Specimen Cleaning to obtain Kudos and a Digsite pendant.",
+        "Access through the Varrock Museum back door and gate.",
+    ),
+    "the_golem": (
+        "Magic carpet route opened to the ruins of Uzer.",
+        "Ability to collect multiple Phoenix feathers",
+    ),
+    "cabin_fever": (
+        # The pinned revision awards no ship; its reward line is that Charter
+        # Ship prices are halved (Cabin Fever oldid=6533785, reward list).
+        "Access to Mos Le'Harmless",
+        "Access to kill Cave horrors.",
+        "Charter Ship prices are halved.",
+    ),
+    "the_grand_tree": (
+        "Ability to use the Grand Tree mine under The Grand Tree",
+        "Ability to use the Gnome glider transportation system",
+        "Ability to use the Agility Shortcut from the Grand Tree to the Barbarian Outpost (with 37 Agility)",
+        "Ability to use the Spirit Tree in the stronghold outside the Grand Tree (the Tree Gnome Village quest doesn't allow access to this tree)",
+        "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
+    ),
 }
 
 
@@ -4236,6 +4431,15 @@ QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
         QuestXpReward("constitution", 250),
         QuestXpReward("thieving", 250),
     ),
+    "missing_my_mummy": (
+        QuestXpReward("constitution", 7000),
+        QuestXpReward("cooking", 2100),
+        QuestXpReward("thieving", 3000),
+        QuestXpReward("crafting", 3350),
+        QuestXpReward("magic", 5000),
+        QuestXpReward("prayer", 6500),
+        QuestXpReward("construction", 2100),
+    ),
     SONG_FROM_THE_DEPTHS_ID: (QuestXpReward("constitution", 700),),
     SOME_LIKE_IT_COLD_ID: (
         QuestXpReward("construction", 10000),
@@ -4246,6 +4450,47 @@ QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
 }
 
 QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
+    CARNILLEAN_RISING_ID: (
+        QuestLampReward(
+            "Carnillean lamp",
+            1500,
+            (
+                "agility",
+                "attack",
+                "constitution",
+                "construction",
+                "cooking",
+                "crafting",
+                "defense",
+                "dungeoneering",
+                "farming",
+                "firemaking",
+                "fishing",
+                "fletching",
+                "herblore",
+                "hunter",
+                "magic",
+                "mining",
+                "prayer",
+                "ranged",
+                "runecrafting",
+                "slayer",
+                "smithing",
+                "strength",
+                "summoning",
+                "thieving",
+                "woodcutting",
+            ),
+            31,
+            "https://runescape.wiki/w/Carnillean_lamp?oldid=6153995",
+            (
+                "Two Carnillean lamps are awarded for completing the Carnillean Rising quest. "
+                "They may be claimed from the chest by Ceril inside the Carnillean mansion. "
+                "Each lamp gives 1,500 experience in a skill (above level 30) of your choice."
+            ),
+            quantity=2,
+        ),
+    ),
     "myths_of_the_white_lands": (
         QuestLampReward(
             "Post-quest ice-cave Agility reward",
@@ -4260,6 +4505,81 @@ QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    HAZEEL_CULT_ID: (
+        _stage_req(
+            1,
+            "Choose whether to expose the cult or help revive Hazeel.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            required_actions=("Complete Hazeel Cult stage 1 objective",),
+        ),
+        _stage_req(
+            2,
+            (
+                "Defeat Alomone twice, keep both armour drops until one can be given to Ceril, "
+                "and retain the other as the route reward."
+            ),
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_CARNILLEAN,
+            required_routes=(HAZEEL_CULT_ROUTE_CARNILLEAN,),
+            produced_inventory=(("Carnillean armour", 2),),
+            required_actions=("Complete Hazeel Cult stage 2 objective",),
+            combat_encounters=(
+                _combat(
+                    HAZEEL_CULT_ID,
+                    "alomone_13",
+                    "Alomone",
+                    13,
+                    "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+                    "Alomone (13) (Carnillean side)",
+                    quantity=2,
+                    npc_stats=(
+                        ("hitpoints", 250),
+                        ("attack", 10),
+                        ("strength", 10),
+                        ("defence", 4),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 1),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=DARKAN_HAZEEL_CULT_ALOMONE_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            2,
+            "Help the cult prepare Hazeel's revival.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_HAZEEL,
+            required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
+            required_actions=("Complete Hazeel Cult stage 2 objective",),
+        ),
+        _stage_req(
+            3,
+            "Give one Carnillean armour to Ceril, expose Butler Jones, and finish the quest.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_CARNILLEAN,
+            required_routes=(HAZEEL_CULT_ROUTE_CARNILLEAN,),
+            consumed_inventory=(("Carnillean armour", 1),),
+            produced_inventory=(("Carnillean armour", 2),),
+            repeatable_until_consumed=True,
+            required_actions=("Complete Hazeel Cult stage 3 objective",),
+        ),
+        _stage_req(
+            3,
+            "Complete Hazeel's revival and finish the quest.",
+            "https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+            variant=HAZEEL_CULT_VARIANT_HAZEEL,
+            required_routes=(HAZEEL_CULT_ROUTE_HAZEEL,),
+            produced_inventory=(("Mark of Hazeel", 1),),
+            required_actions=("Complete Hazeel Cult stage 3 objective",),
+        ),
+    ),
     JUNGLE_POTION_ID: (
         _stage_req(
             1,
@@ -11142,13 +11462,84 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         },
         "Rune spear (kp)": {"category": "equipment", "source": TAI_BWO_WANNAI_TRIO_SOURCE},
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},
-        "Tome of Experience, 2nd Ed.": {"category": "material", "source": LEGACY_OF_SEERGAZE_SOURCE},
+        "Tome of xp 2nd ed (3)": {
+            "category": "material",
+            "item_id": 13160,
+            "stackable": False,
+            "tradeable": False,
+            "source": LEGACY_OF_SEERGAZE_REWARD_SOURCE,
+        },
+        "Expensive spices": {
+            "category": "material",
+            "item_id": 23081,
+            "stackable": False,
+            "tradeable": False,
+            "source": LET_THEM_EAT_PIE_SPICES_SOURCE,
+        },
+        # A real holdable, non-stackable, tradeable item (rev-742 item 10132)
+        # obtained later by hunting rabbits; Eagles' Peak itself puts the ferret
+        # in the zoo rather than awarding this, so it stays defined but
+        # ungranted by any quest.
+        "Strung rabbit foot": {
+            "category": "material",
+            "item_id": 10132,
+            "stackable": False,
+            "tradeable": True,
+            "source": (
+                "https://runescape.wiki/w/Eagles%27_Peak?oldid=6579761 "
+                "(reward text: string a rabbit's foot with ball of wool); "
+                "OpenRS2 rev-742 item definition 10132"
+            ),
+        },
     })
-    generated_items.pop("Queen Black Dragon", None)
-    generated_items.pop("Penguin Hide and Seek", None)
-    generated_items.pop("Combat Training Camp", None)
-    generated_items.pop("Coin", None)
-    generated_items.pop("Law Rune", None)
+    for non_item_name in (
+        "Queen Black Dragon",
+        "Penguin Hide and Seek",
+        "Combat Training Camp",
+        "Coin",
+        "Law Rune",
+        "Construction",
+        "Piscatoris - South of Falconry",
+        "2,100 Cooking",
+        "3,000 Thieving",
+        "3,350 Crafting",
+        "5,000 Magic",
+        "6,500 Prayer",
+        "Brimhaven Agility Arena",
+        "Bank deposit box",
+        "Castle Wars",
+        "Charter ship",
+        "Decaying Avatar",
+        "Dorgesh-Kaan - Keldagrim Train System",
+        "Eagles' Peak",
+        "East Ardougne",
+        "Expensive spices (necklace) (page does not exist)",
+        "Ferret",
+        "File:Apmeken's tomb entrance.jpg",
+        "Giant ant soldier",
+        "Jade vine maze",
+        "Lunar Spells",
+        "Magic carpet",
+        "Martin the Master Gardener",
+        "North-East of Pollnivneach",
+        "North-west of Bedabin Camp",
+        "Pyramid Plunder",
+        "Soul Wars",
+        "South Coast of Ape Atoll",
+        "South of Brimhaven",
+        "South of Elf Camp",
+        "Spirit Realm",
+        "The Apmeken tomb.",
+        "The concept art for Jones the fisherman",
+        "The concept art for Thalassus",
+        "Tome of Experience, 2nd Ed.",
+        "Varrock Museum",
+        "West Coast of Harmony Island",
+        "West Coast of Mort Myre Swamp",
+        "Zanaris Market",
+        "Zeal points",
+    ):
+        generated_items.pop(non_item_name, None)
     return generated_items
 
 
