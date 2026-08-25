@@ -3921,7 +3921,6 @@ class TestLogic(unittest.TestCase):
 
         self.assertTrue(player_data["quests"]["deadliest_catch"]["completed"])
         self.assertEqual(player_data["quest_points"], 1)
-        self.assertEqual(player_data["inventory"]["Bank deposit box"], 1)
         self.assertEqual(player_data["inventory"]["Small cast net"], 1)
         self.assertEqual(player_data["fishing_exp"], 70000.0)
         self.assertEqual(player_data["hunter_exp"], 72660.0)
@@ -3936,7 +3935,6 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
-        self.assertEqual(after_complete["inventory"]["Bank deposit box"], 1)
         self.assertEqual(after_complete["fishing_exp"], 70000.0)
         self.assertEqual(after_complete["hunter_exp"], 72660.0)
         self.assertEqual(after_complete["thieving_exp"], 8000.0)
@@ -5284,7 +5282,6 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"]["carnillean_rising"]["completed"])
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["inventory"]["Coins"], 5000)
-        self.assertEqual(player_data["inventory"]["Construction"], 1)
         self.assertEqual(player_data["inventory"]["Philipe's sweets"], 1)
         self.assertEqual(player_data["inventory"]["Treasure chest (Carnillean Rising)"], 1)
         self.assertEqual(player_data["construction_exp"], 2500.0)
@@ -10545,14 +10542,11 @@ class TestLogic(unittest.TestCase):
         expected_rewards = {
             "a_fairy_tale_iii_battle_at_orks_rift": {
                 "Magic watering can": 1,
-                "Martin the Master Gardener": 1,
             },
             "a_souls_bane": {"Coins": 500},
             "a_tail_of_two_cats": {"Catspeak amulet (e)": 1, "Doctors hat": 1},
             "another_slice_of_h_a_m": {"Ancient mace": 1, "Dorgesh-kaan sphere": 1},
             "back_to_my_roots": {
-                "Giant ant soldier": 1,
-                "Jade vine maze": 1,
                 "Jade vine seed": 1,
             },
             "biohazard": {},
@@ -10566,14 +10560,13 @@ class TestLogic(unittest.TestCase):
             "clock_tower": {"Coins": 500},
             "cooks_assistant": {"Coins": 500, "Sardine": 20},
             "deadliest_catch": {
-                "Bank deposit box": 1,
                 "Small cast net": 1,
             },
             "dealing_with_scabaras": {},
-            "do_no_evil": {"Clue scroll (elite)": 1, "Cramulet": 1, "Magic carpet": 1},
+            "do_no_evil": {"Clue scroll (elite)": 1, "Cramulet": 1},
             "dream_mentor": {},
             "dwarf_cannon": {"Ammo mould": 1},
-            "eagles_peak": {"Eagle costume": 1, "Ferret": 1, "Strung rabbit foot": 1},
+            "eagles_peak": {"Eagle costume": 1},
             "family_crest": {"Family gauntlets": 1},
             "imp_catcher": {"Amulet of accuracy": 1},
             "in_aid_of_the_myreque": {},
@@ -10587,13 +10580,11 @@ class TestLogic(unittest.TestCase):
             "missing_my_mummy": {"Coins": 5000},
             "monks_friend": {"Law rune": 8},
             "nomads_requiem": {
-                "Decaying Avatar": 1,
                 "Soul Wars cape": 1,
-                "Zeal points": 70,
             },
             "observatory_quest": {"Maple longbow": 1, "Uncut sapphire": 1},
             "plague_city": {"A magic scroll": 1},
-            "rocking_out": {"Book o' piracy": 1, "Magical cage": 1},
+            "rocking_out": {"Magical cage": 1},
             "rune_mysteries": {"Air talisman": 1},
             "sheep_herder": {"Coins": 3100},
             "shield_of_arrav": {"Coins": 600},
@@ -10606,6 +10597,12 @@ class TestLogic(unittest.TestCase):
             "stolen_hearts": {"Coins": 2500},
             "temple_of_ikov": {"Shiny key": 1},
             "the_dig_site": {"Fruit blast": 1, "Gold bar": 2},
+            "the_golem": {"Chisel": 1},
+            "carnillean_rising": {
+                "Coins": 5000,
+                "Philipe's sweets": 1,
+                "Treasure chest (Carnillean Rising)": 1,
+            },
             "the_grand_tree": {},
             "the_restless_ghost": {"Ancient bones": 5},
             "tree_gnome_village": {"Gnome amulet": 1},
@@ -10614,12 +10611,17 @@ class TestLogic(unittest.TestCase):
             "wolf_whistle": {"Gold charm": 275},
         }
         non_item_reward_names_by_quest = {
-            "a_fairy_tale_iii_battle_at_orks_rift": {"Zanaris Market"},
+            "a_fairy_tale_iii_battle_at_orks_rift": {
+                "Martin the Master Gardener",
+                "Zanaris Market",
+            },
             "a_tail_of_two_cats": {"Varrock Museum"},
             "another_slice_of_h_a_m": {"Dorgesh-Kaan - Keldagrim Train System"},
             "back_to_my_roots": {"Eagles' Peak", "East Ardougne"},
             "catapult_construction": {"Castle Wars"},
+            "carnillean_rising": {"Construction"},
             "deadliest_catch": {
+                "Bank deposit box",
                 "North-East of Pollnivneach",
                 "North-west of Bedabin Camp",
                 "South Coast of Ape Atoll",
@@ -10631,9 +10633,13 @@ class TestLogic(unittest.TestCase):
                 "West Coast of Mort Myre Swamp",
             },
             "dealing_with_scabaras": {"Pyramid Plunder"},
-            "do_no_evil": {"File:Apmeken's tomb entrance.jpg", "The Apmeken tomb."},
+            "do_no_evil": {
+                "File:Apmeken's tomb entrance.jpg",
+                "Magic carpet",
+                "The Apmeken tomb.",
+            },
             "dream_mentor": {"Lunar Spells"},
-            "eagles_peak": {"A box trap."},
+            "eagles_peak": {"A box trap.", "Ferret"},
             "in_aid_of_the_myreque": {"Varrock Museum"},
             "legacy_of_seergaze": {"Tome of Experience, 2nd Ed."},
             "let_them_eat_pie": {
@@ -10642,24 +10648,29 @@ class TestLogic(unittest.TestCase):
             "meeting_history": {"Varrock Museum"},
             "missing_my_mummy": {
                 "2,100 Cooking",
-                "2,100 Construction",
+                "Construction",
                 "3,000 Thieving",
                 "3,350 Crafting",
                 "5,000 Magic",
                 "6,500 Prayer",
             },
-            "nomads_requiem": {"Soul Wars"},
+            "nomads_requiem": {"Decaying Avatar", "Soul Wars", "Zeal points"},
             "observatory_quest": {"Varrock Museum"},
             "rocking_out": {"Brimhaven Agility Arena"},
             "spirit_of_summer": {"Spirit Realm"},
             "the_dig_site": {"Varrock Museum"},
+            "the_golem": {"Magic carpet"},
             "the_grand_tree": {"Varrock Museum"},
         }
         non_item_reward_names = set().union(*non_item_reward_names_by_quest.values())
         previously_corrected_reward_names = {"Combat Training Camp", "Coin", "Law Rune"}
         prohibited_reward_names = non_item_reward_names | previously_corrected_reward_names
         expected_unlocks = {
-            "a_fairy_tale_iii_battle_at_orks_rift": {"Free access to the Zanaris Market"},
+            "a_fairy_tale_iii_battle_at_orks_rift": {
+                "Free access to the Zanaris Market",
+                "To have your patches automatically weeded, talk to Martin the Master Gardener after the quest "
+                "to unlock the ability to have gardeners keep your farming patches weed free.",
+            },
             "a_tail_of_two_cats": {
                 "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."
             },
@@ -10669,6 +10680,9 @@ class TestLogic(unittest.TestCase):
             "back_to_my_roots": {
                 "Vine Farming Patch in East Ardougne",
                 "Transportation between Eagles' Peak and Karamja using the Karamjan Jungle eagle.",
+                "A new maze Jade vine maze, slightly larger than Draynor Manor, containing 8 new creatures: "
+                "Giant ant soldier level 58, Giant ant worker level 40, Tenacious toucan level 70, Giant Wasp level 66, "
+                "Frog level 66, Pernicious parrot level 66, Wild jade vine level 167, Karamjan Jungle eagle.",
             },
             "catapult_construction": {
                 "Increased damage when using the Castle Wars catapults"
@@ -10688,13 +10702,21 @@ class TestLogic(unittest.TestCase):
                 "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
             },
             "dream_mentor": {"Seven new spells added to the Lunar Spellbook"},
+            "do_no_evil": {
+                "New magic carpet destinations, connecting the Monkey colony with Shantay Pass "
+                "and southern Pollnivneach.",
+                "Access to the Monkey colony.",
+            },
             "in_aid_of_the_myreque": {
                 "Talk to Historian Minas to receive 5 Kudos in the Varrock Museum."
             },
             "meeting_history": {
                 "Speak to Historian Minas at the Varrock Museum to earn 5 Kudos."
             },
-            "nomads_requiem": {"Soul Wars is added to the available respawn points."},
+            "nomads_requiem": {
+                "Soul Wars is added to the available respawn points.",
+                "Decaying Avatar and Nomad become available as bosses in the Dominion Tower.",
+            },
             "observatory_quest": {
                 "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos."
             },
@@ -10704,6 +10726,7 @@ class TestLogic(unittest.TestCase):
             },
             "spirit_of_summer": {"Access to a new Spirit Realm"},
             "the_dig_site": {"Access through the Varrock Museum back door and gate."},
+            "the_golem": {"Magic carpet route opened to the ruins of Uzer."},
             "the_grand_tree": {
                 "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."
             },
@@ -10716,8 +10739,8 @@ class TestLogic(unittest.TestCase):
             "magic": 5000.0,
             "prayer": 6500.0,
         }
-        self.assertEqual(len(non_item_reward_names_by_quest), 21)
-        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 36)
+        self.assertEqual(len(non_item_reward_names_by_quest), 23)
+        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 44)
         self.assertLessEqual(
             set(expected_rewards) | set(non_item_reward_names_by_quest),
             set(QUEST_DATA),
@@ -10769,6 +10792,10 @@ class TestLogic(unittest.TestCase):
                             completed_data[f"{skill_id}_exp"] - xp_before[skill_id],
                             amount,
                         )
+                if quest_id == "nomads_requiem":
+                    # The 70 Zeal points are a Soul Wars currency, not an
+                    # inventory item; they land on the existing zeal wallet.
+                    self.assertEqual(completed_data["soul_wars_zeal"], 70)
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

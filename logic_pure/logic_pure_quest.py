@@ -4,6 +4,8 @@ from typing import Iterable, Mapping, Optional
 
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
+from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
+
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 from ..logic.treasure_trails_logic import (
@@ -1518,6 +1520,13 @@ def apply_quest_progress_pure(
             inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
         if quest_id == "family_crest":
             data["family_gauntlet_enchantment"] = "family"
+        if quest_id == "nomads_requiem":
+            # Nomad's Requiem pays 70 Zeal points, a Soul Wars currency, not an
+            # inventory item (RuneScape Wiki Nomad's Requiem oldid=6386610).
+            data["soul_wars_zeal"] = min(
+                SOUL_WARS_ZEAL_CAP,
+                max(0, int(data.get("soul_wars_zeal") or 0)) + 70,
+            )
         _apply_quest_xp_rewards(data, quest)
     data.setdefault("quests", {})[quest_id] = state
     if include_clue_refusal:

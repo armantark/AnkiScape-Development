@@ -4219,15 +4219,10 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     SHEEP_HERDER_ID: (("Coins", 3100),),
     "cold_war": (),
     "hunt_for_red_raktuber": (),
-    "a_fairy_tale_iii_battle_at_orks_rift": (
-        ("Magic watering can", 1),
-        ("Martin the Master Gardener", 1),
-    ),
+    "a_fairy_tale_iii_battle_at_orks_rift": (("Magic watering can", 1),),
     "a_tail_of_two_cats": (("Catspeak amulet (e)", 1), ("Doctors hat", 1)),
     ANOTHER_SLICE_OF_H_A_M_ID: (("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)),
     "back_to_my_roots": (
-        ("Giant ant soldier", 1),
-        ("Jade vine maze", 1),
         ("Jade vine seed", 1),
     ),
     "catapult_construction": (
@@ -4236,23 +4231,26 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
         ("Sailor's hat", 1),
         ("Teak plank", 30),
     ),
-    DEADLIEST_CATCH_ID: (
-        ("Bank deposit box", 1),
-        ("Small cast net", 1),
+    "carnillean_rising": (
+        ("Coins", 5000),
+        ("Philipe's sweets", 1),
+        ("Treasure chest (Carnillean Rising)", 1),
     ),
+    DEADLIEST_CATCH_ID: (("Small cast net", 1),),
     "dealing_with_scabaras": (),
-    "do_no_evil": (("Clue scroll (elite)", 1), ("Cramulet", 1), ("Magic carpet", 1)),
+    "do_no_evil": (("Clue scroll (elite)", 1), ("Cramulet", 1)),
     "dream_mentor": (),
-    EAGLES_PEAK_ID: (("Eagle costume", 1), ("Ferret", 1), ("Strung rabbit foot", 1)),
+    EAGLES_PEAK_ID: (("Eagle costume", 1),),
     "in_aid_of_the_myreque": (),
     "let_them_eat_pie": (("Expensive spices", 1), ("Meat pie", 5)),
     "meeting_history": (("Enchanted key", 1),),
     "missing_my_mummy": (("Coins", 5000),),
-    "nomads_requiem": (("Decaying Avatar", 1), ("Soul Wars cape", 1), ("Zeal points", 70)),
+    "nomads_requiem": (("Soul Wars cape", 1),),
     "observatory_quest": (("Maple longbow", 1), ("Uncut sapphire", 1)),
-    ROCKING_OUT_ID: (("Book o' piracy", 1), ("Magical cage", 1)),
+    ROCKING_OUT_ID: (("Magical cage", 1),),
     "spirit_of_summer": (("Jennica's ring", 1),),
     "the_dig_site": (("Fruit blast", 1), ("Gold bar", 2)),
+    "the_golem": (("Chisel", 1),),
     "the_grand_tree": (),
     SONG_FROM_THE_DEPTHS_ID: (
         ("Coral bolts", 50),
@@ -4274,6 +4272,8 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Access to a new battle area in the Ork's Rift, which contains Ivory Bre'egth (cursed), Ivory Gromblod (cursed) and Ivory Shredflesh (cursed). They all have a combat level of 108 and have high gem and blue charm drop rates.",
         "Ability to sell suqah tooth to the Tooth Fairy for 2,000 coins each. You can also sell to her old teeth, monkey dentures, and kebbit teeth, for amounts ranging from 1 to 200 coins.",
         "Access to Mos Le Harmless through K'Chunk's island; code D-I-P.",
+        "To have your patches automatically weeded, talk to Martin the Master Gardener after the quest "
+        "to unlock the ability to have gardeners keep your farming patches weed free.",
     ),
     "a_tail_of_two_cats": (
         "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
@@ -4286,6 +4286,9 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Ability to slay the Jade Vine for extra Slayer and Farming experience once every 15 hours.",
         "Vine Farming Patch in East Ardougne",
         "Transportation between Eagles' Peak and Karamja using the Karamjan Jungle eagle.",
+        "A new maze Jade vine maze, slightly larger than Draynor Manor, containing 8 new creatures: "
+        "Giant ant soldier level 58, Giant ant worker level 40, Tenacious toucan level 70, Giant Wasp level 66, "
+        "Frog level 66, Pernicious parrot level 66, Wild jade vine level 167, Karamjan Jungle eagle.",
     ),
     "catapult_construction": ("Increased damage when using the Castle Wars catapults",),
     DEADLIEST_CATCH_ID: (
@@ -4302,6 +4305,10 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Ability to craft an Enchanted water tiara, which protects you from the desert heat effect.",
         "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
     ),
+    "do_no_evil": (
+        "New magic carpet destinations, connecting the Monkey colony with Shantay Pass and southern Pollnivneach.",
+        "Access to the Monkey colony.",
+    ),
     "dream_mentor": ("Seven new spells added to the Lunar Spellbook",),
     "in_aid_of_the_myreque": (
         "Access to Burgh de Rott",
@@ -4316,6 +4323,7 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     "nomads_requiem": (
         "Access to a Bloodwood tree in the Soul Wars waiting area.",
         "Soul Wars is added to the available respawn points.",
+        "Decaying Avatar and Nomad become available as bosses in the Dominion Tower.",
     ),
     "observatory_quest": (
         "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos.",
@@ -4338,6 +4346,9 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     "the_dig_site": (
         "Ability to do Varrock Museum Specimen Cleaning to obtain Kudos and a Digsite pendant.",
         "Access through the Varrock Museum back door and gate.",
+    ),
+    "the_golem": (
+        "Magic carpet route opened to the ruins of Uzer.",
     ),
     "the_grand_tree": (
         "Ability to use the Grand Tree mine under The Grand Tree",
@@ -11287,6 +11298,20 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": False,
             "source": LET_THEM_EAT_PIE_SPICES_SOURCE,
         },
+        # A real holdable, tradeable item (rev-742 item 10132) obtained later by
+        # hunting rabbits; Eagles' Peak itself puts the ferret in the zoo rather
+        # than awarding this, so it stays defined but ungranted.
+        "Strung rabbit foot": {
+            "category": "material",
+            "item_id": 10132,
+            "stackable": True,
+            "tradeable": True,
+            "source": (
+                "https://runescape.wiki/w/Eagles%27_Peak?oldid=6579761 "
+                "(reward text: string a rabbit's foot with ball of wool); "
+                "OpenRS2 rev-742 item definition 10132"
+            ),
+        },
     })
     for non_item_name in (
         "Queen Black Dragon",
@@ -11294,6 +11319,8 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Combat Training Camp",
         "Coin",
         "Law Rune",
+        "Construction",
+        "Piscatoris - South of Falconry",
         "2,100 Cooking",
         "3,000 Thieving",
         "3,350 Crafting",
@@ -11301,13 +11328,20 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "6,500 Prayer",
         "A box trap.",
         "Brimhaven Agility Arena",
+        "Bank deposit box",
         "Castle Wars",
+        "Decaying Avatar",
         "Dorgesh-Kaan - Keldagrim Train System",
         "Eagles' Peak",
         "East Ardougne",
         "Expensive spices (necklace) (page does not exist)",
+        "Ferret",
         "File:Apmeken's tomb entrance.jpg",
+        "Giant ant soldier",
+        "Jade vine maze",
         "Lunar Spells",
+        "Magic carpet",
+        "Martin the Master Gardener",
         "North-East of Pollnivneach",
         "North-west of Bedabin Camp",
         "Pyramid Plunder",
@@ -11321,6 +11355,10 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "The concept art for Thalassus",
         "Tome of Experience, 2nd Ed.",
         "Varrock Museum",
+        "West Coast of Harmony Island",
+        "West Coast of Mort Myre Swamp",
+        "Zanaris Market",
+        "Zeal points",
         "West Coast of Harmony Island",
         "West Coast of Mort Myre Swamp",
         "Zanaris Market",
