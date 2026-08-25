@@ -62,6 +62,7 @@ from ankiscape.core.constants import (
     WOODCUTTING_LOG_ITEMS,
 )
 from ankiscape.data.crafting_data import CRAFTING_REQUIRED_ITEM_SOURCE_IDS
+from ankiscape.data.hunter_data import hunter_extra_items_as_dict
 from ankiscape.data.runecrafting_data import (
     OMNI_TALISMAN_STAFF_ITEM,
     RUNECRAFTING_STAFF_ITEM,
@@ -2176,6 +2177,70 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Binding necklace"].equipment_slot, "neck")
         self.assertEqual(by_storage_key["Wicked hood"].equipment_slot, "head")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_hunter_extra_items_keep_rev_742_ids_and_stackability(self):
+        expected = {
+            "Bones": (526, False),
+            "Raw bird meat": (9978, False),
+            "Red feather": (10088, True),
+            "Yellow feather": (10090, True),
+            "Orange feather": (10091, True),
+            "Blue feather": (10089, True),
+            "Stripy feather": (10087, True),
+            "Wimpy feather": (11525, True),
+            "Withered vine": (19971, True),
+            "Aquatic vine": (19976, True),
+            "Draconic vine": (19973, True),
+            "Marble vine": (19980, True),
+            "Oily vine": (19972, True),
+            "Pungent vine": (19974, True),
+            "Saradomin vine": (19981, True),
+            "Zamorak vine": (19983, True),
+            "Erzille seed": (19897, True),
+            "Ugune seed": (19902, True),
+            "Argway seed": (19907, True),
+            "Shengo seed": (19912, True),
+            "Samaden seed": (19917, True),
+            "Plant teeth": (19975, True),
+            "Shadow vine": (19977, True),
+            "Corrupt vine": (19979, True),
+            "Guthix vine": (19982, True),
+            "Striped vine": (19978, True),
+            "Butterfly jar": (10012, False),
+            "Impling jar": (11260, False),
+            "Magic box": (10025, False),
+            "Bird snare": (10006, False),
+            "Box trap": (10008, False),
+            "Butterfly net": (10010, False),
+            "Marasamaw plant": (19965, False),
+            "Noose wand": (10150, False),
+            "Teasing stick": (10029, False),
+            "Rabbit snare": (10031, False),
+            "Small fishing net": (303, False),
+            "Rope": (954, False),
+        }
+        extra_items = hunter_extra_items_as_dict()
+        self.assertEqual(set(extra_items), set(expected))
+        for item_name, (item_id, stackable) in expected.items():
+            with self.subTest(item_name=item_name, item_id=item_id):
+                extra_item = extra_items[item_name]
+                self.assertEqual(extra_item["item_id"], item_id)
+                self.assertEqual(extra_item["stackable"], stackable)
+
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, item_id in {
+            "Box trap": 10008,
+            "Bird snare": 10006,
+            "Butterfly net": 10010,
+            "Noose wand": 10150,
+            "Teasing stick": 10029,
+            "Rabbit snare": 10031,
+            "Small fishing net": 303,
+        }.items():
+            with self.subTest(registry_item=item_name, item_id=item_id):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertFalse(definition.stackable)
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
