@@ -911,6 +911,11 @@ HUNTER_PRIEST_IN_PERIL_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_leve
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
     "Amulet of ghostspeak": "Ghostspeak amulet",
     "Ring of charos": "Ring of Charos",
+    # Eagles' Peak's pinned revision lists "A box trap." — parser mangling of a
+    # real rev-742 item (10008, the placeable trap with the Lay action), not a
+    # junk string. Normalise it onto the canonical item instead of prohibiting
+    # the name and dropping a genuine reward.
+    "A box trap.": "Box trap",
 }
 
 
@@ -4237,10 +4242,13 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
         ("Treasure chest (Carnillean Rising)", 1),
     ),
     DEADLIEST_CATCH_ID: (("Small cast net", 1),),
+    # The pinned revision awards Book o' piracy and Coins but no ship; its
+    # Charter Ship line is a halved-prices unlock (Cabin Fever oldid=6533785).
+    "cabin_fever": (("Book o' piracy", 1), ("Coins", 10000)),
     "dealing_with_scabaras": (),
     "do_no_evil": (("Clue scroll (elite)", 1), ("Cramulet", 1)),
     "dream_mentor": (),
-    EAGLES_PEAK_ID: (("Eagle costume", 1),),
+    EAGLES_PEAK_ID: (("Box trap", 1), ("Eagle costume", 1)),
     "in_aid_of_the_myreque": (),
     "let_them_eat_pie": (("Expensive spices", 1), ("Meat pie", 5)),
     "meeting_history": (("Enchanted key", 1),),
@@ -4250,7 +4258,7 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     ROCKING_OUT_ID: (("Magical cage", 1),),
     "spirit_of_summer": (("Jennica's ring", 1),),
     "the_dig_site": (("Fruit blast", 1), ("Gold bar", 2)),
-    "the_golem": (("Chisel", 1),),
+    "the_golem": (),
     "the_grand_tree": (),
     SONG_FROM_THE_DEPTHS_ID: (
         ("Coral bolts", 50),
@@ -4349,6 +4357,11 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     ),
     "the_golem": (
         "Magic carpet route opened to the ruins of Uzer.",
+    ),
+    "cabin_fever": (
+        # The pinned revision awards no ship; its reward line is that Charter
+        # Ship prices are halved (Cabin Fever oldid=6533785).
+        "Charter Ship prices are halved.",
     ),
     "the_grand_tree": (
         "Ability to use the Grand Tree mine under The Grand Tree",
@@ -11298,13 +11311,14 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": False,
             "source": LET_THEM_EAT_PIE_SPICES_SOURCE,
         },
-        # A real holdable, tradeable item (rev-742 item 10132) obtained later by
-        # hunting rabbits; Eagles' Peak itself puts the ferret in the zoo rather
-        # than awarding this, so it stays defined but ungranted.
+        # A real holdable, non-stackable, tradeable item (rev-742 item 10132)
+        # obtained later by hunting rabbits; Eagles' Peak itself puts the ferret
+        # in the zoo rather than awarding this, so it stays defined but
+        # ungranted by any quest.
         "Strung rabbit foot": {
             "category": "material",
             "item_id": 10132,
-            "stackable": True,
+            "stackable": False,
             "tradeable": True,
             "source": (
                 "https://runescape.wiki/w/Eagles%27_Peak?oldid=6579761 "
@@ -11326,10 +11340,10 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "3,350 Crafting",
         "5,000 Magic",
         "6,500 Prayer",
-        "A box trap.",
         "Brimhaven Agility Arena",
         "Bank deposit box",
         "Castle Wars",
+        "Charter ship",
         "Decaying Avatar",
         "Dorgesh-Kaan - Keldagrim Train System",
         "Eagles' Peak",

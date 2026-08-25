@@ -10559,6 +10559,7 @@ class TestLogic(unittest.TestCase):
             },
             "clock_tower": {"Coins": 500},
             "cooks_assistant": {"Coins": 500, "Sardine": 20},
+            "cabin_fever": {"Book o' piracy": 1, "Coins": 10000},
             "deadliest_catch": {
                 "Small cast net": 1,
             },
@@ -10566,7 +10567,7 @@ class TestLogic(unittest.TestCase):
             "do_no_evil": {"Clue scroll (elite)": 1, "Cramulet": 1},
             "dream_mentor": {},
             "dwarf_cannon": {"Ammo mould": 1},
-            "eagles_peak": {"Eagle costume": 1},
+            "eagles_peak": {"Box trap": 1, "Eagle costume": 1},
             "family_crest": {"Family gauntlets": 1},
             "imp_catcher": {"Amulet of accuracy": 1},
             "in_aid_of_the_myreque": {},
@@ -10597,7 +10598,7 @@ class TestLogic(unittest.TestCase):
             "stolen_hearts": {"Coins": 2500},
             "temple_of_ikov": {"Shiny key": 1},
             "the_dig_site": {"Fruit blast": 1, "Gold bar": 2},
-            "the_golem": {"Chisel": 1},
+            "the_golem": {},
             "carnillean_rising": {
                 "Coins": 5000,
                 "Philipe's sweets": 1,
@@ -10639,7 +10640,7 @@ class TestLogic(unittest.TestCase):
                 "The Apmeken tomb.",
             },
             "dream_mentor": {"Lunar Spells"},
-            "eagles_peak": {"A box trap.", "Ferret"},
+            "eagles_peak": {"Ferret"},
             "in_aid_of_the_myreque": {"Varrock Museum"},
             "legacy_of_seergaze": {"Tome of Experience, 2nd Ed."},
             "let_them_eat_pie": {
@@ -10686,6 +10687,9 @@ class TestLogic(unittest.TestCase):
             },
             "catapult_construction": {
                 "Increased damage when using the Castle Wars catapults"
+            },
+            "cabin_fever": {
+                "Charter Ship prices are halved.",
             },
             "deadliest_catch": {
                 "Bank deposit box north-west of Bedabin Camp",
@@ -10740,7 +10744,7 @@ class TestLogic(unittest.TestCase):
             "prayer": 6500.0,
         }
         self.assertEqual(len(non_item_reward_names_by_quest), 23)
-        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 44)
+        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 43)
         self.assertLessEqual(
             set(expected_rewards) | set(non_item_reward_names_by_quest),
             set(QUEST_DATA),
@@ -10749,6 +10753,19 @@ class TestLogic(unittest.TestCase):
         item_definitions = {item.storage_key: item for item in ITEM_DEFINITIONS}
         self.assertEqual(item_definitions["Tome of xp 2nd ed (3)"].source_item_id, 13160)
         self.assertEqual(item_definitions["Expensive spices"].source_item_id, 23081)
+        # Eagles' Peak's "A box trap." reward text normalises onto the real
+        # rev-742 item 10008 (the placeable trap with the Lay action), so the
+        # quest must keep granting it.
+        self.assertEqual(item_definitions["Box trap"].source_item_id, 10008)
+        # The strung rabbit foot is a real tradeable rev-742 item 10132 that no
+        # quest grants; it is crafted later by hunting rabbits.
+        rabbit_foot = item_definitions["Strung rabbit foot"]
+        self.assertEqual(rabbit_foot.source_item_id, 10132)
+        self.assertFalse(rabbit_foot.stackable)
+        self.assertTrue(rabbit_foot.tradeable)
+        for quest in QUEST_DATA.values():
+            granted = dict(quest["rewards"])
+            self.assertNotIn("Strung rabbit foot", granted)
         for quest_id, expected in expected_unlocks.items():
             self.assertTrue(expected.issubset(QUEST_DATA[quest_id]["unlocks"]))
 
