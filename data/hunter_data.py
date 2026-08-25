@@ -1349,6 +1349,49 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     **HUNTER_TOOL_ITEMS,
 }
 
+# Direct rev-742 cache values for every item registered by
+# hunter_extra_items_as_dict().
+_HUNTER_EXTRA_ITEM_STACKABLE_BY_ID: Mapping[int, bool] = {
+    526: False,
+    9978: False,
+    10088: True,
+    10090: True,
+    10091: True,
+    10089: True,
+    10087: True,
+    11525: True,
+    19971: True,
+    19976: True,
+    19973: True,
+    19980: True,
+    19972: True,
+    19974: True,
+    19981: True,
+    19983: True,
+    19897: True,
+    19902: True,
+    19907: True,
+    19912: True,
+    19917: True,
+    19975: True,
+    19977: True,
+    19979: True,
+    19982: True,
+    19978: True,
+    10012: False,
+    11260: False,
+    10025: False,
+    10006: False,
+    10008: False,
+    10010: False,
+    19965: False,
+    10150: False,
+    10029: False,
+    10031: False,
+    303: False,
+    954: False,
+}
+
 
 def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
     return {
@@ -1510,6 +1553,6 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
             "tradeable": item_name not in _HUNTER_UNTRADEABLE_ITEMS,
-            "stackable": item_name not in {"Marasamaw plant", "Rope"},
+            "stackable": _HUNTER_EXTRA_ITEM_STACKABLE_BY_ID[item_id],
         }
     return rows
