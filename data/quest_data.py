@@ -152,6 +152,14 @@ LOST_CITY_KB_SOURCE = "https://2011.rs/kb/lost_city_members"
 LUNAR_DIPLOMACY_SOURCE = "https://www.2011.rs/kb/sym_lunar_diplomacy_members_a_m"
 MOURNINGS_END_PART_II_SOURCE = "https://www.2011.rs/kb/mourning_s_ends_part_ii_the_temple_of_light_members"
 LEGACY_OF_SEERGAZE_SOURCE = "https://2011.rs/kb/legacy_of_seergaze_members"
+LEGACY_OF_SEERGAZE_REWARD_SOURCE = (
+    "RuneScape Wiki Legacy of Seergaze oldid=6521668 (2012-11-02T22:17:22Z); "
+    "OpenRS2 rev-727 and rev-742 item definitions 13160-13162"
+)
+LET_THEM_EAT_PIE_SPICES_SOURCE = (
+    "RuneScape Wiki Let Them Eat Pie oldid=6521972 (2012-11-03T01:39:36Z); "
+    "OpenRS2 rev-727 and rev-742 item definition 23081"
+)
 SWAN_SONG_SOURCE = "https://www.2011.rs/kb/swan_song_members"
 TAI_BWO_WANNAI_TRIO_SOURCE = "https://www.2011.rs/kb/tai_bwo_wannai_trio_members"
 DARKAN_QUEST_SOURCE_ROOT = (
@@ -3568,7 +3576,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         display_name="Legacy of Seergaze",
         stages=7,
         point_reward=2,
-        rewards=(("Blood talisman", 1), ("Ivandis flail", 1), ("Tome of Experience, 2nd Ed.", 1)),
+        rewards=(("Blood talisman", 1), ("Ivandis flail", 1), ("Tome of xp 2nd ed (3)", 1)),
         start_point="Talk to the Mercenary Adventurer at the Burgh de Rott Ramble start point east of Paterdomus.",
         requirements=(
             "Darkness of Hallowvale",
@@ -3582,7 +3590,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         ),
         required_items=(),
         combat="Two different combat styles are useful against level 80 guards and Vyrewatch.",
-        source=LEGACY_OF_SEERGAZE_SOURCE,
+        source=f"{LEGACY_OF_SEERGAZE_SOURCE}; {LEGACY_OF_SEERGAZE_REWARD_SOURCE}",
         journal_stages=LEGACY_OF_SEERGAZE_STAGES,
         release_date="2008-04-22",
         members=True,
@@ -4211,6 +4219,41 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     SHEEP_HERDER_ID: (("Coins", 3100),),
     "cold_war": (),
     "hunt_for_red_raktuber": (),
+    "a_fairy_tale_iii_battle_at_orks_rift": (
+        ("Magic watering can", 1),
+        ("Martin the Master Gardener", 1),
+    ),
+    "a_tail_of_two_cats": (("Catspeak amulet (e)", 1), ("Doctors hat", 1)),
+    ANOTHER_SLICE_OF_H_A_M_ID: (("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)),
+    "back_to_my_roots": (
+        ("Giant ant soldier", 1),
+        ("Jade vine maze", 1),
+        ("Jade vine seed", 1),
+    ),
+    "catapult_construction": (
+        ("Adamant halberd", 1),
+        ("Coins", 2000),
+        ("Sailor's hat", 1),
+        ("Teak plank", 30),
+    ),
+    DEADLIEST_CATCH_ID: (
+        ("Bank deposit box", 1),
+        ("Small cast net", 1),
+    ),
+    "dealing_with_scabaras": (),
+    "do_no_evil": (("Clue scroll (elite)", 1), ("Cramulet", 1), ("Magic carpet", 1)),
+    "dream_mentor": (),
+    EAGLES_PEAK_ID: (("Eagle costume", 1), ("Ferret", 1), ("Strung rabbit foot", 1)),
+    "in_aid_of_the_myreque": (),
+    "let_them_eat_pie": (("Expensive spices", 1), ("Meat pie", 5)),
+    "meeting_history": (("Enchanted key", 1),),
+    "missing_my_mummy": (("Coins", 5000),),
+    "nomads_requiem": (("Decaying Avatar", 1), ("Soul Wars cape", 1), ("Zeal points", 70)),
+    "observatory_quest": (("Maple longbow", 1), ("Uncut sapphire", 1)),
+    ROCKING_OUT_ID: (("Book o' piracy", 1), ("Magical cage", 1)),
+    "spirit_of_summer": (("Jennica's ring", 1),),
+    "the_dig_site": (("Fruit blast", 1), ("Gold bar", 2)),
+    "the_grand_tree": (),
     SONG_FROM_THE_DEPTHS_ID: (
         ("Coral bolts", 50),
         ("Coral crossbow", 1),
@@ -4224,6 +4267,85 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Ability to travel freely through the West Ardougne Gate",
         "Use of the Combat Training Camp north of Ardougne",
     ),
+    "a_fairy_tale_iii_battle_at_orks_rift": (
+        "Free access to the Zanaris Market",
+        "Ability to use the Fairy Rings and get into Zanaris without a Lunar or Dramen staff.",
+        "Ability to fetch teeth to get a Tooth creature by speaking to the Tooth Fairy after the quest.",
+        "Access to a new battle area in the Ork's Rift, which contains Ivory Bre'egth (cursed), Ivory Gromblod (cursed) and Ivory Shredflesh (cursed). They all have a combat level of 108 and have high gem and blue charm drop rates.",
+        "Ability to sell suqah tooth to the Tooth Fairy for 2,000 coins each. You can also sell to her old teeth, monkey dentures, and kebbit teeth, for amounts ranging from 1 to 200 coins.",
+        "Access to Mos Le Harmless through K'Chunk's island; code D-I-P.",
+    ),
+    "a_tail_of_two_cats": (
+        "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
+    ),
+    ANOTHER_SLICE_OF_H_A_M_ID: (
+        "Ability to buy Goblin Village teleport orbs",
+        "Free access to the Dorgesh-Kaan - Keldagrim Train System",
+    ),
+    "back_to_my_roots": (
+        "Ability to slay the Jade Vine for extra Slayer and Farming experience once every 15 hours.",
+        "Vine Farming Patch in East Ardougne",
+        "Transportation between Eagles' Peak and Karamja using the Karamjan Jungle eagle.",
+    ),
+    "catapult_construction": ("Increased damage when using the Castle Wars catapults",),
+    DEADLIEST_CATCH_ID: (
+        "Bank deposit box north-west of Bedabin Camp",
+        "Bank deposit box south of Elf Camp",
+        "Bank deposit box west of Harmony Island",
+        "Bank deposit box west of Mort Myre Swamp",
+        "Bank deposit box north-east of Pollnivneach",
+        "Bank deposit box on the south coast of Ape Atoll",
+        "Bank deposit box south of Brimhaven",
+        "Piscatoris - South of Falconry",
+    ),
+    "dealing_with_scabaras": (
+        "Ability to craft an Enchanted water tiara, which protects you from the desert heat effect.",
+        "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
+    ),
+    "dream_mentor": ("Seven new spells added to the Lunar Spellbook",),
+    "in_aid_of_the_myreque": (
+        "Access to Burgh de Rott",
+        "You can now play Temple Trekking activity.",
+        "Ability to use a Gadderhammer, which is strong against shades.",
+        "Ability to make and use Rod of Ivandis and Guthix balance potion to fight and defeat Vampyre Juveniles and Juvinates.",
+        "Talk to Historian Minas to receive 5 Kudos in the Varrock Museum.",
+    ),
+    "meeting_history": (
+        "Speak to Historian Minas at the Varrock Museum to earn 5 Kudos.",
+    ),
+    "nomads_requiem": (
+        "Access to a Bloodwood tree in the Soul Wars waiting area.",
+        "Soul Wars is added to the available respawn points.",
+    ),
+    "observatory_quest": (
+        "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos.",
+    ),
+    ROCKING_OUT_ID: (
+        "Ability to catch Pirate implings with 76 Hunter",
+        "Ability to steal from customs lockers",
+        "Ability to buy Braindeath 'rum' from The Rusty Anchor Inn",
+        "Access to the Rock Island Prison.",
+        "Access to a Bank deposit box in Rimmington",
+        "Ability to raise Ex-ex-parrot by speaking to Bill Teach and 50 Ships Mufassah (requires 71 Summoning)",
+        "Free access to the Brimhaven Agility Arena",
+    ),
+    "spirit_of_summer": (
+        "Access to the alternative Axe Hut, in which axeless level 42 Ghostly warriors can be fought without the need of a lockpick.",
+        "Access to the Cursed Magic Tree",
+        "Access to a Goth leprechaun in level 26 wilderness, as well as the flower patch he guards.",
+        "Access to a new Spirit Realm",
+    ),
+    "the_dig_site": (
+        "Ability to do Varrock Museum Specimen Cleaning to obtain Kudos and a Digsite pendant.",
+        "Access through the Varrock Museum back door and gate.",
+    ),
+    "the_grand_tree": (
+        "Ability to use the Grand Tree mine under The Grand Tree",
+        "Ability to use the Gnome glider transportation system",
+        "Ability to use the Agility Shortcut from the Grand Tree to the Barbarian Outpost (with 37 Agility)",
+        "Ability to use the Spirit Tree in the stronghold outside the Grand Tree (the Tree Gnome Village quest doesn't allow access to this tree)",
+        "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
+    ),
 }
 
 
@@ -4235,6 +4357,15 @@ QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
         QuestXpReward("agility", 250),
         QuestXpReward("constitution", 250),
         QuestXpReward("thieving", 250),
+    ),
+    "missing_my_mummy": (
+        QuestXpReward("constitution", 7000),
+        QuestXpReward("cooking", 2100),
+        QuestXpReward("thieving", 3000),
+        QuestXpReward("crafting", 3350),
+        QuestXpReward("magic", 5000),
+        QuestXpReward("prayer", 6500),
+        QuestXpReward("construction", 2100),
     ),
     SONG_FROM_THE_DEPTHS_ID: (QuestXpReward("constitution", 700),),
     SOME_LIKE_IT_COLD_ID: (
@@ -11142,13 +11273,59 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         },
         "Rune spear (kp)": {"category": "equipment", "source": TAI_BWO_WANNAI_TRIO_SOURCE},
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},
-        "Tome of Experience, 2nd Ed.": {"category": "material", "source": LEGACY_OF_SEERGAZE_SOURCE},
+        "Tome of xp 2nd ed (3)": {
+            "category": "material",
+            "item_id": 13160,
+            "stackable": False,
+            "tradeable": False,
+            "source": LEGACY_OF_SEERGAZE_REWARD_SOURCE,
+        },
+        "Expensive spices": {
+            "category": "material",
+            "item_id": 23081,
+            "stackable": False,
+            "tradeable": False,
+            "source": LET_THEM_EAT_PIE_SPICES_SOURCE,
+        },
     })
-    generated_items.pop("Queen Black Dragon", None)
-    generated_items.pop("Penguin Hide and Seek", None)
-    generated_items.pop("Combat Training Camp", None)
-    generated_items.pop("Coin", None)
-    generated_items.pop("Law Rune", None)
+    for non_item_name in (
+        "Queen Black Dragon",
+        "Penguin Hide and Seek",
+        "Combat Training Camp",
+        "Coin",
+        "Law Rune",
+        "2,100 Cooking",
+        "3,000 Thieving",
+        "3,350 Crafting",
+        "5,000 Magic",
+        "6,500 Prayer",
+        "A box trap.",
+        "Brimhaven Agility Arena",
+        "Castle Wars",
+        "Dorgesh-Kaan - Keldagrim Train System",
+        "Eagles' Peak",
+        "East Ardougne",
+        "Expensive spices (necklace) (page does not exist)",
+        "File:Apmeken's tomb entrance.jpg",
+        "Lunar Spells",
+        "North-East of Pollnivneach",
+        "North-west of Bedabin Camp",
+        "Pyramid Plunder",
+        "Soul Wars",
+        "South Coast of Ape Atoll",
+        "South of Brimhaven",
+        "South of Elf Camp",
+        "Spirit Realm",
+        "The Apmeken tomb.",
+        "The concept art for Jones the fisherman",
+        "The concept art for Thalassus",
+        "Tome of Experience, 2nd Ed.",
+        "Varrock Museum",
+        "West Coast of Harmony Island",
+        "West Coast of Mort Myre Swamp",
+        "Zanaris Market",
+    ):
+        generated_items.pop(non_item_name, None)
     return generated_items
 
 

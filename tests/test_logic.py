@@ -4239,7 +4239,7 @@ class TestLogic(unittest.TestCase):
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 1)
-        self.assertEqual(player_data["inventory"]["Pyramid Plunder"], 1)
+        self.assertNotIn("Pyramid Plunder", player_data["inventory"])
         self.assertEqual(player_data["agility_exp"], 7000.0)
         self.assertEqual(player_data["prayer_exp"], 7000.0)
         self.assertEqual(player_data["strength_exp"], 7000.0)
@@ -4253,7 +4253,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
-        self.assertEqual(after_complete["inventory"]["Pyramid Plunder"], 1)
+        self.assertNotIn("Pyramid Plunder", after_complete["inventory"])
         self.assertEqual(after_complete["agility_exp"], 7000.0)
         self.assertEqual(after_complete["prayer_exp"], 7000.0)
         self.assertEqual(after_complete["strength_exp"], 7000.0)
@@ -10541,18 +10541,59 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Bronze arrows"], claimed_data["inventory"]["Bronze arrows"])
 
-    def test_reachable_quest_completion_grants_only_source_backed_items(self):
+    def test_every_quest_completion_grants_only_source_backed_items(self):
         expected_rewards = {
+            "a_fairy_tale_iii_battle_at_orks_rift": {
+                "Magic watering can": 1,
+                "Martin the Master Gardener": 1,
+            },
             "a_souls_bane": {"Coins": 500},
+            "a_tail_of_two_cats": {"Catspeak amulet (e)": 1, "Doctors hat": 1},
+            "another_slice_of_h_a_m": {"Ancient mace": 1, "Dorgesh-kaan sphere": 1},
+            "back_to_my_roots": {
+                "Giant ant soldier": 1,
+                "Jade vine maze": 1,
+                "Jade vine seed": 1,
+            },
             "biohazard": {},
             "black_knights_fortress": {"Coins": 2500},
+            "catapult_construction": {
+                "Adamant halberd": 1,
+                "Coins": 2000,
+                "Sailor's hat": 1,
+                "Teak plank": 30,
+            },
             "clock_tower": {"Coins": 500},
             "cooks_assistant": {"Coins": 500, "Sardine": 20},
+            "deadliest_catch": {
+                "Bank deposit box": 1,
+                "Small cast net": 1,
+            },
+            "dealing_with_scabaras": {},
+            "do_no_evil": {"Clue scroll (elite)": 1, "Cramulet": 1, "Magic carpet": 1},
+            "dream_mentor": {},
             "dwarf_cannon": {"Ammo mould": 1},
+            "eagles_peak": {"Eagle costume": 1, "Ferret": 1, "Strung rabbit foot": 1},
             "family_crest": {"Family gauntlets": 1},
             "imp_catcher": {"Amulet of accuracy": 1},
+            "in_aid_of_the_myreque": {},
+            "legacy_of_seergaze": {
+                "Blood talisman": 1,
+                "Ivandis flail": 1,
+                "Tome of xp 2nd ed (3)": 1,
+            },
+            "let_them_eat_pie": {"Expensive spices": 1, "Meat pie": 5},
+            "meeting_history": {"Enchanted key": 1},
+            "missing_my_mummy": {"Coins": 5000},
             "monks_friend": {"Law rune": 8},
+            "nomads_requiem": {
+                "Decaying Avatar": 1,
+                "Soul Wars cape": 1,
+                "Zeal points": 70,
+            },
+            "observatory_quest": {"Maple longbow": 1, "Uncut sapphire": 1},
             "plague_city": {"A magic scroll": 1},
+            "rocking_out": {"Book o' piracy": 1, "Magical cage": 1},
             "rune_mysteries": {"Air talisman": 1},
             "sheep_herder": {"Coins": 3100},
             "shield_of_arrav": {"Coins": 600},
@@ -10561,27 +10602,146 @@ class TestLogic(unittest.TestCase):
                 "Coral crossbow": 1,
                 "Remora's necklace": 1,
             },
+            "spirit_of_summer": {"Jennica's ring": 1},
             "stolen_hearts": {"Coins": 2500},
             "temple_of_ikov": {"Shiny key": 1},
+            "the_dig_site": {"Fruit blast": 1, "Gold bar": 2},
+            "the_grand_tree": {},
             "the_restless_ghost": {"Ancient bones": 5},
             "tree_gnome_village": {"Gnome amulet": 1},
             "tribal_totem": {"Swordfish": 5},
             "waterfall_quest": {"Diamond": 2, "Gold bar": 2, "Mithril seeds": 40},
             "wolf_whistle": {"Gold charm": 275},
         }
-        fake_reward_names = {"Combat Training Camp", "Coin", "Law Rune"}
-        self.assertTrue(fake_reward_names.isdisjoint(quest_reward_items_as_dict()))
+        non_item_reward_names_by_quest = {
+            "a_fairy_tale_iii_battle_at_orks_rift": {"Zanaris Market"},
+            "a_tail_of_two_cats": {"Varrock Museum"},
+            "another_slice_of_h_a_m": {"Dorgesh-Kaan - Keldagrim Train System"},
+            "back_to_my_roots": {"Eagles' Peak", "East Ardougne"},
+            "catapult_construction": {"Castle Wars"},
+            "deadliest_catch": {
+                "North-East of Pollnivneach",
+                "North-west of Bedabin Camp",
+                "South Coast of Ape Atoll",
+                "South of Brimhaven",
+                "South of Elf Camp",
+                "The concept art for Jones the fisherman",
+                "The concept art for Thalassus",
+                "West Coast of Harmony Island",
+                "West Coast of Mort Myre Swamp",
+            },
+            "dealing_with_scabaras": {"Pyramid Plunder"},
+            "do_no_evil": {"File:Apmeken's tomb entrance.jpg", "The Apmeken tomb."},
+            "dream_mentor": {"Lunar Spells"},
+            "eagles_peak": {"A box trap."},
+            "in_aid_of_the_myreque": {"Varrock Museum"},
+            "legacy_of_seergaze": {"Tome of Experience, 2nd Ed."},
+            "let_them_eat_pie": {
+                "Expensive spices (necklace) (page does not exist)"
+            },
+            "meeting_history": {"Varrock Museum"},
+            "missing_my_mummy": {
+                "2,100 Cooking",
+                "2,100 Construction",
+                "3,000 Thieving",
+                "3,350 Crafting",
+                "5,000 Magic",
+                "6,500 Prayer",
+            },
+            "nomads_requiem": {"Soul Wars"},
+            "observatory_quest": {"Varrock Museum"},
+            "rocking_out": {"Brimhaven Agility Arena"},
+            "spirit_of_summer": {"Spirit Realm"},
+            "the_dig_site": {"Varrock Museum"},
+            "the_grand_tree": {"Varrock Museum"},
+        }
+        non_item_reward_names = set().union(*non_item_reward_names_by_quest.values())
+        previously_corrected_reward_names = {"Combat Training Camp", "Coin", "Law Rune"}
+        prohibited_reward_names = non_item_reward_names | previously_corrected_reward_names
+        expected_unlocks = {
+            "a_fairy_tale_iii_battle_at_orks_rift": {"Free access to the Zanaris Market"},
+            "a_tail_of_two_cats": {
+                "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."
+            },
+            "another_slice_of_h_a_m": {
+                "Free access to the Dorgesh-Kaan - Keldagrim Train System"
+            },
+            "back_to_my_roots": {
+                "Vine Farming Patch in East Ardougne",
+                "Transportation between Eagles' Peak and Karamja using the Karamjan Jungle eagle.",
+            },
+            "catapult_construction": {
+                "Increased damage when using the Castle Wars catapults"
+            },
+            "deadliest_catch": {
+                "Bank deposit box north-west of Bedabin Camp",
+                "Bank deposit box south of Elf Camp",
+                "Bank deposit box west of Harmony Island",
+                "Bank deposit box west of Mort Myre Swamp",
+                "Bank deposit box north-east of Pollnivneach",
+                "Bank deposit box on the south coast of Ape Atoll",
+                "Bank deposit box south of Brimhaven",
+                "Piscatoris - South of Falconry",
+            },
+            "dealing_with_scabaras": {
+                "Ability to craft an Enchanted water tiara, which protects you from the desert heat effect.",
+                "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand.",
+            },
+            "dream_mentor": {"Seven new spells added to the Lunar Spellbook"},
+            "in_aid_of_the_myreque": {
+                "Talk to Historian Minas to receive 5 Kudos in the Varrock Museum."
+            },
+            "meeting_history": {
+                "Speak to Historian Minas at the Varrock Museum to earn 5 Kudos."
+            },
+            "nomads_requiem": {"Soul Wars is added to the available respawn points."},
+            "observatory_quest": {
+                "Talk to Historian Minas at the Varrock Museum to receive 5 Kudos."
+            },
+            "rocking_out": {
+                "Ability to catch Pirate implings with 76 Hunter",
+                "Free access to the Brimhaven Agility Arena",
+            },
+            "spirit_of_summer": {"Access to a new Spirit Realm"},
+            "the_dig_site": {"Access through the Varrock Museum back door and gate."},
+            "the_grand_tree": {
+                "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."
+            },
+        }
+        expected_missing_mummy_xp = {
+            "cooking": 2100.0,
+            "construction": 2100.0,
+            "thieving": 3000.0,
+            "crafting": 3350.0,
+            "magic": 5000.0,
+            "prayer": 6500.0,
+        }
+        self.assertEqual(len(non_item_reward_names_by_quest), 21)
+        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 36)
+        self.assertLessEqual(
+            set(expected_rewards) | set(non_item_reward_names_by_quest),
+            set(QUEST_DATA),
+        )
+        self.assertTrue(prohibited_reward_names.isdisjoint(quest_reward_items_as_dict()))
+        item_definitions = {item.storage_key: item for item in ITEM_DEFINITIONS}
+        self.assertEqual(item_definitions["Tome of xp 2nd ed (3)"].source_item_id, 13160)
+        self.assertEqual(item_definitions["Expensive spices"].source_item_id, 23081)
+        for quest_id, expected in expected_unlocks.items():
+            self.assertTrue(expected.issubset(QUEST_DATA[quest_id]["unlocks"]))
 
-        for quest_id, expected in expected_rewards.items():
+        for quest_id, quest in QUEST_DATA.items():
             with self.subTest(quest_id=quest_id):
                 player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-                quest = QUEST_DATA[quest_id]
                 player_data["quests"][quest_id] = {
                     "started": True,
                     "progress": quest["stages"],
                     "completed": False,
                 }
                 inventory_before = dict(player_data["inventory"])
+                xp_before = {
+                    skill_id: player_data[f"{skill_id}_exp"]
+                    for skill_id in expected_missing_mummy_xp
+                }
 
                 completed_data, progressed, completed = apply_quest_progress_pure(
                     player_data,
@@ -10596,7 +10756,19 @@ class TestLogic(unittest.TestCase):
 
                 self.assertTrue(progressed)
                 self.assertTrue(completed)
-                self.assertEqual(granted, expected)
+                self.assertTrue(
+                    prohibited_reward_names.isdisjoint(granted),
+                    f"{quest_id} granted non-item rewards: "
+                    f"{sorted(prohibited_reward_names.intersection(granted))}",
+                )
+                if quest_id in expected_rewards:
+                    self.assertEqual(granted, expected_rewards[quest_id])
+                if quest_id == "missing_my_mummy":
+                    for skill_id, amount in expected_missing_mummy_xp.items():
+                        self.assertEqual(
+                            completed_data[f"{skill_id}_exp"] - xp_before[skill_id],
+                            amount,
+                        )
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
