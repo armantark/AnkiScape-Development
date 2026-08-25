@@ -1,7 +1,14 @@
 import copy
 import unittest
+from typing import Dict, FrozenSet, Tuple
+
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.data.quest_data import KINGS_RANSOM_SCROLL_SOURCE, quest_reward_items_as_dict
+from ankiscape.data.quest_data import (
+    KINGS_RANSOM_SCROLL_SOURCE,
+    QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID,
+    QUEST_UNLOCK_REPLACEMENTS_BY_ID,
+    quest_reward_items_as_dict,
+)
 from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_combat_stat_delta_pure,
@@ -136,6 +143,166 @@ from ankiscape.core.constants import (
     RUNECRAFTING_POUCH_DATA,
     UTILITY_ACTIVITY_DATA,
 )
+
+# Exact unlock sets for every quest with a QUEST_UNLOCK_REPLACEMENTS_BY_ID entry.
+# A replacement tuple swaps the whole generated tuple, so a silently dropped
+# entry deletes a source-granted capability; this guard makes that fail the suite.
+QUEST_UNLOCK_GUARD: Dict[str, FrozenSet[str]] = {
+    "a_fairy_tale_iii_battle_at_orks_rift": frozenset({
+        "Ability to fetch teeth to get a Tooth creature by speaking to the Tooth Fairy after the quest.",
+        "Ability to sell suqah tooth to the Tooth Fairy for 2,000 coins each. You can also sell to her old teeth, monkey dentures, and kebbit teeth, for amounts ranging from 1 to 200 coins.",
+        "Ability to use the Fairy Rings and get into Zanaris without a Lunar or Dramen staff.",
+        "Access to Mos Le Harmless through K'Chunk's island; code D-I-P.",
+        "Access to a new battle area in the Ork's Rift, which contains Ivory Bre'egth (cursed), Ivory Gromblod (cursed) and Ivory Shredflesh (cursed). They all have a combat level of 108 and have high gem and blue charm drop rates.",
+        "Free access to the Zanaris Market",
+        "To have your patches automatically weeded, talk to Martin the Master Gardener after the quest to unlock the ability to have gardeners keep your farming patches weed free.",
+    }),
+    "a_tail_of_two_cats": frozenset({"Talk to Historian Minas in the Varrock Museum to receive 5 Kudos."}),
+    "another_slice_of_h_a_m": frozenset({
+        "Ability to buy Goblin Village teleport orbs",
+        "Free access to the Dorgesh-Kaan - Keldagrim Train System",
+    }),
+    "back_to_my_roots": frozenset({
+        "A new maze Jade vine maze, slightly larger than Draynor Manor, containing 8 new creatures: Giant ant soldier level 58, Giant ant worker level 40, Tenacious toucan level 70, Giant Wasp level 66, Frog level 66, Pernicious parrot level 66, Wild jade vine level 167, Karamjan Jungle eagle.",
+        "Ability to slay the Jade Vine for extra Slayer and Farming experience once every 15 hours.",
+        "Transportation between Eagles' Peak and Karamja using the Karamjan Jungle eagle.",
+        "Vine Farming Patch in East Ardougne",
+    }),
+    "biohazard": frozenset({
+        "Ability to travel freely through the West Ardougne Gate",
+        "Use of the Combat Training Camp north of Ardougne",
+    }),
+    "cabin_fever": frozenset({
+        "Access to Mos Le'Harmless",
+        "Access to kill Cave horrors.",
+        "Charter Ship prices are halved.",
+    }),
+    "catapult_construction": frozenset({"Increased damage when using the Castle Wars catapults"}),
+    "deadliest_catch": frozenset({
+        "Bank deposit box north-east of Pollnivneach",
+        "Bank deposit box north-west of Bedabin Camp",
+        "Bank deposit box on the south coast of Ape Atoll",
+        "Bank deposit box south of Brimhaven",
+        "Bank deposit box south of Elf Camp",
+        "Bank deposit box west of Harmony Island",
+        "Bank deposit box west of Mort Myre Swamp",
+        "Piscatoris - South of Falconry",
+    }),
+    "dealing_with_scabaras": frozenset({
+        "Simon Templeton accepts noted Pyramid Plunder treasures after his post-quest errand, but noted gold artefacts still cannot be exchanged.",
+        "The ability to craft an Enchanted water tiara - protects you from the Desert heat effect",
+    }),
+    "do_no_evil": frozenset({
+        "Ability to pickpocket monkey knife fighters.",
+        "Ability to run chimp ice for further rewards.",
+        "Access to a passageway from the desert (rockslide south of the Kalphite Hive entrance) to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
+        "Access to the Monkey colony.",
+        "New magic carpet destinations, connecting the Monkey colony with Shantay Pass and southern Pollnivneach.",
+        "Players with level 80 Agility (boosts may be used) can enter the cavern in the south wall of the Monkey colony.",
+        "The ability to add the camulet and catspeak amulet to the Cramulet.",
+        "The ability to upgrade Ava's accumulator to Ava's alerter.",
+    }),
+    "dream_mentor": frozenset({
+        "Access to the 'Random' option on NPC Contact",
+        "Seven new spells added to the Lunar Spellbook",
+    }),
+    "eagles_peak": frozenset({
+        "Ability to capture ferrets using box traps.",
+        "Access to the Eagle transport system",
+        "Use captured ferrets to flush rabbits from rabbit holes, trap them with a rabbit trap, and string a dropped rabbit's foot with a ball of wool to wear as a necklace when cutting trees to increase bird-nest chances.",
+    }),
+    "in_aid_of_the_myreque": frozenset({
+        "Ability to make and use Rod of Ivandis and Guthix balance potion to fight and defeat Vampyre Juveniles and Juvinates.",
+        "Ability to use a Gadderhammer, which is strong against shades.",
+        "Access to Burgh de Rott",
+        "Talk to Historian Minas to receive 5 Kudos in the Varrock Museum.",
+        "You can now play Temple Trekking activity.",
+    }),
+    "meeting_history": frozenset({"Speak to Historian Minas at the Varrock Museum to earn 5 Kudos."}),
+    "nomads_requiem": frozenset({
+        "Access to a Bloodwood tree in the Soul Wars waiting area.",
+        "Decaying Avatar and Nomad become available as bosses in the Dominion Tower.",
+        "Soul Wars is added to the available respawn points.",
+    }),
+    "observatory_quest": frozenset({"Talk to Historian Minas at the Varrock Museum to receive 5 Kudos."}),
+    "rocking_out": frozenset({
+        "Ability to buy Braindeath 'rum' from The Rusty Anchor Inn",
+        "Ability to catch Pirate implings with 76 Hunter",
+        "Ability to raise Ex-ex-parrot by speaking to Bill Teach and 50 Ships Mufassah (requires 71 Summoning)",
+        "Ability to steal from customs lockers",
+        "Access to a Bank deposit box in Rimmington",
+        "Access to the Rock Island Prison.",
+        "Free access to the Brimhaven Agility Arena",
+        "Removes need for the Book o' piracy when speaking to pirates on Mos Le'Harmless",
+    }),
+    "spirit_of_summer": frozenset({
+        "Access to a Goth leprechaun in level 26 wilderness, as well as the flower patch he guards.",
+        "Access to a new Spirit Realm",
+        "Access to the Cursed Magic Tree",
+        "Access to the alternative Axe Hut, in which axeless level 42 Ghostly warriors can be fought without the need of a lockpick.",
+    }),
+    "the_dig_site": frozenset({
+        "Ability to do Varrock Museum Specimen Cleaning to obtain Kudos and a Digsite pendant.",
+        "Access through the Varrock Museum back door and gate.",
+    }),
+    "the_golem": frozenset({
+        "Ability to collect multiple Phoenix feathers",
+        "Magic carpet route opened to the ruins of Uzer.",
+    }),
+    "the_grand_tree": frozenset({
+        "Ability to use the Agility Shortcut from the Grand Tree to the Barbarian Outpost (with 37 Agility)",
+        "Ability to use the Gnome glider transportation system",
+        "Ability to use the Grand Tree mine under The Grand Tree",
+        "Ability to use the Spirit Tree in the stronghold outside the Grand Tree (the Tree Gnome Village quest doesn't allow access to this tree)",
+        "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
+    }),
+}
+
+
+# Exact completion grants for every quest with a QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID
+# entry; same whole-tuple-replacement hazard as the unlock guard above.
+QUEST_REWARD_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
+    "a_fairy_tale_iii_battle_at_orks_rift": frozenset({("Magic watering can", 1)}),
+    "a_tail_of_two_cats": frozenset({("Catspeak amulet (e)", 1), ("Doctors hat", 1)}),
+    "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
+    "back_to_my_roots": frozenset({("Jade vine seed", 1)}),
+    "biohazard": frozenset({}),
+    "cabin_fever": frozenset({("Book o' piracy", 1), ("Coins", 10000)}),
+    "carnillean_rising": frozenset({("Coins", 5000), ("Mahogany plank", 10), ("Oak plank", 100), ("Philipe's sweets", 1), ("Teak plank", 30), ("Treasure chest (Carnillean Rising)", 1)}),
+    "catapult_construction": frozenset({("Adamant halberd", 1), ("Coins", 2000), ("Sailor's hat", 1), ("Teak plank", 30)}),
+    "clock_tower": frozenset({("Coins", 500)}),
+    "cold_war": frozenset({}),
+    "deadliest_catch": frozenset({("Small cast net", 1)}),
+    "dealing_with_scabaras": frozenset({}),
+    "diamond_in_the_rough": frozenset({}),
+    "do_no_evil": frozenset({("Clue scroll (elite)", 1), ("Cramulet", 1)}),
+    "dream_mentor": frozenset({}),
+    "dwarf_cannon": frozenset({("Ammo mould", 1)}),
+    "eagles_peak": frozenset({("Box trap", 1), ("Eagle costume", 1)}),
+    "hazeel_cult": frozenset({("Carnillean armour", 1), ("Coins", 2005), ("Mark of Hazeel", 1)}),
+    "hunt_for_red_raktuber": frozenset({}),
+    "icthlarins_little_helper": frozenset({("Catspeak amulet", 1)}),
+    "in_aid_of_the_myreque": frozenset({}),
+    "let_them_eat_pie": frozenset({("Expensive spices", 1), ("Meat pie", 5)}),
+    "meeting_history": frozenset({("Enchanted key", 1)}),
+    "missing_my_mummy": frozenset({("Coins", 5000)}),
+    "monks_friend": frozenset({("Law rune", 8)}),
+    "nomads_requiem": frozenset({("Soul Wars cape", 1)}),
+    "observatory_quest": frozenset({("Maple longbow", 1), ("Uncut sapphire", 1)}),
+    "plague_city": frozenset({("A magic scroll", 1)}),
+    "rocking_out": frozenset({("Magical cage", 1)}),
+    "sheep_herder": frozenset({("Coins", 3100)}),
+    "smoking_kills": frozenset({}),
+    "some_like_it_cold": frozenset({("Pop costume", 1), ("Rock costume", 1)}),
+    "song_from_the_depths": frozenset({("Coral bolts", 50), ("Coral crossbow", 1), ("Remora's necklace", 1)}),
+    "spirit_of_summer": frozenset({("Jennica's ring", 1)}),
+    "stolen_hearts": frozenset({("Coins", 2500)}),
+    "the_dig_site": frozenset({("Fruit blast", 1), ("Gold bar", 2)}),
+    "the_golem": frozenset({}),
+    "the_grand_tree": frozenset({}),
+    "tree_gnome_village": frozenset({("Gnome amulet", 1)}),
+}
+
 
 class TestLogic(unittest.TestCase):
     def test_exp_to_next_level_handles_progress_and_cap(self):
@@ -10601,7 +10768,10 @@ class TestLogic(unittest.TestCase):
             "the_golem": {},
             "carnillean_rising": {
                 "Coins": 5000,
+                "Oak plank": 100,
                 "Philipe's sweets": 1,
+                "Teak plank": 30,
+                "Mahogany plank": 10,
                 "Treasure chest (Carnillean Rising)": 1,
             },
             "the_grand_tree": {},
@@ -10796,23 +10966,11 @@ class TestLogic(unittest.TestCase):
         for quest in QUEST_DATA.values():
             granted = dict(quest["rewards"])
             self.assertNotIn("Strung rabbit foot", granted)
-        # Exact sets for the quests whose unlocks flow through
-        # QUEST_UNLOCK_REPLACEMENTS_BY_ID: issubset stays green while a
-        # replacement tuple silently deletes the source-backed unlocks the
-        # generated catalog provided, so those five must match exactly.
-        exact_unlock_quests = {
-            "cabin_fever",
-            "dealing_with_scabaras",
-            "do_no_evil",
-            "rocking_out",
-            "the_golem",
-        }
+        # Replacement-tuple quests get their exact pins in
+        # test_quest_replacement_tuples_pin_the_complete_reward_and_unlock_sets;
+        # the samples here stay deliberately partial for quests without one.
         for quest_id, expected in expected_unlocks.items():
-            actual = set(QUEST_DATA[quest_id]["unlocks"])
-            if quest_id in exact_unlock_quests:
-                self.assertEqual(set(expected), actual, f"{quest_id} unlock set drifted")
-            else:
-                self.assertTrue(expected.issubset(actual))
+            self.assertTrue(expected.issubset(set(QUEST_DATA[quest_id]["unlocks"])))
         # The "A box trap." override must stay: without it the name falls back
         # to a junk string even though Hunter data independently defines item
         # 10008 and keeps this dictionary green.
@@ -10862,6 +11020,29 @@ class TestLogic(unittest.TestCase):
                     # The 70 Zeal points are a Soul Wars currency, not an
                     # inventory item; they land on the existing zeal wallet.
                     self.assertEqual(completed_data["soul_wars_zeal"], 70)
+
+    def test_quest_replacement_tuples_pin_the_complete_reward_and_unlock_sets(self):
+        # QUEST_UNLOCK_REPLACEMENTS_BY_ID and QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID
+        # swap a quest's whole generated tuple, so removing one name can silently
+        # delete a source-backed capability or item behind it. These exact pins
+        # cover every quest with an entry in either dictionary: any dropped
+        # entry, added entry, or quantity change fails the suite.
+        self.assertEqual(set(QUEST_UNLOCK_GUARD), set(QUEST_UNLOCK_REPLACEMENTS_BY_ID))
+        self.assertEqual(set(QUEST_REWARD_GUARD), set(QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID))
+        for quest_id, expected in QUEST_UNLOCK_GUARD.items():
+            with self.subTest(quest_id=quest_id):
+                self.assertEqual(
+                    expected,
+                    frozenset(QUEST_DATA[quest_id]["unlocks"]),
+                    f"{quest_id} unlock set drifted from the pinned revision",
+                )
+        for quest_id, expected in QUEST_REWARD_GUARD.items():
+            with self.subTest(quest_id=quest_id):
+                self.assertEqual(
+                    dict(expected),
+                    dict(QUEST_DATA[quest_id]["rewards"]),
+                    f"{quest_id} completion grant drifted from the pinned revision",
+                )
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

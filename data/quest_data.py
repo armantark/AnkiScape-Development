@@ -4216,7 +4216,15 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     DWARF_CANNON_ID: (("Ammo mould", 1),),
     CLOCK_TOWER_ID: (("Coins", 500),),
     MONKS_FRIEND_ID: (("Law rune", 8),),
-    HAZEEL_CULT_ID: (("Coins", 2005),),
+    HAZEEL_CULT_ID: (
+        # The pinned revision's armour/mark lines are route-conditional
+        # (Hazeel Cult oldid=6579784): Mark of Hazeel on the cult side,
+        # Carnillean armour from killing Alomone on the Ceril side. Both are
+        # real registered items, so both stay granted.
+        ("Carnillean armour", 1),
+        ("Coins", 2005),
+        ("Mark of Hazeel", 1),
+    ),
     "stolen_hearts": (("Coins", 2500),),
     "diamond_in_the_rough": (),
     "icthlarins_little_helper": (("Catspeak amulet", 1),),
@@ -4237,8 +4245,13 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
         ("Teak plank", 30),
     ),
     "carnillean_rising": (
+        # The malformed "Construction" row stood for the pinned revision's
+        # construction-supplies bundle (Carnillean Rising oldid=6534490).
         ("Coins", 5000),
+        ("Oak plank", 100),
         ("Philipe's sweets", 1),
+        ("Teak plank", 30),
+        ("Mahogany plank", 10),
         ("Treasure chest (Carnillean Rising)", 1),
     ),
     DEADLIEST_CATCH_ID: (("Small cast net", 1),),
@@ -4299,7 +4312,18 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Frog level 66, Pernicious parrot level 66, Wild jade vine level 167, Karamjan Jungle eagle.",
     ),
     "catapult_construction": ("Increased damage when using the Castle Wars catapults",),
-    DEADLIEST_CATCH_ID: (
+    # Keeps the generated ferret-capture and eagle-transport unlocks; the
+    # rabbit line restores the pinned revision's rabbit-flushing, trapping
+    # and foot-stringing capability (Eagles' Peak oldid=6579761). The strung
+    # rabbit foot itself stays ungranted — it is crafted later, not awarded.
+    EAGLES_PEAK_ID: (
+        "Ability to capture ferrets using box traps.",
+        "Access to the Eagle transport system",
+        "Use captured ferrets to flush rabbits from rabbit holes, trap them with a "
+        "rabbit trap, and string a dropped rabbit's foot with a ball of wool to wear "
+        "as a necklace when cutting trees to increase bird-nest chances.",
+    ),
+    "deadliest_catch": (
         "Bank deposit box north-west of Bedabin Camp",
         "Bank deposit box south of Elf Camp",
         "Bank deposit box west of Harmony Island",
@@ -4332,7 +4356,12 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "in the south wall of the Monkey colony.",
         "The ability to add the camulet and catspeak amulet to the Cramulet.",
     ),
-    "dream_mentor": ("Seven new spells added to the Lunar Spellbook",),
+    # The pinned revision lists the Random option on NPC Contact beneath the
+    # seven-spell line as a sibling reward (Dream Mentor oldid=6550965).
+    "dream_mentor": (
+        "Seven new spells added to the Lunar Spellbook",
+        "Access to the 'Random' option on NPC Contact",
+    ),
     "in_aid_of_the_myreque": (
         "Access to Burgh de Rott",
         "You can now play Temple Trekking activity.",

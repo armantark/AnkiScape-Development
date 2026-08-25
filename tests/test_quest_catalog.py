@@ -783,7 +783,13 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertGreaterEqual(len(quests_with_narrative_actions), 190)
 
         hazeel = data["hazeel_cult"]
-        self.assertEqual(hazeel["rewards"], {"Coins": 2005})
+        # The pinned revision (oldid=6579784) awards the route-conditional
+        # Mark of Hazeel (cult side) and Carnillean armour (Ceril side)
+        # alongside the coins; both are real registered items.
+        self.assertEqual(
+            hazeel["rewards"],
+            {"Carnillean armour": 1, "Coins": 2005, "Mark of Hazeel": 1},
+        )
         self.assertEqual(hazeel["choices"][0]["stage"], 1)
         self.assertEqual(
             tuple(option["route_id"] for option in hazeel["choices"][0]["options"]),
