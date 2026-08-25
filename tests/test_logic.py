@@ -10618,7 +10618,7 @@ class TestLogic(unittest.TestCase):
             },
             "a_tail_of_two_cats": {"Varrock Museum"},
             "another_slice_of_h_a_m": {"Dorgesh-Kaan - Keldagrim Train System"},
-            "back_to_my_roots": {"Eagles' Peak", "East Ardougne"},
+            "back_to_my_roots": {"Eagles' Peak", "East Ardougne", "Giant ant soldier", "Jade vine maze"},
             "catapult_construction": {"Castle Wars"},
             "carnillean_rising": {"Construction"},
             # Cabin Fever's generated "Charter ship" item row is filtered out
@@ -10632,6 +10632,7 @@ class TestLogic(unittest.TestCase):
                 "South Coast of Ape Atoll",
                 "South of Brimhaven",
                 "South of Elf Camp",
+                "Piscatoris - South of Falconry",
                 "The concept art for Jones the fisherman",
                 "The concept art for Thalassus",
                 "West Coast of Harmony Island",
@@ -10725,6 +10726,8 @@ class TestLogic(unittest.TestCase):
                 "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
                 "The ability to upgrade Ava's accumulator to Ava's alerter.",
                 "Access to the Monkey colony.",
+                "Players with level 80 Agility (boosts may be used) can enter the cavern "
+                "in the south wall of the Monkey colony.",
                 "The ability to add the camulet and catspeak amulet to the Cramulet.",
             },
             "in_aid_of_the_myreque": {
@@ -10771,7 +10774,7 @@ class TestLogic(unittest.TestCase):
             "prayer": 6500.0,
         }
         self.assertEqual(len(non_item_reward_names_by_quest), 24)
-        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 44)
+        self.assertEqual(sum(map(len, non_item_reward_names_by_quest.values())), 47)
         self.assertLessEqual(
             set(expected_rewards) | set(non_item_reward_names_by_quest),
             set(QUEST_DATA),

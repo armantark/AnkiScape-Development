@@ -4325,6 +4325,11 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "to a new area with Kalphites. This is unlocked if you left the room from the hole while you were in it.",
         "The ability to upgrade Ava's accumulator to Ava's alerter.",
         "Access to the Monkey colony.",
+        # Entering this cavern is gated on level 80 Agility (oldid=6587790);
+        # its contents (20,000 Agility xp, Apmeken mask, ankh) are conditional
+        # rewards awaiting a claim mechanism.
+        "Players with level 80 Agility (boosts may be used) can enter the cavern "
+        "in the south wall of the Monkey colony.",
         "The ability to add the camulet and catspeak amulet to the Cramulet.",
     ),
     "dream_mentor": ("Seven new spells added to the Lunar Spellbook",),
@@ -11389,9 +11394,6 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "West Coast of Mort Myre Swamp",
         "Zanaris Market",
         "Zeal points",
-        "West Coast of Harmony Island",
-        "West Coast of Mort Myre Swamp",
-        "Zanaris Market",
     ):
         generated_items.pop(non_item_name, None)
     return generated_items
