@@ -2056,3 +2056,100 @@ unique commit 544d54e2 is an audit-document correction, and main commit
 6fd075df carries a fuller correction of the same document.
 
 Classification: this is unblocked work that remains, not complete.
+### 5.11 Herblore secondaries slice is source-blocked in full — 2026-08-26
+
+The Herblore secondaries slice is source-blocked in full. Not partly.
+
+- Branch `goal/secondaries-reland-2026-08-25`, abandoned at commit c1bbc460. It
+  is NOT merged and must not be merged in its current form.
+- Its aim was 23 items: ten grind inputs, ten ground products, three acquisition
+  side effects.
+- Two independent reviews rejected it. The first found the five quest-sourced
+  items unreachable, and their real-kernel proof fabricated by writing required
+  actions straight into `quest_stage_actions`. The second found the remaining
+  eleven claims equally false.
+- Root cause, the same for every item: each source sits behind a quest that
+  stalls at stage 1 on a generated stub objective that no runtime handler emits.
+  That is the class already recorded in entry 3.31.
+
+Measured gate evidence, verbatim:
+
+    TARGET gorak  locks= ('Reach stage 5 of A Fairy Tale II - Cure a Queen',)
+    TARGET suqah  locks= ('Start Lunar Diplomacy',)
+    TARGET glacor locks= ('Complete Ritual of the Mahjarrat',)
+
+    a_fairy_tale_ii_cure_a_queen  action_completable= False  first_blocked_stage= 1
+    lunar_diplomacy               action_completable= False  first_blocked_stage= 1
+    ritual_of_the_mahjarrat       action_completable= False  first_blocked_stage= 1
+
+Single unblock: a runtime path that emits the generated stage-1 objectives, or
+source-backed stage actions to replace them.
+
+### 5.12 Reachability audit over-reports: it ignores quest gates and shop access
+
+`tools/audit_item_reachability.py` seeds every combat drop and all visible shop
+stock unconditionally. It applies neither combat quest gates nor shop access
+rules. It therefore reports items as reachable when no player can obtain them.
+
+This audit is a measuring instrument this project trusts, so the defect needs
+its own entry.
+
+Measured consequence: the abandoned slice's eleven surviving claims all passed
+the audit while every one was false. The Astral rune shop is one example; it is
+locked behind Lunar Diplomacy:
+
+    BABA_YAGA_SHOP_LOCK Requires Lunar Diplomacy
+
+Fix, recorded as a proposal and not a decision: make the audit apply the same
+shop-access and combat quest-state semantics as the runtime, so a combat drop
+enters the seed set only when its target's quest gate is reachable through the
+quest closure. Every pinned count must be recomputed afterwards.
+
+Stated plainly: until this is fixed, a green reachability audit is not evidence
+that a player can obtain an item.
+
+### 5.13 Quest-combat guaranteed drops are inert — engine gap
+
+Found while this work was in progress. `QuestCombatEncounter` has no
+guaranteed-drop field, and `_quest_combat_enemy_spec` at
+`logic_pure/logic_pure_quest.py:660` hardcodes an empty drop table. A declared
+guaranteed drop on a quest-combat encounter is therefore never awarded.
+
+    constructed encounter guaranteed_drops= {'Herb pouch': 1}
+    runtime enemy drops= {'guaranteed': (), 'tables': ()}
+    kill_ok= True killed= True Herb pouch after kill= 0 drops= {}
+
+This must be closed before any quest awards an item through a combat encounter.
+
+### 5.14 Glacor combat data remains unsourced — open sourcing gap
+
+Recorded as an open sourcing gap, not as work to schedule.
+
+- Darkan's combatdef for Glacor is a nostats file. It supplies hitpoints 5000,
+  maxHit 260, attackStyle RANGE, and no per-stat values.
+- The pinned wiki revision https://runescape.wiki/w/Glacor?oldid=6562983 gives a
+  normal maximum hit of 312. This project's evidence order puts Darkan first, so
+  the executable value must be 260. Registering the disagreement documents it;
+  it does not authorise the wiki number.
+- The Dominion Tower fallback at memory-bank/placeholder-values.md:164 covers
+  Dominion Tower content and four stats. It does not extend to Glacor, and it
+  must not be stretched to Ranged.
+- Applying that fallback gave a level-475 Glacor 99 in every stat, below the
+  level-145 Gorak's genuine Darkan values of 130, 130 and 131. A reviewer called
+  that result plainly absurd. The pinned source calls Glacor the
+  second-strongest non-boss monster in the game.
+
+Single unblock: an authentic per-stat block for Glacor from period code or
+cache.
+
+### 5.15 Cited precedent said the opposite — read precedents, do not trust them
+
+An agent justified giving a boss five combat stats equal to its combat level by
+citing a Chronozon, Bork and Tarn precedent. A reviewer checked the cited
+document. memory-bank/source-audits/miniquest-ledger-2026-07-29.md:108-115 says
+Bork uses 72 percent of combat level capped at 99, adopted BECAUSE copying the
+combat level made him unplayable, and that Tarn has a sourced 40/80/40 block.
+The precedent argued against the change it was cited to support.
+
+Lesson: a cited precedent must be read, not trusted. This one was caught only
+because a reviewer opened the file.
