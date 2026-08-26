@@ -1753,11 +1753,12 @@ stale against this base.
   live action is `Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail`.
 - `### 5.1 Direct actions have no undo (breadth criterion 5)`
   (`memory-bank/design-thread-queue.md:1161`) — `aefcc4ea` supplies the shared
-  seam; a fresh static scan finds `80` `commit_direct_action(` call sites and
-  `0` remaining `def _apply_*_command` handlers in `__init__.py`. The two
-  remaining `_apply_` definitions in `runtime/runtime_actions_shared.py` are
-  action-calculation helpers, not direct command handlers, and the plain lane
-  exercises the migrated seams.
+  seam. A fresh static scan finds `54` `def _apply_*_command` handlers in
+  `__init__.py`. All `54` handlers call `commit_direct_action`. Zero handlers
+  remain that do not route through the shared seam. The two `_apply_`
+  definitions in `runtime/runtime_actions_shared.py` are action-calculation
+  helpers, not direct command handlers. The plain lane exercises the migrated
+  seams.
 - `### Open decisions queued by the pass-3 shop-UI work — 2026-07-26`
   (`memory-bank/design-thread-queue.md:1275`) — the live registry measures all
   `25` skillcapes and all `25` sourced master-shop rows; Dungeoneering is no
@@ -2006,20 +2007,18 @@ the design thread. It carries full authority.
 This ruling supersedes the fallback move made under 4.20 for this incident. It
 does not change 4.20 itself: that contingency stays valid for a real outage,
 confirmed by repeated failure or by the owner.
-### 5.9 Three minor findings were accepted without fixes — 2026-08-25
+### 5.9 Three findings were recorded without fixes — 2026-08-25
 
-Two commits landed with findings the reviewer judged safe to defer. Recorded as
-one entry so a later slice can pick them up together.
+Two commits landed with three findings. A closing audit found that two findings
+are unblocked work.
 
-**Claim tool gate ignores equipment and the toolbelt.**
+**Claim tool gate violates the selected quest-tool contract.**
 `logic_pure/logic_pure_claims.py:133-141` reads `player_data["inventory"]` only.
 Quest-stage tool requirements resolve through `_has_quest_tool` at
-`logic_pure/logic_pure_quest.py:485-511`, which also honours equipment slots and
-the mining and woodcutting toolbelt. A future tool-gated claim whose tool can be
-equipped or stored on the belt would be refused where the equivalent quest stage
-accepts it. No impact today: Chisel and Hammer are neither equippable nor
-belt-stored, and the toolbelt defaults carry only woodcutting and mining tools
-at `core/storage_pure.py:784-790`. Fix when a case appears: route the claim gate
+`logic_pure/logic_pure_quest.py:485-511`. That function also checks equipment
+slots and the mining and woodcutting toolbelt. This queue has selected
+`_has_quest_tool` as the claim contract. The current resolver violates that
+contract. This is unblocked work, not safe latent work. Route the claim gate
 through `_has_quest_tool`.
 
 **Hunter cache flags are hand-transcribed.**
@@ -2031,10 +2030,21 @@ convention — the gen_item_values.py dump is also committed, though that one is
 machine generated. Fix if wanted: emit this map through the same generation
 pipeline.
 
-**Stripy feather shares the Bones registry-precedence defect.** It is
-pre-registered through another path with `source_item_id=0`, exactly like Bones
-and Wimpy feather. No player-visible effect: its Hunter row says stackable True
-and cache item 10087 agrees.
+**Eight Hunter items lose authoritative registry data.** The measured mismatch
+set is:
+
+- Blue feather
+- Bones
+- Orange feather
+- Raw bird meat
+- Red feather
+- Stripy feather
+- Wimpy feather
+- Yellow feather
+
+All eight items lose their source ids. Bones and Raw bird meat also change from
+authoritative `stackable=False` to registry `True`. This registry-precedence
+defect is unblocked work.
 
 ### 5.10 Queue audit found an accepted slice never merged — unblocked work remains
 
@@ -2056,23 +2066,29 @@ unique commit 544d54e2 is an audit-document correction, and main commit
 6fd075df carries a fuller correction of the same document.
 
 Classification: this is unblocked work that remains, not complete.
-### 5.11 Herblore secondaries slice is source-blocked in full — 2026-08-26
+### 5.11 Herblore secondaries are blocked except the Rune shard chain — 2026-08-26
 
-The Herblore secondaries slice is source-blocked in full. Not partly.
+The Herblore secondaries slice is source-blocked except for the Rune essence to
+Rune shards to Rune dust chain. The unblocked chain is being re-landed
+separately.
 
-- Branch `goal/secondaries-reland-2026-08-25`, abandoned at commit c1bbc460. It
-  is NOT merged and must not be merged in its current form.
-- Its aim was 23 items: ten grind inputs, ten ground products, three acquisition
-  side effects.
-- Two independent reviews rejected it. The first found the five quest-sourced
-  items unreachable, and their real-kernel proof fabricated by writing required
-  actions straight into `quest_stage_actions`. The second found the remaining
-  eleven claims equally false.
-- Root cause, the same for every item: each source sits behind a quest that
-  stalls at stage 1 on a generated stub objective that no runtime handler emits.
-  That is the class already recorded in entry 3.31.
+- Branch `goal/secondaries-reland-2026-08-25` stops at commit c1bbc460. It is
+  not merged and must not be merged in its current form.
+- Its aim was 23 items: ten grind inputs, ten ground products, and three
+  acquisition side effects.
+- Two independent reviews rejected its invalid reachability claims. The first
+  review found fabricated proof that wrote required actions into
+  `quest_stage_actions`. The second review found more false source claims.
+- The exception has a real runtime path. From `default_player_data`, a player
+  can mine and sell Clay, buy a Chisel and a Pestle and mortar, and complete
+  Rune Mysteries through its real emitters. The player can then mine Rune
+  essence, make Rune shards, and grind Rune dust. This proof writes nothing to
+  `quest_stage_actions` and injects no quest completion.
+- Every other item remains behind a quest that stalls at stage 1 on a generated
+  stub objective. No runtime handler emits that objective. Entry 3.31 records
+  this class.
 
-Measured gate evidence, verbatim:
+Measured gate evidence for the blocked items, verbatim:
 
     TARGET gorak  locks= ('Reach stage 5 of A Fairy Tale II - Cure a Queen',)
     TARGET suqah  locks= ('Start Lunar Diplomacy',)
@@ -2082,8 +2098,8 @@ Measured gate evidence, verbatim:
     lunar_diplomacy               action_completable= False  first_blocked_stage= 1
     ritual_of_the_mahjarrat       action_completable= False  first_blocked_stage= 1
 
-Single unblock: a runtime path that emits the generated stage-1 objectives, or
-source-backed stage actions to replace them.
+Single unblock for the blocked remainder: add runtime emitters for the generated
+stage-1 objectives, or replace them with source-backed stage actions.
 
 ### 5.12 Reachability audit over-reports: it ignores quest gates and shop access
 
@@ -2112,7 +2128,7 @@ that a player can obtain an item.
 
 Found while this work was in progress. `QuestCombatEncounter` has no
 guaranteed-drop field, and `_quest_combat_enemy_spec` at
-`logic_pure/logic_pure_quest.py:660` hardcodes an empty drop table. A declared
+`logic_pure/logic_pure_quest.py:649` hardcodes an empty drop table. A declared
 guaranteed drop on a quest-combat encounter is therefore never awarded.
 
     constructed encounter guaranteed_drops= {'Herb pouch': 1}
@@ -2153,3 +2169,12 @@ The precedent argued against the change it was cited to support.
 
 Lesson: a cited precedent must be read, not trusted. This one was caught only
 because a reviewer opened the file.
+
+### 5.16 Closing audit found three unblocked settled items — 2026-08-26
+
+A closing audit at main 258513ef found three unblocked settled items. The work is
+now dispatched:
+
+- Claim tool gate: `goal/claim-tool-gate-2026-08-26`
+- Hunter registry precedence: `goal/hunter-registry-2026-08-26`
+- Rune shard chain: `goal/rune-shards-2026-08-26`
