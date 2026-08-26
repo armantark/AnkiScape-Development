@@ -6,7 +6,10 @@ from ankiscape.core import constants
 from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
 from ankiscape.data import combat_data, shop_data
 from ankiscape.logic import shop_logic
-from ankiscape.logic_pure.logic_pure import combat_target_locked_reasons_pure
+from ankiscape.logic_pure.logic_pure import (
+    combat_target_locked_reasons_pure,
+    target_unlock_locked_reasons_pure,
+)
 from tools.audit_item_reachability import (
     _claim_item_sources,
     _close_actions,
@@ -733,7 +736,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
                     "id": "combat:gated_target",
                     "items": {"Gated drop"},
                     "repeatable_items": {"Gated drop"},
-                    "is_accessible": lambda completable, _startable: (
+                    "is_accessible": lambda completable, _startable, _reachable, _progress: (
                         "source_gate" in completable
                     ),
                 },
@@ -743,6 +746,116 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(completed, {"source_gate", "consumer"})
         self.assertEqual(seed_sources["Gated drop"], {"combat:gated_target"})
         self.assertEqual(seed_sources["Final reward"], {"quest:consumer"})
+
+    def test_utility_runtime_gates_participate_in_the_fixed_point(self):
+        action_data = {
+            "quest_gated_utility": {
+                "status": "implemented",
+                "quest_requirements": ("missing_utility_quest",),
+                "outputs": {"Quest-gated utility marker": 1},
+            },
+            "level_gated_utility": {
+                "status": "implemented",
+                "skill_requirements": {"magic": 1000},
+                "outputs": {"Level-gated utility marker": 1},
+            },
+            "option_gated_utility": {
+                "status": "implemented",
+                "required_item_options": (("Missing option A", "Missing option B"),),
+                "outputs": {"Option-gated utility marker": 1},
+            },
+            "any_gated_utility": {
+                "status": "implemented",
+                "any_requirements": ("Missing dose A", "Missing dose B"),
+                "outputs": {"Any-gated utility marker": 1},
+            },
+        }
+
+        with patch.dict(constants.UTILITY_ACTIVITY_DATA, action_data):
+            report = build_reachability_report()
+
+        for marker in (
+            "Quest-gated utility marker",
+            "Level-gated utility marker",
+            "Option-gated utility marker",
+            "Any-gated utility marker",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIsNone(report["routes"].get(marker))
+
+    def test_utility_material_options_accept_a_reachable_alternative(self):
+        action_data = {
+            "utility_alternative_input": {
+                "status": "implemented",
+                "outputs": {"Reachable utility alternative": 1},
+            },
+            "utility_material_options": {
+                "status": "implemented",
+                "requirements": {"Placeholder material": 1},
+                "material_options": {
+                    "Placeholder material": ("Missing material", "Reachable utility alternative"),
+                },
+                "outputs": {"Utility material option marker": 1},
+            },
+        }
+
+        with patch.dict(constants.UTILITY_ACTIVITY_DATA, action_data):
+            report = build_reachability_report()
+
+        self.assertEqual(
+            report["routes"].get("Utility material option marker"),
+            "Utility:utility_material_options",
+        )
+
+    def test_raw_started_action_gate_opens_when_quest_can_start(self):
+        quest_data = {
+            "started_gate_test": {
+                "display_name": "Started Gate Test",
+                "stage_requirements": (
+                    {"stage": 1, "required_actions": ("Impossible action",)},
+                ),
+            },
+            "started_gate_consumer": {
+                "display_name": "Started Gate Consumer",
+                "rewards": {"Wimpy feather": 1},
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "required_inventory": {"Started gate marker": 1},
+                    },
+                ),
+            },
+        }
+        action_data = {
+            "started_gate_test_action": {
+                "status": "implemented",
+                "quest_gate": "started_gate_test",
+                "quest_gate_state": "started",
+                "outputs": {"Started gate marker": 1},
+            },
+            "completed_gate_test_action": {
+                "status": "implemented",
+                "quest_gate": "started_gate_test",
+                "quest_gate_state": "completed",
+                "outputs": {"Completed gate marker": 1},
+            },
+        }
+
+        with (
+            patch.dict(constants.QUEST_DATA, quest_data),
+            patch.dict(constants.UTILITY_ACTIVITY_DATA, action_data),
+        ):
+            report = build_reachability_report()
+
+        self.assertEqual(
+            report["routes"].get("Started gate marker"),
+            "Utility:started_gate_test_action",
+        )
+        self.assertIsNone(report["routes"].get("Completed gate marker"))
+        self.assertEqual(
+            report["routes"].get("Wimpy feather"),
+            "quest:started_gate_consumer",
+        )
 
     def test_unreachable_runtime_source_gates_seed_nothing(self):
         gated_targets = {
@@ -797,8 +910,339 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 self.assertIsNone(report["routes"].get(item_name))
         self.assertEqual(
             report["routes"].get("Astral rune"),
-            "Runecrafting:craft_astral_runes",
+            "Activity:shooting_stars:exchange",
         )
+
+    def test_inaccessible_shop_services_stay_blocked_with_reachable_inputs(self):
+        input_source = {
+            "service_gate_test_inputs": {
+                "status": "implemented",
+                "outputs": {
+                    "Potion flask": 1,
+                    "Attack potion (3)": 1,
+                    "Attack flask (3)": 1,
+                },
+            },
+        }
+        generic_service = {
+            "test_quest_locked_conversion": {
+                "id": "test_quest_locked_conversion",
+                "visibility": "visible",
+                "action_type": "item_conversion",
+                "inputs": ({"item_name": "Coins", "quantity": 1},),
+                "outputs": ({"item_name": "Locked service marker", "quantity": 1},),
+                "price": 0,
+                "access": {
+                    "kind": "quest",
+                    "quest_id": "as_a_first_resort",
+                    "label": "As a First Resort",
+                },
+            },
+        }
+
+        with (
+            patch.dict(constants.UTILITY_ACTIVITY_DATA, input_source),
+            patch.dict(shop_data.SHOP_SERVICES, generic_service),
+        ):
+            report = build_reachability_report()
+
+        self.assertIn("Potion flask", report["routes"])
+        self.assertIn("Attack potion (3)", report["routes"])
+        self.assertIn("Attack flask (3)", report["routes"])
+        self.assertIsNone(report["routes"].get("Attack flask (6)"))
+        self.assertIsNone(report["routes"].get("Locked service marker"))
+        unresolved = {
+            action["id"]: action
+            for action in report["unresolved_actions"]
+        }
+        for action_id in (
+            "Shop service:teplin_fill_potion_flasks:Attack potion",
+            "Shop service:teplin_decant_flasks_to_vials:Attack potion",
+            "Shop service:test_quest_locked_conversion",
+        ):
+            with self.subTest(action=action_id):
+                self.assertEqual(unresolved[action_id]["missing"], [])
+
+    def test_numeric_shop_service_gate_opens_at_reachable_partial_stage(self):
+        quest_data = {
+            "service_progress_test": {
+                "display_name": "Service Progress Test",
+                "stages": 5,
+                "stage_requirements": (
+                    {"stage": 5, "required_actions": ("Impossible action",)},
+                ),
+            },
+        }
+        service = {
+            "test_progress_locked_conversion": {
+                "id": "test_progress_locked_conversion",
+                "visibility": "visible",
+                "action_type": "item_conversion",
+                "inputs": ({"item_name": "Coins", "quantity": 1},),
+                "outputs": (
+                    {"item_name": "Progress service marker", "quantity": 1},
+                ),
+                "price": 0,
+                "access": {
+                    "kind": "quest",
+                    "quest_id": "service_progress_test",
+                    "stage": 5,
+                    "label": "Service Progress Test stage 5",
+                },
+            },
+        }
+
+        with (
+            patch.dict(constants.QUEST_DATA, quest_data),
+            patch.dict(shop_data.SHOP_SERVICES, service),
+        ):
+            report = build_reachability_report()
+
+        self.assertEqual(
+            report["routes"].get("Progress service marker"),
+            "Shop service:test_progress_locked_conversion",
+        )
+
+    def test_named_encounter_only_targets_do_not_seed_drops(self):
+        target_ids = (
+            "menaphite_thug",
+            "cockroach_soldier",
+            "temple_trekking_ambush",
+            "troll_invasion_wave_front",
+        )
+        marker_by_target = {
+            target_id: f"Encounter-only marker: {target_id}"
+            for target_id in target_ids
+        }
+        encounter_targets = {
+            target_id: {
+                **combat_data.COMBAT_ENEMY_DATA[target_id],
+                "drops": {
+                    "guaranteed": ((marker_by_target[target_id], 1),),
+                },
+            }
+            for target_id in target_ids
+        }
+
+        with patch.dict(
+            combat_data.COMBAT_ENEMY_DATA,
+            encounter_targets,
+            clear=True,
+        ):
+            report = build_reachability_report()
+
+        for target_id, marker in marker_by_target.items():
+            with self.subTest(target=target_id):
+                self.assertIsNone(report["routes"].get(marker))
+
+    def test_combat_sources_use_every_runtime_access_gate(self):
+        gated_fields = {
+            "encounter": {"encounter_only": True},
+            "slayer": {"required_slayer_level": 1000},
+            "skill": {"skill_requirements": {"agility": 1000}},
+            "item": {"required_items": {"Missing combat key": 1}},
+            "item_option": {
+                "required_item_options": (("Missing option A", "Missing option B"),),
+            },
+            "finisher": {
+                "finisher": {
+                    "item": "Missing finisher",
+                    "threshold_lifepoints": 1,
+                    "consume": True,
+                },
+            },
+            "quest": {"required_quest": "missing_combat_quest"},
+            "start_equipment": {
+                "start_equipment": {
+                    "slot": "head",
+                    "items": ("Missing combat helmet",),
+                },
+            },
+            "hazard": {
+                "environmental_hazard": {
+                    "display_name": "Test hazard",
+                    "dose_items": ("Missing hazard dose",),
+                },
+            },
+            "restricted_weapon": {
+                "restricted_weapon": {
+                    "melee_weapons": ("Missing restricted weapon",),
+                },
+            },
+            "warriors_guild": {
+                "warriors_guild_gate": True,
+                "warriors_guild_target": "cyclossus",
+            },
+        }
+        targets = {
+            target_id: {
+                "display_name": target_id.title(),
+                "stats": {"hitpoints": 1},
+                "drops": {"guaranteed": ((f"{target_id} marker", 1),)},
+                **fields,
+            }
+            for target_id, fields in gated_fields.items()
+        }
+        targets["open"] = {
+            "display_name": "Open",
+            "stats": {"hitpoints": 1},
+            "drops": {"guaranteed": (("open marker", 1),)},
+        }
+
+        with patch.dict(combat_data.COMBAT_ENEMY_DATA, targets, clear=True):
+            report = build_reachability_report()
+
+        for target_id in gated_fields:
+            with self.subTest(target=target_id):
+                self.assertIsNone(report["routes"].get(f"{target_id} marker"))
+        self.assertEqual(report["routes"].get("open marker"), "combat:open")
+
+    def test_warriors_guild_progression_unlocks_defender_drops(self):
+        report = build_reachability_report()
+
+        for defender in (
+            "Bronze defender",
+            "Iron defender",
+            "Steel defender",
+            "Black defender",
+            "Mithril defender",
+            "Adamant defender",
+            "Rune defender",
+        ):
+            with self.subTest(defender=defender):
+                self.assertEqual(report["routes"].get(defender), "combat:cyclops")
+        self.assertEqual(
+            report["routes"].get("Cyclopean helmet"),
+            "combat:cyclossus",
+        )
+        self.assertEqual(
+            report["routes"].get("Dragon defender"),
+            "combat:cyclossus",
+        )
+
+    def test_combat_sources_accept_runtime_finisher_loadout_variants(self):
+        input_source = {
+            "finisher_gate_test_inputs": {
+                "status": "implemented",
+                "outputs": {
+                    "Simple finisher": 1,
+                    "Worn finisher": 1,
+                    "Empty finisher": 1,
+                    "Finisher reload": 1,
+                },
+            },
+        }
+        targets = {
+            "simple_finisher": {
+                "stats": {"hitpoints": 1},
+                "finisher": {
+                    "item": "Simple finisher",
+                    "threshold_lifepoints": 1,
+                    "consume": True,
+                },
+                "drops": {"guaranteed": (("simple finisher marker", 1),)},
+            },
+            "worn_finisher": {
+                "stats": {"hitpoints": 1},
+                "finisher": {
+                    "item": "Worn finisher",
+                    "threshold_lifepoints": 1,
+                    "must_be_worn": True,
+                },
+                "drops": {"guaranteed": (("worn finisher marker", 1),)},
+            },
+            "reloadable_finisher": {
+                "stats": {"hitpoints": 1},
+                "finisher": {
+                    "item": "Reloadable finisher",
+                    "threshold_lifepoints": 1,
+                    "charge_items": (("Charged finisher", 10),),
+                    "empty_item": "Empty finisher",
+                    "reload_item": "Finisher reload",
+                    "reload_charges": 10,
+                },
+                "drops": {"guaranteed": (("reloadable finisher marker", 1),)},
+            },
+        }
+
+        with (
+            patch.dict(constants.UTILITY_ACTIVITY_DATA, input_source),
+            patch.dict(combat_data.COMBAT_ENEMY_DATA, targets, clear=True),
+        ):
+            report = build_reachability_report()
+
+        for marker in (
+            "simple finisher marker",
+            "worn finisher marker",
+            "reloadable finisher marker",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, report["routes"])
+
+    def test_combat_sources_accept_runtime_equipment_and_hazard_loadouts(self):
+        input_source = {
+            "combat_gate_test_inputs": {
+                "status": "implemented",
+                "outputs": {
+                    "Required combat helmet": 1,
+                    "Waterskin (4)": 1,
+                    "Magic shortbow": 1,
+                    "Broad arrows": 1,
+                    "Slayer's staff": 1,
+                    "Mind rune": 4,
+                    "Death rune": 1,
+                },
+            },
+        }
+        targets = {
+            "start_equipment": {
+                "stats": {"hitpoints": 1},
+                "start_equipment": {
+                    "slot": "head",
+                    "items": ("Required combat helmet",),
+                },
+                "drops": {"guaranteed": (("start equipment marker", 1),)},
+            },
+            "environmental_hazard": {
+                "stats": {"hitpoints": 1},
+                "environmental_hazard": {
+                    "display_name": "Desert heat",
+                    "dose_items": ("Waterskin (4)",),
+                },
+                "drops": {"guaranteed": (("hazard marker", 1),)},
+            },
+            "ranged_restriction": {
+                "stats": {"hitpoints": 1},
+                "restricted_weapon": {
+                    "melee_weapons": ("Missing spear",),
+                    "ranged_ammunition": ("Broad arrows",),
+                },
+                "drops": {"guaranteed": (("ranged restriction marker", 1),)},
+            },
+            "magic_restriction": {
+                "stats": {"hitpoints": 1},
+                "restricted_weapon": {
+                    "melee_weapons": ("Missing spear",),
+                    "magic_spells": ("magic_dart",),
+                },
+                "drops": {"guaranteed": (("magic restriction marker", 1),)},
+            },
+        }
+
+        with (
+            patch.dict(constants.UTILITY_ACTIVITY_DATA, input_source),
+            patch.dict(combat_data.COMBAT_ENEMY_DATA, targets, clear=True),
+        ):
+            report = build_reachability_report()
+
+        for marker in (
+            "start equipment marker",
+            "hazard marker",
+            "ranged restriction marker",
+            "magic restriction marker",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIsNotNone(report["routes"].get(marker))
 
     def test_rune_essence_to_rune_dust_chain_remains_reachable(self):
         registered_items = {
@@ -814,25 +1258,81 @@ class TestItemReachabilityAudit(unittest.TestCase):
             lambda _encounter: True,
         )
         report = build_reachability_report()
+        locked_player = {"quests": {}}
+        unlocked_player = {
+            "quests": {
+                "rune_mysteries": {"started": True, "completed": True},
+            },
+        }
 
         self.assertEqual(completed, {"rune_mysteries"})
+        self.assertEqual(
+            target_unlock_locked_reasons_pure(
+                locked_player,
+                "mining",
+                "rune_essence",
+                constants.QUEST_UNLOCK_RULES,
+            ),
+            ("Rune Mysteries",),
+        )
+        self.assertEqual(
+            target_unlock_locked_reasons_pure(
+                unlocked_player,
+                "mining",
+                "rune_essence",
+                constants.QUEST_UNLOCK_RULES,
+            ),
+            (),
+        )
+        self.assertNotIn(
+            "Mining:rune_essence",
+            {action["id"] for action in report["unresolved_actions"]},
+        )
         self.assertIn("Rune essence", report["routes"])
         self.assertEqual(report["routes"].get("Rune shards"), "Utility:make_rune_shards")
         self.assertEqual(report["routes"].get("Rune dust"), "Utility:grind_rune_shards")
+
+    def test_unlock_target_alias_uses_the_canonical_runtime_gate(self):
+        report = build_reachability_report()
+
+        self.assertIsNone(report["routes"].get("Death talisman staff"))
+        self.assertIn(
+            "Runecrafting:bind_death_talisman_staff",
+            {action["id"] for action in report["unresolved_actions"]},
+        )
+
+    def test_magic_sources_use_runtime_state_gates(self):
+        unavailable_target = {
+            "runtime_unavailable_test": {
+                "id": "runtime_unavailable_test",
+                "display_name": "Runtime unavailable test",
+                "status": "implemented",
+                "level": 1,
+                "consumer_unavailable": "Runtime consumer unavailable",
+                "outputs": {"Unavailable Magic marker": 1},
+            },
+        }
+
+        with patch.dict(constants.MAGIC_DATA, unavailable_target):
+            report = build_reachability_report()
+
+        self.assertIsNone(report["routes"].get("Digsite pendant (5)"))
+        self.assertEqual(report["routes"].get("Peach"), "Magic:bones_to_peaches")
+        self.assertIsNone(report["routes"].get("Unavailable Magic marker"))
 
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1600)
-        self.assertEqual(report["reachable_item_count"], 2360)
+        self.assertEqual(report["reachable_item_count"], 2131)
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 79)
-        self.assertEqual(report["root_orphan_count"], 40)
-        self.assertEqual(report["cascade_orphan_count"], 39)
-        self.assertEqual(report["unresolved_action_count"], 86)
-        self.assertEqual(report["seed_item_count"], 1118)
+        self.assertEqual(report["orphan_input_count"], 219)
+        self.assertEqual(report["root_orphan_count"], 44)
+        self.assertEqual(report["cascade_orphan_count"], 175)
+        self.assertEqual(report["unresolved_action_count"], 336)
+        self.assertEqual(report["seed_item_count"], 1106)
         self.assertFalse(
             [
                 row
@@ -977,17 +1477,19 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Potato cactus"],
             "Utility:gather_potato_cacti",
         )
-        self.assertEqual(
-            report["routes"]["Wimpy feather"],
+        self.assertIsNone(report["routes"].get("Wimpy feather"))
+        self.assertIn(
             "Hunter:catch_wimpy_bird",
+            {action["id"] for action in report["unresolved_actions"]},
         )
         self.assertEqual(
             report["routes"]["Toad's legs"],
             "Utility:remove_swamp_toad_legs",
         )
-        self.assertEqual(
-            report["routes"]["Fish offcuts"],
+        self.assertIsNone(report["routes"].get("Fish offcuts"))
+        self.assertIn(
             "Cooking:gut_leaping_trout",
+            {action["id"] for action in report["unresolved_actions"]},
         )
         self.assertEqual(
             report["routes"]["Willow branch"],
@@ -995,15 +1497,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
         self.assertEqual(
             report["routes"]["Nasturtium seed"],
-            "Utility:managing_miscellania",
+            "Thieving:pickpocket_master_farmer",
         )
         self.assertEqual(
             report["routes"]["Redberry seed"],
-            "Utility:managing_miscellania",
+            "Thieving:pickpocket_master_farmer",
         )
         self.assertEqual(
             report["routes"]["Cadavaberry seed"],
-            "Utility:managing_miscellania",
+            "Thieving:pickpocket_master_farmer",
         )
         self.assertEqual(
             report["routes"]["Fellstalk seed"],
@@ -1072,9 +1574,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Ale yeast"],
             "Shop service:blandebir_fill_ale_yeast",
         )
-        self.assertEqual(
-            report["routes"]["Arctic pine logs"],
+        self.assertIsNone(report["routes"].get("Arctic pine logs"))
+        self.assertIn(
             "Woodcutting:arctic_pine",
+            {action["id"] for action in report["unresolved_actions"]},
         )
         self.assertEqual(
             report["routes"]["Eucalyptus logs"],
@@ -1126,17 +1629,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Agility potion (4)"],
             "Shop service:bob_barter_decant_four:Agility potion",
         )
-        self.assertEqual(
-            report["routes"]["Attack flask (6)"],
-            "Shop service:teplin_fill_potion_flasks:Attack potion",
-        )
-        self.assertEqual(
-            report["routes"]["Attack flask (3)"],
-            "Item action:consume:Attack flask (4)",
-        )
-        self.assertNotIn(
-            "Shop service:teplin_decant_flasks_to_vials:Attack potion",
-            {action["id"] for action in report["unresolved_actions"]},
+        self.assertIsNone(report["routes"].get("Attack flask (6)"))
+        self.assertIsNone(report["routes"].get("Attack flask (3)"))
+        self.assertTrue(
+            {
+                "Shop service:teplin_fill_potion_flasks:Attack potion",
+                "Shop service:teplin_decant_flasks_to_vials:Attack potion",
+            }.issubset(
+                {action["id"] for action in report["unresolved_actions"]}
+            )
         )
 
         self.assertEqual(
@@ -1154,6 +1655,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         self.assertIn("Mining helmet (unlit)", orphan_items)
+        self.assertIn("Arctic pine logs", orphan_items)
         for item_name in (
             "Candle lantern (empty)",
             "Candle lantern (unlit, 4529)",
@@ -1173,7 +1675,6 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Wine of zamorak",
             "Barley malt",
             "Ale yeast",
-            "Arctic pine logs",
             "Eucalyptus logs",
             "Curly root",
             "Black mushroom",
@@ -1236,6 +1737,28 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 *expected_jadinko_routes.values(),
             }.isdisjoint(unresolved_actions)
         )
+
+    def test_root_orphan_leverage_does_not_bypass_inactive_action_gates(self):
+        gated_action = {
+            "root_leverage_gate_test": {
+                "status": "implemented",
+                "quest_gate": "unreachable_gate_test",
+                "requirements": {"Gate-only orphan": 1},
+                "outputs": {"Gate-only output": 1},
+            },
+        }
+
+        with patch.dict(constants.UTILITY_ACTIVITY_DATA, gated_action):
+            report = build_reachability_report()
+
+        row = next(
+            row
+            for row in report["root_orphan_leverage"]
+            if row["item"] == "Gate-only orphan"
+        )
+        self.assertEqual(row["newly_reachable_items"], ["Gate-only orphan"])
+        self.assertEqual(row["newly_reachable_item_count"], 1)
+        self.assertEqual(row["newly_unblocked_action_count"], 0)
 
     def test_root_orphan_leverage_is_transitive_and_deterministically_ranked(self):
         report = build_reachability_report()

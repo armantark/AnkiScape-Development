@@ -280,3 +280,9 @@ pair, update the Memory Bank, and commit.
    and level requirements.
 7. Every generated quest row should have a source-backed journal/checklist stage
    surface. Generated placeholder journals are a regression.
+8. Runtime quest progress names the current stage: a started quest is at least
+   stage 1, and stage N is entered before its stage-N blockers are completed.
+9. Output-producing Utility activities can keep completed-quest gates in
+   `quest_requirements`; reachability must evaluate that field inside its fixed point.
+10. A stateful combat gate is reachable when its repeatable runtime setup is reachable;
+    synthesize the setup and include state-owned drops such as the defender ladder.

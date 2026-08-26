@@ -189,18 +189,26 @@ class TestPotionFlaskAcquisition(unittest.TestCase):
         self.assertEqual(player["inventory"]["Glassblowing pipe"], 1)
         self.assertEqual(player["crafting_exp"], 100.0)
 
-    def test_assets_and_reachability_close_the_empty_flask_root(self):
+    def test_assets_exist_but_reachability_preserves_the_quest_gate(self):
         self.assertTrue(os.path.exists(ORE_IMAGES["Red sandstone"]))
         self.assertTrue(os.path.exists(CRAFTED_ITEM_IMAGES["Robust glass"]))
         self.assertTrue(os.path.exists(CRAFTED_ITEM_IMAGES["Potion flask"]))
 
         report = build_reachability_report()
-        self.assertEqual(report["routes"]["Red sandstone"], "Mining:red_sandstone")
-        self.assertEqual(report["routes"]["Robust glass"], "Utility:make_robust_glass")
-        self.assertEqual(report["routes"]["Potion flask"], "Crafting:glass_potion_flask")
-        self.assertNotIn(
-            "Potion flask",
-            {row["item"] for row in report["orphan_inputs"]},
+        gated_items = {"Red sandstone", "Robust glass", "Potion flask"}
+        self.assertTrue(gated_items.isdisjoint(report["routes"]))
+        self.assertTrue(
+            gated_items <= {row["item"] for row in report["orphan_inputs"]}
+        )
+        unresolved = {row["id"]: row for row in report["unresolved_actions"]}
+        self.assertEqual(unresolved["Mining:red_sandstone"]["missing"], [])
+        self.assertEqual(
+            unresolved["Utility:make_robust_glass"]["missing"],
+            ["Red sandstone"],
+        )
+        self.assertEqual(
+            unresolved["Crafting:glass_potion_flask"]["missing"],
+            ["Robust glass"],
         )
 
     def test_existing_skill_lists_expose_icons_gates_and_daily_allowance(self):

@@ -359,12 +359,11 @@ SHOP_ACCESS_RULES: dict[str, dict[str, Any]] = {
     "initiate_rank_armory": {"kind": "quest", "quest_id": "recruitment_drive", "stage": "completed", "label": "Recruitment Drive"},
     # West Ardougne (Plague City opens the wall passage)
     "west_ardougne_general_store": {"kind": "quest", "quest_id": "plague_city", "stage": "started", "label": "Plague City"},
-    # Lletya (elf lands open once Regicide is done; Lletya itself is found in
-    # the Mourning's End chain — Regicide completion is the honest floor)
-    "lletya_archery_shop": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
-    "lletya_food_store": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
-    "lletya_general_store": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
-    "lletya_seamstress": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
+    # Lletya opens when Mourning's End Part I starts.
+    "lletya_archery_shop": {"kind": "quest", "quest_id": "mournings_end_part_i", "stage": "started", "label": "Mourning's End Part I"},
+    "lletya_food_store": {"kind": "quest", "quest_id": "mournings_end_part_i", "stage": "started", "label": "Mourning's End Part I"},
+    "lletya_general_store": {"kind": "quest", "quest_id": "mournings_end_part_i", "stage": "started", "label": "Mourning's End Part I"},
+    "lletya_seamstress": {"kind": "quest", "quest_id": "mournings_end_part_i", "stage": "started", "label": "Mourning's End Part I"},
     # Dorgesh-Kaan (Death to the Dorgeshuun completed)
     "dorgesh_kaan_general_supplies": {"kind": "quest", "quest_id": "death_to_the_dorgeshuun", "stage": "completed", "label": "Death to the Dorgeshuun"},
     "dorgeshkaan_general_supplies": {"kind": "quest", "quest_id": "death_to_the_dorgeshuun", "stage": "completed", "label": "Death to the Dorgeshuun"},

@@ -182,7 +182,7 @@ class SkeletalWyvernDataAndSurfaceTests(unittest.TestCase):
             ("skeletal_wyvern",),
         )
 
-    def test_reachability_starts_at_the_combat_drop_and_lights_the_full_chain(self):
+    def test_reachability_starts_at_the_combat_drop_and_preserves_flask_gate(self):
         report = build_reachability_report()
         self.assertEqual(report["routes"]["Wyvern bones"], "combat:skeletal_wyvern")
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
@@ -190,7 +190,11 @@ class SkeletalWyvernDataAndSurfaceTests(unittest.TestCase):
         self.assertNotIn("Wyvern bonemeal", orphan_items)
         for item_name in DOWNSTREAM_ITEMS:
             with self.subTest(item=item_name):
-                self.assertIn(item_name, report["routes"])
+                if "flask" in item_name:
+                    self.assertNotIn(item_name, report["routes"])
+                    self.assertIn(item_name, orphan_items)
+                else:
+                    self.assertIn(item_name, report["routes"])
 
 
 class SkeletalWyvernKernelTests(unittest.TestCase):
