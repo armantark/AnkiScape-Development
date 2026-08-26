@@ -1159,3 +1159,4 @@
 - 2026-08-26 07:27 PDT — The first archived Rune-chain proof imported the canonical checkout through `pkg_alias`, so `make_rune_shards` was absent and the proof failed; isolated archives need an explicit package alias bound to the archive root.
 - 2026-08-26 07:30 PDT — A Hunter mismatch probe treated `ITEM_DEFINITIONS` as a name-keyed mapping and failed with `TypeError: tuple indices must be integers or slices, not str`; use the registry lookup that indexes the tuple.
 - 2026-08-26 07:31 PDT — The first `_apply_*_command` AST scan searched only module-level functions and reported zero because all handlers are class methods; use `ast.walk()` for the measured count.
+- 2026-08-26 09:04 PDT — An exact whole-entry replacement for Memory Bank records failed because one copied block differed from the file; replace entries by heading boundaries instead.
