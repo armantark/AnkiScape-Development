@@ -656,7 +656,7 @@ Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
 
 - **Owner-settled 2026-07-13 (grill round 3) — stalls need no invented constant at all:**
   - **Stall catch chance is ZERO.** 2011Scape calls `handleSuccess` with no roll in front of it (`Stalls.kt:33`); the only failure path is `caughtByGuard`, which is purely positional (`it.sees(player, 8)`, `Stalls.kt:65`) and applies to just two of sixteen stalls — Draynor's wine (`StallTarget.kt:157`) and seed (`:188`), both Market Guard 2236. Every other row carries `guards = listOf()` and cannot fail. AnkiScape has no location layer, so the guard cannot be modelled; zero is the *faithful* value, not a shortcut.
-  - **The restock timer alone reproduces the sourced XP/hour, with no free parameters.** 2011Scape's `respawnTicks` and the 2012 wiki's experience-per-second column (pinned in `tools/sourced_xp_rates.py:90-95`) are the same numbers, derived independently and never in contact:
+  - **The restock timer alone reproduces the sourced XP/hour, with no free parameters.** 2011Scape's `respawnTicks` and the 2012 wiki's experience-per-second column (pinned in `tools/sourced_xp_rates.py:94-99`) are the same numbers, derived independently and never in contact:
 
     | stall | lvl | xp | respawnTicks | implied xp/hr | wiki E.P.S. × 3600 |
     |---|---|---|---|---|---|
@@ -669,7 +669,7 @@ Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
 
     The three high-level rows agree to within rounding. Any nonzero catch constant would push every stall *below* its own sourced rate — reintroducing the exact defect the cadence kernel exists to fix. This is the strongest corroboration in the Thieving record; the earlier "invent one global constant" decision was solving a problem that does not exist.
   - **The wall safe is the exception that proves it.** It is the only stall-family row carrying chance endpoints (`lowChance = 8, highChance = 160`, `StallTarget.kt:263-264`) — the same interpolate-against-255 shape as pickpocketing — and the only one whose 100%-success rate (70 xp / 3s = 84,000/hr) overshoots its sourced ceiling (~20,000/hr). It fails because the period game meant it to, and the source states by how much. Ship those endpoints. Note the fields are declared but unused in `Stalls.kt` — 2011Scape carried the data and never wired it.
-  - **Ship the level inversion honestly.** The level-5 baker stall out-earns the level-75 gem stall by ~7×, in both sources. That is authentic: pre-EOC players camped gem stalls for the *gems*, and the wiki's own escape hatch — "ideal to world hop" — is a location mechanic AnkiScape cannot model. It is safe to ship because the bad option is never the best available one: at 75 Thieving the player already has knights of Ardougne (180,000/hr, `sourced_xp_rates.py:82`) and blackjacking (200,000–270,000/hr, `:75`). The gem stall's poor XP is the *price* of its loot table, which we do model, and that reads as a choice rather than a trap. Do **not** invent a world-hop abstraction to "fix" it.
+  - **Ship the level inversion honestly.** The level-5 baker stall out-earns the level-75 gem stall by ~7×, in both sources. That is authentic: pre-EOC players camped gem stalls for the *gems*, and the wiki's own escape hatch — "ideal to world hop" — is a location mechanic AnkiScape cannot model. It is safe to ship because the bad option is never the best available one: at 75 Thieving the player already has knights of Ardougne (180,000/hr, `tools/sourced_xp_rates.py:86`) and blackjacking (200,000–270,000/hr, `:75`). The gem stall's poor XP is the *price* of its loot table, which we do model, and that reads as a choice rather than a trap. Do **not** invent a world-hop abstraction to "fix" it.
 
 ### Phoenix feather acquisition — CLOSED
 
@@ -1306,37 +1306,39 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
   the next Bank trip. Advanced may choose item priority and an earlier threshold. Route/rate
   metadata must declare whether Pack Yak use is already assumed.
 
-### Dungeoneering
+### Dungeoneering depth
 
-Labels: `DESIGN CLOSED 2026-07-18`, `BACKEND SUBSTRATE 2026-07-20`, `SOURCE BLOCKED`, `DEPENDENCY: ALL SKILLS/COMBAT`.
+Labels: `IMPLEMENTED PARTIAL`, `SOURCE BLOCKED`, `DEPENDENCY: ALL SKILLS/COMBAT`.
 
-- Design is owner-ratified in `dungeoneering-design-contract-2026-07-18.md`
-  (seeded room graph, three-tier choice architecture, authentic binds/kinship/
-  complexity/prestige, closed economy, staged shop).
-- The 2026-07-20 starter harvest has pinned the floor, size, complexity, bind,
-  kinship, Frozen-boss, door, proof-chain, reward, prestige, and token tables.
-  Pure data/progression/session modules and focused tests are implemented.
-- Keep the registry surface planned until the active/prestige floor-XP curve
-  and death coefficient are source-closed. Exact generated room counts and
-  skill-door failure values also remain source-blocked. The eight-room starter
-  graph budget is explicitly
+- The owner-ratified contract remains in
+  `dungeoneering-design-contract-2026-07-18.md`: seeded room graph, three-tier
+  choice architecture, binds/kinship, complexity/prestige, closed economy, and
+  staged shop.
+- Dungeoneering is trainable. The Frozen floor runtime, Ring of Kinship tiers,
+  staged reward trader, and working Coal bag are live; `core/skill_registry.py`
+  records the surface as implemented and partial.
+- Continue depth beyond the live Frozen slice. Keep exact generated room counts,
+  skill-door failure values, and other unresolved mechanics source-blocked. The
+  eight-room starter graph budget remains
   `provisional/owner-approved-review-translation`, not a historical claim.
-- The first live UI still requires both Kimi K3 and Fable taste review plus a
-  fully restarted native Anki check. No incomplete zero-XP surface should be
-  exposed while the core payout is unresolved.
 
 ## Wait for a stable Darkan restoration milestone
 
-The local checkout was observed on `dev` at `55a7afa29`, 256 commits ahead of `origin/dev`, during an active restoration series. Treat it as moving research input until a stable milestone exists.
+The local Darkan checkout is active restoration research input. Treat it as moving until a pinned, source-qualified milestone exists; branch distance is not fidelity evidence.
 
-### 167 missing playable quests, plus fidelity for the 27 that exist
+### Quest-by-quest fidelity across the complete definition catalog
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 
-- Sized honestly 2026-07-13: `quest_catalog_generated.py` carries all 194 pre-cutoff quests as metadata, but `quest_data.py` defines only **27 playable** `QuestDefinition`s. The other 167 exist as catalog rows and, in some cases, as loose id constants plus stage fragments — which reads like the quest is present when it is not. The Feud (`quest_data.py:84`), Death to the Dorgeshuun, and Mourning's End Part I are all in that half-present state.
-- Two distinct workstreams, do not conflate them: **build the 167 missing definitions**, and **re-audit the 27 that exist** for authentic stages, branches, item transformations, combat, rewards, journals, unlocks, and missing-skill gates.
-- Prioritise by what a quest unblocks. Skill grills surface these: Thieving alone needs The Feud (blackjacking), Death to the Dorgeshuun (Dorgesh-Kaan chests), and Mourning's End Part I (Lletya elves).
-- The Feud is being built as part of the Thieving expansion because it gates a core training method; it is the precedent, not an exception to the queue.
+- `generated/quest_catalog_generated.py` carries all 194 pre-cutoff quests, and
+  `data/quest_data.py` materializes all 194 as `QuestDefinition` rows. Together
+  with two miniquests, the live `QUESTS` and `QUESTS_BY_ID` collections contain
+  196 definitions.
+- Catalog and definition presence remain scaffolding. Re-audit each quest for
+  authentic stages, branches, item transformations, combat, rewards, journals,
+  unlocks, and missing-skill gates.
+- Prioritise by what a quest unblocks. Thieving depends on The Feud,
+  Death to the Dorgeshuun, and Mourning's End Part I for major methods.
 - Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
   its reachable chain because the quest gates Sumona and the entire reward-point
   economy. That direct chain is now playable; the next Slayer-raised quest work
@@ -2027,7 +2029,7 @@ bump must not strand a route in a repeated runtime error.
 
 | Defect | Breaks | Cause | Victims |
 |---|---|---|---|
-| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure.py:388`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
+| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure/logic_pure_progression.py:42-45,404-413`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
 | Unmodelled dead time | *rate* | one review per action, whatever the real wait | Hunter (traps), Thieving stalls (respawn), Combat (30s burst) |
 
 *Legacy adapter.* Its damage scales with how rare the action is: near `p=1` the square

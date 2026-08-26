@@ -5,7 +5,7 @@ the dated completion audit is archived under `archive/2026-07/baselines/`.
 
 ## Strategy
 
-Finish by dependency layers. Eighteen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is two planned skills plus cross-system breadth and release closure.
+Finish by dependency layers. Nineteen complete skill surfaces, five partial Combat-trained skills, partial Dungeoneering, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is partial-skill depth, cross-system breadth, and release closure.
 
 ## Layer 1 — Close Proven Existing-Skill Slices
 
@@ -14,18 +14,17 @@ Finish by dependency layers. Eighteen complete skill surfaces, unified Combat, q
 - Split proven sub-slices from source-blocked families.
 - Keep backend, frontend, assets, tests, source audit, and Memory Bank handoff explicit.
 
-## Layer 2 — Grill and Build Planned Skills
+## Layer 2 — Complete Partial Skill Breadth
 
-- Agility and Thieving are implemented. Preserve their shared LP/failure,
-  carried-risk, and cross-skill hooks as later systems integrate.
-- Slayer: Combat/acquisition-dependent assignment system.
-- Dungeoneering: late cross-skill meta-system.
+- Preserve Agility and Thieving shared LP/failure, carried-risk, and cross-skill hooks as later systems integrate.
+- Preserve Slayer's complete Combat assignment surface while its bestiary and reward dependencies expand.
+- Extend the implemented partial Dungeoneering surface beyond Frozen floors without leaking its session economy into the overworld.
 
-Prayer, Magic, Construction, Farming, Thieving, Agility, and Summoning are implemented and must not return to this queue. Attack, Strength, Defence, Constitution, and Ranged remain partial through unified Combat rather than gaining redundant review surfaces.
+Prayer, Magic, Construction, Farming, Thieving, Agility, Slayer, Summoning, and the other complete skills must not return to a planned-skill queue. Attack, Strength, Defence, Constitution, and Ranged remain partial through unified Combat rather than gaining redundant review surfaces.
 
 ## Layer 3 — Ingest Stable Darkan Evidence
 
-Wait for a pinned high-fidelity milestone before broad ingestion, then reconcile only relevant mechanics against period evidence. Highest-value targets are planned-skill server mechanics, quest fidelity, special methods/activities, bosses/instances, reward shops, and complex equipment behavior.
+Wait for a pinned high-fidelity milestone before broad ingestion, then reconcile only relevant mechanics against period evidence. Highest-value targets are partial-skill depth, quest fidelity, special methods/activities, bosses/instances, reward shops, and complex equipment behavior.
 
 ## Layer 4 — Activities, Combat Contexts, and Acquisition
 

@@ -3912,13 +3912,12 @@ These surfaces use stable IDs, flat save state, review or background dispatch as
 
 Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They deliberately remain `partial` because they do not own independent Skills-hub review surfaces. Magic is complete: its noncombat and combat contracts both ship.
 
-## Planned Skills
+## Implemented Partial Dungeoneering
 
-- Dungeoneering
-
-Dungeoneering remains the one planned registry surface. Slayer is complete.
-Dungeoneering's source-ready backend substrate is implemented, but the live
-surface waits on the source-blocked floor-XP curve and death coefficient.
+Dungeoneering is the sixth partial trainable skill. Its Frozen floor runtime,
+Ring of Kinship tiers, staged reward trader, and working Coal bag are live.
+Further floor themes and depth remain program work; the registry has no planned
+skill surface.
 
 ## Thieving closure
 
@@ -3981,7 +3980,7 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Remaining Programs
 
-- Three planned skill loops.
+- Complete the remaining breadth and depth of partial Combat and Dungeoneering.
 - Full Combat/equipment/enemy/boss/instance breadth.
 - Quest-by-quest fidelity across all 194 rows.
 - Activities, minigames, D&Ds, reward currencies/shops, and timed events.
@@ -3991,15 +3990,16 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Verification Baseline
 
-- The test-signal cleanup and source-backed Thieving branches are merged into
-  `main` at `526f9c2` and `63b0a28`. The quality audit now collects 1,219 tests
-  across 66 files with zero hard issues and five advisory clone groups.
-- The merged Thieving behavior set passes 409 focused tests; the focused real
-  offscreen Qt Thieving/Herblore surface pair passes 2 tests.
-- Current full Python 3.13 non-Qt discovery passes all 1,219 tests with 182
-  environment skips and three expected failures.
-- Current full real offscreen Anki/Qt discovery passes all 1,219 tests with no
-  skips and three expected failures.
+- `/opt/homebrew/bin/python3 run_tests.py --list` discovers 4,445 tests on
+  2026-08-26. Fixed pass, skip, and expected-failure totals belong in dated
+  result records rather than this current summary.
+- Plain and real offscreen Qt closure must use the same discovered corpus; the
+  plain lane may skip tests that require `aqt`, but the Qt lane must execute them.
+
+### Historical verification snapshots
+
+The following figures are preserved as pre-2026-07-16 snapshots. Current runs
+outrank them.
 
 - Herblore asset, production-hook, and worktree-guard focused suites: 44 tests
   passing; focused real Qt Herblore behavior: 2 tests passing. A live Anki
@@ -4017,8 +4017,6 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 - Full real offscreen Qt discovery: 1,198 tests passing, 3 expected failures.
 - Reachability: 1,102 actions, 725 consumed items, 296 orphan inputs (151 root, 145 cascade).
 - Compilation and `git diff --check`: clean.
-
-Test counts are snapshots; current runs outrank this note.
 
 ## Overnight fresh-eyes pass 4 — exact light-source identity (2026-07-16)
 

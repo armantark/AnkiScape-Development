@@ -38,8 +38,8 @@
 - Core tests run with `/opt/homebrew/bin/python3 run_tests.py`; the macOS system
   Python is too old for the repository's type syntax.
 - Tests use Python's built-in `unittest`, not pytest.
-- `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.
-- `python3 tools/audit_item_reachability.py --json` emits the deterministic live action/acquisition graph ledger; `--rank-roots N` ranks root acquisitions by transitive item/action gain, and the focused regression test is `tests/test_item_reachability_audit.py`.
+- `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
+- `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. Because the audit does not yet apply every runtime access gate, its output is not proof of player acquisition.
 
 ### Bounded operator commands
 
@@ -80,12 +80,12 @@ Dealing with Scabaras, and Demon Slayer produced conflicts in three of four
 branches, left the merged tree unable to import, and required a dedicated
 13-minute merge agent. The distance-batched follow-up used Shield of Arrav at
 2617, Priest in Peril at 3309, Holy Grail at 5252, and Dwarf Cannon at 9535,
-with a smallest gap of 692 lines, and had zero `quest_data.py` conflicts. Quest
-entries cluster around lines 2600-3350, 3600-3850, 5250-5700, and 7760-8230;
-locate both `<NAME>_ID,` definitions and tuple-style `<NAME>_STAGES:
-Tuple[QuestStage` entries. Give each writer its siblings' anchor lines, keep it
-inside its region, and prefer quests outside the entry-3.32 route-gate class so
-a landed repair is finishable.
+with a smallest gap of 692 lines, and had zero `data/quest_data.py` conflicts. Quest
+do not reuse fixed line clusters after the file changes. Locate both
+`<NAME>_ID,` definitions and tuple-style `<NAME>_STAGES: Tuple[QuestStage`
+entries in the live file, measure the distances again, and give each writer its
+siblings' current anchors. Prefer quests outside the entry-3.32 route-gate class
+so a landed repair is finishable.
 
 Every quest branch also re-pins the seven values in
 `tests/test_item_reachability_audit.py`; that conflict is expected and must be
@@ -187,7 +187,7 @@ Existing tests cover:
 - a no-Qt integration smoke test for package loading and hook flow
 
 ## Debugging
-- Debug logging is centralized in `debug.py`.
+- Debug logging is centralized in `core/debug.py`.
 - Logging is disabled by default.
 - `ANKISCAPE_DEBUG=1` enables logs for local debugging (Developer Mode also enables it in-app).
 - Logs are written near the package as `ankiscape_debug.log` and rotate automatically.
@@ -214,36 +214,36 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **Dated cache cross-checks:** the seven OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md`. They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` require Java 25 and the locally cached Darkan core 2.0.5 jars.
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
 
-Current Woodcutting backend parity data lives in `woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure.py` adapt them to Anki review cadence.
+Current Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure.py` adapt them to Anki review cadence.
 
-Current Mining backend parity data lives in `mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
+Current Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
 
 
-Current Crafting backend parity data lives in `crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
+Current Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
 
-Current Smithing backend parity data lives in `smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
+Current Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 
-Current equipment backend data lives in generated `equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and scaffolds planned combat level/exp defaults so equipment gates are real `*_level` checks before combat training exists.
+Current equipment backend data lives in generated `data/equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `data/mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and normalizes combat level/exp defaults so equipment gates use the real levels trained by unified Combat.
 
 Feathers now enter through live NPC shop stock and Combat drops. The temporary
 `scavenge_chicken_feathers` Utility bridge documented in the dated
 `memory-bank/source-audits/feather-utility-2026-06-15.md` was retired during the
 shop-economy integration pass and must not be re-added.
 
-Current Firemaking data lives in `firemaking_data.py`, with the audit at
+Current Firemaking data lives in `data/firemaking_data.py`, with the audit at
 `memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`. It stores 13
 local-2011Scape burnable targets, stable target IDs, input item IDs, source XP,
 `Ashes` output metadata, raw source low/high lighting odds, and explicit
 deferred bonfire/fire-spirit notes. Runtime review behavior adapts the source
-lighting roll in `logic_pure.py`; storage config version 12 adds
+lighting roll in `logic_pure/logic_pure.py`; storage config version 12 adds
 `firemaking_level`, `firemaking_exp`, and `current_firemaking`.
 
-Current Runecrafting data lives in `runecrafting_data.py`, with the audit at
+Current Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
 `memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`. It stores
 standard rune, combination rune, tiara binding, pouch, and Wicked hood feed
-metadata from the local 2011Scape Runecrafting source. `quest_data.py` stores
+metadata from the local 2011Scape Runecrafting source. `data/quest_data.py` stores
 Rune Mysteries and the one-time Wicked hood claim. Runtime review behavior
-lives in `logic_pure.py`; storage config version 15 adds
+lives in `logic_pure/logic_pure.py`; storage config version 15 adds
 `runecrafting_level`, `runecrafting_exp`, `current_runecrafting`,
 `current_quest`, `quests`, `quest_points`, `claims`, `wicked_hood`,
 `runecrafting_pouches`, and `item_charges`.
@@ -253,7 +253,7 @@ lives in `logic_pure.py`; storage config version 15 adds
 
 - **Skill icons: prefer the `(detail)` variant.** The OSRS wiki ships both a small interface icon (e.g. `File:Fletching_icon.png`) and a higher-resolution `File:Fletching_icon_(detail).png`. The four original AnkiScape skill icons use the detail resolution, so fetch the `(detail)` file for new skills to match — the plain icon looks blurry/undersized next to them.
 - **Item sprites render small unless they fill the frame — fix it in the asset, not at runtime.** Wiki item sprites are tightly cropped (e.g. an arrow is a thin diagonal, and Flax's real art is only ~30x23 inside a 64x64 file). Historically `--size N` normalized by `thumbnail((N,N))` then centering on a transparent NxN canvas, which *preserved* those transparent margins — so at the fixed 28px list icon box the visible sprite was much smaller than the legacy bundled icons (full-frame photos that fill the box edge-to-edge). The fix is to bake a trim into the PNG so the UI just does `QIcon(path)` like everything else (a brief experiment with per-paint runtime cropping was reverted: it scanned the 1000–1500px crafted photos pixel-by-pixel and beachballed when opening Crafting). Two pieces keep assets display-ready:
-  - **Scrape time (new fetches):** `fetch_assets.py` trims the alpha bounding box (`getchannel("A").getbbox()`) *before* thumbnail/pad, so freshly fetched icons fill the frame. Lossless — only removes invisible pixels.
+  - **Scrape time (new fetches):** `tools/fetch_assets.py` trims the alpha bounding box (`getchannel("A").getbbox()`) *before* thumbnail/pad, so freshly fetched icons fill the frame. Lossless — only removes invisible pixels.
   - **Existing assets / batch fix:** `tools/trim_icons.py` audits and trims small padded sprites (`<= 256px`) across every top-level UI asset family. It is idempotent and skips large full-frame photos, where trimming would change the intended composition. Run it with `/opt/homebrew/bin/python3` (Pillow) or `.venv-qt/bin/python` (the `QImage` fallback) after adding sprites; `tests/test_ui_asset_normalization.py` fails if a new top-level family is omitted or any small asset retains transparent margins.
   - **New downloads:** `tools/fetch_assets.py` crops invisible margins before applying its optional maximum dimension. The `size` argument is a maximum visible-art box, not a request to re-center the art on a padded square canvas.
   - The UI renders normalized assets with a plain `QIcon(path)`. No runtime cropping helpers exist anymore.
@@ -294,7 +294,7 @@ lives in `logic_pure.py`; storage config version 15 adds
 
 ### Runecrafting asset wiring
 - `tools/fetch_runecrafting_assets.py` derives the Runecrafting manifest from
-  `runecrafting_data.py` and uses the shared `tools/fetch_assets.py`
+  `data/runecrafting_data.py` and uses the shared `tools/fetch_assets.py`
   client/provenance writer.
 - The skill icon uses `File:Runecraft icon (detail).png` and lands at
   `icon/runecrafting_icon.png`.
@@ -304,7 +304,7 @@ lives in `logic_pure.py`; storage config version 15 adds
   sequentially because the provenance JSON writer is not concurrency-safe.
 
 ### Prayer passive asset wiring
-- `tools/fetch_prayer_assets.py` derives Prayer materials and passive-item rows from `prayer_data.py` and `prayer_passive_data.py`.
+- `tools/fetch_prayer_assets.py` derives Prayer materials and passive-item rows from `data/prayer_data.py` and `data/prayer_passive_data.py`.
 - Its fetch path is explicitly restricted to `RS3_WIKI`; do not restore the shared OSRS-first fallback for these pre-EOC assets without independent exact-period art proof.
 - Bonecrusher and Ectoplasmator live at `prayeritems/bonecrusher.png` and `prayeritems/ectoplasmator.png`; `tests/test_urns.py` requires `source_wiki == "rs3"` for both provenance rows.
 - Run Prayer/provenance fetches sequentially because the shared JSON writer is not concurrency-safe.
@@ -336,7 +336,7 @@ lives in `logic_pure.py`; storage config version 15 adds
 
 ### Reviewer context actions
 
-- `review_context.py` owns pure, registry-shaped projection and sanitization for
+- `core/review_context.py` owns pure, registry-shaped projection and sanitization for
   short-lived reviewer decisions; Qt never infers a feature's pending state.
 - `ReviewContextActionStrip` is a sibling of ReviewHUD, not a permanent menu
   setting. It renders at most three actions, collapses additional families
