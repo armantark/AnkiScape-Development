@@ -1160,3 +1160,5 @@
 - 2026-08-26 07:30 PDT — A Hunter mismatch probe treated `ITEM_DEFINITIONS` as a name-keyed mapping and failed with `TypeError: tuple indices must be integers or slices, not str`; use the registry lookup that indexes the tuple.
 - 2026-08-26 07:31 PDT — The first `_apply_*_command` AST scan searched only module-level functions and reported zero because all handlers are class methods; use `ast.walk()` for the measured count.
 - 2026-08-26 09:04 PDT — An exact whole-entry replacement for Memory Bank records failed because one copied block differed from the file; replace entries by heading boundaries instead.
+- 2026-08-26 11:56 PDT — While capturing the reachability mutation result in zsh, assigning `status=$?` failed with `(eval):18: read-only variable: status`; use a different variable name for exit codes.
+- 2026-08-26 12:04 PDT — The first requested full-suite and final-audit commands ran in the canonical checkout because agent Bash calls reset cwd between calls; every worktree command must include an explicit `cd` or `git -C`.

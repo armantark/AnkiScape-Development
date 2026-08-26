@@ -97,6 +97,19 @@ def _drop_names(value: Any) -> set[str]:
     return names
 
 
+def _combat_drop_gate_reachable(
+    enemy: Mapping[str, Any],
+    completable_quests: set[str],
+    startable_quests: set[str],
+) -> bool:
+    quest_id = str(enemy.get("quest_gate", enemy.get("required_quest", "")) or "")
+    if not quest_id:
+        return True
+    gate_state = str(enemy.get("quest_gate_state", "completed") or "completed")
+    eligible_quests = startable_quests if gate_state == "started" else completable_quests
+    return quest_id in eligible_quests
+
+
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 
 
@@ -545,6 +558,7 @@ def _close_quest_reachability(
     *,
     claim_data: Mapping[str, Mapping[str, Any]] | None = None,
     maximum_skill_levels: Mapping[str, int] | None = None,
+    conditional_seed_sources: Iterable[Mapping[str, Any]] = (),
     scenario_sources_out: list[dict[str, set[str]]] | None = None,
 ) -> tuple[list[dict[str, Any]], set[str], set[str]]:
     variant_ids = {
@@ -558,15 +572,20 @@ def _close_quest_reachability(
     branch_quests = tuple(quest_id for quest_id, variants in variant_ids.items() if variants)
     claim_data = claim_data or {}
     maximum_skill_levels = maximum_skill_levels or {}
+    conditional_seed_sources = tuple(conditional_seed_sources)
     scenario_results = []
     for selected in itertools.product(*(variant_ids[quest_id] for quest_id in branch_quests)):
         selected_variants = dict(zip(branch_quests, selected))
         scenario_sources = {item: set(sources) for item, sources in seed_sources.items()}
+        scenario_seed_item_counts = dict(seed_item_counts)
+        scenario_repeatable_seed_items = set(repeatable_seed_items)
+        active_conditional_sources: set[str] = set()
         previous_state: tuple[
             frozenset[str],
             frozenset[str],
             frozenset[str],
             frozenset[tuple[str, int]],
+            frozenset[str],
         ] | None = None
         blocked: list[dict[str, Any]] = []
         completable: set[str] = set()
@@ -574,14 +593,14 @@ def _close_quest_reachability(
         claim_item_counts: dict[str, int] = {}
         while True:
             reachable_items, route, _unresolved = _close_actions(actions, scenario_sources)
-            repeatable_items = repeatable_seed_items | {
+            repeatable_items = scenario_repeatable_seed_items | {
                 item_name
                 for item_name, source in route.items()
                 if not source.startswith(
                     ("quest:", "quest-start:", "quest-stage:", "quest-combat:", "claim:")
                 )
             }
-            finite_item_counts = dict(seed_item_counts)
+            finite_item_counts = dict(scenario_seed_item_counts)
             for item_name, amount in claim_item_counts.items():
                 finite_item_counts[item_name] = finite_item_counts.get(item_name, 0) + amount
             _, blocked, stage_completable = _quest_stage_sources(
@@ -615,6 +634,23 @@ def _close_quest_reachability(
                     scenario_sources.setdefault(item, set()).add(f"quest-start:{quest_id}")
             for item, sources in quest_stage_sources.items():
                 scenario_sources.setdefault(item, set()).update(sources)
+            for source in conditional_seed_sources:
+                source_id = str(source["id"])
+                if source_id in active_conditional_sources or not source["is_accessible"](
+                    completable,
+                    startable,
+                ):
+                    continue
+                active_conditional_sources.add(source_id)
+                for item in source.get("items", ()):
+                    scenario_sources.setdefault(str(item), set()).add(source_id)
+                for item, amount in source.get("item_counts", {}).items():
+                    scenario_seed_item_counts[str(item)] = (
+                        scenario_seed_item_counts.get(str(item), 0) + int(amount)
+                    )
+                scenario_repeatable_seed_items.update(
+                    str(item) for item in source.get("repeatable_items", ())
+                )
             claim_sources, next_claim_item_counts = _claim_item_sources(
                 claim_data,
                 completable,
@@ -631,6 +667,7 @@ def _close_quest_reachability(
                 frozenset(completable),
                 frozenset(startable),
                 frozenset(next_claim_item_counts.items()),
+                frozenset(active_conditional_sources),
             )
             claim_item_counts = next_claim_item_counts
             if state == previous_state:
@@ -1252,21 +1289,88 @@ def build_reachability_report() -> dict[str, Any]:
     seed_sources: dict[str, set[str]] = defaultdict(set)
     seed_item_counts: dict[str, int] = defaultdict(int)
     repeatable_seed_items: set[str] = set()
+    conditional_seed_sources: list[dict[str, Any]] = []
+
+    def shop_access_reachable(
+        shop: Mapping[str, Any],
+        completable_quests: set[str],
+        startable_quests: set[str],
+    ) -> bool:
+        player_data = {
+            "quests": {
+                quest_id: {
+                    "started": quest_id in startable_quests,
+                    "completed": quest_id in completable_quests,
+                }
+                for quest_id in startable_quests | completable_quests
+            },
+            "quest_points": sum(
+                int(constants.QUEST_DATA[quest_id].get("point_reward", 0) or 0)
+                for quest_id in completable_quests
+            ),
+            **{
+                f"{skill_id}_level": level
+                for skill_id, level in maximum_skill_levels.items()
+            },
+        }
+        return shop_logic.shop_access_lock_reason_pure(player_data, shop) is None
+
     for shop_id, shop in shop_data.SHOP_DATA.items():
         if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):
             continue
+        source_id = f"shop:{shop_id}"
+        item_counts: dict[str, int] = defaultdict(int)
+        repeatable_items: set[str] = set()
         for row in shop.get("stock", ()) or ():
             if row.get("disposition") == "live" and int(row.get("default_quantity", 0) or 0) > 0:
                 name = row.get("item_name")
                 if isinstance(name, str) and name:
-                    seed_sources[name].add(f"shop:{shop_id}")
-                    seed_item_counts[name] += int(row.get("default_quantity", 0) or 0)
+                    item_counts[name] += int(row.get("default_quantity", 0) or 0)
                     if int(row.get("restock_amount", 0) or 0) > 0:
-                        repeatable_seed_items.add(name)
+                        repeatable_items.add(name)
+        if not item_counts:
+            continue
+        if isinstance(shop.get("access"), Mapping):
+            conditional_seed_sources.append(
+                {
+                    "id": source_id,
+                    "items": set(item_counts),
+                    "item_counts": dict(item_counts),
+                    "repeatable_items": repeatable_items,
+                    "is_accessible": lambda completed, startable, shop=shop: shop_access_reachable(
+                        shop,
+                        completed,
+                        startable,
+                    ),
+                }
+            )
+            continue
+        for item, amount in item_counts.items():
+            seed_sources[item].add(source_id)
+            seed_item_counts[item] += amount
+        repeatable_seed_items.update(repeatable_items)
 
     for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
-        for item in _drop_names(enemy.get("drops", {})):
-            seed_sources[item].add(f"combat:{enemy_id}")
+        items = _drop_names(enemy.get("drops", {}))
+        if not items:
+            continue
+        source_id = f"combat:{enemy_id}"
+        if enemy.get("quest_gate") or enemy.get("required_quest"):
+            conditional_seed_sources.append(
+                {
+                    "id": source_id,
+                    "items": items,
+                    "repeatable_items": items,
+                    "is_accessible": lambda completed, startable, enemy=enemy: _combat_drop_gate_reachable(
+                        enemy,
+                        completed,
+                        startable,
+                    ),
+                }
+            )
+            continue
+        for item in items:
+            seed_sources[item].add(source_id)
             repeatable_seed_items.add(item)
 
     for row in constants.BIRD_NEST_DROP_TABLE:
@@ -1286,6 +1390,7 @@ def build_reachability_report() -> dict[str, Any]:
             quest_combat_source_satisfiable,
             claim_data=constants.CLAIM_DATA,
             maximum_skill_levels=maximum_skill_levels,
+            conditional_seed_sources=conditional_seed_sources,
             scenario_sources_out=scenario_sources,
         )
     )

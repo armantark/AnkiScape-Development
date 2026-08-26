@@ -4,6 +4,9 @@ from unittest.mock import patch
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core import constants
 from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
+from ankiscape.data import combat_data, shop_data
+from ankiscape.logic import shop_logic
+from ankiscape.logic_pure.logic_pure import combat_target_locked_reasons_pure
 from tools.audit_item_reachability import (
     _claim_item_sources,
     _close_actions,
@@ -700,19 +703,136 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         self.assertIsNone(report["routes"].get("Jade vine seed"))
 
+    def test_conditional_source_closure_unlocks_a_further_quest(self):
+        quest_data = {
+            "source_gate": {
+                "display_name": "Source Gate",
+                "rewards": {},
+                "stage_requirements": (),
+            },
+            "consumer": {
+                "display_name": "Consumer",
+                "rewards": {"Final reward": 1},
+                "stage_requirements": (
+                    {"stage": 1, "required_inventory": {"Gated drop": 1}},
+                ),
+            },
+        }
+        seed_sources = {}
+
+        _blocked, completed, _startable = _close_quest_reachability(
+            (),
+            seed_sources,
+            {},
+            set(),
+            quest_data,
+            {"Gated drop", "Final reward"},
+            lambda _encounter: True,
+            conditional_seed_sources=(
+                {
+                    "id": "combat:gated_target",
+                    "items": {"Gated drop"},
+                    "repeatable_items": {"Gated drop"},
+                    "is_accessible": lambda completable, _startable: (
+                        "source_gate" in completable
+                    ),
+                },
+            ),
+        )
+
+        self.assertEqual(completed, {"source_gate", "consumer"})
+        self.assertEqual(seed_sources["Gated drop"], {"combat:gated_target"})
+        self.assertEqual(seed_sources["Final reward"], {"quest:consumer"})
+
+    def test_unreachable_runtime_source_gates_seed_nothing(self):
+        gated_targets = {
+            "gorak": {
+                "stats": {"hitpoints": 1},
+                "drops": {"guaranteed": (("Gorak claws", 1),)},
+                "quest_gate": "a_fairy_tale_ii_cure_a_queen",
+                "quest_gate_state": "started",
+                "quest_gate_label": "Reach stage 5 of A Fairy Tale II - Cure a Queen",
+            },
+            "suqah": {
+                "stats": {"hitpoints": 1},
+                "drops": {"guaranteed": (("Suqah tooth", 1),)},
+                "quest_gate": "lunar_diplomacy",
+                "quest_gate_state": "started",
+                "quest_gate_label": "Start Lunar Diplomacy",
+            },
+            "glacor": {
+                "stats": {"hitpoints": 1},
+                "drops": {"guaranteed": (("Shards of armadyl", 1),)},
+                "quest_gate": "ritual_of_the_mahjarrat",
+                "quest_gate_label": "Complete Ritual of the Mahjarrat",
+            },
+        }
+        expected_locks = {
+            "gorak": ("Reach stage 5 of A Fairy Tale II - Cure a Queen",),
+            "suqah": ("Start Lunar Diplomacy",),
+            "glacor": ("Complete Ritual of the Mahjarrat",),
+        }
+        for target_id, locks in expected_locks.items():
+            with self.subTest(target=target_id):
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        {},
+                        target_id,
+                        gated_targets,
+                    ),
+                    locks,
+                )
+
+        baba_yaga = shop_data.SHOP_DATA["baba_yagas_magic_shop_afterquest"]
+        self.assertEqual(
+            shop_logic.shop_access_lock_reason_pure({"quests": {}}, baba_yaga),
+            "Requires Lunar Diplomacy",
+        )
+
+        with patch.dict(combat_data.COMBAT_ENEMY_DATA, gated_targets):
+            report = build_reachability_report()
+
+        for item_name in ("Gorak claws", "Suqah tooth", "Shards of armadyl"):
+            with self.subTest(item=item_name):
+                self.assertIsNone(report["routes"].get(item_name))
+        self.assertEqual(
+            report["routes"].get("Astral rune"),
+            "Runecrafting:craft_astral_runes",
+        )
+
+    def test_rune_essence_to_rune_dust_chain_remains_reachable(self):
+        registered_items = {
+            definition.storage_key for definition in ITEM_DEFINITIONS
+        }
+        _blocked, completed, _startable = _close_quest_reachability(
+            (),
+            {},
+            {},
+            set(),
+            {"rune_mysteries": QUEST_DATA["rune_mysteries"]},
+            registered_items,
+            lambda _encounter: True,
+        )
+        report = build_reachability_report()
+
+        self.assertEqual(completed, {"rune_mysteries"})
+        self.assertIn("Rune essence", report["routes"])
+        self.assertEqual(report["routes"].get("Rune shards"), "Utility:make_rune_shards")
+        self.assertEqual(report["routes"].get("Rune dust"), "Utility:grind_rune_shards")
+
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1600)
-        self.assertEqual(report["reachable_item_count"], 2468)
+        self.assertEqual(report["reachable_item_count"], 2360)
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 36)
-        self.assertEqual(report["root_orphan_count"], 32)
-        self.assertEqual(report["cascade_orphan_count"], 4)
-        self.assertEqual(report["unresolved_action_count"], 35)
-        self.assertEqual(report["seed_item_count"], 1218)
+        self.assertEqual(report["orphan_input_count"], 79)
+        self.assertEqual(report["root_orphan_count"], 40)
+        self.assertEqual(report["cascade_orphan_count"], 39)
+        self.assertEqual(report["unresolved_action_count"], 86)
+        self.assertEqual(report["seed_item_count"], 1118)
         self.assertFalse(
             [
                 row
@@ -889,10 +1009,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Fellstalk seed"],
             "Thieving:pickpocket_master_farmer",
         )
-        self.assertEqual(
-            report["routes"]["Cured yak-hide"],
-            "Shop service:thakkrad_cure_yak_hide",
-        )
+        self.assertNotIn("Cured yak-hide", report["routes"])
         self.assertEqual(
             report["routes"]["Black mushroom"],
             "Utility:gather_black_mushrooms",
@@ -1036,6 +1153,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
+        self.assertIn("Mining helmet (unlit)", orphan_items)
         for item_name in (
             "Candle lantern (empty)",
             "Candle lantern (unlit, 4529)",
@@ -1048,7 +1166,6 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Bullseye lantern (unlit)",
             "Sapphire lantern (empty)",
             "Sapphire lantern (unlit)",
-            "Mining helmet (unlit)",
             "Air orb",
             "Water orb",
             "Earth orb",
