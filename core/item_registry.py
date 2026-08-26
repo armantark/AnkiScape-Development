@@ -244,7 +244,17 @@ def build_item_definitions(
                 output_name = spec.get("output_item", target_key)
                 output_items = (output_name,) if isinstance(output_name, str) else ()
             for output_name in output_items:
-                add_definition(_definition(output_name, "hunter", "Hunter", {output_name: spec}, image_map))
+                output_spec = dict(spec)
+                extra_spec = extra_item_data.get(output_name) if extra_item_data is not None else None
+                if isinstance(extra_spec, Mapping):
+                    extra_source_item_id = _source_item_id(extra_spec)
+                    if extra_source_item_id is not None:
+                        output_spec["source_item_id"] = extra_source_item_id
+                    for flag in ("stackable", "tradeable"):
+                        value = extra_spec.get(flag)
+                        if isinstance(value, bool):
+                            output_spec[flag] = value
+                add_definition(_definition(output_name, "hunter", "Hunter", {output_name: output_spec}, image_map))
             for requirement_name in spec.get("requirements", {}):
                 if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                     add_material_definition(requirement_name, "Hunter material", image_map)

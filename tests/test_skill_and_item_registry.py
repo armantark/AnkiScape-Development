@@ -2178,6 +2178,25 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Wicked hood"].equipment_slot, "head")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
+    def test_hunter_bird_drops_keep_cache_identity_and_flags_in_registry(self):
+        expected = {
+            "Blue feather": (10089, True, True),
+            "Bones": (526, False, True),
+            "Orange feather": (10091, True, True),
+            "Raw bird meat": (9978, False, True),
+            "Red feather": (10088, True, True),
+            "Stripy feather": (10087, True, True),
+            "Wimpy feather": (11525, True, True),
+            "Yellow feather": (10090, True, True),
+        }
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, (item_id, stackable, tradeable) in expected.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.stackable, stackable)
+                self.assertEqual(definition.tradeable, tradeable)
+
     def test_hunter_extra_items_keep_rev_742_ids_and_stackability(self):
         expected = {
             "Bones": (526, False),
