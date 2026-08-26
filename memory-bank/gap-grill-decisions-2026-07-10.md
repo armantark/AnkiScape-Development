@@ -723,6 +723,11 @@ depletion, respawn, and paired-tree behavior from reconciled period evidence.
   forced by settled AnkiScape architecture. Resolve and batch those details in
   the audit. Reserve owner questions for genuine product choices where multiple
   reasonable options would materially change play.
+- The Slayer grill reaffirmed this bar on 2026-07-15, when a protective-equipment
+  question was rejected as obvious. Period evidence, the parity standard,
+  existing application patterns, and prior owner decisions determine harvest
+  and implementation work even when a skill contract is silent. Decide those
+  cases autonomously with citations. Only literal source gates may hard-block.
 - Present each genuine fork directly, without a preamble. After the minimum
   source check, ask the question, record and commit the answer, and immediately
   present the next fork in the same turn. Stop only when the grill is complete
