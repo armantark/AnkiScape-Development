@@ -130,7 +130,6 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     required_quest = claim.get("required_quest")
     if required_quest and not quest_completed_pure(player_data, str(required_quest)):
         reasons.append("quest")
-    inventory = player_data.get("inventory", {}) or {}
     required_tools = claim.get("required_tools", ()) or ()
     if isinstance(required_tools, Mapping):
         required_tools = required_tools.items()
@@ -138,7 +137,11 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
         if not isinstance(tool, (tuple, list)) or len(tool) < 2:
             continue
         tool_name, quantity = tool[0], _positive_int(tool[1], 0)
-        if isinstance(tool_name, str) and quantity > 0 and inventory.get(tool_name, 0) < quantity:
+        if (
+            isinstance(tool_name, str)
+            and quantity > 0
+            and not _has_quest_tool(player_data, tool_name, quantity)
+        ):
             reasons.append(tool_name)
     required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
     if required_level > 1 and _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
