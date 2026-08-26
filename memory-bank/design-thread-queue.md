@@ -1183,36 +1183,19 @@ another handler that must be retrofitted.
 
 ### 5.2 Post-cutoff art — measured, and mostly deliberate
 
-**This entry replaces an earlier version that called the art a defect needing a
-provenance check. That was wrong, and the numbers say so.**
+`assets_provenance.json` holds 4,046 entries. Of these, 616 have a post-cutoff
+timestamp. This is 15.2 percent of the library.
 
-`assets_provenance.json` holds 3,665 entries. 3,026 of them (83%) carry a
-post-cutoff timestamp. A check that failed on "timestamp after 2012-11-20" would
-therefore fail most of the asset library, which makes it useless as a gate.
+The two images from the frontier audit now have different states:
 
-The breakdown is what matters:
+- `woodcuttingitems/evil_tree_kindling.png` is still a modern asset.
+- `runecraftingitems/wicked_hood.png` now has a 2011 timestamp.
 
-| source_wiki | count | what it means |
-| --- | --- | --- |
-| `osrs` | 1,518 | Old School launched in 2013, so every OSRS image is post-cutoff by construction. Using it is a deliberate visual choice, not drift. |
-| `rs3` | 1,499 | Modern RS3 art. This is the bucket worth caring about, because RS3 reworked graphics heavily after EOC. |
-| `*-visual-fallback` | 9 | Already labelled as fallbacks. |
-| pre-cutoff (`rs3`, `rs3-period`, `rs3-fandom-period`) | 639 | Period art. |
+**Verdict: DEFERRED DATA DEPTH.** Do not treat this item as a breadth blocker.
+The remaining asset work is data harvesting, not missing mechanics.
 
-The two images the frontier audit named are in the modern-RS3 bucket:
-`woodcuttingitems/evil_tree_kindling.png` (2020-11-24) and
-`runecraftingitems/wicked_hood.png` (2019-12-01).
-
-**Recommendation: defer this, and do not treat it as a breadth blocker.**
-Replacing 1,499 modern-RS3 images is exactly the "slow data harvesting" the
-programme says to defer until every family is mechanically complete. Blocking
-Evil Tree and Wicked hood on criterion 7 while thirty families have no mechanics
-at all inverts the programme's own priority.
-
-When it is taken up, the useful gate is narrow rather than global: assert that
-the small set of **visible family and activity icons** uses period or OSRS art
-rather than modern RS3, since those are the images a player actually looks at.
-A blanket provenance check is not the tool.
+When this work starts, use a narrow gate for visible family and activity icons.
+A blanket timestamp gate is not useful for deliberate visual fallbacks.
 
 ## 5. What this round showed about our records
 
@@ -1542,15 +1525,14 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
   All six `PLACEHOLDER(hunter.jadinko_multi_secondary_tables)` markers are
   retired; Camouflaged remains separate under section 3.28.
 
-### 3.35 Melee/ranged Vengeance parity — recorded fork, not scheduled
+### 3.35 Melee/ranged Vengeance parity — COMPLETE
 
-Raised 2026-08-23 by the Pass 11 `runes` slice. The owner's ruling gates all
-rune handling on an effective magic combat class, so Vengeance is disabled end
-to end for melee and ranged. Period parity note: at 94 Magic on Lunars, a
-melee player could carry Vengeance runes and cast it beside melee swings. If
-the owner ever wants that tactic, the fork is a deliberate carve-out from
-ruling 4 of the Pass 11 brief: a Vengeance-only rune-carry path for non-magic
-classes. Until then the current behavior is settled and correct.
+The owner's ruling gates rune handling on an effective magic combat class.
+Thus, Vengeance is disabled for melee and ranged classes. In the period game,
+a melee player at 94 Magic could cast Vengeance beside melee swings.
+
+**Verdict: COMPLETE.** The current behavior is settled and correct. Reopen this
+entry only if the owner requests a Vengeance carve-out for non-magic classes.
 
 ### 4.17 Owner rulings of 2026-08-22 — four forks closed
 
@@ -1913,36 +1895,18 @@ design thread. It carries full authority.
 - **After this goal:** 4.18 expires with the goal. This ruling is an outage
   contingency and does not set standing model policy beyond the active goal.
 
-### 5.5 Four quests grant conditional post-quest rewards unconditionally
+### 5.5 Conditional post-quest rewards — three complete, one blocked
 
-Raised 2026-08-25 from the reward-work branch review. Four quests grant a reward
-at completion that the source gives only after a later condition. Nothing
-implements a one-time post-quest claim, so the runtime hands the reward over
-unconditionally. Members, each with its citation:
+The repairs for three quests are complete and landed:
 
-- `cabin_fever` grants 10,000 Coins at completion. Cabin Fever,
-  oldid=6533785: "10,000 coins (only if you speak to Bill Teach after the
-  quest)".
-- `rocking_out` grants Magical cage at completion. Rocking Out,
-  oldid=6521879: "Receive Magical cage by talking to Bill Teach after the
-  quest."
-- `do_no_evil` grants Clue scroll (elite) at completion. Do No Evil,
-  oldid=6587790: "Find one \"free\" Clue scroll (elite) with Ava's Alerter.
-  This Clue scroll can be found in either Meiyerditch, on the Iceberg, in
-  Isafdar or on Lunar Isle." See also blocked owner fork 3.4, which covers the
-  same scroll's permanent-loss path.
-- `the_golem` has no route at all to its six-gem throne reward. The Golem,
-  oldid=6543894: "As an extra reward, use your chisel on Thammaron's throne -
-  with a hammer in your inventory, to get six gems - 2 Rubies, 2 Emeralds, and
-  2 Sapphires". Measured on the branch: all `the_golem` stage outputs are
-  empty, no claims and no utility entries exist, and completion grants nothing.
+- Cabin Fever
+- Rocking Out
+- The Golem
 
-**Why deferred, not fixed:** the first three quests over-grant today. Deleting
-a real player-facing reward is the worse failure, so the class stays recorded
-instead of patched blind.
+Do No Evil remains blocked on the owner decision in entry 3.4. That entry owns
+the claim and permanent-loss behavior for its elite clue scroll.
 
-**Needs an owner decision** on the mechanism before any slice work: a one-time
-post-quest claim, a new action, or both. This entry is not scheduled work.
+**Verdict: BLOCKED OWNER DECISION for Do No Evil only.**
 
 ### 5.6 47 non-item reward occurrences across 24 quests — typed reward model proposed, not decided
 
@@ -1963,19 +1927,19 @@ parser hazard that makes row-by-row correction fragile.
 This is an architecture decision for the owner and the design thread. Do not
 schedule it as slice work.
 
-### 5.7 Hunter tool stackability flags mark non-stackable tools stackable
+### 5.7 Hunter tool cache data — COMPLETE
 
-Raised 2026-08-25 from the reward-work branch review. Pre-existing on canonical
-main and unrelated to the reward work; it surfaced because a quest began
-granting a box trap again.
+All seven named Hunter tools now keep their cache IDs and `stackable=False`:
 
-`data/hunter_data.py:1513` sets `"stackable": item_name not in {"Marasamaw plant", "Rope"}`.
-That marks every other Hunter tool stackable, including Box trap 10008, Bird
-snare 10006, Butterfly net 10010, Noose wand 10150, Teasing stick 10029,
-Rabbit snare 10031, and Small fishing net 303. The rev-742 cache gives Box trap
-10008 as stackable=false. None of these tools stack in the period game.
+- Box trap 10008
+- Bird snare 10006
+- Butterfly net 10010
+- Noose wand 10150
+- Teasing stick 10029
+- Rabbit snare 10031
+- Small fishing net 303
 
-Deferred with the rest of this round's records; no slice scheduled.
+**Verdict: COMPLETE.**
 
 ### 5.8 Ox Alpha route removal reversed — ruled directly by the owner
 
@@ -2007,44 +1971,19 @@ the design thread. It carries full authority.
 This ruling supersedes the fallback move made under 4.20 for this incident. It
 does not change 4.20 itself: that contingency stays valid for a real outage,
 confirmed by repeated failure or by the owner.
-### 5.9 Three findings were recorded without fixes — 2026-08-25
+### 5.9 Two findings landed; one observation remains — 2026-08-25
 
-Two commits landed with three findings. A closing audit found that two findings
-are unblocked work.
+**Claim tool resolver: COMPLETE.** The resolver now uses the selected quest-tool
+contract. It checks inventory, equipment, and the applicable toolbelts.
 
-**Claim tool gate violates the selected quest-tool contract.**
-`logic_pure/logic_pure_claims.py:133-141` reads `player_data["inventory"]` only.
-Quest-stage tool requirements resolve through `_has_quest_tool` at
-`logic_pure/logic_pure_quest.py:485-511`. That function also checks equipment
-slots and the mining and woodcutting toolbelt. This queue has selected
-`_has_quest_tool` as the claim contract. The current resolver violates that
-contract. This is unblocked work, not safe latent work. Route the claim gate
-through `_has_quest_tool`.
+**Hunter cache flags: observation only.** The cache flag map remains
+hand-transcribed. The repository does not require generated output for this map,
+so this observation needs no implementation.
 
-**Hunter cache flags are hand-transcribed.**
-`data/hunter_data.py:1352-1394` holds `_HUNTER_EXTRA_ITEM_STACKABLE_BY_ID`,
-typed by hand from cache output rather than generated. Drift protection is
-indirect: the regression pins a second copy of all 38 id and flag pairs, so a
-wrong edit must corrupt two files together to pass. This matches repository
-convention — the gen_item_values.py dump is also committed, though that one is
-machine generated. Fix if wanted: emit this map through the same generation
-pipeline.
+**Hunter registry precedence: COMPLETE.** The registry now preserves the
+authoritative IDs and stackability values for the eight recorded items.
 
-**Eight Hunter items lose authoritative registry data.** The measured mismatch
-set is:
-
-- Blue feather
-- Bones
-- Orange feather
-- Raw bird meat
-- Red feather
-- Stripy feather
-- Wimpy feather
-- Yellow feather
-
-All eight items lose their source ids. Bones and Raw bird meat also change from
-authoritative `stackable=False` to registry `True`. This registry-precedence
-defect is unblocked work.
+**Verdict: COMPLETE.** No implementation remains from this entry.
 
 ### 5.10 Queue audit found an accepted slice never merged — unblocked work remains
 
@@ -2124,18 +2063,19 @@ quest closure. Every pinned count must be recomputed afterwards.
 Stated plainly: until this is fixed, a green reachability audit is not evidence
 that a player can obtain an item.
 
-### 5.13 Quest-combat guaranteed drops are inert — engine gap
+### 5.13 Quest-combat guaranteed drops are inert — implementation in progress
 
-Found while this work was in progress. `QuestCombatEncounter` has no
-guaranteed-drop field, and `_quest_combat_enemy_spec` at
-`logic_pure/logic_pure_quest.py:649` hardcodes an empty drop table. A declared
-guaranteed drop on a quest-combat encounter is therefore never awarded.
+`QuestCombatEncounter` has no guaranteed-drop field, and
+`_quest_combat_enemy_spec` hardcodes an empty drop table. A declared guaranteed
+drop on a quest-combat encounter is therefore never awarded.
 
     constructed encounter guaranteed_drops= {'Herb pouch': 1}
     runtime enemy drops= {'guaranteed': (), 'tables': ()}
     kill_ok= True killed= True Herb pouch after kill= 0 drops= {}
 
-This must be closed before any quest awards an item through a combat encounter.
+**Verdict: UNBLOCKED SETTLED WORK.** The contract is generic and independently
+implementable. Work is in progress on branch
+`goal/quest-combat-drops-2026-08-26`.
 
 ### 5.14 Glacor combat data remains unsourced — open sourcing gap
 
@@ -2170,11 +2110,21 @@ The precedent argued against the change it was cited to support.
 Lesson: a cited precedent must be read, not trusted. This one was caught only
 because a reviewer opened the file.
 
-### 5.16 Closing audit found three unblocked settled items — 2026-08-26
+### 5.16 Closing audit found three unblocked settled items — COMPLETE
 
-A closing audit at main 258513ef found three unblocked settled items. The work is
-now dispatched:
+A closing audit at main 258513ef found three unblocked settled items. All three
+slices are merged into main 4872017d:
 
 - Claim tool gate: `goal/claim-tool-gate-2026-08-26`
 - Hunter registry precedence: `goal/hunter-registry-2026-08-26`
 - Rune shard chain: `goal/rune-shards-2026-08-26`
+
+**Verdict: COMPLETE.**
+
+### 5.17 Closing audit found one unblocked item — 2026-08-26
+
+A closing audit at main 4872017d examined every open entry. It found one
+unblocked item, entry 5.13, and dispatched it to
+`goal/quest-combat-drops-2026-08-26`. No other `goal/*` branch holds unmerged
+accepted work, apart from three branches already recorded as superseded or
+abandoned.
