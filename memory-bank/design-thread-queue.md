@@ -2157,3 +2157,34 @@ On 2026-08-25, the orchestrator declared the route dead after one 400 error and
 removed the configuration. That decision was wrong. On 2026-08-26, the
 orchestrator required three failures across separate attempts and then queried
 the provider's catalogue directly before it acted. Keep the second procedure.
+
+### 5.19 Canonical main bypassed the promotion gate — incident record — 2026-08-26
+
+**Classification:** Incident record. This entry does not schedule repair work.
+
+Canonical main moved from `67257a8e` to `9aa0d153` without passing the
+promotion gate. Five direct commits, all authored by `armantark`, landed between
+12:35:19 and 12:39:09 on 2026-08-26:
+
+- `0ae8ca85` — docs: preserve owner design rulings outside auto-memory
+- `f26842c5` — docs: preserve the source-determined grill question bar
+- `176ad4b2` — docs: preserve verification doctrine as auto-memory retires
+- `ee5cc715` — docs: preserve sourcing rules outside auto-memory
+- `9aa0d153` — docs: retain AnkiScape operating knowledge outside auto-memory
+
+The reflog records each change as a commit entry, not as a merge entry. Thus,
+the commits did not pass `tools/promotion_gate.py`.
+
+The diff contains 12 files, 389 insertions and 19 deletions. All changes are
+Markdown files under `memory-bank/`. No file under `data/`, `core/`, `logic/`,
+`logic_pure/`, `runtime/`, `ui/`, `tools/` or `tests/` changed. The risk that
+main holds an unverified tree is low because no code changed. The gate was
+still bypassed.
+
+A documentation-only bypass is the mildest form of this event. The same path
+would carry code just as easily.
+
+Work branched from `67257a8e` must now merge current main before it can land.
+The gate refuses to land a tree whose parent main has moved. This is normal
+promotion work, not a repair. This incident record does not alter the five
+commits.
