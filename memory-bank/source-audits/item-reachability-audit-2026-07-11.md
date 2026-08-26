@@ -39,6 +39,40 @@ Period implementation evidence: `game-main/plugins/src/main/kotlin/gg/rsmod/plug
 
 These buckets are now explicit dependencies. They should not be “fixed” by seeding free items or inventing recipes.
 
+## Herblore strict-source boundary
+
+The standing acquisition rule is: “I never said I wanted secondaries in a
+shop... I want strict parity with the game. Secondaries should be obtained the
+same way as in the real game, no exceptions. Also no, do not link anything to
+Java. Just pull.” Transcribe and cite the implementation evidence; do not run
+its Java price or regeneration toolchain, including
+`load_darkan_shop_price_inputs`, and do not make an input reachable by inventing
+shop stock or wiring an unused table.
+
+The 2026-07-08 game-main audit found one authentic combat herb source,
+`Herbs.minorHerbTable`: 11 grimy herbs, wired as
+`COMBAT_MINOR_HERB_DROP_TABLE` on 61 enemies. `Herbs.usefulHerbTable` declares
+grimy avantoe, snapdragon, ranarr, and torstol but is referenced by no game-main
+NPC, so it remains unwired. Grimy toadflax, spirit weed, wergali, and fellstalk
+also had no combat-NPC source and remain dependent on their authentic Farming
+routes.
+
+The same audit found that the 15 Herblore secondaries, Wine of zamorak, Potato
+cactus, Desert goat horn, Blue dragon scale, Bird's nest, Kebbit teeth, Toad's
+legs, Mort myre fungus, Papaya, Phoenix feather, Wyvern bonemeal, Jangerberries,
+Morchella, Frog spawn, and Mud rune, came from ground spawns, telegrab, Hunter,
+Summoning, or Farming rather than the modeled combat roster. Mud rune had a
+Living rock protector drop, but that NPC was not modeled. At that audit point,
+about 16 of 35 standard finished potions were reachable through authentic
+combat drops and existing Darkan shops: the Attack, Strength, Defence, Prayer,
+Restore, Energy, and Antipoison lines; Super attack, Super strength, Super
+defence, Fishing, Weapon poison, Extreme attack, Extreme strength, and Extreme
+defence. The rest, plus barbarian, juju, and Dungeoneering potions, stayed
+naturally input-starved until their owning routes shipped. The economy phase
+therefore required zero code changes. Use Attack potion or Super attack for an
+end-to-end craftability check, not Combat potion, which requires starved Goat
+horn dust.
+
 ## Known instrument blind spot — claim grants (2026-08-22)
 
 `tools/audit_item_reachability.py` does not read `CLAIM_DATA` or traverse the

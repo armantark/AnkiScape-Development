@@ -29,6 +29,15 @@ coverage when the historical pages cannot establish server behavior.
   that need its missing server behavior should remain parked rather than ship a
   plausible substitute.
 
+`game-main` is an incomplete rev-667 snapshot, so a stub or omission there does
+not prove that authentic pre-EOC content was absent. When a pinned wiki revision
+before `2012-11-20` establishes the content, use `tools/wiki_parity.py` to resolve
+and cite the `oldid`, then implement the independently established detail. Keep
+unstated server rolls, timers, and hidden state `source_blocked` rather than
+filling them from inference. A sourced action or recipe may ship naturally
+input-starved when its authentic acquisition route is not modeled yet; do not
+omit the content, invent a source, or add a substitute gate.
+
 ## Provisional Calibration of Blocked Rolls
 
 Amended 2026-07-13 by owner decision. Applies only to a **hidden probability**
@@ -106,6 +115,8 @@ number. Go to the implementations first, then prove what you found.
 3. **game-main (2011Scape, rev 667).** Independent implementation evidence;
    valuable precisely because it was reconstructed separately from Darkan, so
    agreement between the two is real corroboration and disagreement is a flag.
+   The labels `game-main` and `2011Scape` identify the same local checkout, not
+   two independent implementations.
 4. **The remaining dated caches** (728, 729, 736, 741, 742). Use the newest for
    the closest-to-cutoff state, and the spread when a date of introduction or a
    configuration change matters.
@@ -178,19 +189,33 @@ for example `extracted/742-2012-11-07/cache/`. The zips are kept alongside them
 as the immutable originals the SHA-256s above attest to; the extracted trees are
 disposable and can be regenerated with `unzip -q <zip> -d extracted/<rev>-<date>`.
 
-A cache proves what the *client* shipped — object, NPC, and item identities,
-names, and interaction options in a given build. It cannot prove XP, rolls,
-timers, or any other server-side value. Caches corroborate; they do not supply.
+A cache proves what the *client* shipped: object, NPC, and item identities,
+names, interaction options, interface definitions, and client-owned CS2
+behavior in a given build. It can directly supply those client facts. It cannot
+prove XP, rolls, timers, or any other server-side value, for which it remains
+corroboration only.
 
-Four tools read them. `tools/query_openrs2_cache.sh` searches **item**
-definitions; `tools/query_openrs2_cache_definitions.sh <cache> <npc|object>`
-searches **NPC and object** definitions, while its `--id` and `--params` modes
-print exact rows and deterministic client parameters;
-and `tools/query_openrs2_cache_configs.sh <cache> <enum|struct|param>` counts,
-dumps, or searches the corresponding client configuration definitions.
+Four tools read definitions and interfaces. `tools/query_openrs2_cache.sh`
+searches **item** definitions;
+`tools/query_openrs2_cache_definitions.sh <cache> <npc|object>` searches **NPC
+and object** definitions, while its `--id` and `--params` modes print exact rows
+and deterministic client parameters; and
+`tools/query_openrs2_cache_configs.sh <cache> <enum|struct|param>` counts, dumps,
+or searches the corresponding client configuration definitions.
 `tools/query_openrs2_interfaces.sh` counts, dumps, and searches index-3 client
 interface components. All four accept either a zip or an extracted cache
 directory and never modify it.
+
+For interface arithmetic, displayed formats, rounding rules, and tooltip
+thresholds, inspect the relevant CS2 with
+`tools/OpenRs2Cs2Disassembler.java` before classifying a value as
+`source_blocked` or `provisional/<emulator>`. Rev 727 is the only local build
+that decodes symbolically because Jagex renumbered the opcode table in later
+builds; confirm later revisions structurally through hook bytes, script length,
+and constant offsets. `source-audits/ge-offer-price-controls-2026-07-24.md`
+records the worked interface-105/script-4112/varc-85 example and the boundary
+between client-owned evidence and unrecoverable server behavior.
+
 The config reader is verified against all seven dated caches, including exact
 rev-727 enum, struct, and param fixtures. Cache configuration still proves only
 client-shipped data; a numeric row is not evidence of a server mechanic merely

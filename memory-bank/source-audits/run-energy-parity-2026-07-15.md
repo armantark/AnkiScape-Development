@@ -61,6 +61,8 @@ Its exact per-tick recovery candidates are linear interpolation by Agility level
 
 A 2023 2011Scape commit changed the same file from the Darkan-style formula family to the present Model A family with the message that run-energy depletion and restoration had changed in 2009. This is useful reconstruction provenance, but it is a modern emulator-maintainer judgment rather than contemporaneous RuneScape evidence. ([2011Scape/game commit `d7c427039602832fce68cfe3a40262dc5f5df4d4`, 2023-03-06T20:35:16Z](https://github.com/2011Scape/game/commit/d7c427039602832fce68cfe3a40262dc5f5df4d4))
 
+Owner decision on 2026-07-15: model carried weight per skill rather than flattening it, and ship the magnitude as a labeled bounded abstraction. The smoothed steady-state anchor is an emulator-derived approximately `+10.85%` run-speed gain from Agility 1 to 99 at 0 kg. It is a calibration target, not period truth.
+
 ### Model B: exact local behavior and why it loses the parity fork
 
 Darkan debits `(min(weight, 64) / 100) + 0.64` when a second running step exists; no Agility term or lower weight floor appears in that debit. (`/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/model/entity/Entity.java:758-789`)
@@ -104,6 +106,8 @@ The revision-652 decoder returned no usable name or client parameters for IDs 14
 The closest pre-freeze Wiki nevertheless supplies the live item sign independently: Agile top is **-12 kg** and Agile legs are **-10 kg**. ([oldid 6512729, revision timestamp 2012-10-31T17:47:14Z](https://runescape.wiki/w/Weight?oldid=6512729))
 
 The suspected sign anomaly exists in Darkan's server-side JSON on adjacent duplicate IDs, not the primary item IDs: 14936 is -12.0 while 14937 is +12.0, and 14938 is -10.0 while 14939 is +10.0. The server loads item weight from that JSON and only applies negative weight when the item is equipped. (`/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/config.json:167904-167945`; `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/utils/ItemConfig.java:34-45`; `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/utils/ItemConfig.java:131-138`)
+
+The period equipment boundary also uses Boots of lightness at approximately `-4.5 kg`, and each Runecrafting pouch at `1.0 kg` while carried essence contributes `0 kg`. Graceful is excluded because it was released on `2013-12-05`, after the freeze. The Agile set remains `-22 kg` total from top 14936 at `-12 kg` and legs 14938 at `-10 kg`. ([oldid 6512729, revision timestamp 2012-10-31T17:47:14Z](https://runescape.wiki/w/Weight?oldid=6512729))
 
 ### CS2
 
