@@ -1182,3 +1182,5 @@
 - 2026-08-26 14:34 PDT — `git diff --word-diff` on one-line generated `data/shop_data.py` still emitted a 2 MB diff; verify its parsed records or compare extracted access entries instead.
 - 2026-08-26 14:52 PDT — Capturing the full unittest suite with a shell exit code failed because zsh reserves the read-only variable `status`; use `rc` for portable wrapper commands.
 - 2026-08-26 15:11 PDT — The final generated-shop comparison assumed `SHOP_DATA` was an `ast.Assign`, but the catalogue uses an annotated assignment; generated-data parsers must accept `ast.AnnAssign`.
+- 2026-08-26 16:04 PDT — Updating the four requested reachability pins left `seed_item_count` stale and failed with `AssertionError: 1125 != 1106`; repeatable quest products become seed sources, so remeasure secondary baselines after closure semantics changes.
+- 2026-08-26 16:15 PDT — The first commit attempt failed with `ccn-gate: cyclomatic complexity above 15 was introduced: tools/audit_item_reachability.py: _stage_satisfiability CCN 17 (was 16)` because one semantic guard crossed the configured cap; use branch-free input selection in already capped functions.

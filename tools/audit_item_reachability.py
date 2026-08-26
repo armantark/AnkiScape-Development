@@ -399,7 +399,11 @@ def _stage_satisfiability(
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool],
 ) -> dict[str, Any]:
     required_items = _item_counts(stage.get("required_inventory"))
-    for item_name, amount in _item_counts(stage.get("consumed_inventory")).items():
+    consumed_inventory = (
+        stage.get("consumed_inventory"),
+        None,
+    )[bool(stage.get("repeatable_until_consumed"))]
+    for item_name, amount in _item_counts(consumed_inventory).items():
         required_items[item_name] = max(required_items.get(item_name, 0), amount)
     required_tools = _item_counts(stage.get("required_tools"))
     required_actions = _names(stage.get("required_actions"))
@@ -1257,6 +1261,7 @@ def build_reachability_report() -> dict[str, Any]:
             startable_quests,
             reachable_items,
             quest_progress,
+            include_inventory=True,
         )
         if skill_id == "magic":
             player_data = magic_player_data(

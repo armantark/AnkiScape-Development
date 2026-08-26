@@ -16,6 +16,7 @@ from tools.audit_item_reachability import (
     _close_quest_reachability,
     _quest_completion_sets,
     _quest_stage_sources,
+    _stage_satisfiability,
     build_reachability_report,
 )
 
@@ -807,6 +808,35 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Utility:utility_material_options",
         )
 
+    def test_utility_gate_probe_has_reachable_materials(self):
+        report = build_reachability_report()
+
+        self.assertEqual(
+            report["routes"].get("Bullseye lantern (lit)"),
+            "Utility:light_bullseye_lantern",
+        )
+        self.assertNotIn(
+            "Utility:light_bullseye_lantern",
+            {row["id"] for row in report["unresolved_actions"]},
+        )
+
+    def test_repeatable_stage_does_not_require_its_consumed_item(self):
+        gate = _stage_satisfiability(
+            {
+                "stage": 1,
+                "consumed_inventory": {"Clean snake weed": 1},
+                "produced_inventory": {"Grimy snake weed": 1},
+                "repeatable_until_consumed": True,
+            },
+            {},
+            set(),
+            set(),
+            set(),
+            lambda _encounter: True,
+        )
+
+        self.assertEqual(gate["missing_required_items"], {})
+
     def test_raw_started_action_gate_opens_when_quest_can_start(self):
         quest_data = {
             "started_gate_test": {
@@ -1324,15 +1354,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1600)
-        self.assertEqual(report["reachable_item_count"], 2131)
+        self.assertEqual(report["reachable_item_count"], 2173)
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 219)
+        self.assertEqual(report["orphan_input_count"], 199)
         self.assertEqual(report["root_orphan_count"], 44)
-        self.assertEqual(report["cascade_orphan_count"], 175)
-        self.assertEqual(report["unresolved_action_count"], 336)
-        self.assertEqual(report["seed_item_count"], 1106)
+        self.assertEqual(report["cascade_orphan_count"], 155)
+        self.assertEqual(report["unresolved_action_count"], 299)
+        self.assertEqual(report["seed_item_count"], 1125)
         self.assertFalse(
             [
                 row
