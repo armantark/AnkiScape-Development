@@ -1,5 +1,7 @@
 # Active Context
 
+Last staleness sweep: 2026-08-26
+
 ## Skeletal Wyvern re-land verified — 2026-08-19
 
 The three-commit 2026-08-11 Skeletal Wyvern family is merged with `main`
@@ -108,14 +110,12 @@ five clean and unfinished gates were usable. The merge's main parent
 measures `1584 / 2334 / 50 / 35 / 15 / 53 / 1104`; and the merged tree measures
 `1598 / 2369 / 38 / 34 / 4 / 37 / 1123` for actions / reachable items / orphan
 inputs / root orphans / cascade orphans / blocked actions / seed items.
-**Correction 2026-08-22:** that merged-tree figure is superseded; the live pins at
-`tests/test_item_reachability_audit.py:560-566` and the audit tool now read `1599 /
-2370 / 38 / 34 / 4 / 37 / 1123` — the later Camouflaged jadinko tracker added one
-action and one reachable item after this record was written. Action
-count and reachable-item count exceed both parents. Orphan inputs, root orphans,
-cascade orphans, and blocked actions are lower than both parents, not higher.
-Seed count equals main's `1123` and exceeds only the herb parent's `1104`; the
-merge retains main's larger seed universe rather than summing branch deltas.
+**Correction 2026-08-26:** the live pins at
+`tests/test_item_reachability_audit.py:706-715` and the audit tool now read `1600 /
+2468 / 36 / 32 / 4 / 35 / 1218`. These are the instrument's action, reachable-item,
+orphan-input, root-orphan, cascade-orphan, unresolved-action, and seed-item
+counts. Queue entry 5.12 proves that the instrument still credits inaccessible
+combat drops and shop stock, so these figures do not prove player acquisition.
 Item `19971` uses its period name, Withered vine, and the exact 28×25 cutoff
 inventory sprite. Vine-herb disease uses the registered
 `farming.shared_disease_slots` placeholder because Darkan's generic selector does
@@ -3521,18 +3521,18 @@ them.
 
 ## Current Truth
 
-- `skill_registry.py` has 19 complete skill surfaces, five partial Combat-trained skills, and one planned skill.
+- `core/skill_registry.py` has 19 complete skill surfaces and six partial trainable skills; it has no planned skill surface.
 - Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, Thieving, Agility, Slayer, and Summoning.
 - Partial through unified Combat: Attack, Strength, Defence, Constitution, and Ranged.
-- Planned: Dungeoneering.
+- Partial through Daemonheim floors: Dungeoneering.
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.
-- The current reachability audit reports 1,200 actions and 273 orphan inputs
-  (110 root, 163 cascade). Bob Barter's quantity-free decant
-  routes turn the former four-dose potion roots into known-producer cascades;
-  their remaining availability follows upstream herb and secondary acquisition.
-  These are acquisition-program signals rather than Agility closure failures.
+- The current reachability instrument reports 1,600 actions, 2,468 reachable
+  items, 36 orphan inputs (32 root and four cascade), 35 unresolved actions, and
+  1,218 seed items. Queue entry 5.12 proves that inaccessible combat drops and
+  shop stock can still enter this ledger, so its output is a diagnostic signal,
+  not proof that a player can acquire an item.
 
 ## Bob Barter Closure — 2026-07-15
 

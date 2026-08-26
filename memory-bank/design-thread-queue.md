@@ -118,7 +118,7 @@ restating the beat counts.
 Raised 2026-08-22 while applying the one-clue ownership rule to quest rewards.
 This is an owner-only decision; the current behaviour is unchanged.
 
-At `logic_pure/logic_pure_quest.py:1470`, `apply_quest_progress_pure`
+At `logic_pure/logic_pure_quest.py:1522`, `apply_quest_progress_pure`
 filters Do No Evil's rewards against the post-stage player data. Reproduction:
 put the player at Do No Evil stage 9 with its required action complete and
 `{"Clue scroll (easy)": 1}` in the inventory, then call
@@ -619,10 +619,10 @@ hide inside the audit.
   `['Deliver the strange talisman to Sedridor']`.
 - **Direct downstream blocks:** the Wicked hood claim inherits
   `ClaimDefinition.required_quest = RUNE_MYSTERIES_ID` from
-  `data/quest_data.py:978` because its row at `data/quest_data.py:9668-9674`
+  `data/quest_data.py:1052` because its row at `data/quest_data.py:10244-10250`
   does not override the field; the `rune_essence` Mining target is gated by the
-  quest at `data/quest_data.py:9438`; and Lunar Diplomacy requires Rune Mysteries
-  at `data/quest_data.py:3462`, which in turn withholds its Lunar Spellbook and
+  quest at `data/quest_data.py:10014`; and Lunar Diplomacy requires Rune Mysteries
+  at `data/quest_data.py:3571`, which in turn withholds its Lunar Spellbook and
   Astral Altar unlocks, including the `craft_astral_runes` target.
 
 The next quest agent should add a real runtime emitter for the exact action and
@@ -691,7 +691,7 @@ queue for quest slices, not a reason to relax the reachability gate.
     same search-and-read steps with Beaten book id `9717`, while Slashed book
     remains id `9715`; rev-727 and rev-742 cache definitions and game-main's
     item table preserve the same two identities. The cleanup row at
-    `data/quest_data.py:7924` instead invents slashing the Beaten Book in the
+    `data/quest_data.py:8405` instead invents slashing the Beaten Book in the
     workshop and produces `Slashed book`. This needs a source-correction slice,
     not reachability for the reported action.
 - **Elemental Workshop III** (`elemental_workshop_iii`)
@@ -779,10 +779,10 @@ inert row gated on a state no player reaches. This entry records the defect and
 an open design fork; it does not choose or implement a repair.
 
 - **Broken runtime path:** `apply_quest_route_choice_pure` at
-  `logic_pure/logic_pure_quest.py:425-457` is the only production writer of
+  `logic_pure/logic_pure_quest.py:427-459` is the only production writer of
   route values in `quest_route_states`. It accepts a route only when a
   registered `QuestChoice` for the current stage offers the same `route_id`;
-  otherwise `logic_pure/logic_pure_quest.py:432-440` returns
+  otherwise `logic_pure/logic_pure_quest.py:434-442` returns
   `(player_data, False)`. The Quests tab likewise creates a route button only
   inside the loop over a `QuestChoice` option at
   `ui/ui_tab_quests.py:392-405`. A stage can therefore require a route that the
@@ -1494,8 +1494,8 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
 
 ### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17
 
-- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:693` for Herblore, `runtime/runtime_actions_gathering.py:668` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
-- **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:307`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
+- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:691` for Herblore, `runtime/runtime_actions_gathering.py:668` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
+- **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:319`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
 
 ### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
 
@@ -1556,8 +1556,8 @@ carries full authority.
    completes. The shipped one-shot search model and the Shattered Heart
    herb-protection exemption are removed together.
 4. **3.27 answered: shared hook.** Output-replacement eligibility moves into
-   the shared hook at `logic/shattered_heart_logic.py:307`. The four callers
-   (`runtime/runtime_actions_production.py:693`,
+   the shared hook at `logic/shattered_heart_logic.py:319`. The four callers
+   (`runtime/runtime_actions_production.py:691`,
    `runtime/runtime_actions_gathering.py:668`, `:911`, `:1061`) route through
    it, so a future rock-eligible skill cannot silently regain the
    untradeable-output defect.
@@ -1626,10 +1626,10 @@ is **not scheduled work** and is not a quest-by-quest task list.
   set of strings. Testing either a reward tuple or a reward name directly with
   `value not in ITEM_DEFINITIONS` compares unlike types and flags every value.
   The catalog also self-registers raw quest reward strings:
-  `data/quest_data.py:10078-10090` emits each raw `item_name`,
-  `core/constants.py:1411` loads that output,
-  `core/constants.py:2643-2655` merges it into extra item data, and
-  `core/constants.py:2777` builds the final registry. The final registry is
+  `data/quest_data.py:10468-10480` emits each raw `item_name`,
+  `core/constants.py:1413` loads that output,
+  `core/constants.py:2645-2657` merges it into extra item data, and
+  `core/constants.py:2779` builds the final registry. The final registry is
   therefore not an independent validator of quest reward semantics.
 - **Semantic shape of the `275`-name candidate pool:** this is a manual,
   one-bucket-per-name classification of all final reward names on this base. It
@@ -1657,7 +1657,7 @@ is **not scheduled work** and is not a quest-by-quest task list.
   - **`2` prose fragments:** `A box trap.` and
     `20 noted Pure/Rune essence and the other items (from chasing Solus)`.
     These require a sourced replacement or removal, not an item definition.
-- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1468-1475` obtains
+- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1520-1527` obtains
   the completion reward mapping and grants every row with the bare assignment
   `inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)`.
   It performs no
@@ -1682,16 +1682,16 @@ is **not scheduled work** and is not a quest-by-quest task list.
   the Muspah are blocked by non-stub gates.
 - **Reachability-audit blind spot:** the audit does not diagnose reward names.
   It measures blocked stage products and their missing actions, routes, items,
-  tools, and combat gates at `tools/audit_item_reachability.py:442-470`, and it
+  tools, and combat gates at `tools/audit_item_reachability.py:450-478`, and it
   exports only `blocked_quest_stage_products` at
-  `tools/audit_item_reachability.py:1363-1366`. For a completable quest it
+  `tools/audit_item_reachability.py:1373-1376`. For a completable quest it
   intersects reward names with the already self-populated registry and adds
-  them as sources at `tools/audit_item_reachability.py:600-603`. It therefore
+  them as sources at `tools/audit_item_reachability.py:608-611`. It therefore
   cannot expose this class.
 - **Established repair route:** use
   `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` at `data/quest_data.py:4197-4206` to
   replace or suppress a quest's scraped item rows before
-  `data/quest_data.py:8947-8953` builds its final rewards. Route experience
+  `data/quest_data.py:9308-9314` builds its final rewards. Route experience
   through `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, and keep unlocks in their
   owning quest or activity state. Apply those corrections only after
   source-checking each quest; this record does not schedule them.
@@ -1703,7 +1703,7 @@ current or explicitly pending entries: **9 COMPLETE**, **7 DEFERRED DATA
 DEPTH**, **14 BLOCKED** (**12 owner**, **2 source**), and **5 UNBLOCKED**.
 The pending reward-name record is included because the dispatch names it, but it
 is not in the audited tree: its heading exists only at
-`a468d18a:memory-bank/design-thread-queue.md:1619` on
+`a468d18a:memory-bank/design-thread-queue.md:1698` on
 `goal/reward-artifact-record-2026-08-24` and its `8ec703a9` measurements are
 stale against this base.
 
@@ -1731,10 +1731,10 @@ stale against this base.
   (`memory-bank/design-thread-queue.md:774`) — the fresh reachability report has
   `rows_with_missing_required_routes=0`.
 - `### 3.35 King’s Ransom assigns the animate rock scroll to the wrong quest step`
-  (`memory-bank/design-thread-queue.md:1021`) — `fdbec823` is present and the
+  (`memory-bank/design-thread-queue.md:1028`) — `fdbec823` is present and the
   live action is `Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail`.
 - `### 5.1 Direct actions have no undo (breadth criterion 5)`
-  (`memory-bank/design-thread-queue.md:1161`) — `aefcc4ea` supplies the shared
+  (`memory-bank/design-thread-queue.md:1168`) — `aefcc4ea` supplies the shared
   seam. A fresh static scan finds `54` `def _apply_*_command` handlers in
   `__init__.py`. All `54` handlers call `commit_direct_action`. Zero handlers
   remain that do not route through the shared seam. The two `_apply_`
@@ -1742,7 +1742,7 @@ stale against this base.
   helpers, not direct command handlers. The plain lane exercises the migrated
   seams.
 - `### Open decisions queued by the pass-3 shop-UI work — 2026-07-26`
-  (`memory-bank/design-thread-queue.md:1275`) — the live registry measures all
+  (`memory-bank/design-thread-queue.md:1265`) — the live registry measures all
   `25` skillcapes and all `25` sourced master-shop rows; Dungeoneering is no
   longer latent.
 
@@ -1769,7 +1769,7 @@ stale against this base.
   (`memory-bank/design-thread-queue.md:391`) — the separately clocked timed spawn
   is the entry's declared catalog/depth pass.
 - `### 5.2 Post-cutoff art — measured, and mostly deliberate`
-  (`memory-bank/design-thread-queue.md:1177`) — wholesale modern-RS3 asset
+  (`memory-bank/design-thread-queue.md:1184`) — wholesale modern-RS3 asset
   replacement is the entry's own deferred slow-data harvest, not a breadth
   blocker.
 
@@ -1848,25 +1848,25 @@ forks, so the implemented recommendation is not authority to close them.
   `tools/audit_docs.py`, then repair the historical references against the live
   tests.
 - `### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1437`) — the owner chose the
+  (`memory-bank/design-thread-queue.md:1427`) — the owner chose the
   source-faithful search-until-turn-in model, but the catalog still alternates
   one-shot search and turn-in stages and
   `runtime/runtime_actions_production.py:694-700` still carries the pre-ruling
   Shattered Heart exemption. Reshape the five stage pairs and remove the
   exemption together.
 - `### 4.15 Grill of 2026-07-30 — design-gap answers`
-  (`memory-bank/design-thread-queue.md:1484`) — the requested Kinship party
+  (`memory-bank/design-thread-queue.md:1474`) — the requested Kinship party
   design packet does not exist, while the named Darkan dependency is available
   in current history at `d4d430606`, `fcad1e89d`, and `f2ed1d725`. Produce the
   flattened-port packet and per-class analog table; runtime implementation then
   waits for owner approval.
 - `### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1505`) — the owner chose the shared hook,
+  (`memory-bank/design-thread-queue.md:1495`) — the owner chose the shared hook,
   but `apply_shattered_heart_skilling_hook_pure` still accepts caller-filtered
   `output_items` and the four runtime callers still own eligibility. Move the
   tradeability rule into the hook and route all four callers through it.
 - `### 5.3 Quest reward strings can become inventory keys without semantic validation`
-  (`a468d18a:memory-bank/design-thread-queue.md:1619`, pending integration) — on
+  (`a468d18a:memory-bank/design-thread-queue.md:1698`, pending integration) — on
   this audited base the fresh measurement is **196 quests**, **142
   reward-bearing quests**, **310 reward occurrences**, **288 distinct
   `(name, amount)` pairs**, **269 distinct names**, **3,502 final item
@@ -2063,19 +2063,17 @@ quest closure. Every pinned count must be recomputed afterwards.
 Stated plainly: until this is fixed, a green reachability audit is not evidence
 that a player can obtain an item.
 
-### 5.13 Quest-combat guaranteed drops are inert — implementation in progress
+### 5.13 Quest-combat guaranteed drops — complete
 
-`QuestCombatEncounter` has no guaranteed-drop field, and
-`_quest_combat_enemy_spec` hardcodes an empty drop table. A declared guaranteed
-drop on a quest-combat encounter is therefore never awarded.
+Commit `660fb870316643ac136692425e7133694c81ee3f` landed the generic path.
+`QuestCombatEncounter.guaranteed_drops` is serialized by
+`data/quest_data.py:942,10370`; `_quest_combat_enemy_spec` passes those drops to
+the ordinary combat contract at `logic_pure/logic_pure_quest.py:623-654`; and
+`tests/test_logic.py:8367-8417` proves that a real quest-combat kill places the
+guaranteed item in inventory.
 
-    constructed encounter guaranteed_drops= {'Herb pouch': 1}
-    runtime enemy drops= {'guaranteed': (), 'tables': ()}
-    kill_ok= True killed= True Herb pouch after kill= 0 drops= {}
-
-**Verdict: UNBLOCKED SETTLED WORK.** The contract is generic and independently
-implementable. Work is in progress on branch
-`goal/quest-combat-drops-2026-08-26`.
+**Verdict: COMPLETE.** Quest encounters can declare guaranteed drops without a
+quest-specific award path.
 
 ### 5.14 Glacor combat data remains unsourced — open sourcing gap
 

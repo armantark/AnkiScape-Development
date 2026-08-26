@@ -17,12 +17,13 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 
 - Nineteen complete skill surfaces: Mining, Woodcutting, Farming, Fishing, Hunter, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Prayer, Magic, Construction, Thieving, Agility, Slayer, and Summoning.
 - Unified Combat trains the five partial skills Attack, Strength, Defence, Constitution, and Ranged through equipment/style choices, with real supplies, HP, food, Prayer/Magic configuration, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
+- Dungeoneering is an implemented partial skill with trainable Frozen floors, Ring of Kinship tiers, a staged reward trader, and a working Coal bag.
 - Quests, Utility/Activities, Bank, Equipment, NPC Shops, Stats, Achievements, Settings, Bank Claims, HUD feedback, and review undo are live foundations.
 - The quest catalog contains 194 pre-EOC rows, but many still require quest-by-quest fidelity work.
 
 ## Completion Direction
 
-The goal is full pre-EOC breadth translated to Anki—not a literal world simulator. Missing skills receive deep product grills where their authentic loops have multiple reasonable review abstractions. Large hidden-server systems may wait for a stable high-fidelity Darkan restoration, then must still be reconciled against period evidence.
+The goal is full pre-EOC breadth translated to Anki—not a literal world simulator. Unresolved skill depth receives a product grill only when authentic loops have multiple reasonable review abstractions. Large hidden-server systems may wait for a stable high-fidelity Darkan restoration, then must still be reconciled against period evidence.
 
 Canonical live scope: `memory-bank/future-work-kanban.md`; the 2026-07-10
 completion audit is archived under `memory-bank/archive/2026-07/baselines/`.
@@ -33,7 +34,7 @@ completion audit is archived under `memory-bank/archive/2026-07/baselines/`.
 - No persistent world map or transport network.
 - No modern RS3/OSRS substitution for missing pre-EOC proof.
 - No ordinary skilling “minutes per review”; the card clock is reserved for world/economy cadence.
-- Daemonheim resources belong to a future Dungeoneering session economy, not the persistent overworld Bank or ordinary Herblore target list.
+- Daemonheim resources stay inside the Dungeoneering session economy, not the persistent overworld Bank or ordinary Herblore target list; only explicit persistent rewards leave a floor.
 - Any public release is a separately named, independently maintained derivative
   that credits Wilson Yeh as the original creator; it must not impersonate or
   replace his existing AnkiWeb listing.
