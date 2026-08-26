@@ -646,7 +646,14 @@ def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
         "level": level,
         "stats": stats,
         "bonuses": _quest_combat_normalized_bonuses(encounter),
-        "drops": {"guaranteed": (), "tables": ()},
+        "drops": {
+            "guaranteed": tuple(
+                (item_name, _positive_int(quantity, 1))
+                for item_name, quantity in (encounter.get("guaranteed_drops", {}) or {}).items()
+                if isinstance(item_name, str)
+            ),
+            "tables": (),
+        },
         "source": source,
         "quest_id": quest_id,
         "quest_encounter_id": encounter_id,

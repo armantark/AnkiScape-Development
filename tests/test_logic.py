@@ -8,6 +8,8 @@ from ankiscape.data.quest_data import (
     QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID,
     QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID,
     QUEST_UNLOCK_REPLACEMENTS_BY_ID,
+    QuestCombatEncounter,
+    _combat_encounter_dict,
     quest_reward_items_as_dict,
 )
 from ankiscape.logic_pure.logic_pure import (
@@ -8361,6 +8363,58 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["combat_encounter"], {"target_id": "chicken", "enemy_lifepoints": 10})
         self.assertEqual(resolved["quest_combat_active_encounters"], {})
         self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["training_dummy"]})
+
+    def test_quest_combat_guaranteed_drop_enters_inventory_after_real_kill(self):
+        encounter = QuestCombatEncounter(
+            encounter_id="synthetic_dropper",
+            display_name="Synthetic dropper",
+            level=1,
+            npc_stats=(
+                ("hitpoints", 10),
+                ("attack", 1),
+                ("strength", 1),
+                ("defence", 1),
+            ),
+            guaranteed_drops=(("Herb pouch", 1),),
+            source="synthetic regression",
+        )
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (_combat_encounter_dict(encounter),),
+                        "source": "synthetic regression",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+            "attack_level": 80,
+            "strength_level": 80,
+            "defense_level": 80,
+            "constitution_level": 80,
+            "prayer_level": 1,
+            "combat_lifepoints": 800,
+        }
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "proof_quest",
+            quest_data,
+            ticks=50,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertEqual(resolved["inventory"].get("Herb pouch", 0), 1)
 
     def test_quest_combat_kill_does_not_increment_ordinary_combat_kill_counts(self):
         quest_data = {

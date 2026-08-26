@@ -939,6 +939,7 @@ class QuestCombatEncounter:
     npc_stats: Tuple[Tuple[str, object], ...] = ()
     npc_bonuses: Tuple[Tuple[str, object], ...] = ()
     npc_configs: Tuple[Tuple[str, object], ...] = ()
+    guaranteed_drops: Tuple[Tuple[str, int], ...] = ()
     npc_stats_source: str = ""
 
 
@@ -3681,6 +3682,7 @@ def _combat(
     npc_stats: Tuple[Tuple[str, object], ...] = (),
     npc_bonuses: Tuple[Tuple[str, object], ...] = (),
     npc_configs: Tuple[Tuple[str, object], ...] = (),
+    guaranteed_drops: Tuple[Tuple[str, int], ...] = (),
     npc_stats_source: str = "",
 ) -> QuestCombatEncounter:
     return QuestCombatEncounter(
@@ -3693,6 +3695,7 @@ def _combat(
         npc_stats=npc_stats,
         npc_bonuses=npc_bonuses,
         npc_configs=npc_configs,
+        guaranteed_drops=guaranteed_drops,
         npc_stats_source=npc_stats_source,
     )
 
@@ -9236,6 +9239,7 @@ def _catalog_combat_encounters(value: object) -> Tuple[QuestCombatEncounter, ...
                 npc_stats=_catalog_object_pairs(raw.get("npc_stats", {})),
                 npc_bonuses=_catalog_object_pairs(raw.get("npc_bonuses", {})),
                 npc_configs=_catalog_object_pairs(raw.get("npc_configs", {})),
+                guaranteed_drops=_catalog_object_pairs(raw.get("guaranteed_drops", {})),
                 npc_stats_source=str(raw.get("npc_stats_source", "")),
             )
         )
@@ -10363,6 +10367,7 @@ def _combat_encounter_dict(encounter: QuestCombatEncounter) -> Dict[str, object]
         "npc_stats": dict(encounter.npc_stats),
         "npc_bonuses": dict(encounter.npc_bonuses),
         "npc_configs": dict(encounter.npc_configs),
+        "guaranteed_drops": dict(encounter.guaranteed_drops),
         "npc_stats_source": encounter.npc_stats_source,
     }
 
