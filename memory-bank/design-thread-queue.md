@@ -2128,3 +2128,34 @@ unblocked item, entry 5.13, and dispatched it to
 `goal/quest-combat-drops-2026-08-26`. No other `goal/*` branch holds unmerged
 accepted work, apart from three branches already recorded as superseded or
 abandoned.
+
+### 5.18 Ox Alpha route is retired permanently — 2026-08-26
+
+The orchestrator verified this retirement against the provider's own catalogue.
+It did not accept a report as proof.
+
+- **Catalogue evidence:** `stealth/ox-alpha` is absent from the OpenRouter
+  catalogue. A direct query returned 417 models and no match.
+- **Released identity and price:** the model shipped as `z-ai/glm-5.3-flash`.
+  Its price is 0.075 US dollars per million prompt tokens and 0.25 US dollars
+  per million completion tokens. It is cheap, but it is no longer free.
+- **Failure cause:** this catalogue removal, not an outage, caused the
+  `503 auth_unavailable` failures at 07:08, 07:11 and 07:18 on 2026-08-26. The
+  proxy had nothing to authenticate against.
+- **Configuration state:** the `openai-compatibility` block is removed from the
+  gateway configuration. The orchestrator made a backup before the removal.
+  The configuration has no `ox-alpha` reference.
+- **Current routing:** routing returns to the standard rubric. Sol implements,
+  and a different seat reviews. Fable stays barred for this goal under 4.18,
+  **Fable is barred for the remainder of this goal**.
+- **Continuity:** all work since 07:18 was already authored on Sol through the
+  automatic fallback. No work stalled.
+- **Retired rulings:** this entry retires 4.20, **Model fallback after an Ox
+  Alpha outage**, and 5.8, **Ox Alpha route removal reversed**. Do not use
+  either entry as a current Ox Alpha seating instruction. They remain in this
+  file as the record of what was decided at the time.
+
+On 2026-08-25, the orchestrator declared the route dead after one 400 error and
+removed the configuration. That decision was wrong. On 2026-08-26, the
+orchestrator required three failures across separate attempts and then queried
+the provider's catalogue directly before it acted. Keep the second procedure.
