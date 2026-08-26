@@ -1,8 +1,14 @@
 # AnkiScape Completion Starter Grill — 2026-07-17
 
-Status: **starter proposal with later owner-settled Achievement/Aura/recurring/
-Help/Tears decisions; cadence-reconciled 2026-07-17.** Unsettled activity
-families remain design work rather than implementation-ready requirements.
+Status: **activity-design program closed 2026-07-18.** Ratifying
+`memory-bank/dungeoneering-design-contract-2026-07-18.md` settled the final
+open design. Every pre-EOC activity is now owner-settled or pattern-determined
+through the race pattern, bounded-opponent simulations, the engaged-target
+roster in `memory-bank/multi-enemy-encounter-contract-2026-07-18.md`,
+event-scaled budgets, three-tier choice architecture, or the auto-played
+Conquest and Mobilising Armies engines. Remaining work is source harvest and
+implementation, not design triage. Do not reopen a settled design without new
+conflicting evidence, and implement Conquest after Dungeoneering.
 
 This packet curates the next design program after Slayer and Summoning. It
 combines a repository audit, three bounded Sol-high read-only surveys, and an

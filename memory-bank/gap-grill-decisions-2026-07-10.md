@@ -723,6 +723,15 @@ depletion, respawn, and paired-tree behavior from reconciled period evidence.
   forced by settled AnkiScape architecture. Resolve and batch those details in
   the audit. Reserve owner questions for genuine product choices where multiple
   reasonable options would materially change play.
+- Present each genuine fork directly, without a preamble. After the minimum
+  source check, ask the question, record and commit the answer, and immediately
+  present the next fork in the same turn. Stop only when the grill is complete
+  or the owner interrupts. Keep the final recap short, and use multi-paragraph
+  explanations only when requested. The owner set this cadence on 2026-07-18 to
+  conserve tokens.
+- The owner's 2026-07-18 "scared to use Anki" comment described perfectionism
+  and wanting the finished product first, not fear that normal play would break
+  the product.
 
 ## Runecrafting: Ourania, Wicked Hood, and Great Orb Project
 

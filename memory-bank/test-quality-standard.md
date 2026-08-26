@@ -49,3 +49,15 @@ QT_QPA_PLATFORM=offscreen \
 Report executed methods, ordinary passes, skips, and expected failures
 separately. Never describe `Ran N tests` as `N passing` when the total includes
 skips or expected failures.
+
+## Manual Playtesting
+
+The owner plays the real save from level 1 at normal review pace and does not
+create development saves for late-game checks. On 2026-07-11, the Construction
+12-step smoke test was rejected as unreachable: "I currently would have level 1
+so there's no way for me to reliably test that".
+
+Manual test instructions must lead with low-level checks such as rung-zero
+purchases, level-1 targets, and visible UI presence or gating. Cover level 60+
+and other late-game behavior with pure and offscreen Qt tests instead of
+assigning it as owner-run manual verification.
