@@ -1012,3 +1012,12 @@ The check that catches it: load `QUEST_DATA` on canonical main and on the
 branch, then difference the reward, unlock, and experience sets for all 196
 quests. Any quest that loses an entry is a regression unless the loss is a
 deliberate, sourced rewrite.
+
+
+## Item registry ownership is first-write-wins
+
+`build_item_definitions()` keeps the first row for each storage key, so an early
+skill-output row can mask later cache-backed extra-item metadata. When those rows
+overlap, keep the skill target's level and XP but overlay the authoritative item
+ID, stackability, and tradeability; order the owning extra-item map after
+consumer-only maps so incomplete rows cannot erase those fields.
