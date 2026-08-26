@@ -6172,3 +6172,10 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Utility processing now resolves material alternatives and required tool alternatives before consuming inputs, so direct kernel calls fail atomically when either side is missing.
 - A fresh-save real-kernel proof mines and sells 27 Clay, buys both tools from General Store stock, completes Rune Mysteries through its emitted stage actions, mines Rune essence, makes Rune shards, and grinds one Rune dust without writing quest state.
 - Full plain discovery passes 4,442 tests with 506 expected skips. Reachability moves from 1,599 / 2,466 / 37 / 36 to 1,600 actions / 2,468 reachable items / 36 orphan inputs / 35 blocked actions.
+
+## Reachability source gates — 2026-08-26
+
+- Combat drops now join each branch-local reachability closure only after the target's runtime `quest_gate` and `quest_gate_state` are reachable; shop stock uses `shop_access_lock_reason_pure` against the same closure state.
+- Conditional sources participate in the fixed point, so a reachable quest can unlock a source item that unlocks another quest without pooling mutually exclusive branch state.
+- The audit moves from 1,600 actions / 2,468 reachable items / 36 orphan inputs / 35 blocked actions to 1,600 / 2,360 / 79 / 86. Exactly 108 items lose unsupported reachability certification.
+- Runtime-lock regressions cover Gorak, Suqah, Glacor, and Baba Yaga's Astral-rune stock; the Rune essence → Rune shards → Rune dust positive control remains reachable. Full discovery passes 4,448 tests with 506 expected skips.

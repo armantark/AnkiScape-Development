@@ -14,10 +14,31 @@ from ankiscape.data.shop_data import (
     shop_extra_items_as_dict,
 )
 from ankiscape.data.summoning_data import SUMMONING_POUCHES
-from tools.generate_npc_shop_data import build_catalog, rewrite_stock_exclusions_from_generated
+from tools.generate_npc_shop_data import (
+    SHOP_ACCESS_RULES,
+    build_catalog,
+    rewrite_stock_exclusions_from_generated,
+)
 
 
 class TestShopData(unittest.TestCase):
+    def test_lletya_shops_open_when_mournings_end_part_i_starts(self):
+        expected = {
+            "kind": "quest",
+            "quest_id": "mournings_end_part_i",
+            "stage": "started",
+            "label": "Mourning's End Part I",
+        }
+        for shop_id in (
+            "lletya_archery_shop",
+            "lletya_food_store",
+            "lletya_general_store",
+            "lletya_seamstress",
+        ):
+            with self.subTest(shop=shop_id):
+                self.assertEqual(SHOP_ACCESS_RULES[shop_id], expected)
+                self.assertEqual(SHOP_DATA[shop_id]["access"], expected)
+
     def test_shop_only_items_preserve_source_identity_and_stackability(self):
         expected = {
             "Bag of salt": (4161, True),

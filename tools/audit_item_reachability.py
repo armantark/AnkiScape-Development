@@ -15,6 +15,7 @@ import itertools
 import json
 import sys
 from collections import defaultdict
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
@@ -68,6 +69,20 @@ def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ..
         | _names(spec.get("rune_cost"))
     )
     alternatives: list[set[str]] = []
+    material_options = spec.get("material_options", {}) or {}
+    if isinstance(material_options, Mapping):
+        for material, options in material_options.items():
+            option_names = _names(options)
+            if material in required and option_names:
+                required.remove(material)
+                alternatives.append(option_names)
+    for option_group in spec.get("required_item_options", ()) or ():
+        option_names = _names(option_group)
+        if option_names:
+            alternatives.append(option_names)
+    any_requirements = _names(spec.get("any_requirements"))
+    if any_requirements:
+        alternatives.append(any_requirements)
     essence = _names(spec.get("essence_items"))
     if essence:
         alternatives.append(essence)
@@ -97,12 +112,123 @@ def _drop_names(value: Any) -> set[str]:
     return names
 
 
+def _quest_gate_reachable(
+    quest_id: str,
+    gate_state: str,
+    completable_quests: set[str],
+    startable_quests: set[str],
+) -> bool:
+    eligible_quests = (
+        startable_quests if gate_state == "started" else completable_quests
+    )
+    return quest_id in eligible_quests
+
+
+def _combat_drop_gate_reachable(
+    enemy_id: str,
+    enemy: Mapping[str, Any],
+    player_data: Mapping[str, Any],
+) -> bool:
+    from ankiscape.core.constants import EQUIPMENT_DATA
+    from ankiscape.logic_pure.logic_pure import (
+        COMBAT_MAGIC_SPELL_DATA,
+        DEFAULT_COMBAT_SPELL,
+        combat_finisher_state_pure,
+        combat_target_locked_reasons_pure,
+    )
+
+    enemy_data = {enemy_id: enemy}
+    finisher = enemy.get("finisher")
+
+    def loadout_reachable(candidate: Mapping[str, Any]) -> bool:
+        if combat_target_locked_reasons_pure(
+            candidate,
+            enemy_id,
+            enemy_data,
+            equipment_data=EQUIPMENT_DATA,
+        ):
+            return False
+        if not isinstance(finisher, Mapping):
+            return True
+        candidate = dict(candidate)
+        candidate["combat_encounter"] = {
+            "target_id": enemy_id,
+            "enemy_lifepoints": max(
+                1,
+                int(finisher.get("threshold_lifepoints", 1) or 1),
+            ),
+        }
+        return bool(
+            combat_finisher_state_pure(candidate, enemy_id, enemy_data)["available"]
+        )
+
+    if loadout_reachable(player_data):
+        return True
+
+    restriction = enemy.get("restricted_weapon")
+    restriction = restriction if isinstance(restriction, Mapping) else {}
+    allowed_classes = set(enemy.get("allowed_combat_classes", ()) or ())
+    inventory = player_data.get("inventory", {}) or {}
+    reachable_items = set(inventory) if isinstance(inventory, Mapping) else set()
+    base_equipment = dict(player_data.get("equipment", {}) or {})
+
+    if restriction.get("ranged_ammunition") or "ranged" in allowed_classes:
+        for weapon_name in sorted(reachable_items):
+            equipment_spec = EQUIPMENT_DATA.get(weapon_name)
+            combat_skill = (
+                equipment_spec.get("combat_skill")
+                if isinstance(equipment_spec, Mapping)
+                else getattr(equipment_spec, "combat_skill", None)
+            )
+            if combat_skill != "ranged":
+                continue
+            candidate = dict(player_data)
+            candidate["equipment"] = {
+                **base_equipment,
+                "weapon": weapon_name,
+            }
+            if loadout_reachable(candidate):
+                return True
+
+    magic_spell_ids = tuple(restriction.get("magic_spells", ()) or ())
+    if not magic_spell_ids and "magic" in allowed_classes:
+        magic_spell_ids = (DEFAULT_COMBAT_SPELL,)
+    for spell_id in magic_spell_ids:
+        spell_spec = COMBAT_MAGIC_SPELL_DATA.get(spell_id, {})
+        required_weapon = str(spell_spec.get("required_weapon", "") or "")
+        if required_weapon:
+            weapon_names = (required_weapon,) if required_weapon in reachable_items else ()
+        else:
+            weapon_names = tuple(
+                weapon_name
+                for weapon_name in sorted(reachable_items)
+                if (
+                    EQUIPMENT_DATA[weapon_name].get("combat_skill")
+                    if isinstance(EQUIPMENT_DATA.get(weapon_name), Mapping)
+                    else getattr(EQUIPMENT_DATA.get(weapon_name), "combat_skill", None)
+                )
+                == "magic"
+            )
+        for weapon_name in weapon_names:
+            candidate = dict(player_data)
+            candidate["equipment"] = {
+                **base_equipment,
+                "weapon": weapon_name,
+            }
+            candidate["current_combat_spell"] = spell_id
+            if loadout_reachable(candidate):
+                return True
+    return False
+
+
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 
 
 def _close_actions(
     actions: Iterable[Mapping[str, Any]],
     seed_sources: Mapping[str, set[str]],
+    *,
+    active_action_ids: set[str] | None = None,
 ) -> tuple[set[str], dict[str, str], list[Mapping[str, Any]]]:
     reachable = set(seed_sources)
     route = {item: sorted(sources)[0] for item, sources in seed_sources.items()}
@@ -112,6 +238,13 @@ def _close_actions(
         changed = False
         remaining: list[Mapping[str, Any]] = []
         for action in unresolved:
+            if (
+                active_action_ids is not None
+                and action.get("is_accessible")
+                and action["id"] not in active_action_ids
+            ):
+                remaining.append(action)
+                continue
             required_ok = action["required"].issubset(reachable)
             alternatives_ok = all(
                 bool(group & reachable) for group in action["alternatives"]
@@ -266,7 +399,11 @@ def _stage_satisfiability(
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool],
 ) -> dict[str, Any]:
     required_items = _item_counts(stage.get("required_inventory"))
-    for item_name, amount in _item_counts(stage.get("consumed_inventory")).items():
+    consumed_inventory = (
+        stage.get("consumed_inventory"),
+        None,
+    )[bool(stage.get("repeatable_until_consumed"))]
+    for item_name, amount in _item_counts(consumed_inventory).items():
         required_items[item_name] = max(required_items.get(item_name, 0), amount)
     required_tools = _item_counts(stage.get("required_tools"))
     required_actions = _names(stage.get("required_actions"))
@@ -333,6 +470,7 @@ def _quest_stage_sources(
     selected_variants: Mapping[str, str] | None = None,
     eligible_quests: set[str] | None = None,
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool] | None = None,
+    quest_progress_out: dict[str, int] | None = None,
 ) -> tuple[dict[str, set[str]], list[dict[str, Any]], set[str]]:
     sources: dict[str, set[str]] = defaultdict(set)
     blocked: list[dict[str, Any]] = []
@@ -395,6 +533,7 @@ def _quest_stage_sources(
         first_blocked_without_products: dict[str, Any] | None = None
         branch_source_sets: list[dict[str, set[str]]] = []
         completed_branch_source_sets: list[dict[str, set[str]]] = []
+        branch_progresses: list[int] = []
         for variant in branches:
             branch_rows = branch_rows_by_variant[variant]
             available_counts = dict(available_base_counts)
@@ -405,9 +544,11 @@ def _quest_stage_sources(
             selected_routes = branch_routes[variant]
             branch_sources: dict[str, set[str]] = defaultdict(set)
             branch_blocked = False
+            branch_progress = 1
             stage_ids = list(dict.fromkeys(row.get("stage", "unknown") for _index, row in branch_rows))
             for stage_id in stage_ids:
                 numeric_stage = int(stage_id) if str(stage_id).isdigit() else 0
+                branch_progress = max(branch_progress, numeric_stage)
                 available_routes.update(
                     route
                     for route in selected_routes
@@ -518,6 +659,11 @@ def _quest_stage_sources(
                 quest_completable = True
                 completed_branch_source_sets.append(branch_sources)
             branch_source_sets.append(branch_sources)
+            branch_progresses.append(branch_progress)
+        if quest_progress_out is not None and (
+            eligible_quests is None or quest_id in eligible_quests
+        ):
+            quest_progress_out[quest_id] = max(branch_progresses, default=0)
         if quest_completable:
             action_completable.add(quest_id)
         source_sets = completed_branch_source_sets or branch_source_sets
@@ -545,7 +691,9 @@ def _close_quest_reachability(
     *,
     claim_data: Mapping[str, Mapping[str, Any]] | None = None,
     maximum_skill_levels: Mapping[str, int] | None = None,
+    conditional_seed_sources: Iterable[Mapping[str, Any]] = (),
     scenario_sources_out: list[dict[str, set[str]]] | None = None,
+    scenario_action_ids_out: list[set[str]] | None = None,
 ) -> tuple[list[dict[str, Any]], set[str], set[str]]:
     variant_ids = {
         quest_id: tuple(sorted({
@@ -558,12 +706,24 @@ def _close_quest_reachability(
     branch_quests = tuple(quest_id for quest_id, variants in variant_ids.items() if variants)
     claim_data = claim_data or {}
     maximum_skill_levels = maximum_skill_levels or {}
+    actions = tuple(actions)
+    conditional_actions = tuple(
+        action for action in actions if callable(action.get("is_accessible"))
+    )
+    conditional_seed_sources = tuple(conditional_seed_sources)
     scenario_results = []
     for selected in itertools.product(*(variant_ids[quest_id] for quest_id in branch_quests)):
         selected_variants = dict(zip(branch_quests, selected))
         scenario_sources = {item: set(sources) for item, sources in seed_sources.items()}
+        scenario_seed_item_counts = dict(seed_item_counts)
+        scenario_repeatable_seed_items = set(repeatable_seed_items)
+        active_conditional_sources: set[str] = set()
+        active_action_ids: set[str] = set()
         previous_state: tuple[
             frozenset[str],
+            frozenset[str],
+            frozenset[str],
+            frozenset[tuple[str, int]],
             frozenset[str],
             frozenset[str],
             frozenset[tuple[str, int]],
@@ -573,15 +733,19 @@ def _close_quest_reachability(
         startable: set[str] = set()
         claim_item_counts: dict[str, int] = {}
         while True:
-            reachable_items, route, _unresolved = _close_actions(actions, scenario_sources)
-            repeatable_items = repeatable_seed_items | {
+            reachable_items, route, _unresolved = _close_actions(
+                actions,
+                scenario_sources,
+                active_action_ids=active_action_ids,
+            )
+            repeatable_items = scenario_repeatable_seed_items | {
                 item_name
                 for item_name, source in route.items()
                 if not source.startswith(
                     ("quest:", "quest-start:", "quest-stage:", "quest-combat:", "claim:")
                 )
             }
-            finite_item_counts = dict(seed_item_counts)
+            finite_item_counts = dict(scenario_seed_item_counts)
             for item_name, amount in claim_item_counts.items():
                 finite_item_counts[item_name] = finite_item_counts.get(item_name, 0) + amount
             _, blocked, stage_completable = _quest_stage_sources(
@@ -595,6 +759,7 @@ def _close_quest_reachability(
                 combat_encounter_satisfiable=combat_encounter_satisfiable,
             )
             completable, startable = _quest_completion_sets(quest_data, stage_completable)
+            quest_progress: dict[str, int] = {}
             quest_stage_sources, _, _ = _quest_stage_sources(
                 quest_data,
                 registered_items,
@@ -604,6 +769,7 @@ def _close_quest_reachability(
                 selected_variants=selected_variants,
                 eligible_quests=startable,
                 combat_encounter_satisfiable=combat_encounter_satisfiable,
+                quest_progress_out=quest_progress,
             )
             for quest_id in completable:
                 quest = quest_data[quest_id]
@@ -615,6 +781,35 @@ def _close_quest_reachability(
                     scenario_sources.setdefault(item, set()).add(f"quest-start:{quest_id}")
             for item, sources in quest_stage_sources.items():
                 scenario_sources.setdefault(item, set()).update(sources)
+            for action in conditional_actions:
+                action_id = str(action["id"])
+                if action_id in active_action_ids or not action["is_accessible"](
+                    completable,
+                    startable,
+                    reachable_items,
+                    quest_progress,
+                ):
+                    continue
+                active_action_ids.add(action_id)
+            for source in conditional_seed_sources:
+                source_id = str(source["id"])
+                if source_id in active_conditional_sources or not source["is_accessible"](
+                    completable,
+                    startable,
+                    reachable_items,
+                    quest_progress,
+                ):
+                    continue
+                active_conditional_sources.add(source_id)
+                for item in source.get("items", ()):
+                    scenario_sources.setdefault(str(item), set()).add(source_id)
+                for item, amount in source.get("item_counts", {}).items():
+                    scenario_seed_item_counts[str(item)] = (
+                        scenario_seed_item_counts.get(str(item), 0) + int(amount)
+                    )
+                scenario_repeatable_seed_items.update(
+                    str(item) for item in source.get("repeatable_items", ())
+                )
             claim_sources, next_claim_item_counts = _claim_item_sources(
                 claim_data,
                 completable,
@@ -631,35 +826,60 @@ def _close_quest_reachability(
                 frozenset(completable),
                 frozenset(startable),
                 frozenset(next_claim_item_counts.items()),
+                frozenset(active_conditional_sources),
+                frozenset(active_action_ids),
+                frozenset(quest_progress.items()),
             )
             claim_item_counts = next_claim_item_counts
             if state == previous_state:
-                scenario_results.append((scenario_sources, blocked, completable, startable))
+                scenario_results.append(
+                    (
+                        scenario_sources,
+                        blocked,
+                        completable,
+                        startable,
+                        active_action_ids,
+                    )
+                )
                 break
             previous_state = state
 
     if scenario_sources_out is not None:
         scenario_sources_out.extend(
             {item: set(item_sources) for item, item_sources in sources.items()}
-            for sources, _blocked, _complete, _startable in scenario_results
+            for sources, _blocked, _complete, _startable, _actions in scenario_results
+        )
+    if scenario_action_ids_out is not None:
+        scenario_action_ids_out.extend(
+            set(active_action_ids)
+            for _sources, _blocked, _complete, _startable, active_action_ids in scenario_results
         )
     reachable_items = set.union(
-        *(set(sources) for sources, _blocked, _complete, _startable in scenario_results)
+        *(
+            set(sources)
+            for sources, _blocked, _complete, _startable, _actions in scenario_results
+        )
     )
     for item in reachable_items:
         seed_sources.setdefault(item, set()).update(
             source
-            for sources, _blocked, _complete, _startable in scenario_results
+            for sources, _blocked, _complete, _startable, _actions in scenario_results
             for source in sources.get(item, ())
         )
     completable = set.union(
-        *(set(complete) for _sources, _blocked, complete, _startable in scenario_results)
+        *(
+            set(complete)
+            for _sources, _blocked, complete, _startable, _actions in scenario_results
+        )
     )
     startable = set.union(
-        *(set(startable) for _sources, _blocked, _complete, startable in scenario_results)
+        *(
+            set(startable)
+            for _sources, _blocked, _complete, startable, _actions in scenario_results
+        )
     )
     blocked_by_key = {}
-    for _sources, rows, _complete, _startable in scenario_results:
+    for _sources, rows, _complete, _startable, _actions in scenario_results:
         for row in rows:
             key = _blocked_diagnostic_key(row)
             blocked_by_key.setdefault(key, row)
@@ -718,12 +938,18 @@ def _rank_root_orphans(
     seed_sources: Mapping[str, set[str]],
     baseline_reachable: set[str],
     baseline_unresolved_count: int,
+    *,
+    active_action_ids: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     rows = []
     for item in root_orphans:
         candidate_sources = dict(seed_sources)
         candidate_sources[item] = {f"candidate:{item}"}
-        reachable, _route, unresolved = _close_actions(actions, candidate_sources)
+        reachable, _route, unresolved = _close_actions(
+            actions,
+            candidate_sources,
+            active_action_ids=active_action_ids,
+        )
         newly_reachable = sorted(reachable - baseline_reachable)
         rows.append(
             {
@@ -755,14 +981,38 @@ def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import shooting_star_data
     from ankiscape.data import shop_data
     from ankiscape.data.impling_jar_data import IMPLING_JAR_DATA
+    from ankiscape.data.livid_farm_data import (
+        ARCANE_CAPACITOR_CHARGED,
+        ARCANE_CAPACITOR_MAX_CHARGES,
+        LIVID_FARM_UNLOCKS,
+    )
     from ankiscape.logic import shop_logic
+    from ankiscape.logic.livid_farm_logic import (
+        livid_farm_cycle_projection_pure,
+        livid_farm_locked_reasons_pure,
+    )
+    from ankiscape.logic.mage_training_arena_logic import (
+        mage_training_arena_view_pure,
+    )
+    from ankiscape.logic.varrock_museum_logic import (
+        varrock_museum_cleaning_locked_reasons_pure,
+    )
     from ankiscape.core.skill_registry import trainable_skill_definitions
     from ankiscape.data import sorceress_garden_data
     from ankiscape.data import thieving_data
     from ankiscape.data import woodcutting_data
+    from ankiscape.data.warriors_guild_data import DEFENDER_TIERS
+    from ankiscape.logic.warriors_guild_logic import (
+        default_warriors_guild_state_pure,
+        enter_warriors_guild_cyclops_room_pure,
+        warriors_guild_activity_locked_reasons_pure,
+    )
     from ankiscape.logic_pure.logic_pure import (
+        magic_target_locked_reasons_pure,
         player_combat_level_pure,
         quest_combat_encounter_has_stats_pure,
+        target_unlock_locked_reasons_pure,
+        utility_activity_locked_reasons_pure,
     )
 
     registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
@@ -787,6 +1037,200 @@ def build_reachability_report() -> dict[str, Any]:
         }
     )
 
+    def closure_quest_states(
+        completable_quests: set[str],
+        startable_quests: set[str],
+        quest_progress: Mapping[str, int],
+    ) -> dict[str, dict[str, Any]]:
+        return {
+            quest_id: {
+                "started": quest_id in startable_quests,
+                "completed": quest_id in completable_quests,
+                "progress": int(quest_progress.get(quest_id, 0)),
+            }
+            for quest_id in startable_quests | completable_quests
+        }
+
+    def closure_player_data(
+        completable_quests: set[str],
+        startable_quests: set[str],
+        reachable_items: set[str],
+        quest_progress: Mapping[str, int],
+        *,
+        enemy: Mapping[str, Any] | None = None,
+        include_inventory: bool = False,
+    ) -> dict[str, Any]:
+        player_data: dict[str, Any] = {
+            "quests": closure_quest_states(
+                completable_quests,
+                startable_quests,
+                quest_progress,
+            ),
+            "quest_points": sum(
+                int(constants.QUEST_DATA[quest_id].get("point_reward", 0) or 0)
+                for quest_id in completable_quests
+            ),
+            **{
+                f"{skill_id}_level": level
+                for skill_id, level in maximum_skill_levels.items()
+            },
+        }
+        if enemy is not None or include_inventory:
+            player_data["inventory"] = {
+                item_name: 2**31 - 1 for item_name in reachable_items
+            }
+        start_equipment = (enemy or {}).get("start_equipment")
+        equipment: dict[str, str] = {}
+        if isinstance(start_equipment, Mapping):
+            slot = start_equipment.get("slot")
+            required_items = tuple(start_equipment.get("items", ()) or ())
+            equipped_item = next(
+                (item for item in required_items if item in reachable_items),
+                None,
+            )
+            if isinstance(slot, str) and isinstance(equipped_item, str):
+                equipment[slot] = equipped_item
+        restricted_weapon = (enemy or {}).get("restricted_weapon")
+        if isinstance(restricted_weapon, Mapping):
+            equipped_weapon = next(
+                (
+                    item
+                    for item in restricted_weapon.get("melee_weapons", ()) or ()
+                    if item in reachable_items
+                ),
+                None,
+            )
+            if isinstance(equipped_weapon, str):
+                equipment["weapon"] = equipped_weapon
+        finisher = (enemy or {}).get("finisher")
+        if isinstance(finisher, Mapping):
+            finisher_item = str(finisher.get("item", "") or "")
+            if finisher.get("must_be_worn") and finisher_item in reachable_items:
+                equipment["finisher"] = finisher_item
+            finisher_items = {
+                item_name
+                for item_name in (
+                    finisher_item,
+                    str(finisher.get("empty_item", "") or ""),
+                    str(finisher.get("reload_item", "") or ""),
+                    *(
+                        str(row[0])
+                        for row in finisher.get("charge_items", ()) or ()
+                        if isinstance(row, (tuple, list)) and row
+                    ),
+                )
+                if item_name in reachable_items
+            }
+            if finisher_items:
+                player_data["combat_supply_loadout"] = {
+                    "finishers": {item_name: 2**31 - 1 for item_name in finisher_items}
+                }
+        if equipment:
+            player_data["equipment"] = equipment
+        if enemy is not None and enemy.get("warriors_guild_gate"):
+            activity_id = "warriors_guild_attack_dummy"
+            if not warriors_guild_activity_locked_reasons_pure(
+                player_data,
+                activity_id,
+            ):
+                guild_state = default_warriors_guild_state_pure()
+                guild_state.update(
+                    {
+                        "automation_mode": "advanced",
+                        "payment_mode": "single",
+                        "single_token": "attack",
+                    }
+                )
+                guild_state["tokens"]["attack"] = 65535
+                player_data["warriors_guild"] = guild_state
+                player_data, entered, _result = (
+                    enter_warriors_guild_cyclops_room_pure(player_data)
+                )
+                rune_defender = str(DEFENDER_TIERS[-2]["name"])
+                if (
+                    entered
+                    and enemy.get("warriors_guild_target") == "cyclossus"
+                    and rune_defender in reachable_items
+                ):
+                    guild_state = dict(player_data["warriors_guild"])
+                    guild_state["shown_defender_index"] = len(DEFENDER_TIERS) - 2
+                    guild_state["cyclossus_pending"] = True
+                    player_data["warriors_guild"] = guild_state
+                    player_data["equipment"] = {
+                        **(player_data.get("equipment", {}) or {}),
+                        "shield": rune_defender,
+                    }
+        return player_data
+
+    @lru_cache(maxsize=None)
+    def closure_magic_player_data(
+        completable_quests: frozenset[str],
+        startable_quests: frozenset[str],
+        reachable_items: frozenset[str],
+        quest_progress: tuple[tuple[str, int], ...],
+    ) -> dict[str, Any]:
+        player_data = closure_player_data(
+            set(completable_quests),
+            set(startable_quests),
+            set(reachable_items),
+            dict(quest_progress),
+            include_inventory=True,
+        )
+        arena_view = mage_training_arena_view_pure(player_data)
+        if arena_view["can_enter"] and all(
+            room["runnable"] for room in arena_view["room_options"]
+        ):
+            player_data["mage_training_arena"] = {"completed": True}
+
+        museum_player = dict(player_data)
+        museum_equipment = dict(museum_player.get("equipment", {}) or {})
+        if "Leather gloves" in reachable_items:
+            museum_equipment["hands"] = "Leather gloves"
+        if "Leather boots" in reachable_items:
+            museum_equipment["feet"] = "Leather boots"
+        museum_player["equipment"] = museum_equipment
+        if not varrock_museum_cleaning_locked_reasons_pure(museum_player):
+            player_data["varrock_museum"] = {"digsite_pendant_unlocked": True}
+
+        livid_projection = livid_farm_cycle_projection_pure(player_data)
+        if (
+            not livid_farm_locked_reasons_pure(player_data)
+            and set(livid_projection["rune_cost"]) <= reachable_items
+        ):
+            player_data["livid_farm"] = {
+                "unlocked_spells": [row[0] for row in LIVID_FARM_UNLOCKS],
+                "borrowed_power_claimed": True,
+            }
+        return player_data
+
+    def magic_player_data(
+        spec: Mapping[str, Any],
+        completable_quests: set[str],
+        startable_quests: set[str],
+        reachable_items: set[str],
+        quest_progress: Mapping[str, int],
+    ) -> dict[str, Any]:
+        player_data = dict(
+            closure_magic_player_data(
+                frozenset(completable_quests),
+                frozenset(startable_quests),
+                frozenset(reachable_items),
+                tuple(sorted(quest_progress.items())),
+            )
+        )
+        borrowed_spell_id = str(spec.get("borrowed_spell_id", "") or "")
+        if borrowed_spell_id and "livid_farm" in player_data:
+            player_data["livid_farm"] = {
+                **player_data["livid_farm"],
+                "arcane_capacitor_spell": borrowed_spell_id,
+                "arcane_capacitor_charges": ARCANE_CAPACITOR_MAX_CHARGES,
+            }
+            player_data["equipment"] = {
+                **(player_data.get("equipment", {}) or {}),
+                "neck": ARCANE_CAPACITOR_CHARGED,
+            }
+        return player_data
+
     def quest_combat_source_satisfiable(encounter: Mapping[str, Any]) -> bool:
         configs = encounter.get("npc_configs", {}) or {}
         minimum_combat = int(configs.get("minimum_player_combat", encounter.get("level", 0)) or 0)
@@ -794,6 +1238,69 @@ def build_reachability_report() -> dict[str, Any]:
         return (
             quest_combat_encounter_has_stats_pure(encounter)
             and minimum_combat <= maximum_combat_level
+        )
+
+    target_unlock_keys = {
+        (str(rule.get("skill_id", "")), target_id)
+        for rule in constants.QUEST_UNLOCK_RULES
+        if isinstance(rule, Mapping) and rule.get("gate_kind", "target") == "target"
+        for target_id in _names(rule.get("target_ids"))
+    }
+
+    def action_access_reachable(
+        skill_id: str,
+        target_id: str,
+        spec: Mapping[str, Any],
+        completable_quests: set[str],
+        startable_quests: set[str],
+        reachable_items: set[str],
+        quest_progress: Mapping[str, int],
+    ) -> bool:
+        player_data = closure_player_data(
+            completable_quests,
+            startable_quests,
+            reachable_items,
+            quest_progress,
+            include_inventory=True,
+        )
+        if skill_id == "magic":
+            player_data = magic_player_data(
+                spec,
+                completable_quests,
+                startable_quests,
+                reachable_items,
+                quest_progress,
+            )
+            if magic_target_locked_reasons_pure(
+                player_data,
+                target_id,
+                {target_id: spec},
+            ):
+                return False
+        else:
+            if skill_id == "utility":
+                if not _names(spec.get("quest_requirements")) <= completable_quests:
+                    return False
+                if utility_activity_locked_reasons_pure(
+                    player_data,
+                    target_id,
+                    constants.UTILITY_ACTIVITY_DATA,
+                    constants.QUEST_UNLOCK_RULES,
+                ):
+                    return False
+            quest_id = str(spec.get("quest_gate", "") or "")
+            if quest_id and not _quest_gate_reachable(
+                quest_id,
+                str(spec.get("quest_gate_state", "completed") or "completed"),
+                completable_quests,
+                startable_quests,
+            ):
+                return False
+        return not target_unlock_locked_reasons_pure(
+            player_data,
+            skill_id,
+            target_id,
+            constants.QUEST_UNLOCK_RULES,
         )
 
     action_tables = {
@@ -816,6 +1323,21 @@ def build_reachability_report() -> dict[str, Any]:
     actions: list[dict[str, Any]] = []
     consumers: dict[str, set[str]] = defaultdict(set)
     producers: dict[str, set[str]] = defaultdict(set)
+    magic_runtime_gate_keys = {
+        "borrowed_native_quest_gate",
+        "borrowed_spell_id",
+        "consumer_unavailable",
+        "livid_unlock",
+        "museum_unlock",
+        "quest_gate",
+    }
+    utility_runtime_gate_keys = {
+        "firemaking_level",
+        "quest_requirements",
+        "requires_no_follower",
+        "requires_unskulled",
+        "skill_requirements",
+    }
     for family, table in action_tables.items():
         for action_id, raw_spec in table.items():
             if not isinstance(raw_spec, Mapping) or raw_spec.get("status", "implemented") != "implemented":
@@ -825,7 +1347,43 @@ def build_reachability_report() -> dict[str, Any]:
             if not outputs:
                 continue
             key = f"{family}:{action_id}"
-            actions.append({"id": key, "required": required, "alternatives": alternatives, "outputs": outputs})
+            action = {
+                "id": key,
+                "required": required,
+                "alternatives": alternatives,
+                "outputs": outputs,
+            }
+            skill_id = family.lower()
+            unlock_target_id = str(
+                raw_spec.get("unlock_target_id", action_id) or action_id
+            )
+            if (
+                (
+                    skill_id == "magic"
+                    and any(raw_spec.get(key) for key in magic_runtime_gate_keys)
+                )
+                or (
+                    skill_id == "utility"
+                    and any(raw_spec.get(key) for key in utility_runtime_gate_keys)
+                )
+                or raw_spec.get("quest_gate")
+                or (skill_id, unlock_target_id) in target_unlock_keys
+            ):
+                action["is_accessible"] = (
+                    lambda completed, startable, reachable, progress,
+                    skill_id=skill_id, target_id=unlock_target_id, spec=raw_spec: (
+                        action_access_reachable(
+                            skill_id,
+                            target_id,
+                            spec,
+                            completed,
+                            startable,
+                            reachable,
+                            progress,
+                        )
+                    )
+                )
+            actions.append(action)
             for item in required | set().union(*alternatives) if alternatives else required:
                 consumers[item].add(key)
             for item in outputs:
@@ -1126,14 +1684,25 @@ def build_reachability_report() -> dict[str, Any]:
             fill_required = {f"{base} (3)", "Potion flask"}
             fill_output = {shop_logic.potion_flask_name(base, 6)}
             fill_key = f"Shop service:teplin_fill_potion_flasks:{base}"
-            actions.append(
-                {
-                    "id": fill_key,
-                    "required": fill_required,
-                    "alternatives": (),
-                    "outputs": fill_output,
-                }
-            )
+            fill_action = {
+                "id": fill_key,
+                "required": fill_required,
+                "alternatives": (),
+                "outputs": fill_output,
+            }
+            if isinstance(teplin_fill.get("access"), Mapping):
+                fill_action["is_accessible"] = (
+                    lambda completed, startable, reachable, progress, service=teplin_fill: (
+                        shop_access_reachable(
+                            service,
+                            completed,
+                            startable,
+                            reachable,
+                            progress,
+                        )
+                    )
+                )
+            actions.append(fill_action)
             for item in fill_required:
                 consumers[item].add(fill_key)
             for item in fill_output:
@@ -1147,14 +1716,25 @@ def build_reachability_report() -> dict[str, Any]:
             decant_key = (
                 f"Shop service:teplin_decant_flasks_to_vials:{base}"
             )
-            actions.append(
-                {
-                    "id": decant_key,
-                    "required": decant_required,
-                    "alternatives": (),
-                    "outputs": decant_outputs,
-                }
-            )
+            decant_action = {
+                "id": decant_key,
+                "required": decant_required,
+                "alternatives": (),
+                "outputs": decant_outputs,
+            }
+            if isinstance(teplin_decant.get("access"), Mapping):
+                decant_action["is_accessible"] = (
+                    lambda completed, startable, reachable, progress, service=teplin_decant: (
+                        shop_access_reachable(
+                            service,
+                            completed,
+                            startable,
+                            reachable,
+                            progress,
+                        )
+                    )
+                )
+            actions.append(decant_action)
             for item in decant_required:
                 consumers[item].add(decant_key)
             for item in decant_outputs:
@@ -1173,14 +1753,25 @@ def build_reachability_report() -> dict[str, Any]:
         if not outputs:
             continue
         key = f"Shop service:{service_id}"
-        actions.append(
-            {
-                "id": key,
-                "required": required,
-                "alternatives": (),
-                "outputs": outputs,
-            }
-        )
+        action = {
+            "id": key,
+            "required": required,
+            "alternatives": (),
+            "outputs": outputs,
+        }
+        if isinstance(service.get("access"), Mapping):
+            action["is_accessible"] = (
+                lambda completed, startable, reachable, progress, service=service: (
+                    shop_access_reachable(
+                        service,
+                        completed,
+                        startable,
+                        reachable,
+                        progress,
+                    )
+                )
+            )
+        actions.append(action)
         for item in required:
             consumers[item].add(key)
         for item in outputs:
@@ -1252,22 +1843,85 @@ def build_reachability_report() -> dict[str, Any]:
     seed_sources: dict[str, set[str]] = defaultdict(set)
     seed_item_counts: dict[str, int] = defaultdict(int)
     repeatable_seed_items: set[str] = set()
+    conditional_seed_sources: list[dict[str, Any]] = []
+
+    def shop_access_reachable(
+        shop: Mapping[str, Any],
+        completable_quests: set[str],
+        startable_quests: set[str],
+        reachable_items: set[str],
+        quest_progress: Mapping[str, int],
+    ) -> bool:
+        player_data = closure_player_data(
+            completable_quests,
+            startable_quests,
+            reachable_items,
+            quest_progress,
+        )
+        return shop_logic.shop_access_lock_reason_pure(player_data, shop) is None
+
     for shop_id, shop in shop_data.SHOP_DATA.items():
         if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):
             continue
+        source_id = f"shop:{shop_id}"
+        item_counts: dict[str, int] = defaultdict(int)
+        repeatable_items: set[str] = set()
         for row in shop.get("stock", ()) or ():
             if row.get("disposition") == "live" and int(row.get("default_quantity", 0) or 0) > 0:
                 name = row.get("item_name")
                 if isinstance(name, str) and name:
-                    seed_sources[name].add(f"shop:{shop_id}")
-                    seed_item_counts[name] += int(row.get("default_quantity", 0) or 0)
+                    item_counts[name] += int(row.get("default_quantity", 0) or 0)
                     if int(row.get("restock_amount", 0) or 0) > 0:
-                        repeatable_seed_items.add(name)
+                        repeatable_items.add(name)
+        if not item_counts:
+            continue
+        if isinstance(shop.get("access"), Mapping):
+            conditional_seed_sources.append(
+                {
+                    "id": source_id,
+                    "items": set(item_counts),
+                    "item_counts": dict(item_counts),
+                    "repeatable_items": repeatable_items,
+                    "is_accessible": lambda completed, startable, reachable, progress, shop=shop: shop_access_reachable(
+                        shop,
+                        completed,
+                        startable,
+                        reachable,
+                        progress,
+                    ),
+                }
+            )
+            continue
+        for item, amount in item_counts.items():
+            seed_sources[item].add(source_id)
+            seed_item_counts[item] += amount
+        repeatable_seed_items.update(repeatable_items)
 
     for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
-        for item in _drop_names(enemy.get("drops", {})):
-            seed_sources[item].add(f"combat:{enemy_id}")
-            repeatable_seed_items.add(item)
+        items = _drop_names(enemy.get("drops", {}))
+        if enemy_id == "cyclops" and enemy.get("warriors_guild_gate"):
+            items.update(row["name"] for row in DEFENDER_TIERS[:-1])
+        if not items:
+            continue
+        source_id = f"combat:{enemy_id}"
+        conditional_seed_sources.append(
+            {
+                "id": source_id,
+                "items": items,
+                "repeatable_items": items,
+                "is_accessible": lambda completed, startable, reachable, progress, enemy_id=enemy_id, enemy=enemy: _combat_drop_gate_reachable(
+                    enemy_id,
+                    enemy,
+                    closure_player_data(
+                        completed,
+                        startable,
+                        reachable,
+                        progress,
+                        enemy=enemy,
+                    ),
+                ),
+            }
+        )
 
     for row in constants.BIRD_NEST_DROP_TABLE:
         for item in _names(row.get("item")):
@@ -1275,6 +1929,7 @@ def build_reachability_report() -> dict[str, Any]:
             repeatable_seed_items.add(item)
 
     scenario_sources: list[dict[str, set[str]]] = []
+    scenario_action_ids: list[set[str]] = []
     blocked_quest_stage_products, completable_quests, startable_quests = (
         _close_quest_reachability(
             actions,
@@ -1286,13 +1941,22 @@ def build_reachability_report() -> dict[str, Any]:
             quest_combat_source_satisfiable,
             claim_data=constants.CLAIM_DATA,
             maximum_skill_levels=maximum_skill_levels,
+            conditional_seed_sources=conditional_seed_sources,
             scenario_sources_out=scenario_sources,
+            scenario_action_ids_out=scenario_action_ids,
         )
     )
 
     scenario_closures = [
-        _close_actions(actions, sources)
-        for sources in scenario_sources
+        _close_actions(
+            actions,
+            sources,
+            active_action_ids=active_action_ids,
+        )
+        for sources, active_action_ids in zip(
+            scenario_sources,
+            scenario_action_ids,
+        )
     ]
     reachable = set.union(*(items for items, _route, _unresolved in scenario_closures))
     route = {
@@ -1349,6 +2013,7 @@ def build_reachability_report() -> dict[str, Any]:
         seed_sources,
         reachable,
         len(unresolved),
+        active_action_ids=set().union(*scenario_action_ids),
     )
 
     return {
