@@ -10876,6 +10876,31 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Magical cage"], 1)
 
+    def test_claim_tool_gate_honours_toolbelt_and_refuses_genuine_absence(self):
+        claim_id = "pickaxe_tool_gate_probe"
+        claim_data = {
+            claim_id: {
+                "item_name": "Tool gate proof",
+                "required_tools": (("Pickaxe", 1),),
+            }
+        }
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"] = {
+            name: quantity
+            for name, quantity in player_data["inventory"].items()
+            if not name.lower().endswith("pickaxe")
+        }
+
+        _, claimed = apply_claim_pure(player_data, claim_id, claim_data)
+
+        self.assertTrue(claimed)
+
+        player_data["toolbelt"]["mining"] = []
+
+        _, claimed = apply_claim_pure(player_data, claim_id, claim_data)
+
+        self.assertFalse(claimed)
+
     def test_the_golem_throne_claim_requires_tools_and_is_once_only(self):
         claim_id = "the_golem_thammarons_throne_gems"
         self.assertEqual(
