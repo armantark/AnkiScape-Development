@@ -430,6 +430,7 @@ from ..data.herblore_data import (
     jungle_potion_search_activities_as_dict,
     pestle_and_mortar_activities_as_dict,
 )
+from ..data.grind_source_data import grind_source_activities_as_dict
 from ..data.shop_data import shop_extra_items_as_dict
 from ..data.summoning_data import summoning_extra_items_as_dict
 from ..data.potion_data import potion_items_as_dict, potion_item_names
@@ -746,6 +747,7 @@ UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(grind_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(jungle_potion_search_activities_as_dict())
 for _activity_id, _icon_name in zip(
     JUNGLE_POTION_SEARCH_ACTIVITY_IDS,

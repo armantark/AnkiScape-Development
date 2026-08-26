@@ -245,15 +245,43 @@ def apply_crafting_pure(item, inventory, crafting_data, random_roll=None):
     return new_inv, exp, True
 
 
+def utility_activity_material_requirements_pure(activity_key, inventory, utility_activity_data):
+    """Resolve the exact consumable materials for a no-XP Utility/Activity."""
+    spec = utility_activity_data.get(activity_key)
+    if not spec:
+        return None
+    requirements = dict(spec.get("requirements", {}))
+    for material, alternatives in spec.get("material_options", {}).items():
+        amount = requirements.get(material)
+        if amount is None:
+            continue
+        selected = next(
+            (option for option in alternatives if inventory.get(option, 0) >= amount),
+            None,
+        )
+        if selected is None:
+            return None
+        del requirements[material]
+        requirements[selected] = amount
+    return requirements
+
+
 def can_perform_utility_activity_pure(inventory, activity_key, utility_activity_data):
     """Return True if a no-XP Utility/Activity can run for at least one batch."""
     spec = utility_activity_data.get(activity_key)
     if not spec:
         return False
+    for option_group in spec.get("required_item_options", ()):
+        if not any(inventory.get(item_name, 0) > 0 for item_name in option_group):
+            return False
     openable_items = spec.get("openable_items")
     if openable_items:
         return any(inventory.get(item_name, 0) > 0 for item_name in openable_items)
-    requirements = spec.get("requirements", {})
+    requirements = utility_activity_material_requirements_pure(
+        activity_key, inventory, utility_activity_data
+    )
+    if requirements is None:
+        return False
     batch_size = _positive_int(spec.get("batch_size", 1))
     if _max_batches_for_requirements(requirements, inventory, batch_size) <= 0:
         return False
@@ -376,11 +404,17 @@ def apply_utility_activity_pure(
 ):
     """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
     spec = utility_activity_data.get(activity_key)
-    if not spec:
+    if not spec or not can_perform_utility_activity_pure(
+        inventory,
+        activity_key,
+        utility_activity_data,
+    ):
         return inventory, 0, False, 0
     if spec.get("no_op"):
         return dict(inventory), 0, True, 1
-    requirements = spec.get("requirements", {})
+    requirements = utility_activity_material_requirements_pure(
+        activity_key, inventory, utility_activity_data
+    )
     batch_size = _positive_int(spec.get("batch_size", 1))
     batch_count = _max_batches_for_requirements(requirements, inventory, batch_size)
     if batch_count <= 0:

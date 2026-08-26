@@ -1153,9 +1153,17 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         prep_rows = {
             key: spec for key, spec in UTILITY_ACTIVITY_DATA.items() if spec.get("group") == "input_preparation"
         }
-        self.assertEqual(set(prep_rows), {"fill_vial_of_water", "remove_swamp_toad_legs"})
+        self.assertEqual(
+            set(prep_rows),
+            {"fill_vial_of_water", "remove_swamp_toad_legs", "make_rune_shards"},
+        )
         self.assertTrue(all(float(spec.get("exp", 0.0) or 0.0) == 0.0 for spec in prep_rows.values()))
-        self.assertTrue(all(spec.get("batch_size") == 28 for spec in prep_rows.values()))
+        self.assertTrue(
+            all(
+                spec.get("batch_size") == (1 if activity_id == "make_rune_shards" else 28)
+                for activity_id, spec in prep_rows.items()
+            )
+        )
 
         self.assertEqual(
             HERBLORE_DATA["finished_super_prayer"]["requirements"],

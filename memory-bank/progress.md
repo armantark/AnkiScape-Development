@@ -6167,3 +6167,10 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Rev-742 objects 75775/75776 and items 25122–25125 preserve the action and
   reward identities; pinned pre-cutoff article revisions supply the level and
   XP values.
+
+## Rune shard chain — 2026-08-26
+
+- Added the sourced `make_rune_shards` Utility action: one Rune essence or Pure essence plus a retained Chisel or Hammer yields one Rune shards.
+- Utility processing now resolves material alternatives and required tool alternatives before consuming inputs, so direct kernel calls fail atomically when either side is missing.
+- A fresh-save real-kernel proof mines and sells 27 Clay, buys both tools from General Store stock, completes Rune Mysteries through its emitted stage actions, mines Rune essence, makes Rune shards, and grinds one Rune dust without writing quest state.
+- Full plain discovery passes 4,442 tests with 506 expected skips. Reachability moves from 1,599 / 2,466 / 37 / 36 to 1,600 actions / 2,468 reachable items / 36 orphan inputs / 35 blocked actions.
