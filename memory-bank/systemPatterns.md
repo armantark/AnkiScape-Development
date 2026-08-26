@@ -761,6 +761,39 @@ expected file and provenance key in the asset test.
 - Review pacing is now an integer **actions-per-review** multiplier, not an XP-only scalar. Runtime reads `ankiscape_review_action_multiplier` (falling back to the old `ankiscape_xp_multiplier` key), executes up to N normal action ticks inside one eligible review, aggregates floating feedback, and records one undo snapshot for the whole review. Gathering skills spend N independent probability rolls; processing and Utility/Activities stop cleanly when materials run out before an extra sub-action.
 - Every started review action should record durable telemetry in `player_data["action_telemetry"]`. The stable row key is `skill_id:action_id`; rows track attempts, successes, failures, expected successes, dry streaks, output counts, and failure kinds. Blocked actions such as missing materials or insufficient level do not count as attempts, but dry RNG outcomes, Cooking burns, and iron smelt failures do save telemetry.
 
+## Landmark activity pattern
+
+Stronghold of Security, shipped on 2026-07-08 in commit `d3d1f57`, is the first
+landmark: a one-time step-counter activity in the Utility hub. Landmarks are
+counters rather than repeatable material conversions, so they stay outside
+`UTILITY_ACTIVITY_DATA` and use this wiring:
+
+- `logic_pure.py` owns `default_*_state_pure`, `sanitize_*_state_pure`, and
+  `apply_*_step_pure`. Sanitation clamps the step, implies completion at the
+  maximum, and repairs garbage to 0. The step helper advances once and reports
+  `advanced` and `just_completed`; `grant_*_reward_pure` guards on a claim field
+  being `None`, so a second claim is inert. Names, step totals, and reward
+  choices are module constants.
+- `storage_pure.py` seeds the state in `default_player_data` and backfills it
+  through `sanitize_*` in `migrate_loaded_data`.
+- `runtime_actions.py` branches `handle_utility_answer` on the landmark activity
+  key and calls a dedicated `_handle_*_answer(ctx)`. On `just_completed`, it
+  deactivates the activity, toasts, and invokes a new optional
+  `RuntimeActionContext` callback, `ctx.prompt_*_reward()`.
+- `ui.py` injects a synthetic tree group instead of reading the conversion
+  table. Its click path starts the activity, claims the reward, or remains inert
+  after a claim; the reward dialog returns the selected choice. Every non-group
+  row needs an icon or `test_utility_rows_use_activity_icon_contract` fails.
+- `__init__.py` persists through `_claim_*_reward` and defers
+  `_prompt_*_reward` with `QTimer.singleShot(0, ...)`, so the modal cannot open
+  during Anki answer-card processing. Wire both callbacks into the runtime
+  context and the menu route.
+
+Generate reward equipment through `tools/generate_equipment_data.py`; do not
+hand-edit `equipment_data.py`. Stronghold's reward identities are Fancy boots
+9005 and Fighting boots 9006. Landmarks are add-on-original content, not
+parity-locked.
+
 ## Architectural Pressure
 Adding many skills by copying the current pattern would increase duplication in:
 - skill selection UI
@@ -955,6 +988,33 @@ skill registry's save keys. Temporary Combat boosts and drains come from
 projected from their owning settled state. The same calculation must feed both
 the three-column cell and the selected detail block so those two surfaces
 cannot disagree.
+
+## Melee attack-type resolver
+
+The stab, slash, and crush resolver shipped on 2026-07-08 in commit `a799d02`.
+It combines the equipped weapon's `weapon_type` ID with the selected slot through
+`WEAPON_TYPE_ATTACK_STYLES` in `combat_data.py`, transcribed from 2011Scape's
+`AttackStyleData.kt`. Storage deliberately keeps two orthogonal fields:
+`combat_attack_style` retains the weapon-style string
+(`accurate`/`aggressive`/`defensive`/`controlled`/`ranged_*`/`magic_*`), while
+`combat_attack_style_type` selects `auto`, `stab`, `slash`, or `crush` within
+that slot. `auto` uses the weapon's first matching slot, defaults to `auto`, and
+requires no migration for old saves.
+
+Do not collapse base weapon style and XP mode. `TWO_HANDED_SWORD` slot 3 is the
+only anomaly: its `weaponStyle` is `AGGRESSIVE`, but its `xpMode` is `SHARED`.
+Effective level and accuracy therefore use the base weapon style, while XP uses
+the resolved slot's `xp_mode` through `melee_xp_style_id` and
+`_COMBAT_XP_MODE_TO_STYLE_ID`.
+
+D1's type-specific player roll uses `attack_<type>` and `defence_<type>`, but an
+enemy attacking the player still uses `max(attack_*)` and `max(defence_*)`.
+Enemy data exposes only `attack_style: "melee"`, with no concrete physical
+subtype to resolve, so that `max()` boundary is intentional parity behavior.
+The pure entry points are `combat_melee_attack_type_pure`, which returns
+`(style_type, xp_style_id)`, `combat_weapon_attack_style_slots_pure`, and
+`combat_weapon_style_options_pure`. Typeless weapons and bare fists use
+`WEAPON_TYPE_UNARMED_STYLES`, all crush.
 
 ## Combat selector restore timing
 

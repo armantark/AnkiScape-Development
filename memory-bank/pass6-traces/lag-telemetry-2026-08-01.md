@@ -38,12 +38,15 @@ Qt traversals per refresh cycle measured 90 on main, two once at add-on load on
 this branch, and zero in steady state. Anki's real undo queue retained exactly 30
 surviving steps under Anki 25.09.4, which is why the review undo cap is 30.
 
-All five dossier fixes outside AnkiScape are also applied. Each edited file has a
-`.prefix-backup` copy beside it, because those add-on directories are not version
-controlled and that is the only rollback that exists. The three items the dossier
-marks as owner decisions were deliberately left alone: the Review Heatmap history
-limit, the AnkiConnect poll interval, and whether AnkiWeb updates stay on. An
-AnkiWeb update to any of the three add-ons reverts its patch.
+On 2026-08-01, all five dossier fixes outside AnkiScape were hand-applied across
+Auto Sync (`501542723`), Review Heatmap (`1771074083`), and AnkiConnect
+(`2055492159`). Those add-on directories are not version controlled. Each edited
+file has a `.prefix-backup` copy beside it, which is the only rollback that
+exists. The three items the dossier marks as owner decisions were deliberately
+left alone: the Review Heatmap history limit, the AnkiConnect poll interval, and
+whether AnkiWeb updates stay on. An AnkiWeb update to any of the three add-ons
+silently reverts its patch, so verify these sites before re-diagnosing returning
+add-on lag.
 
 ## (b) Can telemetry identify the culprit add-on?
 

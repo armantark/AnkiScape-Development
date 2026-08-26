@@ -13,6 +13,18 @@
   `Anki2/ankiscape_worktrees/` directory and must be created/audited through
   `python3 tools/worktree_guard.py`; otherwise Anki loads each enabled worktree
   as a separate add-on copy.
+- Do not dispatch AnkiScape implementation through the native Agent tool. It
+  creates a locked checkout at
+  `addons21/ankiscape_fork/.claude/worktrees/agent-<id>`, and
+  `tools/worktree_guard.py audit` rejects it with
+  `error: Anki would load linked/duplicate AnkiScape checkouts:`. The nested
+  paths are not direct `addons21` children and Anki would not import them, but
+  the guard is authoritative and must not be bypassed. Workflow `agent()` left
+  the worktree registry unchanged during and after a 2026-08-19 probe, so use
+  that route instead. Remove orphaned native-Agent directories
+  only after their owning agent has returned, never because `lsof +D <dir>`
+  shows no open handles; that test removed a live research agent's checkout on
+  2026-08-19 because agents hold no handles between tool calls.
 - Future AnkiWeb updates may recreate or update `addons21/1808450369`; treat that folder as upstream and manually diff/merge changes into `ankiscape_fork`.
 - Public release must use a new AnkiWeb listing rather than reusing
   `1808450369`, remove or replace the current hard-coded review link to that
@@ -59,6 +71,80 @@
   generator directly or as a module; its `--game-root` is the external
   `/Users/ArmanTarkhanian1/Downloads/game-main` checkout, and
   `data/cfg/items.yml` is relative to that external root rather than this repo.
+
+### Parallel quest and family work
+
+Batch quest repairs by distance in `data/quest_data.py`, not alphabetically. The
+alphabetical batch two containing Carnillean Rising, Deadliest Catch,
+Dealing with Scabaras, and Demon Slayer produced conflicts in three of four
+branches, left the merged tree unable to import, and required a dedicated
+13-minute merge agent. The distance-batched follow-up used Shield of Arrav at
+2617, Priest in Peril at 3309, Holy Grail at 5252, and Dwarf Cannon at 9535,
+with a smallest gap of 692 lines, and had zero `quest_data.py` conflicts. Quest
+entries cluster around lines 2600-3350, 3600-3850, 5250-5700, and 7760-8230;
+locate both `<NAME>_ID,` definitions and tuple-style `<NAME>_STAGES:
+Tuple[QuestStage` entries. Give each writer its siblings' anchor lines, keep it
+inside its region, and prefer quests outside the entry-3.32 route-gate class so
+a landed repair is finishable.
+
+Every quest branch also re-pins the seven values in
+`tests/test_item_reachability_audit.py`; that conflict is expected and must be
+resolved by re-measuring the merged tree. In the distance-batched follow-up,
+merged `reachable_item_count` was 2392 while branches held 2390 and 2383, and
+merged `seed_item_count` was 1145 while branches held 1143 and 1136. No branch
+contained the merged truth.
+
+Keep complex family briefs to one family per agent. On 2026-07-27, both
+Troll Invasion + Shattered Heart and Mage Training Arena + Temple Trekking
+overflowed Sol's context, although the same two-family shape had completed
+Tears of Guthix + Enchanted Key on 2026-07-26. Both failed runs left a
+`feat: complete X` commit written before review fixes were applied; one
+"complete" claim still had three unapplied MEDIUM findings. Use targeted greps
+and no whole-file re-reads, never trust a dead agent's final commit message, and
+diff its commit against the last reviewer report. A successor in the same
+worktree can recover from a findings-list brief.
+
+### Family-branch integration
+
+Never resolve a family branch's code conflicts by textual union. Three
+integrations on 2026-07-27/28 interleaved parallel additions at import blocks,
+dispatch chains, sanitizer and migration chains, and panel construction anchors.
+The result included truncated functions, imports inside other imports'
+parentheses, and duplicated guard chains; twice this broke at least six files,
+and once the broken merge reached main and prevented the owner's Anki from
+loading.
+
+When main has moved by more than documentation since the family branch fork:
+
+1. If a trial merge conflicts in code, run `git merge --abort` immediately. Do
+   not leave main with markers or hand-union the hunks there.
+2. Rebase the branch onto main in its worktree with a dedicated Sol agent. Keep
+   both semantic additions, run `ast.parse` on every resolved Python file, keep
+   migration chains in numeric order, renumber forked migrations, union asset
+   JSON dictionaries with main winning key clashes, and make version tests
+   assert `CURRENT_CONFIG_VERSION`.
+3. Require both test lanes green in the worktree and
+   `git merge-tree --write-tree main HEAD` to exit clean. Only then merge on
+   main, and rerun the default lane on main before reporting the family landed.
+
+After a merge is reverted on main, a plain re-merge drops the reverted changes;
+rebasing gives them new commit IDs and avoids that history trap.
+
+### Long-running background processes
+
+Long plain background shells are not durable in this environment. On 2026-08-15
+at 00:37, 01:40, and 02:10 PDT, three long-running background Bash tasks, Codex
+exec runs and an SSH watcher, were killed externally with no user message;
+foreground calls and short background tasks survived. A plain background
+`codex exec` dies with its shell, losing 15-30 minutes of agent time even though
+repository edits survive and the session can be resumed with
+`codex exec resume --last`.
+
+For a run expected to exceed about 10 minutes, launch it detached with
+`nohup ... & disown`, send output to a scratchpad log, write the final report to
+a scratchpad file with `-o`, and poll that report file from a cheap disposable
+background loop. The detached process can finish and commit even if every
+polling shell is reaped.
 
 ### Fast Qt UI loop (no Anki restart)
 - A dedicated `uv` venv at `.venv-qt` (git-ignored) has `aqt` installed, which bundles PyQt6.

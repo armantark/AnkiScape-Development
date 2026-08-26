@@ -4,6 +4,17 @@ The headless test mirror is on `Armans-MacBook-Pro.local` at
 `/Users/armantarkhanian/ankiscape-remote-test-host`. It is a disposable mirror,
 not a canonical checkout and not an Anki add-on directory.
 
+## On-screen computer use
+
+The owner's standing direction from 2026-07-31 is: "Use the MacBook Pro for
+onscreen work as needed." Connect with
+`ssh ArmanTarkhanian@armans-macbook-pro`; use the tailnet name because mDNS is
+unreachable. The laptop-local Codex binary is
+`/Applications/ChatGPT.app/Contents/Resources/codex`. Its first GUI run needs
+Screen Recording and Accessibility approval on the laptop screen. For
+AnkiScape, this laptop is the pass-6 prober host; the original setup and role
+record remains in `memory-bank/pass5-triage-2026-07-31.md`.
+
 Use the checked-in runner from any local AnkiScape worktree:
 
 ```bash
