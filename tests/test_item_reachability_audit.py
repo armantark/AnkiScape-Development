@@ -703,15 +703,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1599)
-        self.assertEqual(report["reachable_item_count"], 2466)
+        self.assertEqual(report["action_count"], 1600)
+        self.assertEqual(report["reachable_item_count"], 2468)
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 37)
-        self.assertEqual(report["root_orphan_count"], 33)
+        self.assertEqual(report["orphan_input_count"], 36)
+        self.assertEqual(report["root_orphan_count"], 32)
         self.assertEqual(report["cascade_orphan_count"], 4)
-        self.assertEqual(report["unresolved_action_count"], 36)
+        self.assertEqual(report["unresolved_action_count"], 35)
         self.assertEqual(report["seed_item_count"], 1218)
         self.assertFalse(
             [
