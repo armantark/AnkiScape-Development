@@ -168,9 +168,6 @@ def build_quests_tab(ctx) -> "QWidget":
             if blocker_text:
                 return blocker_text
             return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
-        choice_text = _short_choice_text(quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA))
-        if choice_text:
-            return choice_text
         return "Not started"
 
     def _quest_button_text(state: dict) -> str:
@@ -297,8 +294,6 @@ def build_quests_tab(ctx) -> "QWidget":
         stage_blocker_text = _short_stage_blocker_text(stage_blocker_reasons)
         choice_rows = () if q_state.get("completed") else quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA)
         choice_text = _short_choice_text(choice_rows)
-        if choice_text and not stage_blocker_text:
-            stage_blocker_text = choice_text
         active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
         default_expanded = bool(choice_rows or (q_state.get("started") and not q_state.get("completed") and active_this_quest))
         expanded = expanded_quests.get(quest_id, default_expanded)

@@ -5867,6 +5867,30 @@ class TestLogic(unittest.TestCase):
                 }
                 self.assertEqual(grants, expected_grants)
 
+    def test_quest_route_choice_rejects_unstarted_implicit_stage_zero_choice(self):
+        quest_id = "implicit_stage_zero_choice"
+        route_id = "Take the hidden route"
+        quest_data = {
+            quest_id: {
+                "choices": (
+                    {
+                        "prompt": "Choose a route.",
+                        "options": (
+                            {"label": "Hidden route", "route_id": route_id},
+                        ),
+                    },
+                ),
+            },
+        }
+        player_data = {"quests": {}}
+        before = copy.deepcopy(player_data)
+
+        rejected, ok = apply_quest_route_choice_pure(player_data, quest_id, quest_data, route_id)
+
+        self.assertFalse(ok)
+        self.assertIs(rejected, player_data)
+        self.assertEqual(player_data, before)
+
     def test_quest_route_choices_require_started_stage_and_cover_heroes_inherited_shield_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.assertEqual(quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA), ())
