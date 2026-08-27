@@ -6948,6 +6948,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         bank_texts = _bank_grid_texts(dialog)
         self.assertIn("Air rune x5", bank_texts)
         self.assertIn("Mind rune x5", bank_texts)
+        self.assertIn("Bronze arrows x10", bank_texts)
         self.assertIn("Fire rune x150", bank_texts)
 
         threshold_spin.setValue(60)

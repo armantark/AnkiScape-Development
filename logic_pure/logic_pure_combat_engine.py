@@ -837,7 +837,6 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
         "wilderness_risk"
     ):
         data["combat_encounter"] = {}
-    data = repair_combat_supply_loadout_class_pure(data, equipment_data)
     max_lp = combat_max_lifepoints_pure(data)
     current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
     rest_reviews = _non_negative_int(data.get("combat_rest_reviews", 0), 0)
@@ -884,6 +883,9 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     if bank_run_result is not None:
         data["combat_last_result"] = bank_run_result
         return data
+    # A stale loadout must not deliver an instant restock: the repair stays
+    # behind the bank-run gate so any refill rides the normal cadence.
+    data = repair_combat_supply_loadout_class_pure(data, equipment_data)
     data.update(
         sanitize_equipment_instance_state_pure(
             data, EQUIPMENT_CONDITION_DATA
@@ -2515,7 +2517,6 @@ def apply_combat_burst_pure(
                     player_lp,
                 )
     data["combat_lifepoints"] = player_lp
-    data = repair_combat_supply_loadout_class_pure(data, equipment_data)
     result = {
         "reason": "combat_burst",
         "target_id": target_id,
