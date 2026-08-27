@@ -35,6 +35,7 @@ EXTREME_DEFENCE_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_defence?oldid=64
 EXTREME_MAGIC_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_magic?oldid=6462609"
 EXTREME_RANGING_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_ranging?oldid=6462610"
 SHRINK_ME_QUICK_WIKI_SOURCE = "https://runescape.wiki/w/Shrink-me-quick?oldid=6333484"
+GRIMY_GUAM_WIKI_SOURCE = "https://runescape.wiki/w/Grimy_guam?oldid=6560041"
 PESTLE_AND_MORTAR_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/pestle_and_mortar/PestleAndMortarData.kt"
@@ -131,7 +132,7 @@ class InputPreparationActivity:
 
 
 _SOURCE_CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
-    HerbloreTarget('clean_guam', 'Clean guam', "clean", "herb", 3, 2.5, (('Grimy guam', 1),), 'Clean guam'),
+    HerbloreTarget('clean_guam', 'Clean guam', "clean", "herb", 1, 2.5, (('Grimy guam', 1),), 'Clean guam', source=GRIMY_GUAM_WIKI_SOURCE),
     HerbloreTarget('clean_marrentill', 'Clean marrentill', "clean", "herb", 5, 3.8, (('Grimy marrentill', 1),), 'Clean marrentill'),
     HerbloreTarget('clean_tarromin', 'Clean tarromin', "clean", "herb", 11, 5.0, (('Grimy tarromin', 1),), 'Clean tarromin'),
     HerbloreTarget('clean_harralander', 'Clean harralander', "clean", "herb", 20, 6.3, (('Grimy harralander', 1),), 'Clean harralander'),

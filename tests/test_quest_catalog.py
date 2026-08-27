@@ -2089,20 +2089,56 @@ class TestQuestCatalog(unittest.TestCase):
             {"Black bead": 1, "Red bead": 1, "White bead": 1, "Yellow bead": 1},
         )
 
-        druidic_by_stage = {row["stage"]: row for row in data["druidic_ritual"]["stage_requirements"]}
-        self.assertEqual(data["druidic_ritual"]["rewards"], {})
+        druidic = data["druidic_ritual"]
+        druidic_by_stage = {row["stage"]: row for row in druidic["stage_requirements"]}
+        self.assertEqual(druidic["stages"], 8)
+        self.assertEqual(druidic["rewards"], {"Grimy guam": 15, "Eye of newt": 15})
+        self.assertEqual(tuple(druidic_by_stage), tuple(range(1, 8)))
         self.assertEqual(
-            druidic_by_stage[2]["consumed_inventory"],
-            {"Raw bear meat": 1, "Raw rat meat": 1, "Raw beef": 1, "Raw chicken": 1},
+            tuple(row["auto_actions"] for row in druidic["stage_requirements"]),
+            (
+                ("Speak to Sanfew about the ritual ingredients",),
+                ("Collect Living water from the cave south of Taverley",),
+                (
+                    "Pick Wandering wyrmwood in south Taverley, just north of Nora T. Hagg's house",
+                ),
+                ("Catch a Stone fish at the Sparkling Fishing Spot",),
+                ("Use a chisel on the Stone fish",),
+                ("Give Sanfew the ritual ingredients",),
+                ("Give the Ointment of imbalance to Kaqemeex",),
+            ),
+        )
+        self.assertEqual(druidic_by_stage[1]["produced_inventory"], {"Vial": 1})
+        self.assertEqual(druidic_by_stage[2]["consumed_inventory"], {"Vial": 1})
+        self.assertEqual(druidic_by_stage[2]["produced_inventory"], {"Living water": 1})
+        self.assertEqual(druidic_by_stage[4]["consumed_inventory"], {"Coins": 1})
+        self.assertEqual(druidic_by_stage[4]["required_tools"], {"Fishing rod": 1})
+        self.assertEqual(druidic_by_stage[4]["produced_inventory"], {"Stone fish": 1})
+        self.assertEqual(druidic_by_stage[5]["required_inventory"], {"Stone fish": 1})
+        self.assertEqual(druidic_by_stage[5]["required_tools"], {"Chisel": 1})
+        self.assertEqual(druidic_by_stage[5]["consumed_inventory"], {})
+        self.assertEqual(druidic_by_stage[5]["produced_inventory"], {"Stone scales": 1})
+        self.assertEqual(
+            druidic_by_stage[6]["consumed_inventory"],
+            {"Living water": 1, "Wandering wyrmwood": 1, "Stone scales": 1},
         )
         self.assertEqual(
-            druidic_by_stage[2]["produced_inventory"],
-            {"Enchanted bear meat": 1, "Enchanted rat meat": 1, "Enchanted beef": 1, "Enchanted chicken": 1},
+            druidic_by_stage[6]["produced_inventory"],
+            {"Ointment of imbalance": 1},
         )
-        self.assertEqual(
-            druidic_by_stage[3]["consumed_inventory"],
-            {"Enchanted bear meat": 1, "Enchanted rat meat": 1, "Enchanted beef": 1, "Enchanted chicken": 1},
-        )
+        item_by_name = {item.storage_key: item for item in ITEM_DEFINITIONS}
+        for item_name, item_id in (
+            ("Living water", 23096),
+            ("Wandering wyrmwood", 23097),
+            ("Stone fish", 23098),
+            ("Stone scales", 23099),
+            ("Ointment of imbalance", 23100),
+        ):
+            with self.subTest(item_name=item_name):
+                item = item_by_name[item_name]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertFalse(item.tradeable)
+                self.assertFalse(item.stackable)
 
         pirate_by_stage = {row["stage"]: row for row in data["pirates_treasure"]["stage_requirements"]}
         self.assertEqual(data["pirates_treasure"]["rewards"], {"Casket (Pirate's Treasure)": 1})

@@ -587,6 +587,113 @@ class TestStoragePure(unittest.TestCase):
             {"claimed": False},
         )
 
+    def test_v119_migration_maps_druidic_ritual_progress_forward(self):
+        cases = (
+            (False, 0, False, 0),
+            (True, 0, False, 0),
+            (True, 1, False, 1),
+            (True, 2, False, 2),
+            (True, 3, False, 6),
+            (True, 4, False, 4),
+            (True, 4, True, 8),
+        )
+        for started, old_progress, completed, new_progress in cases:
+            with self.subTest(
+                started=started, old_progress=old_progress, completed=completed
+            ):
+                legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                legacy["config_version"] = 118
+                legacy["quests"]["druidic_ritual"] = {
+                    "started": started,
+                    "progress": old_progress,
+                    "completed": completed,
+                }
+
+                migrated = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+
+                state = migrated["quests"]["druidic_ritual"]
+                self.assertEqual(state["started"], started)
+                self.assertEqual(state["progress"], new_progress)
+                self.assertEqual(state["completed"], completed)
+                if old_progress == 2:
+                    self.assertEqual(migrated["inventory"]["Vial"], 1)
+                elif old_progress == 3:
+                    self.assertEqual(migrated["inventory"]["Living water"], 1)
+                    self.assertEqual(migrated["inventory"]["Wandering wyrmwood"], 1)
+                    self.assertEqual(migrated["inventory"]["Stone scales"], 1)
+
+    def test_v119_migration_returns_retired_meats_and_actions_to_safe_state(self):
+        legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        legacy["config_version"] = 118
+        legacy["quests"]["druidic_ritual"] = {
+            "started": True,
+            "progress": 3,
+            "completed": False,
+        }
+        legacy["inventory"].update(
+            {
+                "Raw bear meat": 2,
+                "Enchanted bear meat": 1,
+                "Enchanted rat meat": 2,
+                "Enchanted beef": 3,
+                "Enchanted chicken": 4,
+            }
+        )
+        legacy["quest_stage_actions"] = {
+            "druidic_ritual": [
+                "Speak to Sanfew about the ritual ingredients",
+                "Dip the raw meats in the Cauldron of Thunder",
+                "Give Sanfew the enchanted meats and return to Kaqemeex",
+                "Keep this action",
+            ]
+        }
+
+        migrated = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["inventory"]["Raw bear meat"], 3)
+        self.assertEqual(migrated["inventory"]["Raw rat meat"], 2)
+        self.assertEqual(migrated["inventory"]["Raw beef"], 3)
+        self.assertEqual(migrated["inventory"]["Raw chicken"], 4)
+        for item_name in (
+            "Enchanted bear meat",
+            "Enchanted rat meat",
+            "Enchanted beef",
+            "Enchanted chicken",
+        ):
+            self.assertNotIn(item_name, migrated["inventory"])
+        self.assertEqual(
+            migrated["quest_stage_actions"]["druidic_ritual"],
+            ["Keep this action", "Speak to Sanfew about the ritual ingredients"],
+        )
+
+        migrated_again = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(migrated_again["inventory"]["Raw bear meat"], 3)
+        self.assertEqual(migrated_again["inventory"]["Raw rat meat"], 2)
+        self.assertEqual(migrated_again["inventory"]["Raw beef"], 3)
+        self.assertEqual(migrated_again["inventory"]["Raw chicken"], 4)
+
+    def test_current_schema_does_not_remigrate_druidic_ritual_state(self):
+        current = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        current["quests"]["druidic_ritual"] = {
+            "started": True,
+            "progress": 3,
+            "completed": False,
+        }
+        current["inventory"]["Enchanted bear meat"] = 1
+        current["quest_stage_actions"] = {
+            "druidic_ritual": ["Dip the raw meats in the Cauldron of Thunder"]
+        }
+
+        migrated = migrate_loaded_data(current, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["quests"]["druidic_ritual"]["progress"], 3)
+        self.assertEqual(migrated["inventory"]["Enchanted bear meat"], 1)
+        self.assertEqual(migrated["inventory"].get("Living water", 0), 0)
+        self.assertEqual(
+            migrated["quest_stage_actions"]["druidic_ritual"],
+            ["Dip the raw meats in the Cauldron of Thunder"],
+        )
+
     def test_v111_migration_restores_constitution_starting_xp_once(self):
         untouched = migrate_loaded_data({"config_version": 110}, ORE_DATA)
         migrated = migrate_loaded_data(

@@ -358,7 +358,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 118
+CURRENT_CONFIG_VERSION = 119
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -957,6 +957,54 @@ def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
     )
     _migrate_quest_flag_collection(data, "quest_stage_actions")
     _migrate_quest_flag_collection(data, "quest_route_states")
+
+
+def _migrate_druidic_ritual_rework(
+    data: Dict[str, Any], loaded_config_version: int
+) -> None:
+    if loaded_config_version >= 119:
+        return
+
+    inventory = data["inventory"]
+    for enchanted_name, raw_name in (
+        ("Enchanted bear meat", "Raw bear meat"),
+        ("Enchanted rat meat", "Raw rat meat"),
+        ("Enchanted beef", "Raw beef"),
+        ("Enchanted chicken", "Raw chicken"),
+    ):
+        _merge_renamed_item_quantity(inventory, enchanted_name, raw_name)
+
+    state = data["quests"]["druidic_ritual"]
+    progress = state["progress"]
+    if state["completed"]:
+        state.update(started=True, progress=8)
+    else:
+        state["progress"] = {3: 6}.get(progress, progress)
+        seed_items = {
+            2: ("Vial",),
+            3: ("Living water", "Wandering wyrmwood", "Stone scales"),
+        }.get(progress, ())
+        for item_name in seed_items:
+            try:
+                amount = int(inventory.get(item_name, 0) or 0)
+            except (TypeError, ValueError):
+                amount = 0
+            inventory[item_name] = max(1, amount)
+
+    actions = data["quest_stage_actions"]
+    retired_actions = {
+        "Dip the raw meats in the Cauldron of Thunder",
+        "Give Sanfew the enchanted meats and return to Kaqemeex",
+    }
+    surviving_actions = [
+        action
+        for action in actions.get("druidic_ritual", ())
+        if action not in retired_actions
+    ]
+    if surviving_actions:
+        actions["druidic_ritual"] = surviving_actions
+    else:
+        actions.pop("druidic_ritual", None)
 
 
 def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
@@ -1874,6 +1922,9 @@ def migrate_loaded_data(
     _migrate_legacy_bar_inventory(inv)
     _migrate_legacy_crafting_inventory(inv)
     data["inventory"] = inv
+    # v119 replaces the retired meat-and-cauldron quest with the January 2012
+    # Druidic Ritual rework without sending active saves backwards.
+    _migrate_druidic_ritual_rework(data, loaded_config_version)
 
     # Migrate every persisted reference before the carried-state sanitizer
     # clamps saved views against the already-renamed bank.

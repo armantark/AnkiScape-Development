@@ -2155,8 +2155,8 @@ class TestLogic(unittest.TestCase):
         clean = HERBLORE_DATA["clean_guam"]
         self.assertEqual(clean["exp"], 2.5)
         inv = {"Grimy guam": 2}
-        self.assertTrue(can_herblore_target_pure(3, inv, "clean_guam", HERBLORE_DATA))
-        self.assertFalse(can_herblore_target_pure(2, inv, "clean_guam", HERBLORE_DATA))
+        self.assertTrue(can_herblore_target_pure(1, inv, "clean_guam", HERBLORE_DATA))
+        self.assertFalse(can_herblore_target_pure(0, inv, "clean_guam", HERBLORE_DATA))
         new_inv, exp, ok = apply_herblore_action_pure("clean_guam", inv, HERBLORE_DATA)
         self.assertTrue(ok)
         self.assertAlmostEqual(exp, 2.5)
@@ -2201,12 +2201,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(overload_inv["Vial"], 4)
         self.assertTrue(all(overload_inv[item] == 0 for item in overload_inputs))
 
-        # Missing materials and level gate both refuse and award nothing.
+        # Missing materials refuse and award nothing at the level-1 floor.
         self.assertEqual(
             herblore_target_locked_reasons_pure(
                 {"herblore_level": 1, "inventory": {}}, "clean_guam", HERBLORE_DATA
             ),
-            ("Herblore level 3", "materials"),
+            ("materials",),
         )
         no_inv, no_exp, no_ok = apply_herblore_action_pure("finished_attack_potion", {}, HERBLORE_DATA)
         self.assertFalse(no_ok)
@@ -8041,38 +8041,89 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(imp["pending_skill_exp_rewards"], {})
 
         druidic = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        druidic["quests"]["druidic_ritual"] = {"started": True, "progress": 1, "completed": False}
-        druidic["quest_stage_actions"] = {"druidic_ritual": ["Speak to Sanfew about the ritual ingredients"]}
-        druidic, ok, completed_now = apply_quest_progress_pure(druidic, "druidic_ritual", QUEST_DATA)
+        druidic, ok = start_quest_pure(druidic, "druidic_ritual", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(druidic["quests"]["druidic_ritual"]["progress"], 0)
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(druidic["quests"]["druidic_ritual"]["progress"], 2)
-        druidic["inventory"].update({"Raw bear meat": 1, "Raw rat meat": 1, "Raw beef": 1, "Raw chicken": 1})
-        druidic["quest_stage_actions"]["druidic_ritual"].append("Dip the raw meats in the Cauldron of Thunder")
-        druidic, ok, completed_now = apply_quest_progress_pure(druidic, "druidic_ritual", QUEST_DATA)
+        self.assertEqual(druidic["inventory"]["Vial"], 1)
+
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(druidic["inventory"]["Raw bear meat"], 0)
-        self.assertEqual(druidic["inventory"]["Raw rat meat"], 0)
-        self.assertEqual(druidic["inventory"]["Raw beef"], 0)
-        self.assertEqual(druidic["inventory"]["Raw chicken"], 0)
-        self.assertEqual(druidic["inventory"]["Enchanted bear meat"], 1)
-        self.assertEqual(druidic["inventory"]["Enchanted rat meat"], 1)
-        self.assertEqual(druidic["inventory"]["Enchanted beef"], 1)
-        self.assertEqual(druidic["inventory"]["Enchanted chicken"], 1)
-        druidic["quest_stage_actions"]["druidic_ritual"].append("Give Sanfew the enchanted meats and return to Kaqemeex")
-        druidic, ok, completed_now = apply_quest_progress_pure(druidic, "druidic_ritual", QUEST_DATA)
+        self.assertEqual(druidic["quests"]["druidic_ritual"]["progress"], 3)
+        self.assertEqual(druidic["inventory"]["Vial"], 0)
+        self.assertEqual(druidic["inventory"]["Living water"], 1)
+
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(druidic["quests"]["druidic_ritual"]["progress"], 4)
+        self.assertEqual(druidic["inventory"]["Wandering wyrmwood"], 1)
+
+        fishing_blockers = quest_current_stage_blocker_reasons_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
+        self.assertIn("Needs Coins x1", fishing_blockers)
+        self.assertIn("Needs Fishing rod", fishing_blockers)
+        druidic["inventory"].update({"Coins": 1, "Fishing rod": 1})
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(druidic["inventory"]["Coins"], 0)
+        self.assertEqual(druidic["inventory"]["Fishing rod"], 1)
+        self.assertEqual(druidic["inventory"]["Stone fish"], 1)
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(druidic, "druidic_ritual", QUEST_DATA),
+            ("Needs Chisel",),
+        )
+        druidic["inventory"]["Chisel"] = 1
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(druidic["inventory"]["Chisel"], 1)
+        self.assertEqual(druidic["inventory"]["Stone fish"], 1)
+        self.assertEqual(druidic["inventory"]["Stone scales"], 1)
+
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(druidic["inventory"]["Living water"], 0)
+        self.assertEqual(druidic["inventory"]["Wandering wyrmwood"], 0)
+        self.assertEqual(druidic["inventory"]["Stone scales"], 0)
+        self.assertEqual(druidic["inventory"]["Ointment of imbalance"], 1)
+
+        druidic, ok, completed_now = apply_quest_progress_pure(
+            druidic, "druidic_ritual", QUEST_DATA
+        )
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertEqual(druidic["inventory"]["Enchanted bear meat"], 0)
-        self.assertEqual(druidic["inventory"]["Enchanted rat meat"], 0)
-        self.assertEqual(druidic["inventory"]["Enchanted beef"], 0)
-        self.assertEqual(druidic["inventory"]["Enchanted chicken"], 0)
+        self.assertEqual(druidic["quests"]["druidic_ritual"]["progress"], 8)
+        self.assertEqual(druidic["inventory"]["Ointment of imbalance"], 0)
+        self.assertEqual(druidic["inventory"]["Grimy guam"], 15)
+        self.assertEqual(druidic["inventory"]["Eye of newt"], 15)
         self.assertEqual(druidic["quest_points"], 4)
-        # Herblore is now implemented, so the Druidic Ritual reward lands on
-        # herblore_exp directly and nothing is left pending.
         self.assertEqual(druidic["herblore_exp"], 250.0)
         self.assertEqual(druidic["pending_skill_exp_rewards"], {})
+        actions = druidic["quest_stage_actions"]["druidic_ritual"]
+        self.assertIn("Catch a Stone fish at the Sparkling Fishing Spot", actions)
+        self.assertIn("Use a chisel on the Stone fish", actions)
+        self.assertFalse(any("meat" in action.lower() or "cauldron" in action.lower() for action in actions))
 
         vampyre = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         vampyre, ok = start_quest_pure(vampyre, "vampyre_slayer", QUEST_DATA)

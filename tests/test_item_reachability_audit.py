@@ -1389,6 +1389,26 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         self.assertEqual(report["action_count"], 1600)
         self.assertEqual(report["reachable_item_count"], 2212)
+        self.assertEqual(
+            report["routes"].get("Living water"),
+            "quest-stage:druidic_ritual:2",
+        )
+        self.assertEqual(
+            report["routes"].get("Wandering wyrmwood"),
+            "quest-stage:druidic_ritual:3",
+        )
+        self.assertEqual(
+            report["routes"].get("Stone fish"),
+            "quest-stage:druidic_ritual:4",
+        )
+        self.assertEqual(
+            report["routes"].get("Stone scales"),
+            "quest-stage:druidic_ritual:5",
+        )
+        self.assertEqual(
+            report["routes"].get("Ointment of imbalance"),
+            "quest-stage:druidic_ritual:6",
+        )
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
