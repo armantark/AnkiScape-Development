@@ -2188,3 +2188,12 @@ Work branched from `67257a8e` must now merge current main before it can land.
 The gate refuses to land a tree whose parent main has moved. This is normal
 promotion work, not a repair. This incident record does not alter the five
 commits.
+
+### 5.20 Snake hide is an unmodelled root-orphan input — defect awaiting work — 2026-08-26
+
+Snake hide is an unmodelled root-orphan input, which causes Snakeskin equipment
+to be correctly-but-wrongly reported as uncertified.
+
+**Status: AWAITING WORK.** Add a sourced acquisition route for Snake hide. Do
+not suppress the audit result: it is correct for the incomplete acquisition
+model.
