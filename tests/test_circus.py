@@ -71,15 +71,21 @@ class CircusLogicTest(unittest.TestCase):
         self.assertEqual(_success_chance(1, 99), 0.05)
         self.assertEqual(_success_chance(99, 1), 0.95)
 
-    def test_base_and_quest_performance_gates_are_independent(self):
+    def test_base_and_quest_performance_visibility_and_gates_are_independent(self):
         view = circus_view_pure(_player())
-        available = {row["id"]: row["available"] for row in view["performances"]}
-        self.assertTrue(available["magic"])
-        self.assertTrue(available["ranged"])
-        self.assertTrue(available["agility"])
-        self.assertFalse(available["fire_breathing"])
-        self.assertFalse(available["flaming_poi"])
-        self.assertFalse(available["thieving"])
+        rows = {row["id"]: row for row in view["performances"]}
+        self.assertTrue(rows["magic"]["visible"])
+        self.assertTrue(rows["ranged"]["visible"])
+        self.assertTrue(rows["agility"]["visible"])
+        self.assertFalse(rows["fire_breathing"]["visible"])
+        self.assertFalse(rows["flaming_poi"]["visible"])
+        self.assertFalse(rows["thieving"]["visible"])
+        self.assertTrue(rows["magic"]["available"])
+        self.assertTrue(rows["ranged"]["available"])
+        self.assertTrue(rows["agility"]["available"])
+        self.assertFalse(rows["fire_breathing"]["available"])
+        self.assertFalse(rows["flaming_poi"]["available"])
+        self.assertFalse(rows["thieving"]["available"])
 
         player = _player(
             quests={
@@ -87,7 +93,17 @@ class CircusLogicTest(unittest.TestCase):
                 "some_like_it_cold": {"completed": True},
             }
         )
-        self.assertTrue(all(row["available"] for row in circus_view_pure(player)["performances"]))
+        unlocked = circus_view_pure(player)["performances"]
+        self.assertTrue(all(row["visible"] for row in unlocked))
+        self.assertTrue(all(row["available"] for row in unlocked))
+
+        player["circus"]["used_week_by_performance"]["magic"] = 0
+        magic = next(
+            row for row in circus_view_pure(player)["performances"] if row["id"] == "magic"
+        )
+        self.assertTrue(magic["visible"])
+        self.assertTrue(magic["used_this_week"])
+        self.assertFalse(magic["available"])
 
         unchanged, ok, info = apply_circus_command_pure(
             _player(),

@@ -14787,7 +14787,7 @@ def show_main_menu(
         )
         circus_layout = QVBoxLayout(circus_box)
         circus_layout.setContentsMargins(10, 8, 10, 8)
-        circus_layout.setSpacing(7)
+        circus_layout.setSpacing(5)
 
         circus_header = QWidget()
         circus_header_layout = QHBoxLayout(circus_header)
@@ -14834,8 +14834,6 @@ def show_main_menu(
         circus_performance = QComboBox()
         circus_performance.setObjectName("circusPerformanceCombo")
         circus_performance.setAccessibleName("Circus performance")
-        for performance_id, performance in CIRCUS_PERFORMANCES.items():
-            circus_performance.addItem(performance.display_name, performance_id)
         circus_mode = QComboBox()
         circus_mode.setObjectName("circusAutomationMode")
         circus_mode.setAccessibleName("Circus automation mode")
@@ -14968,6 +14966,7 @@ def show_main_menu(
         circus_layout.addWidget(circus_rewards)
 
         circus_actions = QWidget()
+        circus_actions.setStyleSheet("QPushButton { font-size: 11px; }")
         circus_actions_layout = QHBoxLayout(circus_actions)
         circus_actions_layout.setContentsMargins(0, 0, 0, 0)
         circus_actions_layout.setSpacing(6)
@@ -14975,14 +14974,15 @@ def show_main_menu(
         circus_primary.setObjectName("circusPrimaryButton")
         circus_edit = QPushButton("Edit routine…")
         circus_edit.setObjectName("circusEditRoutineButton")
-        circus_abandon = QPushButton("Abandon this performance")
+        circus_abandon = QPushButton("Abandon performance")
         circus_abandon.setObjectName("circusAbandonButton")
+        circus_abandon.setAccessibleName("Abandon this Circus performance")
         circus_reclaim = QPushButton("Reclaim costumes")
         circus_reclaim.setObjectName("circusReclaimButton")
-        circus_actions_layout.addWidget(circus_primary, 2)
-        circus_actions_layout.addWidget(circus_edit, 1)
-        circus_actions_layout.addWidget(circus_abandon, 1)
-        circus_actions_layout.addWidget(circus_reclaim, 1)
+        circus_actions_layout.addWidget(circus_primary, 3)
+        circus_actions_layout.addWidget(circus_edit, 2)
+        circus_actions_layout.addWidget(circus_abandon, 3)
+        circus_actions_layout.addWidget(circus_reclaim, 3)
         circus_layout.addWidget(circus_actions)
         cards_stack.addWidget(circus_box)
 
@@ -15034,6 +15034,8 @@ def show_main_menu(
                 queue.clear()
                 for performance_id in ids:
                     row = rows_by_id[str(performance_id)]
+                    if not row["visible"]:
+                        continue
                     item = QListWidgetItem(str(row["display_name"]))
                     item.setData(Qt.ItemDataRole.UserRole, str(performance_id))
                     if row["locked_reasons"]:
@@ -15057,21 +15059,15 @@ def show_main_menu(
             syncing_circus["active"] = True
             view = circus_view_pure(player_data)
             _populate_circus_queue(view)
-            if sync_selection:
-                circus_performance.setCurrentIndex(
-                    max(0, circus_performance.findData(view["selected_performance"]))
-                )
-                circus_mode.setCurrentIndex(
-                    max(0, circus_mode.findData(view["automation_mode"]))
-                )
-            performance_id = _circus_selected_id()
-            row = next(
-                item for item in view["performances"] if item["id"] == performance_id
+            selected_performance_id = str(
+                (circus_performance.currentData(), view["selected_performance"])[
+                    sync_selection
+                ]
             )
-            for index, performance_row in enumerate(view["performances"]):
-                combo_item = circus_performance.model().item(index)
-                if combo_item is None:
-                    continue
+            circus_performance.clear()
+            for performance_row in filter(
+                lambda item: item["visible"], view["performances"]
+            ):
                 suffix = (
                     " · done this week"
                     if performance_row["used_this_week"]
@@ -15079,9 +15075,15 @@ def show_main_menu(
                     if performance_row["locked_reasons"]
                     else ""
                 )
-                combo_item.setText(
-                    str(performance_row["display_name"]) + suffix
+                circus_performance.addItem(
+                    str(performance_row["display_name"]) + suffix,
+                    str(performance_row["id"]),
                 )
+                combo_item = circus_performance.model().item(
+                    circus_performance.count() - 1
+                )
+                if combo_item is None:
+                    continue
                 combo_item.setToolTip(
                     ", ".join(performance_row["locked_reasons"])
                     if performance_row["locked_reasons"]
@@ -15094,6 +15096,17 @@ def show_main_menu(
                         else circus_performance.palette().color(QPalette.ColorRole.Text)
                     )
                 )
+            circus_performance.setCurrentIndex(
+                max(0, circus_performance.findData(selected_performance_id))
+            )
+            if sync_selection:
+                circus_mode.setCurrentIndex(
+                    max(0, circus_mode.findData(view["automation_mode"]))
+                )
+            performance_id = _circus_selected_id()
+            row = next(
+                item for item in view["performances"] if item["id"] == performance_id
+            )
             if sync_selection:
                 circus_strategy.setCurrentIndex(
                     max(0, circus_strategy.findData(row["strategy"]))
@@ -15151,7 +15164,7 @@ def show_main_menu(
             circus_primary.setEnabled(
                 on_circus_command is not None
                 and view["session"] is None
-                and bool(view["performance_queue"]["executing"])
+                and circus_executing_queue.count() > 0
                 and not selected_here
             )
             circus_edit.setVisible(mode == "advanced")
@@ -20042,6 +20055,7 @@ def show_main_menu(
                         "tree, blessing, and participation status."
                     ),
                     current=current == EVIL_TREE_UTILITY_ID,
+                    icon_path=_ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
                     group="distractions_and_diversions",
                 ),
             )

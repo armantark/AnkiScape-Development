@@ -12499,6 +12499,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsNone(_open_row_menu("castle_wars"))
 
             evil_row = _utility_row(activity_tree, EVIL_TREE_UTILITY_ID)
+            self.assertFalse(evil_row.icon(0).isNull())
             activity_tree.itemClicked.emit(evil_row, 0)
             for _ in range(4):
                 QApplication.processEvents()
@@ -17652,19 +17653,25 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(icon.size().width(), 28)
         self.assertFalse(icon.pixmap().isNull())
-        self.assertEqual(performance.count(), 6)
-        self.assertIn(
-            "locked",
-            performance.itemText(performance.findData("fire_breathing")),
-        )
+        self.assertEqual(performance.count(), 3)
+        self.assertEqual(performance.findData("fire_breathing"), -1)
+        self.assertEqual(performance.findData("flaming_poi"), -1)
+        self.assertEqual(performance.findData("thieving"), -1)
         self.assertEqual(len(reward_icons), 5)
         self.assertEqual(executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "agility")
-        self.assertEqual(non_executing_queue.count(), 5)
+        self.assertEqual(non_executing_queue.count(), 2)
         self.assertTrue(all(not widget.pixmap().isNull() for widget in reward_icons))
         self.assertTrue(panel.findChild(QWidget, "circusReward::acrobat").isVisible())
         self.assertFalse(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
         self.assertFalse(edit.isVisible())
         self.assertEqual(status.text(), "3 left this answered-card week")
+
+        pd["quests"]["the_firemakers_curse"] = {"completed": True}
+        pd["quests"]["some_like_it_cold"] = {"completed": True}
+        performance.setCurrentIndex(performance.findData("magic"))
+        QApplication.processEvents()
+        self.assertEqual(performance.count(), 6)
+        self.assertEqual(non_executing_queue.count(), 5)
 
         performance.setCurrentIndex(performance.findData("fire_breathing"))
         QApplication.processEvents()
