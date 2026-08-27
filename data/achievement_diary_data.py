@@ -11,9 +11,10 @@ evaluates, and so a task cannot quietly acquire a rule the logic layer does not
 own.
 
 The generated catalog takes its task identity and membership from Darkan's
-period achievement system. Named source rows without an evaluable requirement
-remain visible as latent tasks with no predicate. Fixed designed denominators
-also reserve source-incomplete cutoff slots without fabricating names.
+period achievement system. Ordinary requirements remain visible as access gates
+but never complete a deed. Un-curated deeds remain visible as dormant tasks with
+no predicate. Fixed designed denominators also reserve source-incomplete cutoff
+slots without fabricating names.
 """
 
 from __future__ import annotations
@@ -110,10 +111,16 @@ class DiaryTask:
     source: str
     source_id: int
     coin_reward: int = 0
-    latent: bool = False
     # True only for an owner-approved generic progression row used to complete
     # a twelve-task curated tier when the period family has fewer than 48 deeds.
     curation_anchor: bool = False
+    # Source-backed level and quest prerequisites are presentation-only access
+    # gates. Completion reads ``conditions`` and never these rows.
+    access_gates: Tuple[DiaryCondition, ...] = ()
+
+    @property
+    def dormant(self) -> bool:
+        return not self.conditions
 
 
 @dataclass(frozen=True)

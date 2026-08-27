@@ -690,13 +690,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         # Seam for the Stronghold of Security landmark's "claim reward" click.
         self._stronghold_claim_calls: list = []
 
-        # Stop exec() from blocking; capture the live dialog so we can drive it.
-        def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
-            self._captured.append(self_dialog)
-            return 0
+        # Intercept through a subclass: restoring a monkeypatched PyQt method
+        # descriptor with setattr permanently corrupts its binding in this process.
+        self._orig_dialog = ui.QDialog
+        captured = self._captured
 
-        self._orig_exec = QDialog.exec
-        QDialog.exec = _fake_exec  # type: ignore[assignment,method-assign]
+        class CapturingDialog(self._orig_dialog):
+            def exec(instance):  # type: ignore[no-untyped-def]
+                captured.append(instance)
+                return 0
+
+        ui.QDialog = CapturingDialog
 
         # Developer mode on so the registry surfaces every category/skill.
         self._orig_cfg = ui.get_config_bool
@@ -1161,6 +1165,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
 
         save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
+        claim_reward_callback = extra.pop(
+            "on_claim_reward",
+            lambda claim_id, selected_skill_id=None: self._claim_calls.append(
+                (claim_id, selected_skill_id)
+            )
+            or True,
+        )
         combat_action_callback = extra.pop(
             "on_set_combat_action",
             lambda action: self._combat_action_calls.append(action),
@@ -1288,7 +1299,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_reclaim_death_office=lambda: self._death_office_calls.append(True) or True,
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
-            on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
+            on_claim_reward=claim_reward_callback,
             on_claim_stronghold_reward=lambda: self._stronghold_claim_calls.append(True) or True,
             on_mage_arena_action=_mage_arena_action,
             get_farming_projection=_farming_projection,
@@ -1298,7 +1309,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         return self._captured[-1]
 
     def tearDown(self) -> None:
-        QDialog.exec = self._orig_exec  # type: ignore[assignment,method-assign]
+        self._ui.QDialog = self._orig_dialog
         self._ui.get_config_bool = self._orig_cfg
         for dialog in self._captured:
             try:
@@ -3325,7 +3336,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
 
-    def test_bank_run_refreshes_collapsed_carried_header_quantity(self) -> None:
+    def test_bank_run_refreshes_collapsed_carried_header_slot_count(self) -> None:
         carried_items = []
         dialog = self._open(
             _make_player_data(),
@@ -3347,7 +3358,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
 
-        self.assertEqual(header.text(), "▸  Carried inventory — Shark ×24")
+        self.assertEqual(header.text(), "▸ Carried — 24/28 slots")
         self.assertFalse(body.isVisibleTo(body.parentWidget()))
         dialog.deleteLater()
 
@@ -3532,6 +3543,126 @@ class MainMenuWidgetTest(unittest.TestCase):
         clear_btn.click()
         QApplication.processEvents()
         self.assertEqual(clear_calls, [True])
+        dialog.deleteLater()
+
+    def test_current_inventory_grid_merges_combat_loot_and_supplies_in_both_modes_and_tabs(self) -> None:
+        pd = _make_player_data()
+        pd["current_combat_target"] = "chicken"
+        pd["inventory"] = {"Shark": 2, "Uncut sapphire": 1, "Coins": 500}
+        pd["carried_inventory"] = {
+            "chicken": {"Shark": 2, "Uncut sapphire": 1}
+        }
+        pd["combat_supply_loadout"] = {
+            "food": {"Shark": 3, "Lobster": 3},
+            "potions": {"Antipoison (4)": 1},
+            "stat_potions": {"Prayer potion (4)": 1},
+            "ammo": {},
+            "runes": {},
+            "finishers": {},
+            "hazards": {},
+            "cannonballs": 25,
+        }
+        carried_items = [("Shark", 2), ("Uncut sapphire", 1), ("Coins", 500)]
+        advanced_calls: list[bool] = []
+        dialog = self._open(
+            pd,
+            current_skill="Combat",
+            carried_auto_is_combat=True,
+            carried_advanced_state=False,
+            get_carried_inventory_items=lambda: tuple(carried_items),
+            on_set_carried_advanced=lambda enabled: advanced_calls.append(enabled),
+            carried_stackable_names=frozenset({"Cannonball"}),
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_equipment_tab(dialog)
+        for _ in range(6):
+            QApplication.processEvents()
+
+        with patch.object(
+            self._ui,
+            "combat_supply_loadout_summary_pure",
+            wraps=self._ui.combat_supply_loadout_summary_pure,
+        ) as supply_summary:
+            self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
+            for _ in range(4):
+                QApplication.processEvents()
+        self.assertEqual(supply_summary.call_count, 1)
+
+        inventory_before = copy.deepcopy(pd["inventory"])
+        loadout_before = copy.deepcopy(pd["combat_supply_loadout"])
+        primary_scroll = dialog.findChild(QScrollArea, "carriedCurrentInventory")
+        self.assertTrue(dialog.findChild(QPushButton, "carriedModeAuto").isChecked())
+        self.assertTrue(primary_scroll.isVisibleTo(dialog))
+        self.assertEqual(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Shark")
+            .findChild(QLabel, "carriedCellCaption")
+            .text(),
+            "×5",
+        )
+        self.assertIsNotNone(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Uncut sapphire")
+        )
+        antipoison = dialog.findChild(
+            QPushButton, "carriedCurrentItem::Antipoison (4)"
+        )
+        self.assertIsNotNone(antipoison)
+        antipoison_caption = antipoison.findChild(QLabel, "carriedCellCaption")
+        self.assertGreaterEqual(
+            antipoison_caption.width(),
+            antipoison_caption.fontMetrics().horizontalAdvance("Antipoison (4)"),
+        )
+        self.assertEqual(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Cannonball")
+            .findChild(QLabel, "carriedCellCaption")
+            .text(),
+            "×25",
+        )
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Coins")
+        )
+
+        dialog.findChild(QPushButton, "carriedModeCustom").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(primary_scroll.isVisibleTo(dialog))
+        self.assertEqual(pd["inventory"], inventory_before)
+        self.assertEqual(pd["combat_supply_loadout"], loadout_before)
+
+        _open_bank_tab(dialog)
+        header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        self.assertFalse(header.isChecked())
+        self.assertEqual(
+            header.text(),
+            "▸ Carried — 3 loot · 9 supplies · 12/28 slots",
+        )
+        self.assertNotIn("…", header.text())
+        self.assertLessEqual(
+            header.fontMetrics().horizontalAdvance(header.text()),
+            header.contentsRect().width(),
+        )
+        if not header.isChecked():
+            header.click()
+        for _ in range(6):
+            QApplication.processEvents()
+        bank_scroll = dialog.findChild(QScrollArea, "carriedCurrentInventoryBank")
+        self.assertTrue(bank_scroll.isVisibleTo(dialog))
+        self.assertEqual(
+            dialog.findChild(QPushButton, "carriedCurrentItemBank::Shark")
+            .findChild(QLabel, "carriedCellCaption")
+            .text(),
+            "×5",
+        )
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "carriedCurrentItemBank::Coins")
+        )
+        dialog.findChild(QPushButton, "carriedModeAutoBank").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(bank_scroll.isVisibleTo(dialog))
+        self.assertEqual(pd["inventory"], inventory_before)
+        self.assertEqual(pd["combat_supply_loadout"], loadout_before)
+        self.assertEqual(advanced_calls, [True, False])
         dialog.deleteLater()
 
     def test_custom_pack_bank_grid_icons_quantity_menu_and_live_inventory(self) -> None:
@@ -3781,8 +3912,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         dialog.findChild(QPushButton, "carriedModeAuto").click()
         QApplication.processEvents()
-        self.assertFalse(current_inventory.isVisibleTo(dialog))
-        self.assertFalse(current_loot.isVisibleTo(dialog))
+        self.assertTrue(current_inventory.isVisibleTo(dialog))
+        self.assertTrue(current_loot.isVisibleTo(dialog))
 
         carried_items[:] = [("Shark", 12)]
         self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
@@ -6901,10 +7032,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._combat_style_calls[-1], ("defensive", "slash"))
 
-    def test_combat_exposes_loadout_controls(self) -> None:
+    def test_combat_repairs_stale_loadout_before_exposing_controls(self) -> None:
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+
         pd = _make_player_data()
         pd.update(
             {
+                "config_version": CURRENT_CONFIG_VERSION,
                 "inventory": {"Fire rune": 100},
                 "current_combat_target": "chicken",
                 "combat_auto_eat_threshold_percent": 55,
@@ -6917,6 +7052,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 },
             }
         )
+        pd = migrate_loaded_data(pd, ORE_DATA, ITEM_DEFINITIONS)
         dialog = self._open(pd, current_skill="Combat")
 
         # The supply-mode summary and bank-run status moved into the carried-pack
@@ -6936,11 +7072,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(threshold_spin.value(), 55)
         self.assertIn("Food: Lobster x3", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
-        self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
-        self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
+        self.assertIn("Ammo: none loaded", summary_label.text())
+        self.assertIn("Runes: none loaded", summary_label.text())
         self.assertIn("ready", bank_run_label.text())
         _open_bank_tab(dialog)
-        self.assertIn("Fire rune x100", _bank_grid_texts(dialog))
+        bank_texts = _bank_grid_texts(dialog)
+        self.assertIn("Air rune x5", bank_texts)
+        self.assertIn("Mind rune x5", bank_texts)
+        self.assertIn("Bronze arrows x10", bank_texts)
+        self.assertIn("Fire rune x150", bank_texts)
 
         threshold_spin.setValue(60)
         QApplication.processEvents()
@@ -9233,14 +9373,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("Use the weapon store key", action.toolTip())
         self.assertIn("Weaponsmaster level 23", action.toolTip())
 
-    def test_quests_tab_shows_hazeel_side_choice_before_start(self) -> None:
+    def test_quests_tab_hides_hazeel_side_choice_until_quest_starts(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "hazeel_cult"
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        self.assertIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
+        self.assertNotIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
+        action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "questChoice_hazeel_cult_side_with_hazeel_s_cult")
+        )
+
+        started_pd = _make_player_data()
+        started_pd["current_quest"] = "hazeel_cult"
+        started_pd["quests"]["hazeel_cult"] = {"started": True, "progress": 0, "completed": False}
+        dialog = self._open(started_pd)
+        _open_quests_tab(dialog)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Choose path: Ceril Carnillean or Hazeel's cult", labels)
         action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
@@ -10282,8 +10437,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
 
-    def test_bank_claims_expose_a_claimed_diary_tiers_reward_lamp(self) -> None:
-        from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+    def test_bank_claims_use_the_shared_icon_chooser_for_a_diary_lamp(self) -> None:
+        from ankiscape.data.achievement_diary_data import (
+            ACHIEVEMENT_DIARY_CATALOG,
+            diary_lamp_claim_id,
+        )
 
         pd = _make_player_data()
         family = next(family for family in ACHIEVEMENT_DIARY_CATALOG if family.id == "varrock")
@@ -10292,20 +10450,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
         _open_bank_tab(dialog)
 
+        title = f"{family.name} {tier.name}: reward lamp ({tier.lamp.experience:,} XP)"
         labels = [label.text() for label in dialog.findChildren(QLabel)]
-        self.assertIn(
-            f"{family.name} {tier.name}: reward lamp ({tier.lamp.experience:,} XP)",
-            labels,
-        )
+        self.assertIn(title, labels)
         self.assertTrue(
             any(label.startswith(f"{tier.lamp.experience:,} XP lamp") for label in labels)
         )
-        self.assertTrue(
-            any(
-                button.text() == "Choose skill"
-                for button in dialog.findChildren(QPushButton)
-            )
+        choose = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Choose skill"
         )
+        with patch.object(
+            self._ui,
+            "_choose_xp_lamp_skill",
+            return_value="agility",
+        ) as chooser:
+            choose.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._claim_calls[-1],
+            (diary_lamp_claim_id(tier.id), "agility"),
+        )
+        parent, chooser_title, eligible_skill_ids = chooser.call_args.args
+        self.assertEqual(parent.objectName(), "bankClaimsBox")
+        self.assertEqual(chooser_title, title)
+        self.assertIn("agility", eligible_skill_ids)
 
     def test_bank_death_office_reclaim_row_uses_combat_office_state(self) -> None:
         pd = _make_player_data()
@@ -11679,6 +11850,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         return tree
 
+    def _open_circus_panel(self, dialog: "QDialog") -> "QWidget":
+        self._open_activity_detail(dialog, "big_top_bonanza")
+        return next(
+            panel
+            for panel in dialog.findChildren(QWidget, "circusPanel")
+            if panel.isVisible()
+        )
+
     def test_main_menu_owns_the_simulated_world_time(self) -> None:
         pd = _make_player_data()
         pd["shop_market_clock"] = {"answered_cards": 10, "market_tick": 10}
@@ -12499,6 +12678,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsNone(_open_row_menu("castle_wars"))
 
             evil_row = _utility_row(activity_tree, EVIL_TREE_UTILITY_ID)
+            self.assertFalse(evil_row.icon(0).isNull())
             activity_tree.itemClicked.emit(evil_row, 0)
             for _ in range(4):
                 QApplication.processEvents()
@@ -17615,20 +17795,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         dialog.show()
         QApplication.processEvents()
-        tree = self._open_activities(dialog)
-        item = next(
-            row
-            for row in _tree_items(tree)
-            if row.data(0, Qt.ItemDataRole.UserRole) == "big_top_bonanza"
-        )
-        tree.itemClicked.emit(item, 0)
-        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
         self.assertEqual(pd["current_utility"], "bankstanding")
-        panel = next(
-            widget
-            for widget in dialog.findChildren(QWidget, "circusPanel")
-            if widget.isVisible()
-        )
         icon = panel.findChild(QLabel, "circusIcon")
         performance = panel.findChild(QComboBox, "circusPerformanceCombo")
         strategy = panel.findChild(QComboBox, "circusStrategyCombo")
@@ -17652,19 +17820,37 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(icon.size().width(), 28)
         self.assertFalse(icon.pixmap().isNull())
-        self.assertEqual(performance.count(), 6)
-        self.assertIn(
-            "locked",
-            performance.itemText(performance.findData("fire_breathing")),
-        )
+        self.assertEqual(performance.count(), 3)
+        self.assertEqual(performance.findData("fire_breathing"), -1)
+        self.assertEqual(performance.findData("flaming_poi"), -1)
+        self.assertEqual(performance.findData("thieving"), -1)
         self.assertEqual(len(reward_icons), 5)
         self.assertEqual(executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "agility")
-        self.assertEqual(non_executing_queue.count(), 5)
+        self.assertEqual(non_executing_queue.count(), 2)
         self.assertTrue(all(not widget.pixmap().isNull() for widget in reward_icons))
         self.assertTrue(panel.findChild(QWidget, "circusReward::acrobat").isVisible())
         self.assertFalse(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
         self.assertFalse(edit.isVisible())
         self.assertEqual(status.text(), "3 left this answered-card week")
+
+        pd["quests"]["the_firemakers_curse"] = {"completed": True}
+        pd["quests"]["some_like_it_cold"] = {"completed": True}
+        panel = self._open_circus_panel(dialog)
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+        strategy = panel.findChild(QComboBox, "circusStrategyCombo")
+        mode = panel.findChild(QComboBox, "circusAutomationMode")
+        primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
+        non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
+        move_to_non_executing = panel.findChild(
+            QPushButton, "circusMoveToNonExecutingButton"
+        )
+        move_to_executing = panel.findChild(
+            QPushButton, "circusMoveToExecutingButton"
+        )
+        edit = panel.findChild(QPushButton, "circusEditRoutineButton")
+        self.assertEqual(performance.count(), 6)
+        self.assertEqual(non_executing_queue.count(), 5)
 
         performance.setCurrentIndex(performance.findData("fire_breathing"))
         QApplication.processEvents()
@@ -17761,6 +17947,104 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(routine_combos[0].findData(""), -1)
         self.assertGreaterEqual(routine_combos[1].findData(""), 0)
         dialog.close()
+
+    def test_circus_hidden_executing_act_survives_queue_save_and_start(self) -> None:
+        from ankiscape.logic.circus_logic import (
+            apply_circus_command_pure,
+            default_circus_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd["current_utility"] = "bankstanding"
+        pd["circus"] = default_circus_state_pure()
+        pd["circus"]["performance_queue"] = {
+            "executing": ["agility", "fire_breathing"],
+            "non_executing": [
+                "magic",
+                "ranged",
+                "flaming_poi",
+                "thieving",
+            ],
+        }
+        command_calls = []
+
+        def circus_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_circus_command_pure(pd, action_id, payload)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_circus_command=circus_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+        primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
+        non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
+        move_to_executing = panel.findChild(
+            QPushButton, "circusMoveToExecutingButton"
+        )
+
+        def assert_hidden_act_preserved() -> None:
+            self.assertIn(
+                "fire_breathing",
+                pd["circus"]["performance_queue"]["executing"],
+            )
+            self.assertEqual(
+                executing_queue.findItems(
+                    "Fire-breathing", Qt.MatchFlag.MatchContains
+                ),
+                [],
+            )
+
+        self.assertEqual(performance.findData("fire_breathing"), -1)
+        self.assertEqual(executing_queue.count(), 1)
+        self.assertEqual(
+            executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "agility"
+        )
+
+        magic_row = non_executing_queue.findItems(
+            "Magic", Qt.MatchFlag.MatchContains
+        )[0]
+        non_executing_queue.setCurrentItem(magic_row)
+        move_to_executing.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "set_queue")
+        assert_hidden_act_preserved()
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "start_activity")
+        assert_hidden_act_preserved()
+
+    def test_circus_hidden_saved_selection_falls_back_and_persists(self) -> None:
+        from ankiscape.logic.circus_logic import default_circus_state_pure
+
+        pd = _make_player_data()
+        pd["circus"] = default_circus_state_pure()
+        pd["circus"]["selected_performance"] = "fire_breathing"
+        saves = []
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_save_player_data=lambda: saves.append(True),
+        )
+        dialog.show()
+        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+
+        self.assertEqual(performance.currentData(), "magic")
+        self.assertEqual(pd["circus"]["selected_performance"], "magic")
+        self.assertEqual(saves, [True])
 
     def test_trouble_brewing_detail_enters_selects_and_buys_reward(self) -> None:
         from ankiscape.logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
@@ -19367,19 +19651,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(progress.isVisible())
         dialog.close()
 
-    def test_stronghold_player_safety_chest_lamp_and_combat_entry_are_live(self) -> None:
-        from aqt.qt import QInputDialog
+    def test_stronghold_player_safety_claims_lamps_then_marks_complete(self) -> None:
+        from ankiscape.core.constants import CLAIM_DATA
+        from ankiscape.data.stronghold_player_safety_data import (
+            STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+        )
         from ankiscape.logic.stronghold_player_safety_logic import (
             apply_stronghold_player_safety_command_pure,
         )
+        from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure
 
         pd = _make_player_data()
         pd["stronghold_player_safety"] = {
-            "version": 1,
+            "version": 2,
             "stage": 3,
             "crevice_unlocked": True,
             "chest_claimed": False,
-            "lamps_remaining": 0,
             "safety_first_emote_unlocked": False,
             "last_result": "Reached the reward passage.",
         }
@@ -19393,11 +19680,25 @@ class MainMenuWidgetTest(unittest.TestCase):
                 pd.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def claim_reward(claim_id, selected_skill_id=None):
+            self._claim_calls.append((claim_id, selected_skill_id))
+            updated, ok = apply_claim_pure(
+                pd,
+                claim_id,
+                CLAIM_DATA,
+                selected_skill_id=selected_skill_id,
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return ok
+
         saved_skills = []
         dialog = self._open(
             pd,
             current_skill="Activities",
             on_stronghold_player_safety_command=stronghold_command,
+            on_claim_reward=claim_reward,
             on_save_skill=saved_skills.append,
         )
         dialog.show()
@@ -19425,6 +19726,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             panel.findChild(QProgressBar, "strongholdPlayerSafetyProgress").value(),
             3,
         )
+        title = panel.findChild(QLabel, "strongholdPlayerSafetyTitle")
+        self.assertTrue(title.wordWrap())
+        self.assertGreaterEqual(title.height(), title.sizeHint().height())
+        status = panel.findChild(QLabel, "strongholdPlayerSafetyStatus")
+        self.assertEqual(status.text(), "CHEST READY")
+        self.assertGreaterEqual(status.width(), status.sizeHint().width())
+        self.assertLess(title.geometry().right(), status.geometry().left())
         fight = panel.findChild(QPushButton, "strongholdPlayerSafetyFightButton")
         self.assertTrue(fight.isVisible())
         self.assertTrue(fight.isEnabled())
@@ -19433,17 +19741,75 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(pd["inventory"]["Coins"], 10_000)
         self.assertEqual(pd["inventory"]["Safety gloves"], 1)
+        self.assertEqual(status.text(), "2 LAMPS LEFT")
+        self.assertIn(
+            "Two 500-XP Antique lamps are ready in Bank Claims",
+            panel.findChild(QLabel, "strongholdPlayerSafetySummary").text(),
+        )
+        self.assertEqual(
+            [
+                state
+                for claim_id, state in pd["claims"].items()
+                if claim_id in STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
+            ],
+            [
+                {"claimed": False, "delivered": True},
+                {"claimed": False, "delivered": True},
+            ],
+        )
+        _open_bank_tab(dialog)
+        bank_claim_titles = [
+            label.text()
+            for label in dialog.findChildren(QLabel, "bankClaimTitle")
+        ]
+        self.assertIn(
+            "Stronghold of Player Safety: Antique lamp 1 (500 XP)",
+            bank_claim_titles,
+        )
+        self.assertIn(
+            "Stronghold of Player Safety: Antique lamp 2 (500 XP)",
+            bank_claim_titles,
+        )
+        tree = self._open_activities(dialog)
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+
         lamp = panel.findChild(QPushButton, "strongholdPlayerSafetyLampButton")
         self.assertEqual(lamp.text(), "Use 500-XP lamp (2)")
         with patch.object(
-            QInputDialog,
-            "getItem",
-            return_value=("Agility", True),
-        ):
+            self._ui,
+            "_choose_xp_lamp_skill",
+            side_effect=("agility", "dungeoneering"),
+        ) as chooser:
             lamp.click()
-        QApplication.processEvents()
-        self.assertEqual(pd["agility_exp"], 1500.0)
-        self.assertEqual(lamp.text(), "Use 500-XP lamp (1)")
+            QApplication.processEvents()
+            self.assertEqual(pd["agility_exp"], 1500.0)
+            self.assertEqual(lamp.text(), "Use 500-XP lamp (1)")
+            self.assertEqual(status.text(), "1 LAMP LEFT")
+            lamp.click()
+            QApplication.processEvents()
+
+        self.assertEqual(pd["dungeoneering_exp"], 500.0)
+        self.assertEqual(lamp.text(), "Use 500-XP lamp (0)")
+        self.assertEqual(status.text(), "COMPLETE")
+        self.assertEqual(
+            self._claim_calls[-2:],
+            [
+                (STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS[0], "agility"),
+                (
+                    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS[1],
+                    "dungeoneering",
+                ),
+            ],
+        )
+        self.assertEqual(chooser.call_count, 2)
+        parent, chooser_title, eligible_skill_ids = chooser.call_args_list[0].args
+        self.assertEqual(parent.objectName(), "strongholdPlayerSafetyPanel")
+        self.assertEqual(chooser_title, "Use Stronghold XP lamp")
+        self.assertEqual(len(eligible_skill_ids), 25)
+        self.assertIn("attack", eligible_skill_ids)
+        self.assertIn("dungeoneering", eligible_skill_ids)
+
         fight.click()
         QApplication.processEvents()
         self.assertEqual(saved_skills, ["Combat"])

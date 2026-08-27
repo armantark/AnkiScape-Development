@@ -56,7 +56,8 @@ def _install_runtime_fakes():
     aqt_reviewer = types.ModuleType("aqt.reviewer")
     aqt_reviewer.Reviewer = _RuntimeReviewer
 
-    # DO NOT provide aqt.qt so ui.py falls back to HAS_QT = False
+    # Shadow stale real-Qt imports without unloading their process-global types.
+    sys.modules["aqt.qt"] = types.ModuleType("aqt.qt")
     sys.modules["aqt"] = aqt
     sys.modules["aqt.reviewer"] = aqt_reviewer
 
@@ -222,6 +223,90 @@ class TestIntegrationSmoke(unittest.TestCase):
                 "Bank run — arrived and restocked",
             ],
         )
+
+    def test_bankstanding_transition_logs_once_and_defers_the_reasoned_modal(self):
+        addon = _load_addon_as_package("ankiscape_bankstanding_transition")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.update_review_event_log_drawer = lambda _data: None
+        addon.update_review_hud = lambda *_args: None
+        addon.ui.update_menu_visibility = lambda *_args: None
+        popups = []
+        gains = []
+        rewards = []
+        scheduled = []
+        sys.modules["aqt.qt"].QTimer = types.SimpleNamespace(
+            singleShot=lambda _delay, callback: scheduled.append(callback)
+        )
+        addon.ui.show_bankstanding_dialog = popups.append
+        addon._show_activity_gain = gains.append
+        addon._claim_stronghold_reward = lambda: rewards.append("reward")
+        addon.current_skill = "Utilities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.player_data = {
+            "current_utility": "stronghold_of_security",
+            "review_event_log": [],
+        }
+        reason = "Stronghold of Security cleared — claim your reward!"
+
+        runtime_ctx = addon._runtime_action_context()
+        runtime_ctx.show_activity_gain(reason)
+        runtime_ctx.deactivate_current_skill()
+        self.assertFalse(addon._switch_to_bankstanding("A duplicate reason."))
+
+        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(popups, [])
+        self.assertEqual(gains, [reason])
+        self.assertIn(
+            reason,
+            addon.player_data["review_event_log"][0]["text"],
+        )
+
+        addon._prompt_stronghold_reward()
+        addon.card_turned = False
+        addon.answer_shown = False
+        addon._show_pending_bankstanding_dialog()
+        addon._show_pending_review_dialogs()
+
+        self.assertEqual(popups, [])
+        self.assertEqual(rewards, [])
+        self.assertEqual(len(scheduled), 2)
+        scheduled[0]()
+        self.assertEqual(popups, [reason])
+        self.assertEqual(rewards, [])
+        scheduled[1]()
+        self.assertEqual(rewards, ["reward"])
+
+    def test_bankstanding_reason_backpatch_updates_the_live_sanitized_log(self):
+        from ankiscape.logic.review_strip_logic import sanitize_review_event_log_pure
+
+        addon = _load_addon_as_package("ankiscape_bankstanding_reason_backpatch")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.update_review_hud = lambda *_args: None
+        addon.ui.update_menu_visibility = lambda *_args: None
+        addon.show_error_message = lambda *_args: None
+        addon.current_skill = "Crafting"
+        addon.player_data = {
+            "current_utility": "gather_wool",
+            "review_event_log": [],
+        }
+        runtime_ctx = addon._runtime_action_context()
+
+        runtime_ctx.switch_to_bankstanding()
+        detached_entry = addon.player_data["review_event_log"][-1]
+        addon.player_data["review_event_log"] = sanitize_review_event_log_pure(
+            addon.player_data["review_event_log"]
+        )
+        live_entry = addon.player_data["review_event_log"][-1]
+        self.assertIsNot(live_entry, detached_entry)
+
+        reason = "You need 1 Soft clay to craft an Unfired pot."
+        runtime_ctx.show_error_message("Out of materials", reason)
+
+        self.assertIn(reason, live_entry["text"])
+        self.assertNotIn(reason, detached_entry["text"])
 
     def test_ge_status_navigation_focuses_or_opens_the_ge_tab(self):
         addon = _load_addon_as_package("ankiscape_ge_status_navigation")
@@ -2839,6 +2924,17 @@ class TestIntegrationSmoke(unittest.TestCase):
             "ankiscape_material_fallback_bankstanding_integration"
         )
         calls = {"errors": [], "gains": []}
+        modal_order = []
+        addon.ui.show_bankstanding_dialog = lambda reason: modal_order.append(
+            ("modal", reason)
+        )
+        finish_feedback = addon._finish_review_feedback_context
+
+        def _finish_feedback():
+            modal_order.append(("feedback", "flushed"))
+            finish_feedback()
+
+        addon._finish_review_feedback_context = _finish_feedback
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda _data, _skill: None
@@ -2859,24 +2955,41 @@ class TestIntegrationSmoke(unittest.TestCase):
             "completed_achievements": [],
         }
         addon.current_skill = "Crafting"
+        addon._PENDING_REVIEW_DIALOGS.append(
+            lambda: modal_order.append(("queued", "prompt"))
+        )
 
-        for _review in range(2):
+        for review in range(2):
             addon.card_turned = True
             addon.answer_shown = True
             addon.exp_awarded = False
             addon.on_answer_card(
                 _FakeReviewer(),
                 4,
-                lambda _self, _ease: "answered",
+                lambda _self, _ease, review=review: modal_order.append(
+                    ("answer", review)
+                )
+                or "answered",
             )
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(calls["errors"]), 1)
         self.assertIn("Bankstanding", calls["errors"][0][1])
-        # The switch to Bankstanding is still a visible error dialog (asserted
-        # above); only the routine per-review no-op line went silent.
+        # The blocking error above owns the one user-facing notice for this
+        # switch; the generic Bankstanding modal must stay silent.
         self.assertEqual(calls["gains"], [])
+        self.assertEqual(
+            modal_order,
+            [
+                ("feedback", "flushed"),
+                ("answer", 0),
+                ("queued", "prompt"),
+                ("feedback", "flushed"),
+                ("answer", 1),
+            ],
+        )
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon.player_data["shop_market_clock"]["market_tick"],
             2,
@@ -3839,6 +3952,8 @@ class TestIntegrationSmoke(unittest.TestCase):
             "layer_remaining": 15,
         }
         calls = {"save": 0, "event_drawer": 0}
+        popups = []
+        addon.ui.show_bankstanding_dialog = popups.append
         addon.player_data = {
             "current_utility": "shooting_stars",
             "mining_level": 10,
@@ -3860,6 +3975,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(calls, {"save": 1, "event_drawer": 1})
+        self.assertEqual(len(popups), 1)
+        self.assertIn("Star unminable at your level", popups[0])
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon.player_data["shooting_star"]["notice"]["kind"],
@@ -8953,11 +9070,10 @@ class TestIntegrationSmoke(unittest.TestCase):
             "death_office": {},
             "smithing_level": 1,
             "stronghold_player_safety": {
-                "version": 1,
+                "version": 2,
                 "stage": 3,
                 "crevice_unlocked": True,
                 "chest_claimed": False,
-                "lamps_remaining": 0,
                 "safety_first_emote_unlocked": False,
                 "last_result": "Reached the reward passage.",
             },
@@ -8972,6 +9088,11 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(addon.player_data["inventory"]["Coins"], 10_000)
         self.assertEqual(addon.player_data["inventory"]["Safety gloves"], 1)
+        for claim_id in result["claim_ids"]:
+            self.assertEqual(
+                addon.player_data["claims"][claim_id],
+                {"claimed": False, "delivered": True},
+            )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
 

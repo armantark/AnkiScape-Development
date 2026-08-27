@@ -832,11 +832,11 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
         if isinstance(encounter_target, str)
         else None
     )
+    equipment_data = equipment_data or {}
     if isinstance(encounter_enemy, Mapping) and encounter_enemy.get(
         "wilderness_risk"
     ):
         data["combat_encounter"] = {}
-    equipment_data = equipment_data or {}
     max_lp = combat_max_lifepoints_pure(data)
     current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
     rest_reviews = _non_negative_int(data.get("combat_rest_reviews", 0), 0)
@@ -883,6 +883,9 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     if bank_run_result is not None:
         data["combat_last_result"] = bank_run_result
         return data
+    # A stale loadout must not deliver an instant restock: the repair stays
+    # behind the bank-run gate so any refill rides the normal cadence.
+    data = repair_combat_supply_loadout_class_pure(data, equipment_data)
     data.update(
         sanitize_equipment_instance_state_pure(
             data, EQUIPMENT_CONDITION_DATA
@@ -2678,19 +2681,63 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     }
 
 
-def combat_supply_loadout_summary_pure(player_data):
+def _combat_supply_loadout_class_compatible_pure(player_data, equipment_data=None):
+    loadout = _sanitize_combat_supply_loadout(
+        player_data.get("combat_supply_loadout")
+    )
+    style = COMBAT_ATTACK_STYLE_DATA.get(
+        combat_attack_style_for_equipment_pure(player_data, equipment_data or {}),
+        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+    )
+    combat_class = str(style.get("combat_class", "melee"))
+    relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
+    return (
+        (combat_class == "ranged" or not loadout.get("ammo"))
+        and (combat_class == "magic" or not loadout.get("runes"))
+        and all(
+            item_name in relevant_stat_potions
+            for item_name in (loadout.get("stat_potions", {}) or {})
+        )
+    )
+
+
+def repair_combat_supply_loadout_class_pure(player_data, equipment_data=None):
+    if combat_has_active_encounter_pure(player_data):
+        return player_data
+    if _combat_supply_loadout_class_compatible_pure(player_data, equipment_data):
+        return player_data
+    repaired, _ok, _reason = reconcile_combat_method_pure(
+        player_data, {}, equipment_data
+    )
+    return repaired
+
+
+def combat_supply_loadout_summary_pure(player_data, equipment_data=None):
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    style = COMBAT_ATTACK_STYLE_DATA.get(
+        combat_attack_style_for_equipment_pure(player_data, equipment_data or {}),
+        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+    )
+    combat_class = str(style.get("combat_class", "melee"))
+    relevant_stat_potions = set(_combat_relevant_potion_items(combat_class))
+    # _sanitize_combat_supply_loadout guarantees every section exists with
+    # positive-int quantities, so the summary only projects and class-gates.
+    stat_potions = {
+        item_name: amount
+        for item_name, amount in loadout["stat_potions"].items()
+        if item_name in relevant_stat_potions
+    }
     return {
-        "food_loaded_items": dict(loadout.get("food", {}) or {}),
-        "potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values()),
-        "potions_loaded_items": dict(loadout.get("potions", {}) or {}),
-        "stat_potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("stat_potions", {}) or {}).values()),
-        "stat_potions_loaded_items": dict(loadout.get("stat_potions", {}) or {}),
-        "ammo_loaded": dict(loadout.get("ammo", {}) or {}),
-        "runes_loaded": dict(loadout.get("runes", {}) or {}),
-        "finishers_loaded": dict(loadout.get("finishers", {}) or {}),
-        "hazards_loaded": dict(loadout.get("hazards", {}) or {}),
-        "cannonballs_loaded": _non_negative_int(loadout.get("cannonballs", 0), 0),
+        "food_loaded_items": dict(loadout["food"]),
+        "potions_loaded": sum(loadout["potions"].values()),
+        "potions_loaded_items": dict(loadout["potions"]),
+        "stat_potions_loaded": sum(stat_potions.values()),
+        "stat_potions_loaded_items": stat_potions,
+        "ammo_loaded": dict(loadout["ammo"]) if combat_class == "ranged" else {},
+        "runes_loaded": dict(loadout["runes"]) if combat_class == "magic" else {},
+        "finishers_loaded": dict(loadout["finishers"]),
+        "hazards_loaded": dict(loadout["hazards"]),
+        "cannonballs_loaded": loadout["cannonballs"],
     }
 
 

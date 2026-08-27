@@ -8,6 +8,8 @@ wrong generated quest-stage rows with local 2011Scape-backed stage data:
 Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre
 Slayer.
 
+> **Druidic Ritual supersession — 2026-08-26:** The Druidic Ritual meat/Cauldron source, behavior, verification, and manual-test claims in this audit are historical and are superseded by `quest-druidic-ritual-2012-rework-2026-08-26.md`. The other four quest audits remain unchanged.
+
 ## Sources
 
 - Cook's Assistant:

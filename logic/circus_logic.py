@@ -436,6 +436,8 @@ def circus_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
                 "skill_id": performance.skill_id,
                 "max_attempts": performance.max_attempts,
                 "quest_gate": performance.quest_gate,
+                "visible": not performance.quest_gate
+                or _quest_complete(player_data, performance.quest_gate),
                 "locked_reasons": locked,
                 "available": not locked,
                 "used_this_week": state["used_week_by_performance"].get(performance.id)

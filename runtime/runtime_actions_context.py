@@ -12,7 +12,7 @@ class RuntimeActionContext:
     player_data: dict[str, Any]
     random_random: Callable[[], float]
     show_error_message: Callable[[str, str], None]
-    deactivate_current_skill: Callable[[], None]
+    deactivate_current_skill: Callable[..., None]
     award_skill_exp: Callable[[str, float], float]
     award_hidden_skill_exp: Callable[[str, str, float], None]
     level_up_check: Callable[[str, dict[str, Any]], None]
@@ -34,5 +34,5 @@ class RuntimeActionContext:
     # food and nothing bankable to fetch. The UI asks whether to leave; the
     # handler has already stopped the review either way.
     prompt_near_death: Optional[Callable[[str], None]] = None
-    switch_to_bankstanding: Optional[Callable[[], None]] = None
+    switch_to_bankstanding: Optional[Callable[..., None]] = None
     refresh_carried_inventory: Optional[Callable[[], None]] = None

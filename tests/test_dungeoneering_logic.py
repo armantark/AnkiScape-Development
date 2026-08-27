@@ -29,6 +29,7 @@ from ankiscape.data.dungeoneering_data import (
     STARTER_SMALL_REVIEW_BUDGET,
 )
 from ankiscape.logic.dungeoneering_logic import (
+    _automate_herblore_chain_pure,
     active_bind_slots_for_level_pure,
     ammo_bind_capacity_pure,
     apply_dungeoneering_command_pure,
@@ -546,6 +547,30 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
         self.assertTrue(result["room_resolved"])
         self.assertIn(room_id, opened["dungeoneering"]["session"]["resolved_room_ids"])
         self.assertEqual(sum(result["xp_rewards"].values()), 5.0)
+
+    def test_daemonheim_herblore_chain_requires_complexity_five_and_druidic_ritual(self):
+        for complexity, quest_complete in ((4, True), (5, False)):
+            with self.subTest(
+                complexity=complexity,
+                quest_complete=quest_complete,
+            ):
+                state = {
+                    "complexity": complexity,
+                    "session_inventory": {"Vial": 1},
+                }
+                player = self._player(herblore_level=5)
+                if quest_complete:
+                    player["quests"]["druidic_ritual"] = {"completed": True}
+
+                rewards, reports = _automate_herblore_chain_pure(
+                    state,
+                    player,
+                    None,
+                )
+
+                self.assertEqual(rewards, {})
+                self.assertEqual(reports, ())
+                self.assertEqual(state["session_inventory"], {"Vial": 1})
 
     def test_natural_c6_floor_brews_the_starter_weak_ranged_potion(self):
         player = self._player(herblore_level=5)

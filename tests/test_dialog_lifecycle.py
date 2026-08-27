@@ -92,6 +92,77 @@ class DialogLifecycleTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.held[-1].objectName()
 
+    def test_xp_lamp_chooser_returns_the_confirmed_stable_skill_id(self):
+        captured = {}
+
+        def _select_and_confirm() -> None:
+            modal = QApplication.activeModalWidget()
+            self.assertIsNotNone(modal)
+            title = modal.findChild(
+                self.ui.QLabel,
+                "xpLampSkillChooserTitle",
+            )
+            captured["title"] = title.text()
+            captured["title_width"] = title.width()
+            captured["minimum_width"] = modal.minimumWidth()
+            attack = next(
+                button
+                for button in modal.findChildren(
+                    self.ui.QToolButton,
+                    "xpLampSkillButton",
+                )
+                if button.property("skillId") == "attack"
+            )
+            claim = modal.findChild(
+                self.ui.QPushButton,
+                "xpLampClaimButton",
+            )
+            captured["claim_initially_enabled"] = claim.isEnabled()
+            attack.click()
+            claim.click()
+
+        QTimer.singleShot(0, _select_and_confirm)
+        selected = self.ui._choose_xp_lamp_skill(
+            self.parent,
+            "Stronghold of Player Safety: Antique lamp 1 (500 XP)",
+            ("attack", "agility"),
+        )
+        for _ in range(4):
+            QApplication.processEvents()
+
+        self.assertEqual(selected, "attack")
+        self.assertEqual(
+            captured["title"],
+            "Stronghold of Player Safety: Antique lamp 1 (500 XP)",
+        )
+        self.assertEqual(captured["minimum_width"], 600)
+        self.assertGreater(captured["title_width"], 188)
+        self.assertFalse(captured["claim_initially_enabled"])
+        with self.assertRaises(RuntimeError):
+            self.held[-1].objectName()
+
+    def test_xp_lamp_chooser_cancel_returns_none_and_deletes_the_dialog(self):
+        def _cancel() -> None:
+            modal = QApplication.activeModalWidget()
+            self.assertIsNotNone(modal)
+            modal.findChild(
+                self.ui.QPushButton,
+                "xpLampCancelButton",
+            ).click()
+
+        QTimer.singleShot(0, _cancel)
+        selected = self.ui._choose_xp_lamp_skill(
+            self.parent,
+            "Claim XP lamp",
+            ("attack", "agility"),
+        )
+        for _ in range(4):
+            QApplication.processEvents()
+
+        self.assertIsNone(selected)
+        with self.assertRaises(RuntimeError):
+            self.held[-1].objectName()
+
     def test_parented_dialogs_destroy_their_qt_objects_on_close(self):
         cases = (
             lambda: self.ui.show_level_up_dialog("Mining", 32, 33),

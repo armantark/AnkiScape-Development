@@ -5,15 +5,15 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from ..core.skill_registry import get_skill
 from ..data.stronghold_player_safety_data import (
     COCKROACH_SOLDIER_TARGET_ID,
     SAFETY_GLOVES_ITEM,
     STRONGHOLD_LANDMARKS,
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
 )
 
 
-STRONGHOLD_PLAYER_SAFETY_STATE_VERSION = 1
+STRONGHOLD_PLAYER_SAFETY_STATE_VERSION = 2
 
 
 def _int(value: Any, default: int = 0) -> int:
@@ -29,7 +29,6 @@ def default_stronghold_player_safety_state_pure() -> dict[str, Any]:
         "stage": 0,
         "crevice_unlocked": False,
         "chest_claimed": False,
-        "lamps_remaining": 0,
         "safety_first_emote_unlocked": False,
         "last_result": "Follow the jail-cell poster route to the reward chest.",
     }
@@ -46,7 +45,6 @@ def sanitize_stronghold_player_safety_state_pure(raw: Any) -> dict[str, Any]:
         "stage": stage,
         "crevice_unlocked": stage >= 2,
         "chest_claimed": chest_claimed,
-        "lamps_remaining": min(2, _int(source.get("lamps_remaining"))) if chest_claimed else 0,
         "safety_first_emote_unlocked": chest_claimed
         and bool(source.get("safety_first_emote_unlocked", True)),
         "last_result": str(
@@ -76,6 +74,26 @@ def _owns_item(player_data: Mapping[str, Any], item_name: str) -> bool:
     return False
 
 
+def _stronghold_lamp_claim_status(
+    raw_claims: Any,
+) -> tuple[tuple[str, ...], bool]:
+    claims = raw_claims if isinstance(raw_claims, Mapping) else {}
+    pending_claim_ids = []
+    claimed_count = 0
+    for claim_id in STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS:
+        raw_claim_state = claims.get(claim_id)
+        claim_state = raw_claim_state if isinstance(raw_claim_state, Mapping) else {}
+        delivered = bool(claim_state.get("delivered"))
+        claimed = delivered and bool(claim_state.get("claimed"))
+        if delivered and not claimed:
+            pending_claim_ids.append(claim_id)
+        claimed_count += int(claimed)
+    return (
+        tuple(pending_claim_ids),
+        claimed_count == len(STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS),
+    )
+
+
 def stronghold_player_safety_view_pure(
     player_data: Mapping[str, Any],
 ) -> dict[str, Any]:
@@ -96,10 +114,19 @@ def stronghold_player_safety_view_pure(
         and bool(activity_session.get("active_id"))
     )
     gloves_owned = _owns_item(player_data, SAFETY_GLOVES_ITEM)
+    pending_lamp_claim_ids, lamp_claims_complete = _stronghold_lamp_claim_status(
+        player_data.get("claims")
+    )
+    route_complete = state["stage"] == len(STRONGHOLD_LANDMARKS)
     return {
         **state,
         "stage_count": len(STRONGHOLD_LANDMARKS),
-        "complete": state["stage"] == len(STRONGHOLD_LANDMARKS),
+        "route_complete": route_complete,
+        "complete": all(
+            (route_complete, state["chest_claimed"], lamp_claims_complete)
+        ),
+        "lamps_remaining": len(pending_lamp_claim_ids),
+        "next_lamp_claim_id": next(iter(pending_lamp_claim_ids), None),
         "next_landmark": (
             dict(STRONGHOLD_LANDMARKS[state["stage"]])
             if state["stage"] < len(STRONGHOLD_LANDMARKS)
@@ -122,8 +149,8 @@ def stronghold_player_safety_view_pure(
 def apply_stronghold_player_safety_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    # Shallow on purpose: sanitize_stronghold_player_safety_state_pure returns
-    # a fresh state, and inventory is rebuilt with dict() before any write.
+    # Shallow on purpose: the sanitized activity state is fresh, and no other
+    # nested mapping is mutated.
     data = dict(player_data)
     state = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
@@ -135,12 +162,15 @@ def apply_stronghold_player_safety_review_pure(
     state["stage"] += 1
     if state["stage"] >= 2:
         state["crevice_unlocked"] = True
+    terminal = state["stage"] == len(STRONGHOLD_LANDMARKS)
     state["last_result"] = str(landmark["result"])
+    if terminal:
+        state["last_result"] += " The reward chest is ready to claim."
     return data, True, {
         "action_id": str(landmark["id"]),
         "stage": state["stage"],
         "status": state["last_result"],
-        "terminal": state["stage"] == len(STRONGHOLD_LANDMARKS),
+        "terminal": terminal,
     }
 
 
@@ -149,14 +179,13 @@ def apply_stronghold_player_safety_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    # Shallow on purpose: sanitize_stronghold_player_safety_state_pure returns
-    # a fresh state, and inventory is rebuilt with dict() before any write.
+    # Shallow on purpose: the sanitized activity state is fresh, and inventory
+    # and claims are rebuilt before writes.
     data = dict(player_data)
     state = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
     )
     data["stronghold_player_safety"] = state
-    payload = payload if isinstance(payload, Mapping) else {}
 
     if action_id == "claim_chest":
         if state["stage"] != len(STRONGHOLD_LANDMARKS):
@@ -167,32 +196,20 @@ def apply_stronghold_player_safety_command_pure(
         inventory["Coins"] = _int(inventory.get("Coins")) + 10_000
         inventory[SAFETY_GLOVES_ITEM] = _int(inventory.get(SAFETY_GLOVES_ITEM)) + 1
         data["inventory"] = inventory
+        raw_claims = data.get("claims")
+        claims = dict(raw_claims) if isinstance(raw_claims, Mapping) else {}
+        for claim_id in STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS:
+            claims[claim_id] = {"claimed": False, "delivered": True}
+        data["claims"] = claims
         state["chest_claimed"] = True
-        state["lamps_remaining"] = 2
         state["safety_first_emote_unlocked"] = True
         state["last_result"] = (
-            "Opened the chest · 10,000 coins, Safety gloves, two 500-XP lamps, "
-            "and the Safety First emote."
+            "Opened the chest · 10,000 coins, Safety gloves, and the Safety First "
+            "emote. Two 500-XP Antique lamps are ready in Bank Claims."
         )
         return data, True, {
             "items": {"Coins": 10_000, SAFETY_GLOVES_ITEM: 1},
-            "lamps": 2,
-            "message": state["last_result"],
-        }
-
-    if action_id == "claim_lamp":
-        if state["lamps_remaining"] <= 0:
-            return data, False, {"reason": "No Stronghold XP lamp remains."}
-        skill_id = str(payload.get("skill_id", ""))
-        skill = get_skill(skill_id)
-        if skill is None or not skill.trainable:
-            return data, False, {"reason": "Choose a trainable skill."}
-        data[skill.exp_key] = float(data.get(skill.exp_key, 0.0) or 0.0) + 500.0
-        state["lamps_remaining"] -= 1
-        state["last_result"] = f"Used a 500-XP lamp on {skill.display_name}."
-        return data, True, {
-            "skill_id": skill.id,
-            "xp": {skill.id: 500.0},
+            "claim_ids": STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
             "message": state["last_result"],
         }
 

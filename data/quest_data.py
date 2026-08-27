@@ -9,6 +9,10 @@ from typing import Dict, Mapping, Tuple, Union
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
+from .stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+    STRONGHOLD_PLAYER_SAFETY_LAMP_SOURCE,
+)
 from .summoning_data import SUMMONING_POUCHES
 
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
@@ -919,22 +923,13 @@ IMP_CATCHER_MIZGOG_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/areas/draynor/mizgog.plugin.kts"
 )
-DRUIDIC_RITUAL_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/quests/impl/DruidicRitual.kt"
+DRUIDIC_RITUAL_WIKI_SOURCE = "https://runescape.wiki/w/Druidic_Ritual?oldid=6488185"
+DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE = "https://runescape.wiki/w/Druidic_Ritual/Quick_guide?oldid=6168973"
+DRUIDIC_RITUAL_DARKAN_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/quests/druidic_ritual/"
 )
-DRUIDIC_RITUAL_SANFEW_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/areas/taverley/sanfew.plugin.kts"
-)
-DRUIDIC_RITUAL_KAQEMEEX_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/areas/taverley/kaqemeex.plugin.kts"
-)
-DRUIDIC_RITUAL_CAULDRON_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/objs/cauldron_of_thunder.plugin.kts"
-)
+DRUIDIC_RITUAL_CACHE_SOURCE = "OpenRS2 cache build 742: quest items 23096-23100; Sparkling Fishing Spot object 67687"
 PIRATES_TREASURE_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/PiratesTreasure.kt"
@@ -1176,6 +1171,7 @@ class ClaimDefinition:
     xp_amount: float = 0.0
     skill_options: Tuple[str, ...] = ()
     minimum_level: int = 1
+    delivery_required: bool = False
 
 
 @dataclass(frozen=True)
@@ -1323,17 +1319,15 @@ IMP_CATCHER_STAGES: Tuple[QuestStage, ...] = (
 
 DRUIDIC_RITUAL_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Kaqemeex asked me to speak with Sanfew in Taverley."),
+    _simple_stage(2, "Sanfew asked me to gather Living water, Wandering wyrmwood, and Stone scales."),
+    _simple_stage(3, "I collected Living water from the cave south of Taverley."),
+    _simple_stage(4, "I picked Wandering wyrmwood in south Taverley, just north of Nora T. Hagg's house."),
+    _simple_stage(5, "I caught a Stone fish at the Sparkling Fishing Spot."),
+    _simple_stage(6, "I used a chisel on the Stone fish to gather Stone scales."),
+    _simple_stage(7, "Sanfew combined the three ingredients into an Ointment of imbalance."),
     _simple_stage(
-        2,
-        "Sanfew needs raw bear meat, raw rat meat, raw beef, and raw chicken dipped in the Cauldron of Thunder.",
-    ),
-    _simple_stage(
-        3,
-        "The meats have been enchanted in the Cauldron of Thunder and should be returned through Sanfew to Kaqemeex.",
-    ),
-    _simple_stage(
-        4,
-        "Kaqemeex taught me the basics of Herblore.",
+        8,
+        "I gave the Ointment of imbalance to Kaqemeex and restored the stone circle's balance.",
         "Quest complete!",
     ),
 )
@@ -3468,19 +3462,16 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
     QuestDefinition(
         id=DRUIDIC_RITUAL_ID,
         display_name="Druidic Ritual",
-        stages=4,
+        stages=8,
         point_reward=4,
-        rewards=(),
+        rewards=(("Grimy guam", 15), ("Eye of newt", 15)),
         start_point="Speak to Kaqemeex at the stone circle north of Taverley.",
-        requirements=(
-            "Used during quest: Raw bear meat x1, Raw rat meat x1, Raw beef x1, Raw chicken x1",
-            "Access to the Cauldron of Thunder dungeon south of Taverley",
-        ),
+        requirements=("Used during quest: Coins x1, Chisel x1, Fishing rod x1",),
         required_items=(),
         combat="None.",
         source=(
-            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}; "
-            f"{DRUIDIC_RITUAL_CAULDRON_SOURCE_PATH}; {DRUIDIC_RITUAL_KAQEMEEX_SOURCE_PATH}"
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}; "
+            f"{DRUIDIC_RITUAL_DARKAN_SOURCE_PATH}; {DRUIDIC_RITUAL_CACHE_SOURCE}"
         ),
         journal_stages=DRUIDIC_RITUAL_STAGES,
         release_date="2002-02-27",
@@ -3489,7 +3480,6 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         length="Short",
         timeline="Fifth Age",
         xp_rewards=(QuestXpReward("herblore", 250),),
-        unlocks=("Access to Herblore",),
     ),
     QuestDefinition(
         id=RUNE_MYSTERIES_ID,
@@ -7652,38 +7642,57 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             1,
             "Speak to Sanfew about the ritual ingredients.",
-            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}; {DRUIDIC_RITUAL_DARKAN_SOURCE_PATH}",
+            produced_inventory=(("Vial", 1),),
             auto_actions=("Speak to Sanfew about the ritual ingredients",),
         ),
         _stage_req(
             2,
-            "Dip each raw meat in the Cauldron of Thunder.",
-            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}; {DRUIDIC_RITUAL_CAULDRON_SOURCE_PATH}",
-            consumed_inventory=(
-                ("Raw bear meat", 1),
-                ("Raw rat meat", 1),
-                ("Raw beef", 1),
-                ("Raw chicken", 1),
-            ),
-            produced_inventory=(
-                ("Enchanted bear meat", 1),
-                ("Enchanted rat meat", 1),
-                ("Enchanted beef", 1),
-                ("Enchanted chicken", 1),
-            ),
-            auto_actions=("Dip the raw meats in the Cauldron of Thunder",),
+            "Collect Living water from the cave south of Taverley.",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}",
+            consumed_inventory=(("Vial", 1),),
+            produced_inventory=(("Living water", 1),),
+            auto_actions=("Collect Living water from the cave south of Taverley",),
         ),
         _stage_req(
             3,
-            "Give Sanfew the enchanted meats and return to Kaqemeex.",
-            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}; {DRUIDIC_RITUAL_KAQEMEEX_SOURCE_PATH}",
-            consumed_inventory=(
-                ("Enchanted bear meat", 1),
-                ("Enchanted rat meat", 1),
-                ("Enchanted beef", 1),
-                ("Enchanted chicken", 1),
-            ),
-            auto_actions=("Give Sanfew the enchanted meats and return to Kaqemeex",),
+            "Pick Wandering wyrmwood in south Taverley, just north of Nora T. Hagg's house.",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}",
+            produced_inventory=(("Wandering wyrmwood", 1),),
+            auto_actions=("Pick Wandering wyrmwood in south Taverley, just north of Nora T. Hagg's house",),
+        ),
+        _stage_req(
+            4,
+            "Catch a Stone fish at the Sparkling Fishing Spot.",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+            required_tools=(("Fishing rod", 1),),
+            consumed_inventory=(("Coins", 1),),
+            produced_inventory=(("Stone fish", 1),),
+            auto_actions=("Catch a Stone fish at the Sparkling Fishing Spot",),
+        ),
+        _stage_req(
+            5,
+            "Use a chisel on the Stone fish to gather Stone scales.",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+            required_inventory=(("Stone fish", 1),),
+            required_tools=(("Chisel", 1),),
+            produced_inventory=(("Stone scales", 1),),
+            auto_actions=("Use a chisel on the Stone fish",),
+        ),
+        _stage_req(
+            6,
+            "Give Sanfew the Living water, Wandering wyrmwood, and Stone scales.",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}",
+            consumed_inventory=(("Living water", 1), ("Wandering wyrmwood", 1), ("Stone scales", 1)),
+            produced_inventory=(("Ointment of imbalance", 1),),
+            auto_actions=("Give Sanfew the ritual ingredients",),
+        ),
+        _stage_req(
+            7,
+            "Give the Ointment of imbalance to Kaqemeex.",
+            f"{DRUIDIC_RITUAL_WIKI_SOURCE}; {DRUIDIC_RITUAL_QUICK_GUIDE_SOURCE}; {DRUIDIC_RITUAL_DARKAN_SOURCE_PATH}",
+            consumed_inventory=(("Ointment of imbalance", 1),),
+            auto_actions=("Give the Ointment of imbalance to Kaqemeex",),
         ),
     ),
     RUNE_MYSTERIES_ID: (
@@ -11208,6 +11217,24 @@ CLAIMS: Tuple[ClaimDefinition, ...] = (
         skill_options=("agility",),
         minimum_level=80,
     ),
+    *(
+        ClaimDefinition(
+            id=claim_id,
+            display_name=(
+                f"Stronghold of Player Safety: Antique lamp {index} (500 XP)"
+            ),
+            source=STRONGHOLD_PLAYER_SAFETY_LAMP_SOURCE,
+            claim_type="xp_lamp",
+            item_name="Antique lamp",
+            required_quest="",
+            xp_amount=500.0,
+            minimum_level=1,
+            delivery_required=True,
+        )
+        for index, claim_id in enumerate(
+            STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS, start=1
+        )
+    ),
     *_quest_lamp_claims(),
 )
 CLAIMS_BY_ID: Dict[str, ClaimDefinition] = {claim.id: claim for claim in CLAIMS}
@@ -11218,7 +11245,13 @@ def default_quest_states() -> Dict[str, Dict[str, object]]:
 
 
 def default_claim_states() -> Dict[str, Dict[str, object]]:
-    return {claim.id: {"claimed": False} for claim in CLAIMS}
+    states = {}
+    for claim in CLAIMS:
+        state = {"claimed": False}
+        if claim.delivery_required:
+            state["delivered"] = False
+        states[claim.id] = state
+    return states
 
 
 def _quest_requirement_dict(requirement: QuestPrerequisite) -> Dict[str, object]:
@@ -11390,6 +11423,41 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
                 "source": str(reward.get("source", "")),
             }
     generated_items.update({
+        "Living water": {
+            "category": "material",
+            "item_id": 23096,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"https://runescape.wiki/w/Living_water?oldid=5871546; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+        },
+        "Wandering wyrmwood": {
+            "category": "material",
+            "item_id": 23097,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"https://runescape.wiki/w/Wandering_wyrmwood_(item)?oldid=5987356; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+        },
+        "Stone fish": {
+            "category": "material",
+            "item_id": 23098,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"https://runescape.wiki/w/Stone_fish?oldid=5907958; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+        },
+        "Stone scales": {
+            "category": "material",
+            "item_id": 23099,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"https://runescape.wiki/w/Stone_scales?oldid=5236531; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+        },
+        "Ointment of imbalance": {
+            "category": "material",
+            "item_id": 23100,
+            "tradeable": False,
+            "stackable": False,
+            "source": f"https://runescape.wiki/w/Ointment_of_imbalance?oldid=5236532; {DRUIDIC_RITUAL_CACHE_SOURCE}",
+        },
         "Coins": {"category": "material", "source": "RuneScape currency"},
         "Rock costume": {
             "category": "material",
@@ -12494,6 +12562,7 @@ def claims_as_dict() -> Dict[str, Dict[str, object]]:
             "xp_amount": claim.xp_amount,
             "skill_options": claim.skill_options,
             "minimum_level": claim.minimum_level,
+            "delivery_required": claim.delivery_required,
         }
         for claim in CLAIMS
     }

@@ -61,11 +61,16 @@ def _context(player_data, calls=None, random_values=None, review_action_multipli
         except StopIteration:
             return 0.0
 
+    def deactivate_current_skill(reason=None):
+        calls["deactivated"] = True
+        if reason:
+            calls.setdefault("deactivation_reasons", []).append(str(reason))
+
     return RuntimeActionContext(
         player_data=player_data,
         random_random=random_random,
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
-        deactivate_current_skill=lambda: calls.setdefault("deactivated", True),
+        deactivate_current_skill=deactivate_current_skill,
         award_skill_exp=award_skill_exp,
         award_hidden_skill_exp=lambda exp_key, _level_key, base_exp: player_data.__setitem__(
             exp_key,
@@ -87,9 +92,11 @@ def _bankstanding_context(player_data, calls=None, **kwargs):
     calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
     ctx = _context(player_data, calls, **kwargs)
 
-    def switch_to_bankstanding():
+    def switch_to_bankstanding(reason=None):
         player_data["current_utility"] = "bankstanding"
         calls["bankstanding"] = calls.get("bankstanding", 0) + 1
+        if reason:
+            calls.setdefault("bankstanding_reasons", []).append(str(reason))
 
     ctx.switch_to_bankstanding = switch_to_bankstanding
     return ctx
@@ -1065,10 +1072,11 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], [])
         self.assertEqual(calls["xp"], [750.0])
         self.assertEqual(player_data["mining_exp"], 750.0)
-        self.assertEqual(len(player_data["review_event_log"]), 1)
+        self.assertEqual(player_data.get("review_event_log", []), [])
+        self.assertEqual(len(calls["deactivation_reasons"]), 1)
         self.assertIn(
             "Star unminable at your level",
-            player_data["review_event_log"][0]["text"],
+            calls["deactivation_reasons"][0],
         )
 
     def test_treasure_trail_routes_a_step_and_its_terminal_casket_through_utility(self):
@@ -2070,6 +2078,23 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["fishing_exp"], 80.0)
         self.assertEqual(calls["xp"], [80.0])
 
+    def test_level_one_player_can_clean_guam_without_druidic_ritual(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Grimy guam": 1},
+            "herblore_level": 1,
+            "herblore_exp": 0.0,
+            "current_herblore": "clean_guam",
+            "quests": {"druidic_ritual": {"started": False, "progress": 0, "completed": False}},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_herblore_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["inventory"], {"Grimy guam": 0, "Clean guam": 1})
+        self.assertEqual(player_data["herblore_exp"], 2.5)
+        self.assertEqual(calls["xp"], [2.5])
+
     def test_overload_handler_records_primary_output_and_four_vials(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         inputs = {
@@ -2929,6 +2954,43 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["saves"], 1)
 
+    def test_combat_handler_finisher_repairs_stale_runes_when_fight_ends(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "desert_lizard",
+            "combat_action": "finisher",
+            "combat_encounter": {
+                "target_id": "desert_lizard",
+                "enemy_lifepoints": 30,
+            },
+            "combat_supply_loadout": {
+                "runes": {"Air rune": 5, "Mind rune": 5},
+                "finishers": {"Ice cooler": 1},
+                "hazards": {"Waterskin (4)": 1},
+            },
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "slayer_level": 99,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.999999] * 40)
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["combat_encounter"], {})
+        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(player_data["inventory"]["Air rune"], 5)
+        self.assertEqual(player_data["inventory"]["Mind rune"], 5)
+        self.assertEqual(calls["saves"], 1)
+
     def test_combat_handler_routes_charged_zygomite_finisher_without_losing_remainder(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -3105,6 +3167,10 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertFalse(ok, "the review must not resolve")
         self.assertEqual(prompted, ["combat"], "the player must be asked")
+        self.assertEqual(
+            calls["deactivation_reasons"],
+            ["Lifepoints are critical and there is no food left in your pack or bank."],
+        )
         self.assertNotIn("combat_last_result", player_data)
 
     def test_near_death_with_food_in_the_bank_is_not_refused(self):
@@ -3513,7 +3579,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
         player_data["quests"]["druidic_ritual"] = {
             "started": True,
-            "progress": 4,
+            "progress": 8,
             "completed": True,
         }
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}

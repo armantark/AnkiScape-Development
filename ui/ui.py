@@ -75,6 +75,7 @@ from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
     ORE_DATA,
+    EQUIPMENT_DATA,
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
     MINING_BONUS_ITEM_DATA,
@@ -335,7 +336,7 @@ from ..data.circus_data import (
     CIRCUS_REWARDS,
     CIRCUS_STRATEGIES,
 )
-from ..logic.circus_logic import circus_view_pure
+from ..logic.circus_logic import circus_view_pure, sanitize_circus_state_pure
 
 from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_ACTIVITY_ID,
@@ -4581,6 +4582,54 @@ def show_achievement_dialog(achievement: str, data: dict):
     dialog.exec()
 
 
+def show_bankstanding_dialog(reason: str) -> None:
+    """Tell the player why an automatic transition ended their active action."""
+    if not HAS_QT:
+        return
+    dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+    dialog.setWindowTitle("Switched to Bankstanding")
+    dialog.setMinimumWidth(440)
+    layout = QVBoxLayout()
+
+    icon_path = os.path.join(current_dir, "icon", "bank_icon.png")
+    if os.path.exists(icon_path):
+        icon_label = QLabel()
+        pixmap = QPixmap(icon_path)
+        icon_label.setPixmap(
+            pixmap.scaled(
+                56,
+                56,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
+        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    title = QLabel("Now Bankstanding")
+    title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    title.setStyleSheet("font-size: 16px; font-weight: bold;")
+    layout.addWidget(title)
+
+    reason_label = QLabel(f"Reason: {str(reason or '').strip()}")
+    reason_label.setObjectName("bankstandingReason")
+    reason_label.setWordWrap(True)
+    reason_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(reason_label)
+
+    prompt = QLabel("Choose a new action when you are ready to continue.")
+    prompt.setWordWrap(True)
+    prompt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(prompt)
+
+    ok_button = QPushButton("OK")
+    ok_button.clicked.connect(dialog.accept)
+    layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    dialog.setLayout(layout)
+    dialog.exec()
+
+
 def show_stronghold_reward_dialog() -> Optional[str]:
     """Boot-choice reward for clearing the Stronghold of Security. Both pairs are
     stat-identical, so the copy makes clear the pick is purely cosmetic. Returns
@@ -4644,9 +4693,7 @@ def update_menu_visibility(current_skill: str):
     return
 
 
-def _combat_loadout_summary_text(player_data: dict) -> str:
-    summary = combat_supply_loadout_summary_pure(player_data)
-
+def _combat_loadout_summary_text(summary: dict) -> str:
     def _mapping_text(mapping: object) -> str:
         if not isinstance(mapping, dict) or not mapping:
             return "none loaded"
@@ -14787,7 +14834,7 @@ def show_main_menu(
         )
         circus_layout = QVBoxLayout(circus_box)
         circus_layout.setContentsMargins(10, 8, 10, 8)
-        circus_layout.setSpacing(7)
+        circus_layout.setSpacing(5)
 
         circus_header = QWidget()
         circus_header_layout = QHBoxLayout(circus_header)
@@ -14834,8 +14881,6 @@ def show_main_menu(
         circus_performance = QComboBox()
         circus_performance.setObjectName("circusPerformanceCombo")
         circus_performance.setAccessibleName("Circus performance")
-        for performance_id, performance in CIRCUS_PERFORMANCES.items():
-            circus_performance.addItem(performance.display_name, performance_id)
         circus_mode = QComboBox()
         circus_mode.setObjectName("circusAutomationMode")
         circus_mode.setAccessibleName("Circus automation mode")
@@ -14968,6 +15013,7 @@ def show_main_menu(
         circus_layout.addWidget(circus_rewards)
 
         circus_actions = QWidget()
+        circus_actions.setStyleSheet("QPushButton { font-size: 11px; }")
         circus_actions_layout = QHBoxLayout(circus_actions)
         circus_actions_layout.setContentsMargins(0, 0, 0, 0)
         circus_actions_layout.setSpacing(6)
@@ -14975,14 +15021,15 @@ def show_main_menu(
         circus_primary.setObjectName("circusPrimaryButton")
         circus_edit = QPushButton("Edit routine…")
         circus_edit.setObjectName("circusEditRoutineButton")
-        circus_abandon = QPushButton("Abandon this performance")
+        circus_abandon = QPushButton("Abandon performance")
         circus_abandon.setObjectName("circusAbandonButton")
+        circus_abandon.setAccessibleName("Abandon this Circus performance")
         circus_reclaim = QPushButton("Reclaim costumes")
         circus_reclaim.setObjectName("circusReclaimButton")
-        circus_actions_layout.addWidget(circus_primary, 2)
-        circus_actions_layout.addWidget(circus_edit, 1)
-        circus_actions_layout.addWidget(circus_abandon, 1)
-        circus_actions_layout.addWidget(circus_reclaim, 1)
+        circus_actions_layout.addWidget(circus_primary, 3)
+        circus_actions_layout.addWidget(circus_edit, 2)
+        circus_actions_layout.addWidget(circus_abandon, 3)
+        circus_actions_layout.addWidget(circus_reclaim, 3)
         circus_layout.addWidget(circus_actions)
         cards_stack.addWidget(circus_box)
 
@@ -14992,22 +15039,40 @@ def show_main_menu(
             selected = str(circus_performance.currentData() or "agility")
             return selected if selected in CIRCUS_PERFORMANCES else "agility"
 
-        def _circus_queue_ids(queue: QListWidget) -> list[str]:
+        def _circus_queue_ids(
+            queue: QListWidget, hidden_ids: list[str]
+        ) -> list[str]:
             return [
                 str(queue.item(index).data(Qt.ItemDataRole.UserRole))
                 for index in range(queue.count())
-            ]
+            ] + hidden_ids
+
+        def _circus_queue_payload() -> dict[str, list[str]]:
+            view = circus_view_pure(player_data)
+            rows_by_id = {
+                str(row["id"]): row for row in view["performances"]
+            }
+            hidden_ids = {
+                queue_name: [
+                    str(performance_id)
+                    for performance_id in ids
+                    if not rows_by_id[str(performance_id)]["visible"]
+                ]
+                for queue_name, ids in view["performance_queue"].items()
+            }
+            return {
+                "executing": _circus_queue_ids(
+                    circus_executing_queue, hidden_ids["executing"]
+                ),
+                "non_executing": _circus_queue_ids(
+                    circus_non_executing_queue, hidden_ids["non_executing"]
+                ),
+            }
 
         def _save_circus_queue() -> None:
             if syncing_circus["active"]:
                 return
-            _run_circus_command(
-                "set_queue",
-                {
-                    "executing": _circus_queue_ids(circus_executing_queue),
-                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
-                },
-            )
+            _run_circus_command("set_queue", _circus_queue_payload())
 
         def _move_circus_queue_item(source: QListWidget, target: QListWidget) -> None:
             item = source.takeItem(source.currentRow())
@@ -15034,6 +15099,8 @@ def show_main_menu(
                 queue.clear()
                 for performance_id in ids:
                     row = rows_by_id[str(performance_id)]
+                    if not row["visible"]:
+                        continue
                     item = QListWidgetItem(str(row["display_name"]))
                     item.setData(Qt.ItemDataRole.UserRole, str(performance_id))
                     if row["locked_reasons"]:
@@ -15053,35 +15120,67 @@ def show_main_menu(
             _refresh_circus_panel()
             return result
 
+        def _circus_selection_for_refresh(
+            view: Mapping[str, Any], sync_selection: bool
+        ) -> str:
+            if sync_selection:
+                return str(view["selected_performance"])
+            current = circus_performance.currentData()
+            return (
+                str(current)
+                if current is not None
+                else str(view["selected_performance"])
+            )
+
+        def _sync_circus_selection(performance_id: str) -> None:
+            state = sanitize_circus_state_pure(player_data.get("circus"))
+            if state["selected_performance"] == performance_id:
+                return
+            state["selected_performance"] = performance_id
+            player_data["circus"] = state
+            if on_save_player_data is not None:
+                on_save_player_data()
+
+        def _circus_refresh_state(
+            sync_selection: bool,
+        ) -> tuple[dict[str, Any], str, list[Mapping[str, Any]]]:
+            view = circus_view_pure(player_data)
+            selected_performance_id = _circus_selection_for_refresh(
+                view, sync_selection
+            )
+            visible_rows = [
+                row for row in view["performances"] if row["visible"]
+            ]
+            if selected_performance_id in {
+                str(row["id"]) for row in visible_rows
+            }:
+                return view, selected_performance_id, visible_rows
+            selected_performance_id = str(visible_rows[0]["id"])
+            _sync_circus_selection(selected_performance_id)
+            return view, selected_performance_id, visible_rows
+
         def _refresh_circus_panel(sync_selection: bool = True) -> None:
             syncing_circus["active"] = True
-            view = circus_view_pure(player_data)
-            _populate_circus_queue(view)
-            if sync_selection:
-                circus_performance.setCurrentIndex(
-                    max(0, circus_performance.findData(view["selected_performance"]))
-                )
-                circus_mode.setCurrentIndex(
-                    max(0, circus_mode.findData(view["automation_mode"]))
-                )
-            performance_id = _circus_selected_id()
-            row = next(
-                item for item in view["performances"] if item["id"] == performance_id
+            view, selected_performance_id, visible_rows = _circus_refresh_state(
+                sync_selection
             )
-            for index, performance_row in enumerate(view["performances"]):
-                combo_item = circus_performance.model().item(index)
-                if combo_item is None:
-                    continue
+            _populate_circus_queue(view)
+            circus_performance.clear()
+            for performance_row in visible_rows:
                 suffix = (
                     " · done this week"
                     if performance_row["used_this_week"]
-                    else " · locked"
-                    if performance_row["locked_reasons"]
                     else ""
                 )
-                combo_item.setText(
-                    str(performance_row["display_name"]) + suffix
+                circus_performance.addItem(
+                    str(performance_row["display_name"]) + suffix,
+                    str(performance_row["id"]),
                 )
+                combo_item = circus_performance.model().item(
+                    circus_performance.count() - 1
+                )
+                if combo_item is None:
+                    continue
                 combo_item.setToolTip(
                     ", ".join(performance_row["locked_reasons"])
                     if performance_row["locked_reasons"]
@@ -15094,6 +15193,17 @@ def show_main_menu(
                         else circus_performance.palette().color(QPalette.ColorRole.Text)
                     )
                 )
+            circus_performance.setCurrentIndex(
+                max(0, circus_performance.findData(selected_performance_id))
+            )
+            if sync_selection:
+                circus_mode.setCurrentIndex(
+                    max(0, circus_mode.findData(view["automation_mode"]))
+                )
+            performance_id = _circus_selected_id()
+            row = next(
+                item for item in view["performances"] if item["id"] == performance_id
+            )
             if sync_selection:
                 circus_strategy.setCurrentIndex(
                     max(0, circus_strategy.findData(row["strategy"]))
@@ -15151,7 +15261,7 @@ def show_main_menu(
             circus_primary.setEnabled(
                 on_circus_command is not None
                 and view["session"] is None
-                and bool(view["performance_queue"]["executing"])
+                and circus_executing_queue.count() > 0
                 and not selected_here
             )
             circus_edit.setVisible(mode == "advanced")
@@ -15197,8 +15307,7 @@ def show_main_menu(
             result = _run_circus_command(
                 "start_activity",
                 {
-                    "executing": _circus_queue_ids(circus_executing_queue),
-                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
+                    **_circus_queue_payload(),
                     "automation_mode": str(circus_mode.currentData() or "casual"),
                     "strategy": str(circus_strategy.currentData() or "balanced"),
                 },
@@ -17911,15 +18020,19 @@ def show_main_menu(
                 )
             )
         stronghold_title = QLabel("Stronghold of Player Safety")
+        stronghold_title.setObjectName("strongholdPlayerSafetyTitle")
+        stronghold_title.setWordWrap(True)
         stronghold_title.setStyleSheet("font-weight: 700; color: palette(text);")
         stronghold_status = QLabel()
         stronghold_status.setObjectName("strongholdPlayerSafetyStatus")
+        stronghold_status.setSizePolicy(
+            QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred
+        )
         stronghold_status.setStyleSheet(
             f"color: {dim_text_css(stronghold_status)}; font-size: 10px; font-weight: 700;"
         )
         stronghold_header_layout.addWidget(stronghold_icon)
-        stronghold_header_layout.addWidget(stronghold_title)
-        stronghold_header_layout.addStretch(1)
+        stronghold_header_layout.addWidget(stronghold_title, 1)
         stronghold_header_layout.addWidget(stronghold_status)
         stronghold_layout.addWidget(stronghold_header)
 
@@ -17977,6 +18090,9 @@ def show_main_menu(
                     "Stronghold of Player Safety",
                     str(result.get("message", "That Stronghold action is unavailable.")),
                 )
+            elif action_id == "claim_chest":
+                _populate_claims()
+                _refresh_equipment_views()
             _refresh_stronghold_panel()
             return result
 
@@ -17984,15 +18100,29 @@ def show_main_menu(
             view = stronghold_player_safety_view_pure(player_data)
             stage = int(view["stage"])
             total = int(view["stage_count"])
+            lamps_remaining = int(view["lamps_remaining"])
+            plural = lamps_remaining != 1
             stronghold_progress.setRange(0, total)
             stronghold_progress.setValue(stage)
             stronghold_progress.setFormat("Route landmarks %v of %m")
-            if view["can_claim_chest"]:
-                stronghold_status.setText("CHEST READY")
-            elif view["chest_claimed"]:
-                stronghold_status.setText("COMPLETE")
-            else:
-                stronghold_status.setText(f"ROUTE {stage}/{total}")
+            status_candidates = (
+                (view["can_claim_chest"], "CHEST READY"),
+                (view["complete"], "COMPLETE"),
+                (
+                    view["chest_claimed"],
+                    f"{lamps_remaining} LAMP{'S' * plural} LEFT",
+                ),
+            )
+            stronghold_status.setText(
+                next(
+                    (
+                        text
+                        for active, text in status_candidates
+                        if active
+                    ),
+                    f"ROUTE {stage}/{total}",
+                )
+            )
             next_landmark = view.get("next_landmark")
             next_text = (
                 f"Next: {next_landmark['label']}."
@@ -18002,8 +18132,10 @@ def show_main_menu(
             extras = []
             if view["crevice_unlocked"]:
                 extras.append("surface crevice unlocked")
-            if int(view["lamps_remaining"]) > 0:
-                extras.append(f"{int(view['lamps_remaining'])} XP lamp(s) ready")
+            if lamps_remaining > 0:
+                extras.append(
+                    f"{lamps_remaining} XP lamp Bank Claim{'s' * plural} ready"
+                )
             stronghold_summary.setText(
                 next_text
                 + (" · " + " · ".join(extras) if extras else "")
@@ -18033,11 +18165,10 @@ def show_main_menu(
                 and bool(view["can_claim_chest"])
             )
             stronghold_lamp.setText(
-                f"Use 500-XP lamp ({int(view['lamps_remaining'])})"
+                f"Use 500-XP lamp ({lamps_remaining})"
             )
             stronghold_lamp.setEnabled(
-                on_stronghold_player_safety_command is not None
-                and int(view["lamps_remaining"]) > 0
+                on_claim_reward is not None and lamps_remaining > 0
             )
             stronghold_reclaim.setVisible(bool(view["can_reclaim_gloves"]))
             stronghold_reclaim.setEnabled(
@@ -18058,23 +18189,37 @@ def show_main_menu(
                 _refresh_stronghold_panel()
 
         def _claim_stronghold_lamp() -> None:
-            skills = trainable_skill_definitions()
-            labels = [skill.display_name for skill in skills]
-            choice, ok = QInputDialog.getItem(
+            view = stronghold_player_safety_view_pure(player_data)
+            claim_id = str(view.get("next_lamp_claim_id") or "")
+            claim = CLAIM_DATA.get(claim_id)
+            if not isinstance(claim, Mapping) or on_claim_reward is None:
+                return
+            minimum_level = int(claim.get("minimum_level", 1) or 1)
+            configured_skill_ids = frozenset(
+                map(str, claim.get("skill_options", ()) or ())
+            )
+            eligible_skill_ids = [
+                skill.id
+                for skill in trainable_skill_definitions()
+                if (
+                    not configured_skill_ids
+                    or skill.id in configured_skill_ids
+                )
+                and _skill_level(skill.id) >= minimum_level
+            ]
+            if not eligible_skill_ids:
+                return
+            skill_id = _choose_xp_lamp_skill(
                 stronghold_box,
                 "Use Stronghold XP lamp",
-                "Skill:",
-                labels,
-                0,
-                False,
+                eligible_skill_ids,
             )
-            if not ok:
+            if skill_id is None:
                 return
-            try:
-                skill_id = skills[labels.index(choice)].id
-            except ValueError:
-                return
-            _run_stronghold_command("claim_lamp", {"skill_id": skill_id})
+            if on_claim_reward(claim_id, skill_id):
+                _populate_claims()
+                _refresh_equipment_views()
+                _refresh_stronghold_panel()
 
         def _start_stronghold_soldier_fight() -> None:
             result = _run_stronghold_command("start_soldier_fight")
@@ -20042,6 +20187,7 @@ def show_main_menu(
                         "tree, blessing, and participation status."
                     ),
                     current=current == EVIL_TREE_UTILITY_ID,
+                    icon_path=_ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
                     group="distractions_and_diversions",
                 ),
             )
@@ -24865,6 +25011,69 @@ def show_main_menu(
     # banks when full. Collapsible header. Casual packing is inferred (even split
     # for processing, action-filled for gathering) with approximate bank runs;
     # players who want to tune it use the advanced 4x7 grid below.
+    carried_inventory_projection = {
+        "retained": {},
+        "items": (),
+        "supply_summary": None,
+        "retained_slots": 0,
+        "total_slots": 0,
+    }
+
+    def _refresh_carried_inventory_projection() -> None:
+        retained: dict[str, int] = {}
+        supplies: dict[str, int] = {}
+
+        def _add_items(target: dict[str, int], items) -> None:
+            for item_name, amount in items:
+                amount = int(amount)
+                if (
+                    isinstance(item_name, str)
+                    and item_name != inventory_pure.COIN_ITEM_NAME
+                    and amount > 0
+                ):
+                    target[item_name] = target.get(item_name, 0) + amount
+
+        _add_items(
+            retained,
+            get_carried_inventory_items()
+            if get_carried_inventory_items is not None
+            else (),
+        )
+        supply_summary = None
+        if carried_auto_is_combat:
+            supply_summary = combat_supply_loadout_summary_pure(player_data, EQUIPMENT_DATA)
+            for section in (
+                "food_loaded_items",
+                "potions_loaded_items",
+                "stat_potions_loaded_items",
+                "ammo_loaded",
+                "runes_loaded",
+                "finishers_loaded",
+                "hazards_loaded",
+            ):
+                _add_items(supplies, supply_summary[section].items())
+            _add_items(
+                supplies,
+                (("Cannonball", supply_summary["cannonballs_loaded"]),),
+            )
+        merged = dict(retained)
+        _add_items(merged, supplies.items())
+        retained_slots = inventory_pure.carried_slots_used(
+            retained, carried_stackable_names
+        )
+        total_slots = inventory_pure.carried_slots_used(
+            merged, carried_stackable_names
+        )
+        carried_inventory_projection.update(
+            retained=retained,
+            items=tuple(merged.items()),
+            supply_summary=supply_summary,
+            retained_slots=retained_slots,
+            total_slots=total_slots,
+        )
+
+    _refresh_carried_inventory_projection()
+
     def _carried_panel_summary_text() -> str:
         carried = player_data.get("carried_inventory") or {}
         run = player_data.get("skilling_bank_run") or {}
@@ -24874,6 +25083,14 @@ def show_main_menu(
             if isinstance(view, dict) and view:
                 total_slots += inventory_pure.carried_slots_used(view, carried_stackable_names)
                 carried_targets += 1
+        if carried_auto_is_combat:
+            retained = carried_inventory_projection["retained"]
+            total_slots += (
+                carried_inventory_projection["total_slots"]
+                - carried_inventory_projection["retained_slots"]
+            )
+            if not retained:
+                carried_targets += int(bool(carried_inventory_projection["items"]))
         if run:
             status = f"Banking… {int(run.get('reviews_remaining', 0))} review(s) left"
         elif total_slots:
@@ -24886,15 +25103,23 @@ def show_main_menu(
         )
 
     def _carried_header_text(expanded: bool = False) -> str:
-        items = (
-            tuple(get_carried_inventory_items())
-            if get_carried_inventory_items is not None
-            else ()
-        )
-        summary = " · ".join(
-            f"{item_name} ×{int(amount)}" for item_name, amount in items
-        ) or "Empty"
-        return f"{'▾' if expanded else '▸'}  Carried inventory — {summary}"
+        if carried_auto_is_combat:
+            supply_slots = (
+                carried_inventory_projection["total_slots"]
+                - carried_inventory_projection["retained_slots"]
+            )
+            summary = (
+                f"{carried_inventory_projection['retained_slots']} loot · "
+                f"{supply_slots} supplies · "
+                f"{carried_inventory_projection['total_slots']}/"
+                f"{inventory_pure.CARRIED_CAPACITY} slots"
+            )
+        else:
+            summary = (
+                f"{carried_inventory_projection['total_slots']}/"
+                f"{inventory_pure.CARRIED_CAPACITY} slots"
+            )
+        return f"{'▾' if expanded else '▸'} Carried — {summary}"
 
     carried_header = QPushButton(_carried_header_text())
     carried_header.setObjectName("carriedInventoryHeader")
@@ -24982,6 +25207,7 @@ def show_main_menu(
         item_name: Optional[str],
         quantity: int = 0,
         icon_path: Optional[str] = None,
+        fit_caption_width: bool = False,
     ) -> None:
         visual = getattr(button, "_ankiscape_carried_cell_visual", None)
         if visual is None:
@@ -25011,8 +25237,6 @@ def show_main_menu(
             )
         else:
             visual, icon_label, caption = visual
-        visual.setGeometry(button.rect())
-        visual.raise_()
         button.setText("")
         button.setIcon(QIcon())
         icon_label.clear()
@@ -25020,8 +25244,7 @@ def show_main_menu(
             icon_label.hide()
             caption.setWordWrap(False)
             caption.setText("+")
-            return
-        if icon_path:
+        elif icon_path:
             icon_label.show()
             icon_label.setPixmap(
                 QPixmap(icon_path).scaled(
@@ -25033,10 +25256,19 @@ def show_main_menu(
             )
             caption.setWordWrap(False)
             caption.setText(f"×{int(quantity)}")
-            return
-        icon_label.hide()
-        caption.setWordWrap(True)
-        caption.setText(f"{item_name}\n×{int(quantity)}")
+        else:
+            icon_label.hide()
+            caption.setWordWrap(True)
+            caption.setText(f"{item_name}\n×{int(quantity)}")
+            if fit_caption_width:
+                button.setFixedWidth(
+                    max(
+                        button.width(),
+                        caption.fontMetrics().horizontalAdvance(item_name) + 12,
+                    )
+                )
+        visual.setGeometry(button.rect())
+        visual.raise_()
 
     def _refresh_carried_layout_grid() -> None:
         for _refresh in carried_grid_refreshers:
@@ -25291,7 +25523,7 @@ def show_main_menu(
                     )
                 )
                 supply_mode_combo.blockSignals(False)
-            _refresh_carried_sections()
+            _refresh_carried_panel()
 
         supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)
         supply_mode_layout.addWidget(supply_mode_label)
@@ -25304,7 +25536,11 @@ def show_main_menu(
                 text = str(get_carried_auto_summary() or "")
                 if text:
                     return text
-            return _combat_loadout_summary_text(player_data)
+            summary = carried_inventory_projection["supply_summary"]
+            if summary is None:
+                summary = combat_supply_loadout_summary_pure(player_data, EQUIPMENT_DATA)
+                carried_inventory_projection["supply_summary"] = summary
+            return _combat_loadout_summary_text(summary)
 
         def _auto_bank_run_text() -> str:
             if get_carried_bank_run_summary is not None:
@@ -25334,7 +25570,7 @@ def show_main_menu(
         def _on_clear_inventory(_checked=False) -> None:
             if on_unload_combat_loadout is not None and on_unload_combat_loadout():
                 _refresh_equipment_views(refresh_visible_skill=True)
-            _refresh_carried_sections()
+            _refresh_carried_panel()
 
         clear_inv_btn.clicked.connect(_on_clear_inventory)
         clear_inv_row = QWidget()
@@ -25490,10 +25726,11 @@ def show_main_menu(
         clear_layout_row_layout.addWidget(clear_layout_btn)
         clear_layout_row_layout.addStretch(1)
         custom_layout.addWidget(clear_layout_row)
+        section_layout.addWidget(custom_view)
 
         current_label = QLabel("Current inventory")
         current_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        custom_layout.addWidget(current_label)
+        section_layout.addWidget(current_label)
         current_inventory_host = QWidget()
         current_inventory_layout = QHBoxLayout(current_inventory_host)
         current_inventory_layout.setContentsMargins(4, 4, 4, 4)
@@ -25511,8 +25748,7 @@ def show_main_menu(
             + current_inventory_scroll.frameWidth() * 2
         )
         current_inventory_scroll.setWidget(current_inventory_host)
-        custom_layout.addWidget(current_inventory_scroll)
-        section_layout.addWidget(custom_view)
+        section_layout.addWidget(current_inventory_scroll)
 
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
@@ -25626,11 +25862,7 @@ def show_main_menu(
 
         def _refresh_current_inventory() -> None:
             _clear_layout(current_inventory_layout)
-            items = (
-                tuple(get_carried_inventory_items())
-                if get_carried_inventory_items is not None
-                else ()
-            )
+            items = carried_inventory_projection["items"]
             if not items:
                 empty = QLabel("Nothing carried for this target yet.")
                 empty.setStyleSheet(f"color: {dim_text_css(empty)};")
@@ -25640,9 +25872,15 @@ def show_main_menu(
                 item_button.setObjectName(
                     f"carriedCurrentItem{name_suffix}::{item_name}"
                 )
-                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _item_icon_path(str(item_name))
-                _set_carried_cell_visual(item_button, str(item_name), int(amount), icon_path)
+                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
+                _set_carried_cell_visual(
+                    item_button,
+                    str(item_name),
+                    int(amount),
+                    icon_path,
+                    fit_caption_width=not icon_path,
+                )
                 item_button.setToolTip(f"Currently carrying {item_name} ×{int(amount)}")
                 item_button.setAccessibleName(
                     f"Current inventory: {item_name} ×{int(amount)}"
@@ -25692,6 +25930,7 @@ def show_main_menu(
     carried_header.toggled.connect(_toggle_carried_body)
 
     def _refresh_carried_panel() -> None:
+        _refresh_carried_inventory_projection()
         carried_header.setText(_carried_header_text(carried_header.isChecked()))
         carried_summary.setText(_carried_panel_summary_text())
         _refresh_carried_sections()
@@ -26510,14 +26749,11 @@ def show_main_menu(
         if not eligible:
             QMessageBox.warning(claims_box, "No eligible skill", f"This lamp requires level {minimum_level} in an allowed skill.")
             return None
-        labels = [_skill_display(skill_id) for skill_id in eligible]
-        choice, ok = QInputDialog.getItem(claims_box, "Claim XP lamp", "Skill:", labels, 0, False)
-        if not ok:
-            return None
-        try:
-            return eligible[labels.index(choice)]
-        except ValueError:
-            return None
+        return _choose_xp_lamp_skill(
+            claims_box,
+            str(row.get("display_name", "Claim XP lamp")),
+            eligible,
+        )
 
     def _populate_claims() -> None:
         _clear_layout(claims_layout)
@@ -28641,6 +28877,108 @@ def _exec_selection_dialog(dialog, selected_value) -> Optional[str]:
     selected = [None]
     dialog.accepted.connect(lambda: selected.__setitem__(0, selected_value()))
     return selected[0] if dialog.exec() else None
+
+
+def _choose_xp_lamp_skill(
+    parent,
+    title: str,
+    eligible_skill_ids,
+) -> Optional[str]:
+    skills = [
+        skill
+        for skill in (get_skill(str(skill_id)) for skill_id in eligible_skill_ids)
+        if skill is not None
+    ]
+    if not skills:
+        return None
+
+    dialog = QDialog(parent)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+    dialog.setObjectName("xpLampSkillDialog")
+    dialog.setWindowTitle(title)
+    dialog.setMinimumWidth(600)
+    layout = QVBoxLayout(dialog)
+    layout.setContentsMargins(14, 14, 14, 12)
+    layout.setSpacing(10)
+
+    title_label = QLabel(title)
+    title_label.setObjectName("xpLampSkillChooserTitle")
+    title_label.setWordWrap(True)
+    title_label.setStyleSheet(
+        "font-size: 16px; font-weight: 700; color: palette(text);"
+    )
+    layout.addWidget(title_label)
+
+    prompt = QLabel("Choose the skill that receives this lamp's XP.")
+    prompt.setObjectName("xpLampSkillChooserPrompt")
+    prompt.setStyleSheet(f"color: {dim_text_css(prompt)};")
+    layout.addWidget(prompt)
+
+    grid = QGridLayout()
+    grid.setContentsMargins(0, 0, 0, 0)
+    grid.setHorizontalSpacing(6)
+    grid.setVerticalSpacing(6)
+    button_group = QButtonGroup(dialog)
+
+    buttons = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Ok
+        | QDialogButtonBox.StandardButton.Cancel,
+        parent=dialog,
+    )
+    claim_button = buttons.button(QDialogButtonBox.StandardButton.Ok)
+    claim_button.setObjectName("xpLampClaimButton")
+    claim_button.setText("Claim")
+    claim_button.setEnabled(False)
+    cancel_button = buttons.button(QDialogButtonBox.StandardButton.Cancel)
+    cancel_button.setObjectName("xpLampCancelButton")
+    cancel_button.setText("Cancel")
+
+    for index, skill in enumerate(skills):
+        button = QToolButton(dialog)
+        button.setObjectName("xpLampSkillButton")
+        button.setProperty("skillId", skill.id)
+        button.setText(skill.display_name)
+        button.setAccessibleName(skill.display_name)
+        button.setCheckable(True)
+        button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        icon_path = skill_icon_path_for(skill.display_name)
+        if icon_path:
+            button.setIcon(QIcon(icon_path))
+        button.setIconSize(QSize(36, 36))
+        button.setMinimumSize(104, 72)
+        button.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
+        )
+        button.setStyleSheet(
+            "QToolButton { border: 1px solid palette(mid); border-radius: 5px; "
+            "padding: 5px; color: palette(text); background: palette(base); }"
+            "QToolButton:hover { border-color: palette(dark); }"
+            "QToolButton:checked { border: 2px solid #4CAF50; "
+            "background: rgba(76, 175, 80, 0.18); }"
+        )
+
+        button_group.addButton(button)
+        row, column = divmod(index, 5)
+        grid.addWidget(button, row, column)
+    for column in range(min(5, len(skills))):
+        grid.setColumnStretch(column, 1)
+    layout.addLayout(grid)
+
+    button_group.buttonClicked.connect(
+        lambda _button: claim_button.setEnabled(True)
+    )
+    buttons.accepted.connect(dialog.accept)
+    buttons.rejected.connect(dialog.reject)
+    layout.addWidget(buttons)
+    return _exec_selection_dialog(
+        dialog,
+        lambda: (
+            button_group.checkedButton().property("skillId")
+            if button_group.checkedButton() is not None
+            else None
+        ),
+    )
 
 
 def show_tree_selection_dialog(current_tree: str, woodcutting_level: int, TREE_DATA: dict, TREE_IMAGES: dict) -> Optional[str]:

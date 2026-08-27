@@ -10,12 +10,22 @@ from .equipment_data import EquipmentBonuses, EquipmentItem
 STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID = "stronghold_player_safety"
 COCKROACH_SOLDIER_TARGET_ID = "cockroach_soldier"
 SAFETY_GLOVES_ITEM = "Safety gloves"
+STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS = (
+    "stronghold_player_safety_xp_lamp_1",
+    "stronghold_player_safety_xp_lamp_2",
+)
 STRONGHOLD_PLAYER_SAFETY_SOURCE = (
     "RuneScape Wiki Stronghold of Player Safety oldid=6487359 "
     "(2012-10-27T21:41:27Z); Safety gloves oldid=6081806 "
     "(2012-08-12T22:00:03Z); Misthalin Training Centre of Excellence "
     "oldid=6430839 (2012-10-17T00:04:00Z); Cockroach soldier "
     "oldid=6539651 (2012-11-06T22:58:45Z); Darkan NPC 7160 identity only"
+)
+STRONGHOLD_PLAYER_SAFETY_LAMP_SOURCE = (
+    "RuneScape Wiki Antique lamp oldid=6367339 (2012-10-08T00:19:30Z); "
+    "Darkan StrongholdOfSafety.java@8d9e6a8171:41-64; "
+    "Darkan Lamps.java@8a5c883c4e:45-46, @1feacce92f:78, "
+    "@776de5f564:112-138; OpenRS2 rev 742 item 12628"
 )
 
 

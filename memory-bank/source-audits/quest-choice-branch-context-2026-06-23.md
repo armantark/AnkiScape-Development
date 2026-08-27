@@ -7,6 +7,14 @@ stage-gate pass. The goal was not to turn multiplayer quests into requirement
 micromanagement; it was to record the player's single-player path and let
 contextual contacts cover the historical co-op pieces.
 
+## Supersession Note - 2026-08-27
+
+Ruling 7 of the Pass 12 brief
+(`memory-bank/codex-briefs/pass12-owner-notes-handoff-2026-08-26.md`)
+supersedes this record's original Hazeel Cult timing and manual smoke path.
+Ceril starts the quest; the irreversible side choice appears only afterward, at
+Clivet's offer. Unstarted quests expose stage 0 and refuse route mutations.
+
 ## Source Tiers Used
 
 - Local 2011Scape item/NPC identity evidence:
@@ -51,8 +59,9 @@ contextual contacts cover the historical co-op pieces.
     partner as a manual stage action.
 - Temple of Ikov exposes the Guardians/Lucien branch as a stage 9 choice rather
   than raw route blockers.
-- Hazeel Cult exposes the Ceril/Hazeel side choice at stage 1 before start, and
-  final item rewards no longer grant both branch artifacts unconditionally.
+- Hazeel Cult exposes the irreversible Ceril/Hazeel side choice only after
+  Ceril starts the quest, at Clivet's offer, and final item rewards no longer
+  grant both branch artifacts unconditionally.
 - The Void Stares Back exposes the Korasi/Jessika sacrifice choice at stage 5.
 - The Quests tab renders compact choice buttons inside the existing quest card,
   disables the quest action until the path is chosen, and persists choices
@@ -101,7 +110,8 @@ contextual contacts cover the historical co-op pieces.
 4. At Shield of Arrav stage 5 on the Black Arm route, confirm there is no
    `Weapon store key` missing-item blocker and no Phoenix partner action text;
    the current blocker is the Weaponsmaster combat gate.
-5. Open Hazeel Cult before starting it. Confirm the card asks for
-   `Ceril Carnillean` or `Hazeel's cult`, does not list top-level missing
-   quest-specific side artifacts, and saves the selected side without starting
-   the quest automatically.
+5. Open Hazeel Cult before starting it and confirm that no side choice appears.
+   Start the quest through Ceril, reach Clivet's offer, and confirm the card asks
+   for `Ceril Carnillean` or `Hazeel's cult` without listing top-level missing
+   quest-specific side artifacts. Select one side, then confirm the choice
+   persists and the other side can no longer be selected.

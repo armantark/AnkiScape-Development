@@ -13,7 +13,11 @@ from ankiscape.core.storage_pure import (
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
+from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
+from ankiscape.data.stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+)
 from ankiscape.core.constants import (
     BAR_DATA,
     CONSTITUTION_STARTING_EXP,
@@ -585,6 +589,113 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(
             current["claims"]["rocking_out_bill_teach_magical_cage"],
             {"claimed": False},
+        )
+
+    def test_v119_migration_maps_druidic_ritual_progress_forward(self):
+        cases = (
+            (False, 0, False, 0),
+            (True, 0, False, 0),
+            (True, 1, False, 1),
+            (True, 2, False, 2),
+            (True, 3, False, 6),
+            (True, 4, False, 4),
+            (True, 4, True, 8),
+        )
+        for started, old_progress, completed, new_progress in cases:
+            with self.subTest(
+                started=started, old_progress=old_progress, completed=completed
+            ):
+                legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+                legacy["config_version"] = 118
+                legacy["quests"]["druidic_ritual"] = {
+                    "started": started,
+                    "progress": old_progress,
+                    "completed": completed,
+                }
+
+                migrated = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+
+                state = migrated["quests"]["druidic_ritual"]
+                self.assertEqual(state["started"], started)
+                self.assertEqual(state["progress"], new_progress)
+                self.assertEqual(state["completed"], completed)
+                if old_progress == 2:
+                    self.assertEqual(migrated["inventory"]["Vial"], 1)
+                elif old_progress == 3:
+                    self.assertEqual(migrated["inventory"]["Living water"], 1)
+                    self.assertEqual(migrated["inventory"]["Wandering wyrmwood"], 1)
+                    self.assertEqual(migrated["inventory"]["Stone scales"], 1)
+
+    def test_v119_migration_returns_retired_meats_and_actions_to_safe_state(self):
+        legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        legacy["config_version"] = 118
+        legacy["quests"]["druidic_ritual"] = {
+            "started": True,
+            "progress": 3,
+            "completed": False,
+        }
+        legacy["inventory"].update(
+            {
+                "Raw bear meat": 2,
+                "Enchanted bear meat": 1,
+                "Enchanted rat meat": 2,
+                "Enchanted beef": 3,
+                "Enchanted chicken": 4,
+            }
+        )
+        legacy["quest_stage_actions"] = {
+            "druidic_ritual": [
+                "Speak to Sanfew about the ritual ingredients",
+                "Dip the raw meats in the Cauldron of Thunder",
+                "Give Sanfew the enchanted meats and return to Kaqemeex",
+                "Keep this action",
+            ]
+        }
+
+        migrated = migrate_loaded_data(legacy, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["inventory"]["Raw bear meat"], 3)
+        self.assertEqual(migrated["inventory"]["Raw rat meat"], 2)
+        self.assertEqual(migrated["inventory"]["Raw beef"], 3)
+        self.assertEqual(migrated["inventory"]["Raw chicken"], 4)
+        for item_name in (
+            "Enchanted bear meat",
+            "Enchanted rat meat",
+            "Enchanted beef",
+            "Enchanted chicken",
+        ):
+            self.assertNotIn(item_name, migrated["inventory"])
+        self.assertEqual(
+            migrated["quest_stage_actions"]["druidic_ritual"],
+            ["Keep this action", "Speak to Sanfew about the ritual ingredients"],
+        )
+
+        migrated_again = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(migrated_again["inventory"]["Raw bear meat"], 3)
+        self.assertEqual(migrated_again["inventory"]["Raw rat meat"], 2)
+        self.assertEqual(migrated_again["inventory"]["Raw beef"], 3)
+        self.assertEqual(migrated_again["inventory"]["Raw chicken"], 4)
+
+    def test_current_schema_does_not_remigrate_druidic_ritual_state(self):
+        current = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        current["quests"]["druidic_ritual"] = {
+            "started": True,
+            "progress": 3,
+            "completed": False,
+        }
+        current["inventory"]["Enchanted bear meat"] = 1
+        current["quest_stage_actions"] = {
+            "druidic_ritual": ["Dip the raw meats in the Cauldron of Thunder"]
+        }
+
+        migrated = migrate_loaded_data(current, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["quests"]["druidic_ritual"]["progress"], 3)
+        self.assertEqual(migrated["inventory"]["Enchanted bear meat"], 1)
+        self.assertEqual(migrated["inventory"].get("Living water", 0), 0)
+        self.assertEqual(
+            migrated["quest_stage_actions"]["druidic_ritual"],
+            ["Dip the raw meats in the Cauldron of Thunder"],
         )
 
     def test_v111_migration_restores_constitution_starting_xp_once(self):
@@ -1232,7 +1343,40 @@ class TestStoragePure(unittest.TestCase):
             "ardougne_hard_who_wants_to_watch_the_watchtower",
             completed,
         )
-        self.assertIn("ardougne_easy_the_essence_of_magic", completed)
+        self.assertNotIn("ardougne_easy_the_essence_of_magic", completed)
+
+    def test_v121_drops_dormant_proxy_completions_once(self):
+        dormant_ids = {
+            task.id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if not task.conditions
+        }
+        real_deed_id = "ardougne_easy_vial_deeds"
+        self.assertTrue(dormant_ids)
+        self.assertNotIn(real_deed_id, dormant_ids)
+
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 120,
+                "achievement_diaries": {
+                    "version": 1,
+                    "completed_tasks": [*sorted(dormant_ids), real_deed_id],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        completed = migrated["achievement_diaries"]["completed_tasks"]
+        self.assertTrue(dormant_ids.isdisjoint(completed))
+        self.assertIn(real_deed_id, completed)
+        self.assertEqual(migrated["config_version"], 121)
+        self.assertEqual(
+            migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS),
+            migrated,
+        )
 
     def test_v110_adds_and_sanitizes_observed_drop_log_without_disturbing_save(self):
         prior_save = {
@@ -1785,31 +1929,52 @@ class TestStoragePure(unittest.TestCase):
             {"attacker": 0, "collector": 7, "defender": 0, "healer": 0},
         )
 
-    def test_migrate_adds_and_repairs_stronghold_player_safety_state(self):
-        migrated = migrate_loaded_data(
-            {
-                "config_version": 77,
-                "inventory": {},
-                "stronghold_player_safety": {
-                    "stage": 99,
-                    "crevice_unlocked": False,
-                    "chest_claimed": True,
-                    "lamps_remaining": 99,
-                },
-            },
-            ORE_DATA,
-            ITEM_DEFINITIONS,
-        )
+    def test_v120_migrates_old_stronghold_lamp_counts_once(self):
+        expected_claimed_by_count = {
+            2: (False, False),
+            1: (True, False),
+            0: (True, True),
+        }
+        for lamps_remaining, expected_claimed in expected_claimed_by_count.items():
+            with self.subTest(lamps_remaining=lamps_remaining):
+                migrated = migrate_loaded_data(
+                    {
+                        "config_version": 119,
+                        "inventory": {},
+                        "claims": {"wicked_hood": {"claimed": True}},
+                        "stronghold_player_safety": {
+                            "stage": 3,
+                            "crevice_unlocked": True,
+                            "chest_claimed": True,
+                            "lamps_remaining": lamps_remaining,
+                            "safety_first_emote_unlocked": True,
+                        },
+                    },
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
 
-        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
-        self.assertEqual(migrated["stronghold_player_safety"]["stage"], 3)
-        self.assertTrue(
-            migrated["stronghold_player_safety"]["crevice_unlocked"]
-        )
-        self.assertTrue(migrated["stronghold_player_safety"]["chest_claimed"])
-        self.assertEqual(
-            migrated["stronghold_player_safety"]["lamps_remaining"], 2
-        )
+                self.assertEqual(migrated["config_version"], 121)
+                self.assertNotIn(
+                    "lamps_remaining", migrated["stronghold_player_safety"]
+                )
+                self.assertTrue(
+                    migrated["stronghold_player_safety"]["chest_claimed"]
+                )
+                self.assertTrue(migrated["claims"]["wicked_hood"]["claimed"])
+                for claim_id, claimed in zip(
+                    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+                    expected_claimed,
+                ):
+                    self.assertEqual(
+                        migrated["claims"][claim_id],
+                        {"claimed": claimed, "delivered": True},
+                    )
+
+                self.assertEqual(
+                    migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS),
+                    migrated,
+                )
 
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
@@ -1940,6 +2105,80 @@ class TestStoragePure(unittest.TestCase):
                 "Crayfish",
             ],
         )
+
+    def test_load_repairs_class_incompatible_runes_once(self):
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved.update(
+            {
+                "inventory": {},
+                "equipment": {},
+                "combat_attack_style": "accurate",
+                "combat_encounter": {},
+                "combat_supply_loadout": {
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+
+        migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+        reloaded = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(migrated["inventory"]["Air rune"], 5)
+        self.assertEqual(migrated["inventory"]["Mind rune"], 5)
+        self.assertEqual(reloaded["inventory"]["Air rune"], 5)
+        self.assertEqual(reloaded["inventory"]["Mind rune"], 5)
+
+    def test_load_preserves_wind_strike_runes_for_a_magic_staff(self):
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved.update(
+            {
+                "inventory": {},
+                "equipment": {"weapon": "Staff of fire"},
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "combat_encounter": {},
+                "combat_supply_loadout": {
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+
+        migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            migrated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
+        )
+        self.assertEqual(migrated["inventory"].get("Air rune", 0), 0)
+        self.assertEqual(migrated["inventory"].get("Mind rune", 0), 0)
+
+    def test_load_leaves_an_active_encounter_loadout_untouched(self):
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved.update(
+            {
+                "inventory": {},
+                "equipment": {},
+                "combat_attack_style": "accurate",
+                "current_combat_target": "chicken",
+                "combat_encounter": {
+                    "target_id": "chicken",
+                    "enemy_lifepoints": 1,
+                },
+                "combat_supply_loadout": {
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+
+        migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            migrated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
+        )
+        self.assertEqual(migrated["inventory"].get("Air rune", 0), 0)
+        self.assertEqual(migrated["inventory"].get("Mind rune", 0), 0)
 
     def test_activity_session_allowlist_covers_every_runtime_writer(self):
         writer_ids, unresolved = _activity_session_writer_ids()

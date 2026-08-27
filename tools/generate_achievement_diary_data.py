@@ -11,9 +11,9 @@ membership, and encoded ordinary skill/quest requirements. Regional families
 are curated into four twelve-row AnkiScape tiers while keeping stable source
 identity and recording any cross-tier placement. If a period family contains
 fewer than 48 deeds, explicit progression anchors derived from that family's
-sourced requirements fill the remaining one-to-three slots per tier. A latent
-row has no predicate and can never complete; it reserves its authentic deed
-until its runtime predicate ships.
+sourced requirements fill the remaining one-to-three slots per tier. Ordinary
+requirements are access gates, never deed triggers. An un-curated deed remains
+visible as dormant until its honest runtime predicate ships.
 """
 
 from __future__ import annotations
@@ -618,6 +618,11 @@ CONDITION_OVERRIDES = {
     441: (("quest", "death_plateau", 1, "Complete Death Plateau"),),
 }
 
+# These three quest requirements are the described deed itself, rather than an
+# access gate for some other world action. They are the quest-family analogue of
+# the visibly labelled progression anchors.
+QUEST_COMPLETION_SOURCE_IDS = frozenset({440, 441, 451})
+
 # Darkan confirms these tasks' exact tier membership. Their ordinary requirement
 # pairs are absent from enum 3483 but present in the already-pinned pre-cutoff
 # family tables, so retaining the earlier requirement predicates loses no source
@@ -875,6 +880,15 @@ CONDITION_OVERRIDES.update({
 # below has exactly one diary consumer; unrelated shop and Fight Caves events do
 # not grow parallel ledgers.
 CONDITION_OVERRIDES.update({
+    129: (
+        (
+            "shop_transaction",
+            "buy|waynes_chains|waynes_chains:3:1107",
+            1,
+            "Buy a black chainbody from Wayne's Chains",
+        ),
+        ("equipped_item", "body|Black chainbody", 1, "Wear a black chainbody"),
+    ),
     79: (
         (
             "shop_transaction",
@@ -1003,12 +1017,7 @@ def _quest_id(source_name: str) -> str:
     return _QUEST_IDS.get(_normalise_name(source_name.replace("_", " ")), "")
 
 
-def _conditions(task: dict) -> list[tuple]:
-    task_id = int(task["id"])
-    override = CONDITION_OVERRIDES.get(task_id)
-    if override is not None:
-        return list(override)
-
+def _requirement_conditions(task: dict) -> list[tuple]:
     conditions: list[tuple] = []
     for requirement in task.get("requirements", ()):
         kind = requirement.get("kind")
@@ -1017,14 +1026,54 @@ def _conditions(task: dict) -> list[tuple]:
             level = int(requirement.get("level", 0))
             if skill_id and level > 1:
                 display = skill_id.replace("_", " ").title()
-                conditions.append(("skill_level", skill_id, level, f"Level {level} {display}"))
+                conditions.append(
+                    ("skill_level", skill_id, level, f"Level {level} {display}")
+                )
         elif kind == "quest":
             source_name = str(requirement.get("quest", ""))
             quest_id = _quest_id(source_name)
             if quest_id:
-                display = str(QUEST_DATA[quest_id].get("display_name", quest_id.replace("_", " ").title()))
+                display = str(
+                    QUEST_DATA[quest_id].get(
+                        "display_name", quest_id.replace("_", " ").title()
+                    )
+                )
                 conditions.append(("quest", quest_id, 1, f"Complete {display}"))
     return conditions
+
+
+def _source_conditions(task: dict) -> list[tuple]:
+    """The pre-firewall ordering signal, retained to keep roster identity stable."""
+
+    override = CONDITION_OVERRIDES.get(int(task["id"]))
+    return list(override) if override is not None else _requirement_conditions(task)
+
+
+def _access_gates(task: dict) -> list[tuple]:
+    task_id = int(task["id"])
+    if task_id in QUEST_COMPLETION_SOURCE_IDS:
+        return []
+
+    gates = _requirement_conditions(task)
+    seen = {gate[:3] for gate in gates}
+    for condition in CONDITION_OVERRIDES.get(task_id, ()):
+        if condition[0] not in {"skill_level", "quest"} or condition[:3] in seen:
+            continue
+        gates.append(condition)
+        seen.add(condition[:3])
+    return gates
+
+
+def _conditions(task: dict) -> list[tuple]:
+    task_id = int(task["id"])
+    override = CONDITION_OVERRIDES.get(task_id, ())
+    if task_id in QUEST_COMPLETION_SOURCE_IDS:
+        return list(override)
+    return [
+        condition
+        for condition in override
+        if condition[0] not in {"skill_level", "quest"}
+    ]
 
 
 def _condition_src(condition: tuple) -> str:
@@ -1122,24 +1171,26 @@ def _task_block(
     source: str,
     *,
     coin_reward: int = 0,
-    latent: bool = False,
     curation_anchor: bool = False,
     conditions_override: tuple[tuple, ...] | None = None,
     identity_tier: str | None = None,
 ) -> str:
-    if latent:
-        conditions: list[tuple] = []
-    else:
-        conditions = (
-            list(conditions_override)
-            if conditions_override is not None
-            else _conditions(task)
-        )
-        if not conditions:
-            return ""
+    conditions = (
+        list(conditions_override)
+        if conditions_override is not None
+        else _conditions(task)
+    )
     task_id = f"{family_id}_{identity_tier or tier_name}_{_slug(task['name'])}"
     condition_src = ", ".join(_condition_src(condition) for condition in conditions)
     conditions_line = f"({condition_src},)" if conditions else "()"
+    access_gate_src = ", ".join(
+        _condition_src(condition) for condition in _access_gates(task)
+    )
+    access_gates_line = (
+        f"                access_gates=({access_gate_src},),\n"
+        if access_gate_src
+        else ""
+    )
     return (
         "            DiaryTask(\n"
         f"                {task_id!r},\n"
@@ -1149,8 +1200,8 @@ def _task_block(
         f"                {source!r},\n"
         f"                {int(task['id'])},\n"
         f"                {coin_reward},\n"
-        f"                {latent},\n"
         f"                {curation_anchor},\n"
+        f"{access_gates_line}"
         "            ),"
     )
 
@@ -1191,13 +1242,13 @@ def _regional_roster(
             source_tier_by_id[source_id] = tier_name
             source_order[source_id] = order
             order += 1
-        active = [
+        sourced = [
             source_id
             for source_id in ordered
-            if _conditions(definitions[str(source_id)])
+            if _source_conditions(definitions[str(source_id)])
         ]
-        latent = [source_id for source_id in ordered if source_id not in active]
-        ranked_by_tier[tier_name] = active + latent
+        dormant = [source_id for source_id in ordered if source_id not in sourced]
+        ranked_by_tier[tier_name] = sourced + dormant
 
     sourced_skill_levels = {
         (
@@ -1245,7 +1296,7 @@ def _regional_roster(
             source_id = min(
                 unused,
                 key=lambda candidate: (
-                    not bool(_conditions(definitions[str(candidate)])),
+                    not bool(_source_conditions(definitions[str(candidate)])),
                     abs(
                         tier_index[source_tier_by_id[candidate]]
                         - tier_index[tier_name]
@@ -1260,7 +1311,7 @@ def _regional_roster(
         selected_skill_levels = {
             (condition[1], condition[2])
             for source_id, _original_tier in selected[tier_name]
-            for condition in _conditions(definitions[str(source_id)])
+            for condition in _source_conditions(definitions[str(source_id)])
             if condition[0] == "skill_level"
         }
         for anchor in PROGRESSION_ANCHORS.get((family_id, tier_name), ()):
@@ -1306,16 +1357,15 @@ def build(document: dict, items_yml: Path) -> str:
                     task_source += (
                         f"; original period tier {original_tier}; curated into {tier_name}"
                     )
-                conditions = _conditions(definitions[str(source_id)])
-                block = _task_block(
-                    family_id,
-                    tier_name,
-                    definitions[str(source_id)],
-                    task_source,
-                    latent=not bool(conditions),
-                    identity_tier=original_tier,
+                task_blocks.append(
+                    _task_block(
+                        family_id,
+                        tier_name,
+                        definitions[str(source_id)],
+                        task_source,
+                        identity_tier=original_tier,
+                    )
                 )
-                task_blocks.append(block)
             for anchor_index, (skill_id, level) in enumerate(
                 PROGRESSION_ANCHORS.get((family_id, tier_name), ()), start=1
             ):
@@ -1393,22 +1443,13 @@ def build(document: dict, items_yml: Path) -> str:
         for source_id in record["tiers"][tier_name]:
             task = definitions[str(source_id)]
             coin_reward = MISC_COIN_BASE if family_id == "miscellaneous" else 0
-            block = _task_block(
-                family_id,
-                tier_name,
-                task,
-                source,
-                coin_reward=coin_reward,
-            )
             task_blocks.append(
-                block
-                or _task_block(
+                _task_block(
                     family_id,
                     tier_name,
                     task,
                     source,
                     coin_reward=coin_reward,
-                    latent=True,
                 )
             )
         kept_total += len(task_blocks)
@@ -1447,9 +1488,9 @@ def build(document: dict, items_yml: Path) -> str:
         "original tier membership, names, descriptions and ordinary requirements.\n"
         "Regional rows are curated into twelve-task AnkiScape tiers; cross-tier\n"
         "placements and generic progression anchors are explicitly labelled. Pinned\n"
-        "pre-cutoff wiki revisions are corroboration only. Named tasks without an\n"
-        "honest AnkiScape predicate are latent rows: visible, incomplete, and\n"
-        "excluded from automatic completion until their predicate ships.\n\n"
+        "pre-cutoff wiki revisions are corroboration only. Ordinary requirements\n"
+        "are shown as access gates and never complete a deed. Un-curated deeds are\n"
+        "dormant: visible, incomplete, and excluded from automatic completion.\n\n"
         f"Named task rows: {kept_total}; designed cutoff denominator: {TOTAL_CUTOFF_TASKS}.\"\"\"\n\n"
         "from __future__ import annotations\n\n"
         "from .achievement_diary_data import (\n"

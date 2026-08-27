@@ -56,10 +56,22 @@ def _claim_family():
     return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
 
 
+def _active_claim_catalog():
+    family = _active_claim_family()
+    catalog = tuple(
+        family if candidate.id == family.id else candidate
+        for candidate in ACHIEVEMENT_DIARY_CATALOG
+    )
+    return family, catalog
+
+
 # Shared with the pure diary tests rather than reimplemented here, because a
 # local copy that silently skipped the kinds it had never heard of is what made
 # a whole tier quietly unfinishable when a new kind arrived.
-from tests.test_achievement_diaries import _satisfy  # noqa: E402
+from tests.test_achievement_diaries import (  # noqa: E402
+    _active_claim_family,
+    _satisfy,
+)
 
 
 class _Ctx:
@@ -144,13 +156,17 @@ class AchievementCabinetUITest(unittest.TestCase):
 
     def test_claim_enables_only_for_the_tier_the_view_calls_ready(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        family = _claim_family()
+        family, catalog = _active_claim_catalog()
         for tier in family.tiers[:2]:
             for task in tier.tasks:
                 _satisfy(player, task)
         player.update(refresh_achievement_diaries_pure(player)[0])
 
-        page, _ctx = self._build(player, lambda *_a: {"ok": True})
+        with patch(
+            "ankiscape.logic.achievement_diary_logic.ACHIEVEMENT_DIARY_CATALOG",
+            catalog,
+        ):
+            page, _ctx = self._build(player, lambda *_a: {"ok": True})
         # Easy is ready; Medium is finished but sequentially blocked, and the
         # panel must not decide that for itself.
         self.assertTrue(
@@ -236,17 +252,17 @@ class AchievementCabinetUITest(unittest.TestCase):
                     "Roster pending harvest",
                 )
 
-    def test_latent_tasks_are_labelled_without_fake_progress(self):
+    def test_dormant_tasks_are_labelled_without_fake_progress(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        latent = next(
+        dormant = next(
             task
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
-            if task.latent
+            if task.dormant
         )
         page, _ctx = self._build(player)
-        label = self._named(page, f"cabinetTask_{latent.id}", QLabel)
+        label = self._named(page, f"cabinetTask_{dormant.id}", QLabel)
         self.assertIn("Not yet obtainable", label.text())
         labels = self._labels(page)
         self.assertIn("cannot be completed yet", " ".join(labels))
@@ -256,7 +272,7 @@ class AchievementCabinetUITest(unittest.TestCase):
             tier
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
-            if latent in tier.tasks
+            if dormant in tier.tasks
         )
         notice = self._named(page, f"cabinetLatentNotice_{tier.id}", QLabel)
         self.assertIn("cannot be completed yet", notice.text())
@@ -285,7 +301,7 @@ class AchievementCabinetUITest(unittest.TestCase):
 
     def test_pressing_claim_runs_the_command_and_re_renders(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        family = _claim_family()
+        family, catalog = _active_claim_catalog()
         for task in family.tiers[0].tasks:
             _satisfy(player, task)
         player.update(refresh_achievement_diaries_pure(player)[0])
@@ -302,10 +318,22 @@ class AchievementCabinetUITest(unittest.TestCase):
                 player.update(updated)
             return {"ok": ok, **info}
 
-        page, _ctx = self._build(player, _command)
-        button = self._named(page, f"cabinetClaim_{family.tiers[0].id}", QPushButton)
-        button.click()
-        QApplication.instance().processEvents()
+        with (
+            patch(
+                "ankiscape.logic.achievement_diary_logic.ACHIEVEMENT_DIARY_CATALOG",
+                catalog,
+            ),
+            patch.dict(
+                "ankiscape.logic.achievement_diary_logic._TIERS_BY_ID",
+                {tier.id: (family, tier) for tier in family.tiers},
+            ),
+        ):
+            page, _ctx = self._build(player, _command)
+            button = self._named(
+                page, f"cabinetClaim_{family.tiers[0].id}", QPushButton
+            )
+            button.click()
+            QApplication.instance().processEvents()
 
         self.assertEqual(calls[0][0], "claim_tier")
         self.assertEqual(calls[0][1], {"tier_id": family.tiers[0].id})
@@ -337,7 +365,7 @@ class AchievementCabinetUITest(unittest.TestCase):
     def test_a_pinned_task_renders_first_in_its_tier(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         family = _varrock()
-        target = next(task for task in reversed(family.tiers[0].tasks) if not task.latent)
+        target = next(task for task in reversed(family.tiers[0].tasks) if not task.dormant)
         player.update(
             apply_achievement_diary_command_pure(
                 player, "pin_task", {"task_id": target.id}
@@ -346,8 +374,14 @@ class AchievementCabinetUITest(unittest.TestCase):
         page, _ctx = self._build(player, family_filtered := lambda *_a: {"ok": True})
         del family_filtered
         labels = self._labels(page)
-        first = labels.index(family.tiers[0].tasks[0].name)
-        pinned = labels.index(target.name)
+        first = next(
+            index
+            for index, text in enumerate(labels)
+            if text.startswith(family.tiers[0].tasks[0].name)
+        )
+        pinned = next(
+            index for index, text in enumerate(labels) if text.startswith(target.name)
+        )
         self.assertLess(pinned, first, "the pinned task did not move to the top")
 
     def test_searching_narrows_the_rendered_rows(self):
@@ -359,7 +393,7 @@ class AchievementCabinetUITest(unittest.TestCase):
         for _ in range(3):
             QApplication.instance().processEvents()
         labels = self._labels(page)
-        self.assertIn(needle, labels)
+        self.assertTrue(any(text.startswith(needle) for text in labels))
 
     def test_the_page_does_not_scroll_sideways_at_a_real_dialog_size(self):
         """A laptop Anki dialog is about 560 points tall and not very wide."""

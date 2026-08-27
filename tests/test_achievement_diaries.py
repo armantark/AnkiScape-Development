@@ -14,7 +14,9 @@ import copy
 import json
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import (
@@ -53,6 +55,7 @@ from ankiscape.logic.achievement_diary_logic import (
     pin_diary_task_pure,
     refresh_achievement_diaries_pure,
     task_progress_pure,
+    tier_claim_state_pure,
     tier_reward_names_pure,
 )
 from ankiscape.logic.shop_logic import shop_diary_transaction_counter_key_pure
@@ -155,6 +158,21 @@ class GeneratorSourceInputTest(unittest.TestCase):
 
 def _fresh():
     return default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+
+def _active_claim_family():
+    shipped = next(
+        family for family in ACHIEVEMENT_DIARY_CATALOG if family.id == "ardougne"
+    )
+    tiers = tuple(
+        replace(
+            tier,
+            tasks=tuple(task for task in tier.tasks if not task.dormant),
+            designed_task_count=0,
+        )
+        for tier in shipped.tiers
+    )
+    return replace(shipped, tiers=tiers)
 
 
 def _set_counter(player, path, amount):
@@ -461,11 +479,41 @@ class CatalogIntegrityTest(unittest.TestCase):
         for family in ACHIEVEMENT_DIARY_CATALOG:
             for tier in family.tiers:
                 for task in tier.tasks:
-                    self.assertEqual(bool(task.conditions), not task.latent, task.id)
+                    self.assertEqual(bool(task.conditions), not task.dormant, task.id)
                     self.assertTrue(task.name.strip(), task.id)
                     self.assertTrue(task.description.strip(), task.id)
                     self.assertIn("Darkan", task.source, task.id)
                     self.assertGreaterEqual(task.source_id, 0, task.id)
+
+    def test_honest_stop_classification_is_explicit_and_complete(self):
+        tasks = [
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+        ]
+        quest_deed_source_ids = {
+            task.source_id
+            for task in tasks
+            if any(condition.kind == "quest" for condition in task.conditions)
+        }
+        classifications = [
+            "dormant"
+            if task.dormant
+            else "anchor"
+            if task.curation_anchor
+            else "quest_deed"
+            if task.source_id in quest_deed_source_ids
+            else "real_deed"
+            for task in tasks
+        ]
+
+        self.assertEqual(len(tasks), 474)
+        self.assertEqual(classifications.count("dormant"), 320)
+        self.assertEqual(classifications.count("real_deed"), 129)
+        self.assertEqual(classifications.count("anchor"), 22)
+        self.assertEqual(classifications.count("quest_deed"), 3)
+        self.assertEqual(quest_deed_source_ids, {440, 441, 451})
 
     def test_first_deed_tranche_uses_durable_predicates_not_requirement_gates(self):
         for source_id in V108_DEED_REVALIDATION_SOURCE_IDS:
@@ -594,7 +642,7 @@ class CatalogIntegrityTest(unittest.TestCase):
             for task in tier.tasks
         }
         for source_id in (3001, 3032, 3033):
-            self.assertFalse(tasks[source_id].latent, source_id)
+            self.assertFalse(tasks[source_id].dormant, source_id)
             self.assertTrue(tasks[source_id].conditions, source_id)
 
     def test_regional_tiers_have_exact_twelve_slot_designed_rosters(self):
@@ -621,7 +669,7 @@ class CatalogIntegrityTest(unittest.TestCase):
             {"falador", "fremennik", "karamja", "seers"},
         )
         for task in anchors:
-            self.assertFalse(task.latent, task.id)
+            self.assertFalse(task.dormant, task.id)
             self.assertTrue(task.conditions, task.id)
             self.assertIn("not a period task identity", task.source, task.id)
 
@@ -995,6 +1043,60 @@ class StageOneRealPathTest(unittest.TestCase):
         player["equipment"] = equipment
         _assert_task_credited(self, player, 551)
 
+    def test_chain_store_requires_waynes_purchase_and_body_slot_equip(self):
+        from ankiscape.logic.shop_logic import apply_shop_buy_pure
+
+        task = _task_by_source_id(129)
+        self.assertEqual(
+            [(condition.kind, condition.key) for condition in task.conditions],
+            [
+                (
+                    "shop_transaction",
+                    "buy|waynes_chains|waynes_chains:3:1107",
+                ),
+                ("equipped_item", "body|Black chainbody"),
+            ],
+        )
+        self.assertEqual(
+            [(condition.kind, condition.key, condition.amount) for condition in task.access_gates],
+            [("skill_level", "defense", 10)],
+        )
+
+        player = _fresh()
+        player["defense_level"] = 9
+        player = refresh_achievement_diaries_pure(player)[0]
+        player["defense_level"] = 10
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertEqual(newly, ())
+        self.assertFalse(task_progress_pure(player, task)[0])
+
+        player["inventory"]["Coins"] = 10_000
+        player, result = apply_shop_buy_pure(
+            player,
+            "waynes_chains",
+            "waynes_chains:3:1107",
+            1,
+        )
+        self.assertTrue(result["allowed"], result)
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertEqual(newly, ())
+        self.assertFalse(task_progress_pure(player, task)[0])
+
+        inventory, equipment, equipped = equip_item_pure(
+            "Black chainbody",
+            player["inventory"],
+            player["equipment"],
+            EQUIPMENT_DATA,
+        )
+        self.assertTrue(equipped)
+        player["inventory"] = inventory
+        player["equipment"] = equipment
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertEqual(newly, (task.id,))
+        self.assertTrue(task_progress_pure(player, task)[0])
+        player, newly = refresh_achievement_diaries_pure(player)
+        self.assertEqual(newly, ())
+
 
 class StageTwoRealPathTest(unittest.TestCase):
     def test_ledger_output_task_completes_through_the_smithing_runtime(self):
@@ -1271,7 +1373,12 @@ class TaskProgressTest(unittest.TestCase):
     def test_meeting_a_task_condition_credits_it(self):
         player = _fresh()
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
-        task = family.tiers[0].tasks[0]
+        task = next(
+            task
+            for tier in family.tiers
+            for task in tier.tasks
+            if not task.dormant
+        )
         self.assertFalse(task_progress_pure(player, task)[0])
         player = _satisfy(player, task)
         player, newly = refresh_achievement_diaries_pure(player)
@@ -1280,29 +1387,64 @@ class TaskProgressTest(unittest.TestCase):
 
     def test_completion_is_sticky_after_the_proving_state_is_lost(self):
         player = _fresh()
-        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
         task = next(
-            t
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
-            for t in tier.tasks
-            if t.conditions[0].kind == "skill_level"
+            for task in tier.tasks
+            if task.curation_anchor
         )
+        condition = task.conditions[0]
         player = _satisfy(player, task)
         player = refresh_achievement_diaries_pure(player)[0]
         self.assertIn(task.id, player["achievement_diaries"]["completed_tasks"])
 
-        player[f"{task.conditions[0].key}_level"] = 1
+        player[f"{condition.key}_level"] = 1
         player, newly = refresh_achievement_diaries_pure(player)
         self.assertEqual(newly, ())
         self.assertIn(task.id, player["achievement_diaries"]["completed_tasks"])
 
-    def test_retroactive_credit_arrives_without_a_review(self):
-        """Levels and quests receive retroactive credit, per the design."""
+    def test_levels_alone_complete_only_the_twenty_two_curation_anchors(self):
         player = _fresh()
-        player["mining_level"] = 99
-        player["crafting_level"] = 99
+        anchors = {
+            task.id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.curation_anchor
+        }
+        for skill in trainable_skill_definitions():
+            player[f"{skill.id}_level"] = 126
+
         player, newly = refresh_achievement_diaries_pure(player)
-        self.assertTrue(newly)
+
+        self.assertEqual(len(anchors), 22)
+        self.assertEqual(set(newly), anchors)
+        self.assertEqual(
+            set(player["achievement_diaries"]["completed_tasks"]), anchors
+        )
+
+    def test_each_quest_completion_deed_fires_only_on_its_own_quest(self):
+        quest_deeds = [
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if any(condition.kind == "quest" for condition in task.conditions)
+        ]
+        self.assertEqual({task.source_id for task in quest_deeds}, {440, 441, 451})
+
+        for task in quest_deeds:
+            with self.subTest(task=task.id):
+                condition = task.conditions[0]
+                player = _fresh()
+                player["quests"]["rat_catchers"] = {"completed": True}
+                player, newly = refresh_achievement_diaries_pure(player)
+                self.assertEqual(newly, ())
+
+                player["quests"][condition.key] = {"completed": True}
+                player, newly = refresh_achievement_diaries_pure(player)
+                self.assertEqual(newly, (task.id,))
 
     def test_a_multi_condition_task_reports_conditions_met(self):
         player = _fresh()
@@ -1324,7 +1466,7 @@ class TaskProgressTest(unittest.TestCase):
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
-            if not task.latent
+            if not task.dormant
         ]
         player = _fresh()
         for task in tasks:
@@ -1337,19 +1479,31 @@ class TaskProgressTest(unittest.TestCase):
             set(player["achievement_diaries"]["completed_tasks"]), expected
         )
 
-    def test_latent_tasks_have_no_predicate_and_never_complete(self):
-        latent = next(
+    def test_dormant_tasks_have_no_predicate_and_never_complete_from_access_gates(self):
+        dormant = [
             task
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
-            if task.latent
-        )
+            if task.dormant
+        ]
         player = _fresh()
-        self.assertEqual(latent.conditions, ())
-        self.assertEqual(task_progress_pure(player, latent), (False, 0, 0))
-        player["achievement_diaries"]["completed_tasks"] = [latent.id]
-        view = achievement_cabinet_view_pure(player, search=latent.name)
+        for task in dormant:
+            self.assertEqual(task.conditions, (), task.id)
+            for access_gate in task.access_gates:
+                _satisfy_condition(player, access_gate)
+            self.assertEqual(task_progress_pure(player, task), (False, 0, 0), task.id)
+
+        player, newly = refresh_achievement_diaries_pure(player)
+        dormant_ids = {task.id for task in dormant}
+        self.assertTrue(dormant_ids.isdisjoint(newly))
+        self.assertTrue(
+            dormant_ids.isdisjoint(player["achievement_diaries"]["completed_tasks"])
+        )
+
+        representative = dormant[0]
+        player["achievement_diaries"]["completed_tasks"] = [representative.id]
+        view = achievement_cabinet_view_pure(player, search=representative.name)
         row = next(
             row
             for family in view["families"]
@@ -1443,11 +1597,17 @@ class TaskProgressTest(unittest.TestCase):
 
 
 class ClaimTest(unittest.TestCase):
-    def _claim_family(self):
-        return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
+    def setUp(self):
+        self.family = _active_claim_family()
+        self._tier_patch = patch.dict(
+            "ankiscape.logic.achievement_diary_logic._TIERS_BY_ID",
+            {tier.id: (self.family, tier) for tier in self.family.tiers},
+        )
+        self._tier_patch.start()
+        self.addCleanup(self._tier_patch.stop)
 
     def test_burthorpe_bundle_waits_for_the_full_55_task_pool(self):
-        """The authentic set reward exists, but latent tasks keep it closed."""
+        """The authentic set reward exists, but dormant tasks keep it closed."""
 
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "burthorpe")
         tier = family.tiers[0]
@@ -1462,23 +1622,39 @@ class ClaimTest(unittest.TestCase):
         self.assertFalse(tier.reward_item)
         self.assertTrue(tier.reward_bundle)
         self.assertEqual(tier.total_tasks, 55)
-        self.assertTrue(any(task.latent for task in tier.tasks))
+        self.assertTrue(any(task.dormant for task in tier.tasks))
 
     def test_a_tier_is_not_claimable_until_every_task_is_done(self):
         player = _fresh()
-        tier = self._claim_family().tiers[0]
+        tier = self.family.tiers[0]
         _updated, ok, info = claim_diary_tier_pure(player, tier.id)
         self.assertFalse(ok)
         self.assertIn("outstanding", info["reason"])
 
     def test_completing_a_tier_flips_it_to_ready_to_claim(self):
-        player = _complete_tier(_fresh(), self._claim_family().tiers[0])
-        view = achievement_cabinet_view_pure(player, family_filter="ardougne")
-        self.assertEqual(view["families"][0]["tiers"][0]["status"], "Ready to Claim")
-        self.assertTrue(view["families"][0]["tiers"][0]["ready"])
+        family = self.family
+        tier = family.tiers[0]
+        player = _complete_tier(_fresh(), tier)
+        claim_state = tier_claim_state_pure(player, family, tier)
+        self.assertEqual(claim_state["status"], "Ready to Claim")
+        self.assertTrue(claim_state["ready"])
+
+    def test_cabinet_view_enables_a_completed_synthetic_tier(self):
+        family = self.family
+        tier = family.tiers[0]
+        player = _complete_tier(_fresh(), tier)
+        with patch(
+            "ankiscape.logic.achievement_diary_logic.ACHIEVEMENT_DIARY_CATALOG",
+            (family,),
+        ):
+            view = achievement_cabinet_view_pure(player, family_filter=family.id)
+
+        tier_row = view["families"][0]["tiers"][0]
+        self.assertEqual(tier_row["status"], "Ready to Claim")
+        self.assertTrue(tier_row["ready"])
 
     def test_claiming_grants_the_item_and_creates_a_bank_claim_without_spending_it(self):
-        family = self._claim_family()
+        family = self.family
         tier = family.tiers[0]
         player = _complete_tier(_fresh(), tier)
         before = float(player.get("mining_exp", 0))
@@ -1500,7 +1676,7 @@ class ClaimTest(unittest.TestCase):
         self.assertTrue(CLAIM_DATA[claim_id]["source"])
 
     def test_the_bank_claim_spends_the_lamp_once_on_the_chosen_skill(self):
-        family = self._claim_family()
+        family = self.family
         tier = family.tiers[0]
         player = claim_diary_tier_pure(_complete_tier(_fresh(), tier), tier.id)[0]
         claim_id = diary_lamp_claim_id(tier.id)
@@ -1518,7 +1694,7 @@ class ClaimTest(unittest.TestCase):
         self.assertEqual(again["mining_exp"], player["mining_exp"])
 
     def test_a_tier_cannot_be_claimed_twice(self):
-        family = self._claim_family()
+        family = self.family
         player = _complete_tier(_fresh(), family.tiers[0])
         player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         _again, ok, info = claim_diary_tier_pure(player, family.tiers[0].id)
@@ -1526,7 +1702,7 @@ class ClaimTest(unittest.TestCase):
         self.assertIn("already claimed", info["reason"])
 
     def test_claiming_is_sequential_even_when_later_tasks_are_finished(self):
-        family = self._claim_family()
+        family = self.family
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
@@ -1535,7 +1711,7 @@ class ClaimTest(unittest.TestCase):
         self.assertIn("Claim Easy before Medium", info["reason"])
 
     def test_a_tier_upgrade_replaces_its_predecessor_without_duplicating(self):
-        family = self._claim_family()
+        family = self.family
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
@@ -1546,7 +1722,7 @@ class ClaimTest(unittest.TestCase):
         self.assertEqual(player["inventory"].get("Ardougne cloak 2"), 1)
 
     def test_an_upgrade_replaces_the_worn_item_in_its_own_slot(self):
-        family = self._claim_family()
+        family = self.family
         player = _fresh()
         for tier in family.tiers[:2]:
             player = _complete_tier(player, tier)
@@ -1570,7 +1746,7 @@ class ClaimTest(unittest.TestCase):
             )
 
     def test_the_granted_item_can_actually_be_worn(self):
-        family = self._claim_family()
+        family = self.family
         player = _complete_tier(_fresh(), family.tiers[0])
         player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
         allowed, reason = can_equip_item_pure(
@@ -1709,6 +1885,19 @@ class CabinetViewTest(unittest.TestCase):
             expected = 4 if family["kind"] == "regional" else 1
             self.assertEqual(len(family["tiers"]), expected)
 
+    def test_shipped_catalog_has_no_ready_to_claim_tiers_during_honest_stop(self):
+        view = achievement_cabinet_view_pure(_fresh())
+        tiers = [
+            tier
+            for family in view["families"]
+            for tier in family["tiers"]
+        ]
+        self.assertEqual(len(tiers), 34)
+        self.assertEqual(
+            sum(tier["status"] == "Ready to Claim" for tier in tiers),
+            0,
+        )
+
     def test_the_view_never_reports_a_moving_denominator_percentage(self):
         view = achievement_cabinet_view_pure(_fresh())
         self.assertNotIn("percentage", view)
@@ -1754,7 +1943,7 @@ class TaskmasterTest(unittest.TestCase):
             player = _complete_tier(player, tier)
         self.assertFalse(player["achievement_diaries"]["taskmaster"])
 
-    def test_completing_every_obtainable_row_does_not_bypass_latent_cutoff_tasks(self):
+    def test_completing_every_obtainable_row_does_not_bypass_dormant_cutoff_tasks(self):
         player = _fresh()
         for family in ACHIEVEMENT_DIARY_CATALOG:
             for tier in family.tiers:
@@ -1763,7 +1952,7 @@ class TaskmasterTest(unittest.TestCase):
         self.assertFalse(achievement_cabinet_view_pure(player)["taskmaster"])
         self.assertEqual(diary_totals_pure(player)["total"], 534)
         obtainable = sum(
-            not task.latent
+            not task.dormant
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
@@ -1807,9 +1996,15 @@ class MigrationTest(unittest.TestCase):
 
     def test_a_current_save_is_not_reseeded_on_reload(self):
         player = _fresh()
-        family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
-        player = _complete_tier(player, family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
+        family = _active_claim_family()
+        tier = family.tiers[0]
+        player = _complete_tier(player, tier)
+        with patch.dict(
+            "ankiscape.logic.achievement_diary_logic._TIERS_BY_ID",
+            {row.id: (family, row) for row in family.tiers},
+        ):
+            player, ok, info = claim_diary_tier_pure(player, tier.id)
+        self.assertTrue(ok, info)
         claimed = list(player["achievement_diaries"]["claimed_tiers"])
 
         loaded = migrate_loaded_data(

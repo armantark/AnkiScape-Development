@@ -75,6 +75,7 @@ from ankiscape.logic_pure.logic_pure import (
     combat_poison_immunity_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
     combat_status_summary_pure,
+    combat_supply_loadout_summary_pure,
     refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
@@ -5594,6 +5595,55 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(refilled["combat_supply_loadout"]["runes"], {})
         self.assertEqual(refilled["inventory"], runes)
 
+    def test_fresh_melee_loadout_summary_has_no_runes(self):
+        summary = combat_supply_loadout_summary_pure(_player(), EQUIPMENT_DATA)
+
+        self.assertEqual(summary["runes_loaded"], {})
+
+    def test_loadout_summary_hides_stale_melee_vengeance_runes(self):
+        summary = combat_supply_loadout_summary_pure(
+            _player(
+                combat_vengeance=True,
+                combat_supply_loadout={
+                    "runes": {"Astral rune": 4, "Death rune": 2},
+                },
+            ),
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(summary["runes_loaded"], {})
+
+    def test_loadout_summary_shows_runes_for_a_magic_build(self):
+        summary = combat_supply_loadout_summary_pure(
+            _player(
+                combat_attack_style="magic_standard",
+                equipment={"weapon": "Staff of fire"},
+                current_combat_spell="wind_strike",
+                combat_supply_loadout={
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            ),
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(
+            summary["runes_loaded"], {"Air rune": 5, "Mind rune": 5}
+        )
+
+    def test_loadout_summary_shows_ammo_for_a_ranged_build(self):
+        summary = combat_supply_loadout_summary_pure(
+            _player(
+                combat_attack_style="ranged_accurate",
+                equipment={"weapon": "Shortbow"},
+                combat_supply_loadout={
+                    "ammo": {"Bronze arrows": 10},
+                },
+            ),
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(summary["ammo_loaded"], {"Bronze arrows": 10})
+
     def test_non_magic_vengeance_does_not_charge_or_arm_during_a_burst(self):
         cases = (
             ("melee", "accurate", {}, {}),
@@ -5632,6 +5682,55 @@ class CombatLogicTest(unittest.TestCase):
                         "vengeance_pending", False
                     )
                 )
+
+    def test_safe_recovery_repairs_a_stale_loadout_after_an_encounter_ends(self):
+        recovered = apply_safe_combat_recovery_pure(
+            _player(
+                combat_encounter={},
+                combat_supply_loadout={
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            ),
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(recovered["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(recovered["inventory"]["Air rune"], 5)
+        self.assertEqual(recovered["inventory"]["Mind rune"], 5)
+
+    def test_a_burst_kill_never_touches_the_bank_for_a_stale_loadout(self):
+        # The burst engine is shared with 20 allow_bank_run=False instance
+        # callers (Fight Caves, Barrows, Bork, ...), so it must never repair a
+        # stale loadout itself: the runtime handler reconciles after the
+        # encounter settles instead.
+        player = _player(
+            current_combat_target="chicken",
+            combat_attack_style="accurate",
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1},
+            combat_supply_loadout={
+                "runes": {"Air rune": 5, "Mind rune": 5},
+            },
+        )
+
+        updated, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.0]),
+            stop_after_first_kill=True,
+            allow_bank_run=False,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(result["killed"])
+        self.assertEqual(updated["combat_encounter"], {})
+        self.assertEqual(
+            updated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
+        )
+        self.assertNotIn("Air rune", updated["inventory"])
+        self.assertNotIn("Mind rune", updated["inventory"])
 
     def test_combat_method_reconciliation_reloads_for_the_new_spell(self):
         player = _player(
