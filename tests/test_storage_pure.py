@@ -1954,7 +1954,7 @@ class TestStoragePure(unittest.TestCase):
                     ITEM_DEFINITIONS,
                 )
 
-                self.assertEqual(migrated["config_version"], 120)
+                self.assertEqual(migrated["config_version"], 121)
                 self.assertNotIn(
                     "lamps_remaining", migrated["stronghold_player_safety"]
                 )
