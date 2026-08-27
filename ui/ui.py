@@ -335,7 +335,7 @@ from ..data.circus_data import (
     CIRCUS_REWARDS,
     CIRCUS_STRATEGIES,
 )
-from ..logic.circus_logic import circus_view_pure
+from ..logic.circus_logic import circus_view_pure, sanitize_circus_state_pure
 
 from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_ACTIVITY_ID,
@@ -14992,22 +14992,40 @@ def show_main_menu(
             selected = str(circus_performance.currentData() or "agility")
             return selected if selected in CIRCUS_PERFORMANCES else "agility"
 
-        def _circus_queue_ids(queue: QListWidget) -> list[str]:
+        def _circus_queue_ids(
+            queue: QListWidget, hidden_ids: list[str]
+        ) -> list[str]:
             return [
                 str(queue.item(index).data(Qt.ItemDataRole.UserRole))
                 for index in range(queue.count())
-            ]
+            ] + hidden_ids
+
+        def _circus_queue_payload() -> dict[str, list[str]]:
+            view = circus_view_pure(player_data)
+            rows_by_id = {
+                str(row["id"]): row for row in view["performances"]
+            }
+            hidden_ids = {
+                queue_name: [
+                    str(performance_id)
+                    for performance_id in ids
+                    if not rows_by_id[str(performance_id)]["visible"]
+                ]
+                for queue_name, ids in view["performance_queue"].items()
+            }
+            return {
+                "executing": _circus_queue_ids(
+                    circus_executing_queue, hidden_ids["executing"]
+                ),
+                "non_executing": _circus_queue_ids(
+                    circus_non_executing_queue, hidden_ids["non_executing"]
+                ),
+            }
 
         def _save_circus_queue() -> None:
             if syncing_circus["active"]:
                 return
-            _run_circus_command(
-                "set_queue",
-                {
-                    "executing": _circus_queue_ids(circus_executing_queue),
-                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
-                },
-            )
+            _run_circus_command("set_queue", _circus_queue_payload())
 
         def _move_circus_queue_item(source: QListWidget, target: QListWidget) -> None:
             item = source.takeItem(source.currentRow())
@@ -15055,24 +15073,56 @@ def show_main_menu(
             _refresh_circus_panel()
             return result
 
+        def _circus_selection_for_refresh(
+            view: Mapping[str, Any], sync_selection: bool
+        ) -> str:
+            if sync_selection:
+                return str(view["selected_performance"])
+            current = circus_performance.currentData()
+            return (
+                str(current)
+                if current is not None
+                else str(view["selected_performance"])
+            )
+
+        def _sync_circus_selection(performance_id: str) -> None:
+            state = sanitize_circus_state_pure(player_data.get("circus"))
+            if state["selected_performance"] == performance_id:
+                return
+            state["selected_performance"] = performance_id
+            player_data["circus"] = state
+            if on_save_player_data is not None:
+                on_save_player_data()
+
+        def _circus_refresh_state(
+            sync_selection: bool,
+        ) -> tuple[dict[str, Any], str, list[Mapping[str, Any]]]:
+            view = circus_view_pure(player_data)
+            selected_performance_id = _circus_selection_for_refresh(
+                view, sync_selection
+            )
+            visible_rows = [
+                row for row in view["performances"] if row["visible"]
+            ]
+            if selected_performance_id in {
+                str(row["id"]) for row in visible_rows
+            }:
+                return view, selected_performance_id, visible_rows
+            selected_performance_id = str(visible_rows[0]["id"])
+            _sync_circus_selection(selected_performance_id)
+            return view, selected_performance_id, visible_rows
+
         def _refresh_circus_panel(sync_selection: bool = True) -> None:
             syncing_circus["active"] = True
-            view = circus_view_pure(player_data)
-            _populate_circus_queue(view)
-            selected_performance_id = str(
-                (circus_performance.currentData(), view["selected_performance"])[
-                    sync_selection
-                ]
+            view, selected_performance_id, visible_rows = _circus_refresh_state(
+                sync_selection
             )
+            _populate_circus_queue(view)
             circus_performance.clear()
-            for performance_row in filter(
-                lambda item: item["visible"], view["performances"]
-            ):
+            for performance_row in visible_rows:
                 suffix = (
                     " · done this week"
                     if performance_row["used_this_week"]
-                    else " · locked"
-                    if performance_row["locked_reasons"]
                     else ""
                 )
                 circus_performance.addItem(
@@ -15210,8 +15260,7 @@ def show_main_menu(
             result = _run_circus_command(
                 "start_activity",
                 {
-                    "executing": _circus_queue_ids(circus_executing_queue),
-                    "non_executing": _circus_queue_ids(circus_non_executing_queue),
+                    **_circus_queue_payload(),
                     "automation_mode": str(circus_mode.currentData() or "casual"),
                     "strategy": str(circus_strategy.currentData() or "balanced"),
                 },

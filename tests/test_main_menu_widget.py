@@ -11679,6 +11679,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         return tree
 
+    def _open_circus_panel(self, dialog: "QDialog") -> "QWidget":
+        self._open_activity_detail(dialog, "big_top_bonanza")
+        return next(
+            panel
+            for panel in dialog.findChildren(QWidget, "circusPanel")
+            if panel.isVisible()
+        )
+
     def test_main_menu_owns_the_simulated_world_time(self) -> None:
         pd = _make_player_data()
         pd["shop_market_clock"] = {"answered_cards": 10, "market_tick": 10}
@@ -17616,20 +17624,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         dialog.show()
         QApplication.processEvents()
-        tree = self._open_activities(dialog)
-        item = next(
-            row
-            for row in _tree_items(tree)
-            if row.data(0, Qt.ItemDataRole.UserRole) == "big_top_bonanza"
-        )
-        tree.itemClicked.emit(item, 0)
-        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
         self.assertEqual(pd["current_utility"], "bankstanding")
-        panel = next(
-            widget
-            for widget in dialog.findChildren(QWidget, "circusPanel")
-            if widget.isVisible()
-        )
         icon = panel.findChild(QLabel, "circusIcon")
         performance = panel.findChild(QComboBox, "circusPerformanceCombo")
         strategy = panel.findChild(QComboBox, "circusStrategyCombo")
@@ -17668,8 +17664,20 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         pd["quests"]["the_firemakers_curse"] = {"completed": True}
         pd["quests"]["some_like_it_cold"] = {"completed": True}
-        performance.setCurrentIndex(performance.findData("magic"))
-        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+        strategy = panel.findChild(QComboBox, "circusStrategyCombo")
+        mode = panel.findChild(QComboBox, "circusAutomationMode")
+        primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
+        non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
+        move_to_non_executing = panel.findChild(
+            QPushButton, "circusMoveToNonExecutingButton"
+        )
+        move_to_executing = panel.findChild(
+            QPushButton, "circusMoveToExecutingButton"
+        )
+        edit = panel.findChild(QPushButton, "circusEditRoutineButton")
         self.assertEqual(performance.count(), 6)
         self.assertEqual(non_executing_queue.count(), 5)
 
@@ -17768,6 +17776,104 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(routine_combos[0].findData(""), -1)
         self.assertGreaterEqual(routine_combos[1].findData(""), 0)
         dialog.close()
+
+    def test_circus_hidden_executing_act_survives_queue_save_and_start(self) -> None:
+        from ankiscape.logic.circus_logic import (
+            apply_circus_command_pure,
+            default_circus_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd["current_utility"] = "bankstanding"
+        pd["circus"] = default_circus_state_pure()
+        pd["circus"]["performance_queue"] = {
+            "executing": ["agility", "fire_breathing"],
+            "non_executing": [
+                "magic",
+                "ranged",
+                "flaming_poi",
+                "thieving",
+            ],
+        }
+        command_calls = []
+
+        def circus_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_circus_command_pure(pd, action_id, payload)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_circus_command=circus_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+        primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
+        non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
+        move_to_executing = panel.findChild(
+            QPushButton, "circusMoveToExecutingButton"
+        )
+
+        def assert_hidden_act_preserved() -> None:
+            self.assertIn(
+                "fire_breathing",
+                pd["circus"]["performance_queue"]["executing"],
+            )
+            self.assertEqual(
+                executing_queue.findItems(
+                    "Fire-breathing", Qt.MatchFlag.MatchContains
+                ),
+                [],
+            )
+
+        self.assertEqual(performance.findData("fire_breathing"), -1)
+        self.assertEqual(executing_queue.count(), 1)
+        self.assertEqual(
+            executing_queue.item(0).data(Qt.ItemDataRole.UserRole), "agility"
+        )
+
+        magic_row = non_executing_queue.findItems(
+            "Magic", Qt.MatchFlag.MatchContains
+        )[0]
+        non_executing_queue.setCurrentItem(magic_row)
+        move_to_executing.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "set_queue")
+        assert_hidden_act_preserved()
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "start_activity")
+        assert_hidden_act_preserved()
+
+    def test_circus_hidden_saved_selection_falls_back_and_persists(self) -> None:
+        from ankiscape.logic.circus_logic import default_circus_state_pure
+
+        pd = _make_player_data()
+        pd["circus"] = default_circus_state_pure()
+        pd["circus"]["selected_performance"] = "fire_breathing"
+        saves = []
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_save_player_data=lambda: saves.append(True),
+        )
+        dialog.show()
+        QApplication.processEvents()
+        panel = self._open_circus_panel(dialog)
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+
+        self.assertEqual(performance.currentData(), "magic")
+        self.assertEqual(pd["circus"]["selected_performance"], "magic")
+        self.assertEqual(saves, [True])
 
     def test_trouble_brewing_detail_enters_selects_and_buys_reward(self) -> None:
         from ankiscape.logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
