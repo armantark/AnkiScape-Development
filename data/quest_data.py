@@ -220,6 +220,13 @@ ICTHLARINS_LITTLE_HELPER_CACHE_SOURCE = STOLEN_HEARTS_CACHE_SOURCE
 ICTHLARINS_LITTLE_HELPER_DARKAN_SOURCE = (
     f"{DARKAN_QUEST_SOURCE_ROOT}/icthlarins_little_helper/IcthlarinsLittleHelper.kt"
 )
+DEALING_WITH_SCABARAS_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/dealingwithscabaras/DealingWithScabaras.kt "
+    "(commit 6277992980582f7b3da3a48e722e96cfa5b0a57d)"
+)
+DEALING_WITH_SCABARAS_WIKI_SOURCE = (
+    "https://runescape.wiki/w/Dealing_with_Scabaras?oldid=6581466"
+)
 ICTHLARINS_LITTLE_HELPER_POSSESSED_PRIEST_SOURCE = (
     f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/possessed_priest (noanims).json"
 )
@@ -8660,32 +8667,50 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=2,
             remove_required_inventory=("Food",),
             remove_required_actions=("Complete Dealing with Scabaras stage 2 objective",),
-            add_auto_actions=("Complete Dealing with Scabaras stage 2 objective",),
+            add_auto_actions=(
+                "Copy at least four distinct Scabarite note identities into the research book.",
+            ),
+            source=DEALING_WITH_SCABARAS_DARKAN_SOURCE,
         ),
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_actions=("Complete Dealing with Scabaras stage 3 objective",),
-            add_auto_actions=("Complete Dealing with Scabaras stage 3 objective",),
+            add_auto_actions=(
+                "Use the key, allocate four unique power settings, stoke the furnace, "
+                "and complete all four rooms in one timed attempt.",
+            ),
+            source=DEALING_WITH_SCABARAS_DARKAN_SOURCE,
         ),
         QuestStageRequirementCleanup(
             stage=4,
             remove_required_actions=("Complete Dealing with Scabaras stage 4 objective",),
-            add_auto_actions=("Complete Dealing with Scabaras stage 4 objective",),
+            add_auto_actions=(
+                "After pulling all the levers you will be allowed to enter the antechamber.",
+            ),
+            source=DEALING_WITH_SCABARAS_WIKI_SOURCE,
         ),
         QuestStageRequirementCleanup(
             stage=5,
             remove_required_actions=("Complete Dealing with Scabaras stage 5 objective",),
-            add_auto_actions=("Complete Dealing with Scabaras stage 5 objective",),
+            add_auto_actions=("Enter the newly opened hallway.",),
+            source=DEALING_WITH_SCABARAS_WIKI_SOURCE,
         ),
         QuestStageRequirementCleanup(
             stage=6,
             remove_required_actions=("Complete Dealing with Scabaras stage 6 objective",),
-            add_auto_actions=("Complete Dealing with Scabaras stage 6 objective",),
+            add_auto_actions=(
+                "I must endure two different attack styles and persuade the High Priest that the "
+                "Devourer caused the heresy.",
+            ),
+            source=DEALING_WITH_SCABARAS_DARKAN_SOURCE,
         ),
         QuestStageRequirementCleanup(
             stage=7,
             remove_required_actions=("Complete Dealing with Scabaras stage 7 objective",),
-            add_auto_actions=("Complete Dealing with Scabaras stage 7 objective",),
+            add_auto_actions=(
+                "The High Priest of Scabaras has recovered. I should return to Sophanem.",
+            ),
+            source=DEALING_WITH_SCABARAS_DARKAN_SOURCE,
         ),
     ),
     "roving_elves": (
