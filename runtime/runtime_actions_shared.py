@@ -400,9 +400,16 @@ def missing_materials_text(requirements: dict[str, int], inventory: dict[str, An
     return ", ".join(missing) if missing else "materials"
 
 
-def _switch_material_failure_to_bankstanding(ctx: RuntimeActionContext) -> None:
+def _switch_material_failure_to_bankstanding(
+    ctx: RuntimeActionContext,
+    *,
+    caller_owns_notice: bool = False,
+) -> None:
     if callable(ctx.switch_to_bankstanding):
-        ctx.switch_to_bankstanding()
+        if caller_owns_notice:
+            ctx.switch_to_bankstanding(caller_owns_notice=True)
+        else:
+            ctx.switch_to_bankstanding()
     else:
         ctx.deactivate_current_skill()
 

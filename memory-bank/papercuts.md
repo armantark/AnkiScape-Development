@@ -1232,3 +1232,7 @@
 - 2026-08-27 04:15 PDT: A resumed review subagent changed `__init__.py` and `tests/test_integration_smoke.py` after the final plain lane started, invalidating that run; stopped the subagent and the test process, then froze the tree again before verification.
 
 - 2026-08-27 04:41 PDT: The full offscreen Qt lane failed after 4,466 tests in 637.785 seconds with `TypeError: exec(self): first argument of unbound method must have type 'QDialog'`; `test_main_menu_widget` restored a monkeypatched PyQt method descriptor with `QDialog.exec = original`, which permanently corrupts binding in that interpreter, so Qt classes must be intercepted through a test-only subclass instead of mutating extension-class methods.
+
+- 2026-08-27T07:03:49-07:00 — A surgical `Edit` for the Agility command handler matched six identical `commit_direct_action(_change, after_apply=_after_apply)` lines and was rejected; include the surrounding handler context before replacing repeated call shapes.
+
+- 2026-08-27T07:08:06-07:00 — The first integration rerun correctly failed because `test_material_exhaustion_falls_back_once_then_bankstands` still required the now-forbidden second Bankstanding modal; existing end-to-end ordering assertions must be updated with notice-policy changes, not only supplemented by a new focused regression.

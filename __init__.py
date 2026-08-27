@@ -1328,8 +1328,11 @@ def _runtime_action_context() -> RuntimeActionContext:
     def _deactivate_runtime_action(reason=None) -> None:
         _deactivate_current_skill(reason or last_reason["text"])
 
-    def _switch_runtime_action(reason=None) -> None:
-        _switch_to_bankstanding(reason or last_reason["text"])
+    def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
+        _switch_to_bankstanding(
+            reason or last_reason["text"],
+            caller_owns_notice=bool(caller_owns_notice),
+        )
 
     def _show_runtime_gain(text) -> None:
         last_reason["text"] = str(text or "").strip()
@@ -1540,8 +1543,17 @@ def _show_pending_bankstanding_dialog() -> None:
     global _PENDING_BANKSTANDING_NOTICE
     notice = _PENDING_BANKSTANDING_NOTICE
     _PENDING_BANKSTANDING_NOTICE = None
-    if notice is not None:
-        ui.show_bankstanding_dialog(str(notice["reason"]))
+    if notice is None or not notice.get("show_dialog", True):
+        return
+    reason = str(notice["reason"])
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None  # type: ignore
+    if QTimer is not None:
+        QTimer.singleShot(0, lambda: ui.show_bankstanding_dialog(reason))
+    else:
+        ui.show_bankstanding_dialog(reason)
 
 
 def _show_pending_review_dialogs() -> None:
@@ -1570,7 +1582,9 @@ def _update_pending_bankstanding_reason(reason) -> None:
     if notice is None or not reason_text:
         return
     notice["reason"] = reason_text
-    notice["event"]["text"] = _bankstanding_event_text(reason_text)[:500]
+    event_log = player_data.get("review_event_log")
+    if isinstance(event_log, list) and event_log and isinstance(event_log[-1], dict):
+        event_log[-1]["text"] = _bankstanding_event_text(reason_text)[:500]
 
 
 def _deactivate_current_skill(reason=None) -> None:
@@ -1585,7 +1599,12 @@ def _deactivate_current_skill(reason=None) -> None:
     _switch_to_bankstanding(reason)
 
 
-def _switch_to_bankstanding(reason=None, *, automatic: bool = True) -> bool:
+def _switch_to_bankstanding(
+    reason=None,
+    *,
+    automatic: bool = True,
+    caller_owns_notice: bool = False,
+) -> bool:
     """Land on the no-XP fallback once, then report the accepted transition."""
     global current_skill, _PENDING_BANKSTANDING_NOTICE
     if (
@@ -1607,7 +1626,7 @@ def _switch_to_bankstanding(reason=None, *, automatic: bool = True) -> bool:
     if automatic:
         _PENDING_BANKSTANDING_NOTICE = {
             "reason": reason_text,
-            "event": player_data["review_event_log"][-1],
+            "show_dialog": not caller_owns_notice,
         }
     try:
         ui.update_menu_visibility(current_skill)
@@ -2527,7 +2546,11 @@ def _on_main_menu(
                 _show_exp(gained)
             check_achievements(player_data)
 
-        committed = commit_direct_action(_change, after_apply=_after_apply)
+        committed = commit_direct_action(
+            _change,
+            after_apply=_after_apply,
+            bankstanding_automatic=action_id != "abandon",
+        )
         if not committed:
             if not allowed:
                 return {"ok": False, **result}

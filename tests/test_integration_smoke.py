@@ -270,11 +270,43 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._show_pending_bankstanding_dialog()
         addon._show_pending_review_dialogs()
 
+        self.assertEqual(popups, [])
+        self.assertEqual(rewards, [])
+        self.assertEqual(len(scheduled), 2)
+        scheduled[0]()
         self.assertEqual(popups, [reason])
         self.assertEqual(rewards, [])
-        self.assertEqual(len(scheduled), 1)
-        scheduled[0]()
+        scheduled[1]()
         self.assertEqual(rewards, ["reward"])
+
+    def test_bankstanding_reason_backpatch_updates_the_live_sanitized_log(self):
+        from ankiscape.logic.review_strip_logic import sanitize_review_event_log_pure
+
+        addon = _load_addon_as_package("ankiscape_bankstanding_reason_backpatch")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.update_review_hud = lambda *_args: None
+        addon.ui.update_menu_visibility = lambda *_args: None
+        addon.show_error_message = lambda *_args: None
+        addon.current_skill = "Crafting"
+        addon.player_data = {
+            "current_utility": "gather_wool",
+            "review_event_log": [],
+        }
+        runtime_ctx = addon._runtime_action_context()
+
+        runtime_ctx.switch_to_bankstanding()
+        detached_entry = addon.player_data["review_event_log"][-1]
+        addon.player_data["review_event_log"] = sanitize_review_event_log_pure(
+            addon.player_data["review_event_log"]
+        )
+        live_entry = addon.player_data["review_event_log"][-1]
+        self.assertIsNot(live_entry, detached_entry)
+
+        reason = "You need 1 Soft clay to craft an Unfired pot."
+        runtime_ctx.show_error_message("Out of materials", reason)
+
+        self.assertIn(reason, live_entry["text"])
+        self.assertNotIn(reason, detached_entry["text"])
 
     def test_ge_status_navigation_focuses_or_opens_the_ge_tab(self):
         addon = _load_addon_as_package("ankiscape_ge_status_navigation")
@@ -2944,16 +2976,19 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(calls["errors"]), 1)
         self.assertIn("Bankstanding", calls["errors"][0][1])
-        # The switch to Bankstanding is still a visible error dialog (asserted
-        # above); only the routine per-review no-op line went silent.
+        # The blocking error above owns the one user-facing notice for this
+        # switch; the generic Bankstanding modal must stay silent.
         self.assertEqual(calls["gains"], [])
-        self.assertEqual(modal_order[0], ("feedback", "flushed"))
-        self.assertEqual(modal_order[1], ("answer", 0))
-        self.assertEqual(modal_order[2][0], "modal")
-        self.assertIn("Pot (unfired)", modal_order[2][1])
-        self.assertEqual(modal_order[3], ("queued", "prompt"))
-        self.assertEqual(modal_order[4], ("feedback", "flushed"))
-        self.assertEqual(modal_order[5], ("answer", 1))
+        self.assertEqual(
+            modal_order,
+            [
+                ("feedback", "flushed"),
+                ("answer", 0),
+                ("queued", "prompt"),
+                ("feedback", "flushed"),
+                ("answer", 1),
+            ],
+        )
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon.player_data["shop_market_clock"]["market_tick"],
