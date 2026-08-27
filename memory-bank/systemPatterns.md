@@ -1,5 +1,13 @@
 # System Patterns
 
+## Delivered rewards use claim records as their ledger
+
+A reward producer delivers stable claim IDs, and Bank Claims owns their
+consumption through the generic claim path. The producer derives pending counts
+and completion from those records instead of persisting a second counter; a
+versioned migration translates any retired counter once before sanitation
+removes it.
+
 ## Finite room payouts persist their eligible room ledger
 
 A fixed floor payout split across rooms stores the eligible critical-room ids

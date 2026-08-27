@@ -9,6 +9,10 @@ from typing import Dict, Mapping, Tuple, Union
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
+from .stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+    STRONGHOLD_PLAYER_SAFETY_LAMP_SOURCE,
+)
 
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 from .herblore_data import (
@@ -1112,6 +1116,7 @@ class ClaimDefinition:
     xp_amount: float = 0.0
     skill_options: Tuple[str, ...] = ()
     minimum_level: int = 1
+    delivery_required: bool = False
 
 
 @dataclass(frozen=True)
@@ -10729,6 +10734,24 @@ CLAIMS: Tuple[ClaimDefinition, ...] = (
         skill_options=("agility",),
         minimum_level=80,
     ),
+    *(
+        ClaimDefinition(
+            id=claim_id,
+            display_name=(
+                f"Stronghold of Player Safety: Antique lamp {index} (500 XP)"
+            ),
+            source=STRONGHOLD_PLAYER_SAFETY_LAMP_SOURCE,
+            claim_type="xp_lamp",
+            item_name="Antique lamp",
+            required_quest="",
+            xp_amount=500.0,
+            minimum_level=1,
+            delivery_required=True,
+        )
+        for index, claim_id in enumerate(
+            STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS, start=1
+        )
+    ),
     *_quest_lamp_claims(),
 )
 CLAIMS_BY_ID: Dict[str, ClaimDefinition] = {claim.id: claim for claim in CLAIMS}
@@ -10739,7 +10762,13 @@ def default_quest_states() -> Dict[str, Dict[str, object]]:
 
 
 def default_claim_states() -> Dict[str, Dict[str, object]]:
-    return {claim.id: {"claimed": False} for claim in CLAIMS}
+    states = {}
+    for claim in CLAIMS:
+        state = {"claimed": False}
+        if claim.delivery_required:
+            state["delivered"] = False
+        states[claim.id] = state
+    return states
 
 
 def _quest_requirement_dict(requirement: QuestPrerequisite) -> Dict[str, object]:
@@ -12015,6 +12044,7 @@ def claims_as_dict() -> Dict[str, Dict[str, object]]:
             "xp_amount": claim.xp_amount,
             "skill_options": claim.skill_options,
             "minimum_level": claim.minimum_level,
+            "delivery_required": claim.delivery_required,
         }
         for claim in CLAIMS
     }

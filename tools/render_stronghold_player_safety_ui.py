@@ -14,6 +14,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from aqt.qt import QApplication  # type: ignore
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+)
 from ankiscape.logic.stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
 )
@@ -28,18 +31,21 @@ from tools.render_fishing_trawler_ui import _dark_palette
 def _player(stage: int, *, claimed: bool = False) -> dict:
     player = _make_player_data()
     player["stronghold_player_safety"] = {
-        "version": 1,
+        "version": 2,
         "stage": stage,
         "crevice_unlocked": stage >= 2,
         "chest_claimed": claimed,
-        "lamps_remaining": 2 if claimed else 0,
         "safety_first_emote_unlocked": claimed,
         "last_result": (
-            "Opened the chest and unlocked the Safety First emote."
+            "Opened the chest · 10,000 coins, Safety gloves, and the Safety First "
+            "emote. Two 500-XP Antique lamps are ready in Bank Claims."
             if claimed
             else "Follow the jail-cell poster route to the reward chest."
         ),
     }
+    if claimed:
+        for claim_id in STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS:
+            player["claims"][claim_id] = {"claimed": False, "delivered": True}
     return player
 
 
@@ -79,7 +85,7 @@ def render(
     MainMenuWidgetTest.setUpClass()
     case = MainMenuWidgetTest(
         methodName=(
-            "test_stronghold_player_safety_chest_lamp_and_combat_entry_are_live"
+            "test_stronghold_player_safety_claims_lamps_then_marks_complete"
         )
     )
     case.setUp()
